@@ -200,6 +200,13 @@ class SelectorAlimentos:
         frutas = _priorizar_no_usados(frutas, alimentos_usados)
         grasas = _priorizar_no_usados(grasas, alimentos_usados)
 
+        # Exclusión contextual: avena solo pertenece al desayuno.
+        # Si ya fue usada en el plan y esta comida no es desayuno, quitarla de carbs.
+        if meal_idx != 0 and 'avena' in alimentos_usados:
+            carbs = [c for c in carbs if c != 'avena']
+            if not carbs:  # guardia: no dejar lista vacía
+                carbs = [c for c in list(CARBS) if c != 'avena']
+
         # --- Aplicar pesos ponderados de RotacionInteligente (si se proveen) ---
         if pesos_ponderados:
             proteinas = _ordenar_por_peso_ponderado(proteinas, pesos_ponderados)

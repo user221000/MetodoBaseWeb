@@ -770,11 +770,18 @@ class ReajustadorPlan:
         if intento >= 4 and desviacion > 5:
             diff_kcal = kcal_objetivo - kcal_actual
             if diff_kcal > 20:
-                if intento >= 5:
-                    opciones_extra = ['arroz_blanco', 'papa', 'camote', 'avena', 'pan_integral',
-                                     'frijoles', 'aguacate', 'nueces', 'banana']
+                # Opciones de carbs diferenciadas por comida (no repetir avena fuera de desayuno)
+                if meal_idx == 0:
+                    opciones_carbs_base = ['avena', 'pan_integral', 'granola', 'arroz_blanco', 'papa', 'cereal_integral']
+                elif meal_idx == 3:
+                    opciones_carbs_base = ['papa', 'camote', 'pan_integral', 'tortilla_maiz', 'quinoa']
                 else:
-                    opciones_extra = ['arroz_blanco', 'papa', 'avena', 'aguacate', 'nueces']
+                    opciones_carbs_base = ['arroz_blanco', 'arroz_integral', 'papa', 'camote', 'tortilla_maiz', 'frijoles', 'lentejas']
+
+                if intento >= 5:
+                    opciones_extra = opciones_carbs_base + ['aguacate', 'nueces', 'almendras']
+                else:
+                    opciones_extra = opciones_carbs_base[:4] + ['aguacate', 'nueces']
 
                 for ali in opciones_extra:
                     if ali not in ALIMENTOS_BASE:
@@ -806,8 +813,13 @@ class ReajustadorPlan:
     def _agregar_alimento_emergencia(cls, comida_dict: dict, kcal_faltantes: float, meal_idx: int, tipo: str):
         """Agrega un alimento de emergencia para cubrir kcal faltantes."""
         if tipo == 'carbs':
-            opciones = ['arroz_blanco', 'arroz_integral', 'papa', 'camote', 'avena', 'pan_integral',
-                     'tortilla_maiz', 'frijoles', 'banana']
+            if meal_idx == 0:  # Desayuno: avena es válida
+                opciones = ['avena', 'pan_integral', 'granola', 'arroz_blanco', 'papa', 'camote', 'cereal_integral']
+            elif meal_idx == 3:  # Cena: sin avena, preferir ligeros
+                opciones = ['papa', 'camote', 'pan_integral', 'tortilla_maiz', 'quinoa', 'lentejas']
+            else:  # Almuerzo (1) y Comida (2)
+                opciones = ['arroz_blanco', 'arroz_integral', 'papa', 'camote',
+                            'tortilla_maiz', 'frijoles', 'lentejas', 'pan_integral', 'garbanzos']
         elif tipo == 'grasa':
             opciones = ['aguacate', 'nueces', 'almendras', 'aceite_de_oliva']
         else:
@@ -835,8 +847,7 @@ class ReajustadorPlan:
     @classmethod
     def _reducir_alimentos(cls, comida_dict: dict, kcal_sobrantes: float, meal_idx: int):
         """Reduce alimentos para eliminar kcal sobrantes."""
-        carbs_set = set(['arroz_blanco', 'arroz_integral', 'papa', 'camote', 'avena',
-                        'pan_integral', 'tortilla_maiz', 'frijoles', 'banana'])
+        carbs_set = set(CATEGORIAS.get('carbs', [])) - {'platano_macho', 'granola', 'cereal_integral'}
         grasas_set = set(['aguacate', 'nueces', 'almendras', 'aceite_de_oliva', 'mantequilla_mani'])
 
         restante = kcal_sobrantes
