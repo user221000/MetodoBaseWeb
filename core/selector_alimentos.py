@@ -155,6 +155,18 @@ class SelectorAlimentos:
             otras = [p for p in proteinas if p not in alta_densidad]
             proteinas = [p for p in alta_densidad if p in proteinas] + otras
             frutas = []
+            # FIX: definir carbs y grasas para comida — NUNCA avena aquí
+            carbs = [c for c in [
+                'arroz_blanco', 'arroz_integral', 'papa', 'camote',
+                'tortilla_maiz', 'frijoles', 'lentejas', 'garbanzos',
+                'pasta_integral', 'quinoa', 'platano_macho',
+            ] if c in CARBS]
+            grasas = [g for g in [
+                'aguacate', 'aceite_de_oliva', 'nueces',
+                'mantequilla_mani', 'aceite_de_aguacate',
+            ] if g in GRASAS]
+            if not carbs:
+                carbs = [c for c in CARBS if c != 'avena']
         elif meal_idx == 3:  # cena
             excluir_cena = {'huevo', 'salmon', 'carne_magra_res', 'cerdo_lomo',
                             'sardina', 'carne_molida', 'proteina_suero',
