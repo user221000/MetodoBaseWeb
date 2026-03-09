@@ -165,6 +165,48 @@ class GymApp(ctk.CTk):
             "Objetivo", list(OBJETIVOS_VALIDOS), "mantenimiento", row=0
         )
 
+        # ═══════════════ SECCIÓN 4: TIPO DE PLAN ═══════════════
+        self.frame_tipo_plan = ctk.CTkFrame(
+            self.main_container, fg_color=self.COLOR_CARD,
+            corner_radius=12, border_width=1, border_color=self.COLOR_BORDER
+        )
+        self.frame_tipo_plan.pack(fill="x", padx=40, pady=8)
+
+        self.frame_tipo_plan_inner = ctk.CTkFrame(self.frame_tipo_plan, fg_color="transparent")
+        self.frame_tipo_plan_inner.pack(fill="x", padx=16, pady=12)
+
+        self.lbl_tipo_plan = ctk.CTkLabel(
+            self.frame_tipo_plan_inner,
+            text="Tipo de Plan:",
+            font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
+            text_color=self.COLOR_SECONDARY
+        )
+        self.lbl_tipo_plan.pack(side="left", padx=(0, 15))
+
+        self.segmented_tipo_plan = ctk.CTkSegmentedButton(
+            self.frame_tipo_plan_inner,
+            values=["Menú Fijo", "Con Opciones"],
+            command=self._cambiar_tipo_plan,
+            font=ctk.CTkFont(size=12),
+            fg_color=self.COLOR_INPUT_BG,
+            selected_color=self.COLOR_PRIMARY,
+            selected_hover_color=self.COLOR_PRIMARY_HOVER,
+            unselected_color=self.COLOR_CARD,
+            unselected_hover_color=self.COLOR_BORDER
+        )
+        self.segmented_tipo_plan.set("Menú Fijo")
+        self.segmented_tipo_plan.pack(side="left", fill="x", expand=True)
+
+        self.lbl_info_tipo = ctk.CTkLabel(
+            self.frame_tipo_plan_inner,
+            text="ℹ️",
+            font=ctk.CTkFont(size=14),
+            text_color=self.COLOR_TEXT_MUTED,
+            cursor="hand2"
+        )
+        self.lbl_info_tipo.pack(side="left", padx=(10, 0))
+        self.lbl_info_tipo.bind("<Button-1>", self._mostrar_info_tipo_plan)
+
         # ─── Bindings de validación en tiempo real ───
         self.entry_nombre.bind("<KeyRelease>", lambda e: self._validar_campo(
             self.entry_nombre, self.lbl_error_nombre, ValidadorCamposTiempoReal.validar_nombre))
@@ -478,6 +520,33 @@ class GymApp(ctk.CTk):
         self.textbox_log.insert("end", f"[{timestamp}] {mensaje}\n")
         self.textbox_log.see("end")
 
+    def _cambiar_tipo_plan(self, value):
+        """Handler para cambio de tipo de plan."""
+        logger.info("[GUI] Tipo de plan cambiado a: %s", value)
+        if value == "Con Opciones":
+            self._mostrar_toast(
+                "Plan con Opciones: El cliente podrá elegir entre alternativas equivalentes",
+                tipo='info', duracion=4000,
+            )
+
+    def _mostrar_info_tipo_plan(self, event=None):
+        """Muestra información detallada sobre tipos de plan."""
+        info = (
+            "TIPOS DE PLAN:\n\n"
+            "MENÚ FIJO:\n"
+            "• Plan con alimentos específicos\n"
+            "• Cliente sigue instrucciones exactas\n"
+            "• Máximo control nutricional\n"
+            "• Ideal para principiantes\n\n"
+            "CON OPCIONES:\n"
+            "• 3 alternativas por macronutriente\n"
+            "• Cliente elige según disponibilidad\n"
+            "• Mayor flexibilidad y adherencia\n"
+            "• Requiere educación nutricional básica\n\n"
+            "Ambos garantizan el mismo balance nutricional."
+        )
+        messagebox.showinfo("Tipos de Plan", info)
+
     def _on_procesar_click(self):
         self.btn_procesar.configure(state="disabled")
         self._show_spinner_on_button()
@@ -516,6 +585,9 @@ class GymApp(ctk.CTk):
             actividad = self.combo_actividad.get()
             objetivo = self.combo_objetivo.get()
 
+            # Determinar tipo de plan seleccionado
+            tipo_plan = self.segmented_tipo_plan.get()
+
             self.after(0, lambda: self.progress_indicator.set_progress(0.2, "Calculando metabolismo…"))
 
             cliente = ClienteEvaluacion(
@@ -534,44 +606,78 @@ class GymApp(ctk.CTk):
 
             dir_planes = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "planes")
             os.makedirs(dir_planes, exist_ok=True)
-            plan = ConstructorPlanNuevo.construir(cliente, plan_numero=1, directorio_planes=dir_planes)
-            self._log("Plan nutricional estructurado correctamente.")
-            self.after(0, lambda: self.progress_indicator.set_progress(0.65, "Mostrando vista previa…"))
 
-            # ── Vista previa: bloquear hilo hasta confirmación ──
-            confirm_event = threading.Event()
-            self._preview_confirmed = False
+            if tipo_plan == "Con Opciones":
+                # ── Modo opciones: generar plan con alternativas ──
+                from core.generador_opciones import ConstructorPlanConOpciones
+                from core.exportador_opciones import GeneradorPDFConOpciones
 
-            def on_confirm():
-                self._preview_confirmed = True
-                confirm_event.set()
+                self._log("Generando plan con OPCIONES...")
 
-            def on_cancel():
+                plan = ConstructorPlanConOpciones.construir(
+                    cliente, plan_numero=1,
+                    directorio_planes=dir_planes,
+                    num_opciones_por_macro=3,
+                )
+                self._log("Plan con opciones estructurado correctamente.")
+                self.after(0, lambda: self.progress_indicator.set_progress(0.80, "Generando PDF…"))
+
+                if not os.path.exists(CARPETA_SALIDA):
+                    os.makedirs(CARPETA_SALIDA)
+                fecha = datetime.now().strftime("%Y-%m-%d")
+                nombre_cliente_sanitizado = re.sub(r'[^a-zA-Z0-9_]', '', cliente.nombre.replace(" ", "_"))
+                carpeta_cliente = os.path.join(CARPETA_SALIDA, nombre_cliente_sanitizado)
+                os.makedirs(carpeta_cliente, exist_ok=True)
+                hora = datetime.now().strftime("%H-%M-%S")
+                nombre_pdf = f"{nombre_cliente_sanitizado}_OPCIONES_{fecha}_{hora}.pdf"
+                ruta_pdf_completa = os.path.join(carpeta_cliente, nombre_pdf)
+
+                generador = GeneradorPDFConOpciones(ruta_pdf_completa)
+                ruta_pdf = generador.generar(cliente, plan)
+                self.ultimo_pdf = ruta_pdf if ruta_pdf and os.path.exists(ruta_pdf) else None
+
+            else:
+                # ── Modo fijo: flujo original completo ──
+                self._log("Generando plan con menú FIJO...")
+
+                plan = ConstructorPlanNuevo.construir(cliente, plan_numero=1, directorio_planes=dir_planes)
+                self._log("Plan nutricional estructurado correctamente.")
+                self.after(0, lambda: self.progress_indicator.set_progress(0.65, "Mostrando vista previa…"))
+
+                # ── Vista previa: bloquear hilo hasta confirmación ──
+                confirm_event = threading.Event()
                 self._preview_confirmed = False
-                confirm_event.set()
 
-            self.after(0, lambda: PlanPreviewWindow(self, cliente, plan, on_confirm, on_cancel))
-            confirm_event.wait()
+                def on_confirm():
+                    self._preview_confirmed = True
+                    confirm_event.set()
 
-            if not self._preview_confirmed:
-                self._log("Generación cancelada por el usuario.")
-                return
+                def on_cancel():
+                    self._preview_confirmed = False
+                    confirm_event.set()
 
-            self.after(0, lambda: self.progress_indicator.set_progress(0.80, "Generando PDF…"))
+                self.after(0, lambda: PlanPreviewWindow(self, cliente, plan, on_confirm, on_cancel))
+                confirm_event.wait()
 
-            if not os.path.exists(CARPETA_SALIDA):
-                os.makedirs(CARPETA_SALIDA)
-            fecha = datetime.now().strftime("%Y-%m-%d")
-            nombre_cliente_sanitizado = re.sub(r'[^a-zA-Z0-9_]', '', cliente.nombre.replace(" ", "_"))
-            carpeta_cliente = os.path.join(CARPETA_SALIDA, nombre_cliente_sanitizado)
-            os.makedirs(carpeta_cliente, exist_ok=True)
-            hora = datetime.now().strftime("%H-%M-%S")
-            nombre_pdf = f"{nombre_cliente_sanitizado}_{fecha}_{hora}.pdf"
-            ruta_pdf_completa = os.path.join(carpeta_cliente, nombre_pdf)
+                if not self._preview_confirmed:
+                    self._log("Generación cancelada por el usuario.")
+                    return
 
-            generador = GeneradorPDFProfesional(ruta_pdf_completa)
-            ruta_pdf = generador.generar(cliente, plan)
-            self.ultimo_pdf = ruta_pdf if ruta_pdf and os.path.exists(ruta_pdf) else None
+                self.after(0, lambda: self.progress_indicator.set_progress(0.80, "Generando PDF…"))
+
+                if not os.path.exists(CARPETA_SALIDA):
+                    os.makedirs(CARPETA_SALIDA)
+                fecha = datetime.now().strftime("%Y-%m-%d")
+                nombre_cliente_sanitizado = re.sub(r'[^a-zA-Z0-9_]', '', cliente.nombre.replace(" ", "_"))
+                carpeta_cliente = os.path.join(CARPETA_SALIDA, nombre_cliente_sanitizado)
+                os.makedirs(carpeta_cliente, exist_ok=True)
+                hora = datetime.now().strftime("%H-%M-%S")
+                nombre_pdf = f"{nombre_cliente_sanitizado}_{fecha}_{hora}.pdf"
+                ruta_pdf_completa = os.path.join(carpeta_cliente, nombre_pdf)
+
+                generador = GeneradorPDFProfesional(ruta_pdf_completa)
+                ruta_pdf = generador.generar(cliente, plan)
+                self.ultimo_pdf = ruta_pdf if ruta_pdf and os.path.exists(ruta_pdf) else None
 
             self.after(0, lambda: self.btn_abrir_pdf.configure(state="normal" if self.ultimo_pdf else "disabled"))
             self.after(0, lambda: self.btn_whatsapp.configure(state="normal" if self.ultimo_pdf else "disabled"))
@@ -585,9 +691,26 @@ class GymApp(ctk.CTk):
                 except Exception as e:
                     self._log(f"No se pudo abrir el PDF: {e}")
 
+            # Estadísticas y registro en BD
             comidas = ['desayuno', 'almuerzo', 'comida', 'cena']
-            kcal_real = sum(plan[c].get('kcal_real', 0) for c in comidas if c in plan)
-            desv_max = max(plan[c].get('desviacion_pct', 0) for c in comidas if c in plan)
+            if tipo_plan == "Con Opciones":
+                kcal_total = sum(
+                    plan.get(c, {}).get('kcal_objetivo', 0)
+                    for c in comidas if c in plan
+                )
+                self._log(
+                    f"PLAN OPCIONES — {nombre} | {objetivo.upper()} | "
+                    f"Kcal obj: {cliente.kcal_objetivo:.0f} | "
+                    f"Tipo: Con Opciones"
+                )
+            else:
+                kcal_real = sum(plan[c].get('kcal_real', 0) for c in comidas if c in plan)
+                desv_max = max(plan[c].get('desviacion_pct', 0) for c in comidas if c in plan)
+                self._log(
+                    f"PLAN GENERADO — {nombre} | {objetivo.upper()} | "
+                    f"Kcal obj: {cliente.kcal_objetivo:.0f} | "
+                    f"Kcal real: {kcal_real:.0f} | Desv. máx: {desv_max:.2f}%"
+                )
 
             # Registrar cliente y plan en BD
             if self.gestor_bd:
@@ -595,9 +718,6 @@ class GymApp(ctk.CTk):
                 if self.ultimo_pdf:
                     self.gestor_bd.registrar_plan_generado(cliente, plan, self.ultimo_pdf)
 
-            self._log(f"PLAN GENERADO — {nombre} | {objetivo.upper()} | "
-                      f"Kcal obj: {cliente.kcal_objetivo:.0f} | "
-                      f"Kcal real: {kcal_real:.0f} | Desv. máx: {desv_max:.2f}%")
             self._log(f"PDF: {ruta_pdf}")
 
         except ValueError as ve:
