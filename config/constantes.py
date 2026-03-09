@@ -13,30 +13,41 @@ LEAN_PROTEINS = {
     "pechuga_de_pollo",
     "pescado_blanco",
     "atun",
-    "claras_huevo"
+    "claras_huevo",
+    "pavo",
+    "cerdo_lomo",
+    "camarones",
+    "jamon_pavo",
 }
 
 FATTY_PROTEINS = {
     "salmon",
     "huevo",
     "carne_molida",
-    "carne_magra_res"
+    "carne_magra_res",
+    "sardina",
+    "queso_panela",
 }
 
 LIGHT_FATS = {
     "aceite_de_oliva",
-    "aceite_de_aguacate"
+    "aceite_de_aguacate",
 }
 
 HEAVY_FATS = {
     "mantequilla_mani",
     "almendras",
     "nueces",
-    "aguacate"
+    "aguacate",
+    "cacahuates",
+    "semillas_girasol",
+    "semillas_chia",
 }
 
 PROTEIN_FOODS = LEAN_PROTEINS | FATTY_PROTEINS | {
-    "queso_panela", "proteina_suero", "yogurt_griego_light", "pescado_blanco", "carne_magra_res"
+    "queso_panela", "proteina_suero", "yogurt_griego_light", "yogurt_natural",
+    "queso_cottage", "leche_descremada", "tofu",
+    "pescado_blanco", "carne_magra_res",
 }
 
 
@@ -161,7 +172,7 @@ MINIMOS_POR_ALIMENTO = {
     'pan_integral': 50,
     'pan_blanco': 50,
     'tortilla_maiz': 2,
-    'banana': 100,
+    'platano': 100,
     'arroz_blanco': 50,
     'arroz_integral': 50,
     'papa': 80,
@@ -173,6 +184,31 @@ MINIMOS_POR_ALIMENTO = {
     'almendras': 20,
     'nueces': 20,
     'aguacate': 80,
+    'frijoles': 50,
+    'lentejas': 50,
+    'garbanzos': 50,
+    'pasta_integral': 50,
+    'quinoa': 50,
+    'elote': 80,
+    'platano_macho': 80,
+    'tortilla_harina': 30,
+    'cereal_integral': 30,
+    'granola': 20,
+    'atun': 80,
+    'carne_molida': 80,
+    'pavo': 80,
+    'cerdo_lomo': 80,
+    'camarones': 80,
+    'sardina': 60,
+    'queso_cottage': 50,
+    'yogurt_natural': 100,
+    'jamon_pavo': 30,
+    'leche_descremada': 100,
+    'tofu': 80,
+    'aceite_de_aguacate': 5,
+    'semillas_girasol': 15,
+    'semillas_chia': 10,
+    'cacahuates': 20,
 }
 
 
@@ -189,35 +225,57 @@ ALIMENTOS_LIMITE_ESTRICTO = {'frijoles'}
 
 LIMITES_DUROS_ALIMENTOS = {
     # PROTEÍNAS (g por comida)
-    'huevo':               200,   # ~4 huevos
+    'huevo':               200,
     'pechuga_de_pollo':    200,
     'carne_magra_res':     180,
     'pescado_blanco':      200,
-    'salmon':              150,   # más caro
+    'salmon':              150,
     'claras_huevo':        300,
     'queso_panela':        100,
     'yogurt_griego_light': 200,
-    'yogurt':              200,
-    'proteina_suero':       40,   # ~1 scoop
+    'yogurt_natural':      200,
+    'proteina_suero':       40,
+    'atun':                200,
+    'carne_molida':        200,
+    'pavo':                250,
+    'cerdo_lomo':          200,
+    'camarones':           200,
+    'sardina':             120,
+    'queso_cottage':       200,
+    'jamon_pavo':          100,
+    'leche_descremada':    300,
+    'tofu':                200,
     # CARBOHIDRATOS
-    'arroz_blanco':        200,   # ~2 tazas cocido
+    'arroz_blanco':        200,
     'arroz_integral':      200,
     'papa':                250,
     'camote':              250,
-    'avena':               100,   # ~1 taza
-    'pan_integral':        100,   # ~3 rebanadas
-    'tortilla_maiz':       120,   # ~4 tortillas
-    'frijoles':            250,   # muy económico y nutritivo
+    'avena':               100,
+    'pan_integral':        100,
+    'tortilla_maiz':       120,
+    'frijoles':            250,
     'lentejas':            200,
-    'banana':              200,   # ~2 bananas
+    'garbanzos':           200,
+    'pasta_integral':      250,
+    'quinoa':              200,
+    'elote':               200,
+    'platano_macho':       200,
+    'tortilla_harina':     100,
+    'pan_blanco':          100,
+    'cereal_integral':      80,
+    'granola':              60,
     'platano':             200,
     # GRASAS
-    'aguacate':            100,   # ~1 aguacate mediano
+    'aguacate':            100,
     'nueces':               40,
     'almendras':            40,
-    'aceite_de_oliva':      20,   # ~2 cucharadas
+    'aceite_de_oliva':      20,
     'mantequilla_mani':     30,
-    # VEGETALES (fibra, sin límite estricto)
+    'aceite_de_aguacate':   20,
+    'semillas_girasol':     40,
+    'semillas_chia':        30,
+    'cacahuates':           50,
+    # VEGETALES
     'brocoli':             300,
     'espinaca':            300,
     'lechuga_romana':      300,
@@ -227,6 +285,17 @@ LIMITES_DUROS_ALIMENTOS = {
     'calabaza':            300,
     'calabacita':          300,
     'col':                 300,
+    'champiñones':         300,
+    'coliflor':            300,
+    'nopal':               300,
+    'ejotes':              300,
+    'chayote':             300,
+    'apio':                300,
+    'pimiento_verde':      300,
+    'pimiento_rojo':       300,
+    'cebolla':             200,
+    'jicama':              300,
+    'betabel':             300,
 }
 
 
@@ -236,21 +305,34 @@ LIMITES_DUROS_ALIMENTOS = {
 
 FRECUENCIA_MAXIMA_SEMANAL: dict[str, int] = {
     # Alimentos de costo elevado o ingesta limitada
-    'salmon':          2,
-    'aguacate':        4,
-    'proteina_suero':  5,
-    'nueces':          5,
-    'almendras':       5,
+    'salmon':              2,
+    'aguacate':            4,
+    'proteina_suero':      5,
+    'nueces':              5,
+    'almendras':           5,
+    'camarones':           3,
+    'sardina':             3,
+    'atun':                3,
+    'semillas_chia':       5,
+    'semillas_girasol':    5,
+    'cacahuates':          5,
+    'aceite_de_aguacate':  5,
+    'granola':             4,
     # Alimentos económicos: sin restricción práctica
-    'frijoles':       99,
-    'lentejas':       99,
-    'huevo':          99,
-    'arroz_blanco':   99,
-    'arroz_integral': 99,
-    'papa':           99,
-    'camote':         99,
-    'avena':          99,
-    'tortilla_maiz':  99,
+    'frijoles':           99,
+    'lentejas':           99,
+    'garbanzos':          99,
+    'huevo':              99,
+    'arroz_blanco':       99,
+    'arroz_integral':     99,
+    'papa':               99,
+    'camote':             99,
+    'avena':              99,
+    'tortilla_maiz':      99,
+    'pasta_integral':     99,
+    'quinoa':             99,
+    'elote':              99,
+    'platano_macho':      99,
 }
 
 
@@ -259,23 +341,27 @@ FRECUENCIA_MAXIMA_SEMANAL: dict[str, int] = {
 # ============================================================================
 
 PROTEINAS_ESTRUCTURALES = {
-    'pechuga_de_pollo', 'carne_magra_res', 'pescado_blanco', 'salmon'
+    'pechuga_de_pollo', 'carne_magra_res', 'pescado_blanco', 'salmon',
+    'atun', 'pavo', 'cerdo_lomo', 'camarones',
 }
 
 PROTEINAS_MIXTAS = {
-    'huevo', 'yogurt', 'frijoles', 'lentejas', 'queso_panela'
+    'huevo', 'frijoles', 'lentejas', 'queso_panela',
+    'queso_cottage', 'yogurt_griego_light', 'yogurt_natural', 'tofu', 'sardina',
 }
 
 CARBOS_DENSOS = {
-    'arroz_blanco', 'arroz_integral', 'papa', 'camote'
+    'arroz_blanco', 'arroz_integral', 'papa', 'camote',
+    'pasta_integral', 'quinoa', 'platano_macho',
 }
 
 CARBOS_SECUNDARIOS = {
-    'pan_integral', 'tortilla_maiz', 'avena', 'banana'
+    'pan_integral', 'tortilla_maiz', 'avena', 'tortilla_harina',
+    'pan_blanco', 'cereal_integral', 'granola', 'elote',
 }
 
 LEGUMINOSAS = {
-    'frijoles', 'lentejas', 'garbanzos'
+    'frijoles', 'lentejas', 'garbanzos',
 }
 
 

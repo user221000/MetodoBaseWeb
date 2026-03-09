@@ -122,38 +122,52 @@ class SelectorAlimentos:
         
         # Ajustes por comida
         if meal_idx == 0:  # desayuno
-            preferidas = ['huevo', 'claras_huevo', 'proteina_suero']
+            preferidas = ['huevo', 'claras_huevo', 'proteina_suero',
+                          'yogurt_griego_light', 'yogurt_natural', 'jamon_pavo']
             otras = [p for p in proteinas if p not in preferidas]
             proteinas = [p for p in preferidas if p in proteinas] + otras
             if not proteinas:
                 proteinas = ['huevo', 'claras_huevo', 'proteina_suero']
-            carbs = [c for c in ['avena', 'pan_integral', 'tortilla_maiz'] if c in CARBS]
-            grasas = [g for g in ['almendras', 'nueces'] if g in GRASAS]
+            carbs = [c for c in ['avena', 'pan_integral', 'granola',
+                                 'cereal_integral', 'tortilla_maiz'] if c in CARBS]
+            grasas = [g for g in ['almendras', 'nueces', 'semillas_chia',
+                                  'mantequilla_mani'] if g in GRASAS]
         elif meal_idx == 1:  # almuerzo
-            proteinas = [p for p in proteinas if p != 'yogurt_griego_light']
-            ligeras = ['queso_panela', 'pescado_blanco', 'pechuga_de_pollo']
+            excluir_prot = {'yogurt_griego_light', 'yogurt_natural',
+                            'proteina_suero', 'leche_descremada'}
+            proteinas = [p for p in proteinas if p not in excluir_prot]
+            ligeras = ['pechuga_de_pollo', 'atun', 'pescado_blanco',
+                       'queso_panela', 'jamon_pavo', 'pavo', 'camarones']
             otras = [p for p in proteinas if p not in ligeras]
             proteinas = [p for p in ligeras if p in proteinas] + otras
-            carbs = [c for c in carbs if c != 'arroz_blanco']
-            if 'tortilla_maiz' in carbs:
-                carbs = ['tortilla_maiz'] + [c for c in carbs if c != 'tortilla_maiz']
-            grasas = [g for g in ['aguacate', 'nueces', 'mantequilla_mani'] if g in GRASAS]
+            carbs = [c for c in ['tortilla_maiz', 'arroz_blanco', 'frijoles',
+                                 'papa', 'lentejas', 'elote'] if c in CARBS]
+            grasas = [g for g in ['aguacate', 'nueces', 'cacahuates',
+                                  'semillas_girasol'] if g in GRASAS]
         elif meal_idx == 2:  # comida
-            proteinas = [p for p in proteinas if p not in ('huevo', 'claras_huevo')]
-            proteinas = [p for p in proteinas if p != 'yogurt_griego_light']
-            proteinas = [p for p in proteinas if p != 'queso_panela']
-            alta_densidad = ['pechuga_de_pollo', 'salmon', 'carne_magra_res', 'pescado_blanco']
+            excluir_comida = {'huevo', 'claras_huevo', 'yogurt_griego_light',
+                              'yogurt_natural', 'queso_panela', 'queso_cottage',
+                              'proteina_suero', 'leche_descremada', 'jamon_pavo', 'tofu'}
+            proteinas = [p for p in proteinas if p not in excluir_comida]
+            alta_densidad = ['pechuga_de_pollo', 'carne_magra_res', 'salmon',
+                             'pescado_blanco', 'cerdo_lomo', 'atun', 'pavo',
+                             'camarones', 'sardina', 'carne_molida']
             otras = [p for p in proteinas if p not in alta_densidad]
             proteinas = [p for p in alta_densidad if p in proteinas] + otras
             frutas = []
         elif meal_idx == 3:  # cena
-            proteinas = [p for p in proteinas if p not in ('huevo', 'claras_huevo')]
-            proteinas = [p for p in proteinas if p not in ('salmon', 'carne_magra_res', 'queso_panela', 'yogurt_griego_light')]
-            proteinas = [p for p in proteinas if p != 'proteina_suero']
-            dense = ['arroz_blanco', 'arroz_integral', 'papa', 'camote']
-            other = [c for c in carbs if c not in dense]
-            carbs = other + [c for c in dense if c in carbs]
-            carbs = [c for c in carbs if c != 'tortilla_maiz']
+            excluir_cena = {'huevo', 'salmon', 'carne_magra_res', 'cerdo_lomo',
+                            'sardina', 'carne_molida', 'proteina_suero',
+                            'yogurt_natural', 'leche_descremada'}
+            proteinas = [p for p in proteinas if p not in excluir_cena]
+            ligeras_cena = ['pechuga_de_pollo', 'pescado_blanco', 'claras_huevo',
+                            'pavo', 'camarones', 'queso_cottage', 'atun', 'tofu']
+            otras = [p for p in proteinas if p not in ligeras_cena]
+            proteinas = [p for p in ligeras_cena if p in proteinas] + otras
+            dense = {'arroz_blanco', 'arroz_integral', 'pasta_integral',
+                     'frijoles', 'garbanzos', 'platano_macho'}
+            carbs = [c for c in carbs if c not in dense] + [c for c in carbs if c in dense]
+            carbs = [c for c in carbs if c != 'tortilla_harina']
             grasas = [g for g in grasas if g != 'aguacate']
         
         # Aplicar rotación determinista
