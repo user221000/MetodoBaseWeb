@@ -1,6 +1,7 @@
 """CAPA 3: Distribución, cálculo de gramos, reajuste y validación energética."""
 import random
 
+from utils.logger import logger
 from config.constantes import (
     PROTEINAS_ESTRUCTURALES, PROTEINAS_MIXTAS, LEGUMINOSAS,
     LIMITES_DUROS_ALIMENTOS, MINIMOS_POR_ALIMENTO, ALIMENTOS_LIMITE_ESTRICTO,
@@ -48,6 +49,14 @@ class DistribuidorComidas:
                 'carbs': carbs_g * 0.25,
             },
         }
+        logger.info(
+            "[DISTRIBUIDOR] carbs por comida — desayuno: %.1fg, almuerzo: %.1fg, "
+            "comida: %.1fg, cena: %.1fg",
+            distribucion['desayuno']['carbs'],
+            distribucion['almuerzo']['carbs'],
+            distribucion['comida']['carbs'],
+            distribucion['cena']['carbs'],
+        )
         return distribucion
 
 

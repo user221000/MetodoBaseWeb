@@ -231,13 +231,19 @@ class GeneradorPDFConOpciones:
             )
 
         # CARBOHIDRATOS
-        if datos.get('carbohidratos', {}).get('opciones'):
+        _carbs_datos = datos.get('carbohidratos', {})
+        if _carbs_datos.get('opciones'):
             y = self._dibujar_seccion_macro(
                 c, y, "CARBOHIDRATOS",
-                datos['carbohidratos']['cantidad_objetivo'],
-                datos['carbohidratos']['opciones'],
+                _carbs_datos['cantidad_objetivo'],
+                _carbs_datos['opciones'],
                 "carbohidratos",
             )
+        else:
+            c.setFont(_FONT, 10)
+            c.setFillColor(colors.HexColor("#888888"))
+            c.drawString(margin_x + 10, y, "CARBOHIDRATOS: No disponible para esta comida")
+            y -= 14
 
         # GRASAS
         if datos.get('grasas', {}).get('opciones'):

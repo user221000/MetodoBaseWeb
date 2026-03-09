@@ -256,21 +256,37 @@ class GeneradorOpcionesEquivalentes:
         prioridades = {
             0: ['avena', 'pan_integral', 'tortilla_maiz'],
             1: ['arroz_blanco', 'papa', 'tortilla_maiz', 'camote'],
-            2: ['arroz_integral', 'camote', 'papa'],
-            3: ['papa', 'arroz_blanco', 'camote'],
+            2: ['arroz_integral', 'camote', 'papa', 'frijoles', 'quinoa'],
+            3: ['papa', 'arroz_blanco', 'camote', 'tortilla_maiz'],
         }.get(meal_idx, [])
+
+        # FIX: avena es exclusiva del desayuno (meal_idx=0).
+        # Para almuerzo, comida y cena excluirla del pool de candidatos.
+        if meal_idx == 0:
+            lista_carbs = CATEGORIAS['carbs']
+        else:
+            lista_carbs = [c for c in CATEGORIAS['carbs'] if c != 'avena']
+
+        # FIX: Si el objetivo es 0 o muy bajo, usar mínimo representativo
+        if gramos_carbs_objetivo <= 5:
+            logger.warning(
+                "[OPCIONES] meal_idx=%d: gramos_carbs_objetivo=%.1f muy bajo, "
+                "se usará mínimo de 30g para generar opciones representativas",
+                meal_idx, gramos_carbs_objetivo,
+            )
+            gramos_carbs_objetivo = 30.0
 
         return GeneradorOpcionesEquivalentes._generar_opciones_macro(
             macro_objetivo=gramos_carbs_objetivo,
             tipo_macro='carbs',
-            lista_alimentos=CATEGORIAS['carbs'],
+            lista_alimentos=lista_carbs,
             prioridades_comida=prioridades,
             meal_idx=meal_idx,
             num_opciones=num_opciones,
             penalizados=penalizados,
             seed=seed,
             seed_offset=100,
-            umbral_minimo=0.5,
+            umbral_minimo=0.4,  # FIX: bajado de 0.5 para mayor tolerancia
         )
 
     @staticmethod
