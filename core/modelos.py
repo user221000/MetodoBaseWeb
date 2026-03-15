@@ -17,6 +17,7 @@ class ClienteEvaluacion:
     grasa_corporal_pct: float | None = None
     nivel_actividad: str | None = None
     objetivo: str | None = None
+    plantilla_tipo: str = "general"
     
     # ID único OPCIONAL (con defaults)
     id_cliente: str = field(default_factory=lambda: str(uuid.uuid4())[:8].upper())

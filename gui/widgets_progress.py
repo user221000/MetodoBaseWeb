@@ -23,7 +23,7 @@ class ProgressIndicator(ctk.CTkFrame):
 
         # Etiqueta de estado
         self.lbl_estado = ctk.CTkLabel(
-            self, text="Iniciando…", anchor="w",
+            self, text="Preparando flujo de trabajo...", anchor="w",
             font=ctk.CTkFont(family="Segoe UI", size=12),
             text_color="#CCCCCC",
         )
@@ -71,8 +71,118 @@ class ProgressIndicator(ctk.CTkFrame):
         """Reinicia el indicador."""
         self.barra.set(0)
         self.barra.configure(progress_color="#9B4FB0")
-        self.lbl_estado.configure(text="Iniciando…", text_color="#CCCCCC")
+        self.lbl_estado.configure(text="Preparando flujo de trabajo...", text_color="#CCCCCC")
         self.lbl_pct.configure(text="0%", text_color="#9B4FB0")
+
+
+class StepFlowIndicator(ctk.CTkFrame):
+    """Indicador visual de pasos: Captura -> Preview -> Exportar."""
+
+    COLOR_BG = "#1E1E1E"
+    COLOR_BORDER = "#444444"
+    COLOR_TEXT = "#F5F5F5"
+    COLOR_MUTED = "#A8A8A8"
+    COLOR_ACTIVE = "#9B4FB0"
+    COLOR_DONE = "#4CAF50"
+
+    def __init__(self, master, **kwargs):
+        super().__init__(
+            master,
+            fg_color=self.COLOR_BG,
+            corner_radius=10,
+            border_width=1,
+            border_color=self.COLOR_BORDER,
+            **kwargs,
+        )
+        self.steps = ["Captura", "Preview", "Exportar"]
+        self._active_step = 0
+        self._completed_steps = set()
+        self._dots = []
+        self._labels = []
+        self._connectors = []
+        self._build()
+        self.set_step(0)
+
+    def _build(self) -> None:
+        title = ctk.CTkLabel(
+            self,
+            text="Flujo de trabajo",
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+            text_color=self.COLOR_TEXT,
+        )
+        title.pack(anchor="w", padx=14, pady=(10, 0))
+
+        row = ctk.CTkFrame(self, fg_color="transparent")
+        row.pack(fill="x", padx=14, pady=(6, 8))
+        row.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+
+        for i, step in enumerate(self.steps):
+            cell = i * 2
+            dot = ctk.CTkLabel(
+                row,
+                text=str(i + 1),
+                width=28,
+                height=28,
+                corner_radius=14,
+                fg_color="#2A2A2A",
+                text_color=self.COLOR_MUTED,
+                font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+            )
+            dot.grid(row=0, column=cell, pady=(0, 4))
+            self._dots.append(dot)
+
+            label = ctk.CTkLabel(
+                row,
+                text=step,
+                font=ctk.CTkFont(family="Segoe UI", size=11),
+                text_color=self.COLOR_MUTED,
+            )
+            label.grid(row=1, column=cell)
+            self._labels.append(label)
+
+            if i < len(self.steps) - 1:
+                connector = ctk.CTkFrame(
+                    row,
+                    height=2,
+                    fg_color=self.COLOR_BORDER,
+                    corner_radius=2,
+                )
+                connector.grid(row=0, column=cell + 1, sticky="ew", padx=6)
+                self._connectors.append(connector)
+
+    def set_step(self, step_idx: int) -> None:
+        self._active_step = max(0, min(step_idx, len(self.steps) - 1))
+        self._paint()
+
+    def complete_step(self, step_idx: int) -> None:
+        if 0 <= step_idx < len(self.steps):
+            self._completed_steps.add(step_idx)
+            self._paint()
+
+    def reset(self) -> None:
+        self._active_step = 0
+        self._completed_steps.clear()
+        self._paint()
+
+    def _paint(self) -> None:
+        for idx, dot in enumerate(self._dots):
+            if idx in self._completed_steps:
+                dot.configure(text="✓", fg_color=self.COLOR_DONE, text_color="#FFFFFF")
+                self._labels[idx].configure(text_color=self.COLOR_DONE)
+            elif idx == self._active_step:
+                dot.configure(text=str(idx + 1), fg_color=self.COLOR_ACTIVE, text_color="#FFFFFF")
+                self._labels[idx].configure(text_color=self.COLOR_TEXT)
+            else:
+                dot.configure(text=str(idx + 1), fg_color="#2A2A2A", text_color=self.COLOR_MUTED)
+                self._labels[idx].configure(text_color=self.COLOR_MUTED)
+
+        for idx, connector in enumerate(self._connectors):
+            if idx in self._completed_steps:
+                connector.configure(fg_color=self.COLOR_DONE)
+            elif idx < self._active_step:
+                connector.configure(fg_color=self.COLOR_ACTIVE)
+            else:
+                connector.configure(fg_color=self.COLOR_BORDER)
 
 
 class SpinnerIndicator(ctk.CTkFrame):

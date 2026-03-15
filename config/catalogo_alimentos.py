@@ -51,3 +51,72 @@ def categoria_de(alimento: str) -> str | None:
         if alimento in items:
             return tipo
     return None
+
+
+def _refrescar_lista(nombre: str, nuevos: list[str]) -> None:
+    actual = globals().get(nombre)
+    if isinstance(actual, list):
+        actual.clear()
+        actual.extend(nuevos)
+    else:
+        globals()[nombre] = list(nuevos)
+
+
+def _refrescar_set(nombre: str, nuevos: set[str]) -> None:
+    actual = globals().get(nombre)
+    if isinstance(actual, set):
+        actual.clear()
+        actual.update(nuevos)
+    else:
+        globals()[nombre] = set(nuevos)
+
+
+def _refrescar_dict(nombre: str, nuevos: dict) -> None:
+    actual = globals().get(nombre)
+    if isinstance(actual, dict):
+        actual.clear()
+        actual.update(nuevos)
+    else:
+        globals()[nombre] = dict(nuevos)
+
+
+def refrescar_catalogo() -> None:
+    """Refresca listas/sets/dicts desde CATEGORIAS (sin romper referencias)."""
+    nuevas_proteinas = list(CATEGORIAS.get('proteina', []))
+    nuevas_carbs = list(CATEGORIAS.get('carbs', []))
+    nuevas_grasas = list(CATEGORIAS.get('grasa', []))
+    nuevas_verduras = list(CATEGORIAS.get('verdura', []))
+    nuevas_frutas = list(CATEGORIAS.get('fruta', []))
+
+    _refrescar_lista("PROTEINAS", nuevas_proteinas)
+    _refrescar_lista("CARBS", nuevas_carbs)
+    _refrescar_lista("GRASAS", nuevas_grasas)
+    _refrescar_lista("VERDURAS", nuevas_verduras)
+    _refrescar_lista("FRUTAS", nuevas_frutas)
+
+    _refrescar_set("PROTEINAS_SET", set(nuevas_proteinas))
+    _refrescar_set("CARBS_SET", set(nuevas_carbs))
+    _refrescar_set("GRASAS_SET", set(nuevas_grasas))
+    _refrescar_set("VERDURAS_SET", set(nuevas_verduras))
+    _refrescar_set("FRUTAS_SET", set(nuevas_frutas))
+
+    _refrescar_dict(
+        "CATALOGO_POR_TIPO",
+        {
+            'proteina': PROTEINAS,
+            'carbs': CARBS,
+            'grasa': GRASAS,
+            'verdura': VERDURAS,
+            'fruta': FRUTAS,
+        },
+    )
+    _refrescar_dict(
+        "CATALOGO_SETS",
+        {
+            'proteina': PROTEINAS_SET,
+            'carbs': CARBS_SET,
+            'grasa': GRASAS_SET,
+            'verdura': VERDURAS_SET,
+            'fruta': FRUTAS_SET,
+        },
+    )

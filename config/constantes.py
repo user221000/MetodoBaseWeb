@@ -23,7 +23,9 @@ LEAN_PROTEINS = {
     "atun",  # TODO: verificar nombre — no existe en ALIMENTOS_BASE
     "claras_huevo",
     "pavo",
+    "pavo_molido_93",
     "cerdo_lomo",
+    "lomo_cerdo",
     "camarones",
     "jamon_pavo",
 }
@@ -50,11 +52,16 @@ HEAVY_FATS = {
     "cacahuates",
     "semillas_girasol",
     "semillas_chia",
+    "pistaches",
+    "semillas_calabaza",
+    "linaza",
+    "aceitunas_verdes",
 }
 
 PROTEIN_FOODS = LEAN_PROTEINS | FATTY_PROTEINS | {
     "queso_panela", "proteina_suero", "yogurt_griego_light", "yogurt_natural",
     "queso_cottage", "leche_descremada", "tofu",
+    "queso_cottage_bajo_grasa", "edamame_cocido",
     "pescado_blanco", "carne_magra_res",
 }
 
@@ -163,8 +170,12 @@ EXPLICACION_OBJETIVOS = {
 _appdata_root = os.getenv("APPDATA")
 if _appdata_root:
     APP_DATA_DIR = Path(_appdata_root) / "MetodoBase"
-else:
+elif sys.platform == "win32":
     APP_DATA_DIR = Path.home() / "AppData" / "Roaming" / "MetodoBase"
+else:
+    # Linux / macOS: usar XDG o ~/.local/share
+    _xdg = os.getenv("XDG_DATA_HOME", str(Path.home() / ".local" / "share"))
+    APP_DATA_DIR = Path(_xdg) / "MetodoBase"
 
 CARPETA_CONFIG = str(APP_DATA_DIR / "config")
 CARPETA_REGISTROS = str(APP_DATA_DIR / "registros")
@@ -215,14 +226,26 @@ MINIMOS_POR_ALIMENTO = {
     'camarones': 80,
     'sardina': 60,
     'queso_cottage': 50,
+    'queso_cottage_bajo_grasa': 80,
     'yogurt_natural': 100,
     'jamon_pavo': 30,
     'leche_descremada': 100,
     'tofu': 80,
+    'pavo_molido_93': 100,
+    'lomo_cerdo': 100,
+    'edamame_cocido': 80,
+    'yuca': 80,
+    'bulgur': 60,
+    'cebada_perlada': 60,
+    'cuscus': 60,
     'aceite_de_aguacate': 5,
     'semillas_girasol': 15,
     'semillas_chia': 10,
     'cacahuates': 20,
+    'pistaches': 20,
+    'semillas_calabaza': 15,
+    'linaza': 10,
+    'aceitunas_verdes': 30,
 }
 
 
@@ -259,6 +282,10 @@ LIMITES_DUROS_ALIMENTOS = {
     'jamon_pavo':          100,
     'leche_descremada':    300,
     'tofu':                200,
+    'pavo_molido_93':      220,
+    'lomo_cerdo':          220,
+    'queso_cottage_bajo_grasa': 220,
+    'edamame_cocido':      180,
     # CARBOHIDRATOS
     'arroz_blanco':        200,
     'arroz_integral':      200,
@@ -279,6 +306,10 @@ LIMITES_DUROS_ALIMENTOS = {
     'cereal_integral':      80,
     'granola':              60,
     'platano':             200,
+    'yuca':                250,
+    'bulgur':              220,
+    'cebada_perlada':      220,
+    'cuscus':              220,
     # GRASAS
     'aguacate':            100,
     'nueces':               40,
@@ -289,6 +320,10 @@ LIMITES_DUROS_ALIMENTOS = {
     'semillas_girasol':     40,
     'semillas_chia':        30,
     'cacahuates':           50,
+    'pistaches':            40,
+    'semillas_calabaza':    35,
+    'linaza':               20,
+    'aceitunas_verdes':     80,
     # VEGETALES
     'brocoli':             300,
     'espinaca':            300,
@@ -310,6 +345,10 @@ LIMITES_DUROS_ALIMENTOS = {
     'cebolla':             200,
     'jicama':              300,
     'betabel':             300,
+    'esparragos':          300,
+    'berenjena':           300,
+    'coles_bruselas':      300,
+    'alcachofa':           250,
 }
 
 
@@ -332,6 +371,14 @@ FRECUENCIA_MAXIMA_SEMANAL: dict[str, int] = {
     'cacahuates':          5,
     'aceite_de_aguacate':  5,
     'granola':             4,
+    'pavo_molido_93':      4,
+    'lomo_cerdo':          4,
+    'queso_cottage_bajo_grasa': 5,
+    'edamame_cocido':      5,
+    'pistaches':           5,
+    'semillas_calabaza':   5,
+    'linaza':              5,
+    'aceitunas_verdes':    5,
     # Alimentos económicos: sin restricción práctica
     'frijoles':           99,
     'lentejas':           99,
@@ -356,17 +403,20 @@ FRECUENCIA_MAXIMA_SEMANAL: dict[str, int] = {
 
 PROTEINAS_ESTRUCTURALES = {
     'pechuga_de_pollo', 'carne_magra_res', 'pescado_blanco', 'salmon',
-    'atun', 'pavo', 'cerdo_lomo', 'camarones',  # TODO: atun — verificar nombre
+    'atun', 'pavo', 'cerdo_lomo', 'camarones',
+    'pavo_molido_93', 'lomo_cerdo',  # TODO: atun — verificar nombre
 }
 
 PROTEINAS_MIXTAS = {
     'huevo', 'frijoles', 'lentejas', 'queso_panela',
-    'queso_cottage', 'yogurt_griego_light', 'yogurt_natural', 'tofu', 'sardina',
+    'queso_cottage', 'queso_cottage_bajo_grasa', 'yogurt_griego_light',
+    'yogurt_natural', 'tofu', 'sardina', 'edamame_cocido',
 }
 
 CARBOS_DENSOS = {
     'arroz_blanco', 'arroz_integral', 'papa', 'camote',
     'pasta_integral', 'quinoa', 'platano_macho',
+    'yuca', 'bulgur', 'cebada_perlada', 'cuscus',
 }
 
 CARBOS_SECUNDARIOS = {

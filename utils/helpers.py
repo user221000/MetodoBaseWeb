@@ -36,6 +36,48 @@ def abrir_carpeta_pdf(ruta: str | None = None) -> None:
         logger.warning("No se pudo abrir carpeta %s: %s", carpeta, exc)
 
 
+def centrar_ventana(ventana, ancho: int, alto: int) -> None:
+    """Centra una ventana Tk/CTk en la pantalla actual."""
+    ventana.update_idletasks()
+    x = (ventana.winfo_screenwidth() // 2) - (ancho // 2)
+    y = (ventana.winfo_screenheight() // 2) - (alto // 2)
+    ventana.geometry(f"{ancho}x{alto}+{x}+{y}")
+
+
+def activar_modal_seguro(ventana, parent=None) -> None:
+    """Activa comportamiento modal sólo cuando la ventana ya es visible.
+
+    En Linux/X11, ``grab_set()`` puede fallar con "window not viewable"
+    si se invoca antes de que el Toplevel termine de mapearse.
+    """
+    if parent is not None:
+        try:
+            ventana.transient(parent)
+        except Exception as exc:
+            logger.warning("No se pudo configurar transient en %s: %s", ventana, exc)
+
+    try:
+        ventana.update_idletasks()
+        ventana.wait_visibility()
+    except Exception as exc:
+        logger.warning("No se pudo esperar visibilidad de %s: %s", ventana, exc)
+
+    try:
+        ventana.lift()
+    except Exception as exc:
+        logger.warning("No se pudo elevar la ventana %s: %s", ventana, exc)
+
+    try:
+        ventana.grab_set()
+    except Exception as exc:
+        logger.warning("No se pudo aplicar grab modal en %s: %s", ventana, exc)
+
+    try:
+        ventana.focus_force()
+    except Exception as exc:
+        logger.warning("No se pudo enfocar la ventana %s: %s", ventana, exc)
+
+
 def cargar_plan_anterior_cliente(cliente_id: str, directorio_planes: str = ".") -> dict | None:
     """
     Carga el último plan JSON del cliente para obtener peso_base_mes anterior.

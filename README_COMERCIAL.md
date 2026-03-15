@@ -64,6 +64,11 @@ Método Base es un software profesional diseñado específicamente para gimnasio
 
 ## 🚀 Instalación
 
+### Emision de Keys de Licencia (Proveedor)
+Si eres quien emite las keys de activacion, consulta:
+
+`README_LICENCIAS.md`
+
 ### Paso 1: Descargar
 Descarga el instalador desde el enlace proporcionado:
 ```

@@ -78,15 +78,26 @@ if __name__ == "__main__":
             _root_wizard.destroy()
             _branding.recargar()
 
-        # Auto-generar licencia única si no existe para esta instalación
+        # Validar licencia — sin auto-generación (requiere key de proveedor)
         try:
             _gestor_lic = GestorLicencias()
             _valida, _msg, _ = _gestor_lic.validar_licencia()
             if not _valida:
+                logger.warning("[LICENCIA] Licencia no válida: %s", _msg)
+                ctk.set_appearance_mode("Dark")
+                ctk.set_default_color_theme("blue")
                 _nombre_gym = _branding.get('nombre_gym', '').strip() or 'MetodoBase'
-                _gestor_lic.generar_licencia_gym(nombre_gym=_nombre_gym, duracion_dias=36500)
-                logger.info("[LICENCIA] Licencia auto-generada — ID: %s",
-                            _gestor_lic._obtener_id_instalacion())
+                from gui.ventana_licencia import VentanaActivacionLicencia
+                _root_lic = ctk.CTk()
+                _root_lic.withdraw()
+                _vent_lic = VentanaActivacionLicencia(_root_lic, _gestor_lic, _nombre_gym)
+                _root_lic.wait_window(_vent_lic)
+                if not _vent_lic.activada:
+                    logger.info("[LICENCIA] Activación cancelada por el usuario.")
+                    _root_lic.destroy()
+                    sys.exit(0)
+                _root_lic.destroy()
+                logger.info("[LICENCIA] Licencia activada correctamente.")
             else:
                 logger.info("[LICENCIA] %s", _msg)
         except Exception as _lic_err:

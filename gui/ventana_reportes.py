@@ -22,6 +22,7 @@ from typing import Dict, List
 
 from src.gestor_bd import GestorBDClientes
 from utils.logger import logger
+from utils.telemetria import registrar_evento
 
 
 class VentanaReportes(ctk.CTkToplevel):
@@ -203,15 +204,19 @@ class VentanaReportes(ctk.CTkToplevel):
         for widget in self.kpi_container.winfo_children():
             widget.destroy()
 
+        self.kpi_container.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
+        # Fila 1: volumen
         self._crear_kpi(0, 0, "👥", "Total Clientes",
                         str(self.stats.get("total_clientes", 0)))
         self._crear_kpi(0, 1, "🆕", "Clientes Nuevos",
                         str(self.stats.get("clientes_nuevos", 0)))
-        self._crear_kpi(0, 2, "🍽️", "Planes Generados",
+        self._crear_kpi(0, 2, "✅", "Clientes Activos",
+                        str(self.stats.get("clientes_activos", 0)))
+        self._crear_kpi(0, 3, "🍽️", "Planes Generados",
                         str(self.stats.get("planes_periodo", 0)))
-        self._crear_kpi(0, 3, "⚡", "Promedio Kcal",
-                        f"{self.stats.get('promedio_kcal', 0):.0f}")
 
+        # Fila 2: objetivos
         objetivos = self.stats.get("objetivos", {})
         self._crear_kpi(1, 0, "📉", "Déficit",
                         str(objetivos.get("deficit", 0)))
@@ -219,11 +224,25 @@ class VentanaReportes(ctk.CTkToplevel):
                         str(objetivos.get("superavit", 0)))
         self._crear_kpi(1, 2, "➡️", "Mantenimiento",
                         str(objetivos.get("mantenimiento", 0)))
+        self._crear_kpi(1, 3, "⚡", "Promedio Kcal",
+                        f"{self.stats.get('promedio_kcal', 0):.0f}")
+
+        # Fila 3: negocio
+        self._crear_kpi(2, 0, "🔄", "Renovaciones",
+                        str(self.stats.get("renovaciones", 0)))
+        self._crear_kpi(2, 1, "📊", "Tasa Retención",
+                        f"{self.stats.get('tasa_retencion', 0):.1f}%")
 
         total = self.stats.get("total_clientes", 0)
         nuevos = self.stats.get("clientes_nuevos", 0)
         tasa = (nuevos / total * 100) if total > 0 and nuevos > 0 else 0
-        self._crear_kpi(1, 3, "📊", "Tasa Crecimiento", f"{tasa:.1f}%")
+        self._crear_kpi(2, 2, "🚀", "Tasa Crecimiento", f"{tasa:.1f}%")
+
+        planes_tipo = self.stats.get("planes_por_tipo", {})
+        menu_fijo = planes_tipo.get("menu_fijo", 0)
+        opciones = planes_tipo.get("con_opciones", 0)
+        self._crear_kpi(2, 3, "📋", "Fijo / Opciones",
+                        f"{menu_fijo} / {opciones}")
 
     def _crear_kpi(self, row: int, col: int, icono: str, label: str, valor: str):
         """Crea un widget KPI."""
@@ -477,6 +496,7 @@ class VentanaReportes(ctk.CTkToplevel):
 
             messagebox.showinfo("Éxito", f"Reporte exportado exitosamente:\n{archivo}")
             logger.info("[REPORTES] Reporte exportado: %s", archivo)
+            registrar_evento("reportes", "reporte_exportado", {"formato": archivo.rsplit('.', 1)[-1]})
 
         except Exception as e:
             logger.error("[REPORTES] Error exportando: %s", e, exc_info=True)

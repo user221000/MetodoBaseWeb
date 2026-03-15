@@ -10,6 +10,7 @@ import customtkinter as ctk
 from tkinter import messagebox, colorchooser
 
 from core.branding import branding
+from utils.helpers import activar_modal_seguro
 from utils.logger import logger
 
 
@@ -23,6 +24,8 @@ class WizardOnboarding(ctk.CTkToplevel):
     COLOR_TEXT = "#F5F5F5"
     COLOR_TEXT_MUTED = "#B8B8B8"
     COLOR_BORDER = "#444444"
+    COLOR_SUCCESS = "#4CAF50"
+    COLOR_ERROR = "#F44336"
 
     TOTAL_PASOS = 3
 
@@ -33,9 +36,11 @@ class WizardOnboarding(ctk.CTkToplevel):
         self.geometry("550x580")
         self.resizable(False, False)
         self.configure(fg_color=self.COLOR_BG)
-        self.grab_set()
 
         self.paso_actual = 1
+        self._ux_campos: dict = {}
+        self._campos_paso1: list = []
+        self._campos_paso2: list = []
 
         # Datos recopilados
         self.datos: dict = {
@@ -96,6 +101,7 @@ class WizardOnboarding(ctk.CTkToplevel):
 
         # Interceptar cierre con X
         self.protocol("WM_DELETE_WINDOW", self._on_cerrar)
+        activar_modal_seguro(self, master)
 
         # Mostrar paso 1
         self._mostrar_paso()
@@ -141,6 +147,24 @@ class WizardOnboarding(ctk.CTkToplevel):
         )
         self.entry_nombre_gym.pack(padx=20)
         self.entry_nombre_gym.insert(0, self.datos["nombre_gym"])
+        lbl_estado_nombre = ctk.CTkLabel(
+            f,
+            text="",
+            text_color=self.COLOR_TEXT_MUTED,
+            font=ctk.CTkFont(size=10),
+            anchor="w",
+            justify="left",
+            wraplength=500,
+        )
+        lbl_estado_nombre.pack(fill="x", padx=20, pady=(3, 0))
+        self._registrar_campo_ux(
+            self.entry_nombre_gym,
+            lbl_estado_nombre,
+            ayuda="Ejemplo: Fitness Gym Real del Valle",
+            validador=self._validar_nombre_gym,
+            opcional=False,
+        )
+        self._campos_paso1.append(self.entry_nombre_gym)
 
         ctk.CTkLabel(f, text="Slogan / tagline (opcional)",
                      text_color=self.COLOR_TEXT_MUTED,
@@ -152,6 +176,24 @@ class WizardOnboarding(ctk.CTkToplevel):
         )
         self.entry_tagline.pack(padx=20)
         self.entry_tagline.insert(0, self.datos["tagline"])
+        lbl_estado_tagline = ctk.CTkLabel(
+            f,
+            text="",
+            text_color=self.COLOR_TEXT_MUTED,
+            font=ctk.CTkFont(size=10),
+            anchor="w",
+            justify="left",
+            wraplength=500,
+        )
+        lbl_estado_tagline.pack(fill="x", padx=20, pady=(3, 0))
+        self._registrar_campo_ux(
+            self.entry_tagline,
+            lbl_estado_tagline,
+            ayuda="Opcional. Frase corta del gym.",
+            validador=self._validar_texto_corto,
+            opcional=True,
+        )
+        self._campos_paso1.append(self.entry_tagline)
 
     # ── Paso 2: Contacto ──────────────────────────────────────────────
 
@@ -167,6 +209,14 @@ class WizardOnboarding(ctk.CTkToplevel):
             ("Dirección - Ciudad y CP", "contacto.direccion_linea3", "Ej: 45654 Tlajomulco, Jal."),
         ]
         self._entries_contacto: dict = {}
+        validadores = {
+            "redes_sociales.instagram": self._validar_instagram,
+            "contacto.whatsapp": self._validar_telefono,
+            "contacto.direccion_linea1": self._validar_texto_corto,
+            "contacto.direccion_linea2": self._validar_texto_corto,
+            "contacto.direccion_linea3": self._validar_texto_corto,
+        }
+
         for label, key, placeholder in campos:
             ctk.CTkLabel(f, text=label, text_color=self.COLOR_TEXT_MUTED,
                          font=ctk.CTkFont(size=12)).pack(anchor="w", padx=20, pady=(6, 2))
@@ -178,6 +228,24 @@ class WizardOnboarding(ctk.CTkToplevel):
             entry.pack(padx=20)
             entry.insert(0, self.datos.get(key, ""))
             self._entries_contacto[key] = entry
+            lbl_estado = ctk.CTkLabel(
+                f,
+                text="",
+                text_color=self.COLOR_TEXT_MUTED,
+                font=ctk.CTkFont(size=10),
+                anchor="w",
+                justify="left",
+                wraplength=500,
+            )
+            lbl_estado.pack(fill="x", padx=20, pady=(3, 0))
+            self._registrar_campo_ux(
+                entry,
+                lbl_estado,
+                ayuda=placeholder,
+                validador=validadores.get(key, self._validar_texto_corto),
+                opcional=True,
+            )
+            self._campos_paso2.append(entry)
 
     # ── Paso 3: Colores ───────────────────────────────────────────────
 
@@ -246,13 +314,19 @@ class WizardOnboarding(ctk.CTkToplevel):
     def _paso_siguiente(self) -> None:
         self._guardar_paso_actual()
 
-        # Validación paso 1
         if self.paso_actual == 1:
-            nombre = self.datos["nombre_gym"]
-            if len(nombre) < 3:
+            if not self._validar_campos_paso(self._campos_paso1):
                 messagebox.showwarning(
-                    "Dato requerido",
-                    "El nombre del gimnasio debe tener al menos 3 caracteres.",
+                    "Revisa los campos",
+                    "Corrige los campos marcados en rojo para continuar.",
+                    parent=self,
+                )
+                return
+        if self.paso_actual == 2:
+            if not self._validar_campos_paso(self._campos_paso2):
+                messagebox.showwarning(
+                    "Revisa los campos",
+                    "Hay datos de contacto con formato invalido.",
                     parent=self,
                 )
                 return
@@ -292,3 +366,104 @@ class WizardOnboarding(ctk.CTkToplevel):
         if respuesta:
             self.grab_release()
             self.destroy()
+
+    # ------------------------------------------------------------------
+    # UX y validaciones inline
+    # ------------------------------------------------------------------
+
+    def _registrar_campo_ux(self, entry, lbl_estado, ayuda: str, validador, opcional: bool) -> None:
+        self._ux_campos[entry] = {
+            "label": lbl_estado,
+            "ayuda": ayuda,
+            "validador": validador,
+            "opcional": opcional,
+        }
+        entry.bind("<FocusIn>", lambda _e, e=entry: self._on_focus_campo(e))
+        entry.bind("<FocusOut>", lambda _e, e=entry: self._validar_campo(e))
+        entry.bind("<KeyRelease>", lambda _e, e=entry: self._validar_campo(e))
+        self._aplicar_estado_campo(entry, "neutral", f"Ayuda: {ayuda}")
+
+    def _on_focus_campo(self, entry) -> None:
+        meta = self._ux_campos.get(entry)
+        if not meta:
+            return
+        if not entry.get().strip():
+            self._aplicar_estado_campo(entry, "focus", f"Ayuda: {meta['ayuda']}")
+
+    def _aplicar_estado_campo(self, entry, estado: str, texto: str = "") -> None:
+        meta = self._ux_campos.get(entry)
+        if not meta:
+            return
+        lbl_estado = meta["label"]
+        if estado == "focus":
+            entry.configure(border_color=self.COLOR_PRIMARY)
+            lbl_estado.configure(text=texto, text_color=self.COLOR_TEXT_MUTED)
+        elif estado == "ok":
+            entry.configure(border_color=self.COLOR_SUCCESS)
+            lbl_estado.configure(text=texto or "OK: formato valido.", text_color=self.COLOR_SUCCESS)
+        elif estado == "error":
+            entry.configure(border_color=self.COLOR_ERROR)
+            lbl_estado.configure(text=texto, text_color=self.COLOR_ERROR)
+        else:
+            entry.configure(border_color=self.COLOR_BORDER)
+            lbl_estado.configure(text=texto, text_color=self.COLOR_TEXT_MUTED)
+
+    def _validar_campo(self, entry) -> bool:
+        meta = self._ux_campos.get(entry)
+        if not meta:
+            return True
+
+        valor = entry.get().strip()
+        if valor == "" and meta["opcional"]:
+            self._aplicar_estado_campo(entry, "neutral", f"Opcional. {meta['ayuda']}")
+            return True
+
+        ok, msg = meta["validador"](valor)
+        if ok:
+            self._aplicar_estado_campo(entry, "ok")
+            return True
+        self._aplicar_estado_campo(entry, "error", f"Error: {msg}")
+        return False
+
+    def _validar_campos_paso(self, campos: list) -> bool:
+        validos = [self._validar_campo(entry) for entry in campos]
+        return all(validos)
+
+    @staticmethod
+    def _validar_nombre_gym(valor: str) -> tuple[bool, str]:
+        if not valor:
+            return False, "El nombre del gimnasio es obligatorio."
+        if len(valor) < 3:
+            return False, "Minimo 3 caracteres."
+        return True, ""
+
+    @staticmethod
+    def _validar_texto_corto(valor: str) -> tuple[bool, str]:
+        if not valor:
+            return True, ""
+        if len(valor) < 3:
+            return False, "Muy corto (minimo 3 caracteres)."
+        return True, ""
+
+    @staticmethod
+    def _validar_instagram(valor: str) -> tuple[bool, str]:
+        if not valor:
+            return True, ""
+        if not valor.startswith("@"):
+            return False, "Debe iniciar con @ (ejemplo: @tu_gym)."
+        if len(valor) < 4:
+            return False, "Usuario de Instagram muy corto."
+        return True, ""
+
+    @staticmethod
+    def _validar_telefono(valor: str) -> tuple[bool, str]:
+        if not valor:
+            return True, ""
+        limpio = valor.replace(" ", "")
+        if not limpio.isdigit():
+            return False, "Solo numeros, sin guiones ni letras."
+        if len(limpio) < 10:
+            return False, "Minimo 10 digitos."
+        if len(limpio) > 15:
+            return False, "Maximo 15 digitos."
+        return True, ""

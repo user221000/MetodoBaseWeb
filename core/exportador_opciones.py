@@ -18,7 +18,6 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 from utils.helpers import resource_path
-from config.constantes import RUTA_LOGO
 from utils.logger import logger
 from core.branding import branding
 
@@ -51,21 +50,28 @@ class GeneradorPDFConOpciones:
 
     def __init__(self, ruta_salida: str, ruta_logo: str | None = None):
         self.ruta_salida = ruta_salida
-        self.ruta_logo = ruta_logo or RUTA_LOGO
+        self.ruta_logo = ruta_logo
         self.width, self.height = LETTER
 
     def _dibujar_header(self, c, cliente, kcal_total: float | None = None) -> float:
         """Header con branding y subtítulo de 'Plan Flexible'."""
-        logo_path = resource_path("assets/logo.png")
-        try:
-            logo = ImageReader(logo_path)
-        except Exception:
-            logo = None
+        logo = None
+        if branding.get("pdf.mostrar_logo", True):
+            logo_file = self.ruta_logo or branding.obtener_logo_pdf_path()
+            if logo_file:
+                try:
+                    logo = ImageReader(str(logo_file))
+                except Exception:
+                    logo = None
 
         page_width, page_height = letter
         margin_x = 50
         header_top = page_height - 50
         tagline = (branding.get('tagline', '') or '').strip()
+        color_encabezado = branding.get(
+            "pdf.color_encabezado",
+            branding.get("colores.primario", "#2A3A7A"),
+        )
 
         # Branding del gym (izquierda)
         y_pos = header_top
@@ -115,7 +121,7 @@ class GeneradorPDFConOpciones:
 
         # Título principal
         c.setFont(_FONT, 16)
-        c.setFillColor(colors.darkblue)
+        c.setFillColor(colors.HexColor(color_encabezado))
         c.drawCentredString(page_width / 2, y_pos, "Plan Nutricional Flexible con Opciones")
         y_pos -= 18
 
