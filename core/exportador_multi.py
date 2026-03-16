@@ -7,6 +7,21 @@ from src.alimentos_base import ALIMENTOS_BASE
 
 _COMIDAS_ORDEN = ["desayuno", "almuerzo", "comida", "cena"]
 
+_CLIENTE_PUBLIC_FIELDS = {
+    "nombre", "edad", "peso_kg", "estatura_cm", "grasa_corporal_pct",
+    "objetivo", "nivel_actividad",
+}
+
+
+def filtrar_campos_cliente_export(cliente: dict | object) -> dict:
+    """Retorna solo campos publicos permitidos para exportacion."""
+    data: dict = {}
+    if isinstance(cliente, dict):
+        data = cliente
+    else:
+        data = {k: getattr(cliente, k, None) for k in _CLIENTE_PUBLIC_FIELDS}
+    return {k: v for k, v in data.items() if k in _CLIENTE_PUBLIC_FIELDS}
+
 
 class ExportadorMultiformato:
     """Exporta planes a múltiples formatos."""
@@ -38,14 +53,15 @@ class ExportadorMultiformato:
             fmt_int = wb.add_format({"num_format": "0", "align": "right"})
 
             # ── Hoja 1: Cliente ──────────────────────────────────────── #
+            public_cli = filtrar_campos_cliente_export(cliente)
             df_cliente = pd.DataFrame([{
-                "Nombre":       cliente.nombre,
-                "Edad":         getattr(cliente, "edad", ""),
-                "Peso (kg)":    getattr(cliente, "peso_kg", ""),
-                "Estatura (cm)": getattr(cliente, "estatura_cm", ""),
-                "% Grasa":      getattr(cliente, "grasa_corporal_pct", ""),
-                "Objetivo":     getattr(cliente, "objetivo", ""),
-                "Actividad":    getattr(cliente, "nivel_actividad", ""),
+                "Nombre":       public_cli.get("nombre", ""),
+                "Edad":         public_cli.get("edad", ""),
+                "Peso (kg)":    public_cli.get("peso_kg", ""),
+                "Estatura (cm)": public_cli.get("estatura_cm", ""),
+                "% Grasa":      public_cli.get("grasa_corporal_pct", ""),
+                "Objetivo":     public_cli.get("objetivo", ""),
+                "Actividad":    public_cli.get("nivel_actividad", ""),
                 "TMB":          round(getattr(cliente, "tmb", 0), 1),
                 "GET":          round(getattr(cliente, "get_total", 0), 1),
                 "Kcal objetivo": round(getattr(cliente, "kcal_objetivo", 0), 1),
@@ -136,6 +152,11 @@ class ExportadorMultiformato:
             _autofit(writer.sheets["Macros Detallados"], df_macros, fmt_header)
 
         return ruta_salida
+
+    @staticmethod
+    def a_excel_seguro(cliente_publico: dict, plan, ruta_salida: str) -> str:
+        """Wrapper seguro: exporta usando solo campos publicos ya filtrados."""
+        return ExportadorMultiformato.a_excel(cliente_publico, plan, ruta_salida)
 
     # ------------------------------------------------------------------ #
     # CSV                                                                  #

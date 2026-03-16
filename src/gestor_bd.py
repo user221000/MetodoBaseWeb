@@ -14,8 +14,10 @@ Backups: registros/backups/clientes_YYYYMMDD_HHMMSS.db
 
 import sqlite3
 import shutil
+import hashlib
+import re
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from pathlib import Path
 from utils.logger import logger
 from utils.telemetria import registrar_evento
@@ -32,11 +34,13 @@ class GestorBDClientes:
     - estadisticas_gym: métricas agregadas por mes
     """
 
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str = None, secure_mode: bool = False, crypto_service: Any = None):
         if db_path is None:
             db_path = str(Path(CARPETA_REGISTROS) / "clientes.db")
         self.db_path = Path(db_path)
         self.backup_dir = self.db_path.parent / "backups"
+        self._secure_mode = secure_mode
+        self._crypto_service = crypto_service
 
         # Crear directorios si no existen
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -133,6 +137,16 @@ class GestorBDClientes:
             c, "planes_generados", "tipo_plan TEXT DEFAULT 'menu_fijo'"
         )
 
+        # Campos cifrados (PII) + indices hash para busqueda exacta
+        self._asegurar_columna(c, "clientes", "nombre_enc TEXT")
+        self._asegurar_columna(c, "clientes", "telefono_enc TEXT")
+        self._asegurar_columna(c, "clientes", "email_enc TEXT")
+        self._asegurar_columna(c, "clientes", "notas_enc TEXT")
+        self._asegurar_columna(c, "clientes", "nombre_idx TEXT")
+        self._asegurar_columna(c, "clientes", "telefono_idx TEXT")
+        self._asegurar_columna(c, "clientes", "email_idx TEXT")
+        self._asegurar_columna(c, "clientes", "datos_cifrados BOOLEAN DEFAULT 0")
+
         conn.commit()
         conn.close()
         logger.info("[BD] Tablas creadas/verificadas exitosamente")
@@ -156,8 +170,61 @@ class GestorBDClientes:
             return "con_opciones"
         return "menu_fijo"
 
-    def registrar_cliente(self, cliente) -> bool:
+    @staticmethod
+    def _normalizar_idx(valor: str | None) -> str:
+        if not valor:
+            return ""
+        limpio = re.sub(r"[^a-z0-9]", "", valor.strip().lower())
+        return limpio
+
+    @staticmethod
+    def _hash_idx(valor: str | None) -> str:
+        norm = GestorBDClientes._normalizar_idx(valor)
+        if not norm:
+            return ""
+        return hashlib.sha256(norm.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def _placeholder_nombre(id_cliente: str) -> str:
+        return f"ENC-{str(id_cliente)[:8]}"
+
+    def _usar_seguridad(self, secure_mode: bool | None, crypto_service: Any | None) -> tuple[bool, Any | None]:
+        modo = self._secure_mode if secure_mode is None else secure_mode
+        crypto = self._crypto_service if crypto_service is None else crypto_service
+        return modo and crypto is not None, crypto
+
+    def _cifrar_campos(self, cliente, crypto) -> dict:
+        return {
+            "nombre_enc": crypto.encrypt(getattr(cliente, "nombre", "")),
+            "telefono_enc": crypto.encrypt(getattr(cliente, "telefono", "")),
+            "email_enc": crypto.encrypt(getattr(cliente, "email", "")),
+            "notas_enc": crypto.encrypt(getattr(cliente, "notas", "")),
+            "nombre_idx": self._hash_idx(getattr(cliente, "nombre", "")),
+            "telefono_idx": self._hash_idx(getattr(cliente, "telefono", "")),
+            "email_idx": self._hash_idx(getattr(cliente, "email", "")),
+        }
+
+    def _descifrar_campos(self, row: dict, crypto) -> dict:
+        if not row:
+            return row
+        try:
+            if row.get("nombre_enc"):
+                row["nombre"] = crypto.decrypt(row.get("nombre_enc"))
+            if row.get("telefono_enc"):
+                row["telefono"] = crypto.decrypt(row.get("telefono_enc"))
+            if row.get("email_enc"):
+                row["email"] = crypto.decrypt(row.get("email_enc"))
+            if row.get("notas_enc"):
+                row["notas"] = crypto.decrypt(row.get("notas_enc"))
+        except Exception as exc:
+            logger.warning("[BD] Error descifrando campos: %s", exc)
+        for key in ("nombre_enc", "telefono_enc", "email_enc", "notas_enc"):
+            row.pop(key, None)
+        return row
+
+    def registrar_cliente(self, cliente, secure_mode: bool | None = None, crypto_service: Any | None = None) -> bool:
         """Registra o actualiza un cliente en la base de datos."""
+        usar_seguridad, crypto = self._usar_seguridad(secure_mode, crypto_service)
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
         plantilla_tipo = getattr(cliente, 'plantilla_tipo', 'general') or 'general'
@@ -170,10 +237,14 @@ class GestorBDClientes:
             resultado = c.fetchone()
 
             if resultado:
+                campos_seg = {}
+                if usar_seguridad:
+                    campos_seg = self._cifrar_campos(cliente, crypto)
                 c.execute('''
                     UPDATE clientes SET
                         nombre = ?,
                         telefono = ?,
+                        email = ?,
                         edad = ?,
                         peso_kg = ?,
                         estatura_cm = ?,
@@ -181,12 +252,21 @@ class GestorBDClientes:
                         nivel_actividad = ?,
                         objetivo = ?,
                         plantilla_tipo = ?,
+                        nombre_enc = ?,
+                        telefono_enc = ?,
+                        email_enc = ?,
+                        notas_enc = ?,
+                        nombre_idx = ?,
+                        telefono_idx = ?,
+                        email_idx = ?,
+                        datos_cifrados = ?,
                         ultimo_plan = ?,
                         total_planes_generados = total_planes_generados + 1
                     WHERE id_cliente = ?
                 ''', (
-                    cliente.nombre,
-                    getattr(cliente, 'telefono', None),
+                    self._placeholder_nombre(cliente.id_cliente) if usar_seguridad else cliente.nombre,
+                    None if usar_seguridad else getattr(cliente, 'telefono', None),
+                    None if usar_seguridad else getattr(cliente, 'email', None),
                     cliente.edad,
                     cliente.peso_kg,
                     cliente.estatura_cm,
@@ -194,21 +274,34 @@ class GestorBDClientes:
                     cliente.nivel_actividad,
                     cliente.objetivo,
                     plantilla_tipo,
+                    campos_seg.get("nombre_enc"),
+                    campos_seg.get("telefono_enc"),
+                    campos_seg.get("email_enc"),
+                    campos_seg.get("notas_enc"),
+                    campos_seg.get("nombre_idx"),
+                    campos_seg.get("telefono_idx"),
+                    campos_seg.get("email_idx"),
+                    1 if usar_seguridad else 0,
                     datetime.now(),
                     cliente.id_cliente,
                 ))
                 logger.info("[BD] Cliente actualizado: %s", cliente.id_cliente)
             else:
+                campos_seg = {}
+                if usar_seguridad:
+                    campos_seg = self._cifrar_campos(cliente, crypto)
                 c.execute('''
                     INSERT INTO clientes
-                    (id_cliente, nombre, telefono, edad, peso_kg, estatura_cm,
+                    (id_cliente, nombre, telefono, email, edad, peso_kg, estatura_cm,
                      grasa_corporal_pct, nivel_actividad, objetivo, plantilla_tipo, ultimo_plan,
-                     total_planes_generados)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     total_planes_generados, nombre_enc, telefono_enc, email_enc, notas_enc,
+                     nombre_idx, telefono_idx, email_idx, datos_cifrados)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     cliente.id_cliente,
-                    cliente.nombre,
-                    getattr(cliente, 'telefono', None),
+                    self._placeholder_nombre(cliente.id_cliente) if usar_seguridad else cliente.nombre,
+                    None if usar_seguridad else getattr(cliente, 'telefono', None),
+                    None if usar_seguridad else getattr(cliente, 'email', None),
                     cliente.edad,
                     cliente.peso_kg,
                     cliente.estatura_cm,
@@ -218,6 +311,14 @@ class GestorBDClientes:
                     plantilla_tipo,
                     datetime.now(),
                     1,
+                    campos_seg.get("nombre_enc"),
+                    campos_seg.get("telefono_enc"),
+                    campos_seg.get("email_enc"),
+                    campos_seg.get("notas_enc"),
+                    campos_seg.get("nombre_idx"),
+                    campos_seg.get("telefono_idx"),
+                    campos_seg.get("email_idx"),
+                    1 if usar_seguridad else 0,
                 ))
                 logger.info("[BD] Cliente nuevo registrado: %s", cliente.id_cliente)
 
@@ -305,27 +406,49 @@ class GestorBDClientes:
 
     def buscar_clientes(self, termino: str,
                         solo_activos: bool = True,
-                        limite: int = 50) -> List[Dict]:
+                        limite: int = 50,
+                        secure_mode: bool | None = None,
+                        crypto_service: Any | None = None) -> List[Dict]:
         """Busca clientes por nombre, teléfono o ID."""
+        usar_seguridad, crypto = self._usar_seguridad(secure_mode, crypto_service)
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
 
         try:
-            query = '''
-                SELECT
-                    id_cliente, nombre, telefono, email, edad,
-                    peso_kg, grasa_corporal_pct, objetivo, nivel_actividad,
-                    plantilla_tipo, fecha_registro, ultimo_plan,
-                    total_planes_generados, activo
-                FROM clientes
-                WHERE (
-                    nombre LIKE ? OR
-                    telefono LIKE ? OR
-                    id_cliente LIKE ?
-                )
-            '''
-            params = [f'%{termino}%', f'%{termino}%', f'%{termino}%']
+            if usar_seguridad:
+                query = '''
+                    SELECT
+                        id_cliente, nombre, telefono, email, edad,
+                        peso_kg, grasa_corporal_pct, objetivo, nivel_actividad,
+                        plantilla_tipo, fecha_registro, ultimo_plan,
+                        total_planes_generados, activo,
+                        nombre_enc, telefono_enc, email_enc, notas_enc
+                    FROM clientes
+                    WHERE (
+                        nombre_idx = ? OR
+                        telefono_idx = ? OR
+                        email_idx = ? OR
+                        id_cliente = ?
+                    )
+                '''
+                idx = self._hash_idx(termino)
+                params = [idx, idx, idx, termino]
+            else:
+                query = '''
+                    SELECT
+                        id_cliente, nombre, telefono, email, edad,
+                        peso_kg, grasa_corporal_pct, objetivo, nivel_actividad,
+                        plantilla_tipo, fecha_registro, ultimo_plan,
+                        total_planes_generados, activo
+                    FROM clientes
+                    WHERE (
+                        nombre LIKE ? OR
+                        telefono LIKE ? OR
+                        id_cliente LIKE ?
+                    )
+                '''
+                params = [f'%{termino}%', f'%{termino}%', f'%{termino}%']
 
             if solo_activos:
                 query += ' AND activo = 1'
@@ -337,7 +460,7 @@ class GestorBDClientes:
 
             resultados = []
             for row in c.fetchall():
-                resultados.append({
+                item = {
                     'id_cliente': row['id_cliente'],
                     'nombre': row['nombre'],
                     'telefono': row['telefono'],
@@ -353,7 +476,15 @@ class GestorBDClientes:
                     'total_planes_generados': row['total_planes_generados'],
                     'total_planes': row['total_planes_generados'],
                     'activo': bool(row['activo']),
-                })
+                }
+                if usar_seguridad:
+                    item = self._descifrar_campos(item | {
+                        "nombre_enc": row["nombre_enc"],
+                        "telefono_enc": row["telefono_enc"],
+                        "email_enc": row["email_enc"],
+                        "notas_enc": row["notas_enc"],
+                    }, crypto)
+                resultados.append(item)
 
             logger.info("[BD] Búsqueda '%s': %s resultados", termino, len(resultados))
             return resultados
@@ -365,8 +496,11 @@ class GestorBDClientes:
         finally:
             conn.close()
 
-    def obtener_cliente_por_id(self, id_cliente: str) -> Optional[Dict]:
+    def obtener_cliente_por_id(self, id_cliente: str,
+                               secure_mode: bool | None = None,
+                               crypto_service: Any | None = None) -> Optional[Dict]:
         """Obtiene todos los datos de un cliente por su ID."""
+        usar_seguridad, crypto = self._usar_seguridad(secure_mode, crypto_service)
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
@@ -374,7 +508,10 @@ class GestorBDClientes:
         try:
             c.execute('SELECT * FROM clientes WHERE id_cliente = ?', (id_cliente,))
             row = c.fetchone()
-            return dict(row) if row else None
+            data = dict(row) if row else None
+            if data and usar_seguridad:
+                data = self._descifrar_campos(data, crypto)
+            return data
 
         except Exception as e:
             logger.error("[BD] Error obteniendo cliente: %s", e, exc_info=True)
@@ -699,8 +836,74 @@ class GestorBDClientes:
             logger.error("[BD] Error limpiando backups: %s", e, exc_info=True)
             return 0
 
-    def obtener_todos_clientes(self, solo_activos: bool = False) -> list[dict]:
+    def migrar_datos_sensibles(self, crypto_service: Any) -> int:
+        """Migra datos planos a cifrados en clientes.
+
+        Retorna cantidad de filas migradas.
+        """
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        migrados = 0
+
+        try:
+            c.execute("SELECT * FROM clientes WHERE datos_cifrados = 0")
+            filas = c.fetchall()
+            for row in filas:
+                data = dict(row)
+                class _Tmp:
+                    pass
+                tmp = _Tmp()
+                tmp.nombre = data.get("nombre", "")
+                tmp.telefono = data.get("telefono", "")
+                tmp.email = data.get("email", "")
+                tmp.notas = data.get("notas", "")
+                campos_seg = self._cifrar_campos(tmp, crypto_service)
+                c.execute('''
+                    UPDATE clientes SET
+                        nombre = ?,
+                        telefono = ?,
+                        email = ?,
+                        nombre_enc = ?,
+                        telefono_enc = ?,
+                        email_enc = ?,
+                        notas_enc = ?,
+                        nombre_idx = ?,
+                        telefono_idx = ?,
+                        email_idx = ?,
+                        datos_cifrados = 1
+                    WHERE id_cliente = ?
+                ''', (
+                    self._placeholder_nombre(data.get("id_cliente", "")),
+                    None,
+                    None,
+                    campos_seg.get("nombre_enc"),
+                    campos_seg.get("telefono_enc"),
+                    campos_seg.get("email_enc"),
+                    campos_seg.get("notas_enc"),
+                    campos_seg.get("nombre_idx"),
+                    campos_seg.get("telefono_idx"),
+                    campos_seg.get("email_idx"),
+                    data.get("id_cliente"),
+                ))
+                migrados += 1
+
+            conn.commit()
+            return migrados
+
+        except Exception as exc:
+            logger.error("[BD] Error migrando datos sensibles: %s", exc, exc_info=True)
+            conn.rollback()
+            return 0
+
+        finally:
+            conn.close()
+
+    def obtener_todos_clientes(self, solo_activos: bool = False,
+                               secure_mode: bool | None = None,
+                               crypto_service: Any | None = None) -> list[dict]:
         """Devuelve todos los clientes de la base de datos para exportación."""
+        usar_seguridad, crypto = self._usar_seguridad(secure_mode, crypto_service)
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
@@ -710,7 +913,8 @@ class GestorBDClientes:
                 SELECT id_cliente, nombre, telefono, email, edad,
                        peso_kg, estatura_cm, grasa_corporal_pct,
                        nivel_actividad, objetivo, plantilla_tipo, fecha_registro,
-                       ultimo_plan, total_planes_generados, activo
+                       ultimo_plan, total_planes_generados, activo,
+                       nombre_enc, telefono_enc, email_enc, notas_enc
                 FROM clientes
             '''
             if solo_activos:
@@ -719,6 +923,8 @@ class GestorBDClientes:
 
             c.execute(query)
             resultados = [dict(row) for row in c.fetchall()]
+            if usar_seguridad:
+                resultados = [self._descifrar_campos(r, crypto) for r in resultados]
             logger.info("[BD] Exportando todos los clientes: %s registros", len(resultados))
             return resultados
 

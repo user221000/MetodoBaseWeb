@@ -9,41 +9,6 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# === SPLASH SCREEN DE CARGA (no bloqueante) ===
-import tkinter as tk
-
-splash = tk.Tk()
-splash.title("Método Base")
-splash.geometry("400x200")
-splash.configure(bg="#0D0D0D")
-splash.overrideredirect(True)   # sin barra de título
-splash.update_idletasks()
-sw, sh = splash.winfo_screenwidth(), splash.winfo_screenheight()
-splash.geometry(f"400x200+{(sw-400)//2}+{(sh-200)//2}")
-
-tk.Label(splash, text="🏋️ Método Base", bg="#0D0D0D", fg="#9B4FB0",
-         font=("Segoe UI", 20, "bold")).pack(expand=True)
-tk.Label(splash, text="Sistema de Planes Nutricionales", bg="#0D0D0D", fg="#B8B8B8",
-         font=("Segoe UI", 11)).pack(pady=(0, 30))
-
-bar_canvas = tk.Canvas(splash, width=200, height=6, bg="#2A2A2A",
-                       highlightthickness=0)
-bar_canvas.pack(pady=(0, 20))
-bar_rect = bar_canvas.create_rectangle(0, 0, 0, 6, fill="#9B4FB0", outline="")
-
-_splash_step = [0]
-
-def _animar_splash():
-    _splash_step[0] += 5
-    bar_canvas.coords(bar_rect, 0, 0, _splash_step[0] * 2, 6)
-    if _splash_step[0] < 100:
-        splash.after(15, _animar_splash)
-    else:
-        splash.after(100, splash.destroy)
-
-splash.after(50, _animar_splash)
-splash.mainloop()
-
 # === IMPORTS ===
 from datetime import datetime
 
@@ -55,58 +20,175 @@ from core.exportador_salida import GeneradorPDFProfesional
 from core.licencia import GestorLicencias
 from utils.logger import logger
 
-# Intentar cargar GUI
+# Intentar cargar PySide6 GUI
 try:
-    import customtkinter as ctk
-    from gui.app_gui import GymApp
+    from PySide6.QtWidgets import QApplication, QSplashScreen, QLabel
+    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtGui import QPixmap, QColor, QFont, QPainter, QBrush
     GUI_DISPONIBLE = True
 except ImportError:
     GUI_DISPONIBLE = False
 
 
+def _crear_pixmap_splash() -> "QPixmap":
+    """Crea un QPixmap 400×200 para el splash screen."""
+    pix = QPixmap(400, 200)
+    pix.fill(QColor("#070707"))
+    painter = QPainter(pix)
+    painter.setRenderHint(QPainter.Antialiasing)
+    # Punto acento
+    painter.setBrush(QBrush(QColor("#FF6F0F")))
+    painter.setPen(Qt.NoPen)
+    painter.drawEllipse(192, 20, 16, 16)
+    # Título
+    f_titulo = QFont("Segoe UI", 20)
+    f_titulo.setBold(True)
+    painter.setFont(f_titulo)
+    painter.setPen(QColor("#F2F2F7"))
+    painter.drawText(0, 60, 400, 50, Qt.AlignHCenter | Qt.AlignVCenter, "Método Base")
+    # Subtítulo
+    painter.setFont(QFont("Segoe UI", 11))
+    painter.setPen(QColor("#8E8E93"))
+    painter.drawText(0, 110, 400, 30, Qt.AlignHCenter | Qt.AlignVCenter,
+                     "Sistema de Planes Nutricionales")
+    # Barra de progreso base
+    painter.setBrush(QBrush(QColor("#1C1C1E")))
+    painter.setPen(Qt.NoPen)
+    painter.drawRoundedRect(100, 160, 200, 6, 3, 3)
+    painter.end()
+    return pix
+
+
 # === EJECUCIÓN ===
 if __name__ == "__main__":
     if GUI_DISPONIBLE:
-        # Wizard de primera vez si nombre_gym está vacío
-        from core.branding import branding as _branding
-        if not _branding.get('nombre_gym', '').strip():
-            from gui.wizard_onboarding import WizardOnboarding
-            _root_wizard = ctk.CTk()
-            _root_wizard.withdraw()
-            wizard = WizardOnboarding(_root_wizard)
-            _root_wizard.wait_window(wizard)
-            _root_wizard.destroy()
-            _branding.recargar()
+        app = QApplication(sys.argv)
+        app.setApplicationName("Método Base")
+        app.setStyle("Fusion")
 
-        # Validar licencia — sin auto-generación (requiere key de proveedor)
+        # Cargar stylesheet a través del ThemeManager (soporta dark / light / aurora)
         try:
-            _gestor_lic = GestorLicencias()
-            _valida, _msg, _ = _gestor_lic.validar_licencia()
-            if not _valida:
-                logger.warning("[LICENCIA] Licencia no válida: %s", _msg)
-                ctk.set_appearance_mode("Dark")
-                ctk.set_default_color_theme("blue")
-                _nombre_gym = _branding.get('nombre_gym', '').strip() or 'MetodoBase'
-                from gui.ventana_licencia import VentanaActivacionLicencia
-                _root_lic = ctk.CTk()
-                _root_lic.withdraw()
-                _vent_lic = VentanaActivacionLicencia(_root_lic, _gestor_lic, _nombre_gym)
-                _root_lic.wait_window(_vent_lic)
-                if not _vent_lic.activada:
-                    logger.info("[LICENCIA] Activación cancelada por el usuario.")
-                    _root_lic.destroy()
-                    sys.exit(0)
-                _root_lic.destroy()
-                logger.info("[LICENCIA] Licencia activada correctamente.")
-            else:
-                logger.info("[LICENCIA] %s", _msg)
-        except Exception as _lic_err:
-            logger.warning("[LICENCIA] No se pudo gestionar licencia: %s", _lic_err)
+            from ui_desktop.pyside.theme_manager import ThemeManager
+            _theme_mgr = ThemeManager.instance()
+            _theme_mgr.reload()   # force-aplica el QSS aunque el tema no haya cambiado
+        except Exception as _te:
+            # Fallback: cargar dark_theme.qss directamente
+            logger.warning("[THEME] ThemeManager no disponible: %s — usando dark_theme.qss", _te)
+            _qss_path = os.path.join(
+                os.path.dirname(__file__), "ui_desktop", "pyside", "styles", "dark_theme.qss"
+            )
+            if os.path.exists(_qss_path):
+                with open(_qss_path, encoding="utf-8") as f:
+                    app.setStyleSheet(f.read())
 
-        ctk.set_appearance_mode("Dark")
-        ctk.set_default_color_theme("blue")
-        app = GymApp()
-        app.mainloop()
+        # Splash screen
+        _pix = _crear_pixmap_splash()
+        _splash = QSplashScreen(_pix)
+        _splash.setWindowFlag(Qt.WindowStaysOnTopHint)
+        _splash.show()
+        app.processEvents()
+
+        # Animar barra de progreso en el splash
+        _prog = [0]
+
+        def _animar():
+            _prog[0] += 5
+            p = _crear_pixmap_splash()
+            painter = QPainter(p)
+            painter.setRenderHint(QPainter.Antialiasing)
+            painter.setBrush(QBrush(QColor("#FF6F0F")))
+            painter.setPen(Qt.NoPen)
+            ancho = int(200 * min(_prog[0], 100) / 100)
+            painter.drawRoundedRect(100, 160, ancho, 6, 3, 3)
+            painter.end()
+            _splash.setPixmap(p)
+            app.processEvents()
+            if _prog[0] < 100:
+                QTimer.singleShot(15, _animar)
+            else:
+                QTimer.singleShot(150, _lanzar_app)
+
+        def _lanzar_app():
+            _splash.close()
+
+            from core.branding import branding as _branding
+
+            # ── Flujo unificado: InicioPanel → GYM | Usuario Regular ─────
+            try:
+                from ui_desktop.pyside.flow_controller import FlowController
+                _flow = FlowController()
+                _resultado = _flow.exec()
+            except Exception as _fe:
+                logger.error("[FLOW] Error cargando FlowController: %s", _fe)
+                _resultado = FlowController.RESULTADO_MODO_GYM if 'FlowController' in dir() else 2
+
+            if _resultado == 0:  # RESULTADO_CANCELADO
+                logger.info("[FLOW] Flujo cancelado por el usuario.")
+                sys.exit(0)
+
+            elif _resultado == 2:  # RESULTADO_MODO_GYM
+                # ── GYM: autenticación gym → wizard colores/logo → licencia → MainWindow ──
+                logger.info("[FLOW] Flujo GYM iniciado.")
+
+                # 1) Acceso GYM (registro primera vez / login si ya existe cuenta)
+                try:
+                    from ui_desktop.pyside.ventana_acceso_gym import VentanaAccesoGym
+                    _acceso_gym = VentanaAccesoGym()
+                    if not _acceso_gym.exec() or _acceso_gym.sesion_gym is None:
+                        logger.info("[GYM] Acceso GYM cancelado.")
+                        sys.exit(0)
+                    _sesion_gym = _acceso_gym.sesion_gym
+                    logger.info("[GYM] Autenticado rol=%s", _sesion_gym.rol)
+                    _branding.recargar()
+                except Exception as _gym_auth_err:
+                    logger.error("[GYM] Error en acceso GYM: %s", _gym_auth_err)
+                    sys.exit(1)
+
+                # 2) Wizard de colores / logo (solo si aún no está configurado)
+                _colores_ok = bool(_branding.get("colores.primario", "").strip()
+                                   and _branding.get("colores.primario") != "#FF6F0F")
+                if not _colores_ok:
+                    try:
+                        from ui_desktop.pyside.wizard_onboarding import WizardOnboarding
+                        wizard = WizardOnboarding()
+                        wizard.exec()
+                        _branding.recargar()
+                    except Exception as _wiz_err:
+                        logger.warning("[WIZARD] %s", _wiz_err)
+
+                try:
+                    _gestor_lic = GestorLicencias()
+                    _valida, _msg, _ = _gestor_lic.validar_licencia()
+                    if not _valida:
+                        logger.warning("[LICENCIA] Licencia no válida: %s", _msg)
+                        _nombre_gym = _branding.get("nombre_gym", "").strip() or "MetodoBase"
+                        from ui_desktop.pyside.ventana_licencia import VentanaActivacionLicencia
+                        _lic_dlg = VentanaActivacionLicencia(
+                            None, gestor=_gestor_lic, nombre_gym=_nombre_gym
+                        )
+                        if not _lic_dlg.exec() or not _lic_dlg.activada:
+                            logger.info("[LICENCIA] Activación cancelada.")
+                            sys.exit(0)
+                        logger.info("[LICENCIA] Licencia activada.")
+                    else:
+                        logger.info("[LICENCIA] %s", _msg)
+                except Exception as _lic_err:
+                    logger.warning("[LICENCIA] No se pudo gestionar licencia: %s", _lic_err)
+
+                from ui_desktop.pyside.main_window import MainWindow
+                window = MainWindow()
+                window.show()
+                # Almacenar referencia para evitar GC
+                app._main_window = window
+
+            else:  # RESULTADO_SESION_OK (1)
+                # ── Usuario regular: FlowController ya gestionó todo ──────
+                logger.info("[FLOW] Flujo usuario regular finalizado.")
+                sys.exit(0)
+
+        QTimer.singleShot(50, _animar)
+        sys.exit(app.exec())
+
     else:
         # Fallback a modo consola
         print("\n" + "=" * 60)

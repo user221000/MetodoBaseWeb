@@ -49,33 +49,35 @@ def activar_modal_seguro(ventana, parent=None) -> None:
 
     En Linux/X11, ``grab_set()`` puede fallar con "window not viewable"
     si se invoca antes de que el Toplevel termine de mapearse.
+    Adicionalmente, llamar ``transient()`` sobre un padre withdrawn (oculto)
+    hace que el WM desmapee el hijo, bloqueando ``wait_visibility()`` para siempre.
     """
     if parent is not None:
+        # Solo aplicar transient si el padre está actualmente visible/mapeado.
+        # En Linux/X11, un padre withdrawn causa que el hijo también se desmapee.
         try:
-            ventana.transient(parent)
+            if parent.winfo_viewable():
+                ventana.transient(parent)
         except Exception as exc:
             logger.warning("No se pudo configurar transient en %s: %s", ventana, exc)
 
-    try:
-        ventana.update_idletasks()
-        ventana.wait_visibility()
-    except Exception as exc:
-        logger.warning("No se pudo esperar visibilidad de %s: %s", ventana, exc)
+    # Reemplazamos el wait_visibility() bloqueante con un after() no bloqueante.
+    # Esto evita el deadlock cuando el padre está withdrawn o el WM tarda en mapear.
+    def _hacer_modal():
+        try:
+            ventana.lift()
+        except Exception as exc:
+            logger.warning("No se pudo elevar la ventana %s: %s", ventana, exc)
+        try:
+            ventana.grab_set()
+        except Exception as exc:
+            logger.warning("No se pudo aplicar grab modal en %s: %s", ventana, exc)
+        try:
+            ventana.focus_force()
+        except Exception as exc:
+            logger.warning("No se pudo enfocar la ventana %s: %s", ventana, exc)
 
-    try:
-        ventana.lift()
-    except Exception as exc:
-        logger.warning("No se pudo elevar la ventana %s: %s", ventana, exc)
-
-    try:
-        ventana.grab_set()
-    except Exception as exc:
-        logger.warning("No se pudo aplicar grab modal en %s: %s", ventana, exc)
-
-    try:
-        ventana.focus_force()
-    except Exception as exc:
-        logger.warning("No se pudo enfocar la ventana %s: %s", ventana, exc)
+    ventana.after(200, _hacer_modal)
 
 
 def cargar_plan_anterior_cliente(cliente_id: str, directorio_planes: str = ".") -> dict | None:
