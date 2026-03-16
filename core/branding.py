@@ -84,18 +84,28 @@ class GestorBranding:
             "secundario_hover": "#26C6DA",
             "pdf_color": "#0D47A1",
         },
+        "Aurora Fitness": {
+            "primario": "#00897B",
+            "primario_hover": "#006B5F",
+            "secundario": "#7CB342",
+            "secundario_hover": "#3D7D52",
+            "pdf_color": "#00897B",
+            "neutral_bg": "#0A0A0B",
+            "neutral_card": "#121214",
+            "neutral_text": "#E8E8EC",
+        },
     }
 
     DEFAULTS: dict = {
         "nombre_gym": "",
         "nombre_corto": "Método Base",
         "tagline": "Powered by Consultoría Hernández",
-        "tema_visual": "Metodo Base Clasico",
+        "tema_visual": "Aurora Fitness",
         "colores": {
-            "primario": "#9B4FB0",
-            "primario_hover": "#B565C6",
-            "secundario": "#D4A84B",
-            "secundario_hover": "#E4B85B",
+            "primario": "#00897B",
+            "primario_hover": "#006B5F",
+            "secundario": "#7CB342",
+            "secundario_hover": "#3D7D52",
         },
         "contacto": {
             "telefono": "",
