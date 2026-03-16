@@ -41,35 +41,42 @@ from src.gestor_bd import GestorBDClientes              # noqa: E402
 from gui.ventana_admin import VentanaAdmin              # noqa: E402
 from gui.ventana_clientes import VentanaClientes        # noqa: E402
 from utils.logger import logger                         # noqa: E402
+from gui.design_tokens import (                         # noqa: E402
+    Colors,
+    Typography,
+    Spacing,
+    Radius,
+    Component,
+)
 
 
 
 class GymApp(ctk.CTk):
     """Aplicacion principal con CustomTkinter - Diseño profesional moderno."""
 
-    # ── Paleta de colores WCAG 2.1 AA ──────────────────────────────────
-    # Todos los pares texto/fondo cumplen ratio mínimo 4.5:1
-    COLOR_BG           = "#0D0D0D"   # Fondo principal
-    COLOR_CARD         = "#1A1A1A"   # Fondo de cards
-    COLOR_PRIMARY      = "#9B4FB0"   # Morado — ratio 6.18:1 sobre BG ✅
-    COLOR_PRIMARY_HOVER = "#B565C6"
-    COLOR_SECONDARY    = "#D4A84B"
-    COLOR_SECONDARY_HOVER = "#E4B85B"
-    COLOR_BORDER       = "#444444"
-    COLOR_TEXT         = "#F5F5F5"   # Blanco — ratio 19.77:1 sobre BG ✅
-    COLOR_TEXT_MUTED   = "#B8B8B8"   # Gris — ratio 9.42:1 sobre BG  ✅
-    COLOR_INPUT_BG     = "#2A2A2A"
-    COLOR_SUCCESS      = "#4CAF50"   # Verde Material Design
-    COLOR_SUCCESS_HOVER = "#43A047"
-    COLOR_ERROR        = "#F44336"   # Rojo Material Design
-    COLOR_WARNING      = "#FF9800"   # Naranja Material Design
-    COLOR_INFO         = "#2196F3"   # Azul Material Design
-    FONT_FAMILY        = "Segoe UI"
-    SPACE_XS           = 4
-    SPACE_SM           = 8
-    SPACE_MD           = 12
-    SPACE_LG           = 16
-    SPACE_XL           = 20
+    # ── Aurora Fitness Design System ──────────────────────────────────
+    COLOR_BG              = Colors.BG_PRIMARY
+    COLOR_CARD            = Colors.BG_SECONDARY
+    COLOR_PRIMARY         = Colors.ACTION_PRIMARY
+    COLOR_PRIMARY_HOVER   = Colors.ACTION_PRIMARY_HOVER
+    COLOR_SECONDARY       = Colors.ACTION_SECONDARY
+    COLOR_SECONDARY_HOVER = Colors.ACTION_SECONDARY_HOVER
+    COLOR_BORDER          = Colors.BORDER_SUBTLE
+    COLOR_TEXT            = Colors.TEXT_PRIMARY
+    COLOR_TEXT_MUTED      = Colors.TEXT_SECONDARY
+    COLOR_INPUT_BG        = Colors.BG_TERTIARY
+    COLOR_SUCCESS         = Colors.SUCCESS
+    COLOR_SUCCESS_HOVER   = Colors.SUCCESS_HOVER
+    COLOR_ERROR           = Colors.ERROR
+    COLOR_WARNING         = Colors.WARNING
+    COLOR_INFO            = Colors.INFO
+    # Mantener FONT_FAMILY y SPACE_* por compatibilidad (deprecated)
+    FONT_FAMILY = Typography.FONT_STACK
+    SPACE_XS    = Spacing.XS
+    SPACE_SM    = Spacing.SM
+    SPACE_MD    = Spacing.MD
+    SPACE_LG    = Spacing.LG
+    SPACE_XL    = Spacing.XL
 
     def __init__(self):
         super().__init__()
@@ -121,7 +128,7 @@ class GymApp(ctk.CTk):
         self.lbl_titulo = ctk.CTkLabel(
             self.title_container,
             text=branding.get('nombre_corto', 'Metodo Base'),
-            font=ctk.CTkFont(family=self.FONT_FAMILY, size=40, weight="bold"),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_3XL, weight=Typography.WEIGHT_BOLD),
             text_color=self.COLOR_TEXT
         )
         self.lbl_titulo.pack(pady=(0, self.SPACE_XS))
@@ -129,7 +136,7 @@ class GymApp(ctk.CTk):
         self.lbl_subtitulo = ctk.CTkLabel(
             self.header_frame,
             text=branding.get('nombre_gym', 'Fitness Gym'),
-            font=ctk.CTkFont(family=self.FONT_FAMILY, size=15),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_BASE),
             text_color=self.COLOR_SECONDARY
         )
         self.lbl_subtitulo.pack(pady=(0, self.SPACE_XS))
@@ -137,7 +144,7 @@ class GymApp(ctk.CTk):
         self.lbl_contexto = ctk.CTkLabel(
             self.header_frame,
             text=branding.get('tagline', 'Powered by C. H.'),
-            font=ctk.CTkFont(family=self.FONT_FAMILY, size=10),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_XS),
             text_color=self.COLOR_TEXT_MUTED
         )
         self.lbl_contexto.pack(pady=(0, self.SPACE_MD))
@@ -192,16 +199,16 @@ class GymApp(ctk.CTk):
         self.combo_plantilla = ctk.CTkComboBox(
             self.section_perfil,
             values=PLANTILLAS_LABELS,
-            height=38,
-            corner_radius=8,
+            height=Component.INPUT_HEIGHT,
+            corner_radius=Radius.SM,
             border_width=1,
             border_color=self.COLOR_BORDER,
             button_color=self.COLOR_PRIMARY,
             button_hover_color=self.COLOR_PRIMARY_HOVER,
             dropdown_fg_color=self.COLOR_CARD,
             dropdown_hover_color=self.COLOR_PRIMARY,
-            font=ctk.CTkFont(family="Segoe UI", size=13),
-            dropdown_font=ctk.CTkFont(family="Segoe UI", size=12),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM),
+            dropdown_font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM),
             command=self._on_plantilla_change,
         )
         self.combo_plantilla.grid(
@@ -213,7 +220,7 @@ class GymApp(ctk.CTk):
             self.section_perfil,
             text="",
             anchor="w",
-            font=ctk.CTkFont(family="Segoe UI", size=10),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_XS),
             text_color=self.COLOR_TEXT_MUTED,
             wraplength=580,
             justify="left",
@@ -236,7 +243,7 @@ class GymApp(ctk.CTk):
         self.lbl_tipo_plan = ctk.CTkLabel(
             self.frame_tipo_plan_inner,
             text="Formato de entrega:",
-            font=ctk.CTkFont(family=self.FONT_FAMILY, size=13, weight="bold"),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM, weight=Typography.WEIGHT_SEMIBOLD),
             text_color=self.COLOR_SECONDARY
         )
         self.lbl_tipo_plan.pack(side="left", padx=(0, 15))
@@ -317,7 +324,7 @@ class GymApp(ctk.CTk):
         self.btn_procesar = ctk.CTkButton(
             self.btn_shadow, text="INICIAR FLUJO DE PLAN",
             command=self._on_procesar_click, height=60, corner_radius=12,
-            font=ctk.CTkFont(family=self.FONT_FAMILY, size=18, weight="bold"),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_LG, weight=Typography.WEIGHT_BOLD),
             fg_color=self.COLOR_TEXT_MUTED, hover_color=self.COLOR_PRIMARY_HOVER,
             border_width=2, border_color=self.COLOR_PRIMARY_HOVER,
             text_color=self.COLOR_TEXT,
@@ -335,7 +342,7 @@ class GymApp(ctk.CTk):
             self.secondary_buttons, text="Compartir por WhatsApp",
             command=self.enviar_por_whatsapp, state="disabled",
             height=36, corner_radius=6,
-            font=ctk.CTkFont(family="Segoe UI", size=12),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM),
             fg_color=self.COLOR_SUCCESS, hover_color=self.COLOR_SUCCESS_HOVER,
             border_width=1, border_color=self.COLOR_SUCCESS_HOVER,
             text_color=self.COLOR_TEXT
@@ -345,7 +352,7 @@ class GymApp(ctk.CTk):
         self.btn_abrir_pdf = ctk.CTkButton(
             self.secondary_buttons, text="Abrir carpeta de PDF",
             command=abrir_carpeta_pdf, height=36, corner_radius=6,
-            font=ctk.CTkFont(family="Segoe UI", size=12),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM),
             fg_color="transparent", hover_color=self.COLOR_CARD,
             border_width=1, border_color=self.COLOR_BORDER,
             text_color=self.COLOR_TEXT_MUTED
@@ -356,7 +363,7 @@ class GymApp(ctk.CTk):
         self.btn_clientes = ctk.CTkButton(
             self.secondary_buttons, text="👥 Mis Clientes",
             command=self._abrir_clientes, height=36, corner_radius=6,
-            font=ctk.CTkFont(family="Segoe UI", size=12),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM),
             fg_color=self.COLOR_INFO, hover_color="#1976D2",
             border_width=1, border_color=self.COLOR_INFO,
             text_color="white"
@@ -377,7 +384,7 @@ class GymApp(ctk.CTk):
         
         self.lbl_status = ctk.CTkLabel(
             self.log_frame, text="Bitácora del Staff", anchor="w",
-            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM, weight=Typography.WEIGHT_SEMIBOLD),
             text_color=self.COLOR_TEXT_MUTED
         )
         self.lbl_status.pack(padx=16, pady=(12, 4), anchor="w")
@@ -395,43 +402,14 @@ class GymApp(ctk.CTk):
     # ───── Helpers de creación de UI ─────
 
     def _crear_seccion(self, titulo, icono=""):
-        card = ctk.CTkFrame(
-            self.main_container, fg_color=self.COLOR_CARD,
-            corner_radius=12, border_width=1, border_color=self.COLOR_BORDER
-        )
-        card.pack(fill="x", padx=40, pady=8)
-        
-        header = ctk.CTkFrame(card, fg_color="transparent")
-        header.pack(fill="x", padx=16, pady=(14, 8))
-        
-        if icono:
-            lbl_icono = ctk.CTkLabel(
-                header, text=icono,
-                font=ctk.CTkFont(family="Segoe UI", size=14),
-                text_color=self.COLOR_PRIMARY, anchor="w"
-            )
-            lbl_icono.pack(side="left", padx=(0, 8))
-        
-        lbl_titulo = ctk.CTkLabel(
-            header, text=titulo,
-            font=ctk.CTkFont(family="Segoe UI", size=14, weight="bold"),
-            text_color=self.COLOR_SECONDARY, anchor="w"
-        )
-        lbl_titulo.pack(side="left")
-        
-        content = ctk.CTkFrame(card, fg_color="transparent")
-        content.pack(fill="x", padx=8, pady=(0, 12))
-        content.grid_columnconfigure(0, weight=1)
-        content.grid_columnconfigure(1, weight=1)
-        content.grid_columnconfigure(2, weight=1)
-        content.grid_columnconfigure(3, weight=1)
-        
-        return content
+        """Wrapper legacy para crear_seccion del design system."""
+        from gui.componentes import crear_seccion
+        return crear_seccion(self.main_container, titulo, icono)
     
     def _crear_label_campo(self, parent, texto, fila, col=0):
         label = ctk.CTkLabel(
             parent, text=texto,
-            font=ctk.CTkFont(family="Segoe UI", size=12),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM, weight=Typography.WEIGHT_MEDIUM),
             text_color=self.COLOR_TEXT, anchor="w"
         )
         label.grid(row=fila, column=col, columnspan=2, padx=(16, 4), pady=(8, 2), sticky="w")
@@ -442,17 +420,17 @@ class GymApp(ctk.CTk):
         self._crear_label_campo(parent, label_text, base_row, col=0)
 
         entry = ctk.CTkEntry(
-            parent, placeholder_text=placeholder, height=38, corner_radius=8,
-            border_width=1, border_color=self.COLOR_BORDER,
+            parent, placeholder_text=placeholder, height=Component.INPUT_HEIGHT, corner_radius=Radius.SM,
+            border_width=Component.INPUT_BORDER_WIDTH, border_color=self.COLOR_BORDER,
             fg_color=self.COLOR_INPUT_BG,
-            font=ctk.CTkFont(family="Segoe UI", size=13),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_BASE),
             placeholder_text_color=self.COLOR_TEXT_MUTED
         )
         entry.grid(row=base_row + 1, column=0, columnspan=4, padx=16, pady=(0, 2), sticky="ew")
 
         lbl_error = ctk.CTkLabel(
             parent, text="", anchor="w",
-            font=ctk.CTkFont(family="Segoe UI", size=10),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_XS),
             text_color=self.COLOR_ERROR,
             wraplength=580,
             justify="left",
@@ -464,35 +442,35 @@ class GymApp(ctk.CTk):
     def _crear_input_duo(self, parent, label1, placeholder1, label2, placeholder2, row):
         base_row = row * 3
 
-        lbl1 = ctk.CTkLabel(parent, text=label1, font=ctk.CTkFont(family="Segoe UI", size=12),
+        lbl1 = ctk.CTkLabel(parent, text=label1, font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM, weight=Typography.WEIGHT_MEDIUM),
                            text_color=self.COLOR_TEXT, anchor="w")
         lbl1.grid(row=base_row, column=0, columnspan=2, padx=(16, 4), pady=(8, 2), sticky="w")
 
-        lbl2 = ctk.CTkLabel(parent, text=label2, font=ctk.CTkFont(family="Segoe UI", size=12),
+        lbl2 = ctk.CTkLabel(parent, text=label2, font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM, weight=Typography.WEIGHT_MEDIUM),
                            text_color=self.COLOR_TEXT, anchor="w")
         lbl2.grid(row=base_row, column=2, columnspan=2, padx=(16, 4), pady=(8, 2), sticky="w")
 
         entry1 = ctk.CTkEntry(
-            parent, placeholder_text=placeholder1, height=38, corner_radius=8,
-            border_width=1, border_color=self.COLOR_BORDER,
+            parent, placeholder_text=placeholder1, height=Component.INPUT_HEIGHT, corner_radius=Radius.SM,
+            border_width=Component.INPUT_BORDER_WIDTH, border_color=self.COLOR_BORDER,
             fg_color=self.COLOR_INPUT_BG,
-            font=ctk.CTkFont(family="Segoe UI", size=13),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_BASE),
             placeholder_text_color=self.COLOR_TEXT_MUTED
         )
         entry1.grid(row=base_row + 1, column=0, columnspan=2, padx=(16, 8), pady=(0, 2), sticky="ew")
 
         entry2 = ctk.CTkEntry(
-            parent, placeholder_text=placeholder2, height=38, corner_radius=8,
-            border_width=1, border_color=self.COLOR_BORDER,
+            parent, placeholder_text=placeholder2, height=Component.INPUT_HEIGHT, corner_radius=Radius.SM,
+            border_width=Component.INPUT_BORDER_WIDTH, border_color=self.COLOR_BORDER,
             fg_color=self.COLOR_INPUT_BG,
-            font=ctk.CTkFont(family="Segoe UI", size=13),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_BASE),
             placeholder_text_color=self.COLOR_TEXT_MUTED
         )
         entry2.grid(row=base_row + 1, column=2, columnspan=2, padx=(8, 16), pady=(0, 2), sticky="ew")
 
         lbl_error1 = ctk.CTkLabel(
             parent, text="", anchor="w",
-            font=ctk.CTkFont(family="Segoe UI", size=10),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_XS),
             text_color=self.COLOR_ERROR,
             wraplength=250,
             justify="left",
@@ -501,7 +479,7 @@ class GymApp(ctk.CTk):
 
         lbl_error2 = ctk.CTkLabel(
             parent, text="", anchor="w",
-            font=ctk.CTkFont(family="Segoe UI", size=10),
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_XS),
             text_color=self.COLOR_ERROR,
             wraplength=250,
             justify="left",
@@ -513,32 +491,32 @@ class GymApp(ctk.CTk):
     def _crear_combo_duo(self, parent, label1, values1, default1, label2, values2, default2, row):
         base_row = row * 2
         
-        lbl1 = ctk.CTkLabel(parent, text=label1, font=ctk.CTkFont(family="Segoe UI", size=12),
+        lbl1 = ctk.CTkLabel(parent, text=label1, font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM, weight=Typography.WEIGHT_MEDIUM),
                            text_color=self.COLOR_TEXT, anchor="w")
         lbl1.grid(row=base_row, column=0, columnspan=2, padx=(16, 4), pady=(8, 2), sticky="w")
         
-        lbl2 = ctk.CTkLabel(parent, text=label2, font=ctk.CTkFont(family="Segoe UI", size=12),
+        lbl2 = ctk.CTkLabel(parent, text=label2, font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM, weight=Typography.WEIGHT_MEDIUM),
                            text_color=self.COLOR_TEXT, anchor="w")
         lbl2.grid(row=base_row, column=2, columnspan=2, padx=(16, 4), pady=(8, 2), sticky="w")
         
         combo1 = ctk.CTkComboBox(
-            parent, values=values1, height=38, corner_radius=8,
+            parent, values=values1, height=Component.INPUT_HEIGHT, corner_radius=Radius.SM,
             border_width=1, border_color=self.COLOR_BORDER,
             button_color=self.COLOR_PRIMARY, button_hover_color=self.COLOR_PRIMARY_HOVER,
             dropdown_fg_color=self.COLOR_CARD, dropdown_hover_color=self.COLOR_PRIMARY,
-            font=ctk.CTkFont(family="Segoe UI", size=13),
-            dropdown_font=ctk.CTkFont(family="Segoe UI", size=12)
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_BASE),
+            dropdown_font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM)
         )
         combo1.grid(row=base_row + 1, column=0, columnspan=2, padx=(16, 8), pady=(0, 8), sticky="ew")
         combo1.set(default1)
         
         combo2 = ctk.CTkComboBox(
-            parent, values=values2, height=38, corner_radius=8,
+            parent, values=values2, height=Component.INPUT_HEIGHT, corner_radius=Radius.SM,
             border_width=1, border_color=self.COLOR_BORDER,
             button_color=self.COLOR_PRIMARY, button_hover_color=self.COLOR_PRIMARY_HOVER,
             dropdown_fg_color=self.COLOR_CARD, dropdown_hover_color=self.COLOR_PRIMARY,
-            font=ctk.CTkFont(family="Segoe UI", size=13),
-            dropdown_font=ctk.CTkFont(family="Segoe UI", size=12)
+            font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_BASE),
+            dropdown_font=ctk.CTkFont(family=Typography.FONT_STACK, size=Typography.SIZE_SM)
         )
         combo2.grid(row=base_row + 1, column=2, columnspan=2, padx=(8, 16), pady=(0, 8), sticky="ew")
         combo2.set(default2)
