@@ -250,6 +250,12 @@ class GeneradorPDFProfesional:
             self._dibujar_disclaimer(c_pdf, page_width)
 
             c_pdf.save()
+
+            # Abrir carpeta automáticamente al generar PDF
+            from utils.file_operations import abrir_carpeta_en_explorador
+            carpeta_output = os.path.dirname(os.path.abspath(self.ruta_salida))
+            abrir_carpeta_en_explorador(carpeta_output)
+
             return self.ruta_salida
 
         except Exception as e:

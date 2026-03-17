@@ -49,21 +49,24 @@ _PREF_FILE: Path = Path.home() / ".metodobase" / "theme_pref.json"
 
 # Mapa nombre → ruta QSS; rutas alternativas para compatibilidad
 _FALLBACK_DARK = _BASE_DIR / "ui_desktop" / "pyside" / "styles" / "dark_theme.qss"
+_VERDE_PREMIUM = _BASE_DIR / "ui_desktop" / "pyside" / "styles" / "verde_premium.qss"
 
 _THEMES: dict[str, list[Path]] = {
-    "dark":   [_STYLES_DIR / "dark.qss",   _FALLBACK_DARK],
-    "light":  [_STYLES_DIR / "light.qss"],
-    "aurora": [_STYLES_DIR / "aurora.qss"],
+    "dark":           [_STYLES_DIR / "dark.qss",   _FALLBACK_DARK],
+    "light":          [_STYLES_DIR / "light.qss"],
+    "aurora":         [_STYLES_DIR / "aurora.qss"],
+    "verde_premium":  [_VERDE_PREMIUM],
 }
 
 # Etiquetas mostradas en los botones del ThemeSwitcher
 _LABELS: dict[str, str] = {
-    "dark":   "🌙  Oscuro",
-    "light":  "☀️  Claro",
-    "aurora": "🌌  Aurora",
+    "dark":           "🌙  Oscuro",
+    "light":          "☀️  Claro",
+    "aurora":         "🌌  Aurora",
+    "verde_premium":  "🌿  Verde Premium",
 }
 
-_THEME_ORDER = ["dark", "light", "aurora"]
+_THEME_ORDER = ["verde_premium", "dark", "light", "aurora"]
 
 
 # ── ThemeManager ────────────────────────────────────────────────────────────────
@@ -85,7 +88,7 @@ class ThemeManager(QObject):
 
     def __init__(self) -> None:
         super().__init__()
-        self._current: str = "dark"
+        self._current: str = "verde_premium"
         self._locked: bool = False          # debounce — evita cambios en ráfaga
         self._load_saved_pref()
 

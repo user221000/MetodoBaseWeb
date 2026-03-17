@@ -436,10 +436,49 @@ class VentanaAccesoGym(QDialog):
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(36, 28, 36, 28)
+        outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
 
-        # ── Header ───────────────────────────────────────────────────────
+        # ── Banner header verde premium ───────────────────────────────────
+        banner = QWidget()
+        banner.setStyleSheet(
+            "background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            "stop:0 #0a1409,stop:1 #152515);"
+            "border-bottom: 2px solid #2a4a2a;"
+        )
+        banner_lay = QHBoxLayout(banner)
+        banner_lay.setContentsMargins(28, 18, 28, 18)
+
+        dot = QLabel("●")
+        dot.setStyleSheet("color: #39ff14; font-size: 16px; background: transparent;")
+        banner_lay.addWidget(dot)
+
+        brand = QLabel("  Método Base — Módulo GYM")
+        brand.setStyleSheet(
+            "color: #e8f5e9; font-size: 17px; font-weight: 700; background: transparent;"
+        )
+        banner_lay.addWidget(brand)
+        banner_lay.addStretch()
+
+        badge_text = "REGISTRO" if self._modo == "registro" else "ACCESO"
+        badge = QLabel(f" {badge_text} ")
+        badge.setStyleSheet(
+            "background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            "stop:0 #ffd700,stop:1 #d4af37);"
+            "color: #0a1409; font-size: 11px; font-weight: 700;"
+            "padding: 3px 10px; border-radius: 10px;"
+        )
+        banner_lay.addWidget(badge)
+
+        outer.addWidget(banner)
+
+        # ── Contenido con padding ──────────────────────────────────────────
+        content_w = QWidget()
+        content_lay = QVBoxLayout(content_w)
+        content_lay.setContentsMargins(36, 24, 36, 24)
+        content_lay.setSpacing(0)
+
+        # ── Header texto ──────────────────────────────────────────────────
         hdr_title_text = (
             "Configura tu Gym" if self._modo == "registro" else "Bienvenido de vuelta"
         )
@@ -449,27 +488,22 @@ class VentanaAccesoGym(QDialog):
             else "Inicia sesión con el correo y contraseña de tu gym."
         )
 
-        hdr = QLabel("● Método Base  —  Módulo GYM")
-        hdr.setObjectName("accent")
-        outer.addWidget(hdr)
-        outer.addSpacerItem(QSpacerItem(0, 16, QSizePolicy.Minimum, QSizePolicy.Fixed))
-
         title = QLabel(hdr_title_text)
         title.setObjectName("title")
-        outer.addWidget(title)
+        content_lay.addWidget(title)
 
         sub = QLabel(hdr_sub_text)
         sub.setObjectName("subheadline")
         sub.setWordWrap(True)
-        outer.addWidget(sub)
+        content_lay.addWidget(sub)
 
-        outer.addSpacerItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
-        outer.addWidget(_separador())
-        outer.addSpacerItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
+        content_lay.addSpacerItem(QSpacerItem(0, 16, QSizePolicy.Minimum, QSizePolicy.Fixed))
+        content_lay.addWidget(_separador())
+        content_lay.addSpacerItem(QSpacerItem(0, 16, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         # ── Stacked content ───────────────────────────────────────────────
         self._stack = QStackedWidget()
-        outer.addWidget(self._stack)
+        content_lay.addWidget(self._stack)
 
         if self._modo == "registro":
             self._pag_reg = _PaginaRegistro(self._auth_service)
@@ -478,7 +512,7 @@ class VentanaAccesoGym(QDialog):
             self._pag_login = _PaginaLogin(self._auth_service)
             self._stack.addWidget(self._pag_login)
 
-        outer.addSpacerItem(QSpacerItem(0, 16, QSizePolicy.Minimum, QSizePolicy.Fixed))
+        content_lay.addSpacerItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         # ── Botones ───────────────────────────────────────────────────────
         btn_row = QHBoxLayout()
@@ -487,6 +521,7 @@ class VentanaAccesoGym(QDialog):
         self._btn_accion = QPushButton(
             "Crear cuenta y continuar  →" if self._modo == "registro" else "Iniciar sesión  →"
         )
+        self._btn_accion.setObjectName("primaryButton")
         self._btn_accion.clicked.connect(self._on_accion)
         btn_row.addWidget(self._btn_accion)
 
@@ -495,16 +530,18 @@ class VentanaAccesoGym(QDialog):
         btn_cancel.clicked.connect(self.reject)
         btn_row.addWidget(btn_cancel)
 
-        outer.addLayout(btn_row)
+        content_lay.addLayout(btn_row)
 
         # Link para cambiar de login → registro (en caso de querer crear otra cuenta)
         if self._modo == "login":
-            outer.addSpacerItem(QSpacerItem(0, 8, QSizePolicy.Minimum, QSizePolicy.Fixed))
+            content_lay.addSpacerItem(QSpacerItem(0, 8, QSizePolicy.Minimum, QSizePolicy.Fixed))
             lnk = QPushButton("Crear nueva cuenta de gym")
             lnk.setObjectName("btn_text")
             lnk.setFixedHeight(28)
             lnk.clicked.connect(self._cambiar_a_registro)
-            outer.addWidget(lnk, alignment=Qt.AlignCenter)
+            content_lay.addWidget(lnk, alignment=Qt.AlignCenter)
+
+        outer.addWidget(content_w)
 
     # ── Slots ────────────────────────────────────────────────────────────────
 

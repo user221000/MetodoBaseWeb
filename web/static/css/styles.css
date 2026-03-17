@@ -599,6 +599,186 @@ select.input { cursor: pointer; }
 
 .step-connector.done { background: var(--accent-purple); }
 
+/* ── Neón Amarillo (#feca57) — Bordes y efectos de glow ───── */
+
+/* Border neon general */
+.neon-border {
+  border: 2px solid rgba(254,202,87,0.4);
+  box-shadow:
+    0 0 10px rgba(254,202,87,0.2),
+    0 0 20px rgba(254,202,87,0.12),
+    inset 0 0 10px rgba(254,202,87,0.05);
+  transition: all 0.3s ease;
+}
+
+.neon-border:hover {
+  border-color: var(--accent-yellow);
+  box-shadow:
+    0 0 20px rgba(254,202,87,0.4),
+    0 0 40px rgba(254,202,87,0.2),
+    inset 0 0 15px rgba(254,202,87,0.08);
+}
+
+/* Glow effect para botones y elementos activos */
+.neon-glow {
+  box-shadow:
+    0 0 20px rgba(254,202,87,0.5),
+    0 0 40px rgba(254,202,87,0.3),
+    0 0 60px rgba(254,202,87,0.15);
+}
+
+/* Sidebar logo dot con color neón */
+.sidebar-logo .logo-dot {
+  background: var(--accent-yellow);
+  box-shadow: 0 0 12px var(--accent-yellow), 0 0 24px rgba(254,202,87,0.4);
+}
+
+/* Nav item hover con acento amarillo */
+.nav-item:hover {
+  background: rgba(254,202,87,0.08);
+  color: var(--accent-yellow);
+}
+
+/* Sidebar border derecho neón */
+.sidebar {
+  border-right: 1px solid rgba(254,202,87,0.15);
+}
+
+/* Glass card hover con borde amarillo sutil */
+.glass-hover:hover {
+  border-color: rgba(254,202,87,0.2);
+}
+
+/* KPI card border neón al hover */
+.kpi-card:hover {
+  border-color: rgba(254,202,87,0.3) !important;
+  box-shadow: var(--shadow-hover), 0 0 20px rgba(254,202,87,0.12);
+}
+
+/* Focus en inputs con amarillo */
+.input:focus {
+  border-color: var(--accent-yellow) !important;
+  box-shadow: 0 0 0 3px rgba(254,202,87,0.15);
+}
+
+/* Botón primario con neón al hover */
+.btn-primary:hover {
+  box-shadow: 0 8px 24px rgba(102,126,234,0.4), 0 0 20px rgba(254,202,87,0.2);
+}
+
+/* Badge amarillo */
+.badge-yellow { background: rgba(254,202,87,0.15); color: var(--accent-yellow); }
+
+/* Scroll thumb amarillo al hover */
+::-webkit-scrollbar-thumb:hover { background: var(--accent-yellow); }
+
+/* Time tab activo con amarillo neón */
+.time-tab.active {
+  background: var(--accent-yellow);
+  color: #0a0a0f;
+  font-weight: 700;
+}
+
+/* Wizard step activo con glow amarillo */
+.step-circle.active {
+  box-shadow: 0 0 20px rgba(254,202,87,0.4), 0 0 40px rgba(102,126,234,0.3);
+}
+
+/* Animación contador KPI */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.kpi-value { animation: countUp 0.5s ease; }
+
+/* Toast neón */
+.toast.success { border-color: rgba(46,213,115,0.4); box-shadow: 0 0 15px rgba(46,213,115,0.1); }
+.toast.error   { border-color: rgba(255,71,87,0.4); box-shadow: 0 0 15px rgba(255,71,87,0.1); }
+.toast.warning {
+  border-color: rgba(254,202,87,0.4);
+  box-shadow: 0 0 15px rgba(254,202,87,0.15);
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-backdrop.hidden { display: none; }
+
+.modal {
+  background: #1a1a24;
+  border: 1px solid rgba(254,202,87,0.2);
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 30px rgba(254,202,87,0.08);
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Indicador de página activa en sidebar con amarillo */
+.nav-item.active {
+  background: rgba(254,202,87,0.1);
+  color: var(--accent-yellow);
+}
+
+.nav-item.active::before {
+  background: var(--accent-yellow);
+  box-shadow: 0 0 8px var(--accent-yellow);
+}
+
+/* Color de texto para estadísticas destacadas */
+.text-yellow { color: var(--accent-yellow); }
+.text-green  { color: var(--accent-green); }
+.text-purple { color: var(--accent-purple); }
+.text-pink   { color: var(--accent-pink); }
+
+/* Gradient button amarillo */
+.btn-yellow {
+  background: linear-gradient(135deg, var(--accent-yellow), #ff9f43);
+  color: #0a0a0f;
+  font-weight: 700;
+}
+.btn-yellow:hover {
+  box-shadow: 0 8px 24px rgba(254,202,87,0.45);
+  transform: translateY(-2px);
+}
+
+/* Danger button */
+.btn-danger {
+  background: rgba(255,71,87,0.15);
+  color: #ff4757;
+  border: 1px solid rgba(255,71,87,0.3);
+}
+.btn-danger:hover {
+  background: rgba(255,71,87,0.25);
+  box-shadow: 0 0 15px rgba(255,71,87,0.2);
+}
+
+/* Table row highlight amarillo en hover */
+.data-table tbody tr:hover {
+  background: rgba(254,202,87,0.04);
+}
+
+
 /* ── Plan step panels ──────────────────────────────────────── */
 .plan-step {
   display: none;

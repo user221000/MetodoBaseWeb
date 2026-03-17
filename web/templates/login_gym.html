@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Socio Comercial — Método Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <style>
+    body { background: #0a0a0f; font-family: 'Inter', sans-serif; min-height: 100vh; }
+    .neon-card {
+      border: 2px solid rgba(254,202,87,0.35);
+      box-shadow: 0 0 30px rgba(254,202,87,0.1), inset 0 0 20px rgba(254,202,87,0.03);
+    }
+    .input-field {
+      width: 100%; background: rgba(26,26,36,0.9); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 13px 16px; color: #fff; font-size: .95rem;
+      outline: none; transition: border-color .25s, box-shadow .25s;
+    }
+    .input-field:focus {
+      border-color: #feca57;
+      box-shadow: 0 0 0 3px rgba(254,202,87,0.12);
+    }
+    .input-field::placeholder { color: #6b6b7d; }
+    .btn-primary {
+      width: 100%; padding: 14px; border-radius: 10px; font-weight: 700;
+      font-size: 1rem; cursor: pointer; transition: all .3s; border: none;
+      background: linear-gradient(135deg,#667eea,#764ba2); color: #fff;
+    }
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(102,126,234,0.5); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .error-msg {
+      background: rgba(255,71,87,.12); border: 1px solid rgba(255,71,87,.35);
+      border-radius: 8px; padding: 10px 14px; color: #ff4757; font-size: .85rem;
+      display: none;
+    }
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-in { animation: fadeInUp .5s ease both; }
+  </style>
+</head>
+<body class="flex items-center justify-center p-6">
+
+  <div class="w-full max-w-md fade-in">
+    <!-- Back -->
+    <a href="/" style="display:inline-flex;align-items:center;gap:8px;color:#a0a0b5;font-size:.88rem;
+                       margin-bottom:28px;text-decoration:none;transition:color .2s;"
+       onmouseover="this.style.color='#feca57'" onmouseout="this.style.color='#a0a0b5'">
+      ← Volver al inicio
+    </a>
+
+    <div class="neon-card rounded-2xl p-8" style="background:rgba(26,26,36,0.75);backdrop-filter:blur(16px);">
+
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
+             style="background:linear-gradient(135deg,#667eea,#764ba2);">
+          <svg style="width:28px;height:28px;color:white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+        </div>
+        <h1 style="font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:.3rem;">Socio Comercial</h1>
+        <p style="color:#a0a0b5;font-size:.9rem;">Accede al panel de gestión de tu gym</p>
+      </div>
+
+      <!-- Error -->
+      <div class="error-msg mb-4" id="errorMsg"></div>
+
+      <!-- Formulario -->
+      <form id="loginForm" novalidate>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:8px;letter-spacing:.04em;">
+            CORREO DEL GIMNASIO
+          </label>
+          <input type="email" name="email" class="input-field"
+                 placeholder="gym@ejemplo.com" required autocomplete="email" />
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:8px;letter-spacing:.04em;">
+            CONTRASEÑA
+          </label>
+          <div style="position:relative;">
+            <input type="password" name="password" id="pwdField" class="input-field"
+                   placeholder="••••••••" required autocomplete="current-password" style="padding-right:44px;" />
+            <button type="button" id="togglePwd"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                           background:none;border:none;cursor:pointer;color:#6b6b7d;padding:0;"
+                    onclick="togglePassword()">
+              <svg id="eyeIcon" style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+          <label style="display:flex;align-items:center;gap:8px;color:#a0a0b5;font-size:.85rem;cursor:pointer;">
+            <input type="checkbox" id="rememberMe"
+                   style="accent-color:#feca57;width:15px;height:15px;" />
+            Recordarme
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">
+          Ingresar al Dashboard
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div style="margin-top:24px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);padding-top:20px;">
+        <p style="color:#6b6b7d;font-size:.83rem;">
+          ¿No tienes cuenta? 
+          <a href="/registro?tipo=gym" style="color:#feca57;font-weight:600;text-decoration:none;"
+             onmouseover="this.style.textDecoration='underline'"
+             onmouseout="this.style.textDecoration='none'">Registrar gimnasio</a>
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Demo hint -->
+    <div class="text-center mt-6" style="color:#3a3a50;font-size:.75rem;">
+      Demo: gym@test.com / test123
+    </div>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const field = document.getElementById('pwdField');
+      field.type = field.type === 'password' ? 'text' : 'password';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const errorMsg = document.getElementById('errorMsg');
+      const btn = document.getElementById('submitBtn');
+
+      errorMsg.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+
+      const email    = form.email.value.trim();
+      const password = form.password.value;
+
+      try {
+        const res = await fetch('/api/auth/login-gym', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('mb_token', data.token);
+          localStorage.setItem('mb_tipo', data.tipo);
+          localStorage.setItem('mb_nombre', data.nombre);
+          localStorage.setItem('mb_email', data.email);
+          if (document.getElementById('rememberMe').checked) {
+            localStorage.setItem('mb_remember', '1');
+          }
+          window.location.href = '/dashboard';
+        } else {
+          errorMsg.textContent = data.detail || 'Credenciales incorrectas.';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Error de conexión. Verifica que el servidor esté activo.';
+        errorMsg.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Ingresar al Dashboard';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -64,28 +64,28 @@ def cargar_fuentes_personalizadas() -> None:
 
 
 def _crear_pixmap_splash() -> "QPixmap":
-    """Crea un QPixmap 400×200 para el splash screen."""
+    """Crea un QPixmap 400×200 para el splash screen con tema verde premium."""
     pix = QPixmap(400, 200)
-    pix.fill(QColor("#070707"))
+    pix.fill(QColor("#0a1409"))
     painter = QPainter(pix)
     painter.setRenderHint(QPainter.Antialiasing)
-    # Punto acento
-    painter.setBrush(QBrush(QColor("#FF6F0F")))
+    # Punto acento verde neón
+    painter.setBrush(QBrush(QColor("#39ff14")))
     painter.setPen(Qt.NoPen)
     painter.drawEllipse(192, 20, 16, 16)
     # Título
-    f_titulo = QFont("Segoe UI", 20)
+    f_titulo = QFont("Inter", 20)
     f_titulo.setBold(True)
     painter.setFont(f_titulo)
-    painter.setPen(QColor("#F2F2F7"))
+    painter.setPen(QColor("#e8f5e9"))
     painter.drawText(0, 60, 400, 50, Qt.AlignHCenter | Qt.AlignVCenter, "Método Base")
     # Subtítulo
-    painter.setFont(QFont("Segoe UI", 11))
-    painter.setPen(QColor("#8E8E93"))
+    painter.setFont(QFont("Inter", 11))
+    painter.setPen(QColor("#66bb6a"))
     painter.drawText(0, 110, 400, 30, Qt.AlignHCenter | Qt.AlignVCenter,
                      "Sistema de Planes Nutricionales")
     # Barra de progreso base
-    painter.setBrush(QBrush(QColor("#1C1C1E")))
+    painter.setBrush(QBrush(QColor("#152515")))
     painter.setPen(Qt.NoPen)
     painter.drawRoundedRect(100, 160, 200, 6, 3, 3)
     painter.end()
@@ -102,11 +102,15 @@ if __name__ == "__main__":
         # Registrar fuentes Inter antes de construir cualquier widget
         cargar_fuentes_personalizadas()
 
-        # Cargar stylesheet a través del ThemeManager (soporta dark / light / aurora)
+        # Cargar stylesheet verde premium para toda la aplicación (todos los diálogos)
         try:
             from ui_desktop.pyside.theme_manager import ThemeManager
             _theme_mgr = ThemeManager.instance()
-            _theme_mgr.reload()   # force-aplica el QSS aunque el tema no haya cambiado
+            # Forzar verde_premium desde el inicio, antes de cualquier diálogo
+            if _theme_mgr.current_theme == "verde_premium":
+                _theme_mgr.reload()
+            else:
+                _theme_mgr.set_theme("verde_premium", animated=False)
         except Exception as _te:
             # Fallback: cargar dark_theme.qss directamente
             logger.warning("[THEME] ThemeManager no disponible: %s — usando dark_theme.qss", _te)
@@ -132,7 +136,7 @@ if __name__ == "__main__":
             p = _crear_pixmap_splash()
             painter = QPainter(p)
             painter.setRenderHint(QPainter.Antialiasing)
-            painter.setBrush(QBrush(QColor("#FF6F0F")))
+            painter.setBrush(QBrush(QColor("#39ff14")))
             painter.setPen(Qt.NoPen)
             ancho = int(200 * min(_prog[0], 100) / 100)
             painter.drawRoundedRect(100, 160, ancho, 6, 3, 3)
@@ -211,8 +215,8 @@ if __name__ == "__main__":
                 except Exception as _lic_err:
                     logger.warning("[LICENCIA] No se pudo gestionar licencia: %s", _lic_err)
 
-                from ui_desktop.pyside.main_window import MainWindow
-                window = MainWindow()
+                from ui_desktop.pyside.gym_app_window import GymAppWindow
+                window = GymAppWindow()
                 window.show()
                 # Almacenar referencia para evitar GC
                 app._main_window = window

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro — Método Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <style>
+    body { background: #0a0a0f; font-family: 'Inter', sans-serif; min-height: 100vh; }
+    .neon-card {
+      border: 2px solid rgba(254,202,87,0.3);
+      box-shadow: 0 0 30px rgba(254,202,87,0.08);
+    }
+    .input-field {
+      width: 100%; background: rgba(26,26,36,0.9); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 12px 16px; color: #fff; font-size: .93rem;
+      outline: none; transition: border-color .25s, box-shadow .25s;
+    }
+    .input-field:focus { border-color: #feca57; box-shadow: 0 0 0 3px rgba(254,202,87,0.12); }
+    .input-field::placeholder { color: #6b6b7d; }
+    select.input-field { color: #fff; }
+    select.input-field option { background: #1a1a24; color: #fff; }
+    .btn-primary {
+      width: 100%; padding: 14px; border-radius: 10px; font-weight: 700;
+      font-size: 1rem; cursor: pointer; transition: all .3s; border: none;
+      background: linear-gradient(135deg,#feca57,#ff9f43); color: #0a0a0f;
+    }
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(254,202,87,0.5); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .error-msg {
+      background: rgba(255,71,87,.12); border: 1px solid rgba(255,71,87,.35);
+      border-radius: 8px; padding: 10px 14px; color: #ff4757; font-size: .85rem;
+      display: none;
+    }
+    .success-msg {
+      background: rgba(46,213,115,.1); border: 1px solid rgba(46,213,115,.35);
+      border-radius: 8px; padding: 10px 14px; color: #2ed573; font-size: .85rem;
+      display: none;
+    }
+    .tipo-btn {
+      flex: 1; padding: 10px; border-radius: 8px; font-size: .88rem; font-weight: 600;
+      cursor: pointer; transition: all .25s; border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(26,26,36,0.8); color: #a0a0b5;
+    }
+    .tipo-btn.active-gym    { border-color: #667eea; color: #667eea; background: rgba(102,126,234,.1); }
+    .tipo-btn.active-usuario { border-color: #48dbfb; color: #48dbfb; background: rgba(72,219,251,.1); }
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-in { animation: fadeInUp .5s ease both; }
+  </style>
+</head>
+<body class="flex items-center justify-center p-6">
+
+  <div class="w-full max-w-lg fade-in">
+    <!-- Back -->
+    <a href="/" style="display:inline-flex;align-items:center;gap:8px;color:#a0a0b5;font-size:.88rem;
+                       margin-bottom:28px;text-decoration:none;transition:color .2s;"
+       onmouseover="this.style.color='#feca57'" onmouseout="this.style.color='#a0a0b5'">
+      ← Volver al inicio
+    </a>
+
+    <div class="neon-card rounded-2xl p-8" style="background:rgba(26,26,36,0.75);backdrop-filter:blur(16px);">
+
+      <!-- Header -->
+      <div class="text-center mb-7">
+        <h1 style="font-size:1.9rem;font-weight:800;color:#fff;margin-bottom:.3rem;">Crear Cuenta</h1>
+        <p style="color:#a0a0b5;font-size:.9rem;">Únete al sistema nutricional</p>
+      </div>
+
+      <!-- Mensajes -->
+      <div class="error-msg mb-4"   id="errorMsg"></div>
+      <div class="success-msg mb-4" id="successMsg"></div>
+
+      <!-- Selector de tipo -->
+      <div style="margin-bottom:24px;">
+        <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:8px;letter-spacing:.04em;">
+          TIPO DE CUENTA
+        </label>
+        <div style="display:flex;gap:10px;">
+          <button type="button" class="tipo-btn" id="btnGym"
+                  onclick="setTipo('gym')">
+            🏢 Socio Comercial (Gym)
+          </button>
+          <button type="button" class="tipo-btn active-usuario" id="btnUsuario"
+                  onclick="setTipo('usuario')">
+            👤 Usuario Individual
+          </button>
+        </div>
+      </div>
+
+      <form id="registroForm" novalidate>
+        <input type="hidden" name="tipo" id="campoTipo" value="usuario" />
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div>
+            <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:6px;letter-spacing:.04em;">
+              NOMBRE *
+            </label>
+            <input type="text" name="nombre" class="input-field" placeholder="Juan" required />
+          </div>
+          <div>
+            <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:6px;letter-spacing:.04em;">
+              APELLIDO
+            </label>
+            <input type="text" name="apellido" class="input-field" placeholder="Pérez" />
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:6px;letter-spacing:.04em;">
+            CORREO ELECTRÓNICO *
+          </label>
+          <input type="email" name="email" class="input-field"
+                 placeholder="tu@email.com" required autocomplete="email" />
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:6px;letter-spacing:.04em;">
+            CONTRASEÑA * (mín. 6 caracteres)
+          </label>
+          <input type="password" name="password" id="pwdField" class="input-field"
+                 placeholder="••••••••" required autocomplete="new-password" />
+        </div>
+
+        <div style="margin-bottom:28px;">
+          <label style="display:block;color:#a0a0b5;font-size:.83rem;font-weight:600;margin-bottom:6px;letter-spacing:.04em;">
+            CONFIRMAR CONTRASEÑA *
+          </label>
+          <input type="password" name="confirm_password" class="input-field"
+                 placeholder="••••••••" required autocomplete="new-password" />
+        </div>
+
+        <!-- Aviso de privacidad -->
+        <div style="background:rgba(254,202,87,.06);border:1px solid rgba(254,202,87,.15);
+                    border-radius:8px;padding:12px;margin-bottom:24px;font-size:.8rem;color:#a0a0b5;">
+          🔒 Tus datos se almacenan localmente. Las contraseñas se guardan con bcrypt.
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">
+          Crear Cuenta →
+        </button>
+      </form>
+
+      <!-- Link a login -->
+      <div style="margin-top:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);padding-top:16px;">
+        <p style="color:#6b6b7d;font-size:.83rem;">
+          ¿Ya tienes cuenta?
+          <a href="/login-gym" id="linkLogin" style="color:#feca57;font-weight:600;text-decoration:none;"
+             onmouseover="this.style.textDecoration='underline'"
+             onmouseout="this.style.textDecoration='none'">Iniciar sesión</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Leer tipo inicial de URL param
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tipo') === 'gym') setTipo('gym');
+
+    function setTipo(tipo) {
+      document.getElementById('campoTipo').value = tipo;
+      const btnGym = document.getElementById('btnGym');
+      const btnUser = document.getElementById('btnUsuario');
+      const linkLogin = document.getElementById('linkLogin');
+
+      btnGym.className  = 'tipo-btn' + (tipo === 'gym'     ? ' active-gym'     : '');
+      btnUser.className = 'tipo-btn' + (tipo === 'usuario' ? ' active-usuario' : '');
+      linkLogin.href = tipo === 'gym' ? '/login-gym' : '/login-usuario';
+    }
+
+    document.getElementById('registroForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const errorMsg   = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+      const btn = document.getElementById('submitBtn');
+
+      errorMsg.style.display   = 'none';
+      successMsg.style.display = 'none';
+
+      const pw1 = form.password.value;
+      const pw2 = form.confirm_password.value;
+      if (pw1 !== pw2) {
+        errorMsg.textContent = 'Las contraseñas no coinciden.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+      if (pw1.length < 6) {
+        errorMsg.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creando cuenta...';
+
+      try {
+        const res = await fetch('/api/auth/registro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email:    form.email.value.trim(),
+            password: pw1,
+            nombre:   form.nombre.value.trim(),
+            apellido: form.apellido.value.trim(),
+            tipo:     form.tipo.value,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('mb_token',  data.token);
+          localStorage.setItem('mb_tipo',   data.tipo);
+          localStorage.setItem('mb_nombre', data.nombre);
+          localStorage.setItem('mb_email',  data.email);
+          successMsg.textContent = '¡Cuenta creada! Redirigiendo...';
+          successMsg.style.display = 'block';
+          setTimeout(() => window.location.href = '/dashboard', 1200);
+        } else {
+          errorMsg.textContent = data.detail || 'Error al crear la cuenta.';
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Error de conexión.';
+        errorMsg.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Crear Cuenta →';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -70,7 +70,9 @@ def _separador() -> QFrame:
 
 def _btn(texto: str, primary: bool = False) -> QPushButton:
     b = QPushButton(texto)
-    if not primary:
+    if primary:
+        b.setObjectName("primaryButton")
+    else:
         b.setObjectName("btn_text")
     return b
 
@@ -448,6 +450,36 @@ class VentanaAuth(QDialog):
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
+
+        # Banner header verde
+        banner = QWidget()
+        banner.setStyleSheet(
+            "background: qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            "stop:0 #0a1409,stop:1 #152515);"
+            "border-bottom: 1px solid #2a4a2a;"
+        )
+        banner_lay = QHBoxLayout(banner)
+        banner_lay.setContentsMargins(32, 16, 32, 16)
+
+        dot = QLabel("●")
+        dot.setStyleSheet("color: #39ff14; font-size: 14px; background: transparent;")
+        banner_lay.addWidget(dot)
+
+        brand = QLabel("  Método Base")
+        brand.setStyleSheet(
+            "color: #e8f5e9; font-size: 16px; font-weight: 700; background: transparent;"
+        )
+        banner_lay.addWidget(brand)
+        banner_lay.addStretch()
+
+        plan_lbl = QLabel("Usuario Regular")
+        plan_lbl.setStyleSheet(
+            "color: #66bb6a; font-size: 12px; background: transparent; padding: 2px 8px;"
+            "border: 1px solid #2a4a2a; border-radius: 10px;"
+        )
+        banner_lay.addWidget(plan_lbl)
+
+        root.addWidget(banner)
 
         # Card central
         card = QFrame()

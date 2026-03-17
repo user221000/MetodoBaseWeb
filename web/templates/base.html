@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CDN (utilidades base) -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -22,6 +22,7 @@
             'bg-secondary': '#1a1a24',
             'accent':       '#667eea',
             'accent-pink':  '#ff6b9d',
+            'accent-yellow':'#feca57',
           },
           fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
         }
@@ -39,10 +40,18 @@
 </head>
 <body>
 
+<!-- ── Auth Guard ─────────────────────────────────────────── -->
+<script>
+  (function() {
+    const token = localStorage.getItem('mb_token');
+    if (!token) { window.location.replace('/'); }
+  })();
+</script>
+
 <!-- ── Sidebar ────────────────────────────────────────────── -->
-<aside class="sidebar">
+<aside class="sidebar" id="main-sidebar">
   <div class="sidebar-logo">
-    <a href="/" class="flex items-center gap-2">
+    <a href="/dashboard" class="flex items-center gap-2">
       <span class="logo-dot"></span>
       <span class="logo-text">Méθodo Base</span>
     </a>
@@ -55,7 +64,7 @@
 
     <span class="nav-section-label">Principal</span>
 
-    <a href="/" class="nav-item">
+    <a href="/dashboard" class="nav-item" data-page="dashboard">
       <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
         <path stroke-linecap="round" stroke-linejoin="round"
               d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3
@@ -64,7 +73,7 @@
       Dashboard
     </a>
 
-    <a href="/clientes" class="nav-item">
+    <a href="/clientes" class="nav-item" data-page="clientes">
       <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
         <path stroke-linecap="round" stroke-linejoin="round"
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
@@ -74,7 +83,7 @@
       Clientes
     </a>
 
-    <a href="/generar-plan" class="nav-item">
+    <a href="/generar-plan" class="nav-item" data-page="generar-plan">
       <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
         <path stroke-linecap="round" stroke-linejoin="round"
               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2
@@ -96,15 +105,29 @@
 
   </nav>
 
+  <!-- Sidebar footer con info de usuario y logout -->
   <div class="sidebar-footer">
-    <div class="flex items-center gap-3" style="padding:10px 12px;">
-      <div class="avatar" style="background:linear-gradient(135deg,#667eea,#764ba2);width:34px;height:34px;font-size:.7rem;">
-        GYM
+    <div style="padding:10px 12px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div class="avatar" id="sb-avatar"
+             style="background:linear-gradient(135deg,#feca57,#ff9f43);
+                    width:34px;height:34px;font-size:.7rem;color:#0a0a0f;font-weight:700;">
+          MB
+        </div>
+        <div style="min-width:0;flex:1;">
+          <p style="font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+             id="sb-nombre">Cargando...</p>
+          <p style="font-size:.68rem;color:var(--text-muted);" id="sb-tipo">—</p>
+        </div>
       </div>
-      <div>
-        <p style="font-size:.82rem;font-weight:600;">Mi Gimnasio</p>
-        <p style="font-size:.7rem;color:var(--text-muted);">v2.0 Premium</p>
-      </div>
+      <button onclick="cerrarSesion()"
+              style="width:100%;padding:7px;border-radius:7px;border:1px solid rgba(255,71,87,.3);
+                     background:rgba(255,71,87,.08);color:#ff4757;font-size:.8rem;font-weight:600;
+                     cursor:pointer;transition:all .2s;"
+              onmouseover="this.style.background='rgba(255,71,87,.18)'"
+              onmouseout="this.style.background='rgba(255,71,87,.08)'">
+        ← Cerrar sesión
+      </button>
     </div>
   </div>
 </aside>
@@ -122,6 +145,40 @@
 <script src="/static/js/components.js"></script>
 <script src="/static/js/charts.js"></script>
 <script src="/static/js/main.js"></script>
+
+<script>
+  // ── Inicializar sidebar con datos del usuario ──
+  (function() {
+    const nombre = localStorage.getItem('mb_nombre') || '—';
+    const tipo   = localStorage.getItem('mb_tipo')   || '—';
+    const el_nombre = document.getElementById('sb-nombre');
+    const el_tipo   = document.getElementById('sb-tipo');
+    const el_avatar = document.getElementById('sb-avatar');
+    if (el_nombre) el_nombre.textContent = nombre;
+    if (el_tipo)   el_tipo.textContent = tipo === 'gym' ? 'Socio Comercial' : 'Usuario Individual';
+    if (el_avatar) {
+      el_avatar.textContent = nombre.substring(0,2).toUpperCase();
+      if (tipo === 'gym') {
+        el_avatar.style.background = 'linear-gradient(135deg,#667eea,#764ba2)';
+        el_avatar.style.color = '#fff';
+      }
+    }
+
+    // Marcar nav item activo
+    const path = window.location.pathname.replace('/', '') || 'dashboard';
+    document.querySelectorAll('.nav-item[data-page]').forEach(a => {
+      if (a.dataset.page === path) a.classList.add('active');
+    });
+  })();
+
+  function cerrarSesion() {
+    localStorage.removeItem('mb_token');
+    localStorage.removeItem('mb_tipo');
+    localStorage.removeItem('mb_nombre');
+    localStorage.removeItem('mb_email');
+    window.location.href = '/';
+  }
+</script>
 
 {% block scripts %}{% endblock %}
 
