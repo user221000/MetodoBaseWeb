@@ -1,0 +1,513 @@
+{% extends "base.html" %}
+{% block title %}Generar Plan{% endblock %}
+
+{% block content %}
+
+<!-- ── Page header ───────────────────────────────────────────── -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Generar Plan Nutricional</h1>
+    <p class="page-subtitle">Crea un plan personalizado en 3 pasos</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+      Wizard progress bar
+══════════════════════════════════════════════════════════════ -->
+<div class="wizard-steps glass mb-6">
+  <div class="step-item active" id="nav-step-1">
+    <div class="step-circle" data-step="1">1</div>
+    <span class="step-label">Seleccionar cliente</span>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" id="nav-step-2">
+    <div class="step-circle" data-step="2">2</div>
+    <span class="step-label">Datos del plan</span>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" id="nav-step-3">
+    <div class="step-circle" data-step="3">3</div>
+    <span class="step-label">Resultado</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+      STEP 1 — Seleccionar cliente
+══════════════════════════════════════════════════════════════ -->
+<div class="plan-step active glass" id="step-1">
+  <div class="search-bar mb-4" style="background:transparent;padding:0;box-shadow:none;">
+    <div class="input-wrap flex-1" style="max-width:480px;">
+      <span class="input-icon">🔍</span>
+      <input
+        id="s1-search"
+        class="input has-icon"
+        type="search"
+        placeholder="Buscar cliente o crear nuevo..."
+        autocomplete="off"
+      />
+    </div>
+    <button class="btn btn-outline" id="s1-btn-nuevo">
+      + Nuevo cliente
+    </button>
+  </div>
+
+  <!-- Lista de resultados -->
+  <div id="s1-resultados" style="min-height:200px;">
+    <div class="empty-state">
+      <div class="empty-state-icon">👥</div>
+      <p>Escribe un nombre para buscar clientes</p>
+    </div>
+  </div>
+
+  <!-- Formulario inline: nuevo cliente -->
+  <div id="s1-form-nuevo" class="hidden" style="margin-top:24px;">
+    <div class="section-divider mb-4">
+      <span class="divider-label">Registrar nuevo cliente</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label class="input-label required">Nombre completo</label>
+        <input id="n-nombre" class="input" type="text" placeholder="Juan Pérez" required />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Teléfono</label>
+        <input id="n-telefono" class="input" type="tel" placeholder="3312345678" />
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="input-group">
+        <label class="input-label required">Edad</label>
+        <input id="n-edad" class="input" type="number" min="15" max="80" placeholder="28" required />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Sexo</label>
+        <select id="n-sexo" class="input">
+          <option value="">—</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+          <option value="OTRO">Otro</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label class="input-label required">Objetivo</label>
+        <select id="n-objetivo" class="input" required>
+          <option value="">—</option>
+          <option value="deficit">Déficit</option>
+          <option value="mantenimiento">Mantenimiento</option>
+          <option value="superavit">Superávit</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="input-group">
+        <label class="input-label required">Peso (kg)</label>
+        <input id="n-peso" class="input" type="number" step="0.1" min="40" max="200" placeholder="75" required />
+      </div>
+      <div class="input-group">
+        <label class="input-label required">Estatura (cm)</label>
+        <input id="n-estatura" class="input" type="number" step="0.1" min="140" max="220" placeholder="175" required />
+      </div>
+      <div class="input-group">
+        <label class="input-label">% Grasa</label>
+        <input id="n-grasa" class="input" type="number" step="0.1" min="5" max="60" placeholder="20" />
+      </div>
+    </div>
+    <div class="input-group" style="max-width:300px;">
+      <label class="input-label required">Nivel actividad</label>
+      <select id="n-nivel" class="input" required>
+        <option value="">—</option>
+        <option value="nula">Sedentario</option>
+        <option value="leve">Leve</option>
+        <option value="moderada">Moderada</option>
+        <option value="intensa">Intensa</option>
+      </select>
+    </div>
+
+    <div class="flex gap-3 mt-4">
+      <button class="btn btn-outline" id="s1-cancelar-nuevo">Cancelar</button>
+      <button class="btn btn-primary" id="s1-registrar">Registrar y continuar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+      STEP 2 — Datos del plan
+══════════════════════════════════════════════════════════════ -->
+<div class="plan-step glass" id="step-2">
+  <!-- Mini perfil del cliente seleccionado -->
+  <div id="s2-cliente-card" class="flex items-center gap-4 mb-6" style="padding:20px;border-radius:16px;background:rgba(102,126,234,.08);border:1px solid rgba(102,126,234,.2);">
+    <div id="s2-avatar"></div>
+    <div>
+      <p id="s2-nombre" class="font-semibold" style="font-size:1.1rem;margin-bottom:4px;">—</p>
+      <p id="s2-meta" style="font-size:.82rem;color:var(--text-muted)">—</p>
+    </div>
+    <button class="btn btn-icon btn-secondary" id="s2-cambiar" style="margin-left:auto;" title="Cambiar cliente">✏️</button>
+  </div>
+
+  <h3 class="chart-title mb-4">Ajustar parámetros del plan</h3>
+
+  <div class="grid-2">
+    <div class="input-group">
+      <label class="input-label">Peso actual (kg)</label>
+      <div class="input-wrap">
+        <span class="input-icon">⚖️</span>
+        <input id="s2-peso" class="input has-icon" type="number" step="0.1" min="40" max="200" />
+      </div>
+    </div>
+    <div class="input-group">
+      <label class="input-label">% Grasa corporal</label>
+      <div class="input-wrap">
+        <span class="input-icon">💧</span>
+        <input id="s2-grasa" class="input has-icon" type="number" step="0.1" min="5" max="60" placeholder="Opcional" />
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="input-group">
+      <label class="input-label">Nivel de actividad</label>
+      <select id="s2-nivel" class="input">
+        <option value="nula">Sedentario (nula)</option>
+        <option value="leve">Actividad leve</option>
+        <option value="moderada">Actividad moderada</option>
+        <option value="intensa">Actividad intensa</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Objetivo nutricional</label>
+      <select id="s2-objetivo" class="input">
+        <option value="deficit">Déficit (bajar grasa)</option>
+        <option value="mantenimiento">Mantenimiento</option>
+        <option value="superavit">Superávit (ganar masa)</option>
+      </select>
+    </div>
+  </div>
+  <div class="input-group" style="max-width:280px;">
+    <label class="input-label">Número de comidas por día</label>
+    <div class="flex gap-2 items-center">
+      <input id="s2-comidas" class="input" type="range" min="3" max="6" step="1" value="4" style="flex:1;accent-color:var(--accent-purple)" />
+      <span id="s2-comidas-val" class="font-bold" style="color:var(--accent-purple);min-width:2ch;">4</span>
+    </div>
+  </div>
+
+  <div class="flex gap-3 mt-6">
+    <button class="btn btn-outline" id="s2-back">← Volver</button>
+    <button class="btn btn-primary" id="s2-generar">
+      <span>Generar plan</span>
+      <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 9l3 3-3 3m-5-3h8"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+      STEP 3 — Resultado
+══════════════════════════════════════════════════════════════ -->
+<div class="plan-step glass" id="step-3">
+  <div id="s3-skeleton" class="flex flex-col items-center py-12 gap-4">
+    <div class="spinner" style="width:48px;height:48px;border-width:4px;"></div>
+    <p style="color:var(--text-muted)">Calculando plan nutricional...</p>
+  </div>
+
+  <div id="s3-resultado" class="hidden">
+    <!-- Cabecera resultado -->
+    <div class="flex items-center gap-4 mb-6" style="flex-wrap:wrap;">
+      <div>
+        <h3 class="chart-title">Plan generado para <span id="s3-cliente-nombre" style="color:var(--accent-purple)">—</span></h3>
+        <p style="color:var(--text-muted);font-size:.82rem;margin-top:4px;">
+          Plan nutricional personalizado · <span id="s3-objetivo-label">—</span>
+        </p>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-outline" id="s3-nueva-generacion">🔄 Regenerar</button>
+        <button class="btn btn-primary" id="s3-descargar-pdf">
+          ⬇️ Descargar PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Macros grid -->
+    <div class="macros-grid mb-6" id="s3-macros-grid"></div>
+
+    <!-- Comidas del día -->
+    <div id="s3-comidas-container"></div>
+
+    <!-- Acciones finales -->
+    <div class="flex gap-3 mt-6" style="border-top:1px solid var(--border-color);padding-top:24px;">
+      <button class="btn btn-outline" id="s3-nuevo-plan">← Otro cliente</button>
+      <a href="/clientes" class="btn btn-secondary">Ver todos los clientes</a>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ══════════════════════════════════════════════════════════════
+   generar-plan.js
+═════════════════════════════════════════════════════════════ */
+
+let _wizard_step = 1;
+let _cliente_sel = null;   // objeto cliente completo
+let _plan_result = null;   // resultado de generación
+
+// ── Inicialización ───────────────────────────────────────────
+(async () => {
+  // Si llegó con ?id=xxx cargar cliente directo
+  const params = new URLSearchParams(location.search);
+  const idParam = params.get('id');
+  if (idParam) {
+    try {
+      const c = await Api.clientes.obtener(idParam);
+      seleccionarCliente(c);
+    } catch(e) { /* ignorar */ }
+  } else {
+    // Cargar todos los clientes
+    await buscarClientes('');
+  }
+
+  // Rango de comidas
+  document.getElementById('s2-comidas').addEventListener('input', (e) => {
+    document.getElementById('s2-comidas-val').textContent = e.target.value;
+  });
+})();
+
+// ── Controlador wizard ───────────────────────────────────────
+function irAStep(n) {
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById(`step-${i}`);
+    el.classList.toggle('active', i === n);
+    const nav = document.getElementById(`nav-step-${i}`);
+    nav.classList.toggle('active', i === n);
+    nav.classList.toggle('done',   i < n);
+  });
+  _wizard_step = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── STEP 1 — Búsqueda ────────────────────────────────────────
+document.getElementById('s1-search').addEventListener('input', debounce(async (e) => {
+  await buscarClientes(e.target.value.trim());
+}, 300));
+
+async function buscarClientes(q) {
+  const cont = document.getElementById('s1-resultados');
+  if (!q) {
+    cont.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><p>Escribe un nombre para buscar clientes</p></div>`;
+    return;
+  }
+  cont.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><p>Buscando...</p></div>';
+  try {
+    const res = await Api.clientes.listar(q, 20);
+    const lista = res.clientes || [];
+    if (!lista.length) {
+      cont.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><p>Sin resultados para "<strong>${esc(q)}</strong>"</p></div>`;
+      return;
+    }
+    cont.innerHTML = '';
+    lista.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'cliente-result-row glass-hover';
+      div.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="av-placeholder"></div>
+          <div>
+            <p class="font-semibold text-sm">${esc(c.nombre)}</p>
+            <p class="text-xs text-muted">${esc(c.telefono || '—')} · ${esc(c.objetivo || '—')}</p>
+          </div>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto;">Seleccionar →</button>
+        </div>
+      `;
+      div.querySelector('.av-placeholder').replaceWith(buildAvatar(c.nombre));
+      div.querySelector('button').addEventListener('click', () => seleccionarCliente(c));
+      cont.appendChild(div);
+    });
+  } catch(e) {
+    Toast.error('Error buscando: ' + e.message);
+  }
+}
+
+function seleccionarCliente(c) {
+  _cliente_sel = c;
+
+  // Poblar step-2
+  document.getElementById('s2-nombre').textContent  = c.nombre;
+  document.getElementById('s2-meta').textContent    = `${c.edad ?? '—'} años · ${c.peso_kg ?? '—'} kg · ${c.estatura_cm ?? '—'} cm`;
+  document.getElementById('s2-peso').value    = c.peso_kg ?? '';
+  document.getElementById('s2-grasa').value   = c.grasa_corporal_pct ?? '';
+  document.getElementById('s2-nivel').value   = c.nivel_actividad ?? 'moderada';
+  document.getElementById('s2-objetivo').value = c.objetivo ?? 'mantenimiento';
+
+  const avContainer = document.getElementById('s2-avatar');
+  avContainer.innerHTML = '';
+avContainer.appendChild(buildAvatar(c.nombre, 'lg'));
+
+  irAStep(2);
+}
+
+// Botón "nuevo cliente"
+document.getElementById('s1-btn-nuevo').addEventListener('click', () => {
+  document.getElementById('s1-form-nuevo').classList.toggle('hidden');
+});
+document.getElementById('s1-cancelar-nuevo').addEventListener('click', () => {
+  document.getElementById('s1-form-nuevo').classList.add('hidden');
+});
+document.getElementById('s1-registrar').addEventListener('click', async () => {
+  const nombre  = document.getElementById('n-nombre').value.trim();
+  const peso    = parseFloat(document.getElementById('n-peso').value);
+  const estatura= parseFloat(document.getElementById('n-estatura').value);
+  const objetivo= document.getElementById('n-objetivo').value;
+  const nivel   = document.getElementById('n-nivel').value;
+  if (!nombre || !peso || !estatura || !objetivo || !nivel) {
+    Toast.error('Completa los campos obligatorios (*)');
+    return;
+  }
+  const payload = {
+    nombre, peso_kg: peso, estatura_cm: estatura, objetivo, nivel_actividad: nivel,
+    edad:     parseInt(document.getElementById('n-edad').value)    || null,
+    sexo:     document.getElementById('n-sexo').value              || null,
+    telefono: document.getElementById('n-telefono').value.trim()   || null,
+    grasa_corporal_pct: parseFloat(document.getElementById('n-grasa').value) || null,
+  };
+  try {
+    const created = await Api.clientes.crear(payload);
+    Toast.success('¡Cliente registrado!');
+    seleccionarCliente(created.cliente ?? { ...payload, id_cliente: created.id_cliente });
+  } catch(e) {
+    Toast.error('Error: ' + e.message);
+  }
+});
+
+// Cambiar cliente desde step-2
+document.getElementById('s2-cambiar').addEventListener('click', () => irAStep(1));
+document.getElementById('s2-back').addEventListener('click', () => irAStep(1));
+
+// ── STEP 2 → 3: Generar plan ──────────────────────────────────
+document.getElementById('s2-generar').addEventListener('click', async () => {
+  if (!_cliente_sel) { Toast.error('Selecciona un cliente primero'); return; }
+
+  // Actualizar datos del cliente antes de generar
+  try {
+    await Api.clientes.actualizar(_cliente_sel.id_cliente, {
+      peso_kg:           parseFloat(document.getElementById('s2-peso').value) || _cliente_sel.peso_kg,
+      grasa_corporal_pct: parseFloat(document.getElementById('s2-grasa').value) || null,
+      nivel_actividad:   document.getElementById('s2-nivel').value,
+      objetivo:          document.getElementById('s2-objetivo').value,
+    });
+  } catch(e) { /* continuar aunque falle la actualización */ }
+
+  irAStep(3);
+  document.getElementById('s3-skeleton').classList.remove('hidden');
+  document.getElementById('s3-resultado').classList.add('hidden');
+
+  const numComidas = parseInt(document.getElementById('s2-comidas').value) || 4;
+
+  try {
+    const plan = await Api.planes.generar(_cliente_sel.id_cliente, numComidas);
+    _plan_result = plan;
+    renderResultado(plan);
+  } catch(e) {
+    Toast.error('Error generando plan: ' + e.message);
+    irAStep(2);
+  }
+});
+
+function renderResultado(plan) {
+  document.getElementById('s3-skeleton').classList.add('hidden');
+  document.getElementById('s3-resultado').classList.remove('hidden');
+
+  document.getElementById('s3-cliente-nombre').textContent = _cliente_sel.nombre;
+  document.getElementById('s3-objetivo-label').textContent = objetivoLabel(_cliente_sel.objetivo ?? document.getElementById('s2-objetivo').value);
+
+  // Macros
+  const mgrid = document.getElementById('s3-macros-grid');
+  mgrid.innerHTML = '';
+  const macros = plan.macros || plan.resumen_macros || {};
+  const items = [
+    { icon: '🔥', label: 'Calorías',   value: formatKcal(macros.kcal_objetivo ?? macros.kcal),   unit: 'kcal', color: '--accent-pink' },
+    { icon: '🥩', label: 'Proteína',   value: `${macros.proteinas_g ?? macros.proteinas ?? '—'} g`, unit: 'por día', color: '--accent-purple' },
+    { icon: '🍞', label: 'Carbohidratos', value: `${macros.carbohidratos_g ?? macros.carbs ?? '—'} g`, unit: 'por día', color: '--accent-teal' },
+    { icon: '🫒', label: 'Grasas',     value: `${macros.grasas_g ?? macros.grasas ?? '—'} g`,    unit: 'por día', color: '#f97316' },
+  ];
+  items.forEach(i => {
+    mgrid.innerHTML += `
+      <div class="macro-card">
+        <div class="macro-icon" style="color:var(${i.color})">${i.icon}</div>
+        <p class="macro-value" style="color:var(${i.color})">${i.value}</p>
+        <p class="macro-label">${i.label}</p>
+        <p class="macro-unit">${i.unit}</p>
+      </div>
+    `;
+  });
+
+  // Comidas
+  const comidas = plan.comidas || plan.plan_comidas || [];
+  const cc = document.getElementById('s3-comidas-container');
+  cc.innerHTML = '';
+  if (comidas.length) {
+    cc.innerHTML = `<h3 class="chart-title mt-4 mb-3">Plan del día (${comidas.length} comidas)</h3>`;
+    comidas.forEach((com, idx) => {
+      const nombre_comida = com.nombre_comida ?? com.nombre ?? `Comida ${idx + 1}`;
+      const alimentos = com.alimentos || [];
+      cc.innerHTML += `
+        <div class="meal-row glass-hover mb-3">
+          <div class="meal-header">
+            <span class="meal-number">${idx + 1}</span>
+            <span class="font-semibold">${esc(nombre_comida)}</span>
+            <span class="ml-auto text-xs text-muted">${com.kcal ?? ''} kcal</span>
+          </div>
+          ${alimentos.length ? `
+          <ul class="meal-foods">
+            ${alimentos.map(a => `<li>${esc(a.nombre ?? a)} <span class="text-muted">${a.cantidad_g ?? a.gramos ?? ''}g</span></li>`).join('')}
+          </ul>` : ''}
+        </div>
+      `;
+    });
+  }
+}
+
+// ── PDF ──────────────────────────────────────────────────────
+document.getElementById('s3-descargar-pdf').addEventListener('click', async () => {
+  if (!_cliente_sel) return;
+  const btn = document.getElementById('s3-descargar-pdf');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Generando PDF...';
+  try {
+    Api.planes.descargar(_cliente_sel.id_cliente);
+    Toast.success('PDF abierto en nueva pestaña');
+  } catch(e) {
+    Toast.error('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '⬇️ Descargar PDF';
+  }
+});
+
+// Regenerar / volver
+document.getElementById('s3-nueva-generacion').addEventListener('click', () => irAStep(2));
+document.getElementById('s3-nuevo-plan').addEventListener('click', () => {
+  _cliente_sel = null;
+  _plan_result = null;
+  document.getElementById('s1-search').value = '';
+  document.getElementById('s1-resultados').innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><p>Escribe un nombre para buscar clientes</p></div>`;
+  irAStep(1);
+});
+
+// ── Utils ────────────────────────────────────────────────────
+function objetivoLabel(o) {
+  return { deficit: 'Déficit calórico', mantenimiento: 'Mantenimiento', superavit: 'Superávit calórico' }[o] ?? o;
+}
+
+function esc(v) {
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function debounce(fn, ms = 300) {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+</script>
+{% endblock %}

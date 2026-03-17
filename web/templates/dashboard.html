@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── Page header ──────────────────────────────────────────── -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle" id="dash-fecha">Cargando...</p>
+  </div>
+  <div class="flex items-center gap-3">
+    <!-- Tabs período -->
+    <div class="time-tabs">
+      <button class="time-tab active" data-period="semana">Semana</button>
+      <button class="time-tab" data-period="mes">Mes</button>
+      <button class="time-tab" data-period="anio">Año</button>
+    </div>
+    <a href="/clientes" class="btn btn-secondary">Ver clientes</a>
+    <a href="/generar-plan" class="btn btn-primary">
+      <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nuevo Plan
+    </a>
+  </div>
+</div>
+
+<!-- ── KPI Cards ─────────────────────────────────────────────── -->
+<div class="kpi-grid" id="kpi-section">
+
+  <!-- Clientes totales -->
+  <div class="glass glass-hover kpi-card">
+    <div class="kpi-icon gradient-purple-pink">
+      <svg style="width:22px;height:22px;color:white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
+                 M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
+                 m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+    </div>
+    <div class="kpi-value text-gradient" id="kpi-clientes">—</div>
+    <div class="kpi-label">Total Clientes</div>
+    <div class="kpi-change up" id="kpi-nuevos-label">cargando...</div>
+  </div>
+
+  <!-- Planes generados -->
+  <div class="glass glass-hover kpi-card">
+    <div class="kpi-icon gradient-purple">
+      <svg style="width:22px;height:22px;color:white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2
+                 M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 8h6m-6 4h4"/>
+      </svg>
+    </div>
+    <div class="kpi-value" style="color:var(--accent-purple)" id="kpi-planes">—</div>
+    <div class="kpi-label">Planes / Mes</div>
+    <div class="kpi-change up">↑ Este período</div>
+  </div>
+
+  <!-- Promedio kcal -->
+  <div class="glass glass-hover kpi-card">
+    <div class="kpi-icon gradient-yellow">
+      <svg style="width:22px;height:22px;color:white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7
+                 C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/>
+      </svg>
+    </div>
+    <div class="kpi-value" style="color:var(--accent-yellow)" id="kpi-kcal">—</div>
+    <div class="kpi-label">Prom. Kcal / Plan</div>
+    <div class="kpi-change neu">Objetivo promedio</div>
+  </div>
+
+  <!-- Clientes activos -->
+  <div class="glass glass-hover kpi-card">
+    <div class="kpi-icon gradient-green">
+      <svg style="width:22px;height:22px;color:white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M13 10V3L4 14h7v7l9-11h-7z"/>
+      </svg>
+    </div>
+    <div class="kpi-value" style="color:var(--accent-green)" id="kpi-activos">—</div>
+    <div class="kpi-label">Activos esta semana</div>
+    <div class="kpi-change up" id="kpi-retencion">—% retención</div>
+  </div>
+
+</div>
+
+<!-- ── Gráficos row ───────────────────────────────────────────── -->
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:28px;">
+
+  <!-- Línea: planes por día -->
+  <div class="glass chart-container">
+    <div class="chart-header">
+      <div>
+        <p class="chart-title">Planes Generados</p>
+        <p class="chart-subtitle">Evolución de los últimos 7 días</p>
+      </div>
+      <div class="chart-legend flex items-center gap-3">
+        <div class="legend-dot" style="background:var(--accent-purple)"></div>
+        <span style="font-size:.78rem;color:var(--text-secondary)">Planes</span>
+      </div>
+    </div>
+    <canvas id="planesChart" height="100"></canvas>
+  </div>
+
+  <!-- Dona: objetivos -->
+  <div class="glass chart-container">
+    <div class="chart-header">
+      <div>
+        <p class="chart-title">Objetivos</p>
+        <p class="chart-subtitle">Distribución de clientes</p>
+      </div>
+    </div>
+    <canvas id="objetivosChart" height="170"></canvas>
+  </div>
+
+</div>
+
+<!-- ── Top clientes recientes ─────────────────────────────────── -->
+<div class="glass overflow-hidden">
+  <div class="chart-header" style="padding:22px 24px 0;">
+    <div>
+      <p class="chart-title">Clientes Recientes</p>
+      <p class="chart-subtitle">Última actividad</p>
+    </div>
+    <a href="/clientes" class="btn btn-ghost">Ver todos →</a>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Objetivo</th>
+          <th>Kcal</th>
+          <th>Última actualización</th>
+        </tr>
+      </thead>
+      <tbody id="top-clientes-tbody">
+        <tr>
+          <td colspan="4">
+            <div class="empty-state">
+              <div class="empty-state-icon">⏳</div>
+              <p>Cargando clientes...</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Fecha actual en header
+  const fechaEl = document.getElementById('dash-fecha');
+  if (fechaEl) {
+    const now = new Date();
+    fechaEl.textContent = now.toLocaleDateString('es-MX', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+</script>
+{% endblock %}

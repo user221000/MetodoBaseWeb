@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}MetodoBase{% endblock %} — Méθodo Base</title>
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN (utilidades base) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'bg-primary':   '#0a0a0f',
+            'bg-secondary': '#1a1a24',
+            'accent':       '#667eea',
+            'accent-pink':  '#ff6b9d',
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    };
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="/static/css/styles.css" />
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Sidebar ────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="/" class="flex items-center gap-2">
+      <span class="logo-dot"></span>
+      <span class="logo-text">Méθodo Base</span>
+    </a>
+    <p style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">
+      Sistema Nutricional v2.0
+    </p>
+  </div>
+
+  <nav class="sidebar-nav">
+
+    <span class="nav-section-label">Principal</span>
+
+    <a href="/" class="nav-item">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3
+                 m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+      Dashboard
+    </a>
+
+    <a href="/clientes" class="nav-item">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857
+                 M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857
+                 m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      Clientes
+    </a>
+
+    <a href="/generar-plan" class="nav-item">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2
+                 M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2
+                 m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+      Generar Plan
+    </a>
+
+    <span class="nav-section-label" style="margin-top:16px">Sistema</span>
+
+    <a href="/docs" target="_blank" class="nav-item">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+      </svg>
+      API Docs
+    </a>
+
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="flex items-center gap-3" style="padding:10px 12px;">
+      <div class="avatar" style="background:linear-gradient(135deg,#667eea,#764ba2);width:34px;height:34px;font-size:.7rem;">
+        GYM
+      </div>
+      <div>
+        <p style="font-size:.82rem;font-weight:600;">Mi Gimnasio</p>
+        <p style="font-size:.7rem;color:var(--text-muted);">v2.0 Premium</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Main ───────────────────────────────────────────────── -->
+<main class="main-content">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Scripts globales -->
+<script src="/static/js/api.js"></script>
+<script src="/static/js/components.js"></script>
+<script src="/static/js/charts.js"></script>
+<script src="/static/js/main.js"></script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>
