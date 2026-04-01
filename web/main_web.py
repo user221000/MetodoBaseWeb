@@ -323,9 +323,8 @@ def create_app() -> FastAPI:
 
     def _render_error(request: Request, code: int, title: str, message: str):
         return templates.TemplateResponse(
-            request=request,
-            name="error.html",
-            context={"code": code, "title": title, "message": message},
+            "error.html",
+            {"request": request, "code": code, "title": title, "message": message},
             status_code=code,
         )
 
