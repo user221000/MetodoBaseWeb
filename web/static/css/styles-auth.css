@@ -406,3 +406,66 @@ body {
   .showcase { display: none; }
   .sidebar-login { width: 100%; min-width: unset; border-left: none; box-shadow: none; }
 }
+
+/* ── Mobile (≤768px) ── */
+@media (max-width: 768px) {
+  body { overflow-y: auto; }
+
+  .split-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .sidebar-login {
+    height: auto;
+    min-height: 100vh;
+    padding: 40px 24px 52px;
+    justify-content: flex-start;
+  }
+
+  .sidebar-login::before { display: none; }
+
+  .sidebar-title  { font-size: 1.45rem; }
+  .sidebar-subtitle { font-size: .86rem; margin-bottom: 28px; }
+
+  /* iOS prevents auto-zoom only when font-size ≥ 16px */
+  .input-field { font-size: 1rem; padding: 12px 14px; }
+  .input-field[type="password"] { padding-right: 44px; }
+
+  .btn-login { padding: 14px; font-size: .97rem; }
+
+  .btn-google { padding: 12px 14px; font-size: .9rem; }
+
+  .remember-row { flex-wrap: wrap; gap: 8px; }
+
+  .signup-footer { margin-top: 20px; }
+}
+
+/* ── Small phones (≤480px) ── */
+@media (max-width: 480px) {
+  .sidebar-login { padding: 32px 18px 44px; }
+
+  .sidebar-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-title    { font-size: 1.3rem; }
+  .sidebar-subtitle { font-size: .83rem; margin-bottom: 22px; }
+
+  .back-link { margin-bottom: 22px; }
+
+  .input-group { margin-bottom: 16px; }
+
+  .btn-login  { font-size: .93rem; padding: 13px; }
+  .btn-google { font-size: .87rem; }
+
+  .auth-divider { margin: 16px 0; }
+
+  .signup-footer { margin-top: 16px; }
+  .signup-footer p { font-size: .8rem; }
+}
