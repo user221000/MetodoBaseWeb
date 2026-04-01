@@ -1,11 +1,13 @@
 """
 web/main_web.py — MetodoBase Web App v2 (dark premium fitness theme)
+BUILD_VERSION: 2026-04-01-v6-TEMPLATEFIX
 
 Uso:
     python web/main_web.py                      # puerto 8001
     python web/main_web.py --port 8000          # puerto 8000
     python web/main_web.py --no-browser         # sin abrir browser
 """
+# BUILD MARKER: v6-20260401-2130
 import argparse
 import hashlib
 import logging

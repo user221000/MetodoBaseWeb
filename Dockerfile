@@ -36,7 +36,10 @@ COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.
 COPY --from=deps /usr/local/bin /usr/local/bin
 
 # CACHE BUSTER - Forces rebuild of all subsequent layers
-RUN echo "Build timestamp: 2026-04-01T21:25:00-v6-TEMPLATEFIX" > /tmp/build_version
+RUN echo "Build timestamp: 2026-04-01T21:30:00-v6-TEMPLATEFIX-FORCE" > /tmp/build_version
+
+# Copy build version file FIRST to bust cache when it changes
+COPY web/.build_version /tmp/web_build_version
 
 # Copiar solo los módulos necesarios para el web server
 COPY config/ config/

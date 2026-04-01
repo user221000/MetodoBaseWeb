@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== MetodoBase: Container starting (v2026.04.01.v4) ==="
+echo "=== MetodoBase: Container starting (BUILD v6-TEMPLATEFIX) ==="
 echo "  RAILWAY_ENVIRONMENT: ${RAILWAY_ENVIRONMENT:-'(not set)'}"
 echo "  METODOBASE_ENV: ${METODOBASE_ENV:-'(not set)'}"
 echo "  PORT: ${PORT:-'(not set)'}"
@@ -17,5 +17,5 @@ else
     echo "=== MetodoBase: Migraciones gestionadas por Railway releaseCommand ==="
 fi
 
-echo "=== MetodoBase: Iniciando servidor en 0.0.0.0:${PORT:-8000} ==="
+echo "=== MetodoBase: Iniciando servidor (BUILD v6-TEMPLATEFIX) en 0.0.0.0:${PORT:-8000} ==="
 exec python web/main_web.py --no-browser

@@ -1,8 +1,10 @@
 """
 web/routes/pages.py — HTML page routes (template rendering).
+BUILD_VERSION: v6-TEMPLATEFIX-20260401
 
 Extracted from web/main_web.py (god function) for maintainability.
 """
+# BUILD MARKER: v6-20260401-2130-TEMPLATEFIX
 import json as _json
 import logging
 
