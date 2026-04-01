@@ -1,5 +1,6 @@
 # ══════════════════════════════════════════════════════════════════════════════
 # MetodoBase Web — Dockerfile de producción
+# Cache bust: 2026-04-01-v2
 #
 # Multi-stage build:
 #   1. Instala dependencias web-only (sin PySide6, sin GUI)
