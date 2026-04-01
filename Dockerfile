@@ -1,6 +1,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 # MetodoBase Web — Dockerfile de producción
-# Cache bust: 2026-04-01-v3-force-rebuild
+# Cache bust: 2026-04-01-v4-NOCACHE
+# FORCE REBUILD: $(date +%s)
 #
 # Multi-stage build:
 #   1. Instala dependencias web-only (sin PySide6, sin GUI)
@@ -12,6 +13,9 @@
 # ══════════════════════════════════════════════════════════════════════════════
 
 FROM python:3.12-slim AS base
+
+# Cache buster - change this value to force rebuild
+ARG CACHEBUST=20260401v4
 
 # Prevenir bytecode + buffered output
 ENV PYTHONDONTWRITEBYTECODE=1 \
