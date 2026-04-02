@@ -200,6 +200,7 @@ async def get_mi_plan(
 
     # Load serialized plan from PDF directory companion JSON
     plan_data = _load_plan_json(plan_record)
+    plan_data = _enrich_plan_macros(plan_data)  # back-fill macros for pre-fix plans
 
     tiene_pdf = bool(plan_record.ruta_pdf and os.path.isfile(plan_record.ruta_pdf))
 
@@ -239,6 +240,63 @@ def _load_plan_json(plan_record: "PlanGenerado") -> dict:
         except Exception:
             pass
     return {}
+
+
+def _enrich_plan_macros(plan_data: dict) -> dict:
+    """Back-fill 'macros' on plan options that were saved before the macros fix.
+
+    Plans saved before commit a27d285 only contain alimento/gramos/equivalencia.
+    This function calculates macros on-the-fly from ALIMENTOS_BASE so the
+    frontend calorie tracker works for all plans, not just newly generated ones.
+    """
+    if not isinstance(plan_data, dict):
+        return plan_data
+    try:
+        from src.alimentos_base import ALIMENTOS_BASE
+    except Exception:
+        return plan_data
+
+    _macro_groups = ("proteinas", "carbohidratos", "grasas")
+    _meals = ("desayuno", "almuerzo", "comida", "cena")
+
+    for meal_key in _meals:
+        meal = plan_data.get(meal_key)
+        if not isinstance(meal, dict):
+            continue
+        for group_key in _macro_groups:
+            group = meal.get(group_key)
+            if not isinstance(group, dict):
+                continue
+            for op in group.get("opciones", []):
+                if op.get("macros"):
+                    continue
+                alimento = op.get("alimento", "")
+                gramos = float(op.get("gramos", 0))
+                if alimento in ALIMENTOS_BASE and gramos > 0:
+                    datos = ALIMENTOS_BASE[alimento]
+                    f = gramos / 100.0
+                    op["macros"] = {
+                        "proteina": round(datos.get("proteina", 0) * f, 1),
+                        "carbs":    round(datos.get("carbs", 0) * f, 1),
+                        "grasa":    round(datos.get("grasa", 0) * f, 1),
+                        "kcal":     round(datos.get("kcal", 0) * f),
+                    }
+        # Also enrich vegetales
+        for veg in meal.get("vegetales", []):
+            if veg.get("macros"):
+                continue
+            alimento = veg.get("alimento", "")
+            gramos = float(veg.get("gramos", 0))
+            if alimento in ALIMENTOS_BASE and gramos > 0:
+                datos = ALIMENTOS_BASE[alimento]
+                f = gramos / 100.0
+                veg["macros"] = {
+                    "proteina": round(datos.get("proteina", 0) * f, 1),
+                    "carbs":    round(datos.get("carbs", 0) * f, 1),
+                    "grasa":    round(datos.get("grasa", 0) * f, 1),
+                    "kcal":     round(datos.get("kcal", 0) * f),
+                }
+    return plan_data
 
 
 # ── POST /usuario/generar-plan ───────────────────────────────────────────
@@ -291,7 +349,7 @@ async def generar_plan_usuario(
         raise HTTPException(500, "Error interno al generar el plan. Intenta de nuevo.")
 
     # Save plan JSON companion file AND persist to DB column
-    plan_serializado = result.get("plan", {})
+    plan_serializado = _enrich_plan_macros(result.get("plan", {}))
     ruta_pdf = result.get("ruta_pdf", "")
     if ruta_pdf:
         json_path = ruta_pdf.rsplit(".", 1)[0] + ".json"
