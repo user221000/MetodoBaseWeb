@@ -167,14 +167,37 @@ def check_daily_registration_limit(
 
 def check_daily_plan_limit(db: Session, gym_id: str, id_cliente: str, plan_name: str) -> None:
     """
-    Verifica que no se exceda el límite de planes por cliente por día.
-    Lanza HTTPException 403 si se excede.
+    Verifica que no se exceda el límite de planes por día.
+    Comprueba primero el límite total del gym (max_planes_diarios) y luego
+    el límite por cliente (max_planes_por_cliente_dia).
+    Lanza HTTPException 403 si se excede alguno.
     """
     plan_cfg = _get_plan_config(plan_name)
-    max_por_cliente = plan_cfg.get("max_planes_por_cliente_dia", 0)
+    hoy = _today_start()
 
+    # 1. Límite total de planes del gym por día (aplica al plan free/trial)
+    max_diarios_gym = plan_cfg.get("max_planes_diarios", 0)
+    if max_diarios_gym > 0:
+        planes_hoy_gym = db.query(PlanGenerado).filter(
+            PlanGenerado.gym_id == gym_id,
+            PlanGenerado.fecha_generacion >= hoy,
+        ).count()
+
+        if planes_hoy_gym >= max_diarios_gym:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "code": "daily_plan_limit_gym",
+                    "message": f"Límite de {max_diarios_gym} planes por día alcanzado. Actualiza tu plan para generar más.",
+                    "current": planes_hoy_gym,
+                    "limit": max_diarios_gym,
+                    "upgrade_url": "/suscripciones",
+                },
+            )
+
+    # 2. Límite de planes por cliente por día
+    max_por_cliente = plan_cfg.get("max_planes_por_cliente_dia", 0)
     if max_por_cliente > 0:
-        hoy = _today_start()
         planes_hoy = db.query(PlanGenerado).filter(
             PlanGenerado.gym_id == gym_id,
             PlanGenerado.id_cliente == id_cliente,

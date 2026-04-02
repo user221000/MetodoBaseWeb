@@ -56,18 +56,18 @@ def ensure_data_dirs():
 PLANES_LICENCIA = {
     "free": {
         "precio_mxn": 0,
-        "max_clientes": 10,
+        "max_clientes": 5,
         "max_sesiones": 1,
-        "max_planes_diarios": 1,
+        "max_planes_diarios": 5,
         "max_registros_diarios": 5,
-        "max_planes_por_cliente_dia": 1,
+        "max_planes_por_cliente_dia": 5,
         "multi_usuario": False,
         "preferencias_alimentos": False,
         "gestion_suscripciones": False,
         "progresion_clientes": False,
         "stripe_price_id": None,
         "features": ["pdf_export"],
-        "descripcion": "Para empezar",
+        "descripcion": "Prueba gratuita",
     },
     "standard": {
         "precio_mxn": 159,
