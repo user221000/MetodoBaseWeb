@@ -555,27 +555,35 @@ let _cardNumber = null;
 let _cardExpiry = null;
 let _cardCvc = null;
 let _cardState = { number: false, expiry: false, cvc: false };
+let _userMe = null;
 
 // ── Init: Load billing config + subscription state ──────────
 (async () => {
-  // Parallel load: config, subscription, payments
-  const [configRes, subRes, payRes] = await Promise.allSettled([
+  // Parallel load: config, subscription, payments, me
+  const [configRes, subRes, payRes, meRes] = await Promise.allSettled([
     Api.billing.config(),
     Api.billing.subscription(),
     Api.billing.payments(),
+    Api.auth.me(),
   ]);
 
   _billingConfig = configRes.status === 'fulfilled' ? configRes.value : null;
-  if (_billingConfig?.stripe_publishable_key) {
-    await loadStripeJs();
-    initStripeElements(_billingConfig.stripe_publishable_key);
-  }
+  _userMe = meRes.status === 'fulfilled' ? meRes.value : null;
   _currentSub = subRes.status === 'fulfilled' ? subRes.value : null;
 
   renderSubscription(_currentSub || { plan: null, status: 'none', clientes_usados: 0, max_clientes: 0 });
   renderPlanButtons();
 
-  const _stripeReady = _billingConfig?.stripe_configured && _billingConfig?.stripe_publishable_key;
+  // Only init Stripe Elements when NO payment link is available for any plan
+  // (Payment Links are the primary path; Elements is a fallback)
+  const _hasAnyPaymentLink = _billingConfig?.payment_links &&
+    Object.values(_billingConfig.payment_links).some(Boolean);
+  const _stripeReady = !_hasAnyPaymentLink &&
+    _billingConfig?.stripe_configured && _billingConfig?.stripe_publishable_key;
+  if (_stripeReady) {
+    await loadStripeJs();
+    initStripeElements(_billingConfig.stripe_publishable_key);
+  }
   const cardBtn = document.getElementById('pm-card');
   if (cardBtn) {
     cardBtn.disabled = !_stripeReady;
@@ -585,7 +593,7 @@ let _cardState = { number: false, expiry: false, cvc: false };
         const span = document.createElement('span');
         span.className = 'pm-card-hint';
         span.style.cssText = 'font-size:.68rem;color:var(--accent-red);display:block;margin-top:2px;';
-        span.textContent = 'No disponible — Stripe no configurado';
+        span.textContent = _hasAnyPaymentLink ? 'Pago vía Stripe Payment Link' : 'No disponible — Stripe no configurado';
         const textDiv = cardBtn.querySelector('div[style*="text-align:left"]');
         if (textDiv) textDiv.appendChild(span);
       }
@@ -593,11 +601,11 @@ let _cardState = { number: false, expiry: false, cvc: false };
   }
   const stripeHint = document.getElementById('stripe-config-hint');
   if (stripeHint) {
-    stripeHint.style.display = _stripeReady ? 'none' : '';
+    stripeHint.style.display = (_stripeReady || _hasAnyPaymentLink) ? 'none' : '';
   }
   if (!_billingConfig?.mercadopago_configured) {
     const mpBtn = document.getElementById('pm-mercadopago');
-    mpBtn.disabled = true;
+    if (mpBtn) mpBtn.disabled = true;
   }
 
   const payments = payRes.status === 'fulfilled' ? (payRes.value.payments || []) : [];
@@ -759,13 +767,30 @@ document.querySelectorAll('.plan-card').forEach(card => {
   });
 });
 
-// ── Plan button click → select + open modal ─────────────────
+// ── Plan button click → redirect to Payment Link or open modal ─
 document.querySelectorAll('.btn-plan').forEach(btn => {
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', async () => {
     if (btn.disabled) return;
     _selectedPlan = btn.dataset.plan;
-    _selectedMethod = null;
     selectPlanCard(_selectedPlan);
+
+    // Primary path: Stripe Payment Link (no server-side session needed)
+    const paymentLink = _billingConfig?.payment_links?.[_selectedPlan];
+    if (paymentLink) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Redirigiendo...';
+      const gymId  = _userMe?.id    || '';
+      const email  = _userMe?.email || '';
+      const sep    = paymentLink.includes('?') ? '&' : '?';
+      const dest   = paymentLink + sep
+        + 'client_reference_id=' + encodeURIComponent(gymId)
+        + (email ? '&prefilled_email=' + encodeURIComponent(email) : '');
+      window.location.href = dest;
+      return;
+    }
+
+    // Fallback: open payment modal (Nu / MercadoPago / Stripe Elements)
+    _selectedMethod = null;
     openPaymentModal(_selectedPlan);
   });
 });
@@ -1255,7 +1280,11 @@ function launchConfetti() {
   if (params.get('result') === 'success' || params.get('subscription') === 'success') {
     launchConfetti();
     Toast.success('¡Plan activado correctamente! Ya puedes generar planes sin límites.');
-    // Clean URL
+    history.replaceState({}, '', '/suscripciones');
+  } else if (params.get('redirect_status') === 'succeeded') {
+    // 3DS redirect back from bank auth
+    launchConfetti();
+    Toast.success('¡Plan activado correctamente! Ya puedes generar planes sin límites.');
     history.replaceState({}, '', '/suscripciones');
   } else if (params.get('subscription') === 'canceled') {
     Toast.info('El pago fue cancelado. Puedes intentar de nuevo cuando quieras.');

@@ -464,17 +464,48 @@ def handle_webhook_event(db: Session, event: dict) -> str:
     return result
 
 
+def _infer_plan_from_subscription(subscription_id: str) -> str:
+    """Dado un stripe subscription_id, infiere el nombre del plan por price_id."""
+    try:
+        sub = stripe.Subscription.retrieve(subscription_id, expand=["items.data.price"])
+        for item in (sub.get("items", {}).get("data") or []):
+            price_id = (item.get("price") or {}).get("id", "")
+            if price_id:
+                for plan_key, info in PLANES_LICENCIA.items():
+                    if info.get("stripe_price_id") == price_id:
+                        logger.info("Plan inferido desde price_id %s → %s", price_id, plan_key)
+                        return plan_key
+    except Exception as e:
+        logger.warning("No se pudo inferir plan desde subscription %s: %s", subscription_id, e)
+    return ""
+
+
 def _on_checkout_completed(db: Session, session: dict) -> str:
-    """Checkout completado: crea o actualiza suscripción y StripeCustomer."""
-    gym_id = session.get("metadata", {}).get("gym_id", "")
-    plan = session.get("metadata", {}).get("plan", "standard")
+    """Checkout completado: crea o actualiza suscripción y StripeCustomer.
+    
+    Soporta dos flujos:
+      1. Checkout Session clásico: gym_id y plan en session.metadata
+      2. Payment Link: gym_id en client_reference_id, plan inferido desde price_id
+    """
+    meta = session.get("metadata", {}) or {}
+    gym_id = meta.get("gym_id", "")
+    plan = meta.get("plan", "")
     customer_id = session.get("customer", "")
     subscription_id = session.get("subscription", "")
     customer_email = session.get("customer_email", "")
 
+    # Payment Links: gym_id viene en client_reference_id
     if not gym_id:
-        logger.warning("checkout.session.completed sin gym_id en metadata")
+        gym_id = session.get("client_reference_id", "")
+    if not gym_id:
+        logger.warning("checkout.session.completed sin gym_id en metadata ni client_reference_id")
         return "error:no_gym_id"
+
+    # Payment Links: inferir plan desde el price_id de la suscripción creada
+    if not plan and subscription_id:
+        plan = _infer_plan_from_subscription(subscription_id)
+    if not plan:
+        plan = "standard"
 
     # ── Crear o actualizar StripeCustomer ──
     if customer_id:

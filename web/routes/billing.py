@@ -106,11 +106,19 @@ def billing_config(
             "descripcion": info.get("descripcion", ""),
             "features": info.get("features", []),
         }
+    def _clean_link(url: str) -> str:
+        return url if url and url.startswith("https://buy.stripe.com/") else ""
+
     return {
         "stripe_configured": stripe_ready,
         "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
         "mercadopago_configured": mp_ready,
         "plans": plans,
+        "payment_links": {
+            "standard":     _clean_link(settings.STRIPE_PAYMENT_LINK_STANDARD),
+            "gym_comercial": _clean_link(settings.STRIPE_PAYMENT_LINK_GYM_COMERCIAL),
+            "clinica":      _clean_link(settings.STRIPE_PAYMENT_LINK_CLINICA),
+        },
     }
 
 
