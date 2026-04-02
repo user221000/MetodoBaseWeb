@@ -156,8 +156,13 @@ function formatDate(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
   if (isNaN(d)) return iso;
-  const diff = Math.floor((Date.now() - d) / 86400000);
-  if (diff === 0) return 'Hoy';
+  // Normalize to local calendar days to avoid UTC+offset comparisons
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dayD = new Date(d);
+  dayD.setHours(0, 0, 0, 0);
+  const diff = Math.round((today - dayD) / 86400000);
+  if (diff <= 0) return 'Hoy';
   if (diff === 1) return 'Ayer';
   if (diff < 7)  return `Hace ${diff} días`;
   return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
