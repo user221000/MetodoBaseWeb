@@ -135,7 +135,7 @@
         </div>
 
         <div class="input-group">
-          <label class="input-label">CONTRASEÑA * (mín. 6 caracteres)</label>
+          <label class="input-label">CONTRASEÑA * (mín. 12 caracteres)</label>
           <input type="password" name="password" id="pwdField" class="input-field" placeholder="••••••••" required autocomplete="new-password" />
         </div>
 
@@ -197,8 +197,8 @@
         errorMsg.style.display = 'block';
         return;
       }
-      if (pw1.length < 6) {
-        errorMsg.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+      if (pw1.length < 12) {
+        errorMsg.textContent = 'La contraseña debe tener al menos 12 caracteres.';
         errorMsg.style.display = 'block';
         return;
       }
@@ -230,7 +230,10 @@
           var dest = data.tipo === 'gym' ? '/configuracion' : '/mi-plan';
           setTimeout(function() { window.location.href = dest; }, 1200);
         } else {
-          errorMsg.textContent = data.detail || 'Error al crear la cuenta.';
+          var det = data.detail;
+          if (Array.isArray(det)) det = det.map(function(e){ return e.msg || JSON.stringify(e); }).join(' · ');
+          else if (typeof det !== 'string') det = 'Error al crear la cuenta.';
+          errorMsg.textContent = det || 'Error al crear la cuenta.';
           errorMsg.style.display = 'block';
         }
       } catch (err) {

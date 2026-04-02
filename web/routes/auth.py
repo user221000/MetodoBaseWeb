@@ -28,6 +28,7 @@ class RegistroRequest(BaseModel):
     password: str
     nombre: str
     apellido: str = ""
+    tipo: str = "usuario"
 
 class GoogleLoginRequest(BaseModel):
     credential: str
