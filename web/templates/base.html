@@ -91,8 +91,13 @@
       (function() {
         const tipo = localStorage.getItem('mb_tipo') || '';
         if (tipo === 'usuario') {
-          const el = document.getElementById('nav-suscripcion-link');
-          if (el) { el.href = '/mi-suscripcion'; el.dataset.page = 'mi-suscripcion'; }
+          // Usuario individual: redirigir a su sección propia
+          const gymPages = ['/dashboard', '/clientes', '/planes', '/suscripciones', '/configuracion', '/generar-plan'];
+          const path = window.location.pathname;
+          const isGymPage = gymPages.some(function(p) { return path === p || path.startsWith(p + '/'); });
+          if (isGymPage) {
+            window.location.replace('/mi-plan');
+          }
         }
       })();
     </script>

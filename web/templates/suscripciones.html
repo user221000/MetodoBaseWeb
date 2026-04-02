@@ -2,6 +2,14 @@
 {% block title %}Suscripción{% endblock %}
 
 {% block content %}
+<script nonce="{{ request.state.csp_nonce }}">
+  (function() {
+    var t = localStorage.getItem('mb_tipo') || '';
+    if (t === 'usuario') {
+      window.location.replace('/mi-suscripcion');
+    }
+  })();
+</script>
 
 <!-- ── Page header ────────────────────────────────────────────── -->
 <div class="page-header">
