@@ -341,6 +341,7 @@ def _serializar_macro_opciones(macro_data: dict) -> dict:
                 "alimento": op.get("alimento", ""),
                 "gramos": round(op.get("gramos", 0)),
                 "equivalencia": op.get("equivalencia", ""),
+                "macros": op.get("macros", {}),
             }
             for op in macro_data.get("opciones", [])
         ],
