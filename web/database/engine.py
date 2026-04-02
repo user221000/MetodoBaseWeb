@@ -81,9 +81,10 @@ def init_db() -> None:
     if is_sqlite:
         kwargs["connect_args"] = {"check_same_thread": False}
     else:
-        kwargs["pool_size"] = 5
-        kwargs["max_overflow"] = 10
+        kwargs["pool_size"] = 10
+        kwargs["max_overflow"] = 20
         kwargs["pool_timeout"] = 30
+        kwargs["pool_recycle"] = 1800  # Recycle every 30 min — prevents stale connections
 
     _engine = create_engine(
         url,

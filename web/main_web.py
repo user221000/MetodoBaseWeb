@@ -468,7 +468,21 @@ def main() -> None:
         uvicorn.run("web.main_web:create_app", host=args.host, port=args.port,
                     reload=True, factory=True, reload_dirs=[str(_ROOT)])
     else:
-        uvicorn.run(create_app(), host=args.host, port=args.port, log_level="info")
+        # Use multiple workers in production for parallelism (plan generation is CPU-bound).
+        # Railway Starter has 2 vCPUs; WEB_WORKERS overrides the default.
+        _is_prod = bool(os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("WEB_WORKERS"))
+        workers = int(os.getenv("WEB_WORKERS", "2" if _is_prod else "1"))
+        if workers > 1:
+            uvicorn.run(
+                "web.main_web:create_app",
+                host=args.host,
+                port=args.port,
+                log_level="info",
+                workers=workers,
+                factory=True,
+            )
+        else:
+            uvicorn.run(create_app(), host=args.host, port=args.port, log_level="info")
 
 
 if __name__ == "__main__":

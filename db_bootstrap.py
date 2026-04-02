@@ -60,23 +60,39 @@ def main():
         logger.warning("create_all() had issues (may be non-fatal): %s", e)
         logger.info("Continuing with Alembic to handle schema...")
 
-    # 3. Stamp Alembic version to head
-    logger.info("Step 3: Stamping Alembic version to head...")
+    # 3. Stamp Alembic version to head ONLY for fresh databases
+    # For existing databases with pending migrations, stamping first would
+    # mark them as already applied (causing them to be silently skipped).
+    logger.info("Step 3: Checking Alembic migration state...")
+    alembic_cfg = None
     try:
         from alembic.config import Config as AlembicConfig
         from alembic import command
+        from sqlalchemy import inspect as sa_inspect
 
         alembic_cfg = AlembicConfig("alembic.ini")
-        command.stamp(alembic_cfg, "head")
-        logger.info("Alembic stamped at head")
-    except Exception as e:
-        logger.warning("Alembic stamp had issues (non-fatal): %s", e)
+        inspector = sa_inspect(engine)
 
-    # 4. Run alembic upgrade head (catches any new migrations beyond stamp)
-    logger.info("Step 4: Running alembic upgrade head...")
+        if "alembic_version" not in inspector.get_table_names():
+            # Fresh DB: tables were just created by create_all().
+            # Stamp to head so the initial migrations don't try to re-create them.
+            logger.info("Fresh database detected — stamping Alembic to head...")
+            command.stamp(alembic_cfg, "head")
+            logger.info("Alembic stamped at head (fresh DB)")
+        else:
+            logger.info("Existing database — skipping stamp, upgrade will apply any pending migrations")
+    except Exception as e:
+        logger.warning("Alembic stamp check had issues (non-fatal): %s", e)
+
+    # 4. Run alembic upgrade head (applies any pending migrations)
+    logger.info("Step 4: Running alembic upgrade head (applies pending migrations)...")
     try:
+        if alembic_cfg is None:
+            from alembic.config import Config as AlembicConfig
+            from alembic import command
+            alembic_cfg = AlembicConfig("alembic.ini")
         command.upgrade(alembic_cfg, "head")
-        logger.info("Alembic upgrade completed")
+        logger.info("Alembic upgrade completed successfully")
     except Exception as e:
         logger.warning("Alembic upgrade had issues (non-fatal): %s", e)
 
