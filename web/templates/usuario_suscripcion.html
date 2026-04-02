@@ -776,6 +776,8 @@
 
       var res = await Api.usuario.stripeSubscribe('pro', pmResult.paymentMethod.id);
       if (res.client_secret) {
+        // Persist sub ID before 3DS redirect — page will reload after bank auth
+        if (res.subscription_id) sessionStorage.setItem('mb_pending_sub_id', res.subscription_id);
         var confirmRes = await _stripe.confirmCardPayment(res.client_secret, {
           payment_method: pmResult.paymentMethod.id,
           return_url: window.location.href,
@@ -883,6 +885,30 @@
     showToast('🚀 ¡Plan Pro activado correctamente!');
     updateUI('pro', 0, 5, '—');
     history.replaceState({}, '', '/mi-suscripcion');
+  } else if (params.get('redirect_status') === 'succeeded') {
+    // 3DS redirect completed — Stripe returned to this page after bank auth
+    var pendingSubId = sessionStorage.getItem('mb_pending_sub_id');
+    sessionStorage.removeItem('mb_pending_sub_id');
+    function _activate3ds() {
+      launchConfetti();
+      showToast('🚀 ¡Plan Pro activado correctamente!');
+      updateUI('pro', 0, 5, '—');
+      history.replaceState({}, '', '/mi-suscripcion');
+    }
+    if (pendingSubId) {
+      Api.usuario.confirmSubscription(pendingSubId)
+        .then(function(r) {
+          if (!r || !r.activated) Api.usuario.cambiarPlan('pro').catch(function() {});
+          _activate3ds();
+        })
+        .catch(function() {
+          Api.usuario.cambiarPlan('pro').catch(function() {});
+          _activate3ds();
+        });
+    } else {
+      Api.usuario.cambiarPlan('pro').catch(function() {});
+      _activate3ds();
+    }
   } else if (params.get('subscription') === 'canceled') {
     showToast('El pago fue cancelado. Puedes intentar de nuevo cuando quieras.');
     history.replaceState({}, '', '/mi-suscripcion');

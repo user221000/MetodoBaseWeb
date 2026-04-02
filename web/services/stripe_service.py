@@ -16,7 +16,7 @@ Idempotencia:
   - Eventos antiguos se purgan periódicamente
 """
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, date, timedelta, timezone
 from typing import Optional
 
 import stripe
@@ -140,7 +140,7 @@ def create_checkout_session(
         "success_url": abs_success,
         "cancel_url": abs_cancel,
         "metadata": {"plan": plan, "gym_id": gym_id},
-        "idempotency_key": f"checkout_{gym_id}_{plan}",
+        "idempotency_key": f"checkout_{gym_id}_{plan}_{date.today().isoformat()}",
     }
 
     if customer_id:
