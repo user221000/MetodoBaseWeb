@@ -1085,7 +1085,7 @@
   });
 
   // ── KPIs de suscripciones ──────────────────────────────────
-  (async function cargarKPIsSuscripciones() {
+  async function cargarKPIsSuscripciones() {
     try {
       const data = await Api.stats.suscripciones();
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
@@ -1095,7 +1095,8 @@
     } catch(e) {
       console.warn('[KPI subs]', e.message);
     }
-  })();
+  }
+  cargarKPIsSuscripciones();
 
   // ── Drawer lateral: clientes por suscripción ──────────────
   const _DRAWER_LABELS = {
@@ -1312,7 +1313,7 @@
   });
 
   // ── Open detail drawer ──────────────────────────────────────────
-  window.abrirDetalleCliente = async function(id) {
+  async function abrirDetalleCliente(id) {
     _ddClienteId = id;
     _ddExcluidos = new Set();
 
@@ -1384,10 +1385,10 @@
     } catch(e) {
       document.getElementById('detail-drawer-name').textContent = 'Error cargando cliente';
     }
-  };
+  }
 
   // ── Save detail drawer ──────────────────────────────────────────
-  window.guardarDetalleCliente = async function() {
+  async function guardarDetalleCliente() {
     if (!_ddClienteId) return;
     const btn = document.getElementById('dd-save-btn');
     btn.disabled = true;
@@ -1434,10 +1435,10 @@
       btn.textContent = '💾 Guardar cambios';
       alert('Error al guardar: ' + e.message);
     }
-  };
+  }
 
   // ── Delete client ───────────────────────────────────────────────
-  window.confirmarEliminarCliente = async function() {
+  async function confirmarEliminarCliente() {
     if (!_ddClienteId) return;
     if (!confirm('¿Desactivar este cliente? Esta acción se puede revertir desde la sección de clientes.')) return;
     try {
@@ -1448,7 +1449,7 @@
     } catch(e) {
       alert('Error al eliminar: ' + e.message);
     }
-  };
+  }
 
   // ── Close handlers ──────────────────────────────────────────────
   document.getElementById('detail-drawer-close').addEventListener('click', () => {

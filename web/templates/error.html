@@ -96,9 +96,12 @@
     <p class="error-desc">{{ message }}</p>
     <div class="error-actions">
       <a href="/" class="error-btn error-btn-primary">← Ir al inicio</a>
-      <a href="javascript:history.back()" class="error-btn error-btn-outline">Volver atrás</a>
+      <button type="button" id="btn-back" class="error-btn error-btn-outline">Volver atrás</button>
     </div>
     <p class="error-brand">Método Base</p>
   </div>
+  <script nonce="{{ request.state.csp_nonce }}">
+    document.getElementById('btn-back').addEventListener('click', function() { history.back(); });
+  </script>
 </body>
 </html>
