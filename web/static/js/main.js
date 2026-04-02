@@ -27,7 +27,6 @@ async function initDashboard() {
   try {
     const stats = await Api.stats.obtener();
     showKPISkeletons(false);
-    renderActionableKPIs(stats);
     renderActivityFeed(stats.top_clientes || []);
     renderTopClientes(stats.top_clientes || []);
     updateOnboarding(stats);
@@ -59,19 +58,6 @@ function showKPISkeletons(show) {
       el.textContent = el.dataset.originalText || '—';
     }
   });
-}
-
-// ── Actionable KPIs ────────────────────────────────────────────────────────
-
-function renderActionableKPIs(stats) {
-  const activos = stats.clientes_activos || 0;
-  setKPI('kpi-subs-activas', activos);
-
-  const sinActividad = Math.max(0, (stats.total_clientes || 0) - activos);
-  setKPI('kpi-subs-inactivas', sinActividad);
-
-  const planesMes = stats.planes_periodo || 0;
-  setKPI('kpi-planes-mes', planesMes);
 }
 
 // ── Activity Feed ──────────────────────────────────────────────────────────
