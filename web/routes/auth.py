@@ -83,7 +83,7 @@ async def login_universal(data: LoginRequest, request: Request):
             "token": tokens["access_token"],
             "refresh_token": tokens["refresh_token"],
             "tipo": usuario["tipo"],
-            "role": usuario.get("role", "owner" if usuario["tipo"] == "gym" else "viewer"),
+            "role": usuario.get("role", "owner" if usuario["tipo"] in ("gym", "usuario") else "viewer"),
             "nombre": f"{usuario['nombre']} {usuario['apellido']}".strip(),
             "email": usuario["email"],
         }
@@ -213,7 +213,7 @@ async def google_login(data: GoogleLoginRequest, request: Request):
                 "nombre": row.nombre,
                 "apellido": row.apellido,
                 "tipo": row.tipo,
-                "role": "owner" if row.tipo == "gym" else "viewer",
+                "role": "owner" if row.tipo in ("gym", "usuario") else "viewer",
             }
         else:
             # Crear usuario nuevo
@@ -229,7 +229,7 @@ async def google_login(data: GoogleLoginRequest, request: Request):
             session.add(new_user)
             session.commit()
 
-            usuario = {"id": uid, "email": email, "nombre": nombre, "apellido": apellido, "tipo": tipo, "role": "owner" if tipo == "gym" else "viewer"}
+            usuario = {"id": uid, "email": email, "nombre": nombre, "apellido": apellido, "tipo": tipo, "role": "owner" if tipo in ("gym", "usuario") else "viewer"}
 
             # Auto-crear GymProfile si es gym
             if tipo == "gym":

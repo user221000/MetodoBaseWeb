@@ -339,8 +339,8 @@ def crear_access_token(usuario: dict, remember_me: bool = False) -> str:
     # Extraer role para incluir en token
     role = usuario.get("role")
     if role is None:
-        # Legacy: tipo='gym' → role='owner'
-        if usuario.get("tipo") == "gym":
+        # Legacy: tipo='gym' o tipo='usuario' → role='owner'
+        if usuario.get("tipo") in ("gym", "usuario"):
             role = "owner"
         else:
             role = "viewer"
@@ -372,7 +372,7 @@ def crear_refresh_token(usuario: dict, remember_me: bool = False) -> str:
     # Extraer role para incluir en token
     role = usuario.get("role")
     if role is None:
-        if usuario.get("tipo") == "gym":
+        if usuario.get("tipo") in ("gym", "usuario"):
             role = "owner"
         else:
             role = "viewer"
