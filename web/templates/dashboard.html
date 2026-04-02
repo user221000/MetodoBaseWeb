@@ -59,7 +59,7 @@
 <!-- ── Drawer lateral: lista de clientes por filtro de suscripción ── -->
 <div id="subs-drawer-backdrop" class="modal-backdrop hidden" style="align-items:stretch;justify-content:flex-end;padding:0;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;">
   <aside id="subs-drawer" style="
-    width:min(420px,100vw);height:100vh;background:var(--surface-primary);
+    width:min(420px,100vw);height:100vh;background:var(--bg-surface);
     border-left:1px solid var(--border-subtle);display:flex;flex-direction:column;
     overflow:hidden;position:relative;animation:slideInRight .22s ease;
   ">
@@ -84,7 +84,7 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 <div id="detail-drawer-backdrop" class="modal-backdrop hidden" style="align-items:stretch;justify-content:flex-end;padding:0;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1001;display:flex;">
   <aside id="detail-drawer" style="
-    width:min(480px,100vw);height:100vh;background:var(--surface-primary);
+    width:min(480px,100vw);height:100vh;background:var(--bg-surface);
     border-left:1px solid var(--border-subtle);display:flex;flex-direction:column;
     overflow:hidden;position:relative;animation:slideInRight .22s ease;
   ">
@@ -148,11 +148,10 @@
               <label class="detail-label">Nivel de actividad</label>
               <select id="dd-actividad" class="detail-input">
                 <option value="">— Seleccionar —</option>
-                <option value="sedentario">Sedentario</option>
-                <option value="ligero">Ligero</option>
-                <option value="moderado">Moderado</option>
-                <option value="activo">Activo</option>
-                <option value="muy_activo">Muy activo</option>
+                <option value="nula">Sedentario (nula)</option>
+                <option value="leve">Actividad leve</option>
+                <option value="moderada">Actividad moderada</option>
+                <option value="intensa">Actividad intensa</option>
               </select>
             </div>
             <div class="detail-field detail-field-full">
@@ -218,7 +217,7 @@
             + Gestionar exclusiones
           </button>
           <div id="dd-food-panel" style="display:none;margin-top:12px;border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;">
-            <div style="padding:10px 12px;border-bottom:1px solid var(--border-subtle);background:var(--surface-secondary);">
+            <div style="padding:10px 12px;border-bottom:1px solid var(--border-subtle);background:var(--bg-card);">
               <input type="text" id="dd-food-search" class="detail-input" placeholder="Buscar alimento..." style="font-size:.83rem;">
             </div>
             <div id="dd-food-catalog" style="padding:10px 12px;max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
@@ -234,7 +233,7 @@
     </div>
 
     <!-- Footer sticky -->
-    <div style="position:absolute;bottom:0;left:0;right:0;padding:14px 20px;background:var(--surface-primary);border-top:1px solid var(--border-subtle);display:flex;gap:10px;">
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:14px 20px;background:var(--bg-surface);border-top:1px solid var(--border-subtle);display:flex;gap:10px;">
       <button type="button" id="dd-save-btn" class="btn btn-primary" style="flex:1;font-size:.88rem;">
         💾 Guardar cambios
       </button>
@@ -249,13 +248,13 @@
 @keyframes slideInRight { from { transform:translateX(100%); } to { transform:translateX(0); } }
 .kpi-btn-drawer { text-align:left; cursor:pointer; border:none; width:100%; }
 .drawer-client-card {
-  background:var(--surface-secondary);border:1px solid var(--border-subtle);
+  background:var(--bg-card);border:1px solid var(--border-subtle);
   border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;
   text-decoration:none;color:inherit;transition:border-color .15s,background .15s;
 }
-.drawer-client-card:hover { border-color:var(--accent-primary);background:var(--surface-hover); }
+.drawer-client-card:hover { border-color:var(--accent-primary);background:var(--bg-card-hover); }
 .drawer-avatar {
-  width:38px;height:38px;border-radius:50%;background:var(--accent-muted);
+  width:38px;height:38px;border-radius:50%;background:var(--accent-purple-subtle);
   display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;
 }
 .drawer-client-info { flex:1;min-width:0; }
@@ -285,12 +284,13 @@
 .detail-field-full { grid-column:1 / -1; }
 .detail-label { font-size:.76rem;font-weight:600;color:var(--text-secondary); }
 .detail-input {
-  background:var(--surface-secondary);border:1px solid var(--border-subtle);
-  border-radius:6px;padding:7px 10px;font-size:.84rem;color:var(--text-primary);
+  background:#1C1B18;border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;padding:7px 10px;font-size:.84rem;color:#EEEEF2;
   transition:border-color .15s;width:100%;box-sizing:border-box;
+  color-scheme: dark;
 }
 .detail-input:focus { outline:none;border-color:var(--accent-primary); }
-.detail-input option { background:var(--surface-primary); }
+.detail-input option { background:#1C1B18;color:#EEEEF2; }
 
 /* Plan type cards */
 .plan-type-card {
@@ -299,7 +299,7 @@
   position:relative;display:flex;flex-direction:column;gap:4px;
 }
 .plan-type-card:hover { border-color:var(--accent-primary); }
-.plan-type-card.selected { border-color:var(--accent-primary);background:var(--accent-muted); }
+.plan-type-card.selected { border-color:var(--accent-primary);background:var(--accent-purple-subtle); }
 .ptc-icon { font-size:1.3rem; }
 .ptc-label { font-size:.88rem;font-weight:700;color:var(--text-primary); }
 .ptc-desc { font-size:.73rem;color:var(--text-muted); }
@@ -307,7 +307,7 @@
 /* Food exclusion tags in detail drawer */
 .dd-food-tag {
   display:inline-flex;align-items:center;gap:5px;
-  background:var(--accent-muted);color:var(--text-primary);
+  background:var(--accent-purple-subtle);color:var(--text-primary);
   border-radius:99px;font-size:.73rem;padding:3px 10px;cursor:pointer;
   transition:background .15s;
 }
@@ -318,7 +318,7 @@
   display:flex;align-items:center;justify-content:space-between;
   padding:5px 4px;cursor:pointer;border-radius:6px;transition:background .12s;
 }
-.dd-food-row:hover { background:var(--surface-hover); }
+.dd-food-row:hover { background:var(--bg-card-hover); }
 .dd-food-row.excluded { color:var(--text-muted);text-decoration:line-through; }
 .dd-food-cat { font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:6px 0 4px; }
 </style>
