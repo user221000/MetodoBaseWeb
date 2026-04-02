@@ -222,11 +222,12 @@ async def get_mi_plan(
 def _load_plan_json(plan_record: "PlanGenerado") -> dict:
     """Load plan JSON: DB column first, then companion file fallback."""
     # 1. Try DB column (persists across container restarts)
-    if plan_record.plan_json:
-        try:
-            return json.loads(plan_record.plan_json)
-        except Exception:
-            pass
+    try:
+        col_value = plan_record.plan_json
+        if col_value:
+            return json.loads(col_value)
+    except Exception:
+        pass
     # 2. Fall back to companion file next to PDF
     if not plan_record.ruta_pdf:
         return {}

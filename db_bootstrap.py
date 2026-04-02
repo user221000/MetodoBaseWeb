@@ -84,6 +84,26 @@ def main():
     except Exception as e:
         logger.warning("Alembic stamp check had issues (non-fatal): %s", e)
 
+    # 3b. Safety guard: fix columns that a previous buggy release may have
+    # stamped as applied without actually running the migration SQL.
+    # Each guard uses ADD COLUMN IF NOT EXISTS (idempotent).
+    logger.info("Step 3b: Applying safety column guards...")
+    _safety_ddl = [
+        # plan_json column — may have been stamped but never created
+        "ALTER TABLE planes_generados ADD COLUMN IF NOT EXISTS plan_json TEXT",
+    ]
+    try:
+        from sqlalchemy import text as _text
+        with engine.begin() as _conn:
+            for _ddl in _safety_ddl:
+                try:
+                    _conn.execute(_text(_ddl))
+                    logger.info("Safety guard applied: %s", _ddl[:60])
+                except Exception as _e:
+                    logger.warning("Safety guard skipped (non-fatal): %s — %s", _ddl[:60], _e)
+    except Exception as e:
+        logger.warning("Safety guards section failed (non-fatal): %s", e)
+
     # 4. Run alembic upgrade head (applies any pending migrations)
     logger.info("Step 4: Running alembic upgrade head (applies pending migrations)...")
     try:

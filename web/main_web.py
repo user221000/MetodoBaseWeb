@@ -151,6 +151,23 @@ def create_app() -> FastAPI:
     except Exception as exc:
         logger.warning("[DB] create_all() issue (non-fatal if tables exist): %s", exc)
 
+    # Safety: ensure any columns that may have been stamp-skipped exist.
+    # ADD COLUMN IF NOT EXISTS is fully idempotent.
+    _SAFETY_COLUMNS = [
+        "ALTER TABLE planes_generados ADD COLUMN IF NOT EXISTS plan_json TEXT",
+    ]
+    if "postgresql" in str(_sa_engine.url):
+        try:
+            with _sa_engine.begin() as _conn:
+                from sqlalchemy import text as _sqlt
+                for _ddl in _SAFETY_COLUMNS:
+                    try:
+                        _conn.execute(_sqlt(_ddl))
+                    except Exception as _e:
+                        logger.debug("[DB] Safety column guard skipped: %s", _e)
+        except Exception as _e:
+            logger.warning("[DB] Safety column guards failed (non-fatal): %s", _e)
+
     init_auth()
 
     @asynccontextmanager
