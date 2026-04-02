@@ -20,6 +20,11 @@ from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
 from web.database.models import Cliente, PlanGenerado, UserSubscription
 
+try:
+    from src.alimentos_base import ALIMENTOS_BASE as _ALIMENTOS_BASE
+except Exception:
+    _ALIMENTOS_BASE = {}
+
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Usuario Individual"])
 
@@ -251,9 +256,9 @@ def _enrich_plan_macros(plan_data: dict) -> dict:
     """
     if not isinstance(plan_data, dict):
         return plan_data
-    try:
-        from src.alimentos_base import ALIMENTOS_BASE
-    except Exception:
+
+    ALIMENTOS_BASE = _ALIMENTOS_BASE
+    if not ALIMENTOS_BASE:
         return plan_data
 
     _macro_groups = ("proteinas", "carbohidratos", "grasas")
