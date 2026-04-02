@@ -1699,6 +1699,75 @@ svg.u-ring .u-ring-bg { stroke: var(--u-bg-input); stroke-width: 10; }
   padding: 22px;
 }
 
+.u-tip-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.u-tip-nav-btn {
+  background: none;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--u-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.u-tip-nav-btn:hover {
+  background: var(--u-bg-input);
+  color: var(--u-text);
+}
+
+.u-tip-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.u-tip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--u-bg-input);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.u-tip-dot.active {
+  background: var(--u-accent);
+  transform: scale(1.35);
+}
+
+.u-tip-dot:hover {
+  background: var(--u-text-muted);
+}
+
+@keyframes tipFadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+
+@keyframes tipFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.u-tip-fade-out {
+  animation: tipFadeOut 0.2s ease forwards;
+}
+
+.u-tip-fade-in {
+  animation: tipFadeIn 0.3s ease forwards;
+}
+
 .u-tip-badge {
   display: inline-flex;
   align-items: center;

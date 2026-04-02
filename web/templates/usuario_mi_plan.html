@@ -58,8 +58,15 @@
 
   <!-- RIGHT: Nutrition Tip Card -->
   <div class="u-card u-tip-card">
-    <div class="u-tip-badge">💡 Consejo IA</div>
-    <p class="u-tip-text">Distribuye tu proteína equitativamente entre comidas para maximizar la síntesis muscular. Apunta a 25-40g por comida.</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="u-tip-badge">💡 Consejo IA</div>
+      <div class="u-tip-nav">
+        <button class="u-tip-nav-btn" id="tip-prev" aria-label="Anterior">&#8249;</button>
+        <span class="u-tip-dots" id="tip-dots"></span>
+        <button class="u-tip-nav-btn" id="tip-next" aria-label="Siguiente">&#8250;</button>
+      </div>
+    </div>
+    <p class="u-tip-text" id="tip-text">Cargando consejo...</p>
     <div class="u-tip-rings">
       <div class="u-tip-ring-item">
         <svg viewBox="0 0 44 44" width="44" height="44">
@@ -1239,6 +1246,59 @@
       updateMealCheckProgress();
     });
   });
+
+  /* ── Rotating tips carousel ─────────────────────────────────────────── */
+  (function() {
+    var TIPS = [
+      'Distribuye tu proteína equitativamente entre comidas para maximizar la síntesis muscular. Apunta a 25-40g por comida.',
+      'Beber 500ml de agua 30 minutos antes de cada comida mejora la digestión y ayuda a controlar el apetito.',
+      'Los carbohidratos complejos (avena, arroz integral, papa) liberan energía lenta y sostenida. Prefiere estos sobre los simples.',
+      'Incluir grasas saludables como aguacate, aceite de oliva o nueces mejora la absorción de vitaminas liposolubles A, D, E y K.',
+      'Comer cada 3-4 horas mantiene el metabolismo activo y previene los picos de insulina que favorecen el almacenamiento de grasa.',
+      'El descanso es parte del plan: dormir 7-9 horas regula la grelina y la leptina, hormonas que controlan el hambre.',
+      'Masticar despacio y sin distracciones mejora la señal de saciedad. Tu cerebro tarda ~20 minutos en registrar que estás lleno.'
+    ];
+
+    var tipIdx = 0;
+    var tipTextEl = document.getElementById('tip-text');
+    var tipDotsEl = document.getElementById('tip-dots');
+    var tipPrev   = document.getElementById('tip-prev');
+    var tipNext   = document.getElementById('tip-next');
+
+    function renderDots() {
+      tipDotsEl.innerHTML = '';
+      for (var i = 0; i < TIPS.length; i++) {
+        var d = document.createElement('span');
+        d.className = 'u-tip-dot' + (i === tipIdx ? ' active' : '');
+        d.setAttribute('data-i', i);
+        d.addEventListener('click', function() { goTip(parseInt(this.getAttribute('data-i'))); });
+        tipDotsEl.appendChild(d);
+      }
+    }
+
+    function goTip(idx) {
+      tipIdx = (idx + TIPS.length) % TIPS.length;
+      tipTextEl.classList.add('u-tip-fade-out');
+      setTimeout(function() {
+        tipTextEl.textContent = TIPS[tipIdx];
+        tipTextEl.classList.remove('u-tip-fade-out');
+        tipTextEl.classList.add('u-tip-fade-in');
+        renderDots();
+        setTimeout(function() { tipTextEl.classList.remove('u-tip-fade-in'); }, 350);
+      }, 200);
+    }
+
+    tipPrev.addEventListener('click', function() { goTip(tipIdx - 1); });
+    tipNext.addEventListener('click', function() { goTip(tipIdx + 1); });
+
+    /* Start on a random tip each session */
+    tipIdx = Math.floor(Math.random() * TIPS.length);
+    tipTextEl.textContent = TIPS[tipIdx];
+    renderDots();
+
+    /* Auto-rotate every 8 seconds */
+    setInterval(function() { goTip(tipIdx + 1); }, 8000);
+  })();
 
 })();
 </script>
