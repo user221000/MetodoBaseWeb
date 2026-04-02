@@ -89,11 +89,20 @@ async def suscripciones(request: Request):
             branding = _json.load(f)
     except Exception:
         branding = {"contacto": {"whatsapp": ""}}
+    from web.settings import get_settings as _gs
+    _s = _gs()
+    def _safe_link(url: str) -> str:
+        return url if url and url.startswith("https://buy.stripe.com/") else ""
+    payment_links = {
+        "standard":      _safe_link(_s.STRIPE_PAYMENT_LINK_STANDARD),
+        "gym_comercial": _safe_link(_s.STRIPE_PAYMENT_LINK_GYM_COMERCIAL),
+        "clinica":       _safe_link(_s.STRIPE_PAYMENT_LINK_CLINICA),
+    }
     return template_response(
         templates,
         request,
         "suscripciones.html",
-        {"request": request, "branding": branding},
+        {"request": request, "branding": branding, "payment_links": payment_links},
     )
 
 

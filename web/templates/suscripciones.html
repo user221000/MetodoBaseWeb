@@ -530,6 +530,12 @@
    suscripciones.js — Production-ready subscription management
 ═════════════════════════════════════════════════════════════ */
 const _waNumber = '{{ branding.contacto.whatsapp | default("") }}';
+// Payment links inyectados server-side (sin depender del API call de billing)
+const _SERVER_PAYMENT_LINKS = {
+  standard:      '{{ payment_links.standard | default("") }}',
+  gym_comercial: '{{ payment_links.gym_comercial | default("") }}',
+  clinica:       '{{ payment_links.clinica | default("") }}',
+};
 const _PLAN_META = {
   standard:      { icon: '🚀', color: 'var(--accent-primary)',  label: 'Standard' },
   gym_comercial: { icon: '⚡', color: 'var(--accent-purple)',   label: 'Gym Comercial' },
@@ -740,8 +746,9 @@ document.querySelectorAll('.btn-plan').forEach(btn => {
     _selectedPlan = btn.dataset.plan;
     selectPlanCard(_selectedPlan);
 
-    // Primary path: Stripe Payment Link (no server-side session needed)
-    const paymentLink = _billingConfig?.payment_links?.[_selectedPlan];
+    // Primary path: Stripe Payment Link — server-side link primero, luego API
+    const paymentLink = _SERVER_PAYMENT_LINKS[_selectedPlan]
+                     || _billingConfig?.payment_links?.[_selectedPlan];
     if (paymentLink) {
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Redirigiendo...';
@@ -923,7 +930,8 @@ document.getElementById('pago-btn-next-2').addEventListener('click', async () =>
 
   if (_selectedMethod === 'card') {
     // Redirect directly to Stripe Payment Link — no Stripe.js required
-    const paymentLink = _billingConfig?.payment_links?.[_selectedPlan];
+    const paymentLink = _SERVER_PAYMENT_LINKS[_selectedPlan]
+                     || _billingConfig?.payment_links?.[_selectedPlan];
     if (!paymentLink) {
       Toast.error('Pago con tarjeta no disponible. Configura STRIPE_PAYMENT_LINK_* en Railway.');
       return;
