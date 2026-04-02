@@ -149,19 +149,23 @@ def has_permission(
         try:
             user_role = UserRole(user_role)
         except ValueError:
-            # Legacy: tipo='gym' sin role explícito → OWNER
-            if tipo == 'gym':
+            # Legacy: tipo='gym' o tipo='usuario' sin role explícito → OWNER
+            if tipo in ('gym', 'usuario'):
                 user_role = UserRole.OWNER
             else:
                 _logger.warning(f"Unknown role: {user_role}, defaulting to VIEWER")
                 user_role = UserRole.VIEWER
     
-    # Si no hay role definido y es tipo gym, es OWNER
+    # Si no hay role definido y es tipo gym o usuario, es OWNER
     if user_role is None:
-        if tipo == 'gym':
+        if tipo in ('gym', 'usuario'):
             user_role = UserRole.OWNER
         else:
             user_role = UserRole.VIEWER
+    
+    # Override: tipo=usuario siempre es OWNER (dueño de su propia cuenta)
+    if tipo == 'usuario' and user_role != UserRole.OWNER:
+        user_role = UserRole.OWNER
     
     # Obtener permisos para esta acción+recurso
     permission_key = (action, resource)

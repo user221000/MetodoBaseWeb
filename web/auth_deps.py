@@ -34,8 +34,9 @@ def get_usuario_actual(
         )
     
     # Asegurar que role esté presente (legacy compatibility)
-    if "role" not in usuario:
-        usuario["role"] = "owner" if usuario.get("tipo") == "gym" else "viewer"
+    # tipo=usuario es siempre owner de su propia cuenta (sin equipo multi-usuario)
+    if "role" not in usuario or usuario.get("tipo") == "usuario":
+        usuario["role"] = "owner" if usuario.get("tipo") in ("gym", "usuario") else "viewer"
     
     return usuario
 
