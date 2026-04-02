@@ -33,7 +33,7 @@ class Settings:
             value = os.getenv(key)
             if value is None:
                 continue
-            value = value.strip().strip('"').strip("'").strip()
+            value = value.strip()
             if value:
                 return value
         return ""
@@ -100,22 +100,16 @@ class Settings:
         self.STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
         # ── Stripe Payment Links (pre-built Stripe checkout pages) ────────
         self.STRIPE_PAYMENT_LINK_STANDARD: str = self._first_env(
-            "STRIPE_PAYMENT_LINK_STANDARD_SOCIO",
-            "STRIPE_PAYMENT_LINK_STANDAR_SOCIO",
             "STRIPE_PAYMENT_LINK_STANDARD",
-            "STRIPE_PAYMENT_LINK_STANDAR",
         )
         self.STRIPE_PAYMENT_LINK_GYM_COMERCIAL: str = self._first_env(
-            "STRIPE_PAYMENT_LINK_GYM_COMERCIAL_SOCIO",
             "STRIPE_PAYMENT_LINK_GYM_COMERCIAL",
         )
         self.STRIPE_PAYMENT_LINK_CLINICA: str = self._first_env(
-            "STRIPE_PAYMENT_LINK_CLINICA_SOCIO",
             "STRIPE_PAYMENT_LINK_CLINICA",
         )
         self.STRIPE_PAYMENT_LINK_PRO_USUARIO: str = self._first_env(
             "STRIPE_PAYMENT_LINK_PRO_USUARIO",
-            "STRIPE_PAYMENT_LINK_PRO",
         )
         # ── MercadoPago ───────────────────────────────────────────────────
         self.MERCADOPAGO_ACCESS_TOKEN: str = os.getenv(

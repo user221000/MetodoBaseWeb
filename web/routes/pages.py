@@ -88,21 +88,27 @@ async def planes_historial(request: Request):
 
 @router.get("/suscripciones", response_class=HTMLResponse)
 async def suscripciones(request: Request):
+    import os as _os
     try:
         with open(_BRANDING_PATH, encoding="utf-8") as f:
             branding = _json.load(f)
     except Exception:
         branding = {"contacto": {"whatsapp": ""}}
-    from web.settings import get_settings as _gs
-    _s = _gs()
     def _safe_link(url: str) -> str:
         clean = (url or "").strip().strip('"').strip("'").strip()
         return clean if any(clean.startswith(p) for p in _STRIPE_PAYMENT_LINK_PREFIXES) else ""
+    # Lee directamente de os.getenv para evitar stale lru_cache de Settings
     payment_links = {
-        "standard":      _safe_link(_s.STRIPE_PAYMENT_LINK_STANDARD),
-        "gym_comercial": _safe_link(_s.STRIPE_PAYMENT_LINK_GYM_COMERCIAL),
-        "clinica":       _safe_link(_s.STRIPE_PAYMENT_LINK_CLINICA),
+        "standard":      _safe_link(_os.getenv("STRIPE_PAYMENT_LINK_STANDARD", "")),
+        "gym_comercial": _safe_link(_os.getenv("STRIPE_PAYMENT_LINK_GYM_COMERCIAL", "")),
+        "clinica":       _safe_link(_os.getenv("STRIPE_PAYMENT_LINK_CLINICA", "")),
     }
+    _logger.info(
+        "[pages/suscripciones] payment_links — standard=%s gym_comercial=%s clinica=%s",
+        bool(payment_links["standard"]),
+        bool(payment_links["gym_comercial"]),
+        bool(payment_links["clinica"]),
+    )
     return template_response(
         templates,
         request,

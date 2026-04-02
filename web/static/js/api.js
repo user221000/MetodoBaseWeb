@@ -120,12 +120,22 @@ const Api = (() => {
 
     if (!res.ok) {
       let msg;
+      let errorCode = null;
+      let upgradeUrl = null;
       if (Array.isArray(data.detail)) {
         msg = data.detail.map(e => e.msg || JSON.stringify(e)).join('; ');
+      } else if (data.detail && typeof data.detail === 'object') {
+        // Structured error from backend (subscription_guard, feature_gate, etc.)
+        msg = data.detail.message || data.detail.detail || JSON.stringify(data.detail);
+        errorCode = data.detail.code || null;
+        upgradeUrl = data.detail.upgrade_url || null;
       } else {
         msg = data.detail || data.message || `HTTP ${res.status}`;
       }
-      throw new Error(msg);
+      const err = new Error(msg);
+      if (errorCode) err.code = errorCode;
+      if (upgradeUrl) err.upgradeUrl = upgradeUrl;
+      throw err;
     }
     return data;
   }

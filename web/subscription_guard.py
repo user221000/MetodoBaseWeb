@@ -30,6 +30,7 @@ def require_active_subscription(
 ) -> dict:
     """
     Verifica suscripción activa. En dev (sin Stripe), pasa sin restricción.
+    Si no hay suscripción activa, usa el plan 'free' (10 clientes) en lugar de bloquear.
     Retorna el usuario enriquecido con info de suscripción.
     C3 FIX: Usar get_effective_gym_id para soportar team members.
     """
@@ -45,13 +46,15 @@ def require_active_subscription(
     ).first()
 
     if not sub or sub.status not in ("active", "trialing"):
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "code": "subscription_required",
-                "message": "Suscripción activa requerida. Actualiza tu plan en /billing.",
-            },
-        )
+        # Sin suscripción activa → plan free (limitado, pero no bloqueado)
+        from web.constants import PLANES_LICENCIA
+        free_cfg = PLANES_LICENCIA.get("free", {})
+        usuario["subscription"] = {
+            "plan": "free",
+            "status": "free",
+            "max_clientes": free_cfg.get("max_clientes", 10),
+        }
+        return usuario
 
     usuario["subscription"] = {
         "plan": sub.plan,

@@ -114,15 +114,24 @@ def billing_config(
         clean = (url or "").strip().strip('"').strip("'").strip()
         return clean if any(clean.startswith(p) for p in _STRIPE_PAYMENT_LINK_PREFIXES) else ""
 
+    # Lee directamente de os.getenv para evitar stale lru_cache de Settings
+    link_standard     = _clean_link(os.getenv("STRIPE_PAYMENT_LINK_STANDARD", ""))
+    link_gym_comercial = _clean_link(os.getenv("STRIPE_PAYMENT_LINK_GYM_COMERCIAL", ""))
+    link_clinica      = _clean_link(os.getenv("STRIPE_PAYMENT_LINK_CLINICA", ""))
+    logger.info(
+        "[billing/config] payment_links resolved — standard=%s gym_comercial=%s clinica=%s",
+        bool(link_standard), bool(link_gym_comercial), bool(link_clinica),
+    )
+
     return {
         "stripe_configured": stripe_ready,
         "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
         "mercadopago_configured": mp_ready,
         "plans": plans,
         "payment_links": {
-            "standard":     _clean_link(settings.STRIPE_PAYMENT_LINK_STANDARD),
-            "gym_comercial": _clean_link(settings.STRIPE_PAYMENT_LINK_GYM_COMERCIAL),
-            "clinica":      _clean_link(settings.STRIPE_PAYMENT_LINK_CLINICA),
+            "standard":      link_standard,
+            "gym_comercial": link_gym_comercial,
+            "clinica":       link_clinica,
         },
     }
 
