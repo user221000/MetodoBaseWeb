@@ -89,3 +89,42 @@ def stats_planes_tiempo(
     verify_permission(usuario, "read", "stats")
     gym_id = get_gym_id(usuario)
     return repo.obtener_planes_por_dia(db, gym_id)
+
+
+@router.get("/estadisticas/suscripciones", summary="KPIs de suscripciones de clientes")
+def stats_suscripciones(
+    db: Session = Depends(get_db_readonly),
+    usuario: dict = Depends(get_usuario_actual),
+):
+    """Retorna conteos de suscripciones de clientes: nuevas este mes, activas, inactivas."""
+    verify_permission(usuario, "read", "stats")
+    gym_id = get_gym_id(usuario)
+    ahora = datetime.now(timezone.utc)
+    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    from web.database.models import Cliente
+    base = db.query(Cliente).filter(
+        Cliente.gym_id == gym_id,
+        Cliente.activo == True,  # noqa: E712
+    )
+
+    nuevas = base.filter(
+        Cliente.fecha_suscripcion.isnot(None),
+        Cliente.fecha_suscripcion >= inicio_mes,
+    ).count()
+
+    activas = base.filter(
+        Cliente.fecha_fin_suscripcion.isnot(None),
+        Cliente.fecha_fin_suscripcion >= ahora,
+    ).count()
+
+    inactivas = base.filter(
+        (Cliente.fecha_fin_suscripcion.is_(None)) |
+        (Cliente.fecha_fin_suscripcion < ahora)
+    ).count()
+
+    return {
+        "nuevas_este_mes": nuevas,
+        "activas": activas,
+        "inactivas": inactivas,
+    }

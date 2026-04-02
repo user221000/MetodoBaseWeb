@@ -27,7 +27,7 @@ router = APIRouter(tags=["Clientes"])
 @router.get("/clientes", summary="Listar clientes activos")
 def listar_clientes(
     q: Optional[str] = Query(None, description="Busca por nombre, teléfono o ID"),
-    filter: Optional[str] = Query(None, description="activos|inactivos - filtra por actividad reciente"),
+    filter: Optional[str] = Query(None, description="activos|inactivos|sub-nuevas|sub-activas|sub-inactivas"),
     limite: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db_readonly),
@@ -36,17 +36,21 @@ def listar_clientes(
     verify_permission(usuario, "read", "cliente")
     termino = q.strip() if q else ""
     
-    # Aplicar filtro de actividad si se especifica
     solo_activos = None
+    filtro_suscripcion = None
+
     if filter == "activos":
         solo_activos = True
     elif filter == "inactivos":
         solo_activos = False
-    
+    elif filter in ("sub-nuevas", "sub-activas", "sub-inactivas"):
+        filtro_suscripcion = filter
+
     clientes, total = repo.listar_clientes(
-        db, get_gym_id(usuario), termino, 
+        db, get_gym_id(usuario), termino,
         limite=limite, offset=offset,
-        solo_activos=solo_activos
+        solo_activos=solo_activos,
+        filtro_suscripcion=filtro_suscripcion,
     )
     return {"clientes": clientes, "total": total, "limit": limite, "offset": offset, "filter": filter}
 

@@ -219,8 +219,9 @@ const Api = (() => {
       const params = periodo ? `?periodo=${periodo}` : '';
       return request('GET', `/api/estadisticas${params}`);
     },
-    objetivos:   () => request('GET', '/api/estadisticas/objetivos'),
-    planesTiempo:() => request('GET', '/api/estadisticas/planes-tiempo'),
+    objetivos:    () => request('GET', '/api/estadisticas/objetivos'),
+    planesTiempo: () => request('GET', '/api/estadisticas/planes-tiempo'),
+    suscripciones:() => request('GET', '/api/estadisticas/suscripciones'),
   };
 
   // ── Auth ──────────────────────────────────────────────────────────────────

@@ -24,6 +24,7 @@ def listar_clientes(
     gym_id: str,
     termino: str = "",
     solo_activos: Optional[bool] = None,
+    filtro_suscripcion: Optional[str] = None,
     limite: int = 100,
     offset: int = 0,
 ) -> tuple[list[dict], int]:
@@ -33,6 +34,7 @@ def listar_clientes(
     Args:
         solo_activos: None = todos, True = suscripción vigente (o plan en 30 días),
                       False = suscripción expirada (o sin plan en 30 días)
+        filtro_suscripcion: sub-nuevas | sub-activas | sub-inactivas
     
     Returns: (clientes, total)
     """
@@ -71,6 +73,27 @@ def listar_clientes(
                     )
                 )
             )
+
+    # Filtros de suscripción de clientes al gym
+    if filtro_suscripcion == "sub-nuevas":
+        ahora = datetime.now(timezone.utc)
+        inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        q = q.filter(
+            Cliente.fecha_suscripcion.isnot(None),
+            Cliente.fecha_suscripcion >= inicio_mes,
+        )
+    elif filtro_suscripcion == "sub-activas":
+        ahora = datetime.now(timezone.utc)
+        q = q.filter(
+            Cliente.fecha_fin_suscripcion.isnot(None),
+            Cliente.fecha_fin_suscripcion >= ahora,
+        )
+    elif filtro_suscripcion == "sub-inactivas":
+        ahora = datetime.now(timezone.utc)
+        q = q.filter(
+            (Cliente.fecha_fin_suscripcion.is_(None)) |
+            (Cliente.fecha_fin_suscripcion < ahora)
+        )
 
     if termino:
         like = f"%{termino}%"

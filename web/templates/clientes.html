@@ -415,7 +415,9 @@
 /* ── Clientes Page ─────────────────────────────────────────── */
 
 let _clientes = [];
-let _filtroSuscripcion = localStorage.getItem('mb_last_subs_filter') || '';
+// URL param overrides localStorage (when coming from dashboard drawer "ver todos")
+const _urlFilter = new URLSearchParams(window.location.search).get('filter') || '';
+let _filtroSuscripcion = _urlFilter || localStorage.getItem('mb_last_subs_filter') || '';
 let _planesSuscripcion = [];
 let _planFeatures = {};
 

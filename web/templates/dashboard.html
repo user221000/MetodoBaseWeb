@@ -21,40 +21,88 @@
   <span class="context-bar-item">🎯 Acciones sugeridas basadas en tus datos</span>
 </div>
 
-<!-- KPIs ACCIONABLES — Métricas SaaS de alto valor (ordenadas por impacto de negocio) -->
+<!-- KPIs ACCIONABLES — Suscripciones de clientes -->
 <div class="kpi-grid kpi-grid-actionable" id="kpi-section">
 
-  <!-- KPI 1: ATENCIÓN — Clientes sin actividad (HIGHEST PRIORITY — revenue risk) -->
-  <a href="/clientes?filter=inactivos" class="kpi-card kpi-actionable kpi-warning">
+  <!-- KPI 1: Suscripciones nuevas este mes -->
+  <button type="button" class="kpi-card kpi-actionable kpi-info kpi-btn-drawer" data-drawer="sub-nuevas">
     <div class="kpi-header">
-      <div class="kpi-label">Clientes sin actividad</div>
-      <span class="kpi-badge warning">Atención</span>
+      <div class="kpi-label">Suscripciones nuevas este mes</div>
+      <span class="kpi-badge info">Nuevas</span>
     </div>
-    <div class="kpi-value" id="kpi-subs-inactivas">—</div>
-    <div class="kpi-action">Generar planes →</div>
-  </a>
+    <div class="kpi-value" id="kpi-sub-nuevas">—</div>
+    <div class="kpi-action">Ver clientes →</div>
+  </button>
 
-  <!-- KPI 2: ÉXITO — Clientes con actividad reciente -->
-  <a href="/clientes?filter=activos" class="kpi-card kpi-actionable kpi-success">
+  <!-- KPI 2: Suscripciones activas -->
+  <button type="button" class="kpi-card kpi-actionable kpi-success kpi-btn-drawer" data-drawer="sub-activas">
     <div class="kpi-header">
-      <div class="kpi-label">Clientes con plan reciente</div>
-      <span class="kpi-badge success">Activo</span>
+      <div class="kpi-label">Suscripciones activas</div>
+      <span class="kpi-badge success">Activas</span>
     </div>
-    <div class="kpi-value" id="kpi-subs-activas">—</div>
-    <div class="kpi-action">Ver clientes activos →</div>
-  </a>
+    <div class="kpi-value" id="kpi-sub-activas">—</div>
+    <div class="kpi-action">Ver clientes →</div>
+  </button>
 
-  <!-- KPI 3: PRODUCTIVIDAD — Planes generados este mes -->
-  <a href="/planes" class="kpi-card kpi-actionable kpi-info">
+  <!-- KPI 3: Suscripciones inactivas -->
+  <button type="button" class="kpi-card kpi-actionable kpi-warning kpi-btn-drawer" data-drawer="sub-inactivas">
     <div class="kpi-header">
-      <div class="kpi-label">Planes generados este mes</div>
-      <span class="kpi-badge info">Productividad</span>
+      <div class="kpi-label">Suscripciones inactivas</div>
+      <span class="kpi-badge warning">Sin plan</span>
     </div>
-    <div class="kpi-value" id="kpi-planes-mes">—</div>
-    <div class="kpi-action">Ver historial →</div>
-  </a>
+    <div class="kpi-value" id="kpi-sub-inactivas">—</div>
+    <div class="kpi-action">Ver clientes →</div>
+  </button>
 
 </div>
+
+<!-- ── Drawer lateral: lista de clientes por filtro de suscripción ── -->
+<div id="subs-drawer-backdrop" class="modal-backdrop hidden" style="align-items:stretch;justify-content:flex-end;padding:0;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;">
+  <aside id="subs-drawer" style="
+    width:min(420px,100vw);height:100vh;background:var(--surface-primary);
+    border-left:1px solid var(--border-subtle);display:flex;flex-direction:column;
+    overflow:hidden;position:relative;animation:slideInRight .22s ease;
+  ">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 14px;border-bottom:1px solid var(--border-subtle);flex-shrink:0;">
+      <div>
+        <h3 id="drawer-title" style="margin:0;font-size:1rem;font-weight:600;color:var(--text-primary);">Clientes</h3>
+        <p id="drawer-subtitle" style="margin:4px 0 0;font-size:.8rem;color:var(--text-muted);"></p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a id="drawer-ver-todos" href="/clientes" class="btn btn-outline btn-sm" style="font-size:.78rem;">Ver todos →</a>
+        <button id="drawer-close" class="btn btn-icon btn-secondary" type="button" style="width:32px;height:32px;">✕</button>
+      </div>
+    </div>
+    <div id="drawer-body" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+      <div id="drawer-loading" style="text-align:center;padding:32px;color:var(--text-muted);font-size:.88rem;">Cargando...</div>
+    </div>
+  </aside>
+</div>
+
+<style>
+@keyframes slideInRight { from { transform:translateX(100%); } to { transform:translateX(0); } }
+.kpi-btn-drawer { text-align:left; cursor:pointer; border:none; width:100%; }
+.drawer-client-card {
+  background:var(--surface-secondary);border:1px solid var(--border-subtle);
+  border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;
+  text-decoration:none;color:inherit;transition:border-color .15s,background .15s;
+}
+.drawer-client-card:hover { border-color:var(--accent-primary);background:var(--surface-hover); }
+.drawer-avatar {
+  width:38px;height:38px;border-radius:50%;background:var(--accent-muted);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;
+}
+.drawer-client-info { flex:1;min-width:0; }
+.drawer-client-name { font-size:.9rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.drawer-client-meta { font-size:.76rem;color:var(--text-muted);margin-top:2px; }
+.drawer-sub-badge {
+  font-size:.7rem;padding:2px 8px;border-radius:99px;font-weight:600;flex-shrink:0;
+}
+.drawer-sub-active { background:rgba(34,197,94,.15);color:#22c55e; }
+.drawer-sub-expired { background:rgba(239,68,68,.12);color:#f87171; }
+.drawer-sub-none { background:rgba(156,163,175,.12);color:var(--text-muted); }
+.drawer-empty { text-align:center;padding:40px 16px;color:var(--text-muted);font-size:.88rem; }
+</style>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
      ACTION ZONE — Un CTA Principal + Actividad Reciente
@@ -815,6 +863,91 @@
 
   document.getElementById('food-search').addEventListener('input', function() {
     renderFullCatalog(this.value);
+  });
+
+  // ── KPIs de suscripciones ──────────────────────────────────
+  (async function cargarKPIsSuscripciones() {
+    try {
+      const data = await Api.stats.suscripciones();
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set('kpi-sub-nuevas',    data.nuevas_este_mes ?? '—');
+      set('kpi-sub-activas',   data.activas         ?? '—');
+      set('kpi-sub-inactivas', data.inactivas        ?? '—');
+    } catch(e) {
+      console.warn('[KPI subs]', e.message);
+    }
+  })();
+
+  // ── Drawer lateral: clientes por suscripción ──────────────
+  const _DRAWER_LABELS = {
+    'sub-nuevas':    { title: 'Suscripciones nuevas este mes', subtitle: 'Clientes que se suscribieron este mes', link: '/clientes?filter=sub-nuevas' },
+    'sub-activas':   { title: 'Suscripciones activas',         subtitle: 'Clientes con suscripción vigente',       link: '/clientes?filter=sub-activas' },
+    'sub-inactivas': { title: 'Suscripciones inactivas',       subtitle: 'Clientes sin suscripción activa',        link: '/clientes?filter=sub-inactivas' },
+  };
+
+  function _fmtSubStatus(c) {
+    const ahora = Date.now();
+    if (c.fecha_fin_suscripcion) {
+      const fin = new Date(c.fecha_fin_suscripcion).getTime();
+      if (fin >= ahora) {
+        const dias = Math.ceil((fin - ahora) / 86400000);
+        return { label: `Activa · ${dias}d`, cls: 'drawer-sub-active' };
+      }
+      return { label: 'Expirada', cls: 'drawer-sub-expired' };
+    }
+    return { label: 'Sin plan', cls: 'drawer-sub-none' };
+  }
+
+  function _renderDrawerClients(clientes) {
+    const body = document.getElementById('drawer-body');
+    if (!clientes.length) {
+      body.innerHTML = '<div class="drawer-empty">No hay clientes en esta categoría.</div>';
+      return;
+    }
+    const initials = n => (n || '?').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+    body.innerHTML = clientes.map(c => {
+      const sub = _fmtSubStatus(c);
+      const meta = [
+        c.edad ? c.edad + ' años' : null,
+        c.peso_kg ? c.peso_kg + ' kg' : null,
+        c.objetivo ? c.objetivo.charAt(0).toUpperCase() + c.objetivo.slice(1) : null,
+      ].filter(Boolean).join(' · ');
+      return `
+        <a href="/generar-plan?id=${c.id_cliente}" class="drawer-client-card">
+          <div class="drawer-avatar">${initials(c.nombre)}</div>
+          <div class="drawer-client-info">
+            <div class="drawer-client-name">${c.nombre}</div>
+            <div class="drawer-client-meta">${meta || '—'}</div>
+          </div>
+          <span class="drawer-sub-badge ${sub.cls}">${sub.label}</span>
+        </a>`;
+    }).join('');
+  }
+
+  async function abrirDrawer(filtro) {
+    const cfg = _DRAWER_LABELS[filtro] || {};
+    document.getElementById('drawer-title').textContent    = cfg.title    || 'Clientes';
+    document.getElementById('drawer-subtitle').textContent = cfg.subtitle || '';
+    document.getElementById('drawer-ver-todos').href       = cfg.link     || '/clientes';
+    document.getElementById('drawer-body').innerHTML = '<div id="drawer-loading" style="text-align:center;padding:32px;color:var(--text-muted);font-size:.88rem;">Cargando...</div>';
+    document.getElementById('subs-drawer-backdrop').classList.remove('hidden');
+    try {
+      const res = await Api.clientes.listar('', 200, filtro);
+      _renderDrawerClients(res.clientes || []);
+    } catch(e) {
+      document.getElementById('drawer-body').innerHTML = `<div class="drawer-empty">Error: ${e.message}</div>`;
+    }
+  }
+
+  document.querySelectorAll('.kpi-btn-drawer').forEach(btn => {
+    btn.addEventListener('click', () => abrirDrawer(btn.dataset.drawer));
+  });
+
+  document.getElementById('drawer-close').addEventListener('click', () => {
+    document.getElementById('subs-drawer-backdrop').classList.add('hidden');
+  });
+  document.getElementById('subs-drawer-backdrop').addEventListener('click', e => {
+    if (e.target === e.currentTarget) document.getElementById('subs-drawer-backdrop').classList.add('hidden');
   });
 
   cargarCatalogoAlimentos();
