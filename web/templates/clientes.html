@@ -447,7 +447,8 @@ async function cargarPlanFeatures() {
 }
 
 function aplicarRestriccionesPlan() {
-  // Bloquear preferencias de alimentos si no está disponible
+  // Preferencias de alimentos ahora disponibles en todos los planes
+  // (fallback defensivo por si el flag cambia en el futuro)
   if (!_planFeatures.preferencias_alimentos) {
     const secFood = document.getElementById('seccion-preferencias-alimentos');
     if (secFood) {
@@ -456,9 +457,8 @@ function aplicarRestriccionesPlan() {
           <span style="font-size:1.5rem;">\ud83d\udd12</span>
           <div style="flex:1;">
             <div style="font-size:.85rem;font-weight:600;color:var(--text-secondary);">Preferencias de alimentos</div>
-            <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">Disponible en plan Gym Comercial y Clínica</div>
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">No disponible en tu plan actual</div>
           </div>
-          <a href="/suscripciones" class="btn btn-sm" style="font-size:.75rem;padding:6px 14px;background:var(--accent-purple);color:#fff;border-radius:8px;text-decoration:none;">Mejorar plan</a>
         </div>`;
     }
   }
@@ -726,7 +726,7 @@ document.getElementById('form-cliente').addEventListener('submit', async (e) => 
     nivel_actividad:   document.getElementById('field-nivel').value,
     objetivo:          document.getElementById('field-objetivo').value,
     notas:             document.getElementById('field-notas').value.trim() || null,
-    alimentos_excluidos: _planFeatures.preferencias_alimentos && _alimentosExcluidos.size > 0 ? [..._alimentosExcluidos] : null,
+    alimentos_excluidos: _alimentosExcluidos.size > 0 ? [..._alimentosExcluidos] : null,
     fecha_suscripcion: document.getElementById('field-fecha-suscripcion')?.value ? document.getElementById('field-fecha-suscripcion').value + 'T00:00:00' : null,
     fecha_fin_suscripcion: document.getElementById('field-fecha-fin-suscripcion')?.value ? document.getElementById('field-fecha-fin-suscripcion').value + 'T23:59:59' : null,
   };

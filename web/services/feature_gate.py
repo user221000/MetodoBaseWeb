@@ -85,7 +85,7 @@ def _build_plan_features() -> dict[str, "PlanFeatures"]:
             "can_multi_user": False, "max_team_members": 1,
             "can_api_access": False, "can_webhooks": False,
             "support_level": "community", "max_planes_por_mes": 20,
-            "can_food_preferences": False,
+            "can_food_preferences": True,
         },
         "standard": {
             "can_export_excel": True, "can_export_pdf": True, "can_bulk_export": True,
@@ -93,7 +93,7 @@ def _build_plan_features() -> dict[str, "PlanFeatures"]:
             "can_multi_user": False, "max_team_members": 1,
             "can_api_access": True, "can_webhooks": False,
             "support_level": "email", "max_planes_por_mes": 100,
-            "can_food_preferences": False,
+            "can_food_preferences": True,
         },
         "gym_comercial": {
             "can_export_excel": True, "can_export_pdf": True, "can_bulk_export": True,
