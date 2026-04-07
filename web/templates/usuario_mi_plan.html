@@ -5,8 +5,8 @@
 
 <!-- ── 1. HERO SECTION ────────────────────────────────────── -->
 <div class="u-hero">
-  <h1 class="u-hero-title" id="saludo">¡Comienza fuerte!</h1>
-  <p class="u-hero-subtitle">Tu plan personalizado generado con inteligencia artificial</p>
+  <h1 class="u-hero-title" id="saludo">¡Hola!</h1>
+  <p class="u-hero-subtitle">Tu nutrición, ajustada a tu cuerpo y tus metas.</p>
 </div>
 
 <!-- ── 2. TWO-COLUMN LAYOUT ───────────────────────────────── -->
@@ -59,7 +59,7 @@
   <!-- RIGHT: Nutrition Tip Card -->
   <div class="u-card u-tip-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div class="u-tip-badge">💡 Consejo IA</div>
+      <div class="u-tip-badge">💡 Dato del día</div>
       <div class="u-tip-nav">
         <button class="u-tip-nav-btn" id="tip-prev" aria-label="Anterior">&#8249;</button>
         <span class="u-tip-dots" id="tip-dots"></span>
@@ -144,30 +144,30 @@
 <div id="onboarding-card" class="u-onboarding" style="display:none;">
   <div class="u-onboarding-icon">🎯</div>
   <div class="u-onboarding-body">
-    <h3 class="u-onboarding-title">¡Bienvenido! Completa tu perfil</h3>
-    <p class="u-onboarding-text">Necesitamos tus datos corporales para calcular tu plan nutricional personalizado.</p>
+    <h3 class="u-onboarding-title">Cuéntanos sobre ti para generar tu plan</h3>
+    <p class="u-onboarding-text">Solo necesitamos 3 datos (peso, estatura, objetivo) para calcular tu plan nutricional en segundos.</p>
   </div>
-  <a href="/mi-perfil" class="u-btn u-btn-primary">Completar Perfil →</a>
+  <a href="/mi-perfil" class="u-btn u-btn-primary">Configurar mi plan →</a>
 </div>
 
 <!-- ── 5. CONTEXT BAR ─────────────────────────────────────── -->
 <div class="u-context-bar" id="context-bar" style="display:none;">
-  <span class="u-context-tag">🔥 Plan calculado con tus datos</span>
-  <span class="u-context-tag">🎯 Objetivo: <strong id="lbl-objetivo">—</strong></span>
-  <span class="u-context-tag">📅 Generado: <strong id="lbl-fecha-plan">—</strong></span>
+  <span class="u-context-tag">🔥 Plan activo para ti</span>
+  <span class="u-context-tag">🎯 Meta: <strong id="lbl-objetivo">—</strong></span>
+  <span class="u-context-tag">📅 Actualizado: <strong id="lbl-fecha-plan">—</strong></span>
 </div>
 
 <!-- ── 6. SUMMARY SECTION ─────────────────────────────────── -->
 <div id="summary-section" style="display:none;">
   <div class="u-section-header">
-    <h2 class="u-section-title">📊 Resumen</h2>
+    <h2 class="u-section-title">📊 Tu meta de hoy</h2>
   </div>
   <div class="u-grid-4">
     <div class="u-kpi-card">
       <div class="u-kpi-dot" style="background:var(--u-accent);"></div>
-      <div class="u-kpi-label">Calorías diarias</div>
+      <div class="u-kpi-label">Calorías</div>
       <div class="u-kpi-value" id="kpi-kcal">—</div>
-      <div class="u-kpi-sub">kcal objetivo</div>
+      <div class="u-kpi-sub">kcal / día</div>
     </div>
     <div class="u-kpi-card">
       <div class="u-kpi-dot" style="background:var(--u-orange);"></div>
@@ -193,7 +193,7 @@
 <!-- ── 7. MEALS SECTION (opciones) ─────────────────────────── -->
 <div id="plan-comidas" style="display:none;">
   <div class="u-section-header">
-    <h2 class="u-section-title">🍽️ Tu Menú del Día</h2>
+    <h2 class="u-section-title">🍽️ Tu menú para hoy</h2>
     <p class="u-section-subtitle">Elige <strong>una opción</strong> de cada grupo por comida</p>
   </div>
   <div id="meals-container" style="display:grid; gap:20px;"></div>
@@ -353,10 +353,10 @@
 <div id="empty-plan" style="display:none;">
   <div class="u-card">
     <div class="u-empty">
-      <div class="u-empty-icon">🍽️</div>
-      <h3 class="u-empty-title">Aún no tienes un plan generado</h3>
-      <p class="u-empty-text">Haz clic en "Generar" para crear tu primer plan nutricional personalizado con IA.</p>
-      <button class="u-btn u-btn-primary" id="btn-generar-empty">Generar Mi Primer Plan 🚀</button>
+      <div class="u-empty-icon">🎯</div>
+      <h3 class="u-empty-title">Tu plan personalizado está listo para generarse</h3>
+      <p class="u-empty-text">En segundos tendrás tu menú completo con calorías, proteínas y macros calculados para tu objetivo.</p>
+      <button class="u-btn u-btn-primary" id="btn-generar-empty">Ver mi primer plan →</button>
     </div>
   </div>
 </div>
@@ -365,7 +365,7 @@
 <div id="loading-plan">
   <div class="u-loading">
     <div class="u-spinner"></div>
-    <p class="u-loading-text">Cargando tu plan...</p>
+    <p class="u-loading-text">Cargando tu plan…</p>
   </div>
 </div>
 
@@ -441,7 +441,7 @@
 
   try {
     var res = await Api.auth.me();
-    document.getElementById('saludo').textContent = '\u00a1Hola, ' + (res.nombre || 'Usuario') + '!';
+    document.getElementById('saludo').textContent = '\u00a1Hola, ' + (res.nombre ? res.nombre.split(' ')[0] : 'bienvenido') + '!';
     perfil = res;
   } catch(e) {
     window.location.href = '/login-usuario';
@@ -462,6 +462,8 @@
   if (!perfilCompleto) {
     document.getElementById('loading-plan').style.display = 'none';
     document.getElementById('onboarding-card').style.display = 'flex';
+    // Show quick actions with just generate + profile (value-first: let them see what awaits)
+    document.getElementById('quick-actions').style.display = '';
     return;
   }
 
@@ -686,7 +688,7 @@
       var data = await res.json();
       ultimoPlan = data;
       renderPlan(data);
-      showToast('✅ ¡Plan generado exitosamente!');
+      showToast('✅ ¡Tu plan está listo!');
     } catch (e) {
       showToast('❌ ' + e.message, 'error');
     } finally {
@@ -696,7 +698,7 @@
         var lbl2 = btn.querySelector('.u-quick-btn-label');
         if (lbl2) lbl2.textContent = 'Generar';
       }
-      if (btnE) { btnE.disabled = false; btnE.textContent = 'Generar Mi Primer Plan 🚀'; }
+      if (btnE) { btnE.disabled = false; btnE.textContent = 'Ver mi primer plan →'; }
     }
   }
 
@@ -1065,7 +1067,7 @@
     localStorage.setItem('mb_daily_' + TODAY_KEY, JSON.stringify(dailySummary));
     comidasOverlay.style.display = 'none';
     updateGoalFromSelections(0);
-    showToast('✅ Selección del día guardada correctamente');
+    showToast('✅ ¡Selección guardada! Sigue sumando a tu meta diaria.');
   });
 
   /* ══════════════════════════════════════════════════════════
@@ -1194,7 +1196,7 @@
       });
       if (!res.ok) throw new Error('Error al guardar');
       excluirOverlay.style.display = 'none';
-      showToast('✅ Exclusiones guardadas. Se aplicarán en tu próximo plan.');
+      showToast('✅ Exclusiones guardadas. Las usaremos en tu próxima generación.');
     } catch(e) {
       showToast('❌ Error guardando exclusiones', 'error');
     } finally {
@@ -1264,6 +1266,8 @@
     var tipDotsEl = document.getElementById('tip-dots');
     var tipPrev   = document.getElementById('tip-prev');
     var tipNext   = document.getElementById('tip-next');
+
+    if (!tipTextEl || !tipDotsEl || !tipPrev || !tipNext) return;
 
     function renderDots() {
       tipDotsEl.innerHTML = '';
