@@ -30,10 +30,10 @@
       <div class="showcase-content anim-slide-left">
         <div class="showcase-label">
           <span class="dot"></span>
-          Tu plan nutricional — Vista previa
+          Así se ve tu plan personalizado
         </div>
         <p class="showcase-subtitle">
-          Planes personalizados generados con inteligencia artificial
+          Tu nutrición, ajustada a tu cuerpo y tus metas.
         </p>
 
         <div class="plan-mockup">
@@ -50,7 +50,7 @@
               <div class="profile-avatar">AL</div>
               <div class="profile-info">
                 <p class="profile-name">Andrea López</p>
-                <p class="profile-meta">Déficit calórico · Objetivo: -5kg</p>
+                <p class="profile-meta">Pérdida de grasa · Meta: -5kg en 12 semanas</p>
               </div>
               <span class="profile-badge">Activo</span>
             </div>
@@ -102,7 +102,7 @@
             <!-- Progress -->
             <div class="progress-section">
               <div class="progress-header">
-                <span class="progress-title">Progreso del plan</span>
+                <span class="progress-title">Vas por buen camino</span>
                 <span class="progress-value">25%</span>
               </div>
               <div class="progress-bar">
@@ -125,8 +125,8 @@
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
           </svg>
         </div>
-        <h1 class="sidebar-title">Usuario Individual</h1>
-        <p class="sidebar-subtitle">Accede a tu plan nutricional personal</p>
+        <h1 class="sidebar-title">Bienvenido de vuelta</h1>
+        <p class="sidebar-subtitle">Tu plan te está esperando.</p>
 
         <div class="error-msg" id="errorMsg"></div>
 
@@ -156,23 +156,27 @@
           <div class="remember-row">
             <label class="remember-label">
               <input type="checkbox" id="rememberMe" />
-              Recordarme
+              Mantener sesión iniciada
             </label>
           </div>
 
           <button type="submit" class="btn-login" id="submitBtn">
-            Ingresar a mi Plan
+            Ver mi plan
           </button>
         </form>
 
-        <div class="auth-divider"><span>o continúa con</span></div>
+        <p style="text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;opacity:.65;">
+          🔒 Solo tú puedes ver tu plan &middot; 100% privado
+        </p>
+
+        <div class="auth-divider"><span>o accede con</span></div>
         <div class="google-btn-wrapper" id="googleBtnContainer"></div>
         <div class="error-msg" id="googleErrorMsg" style="display:none;"></div>
 
         <div class="signup-footer">
           <p>
-            ¿No tienes cuenta?
-            <a href="/registro?tipo=usuario">Crear cuenta</a>
+            ¿Eres nuevo en Método Base?
+            <a href="/registro?tipo=usuario">Empieza gratis →</a>
           </p>
         </div>
 
@@ -207,7 +211,7 @@
 
       errorMsg.style.display = 'none';
       btn.disabled = true;
-      btn.textContent = 'Verificando...';
+      btn.textContent = 'Cargando tu plan...';
 
       try {
         const email = form.email.value.trim();
@@ -225,10 +229,10 @@
 
         if (res.ok) {
           if (data.tipo !== 'usuario') {
-            errorMsg.textContent = 'Esta cuenta es de gimnasio. Ingresa en el panel de gimnasio.';
+            errorMsg.textContent = '¿Administras un negocio? Esta cuenta es de gimnasio. Ingresa desde el panel de gestión.';
             errorMsg.style.display = 'block';
             btn.disabled = false;
-            btn.textContent = 'Ingresar a mi Plan';
+            btn.textContent = 'Ver mi plan';
             return;
           }
           // Save remember me preference
@@ -247,15 +251,15 @@
           localStorage.setItem('mb_email', data.email);
           window.location.href = '/mi-plan';
         } else {
-          errorMsg.textContent = data.detail || 'Credenciales incorrectas.';
+          errorMsg.textContent = data.detail || 'Email o contraseña incorrectos. Inténtalo de nuevo.';
           errorMsg.style.display = 'block';
         }
       } catch (err) {
-        errorMsg.textContent = 'Error de conexión.';
+        errorMsg.textContent = 'Sin conexión. Verifica tu internet e inténtalo de nuevo.';
         errorMsg.style.display = 'block';
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Ingresar a mi Plan';
+        btn.textContent = 'Ver mi plan';
       }
     });
 
@@ -304,7 +308,7 @@
 
           if (res.ok) {
             if (data.tipo !== 'usuario') {
-              errorMsg.textContent = 'Esta cuenta es de gimnasio. Ingresa en el panel de gimnasio.';
+              errorMsg.textContent = '¿Administras un negocio? Esta cuenta es de gimnasio. Ingresa desde el panel de gestión.';
               errorMsg.style.display = 'block';
               return;
             }
@@ -315,11 +319,11 @@
             localStorage.setItem('mb_email', data.email);
             window.location.href = '/mi-plan';
           } else {
-            errorMsg.textContent = data.detail || 'Error al iniciar sesión con Google.';
+            errorMsg.textContent = data.detail || 'No pudimos conectar con Google. Inténtalo de nuevo.';
             errorMsg.style.display = 'block';
           }
         } catch (err) {
-          errorMsg.textContent = 'Error de conexión al verificar Google.';
+          errorMsg.textContent = 'Sin conexión al verificar con Google. Inténtalo de nuevo.';
           errorMsg.style.display = 'block';
         }
       }
