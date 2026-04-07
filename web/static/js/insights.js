@@ -104,7 +104,7 @@ const Insights = (() => {
       return;
     }
 
-    if (title) title.textContent = 'Inteligencia de negocio';
+    if (title) title.textContent = 'Para hacer esta semana';
     list.innerHTML = insights.map(i =>
       `<li>${esc(i.icon)} ${esc(i.text)}</li>`
     ).join('');

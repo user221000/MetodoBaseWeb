@@ -38,6 +38,20 @@ async function initDashboard() {
 
     // Update sidebar badge
     setText('sb-total-clientes', stats.total_clientes || '');
+
+    // Dynamic context bar — update based on client state
+    const ctxDynamic = document.getElementById('ctx-dynamic');
+    if (ctxDynamic) {
+      const _total = stats.total_clientes || 0;
+      const _inactivos = Math.max(0, _total - (stats.clientes_activos || 0));
+      if (_total === 0) {
+        ctxDynamic.textContent = '👋 Registra tu primer cliente para empezar';
+      } else if (_inactivos > 0) {
+        ctxDynamic.textContent = `🔔 ${_inactivos} cliente${_inactivos > 1 ? 's' : ''} sin plan reciente — genéra${_inactivos > 1 ? 'les' : 'le'} uno hoy`;
+      } else {
+        ctxDynamic.textContent = '🏆 Todos tus clientes tienen plan activo';
+      }
+    }
   } catch (err) {
     console.error('[dashboard] error:', err);
     showKPISkeletons(false);
@@ -146,7 +160,7 @@ function renderTopClientes(top) {
               </svg>
             </div>
             <p style="font-weight:600;color:var(--text-primary);font-size:.95rem;margin-bottom:4px;">Sin clientes aún</p>
-            <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">Usa el botón "Comenzar ahora" para registrar tu primer cliente</p>
+            <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">Usa el botón “Nuevo cliente” para registrar tu primer cliente</p>
           </div>
         </td>
       </tr>`;

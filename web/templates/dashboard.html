@@ -16,9 +16,9 @@
 
 <!-- ── Context bar ────────────────────────────────────────────── -->
 <div class="context-bar">
-  <span class="context-bar-item">📊 Resumen de actividad en tiempo real</span>
-  <span class="context-bar-item">⚡ Métricas actualizadas automáticamente</span>
-  <span class="context-bar-item">🎯 Acciones sugeridas basadas en tus datos</span>
+  <span class="context-bar-item">💼 Panel de gestión · clientes, planes y suscripciones</span>
+  <span class="context-bar-item">⚡ Un plan nutricional completo se genera en menos de 30 segundos</span>
+  <span class="context-bar-item" id="ctx-dynamic">🎯 Cada cliente activo genera ingresos recurrentes para tu gym</span>
 </div>
 
 <!-- KPIs ACCIONABLES — Suscripciones de clientes -->
@@ -27,7 +27,7 @@
   <!-- KPI 1: Suscripciones nuevas este mes -->
   <button type="button" class="kpi-card kpi-actionable kpi-info kpi-btn-drawer" data-drawer="sub-nuevas">
     <div class="kpi-header">
-      <div class="kpi-label">Suscripciones nuevas este mes</div>
+      <div class="kpi-label">Clientes nuevos este mes</div>
       <span class="kpi-badge info">Nuevas</span>
     </div>
     <div class="kpi-num" id="kpi-sub-nuevas">—</div>
@@ -37,8 +37,8 @@
   <!-- KPI 2: Suscripciones activas -->
   <button type="button" class="kpi-card kpi-actionable kpi-success kpi-btn-drawer" data-drawer="sub-activas">
     <div class="kpi-header">
-      <div class="kpi-label">Suscripciones activas</div>
-      <span class="kpi-badge success">Activas</span>
+      <div class="kpi-label">Clientes activos</div>
+      <span class="kpi-badge success">Activos</span>
     </div>
     <div class="kpi-num" id="kpi-sub-activas">—</div>
     <div class="kpi-action">Ver clientes →</div>
@@ -47,11 +47,11 @@
   <!-- KPI 3: Suscripciones inactivas -->
   <button type="button" class="kpi-card kpi-actionable kpi-warning kpi-btn-drawer" data-drawer="sub-inactivas">
     <div class="kpi-header">
-      <div class="kpi-label">Suscripciones inactivas</div>
+      <div class="kpi-label">Sin plan activo</div>
       <span class="kpi-badge warning">Sin plan</span>
     </div>
     <div class="kpi-num" id="kpi-sub-inactivas">—</div>
-    <div class="kpi-action">Ver clientes →</div>
+    <div class="kpi-action">Activar →</div>
   </button>
 
 </div>
@@ -332,19 +332,19 @@
   <!-- CTA PRINCIPAL — Un solo hero action -->
   <div class="action-hero">
     <div class="action-content">
-      <h2>Generar Plan Nutricional</h2>
-      <p>Crea un plan personalizado para tu cliente en segundos</p>
+      <h2>Registra tu cliente y genera su plan — en 60 segundos</h2>
+      <p>Nombre, peso y objetivo es todo lo que necesitas. El plan nutricional completo se calcula automáticamente.</p>
     </div>
     <button id="btn-generar-plan" class="btn btn-primary btn-lg btn-cta-hero" type="button">
       <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Comenzar ahora
+      Nuevo cliente →
     </button>
   </div>
 
   <!-- ACTIVIDAD RECIENTE — Feed lateral discreto -->
   <div class="activity-feed">
     <div class="feed-header">
-      <h3>Actividad reciente</h3>
+      <h3>Últimos clientes</h3>
       <a href="/clientes" class="link-muted">Ver todos →</a>
     </div>
     <ul class="feed-list" id="recent-activity">
@@ -372,8 +372,8 @@
 <section class="onboarding-checklist chart-container" id="onboarding-section">
   <div class="onboarding-header">
     <div>
-      <h3 class="chart-title" style="margin:0 0 4px;">Comienza en 3 pasos</h3>
-      <p style="color:var(--text-muted);font-size:.82rem;margin:0;">Completa tu configuración para empezar a generar planes</p>
+      <h3 class="chart-title" style="margin:0 0 4px;">Activa tu primer cliente en 3 pasos</h3>
+      <p style="color:var(--text-muted);font-size:.82rem;margin:0;">Toma menos de 5 minutos. Cada paso desbloquea el siguiente.</p>
     </div>
     <div class="onboarding-progress">
       <span id="onboarding-pct" class="onboarding-pct">0%</span>
@@ -387,9 +387,9 @@
       </div>
       <div class="ob-step-info">
         <span class="ob-step-title">Registra tu primer cliente</span>
-        <span class="ob-step-desc">Añade datos básicos: nombre, peso, objetivo</span>
+        <span class="ob-step-desc">Nombre, peso y objetivo — listo en 30 segundos</span>
       </div>
-      <button class="btn btn-primary btn-sm ob-step-action" id="ob-action-1" type="button">Crear cliente</button>
+      <button class="btn btn-primary btn-sm ob-step-action" id="ob-action-1" type="button">Crear cliente →</button>
     </li>
     <li class="onboarding-step" id="ob-step-2" data-step="plan">
       <div class="ob-step-check" id="ob-check-2">
@@ -397,7 +397,7 @@
       </div>
       <div class="ob-step-info">
         <span class="ob-step-title">Genera un plan nutricional</span>
-        <span class="ob-step-desc">El sistema calcula macros y menú automáticamente</span>
+        <span class="ob-step-desc">Calorías, macros y menú completo — generados al instante</span>
       </div>
       <a href="/generar-plan" class="btn btn-outline btn-sm ob-step-action" id="ob-action-2">Generar plan</a>
     </li>
@@ -407,7 +407,7 @@
       </div>
       <div class="ob-step-info">
         <span class="ob-step-title">Descarga o envía el plan</span>
-        <span class="ob-step-desc">Exporta como PDF para tu cliente</span>
+        <span class="ob-step-desc">PDF profesional listo para imprimir o enviar al cliente</span>
       </div>
       <a href="/planes" class="btn btn-outline btn-sm ob-step-action" id="ob-action-3">Ver planes</a>
     </li>
@@ -421,7 +421,7 @@
   <div class="chart-header" style="padding:0 0 12px;">
     <div>
       <p class="chart-title" id="ai-insight-title">Inteligencia de negocio</p>
-      <p class="chart-subtitle">Análisis automático de tus métricas</p>
+      <p class="chart-subtitle">Basado en la actividad de tu gym esta semana.</p>
     </div>
   </div>
   <ul id="ai-insight-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;font-size:.88rem;line-height:1.55;"></ul>
@@ -432,7 +432,7 @@
 ═══════════════════════════════════════════════════════════════════════════ -->
 <section class="recent-clients-section">
   <div class="section-header">
-    <h3>Clientes recientes</h3>
+    <h3>Tus clientes</h3>
     <a href="/clientes" class="btn btn-ghost">Ver todos →</a>
   </div>
 
@@ -476,7 +476,7 @@
         </svg>
       </div>
       <div>
-        <h2 class="chart-title modal-form-title">Registrar Nuevo Cliente</h2>
+        <h2 class="chart-title modal-form-title">Nuevo cliente</h2>
         <p class="modal-form-subtitle">Completa los datos para generar su plan nutricional</p>
       </div>
     </div>
@@ -1100,9 +1100,9 @@
 
   // ── Drawer lateral: clientes por suscripción ──────────────
   const _DRAWER_LABELS = {
-    'sub-nuevas':    { title: 'Suscripciones nuevas este mes', subtitle: 'Clientes que se suscribieron este mes', link: '/clientes?filter=sub-nuevas' },
-    'sub-activas':   { title: 'Suscripciones activas',         subtitle: 'Clientes con suscripción vigente',       link: '/clientes?filter=sub-activas' },
-    'sub-inactivas': { title: 'Suscripciones inactivas',       subtitle: 'Clientes sin suscripción activa',        link: '/clientes?filter=sub-inactivas' },
+    'sub-nuevas':    { title: 'Clientes nuevos este mes',      subtitle: 'Clientes que se suscribieron este mes', link: '/clientes?filter=sub-nuevas' },
+    'sub-activas':   { title: 'Clientes activos',              subtitle: 'Clientes con suscripción vigente',       link: '/clientes?filter=sub-activas' },
+    'sub-inactivas': { title: 'Sin plan activo',               subtitle: 'Clientes que necesitan un plan o renovación', link: '/clientes?filter=sub-inactivas' },
   };
 
   function _fmtSubStatus(c) {
@@ -1425,7 +1425,7 @@
       // Update "generar plan" link with new tipo
       document.getElementById('detail-generar-plan-btn').href = `/generar-plan?id=${_ddClienteId}&tipo=${planTipo}`;
       // Show brief success feedback
-      btn.textContent = '✓ Guardado';
+      btn.textContent = '✓ Cambios guardados';
       btn.style.background = 'var(--color-success,#22c55e)';
       setTimeout(() => { btn.disabled = false; btn.textContent = '💾 Guardar cambios'; btn.style.background = ''; }, 2000);
       // Refresh KPIs
@@ -1433,7 +1433,7 @@
     } catch(e) {
       btn.disabled = false;
       btn.textContent = '💾 Guardar cambios';
-      alert('Error al guardar: ' + e.message);
+      Toast.error('No se pudo guardar: ' + e.message);
     }
   }
 
@@ -1447,7 +1447,7 @@
       document.getElementById('subs-drawer-backdrop').classList.add('hidden');
       cargarKPIsSuscripciones();
     } catch(e) {
-      alert('Error al eliminar: ' + e.message);
+      Toast.error('No se pudo eliminar: ' + e.message);
     }
   }
 
