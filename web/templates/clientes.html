@@ -6,8 +6,8 @@
 <!-- ── Page header ────────────────────────────────────────────── -->
 <div class="page-header">
   <div>
-    <h1 class="page-title">Clientes</h1>
-    <p class="page-subtitle">Gestión y búsqueda de clientes registrados</p>
+    <h1 class="page-title">Tus clientes</h1>
+    <p class="page-subtitle">Gestiona, activa y haz seguimiento de cada cliente en tu gym</p>
   </div>
   <button class="btn btn-primary" id="btn-nuevo-cliente">
     <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
@@ -19,9 +19,9 @@
 
 <!-- ── Context bar ────────────────────────────────────────────── -->
 <div class="context-bar">
-  <span class="context-bar-item">👥 Gestión integral de tu cartera de clientes</span>
-  <span class="context-bar-item">🔍 Búsqueda avanzada por nombre, teléfono o objetivo</span>
-  <span class="context-bar-item">📋 Historial completo de suscripciones y planes</span>
+  <span class="context-bar-item">👥 Tu cartera en un vistazo — activos, inactivos y por vencer</span>
+  <span class="context-bar-item">🔍 Filtra por estado de pago para actuar rápido</span>
+  <span class="context-bar-item">📋 Cada cliente muestra si está pagando y cuándo vence</span>
 </div>
 
 <!-- ── Suscripciones Panel ───────────────────────────────────── -->
@@ -31,23 +31,23 @@
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--accent-purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </div>
     <div>
-      <h3 class="chart-title" style="margin:0;">Suscripciones de Clientes</h3>
-      <p style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">Estado actual de las suscripciones activas e inactivas</p>
+      <h3 class="chart-title" style="margin:0;">Estado de tu cartera</h3>
+      <p style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">Clientes pagando generan ingresos · Inactivos son oportunidades de venta</p>
     </div>
   </div>
   <div class="subscription-buttons" id="filter-suscripcion">
     <button class="sub-btn is-active" data-filter="activos">
       <span class="sub-btn-dot is-active"></span>
-      <span class="sub-btn-label">Activas</span>
+      <span class="sub-btn-label">Pagando</span>
       <span class="sub-btn-count" id="count-activas-num">0</span>
     </button>
     <button class="sub-btn is-inactive" data-filter="inactivos">
       <span class="sub-btn-dot is-inactive"></span>
-      <span class="sub-btn-label">Inactivas</span>
+      <span class="sub-btn-label">Sin plan</span>
       <span class="sub-btn-count" id="count-inactivas-num">0</span>
     </button>
   </div>
-  <button class="sub-btn-reset" data-filter="">Ver todos los clientes</button>
+  <button class="sub-btn-reset" data-filter="">Ver todos</button>
   <span id="total-suscripciones" style="display:none">0</span>
 </div>
 
@@ -86,8 +86,8 @@
           <th>Cliente</th>
           <th>Edad / Peso</th>
           <th>Objetivo</th>
-          <th>Suscripción</th>
-          <th>Planes</th>
+          <th>Estado · pago</th>
+          <th>Planes generados</th>
           <th>Registrado</th>
           <th style="text-align:right">Acciones</th>
         </tr>
@@ -97,7 +97,7 @@
           <td colspan="7">
             <div class="empty-state">
               <div class="empty-state-icon">⏳</div>
-              <p>Cargando clientes...</p>
+              <p>Cargando tu cartera...</p>
             </div>
           </td>
         </tr>
@@ -122,8 +122,8 @@
         </svg>
       </div>
       <div>
-        <h2 class="chart-title" id="modal-title" style="margin:0;font-size:1.15rem;">Registrar Nuevo Cliente</h2>
-        <p style="margin:2px 0 0;font-size:0.8rem;color:var(--text-secondary);">Completa los datos para generar su plan nutricional</p>
+        <h2 class="chart-title" id="modal-title" style="margin:0;font-size:1.15rem;">Nuevo Cliente</h2>
+        <p style="margin:2px 0 0;font-size:0.8rem;color:var(--text-secondary);">El plan nutricional se calcula automáticamente al guardar</p>
       </div>
     </div>
 
@@ -533,7 +533,7 @@ async function actualizarContadores() {
 
 async function cargarClientes(q, filtro) {
   const tbody = document.getElementById('clientes-tbody');
-  tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">⏳</div><p>Cargando...</p></div></td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">⏳</div><p>Cargando tu cartera...</p></div></td></tr>';
 
   try {
     const res = await Api.clientes.listar(q || '', 300, filtro || '');
@@ -551,7 +551,7 @@ function renderTabla(clientes) {
   tbody.innerHTML = '';
 
   if (!clientes.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👻</div><p>No se encontraron clientes</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👻</div><p>Sin resultados — prueba otro filtro o añade un nuevo cliente</p></div></td></tr>';
     return;
   }
 
@@ -562,16 +562,16 @@ function renderTabla(clientes) {
     let subAlert = '';
     if (c.dias_restantes !== null && c.dias_restantes !== undefined) {
       if (c.dias_restantes > 7) {
-        subBadge = `<span class="subscription-badge is-active">✅ Activa · ${c.dias_restantes}d</span>`;
+        subBadge = `<span class="subscription-badge is-active">✓ Activo · ${c.dias_restantes}d</span>`;
       } else if (c.dias_restantes > 0) {
-        subBadge = `<span class="subscription-badge is-warning">⚠️ Por vencer · ${c.dias_restantes}d</span>`;
-        subAlert = `<div class="subscription-alert">Vence pronto</div>`;
+        subBadge = `<span class="subscription-badge is-warning">⚠ Renueva pronto · ${c.dias_restantes}d</span>`;
+        subAlert = `<div class="subscription-alert">⚠ Vence en ${c.dias_restantes}d — renueva</div>`;
       } else {
-        subBadge = `<span class="subscription-badge is-expired">⛔ Expirada</span>`;
-        subAlert = `<div class="subscription-alert">Renovar suscripcion</div>`;
+        subBadge = `<span class="subscription-badge is-expired">✕ Sin plan activo</span>`;
+        subAlert = `<div class="subscription-alert">✕ Sin plan — activa ahora</div>`;
       }
     } else {
-      subBadge = `<span class="subscription-badge">Sin datos</span>`;
+      subBadge = `<span class="subscription-badge">Sin suscripción</span>`;
     }
     const subFecha = c.fecha_suscripcion ? formatDate(c.fecha_suscripcion) : '—';
     const subFin = c.fecha_fin_suscripcion ? formatDate(c.fecha_fin_suscripcion) : '—';
@@ -647,13 +647,13 @@ document.querySelectorAll('#filter-suscripcion .sub-btn').forEach(btn => {
   btn.addEventListener('click', async () => {
     document.querySelectorAll('#filter-suscripcion .sub-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelector('#filter-suscripcion .sub-btn-reset')?.classList.remove('active');
+    document.querySelector('.sub-btn-reset')?.classList.remove('active');
     _filtroSuscripcion = btn.dataset.filter || '';
     localStorage.setItem('mb_last_subs_filter', _filtroSuscripcion);
     await cargarClientes(document.getElementById('search-input').value.trim(), _filtroSuscripcion);
   });
 });
-document.querySelector('#filter-suscripcion .sub-btn-reset')?.addEventListener('click', async () => {
+document.querySelector('.sub-btn-reset')?.addEventListener('click', async () => {
   document.querySelectorAll('#filter-suscripcion .sub-btn').forEach(b => b.classList.remove('active'));
   _filtroSuscripcion = '';
   localStorage.setItem('mb_last_subs_filter', '');
@@ -921,7 +921,7 @@ if (_foodSearchEl) {
 }
 
 // Load food catalog on page init
-if (_btnAbrirExcl) cargarCatalogoAlimentos();
+cargarCatalogoAlimentos();
 } // end if (_btnAbrirExcl)
 
 // esc() is provided by components.js
