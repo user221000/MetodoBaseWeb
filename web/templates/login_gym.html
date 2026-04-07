@@ -21,10 +21,10 @@
       <div class="showcase-content anim-slide-left">
         <div class="showcase-label">
           <span class="dot"></span>
-          Panel de control — Vista previa
+          Así se ve tu panel de control
         </div>
         <p class="showcase-subtitle">
-          Gestiona todos tus clientes desde un solo lugar
+          Tu negocio, ordenado. Tus clientes, retenidos.
         </p>
 
         <div class="dash-mockup">
@@ -126,14 +126,14 @@
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
         </div>
-        <h1 class="sidebar-title">Socio Comercial</h1>
-        <p class="sidebar-subtitle">Accede al panel de gestión de tu gym</p>
+        <h1 class="sidebar-title">Tu Panel de Gestión</h1>
+        <p class="sidebar-subtitle">Clientes, planes y pagos. Todo en un solo lugar.</p>
 
         <div class="error-msg" id="errorMsg"></div>
 
         <form id="loginForm" novalidate>
           <div class="input-group">
-            <label class="input-label">CORREO DEL GIMNASIO</label>
+            <label class="input-label">CORREO ELECTRÓNICO</label>
             <input type="email" name="email" class="input-field"
                    placeholder="gym@ejemplo.com" required autocomplete="email" />
           </div>
@@ -157,23 +157,27 @@
           <div class="remember-row">
             <label class="remember-label">
               <input type="checkbox" id="rememberMe" />
-              Recordarme
+              Mantener sesión iniciada
             </label>
           </div>
 
           <button type="submit" class="btn-login" id="submitBtn">
-            Ingresar al Dashboard
+            Entrar a mi panel
           </button>
         </form>
 
-        <div class="auth-divider"><span>o continúa con</span></div>
+        <p style="text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;opacity:.65;">
+          🔒 Conexión cifrada &middot; Tus datos están protegidos
+        </p>
+
+        <div class="auth-divider"><span>o accede con</span></div>
         <div class="google-btn-wrapper" id="googleBtnContainer"></div>
         <div class="error-msg" id="googleErrorMsg" style="display:none;"></div>
 
         <div class="signup-footer">
           <p>
-            ¿No tienes cuenta?
-            <a href="/registro?tipo=gym">Registrar gimnasio</a>
+            ¿Nuevo en Método Base?
+            <a href="/registro?tipo=gym">Crea tu cuenta gratis →</a>
           </p>
         </div>
 
@@ -208,7 +212,7 @@
 
       errorMsg.style.display = 'none';
       btn.disabled = true;
-      btn.textContent = 'Verificando...';
+      btn.textContent = 'Ingresando...';
 
       const email    = form.email.value.trim();
       const password = form.password.value;
@@ -225,10 +229,10 @@
 
         if (res.ok) {
           if (data.tipo !== 'gym') {
-            errorMsg.textContent = 'Esta cuenta es de usuario regular. Ingresa en la interfaz de usuario.';
+            errorMsg.textContent = 'Esta cuenta no tiene acceso de gimnasio. ¿Eres miembro? Ingresa desde el portal de usuarios.';
             errorMsg.style.display = 'block';
             btn.disabled = false;
-            btn.textContent = 'Ingresar al Dashboard';
+            btn.textContent = 'Entrar a mi panel';
             return;
           }
           localStorage.setItem('mb_token', data.token);
@@ -243,15 +247,15 @@
           }
           window.location.href = '/dashboard';
         } else {
-          errorMsg.textContent = data.detail || 'Credenciales incorrectas.';
+          errorMsg.textContent = data.detail || 'Email o contraseña incorrectos. Inténtalo de nuevo.';
           errorMsg.style.display = 'block';
         }
       } catch (err) {
-        errorMsg.textContent = 'Error de conexión. Verifica que el servidor esté activo.';
+        errorMsg.textContent = 'Sin conexión. Verifica tu internet e inténtalo de nuevo.';
         errorMsg.style.display = 'block';
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Ingresar al Dashboard';
+        btn.textContent = 'Entrar a mi panel';
       }
     });
 
@@ -308,7 +312,7 @@
 
           if (res.ok) {
             if (data.tipo !== 'gym') {
-              errorMsg.textContent = 'Esta cuenta es de usuario regular. Ingresa en la interfaz de usuario.';
+              errorMsg.textContent = 'Esta cuenta no tiene acceso de gimnasio. ¿Eres miembro? Ingresa desde el portal de usuarios.';
               errorMsg.style.display = 'block';
               return;
             }
@@ -319,11 +323,11 @@
             localStorage.setItem('mb_email', data.email);
             window.location.href = '/dashboard';
           } else {
-            errorMsg.textContent = data.detail || 'Error al iniciar sesión con Google.';
+            errorMsg.textContent = data.detail || 'No pudimos conectar con Google. Inténtalo de nuevo.';
             errorMsg.style.display = 'block';
           }
         } catch (err) {
-          errorMsg.textContent = 'Error de conexión al verificar Google.';
+          errorMsg.textContent = 'Sin conexión al verificar con Google. Inténtalo de nuevo.';
           errorMsg.style.display = 'block';
         }
       }
