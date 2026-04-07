@@ -1,23 +1,27 @@
 {% extends "base_usuario.html" %}
-{% block title %}Mi Perfil{% endblock %}
+{% block title %}Optimiza tu plan{% endblock %}
 
 {% block content %}
 
 <div class="u-hero">
-  <h1 class="u-hero-title">Mi Perfil</h1>
-  <p class="u-hero-subtitle">Datos corporales para calcular tu plan nutricional</p>
+  <h1 class="u-hero-title">Optimiza tu plan</h1>
+  <p class="u-hero-subtitle">Cuantos más datos completes, más preciso y personalizado será tu plan.</p>
 </div>
 
-<div class="u-context-bar">
-  <span class="u-context-tag">📏 Medidas precisas = plan más efectivo</span>
-  <span class="u-context-tag">🔄 Actualiza tus datos cuando cambien</span>
+<div class="u-context-bar" id="progress-bar-row" style="align-items:center;gap:12px;">
+  <span class="u-context-tag">⚡ Plan al <strong id="progress-pct">—</strong> optimizado</span>
+  <div style="flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;min-width:60px;max-width:200px;">
+    <div id="progress-fill" style="height:100%;width:0%;background:var(--u-accent);border-radius:99px;transition:width 0.5s ease;"></div>
+  </div>
+  <span class="u-context-tag" id="progress-hint" style="font-size:0.78rem;opacity:0.65;">Cargando...</span>
 </div>
 
 <form id="form-perfil" class="u-form-max">
 
   <!-- Datos personales -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">👤 Datos Personales</h3>
+    <h3 class="u-card-title">👤 Tu cuenta</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Nombre y email son de solo lectura. Cambios de contraseña desde ajustes.</p>
     <div class="u-grid-2">
       <div class="u-form-group">
         <label class="u-form-label" for="field-nombre">Nombre</label>
@@ -32,7 +36,8 @@
 
   <!-- Medidas corporales -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">⚖️ Medidas Corporales</h3>
+    <h3 class="u-card-title">⚖️ Tu base calórica</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Usamos estos datos para calcular tu TDEE — cuántas calorías necesitas exactamente cada día.</p>
     <div class="u-grid-3">
       <div class="u-form-group">
         <label class="u-form-label" for="field-edad">Edad *</label>
@@ -49,7 +54,7 @@
     </div>
     <div class="u-grid-2 u-mt-md">
       <div class="u-form-group">
-        <label class="u-form-label" for="field-sexo">Sexo</label>
+        <label class="u-form-label" for="field-sexo">Sexo <span style="font-weight:400;opacity:0.5;font-size:0.85em;">(opcional)</span></label>
         <select id="field-sexo" class="u-form-input">
           <option value="">Sin especificar</option>
           <option value="M">Masculino</option>
@@ -58,7 +63,7 @@
         </select>
       </div>
       <div class="u-form-group">
-        <label class="u-form-label" for="field-grasa">% Grasa corporal</label>
+        <label class="u-form-label" for="field-grasa">% Grasa corporal <span style="font-weight:400;opacity:0.5;font-size:0.85em;">(precisión extra)</span></label>
         <input type="number" id="field-grasa" class="u-form-input" min="3" max="60" step="0.1" placeholder="20 (opcional)" />
       </div>
     </div>
@@ -66,7 +71,8 @@
 
   <!-- Objetivo y actividad -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">🎯 Objetivo y Actividad</h3>
+    <h3 class="u-card-title">🎯 Tu calórico objetivo</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Estos 2 campos determinan si tu plan apunta a déficit, mantenimiento o superávit calórico.</p>
     <div class="u-grid-2">
       <div class="u-form-group">
         <label class="u-form-label" for="field-objetivo">Objetivo *</label>
@@ -92,17 +98,18 @@
 
   <!-- Notas -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">📝 Notas</h3>
+    <h3 class="u-card-title">📝 Lo que tu plan debe respetar</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Alergias, condiciones especiales o preferencias. Se aplican al generar tu plan. <span style="opacity:0.55">(opcional)</span></p>
     <div class="u-form-group">
-      <label class="u-form-label" for="field-notas">Notas personales</label>
-      <textarea id="field-notas" class="u-form-input" rows="3" placeholder="Alergias, preferencias alimentarias, medicamentos..."></textarea>
+      <label class="u-form-label" for="field-notas">Condiciones especiales</label>
+      <textarea id="field-notas" class="u-form-input" rows="3" placeholder="Ej: intolerante a la lactosa, diabetes tipo 2, prefiero no comer carne roja..."></textarea>
     </div>
   </div>
 
   <!-- Excluir alimentos -->
   <div class="u-card u-card-mb-lg">
-    <h3 class="u-card-title">🚫 Excluir Alimentos</h3>
-    <p class="u-card-desc">Selecciona los alimentos que deseas eliminar de tus planes nutricionales.</p>
+    <h3 class="u-card-title">🚫 Lo que no entra en tu plan</h3>
+    <p class="u-card-desc">Selecciona los alimentos a omitir. Se activan en tu próxima generación de plan. <span style="opacity:0.55">(opcional)</span></p>
 
     <div id="excluidos-tags" class="u-excl-tags"></div>
 
@@ -114,9 +121,9 @@
   <div class="u-flex-actions">
     <button type="submit" class="u-btn u-btn-primary" id="btn-guardar">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-      Guardar Perfil
+      Actualizar mi plan
     </button>
-    <a href="/mi-plan" class="u-btn u-btn-outline">← Volver a Mi Plan</a>
+    <a href="/mi-plan" class="u-btn u-btn-outline">← Ver mi plan</a>
   </div>
 </form>
 
@@ -125,6 +132,51 @@
 {% block scripts %}
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
+
+
+  function computeCompleteness() {
+    var required = [
+      document.getElementById('field-edad').value,
+      document.getElementById('field-peso').value,
+      document.getElementById('field-estatura').value,
+      document.getElementById('field-objetivo').value,
+      document.getElementById('field-actividad').value,
+    ];
+    var optional = [
+      document.getElementById('field-sexo').value,
+      document.getElementById('field-grasa').value,
+      document.getElementById('field-notas').value.trim(),
+    ];
+    var reqDone = required.filter(Boolean).length;
+    var optDone = optional.filter(Boolean).length;
+    return Math.round((reqDone / 5) * 80 + (optDone / 3) * 20);
+  }
+
+  function updateProgress() {
+    var pct = computeCompleteness();
+    var pctEl = document.getElementById('progress-pct');
+    var fillEl = document.getElementById('progress-fill');
+    var hintEl = document.getElementById('progress-hint');
+    if (pctEl) pctEl.textContent = pct + '%';
+    if (fillEl) fillEl.style.width = pct + '%';
+    if (!hintEl) return;
+    var missing = [
+      document.getElementById('field-edad').value,
+      document.getElementById('field-peso').value,
+      document.getElementById('field-estatura').value,
+      document.getElementById('field-objetivo').value,
+      document.getElementById('field-actividad').value,
+    ].filter(function(v) { return !v; }).length;
+    if (pct === 0) {
+      hintEl.textContent = 'Completa tus medidas para activar tu plan';
+    } else if (missing > 0) {
+      hintEl.textContent = 'Faltan ' + missing + ' dato' + (missing > 1 ? 's clave' : ' clave');
+    } else if (pct < 100) {
+      hintEl.textContent = 'Casi completo — datos opcionales mejoran la precisión';
+    } else {
+      hintEl.textContent = '¡Plan completamente optimizado!';
+    }
+  }
 
   var excluidos = [];
   var CAT_LABELS = {
@@ -227,17 +279,25 @@
       document.getElementById('field-notas').value = p.notas || '';
       excluidos = Array.isArray(p.alimentos_excluidos) ? p.alimentos_excluidos : [];
       renderTags();
+      updateProgress();
     }
   } catch(err) {}
 
   await loadCatalogo();
+
+  // Live progress on any field change
+  ['field-edad', 'field-peso', 'field-estatura', 'field-sexo', 'field-grasa',
+   'field-objetivo', 'field-actividad', 'field-notas'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateProgress);
+  });
 
   // Save profile
   document.getElementById('form-perfil').addEventListener('submit', async function(e) {
     e.preventDefault();
     var btn = document.getElementById('btn-guardar');
     btn.disabled = true;
-    btn.textContent = 'Guardando...';
+    btn.textContent = 'Actualizando...';
 
     var payload = {
       edad: parseInt(document.getElementById('field-edad').value) || null,
@@ -264,12 +324,15 @@
         var err = await res.json().catch(function() { return {}; });
         throw new Error(err.detail || 'Error guardando perfil');
       }
-      showToast('✅ Perfil guardado correctamente');
+      var isComplete = computeCompleteness() >= 80;
+      showToast(isComplete
+        ? '✅ Plan actualizado · Ve a Mi Plan para regenerarlo'
+        : '✅ Datos guardados · Completa tu perfil para un plan más preciso');
     } catch(e) {
       showToast('❌ ' + e.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar Perfil';
+      btn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Actualizar mi plan';
     }
   });
 
