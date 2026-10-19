@@ -7,7 +7,7 @@ HTTP identities use actual password, enrollment, TOTP, challenge and recovery.
 from __future__ import annotations
 
 import base64
-from datetime import datetime, timezone
+from datetime import datetime
 import importlib
 from itertools import count
 import os
@@ -57,7 +57,7 @@ def link_db(request, tmp_path_factory):
         owner.close()
 
 
-def full_mfa_login(client, email: str, password: str) -> dict:
+def full_mfa_login(client, email: str, password: str, *, now: datetime) -> dict:
     """Secrets stay in this child memory, never assertions, stdout or reports."""
     from web.services.mfa_crypto import totp
     primary = client.post('/api/auth/login', json={'email': email, 'password': password})
@@ -70,7 +70,7 @@ def full_mfa_login(client, email: str, password: str) -> dict:
     assert enrollment.status_code == 200, 'Real factor enrollment failed'
     value = enrollment.json()
     seed = base64.b32decode(value['secret'])
-    code = totp(seed, int(datetime.now(timezone.utc).timestamp()) // 30)
+    code = totp(seed, int(now.timestamp()) // 30)
     confirmed = client.post('/api/auth/mfa/enroll/confirm', headers=headers,
                             json={'enrollment_id': value['enrollment_id'], 'code': code})
     assert confirmed.status_code == 200, 'Real TOTP enrollment confirmation failed'
@@ -129,8 +129,17 @@ def http(case, request, monkeypatch):
                     client=('192.0.2.' + str(peer % 250 + 1), 50000 + peer)) as client:
         with Session(case['admin']) as db:
             emails = {key: db.get(Usuario, case[key]).email for key in ('gym', 'othergym', 'person', 'other')}
-        headers = {key: {'Authorization': 'Bearer ' + full_mfa_login(client, email, PASSWORD)['token']}
-                   for key, email in emails.items()}
+        # Freeze only the MFA clock while these real HTTP setup requests
+        # enroll and authenticate the persisted actors. Business requests
+        # after setup retain the caller's original clock and permissions.
+        from web.services import mfa_service
+        original_clock = mfa_service.instant
+        observed = original_clock()
+        with monkeypatch.context() as setup_clock:
+            setup_clock.setattr(mfa_service, 'instant', lambda supplied=None:
+                original_clock(observed if supplied is None else supplied))
+            headers = {key: {'Authorization': 'Bearer ' + full_mfa_login(client, email, PASSWORD, now=observed)['token']}
+                       for key, email in emails.items()}
         assert client.get('/api/auth/me', headers=headers['person']).status_code == 200
         yield {**case, 'client_http': client, 'headers': headers, 'mail': mail,
                'received': received, 'factory': request.param}
