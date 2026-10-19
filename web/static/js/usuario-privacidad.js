@@ -7,7 +7,23 @@
   var uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var status=document.getElementById('privacy-status'),errorBox=document.getElementById('privacy-error');
   var start=document.getElementById('privacy-start'),next=document.getElementById('privacy-next'),again=document.getElementById('privacy-again'),restart=document.getElementById('privacy-restart');
-  var state=null,lastFile=null,busy=false,failed=false,urls=new Map();
+  var state=null,lastFile=null,busy=false,failed=false,urls=new Map(),pageContext=null,epoch=0,invalid=false;
+  var sessionCodes=['session_changed','session_expired','session_storage_error'];
+  function changed(){return Object.assign(new Error('La sesión cambió. Vuelve a abrir tus datos desde la cuenta actual.'),{code:'session_changed'});}
+  function check(context,ticket){
+    if(invalid || ticket!==epoch || !context)throw changed();
+    Api.usuario.validarContexto(context);
+  }
+  function invalidate(error){
+    epoch++;invalid=true;pageContext=null;busy=false;discard(true);controls();
+    status.textContent='La descarga se descartó porque no se pudo confirmar la sesión.';
+    errorBox.textContent=error && error.code==='session_storage_error' ? 'No se pudo verificar el almacenamiento de la sesión. Vuelve a iniciar sesión.' : 'La sesión cambió o no se pudo verificar. Vuelve a abrir tus datos desde la cuenta actual.';
+    errorBox.hidden=false;errorBox.focus();
+  }
+  async function verify(context,ticket){
+    try{check(context,ticket);await Api.usuario.verificarContexto(context);check(context,ticket);}
+    catch(error){if(ticket===epoch && !invalid)invalidate(error);throw error;}
+  }
   function protocol(){throw new Error('No pudimos verificar esta parte. Vuelve a intentarlo; no se preparó un archivo nuevo.');}
   function recordId(value,name){return ['purchases','generation_requests','personal_diary'].includes(name) ? typeof value==='string' && uuid.test(value) : Number.isSafeInteger(value) && value>0;}
   function diaryDate(value){
@@ -20,31 +36,28 @@
     countLabel.textContent='Días de diario';countValue.dataset.exportCount='personal_diary';countValue.textContent='0';countRow.append(countLabel,countValue);document.getElementById('privacy-counts').append(countRow);
   }
   function controls(){
+    if(!invalid && pageContext){try{Api.usuario.validarContexto(pageContext);}catch(error){invalidate(error);return;}}
     var received=state && state.part>0;
     start.hidden=!!received && !state.complete;start.textContent=received ? 'Empezar otra descarga' : failed ? 'Volver a intentar descarga' : 'Descargar mis datos';
     next.hidden=!received || state.complete;next.textContent=failed ? 'Volver a intentar esta parte' : 'Descargar siguiente parte';
     again.hidden=!lastFile;restart.hidden=!received || state.complete;
-    [start,next,again,restart].forEach(function(button){button.disabled=busy;});
+    [start,next,again,restart].forEach(function(button){button.disabled=busy || invalid || !pageContext;});
     section.setAttribute('aria-busy',String(busy));document.getElementById('privacy-progress').hidden=!busy;
     document.getElementById('privacy-counts').hidden=!received;
     document.getElementById('privacy-content-warning').hidden=!state || state.contentReview===0;
     names.forEach(function(name){section.querySelector('[data-export-count="'+name+'"]').textContent=state ? state.counts[name].toLocaleString('es-MX') : '0';});
+    if(!invalid && pageContext){try{Api.usuario.validarContexto(pageContext);}catch(error){invalidate(error);}}
   }
-  function release(url){var timer=urls.get(url);if(timer)clearTimeout(timer);URL.revokeObjectURL(url);urls.delete(url);}
+  function release(url){var timer=urls.get(url);if(timer)clearTimeout(timer);try{URL.revokeObjectURL(url);}finally{urls.delete(url);}}
   function discard(revokeNow){state=null;lastFile=null;failed=false;if(revokeNow)urls.forEach(function(_,url){release(url);});}
   function fail(error){failed=true;errorBox.textContent=error.status===422 ? 'No se pudo continuar esta descarga. Empieza una descarga nueva.' : error.message || 'No fue posible preparar esta parte. Vuelve a intentarlo.';errorBox.hidden=false;errorBox.focus();}
-  function newState(identity){
-    var value={id:crypto.randomUUID(),accountId:identity.id,startedAt:new Date().toISOString(),part:0,complete:false,contentReview:0,done:{},cursors:{},counts:{},pages:{},seen:{}};
+  function newState(context){
+    var value={id:crypto.randomUUID(),context:context,accountId:context.me.id,startedAt:new Date().toISOString(),part:0,complete:false,contentReview:0,done:{},cursors:{},counts:{},pages:{},seen:{}};
     names.forEach(function(name){value.done[name]=false;value.counts[name]=0;value.pages[name]=0;value.seen[name]=[];});return value;
-  }
-  async function identity(){
-    var me=await Api.auth.me();if(!me || typeof me.id!=='string' || !me.id)protocol();
-    if(state && state.accountId!==me.id){discard();throw new Error('La cuenta cambió. Empieza una descarga nueva con la sesión actual.');}
-    return me;
   }
   function verified(data,expected){
     if(!data || data.format_version!==1 || typeof data.exported_at!=='string' || !Number.isFinite(Date.parse(data.exported_at)) || !data.account || data.account.id!==expected || !Object.prototype.hasOwnProperty.call(data,'personal_subscription') || !Object.prototype.hasOwnProperty.call(data,'canonical_subscription') || !data.scope || data.scope.consistency!=='live_keyset_pages' || data.scope.coverage!=='account_and_persisted_personal_space' || typeof data.scope.personal_space!=='boolean' || typeof data.scope.professional_membership!=='boolean' || !Number.isInteger(data.scope.page_size) || data.scope.page_size<1 || data.scope.page_size>200 || !Array.isArray(data.scope.excluded_categories) || !data.scope.excluded_categories.length || !data.scope.excluded_categories.every(function(value){return typeof value==='string';})){
-      if(data && data.account && data.account.id!==expected){discard();throw new Error('La cuenta de esta respuesta cambió. Empieza una descarga nueva.');}protocol();
+      if(data && data.account && data.account.id!==expected)throw changed();protocol();
     }
     names.forEach(function(name){
       var collection=data[name];
@@ -65,7 +78,8 @@
     });
     return data;
   }
-  function prepare(data){
+  function prepare(data,context,ticket){
+    check(context,ticket);
     var updated={...state,part:state.part+1,done:{...state.done},cursors:{...state.cursors},counts:{...state.counts},pages:{...state.pages},seen:{...state.seen}};
     var collections={},manifestCollections={};
     names.forEach(function(name){
@@ -85,38 +99,62 @@
         note:'Este conjunto contiene sólo el alcance declarado. Las partes son consultas sucesivas, no una copia inmutable. Conserva todas las partes de esta descarga. Los planes con contenido no disponible requieren revisión autorizada.'},
       scope:data.scope,account:first ? data.account : null,personal_subscription:first ? data.personal_subscription : null,canonical_subscription:first ? data.canonical_subscription : null,collections:collections};
     var stamp=state.startedAt.replace(/[-:.]/g,'');
-    return {updated:updated,file:{blob:new Blob([JSON.stringify(file,null,2)],{type:'application/json;charset=utf-8'}),name:'metodobase-datos-personales-'+stamp+'-'+state.id.slice(0,8)+'-parte-'+String(updated.part).padStart(3,'0')+'.json'}};
+    var bytes=JSON.stringify(file,null,2);check(context,ticket);
+    var blob=new Blob([bytes],{type:'application/json;charset=utf-8'});check(context,ticket);
+    return {updated:updated,file:{blob:blob,name:'metodobase-datos-personales-'+stamp+'-'+state.id.slice(0,8)+'-parte-'+String(updated.part).padStart(3,'0')+'.json'}};
   }
-  function download(file){
-    var url=URL.createObjectURL(file.blob),anchor=document.createElement('a');anchor.href=url;anchor.download=file.name;anchor.hidden=true;document.body.appendChild(anchor);
-    try{anchor.click();urls.set(url,setTimeout(function(){release(url);},2000));}
-    catch(error){URL.revokeObjectURL(url);throw error;}
-    finally{anchor.remove();}
+  function download(file,context,ticket){
+    check(context,ticket);
+    var url=URL.createObjectURL(file.blob),anchor;urls.set(url,null);
+    try{
+      check(context,ticket);anchor=document.createElement('a');anchor.href=url;anchor.download=file.name;anchor.hidden=true;
+      document.body.appendChild(anchor);check(context,ticket);anchor.click();check(context,ticket);
+      urls.set(url,setTimeout(function(){release(url);},2000));
+    }catch(error){release(url);throw error;}
+    finally{if(anchor)anchor.remove();}
   }
   async function part(fresh){
-    if(busy)return;busy=true;failed=false;errorBox.hidden=true;controls();
+    if(busy || invalid || !pageContext)return;
+    var ticket=epoch,context=pageContext;
+    busy=true;failed=false;errorBox.hidden=true;controls();
     status.textContent='Consultando tus datos y preparando una parte…';
     try{
-      var me=await identity();if(fresh || !state){discard();state=newState(me);}
-      var exportId=state.id,accountId=state.accountId,response=await Api.usuario.exportarDatos(state.cursors);
-      if(!state || state.id!==exportId)throw new Error('La sesión de descarga cambió. Empieza una descarga nueva.');
-      var data=verified(response,accountId),result=prepare(data);
-      download(result.file);state=result.updated;lastFile=result.file;
+      await verify(context,ticket);check(context,ticket);
+      if(fresh || !state){discard(true);check(context,ticket);state=newState(context);}
+      var exportId=state.id,accountId=state.accountId,response;
+      try{check(context,ticket);response=await Api.usuario.exportarDatos(state.cursors,context);check(context,ticket);}
+      catch(error){check(context,ticket);await verify(context,ticket);check(context,ticket);throw error;}
+      await verify(context,ticket);check(context,ticket);
+      if(!state || state.id!==exportId || state.context!==context)throw changed();
+      var data=verified(response,accountId);check(context,ticket);
+      var result=prepare(data,context,ticket);check(context,ticket);
+      download(result.file,context,ticket);check(context,ticket);state=result.updated;lastFile=result.file;
       status.textContent=state.complete ? 'Se prepararon todas las partes disponibles para este alcance: '+state.part+'. Conserva todos los archivos de esta descarga.' : 'Parte '+state.part+' preparada. Quedan registros; descarga la siguiente parte para continuar.';
-    }catch(error){status.textContent=state && state.part ? (state.part===1 ? 'Se mantiene la parte preparada. ' : 'Se mantienen las '+state.part+' partes preparadas. ')+'La nueva parte no se preparó.' : 'Todavía no se preparó un archivo de esta descarga.';fail(error);}
-    finally{busy=false;controls();if(errorBox.hidden)(state && !state.complete ? next : again).focus();}
+      check(context,ticket);
+    }catch(error){
+      if(ticket!==epoch || invalid)return;
+      try{check(context,ticket);}catch(sessionError){invalidate(sessionError);return;}
+      if(sessionCodes.includes(error.code)){invalidate(error);return;}
+      status.textContent=state && state.part ? (state.part===1 ? 'Se mantiene la parte preparada. ' : 'Se mantienen las '+state.part+' partes preparadas. ')+'La nueva parte no se preparó.' : 'Todavía no se preparó un archivo de esta descarga.';fail(error);
+    }finally{if(ticket===epoch && !invalid){busy=false;controls();if(errorBox.hidden)(state && !state.complete ? next : again).focus();}}
   }
   start.addEventListener('click',function(){part(true);});next.addEventListener('click',function(){part(false);});
-  restart.addEventListener('click',function(){discard();errorBox.hidden=true;status.textContent='Puedes iniciar otra descarga desde la primera parte.';controls();start.focus();});
+  restart.addEventListener('click',function(){if(busy || invalid)return;try{check(pageContext,epoch);discard(true);errorBox.hidden=true;status.textContent='Puedes iniciar otra descarga desde la primera parte.';controls();start.focus();}catch(error){invalidate(error);}});
   again.addEventListener('click',async function(){
-    if(busy || !lastFile)return;busy=true;errorBox.hidden=true;controls();
-    var exportId=state.id,file=lastFile;
-    try{await identity();if(!state || state.id!==exportId)throw new Error('La sesión de descarga cambió. Empieza una descarga nueva.');download(file);status.textContent='Se volvió a preparar la descarga de la parte '+state.part+'. '+(state.complete ? 'Ya se prepararon todas las partes de este alcance.' : 'Quedan registros; descarga la siguiente parte para continuar.');}
-    catch(error){fail(error);}finally{busy=false;controls();}
+    if(busy || invalid || !lastFile)return;busy=true;errorBox.hidden=true;controls();
+    var ticket=epoch,context=state.context,exportId=state.id,file=lastFile;
+    try{await verify(context,ticket);check(context,ticket);if(!state || state.id!==exportId || lastFile!==file)throw changed();download(file,context,ticket);check(context,ticket);status.textContent='Se volvió a preparar la descarga de la parte '+state.part+'. '+(state.complete ? 'Ya se prepararon todas las partes de este alcance.' : 'Quedan registros; descarga la siguiente parte para continuar.');check(context,ticket);}
+    catch(error){if(ticket===epoch && !invalid){try{check(context,ticket);}catch(sessionError){invalidate(sessionError);return;}if(sessionCodes.includes(error.code))invalidate(error);else fail(error);}}
+    finally{if(ticket===epoch && !invalid){busy=false;controls();}}
   });
-  window.addEventListener('storage',function(event){if(state && (event.key==='mb_token' || event.key==='mb_refresh_token' || event.key===null)){discard();status.textContent='Tu sesión cambió. Empieza una descarga nueva con la sesión actual.';controls();}});
-  window.addEventListener('pagehide',function(){discard(true);});
-  window.addEventListener('pageshow',function(event){if(event.persisted){discard();status.textContent='Puedes iniciar una nueva descarga con tu sesión actual.';controls();}});
-  (async function(){try{if(window.SessionIdentity)await SessionIdentity.ready;await identity();status.textContent='Descarga tus datos por partes. El archivo indicará su alcance y contenido.';}
-    catch(error){fail(error);}finally{controls();}})();
+  window.addEventListener('storage',function(event){if(event.key==='mb_token' || event.key==='mb_refresh_token' || event.key===null)invalidate(changed());});
+  window.addEventListener('metodobase-session-changed',function(event){invalidate({code:event.detail && event.detail.code});});
+  window.addEventListener('pagehide',function(){epoch++;invalid=true;pageContext=null;busy=false;discard(true);controls();});
+  window.addEventListener('pageshow',function(event){if(event.persisted)invalidate(changed());});
+  (async function(){var ticket=epoch;try{
+      if(window.SessionIdentity){await SessionIdentity.ready;if(ticket!==epoch || invalid)return;}
+      var context=await Api.usuario.contexto();check(context,ticket);pageContext=context;
+      status.textContent='Descarga tus datos por partes. El archivo indicará su alcance y contenido.';
+      check(context,ticket);
+    }catch(error){if(ticket===epoch && !invalid)invalidate(error);}finally{controls();}})();
 })();

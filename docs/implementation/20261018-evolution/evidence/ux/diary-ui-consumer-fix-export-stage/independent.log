@@ -1,0 +1,92 @@
+{
+  "scope": "Independent VM Storage/transport/DOM doubles only, exact UI606f3c6; no browser/network/backend/PG claim",
+  "sourceBefore": {
+    "web/static/js/api.js": "bb99394da67a236c1684ecc3a9356b9315bd8ab34f0efbb74e3c61e4a6c1d0fc",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "eab37baa8cd9f38744d31197b90a67ba2c7b9a6adfa3d332f73790eb9c893364",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sourceAfter": {
+    "web/static/js/api.js": "bb99394da67a236c1684ecc3a9356b9315bd8ab34f0efbb74e3c61e4a6c1d0fc",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "eab37baa8cd9f38744d31197b90a67ba2c7b9a6adfa3d332f73790eb9c893364",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sources_stable": true,
+  "driver_sha256": "102766a03baeb0f57e28f8af79d5764d016eec5f00f892c3eb141af470387840",
+  "total": 10,
+  "passed": 8,
+  "results": [
+    {
+      "case": "Logout does not claim server revocation for {\"success\":false}",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "case": "Logout does not claim server revocation for {}",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "case": "New B during first credential removal survives helper and handler",
+      "passed": true
+    },
+    {
+      "case": "B reentry during success notice is checked again before redirect",
+      "passed": true
+    },
+    {
+      "case": "Same account role or session-version change invalidates canonical personal context",
+      "passed": true
+    },
+    {
+      "case": "Private export A response after same-tab B replacement is never downloaded",
+      "passed": true
+    },
+    {
+      "case": "Private export reacts to explicit session-change event by discarding prepared file",
+      "passed": true
+    },
+    {
+      "case": "Diary export date cursor rejects repeated exclusive boundary without producing new file",
+      "passed": true
+    },
+    {
+      "case": "Diary read after helper-to-consumer B switch clears state before view",
+      "passed": true
+    },
+    {
+      "case": "Malformed diary read never exposes preceding snapshot or invalidates a replacement account",
+      "passed": true
+    }
+  ],
+  "observations": [
+    {
+      "case": "logout_response_shape",
+      "response": {
+        "success": false
+      },
+      "state": "closed_local",
+      "server_confirmed": true
+    },
+    {
+      "case": "logout_response_shape",
+      "response": {},
+      "state": "closed_local",
+      "server_confirmed": true
+    },
+    {
+      "case": "export_A_after_B",
+      "downloads": 0,
+      "current_is_B": true,
+      "download_account": null
+    },
+    {
+      "case": "export_session_event",
+      "repeat_button_hidden": true,
+      "diary_count": "0"
+    }
+  ]
+}

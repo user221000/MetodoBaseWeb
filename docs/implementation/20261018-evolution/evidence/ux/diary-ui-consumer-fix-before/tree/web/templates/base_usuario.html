@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token(request) }}">
+  <title>{% block title %}Mi Plan{% endblock %} — Método Base</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous" />
+
+  <!-- User theme: standalone light-mode stylesheet -->
+  <link rel="stylesheet" href="/static/css/styles-usuario.css?v={{ static_version }}" />
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Auth Guard ─────────────────────────────────────────── -->
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/auth-guard.js?v={{ static_version }}"></script>
+
+<!-- ── Sidebar ────────────────────────────────────────────── -->
+<aside class="u-sidebar" id="main-sidebar">
+
+  <!-- Logo -->
+  <div class="u-sidebar-logo">
+    <a href="/mi-plan" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+      <div class="u-sidebar-logo-icon">
+        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="u-sidebar-logo-text">Método Base</div>
+        <div class="u-sidebar-logo-sub">Tu Plan Nutricional</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="u-sidebar-nav" aria-label="Menú principal">
+    <a href="/equipo/inicio" class="u-nav-item" data-professional-context hidden>Espacio del gimnasio</a>
+
+    <span class="u-nav-section">Principal</span>
+
+    <a href="/mi-plan" class="u-nav-item" data-page="mi-plan">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      Dashboard
+    </a>
+
+    <a href="/mi-historial" class="u-nav-item" data-page="mi-historial">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Progreso
+    </a>
+
+    <span class="u-nav-section">Personal</span>
+
+    <a href="/mi-suscripcion" class="u-nav-item" data-page="mi-suscripcion">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+      Mi Suscripción
+    </a>
+
+    <a href="/mi-perfil" class="u-nav-item" data-page="mi-perfil">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Mi Perfil
+    </a>
+
+  </nav>
+
+  <!-- Promo card -->
+  <div class="u-sidebar-promo">
+    <h4>🔥 Consejo del día</h4>
+    <p>Ten agua a mano y adapta tu hidratación a tus necesidades y a la orientación de tu profesional de salud.</p>
+    <a href="/mi-plan" class="u-promo-btn">Ver mi plan →</a>
+  </div>
+
+  <!-- Footer -->
+  <div class="u-sidebar-footer">
+    <div class="u-sidebar-user">
+      <div class="u-avatar" id="sb-avatar">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.2 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+      <div>
+        <div class="u-sidebar-user-name" id="sb-nombre">Cargando...</div>
+        <div class="u-sidebar-user-role" id="sb-tipo">Usuario</div>
+      </div>
+    </div>
+    <button class="u-btn-logout" id="btn-logout">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Cerrar sesión
+    </button>
+  </div>
+</aside>
+
+<!-- ── Mobile hamburger ───────────────────────────────────── -->
+<button class="u-mobile-menu-btn" id="btn-hamburger" aria-label="Abrir menú" aria-controls="main-sidebar" aria-expanded="false">☰</button>
+<div class="u-sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ── Main Content ───────────────────────────────────────── -->
+<main class="u-main">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Toast container -->
+<div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Scripts -->
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+
+<script nonce="{{ request.state.csp_nonce }}">
+(function() {
+  // Populate user name
+  var nombre = localStorage.getItem('mb_nombre') || '';
+  var el = document.getElementById('sb-nombre');
+  if (el) el.textContent = nombre || 'Mi cuenta';
+
+  // Avatar initials
+  var av = document.getElementById('sb-avatar');
+  if (av && nombre) {
+    var parts = nombre.trim().split(' ');
+    var initials = parts.map(function(p){ return p[0]; }).join('').substring(0,2).toUpperCase();
+    if (initials) av.textContent = initials;
+  }
+
+  // Active sidebar link
+  var path = window.location.pathname;
+  document.querySelectorAll('.u-nav-item').forEach(function(a) {
+    if (a.getAttribute('href') === path) { a.classList.add('active'); a.setAttribute('aria-current', 'page'); }
+  });
+
+  // Hamburger menu
+  var btn = document.getElementById('btn-hamburger');
+  var sidebar = document.getElementById('main-sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (btn && sidebar && overlay) {
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+    btn.addEventListener('click', function() {
+      var open = !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', open);
+      overlay.classList.toggle('active', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) sidebar.querySelector('a').focus();
+    });
+    overlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && sidebar.classList.contains('open')) closeMenu();
+    });
+  }
+
+  // Logout
+  var logoutBtn = document.getElementById('btn-logout');
+  if (logoutBtn) logoutBtn.addEventListener('click', async function() {
+    if (logoutBtn.disabled) return;
+    var notice = document.getElementById('logout-status');
+    if (!notice) {
+      notice = document.createElement('p'); notice.id = 'logout-status'; notice.setAttribute('role','status');
+      notice.setAttribute('aria-live','polite'); notice.tabIndex = -1; notice.style.color = '#FFFFFF'; notice.style.whiteSpace = 'normal'; logoutBtn.after(notice);
+    }
+    function changed(message,code) {
+      window.dispatchEvent(new CustomEvent('metodobase-session-changed',{detail:{message:message,code:code}}));
+    }
+    logoutBtn.disabled = true; notice.textContent = 'Cerrando sesión…';
+    try {
+      if (typeof Api === 'undefined' || !Api.auth || typeof Api.auth.logout !== 'function') throw new Error('El cierre de sesión no está disponible. Vuelve a abrir esta página.');
+      var result = await Api.auth.logout();
+      if (!result || result.state !== 'closed_local') {
+        notice.textContent = 'La sesión cambió. Se conserva la cuenta actual.'; changed(notice.textContent,'session_changed'); notice.focus(); return;
+      }
+      Api.usuario.validarContexto(result.context);
+      if (result.server_confirmed) {
+        notice.textContent = 'Sesión cerrada en este navegador.';
+        Api.usuario.validarContexto(result.context);
+        window.location.replace('/login-usuario');
+      } else {
+        notice.textContent = 'La sesión se cerró en este navegador. No pudimos confirmar la revocación en el servidor.';
+        changed(notice.textContent,'session_changed'); notice.focus();
+        var login = document.createElement('a'); login.href = '/login-usuario'; login.textContent = 'Volver a iniciar sesión'; login.style.color = '#FFFFFF'; login.style.textDecoration = 'underline'; notice.append(document.createTextNode(' '),login);
+      }
+    } catch(error) {
+      notice.textContent = error.message || 'No se pudo confirmar el cierre de sesión.';
+      if (['session_changed','session_storage_error'].includes(error.code)) changed(notice.textContent,error.code);
+      notice.focus();
+    } finally { logoutBtn.disabled = false; }
+  });
+})();
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

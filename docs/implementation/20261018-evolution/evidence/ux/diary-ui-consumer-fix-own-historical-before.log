@@ -1,0 +1,90 @@
+{
+  "scope": "Own VM consumer-boundary/Storage/DOM tests only; no browser/server/provider or reload atomicity claim",
+  "passed": 2,
+  "total": 17,
+  "results": [
+    {
+      "case": "Stable canonical identity prepares and explicitly repeats a part without persisting export data",
+      "passed": true
+    },
+    {
+      "case": "A legitimate same-subject refresh rotation retains the canonical export context",
+      "passed": true
+    },
+    {
+      "case": "Helper-to-consumer replacement creates no old-account Blob or download",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "Replacement after canonical verification resolves is fenced for first",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "Replacement after canonical verification resolves is fenced for repeat",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n2 !== 1\n"
+    },
+    {
+      "case": "Persisted role change before action discards cached private state",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n2 !== 1\n"
+    },
+    {
+      "case": "Persisted team_gym_id change before action discards cached private state",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n2 !== 1\n"
+    },
+    {
+      "case": "Persisted session_version change before action discards cached private state",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n2 !== 1\n"
+    },
+    {
+      "case": "Canonical subject change after export DTO resolves is rejected before Blob construction",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "metodobase-session-changed synchronously discards prepared cache, counters and Blob URLs",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\nfalse !== true\n"
+    },
+    {
+      "case": "storage synchronously discards prepared cache, counters and Blob URLs",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "pagehide synchronously discards prepared cache, counters and Blob URLs",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\nfalse !== true\n"
+    },
+    {
+      "case": "Session event during a pending export cannot be undone by its late response/finally",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "Synchronous blob reentry revokes temporary private output and never clicks a download",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "Synchronous url reentry revokes temporary private output and never clicks a download",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "Synchronous append reentry revokes temporary private output and never clicks a download",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+    },
+    {
+      "case": "Context failure while repeating never retains a cached private file",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n2 !== 1\n"
+    }
+  ]
+}

@@ -397,8 +397,8 @@ const Api = (() => {
       const snapshot = _snapshot();
       let serverConfirmed = false;
       try {
-        await request('POST', '/api/auth/logout');
-        serverConfirmed = true;
+        const result = await request('POST', '/api/auth/logout');
+        serverConfirmed = !!result && result.success === true;
       } catch (error) {
         if (error.code === 'session_storage_error') throw error;
         // A failed POST is not proof of server revocation. A newer session wins.
@@ -535,7 +535,7 @@ const Api = (() => {
       return _personalRequest('GET', '/api/usuario/diario?' + params, null, {}, context);
     },
     guardarDiario: (day, operation, context) => _personalRequest('PATCH', '/api/usuario/diario/' + _personalDay(day), operation, {}, context),
-    exportarDatos: (cursors = {}) => {
+    exportarDatos: (cursors = {}, context) => {
       const params = new URLSearchParams({limit:'100'});
       const integerCursors = ['profile','plan','measurement'];
       const uuidCursors = ['purchase','generation'];
@@ -548,7 +548,7 @@ const Api = (() => {
         }
         params.set('after_'+name,String(value));
       }
-      return request('GET','/api/usuario/privacidad/exportar?'+params, null, {'Cache-Control':'no-store'});
+      return _personalRequest('GET','/api/usuario/privacidad/exportar?'+params, null, {'Cache-Control':'no-store'},context);
     },
     perfil:         (context) => _personalRequest('GET', '/api/usuario/perfil', null, {}, context),
     guardarPerfil:  (data, context) => _personalRequest('PUT', '/api/usuario/perfil', data, {}, context),
