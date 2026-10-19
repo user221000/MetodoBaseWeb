@@ -25,7 +25,16 @@ router = APIRouter(include_in_schema=False)
 
 @router.get("/")
 async def index(request: Request):
-    return template_response(templates, request, "landing.html", {"request": request})
+    import hashlib
+    import json
+    example = json.loads((_TMPL_DIR.parent / "static" / "data" / "landing-example.json").read_text(encoding="utf8"))
+    return template_response(templates, request, "landing.html", {
+        "request": request,
+        "business_plans": {key: plan for key, plan in get_plan_catalog("web").items() if plan["audiencia"] == "gym"},
+        "individual_plans": get_individual_plan_catalog(),
+        "example": example,
+        "landing_style_version": hashlib.sha256((_TMPL_DIR.parent / "static" / "css" / "landing.css").read_bytes()).hexdigest()[:12],
+    })
 
 
 @router.get("/login-gym", response_class=HTMLResponse)

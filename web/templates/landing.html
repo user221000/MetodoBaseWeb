@@ -1,322 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Método Base — Sistema Nutricional</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg-primary:     #0C0B09;
-      --bg-card:        rgba(18, 19, 26, 0.75);
-      --text-primary:   #EEEEF2;
-      --text-secondary: #94908A;
-      --text-muted:     #6B6660;
-      --border-glass:   rgba(255, 255, 255, 0.07);
-      --border-subtle:  rgba(255, 255, 255, 0.04);
-      --accent-yellow:  #FBBF24;
-      --accent-teal:    #2DD4BF;
-      --accent-purple:  #A78BFA;
-    }
-
-    body {
-      background: var(--bg-primary);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 24px;
-      color: var(--text-primary);
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    /* Edge vignette — darkens corners, pulls focus inward */
-    body::after {
-      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background: radial-gradient(ellipse 88% 88% at 50% 50%, transparent 48%, rgba(0,0,0,0.38) 100%);
-    }
-
-    /* Background depth */
-    .bg-depth {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 65% 55% at 18% 20%, rgba(251, 191, 36, 0.07) 0%, transparent 60%),
-        radial-gradient(ellipse 55% 65% at 82% 78%, rgba(45, 212, 191, 0.055) 0%, transparent 60%),
-        radial-gradient(ellipse 45% 40% at 68% 8%,  rgba(167, 139, 250, 0.04) 0%, transparent 55%);
-    }
-    .bg-grid {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.032;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.65) 1px, transparent 1px);
-      background-size: 28px 28px;
-    }
-
-    .landing-wrapper {
-      position: relative; z-index: 1;
-      max-width: 860px; width: 100%;
-      text-align: center;
-    }
-
-    /* Header */
-    .header-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: .65rem; font-weight: 700; letter-spacing: .14em;
-      text-transform: uppercase; color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-    .header-badge .dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--accent-teal);
-      box-shadow: 0 0 8px rgba(45, 212, 191, 0.4);
-      animation: pulse-dot 2.8s ease-in-out infinite;
-    }
-
-    .brand-title {
-      font-size: 2.8rem; font-weight: 800; color: var(--text-primary);
-      margin-bottom: 8px; letter-spacing: -0.02em;
-    }
-    .brand-title em {
-      font-style: italic; color: var(--accent-yellow);
-      text-shadow: 0 0 48px rgba(251, 191, 36, 0.28);
-    }
-
-    .brand-subtitle {
-      font-size: 1rem; color: var(--text-secondary);
-      margin-bottom: 48px;
-    }
-
-    /* Cards grid */
-    .cards-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 24px; margin-bottom: 40px;
-    }
-
-    .access-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-glass);
-      border-radius: 20px;
-      padding: 36px 32px 32px;
-      backdrop-filter: blur(12px);
-      text-align: center;
-      display: flex; flex-direction: column; align-items: center;
-      transition: border-color .25s, transform .25s, box-shadow .25s;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 32px rgba(0,0,0,0.25);
-    }
-    .access-card:hover {
-      transform: translateY(-2px);
-    }
-    .access-card--gym:hover  { border-color: rgba(251, 191, 36, 0.2);  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 12px 48px rgba(0,0,0,0.35), 0 0 52px rgba(251,191,36,0.07); }
-    .access-card--user:hover { border-color: rgba(167, 139, 250, 0.2); box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 12px 48px rgba(0,0,0,0.35), 0 0 52px rgba(167,139,250,0.07); }
-
-    /* Card icon */
-    .card-icon {
-      width: 60px; height: 60px; border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 16px; font-size: 1.5rem;
-    }
-    .card-icon--gym {
-      background: rgba(251, 191, 36, 0.1);
-      color: var(--accent-yellow);
-    }
-    .card-icon--user {
-      background: rgba(167, 139, 250, 0.1);
-      color: var(--accent-purple);
-    }
-
-    /* Card badge */
-    .card-badge {
-      display: inline-block;
-      font-size: .6rem; font-weight: 800; letter-spacing: .12em;
-      text-transform: uppercase;
-      padding: 4px 12px; border-radius: 6px;
-      margin-bottom: 14px;
-    }
-    .card-badge--gym {
-      background: rgba(251, 191, 36, 0.12); color: var(--accent-yellow);
-    }
-    .card-badge--user {
-      background: rgba(167, 139, 250, 0.12); color: var(--accent-purple);
-    }
-
-    .card-title {
-      font-size: 1.3rem; font-weight: 800; color: var(--text-primary);
-      margin-bottom: 8px;
-    }
-
-    .card-desc {
-      font-size: .85rem; color: var(--text-secondary);
-      margin-bottom: 20px; line-height: 1.5;
-    }
-
-    /* Feature list */
-    .features {
-      list-style: none; width: 100%; text-align: left;
-      margin-bottom: 28px; flex: 1;
-    }
-    .features li {
-      display: flex; align-items: center; gap: 10px;
-      padding: 6px 0;
-      font-size: .84rem; color: var(--text-secondary);
-    }
-    .features li .feat-icon {
-      font-size: .75rem; flex-shrink: 0;
-    }
-    .features--gym .feat-icon { color: var(--accent-yellow); }
-    .features--user .feat-icon { color: var(--accent-purple); }
-
-    /* CTA buttons */
-    .btn-cta {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 100%; padding: 14px 24px;
-      border-radius: 12px; font-weight: 700; font-size: .95rem;
-      text-decoration: none; border: none; cursor: pointer;
-      transition: all .25s; font-family: inherit;
-    }
-    .btn-cta--gym {
-      background: var(--accent-yellow);
-      color: #1A1400;
-      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.15);
-    }
-    .btn-cta--gym:hover {
-      box-shadow: 0 6px 28px rgba(251, 191, 36, 0.25);
-      transform: translateY(-1px);
-    }
-    .btn-cta--user {
-      background: linear-gradient(135deg, var(--accent-purple), #8B5CF6);
-      color: #EEEEF2;
-      box-shadow: 0 4px 20px rgba(167, 139, 250, 0.15);
-    }
-    .btn-cta--user:hover {
-      box-shadow: 0 6px 28px rgba(167, 139, 250, 0.25);
-      transform: translateY(-1px);
-    }
-
-    /* Footer */
-    .landing-footer {
-      text-align: center;
-    }
-    .landing-footer p {
-      font-size: .85rem; color: var(--text-muted);
-    }
-    .landing-footer a {
-      color: var(--accent-yellow); font-weight: 700;
-      text-decoration: none; transition: color .2s;
-    }
-    .landing-footer a:hover { color: var(--accent-teal); }
-    .demo-hint {
-      font-size: .72rem; color: var(--text-muted);
-      margin-top: 8px; opacity: 0.6;
-    }
-
-    /* Animations */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse-dot {
-      0%, 100% { box-shadow: 0 0 8px rgba(45, 212, 191, 0.35); }
-      50%       { box-shadow: 0 0 16px rgba(45, 212, 191, 0.7), 0 0 4px rgba(45, 212, 191, 0.4); }
-    }
-    .anim-1 { animation: fadeInUp .5s ease both; }
-    .anim-2 { animation: fadeInUp .5s ease .1s both; }
-    .anim-3 { animation: fadeInUp .5s ease .2s both; }
-    .anim-4 { animation: fadeInUp .5s ease .3s both; }
-
-    /* Responsive */
-    @media (max-width: 680px) {
-      .cards-grid { grid-template-columns: 1fr; }
-      .brand-title { font-size: 2rem; }
-      body { padding: 32px 16px; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Consulta planes y límites de Método Base para negocios y para tu espacio personal. Generación de planes, PDF e historial en la aplicación web.">
+  <title>Método Base · Planes nutricionales y gestión de clientes</title>
+  <link rel="stylesheet" href="/static/css/landing.css?v={{ landing_style_version }}">
 </head>
-<body>
-  <div class="bg-depth"></div>
-  <div class="bg-grid"></div>
-
-  <div class="landing-wrapper">
-    <!-- Header -->
-    <div class="anim-1">
-      <div class="header-badge">
-        <span class="dot"></span>
-        Plataforma de nutrición profesional
+<body class="landing-page">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="wrap topbar">
+    <a class="brand" href="/" aria-label="Método Base, inicio">Método <span>Base</span></a>
+    <nav class="quick-links" aria-label="Ya tengo cuenta">
+      <a href="/login-gym">Ingresar al panel de negocio</a>
+      <a href="/login-usuario">Ingresar a mi espacio personal</a>
+    </nav>
+  </header>
+  <main id="contenido" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">Organiza tus planes de alimentación</p>
+        <h1 id="hero-title">Un espacio para tu negocio.<br>Otro para tu plan personal.</h1>
+        <p class="lead">Gestiona clientes y sus planes desde el panel de negocio, o genera y consulta tus propios planes en tu espacio personal.</p>
+        <div class="actions" aria-label="Crear una cuenta según tu uso">
+          <a class="button" href="/registro?tipo=gym" data-audience="gym">Crear cuenta de negocio</a>
+          <a class="button secondary" href="/registro?tipo=usuario" data-audience="individual">Crear cuenta personal</a>
+        </div>
+        <p class="small"><a href="#planes-negocio">Ver planes para negocios</a> · <a href="#planes-personales">Ver planes personales</a></p>
       </div>
-      <h1 class="brand-title">Método <em>Base</em></h1>
-      <p class="brand-subtitle">Para gimnasios que crecen. Para clientes que avanzan.</p>
-    </div>
-
-    <!-- Access cards -->
-    <div class="cards-grid anim-2">
-      <!-- Gym card -->
-      <div class="access-card access-card--gym">
-        <div class="card-icon card-icon--gym">🏢</div>
-        <span class="card-badge card-badge--gym">Para Negocios</span>
-        <h2 class="card-title">Panel de Gestión</h2>
-        <p class="card-desc">Administra tus clientes, genera planes en segundos y entrega resultados profesionales.</p>
-        <ul class="features features--gym">
-          <li><span class="feat-icon">✦</span> Todos tus clientes en un solo lugar</li>
-          <li><span class="feat-icon">✦</span> Genera planes ilimitados en segundos</li>
-          <li><span class="feat-icon">✦</span> Métricas y reportes de retención</li>
-          <li><span class="feat-icon">✦</span> PDFs profesionales listos para entregar</li>
+      <aside class="example" aria-labelledby="example-title" data-example="worker_demo_excerpt_v1">
+        <span class="tag">Ejemplo con datos de demostración</span>
+        <h2 id="example-title">Un vistazo al desayuno</h2>
+        <p class="small">Extracto de un plan generado localmente: una opción de cada grupo.</p>
+        <ul>
+          {% for group in example.groups %}
+          <li><span>{{ group.option.alimento | replace('_', ' ') | capitalize }}</span><strong>{{ group.option.gramos }} g</strong></li>
+          {% endfor %}
         </ul>
-        <a href="/login-gym" class="btn-cta btn-cta--gym">Ir a mi panel →</a>
-        <p class="demo-hint">Configura tu cuenta en 5 minutos</p>
+        <p class="small">El resultado de tu cuenta puede ser distinto. Este ejemplo no es una recomendación de alimentación ni una evaluación clínica.</p>
+      </aside>
+    </section>
+    <section class="section" aria-labelledby="how-title">
+      <h2 id="how-title">Del perfil al plan que puedes consultar</h2>
+      <ol class="steps">
+        <li><h3>Elige tu espacio</h3><p>Una cuenta de negocio administra clientes. La cuenta personal mantiene su propio perfil e historial.</p></li>
+        <li><h3>Genera con tu cupo disponible</h3><p>Completa el perfil y solicita un plan. Los límites diarios y mensuales dependen de la modalidad elegida.</p></li>
+        <li><h3>Vuelve al resultado</h3><p>Consulta el historial y descarga el PDF de un plan cuando esté disponible. En el espacio personal puedes registrar tu diario por fecha.</p></li>
+      </ol>
+    </section>
+    <section class="section" id="planes-negocio" aria-labelledby="business-title" data-commercial-catalog="gym">
+      <p class="eyebrow">Aplicación web para negocios</p>
+      <h2 id="business-title">Clientes, planes y límites a la vista</h2>
+      <p class="section-intro">Empieza con Free. Los planes de pago se consultan y contratan dentro de tu cuenta; crearla no activa una suscripción de pago.</p>
+      {% set labels = {'free':'Free','standard':'Standard','gym_comercial':'Gym','clinica':'Clínica'} %}
+      <div class="plans">
+        {% for key, plan in business_plans.items() %}
+        <article class="plan" data-plan="{{ key }}">
+          <h3>{{ labels.get(key, key) }}</h3>
+          <p class="price" data-price-centavos="{{ plan.precio_centavos }}" data-currency="{{ plan.moneda }}" data-period="{{ plan.periodo }}">${{ '%.2f' | format(plan.precio_centavos / 100) }}<span class="unit">{{ plan.moneda }} / {{ 'mes' if plan.periodo == 'month' else plan.periodo }}</span></p>
+          <dl>
+            <div><dt>Clientes activos</dt><dd data-limit-field="max_clientes" data-value="{{ plan.max_clientes }}">{% if plan.max_clientes %}Hasta {{ plan.max_clientes }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Altas de clientes al día</dt><dd data-limit-field="max_registros_diarios" data-value="{{ plan.max_registros_diarios }}">{% if plan.max_registros_diarios %}{{ plan.max_registros_diarios }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Planes por cliente al día</dt><dd data-limit-field="max_planes_por_cliente_dia" data-value="{{ plan.max_planes_por_cliente_dia }}">{% if plan.max_planes_por_cliente_dia %}{{ plan.max_planes_por_cliente_dia }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Planes al día entre todos tus clientes</dt><dd data-limit-field="max_planes_diarios" data-value="{{ plan.max_planes_diarios }}">{% if plan.max_planes_diarios %}{{ plan.max_planes_diarios }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Planes al mes</dt><dd data-limit-field="max_planes_mes" data-value="{{ plan.max_planes_mes }}">{% if plan.max_planes_mes %}{{ plan.max_planes_mes }}{% else %}Sin tope mensual en el catálogo{% endif %}</dd></div>
+            <div><dt>Invitaciones a equipo</dt><dd>{% if plan.multi_usuario %}Incluidas en este plan{% else %}No incluidas en este plan{% endif %}</dd></div>
+          </dl>
+          <a class="button secondary" href="/registro?tipo=gym">Empezar con una cuenta de negocio</a>
+        </article>
+        {% endfor %}
       </div>
-
-      <!-- User card -->
-      <div class="access-card access-card--user">
-        <div class="card-icon card-icon--user">👤</div>
-        <span class="card-badge card-badge--user">Para Miembros</span>
-        <h2 class="card-title">Mi Portal</h2>
-        <p class="card-desc">Accede a tu plan nutricional personalizado y sigue tu progreso desde un solo lugar.</p>
-        <ul class="features features--user">
-          <li><span class="feat-icon">✦</span> Tu plan 100% personalizado</li>
-          <li><span class="feat-icon">✦</span> Sigue tu progreso semana a semana</li>
-          <li><span class="feat-icon">✦</span> Todo tu historial en un lugar</li>
-          <li><span class="feat-icon">✦</span> Descarga tu plan cuando lo necesites</li>
-        </ul>
-        <a href="/login-usuario" class="btn-cta btn-cta--user">Ver mi plan →</a>
-        <p class="demo-hint">Tu información siempre privada y segura</p>
+      <p class="catalog-note">Los topes por cliente, por día y por mes se aplican en conjunto. “Sin tope” describe sólo esa dimensión del catálogo; no garantiza capacidad ni tiempos de generación. “Clínica” es el nombre de un plan comercial y no acredita adecuación clínica.</p>
+    </section>
+    <section class="section" id="planes-personales" aria-labelledby="personal-title" data-commercial-catalog="individual">
+      <p class="eyebrow">Tu espacio personal</p>
+      <h2 id="personal-title">Tu perfil, tus planes y tu diario</h2>
+      <p class="section-intro">Estos cupos pertenecen a tu cuenta personal y se mantienen separados de la cartera de un negocio.</p>
+      <div class="plans personal-plans">
+        {% for key, plan in individual_plans.items() %}
+        <article class="plan" data-personal-plan="{{ key }}">
+          <h3>{{ 'Starter' if key == 'starter' else 'Pro' }}</h3>
+          <p class="price" data-price-centavos="{{ plan.precio_centavos }}" data-currency="{{ plan.moneda }}" data-period="{{ plan.periodo }}">${{ '%.2f' | format(plan.precio_centavos / 100) }}<span class="unit">{{ plan.moneda }} / {{ 'mes' if plan.periodo == 'month' else plan.periodo }}</span></p>
+          <dl><div><dt>Planes personales al mes</dt><dd data-limit-field="max_planes_mes" data-value="{{ plan.max_planes_mes }}">{{ plan.max_planes_mes }}</dd></div></dl>
+          <a class="button secondary" href="/registro?tipo=usuario">Empezar con una cuenta personal</a>
+        </article>
+        {% endfor %}
       </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="landing-footer anim-3">
-      <p>¿Primera vez? <a href="/registro">Crea tu cuenta gratis</a></p>
-      <p class="demo-hint">Sin tarjeta de crédito &middot; Para gimnasios y nutricionistas</p>
-    </div>
-  </div>
-
-  <script nonce="{{ request.state.csp_nonce }}">
-    // If already authenticated, redirect to appropriate dashboard
-    (function() {
-      var token = localStorage.getItem('mb_token');
-      var tipo = localStorage.getItem('mb_tipo');
-      if (token) {
-        if (tipo === 'usuario') {
-          window.location.replace('/mi-plan');
-        } else {
-          window.location.replace('/dashboard');
-        }
-      }
-    })();
-
-    // Keyboard navigation: Enter on cards navigates
-    document.querySelectorAll('.access-card').forEach(function(card) {
-      card.setAttribute('tabindex', '0');
-      card.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          var link = card.querySelector('.btn-cta');
-          if (link) link.click();
-        }
-      });
-    });
-  </script>
+      <p class="catalog-note">Precios de referencia del catálogo vigente en {{ individual_plans.starter.moneda }}, con periodo mensual. Revisa el importe y las condiciones mostradas antes de confirmar una compra en tu cuenta.</p>
+    </section>
+    <section class="section" aria-labelledby="faq-title">
+      <h2 id="faq-title">Antes de elegir</h2>
+      <div class="faq">
+        <details><summary>¿Qué cuenta necesito?</summary><p>Elige negocio si vas a administrar clientes. Elige personal para tu propio perfil y planes. Una pertenencia a un equipo profesional y un perfil personal son espacios separados.</p></details>
+        <details><summary>¿Crear una cuenta activa un plan de pago?</summary><p>No. El alta y la contratación son pasos distintos. Puedes consultar la oferta y el estado de tu suscripción dentro de la cuenta correspondiente.</p></details>
+        <details><summary>¿Puedo usarlo para una condición médica?</summary><p>La aplicación organiza perfiles y genera planes a partir de sus datos. No ofrece diagnóstico ni garantiza que un plan sea adecuado para una condición médica. El nombre de una modalidad comercial no sustituye una revisión profesional.</p></details>
+        <details><summary>¿También existe la versión de escritorio?</summary><p>La versión de escritorio sigue soportada. Los botones de esta página abren la aplicación web; no descargan un instalador ni trasladan una suscripción entre versiones.</p></details>
+      </div>
+      <div id="datos-personales" class="data-note" aria-labelledby="data-title">
+        <h3 id="data-title">Tus datos en tu cuenta</h3>
+        <p>El perfil y los planes se consultan con una sesión autenticada. En el perfil personal puedes descargar tus datos por partes y consultar el alcance de cada archivo.</p>
+        <p><a href="/login-usuario">Ingresar para consultar mis datos personales</a></p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap"><p>Método Base · <a href="/login-gym">Acceso al negocio</a> · <a href="/login-usuario">Acceso personal</a> · <a href="#datos-personales">Datos personales</a></p></footer>
 </body>
 </html>

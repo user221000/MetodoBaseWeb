@@ -1,0 +1,70 @@
+{
+  "base_commit": "593127fd20fed139bcbc077e23b521c965aeeb53",
+  "scope": "R29/UX16 commercial landing in an isolated worktree; author validation only, independent QA/security pending",
+  "mounted_route": "GET / in web/routes/pages.py::index renders web/templates/landing.html in both factories",
+  "offer": {
+    "business": "Fresh get_plan_catalog('web') filtered by audiencia=gym on every render; personal pro_usuario is excluded",
+    "personal": "Fresh get_individual_plan_catalog() on every render; Starter/Pro kept separate from business",
+    "prices": "precio_centavos, moneda and periodo rendered from those functions; no copied product price/limit snapshot, new price, tax decision or trial duration",
+    "limits": "Active clients, new client registrations/day, plans per client/day, total business plans/day and monthly plans displayed together; zero means no cap in that one catalog dimension, never unlimited global capacity",
+    "free": "10 active clients,1 plan/client/day,10 total/day and20/month from the current catalog; existing creation cap also displayed",
+    "desktop": "Continued support stated; web links do not promise an installer or subscription transfer",
+    "cta": {
+      "business": "/registro?tipo=gym",
+      "personal": "/registro?tipo=usuario",
+      "existing_business": "/login-gym",
+      "existing_personal": "/login-usuario"
+    }
+  },
+  "changes": [
+    "Replace the public access selector with audience CTAs, connected offer, example, native FAQ, factual personal-data section and recurrent access links",
+    "Remove global unlimited/speed/five-minute setup,100-percent personalization, retention-report and absolute privacy promises",
+    "Keep clinical suitability outside the commercial promise; Clinica remains only the canonical plan name",
+    "Public landing has no script, credential/Storage read, automatic account redirect, private-data fetch or write request",
+    "Use an isolated stylesheet with a server-computed content version so both factories load the current asset without depending on shared template globals",
+    "Correct only registration mode initialization: selected type, active button and login link now agree for gym/usuario; absent or invalid type keeps the existing personal default. Submit/auth/Storage code is unchanged."
+  ],
+  "retired_orphan": {
+    "path": "web/pages/landing.html",
+    "reason": "No runtime route or reference served this duplicate; only that copy was removed. web/pages/checkout.html and other neighbors are unchanged.",
+    "provenance": "before-source.json records SHA256, original Git blob and exact RAW copy outside the deliverable in a dedicated Temp directory. The obsolete page body is not copied into active product files."
+  },
+  "example": {
+    "public_data": "web/static/data/landing-example.json",
+    "builder": "tests/e2e/build_landing_example.py",
+    "execution": "Real ASGI registration as VIEWER, profile update, individual quota reservation, worker, private object publication and authorized exact PDF in own temporary SQLite/local storage. Welcome delivery is replaced with an explicit no-send boundary; external sockets are blocked before product imports.",
+    "excerpt": "First breakfast option in each of three macro groups copied without changing values; verified against the complete generated plan JSON. UI labels it demonstration data and not a nutritional recommendation or clinical evaluation.",
+    "proof": "worker-example/generated-plan.json, generated-plan.pdf.zip (exact PDF entry) and provenance.json",
+    "reproduce": "python -X utf8 tests/e2e/build_landing_example.py --output <new-file.json> --evidence <new-directory>",
+    "reproducibility_limit": "This reproduces the complete generation procedure. New synthetic identities and generated PDF metadata can change bytes; the committed excerpt is matched to its preserved actual worker result, not asserted to be a universal deterministic sample. No generation runs on public GET.",
+    "pdf_storage": "Original RAW PDF preserved inside ZIP to prevent Git text/CRLF conversion of its ASCII85 body and byte-offset table. Original byte copy also retained outside the deliverable."
+  },
+  "validation": {
+    "before_http": "Two red tests: both factories lacked the catalog offer. Raw active source archive and desktop/mobile screenshots preserved.",
+    "before_browser": "Original mounted selector had unsupported claims and personal/registration CTA below the initial mobile viewport.",
+    "registration_red": "First browser stage found the existing personal registration login link pointing to login-gym. Exact executed driver and source snapshot preserved before the approved one-line fix.",
+    "harness_note": "A later author probe failed because innerText omits closed native FAQ content. Its report/body remain preserved; the final harness opens the desktop FAQ before asserting visible support text. Product copy did not change for that correction.",
+    "http_final": "12 passed across web.main_web and api.app; all prices/limits/currency/periods, exact links, runtime catalog mutations, sample extraction, no DML and no public credential dependencies",
+    "browser_final": "8 groups,4 screenshots;1440/390/320 and keyboard-open FAQ,0 full-document axe AA findings,0 overflow,0 pageerrors; all6 offers checked against the canonical Python module at run time; no registration/payment form submitted",
+    "quality": [
+      "lint",
+      "syntax",
+      "security",
+      "diff check"
+    ],
+    "fixtures": "Own loopback8781 and metadata-only SQLite; reported target from expected_head() and actual table count, not an executed migration",
+    "commands": [
+      "python -X utf8 tests/run_isolated.py tests/test_landing_commercial.py -q --tb=short",
+      "python -X utf8 tests/e2e/landing_server.py",
+      "node tests/e2e/landing.cjs"
+    ],
+    "node_environment": "Existing locked dependencies read via execution/tests/e2e/node_modules; author used NODE_PATH and candidate Python through METODOBASE_TEST_PYTHON. QA can use its own install from the unchanged lock."
+  },
+  "limits": [
+    "No publication, contact, pilot or external delivery",
+    "No broad backend/browser regression or load benchmark",
+    "No api.js, R34, security headers, migration or catalog edits",
+    "No new legal/privacy policy or support SLA invented; a public contact channel was not configured in the reviewed routes",
+    "Independent QA/security and integration pending"
+  ]
+}

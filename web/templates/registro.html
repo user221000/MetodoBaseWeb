@@ -164,7 +164,7 @@
 
   <script nonce="{{ request.state.csp_nonce }}">
     var params = new URLSearchParams(window.location.search);
-    if (params.get('tipo') === 'gym') setTipo('gym');
+    setTipo(params.get('tipo') === 'gym' ? 'gym' : 'usuario');
 
     document.getElementById('btnGym').addEventListener('click', function() { setTipo('gym'); });
     document.getElementById('btnUsuario').addEventListener('click', function() { setTipo('usuario'); });
