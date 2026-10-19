@@ -4,7 +4,7 @@ Checkpoint99: diario27 integrado423296f tras QA141 HTTP/SQLite,33 migraciones/PG
 
 ACKlogout0c55b16:13 casos independientes sin fallos/omisiones, ambas factories reales,18 fuentes estables. Incluye fallo antes del commit, ACK perdido después de persistir, aislamiento de otra cuenta y regresiones históricas. Alcance SQLite; consumidor/browser se revisan aparte. `LOGOUT_CONFIRMACION.md` conserva contrato aditivo y límites.
 
-Desktop9f real: build343.82s y ZIP122774966 bytes,39 controles independientes aceptan procedencia/integridad/Qt, sin acreditar instalación/firma ni flujo autenticado. OPS10 está corregido enbca89bb con QA97+3CLI; falta construir/verificar el reemplazo. El comando Windows de CI actualizado pasa97/0skip en20.99s. Autoría CI27 valida60 bloques Bash y19 reportes PG requeridos; revisión independiente pendiente.
+Desktop9f real: build343.82s y ZIP122774966 bytes,39 controles independientes aceptan procedencia/integridad/Qt, sin acreditar instalación/firma ni flujo autenticado. OPS10 está corregido enbca89bb con QA97+3CLI; falta construir/verificar el reemplazo. El comando Windows de CI actualizado pasa97/0skip en20.99s. Autoría CI27 valida60 bloques Bash y19 reportes PG requeridos; QA acepta15 canarios del guard real,73 referencias y81 fuentes estables; colección local97Windows/95Linux filtrado, sin atribuir ejecución Linux/PG/Actions.
 
 UI606 sigue retenida:129VM y21 grupos browser de QA son parciales; seguridad conserva6/10 y cuatro negativos. El nuevo driver machineACK adapta sólo dos fixtures positivas al protocolo aditivo del servidor y conserva aserciones/negativos. Ningún resultado anterior aprueba la corrección todavía en curso.
 

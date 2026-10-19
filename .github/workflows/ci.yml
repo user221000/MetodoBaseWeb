@@ -139,10 +139,10 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/test_login_desktop.py tests/services -q --tb=short --junitxml=pytest-desktop.xml
       - name: Desktop packaging and native Windows entrypoints
         if: runner.os == 'Windows'
-        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py -q --tb=short --junitxml=pytest-desktop-packaging.xml
+        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py tests/test_desktop_packaging_ops10.py -q --tb=short --junitxml=pytest-desktop-packaging.xml
       - name: Desktop packaging and portable entrypoints on Linux
         if: runner.os != 'Windows'
-        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py -k "not test_new_batch_wrong_commit_from_other_cwd_preserves_files and not test_new_portable_launcher_missing_package_never_installs" -q --tb=short --junitxml=pytest-desktop-packaging.xml
+        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py tests/test_desktop_packaging_ops10.py -k "not test_new_batch_wrong_commit_from_other_cwd_preserves_files and not test_new_portable_launcher_missing_package_never_installs" -q --tb=short --junitxml=pytest-desktop-packaging.xml
       - name: Required desktop cases cannot silently become skips
         run: python -c "import xml.etree.ElementTree as ET; reports=[ET.parse(p) for p in ('pytest-desktop.xml','pytest-desktop-packaging.xml')]; assert all(r.findall('.//testcase') for r in reports), 'Empty required desktop report'; assert not any(r.findall('.//'+tag) for r in reports for tag in ('skipped','failure','error')), 'Required desktop acceptance failed or skipped'"
       - uses: actions/upload-artifact@v4
@@ -219,8 +219,12 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_individual_publication_postgres.py tests/integration_individual_generation_recovery_review.py tests/integration_individual_publication_edges_review.py tests/integration_individual_process_recovery_review.py -q --tb=short --junitxml=pytest-postgres-individual-publication.xml
       - name: Gym caps, replay and process-crash recovery across both real HTTP adapters
         run: python -X utf8 tests/run_isolated.py tests/integration_gym_caps_http_postgres.py tests/integration_gym_recovery_review_postgres.py tests/integration_gym_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-gym-quota.xml
+      - name: Personal diary migration preserves revision26 and rejects schema drift
+        run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_migrations.py -q --tb=short --junitxml=pytest-postgres-diary-migrations.xml
+      - name: Personal diary snapshots, concurrency and independent restricted-role checks
+        run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py -q --tb=short --junitxml=pytest-postgres-diary.xml
       - name: Encrypted PostgreSQL and object restoration into an empty owned database
-        run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py -q --tb=short --junitxml=pytest-postgres-restore.xml
+        run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py::test_encrypted_pg_restore_preserves_rows_constraints_and_private_objects tests/integration_diary_restore_review.py -q --tb=short --junitxml=pytest-postgres-restore.xml
       - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
         run: >-
           python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
@@ -229,7 +233,7 @@ jobs:
           pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml
           pytest-postgres-plan-documents.xml pytest-postgres-utc.xml pytest-postgres-licenses.xml
           pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml
-          pytest-postgres-gym-quota.xml pytest-postgres-restore.xml
+          pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:

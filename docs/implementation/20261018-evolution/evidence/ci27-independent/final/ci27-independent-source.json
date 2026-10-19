@@ -1,0 +1,594 @@
+{
+  "baseline_commit": "0c55b167fa8cca49142d3f2b591034e3343e1328",
+  "accepted": true,
+  "before": {
+    ".github/workflows/ci.yml": "2e6aa6fd1ec078711a294d8e473fd5de0cc6a7dac1075bdf2a68b87972960db1",
+    "docs/implementation/20261018-evolution/evidence/ci-desktop-routing-independent/ci-desktop-routing-independent-source.json": "68fed292f9f016a9c3cc0a977473a53f89617247c3bf87eadda1c1d1ed02f9f0",
+    "docs/implementation/20261018-evolution/evidence/ci27-author-source.json": "d0986695f95de640783844bcc6cb5ec01dc588803c0e43b83dd970fa7b4a5908",
+    "docs/implementation/20261018-evolution/evidence/ci27-desktop-windows-author.log": "24116b0927660c1a66879d87dbfc8c1a192c35c06b9dc8eaaf6e62a8a6343e98",
+    "docs/implementation/20261018-evolution/evidence/ci27-desktop-windows-author.xml": "d0af50e15bb074bc9bcad93ce8d75fabd4485dafff0b2fbb8c0c8b60572d8fd9",
+    "docs/implementation/20261018-evolution/evidence/ci27-independent/review_ci27.py": "b713f66795ef4843fe47e52358469b95aae16f8163a478446de4f9442844e6b7",
+    "docs/implementation/20261018-evolution/evidence/ci27-independent/review_ci27_fixed_base.py": "094728c86ca3602f94eaa8d41c84c0226b3ee3223b67ca333724a68be2a65b68",
+    "scripts/check_frontend_report.py": "08618abb3094219eb4fa386cfc05ff0bf22935ee566c59ee4a4b461a4862addb",
+    "scripts/scan_secrets.py": "3e630c67dfe928608682c32e0bc044687cb6e80ec0dc3a945f78845ebdccfcf2",
+    "tests/check_coverage.py": "8a8d4225f67102b8c305b7c08710198e2641e2497342023c7df8dfe59de0cd9a",
+    "tests/check_quality.py": "aa7c8ae5d6cf1cd51831c7af6b79cc9802fa739673508ec229485e292b8f3c1f",
+    "tests/e2e/auth_refresh.cjs": "91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",
+    "tests/e2e/auth_refresh_browser.cjs": "a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",
+    "tests/e2e/auth_refresh_race_review.cjs": "a1ffc4ce32e8e31bddd3e782a558736dbe6f829ffedcb65672da8762e5dc7f42",
+    "tests/e2e/auth_refresh_security_review.cjs": "29088ad7e9d6112e5f1e69cfe0fc4352bb782d44aab3c55bafd021753c006eb9",
+    "tests/e2e/auth_refresh_server.py": "b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",
+    "tests/e2e/auth_refresh_storage.cjs": "c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",
+    "tests/e2e/auth_refresh_storage_browser_review.cjs": "942029ba85082a5d7123a59045270fe6730436c64ffcc5584d08a1b64c516eeb",
+    "tests/e2e/gym_branding.cjs": "48c2ab4c46080c0698e756737e2d2de15ed3ebf6a1f37868f2c411a29e35bef4",
+    "tests/e2e/gym_branding_server.py": "0ecb5856d612a424891156e1f8719ad6411cb40a85c4aa83873db93208f0ec4f",
+    "tests/e2e/gym_generation.cjs": "0a706b863b38df19fdf865106f7ab95750c8d960ca06879e486c85313e1923c1",
+    "tests/e2e/gym_generation_server.py": "c7b2a32e1ef38e36c147763eb339d8fcfed540ea4120d04a0ef7514e4d3bf5f0",
+    "tests/e2e/gym_subscription.cjs": "de1ac8641180a6982bafa7457e563c1a40f15221273abfd16713976cc0d3afce",
+    "tests/e2e/personal_generation.cjs": "cddcf083f7f2ec15212f1b378e622454880c097e15db630a8f42c36a9940847f",
+    "tests/e2e/personal_generation_server.py": "3ac582d8c12dcc62d1fa8fc53a7b07c902428dc2e507974716dd9ed9e8768969",
+    "tests/e2e/personal_operation.cjs": "c95949c6b24720d8f5ab8682b111d92611ba31b0793f10141f4876d9b6232847",
+    "tests/e2e/personal_operation_ambiguity_review.cjs": "4ae0f9838e8de386d1b6b09935921d95ebbb6afd5bb44b921fd716fe8b9f4225",
+    "tests/e2e/privacy_export.cjs": "3cb1412fc9094b0123ba5b41e2f3243a9d6acb65001d2b9d18d6ede98f9a5ab5",
+    "tests/e2e/privacy_export_server.py": "eceb07847bc5f5b2f18139e4b08613b9470a3d61109c07052b6e3974de1489a0",
+    "tests/e2e/responsive_accessibility.cjs": "f88b5a03ed609390cafb5c2d3795466dbba811ee1d1f1497a10d344dcb03af29",
+    "tests/e2e/subscription.cjs": "d07adba7b92cbc721ad2984fa944bd00dffc4daffd8ff0ae61884edbc4beddf6",
+    "tests/e2e/subscription_contract_review.cjs": "b0858e6ce88cee7565a363c2a5b3930f47170ed30106d605c955038204a11ac5",
+    "tests/e2e/team.cjs": "d8884fc37ba5d479c96660ce1f2052d3fc0b74997dcdefd617b0076735c40db2",
+    "tests/e2e/team_fullstack.cjs": "f50799e823f0727de56828579a90bedc20de6cedb23a222c8a52ccba6523ab46",
+    "tests/e2e/team_fullstack_server.py": "87488cdb15d9e29ca4bbf50f8bfa8503044f3c5001d99c2b620689da4b83ca8e",
+    "tests/integration_backup_restore_postgres.py": "54d2deb863ffa33e63de9c58800a9bf244b18e7b676579cfce887780da934c1d",
+    "tests/integration_cleanup_tokens_postgres.py": "9188b6c792b310258479f92f490983f9f772b03d4c949e6739f996ee7bac6e3f",
+    "tests/integration_diary_restore_review.py": "f826305e8ddc74b23a546a8f57a23debdf4213018532a7f319d3e99886fd22e8",
+    "tests/integration_gym_caps_http_postgres.py": "54c98b4412d2d4cc94d8b3ea9b61c1d27b77ac3c0e8302265e465424cd008de2",
+    "tests/integration_gym_quota_migrations.py": "a92e38d03fd51c27d0133eaef491b5f0ae426ad76e2a4fcb501d57f95e06cda0",
+    "tests/integration_gym_quota_postgres.py": "26c2eb632d29d388243b826ce66615f1d9f0ac8f3a06bbf6a29d8d9c30b67631",
+    "tests/integration_gym_recovery_review_postgres.py": "88497225422897f8320cf104248c4e0a398cfbd5607e3266f757917ab5ba3601",
+    "tests/integration_individual_generation_recovery_review.py": "6274b8eb33fcdd99ad6561522252f42ff79f14aff5769faf1c49984f57b7faab",
+    "tests/integration_individual_process_recovery_review.py": "7c51e31b918b303f02413c168759b56c2c787db3f72d99398c29edcfb86c06bf",
+    "tests/integration_individual_publication_edges_review.py": "a507b1f48a0de7fddb60443fbb109d3ac784ca0789c3b84dabbb3d46eb884abe",
+    "tests/integration_individual_publication_migrations.py": "9b4384a15ab4787ee6fc98111412c074ff5d4cb172cea2a027db1fefe27f2531",
+    "tests/integration_individual_publication_postgres.py": "58c513168511f44e0141b40a17c2c1e7a34a2bd068d2e67c6f645fa7e28be866",
+    "tests/integration_invitation_tenant_postgres.py": "3ed42d9d53e59d4e21204006df62c20cbccaab94c22e54280f41498da06c9d98",
+    "tests/integration_legacy_inventory_postgres.py": "c5ace9fd77c837140b9da33508c949233660fe3962b9f90de9200a67e9b6da64",
+    "tests/integration_license_postgres.py": "2cebf9bb5da3372775d789b0dbb22cbb33b655d4e5967f7cfca564282b9b7172",
+    "tests/integration_model_utc_postgres.py": "521a95fa4617654126fa64d803f74981cd5e255f39ad8c8d140ee2baa364028d",
+    "tests/integration_object_storage_sdk.py": "611e8239201ea9035ff656e5cdca2d58bb9098bbc5cddf5904666cb15f3af9fc",
+    "tests/integration_object_store_configuration.py": "fe92b0aadaf17122a41f5b0d2a5d22c74437a500b95b9dd977a4742d1780aefa",
+    "tests/integration_object_store_configuration_review.py": "c6ab2a67c4edd41c895df848889da744be8d94a1fe8862ad5ae44fe553e059a7",
+    "tests/integration_onboarding_postgres.py": "3868a661a058c4d351112f416e57d13fffa10d3a76465b1591116946b38f3708",
+    "tests/integration_personal_diary_migrations.py": "584370266602702fe7ef248f111cbef3941c1c10fa120128cbfb0f7c05d4fcb6",
+    "tests/integration_personal_diary_postgres.py": "92a813380c9efa27fe6f6aa38e1523e2f2f9622b9b339ecc76e51ec5691a12bd",
+    "tests/integration_personal_diary_security_review.py": "bd7189567cd4282ce84a062cb1d56f82109dc90f4aacb8a940ca1e0dad0a8182",
+    "tests/integration_plan_documents_postgres.py": "661e4c3bef15e616884e14f642db42c0081754edd1cc7ec737a2055b4b72eca4",
+    "tests/integration_postgres.py": "c1a8250b44e4880fd9679c58558363dacb162412a6071e31ee3d28c3b9fb0f1d",
+    "tests/integration_privacy_composition_postgres.py": "57cdc6d5f4168b6d883c9003af8791dc491dfa8c1aa9def6f0040b82b6353efb",
+    "tests/integration_private_objects_review_postgres.py": "e769b9d9ea9fede9bbd7903b94160d88b750a34d9ed070a0625c0d941f001ff9",
+    "tests/integration_provider_subjects.py": "391e7845855a584ddb040d5c49bc561c38b40e0510081fb6629ab34c1beeefff",
+    "tests/integration_quota_postgres.py": "6f4d3922e8cd1f3469ebe349acb8903b12ff04df80a1904526a1bd492bb9f4d2",
+    "tests/integration_redis.py": "af1558b8bb644ca73ab6c9b7646b5ca61a18eeba82766c39b91144fcdac3d23e",
+    "tests/integration_schema_migrations.py": "642ed3daaa557cd0486f3400fbcea31d7e116b4d2976920e8c329eec762c5d15",
+    "tests/integration_stored_objects_migrations.py": "0e3ba8dcc84d7269f0a039c7bf79c42a23bd1bf916a45ebd0d8d5a16da00c33e",
+    "tests/integration_tenant_activation.py": "44ace12abaf0be11ffc83bde60269a56d219e00f0066631a4a907dbdc4ec6c68",
+    "tests/integration_timestamp_observation.py": "4cfed598a0a0364265de5a42870d3b521cc3863e77bacdd54232b3586df3bb37",
+    "tests/integration_utc_datetime.py": "5ba9c0347ebe8907b66ea74251d4983624a4ef9b34f41dfbcf70203486651102",
+    "tests/integration_utc_datetime_review.py": "32c418187dd15719e6d09c93d4443b94086a4a8468d7a50c7c7a88616ee72ccc",
+    "tests/prepare_postgres.py": "04e89758792c806986c13a781e3d06ca156c14a2eab3a1efd5b88199eee605a7",
+    "tests/run_isolated.py": "8ceaba6f9e8774cff7eb0cfd45694f921df779d163fec1959812dbcaed116a76",
+    "tests/test_desktop_entrypoints.py": "72f08049d1545916d004e0b320a2f40300ca15879a6f3fe95975e8892ec3e770",
+    "tests/test_desktop_packaging.py": "cff4b105045f6383a99a33ca95e68aca7e853c4f66187600b179aba0a7997c17",
+    "tests/test_desktop_packaging_ops10.py": "950fd4c9b4f8ea6f70c2b89b281fb914f7087e58d56b78658d0fec5c37443b96",
+    "tests/test_desktop_packaging_review.py": "1866169ae91163e129ae81c07e7ffce04249a8471f6a976a737e9d29c19c0fbc",
+    "tests/test_desktop_provenance.py": "d14c05552c2aed5829c763e97ffdfd214676264e2ac3c46226813f26f691af4a",
+    "tests/test_frontend_report_guard.py": "91e4c69ee681a6b80f096c3a3c38fe4acd4fc2dcc45f3d53b3746b401b9aa01d",
+    "tests/test_login_desktop.py": "017b6769b404f274f7d596915b1e69ee2aa4641906f4a4fba1f4bc9058c33277",
+    "tests/verify_quality_guards.py": "f50749fe5051b42ea4029bc7d37cda23e88a7f477b9248b98de219223eefd0ee"
+  },
+  "after": {
+    ".github/workflows/ci.yml": "2e6aa6fd1ec078711a294d8e473fd5de0cc6a7dac1075bdf2a68b87972960db1",
+    "docs/implementation/20261018-evolution/evidence/ci-desktop-routing-independent/ci-desktop-routing-independent-source.json": "68fed292f9f016a9c3cc0a977473a53f89617247c3bf87eadda1c1d1ed02f9f0",
+    "docs/implementation/20261018-evolution/evidence/ci27-author-source.json": "d0986695f95de640783844bcc6cb5ec01dc588803c0e43b83dd970fa7b4a5908",
+    "docs/implementation/20261018-evolution/evidence/ci27-desktop-windows-author.log": "24116b0927660c1a66879d87dbfc8c1a192c35c06b9dc8eaaf6e62a8a6343e98",
+    "docs/implementation/20261018-evolution/evidence/ci27-desktop-windows-author.xml": "d0af50e15bb074bc9bcad93ce8d75fabd4485dafff0b2fbb8c0c8b60572d8fd9",
+    "docs/implementation/20261018-evolution/evidence/ci27-independent/review_ci27.py": "b713f66795ef4843fe47e52358469b95aae16f8163a478446de4f9442844e6b7",
+    "docs/implementation/20261018-evolution/evidence/ci27-independent/review_ci27_fixed_base.py": "094728c86ca3602f94eaa8d41c84c0226b3ee3223b67ca333724a68be2a65b68",
+    "scripts/check_frontend_report.py": "08618abb3094219eb4fa386cfc05ff0bf22935ee566c59ee4a4b461a4862addb",
+    "scripts/scan_secrets.py": "3e630c67dfe928608682c32e0bc044687cb6e80ec0dc3a945f78845ebdccfcf2",
+    "tests/check_coverage.py": "8a8d4225f67102b8c305b7c08710198e2641e2497342023c7df8dfe59de0cd9a",
+    "tests/check_quality.py": "aa7c8ae5d6cf1cd51831c7af6b79cc9802fa739673508ec229485e292b8f3c1f",
+    "tests/e2e/auth_refresh.cjs": "91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",
+    "tests/e2e/auth_refresh_browser.cjs": "a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",
+    "tests/e2e/auth_refresh_race_review.cjs": "a1ffc4ce32e8e31bddd3e782a558736dbe6f829ffedcb65672da8762e5dc7f42",
+    "tests/e2e/auth_refresh_security_review.cjs": "29088ad7e9d6112e5f1e69cfe0fc4352bb782d44aab3c55bafd021753c006eb9",
+    "tests/e2e/auth_refresh_server.py": "b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",
+    "tests/e2e/auth_refresh_storage.cjs": "c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",
+    "tests/e2e/auth_refresh_storage_browser_review.cjs": "942029ba85082a5d7123a59045270fe6730436c64ffcc5584d08a1b64c516eeb",
+    "tests/e2e/gym_branding.cjs": "48c2ab4c46080c0698e756737e2d2de15ed3ebf6a1f37868f2c411a29e35bef4",
+    "tests/e2e/gym_branding_server.py": "0ecb5856d612a424891156e1f8719ad6411cb40a85c4aa83873db93208f0ec4f",
+    "tests/e2e/gym_generation.cjs": "0a706b863b38df19fdf865106f7ab95750c8d960ca06879e486c85313e1923c1",
+    "tests/e2e/gym_generation_server.py": "c7b2a32e1ef38e36c147763eb339d8fcfed540ea4120d04a0ef7514e4d3bf5f0",
+    "tests/e2e/gym_subscription.cjs": "de1ac8641180a6982bafa7457e563c1a40f15221273abfd16713976cc0d3afce",
+    "tests/e2e/personal_generation.cjs": "cddcf083f7f2ec15212f1b378e622454880c097e15db630a8f42c36a9940847f",
+    "tests/e2e/personal_generation_server.py": "3ac582d8c12dcc62d1fa8fc53a7b07c902428dc2e507974716dd9ed9e8768969",
+    "tests/e2e/personal_operation.cjs": "c95949c6b24720d8f5ab8682b111d92611ba31b0793f10141f4876d9b6232847",
+    "tests/e2e/personal_operation_ambiguity_review.cjs": "4ae0f9838e8de386d1b6b09935921d95ebbb6afd5bb44b921fd716fe8b9f4225",
+    "tests/e2e/privacy_export.cjs": "3cb1412fc9094b0123ba5b41e2f3243a9d6acb65001d2b9d18d6ede98f9a5ab5",
+    "tests/e2e/privacy_export_server.py": "eceb07847bc5f5b2f18139e4b08613b9470a3d61109c07052b6e3974de1489a0",
+    "tests/e2e/responsive_accessibility.cjs": "f88b5a03ed609390cafb5c2d3795466dbba811ee1d1f1497a10d344dcb03af29",
+    "tests/e2e/subscription.cjs": "d07adba7b92cbc721ad2984fa944bd00dffc4daffd8ff0ae61884edbc4beddf6",
+    "tests/e2e/subscription_contract_review.cjs": "b0858e6ce88cee7565a363c2a5b3930f47170ed30106d605c955038204a11ac5",
+    "tests/e2e/team.cjs": "d8884fc37ba5d479c96660ce1f2052d3fc0b74997dcdefd617b0076735c40db2",
+    "tests/e2e/team_fullstack.cjs": "f50799e823f0727de56828579a90bedc20de6cedb23a222c8a52ccba6523ab46",
+    "tests/e2e/team_fullstack_server.py": "87488cdb15d9e29ca4bbf50f8bfa8503044f3c5001d99c2b620689da4b83ca8e",
+    "tests/integration_backup_restore_postgres.py": "54d2deb863ffa33e63de9c58800a9bf244b18e7b676579cfce887780da934c1d",
+    "tests/integration_cleanup_tokens_postgres.py": "9188b6c792b310258479f92f490983f9f772b03d4c949e6739f996ee7bac6e3f",
+    "tests/integration_diary_restore_review.py": "f826305e8ddc74b23a546a8f57a23debdf4213018532a7f319d3e99886fd22e8",
+    "tests/integration_gym_caps_http_postgres.py": "54c98b4412d2d4cc94d8b3ea9b61c1d27b77ac3c0e8302265e465424cd008de2",
+    "tests/integration_gym_quota_migrations.py": "a92e38d03fd51c27d0133eaef491b5f0ae426ad76e2a4fcb501d57f95e06cda0",
+    "tests/integration_gym_quota_postgres.py": "26c2eb632d29d388243b826ce66615f1d9f0ac8f3a06bbf6a29d8d9c30b67631",
+    "tests/integration_gym_recovery_review_postgres.py": "88497225422897f8320cf104248c4e0a398cfbd5607e3266f757917ab5ba3601",
+    "tests/integration_individual_generation_recovery_review.py": "6274b8eb33fcdd99ad6561522252f42ff79f14aff5769faf1c49984f57b7faab",
+    "tests/integration_individual_process_recovery_review.py": "7c51e31b918b303f02413c168759b56c2c787db3f72d99398c29edcfb86c06bf",
+    "tests/integration_individual_publication_edges_review.py": "a507b1f48a0de7fddb60443fbb109d3ac784ca0789c3b84dabbb3d46eb884abe",
+    "tests/integration_individual_publication_migrations.py": "9b4384a15ab4787ee6fc98111412c074ff5d4cb172cea2a027db1fefe27f2531",
+    "tests/integration_individual_publication_postgres.py": "58c513168511f44e0141b40a17c2c1e7a34a2bd068d2e67c6f645fa7e28be866",
+    "tests/integration_invitation_tenant_postgres.py": "3ed42d9d53e59d4e21204006df62c20cbccaab94c22e54280f41498da06c9d98",
+    "tests/integration_legacy_inventory_postgres.py": "c5ace9fd77c837140b9da33508c949233660fe3962b9f90de9200a67e9b6da64",
+    "tests/integration_license_postgres.py": "2cebf9bb5da3372775d789b0dbb22cbb33b655d4e5967f7cfca564282b9b7172",
+    "tests/integration_model_utc_postgres.py": "521a95fa4617654126fa64d803f74981cd5e255f39ad8c8d140ee2baa364028d",
+    "tests/integration_object_storage_sdk.py": "611e8239201ea9035ff656e5cdca2d58bb9098bbc5cddf5904666cb15f3af9fc",
+    "tests/integration_object_store_configuration.py": "fe92b0aadaf17122a41f5b0d2a5d22c74437a500b95b9dd977a4742d1780aefa",
+    "tests/integration_object_store_configuration_review.py": "c6ab2a67c4edd41c895df848889da744be8d94a1fe8862ad5ae44fe553e059a7",
+    "tests/integration_onboarding_postgres.py": "3868a661a058c4d351112f416e57d13fffa10d3a76465b1591116946b38f3708",
+    "tests/integration_personal_diary_migrations.py": "584370266602702fe7ef248f111cbef3941c1c10fa120128cbfb0f7c05d4fcb6",
+    "tests/integration_personal_diary_postgres.py": "92a813380c9efa27fe6f6aa38e1523e2f2f9622b9b339ecc76e51ec5691a12bd",
+    "tests/integration_personal_diary_security_review.py": "bd7189567cd4282ce84a062cb1d56f82109dc90f4aacb8a940ca1e0dad0a8182",
+    "tests/integration_plan_documents_postgres.py": "661e4c3bef15e616884e14f642db42c0081754edd1cc7ec737a2055b4b72eca4",
+    "tests/integration_postgres.py": "c1a8250b44e4880fd9679c58558363dacb162412a6071e31ee3d28c3b9fb0f1d",
+    "tests/integration_privacy_composition_postgres.py": "57cdc6d5f4168b6d883c9003af8791dc491dfa8c1aa9def6f0040b82b6353efb",
+    "tests/integration_private_objects_review_postgres.py": "e769b9d9ea9fede9bbd7903b94160d88b750a34d9ed070a0625c0d941f001ff9",
+    "tests/integration_provider_subjects.py": "391e7845855a584ddb040d5c49bc561c38b40e0510081fb6629ab34c1beeefff",
+    "tests/integration_quota_postgres.py": "6f4d3922e8cd1f3469ebe349acb8903b12ff04df80a1904526a1bd492bb9f4d2",
+    "tests/integration_redis.py": "af1558b8bb644ca73ab6c9b7646b5ca61a18eeba82766c39b91144fcdac3d23e",
+    "tests/integration_schema_migrations.py": "642ed3daaa557cd0486f3400fbcea31d7e116b4d2976920e8c329eec762c5d15",
+    "tests/integration_stored_objects_migrations.py": "0e3ba8dcc84d7269f0a039c7bf79c42a23bd1bf916a45ebd0d8d5a16da00c33e",
+    "tests/integration_tenant_activation.py": "44ace12abaf0be11ffc83bde60269a56d219e00f0066631a4a907dbdc4ec6c68",
+    "tests/integration_timestamp_observation.py": "4cfed598a0a0364265de5a42870d3b521cc3863e77bacdd54232b3586df3bb37",
+    "tests/integration_utc_datetime.py": "5ba9c0347ebe8907b66ea74251d4983624a4ef9b34f41dfbcf70203486651102",
+    "tests/integration_utc_datetime_review.py": "32c418187dd15719e6d09c93d4443b94086a4a8468d7a50c7c7a88616ee72ccc",
+    "tests/prepare_postgres.py": "04e89758792c806986c13a781e3d06ca156c14a2eab3a1efd5b88199eee605a7",
+    "tests/run_isolated.py": "8ceaba6f9e8774cff7eb0cfd45694f921df779d163fec1959812dbcaed116a76",
+    "tests/test_desktop_entrypoints.py": "72f08049d1545916d004e0b320a2f40300ca15879a6f3fe95975e8892ec3e770",
+    "tests/test_desktop_packaging.py": "cff4b105045f6383a99a33ca95e68aca7e853c4f66187600b179aba0a7997c17",
+    "tests/test_desktop_packaging_ops10.py": "950fd4c9b4f8ea6f70c2b89b281fb914f7087e58d56b78658d0fec5c37443b96",
+    "tests/test_desktop_packaging_review.py": "1866169ae91163e129ae81c07e7ffce04249a8471f6a976a737e9d29c19c0fbc",
+    "tests/test_desktop_provenance.py": "d14c05552c2aed5829c763e97ffdfd214676264e2ac3c46226813f26f691af4a",
+    "tests/test_frontend_report_guard.py": "91e4c69ee681a6b80f096c3a3c38fe4acd4fc2dcc45f3d53b3746b401b9aa01d",
+    "tests/test_login_desktop.py": "017b6769b404f274f7d596915b1e69ee2aa4641906f4a4fba1f4bc9058c33277",
+    "tests/verify_quality_guards.py": "f50749fe5051b42ea4029bc7d37cda23e88a7f477b9248b98de219223eefd0ee"
+  },
+  "stable": true,
+  "source_references": [
+    "scripts/check_frontend_report.py",
+    "scripts/scan_secrets.py",
+    "tests/check_coverage.py",
+    "tests/check_quality.py",
+    "tests/e2e/auth_refresh.cjs",
+    "tests/e2e/auth_refresh_browser.cjs",
+    "tests/e2e/auth_refresh_race_review.cjs",
+    "tests/e2e/auth_refresh_security_review.cjs",
+    "tests/e2e/auth_refresh_server.py",
+    "tests/e2e/auth_refresh_storage.cjs",
+    "tests/e2e/auth_refresh_storage_browser_review.cjs",
+    "tests/e2e/gym_branding.cjs",
+    "tests/e2e/gym_branding_server.py",
+    "tests/e2e/gym_generation.cjs",
+    "tests/e2e/gym_generation_server.py",
+    "tests/e2e/gym_subscription.cjs",
+    "tests/e2e/personal_generation.cjs",
+    "tests/e2e/personal_generation_server.py",
+    "tests/e2e/personal_operation.cjs",
+    "tests/e2e/personal_operation_ambiguity_review.cjs",
+    "tests/e2e/privacy_export.cjs",
+    "tests/e2e/privacy_export_server.py",
+    "tests/e2e/responsive_accessibility.cjs",
+    "tests/e2e/subscription.cjs",
+    "tests/e2e/subscription_contract_review.cjs",
+    "tests/e2e/team.cjs",
+    "tests/e2e/team_fullstack.cjs",
+    "tests/e2e/team_fullstack_server.py",
+    "tests/integration_backup_restore_postgres.py",
+    "tests/integration_cleanup_tokens_postgres.py",
+    "tests/integration_diary_restore_review.py",
+    "tests/integration_gym_caps_http_postgres.py",
+    "tests/integration_gym_quota_migrations.py",
+    "tests/integration_gym_quota_postgres.py",
+    "tests/integration_gym_recovery_review_postgres.py",
+    "tests/integration_individual_generation_recovery_review.py",
+    "tests/integration_individual_process_recovery_review.py",
+    "tests/integration_individual_publication_edges_review.py",
+    "tests/integration_individual_publication_migrations.py",
+    "tests/integration_individual_publication_postgres.py",
+    "tests/integration_invitation_tenant_postgres.py",
+    "tests/integration_legacy_inventory_postgres.py",
+    "tests/integration_license_postgres.py",
+    "tests/integration_model_utc_postgres.py",
+    "tests/integration_object_storage_sdk.py",
+    "tests/integration_object_store_configuration.py",
+    "tests/integration_object_store_configuration_review.py",
+    "tests/integration_onboarding_postgres.py",
+    "tests/integration_personal_diary_migrations.py",
+    "tests/integration_personal_diary_postgres.py",
+    "tests/integration_personal_diary_security_review.py",
+    "tests/integration_plan_documents_postgres.py",
+    "tests/integration_postgres.py",
+    "tests/integration_privacy_composition_postgres.py",
+    "tests/integration_private_objects_review_postgres.py",
+    "tests/integration_provider_subjects.py",
+    "tests/integration_quota_postgres.py",
+    "tests/integration_redis.py",
+    "tests/integration_schema_migrations.py",
+    "tests/integration_stored_objects_migrations.py",
+    "tests/integration_tenant_activation.py",
+    "tests/integration_timestamp_observation.py",
+    "tests/integration_utc_datetime.py",
+    "tests/integration_utc_datetime_review.py",
+    "tests/prepare_postgres.py",
+    "tests/run_isolated.py",
+    "tests/test_desktop_entrypoints.py",
+    "tests/test_desktop_packaging.py",
+    "tests/test_desktop_packaging_ops10.py",
+    "tests/test_desktop_packaging_review.py",
+    "tests/test_desktop_provenance.py",
+    "tests/test_login_desktop.py",
+    "tests/verify_quality_guards.py"
+  ],
+  "postgres_reports": [
+    "pytest-postgres-migrations.xml",
+    "pytest-postgres-rls.xml",
+    "pytest-postgres-channels.xml",
+    "pytest-postgres-gym-migrations.xml",
+    "pytest-postgres-object-migrations.xml",
+    "pytest-postgres-objects.xml",
+    "pytest-postgres-legacy-inventory.xml",
+    "pytest-postgres-cleanup.xml",
+    "pytest-postgres-privacy.xml",
+    "pytest-postgres-plan-documents.xml",
+    "pytest-postgres-utc.xml",
+    "pytest-postgres-licenses.xml",
+    "pytest-postgres-quota.xml",
+    "pytest-postgres-individual-migrations.xml",
+    "pytest-postgres-individual-publication.xml",
+    "pytest-postgres-gym-quota.xml",
+    "pytest-postgres-diary-migrations.xml",
+    "pytest-postgres-diary.xml",
+    "pytest-postgres-restore.xml"
+  ],
+  "previous_17_report_order_preserved": true,
+  "guard_canaries": 15,
+  "bash_blocks": [
+    {
+      "job": "quality",
+      "step": 2,
+      "exit": 0
+    },
+    {
+      "job": "quality",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "quality",
+      "step": 4,
+      "exit": 0
+    },
+    {
+      "job": "quality",
+      "step": 5,
+      "exit": 0
+    },
+    {
+      "job": "quality",
+      "step": 6,
+      "exit": 0
+    },
+    {
+      "job": "secrets",
+      "step": 2,
+      "exit": 0
+    },
+    {
+      "job": "secrets",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 2,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 4,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 5,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 6,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 7,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 8,
+      "exit": 0
+    },
+    {
+      "job": "test-web",
+      "step": 9,
+      "exit": 0
+    },
+    {
+      "job": "frontend-contracts",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "frontend-contracts",
+      "step": 4,
+      "exit": 0
+    },
+    {
+      "job": "test-desktop",
+      "step": 2,
+      "exit": 0
+    },
+    {
+      "job": "test-desktop",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "test-desktop",
+      "step": 4,
+      "exit": 0
+    },
+    {
+      "job": "test-desktop",
+      "step": 5,
+      "exit": 0
+    },
+    {
+      "job": "test-desktop",
+      "step": 6,
+      "exit": 0
+    },
+    {
+      "job": "test-desktop",
+      "step": 7,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 2,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 4,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 5,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 6,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 7,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 8,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 9,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 10,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 11,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 12,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 13,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 14,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 15,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 16,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 17,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 18,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 19,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 20,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 21,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 22,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 23,
+      "exit": 0
+    },
+    {
+      "job": "postgres",
+      "step": 24,
+      "exit": 0
+    },
+    {
+      "job": "redis",
+      "step": 2,
+      "exit": 0
+    },
+    {
+      "job": "redis",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 1,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 2,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 3,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 4,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 6,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 7,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 9,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 10,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 11,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 13,
+      "exit": 0
+    },
+    {
+      "job": "image",
+      "step": 15,
+      "exit": 0
+    },
+    {
+      "job": "ci-success",
+      "step": 0,
+      "exit": 0
+    }
+  ],
+  "collections": {
+    "windows": 97,
+    "linux_selection_on_windows": 95,
+    "pytest-postgres-diary-migrations": 12,
+    "pytest-postgres-diary": 13,
+    "pytest-postgres-restore": 2
+  },
+  "windows_only_deselected": [
+    "tests/test_desktop_entrypoints.py::test_new_batch_wrong_commit_from_other_cwd_preserves_files",
+    "tests/test_desktop_entrypoints.py::test_new_portable_launcher_missing_package_never_installs"
+  ],
+  "ops10_on_both_targets": 12,
+  "historical26_source_matches_head_blob": true,
+  "frontend_guard_sources_unchanged_from_accepted_review": true,
+  "reused_author_windows_execution": {
+    "passed": 97,
+    "skipped": 0
+  },
+  "limits": [
+    "Collection ran locally on Windows; it does not demonstrate Linux execution.",
+    "No PostgreSQL, browser, provider, image or Actions execution in this focused CI review.",
+    "Previously accepted PostgreSQL27 and desktop execution remain separate evidence."
+  ]
+}
