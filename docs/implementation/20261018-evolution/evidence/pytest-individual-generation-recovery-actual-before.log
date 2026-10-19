@@ -1,0 +1,49 @@
+FF.                                                                      [100%]
+================================== FAILURES ===================================
+_ test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[RuntimeError-postgresql] _
+tests\integration_individual_generation_recovery_review.py:126: in test_committed_individual_plan_must_not_refund_on_worker_delivery_failure
+    assert after['used_credits'] == 1, 'A physically committed plan must retain its consumed credit'
+E   AssertionError: A physically committed plan must retain its consumed credit
+E   assert 0 == 1
+------------------------------ Captured log call ------------------------------
+INFO     metodo_base:generador_opciones.py:399 [OPCIONES] Generando plan con opciones para Synthetic
+INFO     metodo_base:generador_comidas.py:54 [DISTRIBUIDOR] carbs por comida — desayuno: 75.1g, almuerzo: 93.9g, comida: 112.7g, cena: 93.9g
+INFO     metodo_base:gestor_rotacion.py:213 [INIT] Primer historial para este cliente
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando desayuno: 516 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=0 generó 3 opciones de carbs: ['avena', 'pan_integral', 'tortilla_maiz']
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando almuerzo: 646 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=1 generó 3 opciones de carbs: ['arroz_blanco', 'papa', 'tortilla_maiz']
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando comida: 775 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=2 generó 3 opciones de carbs: ['arroz_integral', 'camote', 'pasta_integral']
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando cena: 646 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=3 generó 3 opciones de carbs: ['papa', 'arroz_blanco', 'camote']
+INFO     metodo_base:generador_opciones.py:535 [OPCIONES] Plan generado exitosamente con 3 opciones por macro
+ERROR    web.routes.usuario:usuario.py:345 Generation failed subject=individual-recovery-review class=RuntimeError
+_ test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[ValueError-postgresql] _
+tests\integration_individual_generation_recovery_review.py:126: in test_committed_individual_plan_must_not_refund_on_worker_delivery_failure
+    assert after['used_credits'] == 1, 'A physically committed plan must retain its consumed credit'
+E   AssertionError: A physically committed plan must retain its consumed credit
+E   assert 0 == 1
+------------------------------ Captured log call ------------------------------
+INFO     metodo_base:generador_opciones.py:399 [OPCIONES] Generando plan con opciones para Synthetic
+INFO     metodo_base:generador_comidas.py:54 [DISTRIBUIDOR] carbs por comida — desayuno: 75.1g, almuerzo: 93.9g, comida: 112.7g, cena: 93.9g
+INFO     metodo_base:gestor_rotacion.py:213 [INIT] Primer historial para este cliente
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando desayuno: 516 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=0 generó 3 opciones de carbs: ['avena', 'pan_integral', 'tortilla_maiz']
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando almuerzo: 646 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=1 generó 3 opciones de carbs: ['arroz_blanco', 'papa', 'tortilla_maiz']
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando comida: 775 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=2 generó 3 opciones de carbs: ['arroz_integral', 'camote', 'pasta_integral']
+INFO     metodo_base:generador_opciones.py:447 [OPCIONES] Generando cena: 646 kcal
+DEBUG    metodo_base:generador_opciones.py:335 [OPCIONES] meal_idx=3 generó 3 opciones de carbs: ['papa', 'arroz_blanco', 'camote']
+INFO     metodo_base:generador_opciones.py:535 [OPCIONES] Plan generado exitosamente con 3 opciones por macro
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration_individual_generation_recovery_review.py::test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[RuntimeError-postgresql]
+FAILED tests/integration_individual_generation_recovery_review.py::test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[ValueError-postgresql]
+2 failed, 1 passed, 1 warning in 25.92s

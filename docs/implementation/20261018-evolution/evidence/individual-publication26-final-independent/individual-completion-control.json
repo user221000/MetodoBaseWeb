@@ -1,0 +1,64 @@
+{
+  "scope": "Control: failure in completion after real worker return, outside its exception/refund branch",
+  "before": {
+    "used_credits": 0,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [],
+    "objects": [],
+    "reservations": []
+  },
+  "before_completion_failure": {
+    "used_credits": 1,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [
+      {
+        "id": 1,
+        "object_id": "d412ad620da2486dae5c7b1fce9de8f7"
+      }
+    ],
+    "objects": [
+      {
+        "id": "d412ad620da2486dae5c7b1fce9de8f7",
+        "status": "ready",
+        "size": 3605606,
+        "sha256": "a5bfb07d0b92f9900a1a02f56a1840ac7d16eaf537c70778c0da12416cfe6fab"
+      }
+    ],
+    "reservations": [
+      {
+        "id": "e05c41ef-5bfc-45a2-a873-392c5b7d2eb4",
+        "status": "completed",
+        "plan_id": 1
+      }
+    ]
+  },
+  "http_status": 503,
+  "after_http_failure": {
+    "used_credits": 1,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [
+      {
+        "id": 1,
+        "object_id": "d412ad620da2486dae5c7b1fce9de8f7"
+      }
+    ],
+    "objects": [
+      {
+        "id": "d412ad620da2486dae5c7b1fce9de8f7",
+        "status": "ready",
+        "size": 3605606,
+        "sha256": "a5bfb07d0b92f9900a1a02f56a1840ac7d16eaf537c70778c0da12416cfe6fab"
+      }
+    ],
+    "reservations": [
+      {
+        "id": "e05c41ef-5bfc-45a2-a873-392c5b7d2eb4",
+        "status": "completed",
+        "plan_id": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,597 @@
+{
+  "sqlite": {
+    "changedTables": [
+      "generation_reservations"
+    ],
+    "businessTables": 25,
+    "tenantSecurityUnchanged": true,
+    "before": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "type_attributes": {
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "period",
+          "type": "VARCHAR(7)",
+          "type_attributes": {
+            "length": 7,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "plan_id",
+          "type": "INTEGER",
+          "type_attributes": {},
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "request_key",
+          "type": "VARCHAR(128)",
+          "type_attributes": {
+            "length": 128,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "type_attributes": {
+            "length": 20,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "type_attributes": {
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique": [
+        [
+          "request_key",
+          "user_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "plan_id"
+          ],
+          "table": "planes_generados",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "columns": [
+            "user_id"
+          ],
+          "table": "usuarios",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "checks": [
+        {
+          "name": "ck_generation_reservation_status",
+          "sql": "status IN ('reserved', 'completed', 'released')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_generation_reservations_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "unique": false,
+          "where": null
+        }
+      ]
+    },
+    "after": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "DATETIME",
+          "type_attributes": {
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "period",
+          "type": "VARCHAR(7)",
+          "type_attributes": {
+            "length": 7,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "persisted_at",
+          "type": "DATETIME",
+          "type_attributes": {
+            "timezone": false
+          },
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "plan_id",
+          "type": "INTEGER",
+          "type_attributes": {},
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "publication_protocol",
+          "type": "INTEGER",
+          "type_attributes": {},
+          "nullable": false,
+          "default": "'0'"
+        },
+        {
+          "name": "request_key",
+          "type": "VARCHAR(128)",
+          "type_attributes": {
+            "length": 128,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "type_attributes": {
+            "length": 20,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "DATETIME",
+          "type_attributes": {
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique": [
+        [
+          "request_key",
+          "user_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "plan_id"
+          ],
+          "table": "planes_generados",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "columns": [
+            "user_id"
+          ],
+          "table": "usuarios",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "checks": [
+        {
+          "name": "ck_generation_completed_publication",
+          "sql": "publication_protocol = 0 OR status <> 'completed' OR persisted_at IS NOT NULL"
+        },
+        {
+          "name": "ck_generation_publication_marker",
+          "sql": "persisted_at IS NULL OR (publication_protocol = 1 AND status = 'completed')"
+        },
+        {
+          "name": "ck_generation_publication_protocol",
+          "sql": "publication_protocol IN (0, 1)"
+        },
+        {
+          "name": "ck_generation_reservation_status",
+          "sql": "status IN ('reserved', 'completed', 'released')"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_generation_reservations_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "unique": false,
+          "where": null
+        }
+      ]
+    }
+  },
+  "postgresql": {
+    "changedTables": [
+      "generation_reservations"
+    ],
+    "businessTables": 25,
+    "tenantSecurityUnchanged": true,
+    "before": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "type_attributes": {
+            "precision": null,
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "period",
+          "type": "VARCHAR(7)",
+          "type_attributes": {
+            "length": 7,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "plan_id",
+          "type": "INTEGER",
+          "type_attributes": {},
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "request_key",
+          "type": "VARCHAR(128)",
+          "type_attributes": {
+            "length": 128,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "type_attributes": {
+            "length": 20,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "type_attributes": {
+            "precision": null,
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique": [
+        [
+          "request_key",
+          "user_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "plan_id"
+          ],
+          "table": "planes_generados",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "columns": [
+            "user_id"
+          ],
+          "table": "usuarios",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "checks": [
+        {
+          "name": "ck_generation_reservation_status",
+          "sql": "status::text = ANY (ARRAY['reserved'::text, 'completed'::text, 'released'::text])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_generation_reservations_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "unique": false,
+          "where": null
+        }
+      ]
+    },
+    "after": {
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "type_attributes": {
+            "precision": null,
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "period",
+          "type": "VARCHAR(7)",
+          "type_attributes": {
+            "length": 7,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "persisted_at",
+          "type": "TIMESTAMP",
+          "type_attributes": {
+            "precision": null,
+            "timezone": false
+          },
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "plan_id",
+          "type": "INTEGER",
+          "type_attributes": {},
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "publication_protocol",
+          "type": "INTEGER",
+          "type_attributes": {},
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "request_key",
+          "type": "VARCHAR(128)",
+          "type_attributes": {
+            "length": 128,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "type_attributes": {
+            "length": 20,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "type_attributes": {
+            "precision": null,
+            "timezone": false
+          },
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR(36)",
+          "type_attributes": {
+            "length": 36,
+            "collation": null
+          },
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "unique": [
+        [
+          "request_key",
+          "user_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "plan_id"
+          ],
+          "table": "planes_generados",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "SET NULL"
+          }
+        },
+        {
+          "columns": [
+            "user_id"
+          ],
+          "table": "usuarios",
+          "referred_columns": [
+            "id"
+          ],
+          "options": {
+            "ondelete": "CASCADE"
+          }
+        }
+      ],
+      "checks": [
+        {
+          "name": "ck_generation_completed_publication",
+          "sql": "publication_protocol = 0 OR status::text <> 'completed'::text OR persisted_at IS NOT NULL"
+        },
+        {
+          "name": "ck_generation_publication_marker",
+          "sql": "persisted_at IS NULL OR publication_protocol = 1 AND status::text = 'completed'::text"
+        },
+        {
+          "name": "ck_generation_publication_protocol",
+          "sql": "publication_protocol = ANY (ARRAY[0, 1])"
+        },
+        {
+          "name": "ck_generation_reservation_status",
+          "sql": "status::text = ANY (ARRAY['reserved'::text, 'completed'::text, 'released'::text])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_generation_reservations_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "unique": false,
+          "where": null
+        }
+      ]
+    }
+  }
+}

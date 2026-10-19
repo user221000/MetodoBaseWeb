@@ -259,14 +259,15 @@ def test_completed_retry_returns_same_plan_without_generation(billing_case):
     client, factory, principal = billing_case
     from web.database.models import PlanGenerado, UserSubscription
     calls = []
-    def generate(*args):
+    def generate(*args, individual_reservation_id=None):
+        from web.database.repository import registrar_plan
         with factory() as db:
-            plan = PlanGenerado(gym_id=principal["id"], id_cliente="billing-profile",
-                                plan_json='{"desayuno":{"kcal_objetivo":400}}', kcal_objetivo=1600)
-            db.add(plan)
+            plan_id = registrar_plan(db, principal["id"], "billing-profile",
+                {"plan_json": '{"desayuno":{"kcal_objetivo":400}}', "kcal_objetivo": 1600},
+                return_id=True, individual_reservation_id=individual_reservation_id)
             db.commit()
-            calls.append(plan.id)
-            return {"plan_id": plan.id, "plan": {}}
+            calls.append(plan_id)
+            return {"plan_id": plan_id, "plan": {}}
     with patch("web.routes.planes._generar_plan_sync", side_effect=generate):
         first = client.post("/api/usuario/generar-plan", headers={"Idempotency-Key": "generation-success"})
         second = client.post("/api/usuario/generar-plan", headers={"Idempotency-Key": "generation-success"})

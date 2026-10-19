@@ -1,0 +1,48 @@
+{
+  "scope": "Frozen QA tests for independently reviewed individual publication26, current encrypted restore and real-worker uncertain commit/FK boundaries; no product edits by QA",
+  "sources": {
+    "tests/integration_individual_generation_recovery_review.py": "6274b8eb33fcdd99ad6561522252f42ff79f14aff5769faf1c49984f57b7faab",
+    "tests/integration_individual_publication_edges_review.py": "a507b1f48a0de7fddb60443fbb109d3ac784ca0789c3b84dabbb3d46eb884abe",
+    "tests/integration_backup_restore_postgres.py": "54d2deb863ffa33e63de9c58800a9bf244b18e7b676579cfce887780da934c1d"
+  },
+  "gates": [
+    {
+      "name": "actual baseline before",
+      "result": "2 failed / 1 passed",
+      "evidence": "pytest-individual-generation-recovery-actual-before.xml",
+      "scope": "Postcommit delivery RuntimeError/ValueError refunded physically committed plan; completion failure retained credit"
+    },
+    {
+      "name": "first protocol26",
+      "result": "7 passed",
+      "evidence": "pytest-individual-publication26-cleanup-independent.xml",
+      "scope": "5 real-worker recovery + 2 PostgreSQL cleanup timezone cases"
+    },
+    {
+      "name": "final monthly delta",
+      "result": "7 passed in 53.45 s",
+      "evidence": "pytest-individual-publication26-final-independent.xml",
+      "scope": "5 real-worker recovery + 2 independent monthly-boundary regressions"
+    },
+    {
+      "name": "migration and populated restore",
+      "result": "13 passed in 83.28 s",
+      "evidence": "pytest-individual-publication26-migrations-restore-independent.xml",
+      "scope": "12 migration cases across SQLite/PostgreSQL + 1 actual encrypted populated release restore"
+    }
+  ],
+  "final_author_digest": "a621ebad709be5b75e3327d240f91437394076f12ade83116eead569a16bd9c6",
+  "final_source_observation": "65 named sources/old contracts stable in each final gate; no global frontend freeze claimed",
+  "approved_baseline_delta": "Only completion control changes 500/reserved to 503/completed; original two red assertions and raw before evidence retained",
+  "restore": "Head 20261018_individual_publication; 25 business tables / 19 FORCE families; 5 private descriptors + 2 legacy files; 4 individual reservations / 3 used credits. Reconstructed adapter and restricted role preserve rows, schema, bytes, markers and accounting state.",
+  "cleanup_separate": "25 unique verified cases = 15 author SQLite + 2 author PostgreSQL UTC/Mexico + 8 QA rollback/uncertain commit/rowcount/CLI. QA cleanup file separately frozen at SHA256 2209ad6f208f73e7cfa1309896254b443986bdd5d7048f64a91500044b568cf5.",
+  "checks": [
+    "Ruff F821 zero for the three QA files and cleanup review"
+  ],
+  "limits": [
+    "No production/provider calls",
+    "No deployment or business RPO/RTO approval",
+    "No Linux/image/distributed ingress execution",
+    "Central auth-refresh correction remains separate and open until new freeze/browser validation"
+  ]
+}

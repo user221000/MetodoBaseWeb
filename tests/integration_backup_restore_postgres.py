@@ -113,7 +113,8 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
     from web.database.alembic.schema_contract_v1 import schema_signature
     from web.database.models import (Cliente, GymProfile, PlanGenerado, Usuario, UserRole,
                                      GymLicense, LicenseActivation, ProviderSubjectAssociation,
-                                     GymGenerationReservation, StoredObject)
+                                     GymGenerationReservation, StoredObject,
+                                     GenerationReservation, UserSubscription)
     from web.database.repository import _crear_planes_default
     from web.database.schema_control import verify_runtime_schema
     from web.database.tenant_context import tenant_scope
@@ -140,6 +141,7 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
         "logo": ("restore-release-gym", "gym_logo", logo_bytes, "image/png"),
         "pending": ("restore-release-gym", "plan_pdf", b"%PDF-1.4\nSynthetic uncertain PUT orphan\n%%EOF", "application/pdf"),
         "foreign": ("restore-foreign-gym", "plan_pdf", b"%PDF-1.4\nSynthetic other owner\n%%EOF", "application/pdf"),
+        "personal": ("restore-personal-user", "plan_pdf", b"%PDF-1.4\nSynthetic personal publication\n%%EOF", "application/pdf"),
     }
     descriptors = {}
     for label, (owner, kind, content, content_type) in object_contents.items():
@@ -162,9 +164,13 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
                 tipo="gym", role=UserRole.OWNER, session_version=0, activo=True))
             db.add(Usuario(id="restore-foreign-gym", email="restore-foreign@example.invalid",
                 password_hash="synthetic", nombre="Synthetic other owner", tipo="gym", role=UserRole.OWNER))
+            db.add(Usuario(id="restore-personal-user", email="restore-personal@example.invalid",
+                password_hash="synthetic", nombre="Synthetic personal", tipo="usuario", role=UserRole.VIEWER))
             db.commit()
             db.add(Cliente(id_cliente="restore-release-client", gym_id="restore-release-gym",
                 nombre="Synthetic client", edad=30, peso_kg=70, estatura_cm=170))
+            db.add(Cliente(id_cliente="restore-personal-client", gym_id="restore-personal-user",
+                nombre="Synthetic personal client", edad=30, peso_kg=70, estatura_cm=170))
             db.commit()
             for label, descriptor in descriptors.items():
                 db.add(StoredObject(id=descriptor.id, gym_id=descriptor.owner_id,
@@ -181,8 +187,22 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             db.add(PlanGenerado(gym_id="restore-release-gym", id_cliente="restore-release-client",
                 ruta_pdf="restore-release-gym/release-plan.pdf", plan_json='{"legacy":true}',
                 pdf_object_id=None))
+            personal_plan = PlanGenerado(gym_id="restore-personal-user", id_cliente="restore-personal-client",
+                plan_json='{"personal":true}', pdf_object_id=descriptors["personal"].id)
+            db.add(personal_plan)
             db.flush()
+            personal_plan_id = personal_plan.id
             captured = datetime(2026, 10, 18, 18, tzinfo=timezone.utc)
+            db.add(UserSubscription(user_id="restore-personal-user", plan="pro", status="active",
+                max_planes_mes=5, planes_usados_mes=3, mes_actual="2026-10"))
+            for key, status, protocol, linked, marker in [
+                    ("restore-personal-completed", "completed", 1, personal_plan.id, captured),
+                    ("restore-personal-result-deleted", "completed", 1, None, captured),
+                    ("restore-personal-legacy-unresolved", "reserved", 0, None, None),
+                    ("restore-personal-released", "released", 1, None, None)]:
+                db.add(GenerationReservation(id=key, user_id="restore-personal-user", request_key=key,
+                    period="2026-10", status=status, publication_protocol=protocol,
+                    plan_id=linked, persisted_at=marker, created_at=captured, updated_at=captured))
             result = {"success": True, "plan_id": plan.id, "label": "synthetic durable result"}
             db.add(GymGenerationReservation(gym_id="restore-release-gym", client_id="restore-release-client",
                 request_key="synthetic-release-restore-request", request_hash="c" * 64,
@@ -216,7 +236,7 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
                 "SELECT relname,relrowsecurity,relforcerowsecurity FROM pg_class "
                 "WHERE relnamespace='public'::regnamespace AND relkind='r' ORDER BY relname").all()
         assert len(original_signature["tables"]) == 25
-        assert original_rows["alembic_version"][0]["version_num"] == "20261018_stored_objects"
+        assert original_rows["alembic_version"][0]["version_num"] == "20261018_individual_publication"
         assert len(TENANT_COLUMNS) == 19
         assert {name for name, enabled, forced in policy_state if enabled or forced} == set(TENANT_COLUMNS)
         assert all(enabled and forced for name, enabled, forced in policy_state if name in TENANT_COLUMNS)
@@ -299,6 +319,34 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             assert restored_store.read(foreign_descriptor, owner_id="restore-foreign-gym") == object_contents["foreign"][2]
         with pytest.raises(ObjectAccessDenied):
             restored_store.read(foreign_descriptor, owner_id="restore-release-gym")
+        with tenant_scope("restore-personal-user"), Session(restricted_target) as db:
+            from fastapi import HTTPException
+            from web.services.generation_quota import finish_generation
+
+            row = db.query(StoredObject).one()
+            assert row.id == descriptors["personal"].id and row.status == "ready"
+            descriptor = ObjectDescriptor(row.id, row.gym_id, row.kind, row.key,
+                row.content_type, row.byte_size, row.sha256)
+            content = restored_store.read(descriptor, owner_id="restore-personal-user")
+            assert content == object_contents["personal"][2]
+            assert len(content) == row.byte_size and hashlib.sha256(content).hexdigest() == row.sha256
+            completed = db.get(GenerationReservation, "restore-personal-completed")
+            assert completed.plan_id == personal_plan_id and completed.persisted_at == captured.replace(tzinfo=None)
+            assert db.get(PlanGenerado, completed.plan_id).pdf_object_id == descriptor.id
+            finish_generation(db, completed.id, "restore-personal-user", completed.plan_id, success=True)
+            for key in ("restore-personal-completed", "restore-personal-result-deleted", "restore-personal-released"):
+                finish_generation(db, key, "restore-personal-user", None, success=False)
+                finish_generation(db, key, "restore-personal-user", None, success=False)
+            with pytest.raises(HTTPException) as retained:
+                finish_generation(db, "restore-personal-legacy-unresolved", "restore-personal-user", None, success=False)
+            assert retained.value.status_code == 503
+            db.rollback()
+            assert db.query(UserSubscription).one().planes_usados_mes == 3
+            assert db.get(GenerationReservation, "restore-personal-result-deleted").persisted_at == captured.replace(tzinfo=None)
+            assert db.get(GenerationReservation, "restore-personal-result-deleted").plan_id is None
+            assert db.get(GenerationReservation, "restore-personal-legacy-unresolved").status == "reserved"
+            assert db.get(GenerationReservation, "restore-personal-legacy-unresolved").publication_protocol == 0
+        assert snapshot(target) == original_rows
         with Session(restricted_target) as db:
             assert db.scalars(select(StoredObject)).all() == []
         with Session(target) as db:
@@ -314,10 +362,11 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             assert new_profile.id > original_rows["gym_profiles"][0]["id"]
             db.rollback()
         signature_hash = hashlib.sha256(json.dumps(original_signature, sort_keys=True).encode()).hexdigest()
-        measurement = {"environment": "synthetic PostgreSQL Alembic25, ready PDF/logo, pending orphan, foreign owner and two legacy files",
+        measurement = {"environment": "synthetic PostgreSQL revision26, ready PDF/logo, pending orphan, foreign/personal owners and individual durable/legacy reservations",
             "tables": len(original_signature["tables"]), "schema_signature_sha256": signature_hash,
             "rls_families_force": len(TENANT_COLUMNS), "private_objects": len(descriptors),
             "pending_objects": 1, "legacy_files": 2,
+            "individual_reservations": 4, "individual_consumed_credits": 3,
             "alembic_revision": original_rows["alembic_version"][0]["version_num"],
             "rows_by_table": {name: len(rows) for name, rows in original_rows.items()},
             "backup_seconds": backup_seconds, "restore_seconds": restore_seconds,
@@ -325,7 +374,7 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             "scope": "Actual local candidate schema recovery; technical timings do not approve business RPO/RTO or production recovery."}
         output = Path(os.environ.get("METODOBASE_TEST_EVIDENCE_DIR", str(tmp_path)))
         output.mkdir(parents=True, exist_ok=True)
-        (output / "postgres-restore-storage25-independent.json").write_text(
+        (output / "postgres-restore-individual26-independent.json").write_text(
             json.dumps(measurement, indent=2) + "\n", encoding="utf-8")
     finally:
         if restricted_target is not None:

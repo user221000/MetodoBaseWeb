@@ -1,0 +1,25 @@
+{
+  "scope": "Independent coordinator monthly-boundary reproduction, fixed by backend and rerun independently by QA; real SQLite accounting with a synthetic clock crossing months.",
+  "test_sha256": "7a58026020c9ea43a53a47e21da600faf1810909686408613cda5660dacc7145",
+  "product_before_sha256": "af407a2199ef877b3c815be27b2985fb2988df2618d755988b1620c3674d0f8b",
+  "product_after_sha256": "b75474aa99484000e9c09aa09109424110f4fdcf2ce87ee42b871d3e34986448",
+  "before_binding": "Product was frozen at backend initial d353 digest; backend confirmed no changes until after QA gate7.",
+  "before": {
+    "failed": 2,
+    "junit": "individual-period-before.xml",
+    "log": "individual-period-before.log"
+  },
+  "after_binding": "Backend final a621 digest, observed stable by QA across65 sources.",
+  "after": {
+    "passed_monthly_cases": 2,
+    "within_gate_passed": 7,
+    "junit": "pytest-individual-publication26-final-independent.xml",
+    "manifest": "individual-publication26-final-independent-source.json"
+  },
+  "contract": "The reservation period is the subscription month actually debited under account lock, captured once for debit and ledger. A later old-period refund cannot decrement another new-period generation.",
+  "ddl_delta": false,
+  "limits": [
+    "Clock is injected; no elapsed wall-clock month wait",
+    "No production/provider execution"
+  ]
+}

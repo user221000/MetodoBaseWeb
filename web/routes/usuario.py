@@ -311,10 +311,14 @@ async def generar_plan_usuario(
         cliente.nivel_actividad = "moderada"
         db.commit()
 
-    from web.services.generation_quota import reserve_generation, finish_generation
+    from web.services.generation_quota import (
+        reserve_generation, finish_generation, compensate_individual_generation_failure, reconciliation_required,
+        read_individual_plan_result,
+    )
     reservation = reserve_generation(db, user_id, idempotency_key)
+    reservation_id = reservation.id
     if reservation.status == "completed":
-        record = db.query(PlanGenerado).filter_by(id=reservation.plan_id, gym_id=user_id).first()
+        record = read_individual_plan_result(db, user_id, reservation.plan_id)
         if record is None:
             raise HTTPException(409, {"code": "generation_result_unavailable", "message": "El resultado requiere revisión. No se consumió otro crédito."})
         return _individual_plan_response(record)
@@ -336,18 +340,29 @@ async def generar_plan_usuario(
             total_planes + 1,
             user_id,
             "opciones",
+            individual_reservation_id=reservation_id,
         )
     except ValueError as e:
-        finish_generation(db, reservation.id, user_id, None, success=False)
+        compensate_individual_generation_failure(db, reservation_id, user_id)
         raise HTTPException(400, {"code": "generation_unavailable", "message": "No fue posible generar un plan con estos datos y exclusiones. Revisa tu perfil."}) from e
     except Exception as e:
-        finish_generation(db, reservation.id, user_id, None, success=False)
-        logger.error("Generation failed subject=%s class=%s", user_id, type(e).__name__)
+        compensate_individual_generation_failure(db, reservation_id, user_id)
+        logger.error("Generation failed class=%s", type(e).__name__)
         raise HTTPException(500, "Error interno al generar el plan. Intenta de nuevo.")
-    # Generation commits JSON and result together. If recording completion fails,
-    # keep the reservation for reconciliation instead of granting another credit.
-    finish_generation(db, reservation.id, user_id, result.get("plan_id"), success=True)
-    plan_record = db.query(PlanGenerado).filter_by(id=result["plan_id"], gym_id=user_id).one()
+    # Worker commits Plan, object readiness and completed consumption together.
+    # Failure to verify that result is never evidence that its credit is free.
+    try:
+        finish_generation(db, reservation_id, user_id, result.get("plan_id"), success=True)
+    except Exception as error:
+        try:
+            db.rollback()
+        except Exception as rollback_error:
+            logger.error("Generation verification rollback failed class=%s", type(rollback_error).__name__)
+        logger.error("Generation verification failed class=%s", type(error).__name__)
+        raise reconciliation_required() from None
+    plan_record = read_individual_plan_result(db, user_id, result["plan_id"])
+    if plan_record is None:
+        raise HTTPException(409, {"code": "generation_result_unavailable", "message": "El resultado requiere revisión. No se consumió otro crédito."})
     return _individual_plan_response(plan_record)
 
 

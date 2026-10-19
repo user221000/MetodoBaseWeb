@@ -1,0 +1,82 @@
+{
+  "scope": "Real authenticated PostgreSQL/core/PDF; only final worker COMMIT acknowledgement is lost",
+  "before": {
+    "used_credits": 0,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [],
+    "objects": [],
+    "reservations": []
+  },
+  "injected_commits": 1,
+  "after_physical_commit": {
+    "used_credits": 1,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [
+      {
+        "id": 1,
+        "object_id": "e00efd5d442d40c68ac1050b6f85b760"
+      }
+    ],
+    "objects": [
+      {
+        "id": "e00efd5d442d40c68ac1050b6f85b760",
+        "status": "ready",
+        "size": 3605606,
+        "sha256": "da0f067753e2062aa0d4fdfdb2ea99954275c4073fce4c7ff97125d1cc4cbf09"
+      }
+    ],
+    "reservations": [
+      {
+        "id": "b7db3f82-ebe4-44b6-a292-44f79761cea6",
+        "status": "completed",
+        "plan_id": 1
+      }
+    ]
+  },
+  "committed_reservation": {
+    "id": "b7db3f82-ebe4-44b6-a292-44f79761cea6",
+    "status": "completed",
+    "plan_id": 1,
+    "publication_protocol": 1,
+    "persisted_at": "2026-10-19T05:10:12.852919"
+  },
+  "failed_http_status": 500,
+  "after_http_failure": {
+    "used_credits": 1,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [
+      {
+        "id": 1,
+        "object_id": "e00efd5d442d40c68ac1050b6f85b760"
+      }
+    ],
+    "objects": [
+      {
+        "id": "e00efd5d442d40c68ac1050b6f85b760",
+        "status": "ready",
+        "size": 3605606,
+        "sha256": "da0f067753e2062aa0d4fdfdb2ea99954275c4073fce4c7ff97125d1cc4cbf09"
+      }
+    ],
+    "reservations": [
+      {
+        "id": "b7db3f82-ebe4-44b6-a292-44f79761cea6",
+        "status": "completed",
+        "plan_id": 1
+      }
+    ]
+  },
+  "final_reservation": {
+    "id": "b7db3f82-ebe4-44b6-a292-44f79761cea6",
+    "status": "completed",
+    "plan_id": 1,
+    "publication_protocol": 1,
+    "persisted_at": "2026-10-19T05:10:12.852919"
+  },
+  "real_pdf_sha256": "da0f067753e2062aa0d4fdfdb2ea99954275c4073fce4c7ff97125d1cc4cbf09",
+  "replay_http_status": 200,
+  "new_key_http_status": 403
+}

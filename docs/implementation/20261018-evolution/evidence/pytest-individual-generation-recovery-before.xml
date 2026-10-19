@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="17.630" timestamp="2026-10-18T22:53:25.140509-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_individual_generation_recovery_review" name="test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[RuntimeError-postgresql]" time="7.078"><failure message="assert 401 in {400, 409, 500, 503}&#10; +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code">tests\integration_individual_generation_recovery_review.py:114: in test_committed_individual_plan_must_not_refund_on_worker_delivery_failure
+    assert response.status_code in {400, 409, 500, 503}
+E   assert 401 in {400, 409, 500, 503}
+E    +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code</failure></testcase><testcase classname="tests.integration_individual_generation_recovery_review" name="test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[ValueError-postgresql]" time="4.639"><failure message="assert 401 in {400, 409, 500, 503}&#10; +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code">tests\integration_individual_generation_recovery_review.py:114: in test_committed_individual_plan_must_not_refund_on_worker_delivery_failure
+    assert response.status_code in {400, 409, 500, 503}
+E   assert 401 in {400, 409, 500, 503}
+E    +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code</failure></testcase><testcase classname="tests.integration_individual_generation_recovery_review" name="test_failure_in_finish_after_return_retains_the_committed_plan_credit[postgresql]" time="4.536"><failure message="assert 401 == 500&#10; +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code">tests\integration_individual_generation_recovery_review.py:140: in test_failure_in_finish_after_return_retains_the_committed_plan_credit
+    assert response.status_code == 500
+E   assert 401 == 500
+E    +  where 401 = &lt;Response [401 Unauthorized]&gt;.status_code</failure></testcase></testsuite></testsuites>

@@ -193,13 +193,18 @@ def eliminar_cliente(db: Session, gym_id: str, id_cliente: str) -> bool:
 # ── Planes ───────────────────────────────────────────────────────────────────
 
 def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *, return_id: bool = False,
-                   reservation_id: str | None = None) -> bool | int:
+                   reservation_id: str | None = None, individual_reservation_id: str | None = None) -> bool | int:
     """Stage an owned plan, its JSON and counters in the caller's transaction.
 
     Returns False when client/tenant does not match. Legacy callers receive a
     boolean; return_id=True returns the flushed plan ID for quota idempotency.
     This function flushes but does not commit or write external documents.
     """
+    if reservation_id is not None and individual_reservation_id is not None:
+        raise ValueError("Generation reservation protocols are mutually exclusive")
+    if individual_reservation_id is not None:
+        from web.services.generation_quota import require_publishable_generation
+        require_publishable_generation(db, gym_id, individual_reservation_id)
     c = db.query(Cliente).filter(
         Cliente.id_cliente == id_cliente,
         Cliente.gym_id == gym_id,
@@ -249,6 +254,16 @@ def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *
                 GymGenerationReservation.updated_at: stamp}, synchronize_session=False)
         if linked != 1:
             raise ValueError('Generation reservation is unavailable for this plan')
+    if individual_reservation_id is not None:
+        from web.database.models import GenerationReservation
+        stamp = datetime.now(timezone.utc)
+        linked = db.query(GenerationReservation).filter_by(id=individual_reservation_id, user_id=gym_id,
+            publication_protocol=1, status='reserved', plan_id=None, persisted_at=None).update({
+                GenerationReservation.plan_id: p.id, GenerationReservation.persisted_at: stamp,
+                GenerationReservation.status: 'completed', GenerationReservation.updated_at: stamp},
+                synchronize_session=False)
+        if linked != 1:
+            raise ValueError('Individual reservation is unavailable for this plan')
     return p.id if return_id else True
 
 

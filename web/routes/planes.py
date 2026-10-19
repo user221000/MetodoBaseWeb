@@ -49,10 +49,10 @@ from web.services.plan_generation import build_plan as _do_generar_plan
 
 @tenant_task("gym_id")
 def _generar_plan_sync(id_cliente: str, plan_numero: int, gym_id: str,
-                      tipo_plan: str = "menu_fijo", *, reservation_id=None) -> dict:
+                      tipo_plan: str = "menu_fijo", *, reservation_id=None, individual_reservation_id=None) -> dict:
     from web.services.plan_generation import generate_plan
     return generate_plan(id_cliente, plan_numero, gym_id, tipo_plan,
-        reservation_id=reservation_id, builder=_do_generar_plan)
+        reservation_id=reservation_id, individual_reservation_id=individual_reservation_id, builder=_do_generar_plan)
 
 
 @router.post("/generar-plan", summary="Generar plan nutricional + PDF")

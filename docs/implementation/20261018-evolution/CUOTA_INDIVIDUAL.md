@@ -1,0 +1,29 @@
+# Publicación y consumo individual
+
+El lote26 está en revisión local, sin despliegue. Amplía la misma tabla `generation_reservations`: siguen25 tablas de negocio y19 familias RLS FORCE. Los contratos24/25 anteriores se conservan. No introduce precios, periodos de gracia ni reembolso por antigüedad; Starter1 y Pro5 planes mensuales proceden del catálogo existente, con periodo de Ciudad de México.
+
+## Defecto y contención
+
+QA reprodujo dos fallos con HTTP autenticado, rol PostgreSQL restringido y worker/core/PDF reales. Tras confirmar Plan y objeto ready, una excepción RuntimeError o ValueError provocaba compensación: consumo1→0, pero el Plan/PDF seguían publicados. El control de error en finalización conservaba el crédito. Se preservan las dos primeras erratas401 de fixture como tales; sólo la tanda actual con engine y SessionLocal unidos a la DB propia demuestra el defecto. [Reproducción](evidence/qa-individual-recovery-before-source.json).
+
+Las reservas nuevas indican `publication_protocol=1`. La ruta captura su ID antes de trabajar y lo pasa mediante `individual_reservation_id`, distinto y mutuamente excluyente del identificador B2B. El worker publica el intento pending antes del PUT. Después, bajo lock de la cuenta, Plan/JSON/contador, objeto ready y reserva completed con `plan_id`/`persisted_at` se confirman juntos. Una reserva compensada, ajena o legacy no puede publicar por ese protocolo; el repositorio repite la comprobación y exige CAS válido.
+
+`finish_generation(success=True)` verifica un resultado ya vinculado; un ID aportado por el llamador no adopta un Plan. El lector compartido une Plan y Cliente, comprueba ambos dueños y que ninguno esté borrado lógicamente; conserva historia de un cliente inactivo. Replay, verificación y respuesta final usan esa consulta. Dos negativos de seguridad demostraron la fuga JSON en un vínculo legacy mixto antes del ajuste; no demuestran que el repositorio nuevo cree ese estado ni un incidente real. [Antes](evidence/individual-publication-security-before-source.json), [después](evidence/individual-publication-security-after-source.json).
+
+La compensación recarga el ledger bajo el mismo lock. Completed o marcador publicado conservan consumo incluso si FK pasa aNULL al eliminar Plan. Una reserva nueva confirmada sin publicación se libera una vez y sólo disminuye el contador de su periodo. Rollback, lectura o commit inciertos producen503 con `generation_reconciliation_required`; no se supone reembolso. Los logs de esos errores usan clase técnica y omiten SQL, parámetros e identificador del sujeto.
+
+Root reprodujo también dos fallos en la frontera mensual: dos lecturas del reloj podían debitar octubre y registrar noviembre, de modo que una compensación posterior quitaba el crédito de otro intento nuevo. Ahora el periodo se captura de `sub.mes_actual` bajo lock y se reutiliza para UPDATE y reserva. [Pruebas independientes antes/después](evidence/individual-period-review-source.json).
+
+## Historia y recuperación
+
+La migración añade `publication_protocol` con default0 y `persisted_at` nullable, más tres checks. Conserva columnas, filas, RLS y revisión previa si falla la DDL. No deduce asociaciones por fechas, nombres, proximidad ni existencia de un Plan. Legacy completed mantiene su consumo y sólo puede releer un resultado autorizado existente; FK ausente devuelve revisión. Legacy reserved sin evidencia de publicación queda ambiguo y no se libera por falta del marcador nuevo. No hay TTL, limpieza ni reconciliación automática.
+
+Una petición completed con la misma clave vuelve a su Plan sin CPU ni segundo crédito; una clave distinta sigue los límites del periodo. La respuesta personal se construye desde el Plan autorizado; este lote no añade `result_json` durable ni snapshot completo de perfil/catálogo. El job/outbox, recuperación automática y límites globales de CPU siguen enR28/R34. La UI individual todavía necesita clave idempotente, descarte por sesión y PDF exacto; no queda cubierta por la UI B2B ni por corregir el transporte central.
+
+## Despliegue y evidencia
+
+Antes de migrar/reabrir generaciones hay que retirar y drenar workers antiguos: un proceso viejo puede publicar y compensar con el protocolo anterior aunque el esquema sea aditivo. La verificación de startup rechaza revisiones anteriores, pero no reemplaza un proceso ya vivo. No se ejecutó esta operación sobre producción. Downgrade destructivo se rechaza; rollback requiere versión de aplicación compatible y restore revisado con alcance de datos explícito.
+
+Autor conservó gates73 iniciales,109 worker/nutrición/startup,60 tras periodo y73 tras lector; se solapan y no forman una suma de casos únicos. QA independiente verificó7 afectados (5PG reales +2 mensuales),13 migración/restore y seguridad13 (3 propios intactos +10 de autor) con fuentes congeladas. El último lector pasó sus tres negativos SQLite y cinco PG; se conserva aparte el intento con cinco errores de infraestructura que no ejecutó cuerpos PG. Otro caso independiente mató un proceso hijo con os._exit(23) después del worker/core/PDF y commit real; una aplicación/engine nuevos hicieron replay200 sin CPU y conservaron crédito/marker tras borrar Plan/compensar; replay borrado409 y clave nueva403. No equivale a muerte/reemplazo de contenedor. Navegador actual sigue en curso.
+
+Restore26 conserva ledger/marcadores,25 tablas/19 familias, cinco objetos y dos archivos legacy con aislamiento; sus tiempos corresponden sólo al dataset sintético, sin aprobación RPO/RTO comercial. Véanse `backend-individual-reader-source.json`, `qa-individual-publication26-final-source.json`, `individual-publication-security-after-source.json`, `individual-reader-postgres-after-restart-independent-source.json` e `individual-process-recovery-independent-source.json` en evidence. No se ejecutó una suite amplia del candidato posterior todavía.

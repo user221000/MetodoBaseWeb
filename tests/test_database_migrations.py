@@ -91,7 +91,8 @@ def test_api_factory_performs_no_ddl():
 
 
 @pytest.mark.parametrize("factory_module", ["api.app", "web.main_web"])
-def test_factories_reject_old_revision_before_initializing_auth(monkeypatch, factory_module):
+@pytest.mark.parametrize("old_revision", ["20261018_billing_integrity", "20261018_stored_objects"])
+def test_factories_reject_old_revision_before_initializing_auth(monkeypatch, factory_module, old_revision):
     import importlib
     from sqlalchemy import text
     from config.settings import get_settings
@@ -101,7 +102,7 @@ def test_factories_reject_old_revision_before_initializing_auth(monkeypatch, fac
     Base.metadata.create_all(engine)
     with engine.begin() as connection:
         connection.execute(text("CREATE TABLE alembic_version(version_num VARCHAR(32) NOT NULL)"))
-        connection.execute(text("INSERT INTO alembic_version VALUES ('20261018_billing_integrity')"))
+        connection.execute(text("INSERT INTO alembic_version VALUES (:revision)"), {"revision": old_revision})
     monkeypatch.setattr(get_settings(), "ENV", "development")
     monkeypatch.setattr("web.database.engine.get_engine", lambda: engine)
     with patch("web.auth.init_auth") as api_auth:

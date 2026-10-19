@@ -1,0 +1,66 @@
+{
+  "scope": "Real PostgreSQL restricted-role HTTP/core/PDF; injected only after actual worker returns committed result",
+  "failure_type": "ValueError",
+  "before": {
+    "used_credits": 0,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [],
+    "objects": [],
+    "reservations": []
+  },
+  "after_worker_commit": {
+    "used_credits": 1,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [
+      {
+        "id": 1,
+        "object_id": "74f8736777fc4c08847a3451ad5fe918"
+      }
+    ],
+    "objects": [
+      {
+        "id": "74f8736777fc4c08847a3451ad5fe918",
+        "status": "ready",
+        "size": 3605606,
+        "sha256": "0740617e84e24205665896519e62801f07b87903c90706af13a167ba89024865"
+      }
+    ],
+    "reservations": [
+      {
+        "id": "07b00e9c-e16b-46e1-8a61-819613ddee48",
+        "status": "reserved",
+        "plan_id": null
+      }
+    ]
+  },
+  "real_pdf_sha256": "0740617e84e24205665896519e62801f07b87903c90706af13a167ba89024865",
+  "http_status": 400,
+  "after_http_failure": {
+    "used_credits": 0,
+    "maximum_credits": 1,
+    "period": "2026-10",
+    "plans": [
+      {
+        "id": 1,
+        "object_id": "74f8736777fc4c08847a3451ad5fe918"
+      }
+    ],
+    "objects": [
+      {
+        "id": "74f8736777fc4c08847a3451ad5fe918",
+        "status": "ready",
+        "size": 3605606,
+        "sha256": "0740617e84e24205665896519e62801f07b87903c90706af13a167ba89024865"
+      }
+    ],
+    "reservations": [
+      {
+        "id": "07b00e9c-e16b-46e1-8a61-819613ddee48",
+        "status": "released",
+        "plan_id": null
+      }
+    ]
+  }
+}

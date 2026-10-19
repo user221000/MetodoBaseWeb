@@ -51,12 +51,12 @@ def snapshot(engine, columns=None):
 def test_upgrade_is_repeatable_and_preserves_previous_data(migration_database, origin):
     url, engine = migration_database
     if origin == 'empty':
-        run_migration(url,'db_bootstrap.py','--revision','head')
-        verify_runtime_schema(engine)
+        run_migration(url,'db_bootstrap.py','--revision',REVISION)
+        verify_runtime_schema(engine, expected_revision=REVISION)
         with engine.connect() as db:
             assert db.scalar(text('SELECT version_num FROM alembic_version')) == REVISION
             assert len(inspect(db).get_table_names()) == 26
-        run_migration(url,'db_bootstrap.py','--revision','head')
+        run_migration(url,'db_bootstrap.py','--revision',REVISION)
         return
     if origin == 'legacy':
         _fixture(engine)
@@ -65,7 +65,7 @@ def test_upgrade_is_repeatable_and_preserves_previous_data(migration_database, o
         run_migration(url,'db_bootstrap.py','--revision',PREVIOUS)
     seed_previous(engine)
     columns, before = snapshot(engine)
-    run_migration(url,'db_bootstrap.py','--revision','head')
+    run_migration(url,'db_bootstrap.py','--revision',REVISION)
     with engine.connect() as db:
         assert db.scalar(text('SELECT version_num FROM alembic_version')) == REVISION
         assert len(inspect(db).get_table_names()) == 26  # 25 business tables.
@@ -75,8 +75,8 @@ def test_upgrade_is_repeatable_and_preserves_previous_data(migration_database, o
         if engine.dialect.name == 'sqlite':
             assert db.exec_driver_sql('PRAGMA foreign_key_check').all() == []
     assert snapshot(engine,columns)[1] == before
-    verify_runtime_schema(engine)
-    run_migration(url,'db_bootstrap.py','--revision','head')
+    verify_runtime_schema(engine, expected_revision=REVISION)
+    run_migration(url,'db_bootstrap.py','--revision',REVISION)
     assert snapshot(engine,columns)[1] == before
 
 
@@ -127,7 +127,7 @@ def test_metadata_constraints_and_same_owner_composite_references(migration_data
     url,engine = migration_database
     run_migration(url,'db_bootstrap.py','--revision',PREVIOUS)
     seed_previous(engine)
-    run_migration(url,'db_bootstrap.py','--revision','head')
+    run_migration(url,'db_bootstrap.py','--revision',REVISION)
     app = application_engine(url,engine)
     if app.dialect.name == 'sqlite':
         with app.connect() as db:

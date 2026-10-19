@@ -751,12 +751,21 @@ class GenerationReservation(Base):
     period = Column(String(7), nullable=False)
     status = Column(String(20), nullable=False, default="reserved")
     plan_id = Column(Integer, ForeignKey("planes_generados.id", ondelete="SET NULL"), nullable=True)
+    # Legacy rows have no evidence that a failed worker did not publish. New
+    # requests opt into the atomic publication protocol explicitly at reserve.
+    publication_protocol = Column(Integer, nullable=False, default=0, server_default="0")
+    persisted_at = Column(UTCDateTime, nullable=True)
     created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         UniqueConstraint("user_id", "request_key", name="uq_generation_request_key"),
         CheckConstraint("status IN ('reserved', 'completed', 'released')", name="ck_generation_reservation_status"),
+        CheckConstraint("publication_protocol IN (0, 1)", name="ck_generation_publication_protocol"),
+        CheckConstraint("persisted_at IS NULL OR (publication_protocol = 1 AND status = 'completed')",
+                        name="ck_generation_publication_marker"),
+        CheckConstraint("publication_protocol = 0 OR status <> 'completed' OR persisted_at IS NOT NULL",
+                        name="ck_generation_completed_publication"),
     )
 
 

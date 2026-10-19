@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="4.727" timestamp="2026-10-18T23:07:13.841954-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_individual_publication_review" name="test_reserved_period_is_the_month_actually_debited" time="2.649"><failure message="AssertionError: assert '2032-11' == '2032-10'&#10;  &#10;  - 2032-10&#10;  ?       ^&#10;  + 2032-11&#10;  ?       ^">tests\test_individual_publication_review.py:29: in test_reserved_period_is_the_month_actually_debited
+    assert reservation.period == projection.mes_actual == '2032-10'
+E   AssertionError: assert '2032-11' == '2032-10'
+E     
+E     - 2032-10
+E     ?       ^
+E     + 2032-11
+E     ?       ^</failure></testcase><testcase classname="tests.test_individual_publication_review" name="test_late_refund_does_not_return_the_next_months_other_credit" time="0.076"><failure message="assert 0 == 1&#10; +  where 0 = &lt;web.database.models.UserSubscription object at 0x000001BBDABDB0B0&gt;.planes_usados_mes">tests\test_individual_publication_review.py:46: in test_late_refund_does_not_return_the_next_months_other_credit
+    assert projection.planes_usados_mes == 1
+E   assert 0 == 1
+E    +  where 0 = &lt;web.database.models.UserSubscription object at 0x000001BBDABDB0B0&gt;.planes_usados_mes</failure></testcase></testsuite></testsuites>

@@ -16,29 +16,38 @@ def _client_lock(gym_id, client_id):
 
 
 @tenant_task("gym_id")
-def generate_plan(id_cliente, plan_numero, gym_id, tipo_plan="menu_fijo", *, reservation_id=None, builder=None):
+def generate_plan(id_cliente, plan_numero, gym_id, tipo_plan="menu_fijo", *, reservation_id=None,
+                  individual_reservation_id=None, builder=None):
+    if reservation_id is not None and individual_reservation_id is not None:
+        raise ValueError("Generation reservation protocols are mutually exclusive")
     lock = _client_lock(gym_id, id_cliente)
     if not lock.acquire(timeout=1):
         raise ValueError("Generation is already in progress for this client")
     try:
         selected = builder or build_plan
-        if reservation_id is None:
-            return selected(id_cliente, plan_numero, gym_id, tipo_plan)
-        return selected(id_cliente, plan_numero, gym_id, tipo_plan, reservation_id=reservation_id)
+        options = {}
+        if reservation_id is not None:
+            options['reservation_id'] = reservation_id
+        if individual_reservation_id is not None:
+            options['individual_reservation_id'] = individual_reservation_id
+        return selected(id_cliente, plan_numero, gym_id, tipo_plan, **options)
     finally:
         lock.release()
 
 
 def build_plan(
-    id_cliente: str, plan_numero: int, gym_id: str, tipo_plan: str = "menu_fijo", *, reservation_id: str | None = None
+    id_cliente: str, plan_numero: int, gym_id: str, tipo_plan: str = "menu_fijo", *, reservation_id: str | None = None,
+    individual_reservation_id: str | None = None,
 ) -> dict:
     """Render in a private temporary workspace, publish, then remove scratch files."""
+    if reservation_id is not None and individual_reservation_id is not None:
+        raise ValueError("Generation reservation protocols are mutually exclusive")
     with tempfile.TemporaryDirectory(prefix="metodobase-render-") as workspace:
         return _build_plan(id_cliente, plan_numero, gym_id, tipo_plan,
-            reservation_id=reservation_id, workspace=Path(workspace))
+            reservation_id=reservation_id, individual_reservation_id=individual_reservation_id, workspace=Path(workspace))
 
 
-def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, workspace):
+def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, individual_reservation_id, workspace):
     """Build and persist an authorized plan using an immutable food snapshot.
 
     Tenant is resolved by the authenticated caller; this function checks client
@@ -228,6 +237,9 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, w
         raise ObjectUnavailable("Generated PDF unavailable")
     descriptor = publish_pending_object(gym_id, "plan_pdf", pdf_bytes, "application/pdf")
     with SASession(engine) as session:
+        if individual_reservation_id is not None:
+            from web.services.generation_quota import require_publishable_generation
+            require_publishable_generation(session, gym_id, individual_reservation_id)
         object_id = mark_object_ready(session, gym_id, descriptor, "plan_pdf")
         plan_id = repo.registrar_plan(session, gym_id, id_cliente, {
             "tmb": getattr(cliente, "tmb", 0),
@@ -246,7 +258,7 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, w
             "plantilla_tipo": getattr(cliente, "plantilla_tipo", "general"),
             "tipo_plan": tipo_plan,
             "plan_json": _json.dumps(plan_serializado, ensure_ascii=False),
-        }, return_id=True, reservation_id=reservation_id)
+        }, return_id=True, reservation_id=reservation_id, individual_reservation_id=individual_reservation_id)
         if not plan_id:
             raise ValueError("No fue posible registrar el plan autorizado")
         session.commit()

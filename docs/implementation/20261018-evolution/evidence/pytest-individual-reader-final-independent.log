@@ -1,0 +1,75 @@
+...EEEEE                                                                 [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[RuntimeError-postgresql] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?
+_ ERROR at setup of test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[ValueError-postgresql] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?
+_ ERROR at setup of test_failure_in_finish_after_return_retains_the_committed_plan_credit[postgresql] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?
+_ ERROR at setup of test_real_worker_commit_acknowledgement_loss_preserves_plan_credit_and_safe_replay[postgresql] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?
+_ ERROR at setup of test_real_completed_plan_fk_set_null_keeps_marker_and_never_restores_credit[postgresql] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/integration_individual_generation_recovery_review.py::test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[RuntimeError-postgresql]
+ERROR tests/integration_individual_generation_recovery_review.py::test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[ValueError-postgresql]
+ERROR tests/integration_individual_generation_recovery_review.py::test_failure_in_finish_after_return_retains_the_committed_plan_credit[postgresql]
+ERROR tests/integration_individual_publication_edges_review.py::test_real_worker_commit_acknowledgement_loss_preserves_plan_credit_and_safe_replay[postgresql]
+ERROR tests/integration_individual_publication_edges_review.py::test_real_completed_plan_fk_set_null_keeps_marker_and_never_restores_credit[postgresql]
+3 passed, 1 warning, 5 errors in 14.57s

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="8" time="14.550" timestamp="2026-10-18T23:16:06.519744-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_individual_publication_security_review" name="test_legacy_replay_does_not_return_a_plan_whose_client_belongs_to_another_subject" time="2.297" /><testcase classname="tests.test_individual_publication_security_review" name="test_success_verifier_rejects_a_mixed_client_legacy_association_without_refunding" time="0.054" /><testcase classname="tests.test_individual_publication_security_review" name="test_foreign_existing_account_cannot_compensate_another_subjects_reservation" time="0.054" /><testcase classname="tests.integration_individual_generation_recovery_review" name="test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[RuntimeError-postgresql]" time="2.070"><error message="failed on setup with &quot;psycopg2.OperationalError: connection to server at &quot;127.0.0.1&quot;, port 55482 failed: Connection refused (0x0000274D/10061)&#10;&#09;Is the server running on that host and accepting TCP/IP connections?&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?</error></testcase><testcase classname="tests.integration_individual_generation_recovery_review" name="test_committed_individual_plan_must_not_refund_on_worker_delivery_failure[ValueError-postgresql]" time="2.054"><error message="failed on setup with &quot;psycopg2.OperationalError: connection to server at &quot;127.0.0.1&quot;, port 55482 failed: Connection refused (0x0000274D/10061)&#10;&#09;Is the server running on that host and accepting TCP/IP connections?&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?</error></testcase><testcase classname="tests.integration_individual_generation_recovery_review" name="test_failure_in_finish_after_return_retains_the_committed_plan_credit[postgresql]" time="2.051"><error message="failed on setup with &quot;psycopg2.OperationalError: connection to server at &quot;127.0.0.1&quot;, port 55482 failed: Connection refused (0x0000274D/10061)&#10;&#09;Is the server running on that host and accepting TCP/IP connections?&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?</error></testcase><testcase classname="tests.integration_individual_publication_edges_review" name="test_real_worker_commit_acknowledgement_loss_preserves_plan_credit_and_safe_replay[postgresql]" time="2.064"><error message="failed on setup with &quot;psycopg2.OperationalError: connection to server at &quot;127.0.0.1&quot;, port 55482 failed: Connection refused (0x0000274D/10061)&#10;&#09;Is the server running on that host and accepting TCP/IP connections?&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?</error></testcase><testcase classname="tests.integration_individual_publication_edges_review" name="test_real_completed_plan_fk_set_null_keeps_marker_and_never_restores_credit[postgresql]" time="2.074"><error message="failed on setup with &quot;psycopg2.OperationalError: connection to server at &quot;127.0.0.1&quot;, port 55482 failed: Connection refused (0x0000274D/10061)&#10;&#09;Is the server running on that host and accepting TCP/IP connections?&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_schema_migrations.py:50: in migration_database
+    admin = psycopg2.connect(admin_url.replace('postgresql+psycopg2://', 'postgresql://', 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\psycopg2\__init__.py:135: in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   psycopg2.OperationalError: connection to server at "127.0.0.1", port 55482 failed: Connection refused (0x0000274D/10061)
+E   	Is the server running on that host and accepting TCP/IP connections?</error></testcase></testsuite></testsuites>

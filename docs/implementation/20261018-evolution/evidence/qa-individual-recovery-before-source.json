@@ -1,0 +1,55 @@
+{
+  "scope": "Confirmed individual postcommit false refund on unchanged PG25 product; test/evidence retained intact before DDL26 implementation",
+  "files": {
+    "tests/integration_individual_generation_recovery_review.py": "2317206e529eb99f008432460de00ed54cd6e80c18d14485d91ed686a0a4a0fa"
+  },
+  "results": {
+    "failed": 2,
+    "passed_control": 1,
+    "pytest_seconds": 25.92,
+    "sources_stable": true
+  },
+  "observed": {
+    "worker_RuntimeError": {
+      "http": 500,
+      "used_before": 0,
+      "used_after_commit": 1,
+      "used_after_exception": 0,
+      "plans_persisted": 1,
+      "objects_ready": 1,
+      "reservation_after": "released, plan_id NULL"
+    },
+    "worker_ValueError": {
+      "http": 400,
+      "used_before": 0,
+      "used_after_commit": 1,
+      "used_after_exception": 0,
+      "plans_persisted": 1,
+      "objects_ready": 1,
+      "reservation_after": "released, plan_id NULL"
+    },
+    "finish_success_failure_control": {
+      "http": 500,
+      "used_after": 1,
+      "plans_persisted": 1,
+      "reservation_after": "reserved"
+    }
+  },
+  "evidence": [
+    "pytest-individual-generation-recovery-actual-before.log",
+    "pytest-individual-generation-recovery-actual-before.xml",
+    "individual-generation-recovery-actual-before-source.json",
+    "individual-generation-recovery-actual-before/individual-after-commit-runtimeerror.json",
+    "individual-generation-recovery-actual-before/individual-after-commit-valueerror.json",
+    "individual-generation-recovery-actual-before/individual-completion-control.json"
+  ],
+  "fixture_errata": "Prior attempts before/product-before failed401 from cached SessionLocal stillSQLite; not product evidence. Current fixture binds both real engine and SessionLocal to restricted PG and verifies /auth/me200.",
+  "limits": [
+    "Own migrated UUIDPG25 only, real core/PDF/objects/auth/HTTP, failure injection after real commit",
+    "No product/model/DDL edits; pool3 avoids fixture-induced connection exhaustion",
+    "No new credit-admission/second-plan attempt claimed after refund",
+    "Future atomic publication may make the control completed; update its expectation only at after gate, preserving baseline artifacts"
+  ],
+  "product_edited_by_qa": false,
+  "committed_by_qa": false
+}
