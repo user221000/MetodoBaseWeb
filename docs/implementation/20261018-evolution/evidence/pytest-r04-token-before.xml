@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="6.605" timestamp="2026-10-18T20:57:05.510318-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_postgres" name="test_real_member_token_uses_team_scope_for_professional_and_own_scope_for_personal" time="5.832"><failure message="AssertionError: assert ['pg-client-a...hetic-member'] == ['pg-client-a']&#10;  &#10;  Left contains 2 more items, first extra item: 'pg-client-b'&#10;  Use -v to get more diff">tests\integration_postgres.py:357: in test_real_member_token_uses_team_scope_for_professional_and_own_scope_for_personal
+    assert professional.json()["clients"] == [CLIENT_IDS[TENANT_A]]
+E   AssertionError: assert ['pg-client-a...hetic-member'] == ['pg-client-a']
+E     
+E     Left contains 2 more items, first extra item: 'pg-client-b'
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>

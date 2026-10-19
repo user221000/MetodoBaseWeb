@@ -111,7 +111,8 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
     from sqlalchemy.orm import Session
     from scripts.backup_restore import create_backup, restore_backup
     from web.database.alembic.schema_contract_v1 import schema_signature
-    from web.database.models import Cliente, GymProfile, PlanGenerado, Usuario, UserRole
+    from web.database.models import (Cliente, GymProfile, PlanGenerado, Usuario, UserRole,
+                                     GymLicense, LicenseActivation, ProviderSubjectAssociation)
     from web.database.repository import _crear_planes_default
     from web.database.schema_control import verify_runtime_schema
 
@@ -147,6 +148,23 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
                 ruta_pdf="restore-release-gym/release-plan.pdf", plan_json='{"synthetic": true}',
                 kcal_objetivo=2000, kcal_real=1995))
             _crear_planes_default(db, "restore-release-gym")
+            license_key = "synthetic-release-restore-issued-key"
+            issued = GymLicense(gym_id="restore-release-gym", license_key=license_key,
+                                plan_tier="clinica", max_clients=0, is_active=True)
+            db.add(issued)
+            db.flush()
+            db.add_all([
+                LicenseActivation(gym_id="restore-release-gym", issued_license_id=issued.id,
+                    hardware_id="synthetic-bound-restore-hardware",
+                    clave_hash=hashlib.sha256(license_key.encode()).hexdigest(),
+                    email="restore-release@example.invalid", plan="clinica", expira=None),
+                LicenseActivation(hardware_id="synthetic-unassociated-legacy-hardware",
+                    clave_hash="0" * 64, email="unassociated@example.invalid", plan="standard",
+                    activa=False, revocada=True, expira=datetime(2026, 1, 1)),
+                ProviderSubjectAssociation(provider="stripe", resource_type="customer",
+                    resource_id="cus_synthetic_release_restore", subject_id="restore-release-gym",
+                    provenance="verified_purchase", source_ref="synthetic-local-restore-only"),
+            ])
             db.commit()
         original_rows = snapshot(source)
         with source.connect() as connection:
@@ -214,6 +232,7 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
         signature_hash = hashlib.sha256(json.dumps(original_signature, sort_keys=True).encode()).hexdigest()
         measurement = {"environment": "synthetic PostgreSQL Alembic release schema, gym/client/plan/FK and two private objects",
             "tables": len(original_signature["tables"]), "schema_signature_sha256": signature_hash,
+            "alembic_revision": original_rows["alembic_version"][0]["version_num"],
             "rows_by_table": {name: len(rows) for name, rows in original_rows.items()},
             "backup_seconds": backup_seconds, "restore_seconds": restore_seconds,
             "snapshot_age_at_verification_seconds": (datetime.now(timezone.utc) - committed_at).total_seconds(),

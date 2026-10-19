@@ -95,8 +95,10 @@ def create_app() -> FastAPI:
     # Schema is prepared by the blocking migration command, never by workers.
     from web.database.engine import get_engine
     from web.database.schema_control import verify_runtime_schema
+    from web.database.tenant_policy import verify_application_database_role
     _sa_engine = get_engine()
     verify_runtime_schema(_sa_engine, require_revision=settings.ENV != "testing")
+    verify_application_database_role(_sa_engine)
 
     init_auth()
 
@@ -105,6 +107,7 @@ def create_app() -> FastAPI:
         # PostgreSQL always requires head, including synthetic/staging runtime.
         # Unit SQLite fixtures explicitly prepare their schema through R05.
         verify_runtime_schema(get_engine(), require_revision=settings.ENV != "testing")
+        verify_application_database_role(get_engine())
 
         # Startup: initial token cleanup (graceful if tables don't exist yet)
         try:

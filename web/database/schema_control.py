@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_CONTRACTS = {
     "20261018_schema_reconciliation": "20261018_reconciled",
     "20261018_provider_subjects": "20261018_prepared",
+    "20261018_tenant_isolation": "20261018_isolated",
 }
 
 
@@ -57,9 +58,13 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
             if required not in SCHEMA_CONTRACTS:
                 raise RuntimeError("No frozen schema contract for the requested revision")
             target_path = Path(__file__).parent / "alembic" / "schema_targets" / (SCHEMA_CONTRACTS[required] + "_" + connection.dialect.name + ".json")
-            target = json.loads(target_path.read_text(encoding="utf-8"))["signature"]
-            if schema_signature(connection) != target:
+            contract = json.loads(target_path.read_text(encoding="utf-8"))
+            if schema_signature(connection) != contract["signature"]:
                 raise RuntimeError("Database structure differs from the reviewed application schema")
+            if "tenant_security" in contract:
+                from web.database.tenant_policy import tenant_security_signature
+                if tenant_security_signature(connection) != contract["tenant_security"]:
+                    raise RuntimeError("Database tenant policies differ from the reviewed application boundary")
             if expected_revision is not None:
                 # Explicit historical migration acceptance uses that revision's
                 # frozen model, not the current application's newer metadata.

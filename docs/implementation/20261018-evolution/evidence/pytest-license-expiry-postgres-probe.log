@@ -1,0 +1,76 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+______ test_same_owner_parallel_repeats_preserve_shorter_original_expiry ______
+tests\integration_license_postgres.py:120: in test_same_owner_parallel_repeats_preserve_shorter_original_expiry
+    assert all(datetime.fromisoformat(value).replace(tzinfo=None) == original_expiry for value in actual_expiries), {
+E   AssertionError: {'expected_original_expiry': '2026-10-24T03:02:22.398688', 'actual_expiries': ['2026-10-24T03:02:22.398688+00:00', '2026-10-23T21:02:22.398688+00:00']}
+E   assert False
+E    +  where False = all(<generator object test_same_owner_parallel_repeats_preserve_shorter_original_expiry.<locals>.<genexpr> at 0x0000021CF397AEA0>)
+---------------------------- Captured stderr call -----------------------------
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+
+  from starlette.testclient import TestClient as TestClient  # noqa
+
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+
+  from starlette.testclient import TestClient as TestClient  # noqa
+
+2026-10-18 21:02:26,224 INFO [web.auth] [AUTH] Using native bcrypt for password hashing
+
+2026-10-18 21:02:26,226 INFO [web.auth] [AUTH] Using native bcrypt for password hashing
+
+2026-10-18 21:02:26,371 INFO [sentry_setup] Sentry DSN no configurado, observabilidad deshabilitada
+
+2026-10-18 21:02:26,371 INFO [sentry_setup] Sentry DSN no configurado, observabilidad deshabilitada
+
+2026-10-18 21:02:26,668 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.schemas
+
+2026-10-18 21:02:26,668 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.tables
+
+2026-10-18 21:02:26,668 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.types
+
+2026-10-18 21:02:26,668 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.constraints
+
+2026-10-18 21:02:26,668 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.defaults
+
+2026-10-18 21:02:26,668 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.comments
+
+2026-10-18 21:02:26,668 INFO [alembic.runtime.plugins] setup plugin alembic.ext.checkconstraint_byname
+
+2026-10-18 21:02:26,672 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.schemas
+
+2026-10-18 21:02:26,672 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.tables
+
+2026-10-18 21:02:26,672 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.types
+
+2026-10-18 21:02:26,673 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.constraints
+
+2026-10-18 21:02:26,673 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.defaults
+
+2026-10-18 21:02:26,673 INFO [alembic.runtime.plugins] setup plugin alembic.autogenerate.comments
+
+2026-10-18 21:02:26,673 INFO [alembic.runtime.plugins] setup plugin alembic.ext.checkconstraint_byname
+
+2026-10-18 21:02:26,765 INFO [alembic.runtime.migration] Context impl PostgresqlImpl.
+
+2026-10-18 21:02:26,766 INFO [alembic.runtime.migration] Will assume transactional DDL.
+
+2026-10-18 21:02:26,770 INFO [alembic.runtime.migration] Context impl PostgresqlImpl.
+
+2026-10-18 21:02:26,771 INFO [alembic.runtime.migration] Will assume transactional DDL.
+
+2026-10-18 21:02:27,284 INFO [web.middleware.rate_limiter] RateLimiter inicializado: 60/min, burst=10, enabled=False
+
+2026-10-18 21:02:27,284 INFO [web.middleware.metrics] MetricsMiddleware inicializado: enabled=False
+
+2026-10-18 21:02:27,293 INFO [web.middleware.rate_limiter] RateLimiter inicializado: 60/min, burst=10, enabled=False
+
+2026-10-18 21:02:27,293 INFO [web.middleware.metrics] MetricsMiddleware inicializado: enabled=False
+
+2026-10-18 21:02:27,346 INFO [httpx] HTTP Request: POST http://testserver/api/licencias/activar "HTTP/1.1 200 OK"
+
+2026-10-18 21:02:27,365 INFO [httpx] HTTP Request: POST http://testserver/api/licencias/activar "HTTP/1.1 200 OK"
+
+=========================== short test summary info ===========================
+FAILED tests/integration_license_postgres.py::test_same_owner_parallel_repeats_preserve_shorter_original_expiry
+1 failed in 9.77s

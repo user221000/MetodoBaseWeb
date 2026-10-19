@@ -63,7 +63,9 @@ def create_app() -> FastAPI:
     # ── Auth: inicializar antes de cualquier endpoint que use tokens ────────
     from web.database.engine import get_engine
     from web.database.schema_control import verify_runtime_schema
+    from web.database.tenant_policy import verify_application_database_role
     verify_runtime_schema(get_engine(), require_revision=not (_s and _s.ENV == "testing"))
+    verify_application_database_role(get_engine())
     from web.auth import init_auth
     init_auth()
 

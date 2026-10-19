@@ -60,7 +60,8 @@ def test_xdist_worker_uses_a_different_database_file():
 
 def test_backup_sources_keys_and_libpq_inheritance_are_disabled():
     env = dict(os.environ)
-    names = ("BACKUP_DATABASE_URL", "RESTORE_DATABASE_URL", "CUSTOM_DATABASE_URL", "BACKUP_ENCRYPTION_KEY", "PGHOST", "PGPASSWORD", "PGSERVICE")
+    names = ("BACKUP_DATABASE_URL", "RESTORE_DATABASE_URL", "MIGRATOR_DATABASE_URL",
+             "CUSTOM_DATABASE_URL", "BACKUP_ENCRYPTION_KEY", "PGHOST", "PGPASSWORD", "PGSERVICE")
     env.update({name: "synthetic-inherited-marker" for name in names})
     code = "import os,json; from tests.isolation import prepare_environment; prepare_environment(); print(json.dumps({name:os.environ.get(name) for name in " + repr(names) + "}))"
     result = subprocess.run([sys.executable, "-X", "utf8", "-c", code], env=env,

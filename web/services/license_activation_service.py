@@ -63,11 +63,16 @@ def activate(db: Session, *, gym_id: str, key: str, hardware_id: str, email: str
                 raise LicenseError(400, "activation_expired", "La activación venció. Utiliza una licencia renovada.")
         existing.issued_license_id = issued.id
         existing.clave_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
-        existing.email, existing.plan, existing.expira = email, issued.plan_tier, expiry
+        # The frozen legacy column is TIMESTAMP WITHOUT TIME ZONE. Binding an
+        # aware datetime lets PostgreSQL apply its session timezone and shifts
+        # every repeat. Persist explicitly normalized UTC without tzinfo.
+        existing.email, existing.plan = email, issued.plan_tier
+        existing.expira = expiry.replace(tzinfo=None) if expiry else None
     else:
         existing = LicenseActivation(gym_id=gym_id, issued_license_id=issued.id,
             hardware_id=hardware_id, clave_hash=hashlib.sha256(key.encode("utf-8")).hexdigest(),
-            email=email, plan=issued.plan_tier, activa=True, revocada=False, expira=expiry)
+            email=email, plan=issued.plan_tier, activa=True, revocada=False,
+            expira=expiry.replace(tzinfo=None) if expiry else None)
         db.add(existing)
     try:
         db.flush()

@@ -1,7 +1,7 @@
 """Legacy provider identity preparation on real migration paths.
 
 SQLite checks compatibility; PostgreSQL additionally executes callbacks with
-the restricted application role. No RLS policies are enabled by these tests.
+the restricted application role, both before and after tenant activation.
 """
 from datetime import datetime, timedelta, timezone
 import hashlib
@@ -82,14 +82,16 @@ def legacy_snapshot():
 
 
 @pytest.mark.parametrize('callback', ['invoice', 'refund', 'cancel'])
-def test_legacy_callbacks_without_purchase_intent_still_reconcile(migration_database, callback):
+@pytest.mark.parametrize('revision,contract', [('20261018_provider_subjects', '20261018_prepared'),
+    ('20261018_tenant_isolation', '20261018_isolated')])
+def test_legacy_callbacks_without_purchase_intent_still_reconcile(migration_database, callback, revision, contract):
     from web.database.models import ProviderSubjectAssociation, Subscription, UserSubscription, LicenseActivation
     from web.services.stripe_service import _on_invoice_paid, _on_charge_refunded, _on_subscription_deleted
     url, engine = migration_database
     license_id = seed_legacy(url, engine)
-    run_migration(url, 'db_bootstrap.py', '--revision', 'head')
+    run_migration(url, 'db_bootstrap.py', '--revision', revision)
     target = json.loads((ROOT / 'web/database/alembic/schema_targets' /
-                         ('20261018_prepared_' + engine.dialect.name + '.json')).read_text())['signature']
+                         (contract + '_' + engine.dialect.name + '.json')).read_text())['signature']
     with engine.connect() as db:
         assert schema_signature(db) == target
     app = application_engine(url, engine)

@@ -45,3 +45,41 @@ def verify_application_database_role(engine) -> None:
         superuser, bypass = connection.execute(text("SELECT rolsuper,rolbypassrls FROM pg_roles WHERE rolname=current_user")).one()
         if superuser or bypass:
             raise RuntimeError("Application database role must be NOSUPERUSER and NOBYPASSRLS")
+        # FORCE RLS constrains an owner only until that owner issues ALTER TABLE.
+        # MEMBER also rejects indirect access to the migration/DDL owner role.
+        from web.database.models import Base
+        owns_ddl = connection.execute(text("""
+            SELECT EXISTS (
+                SELECT 1 FROM pg_class c WHERE c.relnamespace=current_schema()::regnamespace
+                AND c.relkind IN ('r','p') AND c.relname=ANY(:tables)
+                AND pg_has_role(current_user,c.relowner,'MEMBER')
+            )
+        """), {"tables": sorted(Base.metadata.tables)}).scalar_one()
+        if owns_ddl:
+            raise RuntimeError("Application database role must not be a table DDL owner or member of its role")
+
+
+def tenant_security_signature(connection) -> dict:
+    """Read the actual policy/flag/helper contract without changing protection."""
+    if connection.dialect.name != "postgresql":
+        return {"dialect": connection.dialect.name}
+    tables = connection.execute(text("""
+        SELECT relname,relrowsecurity,relforcerowsecurity FROM pg_class
+        WHERE relnamespace=current_schema()::regnamespace AND relkind='r'
+          AND relname <> 'alembic_version' ORDER BY relname
+    """)).all()
+    policies = connection.execute(text("""
+        SELECT tablename,policyname,permissive,roles::text,cmd,qual,with_check
+        FROM pg_policies WHERE schemaname=current_schema()
+        ORDER BY tablename,policyname
+    """)).all()
+    helpers = connection.execute(text("""
+        SELECT p.prosecdef,p.proconfig,p.prosrc,l.lanname
+        FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+        JOIN pg_language l ON l.oid=p.prolang
+        WHERE n.nspname=current_schema() AND p.proname='set_tenant'
+          AND pg_get_function_identity_arguments(p.oid)='tenant_id text'
+    """)).all()
+    return {"dialect": "postgresql", "tables": [list(row) for row in tables],
+        "policies": [list(row) for row in policies],
+        "set_tenant": [[row[0], row[1], " ".join(row[2].split()), row[3]] for row in helpers]}

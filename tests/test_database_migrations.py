@@ -9,8 +9,7 @@ import pytest
 def test_bootstrap_returns_failure_when_upgrade_fails(monkeypatch):
     import db_bootstrap
     engine = create_engine("sqlite://")
-    monkeypatch.setattr("web.database.engine.init_db", lambda: None)
-    monkeypatch.setattr("web.database.engine.get_engine", lambda: engine)
+    monkeypatch.setattr(db_bootstrap, "_migration_engine", lambda: engine)
     with patch("alembic.command.upgrade", side_effect=RuntimeError("synthetic DDL failure")):
         assert db_bootstrap.main() == 1
     engine.dispose()
@@ -22,8 +21,7 @@ def test_bootstrap_refuses_unversioned_existing_schema(monkeypatch):
     engine = create_engine("sqlite://")
     with engine.begin() as conn:
         conn.execute(text("CREATE TABLE unversioned_business_record(id INTEGER PRIMARY KEY)"))
-    monkeypatch.setattr("web.database.engine.init_db", lambda: None)
-    monkeypatch.setattr("web.database.engine.get_engine", lambda: engine)
+    monkeypatch.setattr(db_bootstrap, "_migration_engine", lambda: engine)
     with patch("alembic.command.stamp") as stamp, patch("alembic.command.upgrade") as upgrade:
         assert db_bootstrap.main() == 1
     stamp.assert_not_called()

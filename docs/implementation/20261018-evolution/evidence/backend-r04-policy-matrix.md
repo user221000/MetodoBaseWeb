@@ -1,6 +1,6 @@
-# R04: matriz previa a activar políticas
+# R04: matriz y ensayo aislado de políticas
 
-Estado: propuesta aprobada por alcance; mecanismos de contexto implementados, sin nueva activación RLS todavía. El coordinador revisa canales, roles y excepciones antes de añadir la migración local. No se ejecuta activación en producción ni se afirma RLS universal.
+Estado: preparación integrada en f325fc4; activación 20261018_tenant_isolation autorizada únicamente en bases UUID sintéticas y eliminadas tras cada ensayo. Revisión del coordinador y aceptación independiente siguen en curso. No se ejecuta activación en producción ni se afirma RLS universal.
 
 Autoridad: el middleware usa la identidad canónica que relee usuario, sesión, rol y equipo persistidos. `/api/usuario/*` usa el ID personal; rutas profesionales usan primero team_gym_id y después el ID propio. No se acepta tenant por header, email, body o query. Cada transacción PostgreSQL instala SET LOCAL; ausencia instala cadena vacía y las políticas no conceden filas. Fallos de instalación se propagan. Hooks del engine cubren conexiones y sesiones directas; after_begin de Session conserva el sujeto explícito de callbacks a través de commits.
 
