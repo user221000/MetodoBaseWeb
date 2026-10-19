@@ -1,0 +1,94 @@
+FFFFFFFF..FF                                                             [100%]
+================================== FAILURES ===================================
+_ test_deployed_payment_route_exact_observed_key_can_be_consumed[stripe-api.app] _
+tests\test_mfa31_payment_alias_keys.py:47: in test_deployed_payment_route_exact_observed_key_can_be_consumed
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_deployed_payment_route_exact_observed_key_can_be_consumed[stripe-web.main_web] _
+tests\test_mfa31_payment_alias_keys.py:47: in test_deployed_payment_route_exact_observed_key_can_be_consumed
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_deployed_payment_route_exact_observed_key_can_be_consumed[mp-api.app] __
+tests\test_mfa31_payment_alias_keys.py:47: in test_deployed_payment_route_exact_observed_key_can_be_consumed
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_deployed_payment_route_exact_observed_key_can_be_consumed[mp-web.main_web] _
+tests\test_mfa31_payment_alias_keys.py:47: in test_deployed_payment_route_exact_observed_key_can_be_consumed
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[stripe-api.app] _
+tests\test_mfa31_payment_alias_keys.py:68: in test_deployed_payment_route_rejects_added_key_absent_from_observed_grant
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[stripe-web.main_web] _
+tests\test_mfa31_payment_alias_keys.py:68: in test_deployed_payment_route_rejects_added_key_absent_from_observed_grant
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[mp-api.app] _
+tests\test_mfa31_payment_alias_keys.py:68: in test_deployed_payment_route_rejects_added_key_absent_from_observed_grant
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[mp-web.main_web] _
+tests\test_mfa31_payment_alias_keys.py:68: in test_deployed_payment_route_rejects_added_key_absent_from_observed_grant
+    path,body=payment_request(client,actor,provider,monkeypatch)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_mfa31_payment_alias_keys.py:18: in payment_request
+    routes={route.path for route in client.app.routes}
+            ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_web_aliases_remain_unmounted_and_never_reach_a_provider[stripe-web.main_web] _
+tests\test_mfa31_payment_alias_keys.py:109: in test_web_aliases_remain_unmounted_and_never_reach_a_provider
+    assert path not in {route.path for route in client.app.routes}
+                        ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+_ test_web_aliases_remain_unmounted_and_never_reach_a_provider[mp-web.main_web] _
+tests\test_mfa31_payment_alias_keys.py:109: in test_web_aliases_remain_unmounted_and_never_reach_a_provider
+    assert path not in {route.path for route in client.app.routes}
+                        ^^^^^^^^^^
+E   AttributeError: '_IncludedRouter' object has no attribute 'path'
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_exact_observed_key_can_be_consumed[stripe-api.app]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_exact_observed_key_can_be_consumed[stripe-web.main_web]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_exact_observed_key_can_be_consumed[mp-api.app]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_exact_observed_key_can_be_consumed[mp-web.main_web]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[stripe-api.app]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[stripe-web.main_web]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[mp-api.app]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_deployed_payment_route_rejects_added_key_absent_from_observed_grant[mp-web.main_web]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_web_aliases_remain_unmounted_and_never_reach_a_provider[stripe-web.main_web]
+FAILED tests/test_mfa31_payment_alias_keys.py::test_web_aliases_remain_unmounted_and_never_reach_a_provider[mp-web.main_web]
+10 failed, 2 passed, 1 warning in 22.90s
