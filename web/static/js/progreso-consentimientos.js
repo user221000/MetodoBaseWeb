@@ -1,0 +1,61 @@
+/* Own metadata and withdrawal do not depend on personal-space or professional authority. */
+(() => {
+  'use strict';
+  const uuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value);
+  const fail=code=>Object.assign(new Error('Consulta el estado antes de confirmar otra acción.'),{code});
+  function mount(host){
+    const get=id=>document.getElementById(id),view=ProgresoVista,dto=ProgresoRespuestas,form=get('consent-form');
+    let rows=[],next=null,profiles=[],personal=null,links=[],linkNext=null,selected=null,current=null,pending=null;
+    function clear(){rows=[];next=null;profiles=[];personal=null;links=[];linkNext=null;selected=null;current=null;pending=null;form.reset();get('consent-list').replaceChildren();get('consent-current').replaceChildren();get('consent-recipient').textContent='';get('consent-status').textContent='';for(const id of['consent-link','consent-profile']){const select=get(id);while(select.options.length>1)select.remove(1);select.value='';}get('progress-consents').hidden=true;get('consent-create').hidden=true;}
+    host.onClear(clear);
+    function controls(){
+      if(!host.active)return;get('consent-more').hidden=next===null;get('consent-links-more').hidden=linkNext===null;get('consent-readback').hidden=pending===null;
+      get('consent-create').hidden=personal?.capabilities.manageConsent!==true;form.hidden=!selected||current?.canGrant!==true||personal?.capabilities.manageConsent!==true;
+      get('consent-fields').disabled=host.busy||pending!==null;get('consent-link').disabled=host.busy||pending!==null;
+      const measures=['consent-weight','consent-fat','consent-lean'].some(id=>get(id).checked);get('consent-profile').disabled=host.busy||pending!==null||!measures;
+      get('consent-through').disabled=host.busy||pending!==null||get('consent-ongoing').checked;get('consent-through').required=!get('consent-ongoing').checked;
+      for(const button of get('consent-list').querySelectorAll('button'))button.disabled=host.busy||pending!==null;
+    }
+    host.onControls(controls);
+    function setProfiles(values){profiles=values;host.render(()=>{const select=get('consent-profile'),value=select.value;while(select.options.length>1)select.remove(1);for(const profile of profiles.filter(row=>row.canRecord)){const option=view.node('option',profile.displayName);option.value=profile.id;select.append(option);}select.value=value;});}
+    function configure(value){personal=value;setProfiles(value.profiles.items);host.render(controls);}
+    function disablePersonal(){personal=null;profiles=[];links=[];linkNext=null;selected=null;current=null;host.render(()=>{form.reset();get('consent-current').replaceChildren();get('consent-recipient').textContent='';for(const id of['consent-link','consent-profile']){const select=get(id);while(select.options.length>1)select.remove(1);select.value='';}controls();});}
+    function scope(value,target){view.scope(target,{categories:value.categories,fromDate:value.fromDate,throughDate:value.throughDate,profileLabel:value.sourceProfileId===null?null:profiles.find(row=>row.id===value.sourceProfileId)?.displayName||'Perfil propio no disponible en esta consulta'});}
+    function display(){host.render(()=>{const list=get('consent-list');list.replaceChildren();if(!rows.length)list.append(view.node('p','No hay eventos de permisos propios disponibles. Esto no crea un permiso ni consulta fuentes ocultas.'));for(const row of rows){host.check();const card=view.node('section',undefined,'progress-card');card.append(view.node('h3',row.consent.event==='withdraw'?'Permiso retirado':'Evento de autorización guardado'),view.node('p','Registrado: '+view.instant(row.consent.createdAt)),view.node('p','No se consulta el nombre o contacto de una fuente oculta. La vigencia efectiva se verifica en el servidor.'));const detail=view.node('div');scope(row.consent,detail);card.append(detail);if(row.canWithdraw){const button=view.node('button','Retirar este permiso');button.type='button';button.addEventListener('click',()=>host.action(()=>withdraw(row)));card.append(button);}list.append(card);}get('progress-consents').hidden=false;controls();});}
+    async function load(reset=true){const position=reset?null:next;if(!reset&&position===null)return;const result=await host.read(context=>Api.progreso.consentimientos(context,position),dto.consents);host.check();if(position!==null&&result.nextAfter===position)throw fail('progress_response_unavailable');host.render(()=>{const seen=new Set(reset?[]:rows.map(row=>row.linkId));rows=reset?[]:rows;for(const row of result.rows)if(!seen.has(row.linkId)){seen.add(row.linkId);rows.push(row);}next=result.nextAfter;get('consent-status').textContent='Se consultaron los últimos eventos propios. Un evento guardado no demuestra por sí solo acceso vigente.';});display();}
+    function linked(input){
+      if(!input||!Array.isArray(input.items)||input.items.length>100||(input.next_after!==null&&!uuid(input.next_after)))throw fail('progress_response_unavailable');const seen=new Set();
+      for(const row of input.items){if(!uuid(row.link_id)||seen.has(row.link_id)||!Number.isSafeInteger(row.version)||row.version<1||row.version>2147483647||row.status!=='active'||row.context?.kind!=='gym_member'||row.context.link_id!==row.link_id||typeof row.context.gym_name!=='string'||typeof row.context.client_display_name!=='string'||row.capabilities?.read_published_plan!==true)throw fail('progress_response_unavailable');seen.add(row.link_id);}return input;
+    }
+    async function loadLinks(reset=true){
+      if(personal?.capabilities.manageConsent!==true)return;const position=reset?null:linkNext;if(!reset&&position===null)return;const result=await host.read(context=>Api.vinculos.listar(context,position),linked);host.check();if(position!==null&&result.next_after===position)throw fail('progress_response_unavailable');host.render(()=>{const seen=new Set(reset?[]:links.map(row=>row.link_id));links=reset?[]:links;for(const row of result.items)if(!seen.has(row.link_id)){seen.add(row.link_id);links.push(row);}linkNext=result.next_after;if(reset&&selected&&!links.some(row=>row.link_id===selected.link_id)){selected=null;current=null;form.reset();get('consent-recipient').textContent='';get('consent-current').replaceChildren();}const select=get('consent-link');while(select.options.length>1)select.remove(1);for(const row of links){const option=view.node('option',row.context.gym_name+' · '+row.context.client_display_name);option.value=row.link_id;select.append(option);}select.value=selected?.link_id||'';controls();});
+    }
+    async function selectLink(){
+      if(pending)throw fail('progress_operation_pending');const row=links.find(item=>item.link_id===get('consent-link').value)||null;selected=row;current=null;
+      host.render(()=>{form.reset();get('consent-current').replaceChildren();get('consent-recipient').textContent='';controls();});if(!row)return;
+      const result=await host.read(context=>Api.progreso.consentimiento(row.link_id,context),raw=>dto.consent(raw,row.link_id));host.check();if(selected!==row)throw fail('progress_context_changed');current=result;
+      host.render(()=>{get('consent-recipient').textContent='Destinatario del permiso: '+row.context.gym_name+' · '+row.context.client_display_name+'. Revisa el vínculo y este alcance antes de confirmar.';const target=get('consent-current');target.replaceChildren();if(result.consent){scope(result.consent,target);target.append(view.node('p','Al confirmar otro alcance reemplazas el evento observado. No se reutiliza una autorización por intuición.'));}else target.append(view.node('p','Aún no hay un permiso guardado. Nada se comparte por esta selección.'));controls();});
+    }
+    function sameScope(left,right){return left.sourceProfileId===right.source_profile_id&&left.fromDate===right.from_date&&left.throughDate===right.through_date&&left.ongoing===right.ongoing&&Object.keys(left.categories).every(key=>left.categories[key]===right.categories[key]);}
+    async function grant(){
+      host.check();if(pending)throw fail('progress_operation_pending');if(!selected||!current?.canGrant||personal?.capabilities.manageConsent!==true)throw fail('progress_permission_denied');if(!get('consent-confirm').checked)throw Object.assign(new Error('Revisa y marca la confirmación explícita del alcance.'),{code:'progress_invalid_input'});
+      const target=ProgresoDatos.consent({source_profile_id:get('consent-profile').value,categories:{weight:get('consent-weight').checked,body_fat:get('consent-fat').checked,lean_mass:get('consent-lean').checked,completion:get('consent-completion').checked},from_date:get('consent-from').value,through_date:get('consent-ongoing').checked?null:get('consent-through').value,ongoing:get('consent-ongoing').checked});
+      const before=current,link=selected,body={expected_consent_id:before.consent?.id||null,expected_version:before.version,expected_link_version:link.version,event:'grant',...target};pending={linkId:link.link_id,event:'grant',before:before.version,target};host.render(()=>{get('consent-status').textContent='Guardando el alcance confirmado…';controls();});
+      const result=await host.read(context=>Api.progreso.guardarConsentimiento(link.link_id,body,context),raw=>dto.consent(raw,link.link_id));host.check();if(result.version!==before.version+1||result.consent?.event!=='grant'||result.consent.linkVersion!==link.version||!sameScope(result.consent,target))throw fail('progress_unconfirmed');current=result;pending=null;
+      host.render(()=>{get('consent-confirm').checked=false;get('consent-status').textContent='Permiso confirmado por el servidor. No concede acceso a categorías o fechas fuera de este alcance.';scope(result.consent,get('consent-current'));controls();});await load(true);
+    }
+    async function withdraw(row){
+      host.check();if(pending)throw fail('progress_operation_pending');if(row.canWithdraw!==true)throw fail('progress_permission_denied');const before=row.consent;pending={linkId:row.linkId,event:'withdraw',before:before.version};host.render(()=>{get('consent-status').textContent='Solicitando retirar el permiso observado…';controls();});
+      const result=await host.read(context=>Api.progreso.retirarConsentimiento(row.linkId,before.id,before.version,context),raw=>dto.consent(raw,row.linkId));host.check();if(result.version!==before.version+1||result.consent?.event!=='withdraw')throw fail('progress_unconfirmed');pending=null;
+      if(selected?.link_id===row.linkId)current=result;host.render(()=>{get('consent-status').textContent='Retirada confirmada. No afirma que se eliminaron datos o un plazo de conservación.';form.reset();controls();});await load(true);
+    }
+    async function readBack(){
+      if(!pending)return;const intention=pending,result=await host.read(context=>Api.progreso.consentimiento(intention.linkId,context),raw=>dto.consent(raw,intention.linkId));host.check();pending=null;if(selected?.link_id===intention.linkId)current=result;
+      await load(true);host.render(()=>{form.reset();get('consent-status').textContent='Se consultó el estado actual del permiso. Revisa el alcance y confirma una nueva acción sólo si aún la deseas; no se reenvió ninguna mutación.';if(result.consent)scope(result.consent,get('consent-current'));controls();});
+    }
+    form.addEventListener('submit',event=>{event.preventDefault();host.action(grant);});get('consent-link').addEventListener('change',()=>host.action(selectLink));get('consent-more').addEventListener('click',()=>host.action(()=>load(false)));get('consent-links-more').addEventListener('click',()=>host.action(()=>loadLinks(false)));get('consent-readback').addEventListener('click',()=>host.action(readBack));
+    form.addEventListener('change',event=>host.action(async()=>{host.render(()=>{if(event.target.id!=='consent-confirm')get('consent-confirm').checked=false;if(!['consent-weight','consent-fat','consent-lean'].some(id=>get(id).checked))get('consent-profile').value='';if(get('consent-ongoing').checked)get('consent-through').value='';controls();});}));
+    return Object.freeze({load,loadLinks,configure,setProfiles,disablePersonal,controls,clear});
+  }
+  window.ProgresoConsentimientosUI=Object.freeze({mount});
+})();

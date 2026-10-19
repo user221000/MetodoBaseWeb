@@ -98,7 +98,9 @@ async def suscripciones(request: Request):
 
 @router.get("/configuracion", response_class=HTMLResponse)
 async def configuracion(request: Request):
-    return template_response(templates, request, "configuracion.html", {"request": request})
+    from config.settings import Settings
+    _s = Settings()
+    return template_response(templates, request, "configuracion.html", {"request": request, "google_client_id": _s.GOOGLE_CLIENT_ID})
 
 
 @router.get("/equipo", response_class=HTMLResponse)
@@ -128,6 +130,14 @@ async def reset_password_page(request:Request):
     return response
 
 
+@router.get('/retirar-consentimientos', response_class=HTMLResponse)
+async def progress_retirement_page(request: Request):
+    """Public purpose-only form; it never acquires general session authority."""
+    response = template_response(templates, request, 'retiro_consentimientos.html', {'request': request})
+    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+    return response
+
+
 # ── Individual User Pages ─────────────────────────────────────────────────
 
 @router.get("/mi-plan", response_class=HTMLResponse)
@@ -136,7 +146,9 @@ async def mi_plan_page(request: Request):
 
 @router.get("/mi-perfil", response_class=HTMLResponse)
 async def mi_perfil_page(request: Request):
-    return template_response(templates, request, "usuario_perfil.html", {"request": request})
+    from config.settings import Settings
+    _s = Settings()
+    return template_response(templates, request, "usuario_perfil.html", {"request": request, "google_client_id": _s.GOOGLE_CLIENT_ID})
 
 @router.get("/mi-historial", response_class=HTMLResponse)
 async def mi_historial_page(request: Request):
@@ -166,3 +178,13 @@ async def member_links_page(request: Request):
 @router.get("/auth/accept-client-link", response_class=HTMLResponse)
 async def accept_client_link_page(request: Request):
     return _client_link_page(request, "accept_client_link.html")
+
+
+@router.get("/mi-progreso", response_class=HTMLResponse)
+async def personal_progress_page(request: Request):
+    return _client_link_page(request, "usuario_progreso.html")
+
+
+@router.get("/clientes/{client_id}/progreso", response_class=HTMLResponse)
+async def professional_progress_page(request: Request, client_id: str):
+    return _client_link_page(request, "cliente_progreso.html", client_id=client_id)

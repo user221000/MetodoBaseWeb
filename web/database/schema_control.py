@@ -20,6 +20,8 @@ SCHEMA_CONTRACTS = {
     "20261019_account_recovery": "20261019_account_recovery",
     "20261019_client_account_links": "20261019_client_account_links",
     "20261019_personal_history_index": "20261019_personal_history_index",
+    "20261019_mfa": "20261019_mfa",
+    "20261019_personal_progress": "20261019_personal_progress",
 }
 
 
@@ -80,6 +82,10 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
                 from web.database.alembic.history_index_contract_v1 import history_index_signature
                 if history_index_signature(connection) != contract["history_order_index"]:
                     raise RuntimeError("Database history ordering differs from the reviewed index")
+            if "progress_security" in contract:
+                from web.database.progress_policy import signature as progress_signature
+                if progress_signature(connection) != contract["progress_security"]:
+                    raise RuntimeError("Database progress authority differs from the reviewed contract")
             if expected_revision is not None:
                 # Explicit historical migration acceptance uses that revision's
                 # frozen model, not the current application's newer metadata.

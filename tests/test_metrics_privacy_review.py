@@ -285,6 +285,7 @@ def test_existing_history_bounds_and_alerts_retain_counts_without_subjects(monke
 def test_unhandled_exception_without_response_is_explicitly_outside_metrics_claim(
     store,
 ):
+    """Historical case ID: R17 now records 500 while preserving privacy."""
     app = FastAPI()
     app.add_middleware(metrics.MetricsMiddleware, enabled=True)
 
@@ -294,5 +295,8 @@ def test_unhandled_exception_without_response_is_explicitly_outside_metrics_clai
 
     with TestClient(app, raise_server_exceptions=False) as client:
         assert client.get("/raises/" + PRIVATE).status_code == 500
-    assert store.get_summary()["total_requests"] == 0
-    assert not store._recent_requests
+    assert store.get_summary()["total_requests"] == 1
+    assert len(store._recent_requests) == 1
+    assert store._recent_requests[0].status_code == 500
+    assert store._recent_requests[0].path == "/raises/{subject}"
+    no_identity(store)

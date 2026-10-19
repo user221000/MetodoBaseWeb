@@ -1,0 +1,48 @@
+{
+  "source_head": "2273616eb218adfdd30680e111da50a4599a8c53",
+  "parent": "219f89a5ee0196061fea5b67e36ae07daf7f4316",
+  "finding": "SEC18 resource robustness, no authorization/data/exploit classification",
+  "verdict": "PASS_FOCAL_SEC18_OWNED_INVALIDATION",
+  "phases": {
+    "sqlite-delta": {
+      "exit": 0,
+      "cases": 79,
+      "outcomes": {
+        "passed": 79,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 535,
+      "packages": 89,
+      "sources_packages_python_exact": true,
+      "pip_before": 0,
+      "pip_after": 0
+    },
+    "postgres-delta": {
+      "exit": 0,
+      "cases": 30,
+      "outcomes": {
+        "passed": 30,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 535,
+      "packages": 89,
+      "sources_packages_python_exact": true,
+      "pip_before": 0,
+      "pip_after": 0
+    }
+  },
+  "same_original_sqlite_cases": 75,
+  "same_original_pg_cases": 26,
+  "additional_invalidation_failure_cases_per_dialect": 4,
+  "original_fault_canary_RAW_sha256": "1002b027643932e0579eb5cf46b264ec46f129aea9f0f4346be0b579f7bd757a",
+  "previous_evidence_commit": "6147f9300989f4115cf8d270025a3805926d32b1",
+  "previous_manifest_sha256": "fe37709f7e1a81aff1d89e84505050fcd9b023401a0d86e17d6fc14c7d0d8b7a",
+  "owned_pg_databases_closed": 3,
+  "no_product_or_original_test_edits": true,
+  "confirmed_limit": "If Session.invalidate itself fails before release under the compound injected model, one checkout remains until the harness cleans its own Session. The API is opaque503 and ContextVar restored; no zero-checkout guarantee is claimed for that extra failure.",
+  "scope": "Only the cleanup delta and unchanged limited-retirement controls; actual SQLite32 and restricted own PostgreSQL32 pool1. No general R25/R31 acceptance, deployed exploit, real driver-failure claim, browser/UI acceptance, Google33, new DDL or provider live."
+}

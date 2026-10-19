@@ -141,7 +141,7 @@ def test_google_uses_same_member_identity(identity_db, monkeypatch):
     from config import settings
     factory, owner_id, member_id, _ = identity_db
     user = principal(factory, member_id)
-    monkeypatch.setattr(settings, "Settings", lambda: SimpleNamespace(GOOGLE_CLIENT_ID="synthetic-client-id"))
+    monkeypatch.setattr(settings.get_settings(), "GOOGLE_CLIENT_ID", "synthetic-client-id")
 
     class FakeGoogleClient:
         def __init__(self, **kwargs):
@@ -172,7 +172,7 @@ def test_disabled_google_account_is_not_recreated(identity_db, monkeypatch):
     with factory() as db:
         db.get(Usuario, member_id).activo = False
         db.commit()
-    monkeypatch.setattr(settings, "Settings", lambda: SimpleNamespace(GOOGLE_CLIENT_ID="synthetic-client-id"))
+    monkeypatch.setattr(settings.get_settings(), "GOOGLE_CLIENT_ID", "synthetic-client-id")
 
     class FakeGoogleClient:
         def __init__(self, **kwargs):

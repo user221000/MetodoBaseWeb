@@ -10,6 +10,20 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 
+@pytest.fixture
+def web_auth_client(web_auth_client, test_gym_user, monkeypatch):
+    """Opt in locally: the ordinary fixture keeps primary-only semantics."""
+    import base64
+    from web.database.engine import SessionLocal
+    from web.settings import get_settings
+    from tests.mfa31_contract_client import MfaContractClient
+    monkeypatch.setattr(get_settings(), 'MFA_ENCRYPTION_KEY', base64.urlsafe_b64encode(
+        b'synthetic-mfa-contract-key-32byte!'[:32]).decode())
+    client = MfaContractClient(web_auth_client, test_gym_user, SessionLocal, 'test123')
+    client.authenticate()
+    return client
+
+
 def entitlement(owner, *, plan="clinica", status="active", expired=False):
     from web.database.engine import get_engine
     from web.database.models import Subscription

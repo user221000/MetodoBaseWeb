@@ -1,0 +1,10 @@
+{
+  "base": "1be3b671b106bee6447ea47377d2596fde12d0b1",
+  "source": "2273616eb218adfdd30680e111da50a4599a8c53",
+  "source_paths_exact": 187,
+  "criteria_exact": 126,
+  "erratum": "The first control stage preserved Windows CRLF in the eight editable control Markdown/JSON files because its Git helper forced core.autocrlf=false. The source whitespace gate rejected their complete-line CRs. The first successor also stopped before any closure folder was created because Git preserves already-indexed CRLF on ordinary add. This successor explicitly renormalizes only those eight control files and verifies every staged byte equals working bytes with CRLF-to-LF. The second successor verified index LF but its forced core.autocrlf=false whitespace check still flagged control CR ends; the normal repository Git whitespace check passes. This successor retains normal repository whitespace semantics and explicitly verifies no CR remains in any staged control. All product/test/RAW producer bytes remain exact. Initial driver and seal remain unchanged.",
+  "source_and_control_whitespace_gate": "PASS",
+  "raw_proof_whitespace_is_not_normalized": true,
+  "scope": "Reviewed local schema32 integration, not a new runtime test or production deployment."
+}

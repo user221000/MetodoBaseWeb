@@ -168,6 +168,69 @@ class RefreshToken(Base):
     usuario = relationship("Usuario", back_populates="refresh_tokens")
 
 
+class MfaCredential(Base):
+    """Personal encrypted factor; never an association with a professional gym."""
+    __tablename__ = "mfa_credentials"
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), primary_key=True)
+    factor_id = Column(String(32), nullable=False, unique=True)
+    generation = Column(Integer, nullable=False, default=0, server_default="0")
+    secret_ciphertext = Column(Text, nullable=True)
+    enabled_at = Column(UTCDateTime, nullable=True)
+    last_counter = Column(Integer, nullable=False, default=-1, server_default="-1")
+    pending_id = Column(String(32), nullable=True)
+    pending_ciphertext = Column(Text, nullable=True)
+    pending_expires_at = Column(UTCDateTime, nullable=True)
+    attempts = Column(JSON, nullable=False, default=dict, server_default="{}")
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (
+        CheckConstraint("generation >= 0 AND last_counter >= -1", name="ck_mfa_credential_counters"),
+        CheckConstraint("(secret_ciphertext IS NULL AND enabled_at IS NULL) OR (secret_ciphertext IS NOT NULL AND enabled_at IS NOT NULL AND generation > 0)", name="ck_mfa_credential_active"),
+        CheckConstraint("(pending_id IS NULL AND pending_ciphertext IS NULL AND pending_expires_at IS NULL) OR (pending_id IS NOT NULL AND pending_ciphertext IS NOT NULL AND pending_expires_at IS NOT NULL)", name="ck_mfa_credential_pending"),
+    )
+
+
+class MfaRecoveryCode(Base):
+    """High-entropy, purpose-hashed, one-use recovery possession evidence."""
+    __tablename__ = "mfa_recovery_codes"
+    id = Column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
+    user_id = Column(String(36), ForeignKey("mfa_credentials.user_id", ondelete="RESTRICT"), nullable=False, index=True)
+    generation = Column(Integer, nullable=False)
+    code_hash = Column(String(64), nullable=False, unique=True)
+    used_at = Column(UTCDateTime, nullable=True)
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (CheckConstraint("generation > 0 AND length(code_hash) = 64", name="ck_mfa_recovery_state"),)
+
+
+class MfaAuthorization(Base):
+    """Opaque authentication control plane; access is by digest and exact purpose.
+
+    Public primary-verified challenges precede personal RLS context. Action
+    grants must be consumable in the business transaction without switching its
+    tenant; neither kind contains a plaintext secret or business record.
+    """
+    __tablename__ = "mfa_authorizations"
+    token_hash = Column(String(64), primary_key=True)
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=False, index=True)
+    session_version = Column(Integer, nullable=False)
+    generation = Column(Integer, nullable=False)
+    purpose = Column(String(16), nullable=False)
+    access_hash = Column(String(64), nullable=True)
+    action_binding = Column(String(64), nullable=True)
+    primary_method = Column(String(16), nullable=False)
+    remember_me = Column(Boolean, nullable=False, default=False, server_default="false")
+    attempts = Column(Integer, nullable=False, default=0, server_default="0")
+    expires_at = Column(UTCDateTime, nullable=False)
+    consumed_at = Column(UTCDateTime, nullable=True)
+    factor_verified_at = Column(UTCDateTime, nullable=True)
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (
+        CheckConstraint("CAST(purpose AS TEXT) IN (CAST('login' AS TEXT),CAST('reauth' AS TEXT),CAST('action' AS TEXT)) AND CAST(primary_method AS TEXT) IN (CAST('password' AS TEXT),CAST('google' AS TEXT))", name="ck_mfa_authorization_purpose"),
+        CheckConstraint("session_version >= 0 AND generation >= 0 AND attempts >= 0 AND length(token_hash) = 64", name="ck_mfa_authorization_counters"),
+        CheckConstraint("(purpose = 'login' AND access_hash IS NULL AND action_binding IS NULL AND ((consumed_at IS NULL AND factor_verified_at IS NULL) OR (consumed_at IS NOT NULL AND factor_verified_at IS NOT NULL AND factor_verified_at = consumed_at AND factor_verified_at >= created_at))) OR (purpose = 'reauth' AND access_hash IS NOT NULL AND length(access_hash) = 64 AND action_binding IS NULL AND factor_verified_at IS NULL) OR (purpose = 'action' AND access_hash IS NOT NULL AND length(access_hash) = 64 AND action_binding IS NOT NULL AND length(action_binding) = 64 AND factor_verified_at IS NOT NULL AND factor_verified_at <= created_at)", name="ck_mfa_authorization_binding"),
+        Index("ix_mfa_authorizations_recent", "user_id", "access_hash", "factor_verified_at"),
+    )
+
+
 # ── Clientes (multi-tenant via gym_id) ───────────────────────────────────────
 
 class Cliente(Base):
@@ -544,10 +607,56 @@ class ClientProgress(Base):
     masa_magra_kg = Column(Float)
     notas = Column(Text, default="")
 
+    # Revision32 provenance is explicit. Never infer measured_on/authorship
+    # from a legacy row's recording timestamp or its professional owner.
+    record_key = Column(String(36), nullable=True)
+    source_kind = Column(String(24), nullable=False, default="legacy_unverified", server_default="legacy_unverified")
+    measured_on = Column(Date, nullable=True)
+    recorded_by_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT", name="fk_progress_author"), nullable=True)
+    recorded_at = Column(UTCDateTime, nullable=True)
+    updated_at = Column(UTCDateTime, nullable=True)
+    version = Column(Integer, nullable=False, default=1, server_default="1")
+    withdrawn_at = Column(UTCDateTime, nullable=True)
+
     cliente = relationship("Cliente", backref="progreso", foreign_keys=[id_cliente])
 
     __table_args__ = (
         Index("ix_progress_cliente_fecha", "id_cliente", "fecha"),
+        UniqueConstraint("record_key", name="uq_progress_record_key"),
+        CheckConstraint("CAST(source_kind AS TEXT) IN (CAST('legacy_unverified' AS TEXT),CAST('self_reported' AS TEXT)) AND version BETWEEN 1 AND 2147483647", name="ck_progress_provenance"),
+        CheckConstraint("source_kind = 'legacy_unverified' OR (record_key IS NOT NULL AND measured_on IS NOT NULL AND recorded_by_id IS NOT NULL AND recorded_by_id = gym_id AND recorded_at IS NOT NULL AND updated_at IS NOT NULL AND (peso_kg IS NOT NULL OR grasa_corporal_pct IS NOT NULL OR masa_magra_kg IS NOT NULL) AND (peso_kg IS NULL OR peso_kg BETWEEN 20 AND 300) AND (grasa_corporal_pct IS NULL OR grasa_corporal_pct BETWEEN 3 AND 60) AND (masa_magra_kg IS NULL OR (masa_magra_kg > 0 AND masa_magra_kg <= 300)))", name="ck_progress_self_report"),
+    )
+
+
+class ProgressConsent(Base):
+    """Append-only, exact-link scope events; history alone never grants access."""
+    __tablename__ = "progress_consents"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    link_id = Column(String(36), nullable=False)
+    gym_id = Column(String(36), nullable=False)
+    client_id = Column(String(36), nullable=False)
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=False)
+    version = Column(Integer, nullable=False)
+    link_version = Column(Integer, nullable=False)
+    event = Column(String(8), nullable=False)
+    protocol = Column(String(32), nullable=False)
+    source_profile_id = Column(String(36), nullable=True)
+    share_weight = Column(Boolean, nullable=False)
+    share_body_fat = Column(Boolean, nullable=False)
+    share_lean_mass = Column(Boolean, nullable=False)
+    share_completion = Column(Boolean, nullable=False)
+    from_date = Column(Date, nullable=False)
+    through_date = Column(Date, nullable=True)
+    created_at = Column(UTCDateTime, nullable=False)
+    __table_args__ = (
+        ForeignKeyConstraint(["link_id", "gym_id", "client_id", "user_id"], ["client_account_links.id", "client_account_links.gym_id", "client_account_links.client_id", "client_account_links.user_id"], name="fk_progress_consent_link", ondelete="RESTRICT"),
+        ForeignKeyConstraint(["user_id", "source_profile_id"], ["clientes.gym_id", "clientes.id_cliente"], name="fk_progress_consent_profile", ondelete="RESTRICT"),
+        UniqueConstraint("link_id", "version", name="uq_progress_consent_version"),
+        Index("ix_progress_consent_subject", "user_id", "id"),
+        CheckConstraint("version BETWEEN 1 AND 2147483647 AND link_version BETWEEN 1 AND 2147483647", name="ck_progress_consent_versions"),
+        CheckConstraint("CAST(event AS TEXT) IN (CAST('grant' AS TEXT),CAST('withdraw' AS TEXT)) AND CAST(protocol AS TEXT) = CAST('progress_share_v1' AS TEXT)", name="ck_progress_consent_protocol"),
+        CheckConstraint("through_date IS NULL OR through_date >= from_date", name="ck_progress_consent_dates"),
+        CheckConstraint("(share_weight OR share_body_fat OR share_lean_mass OR share_completion) AND (NOT (share_weight OR share_body_fat OR share_lean_mass) OR source_profile_id IS NOT NULL)", name="ck_progress_consent_categories"),
     )
 
 

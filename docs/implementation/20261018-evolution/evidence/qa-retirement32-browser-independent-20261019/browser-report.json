@@ -1,0 +1,387 @@
+{
+  "source_head": "219f89a5ee0196061fea5b67e36ae07daf7f4316",
+  "scope": "Actual published web.main_web, own migrated SQLite32 and genuine MFA-owner/team invite/accept/login/link/grant/parent-OFF. Purpose actions use new primary/factor proofs. Only parent OFF and one committed ACK fault are explicit private harness stimuli. No auth override, clock override, provider, limiter reset, PG or production claim.",
+  "checks": [
+    {
+      "name": "Three actors come from real MFA-protected team invitations, explicit acceptance/link/grant; parent OFF removes only their general login",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "Public shell requests no account metadata and preserves the unrelated existing browser session without any Storage access",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "Keyboard order and invalid-input alert focus work without submitting a request",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "Selection is local; a fresh password is required again before withdrawal",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "Password-only actor retires exactly the selected own grant with parent OFF, without a general session",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "A naturally old TOTP is rejected by the real server and cleared from the page",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "Actual committed COMMIT ACK loss returns503; UI clears scope/proofs and performs no automatic retry/readback",
+      "scope": "One-shot private Session.commit fault after real COMMIT; rollback/close are unmodified"
+    },
+    {
+      "name": "Another explicit metadata action with a different valid factor observes the already committed withdrawal",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "A real concurrent retirement makes the exact old CAS conflict; UI discards selection without substituting latest state or replay",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "Fresh explicit proof can discover the current withdrawn state after a conflict",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "A committed metadata response held across an email change cannot restore old rows or clear the newer proof",
+      "scope": "Only response delivery is held; real primary/factor query already committed"
+    },
+    {
+      "name": "A browser account-change event clears the purpose view synchronously without reading or changing existing Storage",
+      "scope": "actual HTTP + actual browser DOM"
+    },
+    {
+      "name": "Database witnesses keep SV/role/parent authority, general proofs, refreshes and profiles unchanged; budgets remain bounded and each history appends one withdrawal",
+      "scope": "actual HTTP + actual browser DOM"
+    }
+  ],
+  "screens": [
+    {
+      "name": "entry-320",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "entry-390",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "entry-768",
+      "width": 768,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "entry-1440",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "password-withdrawn-390",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "factor-selected-320",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "uncertain-real503-390",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "real-cas409-320",
+      "width": 320,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "name": "account-event-cleared-390",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/metadata",
+      "bodyKeys": [
+        "after",
+        "limit",
+        "primary"
+      ],
+      "factorKind": "none",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/withdraw",
+      "bodyKeys": [
+        "expected_consent_id",
+        "expected_version",
+        "link_id",
+        "primary"
+      ],
+      "factorKind": "none",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/metadata",
+      "bodyKeys": [
+        "after",
+        "factor",
+        "limit",
+        "primary"
+      ],
+      "factorKind": "code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/metadata",
+      "bodyKeys": [
+        "after",
+        "factor",
+        "limit",
+        "primary"
+      ],
+      "factorKind": "recovery_code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/withdraw",
+      "bodyKeys": [
+        "expected_consent_id",
+        "expected_version",
+        "factor",
+        "link_id",
+        "primary"
+      ],
+      "factorKind": "recovery_code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/metadata",
+      "bodyKeys": [
+        "after",
+        "factor",
+        "limit",
+        "primary"
+      ],
+      "factorKind": "recovery_code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/metadata",
+      "bodyKeys": [
+        "after",
+        "factor",
+        "limit",
+        "primary"
+      ],
+      "factorKind": "recovery_code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/withdraw",
+      "bodyKeys": [
+        "expected_consent_id",
+        "expected_version",
+        "factor",
+        "link_id",
+        "primary"
+      ],
+      "factorKind": "recovery_code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/metadata",
+      "bodyKeys": [
+        "after",
+        "factor",
+        "limit",
+        "primary"
+      ],
+      "factorKind": "recovery_code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/progress-retirement/metadata",
+      "bodyKeys": [
+        "after",
+        "factor",
+        "limit",
+        "primary"
+      ],
+      "factorKind": "recovery_code",
+      "authorizationPresent": false,
+      "cookiePresent": false,
+      "queryPresent": false
+    }
+  ],
+  "transportViolations": [],
+  "pageErrors": [],
+  "complete": true,
+  "databaseWitness": {
+    "before": {
+      "A": {
+        "role": "viewer",
+        "tipo": "usuario",
+        "sv": 0,
+        "active": true,
+        "invitation_null": true,
+        "parent_active": false,
+        "profiles": 0,
+        "general_proofs": 0,
+        "refresh": 2,
+        "attempts": 0,
+        "events": [
+          [
+            "grant",
+            1
+          ]
+        ]
+      },
+      "B": {
+        "role": "viewer",
+        "tipo": "usuario",
+        "sv": 1,
+        "active": true,
+        "invitation_null": true,
+        "parent_active": false,
+        "profiles": 0,
+        "general_proofs": 2,
+        "refresh": 3,
+        "attempts": 0,
+        "events": [
+          [
+            "grant",
+            1
+          ]
+        ]
+      },
+      "C": {
+        "role": "viewer",
+        "tipo": "usuario",
+        "sv": 1,
+        "active": true,
+        "invitation_null": true,
+        "parent_active": false,
+        "profiles": 0,
+        "general_proofs": 2,
+        "refresh": 3,
+        "attempts": 0,
+        "events": [
+          [
+            "grant",
+            1
+          ]
+        ]
+      }
+    },
+    "after": {
+      "A": {
+        "role": "viewer",
+        "tipo": "usuario",
+        "sv": 0,
+        "active": true,
+        "invitation_null": true,
+        "parent_active": false,
+        "profiles": 0,
+        "general_proofs": 0,
+        "refresh": 2,
+        "attempts": 2,
+        "events": [
+          [
+            "grant",
+            1
+          ],
+          [
+            "withdraw",
+            2
+          ]
+        ]
+      },
+      "B": {
+        "role": "viewer",
+        "tipo": "usuario",
+        "sv": 1,
+        "active": true,
+        "invitation_null": true,
+        "parent_active": false,
+        "profiles": 0,
+        "general_proofs": 2,
+        "refresh": 3,
+        "attempts": 5,
+        "events": [
+          [
+            "grant",
+            1
+          ],
+          [
+            "withdraw",
+            2
+          ]
+        ]
+      },
+      "C": {
+        "role": "viewer",
+        "tipo": "usuario",
+        "sv": 1,
+        "active": true,
+        "invitation_null": true,
+        "parent_active": false,
+        "profiles": 0,
+        "general_proofs": 2,
+        "refresh": 3,
+        "attempts": 4,
+        "events": [
+          [
+            "grant",
+            1
+          ],
+          [
+            "withdraw",
+            2
+          ]
+        ]
+      }
+    }
+  },
+  "browser_close_returned": true
+}

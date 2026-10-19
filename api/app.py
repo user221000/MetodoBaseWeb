@@ -15,12 +15,8 @@ from web.middleware import (
     RequestIDMiddleware,
     CSRFMiddleware,
     RateLimiterMiddleware,
-    MetricsMiddleware,
     TenantMiddleware,
-    get_metrics_summary,
-    check_metrics_alerts,
     track_error,
-    get_error_alerter,
 )
 from api.routes import clientes as clientes_routes
 from api.routes import stats as stats_routes
@@ -130,11 +126,6 @@ def create_app() -> FastAPI:
             exclude_paths=["/health", "/health/ready", "/health/circuits", "/docs", "/redoc", "/openapi.json", "/static/"],
         )
     
-    # ── Metrics ──────────────────────────────────────────────────────────────
-    app.add_middleware(
-        MetricsMiddleware,
-        exclude_paths=["/metrics", "/health", "/health/ready"],
-    )
     
     # ── Tenant Context ───────────────────────────────────────────────────────
     app.add_middleware(
@@ -224,47 +215,6 @@ def create_app() -> FastAPI:
         except Exception:
             return JSONResponse(status_code=503, content={"ready": False})
 
-    # ── Metrics (protected by API key) ────────────────────────────────────────
-    from fastapi import Depends
-    import hmac as _hmac
-    
-    _METRICS_API_KEY = os.getenv("METRICS_API_KEY", "")
-    
-    async def _verify_metrics_key(request: Request):
-        """Verifica API key para endpoints de métricas/alertas."""
-        key = request.headers.get("X-Metrics-Key", "")
-        if not key or not _METRICS_API_KEY or not _hmac.compare_digest(key, _METRICS_API_KEY):
-            raise HTTPException(status_code=403, detail="Forbidden")
-    
-    @app.get("/metrics", tags=["System"], dependencies=[Depends(_verify_metrics_key)])
-    async def metrics_endpoint():
-        """
-        Métricas de latencia y rendimiento. Requiere X-Metrics-Key header.
-        """
-        summary = get_metrics_summary()
-        summary["alerts"] = check_metrics_alerts()
-        return summary
-    
-    @app.get("/alerts", tags=["System"], dependencies=[Depends(_verify_metrics_key)])
-    async def alerts_endpoint():
-        """
-        Estado del sistema de alertas. Requiere X-Metrics-Key header.
-        """
-        alerter = get_error_alerter()
-        return {
-            "status": alerter.get_status(),
-            "metrics_alerts": check_metrics_alerts(),
-            "recent_alerts": alerter.get_alert_history(limit=10),
-        }
-
-    @app.get("/health/circuits", tags=["System"], dependencies=[Depends(_verify_metrics_key)])
-    async def circuit_status():
-        """
-        Estado de los circuit breakers. Requiere X-Metrics-Key header.
-        """
-        from web.services.resilience import get_all_circuit_status
-        return {"circuits": get_all_circuit_status()}
-
     # ── Static files ──────────────────────────────────────────────────────────
     # Prefer web/static for the web app assets; fallback to root static if present.
     static_dir = _WEB_STATIC_DIR if _WEB_STATIC_DIR.exists() else _STATIC_DIR
@@ -299,6 +249,8 @@ def create_app() -> FastAPI:
     app.include_router(personal_diary_router, prefix="/api")
     from web.routes.password_recovery import router as password_recovery_router
     app.include_router(password_recovery_router, prefix="/api")
+    from web.routes.mfa import router as mfa_router
+    app.include_router(mfa_router, prefix="/api")
     from web.routes.client_links import router as client_links_router
     app.include_router(client_links_router, prefix="/api")
 
@@ -316,4 +268,9 @@ def create_app() -> FastAPI:
     # Wrap early middleware responses as well as routes, with one nonce/policy.
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIDMiddleware)
+    from web.observability.routes import configure_observability
+    from web.routes.personal_progress import router as personal_progress_router
+    app.include_router(personal_progress_router, prefix="/api")
+
+    configure_observability(app)
     return app

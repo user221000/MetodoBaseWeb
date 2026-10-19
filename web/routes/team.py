@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query, Response
+from fastapi import APIRouter, Depends, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -21,6 +21,7 @@ from web.auth_deps import get_effective_gym_id, get_usuario_actual
 from web.database.engine import get_db
 from web.database.models import GymProfile, Usuario, UserRole
 from web.services import team_invitation_service as invitations
+from web.services.mfa_business import step_up as _step_up, business_session
 from web.account_values import normalize_account_email, validate_new_password
 from web.services.permissions import (
     can_manage_user, get_assignable_roles, get_role_display_name,
@@ -173,9 +174,10 @@ async def _deliver(result: dict, *, email: str, nombre: str, gym_name: str, role
 
 
 @router.post("/invite", response_model=TeamInviteResponse)
-async def invite_team_member(request: TeamInviteRequest, db: Session = Depends(get_db),
-                             current_user: dict = Depends(get_usuario_actual)):
+async def invite_team_member(request: TeamInviteRequest, db: Session = Depends(business_session),
+                             current_user: dict = Depends(get_usuario_actual), *, http_request: Request):
     verify_permission(current_user, "invite", "team")
+    current_user = _step_up(db, current_user, http_request, request.model_dump(mode="json"))
     from web.settings import get_settings
     gym_id = get_effective_gym_id(current_user)
     gym_name = _gym_name(db, gym_id)
@@ -219,27 +221,30 @@ async def list_team_members(include_pending: bool = True, db: Session = Depends(
 
 @router.patch("/{user_id}/role", response_model=TeamMemberResponse)
 async def update_team_member_role(user_id: str, request: UpdateRoleRequest,
-                                  db: Session = Depends(get_db),
-                                  current_user: dict = Depends(get_usuario_actual)):
+                                  db: Session = Depends(business_session),
+                                  current_user: dict = Depends(get_usuario_actual), *, http_request: Request):
     verify_permission(current_user, "update_role", "team")
+    current_user = _step_up(db, current_user, http_request, request.model_dump(mode="json"))
     target = _target(db, current_user, user_id)
     invitations.change_role(db, current_user, target, request.role)
     return _member(target, current_user, invitation_allowed=invitations.can_issue_invitation(db, get_effective_gym_id(current_user)))
 
 
 @router.delete("/{user_id}")
-async def remove_team_member(user_id: str, db: Session = Depends(get_db),
-                             current_user: dict = Depends(get_usuario_actual)):
+async def remove_team_member(user_id: str, db: Session = Depends(business_session),
+                             current_user: dict = Depends(get_usuario_actual), *, http_request: Request):
     verify_permission(current_user, "remove", "team")
+    current_user = _step_up(db, current_user, http_request, {})
     target = _target(db, current_user, user_id)
     invitations.revoke_membership(db, current_user, target)
     return {"success":True, "status":"revoked", "message":"Acceso al equipo revocado. La cuenta y los datos personales se conservaron."}
 
 
 @router.post("/{user_id}/resend-invite", response_model=TeamInviteResponse)
-async def resend_invitation(user_id: str, db: Session = Depends(get_db),
-                            current_user: dict = Depends(get_usuario_actual)):
+async def resend_invitation(user_id: str, db: Session = Depends(business_session),
+                            current_user: dict = Depends(get_usuario_actual), *, http_request: Request):
     verify_permission(current_user, "invite", "team")
+    current_user = _step_up(db, current_user, http_request, {})
     target = _target(db, current_user, user_id)
     invitations.manageable(current_user, target)
     if target.activo or not target.invitation_token:

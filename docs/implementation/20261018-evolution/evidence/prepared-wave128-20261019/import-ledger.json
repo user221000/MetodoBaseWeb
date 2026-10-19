@@ -1,0 +1,959 @@
+{
+  "base": "1be3b671b106bee6447ea47377d2596fde12d0b1",
+  "candidate": "2273616eb218adfdd30680e111da50a4599a8c53",
+  "common_ancestor": "eea8f773fba9b7f92241958139fcefa23b9ee1d4",
+  "source_paths": [
+    ".github/workflows/ci.yml",
+    "alembic.ini",
+    "api/app.py",
+    "api/routes/pagos.py",
+    "config/settings.py",
+    "tests/capture_mfa31_targets.py",
+    "tests/capture_progress32_targets.py",
+    "tests/check_mfa31_reports.py",
+    "tests/ci_mfa31/.gitattributes",
+    "tests/ci_mfa31/CONTRATO.md",
+    "tests/ci_mfa31/baseline.json",
+    "tests/ci_mfa31/ci30-before.yml",
+    "tests/ci_mfa31/current-browser-mapping.json",
+    "tests/ci_mfa31/current-business-mapping.json",
+    "tests/ci_mfa31/current-report-nodeids.json",
+    "tests/ci_mfa31/current_link_fixtures.py",
+    "tests/ci_mfa31/image_inventory.py",
+    "tests/ci_mfa31/image_roles.py",
+    "tests/ci_mfa31/publish.py",
+    "tests/ci_mfa31/run_current_browser.py",
+    "tests/ci_mfa31/workflow.py",
+    "tests/current_mfa31_publication_fixtures.py",
+    "tests/e2e/daily_plan31_browser.cjs",
+    "tests/e2e/daily_plan31_server.py",
+    "tests/e2e/dashboard_followup31_browser.cjs",
+    "tests/e2e/followup31_server.py",
+    "tests/e2e/member_link31_browser.cjs",
+    "tests/e2e/member_link31_postgres_server.py",
+    "tests/e2e/member_link_consumers31.cjs",
+    "tests/e2e/mfa31_image.cjs",
+    "tests/e2e/mfa31_login.cjs",
+    "tests/e2e/mfa_api.cjs",
+    "tests/e2e/mfa_consumers.cjs",
+    "tests/e2e/mfa_http_worker.cjs",
+    "tests/e2e/mfa_personal_browser.cjs",
+    "tests/e2e/mfa_prompt.cjs",
+    "tests/e2e/mfa_state.cjs",
+    "tests/e2e/mfa_ui_browser.cjs",
+    "tests/e2e/mfa_ui_server.py",
+    "tests/e2e/normalize_member_link31_report.py",
+    "tests/e2e/progreso_api.cjs",
+    "tests/e2e/progreso_controlador.cjs",
+    "tests/e2e/progreso_datos.cjs",
+    "tests/e2e/progreso_operacion.cjs",
+    "tests/e2e/progreso_paginas.cjs",
+    "tests/e2e/progreso_respuestas.cjs",
+    "tests/e2e/progreso_vista.cjs",
+    "tests/e2e/progreso_wire.cjs",
+    "tests/e2e/progress_export.cjs",
+    "tests/e2e/progress_retirement.cjs",
+    "tests/e2e/progress_retirement_dom.cjs",
+    "tests/e2e/run_member_link31_browser.py",
+    "tests/integration_current31_member_http.py",
+    "tests/integration_current31_member_races.py",
+    "tests/integration_current31_member_services.py",
+    "tests/integration_current31_r24_publication.py",
+    "tests/integration_current31_r24_race.py",
+    "tests/integration_mfa31_migrations.py",
+    "tests/integration_mfa31_postgres.py",
+    "tests/integration_mfa31_restore.py",
+    "tests/integration_progress32_migrations.py",
+    "tests/integration_progress32_postgres.py",
+    "tests/integration_progress32_reader_adversarial.py",
+    "tests/integration_progress32_restore.py",
+    "tests/integration_progress_retirement.py",
+    "tests/mfa31_contract_client.py",
+    "tests/mfa31_fixtures.py",
+    "tests/mfa31_recovery_restore.py",
+    "tests/mfa31_restore_helpers.py",
+    "tests/progress32_fixtures.py",
+    "tests/progress32_restore_helpers.py",
+    "tests/retirement32_owned.py",
+    "tests/run_reviewed_ci30.py",
+    "tests/test_bootstrap_outcome_logging.py",
+    "tests/test_current_mfa31_fixture_clock.py",
+    "tests/test_current_publication_fixture_review.py",
+    "tests/test_identity_security.py",
+    "tests/test_metrics_privacy_review.py",
+    "tests/test_mfa31_asgi.py",
+    "tests/test_mfa31_billing_boundaries.py",
+    "tests/test_mfa31_business_ack.py",
+    "tests/test_mfa31_ci_trust.py",
+    "tests/test_mfa31_contract_clock.py",
+    "tests/test_mfa31_contract_clock_keyword.py",
+    "tests/test_mfa31_contract_fixture_review.py",
+    "tests/test_mfa31_crypto.py",
+    "tests/test_mfa31_google_reauth.py",
+    "tests/test_mfa31_http.py",
+    "tests/test_mfa31_lifecycle.py",
+    "tests/test_mfa31_parent_canonical.py",
+    "tests/test_mfa31_payment_alias_keys.py",
+    "tests/test_mfa31_primary_privacy.py",
+    "tests/test_mfa31_recent_witness.py",
+    "tests/test_mfa31_terminal_session_version.py",
+    "tests/test_mfa_ui_http_bridge.py",
+    "tests/test_mfa_ui_login_labels.py",
+    "tests/test_mfa_ui_pages.py",
+    "tests/test_personal_diary_security_review.py",
+    "tests/test_personal_progress_http.py",
+    "tests/test_progress32_aggregate.py",
+    "tests/test_progress32_boundaries.py",
+    "tests/test_progress32_export_privacy_headers.py",
+    "tests/test_progress32_query_dates.py",
+    "tests/test_progress_retirement_boundaries.py",
+    "tests/test_progress_retirement_cleanup.py",
+    "tests/test_progress_retirement_context.py",
+    "tests/test_progress_retirement_entrypoint_review.py",
+    "tests/test_progress_retirement_headers.py",
+    "tests/test_progress_retirement_http.py",
+    "tests/test_progress_retirement_ui.py",
+    "tests/test_progress_retirement_ui_contract.py",
+    "tests/test_progress_ui_pages.py",
+    "tests/test_publication_diary_consumption.py",
+    "tests/test_saas_observability_contract.py",
+    "tests/test_team_entitlement_review.py",
+    "tests/test_team_invitation_contract.py",
+    "tests/verify_mfa31_ci.py",
+    "web/auth.py",
+    "web/database/alembic/schema_targets/20261019_mfa_postgresql.json",
+    "web/database/alembic/schema_targets/20261019_mfa_sqlite.json",
+    "web/database/alembic/schema_targets/20261019_personal_progress_postgresql.json",
+    "web/database/alembic/schema_targets/20261019_personal_progress_sqlite.json",
+    "web/database/alembic/versions/20261019_mfa.py",
+    "web/database/alembic/versions/20261019_personal_progress.py",
+    "web/database/mfa_policy.py",
+    "web/database/models.py",
+    "web/database/progress_policy.py",
+    "web/database/schema_control.py",
+    "web/database/tenant_context.py",
+    "web/main_web.py",
+    "web/middleware/metrics.py",
+    "web/middleware/security_headers.py",
+    "web/observability/routes.py",
+    "web/personal_progress_schemas.py",
+    "web/progress_paths.py",
+    "web/progress_retirement_schemas.py",
+    "web/routes/auth.py",
+    "web/routes/billing.py",
+    "web/routes/mfa.py",
+    "web/routes/pages.py",
+    "web/routes/personal_progress.py",
+    "web/routes/privacy.py",
+    "web/routes/progress_retirement.py",
+    "web/routes/team.py",
+    "web/services/google_identity.py",
+    "web/services/mfa_actions.py",
+    "web/services/mfa_business.py",
+    "web/services/mfa_crypto.py",
+    "web/services/mfa_service.py",
+    "web/services/personal_progress.py",
+    "web/services/privacy_export.py",
+    "web/services/progress_export.py",
+    "web/services/progress_readers.py",
+    "web/services/progress_retirement.py",
+    "web/services/progress_share.py",
+    "web/static/css/mfa.css",
+    "web/static/css/progreso.css",
+    "web/static/css/retiro-consentimientos.css",
+    "web/static/js/api.js",
+    "web/static/js/cliente-progreso.js",
+    "web/static/js/equipo.js",
+    "web/static/js/gym-suscripcion.js",
+    "web/static/js/mfa-login.js",
+    "web/static/js/mfa-ui.js",
+    "web/static/js/progreso-consentimientos.js",
+    "web/static/js/progreso-controlador.js",
+    "web/static/js/progreso-datos.js",
+    "web/static/js/progreso-operacion.js",
+    "web/static/js/progreso-personal-medidas.js",
+    "web/static/js/progreso-respuestas.js",
+    "web/static/js/progreso-vista.js",
+    "web/static/js/retiro-consentimientos-pagina.js",
+    "web/static/js/retiro-consentimientos.js",
+    "web/static/js/usuario-privacidad.js",
+    "web/static/js/usuario-progreso.js",
+    "web/templates/cliente_progreso.html",
+    "web/templates/clientes.html",
+    "web/templates/configuracion.html",
+    "web/templates/login_gym.html",
+    "web/templates/login_usuario.html",
+    "web/templates/mfa_account_partial.html",
+    "web/templates/mfa_login_partial.html",
+    "web/templates/retiro_consentimientos.html",
+    "web/templates/usuario_perfil.html",
+    "web/templates/usuario_progreso.html",
+    "web/templates/usuario_vinculos.html",
+    "docs/implementation/20261018-evolution/MFA_UI_CONTRATO.md"
+  ],
+  "proofs": [
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/.gitattributes",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/after.RAW.json",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 62746,
+      "sha256": "39a2ed5a2b6dbba9ca1ae320fbfcde98330b6ae91fc75ebe7b95046f95c9164e"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/author-driver.py",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 4262,
+      "sha256": "eba4d393675e830d3a2900f66a334a4a46979ac41b8049453154bbccb15bb6ca"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/before.RAW.json",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 62746,
+      "sha256": "39a2ed5a2b6dbba9ca1ae320fbfcde98330b6ae91fc75ebe7b95046f95c9164e"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/freeze-driver.py",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 5795,
+      "sha256": "2315d5417195bfa3f8c1670add898d391950bc0fb0b418f48f866fca932e4e34"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/manifest.json",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 1286,
+      "sha256": "44df142f8dd1524aeb4d4b4db96841d2242737526684c732e960a3feeebabb37"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/pip-after.RAW.log",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 31,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/pip-before.RAW.log",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 31,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/route-before.GitLF.py",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 3133,
+      "sha256": "936ddda87b91df3b748518ab63b9274cdb22e133025ea23c79937360f490be90"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/source.json",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 2456,
+      "sha256": "7df1d371ee033eb988d8a8e35cd9ef7204e20438995a55952a841c21ac3e3f62"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/root-retirement32-owned-cleanup-20261019/summary.RAW.json",
+      "Git_commit": "2273616eb218adfdd30680e111da50a4599a8c53",
+      "bytes": 1495,
+      "sha256": "c8ff726bb1df95d20f89186986509a75679f1df4fa34caab96a6c0b19f858b3f"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/.gitattributes",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/author-authentication.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 668,
+      "sha256": "51c048c48f25b630d97b0a79bd732288e4e82e5263862479a970dd60075d6c91"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/author-commit-erratum.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 554,
+      "sha256": "8b41691f18796d38d6880a6a71f532b1a4bbe39112ef202df90fcf4126412a5e"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/child.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 881,
+      "sha256": "4041521a944237c11374d2d2bd373b3df02e8b9cc1e6c93bce71b9f4f3a2fb79"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/driver-final-only.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 681,
+      "sha256": "24cd90f477c5d15a791f6b2b08d1c5df9f57398b00a2f091b365fc7f23dca28b"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/independent-faults.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 5034,
+      "sha256": "1002b027643932e0579eb5cf46b264ec46f129aea9f0f4346be0b579f7bd757a"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/independent-lineage.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 6940,
+      "sha256": "ba481a260aafa6da1f7ae87623c7d253bae422f0f11f99f5cea0ace52c7b1cb9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/independent-owned.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 5323,
+      "sha256": "6bb7a3c32e89a4586ae16a02a1e42baeb772067ade94d20b109b91bd7e5a4153"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/independent-postgres.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 2916,
+      "sha256": "42c32c84f077f1ef96e30cc331e73643beee2ad1805bc7d157784e1330c2cfb4"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/integration_security_retirement_invalidation.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 352,
+      "sha256": "8379bb202f2ccf46ba8f45a0bda911c172ceb95d3829b0ecc153fbf32e010912"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/manifest.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 5239,
+      "sha256": "01b16d22c9f51276c2a6ac27fc4d10fe32d53f454a2107ef4ea1ac1cde2a6a6a"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/after.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 63513,
+      "sha256": "b4749a760af0d620aa1fec0b3557f68db4d772ec2696ebcaeb396f33342d1290"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/before.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 63513,
+      "sha256": "b4749a760af0d620aa1fec0b3557f68db4d772ec2696ebcaeb396f33342d1290"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/cases.STRUCTURAL.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 5218,
+      "sha256": "4e8e3759675a0187b874d99b8eb4ad4e5c7c223878fc0e8279105559ee3a72b1"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/invalidation-observations.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 1711,
+      "sha256": "5f79076b6015ba9ea38e17f53361a4c6d815e26033af01f8506865299ea30c6d"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/pip-after.raw.log",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 31,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/pip-before.raw.log",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 31,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/private-originals.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 377,
+      "sha256": "f6ecf0961149f2bc1c67d4406cff9eb76d8ee4d7d68a263c7f98a28a7597975f"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/postgres-delta/summary.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 240,
+      "sha256": "5979e93a3f241e98a80c70461187d4f87246da72cdaee466729025c5b50ed3a4"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/prepare-driver.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 5646,
+      "sha256": "00c62683fe53197216fcdf274bdb451ccc25a8780f4f8490ea144e0d127dacd0"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/private-raw-attributes.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 9517,
+      "sha256": "985f02cb317ad0f283405c76674ab2b1f945db4b09831ee946c1984b58f8eb12"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/raw-acl.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 344,
+      "sha256": "f5160a0846f4f4c3df28fca3a4f8a897d8730579405d41d25948a6d749852fc7"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/resource-closure.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 2600,
+      "sha256": "6926c8ebe3675daee5350f6baa23ce796b4df903ca6dab7f49541c9c5c7d52de"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/review.md",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 4469,
+      "sha256": "40929c7cecfa804a3aa040859c9955389c8781733b723032b20565c4aae2d490"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/runner.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 3306,
+      "sha256": "fbbd271205634e0ad6da49f06fa90f8377ab0b48a9882ee9fab74919f3ed42bd"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/same-canary-comparison.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 1015,
+      "sha256": "46d6e828ef0f1bf876453f55c850d49c026722eef895fc607a443c89c0bd1b71"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/scanner.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 230,
+      "sha256": "4cd52da1e50576c050290dffd5c485695202cab3f4e55f317b6c9fde50bc5d59"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/seal-driver.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 13673,
+      "sha256": "a2c765ab9242dc674b8130670e459c322543199bd9fc5c7b3fdafbdb2f8b5e3e"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/source.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 1947,
+      "sha256": "7d814f7329928591dd9650cb1456edc4d775968928eae41c2e9808318fb785a0"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/after.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 63513,
+      "sha256": "b4749a760af0d620aa1fec0b3557f68db4d772ec2696ebcaeb396f33342d1290"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/before.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 63513,
+      "sha256": "b4749a760af0d620aa1fec0b3557f68db4d772ec2696ebcaeb396f33342d1290"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/cases.STRUCTURAL.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 13755,
+      "sha256": "13f509ef44f17e80b0c5275ba0eb0946adc61c4e6f95163aec680a27a4dc2a42"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/invalidation-observations.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 1711,
+      "sha256": "5f79076b6015ba9ea38e17f53361a4c6d815e26033af01f8506865299ea30c6d"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/lineage.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 312,
+      "sha256": "a3afb31a129233ec17c065589205b32cdce204d28e8de2affae1009dba73a802"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/pip-after.raw.log",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 31,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/pip-before.raw.log",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 31,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/private-originals.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 503,
+      "sha256": "bbf4b796ed0ff5b2159ac1832b6fbe1fca31e45b761fc855aeca594878c75c43"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/sqlite-delta/summary.json",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 240,
+      "sha256": "8333595837da3827167a323e4d80df1fbe1aaaef17237075f3730f40de670c14"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/security-retirement-owned-cleanup-independent-20261019/test_security_retirement_invalidation.py",
+      "Git_commit": "67743467c13b657f947a9a93310d0b49582a3752",
+      "bytes": 3792,
+      "sha256": "4fa8ba83cedcf3eacfb39d8b92f30ab75a882e7cdecd38f75435b80a8b687fc9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/.gitattributes",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/account-event-cleared-390.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/account-event-cleared-390.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 63150,
+      "sha256": "6773bd2b58db7e07dce4d66c58e4e12e165422b735a84502b80507d4891bc203"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/browser-driver.cjs",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 19303,
+      "sha256": "d1ea68775e7e2f249cd6d3d577a99cef42442c203a3403341e39c8c80c98a324"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/browser-receipt.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 811,
+      "sha256": "2c892146a769fdec6ef93bbcdb078f76f7a5ee457b4baada54b75661afaf78c8"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/browser-report.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 9906,
+      "sha256": "824fc0bd6a9a5d6026691d13df8d7ef64736ed7a80b181c15c42a255ec28c061"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-1440.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-1440.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 68671,
+      "sha256": "a8bb6201490793386043e33115d69731e290840fea53db9c4a01a97aba77e3b3"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-320.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-320.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 61500,
+      "sha256": "0cc1ff39b115bba9d396957ea8c499a0f0b506126021be6a755d67412d26f45a"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-390.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-390.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 59842,
+      "sha256": "f06ed0db62ac8122d26b186ebe0ea6dd9644ebfa245c459f8b4af2491d2ce754"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-768.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/entry-768.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 64475,
+      "sha256": "39aa3c50303ee81e58ac9b5a4ab44cc7e86de158a6d1355cfd07c2d34b5b7fa6"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/factor-selected-320.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/factor-selected-320.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 110875,
+      "sha256": "5cd6809708328f0f7a1e037bd1c207ffecd93309a3585634842f6155b88d13b1"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/manifest.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 4699,
+      "sha256": "d5fcac613848fcb4f2097dda0c3208d8b8cf0ce304836a811a6445b3046648be"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/manual-visual-review.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 575,
+      "sha256": "8ba8b331510445618a28fcf0abcacddd8434badb06f0d6d9dc32d917e05e9a1c"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/password-withdrawn-390.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/password-withdrawn-390.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 88778,
+      "sha256": "e1ef45420d61b4241627806bb95ae8dd2a8f842a4a84dcb5b235b6593273e401"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/private-originals.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 443,
+      "sha256": "25d23dd07c74c59691c46e90d921ec0afa543839e678e118b8474e39bb688896"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/quiet.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 616,
+      "sha256": "6de47ab4b5741b3fefe364fa65f6303e9c15fa0b4c4e6cf999160269329499a8"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/real-cas409-320.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/real-cas409-320.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 76589,
+      "sha256": "70bfb64c77aa653871b9e17f5b3312a8886b6c40d309cbd78336a2a8ed9c20a5"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/runner.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 8943,
+      "sha256": "32d4a719bd6c1491fc20cc2135d1ee575ce0a985e9b72e55110a7f0398fcbb3a"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/server-driver.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 6969,
+      "sha256": "27dbda9559c04b3177663151157ffad8820f556848c7564b0fb3d466b8f6ded1"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/source-environment-before.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43565,
+      "sha256": "d6b7ab5ce9fab663098db270122c0f9c0bb9713db04046c2c13d7903e4e47c2d"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/startup-sanitized.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 209,
+      "sha256": "b2787b78bbf2955f760a1bb8e5e9297ff72ff065ca8c14744fa91b3fa198e857"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/uncertain-real503-390.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 43,
+      "sha256": "880979949f0e54a895c650a1a9a00276a505ecae05d9faf2e8ac17f4bf1b6df9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/uncertain-real503-390.png",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 76583,
+      "sha256": "b9d2addc9be4cada2993671b895aabe10a65f318c38b8eee3941fe825686a260"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-browser-independent-20261019/witness-scope.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 1292,
+      "sha256": "458063ae43f7bcf51da8d46ba33f3fc3b006e8d6998afd9a96daf05f4229f577"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/.gitattributes",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/cases.structural.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 3719,
+      "sha256": "141da2da2a2f22b654145e07f4bdeaa1a9f1fd37d0cb8fb49be435f9a46bea35"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/driver.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 5060,
+      "sha256": "06f1a281ff9387d8468d4f839e761c85ad38bc0ad7da1d5038c3dc32670821a9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/harness-assumptions.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 740,
+      "sha256": "70dbd3445a7eb174b3fa69533d8ba2765d230c3b1d5c486516862cfca18f3c59"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/manifest.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 1768,
+      "sha256": "663ae4da1a1020701ec45f0cad8ee4717c00338232aa93d96e7938852d830dc2"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/owned-test.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 12688,
+      "sha256": "aef2520477a603d4b0afa110273a3cc3b533e5592f181e457c3c97b6c598cc4a"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/private-originals.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 440,
+      "sha256": "2c0dc073a80a1575c2cfefc0289eecd3f98678dc603a5e576501902c77c0befd"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/progress_retirement.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 2771,
+      "sha256": "7bc96aba62c5c83063d60d39ff30fe929f74f07bf9e5c4a73350bfdcfa4112fd"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/progress_retirement_dom.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 881,
+      "sha256": "bda55849a2f69073fdbe834058eb3dc34840f737f501747a86f1ad025518ceb1"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/quiet.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 616,
+      "sha256": "cb21b2033a4c56c2f38b67bc0b2bb1d9df632170e93b40f6781af29c8b7ee132"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/source-environment-before.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 42968,
+      "sha256": "2c9cea52abddca26eda69e31d466c5a97c1c53f327377d8d705ffaa8973b5366"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-independent-20261019/summary.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 4632,
+      "sha256": "71609e9390d0aec8b9ca3c0632b3a39899bb4c0131d486be6e8dca8d7698b04b"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/.gitattributes",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/cases.structural.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 1965,
+      "sha256": "2fb27abc24ed596f8308dc1de467af67b1d8e8b6454942e43002bd6d20b8d05c"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/driver.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 4561,
+      "sha256": "013002948c89d763434bbc1d9ef8c809b7d2a1d4f6d3b8b12f57511b8a537875"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/harness-assumptions.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 740,
+      "sha256": "70dbd3445a7eb174b3fa69533d8ba2765d230c3b1d5c486516862cfca18f3c59"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/helper-preservation.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 588,
+      "sha256": "e8d2d61fe257e08fdf48a15854286ac3de6388a96634be9593a7bc8bf24f3e20"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/manifest.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 1605,
+      "sha256": "01afff799d73b89cd9b2481149ac68b42986619e4cc99f9b23a75cfd850b845f"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/owned-test.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 13481,
+      "sha256": "157f96d5b3c62c1767a9ccd0eb6f11674750b3178dd0f14265e014dd38c2bbf8"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/private-originals.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 443,
+      "sha256": "febbe5961019f1beff8e8345c1f1ffc7971534e1f8b0051d7c6f7a9c12ebeb15"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/quiet.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 616,
+      "sha256": "203bcc5dbd53ee7b9eb43982a5dfc69b12791a643a39e38bc4c238876997c334"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/source-environment-before.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 42968,
+      "sha256": "8a6a549ffd88e136878cb96af800955b22ad30817ddad591d3f8fee008bffa4b"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-http-v2-independent-20261019/summary.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 2740,
+      "sha256": "db7d6e50c046c26b8e0f4b41af3f6cc62bbf8fbea994c72b30bb4c1e5000d4fa"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review219-20261019/.gitattributes",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review219-20261019/manifest.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 1067,
+      "sha256": "0aa731d409dcbc9c152a4ecb2103f9731f067a15f3473decc858ef0461e998e1"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review219-20261019/metodobase-retirement32-qa-browser-prepare.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 1904,
+      "sha256": "a723d835e9614d6dbec95b130a574ba7a3838ec9fd62d32a939fd38fb34a9846"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review219-20261019/metodobase-retirement32-qa-http-v2-preparation.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 588,
+      "sha256": "e8d2d61fe257e08fdf48a15854286ac3de6388a96634be9593a7bc8bf24f3e20"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review219-20261019/metodobase-retirement32-qa-http-v2-prepare.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 3878,
+      "sha256": "21ee68a6bdfa2d15013b6eb69336766fa0d4a2796b083de2a45461060dc98300"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review219-20261019/review.json",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 2310,
+      "sha256": "4b34b5f281defa35abaaadba0c83def557292925c83055789f4794764e3c60b5"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review219-20261019/seal-driver.py",
+      "Git_commit": "2b1a2e275abb26c291fb02a7a3e8f5a2e58ce2f5",
+      "bytes": 9571,
+      "sha256": "74f85c88e0a98a93eca42ffd724491856442e05a1d926d03fd4018bc6de6f0e8"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/.gitattributes",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/canary-source-preservation.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 488,
+      "sha256": "1d9d67372f46b26a2efd5c38a3f22c8bbbbee40a58e28a239c8bb16959179049"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/driver.py",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 4622,
+      "sha256": "6a523d902b95e55eafdefea444522c39334494c0b4881f47e9616f5776955247"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/manifest.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 1450,
+      "sha256": "3613ba15ef64ab64184a400d8a821e1c69f69b0f13a4db84ad8d0df90a029cb6"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/owned-test.py",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 13481,
+      "sha256": "157f96d5b3c62c1767a9ccd0eb6f11674750b3178dd0f14265e014dd38c2bbf8"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/private-originals.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 362,
+      "sha256": "09b4ad64aa5c45ca5272125efac9e3da121853d456c30c21d9907d148de85401"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/quiet.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 608,
+      "sha256": "635329da0298cac56ebcabbafe307e7d0e15710ebbb8e18e8c906bee3f149813"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/runtime-delta.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 597,
+      "sha256": "4931c22c729b4ea15bf800dc6fd3255a3ac6993dc3db34441bece3f9246d2b66"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/source-environment-before.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 42968,
+      "sha256": "7449453031c48696776fc5a99f8625dc11b950b84c8fce2805cb20f32acfb6e2"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-cleanup-http-independent-20261019/summary.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 2790,
+      "sha256": "521214082dbab3baf85ccbaf0393254b0c1c284d8c911237427fe950ac263bfa"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review227-20261019/.gitattributes",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review227-20261019/manifest.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 888,
+      "sha256": "e2de8d00638473eac967da3c65f146b8b4145d43290d206482d3f48e4c2498d9"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review227-20261019/metodobase-retirement32-qa-cleanup-prepare.py",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 2355,
+      "sha256": "df2856f51f91d833b8e5fdcc2ae65150732789360943f80d39bb4c27185f3370"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review227-20261019/metodobase-retirement32-qa-cleanup-preservation.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 488,
+      "sha256": "1d9d67372f46b26a2efd5c38a3f22c8bbbbee40a58e28a239c8bb16959179049"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review227-20261019/review.json",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 1474,
+      "sha256": "d47d74e112fdd34e3034252b0adb639deb1bb5446e2c69650a8619b7c6b8d029"
+    },
+    {
+      "path": "docs/implementation/20261018-evolution/evidence/qa-retirement32-review227-20261019/seal-driver.py",
+      "Git_commit": "3c881d1b83b6911babda4018af6540ef91ce8cc7",
+      "bytes": 6189,
+      "sha256": "3f7251a277a43c9ec8415c3cdc57963b0b9391a15bccc6c45bed295e4a751678"
+    }
+  ],
+  "scope": "Local schema32 integration candidate, no deployment. Full regressions belong to31 only; independent retirement HTTP/PG/UI scopes remain separate. Google33 not included."
+}

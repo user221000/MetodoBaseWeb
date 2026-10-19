@@ -126,3 +126,8 @@ No ampliar RLS ni alterar funciones para satisfacer asserts impropios del observ
 ## Checkpoint127
 
 Mantener alta Google nueva vacía por issuer/sub con contacto no verificado thirdparty/nohd, sin adopción por email ni derechos/perfiles implícitos. Email ya registrado exige vínculo explícito localfresh+MFA; desenlace explícito conserva historial y primaria local utilizable. No backfill de sub desde email. Probar causalidad con ocho casos originales tokeninfo antes de sustituir verificador; proveedor final con JWT firmado y fixtureJWKS sólo por transporte, sin mock de identidad. Nuevo entorno propio, no mutar WEB89 de evidencia. SEC18: invalidar sólo Session nueva si falla limpieza, no pool global.
+
+
+## Checkpoint128
+
+Integrar código local revisado con estado en revisión sin exigir despliegue o proveedor live para autorizar cambios reversibles. Preservar semántica exacta por hashes; no atribuir Chrome219 ni broads31 al nuevo árbol completo. CI31 es histórico hasta su evolución33; mantener fixtures/targets22–32 intactos y añadir actuales33. Clasificaciones de checksum siguen pendientes de revisión independiente; no introducir excepciones de directorio o normalizar RAW para ocultar findings.

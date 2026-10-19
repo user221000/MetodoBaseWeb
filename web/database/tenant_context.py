@@ -80,6 +80,8 @@ def configure_tenant_engine(engine):
     """Install transaction hooks once, including direct Session(engine) users."""
     if engine.dialect.name != "postgresql":
         return engine
+    from web.database.mfa_policy import configure_mfa_engine
+    configure_mfa_engine(engine)
     if not event.contains(engine, "begin", _on_engine_begin):
         event.listen(engine, "begin", _on_engine_begin)
     engine._metodobase_tenant_context = True

@@ -17,7 +17,7 @@ import os
 import secrets
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, Header
 from pydantic import BaseModel, Field
 
 from config.constantes import PLANES_LICENCIA, ERR_PAGOS_NO_CONFIGURADOS
@@ -97,19 +97,25 @@ def _stripe_create_session(stripe_key: str, **kwargs) -> dict:
 @router.post("/pagos/stripe/session", response_model=SesionResponse)
 async def crear_sesion_stripe(
     req: CrearSesionRequest,
+    request: Request,
     usuario: dict = Depends(get_usuario_gym),
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
 ):
     """Keep the legacy response while using durable canonical billing."""
     from web.services.permissions import verify_permission
     from web.services.stripe_service import create_checkout_session
-    from web.database.engine import SessionLocal
+    from web.services.mfa_business import open_business_session
     verify_permission(usuario, "update", "subscription")
     _validate_payment_request(req)
     try:
-        with SessionLocal() as db:
+        with open_business_session() as db:
+            from web.services.mfa_business import step_up
+            step_up(db, usuario, request, req.model_dump(mode="json"), idempotency_key=idempotency_key)
             result = create_checkout_session(db, usuario["id"], req.plan, usuario["email"],
-                                             req.success_url, req.cancel_url)
+                                             req.success_url, req.cancel_url, request_key=idempotency_key)
             return SesionResponse(session_id=result["session_id"], redirect_url=result["url"])
+    except HTTPException:
+        raise
     except ValueError:
         raise HTTPException(400, "Solicitud de pago invalida") from None
     except Exception:
@@ -159,19 +165,25 @@ def _mp_create_preference(sdk, preference_data: dict) -> dict:
 @router.post("/pagos/mp/preference", response_model=SesionResponse)
 async def crear_preferencia_mp(
     req: CrearSesionRequest,
+    request: Request,
     usuario: dict = Depends(get_usuario_gym),
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
 ):
     """Legacy API adapter to the same purchase intent and MP verification."""
     from web.services.permissions import verify_permission
     from web.services.mercadopago_service import create_preference
-    from web.database.engine import SessionLocal
+    from web.services.mfa_business import open_business_session
     verify_permission(usuario, "update", "subscription")
     _validate_payment_request(req)
     try:
-        with SessionLocal() as db:
+        with open_business_session() as db:
+            from web.services.mfa_business import step_up
+            step_up(db, usuario, request, req.model_dump(mode="json"), idempotency_key=idempotency_key)
             result = create_preference(db, usuario["id"], req.plan, usuario["email"],
-                                       req.success_url, req.cancel_url)
+                                       req.success_url, req.cancel_url, request_key=idempotency_key)
             return SesionResponse(session_id=result["session_id"], redirect_url=result["redirect_url"])
+    except HTTPException:
+        raise
     except ValueError:
         raise HTTPException(400, "Solicitud de pago invalida") from None
     except Exception:

@@ -1,0 +1,25 @@
+{
+  "derived_from": "metodobase-gitleaks-historical-fingerprint-triage.py",
+  "original_sha256": "b16431d04861a0f74cb38bc9e094c2d15e69db4b043f76db6977b7beac18eed8",
+  "derived_sha256": "6721da575958748449e9e3b6f11c550b524c305ef848531b897b49eb76c8f8b4",
+  "replacements": [
+    [
+      "previous = tmp / 'metodobase-gitleaks-fingerprint-triage-20261019'",
+      "previous = tmp / 'metodobase-gitleaks-public-artifact-triage-20261019'"
+    ],
+    [
+      "out = tmp / 'metodobase-gitleaks-historical-fingerprint-triage-20261019'",
+      "out = tmp / 'metodobase-gitleaks-historical-evidence-triage-20261019'"
+    ],
+    [
+      "assert len(rows) == 25895",
+      "assert len(rows) == 9015"
+    ],
+    [
+      "*commits, '--', '.', ':!docs/**'",
+      "*commits, '--', *sorted(wanted)"
+    ]
+  ],
+  "inverse_exact": true,
+  "scope": "Read-only checksum derivation from historical evidence blobs. Blob bodies are never written or printed, to avoid reintroducing historic synthetic token/log content. Only checksum/OID/location proof is emitted."
+}

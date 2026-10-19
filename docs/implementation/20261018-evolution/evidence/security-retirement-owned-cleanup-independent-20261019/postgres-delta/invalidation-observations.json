@@ -1,0 +1,42 @@
+{
+  "api-app-False": {
+    "factory": "api.app",
+    "invalidation_error_stage": "before_real_release",
+    "response": 503,
+    "context_restored": true,
+    "only_new_owned_session_invalidated": true,
+    "engine_dispose_called": false,
+    "checkedout_observed_before_harness_cleanup": 1,
+    "limit": "When invalidation itself fails before release, this model retains one checkout; no release guarantee is claimed."
+  },
+  "api-app-True": {
+    "factory": "api.app",
+    "invalidation_error_stage": "after_real_release",
+    "response": 503,
+    "context_restored": true,
+    "only_new_owned_session_invalidated": true,
+    "engine_dispose_called": false,
+    "checkedout_observed_before_harness_cleanup": 0,
+    "limit": "When invalidation itself fails before release, this model retains one checkout; no release guarantee is claimed."
+  },
+  "web-main_web-False": {
+    "factory": "web.main_web",
+    "invalidation_error_stage": "before_real_release",
+    "response": 503,
+    "context_restored": true,
+    "only_new_owned_session_invalidated": true,
+    "engine_dispose_called": false,
+    "checkedout_observed_before_harness_cleanup": 1,
+    "limit": "When invalidation itself fails before release, this model retains one checkout; no release guarantee is claimed."
+  },
+  "web-main_web-True": {
+    "factory": "web.main_web",
+    "invalidation_error_stage": "after_real_release",
+    "response": 503,
+    "context_restored": true,
+    "only_new_owned_session_invalidated": true,
+    "engine_dispose_called": false,
+    "checkedout_observed_before_harness_cleanup": 0,
+    "limit": "When invalidation itself fails before release, this model retains one checkout; no release guarantee is claimed."
+  }
+}

@@ -205,3 +205,8 @@ MAIN sólo registra pruebas y control. Runtimef74 app6a75/native72/logger474 med
 ## Checkpoint127
 
 MAIN incorpora sólo control/evidencia. Composición aislada219f89 integra fcfc+UIde216+de506 con bytes exactos; no se atribuyen broads31 a32. UI tiene32paths de evidencia incluidos atributos (31además del archivo de atributos). Dos fallos de preparación del import se corrigieron antes de escribir: manifestGoogle excluye atributos y UI31contaba sin ellos. No cambian producto ni resultados.
+
+
+## Checkpoint128
+
+Integración local real desde227: MFA31, progreso/mediciones32, lector y consentimientos, exportación y UI/retiro público. Fuentes y tests de la candidata se copian exactamente; control/evidencias históricos de MAIN se conservan. No se altera Dockerfile ni locks. El retiro invalida sólo su Session nueva ante close fallido; el resto del módulo y servicio permanecen exactos. Google33 no se integra todavía.

@@ -147,3 +147,8 @@ Worker31 todavía sin atestación completa; source/image parcial no habilita des
 ## Checkpoint127
 
 Las migraciones locales reversibles necesarias están autorizadas; inventar identidad Google histórica a partir de email carece de evidencia y no es una migración técnica legítima. SEC17 y SEC18 pendientes de aceptación. Gitleaks global31564remaining:2FPmetadata confirmados/31562previos sin clasificar, no todo falso positivo. Worker31parcial no habilita despliegue. Países,retención,SLO,pilotos,especialista y pérdida total de factores permanecen abiertos.
+
+
+## Checkpoint128
+
+MAIN es candidata local32, todavía sin regresión/CI/artefacto común vigente. SEC17 Google pendiente y las limitaciones de recuperación total/legacy Google siguen abiertas. SEC18 tiene aceptación focal, pero ninguna implementación puede prometer checkout0 si también falla invalidate antes de liberar. Gitleaks no está globalmente verde. Política de retención/países, objetivos SLO, entrevistas y validación profesional real siguen pendientes de datos/autorización aplicable.

@@ -1,0 +1,13 @@
+.mfa-view,.mfa-dialog {font:inherit;line-height:1.6;overflow-wrap:anywhere;min-width:0;}
+.mfa-view {margin:1.5rem 0;padding:1rem;border:1px solid currentColor;border-radius:.65rem;}
+.mfa-view [hidden],.mfa-dialog [hidden] {display:none!important;}
+.mfa-view label,.mfa-dialog label {display:block;margin:.75rem 0;}
+.mfa-view input,.mfa-view select,.mfa-view button,.mfa-dialog input,.mfa-dialog select,.mfa-dialog button {font:inherit;color:inherit;background:transparent;border:1px solid currentColor;border-radius:.35rem;padding:.65rem;max-width:100%;min-height:44px;}
+.mfa-view input,.mfa-dialog input {display:block;box-sizing:border-box;width:100%;}
+.mfa-view button,.mfa-dialog button {cursor:pointer;margin:.3rem;white-space:normal;}
+.mfa-view button:disabled,.mfa-dialog button:disabled {cursor:default;opacity:.65;}
+.mfa-view :is(input,select,button,a):focus-visible,.mfa-dialog :is(input,select,button,a):focus-visible {outline:3px solid currentColor;outline-offset:3px;}
+.mfa-dialog {color:#10262b;background:#fff;border:2px solid #184f55;border-radius:.75rem;padding:1rem;box-sizing:border-box;width:min(36rem,calc(100% - 2rem));max-height:calc(100dvh - 2rem);overflow:auto;}
+.mfa-dialog::backdrop {background:rgba(0,0,0,.65);}
+.mfa-secret {font-family:monospace;font-size:1.1rem;overflow-wrap:anywhere;user-select:text;}
+@media(max-width:480px){.mfa-view {padding:.75rem;}.mfa-view button,.mfa-dialog button {display:block;margin:.5rem 0;width:100%;}}

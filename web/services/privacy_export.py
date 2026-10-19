@@ -6,7 +6,7 @@ Professional portfolios never become personal data merely through gym_id=self.
 import json
 import math
 from collections.abc import Mapping
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from enum import Enum
 
 from fastapi import HTTPException
@@ -23,7 +23,7 @@ MAX_PAGE_SIZE = 200
 MAX_PLAN_JSON_CHARS = 250_000
 MAX_TEXT_CHARS = 131_072
 MAX_SECTION_BYTES = 131_072
-MAX_EXPORT_BYTES = 7 * MAX_SECTION_BYTES + 16_384
+MAX_EXPORT_BYTES = 8 * MAX_SECTION_BYTES + 16_384
 _MEALS = ("desayuno", "almuerzo", "comida", "cena")
 _ACCOUNT = ("id", "email", "nombre", "apellido", "tipo", "role", "fecha_registro")
 _PROFILE = ("id", "id_cliente", "nombre", "telefono", "email", "edad", "sexo",
@@ -35,7 +35,8 @@ _PLAN = ("id", "id_cliente", "fecha_generacion", "tmb", "get_total", "kcal_objet
     "kcal_real", "proteina_g", "carbs_g", "grasa_g", "objetivo", "nivel_actividad",
     "deleted_at", "peso_en_momento", "grasa_en_momento", "desviacion_maxima_pct",
     "plantilla_tipo", "tipo_plan")
-_PROGRESS = ("id", "id_cliente", "fecha", "peso_kg", "grasa_corporal_pct", "masa_magra_kg", "notas")
+_PROGRESS = ("id", "id_cliente", "fecha", "peso_kg", "grasa_corporal_pct", "masa_magra_kg", "notas",
+    "record_key", "source_kind", "measured_on", "recorded_by_id", "recorded_at", "updated_at", "version", "withdrawn_at")
 _PURCHASE = ("id", "provider", "operation", "plan", "amount_cents", "currency", "status",
     "created_at", "updated_at")
 _GENERATION = ("id", "period", "status", "plan_id", "created_at", "updated_at")
@@ -50,6 +51,8 @@ def _value(value):
     if isinstance(value, datetime):
         # Existing models store UTC instants in timestamp-without-timezone.
         return value.replace(tzinfo=timezone.utc).isoformat() if value.tzinfo is None else value.astimezone(timezone.utc).isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
     if isinstance(value, Enum):
         return value.value
     if isinstance(value, float) and not math.isfinite(value):
@@ -212,7 +215,7 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
             "page_size": limit,
             "max_response_bytes": MAX_EXPORT_BYTES,
             "max_collection_bytes": MAX_SECTION_BYTES,
-            "coverage": "account_persisted_personal_space_and_active_member_link_metadata",
+            "coverage": "account_persisted_personal_space_active_member_links_and_own_progress_consents",
             "excluded_categories": ["professional_portfolio", "credentials_and_tokens", "provider_resource_identifiers",
                 "security_logs_and_metadata", "binary_objects", "browser_local_diary", "unverified_gym_member_links"],
             "legacy_plan_content": "Known nutrition fields only; unavailable or oversized bodies require authorized review.",
@@ -225,6 +228,7 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
         "generation_requests": {"records": [], "next_after": None},
         "personal_diary": {"records": [], "next_after": None},
         "member_links": {"records": [], "next_after": None},
+        "progress_consents": {"records": [], "next_after": None},
         "personal_subscription": None,
         "canonical_subscription": None,
     }
@@ -235,6 +239,10 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
     result["member_links"] = export_member_links(db, user, limit=limit,
         after=cursors.get("member_link"), maximum_bytes=MAX_SECTION_BYTES)
     result["scope"]["member_links"] = "active_recipient_metadata_only"
+    from web.services.progress_export import export_progress_consents
+    result["progress_consents"] = export_progress_consents(db, user.id, limit=limit,
+        after=cursors.get("progress_consent"), maximum_bytes=MAX_SECTION_BYTES)
+    result["scope"]["progress_consents"] = "own_append_only_scope_metadata"
     if not personal:
         return _finish(result)
     own_profiles = select(Cliente.id_cliente).where(Cliente.gym_id == user.id)

@@ -195,7 +195,7 @@ const Api = (() => {
     return _assertSnapshot(snapshot);
   }
 
-  async function _authenticatedFetch(path, options, snapshot) {
+  async function _authenticatedFetch(path, options, snapshot, exactPair = null) {
     async function send(pair) {
       _assertPair(snapshot, pair);
       const headers = { ...options.headers };
@@ -204,12 +204,14 @@ const Api = (() => {
       let response;
       try { response = await fetch(API_BASE + path, { ...options, headers }); }
       catch {
-        _assertSnapshot(snapshot);
+        if (exactPair) _assertPair(snapshot, exactPair); else _assertSnapshot(snapshot);
         throw new Error('Error de red: no se pudo conectar al servidor.');
       }
-      _assertSnapshot(snapshot);
+      if (exactPair) _assertPair(snapshot, exactPair); else _assertSnapshot(snapshot);
       return response;
     }
+    // MFA proofs/grants bind one access. A401 must never rotate/replay them.
+    if (exactPair) return send(exactPair);
     let sentPair = _assertSnapshot(snapshot);
     let response = await send(sentPair);
     if (response.status === 401) {
@@ -221,23 +223,24 @@ const Api = (() => {
     return response;
   }
 
-  async function request(method, path, body = null, extraHeaders = {}, authenticated = true) {
-    const snapshot = authenticated ? _snapshot() : null;
+  async function request(method, path, body = null, extraHeaders = {}, authenticated = true, policy = null) {
+    const snapshot = authenticated ? (policy?.snapshot || _snapshot()) : null;
     const opts = {
       method,
       headers: {
         'Content-Type': 'application/json',
         ...extraHeaders,
       },
+      ...(policy ? {cache:'no-store',referrerPolicy:'no-referrer'} : {}),
     };
     if (body !== null) opts.body = JSON.stringify(body);
 
     let res;
     try {
-      res = authenticated ? await _authenticatedFetch(path, opts, snapshot) : await fetch(API_BASE + path, opts);
+      res = authenticated ? await _authenticatedFetch(path, opts, snapshot, policy?.pair || null) : await fetch(API_BASE + path, opts);
     } catch (networkErr) {
       if (networkErr.code === 'session_expired') throw networkErr;
-      if (authenticated) _assertSnapshot(snapshot);
+      if (authenticated) { if (policy?.pair) _assertPair(snapshot, policy.pair); else _assertSnapshot(snapshot); }
       if (networkErr.code === 'session_changed') throw networkErr;
       throw new Error('Error de red: no se pudo conectar al servidor.');
     }
@@ -249,7 +252,7 @@ const Api = (() => {
       if (res.ok && res.status !== 204) throw new Error('El servidor devolvió una respuesta no válida. Intenta consultar de nuevo.');
       data = {};
     }
-    if (authenticated) _assertSnapshot(snapshot);
+    if (authenticated) { if (policy?.pair) _assertPair(snapshot, policy.pair); else _assertSnapshot(snapshot); }
 
     if (!res.ok) {
       let msg;
@@ -267,12 +270,13 @@ const Api = (() => {
       }
       const err = new Error(msg);
       err.status = res.status;
+      err.retryAfter = res.headers.get('Retry-After') || null;
       err.requestId = (data.detail && data.detail.request_id) || res.headers.get('X-Request-ID') || null;
       if (errorCode) err.code = errorCode;
       if (upgradeUrl) err.upgradeUrl = upgradeUrl;
       throw err;
     }
-    return data;
+    return policy?.includeStatus ? {status:res.status,data} : data;
   }
 
   // ── Clientes ──────────────────────────────────────────────────────────────
@@ -414,17 +418,17 @@ const Api = (() => {
 
   const auth = {
     loginGym: async (email, password) => {
-      const snapshot = _snapshot();
-      const data = await request('POST', '/api/auth/login', { email, password }, {}, false);
-      _assertSnapshot(snapshot);
-      saveTokens(data);
+      const handle = mfa.capture();
+      const data = await mfa.primaryPassword({ email, password }, handle);
+      mfa.check(handle);
+      if (!data.mfa_required) mfa.finishLogin(data,handle);
       return data;
     },
     loginUsuario: async (email, password) => {
-      const snapshot = _snapshot();
-      const data = await request('POST', '/api/auth/login', { email, password }, {}, false);
-      _assertSnapshot(snapshot);
-      saveTokens(data);
+      const handle = mfa.capture();
+      const data = await mfa.primaryPassword({ email, password }, handle);
+      mfa.check(handle);
+      if (!data.mfa_required) mfa.finishLogin(data,handle);
       return data;
     },
     registro: async (payload) => {
@@ -454,35 +458,192 @@ const Api = (() => {
     },
   };
 
+  // Closed MFA wire. Handles contain no proof or access in their public shape.
+  let _mfaContexts = new WeakMap(), _mfaOperations = new WeakMap(), _mfaGrants = new WeakMap();
+  const _mfaBearer = value => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value);
+  const _mfaExpiry = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d\d:\d\d)$/.test(value) && Number.isFinite(Date.parse(value));
+  function _mfaError(code='mfa_invalid_response') {
+    return Object.assign(new Error('No se pudo confirmar esta verificación. Vuelve a consultar antes de continuar.'),{code});
+  }
+  function _mfaContext(handle) {
+    const value = _mfaContexts.get(handle);
+    if (!value) throw _sessionChanged();
+    _assertPair(value.snapshot, value.pair);
+    return value;
+  }
+  function _mfaReply(reply, allowChallenge = false) {
+    const data = reply.data;
+    if (allowChallenge && reply.status === 202) {
+      if (!data || data.mfa_required !== true || !_mfaBearer(data.challenge) || !_mfaExpiry(data.expires_at) ||
+          !Array.isArray(data.methods) || data.methods.length !== 2 || !['totp','recovery_code'].every(name=>data.methods.includes(name)) ||
+          Object.keys(data).some(key=>!['mfa_required','challenge','expires_at','methods'].includes(key))) throw _mfaError();
+      return data;
+    }
+    if (reply.status !== 200 || !data || data.mfa_required === true) throw _mfaError();
+    _tokenPair(data);
+    return data;
+  }
+  async function _mfaPublic(path, body, handle, allowChallenge) {
+    _mfaContext(handle);
+    try {
+      const value = await request('POST', path, body, {}, false, {includeStatus:true});
+      _mfaContext(handle);return _mfaReply(value,allowChallenge);
+    } catch(error) { _mfaContext(handle);throw error; }
+  }
+  async function _mfaRequest(path, body, handle, method='POST') {
+    const context = _mfaContext(handle);
+    try {
+      const value = await request(method,path,body,{},true,{snapshot:context.snapshot,pair:context.pair});
+      _mfaContext(handle);return value;
+    } catch(error) { _mfaContext(handle);throw error; }
+  }
+  const _mfaRules = [
+    ['team.invite','POST',/^\/api\/gym\/team\/invite$/],
+    ['team.resend','POST',/^\/api\/gym\/team\/[^/?#]+\/resend-invite$/],
+    ['team.role','PATCH',/^\/api\/gym\/team\/[^/?#]+\/role$/],
+    ['team.remove','DELETE',/^\/api\/gym\/team\/[^/?#]+$/],
+    ['billing.checkout','POST',/^\/api\/(?:billing\/checkout|pagos\/stripe\/session)$/],
+    ['billing.subscribe','POST',/^\/api\/billing\/stripe\/subscribe$/],
+    ['billing.confirm','POST',/^\/api\/billing\/confirm-subscription$/],
+    ['billing.portal','POST',/^\/api\/billing\/portal$/],
+    ['billing.mp','POST',/^\/api\/(?:billing\/mp\/preference|pagos\/mp\/preference)$/],
+  ];
+  let _mfaUILoad = null;
+  function _mfaUI() {
+    if (typeof window.MfaUI?.authorize === 'function') return Promise.resolve(window.MfaUI);
+    if (_mfaUILoad) return _mfaUILoad;
+    _mfaUILoad = new Promise((resolve,reject)=>{
+      if (typeof document === 'undefined') { reject(_mfaError('mfa_ui_unavailable')); return; }
+      const script=document.createElement('script'),style=document.createElement('link');
+      let settled=false;
+      const finish=error=>{if(settled)return;settled=true;clearTimeout(timer);if(error){script.remove();reject(error);}else resolve(window.MfaUI);};
+      const timer=setTimeout(()=>finish(_mfaError('mfa_ui_unavailable')),15000);
+      style.rel='stylesheet';style.href='/static/css/mfa.css';document.head.appendChild(style);
+      script.src='/static/js/mfa-ui.js';script.nonce=document.querySelector('script[nonce]')?.nonce || '';
+      script.onload=()=>finish(typeof window.MfaUI?.authorize==='function'?null:_mfaError('mfa_ui_unavailable'));
+      script.onerror=()=>finish(_mfaError('mfa_ui_unavailable'));document.head.appendChild(script);
+    }).catch(error=>{_mfaUILoad=null;throw error;});
+    return _mfaUILoad;
+  }
+  const mfa = {
+    capture() {
+      const snapshot=_snapshot(),pair=_assertSnapshot(snapshot),handle=Object.freeze({revision:snapshot.revision});
+      _mfaContexts.set(handle,{snapshot,pair});return handle;
+    },
+    check(handle) { _mfaContext(handle); },
+    async context() {
+      const handle=mfa.capture(),me=await _mfaRequest('/api/auth/me',null,handle,'GET');_mfaContext(handle);
+      if (!me || typeof me.id!=='string' || !me.id || typeof me.role!=='string' || !Number.isSafeInteger(me.session_version)) throw _mfaError();
+      _mfaContexts.get(handle).subject=JSON.stringify([me.id,me.role,me.team_gym_id||null,me.session_version]);
+      return {handle,me};
+    },
+    async verify(handle) {
+      const previous=_mfaContext(handle).subject;
+      const me=await _mfaRequest('/api/auth/me',null,handle,'GET');_mfaContext(handle);
+      if (previous && previous!==JSON.stringify([me.id,me.role,me.team_gym_id||null,me.session_version])) throw _sessionChanged();
+    },
+    primaryPassword: (body,handle) => _mfaPublic('/api/auth/login',body,handle,true),
+    primaryGoogle: (body,handle) => _mfaPublic('/api/auth/google',body,handle,true),
+    loginVerify: (body,handle) => _mfaPublic('/api/auth/mfa/login/verify',body,handle,false),
+    finishLogin(data,handle) {
+      const context=_mfaContext(handle),next=_tokenPair(data);
+      saveTokens(data);
+      _assertPair({revision:context.snapshot.revision+1},next);
+      return mfa.capture();
+    },
+    status: handle => _mfaRequest('/api/auth/mfa/status',null,handle,'GET'),
+    reauth: (body,handle) => _mfaRequest('/api/auth/mfa/reauth',body,handle),
+    enroll: (body,handle) => _mfaRequest('/api/auth/mfa/enroll',body,handle),
+    confirm: (body,handle) => _mfaRequest('/api/auth/mfa/enroll/confirm',body,handle),
+    regenerate: (body,handle) => _mfaRequest('/api/auth/mfa/recovery-codes/regenerate',body,handle),
+    revoke: (body,handle) => _mfaRequest('/api/auth/mfa/revoke',body,handle),
+    close(handle) {
+      const context=_mfaContext(handle);clearTokens();
+      _assertPair({revision:context.snapshot.revision+1},{token:'',refresh:''});return mfa.capture();
+    },
+    operation(method,path,body={},idempotencyKey=null) {
+      if(typeof method!=='string'||typeof path!=='string')throw _mfaError('mfa_action_invalid');
+      const rule=_mfaRules.find(row=>row[1]===method && row[2].test(path));
+      if (!rule || (idempotencyKey!==null && (!['billing.checkout','billing.subscribe','billing.mp'].includes(rule[0]) || typeof idempotencyKey!=='string' || !/^[\x21-\x7e]{1,128}$/.test(idempotencyKey)))) throw _mfaError('mfa_action_invalid');
+      const encoded=JSON.stringify(body,(_key,value)=>{
+        if((typeof value==='number'&&!Number.isFinite(value))||['undefined','function','symbol','bigint'].includes(typeof value))throw _mfaError('mfa_action_invalid');
+        return value;
+      });
+      if (!encoded || !body || Array.isArray(body) || typeof body!=='object') throw _mfaError('mfa_action_invalid');
+      const context=mfa.capture(),handle=Object.freeze({action:rule[0],revision:context.revision});
+      _mfaOperations.set(handle,{context,method,path,body:JSON.parse(encoded),idempotencyKey});return handle;
+    },
+    checkOperation(operation) {
+      const value=_mfaOperations.get(operation);if(!value)throw _sessionChanged();_mfaContext(value.context);
+    },
+    async grant(operation,factor={}) {
+      _assertSnapshot(operation);
+      const value=_mfaOperations.get(operation);if(!value)throw _mfaError('mfa_action_invalid');_mfaContext(value.context);
+      const body={method:value.method,path:value.path,body:value.body,...(value.idempotencyKey===null?{}:{idempotency_key:value.idempotencyKey}),...factor};
+      if(Object.keys(factor).some(name=>!['code','recovery_code'].includes(name)) || Object.keys(factor).length>1)throw _mfaError('mfa_invalid_input');
+      const reply=await _mfaRequest('/api/auth/mfa/step-up',body,value.context);_mfaContext(value.context);
+      if(!reply || !_mfaBearer(reply.grant) || !_mfaExpiry(reply.expires_at) || reply.single_use!==true || reply.method!==value.method || reply.path!==value.path || reply.action!==operation.action)throw _mfaError();
+      const handle=Object.freeze({action:operation.action});_mfaGrants.set(handle,{operation,proof:reply.grant});return handle;
+    },
+    async execute(operation,grant) {
+      _assertSnapshot(operation);
+      const value=_mfaOperations.get(operation),permit=_mfaGrants.get(grant);
+      if(!value || !permit || permit.operation!==operation)throw _mfaError('mfa_grant_consumed');
+      _mfaGrants.delete(grant);_mfaOperations.delete(operation);
+      const context=_mfaContext(value.context),headers={'X-MFA-Grant':permit.proof,...(value.idempotencyKey===null?{}:{'Idempotency-Key':value.idempotencyKey})};
+      permit.proof=null;
+      return request(value.method,value.path,value.body,headers,true,{snapshot:context.snapshot,pair:context.pair});
+    },
+    async perform(method,path,body={},key=null) {
+      const operation=mfa.operation(method,path,body,key),value=_mfaOperations.get(operation);
+      try {
+        let grant;
+        try { grant=await mfa.grant(operation); }
+        catch(error) {
+          _mfaContext(value.context);
+          if(!['mfa_fresh_verification_required','mfa_enrollment_required'].includes(error.code))throw error;
+          const ui=await _mfaUI();_mfaContext(value.context);grant=await ui.authorize(operation,error);_mfaContext(value.context);
+        }
+        return await mfa.execute(operation,grant);
+      } finally { _mfaOperations.delete(operation); }
+    },
+  };
+
   // ── Billing ────────────────────────────────────────────────────────────────
+
+  if (typeof window.addEventListener === 'function') {
+    const discardMfa=()=>{_mfaContexts=new WeakMap();_mfaOperations=new WeakMap();_mfaGrants=new WeakMap();};
+    window.addEventListener('metodobase-session-changed',discardMfa);
+    window.addEventListener('pagehide',discardMfa);
+  }
 
   const billing = {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
     payments:     () => request('GET', '/api/billing/payments'),
     checkout: (plan, key) =>
-      request('POST', '/api/billing/checkout', {
+      mfa.perform('POST', '/api/billing/checkout', {
         plan,
         success_url: '/suscripciones?result=success',
         cancel_url: '/suscripciones?result=canceled',
-      }, key ? { 'Idempotency-Key': key } : {}),
-    stripeSubscribe: (plan, payment_method_id) =>
-      request('POST', '/api/billing/stripe/subscribe', {
+      }, key || null),
+    stripeSubscribe: (plan, payment_method_id, key) =>
+      mfa.perform('POST', '/api/billing/stripe/subscribe', {
         plan,
         payment_method_id,
-      }),
+      }, key || null),
     confirmSubscription: (subscription_id) =>
-      request('POST', '/api/billing/confirm-subscription', {
+      mfa.perform('POST', '/api/billing/confirm-subscription', {
         subscription_id,
       }),
     mpPreference: (plan, key) =>
-      request('POST', '/api/billing/mp/preference', {
+      mfa.perform('POST', '/api/billing/mp/preference', {
         plan,
         success_url: '/suscripciones?result=success',
         cancel_url: '/suscripciones?result=canceled',
-      }, key ? { 'Idempotency-Key': key } : {}),
+      }, key || null),
     portal: () =>
-      request('POST', '/api/billing/portal', {
+      mfa.perform('POST', '/api/billing/portal', {
         return_url: '/suscripciones',
       }),
   };
@@ -580,10 +741,11 @@ const Api = (() => {
     exportarDatos: (cursors = {}, context) => {
       const params = new URLSearchParams({limit:'100'});
       const integerCursors = ['profile','plan','measurement'];
-      const uuidCursors = ['purchase','generation','member_link'];
+      const uuidCursors = ['purchase','generation','member_link','progress_consent'];
       for (const name of [...integerCursors,...uuidCursors,'diary']) {
         const value = cursors[name];
         if (value == null) continue;
+        if (name === 'progress_consent' && (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value))) throw new Error('No se pudo continuar la descarga. Empieza una descarga nueva.');
         if (name === 'diary') _personalDay(value);
         else if (integerCursors.includes(name) ? !Number.isSafeInteger(value) || value < 0 : typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
           throw new Error('No se pudo continuar la descarga. Empieza una descarga nueva.');
@@ -734,15 +896,95 @@ const Api = (() => {
     return request(method, path, body, {'Cache-Control':'no-store'});
   }
 
+  function _progressInvalid() { return Object.assign(new Error('Vuelve a consultar el estado de progreso antes de continuar.'), {code:'progress_invalid_input'}); }
+  function _progressUUID(value) {
+    if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)) throw _progressInvalid();
+    return value;
+  }
+  function _progressVersion(value, initial = false) {
+    if (!Number.isSafeInteger(value) || value < (initial ? 0 : 1) || value > 2147483647) throw _progressInvalid();
+    return value;
+  }
+  function _progressRange(params, range) {
+    if (range == null) return;
+    if (!range || Object.keys(range).length !== 2 || typeof range.from !== 'string' || typeof range.through !== 'string') throw _progressInvalid();
+    _personalDay(range.from); _personalDay(range.through);
+    const days=(Date.parse(range.through+'T00:00:00Z')-Date.parse(range.from+'T00:00:00Z'))/86400000;
+    if (days < 0 || days >= 62) throw _progressInvalid();
+    params.set('from',range.from); params.set('through',range.through);
+  }
+  function _progressClient(client) {
+    if (typeof client !== 'string' || !client || client.length > 128) throw _progressInvalid();
+    return '/api/clientes/'+encodeURIComponent(client);
+  }
+  function _progressConsent(link) { return '/api/usuario/vinculos/'+_progressUUID(link)+'/progreso/consentimiento'; }
+  function _progressRequest(method,path,body,context) {
+    const pair=_assertSnapshot(context);
+    let safeBody=null;
+    if(body!==null){
+      if(!body || typeof body!=='object' || Array.isArray(body)) throw _progressInvalid();
+      const encoded=JSON.stringify(body,(_key,value)=>{
+        if((typeof value==='number' && !Number.isFinite(value)) || ['undefined','function','symbol','bigint'].includes(typeof value)) throw _progressInvalid();
+        return value;
+      });
+      if(new TextEncoder().encode(encoded).byteLength>8192) throw _progressInvalid();
+      safeBody=JSON.parse(encoded);
+    }
+    _assertPair(context,pair);
+    // Writes are one-shot and bound to the exact access; they never request an
+    // MFA grant, rotate credentials, or replay after a401/ambiguous response.
+    return request(method,path,safeBody,{},true,{snapshot:context,...(method==='GET'?{}:{pair})});
+  }
+  const progreso = {
+    contexto: () => vinculos.contexto(),
+    validarContexto: context => vinculos.validarContexto(context),
+    verificarContexto: context => vinculos.verificarContexto(context),
+    bootstrap: (context,after=null) => {
+      const params=new URLSearchParams({limit:'100'});
+      if(after!==null){if(typeof after!=='string'||!after.length||after.length>36)throw _progressInvalid();params.set('after',after);}
+      return _progressRequest('GET','/api/usuario/progreso/contexto?'+params,null,context);
+    },
+    mediciones: (profile,context,{range=null,cursor=null}={}) => {
+      const params=new URLSearchParams({source_profile_id:_progressUUID(profile),limit:'100'});_progressRange(params,range);
+      if(cursor!==null){if(typeof cursor!=='string'||!cursor.length||cursor.length>512)throw _progressInvalid();params.set('cursor',cursor);}
+      return _progressRequest('GET','/api/usuario/progreso/mediciones?'+params,null,context);
+    },
+    medicion: (key,context) => _progressRequest('GET','/api/usuario/progreso/mediciones/'+_progressUUID(key),null,context),
+    guardarMedicion: (key,body,context) => {
+      _progressVersion(body?.expected_version,true);_progressUUID(body?.source_profile_id);_personalDay(body?.measured_on);
+      return _progressRequest('PUT','/api/usuario/progreso/mediciones/'+_progressUUID(key),body,context);
+    },
+    retirarMedicion: (key,version,context) => _progressRequest('POST','/api/usuario/progreso/mediciones/'+_progressUUID(key)+'/retirar',{expected_version:_progressVersion(version)},context),
+    completados: (context,range=null) => {
+      const params=new URLSearchParams();_progressRange(params,range);
+      return _progressRequest('GET','/api/usuario/progreso/completados'+(params.size?'?'+params:''),null,context);
+    },
+    consentimientos: (context,after=null) => _progressRequest('GET','/api/usuario/progreso/consentimientos?limit=100'+(after===null?'':'&after='+_progressUUID(after)),null,context),
+    consentimiento: (link,context) => _progressRequest('GET',_progressConsent(link),null,context),
+    guardarConsentimiento: (link,body,context) => {
+      _progressVersion(body?.expected_version,true);_progressVersion(body?.expected_link_version);
+      if(body.expected_version===0 ? body.expected_consent_id!==null : !_progressUUID(body.expected_consent_id)) throw _progressInvalid();
+      return _progressRequest('PUT',_progressConsent(link),body,context);
+    },
+    retirarConsentimiento: (link,id,version,context) => _progressRequest('POST',_progressConsent(link)+'/retirar',{expected_consent_id:_progressUUID(id),expected_version:_progressVersion(version)},context),
+    profesional: (client,context,after=null) => _progressRequest('GET',_progressClient(client)+'/progreso?limit=100'+(after===null?'':'&after='+_progressVersion(after)),null,context),
+    contextoCompartido: (client,link,context) => _progressRequest('GET',_progressClient(client)+'/vinculacion/'+_progressUUID(link)+'/progreso/contexto',null,context),
+    compartido: (client,link,expected,context,{range=null,after=null}={}) => {
+      const params=new URLSearchParams({expected_consent_id:_progressUUID(expected.id),expected_version:String(_progressVersion(expected.version)),expected_link_version:String(_progressVersion(expected.linkVersion)),limit:'100'});
+      _progressRange(params,range);if(after!==null)params.set('after',_progressUUID(after));
+      return _progressRequest('GET',_progressClient(client)+'/vinculacion/'+_progressUUID(link)+'/progreso?'+params,null,context);
+    },
+  };
+
   const team = {
     list: () => request('GET', '/api/gym/team'),
-    invite: (data) => request('POST', '/api/gym/team/invite', data),
-    role: (id, role) => request('PATCH', '/api/gym/team/' + encodeURIComponent(id) + '/role', {role}),
-    remove: (id) => request('DELETE', '/api/gym/team/' + encodeURIComponent(id)),
-    resend: (id) => request('POST', '/api/gym/team/' + encodeURIComponent(id) + '/resend-invite'),
+    invite: (data) => mfa.perform('POST', '/api/gym/team/invite', data),
+    role: (id, role) => mfa.perform('PATCH', '/api/gym/team/' + encodeURIComponent(id) + '/role', {role}),
+    remove: (id) => mfa.perform('DELETE', '/api/gym/team/' + encodeURIComponent(id), {}),
+    resend: (id) => mfa.perform('POST', '/api/gym/team/' + encodeURIComponent(id) + '/resend-invite', {}),
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
     accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
   };
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, team, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, clearTokens, saveTokens };
 })();
 
