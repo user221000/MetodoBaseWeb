@@ -140,6 +140,16 @@ async def progress_retirement_page(request: Request):
 
 # ── Individual User Pages ─────────────────────────────────────────────────
 
+@router.get('/cuenta/google', response_class=HTMLResponse)
+async def google_link_page(request: Request):
+    """Explicit Google binding; provider proof never enters the template."""
+    from config.settings import Settings
+    response = template_response(templates, request, 'cuenta_google.html', {
+        'request': request, 'google_client_id': Settings().GOOGLE_CLIENT_ID,
+    })
+    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+    return response
+
 @router.get("/mi-plan", response_class=HTMLResponse)
 async def mi_plan_page(request: Request):
     return template_response(templates, request, "usuario_mi_plan.html", {"request": request})

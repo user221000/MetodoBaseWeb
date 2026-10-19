@@ -233,6 +233,53 @@ class MfaAuthorization(Base):
 
 # ── Clientes (multi-tenant via gym_id) ───────────────────────────────────────
 
+class AuthExternalIdentity(Base):
+    """Explicit authentication binding; contact email and payment IDs are unrelated.
+
+    Control plane: public login performs one exact verified issuer/subject
+    lookup before it can know the local actor. No email inference or backfill.
+    Immutable identity keys and RESTRICT preserve historical authority;
+    explicit revocation/reactivation advances the same row's version.
+    """
+    __tablename__ = "auth_external_identities"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=False)
+    issuer = Column(String(64), nullable=False)
+    subject = Column(String(255), nullable=False)
+    created_at = Column(UTCDateTime(), nullable=False)
+    revoked_at = Column(UTCDateTime())
+    version = Column(Integer, nullable=False)
+    __table_args__ = (
+        UniqueConstraint("issuer", "subject", name="uq_auth_external_subject"),
+        CheckConstraint("CAST(issuer AS TEXT) = CAST('https://accounts.google.com' AS TEXT) AND length(subject) BETWEEN 1 AND 255", name="ck_auth_external_google"),
+        CheckConstraint("version BETWEEN 1 AND 2147483647 AND (revoked_at IS NULL OR revoked_at >= created_at)", name="ck_auth_external_state"),
+        Index("ix_auth_external_user", "user_id"),
+    )
+
+
+class GoogleLinkIntent(Base):
+    """Hash-only, one-use, exact-session proof for an explicit Google binding."""
+    __tablename__ = "google_link_intents"
+    token_hash = Column(String(64), primary_key=True)
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=False)
+    issuer = Column(String(64), nullable=False)
+    subject = Column(String(255), nullable=False)
+    purpose = Column(String(32), nullable=False)
+    access_hash = Column(String(64), nullable=False)
+    session_version = Column(Integer, nullable=False)
+    generation = Column(Integer, nullable=False)
+    created_at = Column(UTCDateTime(), nullable=False)
+    expires_at = Column(UTCDateTime(), nullable=False)
+    consumed_at = Column(UTCDateTime())
+    __table_args__ = (
+        CheckConstraint("CAST(issuer AS TEXT) = CAST('https://accounts.google.com' AS TEXT) AND length(subject) BETWEEN 1 AND 255", name="ck_google_link_subject"),
+        CheckConstraint("CAST(purpose AS TEXT) = CAST('google_link' AS TEXT)", name="ck_google_link_purpose"),
+        CheckConstraint("session_version BETWEEN 0 AND 2147483647 AND generation BETWEEN 0 AND 2147483647", name="ck_google_link_versions"),
+        CheckConstraint("expires_at > created_at AND (consumed_at IS NULL OR (consumed_at >= created_at AND consumed_at < expires_at))", name="ck_google_link_instants"),
+        Index("ix_google_link_user", "user_id"),
+    )
+
+
 class Cliente(Base):
     __tablename__ = "clientes"
 

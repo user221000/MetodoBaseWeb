@@ -26,6 +26,13 @@ import secrets
 # Primary authentication errors can occur before the successful response helper.
 # Match only the mounted APIs; login pages retain their existing GIS policy.
 _PRIMARY_API_PATHS = frozenset({"/api/auth/login", "/api/auth/google"})
+_GOOGLE_LINK_PATHS = frozenset({
+    "/api/auth/google/link/status", "/api/auth/google/link/status/",
+    "/api/auth/google/link/start", "/api/auth/google/link/start/",
+    "/api/auth/google/link/confirm", "/api/auth/google/link/confirm/",
+    "/api/auth/google/link/unlink", "/api/auth/google/link/unlink/",
+})
+_GOOGLE_LINK_PAGES = frozenset({"/cuenta/google", "/cuenta/google/"})
 _RETIREMENT_PRIVATE_PATHS = frozenset({
     "/api/auth/progress-retirement/metadata", "/api/auth/progress-retirement/metadata/",
     "/api/auth/progress-retirement/withdraw", "/api/auth/progress-retirement/withdraw/",
@@ -108,7 +115,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             request.url.path == "/api/usuario/diario"
             or request.url.path.startswith("/api/usuario/diario/")
         )
-        primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS
+        primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS or request.url.path in _GOOGLE_LINK_PAGES
         progress_api = is_progress_private(request.url.path)
         export_api = request.url.path in _PRIVATE_EXPORT_PATHS
         operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}
@@ -152,7 +159,18 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # ─── CSP (with per-request nonce) ────────────────────────────────────
         if self.csp_enabled:
-            if request.url.path in {"/auth/reset-password", "/auth/accept-client-link"} or request.url.path.startswith("/api/auth/mfa/") or request.url.path in _RETIREMENT_PRIVATE_PATHS:
+            if request.url.path in _GOOGLE_LINK_PAGES:
+                # Only this new first-party page needs GIS. No CDN, wildcard,
+                # arbitrary downstream policy or change to existing login pages.
+                response.headers["Content-Security-Policy"] = (
+                    "default-src 'none'; "
+                    f"script-src 'self' 'nonce-{nonce}' https://accounts.google.com/gsi/client; "
+                    "style-src 'self' https://accounts.google.com/gsi/style; "
+                    "connect-src 'self' https://accounts.google.com/gsi/; "
+                    "frame-src https://accounts.google.com/gsi/; img-src 'self' data:; "
+                    "form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+                )
+            elif request.url.path in {"/auth/reset-password", "/auth/accept-client-link"} or request.url.path.startswith("/api/auth/mfa/") or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS:
                 # Fixed first-party policy for the public recovery form. Never
                 # accept an arbitrary policy supplied by a downstream handler.
                 response.headers["Content-Security-Policy"] = (

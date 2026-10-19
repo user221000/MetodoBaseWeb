@@ -6,7 +6,7 @@ Extracted from web/main_web.py (god function) for maintainability.
 import logging
 
 from fastapi import APIRouter, HTTPException, Depends, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from web.auth_deps import get_usuario_actual
@@ -34,7 +34,10 @@ class RegistroRequest(BaseModel):
     tipo: str = "usuario"
 
 class GoogleLoginRequest(BaseModel):
-    credential: str
+    # Preserve the old Google-onboarding contract: legacy id/gym fields are
+    # ignored; only the verified subject or server-created identity has power.
+    model_config = ConfigDict(extra="ignore",strict=True)
+    credential: str = Field(min_length=1,max_length=16384)
     tipo: str = "usuario"
 
 
@@ -100,74 +103,41 @@ async def login_universal(data: LoginRequest, request: Request):
 
 
 @router.post("/auth/google", dependencies=_login_rate_limit)
-async def google_login(data: GoogleLoginRequest, request: Request):
-    """
-    Login / registro con Google.
-
-    Recibe el credential (ID token) de Google Identity Services,
-    lo verifica contra Google, y crea o busca el usuario en la BD.
-    """
-    import uuid
-    from datetime import datetime, timezone
-    from web.auth import identity_from_user
-    from web.services.auth_audit import log_auth_event_from_request, AuthEventType
-
+async def google_login(request: Request):
+    """Return only the account explicitly associated with verified issuer/sub."""
     from web.services.google_identity import verified_google_info
-    google_info = await verified_google_info(data.credential)
+    from web.database.engine import SessionLocal
+    from web.database.tenant_context import current_tenant
+    from web.services import google_link
+    from web.routes.mfa import parse
 
-    email = normalize_account_email(google_info["email"])
-    nombre = google_info.get("given_name", google_info.get("name", "")).strip()
-    apellido = google_info.get("family_name", "").strip()
-
-    # Tipo válido
-    tipo = data.tipo if data.tipo in ("usuario", "gym") else "usuario"
-
-    # Buscar usuario existente via SQLAlchemy
-    from web.auth import hash_password
-    from web.database.engine import get_engine
-    from web.database.models import Usuario, UserRole
-    from sqlalchemy.orm import Session as _SASession
-
-    engine = get_engine()
-    with _SASession(engine) as session:
-        row = session.query(Usuario).filter(
-            Usuario.email == email,
-        ).first()
-
-        if row:
-            # Usuario existe — login
-            usuario = identity_from_user(row, session)
-            if not usuario:
-                raise HTTPException(401, "Cuenta no disponible para iniciar sesión.")
-        else:
-            # Crear usuario nuevo
-            uid = str(uuid.uuid4())
-            now = datetime.now(timezone.utc)
-            # Generar password hash aleatorio (el usuario no necesita password, usa Google)
-            random_pw_hash = hash_password(uuid.uuid4().hex + uuid.uuid4().hex)
-            new_user = Usuario(
-                id=uid, email=email, password_hash=random_pw_hash,
-                nombre=nombre, apellido=apellido, tipo=tipo,
-                role=UserRole.OWNER if tipo == "gym" else UserRole.VIEWER,
-                activo=True, fecha_registro=now,
-            )
-            session.add(new_user)
-            session.commit()
-
-            usuario = identity_from_user(new_user, session)
-
-            # Auto-crear GymProfile si es gym
-            if tipo == "gym":
-                from web.database import repository as _repo
-                from web.database.tenant_context import bind_verified_subject
-                bind_verified_subject(session, uid)
-                _repo.crear_gym_profile(session, uid, {"nombre_negocio": nombre}, initialize_memberships=True)
-                session.commit()
-
-    _sync_user_to_sa(usuario)
+    data=await parse(request,GoogleLoginRequest)
+    info = await verified_google_info(data.credential)
+    token=current_tenant.set("")
+    try:
+        db=SessionLocal()
+        try:
+            try:
+                usuario=google_link.resolve_or_register(db,info,data.tipo)
+            except HTTPException:
+                google_link.rollback(db)
+                raise
+            except Exception as error:
+                google_link.rollback(db)
+                logger.error("Google primary unconfirmed class=%s",type(error).__name__)
+                google_link.fail(503,"google_link_unconfirmed")
+        finally:
+            google_link.close_owned_session(db)
+    except HTTPException:
+        raise
+    except Exception as error:
+        logger.error("Google primary close unconfirmed class=%s",type(error).__name__)
+        google_link.fail(503,"google_link_unconfirmed")
+    finally:
+        current_tenant.reset(token)
     response = _primary_result(usuario, remember=True, method="google")
-
     if response.status_code == 200:
+        from web.services.auth_audit import log_auth_event_from_request, AuthEventType
         await log_auth_event_from_request(
             AuthEventType.LOGIN_SUCCESS,
             request,
@@ -175,7 +145,6 @@ async def google_login(data: GoogleLoginRequest, request: Request):
             user_id=usuario["id"],
             metadata={"tipo": usuario["tipo"], "source": "google"},
         )
-
     return response
 
 
@@ -286,3 +255,7 @@ async def me(
             "max_clientes": plan_cfg.get("max_clientes", 0),
         },
     }
+
+
+from web.routes.google_link import router as google_link_router  # noqa: E402
+router.include_router(google_link_router)

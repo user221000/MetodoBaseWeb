@@ -12,9 +12,14 @@ import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import subprocess
 import tempfile
+from pathlib import Path
+
+try:
+    from scripts.reviewed_scan_locations import load_reviewed_locations
+except ModuleNotFoundError:  # Direct `python scripts/scan_secrets.py` invocation.
+    from reviewed_scan_locations import load_reviewed_locations
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -110,7 +115,7 @@ def main() -> int:
         raise RuntimeError("Reviewed secret scanner version must be 8.30.1")
     result = subprocess.run(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
         cwd=ROOT, check=True, capture_output=True)
-    paths = sorted(set(value.decode("utf-8") for value in result.stdout.split(b"\0") if value))
+    paths = sorted({value.decode("utf-8") for value in result.stdout.split(b"\0") if value})
     source_hashes = {}
     encoding_transforms = {}
     with tempfile.TemporaryDirectory(prefix="metodobase-secrets-") as temporary:
@@ -141,6 +146,7 @@ def main() -> int:
                 encoding_transforms[name] = {"source_encoding": encoding,
                     "scanner_encoding": "utf-8", "scanner_sha256": hashlib.sha256(content).hexdigest()}
             destination.write_bytes(content)
+        reviewed = load_reviewed_locations(snapshot, source_hashes, version)
         raw_report = workspace / "raw-redacted.json"
         empty_ignore = workspace / "empty.gitleaksignore"
         empty_ignore.write_text("", encoding="utf-8")
@@ -149,7 +155,7 @@ def main() -> int:
             "--ignore-gitleaks-allow", "--gitleaks-ignore-path", str(empty_ignore),
             "--max-decode-depth=5", "--max-archive-depth=0",
             "--report-format=json", "--report-path", str(raw_report), "--timeout=120"],
-            capture_output=True, cwd=workspace, env=environment, timeout=135)
+            check=False, capture_output=True, cwd=workspace, env=environment, timeout=135)
         if scan.returncode not in {0, 1} or not raw_report.is_file():
             raise RuntimeError(f"Secret scanner failed; exit={scan.returncode}; output withheld")
         raw = json.loads(raw_report.read_text(encoding="utf-8"))
@@ -160,6 +166,8 @@ def main() -> int:
         for item in raw:
             name = _finding_name(item["File"], snapshot)
             classification = _classify_fragment_fingerprint(item, name, snapshot, source_hashes)
+            if classification is None:
+                classification = reviewed.classify(item, name)
             if classification is not None:
                 classified.append(classification)
                 continue
@@ -177,7 +185,8 @@ def main() -> int:
     report.write_text(json.dumps({"tool": "gitleaks", "version": version,
         "binary_sha256": hashlib.sha256(tool.read_bytes()).hexdigest(),
         "scope": "tracked and unignored deliverable tree; no git history or ignored files",
-        "exit_code": scan.returncode, "source_stable": not changed, "changed_files": changed,
+        "exit_code": scan.returncode, "effective_exit_code": 2 if changed else (1 if findings else 0),
+        "source_stable": not changed, "changed_files": changed,
         "raw_finding_count": len(raw), "classified_finding_count": len(classified),
         "remaining_finding_count": len(findings), "classified_findings": classified,
         "files": source_hashes, "encoding_transforms": encoding_transforms, "findings": findings},

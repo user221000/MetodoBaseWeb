@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>Google en mi cuenta — Método Base</title>
+  <link rel="stylesheet" href="/static/css/google-vinculo.css?v={{ static_version }}">
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}" defer></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/google-vinculo.js?v={{ static_version }}" defer></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/google-vinculo-pagina.js?v={{ static_version }}" defer></script>
+</head>
+<body>
+<main id="google-link-page" class="google-link-page" data-google-client-id="{{ google_client_id | default('') | e }}">
+  <a href="/">Método Base</a>
+  <h1>Google en mi cuenta</h1>
+  <p>Consulta y gestiona el acceso con Google de la cuenta con la que ya iniciaste sesión. Vincular requiere tu contraseña local, un código nuevo si usas segundo factor y una verificación reciente de Google. Tendrás que confirmar la cuenta elegida en un paso aparte.</p>
+  <p>El correo de Google no fusiona cuentas, cambia tu contacto ni incorpora perfiles, clientes o planes anteriores.</p>
+  <p id="google-link-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1">Consulta el estado para empezar. Esta página no inicia sesión automáticamente.</p>
+  <p id="google-link-error" class="google-link-error" role="alert" tabindex="-1" hidden></p>
+  <div class="google-link-actions">
+    <button id="google-link-load" type="button" disabled>Consultar mis vínculos</button>
+    <button id="google-link-more" type="button" hidden disabled>Consultar siguientes vínculos</button>
+    <button id="google-link-cancel" class="secondary" type="button" disabled>Descartar pruebas y esta vista</button>
+  </div>
+  <section id="google-link-list" aria-labelledby="google-link-list-title" hidden>
+    <h2 id="google-link-list-title">Vínculos de esta consulta</h2>
+    <p>Se muestran estado y fechas del vínculo, sin el identificador privado de Google ni su correo. Si no puedes distinguir el vínculo que quieres desactivar, no confirmes la selección.</p>
+    <ol id="google-link-items"></ol>
+  </section>
+  <section id="google-link-provider" aria-labelledby="google-link-provider-title" hidden>
+    <h2 id="google-link-provider-title">Preparar un vínculo nuevo</h2>
+    <p>Al habilitar esta opción se cargará el botón oficial de Google. Elige una cuenta y, cuando Google lo solicite, vuelve a autenticarte. Elegirla por sí solo no garantiza una verificación reciente.</p>
+    <button id="google-link-enable" type="button" disabled>Cargar el botón de Google</button>
+    <div id="google-link-button"></div>
+  </section>
+  <form id="google-link-proof" aria-labelledby="google-link-proof-title" novalidate hidden>
+    <h2 id="google-link-proof-title">Verificar mi cuenta</h2>
+    <label for="google-link-password">Contraseña local de mi cuenta</label>
+    <input id="google-link-password" type="password" autocomplete="current-password" required disabled>
+    <label for="google-link-method">Segundo factor de esta cuenta</label>
+    <select id="google-link-method" disabled><option value="none">Mi cuenta no usa segundo factor</option><option value="totp">Código actual de mi aplicación</option><option value="recovery">Código de recuperación sin usar</option></select>
+    <div id="google-link-factor-group" hidden><label for="google-link-factor" id="google-link-factor-label">Código nuevo</label><input id="google-link-factor" type="password" autocomplete="one-time-code" spellcheck="false" disabled><p>La prueba usada en otra operación no se reutiliza aquí. Un código de recuperación se consume una sola vez.</p></div>
+    <p id="google-link-selection"></p>
+    <label id="google-link-unlink-label" class="google-link-check" hidden><input id="google-link-unlink-agree" type="checkbox" disabled>Quiero desactivar únicamente el vínculo seleccionado y volver a iniciar sesión.</label>
+    <button id="google-link-submit" type="submit" disabled>Verificar y preparar vínculo</button>
+  </form>
+  <section id="google-link-confirm-panel" aria-labelledby="google-link-confirm-title" hidden>
+    <h2 id="google-link-confirm-title">Confirma la cuenta de Google</h2>
+    <p id="google-link-contact"></p><p id="google-link-expiry"></p>
+    <p>Este correo sólo identifica la selección que acabas de verificar. No cambia el contacto de tu cuenta. Confirmar el vínculo cerrará tus sesiones y tendrás que volver a entrar.</p>
+    <button id="google-link-confirm" type="button" disabled>Confirmar el vínculo con esta cuenta de Google</button>
+  </section>
+  <aside aria-labelledby="google-link-limits-title">
+    <h2 id="google-link-limits-title">Si no dispones de una contraseña o de tus códigos</h2>
+    <p>Una sesión abierta o un acceso sólo con Google no sustituyen la contraseña local. Si tu acceso antiguo de Google nunca se vinculó de forma verificable, esta página no lo recupera por coincidencia de correo. Si perdiste todos tus factores, tampoco se omiten aquí. No se ofrece una recuperación automática de esos casos.</p>
+    <p>Si un resultado es incierto, no repitas el cambio a ciegas: vuelve a autenticarte cuando corresponda y consulta el estado explícitamente.</p>
+  </aside>
+  <nav aria-label="Accesos"><a href="/login-usuario">Iniciar sesión personal</a><a href="/login-gym">Acceso profesional</a><a href="/mi-perfil">Mi perfil</a><a href="/configuracion">Configuración profesional</a></nav>
+  <noscript>Activa JavaScript para usar estos controles. No envíes credenciales por URL ni pegues códigos de Google en esta página.</noscript>
+</main>
+</body>
+</html>
