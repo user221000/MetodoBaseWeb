@@ -40,6 +40,7 @@ def fail(status, code):
         "mfa_busy": "La cuenta está cambiando. Consulta su estado y vuelve a intentar.",
         "mfa_throttled": "Espera antes de volver a verificar el segundo factor.",
         "mfa_unconfirmed": "No pudimos confirmar la operación. Consulta el estado o inicia sesión de nuevo.",
+        "mfa_session_version_exhausted": "La cuenta necesita revisión antes de cambiar sus opciones de seguridad.",
     }.get(code, "No se pudo verificar esta operación de seguridad.")})
 
 
@@ -87,7 +88,7 @@ def commit(db):
 def current_identity(db, user):
     from web.auth import identity_from_user
     if (user is None or not user.activo or user.deleted_at is not None or user.invitation_token is not None
-            or type(user.session_version) is not int or not 0 <= user.session_version < MAX_SV):
+            or type(user.session_version) is not int or not 0 <= user.session_version <= MAX_SV):
         fail(401, "mfa_identity_unavailable")
     identity = identity_from_user(user, db)
     if not identity:
@@ -232,7 +233,13 @@ def verify_factor(db, row, *, code=None, recovery_code=None, purpose, now, proof
     return "recovery"
 
 
+def _require_session_capacity(user):
+    if type(user.session_version) is not int or not 0 <= user.session_version < MAX_SV:
+        fail(409, "mfa_session_version_exhausted")
+
+
 def _revoke_sessions(db, user):
+    _require_session_capacity(user)
     user.session_version += 1
     db.execute(update(RefreshToken).where(RefreshToken.user_id == user.id).values(revoked=True))
 
@@ -351,6 +358,7 @@ def admit_google_reauthentication(db, expected, *, now=None):
 def enroll(db, expected, access, proof_token, *, code=None, recovery_code=None, now=None):
     key = configuration()
     user, _ = lock_actor(db, expected)
+    _require_session_capacity(user)
     now = instant(now)
     row = credential(db, user.id, create=True)
     proof = _find_proof(db, proof_token, "reauth", now, user=user, access=access)
@@ -378,6 +386,7 @@ def enroll(db, expected, access, proof_token, *, code=None, recovery_code=None, 
 def confirm_enrollment(db, expected, enrollment, code, *, now=None):
     key = configuration()
     user, _ = lock_actor(db, expected)
+    _require_session_capacity(user)
     now = instant(now)
     row = credential(db, user.id)
     if (not row or not row.pending_id or row.pending_id != enrollment
@@ -404,6 +413,7 @@ def confirm_enrollment(db, expected, enrollment, code, *, now=None):
 def change_factor(db, expected, access, proof_token, *, revoke=False, code=None, recovery_code=None, now=None):
     configuration()
     user, _ = lock_actor(db, expected)
+    _require_session_capacity(user)
     now = instant(now)
     row = credential(db, user.id)
     proof = _find_proof(db, proof_token, "reauth", now, user=user, access=access)
