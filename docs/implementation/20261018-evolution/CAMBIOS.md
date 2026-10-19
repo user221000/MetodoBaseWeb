@@ -115,3 +115,8 @@ Checkpoint108 sólo incorpora evidencia/documentación: aceptación independient
 ## Checkpoint 109
 
 Integrado5d0e668:c4 elimina únicamenteCREATEROLE/GRANTglobales para permitir dueño de esquemaNOCREATEROLE;políticas/función/revisiones/targets yACLprevios sin cambio. Repairhistórico justificado porque una revisión posterior no puede superar el fallo previo. FixUIec029 permanece separado deMAIN yse registraUX-18. No27/29/30retargeting para ocultar históricos.
+
+
+## Checkpoint 110
+
+Se preservan aceptaciones R12ec y del delta estático d038; no se integra código29/30 ni emisor en este checkpoint. Se actualiza sólo validación UX-18 respecto del candidato aceptado; criterios exactos106 intactos. CI1 tiene dos bypass de ejecutables y dos de archivo histórico reproducidos por QA; correcciones aisladas requieren replay independiente.

@@ -1,0 +1,66 @@
+{
+  "results": [
+    {
+      "label": "own-e8ca-before",
+      "total": 10,
+      "passed": 7,
+      "expected_process_exit": 1,
+      "stdout_sha256": "9569d4d55eb7e1f04fb753fb23bd385086a84e5108aa177b954a3d14ce7c392f",
+      "stderr_bytes": 0
+    },
+    {
+      "label": "author-base-fb19",
+      "total": 11,
+      "passed": 2,
+      "expected_process_exit": 1,
+      "stdout_sha256": "a015b94584c33bfee96fd3a305017490037c1d60159de16e0f599ee1be69f091",
+      "stderr_bytes": 1379
+    },
+    {
+      "label": "author-e8ca",
+      "total": 11,
+      "passed": 11,
+      "expected_process_exit": 0,
+      "stdout_sha256": "5c63d2b515849b617d23eee7ef937b2063b20f8a201219d269f7b0666023e91f",
+      "stderr_bytes": 0
+    },
+    {
+      "label": "auth_refresh_security_review.cjs",
+      "total": 13,
+      "passed": 13,
+      "expected_process_exit": 0,
+      "stdout_sha256": "5ddb78cdf5177afa45035d4157de514e3d9dc87059245af6c07c3689e317da97",
+      "stderr_bytes": 0
+    },
+    {
+      "label": "auth_refresh.cjs",
+      "total": 33,
+      "passed": 33,
+      "expected_process_exit": 0,
+      "stdout_sha256": "aa7d45f62a9bfe4dfc8e98f16af656c2e4aee91131570121c6c333befc74c606",
+      "stderr_bytes": 0
+    },
+    {
+      "label": "auth_refresh_storage.cjs",
+      "total": 26,
+      "passed": 26,
+      "expected_process_exit": 0,
+      "stdout_sha256": "dac1d5f409cc5107ea89850f378d2dde7b829a05ed94d2c1f42a5a835b49f2ef",
+      "stderr_bytes": 0
+    },
+    {
+      "label": "auth_refresh_race_review.cjs",
+      "total": 2,
+      "passed": 2,
+      "expected_process_exit": 0,
+      "stdout_sha256": "05230647f4c98135f269b89c19fd7637599aed7285d48c0e4bee3b74d1b65c80",
+      "stderr_bytes": 0
+    }
+  ],
+  "driver_sha256": "1c230a07b722e421123af6bf0ac688220b070c4438ad81fd15af326f6515f4b4",
+  "source_manifest_sha256": "5a4875dd1b0e82474dde55c16de5781384b55c0ffa7b979ac151e91d1a5ac364",
+  "candidate_zip_sha256": "945de5317b1fcdbe14f1f0f2eda8f7499613b39cfa6bb4c442dd413b557bcad6",
+  "zip_api_authenticated": true,
+  "harness_errata": "run_frozen.py parsed all seven already completed child outputs but incorrectly expected total on the root race driver, which returns report[2]. No child rerun and no source/assertion edits. This aggregator validates immutable typed case entries. The initial direct own VM run had the same 7/10 and three redirect failures; own-e8ca-before is the captured replay.",
+  "author_baseline_stderr": "2/11 JSON reports nine failures. Original unchanged author baseline also exits with a Storage rejection in stderr after its JSON because a failed synchronous assertion skips awaiting its request; preserved verbatim. No stderr in current 11/74 or own 7/10."
+}

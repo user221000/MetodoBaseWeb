@@ -1,7 +1,7 @@
 # Entrega candidata en curso
 
-Checkpoint109 local;106registros/92IDs originales. No entrega final ni despliegue. MAIN conserva esquema28 e integra5d0e668,c4 reparado tras13controles independientesPG y34contratos intactos; falta imagenLinux corregida.
+Checkpoint110;106 registros y92 IDs originales. MAIN conserva esquema28 con reparación c4 aceptada. La composición R12 aislada con ec029 pasó16/16 criterios de navegadorPG,3/3 canarios y31/31 controles de Seguridad; CI29 aún rechaza bypass pendientes del archivo histórico. Índice30 aceptado120, todavía aislado.
 
-R12/939 no aceptado:7criterios navegadorverdes,8exportdisabledrojo,9–16 pendientes. Fixec029 aislado tiene3canarios+16regresionesautorverdes y revisión QA/SECen curso. Restore29/API yNode tienen evidencia acotada; CI29 todavía aislado. Índice30 aceptado120, no integrado. Linux99c anterior permanece rojo42501 antesdeweb,71IDsOS ySEC09abiertos. Desktop3.12.15 aceptado sólo en93controles bundle/payload, sin instalación/firma.
+El emisor e8 se rechazó por tres continuaciones obsoletas. d038 sólo tiene aceptación estática del arreglo de librerías; imagen, arranque y SCA pendientes. No entrega final ni despliegue. Free:10 clientes, un plan por cliente al día y10 planes totales por gimnasio al día; soporte desktop conservado.
 
-Free:10clientes,1plan/cliente/día y10planes/gym/día;desktopconservado. Ver [estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md), [registro](TRAZABILIDAD.md). No se relabelan las pruebas anteriores como aprobación de la versión actual.
+Ver [estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md). La evidencia de fuentes anteriores no se presenta como aprobación de la versión actual.

@@ -57,3 +57,8 @@ SEC09/P1, operación y seguridad: OpenSSL3.5.8 depsycopg2-binary coincide con13 
 ## Checkpoint 109
 
 UX-18/P1 bloquea exportaciónUI en flujoR12 por interferencia deestado disabled;mitigaciónownedControls yreplay16independiente en curso. R34pool1:waiterGETauthme checkout,holderdesconocido;no atribuir causa ni cerrarlo conpool20. C4fix nativoaceptado, Linuxcorregidopendiente;ACLheredados sepreservan ynosepurgaunrolglobal sin alcanceaplicable. SEC09/71OSsiguenabiertos. 55484apagado y recursos propioscerradosconidentidadverificada.
+
+
+## Checkpoint 110
+
+CI29 no se acepta con checker vacío, runner falso, replace-ref o export-ignore que suplanten la fuente histórica. Los pins del ejecutable corrigen sólo el primer grupo; verificar árbol/blobs del archivo sigue pendiente. Emisor e8: expiración antigua puede redirigir una recuperación B síncrona; sin fuga o DTO B enviado demostrado. R34 pool1 continúa sin holder identificado. d038 estático no cierra71 IDs OS/13 coincidencias CNA, ni acredita imagen o producción.

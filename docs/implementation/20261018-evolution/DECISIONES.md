@@ -34,3 +34,8 @@ Checkpoint108 mantiene esquema28MAIN hasta cerrar composición29 y después30. S
 ## Checkpoint 109
 
 Se integra únicamenteelc4aceptado13, sin ampliar privilegios ni precrearrolglobal. Se rechaza aceptaciónR12completa peseaAPI/restoreverdes porfalloUIrealcriterio8. Fixec029debe superar mismos16+3 yrevisiónSEC;scopeexplicito decontroles, no main. Elhistórico28enCI correconfuenteGit66fijada, sin editaraserciones/modelofalso. Node297son ejecuciones y276criteriosúnicos,21exportrepetidas.
+
+
+## Checkpoint 110
+
+Se acepta el recorrido R12ec dentro de su alcance independiente, manteniendo integración condicionada a CI29 correcto. El emisor e8 permanece aislado hasta corregir los mismos tres negativos de Seguridad. Se mantienen separados evidencia estática de contenedor, build real, linkage, firmaAPT y SCA; incluir entorno build y componentes vendorizados en su análisis.

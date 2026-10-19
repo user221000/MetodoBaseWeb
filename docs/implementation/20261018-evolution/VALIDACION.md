@@ -176,3 +176,8 @@ Checkpoint108 autentica QA30:120/120 verdes,14UUID cerrados,4580fuentes+7helpers
 ## Checkpoint 109
 
 Se autentican173 archivosLinuxoriginales,204filesfaseQA939rechazada y revisión migrador13verdes(11originales+2propios). NativePGno acreditaLinuxcorregido. Backend147 se describe144pass/1harnesserror/2skips+replay1, no ejecuciónúnicaverde. Restore29poblado1/UI10/HTTP28/Node297ejecuciones276únicos separados. Browser939:7pass,1fail,8noalcanzados;fixec029autor3+16verdes,sintaxis6,fuentecerrada. TodoslosRAW/derivados mantienen suclasificación;manifiestos yGitblobs verificados byteabyte.
+
+
+## Checkpoint 110
+
+QA ec029 completa16/16 Chrome/HTTP/PostgreSQL29 con pool real20/10,3/3 mismos canarios y15 UUID propios ausentes al cierre. Seguridad31/31 controles. No nuevo Node300 de QA: QA original17 reportes sumaba297 ejecuciones/276 únicos y tres canarios se repitieron aparte. Root CI2 sí ejecutó18 módulos/300 con sus parsers, evidencia aislada en preparación. La fase939 rechazada, errores de harness y replays siguen intactos. d038 sólo estática29 autor/27 Seguridad; emisor e8 rechazado7/10, autor11 ytransporte74 intactos.
