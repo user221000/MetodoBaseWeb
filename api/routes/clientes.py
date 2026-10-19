@@ -85,7 +85,7 @@ def crear_cliente(
         
         nuevo = repo.crear_cliente(db, gym_id, cliente_data)
         
-        logger.info("Cliente creado: %s (gym: %s)", nuevo["nombre"], gym_id)
+        logger.info("Cliente creado id=%s gym_id=%s", nuevo["id_cliente"], gym_id)
         return {
             "success": True,
             "id_cliente": nuevo["id_cliente"],
@@ -102,8 +102,9 @@ def crear_cliente(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error("Error creando cliente: %s", exc, exc_info=True)
-        raise HTTPException(status_code=400, detail=str(exc))
+        logger.error("Client creation failed class=%s", type(exc).__name__)
+        raise HTTPException(status_code=400, detail={"code": "client_create_failed",
+            "message": "No se pudo crear el cliente. Revisa los datos e intenta de nuevo."}) from None
 
 
 @router.put("/clientes/{id_cliente}", summary="Actualizar cliente existente")
@@ -144,8 +145,9 @@ def actualizar_cliente(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.error("Error actualizando cliente %s: %s", id_cliente, exc, exc_info=True)
-        raise HTTPException(status_code=400, detail=str(exc))
+        logger.error("Client update failed class=%s", type(exc).__name__)
+        raise HTTPException(status_code=400, detail={"code": "client_update_failed",
+            "message": "No se pudo actualizar el cliente. Revisa los datos e intenta de nuevo."}) from None
 
 
 @router.delete("/clientes/{id_cliente}", summary="Desactivar cliente (soft delete)")

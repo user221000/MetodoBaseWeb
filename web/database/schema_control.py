@@ -13,6 +13,7 @@ SCHEMA_CONTRACTS = {
     "20261018_schema_reconciliation": "20261018_reconciled",
     "20261018_provider_subjects": "20261018_prepared",
     "20261018_tenant_isolation": "20261018_isolated",
+    "20261018_gym_generation_quota": "20261018_gym_quota",
 }
 
 

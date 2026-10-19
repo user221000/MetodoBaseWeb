@@ -121,8 +121,11 @@ def obtener_cliente(db: Session, gym_id: str, id_cliente: str) -> Optional[dict]
 
 def crear_cliente(db: Session, gym_id: str, data: dict) -> dict:
     """Crea un cliente asignándolo al gym."""
+    from web.services.gym_generation_quota import check_gym_client_capacity
+    check_gym_client_capacity(db, gym_id)
     c = Cliente(
         gym_id=gym_id,
+        fecha_registro=datetime.now(timezone.utc).replace(tzinfo=None),
         nombre=data["nombre"],
         telefono=data.get("telefono"),
         email=data.get("email"),
@@ -189,7 +192,8 @@ def eliminar_cliente(db: Session, gym_id: str, id_cliente: str) -> bool:
 
 # ── Planes ───────────────────────────────────────────────────────────────────
 
-def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *, return_id: bool = False) -> bool | int:
+def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *, return_id: bool = False,
+                   reservation_id: str | None = None) -> bool | int:
     """Stage an owned plan, its JSON and counters in the caller's transaction.
 
     Returns False when client/tenant does not match. Legacy callers receive a
@@ -206,6 +210,7 @@ def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *
     p = PlanGenerado(
         id_cliente=id_cliente,
         gym_id=gym_id,
+        fecha_generacion=datetime.now(timezone.utc).replace(tzinfo=None),
         tmb=plan_data.get("tmb"),
         get_total=plan_data.get("get_total"),
         kcal_objetivo=plan_data.get("kcal_objetivo"),
@@ -225,9 +230,21 @@ def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *
     )
     db.add(p)
 
-    c.total_planes_generados = (c.total_planes_generados or 0) + 1
-    c.ultimo_plan = datetime.now(timezone.utc)
     db.flush()
+    db.query(Cliente).filter_by(id_cliente=id_cliente, gym_id=gym_id).update({
+        Cliente.total_planes_generados: func.coalesce(Cliente.total_planes_generados, 0) + 1,
+        Cliente.ultimo_plan: datetime.now(timezone.utc).replace(tzinfo=None),
+    }, synchronize_session=False)
+    db.expire(c)
+    if reservation_id is not None:
+        from web.database.models import GymGenerationReservation
+        stamp = datetime.now(timezone.utc).replace(tzinfo=None)
+        linked = db.query(GymGenerationReservation).filter_by(id=reservation_id, gym_id=gym_id,
+            client_id=id_cliente, status='reserved', plan_id=None, persisted_at=None).update({
+                GymGenerationReservation.plan_id: p.id, GymGenerationReservation.persisted_at: stamp,
+                GymGenerationReservation.updated_at: stamp}, synchronize_session=False)
+        if linked != 1:
+            raise ValueError('Generation reservation is unavailable for this plan')
     return p.id if return_id else True
 
 

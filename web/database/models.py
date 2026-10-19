@@ -16,7 +16,7 @@ from enum import Enum as PyEnum
 from typing import Optional
 
 from sqlalchemy import (
-    Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text,
+    Boolean, Column, Date, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text,
     CheckConstraint, UniqueConstraint, Enum as SQLEnum, text,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
@@ -769,4 +769,35 @@ class ProviderSubjectAssociation(Base):
         CheckConstraint("provider IN ('stripe','mercadopago')", name="ck_provider_subject_provider"),
         CheckConstraint("resource_type IN ('customer','subscription','payment','preference')", name="ck_provider_subject_resource"),
         CheckConstraint("provenance IN ('legacy_subscription','legacy_customer','verified_purchase')", name="ck_provider_subject_provenance"),
+    )
+
+
+class GymGenerationReservation(Base):
+    """Durable gym quota ledger, retained when a client/plan reference is removed."""
+    __tablename__ = "gym_generation_reservations"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
+    client_id = Column(String(36), ForeignKey("clientes.id_cliente", ondelete="SET NULL"), nullable=True, index=True)
+    request_key = Column(String(128), nullable=False)
+    request_hash = Column(String(64), nullable=False)
+    period = Column(String(7), nullable=False)
+    local_date = Column(Date, nullable=False)
+    timezone = Column(String(64), nullable=False)
+    catalog_plan = Column(String(30), nullable=False)
+    status = Column(String(20), nullable=False, default="reserved")
+    plan_id = Column(Integer, ForeignKey("planes_generados.id", ondelete="SET NULL"), nullable=True, unique=True)
+    persisted_at = Column(DateTime, nullable=True)
+    result_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+
+    __table_args__ = (
+        UniqueConstraint("gym_id", "request_key", name="uq_gym_generation_request_key"),
+        CheckConstraint("status IN ('reserved', 'completed', 'released')", name="ck_gym_generation_status"),
+        CheckConstraint("length(request_hash) = 64", name="ck_gym_generation_request_hash"),
+        CheckConstraint("status <> 'released' OR persisted_at IS NULL", name="ck_gym_generation_no_persisted_refund"),
+        CheckConstraint("status <> 'completed' OR result_json IS NOT NULL", name="ck_gym_generation_completed_result"),
+        Index("ix_gym_generation_period_status", "gym_id", "period", "status"),
+        Index("ix_gym_generation_day_client", "gym_id", "local_date", "client_id", "status"),
     )

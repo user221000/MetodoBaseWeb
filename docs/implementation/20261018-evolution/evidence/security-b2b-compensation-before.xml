@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="6.712" timestamp="2026-10-18T21:36:18.914814-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_gym_generation_security_review" name="test_failed_compensation_never_exposes_private_exception_parameters[ValueError-web.main_web-web.routes.planes]" time="3.676"><failure message="assert 'synthetic-p...tion-details' not in &quot;ERROR    we...details'}]\n&quot;&#10;  &#10;  'synthetic-private-compensation-details' is contained here:&#10;    gym_id': 'synthetic-private-compensation-details'}]&#10;    Traceback (most recent call last):&#10;      File &quot;F:\MetodoBaseWeb-execution-20261018\web\routes\planes.py&quot;, line 74, in generar_plan&#10;        resultado = await asyncio.to_thread(&#10;                    ^^^^^^^^^^^^^^^^^^^^^^^^...&#10;  &#10;  ...Full output truncated (117 lines hidden), use '-vv' to show">tests\test_gym_generation_security_review.py:43: in test_failed_compensation_never_exposes_private_exception_parameters
+    assert private_marker not in caplog.text
+E   assert 'synthetic-p...tion-details' not in "ERROR    we...details'}]\n"
+E     
+E     'synthetic-private-compensation-details' is contained here:
+E       gym_id': 'synthetic-private-compensation-details'}]
+E       Traceback (most recent call last):
+E         File "F:\MetodoBaseWeb-execution-20261018\web\routes\planes.py", line 74, in generar_plan
+E           resultado = await asyncio.to_thread(
+E                       ^^^^^^^^^^^^^^^^^^^^^^^^...
+E     
+E     ...Full output truncated (117 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_gym_generation_security_review" name="test_failed_compensation_never_exposes_private_exception_parameters[ValueError-api.app-api.routes.planes]" time="0.427"><failure message="assert 'synthetic-p...tion-details' not in &quot;ERROR    ap...details'}]\n&quot;&#10;  &#10;  'synthetic-private-compensation-details' is contained here:&#10;    gym_id': 'synthetic-private-compensation-details'}]&#10;    Traceback (most recent call last):&#10;      File &quot;F:\MetodoBaseWeb-execution-20261018\api\routes\planes.py&quot;, line 63, in generar_plan&#10;        resultado = await asyncio.to_thread(&#10;                    ^^^^^^^^^^^^^^^^^^^^^^^^...&#10;  &#10;  ...Full output truncated (127 lines hidden), use '-vv' to show">tests\test_gym_generation_security_review.py:43: in test_failed_compensation_never_exposes_private_exception_parameters
+    assert private_marker not in caplog.text
+E   assert 'synthetic-p...tion-details' not in "ERROR    ap...details'}]\n"
+E     
+E     'synthetic-private-compensation-details' is contained here:
+E       gym_id': 'synthetic-private-compensation-details'}]
+E       Traceback (most recent call last):
+E         File "F:\MetodoBaseWeb-execution-20261018\api\routes\planes.py", line 63, in generar_plan
+E           resultado = await asyncio.to_thread(
+E                       ^^^^^^^^^^^^^^^^^^^^^^^^...
+E     
+E     ...Full output truncated (127 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_gym_generation_security_review" name="test_failed_compensation_never_exposes_private_exception_parameters[RuntimeError-web.main_web-web.routes.planes]" time="0.339" /><testcase classname="tests.test_gym_generation_security_review" name="test_failed_compensation_never_exposes_private_exception_parameters[RuntimeError-api.app-api.routes.planes]" time="0.365" /></testsuite></testsuites>

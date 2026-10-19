@@ -4,6 +4,7 @@ Authentication, purchase identity and replay inbox tables form a documented
 control plane. This contract deliberately does not claim universal RLS.
 """
 from sqlalchemy import DDL, text
+from web.database.alembic.security_contract_v1 import tenant_security_signature  # noqa: F401
 
 TENANT_COLUMNS = {
     "clientes": "gym_id", "planes_generados": "gym_id", "client_progress": "gym_id",
@@ -13,6 +14,7 @@ TENANT_COLUMNS = {
     "planes_suscripcion": "gym_id", "audit_log": "gym_id",
     "user_subscriptions": "user_id", "generation_reservations": "user_id",
     "license_activations": "gym_id",
+    "gym_generation_reservations": "gym_id",
 }
 CONTROL_PLANE = frozenset({"usuarios", "refresh_tokens", "purchase_intents",
     "stripe_webhook_events", "auth_audit_log", "provider_subject_associations"})
@@ -59,27 +61,3 @@ def verify_application_database_role(engine) -> None:
             raise RuntimeError("Application database role must not be a table DDL owner or member of its role")
 
 
-def tenant_security_signature(connection) -> dict:
-    """Read the actual policy/flag/helper contract without changing protection."""
-    if connection.dialect.name != "postgresql":
-        return {"dialect": connection.dialect.name}
-    tables = connection.execute(text("""
-        SELECT relname,relrowsecurity,relforcerowsecurity FROM pg_class
-        WHERE relnamespace=current_schema()::regnamespace AND relkind='r'
-          AND relname <> 'alembic_version' ORDER BY relname
-    """)).all()
-    policies = connection.execute(text("""
-        SELECT tablename,policyname,permissive,roles::text,cmd,qual,with_check
-        FROM pg_policies WHERE schemaname=current_schema()
-        ORDER BY tablename,policyname
-    """)).all()
-    helpers = connection.execute(text("""
-        SELECT p.prosecdef,p.proconfig,p.prosrc,l.lanname
-        FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-        JOIN pg_language l ON l.oid=p.prolang
-        WHERE n.nspname=current_schema() AND p.proname='set_tenant'
-          AND pg_get_function_identity_arguments(p.oid)='tenant_id text'
-    """)).all()
-    return {"dialect": "postgresql", "tables": [list(row) for row in tables],
-        "policies": [list(row) for row in policies],
-        "set_tenant": [[row[0], row[1], " ".join(row[2].split()), row[3]] for row in helpers]}

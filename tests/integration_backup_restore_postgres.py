@@ -112,7 +112,8 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
     from scripts.backup_restore import create_backup, restore_backup
     from web.database.alembic.schema_contract_v1 import schema_signature
     from web.database.models import (Cliente, GymProfile, PlanGenerado, Usuario, UserRole,
-                                     GymLicense, LicenseActivation, ProviderSubjectAssociation)
+                                     GymLicense, LicenseActivation, ProviderSubjectAssociation,
+                                     GymGenerationReservation)
     from web.database.repository import _crear_planes_default
     from web.database.schema_control import verify_runtime_schema
 
@@ -144,9 +145,19 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             db.commit()
             db.add(GymProfile(gym_id="restore-release-gym", nombre_negocio="Synthetic restore",
                 logo_url="restore-release-gym/logo.png"))
-            db.add(PlanGenerado(gym_id="restore-release-gym", id_cliente="restore-release-client",
+            plan = PlanGenerado(gym_id="restore-release-gym", id_cliente="restore-release-client",
                 ruta_pdf="restore-release-gym/release-plan.pdf", plan_json='{"synthetic": true}',
-                kcal_objetivo=2000, kcal_real=1995))
+                kcal_objetivo=2000, kcal_real=1995)
+            db.add(plan)
+            db.flush()
+            captured = datetime(2026, 10, 18, 18, tzinfo=timezone.utc)
+            result = {"success": True, "plan_id": plan.id, "label": "synthetic durable result"}
+            db.add(GymGenerationReservation(gym_id="restore-release-gym", client_id="restore-release-client",
+                request_key="synthetic-release-restore-request", request_hash="c" * 64,
+                period="2026-10", local_date=captured.date(), timezone="America/Mexico_City",
+                catalog_plan="free", status="completed", plan_id=plan.id,
+                persisted_at=captured.replace(tzinfo=None), created_at=captured.replace(tzinfo=None),
+                updated_at=captured.replace(tzinfo=None), result_json=json.dumps(result)))
             _crear_planes_default(db, "restore-release-gym")
             license_key = "synthetic-release-restore-issued-key"
             issued = GymLicense(gym_id="restore-release-gym", license_key=license_key,
@@ -209,6 +220,11 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
                 + "\n", encoding="utf-8")
         verify_runtime_schema(target)
         assert snapshot(target) == original_rows
+        with Session(target) as db:
+            reservation = db.query(GymGenerationReservation).one()
+            assert reservation.status == "completed" and reservation.persisted_at == captured.replace(tzinfo=None)
+            assert json.loads(reservation.result_json) == result
+            assert db.get(PlanGenerado, reservation.plan_id).id_cliente == reservation.client_id
         with target.connect() as connection:
             assert schema_signature(connection) == original_signature
             restored_policies = connection.exec_driver_sql(

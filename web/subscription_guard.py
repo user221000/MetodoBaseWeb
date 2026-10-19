@@ -98,9 +98,9 @@ def _get_plan_config(plan_name: str) -> dict:
 
 
 def _today_start() -> datetime:
-    """Retorna el inicio del día actual en UTC."""
-    now = datetime.now(timezone.utc)
-    return now.replace(hour=0, minute=0, second=0, microsecond=0)
+    """Return local product midnight represented as an aware UTC instant."""
+    from web.services.quota_calendar import quota_calendar
+    return quota_calendar(datetime.now(timezone.utc)).day_start
 
 
 def check_daily_registration_limit(
@@ -138,10 +138,13 @@ def check_daily_registration_limit(
     # 2. Verificar límite diario de registros
     max_diarios = plan_cfg.get("max_registros_diarios", 0)
     if max_diarios > 0:
-        hoy = _today_start()
+        from web.services.quota_calendar import quota_calendar, utc_storage_boundary
+        window = quota_calendar(datetime.now(timezone.utc))
+        hoy, fin = utc_storage_boundary(window.day_start), utc_storage_boundary(window.day_end)
         registros_hoy = db.query(Cliente).filter(
             Cliente.gym_id == gym_id,
             Cliente.fecha_registro >= hoy,
+            Cliente.fecha_registro < fin,
         ).count()
 
         if registros_hoy >= max_diarios:
@@ -167,7 +170,9 @@ def check_daily_plan_limit(db: Session, gym_id: str, id_cliente: str, plan_name:
     Lanza HTTPException 403 si se excede alguno.
     """
     plan_cfg = _get_plan_config(plan_name)
-    hoy = _today_start()
+    from web.services.quota_calendar import quota_calendar, utc_storage_boundary
+    window = quota_calendar(datetime.now(timezone.utc))
+    hoy, fin = utc_storage_boundary(window.day_start), utc_storage_boundary(window.day_end)
 
     # 1. Límite total de planes del gym por día (aplica al plan free/trial)
     max_diarios_gym = plan_cfg.get("max_planes_diarios", 0)
@@ -175,6 +180,7 @@ def check_daily_plan_limit(db: Session, gym_id: str, id_cliente: str, plan_name:
         planes_hoy_gym = db.query(PlanGenerado).filter(
             PlanGenerado.gym_id == gym_id,
             PlanGenerado.fecha_generacion >= hoy,
+            PlanGenerado.fecha_generacion < fin,
         ).count()
 
         if planes_hoy_gym >= max_diarios_gym:
@@ -196,6 +202,7 @@ def check_daily_plan_limit(db: Session, gym_id: str, id_cliente: str, plan_name:
             PlanGenerado.gym_id == gym_id,
             PlanGenerado.id_cliente == id_cliente,
             PlanGenerado.fecha_generacion >= hoy,
+            PlanGenerado.fecha_generacion < fin,
         ).count()
 
         if planes_hoy >= max_por_cliente:
