@@ -1,0 +1,152 @@
+﻿{
+    "auditLocalDate":  "2026-10-18",
+    "presence":  [
+                     {
+                         "name":  "DATABASE_URL",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "WEB_SECRET_KEY",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "METODO_BASE_SALT",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "SENTRY_DSN",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "REDIS_URL",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "STRIPE_SECRET_KEY",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "STRIPE_WEBHOOK_SECRET",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "STRIPE_PUBLISHABLE_KEY",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "STRIPE_PRICE_STANDARD",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "STRIPE_PRICE_GYM_COMERCIAL",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "STRIPE_PRICE_CLINICA",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "STRIPE_PRICE_PRO_USUARIO",
+                         "present":  true,
+                         "nonempty":  true
+                     },
+                     {
+                         "name":  "RESEND_API_KEY",
+                         "present":  false,
+                         "nonempty":  false
+                     },
+                     {
+                         "name":  "MERCADOPAGO_ACCESS_TOKEN",
+                         "present":  false,
+                         "nonempty":  false
+                     },
+                     {
+                         "name":  "GOOGLE_CLIENT_ID",
+                         "present":  true,
+                         "nonempty":  true
+                     }
+                 ],
+    "flags":  [
+                  {
+                      "name":  "METODOBASE_ENV",
+                      "present":  true,
+                      "value":  "production"
+                  },
+                  {
+                      "name":  "BASE_URL",
+                      "present":  true,
+                      "value":  "https://metodobase.up.railway.app"
+                  },
+                  {
+                      "name":  "CORS_ORIGINS",
+                      "present":  true,
+                      "value":  "https://metodobase.up.railway.app"
+                  },
+                  {
+                      "name":  "WEB_WORKERS",
+                      "present":  true,
+                      "value":  "4"
+                  },
+                  {
+                      "name":  "DB_POOL_SIZE",
+                      "present":  true,
+                      "value":  "20"
+                  },
+                  {
+                      "name":  "DB_MAX_OVERFLOW",
+                      "present":  false,
+                      "value":  null
+                  },
+                  {
+                      "name":  "DB_MIGRATION_PHASE",
+                      "present":  false,
+                      "value":  null
+                  },
+                  {
+                      "name":  "DB_DUAL_WRITE",
+                      "present":  false,
+                      "value":  null
+                  },
+                  {
+                      "name":  "DB_USE_SA_READ",
+                      "present":  false,
+                      "value":  null
+                  },
+                  {
+                      "name":  "DB_SA_PRIMARY",
+                      "present":  false,
+                      "value":  null
+                  },
+                  {
+                      "name":  "DB_LEGACY_DEPRECATED",
+                      "present":  false,
+                      "value":  null
+                  },
+                  {
+                      "name":  "METODOBASE_DATA_DIR",
+                      "present":  false,
+                      "value":  null
+                  },
+                  {
+                      "name":  "METODOBASE_SEED_DEMO",
+                      "present":  false,
+                      "value":  null
+                  }
+              ],
+    "checks":  {
+                   "webSecretMin32":  true,
+                   "stripeLive":  true,
+                   "databasePostgres":  true
+               }
+}

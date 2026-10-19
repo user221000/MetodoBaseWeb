@@ -1,0 +1,317 @@
+{
+  "runDate": "2026-10-18",
+  "scope": "Public production pages; GET/HEAD/OPTIONS only; no authentication or form submission.",
+  "results": [
+    {
+      "name": "landing-desktop",
+      "route": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "title": "Método Base — Sistema Nutricional",
+      "errors": [],
+      "blocked": [],
+      "dimensions": {
+        "innerWidth": 1440,
+        "scrollWidth": 1440,
+        "bodyScrollWidth": 1440,
+        "scrollHeight": 1000
+      },
+      "violations": []
+    },
+    {
+      "name": "landing-mobile",
+      "route": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "title": "Método Base — Sistema Nutricional",
+      "errors": [],
+      "blocked": [],
+      "dimensions": {
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390,
+        "scrollHeight": 1324
+      },
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".access-card--user > .demo-hint"
+              ],
+              "html": "<p class=\"demo-hint\">Tu información siempre privada y segura</p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.95 (foreground color: #474444, background color: #111116, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "p:nth-child(1)"
+              ],
+              "html": "<p>¿Primera vez? <a href=\"/registro\">Crea tu cuenta gratis</a></p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.46 (foreground color: #6b6660, background color: #0c0b09, font size: 10.2pt (13.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".landing-footer > .demo-hint"
+              ],
+              "html": "<p class=\"demo-hint\">Sin tarjeta de crédito · Para gimnasios y nutricionistas</p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.96 (foreground color: #45423d, background color: #0c0b09, font size: 10.2pt (13.6px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "registro-mobile",
+      "route": "/registro",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "title": "Registro — Método Base",
+      "errors": [],
+      "blocked": [],
+      "dimensions": {
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390,
+        "scrollHeight": 977
+      },
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".footer-link > p"
+              ],
+              "html": "<p>\n          ¿Ya tienes cuenta?\n          <a href=\"/login-gym\" id=\"linkLogin\">Iniciar sesión</a>\n        </p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.21 (foreground color: #6b6660, background color: #15141c, font size: 10.0pt (13.28px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "login-gym-mobile",
+      "route": "/login-gym",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "title": "Login Socio Comercial — Método Base",
+      "errors": [],
+      "blocked": [],
+      "dimensions": {
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390,
+        "scrollHeight": 844
+      },
+      "violations": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "description": "Ensure buttons have discernible text",
+          "help": "Buttons must have discernible text",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/button-name?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".pwd-toggle"
+              ],
+              "html": "<button type=\"button\" class=\"pwd-toggle\" data-action=\"toggle-password\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".back-link"
+              ],
+              "html": "<a href=\"/\" class=\"back-link\">← Volver al inicio</a>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 9.8pt (13.12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".sidebar-subtitle"
+              ],
+              "html": "<p class=\"sidebar-subtitle\">Clientes, planes y pagos. Todo en un solo lugar.</p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 10.0pt (13.28px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".remember-label"
+              ],
+              "html": "<label class=\"remember-label\">\n              <input type=\"checkbox\" id=\"rememberMe\" style=\"\">\n              Mantener sesión iniciada\n            </label>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 9.8pt (13.12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "p:nth-child(7)"
+              ],
+              "html": "<p style=\"text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;opacity:.65;\">\n          🔒 Conexión cifrada · Tus datos están protegidos\n        </p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.1 (foreground color: #4a4845, background color: #0e0f13, font size: 8.8pt (11.68px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".auth-divider > span"
+              ],
+              "html": "<span>o accede con</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".signup-footer > p"
+              ],
+              "html": "<p>\n            ¿Nuevo en Método Base?\n            <a href=\"/registro?tipo=gym\">Crea tu cuenta gratis →</a>\n          </p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.74 (foreground color: #3a3c44, background color: #0e0f13, font size: 9.6pt (12.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "description": "Ensure touch targets have sufficient size and space",
+          "help": "All touch targets must be 24px large, or leave sufficient space",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/target-size?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".pwd-toggle"
+              ],
+              "html": "<button type=\"button\" class=\"pwd-toggle\" data-action=\"toggle-password\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 23px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "login-usuario-mobile",
+      "route": "/login-usuario",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "title": "Login Usuario — Método Base",
+      "errors": [],
+      "blocked": [],
+      "dimensions": {
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390,
+        "scrollHeight": 844
+      },
+      "violations": [
+        {
+          "id": "button-name",
+          "impact": "critical",
+          "description": "Ensure buttons have discernible text",
+          "help": "Buttons must have discernible text",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/button-name?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".pwd-toggle"
+              ],
+              "html": "<button type=\"button\" class=\"pwd-toggle\" data-action=\"toggle-password\">",
+              "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".back-link"
+              ],
+              "html": "<a href=\"/\" class=\"back-link\">← Volver al inicio</a>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 9.8pt (13.12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".sidebar-subtitle"
+              ],
+              "html": "<p class=\"sidebar-subtitle\">Tu plan te está esperando.</p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 10.0pt (13.28px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".remember-label"
+              ],
+              "html": "<label class=\"remember-label\">\n              <input type=\"checkbox\" id=\"rememberMe\" style=\"\">\n              Mantener sesión iniciada\n            </label>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 9.8pt (13.12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "p:nth-child(7)"
+              ],
+              "html": "<p style=\"text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;opacity:.65;\">\n          🔒 Solo tú puedes ver tu plan · 100% privado\n        </p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.1 (foreground color: #4a4845, background color: #0e0f13, font size: 8.8pt (11.68px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".auth-divider > span"
+              ],
+              "html": "<span>o accede con</span>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.36 (foreground color: #6b6660, background color: #0e0f13, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                ".signup-footer > p"
+              ],
+              "html": "<p>\n            ¿Eres nuevo en Método Base?\n            <a href=\"/registro?tipo=usuario\">Empieza gratis en menos de 2 minutos →</a>\n          </p>",
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.74 (foreground color: #3a3c44, background color: #0e0f13, font size: 9.6pt (12.8px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "description": "Ensure touch targets have sufficient size and space",
+          "help": "All touch targets must be 24px large, or leave sufficient space",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/target-size?application=playwright",
+          "nodes": [
+            {
+              "target": [
+                ".pwd-toggle"
+              ],
+              "html": "<button type=\"button\" class=\"pwd-toggle\" data-action=\"toggle-password\">",
+              "failureSummary": "Fix any of the following:\n  Target has insufficient size (20px by 23px, should be at least 24px by 24px)\n  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 20px instead of at least 24px."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

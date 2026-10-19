@@ -1,0 +1,131 @@
+﻿{
+    "auditLocalDate":  "2026-10-18",
+    "timezone":  "America/Mexico_City",
+    "project":  "joyful-quietude",
+    "environment":  "production",
+    "services":  [
+                     {
+                         "name":  "MetodoBaseWeb",
+                         "source":  {
+                                        "image":  null,
+                                        "repo":  "user221000/MetodoBaseWeb"
+                                    },
+                         "domains":  {
+                                         "customDomains":  [
+
+                                                           ],
+                                         "serviceDomains":  [
+                                                                {
+                                                                    "domain":  "metodobase.up.railway.app",
+                                                                    "id":  "87af9939-2c94-4276-b574-b677d66e4fd3",
+                                                                    "targetPort":  8080
+                                                                }
+                                                            ]
+                                     },
+                         "deployId":  "28cc3eab-e9bd-4742-ab4d-c75ff954db6f",
+                         "status":  "SUCCESS",
+                         "createdAt":  "2026-08-13T23:06:08.443Z",
+                         "commit":  "daa25efbf51d154710bad625025b345fa9ec9252",
+                         "fileManifest":  {
+                                              "build":  {
+                                                            "builder":  "DOCKERFILE",
+                                                            "dockerfilePath":  "Dockerfile"
+                                                        },
+                                              "deploy":  {
+                                                             "healthcheckPath":  "/health/ready",
+                                                             "healthcheckTimeout":  120,
+                                                             "numReplicas":  1,
+                                                             "restartPolicyMaxRetries":  5,
+                                                             "restartPolicyType":  "ON_FAILURE"
+                                                         }
+                                          },
+                         "deployConfig":  {
+                                              "cronSchedule":  null,
+                                              "drainingSeconds":  null,
+                                              "healthcheckPath":  "/health/ready",
+                                              "healthcheckTimeout":  120,
+                                              "ipv6EgressEnabled":  false,
+                                              "limitOverride":  null,
+                                              "multiRegionConfig":  {
+                                                                        "us-west2":  {
+                                                                                         "numReplicas":  1
+                                                                                     }
+                                                                    },
+                                              "numReplicas":  1,
+                                              "overlapSeconds":  null,
+                                              "preDeployCommand":  null,
+                                              "region":  null,
+                                              "registryCredentials":  null,
+                                              "requiredMountPath":  null,
+                                              "restartPolicyMaxRetries":  5,
+                                              "restartPolicyType":  "ON_FAILURE",
+                                              "runtime":  "V2",
+                                              "sleepApplication":  false,
+                                              "startCommand":  null,
+                                              "useLegacyStacker":  false
+                                          },
+                         "mounts":  [
+
+                                    ],
+                         "cron":  null
+                     },
+                     {
+                         "name":  "Postgres",
+                         "source":  {
+                                        "image":  "ghcr.io/railwayapp-templates/postgres-ssl:18",
+                                        "repo":  null
+                                    },
+                         "domains":  {
+                                         "customDomains":  [
+
+                                                           ],
+                                         "serviceDomains":  [
+
+                                                            ]
+                                     },
+                         "deployId":  "c694cb2a-f4da-49d1-8aec-8d6b7cacb2cf",
+                         "status":  "SUCCESS",
+                         "createdAt":  "2026-08-23T15:35:23.149Z",
+                         "commit":  null,
+                         "fileManifest":  null,
+                         "deployConfig":  {
+                                              "cronSchedule":  null,
+                                              "drainingSeconds":  null,
+                                              "healthcheckPath":  null,
+                                              "healthcheckTimeout":  null,
+                                              "ipv6EgressEnabled":  false,
+                                              "limitOverride":  null,
+                                              "multiRegionConfig":  {
+                                                                        "us-west2":  {
+                                                                                         "numReplicas":  1
+                                                                                     }
+                                                                    },
+                                              "numReplicas":  1,
+                                              "overlapSeconds":  null,
+                                              "preDeployCommand":  null,
+                                              "region":  null,
+                                              "registryCredentials":  null,
+                                              "requiredMountPath":  "/var/lib/postgresql/data",
+                                              "restartPolicyMaxRetries":  10,
+                                              "restartPolicyType":  "ON_FAILURE",
+                                              "runtime":  "V2",
+                                              "sleepApplication":  false,
+                                              "startCommand":  null,
+                                              "useLegacyStacker":  false
+                                          },
+                         "mounts":  [
+                                        "/var/lib/postgresql/data"
+                                    ],
+                         "cron":  null
+                     }
+                 ],
+    "buckets":  0,
+    "volumes":  [
+                    {
+                        "serviceId":  "a69e2c12-1eb2-446f-9b1a-6f4b87db043e",
+                        "mount":  "/var/lib/postgresql/data",
+                        "currentSizeMB":  117.211136,
+                        "sizeMB":  500
+                    }
+                ]
+}

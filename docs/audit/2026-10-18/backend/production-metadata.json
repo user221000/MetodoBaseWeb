@@ -1,0 +1,172 @@
+﻿{
+  "scope": "Read-only metadata; no business records queried",
+  "app_database_username": "postgres",
+  "same_database_name_and_username": true,
+  "server_version": [
+    [
+      "18.6 (Debian 18.6-1.pgdg13+2)"
+    ]
+  ],
+  "max_connections": [
+    [
+      "500"
+    ]
+  ],
+  "role": [
+    [
+      "postgres",
+      true,
+      true
+    ]
+  ],
+  "rls_flags": [
+    [
+      "audit_log",
+      false,
+      false
+    ],
+    [
+      "auth_audit_log",
+      false,
+      false
+    ],
+    [
+      "checkout_sessions",
+      false,
+      false
+    ],
+    [
+      "client_progress",
+      false,
+      false
+    ],
+    [
+      "clientes",
+      false,
+      false
+    ],
+    [
+      "gym_branding",
+      false,
+      false
+    ],
+    [
+      "gym_licenses",
+      false,
+      false
+    ],
+    [
+      "gym_profiles",
+      false,
+      false
+    ],
+    [
+      "gym_settings",
+      false,
+      false
+    ],
+    [
+      "invoices",
+      false,
+      false
+    ],
+    [
+      "license_activations",
+      false,
+      false
+    ],
+    [
+      "payments",
+      false,
+      false
+    ],
+    [
+      "planes_generados",
+      false,
+      false
+    ],
+    [
+      "planes_suscripcion",
+      false,
+      false
+    ],
+    [
+      "refresh_tokens",
+      false,
+      false
+    ],
+    [
+      "stripe_customers",
+      false,
+      false
+    ],
+    [
+      "stripe_webhook_events",
+      false,
+      false
+    ],
+    [
+      "subscriptions",
+      false,
+      false
+    ],
+    [
+      "user_subscriptions",
+      false,
+      false
+    ],
+    [
+      "usuarios",
+      false,
+      false
+    ]
+  ],
+  "rls_policies": [],
+  "subscription_constraints": [
+    [
+      "ck_subscription_plan",
+      "CHECK (((plan)::text = ANY ((ARRAY['free'::character varying, 'standard'::character varying, 'gym_comercial'::character varying, 'clinica'::character varying])::text[])))"
+    ],
+    [
+      "ck_subscription_status",
+      "CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'canceled'::character varying, 'past_due'::character varying, 'trialing'::character varying, 'unpaid'::character varying, 'incomplete'::character varying, 'incomplete_expired'::character varying, 'paused'::character varying])::text[])))"
+    ],
+    [
+      "subscriptions_gym_id_fkey",
+      "FOREIGN KEY (gym_id) REFERENCES usuarios(id) ON DELETE CASCADE"
+    ],
+    [
+      "subscriptions_gym_id_not_null",
+      "NOT NULL gym_id"
+    ],
+    [
+      "subscriptions_id_not_null",
+      "NOT NULL id"
+    ],
+    [
+      "subscriptions_max_clientes_not_null",
+      "NOT NULL max_clientes"
+    ],
+    [
+      "subscriptions_pkey",
+      "PRIMARY KEY (id)"
+    ],
+    [
+      "subscriptions_plan_not_null",
+      "NOT NULL plan"
+    ],
+    [
+      "subscriptions_status_not_null",
+      "NOT NULL status"
+    ],
+    [
+      "subscriptions_stripe_subscription_id_key",
+      "UNIQUE (stripe_subscription_id)"
+    ]
+  ],
+  "alembic_version_present": [
+    [
+      false
+    ]
+  ]
+}
