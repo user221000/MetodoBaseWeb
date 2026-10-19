@@ -1,0 +1,79 @@
+{
+  "scope": "Synthetic state machine only",
+  "passed": 18,
+  "total": 18,
+  "results": [
+    {
+      "case": "Duplicate generation calls share one operation and completed retry does not create a second intent",
+      "passed": true
+    },
+    {
+      "case": "Explicit next completed intent has a new UUID",
+      "passed": true
+    },
+    {
+      "case": "Ambiguous or pending undefined retains its UUID and rejects a blind new intent",
+      "passed": true
+    },
+    {
+      "case": "Ambiguous or pending generation_unavailable retains its UUID and rejects a blind new intent",
+      "passed": true
+    },
+    {
+      "case": "Ambiguous or pending generation_in_progress retains its UUID and rejects a blind new intent",
+      "passed": true
+    },
+    {
+      "case": "Ambiguous or pending generation_reconciliation_required retains its UUID and rejects a blind new intent",
+      "passed": true
+    },
+    {
+      "case": "Ambiguous or pending generation_result_unavailable retains its UUID and rejects a blind new intent",
+      "passed": true
+    },
+    {
+      "case": "Confirmed failure generation_failed permits only an explicit new intent",
+      "passed": true
+    },
+    {
+      "case": "Quota failure cannot retry or create another operation",
+      "passed": true
+    },
+    {
+      "case": "Malformed successful JSON cannot mark generation complete",
+      "passed": true
+    },
+    {
+      "case": "An empty plan cannot be presented as a completed generation",
+      "passed": true
+    },
+    {
+      "case": "Transport session_changed clears operation and blocks future submission",
+      "passed": true
+    },
+    {
+      "case": "Transport session_expired clears operation and blocks future submission",
+      "passed": true
+    },
+    {
+      "case": "Transport session_storage_error clears operation and blocks future submission",
+      "passed": true
+    },
+    {
+      "case": "Late successful generation after account replacement never exposes old data",
+      "passed": true
+    },
+    {
+      "case": "Persisted version change with the same revision invalidates before returning a read",
+      "passed": true
+    },
+    {
+      "case": "Storage event or pagehide clears in-memory operation without a persistent writer",
+      "passed": true
+    },
+    {
+      "case": "Timed out old success cannot overwrite a successful same-key retry",
+      "passed": true
+    }
+  ]
+}

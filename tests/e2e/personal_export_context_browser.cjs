@@ -1,6 +1,8 @@
 /* Real loopback HTTP/auth/export with explicit helper-continuation and ACK-loss delivery faults. */
 const {chromium}=require('playwright-core'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const base='http://127.0.0.1:8777',out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/ux/diary-ui-consumer-fix-browser-'+(process.env.METODOBASE_EVIDENCE_BATCH||Date.now()));fs.mkdirSync(out,{recursive:true});
+const base=process.env.METODOBASE_E2E_URL??'http://127.0.0.1:8777';
+if(!['http://127.0.0.1:8776','http://127.0.0.1:8777'].includes(base))throw Error('Dedicated diary fixture8776/8777 only');
+const out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/ux/diary-ui-consumer-fix-browser-'+(process.env.METODOBASE_EVIDENCE_BATCH||Date.now()));fs.mkdirSync(out,{recursive:true});
 const report={scope:'Real isolated diary fixture/export/auth HTTP; helpers resolve real API results before explicitly named same-tab replacements. One route removes the machine ACK after a real durable logout. Axe covers only the export block and, when visible, logout status; no full-profile compliance claim. No provider.',checks:[],pageErrors:[],screens:[]};
 (async()=>{const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true}),client=await browser.newContext(),pairs={};
  const json=async response=>{assert.equal(response.status(),200,await response.text());return response.json();};

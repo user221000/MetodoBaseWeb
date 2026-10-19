@@ -1,0 +1,53 @@
+{
+  "scope": "CI wiring only; no product Python, product JavaScript, models, migrations or runtime settings changed",
+  "base_commit": "7bde30b1877f3b4471ef5a75c47839ceaec209a9",
+  "branch": "implementation/personal-diary-ci-20261019",
+  "node_unique_contracts": {
+    "transport": 74,
+    "personal_operation": 20,
+    "diary_api_controller_logout": 35,
+    "logout_machine_ack": 12,
+    "export_with_controls": 21,
+    "total": 162,
+    "counting": "The 21 export/control cases include the earlier 17 export cases. That earlier driver is not run separately."
+  },
+  "browser_wiring": {
+    "fixture": "tests/e2e/personal_diary_server.py",
+    "origin": "http://127.0.0.1:8776",
+    "sequence": [
+      {"driver": "tests/e2e/personal_diary.cjs", "format": "named", "minimum_checks": 17, "minimum_screens": 8},
+      {"driver": "tests/e2e/personal_export_context_browser.cjs", "format": "strings", "minimum_checks": 4, "minimum_screens": 4}
+    ],
+    "reason": "Both drivers share one fresh process so the export driver can find diary records persisted by the diary driver.",
+    "readiness": "Require HTTP health and a parsed JSON marker emitted after real fixture registrations. Marker must identify personal-diary-ui, 26 metadata tables and model target 20261019_personal_diary. This is a fixture metadata assertion, not evidence of an executed migration.",
+    "harness_origin_allowlist": ["http://127.0.0.1:8776", "http://127.0.0.1:8777"],
+    "failure_behavior": "Each driver and report is mandatory. A failed driver, missing/malformed report, insufficient checks/screens, or dead fixture fails the step. Existing EXIT cleanup remains active."
+  },
+  "preserved": [
+    "Six previous run_browser_fixture calls retain identical lines and order",
+    "Existing session Node guard and frontend report guard sources are unchanged",
+    "Existing PostgreSQL, desktop and other workflow jobs compare equal to the base",
+    "Original diary fixture, 17-check diary driver and all four export browser assertions remain unchanged",
+    "No raw-SHA port replay adapters are introduced"
+  ],
+  "local_validation": {
+    "node_contracts_passed": 162,
+    "new_report_cli_parameter_canaries": 21,
+    "startup_json_cli_canaries": 8,
+    "inert_bash_process_scenarios": 13,
+    "harness_origin_canaries_separate_from_162": 15,
+    "bash_blocks_parsed": 61,
+    "referenced_scripts_exist": 82,
+    "quality": ["lint", "syntax", "security"],
+    "review": "evidence/ci-diary-author-final/review.json",
+    "current_origin_canaries": "evidence/ci-diary-url-final-utf8.json",
+    "history": "First and final review outputs are preserved. The final origin-only rerun records the current case labels and UTF-8 report. The PowerShell UTF-16 capture is retained separately and is not used by the UTF-8 report guard."
+  },
+  "reproduce_local_review": "python -X utf8 tests/verify_diary_ci.py --output <new-directory>",
+  "limits": [
+    "Author validation used Windows, local Node and Git Bash, actual report/startup CLI guards, and inert sleep processes. It did not launch an application, TCP listener or browser.",
+    "No GitHub Actions run or native Linux execution is claimed.",
+    "PostgreSQL, desktop and broad backend suites were preserved structurally and were not rerun for this wiring change.",
+    "The 91 existing generic report-guard canaries were not rerun because their guard and tests are unchanged."
+  ]
+}

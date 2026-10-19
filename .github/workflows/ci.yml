@@ -108,6 +108,18 @@ jobs:
           node tests/e2e/personal_operation_ambiguity_review.cjs > personal-operation-ambiguity.json
           python scripts/check_frontend_report.py personal-operation-contracts.json --format counts --minimum 18
           python scripts/check_frontend_report.py personal-operation-ambiguity.json --format counts --minimum 2
+      - name: Personal diary and private export consumer contracts
+        run: |
+          node tests/e2e/personal_diary_api.cjs > personal-diary-api.json
+          node tests/e2e/personal_diary_controller.cjs > personal-diary-controller.json
+          node tests/e2e/personal_logout.cjs > personal-diary-logout.json
+          node tests/e2e/personal_logout_ack.cjs > personal-diary-logout-ack.json
+          node tests/e2e/personal_export_controls.cjs > personal-export-controls.json
+          python scripts/check_frontend_report.py personal-diary-api.json --format counts --minimum 7
+          python scripts/check_frontend_report.py personal-diary-controller.json --format counts --minimum 18
+          python scripts/check_frontend_report.py personal-diary-logout.json --format counts --minimum 10
+          python scripts/check_frontend_report.py personal-diary-logout-ack.json --format counts --minimum 12
+          python scripts/check_frontend_report.py personal-export-controls.json --format counts --minimum 21
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -115,6 +127,8 @@ jobs:
           path: |
             auth-refresh-*.json
             personal-operation-*.json
+            personal-diary-*.json
+            personal-export-controls.json
           if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
@@ -353,18 +367,29 @@ jobs:
           run_browser_fixture() {
             local fixture_script="$1" fixture_port="$2" driver="$3" expected_report="$4" minimum_checks="$5"
             local report_format="${6:-strings}" minimum_screens="${7:-0}"
+            local second_driver="${8:-}" second_report="${9:-}" second_minimum="${10:-0}"
+            local second_format="${11:-strings}" second_screens="${12:-0}" ready_marker="${13:-}"
             local fixture_log="docs/implementation/20261018-evolution/evidence/ux/ci-${fixture_port}-${driver##*/}-server.log"
             export METODOBASE_E2E_URL="http://127.0.0.1:${fixture_port}"
             python -X utf8 "$fixture_script" > "$fixture_log" 2>&1 &
             browser_fixture_pid=$!
             local ready=0
             for attempt in $(seq 1 30); do
-              if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then ready=1; break; fi
+              if ! kill -0 "$browser_fixture_pid" 2>/dev/null; then cat "$fixture_log"; return 1; fi
+              if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then
+                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 26 --revision 20261019_personal_diary 2>/dev/null; then ready=1; break; fi
+              fi
               sleep 1
             done
             if [ "$ready" -ne 1 ]; then cat "$fixture_log"; return 1; fi
-            node "$driver"
-            python scripts/check_frontend_report.py "$expected_report" --format "$report_format" --minimum "$minimum_checks" --minimum-screens "$minimum_screens"
+            kill -0 "$browser_fixture_pid" || return 1
+            node "$driver" || return $?
+            python scripts/check_frontend_report.py "$expected_report" --format "$report_format" --minimum "$minimum_checks" --minimum-screens "$minimum_screens" || return $?
+            if [ -n "$second_driver" ]; then
+              kill -0 "$browser_fixture_pid" || return 1
+              node "$second_driver" || return $?
+              python scripts/check_frontend_report.py "$second_report" --format "$second_format" --minimum "$second_minimum" --minimum-screens "$second_screens" || return $?
+            fi
             kill "$browser_fixture_pid"
             wait "$browser_fixture_pid" || true
             browser_fixture_pid=''
@@ -376,6 +401,7 @@ jobs:
           run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_browser.cjs "${browser_evidence}/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
           run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_storage_browser_review.cjs "${browser_evidence}/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 3
           run_browser_fixture tests/e2e/personal_generation_server.py 8773 tests/e2e/personal_generation.cjs "${browser_evidence}/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 15 named 8
+          run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs "${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 17 named 8 tests/e2e/personal_export_context_browser.cjs "${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 4 strings 4 personal-diary-ui
       - uses: actions/upload-artifact@v4
         if: always()
         with:

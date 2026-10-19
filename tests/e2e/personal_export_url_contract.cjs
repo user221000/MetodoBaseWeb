@@ -1,0 +1,6 @@
+/* CI harness origins only; no browser, filesystem output or network is started. */
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(path.join(__dirname,'personal_export_context_browser.cjs'),'utf8').split('(async()=>')[0];
+const cases=[undefined,'http://127.0.0.1:8776','http://127.0.0.1:8777','','http://127.0.0.1:8776/','http://127.0.0.1:8777/path','http://127.0.0.1:8776?x=1','http://127.0.0.1:8777#x','https://127.0.0.1:8777','http://localhost:8777','http://127.0.0.2:8777','http://127.0.0.1:8767','http://127.0.0.1:87770','http://127.0.0.1:8777.example.invalid','http://user@127.0.0.1:8777'];
+const results=cases.map((value,index)=>{let writes=0,failed=false;const env=value===undefined?{}:{METODOBASE_E2E_URL:value};const context=vm.createContext({require:name=>name==='playwright-core'?{chromium:{}}:name==='node:fs'?{mkdirSync(){writes++;}}:require(name),process:{env},__dirname,Date});try{vm.runInContext(source,context);}catch{failed=true;}assert.equal(failed,index>=3);assert.equal(writes,index>=3?0:1);return{case:value===undefined?'default8777':value===''?'empty':value,passed:true};});
+console.log(JSON.stringify({scope:'Harness URL allowlist only, separate from162 product contracts',passed:results.length,total:results.length,results},null,2));
