@@ -152,9 +152,14 @@
   </div>
 </section>
 
+{% include "mfa_account_partial.html" %}
 {% endblock %}
 
 {% block scripts %}
+<link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-ui.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}">MfaUI.mountAccount({loginUrl:"/login-usuario",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});</script>
+
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 

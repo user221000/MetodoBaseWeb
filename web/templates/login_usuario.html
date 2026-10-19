@@ -18,6 +18,7 @@
       --auth-btn-text:    #EEEEF2;
     }
   </style>
+  <link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
 </head>
 <body>
   <div class="split-layout">
@@ -130,15 +131,16 @@
 
         <div class="error-msg" id="errorMsg"></div>
 
+        {% include "mfa_login_partial.html" %}
         <form id="loginForm" novalidate>
           <div class="input-group">
-            <label class="input-label">CORREO ELECTRÓNICO</label>
-            <input type="email" name="email" class="input-field"
+            <label class="input-label" for="login-email">CORREO ELECTRÓNICO</label>
+            <input type="email" name="email" id="login-email" class="input-field"
                    placeholder="tu@email.com" required autocomplete="email" />
           </div>
 
           <div class="input-group">
-            <label class="input-label">CONTRASEÑA</label>
+            <label class="input-label" for="pwdField">CONTRASEÑA</label>
             <div style="position:relative;">
               <input type="password" name="password" id="pwdField" class="input-field"
                      placeholder="••••••••" required autocomplete="current-password" style="padding-right:44px;" />
@@ -186,152 +188,10 @@
 
   </div>
 
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-login.js?v={{ static_version }}"></script>
   <script nonce="{{ request.state.csp_nonce }}">
-    function togglePassword() {
-      const field = document.getElementById('pwdField');
-      field.type = field.type === 'password' ? 'text' : 'password';
-      const toggle = document.querySelector('.pwd-toggle');
-      toggle.setAttribute('aria-pressed', String(field.type === 'text'));
-      toggle.setAttribute('aria-label', field.type === 'text' ? 'Ocultar contraseña' : 'Mostrar contraseña');
-    }
-    document.querySelector('.pwd-toggle')?.addEventListener('click', togglePassword);
-
-    // ── Remember Me: restore saved email on page load ──
-    {
-      const remembered = localStorage.getItem('mb_remember_user');
-      const savedEmail = localStorage.getItem('mb_email_user');
-      if (remembered === '1' && savedEmail) {
-        document.querySelector('input[name="email"]').value = savedEmail;
-        document.getElementById('rememberMe').checked = true;
-      }
-    }
-
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const errorMsg = document.getElementById('errorMsg');
-      const btn = document.getElementById('submitBtn');
-      const rememberMe = document.getElementById('rememberMe').checked;
-
-      errorMsg.style.display = 'none';
-      btn.disabled = true;
-      btn.textContent = 'Cargando tu plan...';
-
-      try {
-        const email = form.email.value.trim();
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            password: form.password.value,
-            remember_me: rememberMe,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          if (data.tipo !== 'usuario') {
-            errorMsg.textContent = '¿Administras un negocio? Esta cuenta es de gimnasio. Ingresa desde el panel de gestión.';
-            errorMsg.style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = 'Ver mi plan';
-            return;
-          }
-          // Save remember me preference
-          if (rememberMe) {
-            localStorage.setItem('mb_remember_user', '1');
-            localStorage.setItem('mb_email_user', email);
-          } else {
-            localStorage.removeItem('mb_remember_user');
-            localStorage.removeItem('mb_email_user');
-          }
-
-          localStorage.setItem('mb_token', data.token);
-          if (data.refresh_token) localStorage.setItem('mb_refresh_token', data.refresh_token);
-          localStorage.setItem('mb_tipo', data.tipo);
-          localStorage.setItem('mb_nombre', data.nombre);
-          localStorage.setItem('mb_email', data.email);
-          window.location.href = data.team_gym_id ? '/equipo/inicio' : '/mi-plan';
-        } else {
-          errorMsg.textContent = data.detail || 'Email o contraseña incorrectos. Inténtalo de nuevo.';
-          errorMsg.style.display = 'block';
-        }
-      } catch (err) {
-        errorMsg.textContent = 'Sin conexión. Verifica tu internet e inténtalo de nuevo.';
-        errorMsg.style.display = 'block';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Ver mi plan';
-      }
-    });
-
-    // ── Google Sign-In ──
-    (function() {
-      const GOOGLE_CLIENT_ID = '{{ google_client_id | default("") | trim }}';
-      const container = document.getElementById('googleBtnContainer');
-      const errorMsg = document.getElementById('googleErrorMsg');
-
-      if (!GOOGLE_CLIENT_ID) {
-        container.innerHTML = '<button type="button" class="btn-google" disabled style="opacity:.5;cursor:not-allowed;"><svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.01 24.01 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Google no configurado</button>';
-      } else {
-        const gsiScript = document.createElement('script');
-        gsiScript.src = 'https://accounts.google.com/gsi/client';
-        gsiScript.async = true;
-        gsiScript.defer = true;
-        gsiScript.nonce = '{{ request.state.csp_nonce }}';
-        gsiScript.onload = function() {
-          google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredential,
-            ux_mode: 'popup',
-          });
-          google.accounts.id.renderButton(container, {
-            theme: 'filled_black',
-            size: 'large',
-            shape: 'rectangular',
-            text: 'continue_with',
-            width: container.offsetWidth || 340,
-            locale: 'es',
-          });
-        };
-        document.head.appendChild(gsiScript);
-      }
-
-      async function handleGoogleCredential(response) {
-        errorMsg.style.display = 'none';
-
-        try {
-          const res = await fetch('/api/auth/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ credential: response.credential, tipo: 'usuario' }),
-          });
-          const data = await res.json();
-
-          if (res.ok) {
-            if (data.tipo !== 'usuario') {
-              errorMsg.textContent = '¿Administras un negocio? Esta cuenta es de gimnasio. Ingresa desde el panel de gestión.';
-              errorMsg.style.display = 'block';
-              return;
-            }
-            localStorage.setItem('mb_token', data.token);
-            if (data.refresh_token) localStorage.setItem('mb_refresh_token', data.refresh_token);
-            localStorage.setItem('mb_tipo', data.tipo);
-            localStorage.setItem('mb_nombre', data.nombre);
-            localStorage.setItem('mb_email', data.email);
-            window.location.href = data.team_gym_id ? '/equipo/inicio' : '/mi-plan';
-          } else {
-            errorMsg.textContent = data.detail || 'No pudimos conectar con Google. Inténtalo de nuevo.';
-            errorMsg.style.display = 'block';
-          }
-        } catch (err) {
-          errorMsg.textContent = 'Sin conexión al verificar con Google. Inténtalo de nuevo.';
-          errorMsg.style.display = 'block';
-        }
-      }
-    })();
+    MfaLogin.mount({audience:"usuario",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});
   </script>
 </body>
 </html>

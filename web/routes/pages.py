@@ -98,7 +98,9 @@ async def suscripciones(request: Request):
 
 @router.get("/configuracion", response_class=HTMLResponse)
 async def configuracion(request: Request):
-    return template_response(templates, request, "configuracion.html", {"request": request})
+    from config.settings import Settings
+    _s = Settings()
+    return template_response(templates, request, "configuracion.html", {"request": request, "google_client_id": _s.GOOGLE_CLIENT_ID})
 
 
 @router.get("/equipo", response_class=HTMLResponse)
@@ -136,7 +138,9 @@ async def mi_plan_page(request: Request):
 
 @router.get("/mi-perfil", response_class=HTMLResponse)
 async def mi_perfil_page(request: Request):
-    return template_response(templates, request, "usuario_perfil.html", {"request": request})
+    from config.settings import Settings
+    _s = Settings()
+    return template_response(templates, request, "usuario_perfil.html", {"request": request, "google_client_id": _s.GOOGLE_CLIENT_ID})
 
 @router.get("/mi-historial", response_class=HTMLResponse)
 async def mi_historial_page(request: Request):
