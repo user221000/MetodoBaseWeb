@@ -1,0 +1,166 @@
+{
+  "result": "PASS_STATIC_SELECTION_ONLY",
+  "candidate": "de69a85e7903f1a7217b054c0edb269dd5560999",
+  "parent": "d60d259c6d853483290efb65fa2d33ec14840207",
+  "positive_checks": [
+    {
+      "name": "Only one extra pin; all old pin values and types retained",
+      "passed": true
+    },
+    {
+      "name": "Only three helper edits invert to parent exact Git bytes",
+      "passed": true
+    },
+    {
+      "name": "Full function AST unchanged: backport",
+      "passed": true
+    },
+    {
+      "name": "Full function AST unchanged: build",
+      "passed": true
+    },
+    {
+      "name": "Full function AST unchanged: main",
+      "passed": true
+    },
+    {
+      "name": "Full function AST unchanged: prepare",
+      "passed": true
+    },
+    {
+      "name": "Full function AST unchanged: digest",
+      "passed": true
+    },
+    {
+      "name": "Full function AST unchanged: pins",
+      "passed": true
+    },
+    {
+      "name": "All twelve locks Dockerfile and upstream patch exact parent bytes",
+      "passed": true
+    },
+    {
+      "name": "Original30 sources retained byte exact; one extra header",
+      "passed": true
+    },
+    {
+      "name": "Signed archive has unique regular header",
+      "passed": true
+    },
+    {
+      "name": "Header29204 exact authenticated digest",
+      "passed": true
+    },
+    {
+      "name": "Previously failing quoted include106 resolves under Modules",
+      "passed": true
+    },
+    {
+      "name": "Existing core-module macro remains before Python.h",
+      "passed": true
+    },
+    {
+      "name": "Generated-header internal includes exist in same PSF archive",
+      "passed": true
+    },
+    {
+      "name": "Both preparations change only upstream xmlparse guard",
+      "passed": true
+    },
+    {
+      "name": "New header untouched through preparation",
+      "passed": true
+    },
+    {
+      "name": "Prepared old30 hashes identical on both sides",
+      "passed": true
+    },
+    {
+      "name": "C API version config namespace files not changed",
+      "passed": true
+    },
+    {
+      "name": "Synthetic-inner-guard control accepts all31 authentic bytes",
+      "passed": true
+    },
+    {
+      "name": "All eleven independent selector negatives reject",
+      "passed": true
+    }
+  ],
+  "positive_count": 21,
+  "negative_checks": [
+    {
+      "name": "Wrong whole PSF archive pin",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "Wrong expected generated-header digest",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "Missing new pin never silently accepts header",
+      "rejected": true,
+      "error_class": "KeyError"
+    },
+    {
+      "name": "header_absent",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "header_case_renamed",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "header_duplicate",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "header_modified",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "header_symlink",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "header_hardlink",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "header_oversized",
+      "rejected": true,
+      "error_class": "AssertionError"
+    },
+    {
+      "name": "selected_traversal",
+      "rejected": true,
+      "error_class": "AssertionError"
+    }
+  ],
+  "negative_count": 11,
+  "synthetic_mutant_archive_pins_are_test_only_not_provenance": true,
+  "old_selected": 30,
+  "new_selected": 31,
+  "only_added_member": "Modules/clinic/pyexpat.c.h",
+  "header_bytes": 29204,
+  "header_sha256": "5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb",
+  "all_other_product_bytes_and_pins_preserved": true,
+  "AST_build_main_backport_and_prepare_unchanged": true,
+  "actual_source_preparation_changes_only_xmlparse": true,
+  "native_failure_immutable_manifest_authenticated": {
+    "source_sha256": "3862a325749668d500a1a0201d806c72bc5d051942a8da805174ddd887a0b1f4",
+    "manifest_sha256": "099e43674b96cb6c4d03fd0feeca5d30f9336d962b17ff14828993434057318d",
+    "files_verified": 18,
+    "status": "still failed; no target/import/ELF acceptance"
+  },
+  "no_compiler_C_native_VM_PG_Chrome_or_network_invocation": true
+}

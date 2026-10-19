@@ -112,3 +112,8 @@ PersistenCI31/regresiónactual/imagen,avisosMFA/custodia/configuraciónrealypér
 ## Checkpoint 120
 
 CI e0 no tiene aceptación por omisión de siete casos nuevos snapshot y marcador de rol opcional. El checker CLI sigue en revisión. La compilación nativa está activa, sin prueba final de ABI/linkage ni SCA. No se infiere seguridad de producto desde un marcador incompleto del laboratorio.
+
+
+## Checkpoint 121
+
+Pendientes: integración y regresión amplia31,173PG eimagen común; instrumentación argv y exportaciones ELF del target nativo; revisión independiente R17 y aspectos operativos MFA. OPS13 conserva la diferencia real de símbolos y su causa: falta -fvisibility=hidden de la configuración interna de la base. Continúan políticas, entrevistas/pilotos reales, validación profesional y objetivos de carga sin inventarlos.

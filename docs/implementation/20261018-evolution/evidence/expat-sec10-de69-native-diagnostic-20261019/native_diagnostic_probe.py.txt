@@ -1,0 +1,145 @@
+"""Independent read-only compiler-stage probe. Small XML inputs; no DB or network."""
+from __future__ import annotations
+from pathlib import Path
+import hashlib,io,json,os,re,shutil,stat,struct,subprocess,sys,sysconfig,tempfile,zipfile
+EXPECTED_RUNTIME_ADDITIONS = {'libcom-err2': '1.47.2-3+b12', 'libgssapi-krb5-2': '1.21.3-5+deb13u1', 'libk5crypto3': '1.21.3-5+deb13u1', 'libkeyutils1': '1.6.3-6', 'libkrb5-3': '1.21.3-5+deb13u1', 'libkrb5support0': '1.21.3-5+deb13u1', 'libldap2': '2.6.10+dfsg-1', 'libpq5': '17.11-0+deb13u1', 'libsasl2-2': '2.1.28+dfsg1-9', 'libsasl2-modules-db': '2.1.28+dfsg1-9'}
+EXPECTED_ORIGINAL_BEFORE = {'Include/pyexpat.h': 'd3564a35c027eb7a0e4ddbf8659769bf4be61b0c39666c79c555249fa8b0d099', 'Modules/_elementtree.c': '63cd614f8edb692aecbb3322c632bfbe3fd9587d3e7dab0aa7c5f8ddef24a7c9', 'Modules/expat/COPYING': '31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87', 'Modules/expat/ascii.h': '5ce49460794894b78f97060f634c129d13f2e9cc9b8dacd829f4be2dbc6e0649', 'Modules/expat/asciitab.h': '5792cb56f285c8876b988d875a70d49019bc7e6d5ebcd0f8224b24e695301832', 'Modules/expat/expat.h': '17cd1fc3b4c61d00de96091ceed0a3721d5bac9755c6d04e89d9f8a79d037c12', 'Modules/expat/expat_config.h': 'fc918070c65fa23613e4ba5a44b3407e5eb2a503ec42fbfeebee19d9e5eb5649', 'Modules/expat/expat_external.h': 'ec35498736485b2321610a750e5b2534399fed87dc44bc4ace529eeb5a280a53', 'Modules/expat/fallthrough.h': '5e42477487bca7e7caac6b832ab940f39a1a20b8765c945374e4f6c2670f55b6', 'Modules/expat/hash_table.h': 'ad93851f86df1f4e8f85488dbac53cab3539e59d701ad747c7beea354d69e0dc', 'Modules/expat/iasciitab.h': 'a9cd6f2cf5199ae3c29d22ee4913736fcd984f62132146a0352c88549700e83f', 'Modules/expat/internal.h': '0123d00963768b5779544cc54dcccad311824b192a38d3489c4fb1fbbfa33b17', 'Modules/expat/latin1tab.h': 'b0daf8a75c690e895421f765ddb2ae2fbc1ba14694e06a3215dba84f1ff3427d', 'Modules/expat/memory_sanitizer.h': '377ca054fdc531360f42a5cb7c522bcbf88b6c67aebc2e29544c37d14e836bde', 'Modules/expat/nametab.h': '8f78e64f11e2b23df8b32cb5528cfeda6215acd6abf6bcf1ad59fdc7b1ffd105', 'Modules/expat/pyexpatns.h': 'c95154ba28b798023705319cd52711367ff5236b6b4b03c4cf8f1bd6ab350885', 'Modules/expat/refresh.sh': '624c33f8444bdf3c6f2731fecb98f6ded83eaed25e2ea7db1c544375cf43f079', 'Modules/expat/siphash.h': '12ecc9915bccb793ea8bb543cc7d002e226f4e4d6b97ec9839dca41cbe4e2e27', 'Modules/expat/utf8tab.h': '3fa349a3a19143366e80a58d9aa950152ef9cd7903f557f971051410b47f335c', 'Modules/expat/winconfig.h': '0ab6446eb98abc492ae341ef7607b535e44dedf52633fdc7c6e1a1361aec3922', 'Modules/expat/xcsinc.c': '1210979a688301412f46e058d0497fa3c1c63c296c2e015834cda0f0b314875d', 'Modules/expat/xmlparse.c': '9a4969bb0ac497803866705f3fa233cc4b487e7685800d9222bd0ab38d1b8a20', 'Modules/expat/xmlrole.c': 'b1ad87cc3c0d4722358a7dfb1642df7f62066d1613a0a56dc9289e7112fb3f0c', 'Modules/expat/xmlrole.h': '8a0b61cd6efcd7427acbc86759e9013e7a61755097a1f82cbb2a79c011af5ee5', 'Modules/expat/xmltok.c': '47ffd58f56f61284fd84cecd94ddad4c79cde922f57994c1525f8df1eb9272eb', 'Modules/expat/xmltok.h': '623dea24bc27712e2e205a0c0517c79e211234f8d1051fe46d780839f754cf9e', 'Modules/expat/xmltok_impl.c': '4dcd7ae88dd90bbc89d0e41ba6affb46a107ee28df3b49cb84cdf228b7cc7981', 'Modules/expat/xmltok_impl.h': 'a5053c69219d12788088de9bd670537e1c784302766c331afe6b253460d0417d', 'Modules/expat/xmltok_ns.c': 'ea723a3470d3eed5c4a4e873bec2f996c605326fad25709b45452664261c5465', 'Modules/pyexpat.c': 'f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db'}
+EXPECTED_ORIGINAL_AFTER = {'Include/pyexpat.h': 'd3564a35c027eb7a0e4ddbf8659769bf4be61b0c39666c79c555249fa8b0d099', 'Modules/_elementtree.c': '63cd614f8edb692aecbb3322c632bfbe3fd9587d3e7dab0aa7c5f8ddef24a7c9', 'Modules/expat/COPYING': '31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87', 'Modules/expat/ascii.h': '5ce49460794894b78f97060f634c129d13f2e9cc9b8dacd829f4be2dbc6e0649', 'Modules/expat/asciitab.h': '5792cb56f285c8876b988d875a70d49019bc7e6d5ebcd0f8224b24e695301832', 'Modules/expat/expat.h': '17cd1fc3b4c61d00de96091ceed0a3721d5bac9755c6d04e89d9f8a79d037c12', 'Modules/expat/expat_config.h': 'fc918070c65fa23613e4ba5a44b3407e5eb2a503ec42fbfeebee19d9e5eb5649', 'Modules/expat/expat_external.h': 'ec35498736485b2321610a750e5b2534399fed87dc44bc4ace529eeb5a280a53', 'Modules/expat/fallthrough.h': '5e42477487bca7e7caac6b832ab940f39a1a20b8765c945374e4f6c2670f55b6', 'Modules/expat/hash_table.h': 'ad93851f86df1f4e8f85488dbac53cab3539e59d701ad747c7beea354d69e0dc', 'Modules/expat/iasciitab.h': 'a9cd6f2cf5199ae3c29d22ee4913736fcd984f62132146a0352c88549700e83f', 'Modules/expat/internal.h': '0123d00963768b5779544cc54dcccad311824b192a38d3489c4fb1fbbfa33b17', 'Modules/expat/latin1tab.h': 'b0daf8a75c690e895421f765ddb2ae2fbc1ba14694e06a3215dba84f1ff3427d', 'Modules/expat/memory_sanitizer.h': '377ca054fdc531360f42a5cb7c522bcbf88b6c67aebc2e29544c37d14e836bde', 'Modules/expat/nametab.h': '8f78e64f11e2b23df8b32cb5528cfeda6215acd6abf6bcf1ad59fdc7b1ffd105', 'Modules/expat/pyexpatns.h': 'c95154ba28b798023705319cd52711367ff5236b6b4b03c4cf8f1bd6ab350885', 'Modules/expat/refresh.sh': '624c33f8444bdf3c6f2731fecb98f6ded83eaed25e2ea7db1c544375cf43f079', 'Modules/expat/siphash.h': '12ecc9915bccb793ea8bb543cc7d002e226f4e4d6b97ec9839dca41cbe4e2e27', 'Modules/expat/utf8tab.h': '3fa349a3a19143366e80a58d9aa950152ef9cd7903f557f971051410b47f335c', 'Modules/expat/winconfig.h': '0ab6446eb98abc492ae341ef7607b535e44dedf52633fdc7c6e1a1361aec3922', 'Modules/expat/xcsinc.c': '1210979a688301412f46e058d0497fa3c1c63c296c2e015834cda0f0b314875d', 'Modules/expat/xmlparse.c': '8c85e2537e27d7cabfa3cf21ed372505351a2617a717b8c69df6111e3c19d89c', 'Modules/expat/xmlrole.c': 'b1ad87cc3c0d4722358a7dfb1642df7f62066d1613a0a56dc9289e7112fb3f0c', 'Modules/expat/xmlrole.h': '8a0b61cd6efcd7427acbc86759e9013e7a61755097a1f82cbb2a79c011af5ee5', 'Modules/expat/xmltok.c': '47ffd58f56f61284fd84cecd94ddad4c79cde922f57994c1525f8df1eb9272eb', 'Modules/expat/xmltok.h': '623dea24bc27712e2e205a0c0517c79e211234f8d1051fe46d780839f754cf9e', 'Modules/expat/xmltok_impl.c': '4dcd7ae88dd90bbc89d0e41ba6affb46a107ee28df3b49cb84cdf228b7cc7981', 'Modules/expat/xmltok_impl.h': 'a5053c69219d12788088de9bd670537e1c784302766c331afe6b253460d0417d', 'Modules/expat/xmltok_ns.c': 'ea723a3470d3eed5c4a4e873bec2f996c605326fad25709b45452664261c5465', 'Modules/pyexpat.c': 'f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db'}
+def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def run(*args):return subprocess.check_output(args,text=True).strip()
+out=Path("/expat-output")
+assert os.getuid()==65534 and os.statvfs("/").f_flag & os.ST_RDONLY
+process_status=dict(line.split(":",1) for line in Path("/proc/self/status").read_text().splitlines() if ":" in line)
+assert int(process_status["CapEff"].strip(),16)==0 and process_status["NoNewPrivs"].strip()=="1"
+assert sorted(path.name for path in Path("/sys/class/net").iterdir())==["lo"]
+artifact=out/"pyexpat.cpython-312-x86_64-linux-gnu.so"
+original=Path("/usr/local/lib/python3.12/lib-dynload")/artifact.name
+elementtree=original.with_name("_elementtree.cpython-312-x86_64-linux-gnu.so")
+provenance=json.loads((out/"build-provenance.json").read_text())
+pins=json.loads((out/"source-pins.json").read_text())
+assert sys.version_info[:3]==(3,12,15) and sysconfig.get_config_var("SOABI")=="cpython-312-x86_64-linux-gnu"
+assert sha(artifact)==provenance["artifact_sha256"] and artifact.stat().st_size==provenance["artifact_bytes"]
+assert sha(original)=="11eb83c00b747bb59c11ae229d437eee4a4757892cf41b2cee9cace7f87443f4"
+assert sha(elementtree)=="c6b51ba83831280f2e4302859f491e4b0f59dd4c2268e457b59fcddb028d8032"
+assert provenance["base_quiet"] and provenance["interpreter_libpython_elementtree_config_headers_before"]==provenance["interpreter_libpython_elementtree_config_headers_after"]
+for path,digest in provenance["interpreter_libpython_elementtree_config_headers_after"].items():
+ assert sha(path)==digest
+assert provenance["compiled_source"]["changed_source_files"]==["Modules/expat/xmlparse.c"]
+compiled=provenance["compiled_source"]
+clinic="Modules/clinic/pyexpat.c.h"
+assert len(compiled["before"])==len(compiled["after"])==31
+assert compiled["before"][clinic]==compiled["after"][clinic]==pins["clinic_header_sha256"]=="5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb"
+assert {k:v for k,v in compiled["before"].items() if k!=clinic}==EXPECTED_ORIGINAL_BEFORE
+assert {k:v for k,v in compiled["after"].items() if k!=clinic}==EXPECTED_ORIGINAL_AFTER
+
+assert provenance["small_binding_tests"]["small_cases"]==6
+assert provenance["compiler_commands"]==[], "The preserved original target unexpectedly changed"
+compiler_trace_complete=False
+raw=artifact.read_bytes()
+assert raw[:6]==b"\x7fELF\x02\x01" and struct.unpack_from("<H",raw,18)[0]==62
+def elf(path):
+ dynamic=run("readelf","-d",str(path))
+ header=run("readelf","-h",str(path))
+ symbols=run("nm","-D","--defined-only",str(path))
+ return {"sha256":sha(path),"header":header,"dynamic":dynamic,
+         "needed":re.findall(r"\(NEEDED\).*?\[([^\]]+)\]",dynamic),
+         "rpath_or_runpath":re.findall(r"\((?:RPATH|RUNPATH)\).*?\[([^\]]*)\]",dynamic),
+         "defined_exports":sorted(line.split()[-1] for line in symbols.splitlines() if line.split())}
+new_elf=elf(artifact);old_elf=elf(original);elementtree_elf=elf(elementtree)
+assert "PyInit_pyexpat" in new_elf["defined_exports"]
+assert not any(name.startswith("XML_") for name in new_elf["defined_exports"])
+assert not any("libexpat" in name for name in new_elf["needed"])
+assert not new_elf["rpath_or_runpath"]
+tool_paths={Path(shutil.which(command[0])).resolve() for command in provenance["compiler_commands"]}
+tool_paths|={Path(shutil.which(name)).resolve() for name in ("gcc","readelf","nm","ldd")}
+tools_before={str(path):sha(path) for path in sorted(tool_paths)}
+compiler={"gcc_version":run("gcc","--version").splitlines()[0],"gcc_dumpversion":run("gcc","-dumpfullversion","-dumpversion"),
+ "resolved_tools_sha256":tools_before,"commands_recorded_by_builder":provenance["compiler_commands"],
+ "sysconfig":{key:sysconfig.get_config_var(key) for key in ("CC","CFLAGS","CPPFLAGS","LDSHARED","LDFLAGS","CONFIG_ARGS","MODULE_PYEXPAT_CFLAGS","MODULE_PYEXPAT_LDFLAGS")}}
+assert compiler["gcc_dumpversion"]=="14.2.0"
+# Explicit source-wheel extraction in disposable tmpfs, with a safe member set.
+wheelhouse=Path("/wheelhouse")
+wheels=list(wheelhouse.glob("psycopg2-2.9.13-*.whl"));assert len(wheels)==1
+wheel=wheels[0];wheel_sha=sha(wheel)
+assert (wheelhouse/"built-wheel.lock").read_text().strip()=="psycopg2==2.9.13 --hash=sha256:"+wheel_sha
+with tempfile.TemporaryDirectory(prefix="native-independent-") as temporary:
+ root=Path(temporary)
+ with zipfile.ZipFile(wheel) as archive:
+  assert archive.testzip() is None
+  names=archive.namelist()
+  assert len(names)==len(set(names))
+  for member in archive.infolist():
+   path=Path(member.filename)
+   assert not path.is_absolute() and ".." not in path.parts and "\\" not in member.filename and ":" not in member.filename
+   assert stat.S_IFMT(member.external_attr>>16)!=stat.S_IFLNK
+   assert ".libs/" not in member.filename
+  archive.extractall(root)
+ sys.path.insert(0,str(root))
+ import psycopg2
+ from psycopg2 import extensions
+ assert psycopg2.__version__.split()[0]=="2.9.13"
+ assert psycopg2.__libpq_version__==170011 and extensions.libpq_version()==170011
+ native=Path(psycopg2._psycopg.__file__);assert native.resolve().is_relative_to(root.resolve())
+ psycopg_elf=elf(native);linkage=run("ldd",str(native))
+ assert "libpq.so.5" in psycopg_elf["needed"] and "not found" not in linkage
+ assert not psycopg_elf["rpath_or_runpath"] and "psycopg2.libs" not in linkage
+ psycopg={"wheel_name":wheel.name,"wheel_bytes":wheel.stat().st_size,"wheel_sha256":wheel_sha,
+   "version":psycopg2.__version__,"compile_time_libpq":psycopg2.__libpq_version__,"runtime_libpq":extensions.libpq_version(),
+   "pg_config_version":(wheelhouse/"pg-config-version.txt").read_text().strip(),
+   "elf":psycopg_elf,"ldd":linkage,"database_connection_attempted":False}
+# No ctypes/native allocation API call. Only bounded Python XML bindings.
+sys.path.insert(0,str(out))
+import pyexpat,_elementtree
+import xml.etree.ElementTree as ET
+assert Path(pyexpat.__file__).resolve()==artifact
+assert pyexpat.EXPAT_VERSION=="expat_2.8.5"
+xml=b"<root><child>bounded</child></root>"
+cases=[]
+parser=pyexpat.ParserCreate();parser.Parse(xml[:11],False);parser.Parse(xml[11:],True);cases.append("pyexpat_small_chunked")
+pyexpat.ParserCreate().ParseFile(io.BytesIO(xml));cases.append("pyexpat_small_file")
+assert ET.fromstring(xml).find("child").text=="bounded";cases.append("elementtree_small_fromstring")
+assert ET.parse(io.BytesIO(xml)).getroot().tag=="root";cases.append("elementtree_small_file")
+class Oversize:
+ def __init__(self):self.requests=[]
+ def read(self,n):self.requests.append(n);return b"x"*(n+1)
+source=Oversize()
+try:pyexpat.ParserCreate().ParseFile(source)
+except ValueError:pass
+else:raise AssertionError("Oversized Python read accepted")
+assert source.requests==[2048];cases.append("parsefile_read2049_over_buffer2048_rejected")
+try:ET.fromstring(b"<root>")
+except ET.ParseError:pass
+else:raise AssertionError("Malformed small XML accepted")
+cases.append("elementtree_small_malformed_rejected")
+assert len(cases)==6 and sha(_elementtree.__file__)==sha(elementtree)
+import ssl
+assert ssl.OPENSSL_VERSION.startswith("OpenSSL 3.5.7 ")
+fmt="$"+"{binary:Package}\t$"+"{Version}\n"
+packages_raw=dict(line.split("\t",1) for line in run("dpkg-query","-W","-f="+fmt).splitlines())
+packages={name.split(":",1)[0]:version for name,version in packages_raw.items()}
+assert len(packages)==len(packages_raw)
+for name,version in {"libpq5":"17.11-0+deb13u1","libpq-dev":"17.11-0+deb13u1","libssl3t64":"3.5.7-1~deb13u3",
+                     "libssl-dev":"3.5.7-1~deb13u3","gcc":"4:14.2.0-1","libc6-dev":"2.41-12+deb13u4"}.items():
+ assert packages.get(name)==version,(name,packages.get(name))
+def read_packages(path):
+ return {line.split("\t")[0].split(":",1)[0]:line.split("\t")[1] for line in Path(path).read_text().splitlines()}
+runtime_before=read_packages("/usr/local/share/metodobase/native-runtime/before.tsv")
+runtime_after=read_packages("/usr/local/share/metodobase/native-runtime/after.tsv")
+assert all(runtime_after.get(k)==v for k,v in runtime_before.items())
+actual_additions={k:v for k,v in runtime_after.items() if k not in runtime_before}
+assert actual_additions==EXPECTED_RUNTIME_ADDITIONS
+assert all(packages.get(k)==v for k,v in runtime_after.items())
+assert {str(path):sha(path) for path in sorted(tool_paths)}==tools_before
+result={"status":"PROVENANCE_GAP","complete_acceptance":False,"compiler_trace_complete":False,"compiler_commands_count":len(provenance["compiler_commands"]),"scope":"Native compiler stage only, no product/final runtime/54/OS71/SCA/security closure",
+ "native_runtime_additions":actual_additions,"stage_package_counts":{"before_native":len(runtime_before),"after_native":len(runtime_after),"compiler_stage":len(packages)},
+ "python":sys.version,"uid":os.getuid(),"compiler":compiler,"pyexpat_elf":new_elf,"original_pyexpat_elf":old_elf,"elementtree_elf":elementtree_elf,
+ "pyexpat_exports_added":sorted(set(new_elf["defined_exports"])-set(old_elf["defined_exports"])),
+ "pyexpat_exports_removed":sorted(set(old_elf["defined_exports"])-set(new_elf["defined_exports"])),
+ "pyexpat_ldd":run("ldd",str(artifact)),"elementtree_ldd":run("ldd",str(elementtree)),
+ "psycopg":psycopg,"openssl":ssl.OPENSSL_VERSION,"packages":packages,"independent_small_binding_cases":cases,
+ "builder_small_binding_cases":provenance["small_binding_tests"],"all_base_identity_files_unchanged":True,
+ "base_identity_file_count":len(provenance["interpreter_libpython_elementtree_config_headers_after"]),
+ "base_elementtree_sha256":sha(elementtree),"provenance_sha256":sha(out/"build-provenance.json"),"sbom_sha256":sha(out/"sbom.json"),
+ "data_or_licensing_or_db_or_network_flow_executed":False,"environment_isolation":"Docker network none, rootfs readonly, user65534, no capabilities; private tmpfs only"}
+print(json.dumps(result))
+

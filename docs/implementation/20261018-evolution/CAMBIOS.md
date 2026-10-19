@@ -170,3 +170,8 @@ MAIN sólo añade documentación/evidencias. Candidata aislada compone5testsDAB 
 ## Checkpoint 120
 
 Se incorpora documentación de la aceptación focal de fixtures, y se preserva e0 como preimagen CI incompleta. MAIN no cambia producto ni esquema. La candidata bd348 incorpora el delta CI e0 para revisión; sus gates no están aceptados.
+
+
+## Checkpoint 121
+
+MAIN sólo registra seis hallazgos y evidencia. CIed4 repara CLI, snapshot y rol obligatorio; de69 añade un único header auténtico. La candidataR17 monta observabilidad protegida y cuenta errores500 sin guardar detalles. La adaptación de fixtures Google/publicación no altera producto. R25 sigue documental.

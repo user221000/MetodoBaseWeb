@@ -1,0 +1,16 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import json,re
+ROOT=Path(r"C:\Users\Consu\AppData\Local\Temp\metodobase-expat-d60-native-validation-20261019")
+file=ROOT/"native-build-raw.log"
+text=file.read_text(encoding="utf-8",errors="replace")
+lines=[]
+for line in text.splitlines():
+ line=re.sub(r"\x1b\[[0-9;]*[A-Za-z]","",line)
+ if not line.strip() or any(ord(char)>127 for char in line):continue
+ if len(line)>300:line=line[:160]+" [full command retained privately]"
+ lines.append(line)
+print(json.dumps({"now":datetime.now(timezone.utc).isoformat(),"log_bytes":file.stat().st_size,"tail":lines[-10:]},ensure_ascii=True))
+receipt=ROOT/"native-build-receipt.json"
+if receipt.exists():print(receipt.read_text())
+

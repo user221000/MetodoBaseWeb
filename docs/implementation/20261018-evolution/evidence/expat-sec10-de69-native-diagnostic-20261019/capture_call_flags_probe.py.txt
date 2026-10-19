@@ -1,0 +1,28 @@
+from pathlib import Path
+import base64,hashlib,inspect,json,sysconfig,tarfile
+from setuptools._distutils.unixccompiler import UnixCCompiler
+obj=UnixCCompiler.call
+wrapper=type(obj).__name__;obj=inspect.unwrap(obj)
+file=Path(inspect.getsourcefile(obj))
+result={"compiler_call":{"wrapper_type":wrapper,"qualname":obj.__qualname__,"sourcefile":str(file),
+"module_sha256":hashlib.sha256(file.read_bytes()).hexdigest(),"first_source_line":inspect.getsourcelines(obj)[1],"source":inspect.getsource(obj)}}
+paths={"installed-Makefile":Path(sysconfig.get_makefile_filename()),
+ "selected-pyexpatns.h":Path("/expat-output/source/Modules/expat/pyexpatns.h"),
+ "selected-expat_config.h":Path("/expat-output/source/Modules/expat/expat_config.h")}
+files={}
+for name,path in paths.items():
+ raw=path.read_bytes();files[name]={"source":str(path),"bytes":len(raw),"sha256":hashlib.sha256(raw).hexdigest(),"raw_base64":base64.b64encode(raw).decode()}
+archive=Path("/tmp/psf-expat-sec10.tar.xz");raw=archive.read_bytes()
+assert len(raw)==20829824 and hashlib.sha256(raw).hexdigest()=="c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a"
+with tarfile.open(archive,mode="r:xz") as tar:
+ for name in ["Makefile.pre.in","Modules/Setup.stdlib.in","Modules/expat/pyexpatns.h","Modules/expat/expat_config.h"]:
+  member=tar.getmember("Python-3.12.15/"+name);assert member.isfile()
+  data=tar.extractfile(member).read()
+  files["PSF-"+name.replace("/","-")]={"source":member.name,"bytes":len(data),"sha256":hashlib.sha256(data).hexdigest(),"raw_base64":base64.b64encode(data).decode()}
+assert files["selected-pyexpatns.h"]["sha256"]==files["PSF-Modules-expat-pyexpatns.h"]["sha256"]
+assert files["selected-expat_config.h"]["sha256"]==files["PSF-Modules-expat-expat_config.h"]["sha256"]
+keys=("CC","CFLAGS","CFLAGS_NODIST","CONFIGURE_CFLAGS_NODIST","PY_CFLAGS","PY_CFLAGS_NODIST","PY_CORE_CFLAGS","PY_STDMODULE_CFLAGS","MODULE_PYEXPAT_CFLAGS","MODULE_PYEXPAT_LDFLAGS","LDSHARED","LDFLAGS","CONFIG_ARGS")
+result.update(files=files,sysconfig={key:sysconfig.get_config_var(key) for key in keys},
+              source_tar_sha256=hashlib.sha256(raw).hexdigest(),compiler_or_build_called=False)
+print(json.dumps(result))
+

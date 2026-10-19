@@ -231,3 +231,8 @@ QA independiente:10VM+4flujosSQLite, replayPG deesos4,15grupos mantenidosChrome/
 ## Checkpoint 120
 
 QA peer de fixtures aceptado: 24 SQLite (20 replays y4 propios) y16 VM con módulos reales. CI e0 se conserva sin aceptación: histórico573 FULL+348; actual31/494 con snapshot25 omitido. Los173PG siguen pendientes. Composición bd348 sólo cambia33 archivos CI/tests y conserva23 helpers; la regresión amplia está activa, aún sin resultado.
+
+
+## Checkpoint 121
+
+Se preservan el rechazo CIe0 y el contrato ed4 aceptado independientemente: mismos tres negativos,205 canarios offline,145 workflow, snapshot25 y SQL de rol. Los173PG están en curso, no aprobados todavía. Broad bd348:2381=2360pass+2fail+18error+1skip; maxfail20 y fuente/89paquetes quietos. de69 tiene aceptación estática21+11 y target compilado0/6smokes, con compiler argv vacío y superficie ELF diferente aún sin aceptación. R17 es autor103+52, no QA independiente.

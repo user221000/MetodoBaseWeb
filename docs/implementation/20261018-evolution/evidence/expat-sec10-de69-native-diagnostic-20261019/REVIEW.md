@@ -1,0 +1,13 @@
+La etapa nativa DE69 compila, pero su aceptación completa sigue bloqueada. La imagen exacta conserva `compiler_commands: []` y cambia la superficie de exportaciones ELF respecto de la base fijada. Estado: `PROVENANCE_GAP`; `complete_acceptance: false`.
+
+La compilación real de `expat-build` terminó con exit 0. El diagnóstico funcional separado pasó seis casos XML propios y los seis del builder, cargó el wheel fuente psycopg2 2.9.13, confirmó libpq 170011 en compilación y ejecución, y OpenSSL 3.5.7. Los inventarios medidos son 87 → 97 → 135; 218 archivos de identidad base y `_elementtree` permanecen iguales. Expat sigue publicando versión 2.8.5 con el backport autenticado, sin alterar su etiqueta de versión.
+
+La traza vacía tiene causa comprobada en los archivos instalados de setuptools 84: `_compile` y `link` llaman a `self.call`; el helper intercepta `spawn`. La inspección fue de lectura, registró rutas, líneas y hashes, y no creó ni invocó un compilador. No se reemplaza la traza ausente por comandos deducidos del log o sysconfig.
+
+El ELF de base exporta sólo `PyInit_pyexpat`. El nuevo exporta 93 símbolos: los 92 adicionales incluyen `XML_SetHashSalt16Bytes` sin prefijo. Ambos dependen sólo de libc y no tienen RPATH/RUNPATH. Los headers de namespace/config seleccionados son idénticos a los del tar PSF firmado. El Makefile base incluye `-fvisibility=hidden` entre sus flags internos de módulos, ausente de los CFLAGS públicos usados por el helper. Es evidencia de diferencia real de visibilidad; no acredita conocer todos los argumentos históricos ni prescribe copiar ciegamente flags LTO/PGO.
+
+Se conservan los intentos fallidos: guard original de cinco comandos, guard namespace, mmap del wheel sobre tmpfs noexec y primer inspector de funciones envueltas. El diagnóstico v3 usó la misma imagen y el mismo script v2, cambiando sólo su tmpfs desechable a exec para permitir mmap del wheel. Mantiene ambos bloqueos y la aceptación falsa. No se modificó ni reconstruyó el target para adaptar las pruebas.
+
+Este sello sólo cubre la etapa compiladora y el diagnóstico descrito. No aprueba imagen runtime final, aplicación, 54 imports, OS71, SCA, SEC10, MFA/AAL2 ni producción. El contexto DE69 de 12 blobs, los contextos anteriores, sus pruebas selladas y las tres preimágenes anteriores permanecen conservados. RAW originales y scripts están inventariados en `source.json`; los logs públicos son proyecciones saneadas.
+
+La VM propia PID 29768 conserva nacimiento, ejecutable y hash de comando; SSH 53105/QMP 53106. Queda idle, sin contenedores en ejecución, bajo lease explícita de ROOT para Seguridad y reparación. No se abre PostgreSQL ni proxy y no se cierra esta VM durante el handoff.

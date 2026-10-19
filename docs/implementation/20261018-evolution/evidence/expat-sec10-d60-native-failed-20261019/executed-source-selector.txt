@@ -1,0 +1,15 @@
+def source_files(archive,lock):
+    assert digest(archive.read_bytes())==lock['psf_source_sha256'],'Unexpected PSF source'
+    selected={};prefix='Python-3.12.15/'
+    with tarfile.open(archive,mode='r:xz') as tar:
+        for member in tar.getmembers():
+            relative=member.name.removeprefix(prefix)
+            wanted=(relative.startswith('Modules/expat/') or relative in ('Modules/pyexpat.c','Modules/_elementtree.c','Include/pyexpat.h'))
+            if not member.name.startswith(prefix) or not wanted:continue
+            assert not member.issym() and not member.islnk(),'Link in selected source'
+            if not member.isfile():continue
+            assert relative not in selected and '..' not in Path(relative).parts and not relative.startswith('/')
+            assert member.size<1024*1024
+            selected[relative]=tar.extractfile(member).read()
+    assert len(selected)==30 and sum(map(len,selected.values()))<4*1024*1024
+    return selected

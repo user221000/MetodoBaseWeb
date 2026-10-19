@@ -1,0 +1,17 @@
+# PASS_STATIC_ONLY — entrada Argument Clinic de pyexpat
+
+Revisión independiente del commit de69a85e7903f1a7217b054c0edb269dd5560999, padre d60d259c6d853483290efb65fa2d33ec14840207, en checkout propio. No se modifica producto, autor ni evidencia anterior. El diff contiene exactamente helper, source-pins.json y contrato. Los doce locks, Dockerfile y parche upstream conservan bytes idénticos al padre.
+
+La firma separada del tar PSF real se verificó nuevamente con GPG2.4.9 local, homedir vacío propio y sin keyservers. Tar20829824 bytes, SHA c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a; la firma se liga al fingerprint ya fijado7169605F62C751356D054A26A821E680E5FA6305. No se descarga ni confía en una nueva clave o fuente para hacer pasar el cambio.
+
+La selección original devuelve30 archivos; la nueva31 conserva esos30 byte a byte y añade únicamente Modules/clinic/pyexpat.c.h, miembro regular único del mismo tar,29204 bytes y SHA5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb. El include original en pyexpat.c:106 queda resuelto por la búsqueda relativa del preprocesador dentro de Modules. Los dos includes internos del header existen en el mismo archivo PSF y el build ya conserva el include-dir internal. La macro Py_BUILD_CORE_MODULE ya estaba definida antes de Python.h; no necesita una nueva bandera.
+
+El header contiene wrappers estáticos generados por Argument Clinic: no se afirma que carezca de código. Es el header íntegro que la fuente original esperaba, sin regenerarlo ni modificarlo. Include/pyexpat.h, versión2.8.5, configuración, namespace, _elementtree.c y pyexpat.c permanecen iguales. Las funciones completas backport, build, main, prepare, digest y pins conservan AST idéntica. Las tres ediciones del helper se invierten exactamente a los bytes GitLF del padre; el pin adicional es el único nuevo y todos los valores/tipos anteriores quedan iguales.
+
+Preparar las fuentes originales y corregidas cambia únicamente xmlparse.c con el mismo backport upstream. Los30 hashes antes/después coinciden entre ambos conjuntos; el nuevo header queda intacto. No se llama build ni main, se bloquean los puertos de subprocess y red del helper, y no se ejecuta C, compilador, imagen, VM, PG o Chrome.
+
+Veintiún controles positivos y once negativos propios pasan. Además de pin erróneo/ausente, se prueban header faltante, caso renombrado, duplicado, bytes alterados, symlink, hardlink, tamaño y traversal. Los tar sintéticos reciben un digest exterior sólo de prueba para alcanzar los guards internos; no se representan como archivos PSF autenticados. Un control de31 entradas auténticas demuestra que las mutaciones no fallan simplemente por un formato de tar ajeno.
+
+La evidencia nativa D60 anterior sigue roja: source3862a325… y manifest099e4367… autenticados con sus18 archivos. El wheel psycopg conservado y las mediciones previas no acreditan imports, ELF ni un target terminado. Esta revisión aprueba sólo la entrada de compilación; sigue pendiente un nuevo intento nativo y sus pruebas. No cierra SEC10/R18 ni71 IDs OS, runtime54, ABI/linkage, ASVS o AAL2.
+
+Se conserva un fallo inicial del harness propio: el regex sólo reconocía #include sin espacios; el header real usa #  include. La variantev2 reconoce el whitespace legal sin cambiar la exigencia de los dos headers esperados. Driver, hash, fallo y errata originales quedan privados. No se ejecutó el driver del autor, que además contiene git add/commit; sus once controles no se vuelven a contar como nuestros.

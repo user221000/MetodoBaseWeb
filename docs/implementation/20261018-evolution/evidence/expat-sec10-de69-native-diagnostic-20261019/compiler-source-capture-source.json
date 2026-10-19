@@ -1,0 +1,99 @@
+{
+  "setuptools_version": "84.0.0",
+  "pip_version": "26.2.1",
+  "interpreter": "/opt/psycopg-build-tools/bin/python",
+  "functions": {
+    "new_compiler": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.compilers.C.base",
+      "qualname": "new_compiler",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/base.py",
+      "module_sha256": "e9cd70c9c4a71f6da21b461584902d69aac993e0b5af89c4b9c73e83cdf0e0d3",
+      "first_source_line": 1286,
+      "source": "def new_compiler(\n    plat: str | None = None,\n    compiler: str | None = None,\n    verbose: bool = False,\n    force: bool = False,\n) -> Compiler:\n    \"\"\"Generate an instance of some Compiler subclass for the supplied\n    platform/compiler combination.  'plat' defaults to 'os.name'\n    (eg. 'posix', 'nt'), and 'compiler' defaults to the default compiler\n    for that platform.  Currently only 'posix' and 'nt' are supported, and\n    the default compilers are \"traditional Unix interface\" (UnixCCompiler\n    class) and Visual C++ (MSVCCompiler class).  Note that it's perfectly\n    possible to ask for a Unix compiler object under Windows, and a\n    Microsoft compiler object under Unix -- if you supply a value for\n    'compiler', 'plat' is ignored.\n    \"\"\"\n    if plat is None:\n        plat = os.name\n    if compiler is None:\n        compiler = get_default_compiler(plat)\n\n    try:\n        cls = get_compilers()[compiler]\n    except KeyError:\n        msg = f\"don't know how to compile C/C++ code on platform '{plat}'\"\n        if compiler is not None:\n            msg = msg + f\" with '{compiler}' compiler\"\n        raise PlatformError(msg)\n\n    # XXX The None is necessary to preserve backwards compatibility\n    # with classes that expect verbose to be the first positional\n    # argument.\n    return cls(None, force=force)\n",
+      "source_sha256": "4ec615fd8263c0123e4350d4319de04b41030c89b2e5151772b4aeaa8746b3d3"
+    },
+    "customize_compiler": {
+      "observed_wrapper_type": "_lru_cache_wrapper",
+      "module": "setuptools._distutils.sysconfig",
+      "qualname": "customize_compiler",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/sysconfig.py",
+      "module_sha256": "134e6ebcd2e33e62112813ce44e59eb083fa4304f9b77ebab747fd0107b06330",
+      "first_source_line": 276,
+      "source": "@functools.lru_cache\ndef customize_compiler(compiler: CCompiler) -> None:\n    \"\"\"Do any platform-specific customization of a CCompiler instance.\n\n    Retained for backward compatibility; the behavior now lives on the\n    compiler itself, so this simply delegates to ``configure_system``.\n    \"\"\"\n    compiler.configure_system()\n",
+      "source_sha256": "63d35a3f3c9207245de9b074e67e237bfe1c74ad7845dc8102d6b0c2b2e8f07c"
+    },
+    "UnixCCompiler.compile": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.compilers.C.base",
+      "qualname": "Compiler.compile",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/base.py",
+      "module_sha256": "e9cd70c9c4a71f6da21b461584902d69aac993e0b5af89c4b9c73e83cdf0e0d3",
+      "first_source_line": 596,
+      "source": "    def compile(\n        self,\n        sources: Sequence[str | os.PathLike[str]],\n        output_dir: str | None = None,\n        macros: list[_Macro] | None = None,\n        include_dirs: list[str] | tuple[str, ...] | None = None,\n        debug: bool = False,\n        extra_preargs: list[str] | None = None,\n        extra_postargs: list[str] | None = None,\n        depends: list[str] | tuple[str, ...] | None = None,\n    ) -> list[str]:\n        \"\"\"Compile one or more source files.\n\n        'sources' must be a list of filenames, most likely C/C++\n        files, but in reality anything that can be handled by a\n        particular compiler and compiler class (eg. MSVCCompiler can\n        handle resource files in 'sources').  Return a list of object\n        filenames, one per source filename in 'sources'.  Depending on\n        the implementation, not all source files will necessarily be\n        compiled, but all corresponding object filenames will be\n        returned.\n\n        If 'output_dir' is given, object files will be put under it, while\n        retaining their original path component.  That is, \"foo/bar.c\"\n        normally compiles to \"foo/bar.o\" (for a Unix implementation); if\n        'output_dir' is \"build\", then it would compile to\n        \"build/foo/bar.o\".\n\n        'macros', if given, must be a list of macro definitions.  A macro\n        definition is either a (name, value) 2-tuple or a (name,) 1-tuple.\n        The former defines a macro; if the value is None, the macro is\n        defined without an explicit value.  The 1-tuple case undefines a\n        macro.  Later definitions/redefinitions/ undefinitions take\n        precedence.\n\n        'include_dirs', if given, must be a list of strings, the\n        directories to add to the default include file search path for this\n        compilation only.\n\n        'debug' is a boolean; if true, the compiler will be instructed to\n        output debug symbols in (or alongside) the object file(s).\n\n        'extra_preargs' and 'extra_postargs' are implementation- dependent.\n        On platforms that have the notion of a command-line (e.g. Unix,\n        DOS/Windows), they are most likely lists of strings: extra\n        command-line arguments to prepend/append to the compiler command\n        line.  On other platforms, consult the implementation class\n        documentation.  In any event, they are intended as an escape hatch\n        for those occasions when the abstract compiler framework doesn't\n        cut the mustard.\n\n        'depends', if given, is a list of filenames that all targets\n        depend on.  If a source file is older than any file in\n        depends, then the source file will be recompiled.  This\n        supports dependency tracking, but only at a coarse\n        granularity.\n\n        Raises CompileError on failure.\n        \"\"\"\n        # A concrete compiler class can either override this method\n        # entirely or implement _compile().\n        macros, objects, extra_postargs, pp_opts, build = self._setup_compile(\n            output_dir, macros, include_dirs, sources, depends, extra_postargs\n        )\n        cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)\n\n        for obj in objects:\n            try:\n                src, ext = build[obj]\n            except KeyError:\n                continue\n            self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)\n\n        # Return *all* object filenames, not just the ones we just built.\n        return objects\n",
+      "source_sha256": "1cb393e41068679d312513500156425fb991970d8f709fda84638cbf7fc3f491"
+    },
+    "UnixCCompiler._compile": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.compilers.C.unix",
+      "qualname": "Compiler._compile",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/unix.py",
+      "module_sha256": "6b6e1b8325dd70dd54146a3fe98e9435e1ada067a9345323f797c861978f8677",
+      "first_source_line": 320,
+      "source": "    def _compile(self, obj, src, ext, cc_args, extra_postargs, pp_opts):\n        compiler_so = compiler_fixup(self.compiler_so, cc_args + extra_postargs)\n        compiler_so_cxx = compiler_fixup(self.compiler_so_cxx, cc_args + extra_postargs)\n        try:\n            if self.detect_language(src) == 'c++':\n                self.call(compiler_so_cxx + cc_args + [src, '-o', obj] + extra_postargs)\n            else:\n                self.call(compiler_so + cc_args + [src, '-o', obj] + extra_postargs)\n        except (subprocess.CalledProcessError, OSError) as msg:\n            raise CompileError(msg)\n",
+      "source_sha256": "d39a6a538c64e6c25ba3355547478436d389c7154dafebb516604d6fa469e1eb"
+    },
+    "UnixCCompiler.spawn": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.compilers.C.base",
+      "qualname": "Compiler.spawn",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/base.py",
+      "module_sha256": "e9cd70c9c4a71f6da21b461584902d69aac993e0b5af89c4b9c73e83cdf0e0d3",
+      "first_source_line": 1179,
+      "source": "    def spawn(\n        self,\n        cmd: MutableSequence[bytes | str | os.PathLike[str]],\n        *,\n        env: _ENV | None = None,\n        **kwargs,\n    ) -> None:\n        warnings.warn(\n            \"Compiler.spawn is deprecated; use Compiler.call instead.\",\n            DeprecationWarning,\n            stacklevel=2,\n        )\n        # translation shared with distutils.spawn.spawn; imported late so the\n        # clean `call` path stays free of the distutils dependency.\n        from ...spawn import _translate_errors\n\n        with _translate_errors(cmd):\n            self.call(cmd, env=env, **kwargs)\n",
+      "source_sha256": "189ccce169ba8d69fcfc18dc8b34c3059e64102fa858d8a29cdaf4bd07bbbdce"
+    },
+    "UnixCCompiler.link": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.compilers.C.unix",
+      "qualname": "Compiler.link",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/unix.py",
+      "module_sha256": "6b6e1b8325dd70dd54146a3fe98e9435e1ada067a9345323f797c861978f8677",
+      "first_source_line": 355,
+      "source": "    def link(\n        self,\n        target_desc,\n        objects: list[str] | tuple[str, ...],\n        output_filename,\n        output_dir: str | None = None,\n        libraries: list[str] | tuple[str, ...] | None = None,\n        library_dirs: list[str] | tuple[str, ...] | None = None,\n        runtime_library_dirs: list[str] | tuple[str, ...] | None = None,\n        export_symbols=None,\n        debug=False,\n        extra_preargs=None,\n        extra_postargs=None,\n        build_temp=None,\n        target_lang=None,\n    ):\n        objects, output_dir = self._fix_object_args(objects, output_dir)\n        fixed_args = self._fix_lib_args(libraries, library_dirs, runtime_library_dirs)\n        libraries, library_dirs, runtime_library_dirs = fixed_args\n\n        lib_opts = gen_lib_options(self, library_dirs, runtime_library_dirs, libraries)\n        if not isinstance(output_dir, (str, type(None))):\n            raise TypeError(\"'output_dir' must be a string or None\")\n        if output_dir is not None:\n            output_filename = os.path.join(output_dir, output_filename)\n\n        if self._need_link(objects, output_filename):\n            ld_args = objects + self.objects + lib_opts + ['-o', output_filename]\n            if debug:\n                ld_args[:0] = ['-g']\n            if extra_preargs:\n                ld_args[:0] = extra_preargs\n            if extra_postargs:\n                ld_args.extend(extra_postargs)\n            self.mkpath(os.path.dirname(output_filename))\n            try:\n                # Select a linker based on context: linker_exe when\n                # building an executable or linker_so (with shared options)\n                # when building a shared library.\n                building_exe = target_desc == base.Compiler.EXECUTABLE\n                target_cxx = target_lang == \"c++\"\n                linker = (\n                    (self.linker_exe_cxx if target_cxx else self.linker_exe)\n                    if building_exe\n                    else (self.linker_so_cxx if target_cxx else self.linker_so)\n                )[:]\n\n                if target_cxx and self.compiler_cxx:\n                    env, linker_ne = _split_env(linker)\n                    aix, linker_na = _split_aix(linker_ne)\n                    _, compiler_cxx_ne = _split_env(self.compiler_cxx)\n                    _, linker_exe_ne = _split_env(self.linker_exe_cxx)\n\n                    params = _linker_params(linker_na, linker_exe_ne)\n                    linker = env + aix + compiler_cxx_ne + params\n\n                linker = compiler_fixup(linker, ld_args)\n\n                self.call(linker + ld_args)\n            except (subprocess.CalledProcessError, OSError) as msg:\n                raise LinkError(msg)\n        else:\n            log.debug(\"skipping %s (up-to-date)\", output_filename)\n",
+      "source_sha256": "5c73d387fa2ffbd17d50c15d837bc2d5f93dba6b6df29ffc72945b5155e2b91c"
+    },
+    "module_spawn": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.spawn",
+      "qualname": "spawn",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/spawn.py",
+      "module_sha256": "638616191d7f530ba76af218a0c13e3a5ea120469a020ab4cceec95a012eeca4",
+      "first_source_line": 33,
+      "source": "def spawn(cmd: MutableSequence[bytes | str | os.PathLike[str]], **kwargs) -> None:\n    \"\"\"Run another program, specified as a command list 'cmd', in a new process.\n\n    'cmd' is just the argument list for the new process, ie.\n    cmd[0] is the program to run and cmd[1:] are the rest of its arguments.\n    Any keyword arguments are passed through to ``subprocess.check_call``.\n\n    Raise DistutilsExecError if running the program fails in any way; just\n    return on success.\n    \"\"\"\n    log.info(subprocess.list2cmdline(cmd))\n    with _translate_errors(cmd):\n        subprocess.check_call(cmd, **kwargs)\n",
+      "source_sha256": "dbcc5d5d70fca5e2f3b599904e6c5b692367d2f78b35d0e9b6f7f69a414367d9"
+    }
+  },
+  "compiler_instantiated": false,
+  "compiler_function_or_build_called": false,
+  "scope": "Exact immutable-image installed source/introspection only; no variables, environment values, code flags or monkeypatches changed",
+  "source_module_files": {
+    "setuptools/_distutils/compilers/C/base.py": {
+      "bytes": 55266,
+      "sha256": "e9cd70c9c4a71f6da21b461584902d69aac993e0b5af89c4b9c73e83cdf0e0d3"
+    },
+    "setuptools/_distutils/sysconfig.py": {
+      "bytes": 16266,
+      "sha256": "134e6ebcd2e33e62112813ce44e59eb083fa4304f9b77ebab747fd0107b06330"
+    },
+    "setuptools/_distutils/compilers/C/unix.py": {
+      "bytes": 19988,
+      "sha256": "6b6e1b8325dd70dd54146a3fe98e9435e1ada067a9345323f797c861978f8677"
+    },
+    "setuptools/_distutils/spawn.py": {
+      "bytes": 2752,
+      "sha256": "638616191d7f530ba76af218a0c13e3a5ea120469a020ab4cceec95a012eeca4"
+    }
+  },
+  "source_image_id": "sha256:5f85c450c1f1d949a75294a4cd8316f2e745b0c952b05e69082bd0bf9dc5b2d5"
+}

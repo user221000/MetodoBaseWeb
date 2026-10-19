@@ -1,0 +1,29 @@
+from pathlib import Path
+import hashlib,json,subprocess,sys,time
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-de69-native-validation-20261019')
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+image=json.loads((RUN/'native-image-identity-source.json').read_text())['image_id']
+assert image=='sha256:5f85c450c1f1d949a75294a4cd8316f2e745b0c952b05e69082bd0bf9dc5b2d5'
+args=['sudo','-n','docker','run','--rm','-i','--pull=never','--network=none','--read-only','--cap-drop=ALL',
+      '--security-opt=no-new-privileges','--user=65534:65534','--pids-limit=64','--memory=512m','--cpus=1',
+      '--tmpfs','/tmp:rw,nosuid,nodev,size=64m,mode=1777',image,'python','-I','-S','-B','-']
+start=time.monotonic()
+with (RUN/'native_diagnostic_probe_v2.py').open('rb') as stream:
+ result=guest_access.run(' '.join(args),stdin=stream,timeout=180)
+(RUN/'native-diagnostic-v2-probe-raw.stdout').write_bytes(result.stdout)
+(RUN/'native-diagnostic-v2-probe-raw.stderr').write_bytes(result.stderr)
+(RUN/'native-diagnostic-v2-probe-receipt.json').write_text(json.dumps({'image_id':image,'exit_code':result.returncode,
+ 'elapsed_seconds':round(time.monotonic()-start,3),'probe_sha256':hashlib.sha256((RUN/'native_diagnostic_probe_v2.py').read_bytes()).hexdigest(),
+ 'invocation':args,'complete_acceptance':False,'compiler_trace_status':'PROVENANCE_GAP'},indent=2)+'\n',encoding='utf-8')
+assert result.returncode==0,result.stderr.decode('utf-8','replace')
+data=json.loads(result.stdout)
+assert data['status']=='PROVENANCE_GAP' and data['complete_acceptance'] is False and data['compiler_commands_count']==0
+(RUN/'native-diagnostic-v2-probe-source.json').write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'image_id':image,'functional_diagnostic_exit':0,'status':'PROVENANCE_GAP','complete_acceptance':False,
+ 'independent_xml_cases':len(data['independent_small_binding_cases']),'builder_xml_cases':data['builder_small_binding_cases']['small_cases'],
+ 'libpq':data['psycopg']['runtime_libpq'],'openssl':data['openssl'],'exports_added':data['pyexpat_exports_added'],'exports_removed':data['pyexpat_exports_removed'],
+ 'base_identity_files_unchanged':data['base_identity_file_count'],'stage_counts':data['stage_package_counts']}))
+

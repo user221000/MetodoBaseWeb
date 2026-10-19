@@ -1,0 +1,147 @@
+{
+  "status": "NATIVE_COMPILE_FAILED_MISSING_AUTHENTICATED_GENERATED_HEADER",
+  "failed_step": "15/16 RUN helper --build",
+  "failed_container_id": "9010e255a90c0e8382323912ba4f0c1e7ded39032163c1d0a64f5f0f2be49bbd",
+  "state": {
+    "Running": false,
+    "ExitCode": 1,
+    "StartedAt": "2026-10-19T18:27:43.309731356Z",
+    "FinishedAt": "2026-10-19T18:28:24.623034799Z"
+  },
+  "container_inspect_sha256": "cf7ad986b5d04649b8b5522fe72eb2d2c94a996014434031f1e7360ac64cda48",
+  "intermediate_image_id": "sha256:69f242bf48946692c8b044db709eb357b280457ae5ecbc8bd2595a30c58157a6",
+  "image_layers": [
+    "sha256:15f1c8eb1ab18eae260c7fb6296434cbe1ff0e1e30fd814ae92a80dd54005e62",
+    "sha256:e1fa2746ad6d51e7de9171dfcbb1fe93d01d51c5d8d3623e0c3b223076dc5d23",
+    "sha256:b361fa3b97940ee89a1aab8fde1027e47ab2c2e700ca2f8d5988ad2c64386e5c",
+    "sha256:dca2a125b4903477bcb42084172cfc98865299810620ffd617bf6e12dd83d89f",
+    "sha256:797bde219208946f5ed7e51a48d25aa4f95cedf7ae28faa5b604ef91c9c26b9b",
+    "sha256:5abaa708884f6e65959481287a8cfaef6276748e153b0e84e057beac6a806a86",
+    "sha256:0391d583726223ae86c87e8787d238f7f4ab0ba310cada5c2c621453490cb0ab",
+    "sha256:89a35724b8dc8f7ff0144abd7e92e63cdb43e93057bf73f00c491313a33e7b0f",
+    "sha256:627cc33056c237bda3f53f04a2ecc660181bb5d672680771f5cae05ed2f4f414",
+    "sha256:5360932f9f8271a724fbd1de4a9923a61be8e816c78fe97c09dc15b117a72e87",
+    "sha256:1b83b59258f059db3852d7079ecfcab7fe0f63cab1807f1db474d3169935acff",
+    "sha256:66e0821ad84e83f6657cbd0f0dc78eed6081f8b10388b1c4f4c30b5a805707af",
+    "sha256:4f3d0ffd4858628b3736f84a51c5c4511e95028373d6ae18c2c80daab2bc2206"
+  ],
+  "command": [
+    "/bin/sh",
+    "-c",
+    "/opt/psycopg-build-tools/bin/python -I /tmp/metodobase-expat-sec10/rebuild_pyexpat.py --build --output /expat-output"
+  ],
+  "pinned_psf_archive": {
+    "bytes": 20829824,
+    "sha256": "c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a",
+    "matches_prior_authenticated_pin": true
+  },
+  "selected_pyexpat_sha256": "f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db",
+  "include": [
+    {
+      "line": 106,
+      "source": "#include \"clinic/pyexpat.c.h\""
+    }
+  ],
+  "missing_header": {
+    "archive_member": "Python-3.12.15/Modules/clinic/pyexpat.c.h",
+    "bytes": 29204,
+    "sha256": "5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb",
+    "quoted_includes": [
+      "pycore_gc.h",
+      "pycore_runtime.h"
+    ]
+  },
+  "source_selector_count": 30,
+  "header_omitted_from_selector": true,
+  "source_preparation": {
+    "source_sha256": "c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a",
+    "fix_commit": "13c5f63a7f1c52c2feee3b16a1134d4fb68e9ea0",
+    "cve": "CVE-2026-77214",
+    "version": "2.8.5",
+    "before": {
+      "Include/pyexpat.h": "d3564a35c027eb7a0e4ddbf8659769bf4be61b0c39666c79c555249fa8b0d099",
+      "Modules/_elementtree.c": "63cd614f8edb692aecbb3322c632bfbe3fd9587d3e7dab0aa7c5f8ddef24a7c9",
+      "Modules/expat/COPYING": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+      "Modules/expat/ascii.h": "5ce49460794894b78f97060f634c129d13f2e9cc9b8dacd829f4be2dbc6e0649",
+      "Modules/expat/asciitab.h": "5792cb56f285c8876b988d875a70d49019bc7e6d5ebcd0f8224b24e695301832",
+      "Modules/expat/expat.h": "17cd1fc3b4c61d00de96091ceed0a3721d5bac9755c6d04e89d9f8a79d037c12",
+      "Modules/expat/expat_config.h": "fc918070c65fa23613e4ba5a44b3407e5eb2a503ec42fbfeebee19d9e5eb5649",
+      "Modules/expat/expat_external.h": "ec35498736485b2321610a750e5b2534399fed87dc44bc4ace529eeb5a280a53",
+      "Modules/expat/fallthrough.h": "5e42477487bca7e7caac6b832ab940f39a1a20b8765c945374e4f6c2670f55b6",
+      "Modules/expat/hash_table.h": "ad93851f86df1f4e8f85488dbac53cab3539e59d701ad747c7beea354d69e0dc",
+      "Modules/expat/iasciitab.h": "a9cd6f2cf5199ae3c29d22ee4913736fcd984f62132146a0352c88549700e83f",
+      "Modules/expat/internal.h": "0123d00963768b5779544cc54dcccad311824b192a38d3489c4fb1fbbfa33b17",
+      "Modules/expat/latin1tab.h": "b0daf8a75c690e895421f765ddb2ae2fbc1ba14694e06a3215dba84f1ff3427d",
+      "Modules/expat/memory_sanitizer.h": "377ca054fdc531360f42a5cb7c522bcbf88b6c67aebc2e29544c37d14e836bde",
+      "Modules/expat/nametab.h": "8f78e64f11e2b23df8b32cb5528cfeda6215acd6abf6bcf1ad59fdc7b1ffd105",
+      "Modules/expat/pyexpatns.h": "c95154ba28b798023705319cd52711367ff5236b6b4b03c4cf8f1bd6ab350885",
+      "Modules/expat/refresh.sh": "624c33f8444bdf3c6f2731fecb98f6ded83eaed25e2ea7db1c544375cf43f079",
+      "Modules/expat/siphash.h": "12ecc9915bccb793ea8bb543cc7d002e226f4e4d6b97ec9839dca41cbe4e2e27",
+      "Modules/expat/utf8tab.h": "3fa349a3a19143366e80a58d9aa950152ef9cd7903f557f971051410b47f335c",
+      "Modules/expat/winconfig.h": "0ab6446eb98abc492ae341ef7607b535e44dedf52633fdc7c6e1a1361aec3922",
+      "Modules/expat/xcsinc.c": "1210979a688301412f46e058d0497fa3c1c63c296c2e015834cda0f0b314875d",
+      "Modules/expat/xmlparse.c": "9a4969bb0ac497803866705f3fa233cc4b487e7685800d9222bd0ab38d1b8a20",
+      "Modules/expat/xmlrole.c": "b1ad87cc3c0d4722358a7dfb1642df7f62066d1613a0a56dc9289e7112fb3f0c",
+      "Modules/expat/xmlrole.h": "8a0b61cd6efcd7427acbc86759e9013e7a61755097a1f82cbb2a79c011af5ee5",
+      "Modules/expat/xmltok.c": "47ffd58f56f61284fd84cecd94ddad4c79cde922f57994c1525f8df1eb9272eb",
+      "Modules/expat/xmltok.h": "623dea24bc27712e2e205a0c0517c79e211234f8d1051fe46d780839f754cf9e",
+      "Modules/expat/xmltok_impl.c": "4dcd7ae88dd90bbc89d0e41ba6affb46a107ee28df3b49cb84cdf228b7cc7981",
+      "Modules/expat/xmltok_impl.h": "a5053c69219d12788088de9bd670537e1c784302766c331afe6b253460d0417d",
+      "Modules/expat/xmltok_ns.c": "ea723a3470d3eed5c4a4e873bec2f996c605326fad25709b45452664261c5465",
+      "Modules/pyexpat.c": "f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db"
+    },
+    "after": {
+      "Include/pyexpat.h": "d3564a35c027eb7a0e4ddbf8659769bf4be61b0c39666c79c555249fa8b0d099",
+      "Modules/_elementtree.c": "63cd614f8edb692aecbb3322c632bfbe3fd9587d3e7dab0aa7c5f8ddef24a7c9",
+      "Modules/expat/COPYING": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+      "Modules/expat/ascii.h": "5ce49460794894b78f97060f634c129d13f2e9cc9b8dacd829f4be2dbc6e0649",
+      "Modules/expat/asciitab.h": "5792cb56f285c8876b988d875a70d49019bc7e6d5ebcd0f8224b24e695301832",
+      "Modules/expat/expat.h": "17cd1fc3b4c61d00de96091ceed0a3721d5bac9755c6d04e89d9f8a79d037c12",
+      "Modules/expat/expat_config.h": "fc918070c65fa23613e4ba5a44b3407e5eb2a503ec42fbfeebee19d9e5eb5649",
+      "Modules/expat/expat_external.h": "ec35498736485b2321610a750e5b2534399fed87dc44bc4ace529eeb5a280a53",
+      "Modules/expat/fallthrough.h": "5e42477487bca7e7caac6b832ab940f39a1a20b8765c945374e4f6c2670f55b6",
+      "Modules/expat/hash_table.h": "ad93851f86df1f4e8f85488dbac53cab3539e59d701ad747c7beea354d69e0dc",
+      "Modules/expat/iasciitab.h": "a9cd6f2cf5199ae3c29d22ee4913736fcd984f62132146a0352c88549700e83f",
+      "Modules/expat/internal.h": "0123d00963768b5779544cc54dcccad311824b192a38d3489c4fb1fbbfa33b17",
+      "Modules/expat/latin1tab.h": "b0daf8a75c690e895421f765ddb2ae2fbc1ba14694e06a3215dba84f1ff3427d",
+      "Modules/expat/memory_sanitizer.h": "377ca054fdc531360f42a5cb7c522bcbf88b6c67aebc2e29544c37d14e836bde",
+      "Modules/expat/nametab.h": "8f78e64f11e2b23df8b32cb5528cfeda6215acd6abf6bcf1ad59fdc7b1ffd105",
+      "Modules/expat/pyexpatns.h": "c95154ba28b798023705319cd52711367ff5236b6b4b03c4cf8f1bd6ab350885",
+      "Modules/expat/refresh.sh": "624c33f8444bdf3c6f2731fecb98f6ded83eaed25e2ea7db1c544375cf43f079",
+      "Modules/expat/siphash.h": "12ecc9915bccb793ea8bb543cc7d002e226f4e4d6b97ec9839dca41cbe4e2e27",
+      "Modules/expat/utf8tab.h": "3fa349a3a19143366e80a58d9aa950152ef9cd7903f557f971051410b47f335c",
+      "Modules/expat/winconfig.h": "0ab6446eb98abc492ae341ef7607b535e44dedf52633fdc7c6e1a1361aec3922",
+      "Modules/expat/xcsinc.c": "1210979a688301412f46e058d0497fa3c1c63c296c2e015834cda0f0b314875d",
+      "Modules/expat/xmlparse.c": "8c85e2537e27d7cabfa3cf21ed372505351a2617a717b8c69df6111e3c19d89c",
+      "Modules/expat/xmlrole.c": "b1ad87cc3c0d4722358a7dfb1642df7f62066d1613a0a56dc9289e7112fb3f0c",
+      "Modules/expat/xmlrole.h": "8a0b61cd6efcd7427acbc86759e9013e7a61755097a1f82cbb2a79c011af5ee5",
+      "Modules/expat/xmltok.c": "47ffd58f56f61284fd84cecd94ddad4c79cde922f57994c1525f8df1eb9272eb",
+      "Modules/expat/xmltok.h": "623dea24bc27712e2e205a0c0517c79e211234f8d1051fe46d780839f754cf9e",
+      "Modules/expat/xmltok_impl.c": "4dcd7ae88dd90bbc89d0e41ba6affb46a107ee28df3b49cb84cdf228b7cc7981",
+      "Modules/expat/xmltok_impl.h": "a5053c69219d12788088de9bd670537e1c784302766c331afe6b253460d0417d",
+      "Modules/expat/xmltok_ns.c": "ea723a3470d3eed5c4a4e873bec2f996c605326fad25709b45452664261c5465",
+      "Modules/pyexpat.c": "f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db"
+    },
+    "changed_source_files": [
+      "Modules/expat/xmlparse.c"
+    ],
+    "scope": "Exact five-line upstream capacity guard backport; no version/header/CAPI/config/namespace changes."
+  },
+  "wheel": {
+    "name": "psycopg2-2.9.13-cp312-cp312-linux_x86_64.whl",
+    "bytes": 172180,
+    "sha256": "f32aec907a8e0dbb3215546eb651059cd7dbf240a370d33246f21942ff637dbe",
+    "built_wheel_lock": "psycopg2==2.9.13 --hash=sha256:f32aec907a8e0dbb3215546eb651059cd7dbf240a370d33246f21942ff637dbe\n",
+    "pg_config_version": "PostgreSQL 17.11 (Debian 17.11-0+deb13u1)"
+  },
+  "stage_dpkg_counts": {
+    "before_native": 87,
+    "after_native": 97,
+    "compiler_stage": 135
+  },
+  "build_tools": "pip==26.2.1\nsetuptools==84.0.0\n",
+  "target_iid_absent": true,
+  "target_tag_absent": true,
+  "native_elf_or_bindings_pass": false,
+  "no_fixes_or_retry": true
+}

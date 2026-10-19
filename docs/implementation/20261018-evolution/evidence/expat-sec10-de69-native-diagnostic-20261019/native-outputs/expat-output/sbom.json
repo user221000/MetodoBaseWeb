@@ -1,0 +1,42 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "components": [
+    {
+      "type": "library",
+      "name": "Expat embedded in pyexpat",
+      "version": "2.8.5",
+      "pedigree": {
+        "commits": [
+          {
+            "uid": "13c5f63a7f1c52c2feee3b16a1134d4fb68e9ea0",
+            "url": "https://github.com/libexpat/libexpat/commit/13c5f63a7f1c52c2feee3b16a1134d4fb68e9ea0"
+          }
+        ],
+        "patches": [
+          {
+            "type": "backport",
+            "diff": {
+              "url": "13c5f63.patch"
+            }
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "metodobase:patched-source-sha256",
+          "value": "8c85e2537e27d7cabfa3cf21ed372505351a2617a717b8c69df6111e3c19d89c"
+        },
+        {
+          "name": "metodobase:pyexpat-elf-sha256",
+          "value": "b9bd09e752a2906ace3f3caf94fdc62fa1d883968703fce20b228ca26623ec7c"
+        },
+        {
+          "name": "metodobase:patch-target",
+          "value": "CVE-2026-77214"
+        }
+      ]
+    }
+  ]
+}

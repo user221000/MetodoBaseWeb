@@ -1,0 +1,31 @@
+"""Read the exact installed compiler helper source; no compiler instantiation/build."""
+from pathlib import Path
+import base64,hashlib,importlib,importlib.metadata,inspect,json,sys
+from setuptools._distutils.ccompiler import new_compiler
+from setuptools._distutils.sysconfig import customize_compiler
+from setuptools._distutils.unixccompiler import UnixCCompiler
+import setuptools._distutils.spawn as spawn_module
+assert importlib.metadata.version("setuptools")=="84.0.0"
+assert sys.executable=="/opt/psycopg-build-tools/bin/python"
+objects={"new_compiler":new_compiler,"customize_compiler":customize_compiler}
+for name in ("compile","_compile","spawn","link","_command_spawn","_spawn"):
+ if hasattr(UnixCCompiler,name):objects["UnixCCompiler."+name]=getattr(UnixCCompiler,name)
+objects["module_spawn"]=spawn_module.spawn
+functions={};modules={}
+for name,obj in objects.items():
+ wrapper_type=type(obj).__name__
+ if isinstance(obj,property):obj=obj.fget
+ if isinstance(obj,(classmethod,staticmethod)):obj=obj.__func__
+ obj=inspect.unwrap(obj)
+ file=Path(inspect.getsourcefile(obj))
+ assert file.is_file() and file.resolve().is_relative_to(Path("/opt/psycopg-build-tools/lib/python3.12/site-packages"))
+ raw=file.read_bytes();relative=file.relative_to("/opt/psycopg-build-tools/lib/python3.12/site-packages").as_posix()
+ modules[relative]={"bytes":len(raw),"sha256":hashlib.sha256(raw).hexdigest(),"source_base64":base64.b64encode(raw).decode()}
+ text=inspect.getsource(obj)
+ functions[name]={"observed_wrapper_type":wrapper_type,"module":obj.__module__,"qualname":getattr(obj,"__qualname__",name),"sourcefile":str(file),
+                  "module_sha256":modules[relative]["sha256"],"first_source_line":inspect.getsourcelines(obj)[1],
+                  "source":text,"source_sha256":hashlib.sha256(text.encode()).hexdigest()}
+print(json.dumps({"setuptools_version":importlib.metadata.version("setuptools"),"pip_version":importlib.metadata.version("pip"),
+ "interpreter":sys.executable,"functions":functions,"modules":modules,"compiler_instantiated":False,"compiler_function_or_build_called":False,
+ "scope":"Exact immutable-image installed source/introspection only; no variables, environment values, code flags or monkeypatches changed"}))
+

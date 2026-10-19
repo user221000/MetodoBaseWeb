@@ -1,0 +1,447 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 7d8537f..ce02d00 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -214,6 +214,8 @@ jobs:
+         python scripts/check_frontend_report.py daily-plan-data-current31.json --format counts --minimum 23
+         node tests/e2e/daily_plan_controls.cjs > daily-plan-controls-current31.json
+         python scripts/check_frontend_report.py daily-plan-controls-current31.json --format counts --minimum 17
++        node tests/e2e/daily_plan_snapshot.cjs > daily-plan-snapshot-current31.json
++        python scripts/check_frontend_report.py daily-plan-snapshot-current31.json --format counts --minimum 25
+         node tests/e2e/personal_export_context.cjs > personal-export-context-current31.json
+         python scripts/check_frontend_report.py personal-export-context-current31.json --format counts --minimum 17
+         node tests/e2e/personal_export_url_contract.cjs > personal-export-url-contract-current31.json
+@@ -232,7 +234,8 @@ jobs:
+         "followup-contracts-dashboard_followup.json" "followup-contracts-session_expiry_security.raw.json" "followup-contracts-session_expiry_security.json"
+         "followup-contracts-dashboard_followup_focus.raw.json" "followup-contracts-dashboard_followup_focus.json" "mfa-api-current31.json"
+         "mfa-state-current31.json" "mfa-consumers-current31.json" "mfa-prompt-current31.json" "daily-plan-data-current31.raw.json"
+-        "daily-plan-data-current31.json" "daily-plan-controls-current31.json" "personal-export-context-current31.json" "personal-export-url-contract-current31.json"
++        "daily-plan-data-current31.json" "daily-plan-controls-current31.json" "daily-plan-snapshot-current31.json" "personal-export-context-current31.json"
++        "personal-export-url-contract-current31.json"
+     - uses: actions/upload-artifact@v4
+       if: always()
+       with:
+@@ -273,6 +276,7 @@ jobs:
+           ${{ runner.temp }}/frontend-public/daily-plan-data-current31.raw.json
+           ${{ runner.temp }}/frontend-public/daily-plan-data-current31.json
+           ${{ runner.temp }}/frontend-public/daily-plan-controls-current31.json
++          ${{ runner.temp }}/frontend-public/daily-plan-snapshot-current31.json
+           ${{ runner.temp }}/frontend-public/personal-export-context-current31.json
+           ${{ runner.temp }}/frontend-public/personal-export-url-contract-current31.json
+           ${{ runner.temp }}/frontend-public/publication.json
+diff --git a/tests/ci_mfa31/CONTRATO.md b/tests/ci_mfa31/CONTRATO.md
+index 5201ab4..ee61f49 100644
+--- a/tests/ci_mfa31/CONTRATO.md
++++ b/tests/ci_mfa31/CONTRATO.md
+@@ -12,7 +12,7 @@ El intento anterior auténtico `eea8f773fba9b7f92241958139fcefa23b9ee1d4` perman
+ | `historical-postgres` | CWD fijo de la fuente573; exactamente 29 informes originales, incluidos índice, restore y seguimiento. Los runners28/29 reciben `--history-repository "$GITHUB_WORKSPACE"`. |
+ | `historical-image` | Docker y browsers originales sobre fuente573. Los informes publicados son una lista explícita de proyecciones, sin carpetas RAW. |
+ | `test-web`, desktop, Redis | Fuente actual; se conservan serial con cobertura, umbral, SDK, n2/shuffle, no-skips y ambos targets desktop. |
+-| `frontend-contracts` | Los otros22 módulos previos y los16 callbacks de consumo con companions reales; MFA74 y otros72 casos de cantidades/controles/exportación actuales. No se suman como criterios únicos. |
++| `frontend-contracts` | Los otros22 módulos previos y los16 callbacks de consumo con companions reales; MFA74 y otros97 casos actuales, incluidos snapshot25 (7 nuevos y18 criterios de diario repetidos). Son 32 módulos/519 ejecuciones, sin atribuirles519 criterios únicos. |
+ | `current-postgres` | Fuente actual31, 12 informes y 173 identidades completas, sin skips, errores, fallos, duplicados ni sustitución de dialecto/nodo. |
+ | `current-image` | Imagen actual, CMD/entrypoint real, migración one-shot, rol app restringido no owner y MIGRATOR ausente. Browsers actuales de imagen/MFA, R12, R24 y seguimiento con montaje real31. |
+ 
+@@ -20,6 +20,8 @@ El intento anterior auténtico `eea8f773fba9b7f92241958139fcefa23b9ee1d4` perman
+ 
+ `current-report-nodeids.json` proviene de colección offline de la fuente actual. Está fijado por SHA256 en `check_mfa31_reports.py`; editar JSON y su propio campo hash no cambia esa ancla ejecutable. `current-business-mapping.json` conserva el vínculo con cada función de negocio anterior.
+ 
++El verificador autentica por SHA256 normalizado el archivo ejecutable completo `check_mfa31_reports.py` antes de importarlo. Cada una de las132 reducciones de informes se rechaza tanto mediante `validate()` como ejecutando el CLI en un proceso real; también se ejecutan el positivo173 y el mutante de QA que sustituye sólo `main()` por `return0`. Ese mutante produce el falso éxito esperado y se rechaza por el ancla del ejecutable. El bundle e0 rechazado y sus RAW permanecen intactos.
++
+ | Informes | Casos |
+ | --- | ---: |
+ | R12 servicios / HTTP / carreras y publicación CAS | 16 / 34 / 4 |
+@@ -36,6 +38,8 @@ El test de carrera R24 conserva byte a byte el cuerpo decorado del driver indepe
+ 
+ Los fixtures browser nuevos migran su UUID real antes del arranque. Cada marcador31 compara datos leídos del motor; no se imprime30 usando Base31. La inscripción MFA incrementa `session_version` una vez: los nuevos controles de identidad conservan roles/perfiles y exigen ese delta causal, además del bump explícito de revocación. No se alteran los controles originales de la fuente histórica.
+ 
++Todos los marcadores PostgreSQL y el inventario de imagen emiten `application_role_restricted_nonowner` desde las consultas reales de cuatro flags de rol y del owner de la base. El campo es obligatorio y debe ser exactamente `true`; ausencia, cadenas, números y `false` se rechazan. Los canarios estáticos ejecutan únicamente esos fragmentos con resultados SQL simulados para las cuatro fuentes; no sustituyen su futura ejecución PostgreSQL.
++
+ ## Privacidad y ciclo de vida
+ 
+ Los logs completos, pares, challenges, semillas, kits, grants y configuración permanecen en directorios privados del runner; los archivos de credenciales tienen modo0600. Ningún valor secreto se pasa por argv o `docker inspect Env`. La imagen recibe un env-file privado y se identifica por ID exacto, image ID y label nonce. El cierre sólo usa el CID propio validado; los fixtures conservan su finalizador de UUID y los controladores esperan la salida del Popen propio. Los flags cap-drop/NNP/read-only son flags del laboratorio, no defaults del Dockerfile.
+diff --git a/tests/ci_mfa31/current-browser-mapping.json b/tests/ci_mfa31/current-browser-mapping.json
+index 5d4790b..acd1b66 100644
+--- a/tests/ci_mfa31/current-browser-mapping.json
++++ b/tests/ci_mfa31/current-browser-mapping.json
+@@ -3,7 +3,7 @@
+     "historical_file": "tests/e2e/member_link_postgres_server.py",
+     "historical_normalized_sha256": "4933f0fe7427f1c01975b5eda50f0d736a847046f86a1bd68e3f101bd515d0b5",
+     "current_file": "tests/e2e/member_link31_postgres_server.py",
+-    "current_sha256": "c03ee8fcab87bfbd80a41c6fb3a38054ca62c5f32ee61c063f9723f936b998bc",
++    "current_sha256": "1ab7d756eac90c10b3c928f94e054f1318106814ec408382838414014ad43c23",
+     "changes": [
+       "Actual migrated30/restricted-PG/browser fixture",
+       "20261019_personal_history_index",
+@@ -12,7 +12,8 @@
+       "marker={'fixture':",
+       "then upgrade its SAME owned UUID."
+     ],
+-    "current31_auth_scope": "Explicit enrollment increments session_version once; all business identity/role/profile assertions retained with that causal delta. Actual factor recovery pair, never manufactured old metadata."
++    "current31_auth_scope": "Explicit enrollment increments session_version once; all business identity/role/profile assertions retained with that causal delta. Actual factor recovery pair, never manufactured old metadata.",
++    "current31_role_witness": "Required marker is the actual SQL result: four restricted-role flags and current database nonowner; never an unconditional literal."
+   },
+   {
+     "historical_file": "tests/e2e/member_link_browser.cjs",
+@@ -62,7 +63,7 @@
+     "historical_file": "tests/e2e/followup_server.py",
+     "historical_normalized_sha256": "829a853fb111abe140dcc119c3f955e732ee8b61ce58f830a510857d65f0a36d",
+     "current_file": "tests/e2e/followup31_server.py",
+-    "current_sha256": "9c8b56d7a2e8c59149cf3ea7ac6ec224f0323ad5b610d50bf5364c55f35fdff3",
++    "current_sha256": "2027116a22083baa63b17cfba74732985f248fb1279f78db95c3e3ae9fd3ceac",
+     "changes": [
+       "20261019_personal_history_index",
+       "physical_tables==30 and len(Base.metadata.tables)==29",
+@@ -71,7 +72,8 @@
+       "tests/e2e/dashboard_followup_browser.cjs",
+       "block_external_sockets()\nos.environ.update(cfg)"
+     ],
+-    "current31_auth_scope": "Explicit enrollment increments session_version once; all business identity/role/profile assertions retained with that causal delta. Actual factor recovery pair, never manufactured old metadata."
++    "current31_auth_scope": "Explicit enrollment increments session_version once; all business identity/role/profile assertions retained with that causal delta. Actual factor recovery pair, never manufactured old metadata.",
++    "current31_role_witness": "Required marker is the actual SQL result: four restricted-role flags and current database nonowner; never an unconditional literal."
+   },
+   {
+     "historical_file": "tests/e2e/dashboard_followup_browser.cjs",
+@@ -93,7 +95,7 @@
+     "historical_file": "tests/e2e/daily_plan_server.py",
+     "historical_normalized_sha256": "7bc58bcd85eb14565c72d7ce5f6f0043a2e619ffcdc97e5415178e428d55523b",
+     "current_file": "tests/e2e/daily_plan31_server.py",
+-    "current_sha256": "e37e326c6e394ffaedf4c20ef03af800465afa7dcaa067628b9cb8183119acba",
++    "current_sha256": "f39c403696e109207cede77bb3baa4266b55ca8a2f68e72acb9ac203135f932d",
+     "changes": [
+       "runtime30",
+       "20261019_personal_history_index",
+@@ -103,7 +105,8 @@
+       "own=prepare_environment(discard_inherited=True).resolve();block_external_sockets()",
+       "'model_tables':len(Base.metadata.tables),"
+     ],
+-    "current31_auth_scope": "Explicit enrollment increments session_version once; all business identity/role/profile assertions retained with that causal delta. Actual factor recovery pair, never manufactured old metadata."
++    "current31_auth_scope": "Explicit enrollment increments session_version once; all business identity/role/profile assertions retained with that causal delta. Actual factor recovery pair, never manufactured old metadata.",
++    "current31_role_witness": "Required marker is the actual SQL result: four restricted-role flags and current database nonowner; never an unconditional literal."
+   },
+   {
+     "historical_file": "tests/e2e/daily_plan_browser.cjs",
+diff --git a/tests/ci_mfa31/image_inventory.py b/tests/ci_mfa31/image_inventory.py
+index 848ce6e..7721760 100644
+--- a/tests/ci_mfa31/image_inventory.py
++++ b/tests/ci_mfa31/image_inventory.py
+@@ -23,8 +23,10 @@ verify_runtime_schema(engine, expected_revision='20261019_mfa')
+ with engine.connect() as db:
+     assert len(inspect(db).get_table_names()) == 33
+     assert db.scalar(text('SELECT version_num FROM alembic_version')) == '20261019_mfa'
+-    assert tuple(db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()) == (False, False, False, False)
+-    assert db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
++    flags = db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
++    database_nonowner = db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
++    application_role_restricted_nonowner = tuple(flags) == (False, False, False, False) and database_nonowner is True
++    assert application_role_restricted_nonowner is True
+     index = history_index_signature(db)
+     assert index == expected_history_index('postgresql')
+ sources = ['web/main_web.py', 'web/database/models.py', 'web/routes/mfa.py',
+@@ -32,6 +34,8 @@ sources = ['web/main_web.py', 'web/database/models.py', 'web/routes/mfa.py',
+            'web/static/js/mfa-ui.js', 'entrypoint.sh']
+ print(json.dumps({'complete': True, 'model_tables': 32, 'actual_tables': 33,
+     'runtime_revision': expected_head(), 'history_order_index': index,
+-    'restricted_nonowner': True, 'migrator_absent_in_exec_child_and_pid1': True,
++    'restricted_nonowner': application_role_restricted_nonowner,
++    'application_role_restricted_nonowner': application_role_restricted_nonowner,
++    'migrator_absent_in_exec_child_and_pid1': True,
+     'actual_pid1_main_web': True, 'lab_cap_eff_zero_no_new_privs': True,
+     'sources_sha256': {name: hashlib.sha256(Path('/app', name).read_bytes()).hexdigest() for name in sources}}))
+diff --git a/tests/ci_mfa31/run_current_browser.py b/tests/ci_mfa31/run_current_browser.py
+index e157122..a8422d4 100644
+--- a/tests/ci_mfa31/run_current_browser.py
++++ b/tests/ci_mfa31/run_current_browser.py
+@@ -107,8 +107,7 @@ def fixture(argv: list[str], phase: Path, name: str, environment: dict, stop_fil
+ def validate_pg_marker(value, pid):
+     assert value['pid'] == pid and value['runtime_revision'] == '20261019_mfa'
+     assert value['model_tables'] == 32 and value['actual_tables'] == 33
+-    if 'application_role_restricted_nonowner' in value:
+-        assert value['application_role_restricted_nonowner'] is True
++    assert value['application_role_restricted_nonowner'] is True
+ 
+ 
+ def require_browser_report(path: Path, count: int, *, list_name='checks', completed=None) -> None:
+@@ -174,6 +173,7 @@ def image(tag: str, phase: Path, environment: dict) -> None:
+                       stdin=(ROOT / 'tests/ci_mfa31/image_inventory.py').read_bytes())
+         inventory = json.loads(raw)
+         assert inventory['complete'] is True
++        assert inventory['application_role_restricted_nonowner'] is True
+         for name, digest in inventory['sources_sha256'].items():
+             assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest
+         (phase / 'image-inventory.json').write_bytes(raw)
+diff --git a/tests/ci_mfa31/workflow.py b/tests/ci_mfa31/workflow.py
+index e30ab18..d5691c5 100644
+--- a/tests/ci_mfa31/workflow.py
++++ b/tests/ci_mfa31/workflow.py
+@@ -26,7 +26,7 @@ CURRENT_REPORT_COMMANDS = (
+     ('diary', ['tests/integration_personal_diary_postgres.py', 'tests/integration_personal_diary_security_review.py'], ''),
+ )
+ CURRENT_VM = {'mfa_api': 28, 'mfa_state': 30, 'mfa_consumers': 8, 'mfa_prompt': 8,
+-              'daily_plan_data': 23, 'daily_plan_controls': 17,
++              'daily_plan_data': 23, 'daily_plan_controls': 17, 'daily_plan_snapshot': 25,
+               'personal_export_context': 17, 'personal_export_url_contract': 15}
+ 
+ 
+diff --git a/tests/e2e/daily_plan31_server.py b/tests/e2e/daily_plan31_server.py
+index 1d631fa..f1cb939 100644
+--- a/tests/e2e/daily_plan31_server.py
++++ b/tests/e2e/daily_plan31_server.py
+@@ -69,8 +69,10 @@ def main():
+     verify_runtime_schema(engine,require_revision=True)
+     with engine.connect() as connection:
+         revision=connection.execute(text('SELECT version_num FROM alembic_version')).scalar_one()
+-        assert tuple(connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one())==(False,False,False,False)
+-        assert connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
++        flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
++        database_nonowner=connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
++        application_role_restricted_nonowner=tuple(flags)==(False,False,False,False) and database_nonowner is True
++        assert application_role_restricted_nonowner is True
+         assert connection.execute(text("SELECT count(*) FROM pg_class WHERE relname IN ('personal_diary_days','client_account_links','client_plan_publications') AND relrowsecurity AND relforcerowsecurity")).scalar_one()==3
+     resource.update(role_super=False,role_bypass=False,app_database_owner=False,force_rls_families=3,runtime_revision=revision)
+     assert revision==expected_head()=='20261019_mfa'
+@@ -124,6 +126,7 @@ def main():
+     hashes=lambda:{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in names}
+     assert len(Base.metadata.tables)==32 and len(__import__('sqlalchemy').inspect(engine).get_table_names())==33
+     before=hashes();startup={'fixture':'r24-daily-plan31','pid':os.getpid(),'origin':origin,'runtime_revision':revision,'model_tables':len(Base.metadata.tables),'actual_tables':len(__import__('sqlalchemy').inspect(engine).get_table_names()),
++        'application_role_restricted_nonowner':application_role_restricted_nonowner,
+         'preparation':'actual Alembic31 on own UUID PostgreSQL restricted runtime role, real HTTP registrations/worker, synthetic persisted subscriptions only, no-send email boundary',
+         'external_sockets':'blocked before product imports; not an OS sandbox','sources':before}
+     (private/'startup.json').write_text(json.dumps(startup,indent=2),encoding='utf8');print(json.dumps({'fixture':startup['fixture'],'pid':os.getpid(),'origin':origin,'runtime_revision':revision,'source_count':len(before)}),flush=True)
+diff --git a/tests/e2e/followup31_server.py b/tests/e2e/followup31_server.py
+index 8596ef4..85ecb91 100644
+--- a/tests/e2e/followup31_server.py
++++ b/tests/e2e/followup31_server.py
+@@ -70,6 +70,10 @@ try:
+     assert physical_tables==33 and len(Base.metadata.tables)==32
+     assert history_index==expected_history_index('postgresql')
+     with app_engine.connect() as connection:
++        flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
++        database_nonowner=connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
++        application_role_restricted_nonowner=tuple(flags)==(False,False,False,False) and database_nonowner is True
++        assert application_role_restricted_nonowner is True
+         restricted=connection.execute(text("SELECT r.rolsuper,r.rolbypassrls,"
+             "current_user=pg_get_userbyid(c.relowner),c.relrowsecurity,c.relforcerowsecurity "
+             "FROM pg_roles r CROSS JOIN pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
+@@ -107,7 +111,7 @@ try:
+     report={'fixture':'r23-followup-real-pg31','pid':os.getpid(),'port':args.port,'database':name,
+         'runtime_revision':revision,'revision_method':'SELECT alembic_version after db_bootstrap --revision head',
+         'model_tables':len(Base.metadata.tables),'model_tables_method':'ORM metadata count, not a migration claim',
+-        'actual_tables':physical_tables,'history_order_index':history_index,'application_role_restricted_nonowner':True,
++        'actual_tables':physical_tables,'history_order_index':history_index,'application_role_restricted_nonowner':application_role_restricted_nonowner,
+         'providers':'disabled; outbound sockets guarded; fixture synthetic only',
+         'sources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in names}}
+     args.report.write_bytes((json.dumps(report,indent=2)+'\n').encode())
+diff --git a/tests/e2e/member_link31_postgres_server.py b/tests/e2e/member_link31_postgres_server.py
+index 30a5116..8c49ec3 100644
+--- a/tests/e2e/member_link31_postgres_server.py
++++ b/tests/e2e/member_link31_postgres_server.py
+@@ -85,8 +85,9 @@ def main():
+         assert expected_head()=='20261019_mfa'
+         with app.connect() as connection:
+             flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
+-            assert tuple(flags)==(False,False,False,False)
+-            assert connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
++            database_nonowner=connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
++            application_role_restricted_nonowner=tuple(flags)==(False,False,False,False) and database_nonowner is True
++            assert application_role_restricted_nonowner is True
+             actual_revision=connection.execute(text('SELECT version_num FROM alembic_version')).scalar_one()
+             runtime_history_index=history_index_signature(connection)
+         assert actual_revision==expected_head()
+@@ -178,7 +179,7 @@ def main():
+                 'database_kind':'postgresql','executed_revision':actual_revision,'model_target_revision':expected_head(),
+                 'business_contract_revision':'20261019_client_account_links','history_order_index':runtime_history_index,
+                 'model_tables':len(Base.metadata.tables),'actual_tables':len(inspect(admin).get_table_names()),
+-                'application_role_restricted_nonowner':True,'runtime_pool_size':app.pool.size(),'runtime_max_overflow':app.pool._max_overflow,'mail_transport':'private-filesystem-after-commit-witness',
++                'application_role_restricted_nonowner':application_role_restricted_nonowner,'runtime_pool_size':app.pool.size(),'runtime_max_overflow':app.pool._max_overflow,'mail_transport':'private-filesystem-after-commit-witness',
+                 'R12_API_doubles':False,'source_plan_pdf':'Synthetic four-meal JSON and labelled local bytes; not a generation/provider demonstration',
+                 'outbound_socket_guard':'loopback-only in-process','first_party_origin':origin}
+         (out/'startup.json').write_text(json.dumps(marker,indent=2)+'\n',encoding='utf8')
+diff --git a/tests/test_mfa31_ci_trust.py b/tests/test_mfa31_ci_trust.py
+index 4e7b244..9235bd3 100644
+--- a/tests/test_mfa31_ci_trust.py
++++ b/tests/test_mfa31_ci_trust.py
+@@ -2,10 +2,12 @@
+ from __future__ import annotations
+ 
+ import io
++import ast
+ import json
+ import os
+ from pathlib import Path
+ import sys
++import subprocess
+ import xml.etree.ElementTree as ET
+ import zipfile
+ 
+@@ -15,6 +17,12 @@ from tests import check_mfa31_reports as checker
+ from tests import run_reviewed_ci30 as history
+ from tests.ci_mfa31 import publish
+ from tests.ci_mfa31 import run_current_browser as controller
++from tests import verify_mfa31_ci as verifier
++
++
++def checker_cli(path, directory):
++    return subprocess.run([sys.executable, '-X', 'utf8', '-B', str(path), '--directory', str(directory)],
++                          capture_output=True, timeout=15)
+ 
+ 
+ def write_reports(directory):
+@@ -30,6 +38,9 @@ def write_reports(directory):
+ def test_all_exact_current31_nodes_are_required(tmp_path):
+     write_reports(tmp_path)
+     assert checker.validate(tmp_path) == 173
++    result = checker_cli(checker.__file__, tmp_path)
++    assert result.returncode == 0
++    assert json.loads(result.stdout)['passed_nodes'] == 173
+ 
+ 
+ @pytest.mark.parametrize('report', tuple(checker.required_reports()))
+@@ -63,6 +74,92 @@ def test_each_current31_boundary_rejects_reduction_or_substitution(tmp_path, rep
+         ET.ElementTree(root).write(path, encoding='utf8', xml_declaration=True)
+     with pytest.raises((ValueError, OSError, ET.ParseError)):
+         checker.validate(tmp_path)
++    result = checker_cli(checker.__file__, tmp_path)
++    assert result.returncode == 1 and not result.stdout
++
++
++def test_main_only_false_success_mutant_is_not_a_trusted_checker(tmp_path):
++    source = Path(checker.__file__).read_text(encoding='utf8')
++    function = next(node for node in ast.parse(source).body
++                    if isinstance(node, ast.FunctionDef) and node.name == 'main')
++    lines = source.splitlines(keepends=True)
++    mutant = ''.join(lines[:function.lineno - 1]) + 'def main() -> int:\n    return 0\n' + ''.join(lines[function.end_lineno:])
++    path = tmp_path / 'checker-main-false-success.py'
++    path.write_text(mutant, encoding='utf8')
++    # Reproduce QA's real process false success, then reject that executable.
++    result = checker_cli(path, tmp_path)
++    assert result.returncode == 0 and not result.stdout
++    with pytest.raises(ValueError, match='executable differs'):
++        verifier.verify_report_checker(path)
++
++
++@pytest.mark.parametrize('value', [None, False, 0, 1, 'true', 'absent'])
++def test_current_pg_marker_requires_exact_true_physical_role_witness(value):
++    marker = {'pid': 123, 'runtime_revision': '20261019_mfa', 'model_tables': 32, 'actual_tables': 33}
++    if value != 'absent':
++        marker['application_role_restricted_nonowner'] = value
++    with pytest.raises((AssertionError, KeyError)):
++        controller.validate_pg_marker(marker, 123)
++
++
++def test_current_pg_marker_accepts_complete_required_witness():
++    marker = {'pid': 123, 'runtime_revision': '20261019_mfa', 'model_tables': 32, 'actual_tables': 33,
++              'application_role_restricted_nonowner': True}
++    controller.validate_pg_marker(marker, 123)
++
++
++@pytest.mark.parametrize('name', ['tests/e2e/member_link31_postgres_server.py',
++                                'tests/e2e/followup31_server.py', 'tests/e2e/daily_plan31_server.py',
++                                'tests/ci_mfa31/image_inventory.py'])
++@pytest.mark.parametrize('flags,nonowner,accepted', [
++    ((False, False, False, False), True, True),
++    ((False, False, False, False), False, False),
++    ((True, False, False, False), True, False),
++    ((False, True, False, False), True, False),
++    ((False, False, True, False), True, False),
++    ((False, False, False, True), True, False),
++])
++def test_each_pg_marker_uses_the_actual_sql_result_before_acceptance(name, flags, nonowner, accepted):
++    tree = ast.parse((history.ROOT / name).read_text(encoding='utf8'))
++    statements = {}
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
++            if node.targets[0].id in {'flags', 'database_nonowner', 'application_role_restricted_nonowner'}:
++                assert node.targets[0].id not in statements
++                statements[node.targets[0].id] = node
++    assert set(statements) == {'flags', 'database_nonowner', 'application_role_restricted_nonowner'}
++    class Connection:
++        query = ''
++
++        def execute(self, query):
++            self.query = query
++            return self
++
++        def one(self):
++            assert 'rolsuper,rolbypassrls,rolcreatedb,rolcreaterole' in self.query
++            assert 'rolname=current_user' in self.query
++            return flags
++
++        def scalar_one(self):
++            assert 'pg_get_userbyid(datdba)<>current_user' in self.query
++            assert 'datname=current_database()' in self.query
++            return nonowner
++
++        def scalar(self, query):
++            return self.execute(query).scalar_one()
++    connection = Connection()
++    namespace = {'connection': connection, 'db': connection, 'text': lambda value: value}
++    block = ast.Module(body=[statements[key] for key in ('flags', 'database_nonowner',
++                                                       'application_role_restricted_nonowner')], type_ignores=[])
++    exec(compile(block, name, 'exec'), namespace)
++    assert namespace['application_role_restricted_nonowner'] is accepted
++    emitted = [value for item in ast.walk(tree) if isinstance(item, ast.Dict)
++               for key, value in zip(item.keys, item.values)
++               if isinstance(key, ast.Constant) and key.value == 'application_role_restricted_nonowner']
++    assert len(emitted) == 1 and isinstance(emitted[0], ast.Name)
++    assert emitted[0].id == 'application_role_restricted_nonowner'
++    required_assert = ast.dump(ast.parse('application_role_restricted_nonowner is True', mode='eval').body)
++    assert any(isinstance(node, ast.Assert) and ast.dump(node.test) == required_assert for node in ast.walk(tree))
+ 
+ 
+ @pytest.mark.parametrize('name', ['../escape', '/absolute', 'a//b', 'a/./b', 'a/../b', 'a\\b',
+diff --git a/tests/verify_mfa31_ci.py b/tests/verify_mfa31_ci.py
+index eb35efe..7b7752f 100644
+--- a/tests/verify_mfa31_ci.py
++++ b/tests/verify_mfa31_ci.py
+@@ -21,17 +21,37 @@ import sys
+ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT))
+ 
++# Authenticate the executable checker before importing its API. API-only
++# canaries cannot detect a replacement main() that unconditionally returns 0.
++REPORT_CHECKER_SHA256 = 'b375cfda1eedefa1716af5150a9d7935c27f7e3b4e4f1fe21548aeead8e04484'
++
++
++def verify_report_checker(path: Path) -> None:
++    if path.is_symlink() or not path.is_file() or path.resolve() != path.absolute():
++        raise ValueError('Current31 report checker is missing or aliased')
++    if hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest() != REPORT_CHECKER_SHA256:
++        raise ValueError('Current31 report checker executable differs from its reviewed source')
++
++
++verify_report_checker(ROOT / 'tests/check_mfa31_reports.py')
++
+ import yaml
+ from tests.check_mfa31_reports import required_reports
+ from tests.ci_mfa31.workflow import expected_workflow, CURRENT_VM
+ from tests.run_reviewed_ci30 import new_directory, require, trusted_baseline, REVISION
+ 
+ MEMBER31_SHA256 = '4b8db35bfac09bef72b32940dab81245a316385d7a78a05a1c725b67b4167be6'
++SNAPSHOT_SHA256 = 'e61033118012fb2357ae978ab28171a9f0b41f54a9f559b18a487ffcfd275fa0'
++DIARY_CONTROLLER_SHA256 = 'e6b407d7b68a8536a14e4b195a4728f5f79edc1f7b5d24529b76715666bd5e10'
+ MAPPING_SHA256 = '16b09c49bd3a84eb4849586465664ac5f86e85ea77dcb5d940c4e5c54889d6a7'
+-BROWSER_MAPPING_SHA256 = '0667d88971c8515ef9331183f3d6cb9b215a9287cfffe11fd0345fa088e59529'
++BROWSER_MAPPING_SHA256 = 'f7c779a99e18f59a36b42f96cf223bc0f9e94e7e6b1b67c9bcb896ff8bdb854a'
+ 
+ 
+ def verify_workflow(actual: dict) -> None:
++    require(CURRENT_VM == {'mfa_api': 28, 'mfa_state': 30, 'mfa_consumers': 8, 'mfa_prompt': 8,
++            'daily_plan_data': 23, 'daily_plan_controls': 17, 'daily_plan_snapshot': 25,
++            'personal_export_context': 17, 'personal_export_url_contract': 15},
++            'Current31 must retain all snapshot25 executions: 7 new and18 replayed criteria')
+     require(actual == expected_workflow(), 'CI31 differs from the exact reviewed historical/current composition')
+ 
+ 
+@@ -118,6 +138,11 @@ def verify_current_sources() -> dict:
+         require(endpoint in helper, 'Current31 fixture omitted a real MFA protocol stage')
+     member = (ROOT / 'tests/e2e/member_link_consumers31.cjs').read_bytes().replace(b'\r\n', b'\n')
+     require(hashlib.sha256(member).hexdigest() == MEMBER31_SHA256, 'Current31 companion/DOM fixture differs from reviewed root freeze')
++    for name, digest in [('daily_plan_snapshot.cjs', SNAPSHOT_SHA256),
++                         ('personal_diary_controller.cjs', DIARY_CONTROLLER_SHA256)]:
++        raw = (ROOT / 'tests/e2e' / name).read_bytes().replace(b'\r\n', b'\n')
++        require(hashlib.sha256(raw).hexdigest() == digest,
++                'Current31 snapshot25 or its18 original diary criteria changed')
+     reports = required_reports()
+     # Import actual ORM/revision only after process-local test isolation. This
+     # reads model metadata and version files, never connects to PostgreSQL.

@@ -89,3 +89,8 @@ HistóricoCI31 cambia justificadamente deeea8postR24(3rojosinfrafixture) a57335e
 ## Checkpoint 120
 
 No atribuir los quince grupos Chrome c669 a la corrección UX19 posterior. No sumar los veinte replays de QA como casos nuevos. Exigir snapshot25 en el CI actual y confirmación obligatoria de rol restringido en los marcadores; la revisión CLI continúa antes de PostgreSQL.
+
+
+## Checkpoint 121
+
+Los canarios offline no son PostgreSQL y los replays no son casos nuevos. Un target compilado no acredita procedencia vacía ni superficie ELF alterada. Preservar D60 rojo y de69 sin reconstruirlo para disfrazar resultados. DDL32 queda reservado a R25; el contrato no autoriza copiar diarios, inferir ingesta ni conclusiones clínicas.

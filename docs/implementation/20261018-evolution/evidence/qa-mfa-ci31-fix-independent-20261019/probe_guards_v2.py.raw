@@ -1,0 +1,91 @@
+"""Additional offline role-source, paired-snapshot and coverage controls."""
+import ast, copy, hashlib, json, os, subprocess, sys
+from pathlib import Path
+R=Path('F:/mb-mfa-ci31-fix-qa-20261019');M=Path('F:/mb-mfa-ci31-fix-cli-mutant-qa-20261019');T=Path(__file__).parent
+E=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa-ci31-fix-independent-20261019')
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+os.chdir(R);sys.path.insert(0,str(R))
+from tests.isolation import prepare_environment,block_external_sockets
+prepare_environment(discard_inherited=True);block_external_sockets()
+from tests import verify_mfa31_ci as verifier
+from tests.ci_mfa31 import run_current_browser as controller
+from tests.ci_mfa31.workflow import expected_workflow
+results=[]
+def rejected(label,fn):
+    try:fn()
+    except (AssertionError,KeyError,ValueError):results.append({'case':label,'passed':True})
+    else:raise AssertionError(label+' was accepted')
+base={'pid':12345,'runtime_revision':'20261019_mfa','model_tables':32,'actual_tables':33}
+rejected('original missing role witness',lambda:controller.validate_pg_marker(base,12345))
+for value in [False,0,1,'true',None]:
+    rejected('role witness exact true, rejects '+repr(value),lambda value=value:controller.validate_pg_marker({**base,'application_role_restricted_nonowner':value},12345))
+controller.validate_pg_marker({**base,'application_role_restricted_nonowner':True},12345)
+results.append({'case':'complete current31 role marker positive','passed':True})
+original=dict(verifier.CURRENT_VM)
+try:
+    verifier.CURRENT_VM.pop('daily_plan_snapshot')
+    # The expected workflow helper now agrees with the weakened map; the
+    # verifier's independent literal must still reject the paired omission.
+    mutant=expected_workflow()
+    rejected('paired map plus generated workflow omit snapshot25',lambda:verifier.verify_workflow(mutant))
+finally:
+    verifier.CURRENT_VM.clear();verifier.CURRENT_VM.update(original)
+
+sql_rows=[]
+paths=['tests/e2e/member_link31_postgres_server.py','tests/e2e/followup31_server.py','tests/e2e/daily_plan31_server.py','tests/ci_mfa31/image_inventory.py']
+for name in paths:
+    source=(R/name).read_text(encoding='utf8');tree=ast.parse(source)
+    assignments={}
+    for n in ast.walk(tree):
+        if isinstance(n,ast.Assign)and len(n.targets)==1 and isinstance(n.targets[0],ast.Name)and n.targets[0].id in {'flags','database_nonowner','application_role_restricted_nonowner'}:
+            assert n.targets[0].id not in assignments;assignments[n.targets[0].id]=n
+    assert set(assignments)=={'flags','database_nonowner','application_role_restricted_nonowner'}
+    for flags,nonowner,expected in [((False,)*4,True,True),((False,)*4,False,False),*((tuple(i==j for i in range(4)),True,False)for j in range(4))]:
+        class Connection:
+            query=''
+            def execute(self,q):self.query=str(q);return self
+            def one(self):
+                assert 'rolsuper,rolbypassrls,rolcreatedb,rolcreaterole' in self.query and 'rolname=current_user' in self.query
+                return flags
+            def scalar_one(self):
+                assert 'pg_get_userbyid(datdba)<>current_user' in self.query and 'datname=current_database()' in self.query
+                return nonowner
+            def scalar(self,q):return self.execute(q).scalar_one()
+        conn=Connection();ns={'db':conn,'connection':conn,'text':lambda x:x}
+        block=ast.Module(body=[assignments[k]for k in ('flags','database_nonowner','application_role_restricted_nonowner')],type_ignores=[])
+        exec(compile(block,name,'exec'),ns)
+        assert ns['application_role_restricted_nonowner'] is expected
+        sql_rows.append({'source':name,'flags':list(flags),'database_nonowner':nonowner,'expected':expected,'derived_exact':True})
+    emitted=[n for n in ast.walk(tree)if isinstance(n,ast.Dict)for k,n in zip(n.keys,n.values)if isinstance(k,ast.Constant)and k.value=='application_role_restricted_nonowner']
+    assert len(emitted)==1 and isinstance(emitted[0],ast.Name)and emitted[0].id=='application_role_restricted_nonowner'
+    # Mutate only the emitted JSON witness in our separate throwaway tree.
+    target=M/name;original_source=target.read_bytes();lines=source.splitlines(keepends=True);value=emitted[0];line=lines[value.lineno-1];lines[value.lineno-1]=line[:value.col_offset]+'True'+line[value.end_col_offset:];target.write_text(''.join(lines),encoding='utf8',newline='\n')
+    previous=verifier.ROOT
+    try:
+        verifier.ROOT=M
+        if name=='tests/ci_mfa31/image_inventory.py':
+            # Image inventory's executable AST is guarded by this maintained
+            # FULL205 unit, rather than the browser-source mapping function.
+            from tests import test_mfa31_ci_trust as trust
+            oldroot=trust.history.ROOT
+            try:
+                trust.history.ROOT=M
+                rejected('forged true image marker rejected by maintained FULL AST unit',lambda:trust.test_each_pg_marker_uses_the_actual_sql_result_before_acceptance(name,(False,False,False,False),True,True))
+            finally:trust.history.ROOT=oldroot
+        else:
+            rejected('forged true source marker rejected by source mapping '+name,verifier.verify_current_sources)
+    finally:
+        verifier.ROOT=previous;target.write_bytes(original_source)
+proof={'own_results':results,'SQL_expression_truth_cases':sql_rows,'SQL_scope':'Actual maintained SQL expressions executed against typed local row doubles; no PostgreSQL connection. Actual SQL role proof pending real173 phase.','loaded_modules':{n:str(Path(m.__file__).resolve().relative_to(R))for n,m in list(sys.modules.items())if n.split('.')[0]in{'web','api','core','tests'}and getattr(m,'__file__',None)and Path(m.__file__).resolve().is_relative_to(R)}}
+for n,m in list(sys.modules.items()):
+    if n.split('.')[0]in{'web','api','core','tests'}and getattr(m,'__file__',None):assert Path(m.__file__).resolve().is_relative_to(R)
+(E/'own-guards-review.json').write_text(json.dumps(proof,indent=2)+'\n')
+snapshot=subprocess.run(['C:/Program Files/nodejs/node.exe',str(R/'tests/e2e/daily_plan_snapshot.cjs')],capture_output=True,cwd=T)
+(T/'snapshot25.raw.json').write_bytes(snapshot.stdout);(T/'snapshot25.stderr.log').write_bytes(snapshot.stderr);assert snapshot.returncode==0
+normal=subprocess.run([sys.executable,str(R/'tests/e2e/normalize_followup_report.py'),str(T/'snapshot25.raw.json'),str(T/'snapshot25.normalized.json'),'--kind','counts','--minimum','25'],capture_output=True,cwd=T)
+(T/'snapshot-normalizer.log').write_bytes(normal.stdout+normal.stderr);assert normal.returncode==0
+check=subprocess.run([sys.executable,str(R/'scripts/check_frontend_report.py'),str(T/'snapshot25.normalized.json'),'--format','counts','--minimum','25'],capture_output=True,cwd=T)
+(T/'snapshot-parser.log').write_bytes(check.stdout+check.stderr);assert check.returncode==0
+(E/'snapshot25.normalized.json').write_bytes((T/'snapshot25.normalized.json').read_bytes())
+(E/'snapshot25-review.json').write_text(json.dumps({'node_exit':0,'total':25,'declared_legacy_replays':18,'new_snapshot_cases':7,'normalizer_exit':0,'shared_parser_exit':0,'raw_report_SHA':SHA(snapshot.stdout),'source_pinned':True},indent=2)+'\n')
+print(json.dumps({'own_guard_cases':len(results),'SQL_expression_cases':len(sql_rows),'snapshot_executions':25,'snapshot_new':7,'no_PG':True}))

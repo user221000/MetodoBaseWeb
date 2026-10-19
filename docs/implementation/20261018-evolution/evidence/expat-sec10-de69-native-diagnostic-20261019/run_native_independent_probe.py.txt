@@ -1,0 +1,50 @@
+from pathlib import Path
+import io,json,hashlib,re,subprocess,sys,tarfile,time
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-de69-native-validation-20261019')
+REMOTE='/var/tmp/metodobase-expat-de69-native-20261019'
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+receipt=json.loads((RUN/'native-build-receipt.json').read_text());assert receipt['exit_code']==0
+assert lab_control.process_identity(lab_control.state())
+command="""python3 - <<'PY'
+from pathlib import Path
+import json,re,subprocess
+root=Path('/var/tmp/metodobase-expat-de69-native-20261019')
+image=(root/'expat-build.iid').read_text().strip();assert re.fullmatch('sha256:[0-9a-f]{64}',image)
+raw=subprocess.check_output(['sudo','-n','docker','image','inspect',image])
+row=json.loads(raw)[0]
+assert row['Config']['Labels']['org.opencontainers.image.revision']=='de69a85e7903f1a7217b054c0edb269dd5560999'
+assert row['Architecture']=='amd64' and row['Os']=='linux'
+report={'image_id':image,'image_inspect_sha256':__import__('hashlib').sha256(raw).hexdigest(),
+        'architecture':row['Architecture'],'os':row['Os'],'created':row['Created'],'size_bytes':row['Size'],
+        'rootfs_layers':row['RootFS']['Layers'],'label_revision':row['Config']['Labels']['org.opencontainers.image.revision']}
+print(json.dumps(report))
+PY
+"""
+r=guest_access.run(command,timeout=30)
+(RUN/'native-image-identity-raw.log').write_bytes(r.stdout+b'\nSTDERR\n'+r.stderr)
+assert r.returncode==0,r.stderr.decode()
+image=json.loads(r.stdout);(RUN/'native-image-identity-source.json').write_bytes(r.stdout)
+assert re.fullmatch('sha256:[0-9a-f]{64}',image['image_id'])
+container=['sudo','-n','docker','run','--rm','-i','--pull=never','--network=none','--read-only','--cap-drop=ALL',
+           '--security-opt=no-new-privileges','--user=65534:65534','--pids-limit=64','--memory=512m','--cpus=1',
+           '--tmpfs','/tmp:rw,nosuid,nodev,size=64m,mode=1777',image['image_id'],'python','-I','-S','-B','-']
+# Static tokens only. No value derives from user data or credentials.
+remote=' '.join(container)
+start=time.monotonic()
+with (RUN/'native_independent_probe.py').open('rb') as stream:
+ result=guest_access.run(remote,stdin=stream,timeout=180)
+(RUN/'native-independent-probe-raw.stdout').write_bytes(result.stdout)
+(RUN/'native-independent-probe-raw.stderr').write_bytes(result.stderr)
+(RUN/'native-independent-probe-receipt.json').write_text(json.dumps({'image_id':image['image_id'],'exit_code':result.returncode,'elapsed_seconds':round(time.monotonic()-start,3),
+ 'invocation':container,'probe_sha256':hashlib.sha256((RUN/'native_independent_probe.py').read_bytes()).hexdigest(),
+ 'scope':'Read-only compiler stage; no production or product flows'},indent=2)+'\n',encoding='utf-8')
+assert result.returncode==0,result.stderr.decode('utf-8','replace')
+data=json.loads(result.stdout)
+(RUN/'native-independent-probe-source.json').write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'image_id':image['image_id'],'exit_code':0,'elapsed_seconds':round(time.monotonic()-start,3),
+ 'independent_xml_cases':len(data['independent_small_binding_cases']),'builder_xml_cases':data['builder_small_binding_cases']['small_cases'],
+ 'libpq':data['psycopg']['runtime_libpq'],'openssl':data['openssl'],'exports_added':data['pyexpat_exports_added'],'exports_removed':data['pyexpat_exports_removed'],
+ 'base_identity_files_unchanged':data['base_identity_file_count']}))
+

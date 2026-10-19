@@ -1,0 +1,72 @@
+{
+  "decision": "REJECT CI31 e0c3, no PostgreSQL contract acceptance",
+  "source_head": "e0c3f8b6d7a812c2b46d73748d56da72782c9f04",
+  "findings": [
+    {
+      "label": "QA-13 proposed by root",
+      "boundary": "Current checker real CLI",
+      "expected": "Empty report directory rejected and a main-only false-success executable rejected by full guard",
+      "observed": "Original CLI1; main-only mutant CLI0; same full verifier0 and all173 offline tests green",
+      "cause": "Canaries call validate(), not actual CLI; current checker main not authenticated by executable source pin."
+    },
+    {
+      "label": "QA-14 proposed by root",
+      "boundary": "Current frontend snapshot preservation",
+      "expected": "daily_plan_snapshot.cjs25 (18 declared replays+7 new)",
+      "observed": "No workflow/current_VM reference; full guard0",
+      "scope": "Not claiming18new or25unique; no historical573 source contains R24new7."
+    },
+    {
+      "label": "QA-15 proposed by root",
+      "boundary": "Startup restricted nonowner role witness",
+      "expected": "Missing application_role_restricted_nonowner rejected",
+      "observed": "validate_pg_marker accepts missing key with31/32/33/PID; false value rejects because key present",
+      "scope": "Pure validator metadata negative, no fake physical/role acceptance."
+    }
+  ],
+  "executed": [
+    {
+      "phase": "baseline-full",
+      "workflow_canaries": 145,
+      "offline_canary_executions": 173,
+      "bash_syntax_blocks": 115,
+      "references": 138,
+      "original_XML_SHA": "b9a7ff6e922ecba74b6527b4710a04e4fbd28f10914df21eea75d751bec3a5df",
+      "original_stdout_SHA": "80de66294836cfa8bd47531567d2dce1f87954d1b2ebf4198ffbb9b344332e61",
+      "original_stderr_SHA": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "mutant-full",
+      "workflow_canaries": 145,
+      "offline_canary_executions": 173,
+      "bash_syntax_blocks": 115,
+      "references": 138,
+      "original_XML_SHA": "f958ef07237828629cb0b06bb2890ec50ced277a29bc29a28e0aec90518f2242",
+      "original_stdout_SHA": "4023f29831ddf4c3490f9c8dad7af866f6dccdc7ee33f17fba7bfde51ec9cb0d",
+      "original_stderr_SHA": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "counting": "Same173 offline criteria executed in baseline and main-mutant reviews; not173 real PostgreSQL business nodes, no global346 unique claim. Historical FULL/23VM not replayed in this rejected phase.",
+  "source_photos": {
+    "original_source_files": 10143,
+    "packages": 89,
+    "original_sources_Python_Bash_helpers_before_after_exact": true,
+    "mutant_sources_before_after_exact": "Only deliberate checker main change versus e0, then quiet for replay",
+    "pip_before": 0,
+    "pip_after": 0,
+    "source_original_WT": "F:/mb-mfa-ci31-qa-20261019",
+    "mutant_WT": "F:/mb-mfa-ci31-cli-mutant-qa-20261019"
+  },
+  "privacy": "Offline canary RAW retained Temp; public JUnit explicit structure-only projection. No private config, credentials or DB URLs read.",
+  "resources": {
+    "PostgreSQL_created": 0,
+    "Chrome_started": false,
+    "services_started": false,
+    "own_unit_inert_processes": "Maintained offline unit fixture closes its Popen; no live service/listener"
+  },
+  "source_limits": [
+    "Historical573 pin/23 helper checks invoked in current verifier; materialization/HIST FULL not repeated in this phase",
+    "No Actions/Linux/image/PG/provider/SLO claim",
+    "No author/MAIN product, workflow or maintained tests edited. Deliberate checker mutant exists only in throwaway ownWT."
+  ]
+}

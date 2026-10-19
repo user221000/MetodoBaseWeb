@@ -1,0 +1,163 @@
+from pathlib import Path
+from datetime import datetime, timezone
+import hashlib, json, re, shutil
+
+RUN = Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-de69-native-validation-20261019')
+CONTEXT = RUN.parent / 'metodobase-expat-de69-native-context-20261019'
+LAB = Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+MAIN = Path(r'F:\MetodoBaseWeb-execution-20261018')
+PUBLIC = LAB / 'evidence/expat-sec10-de69-native-diagnostic-20261019'
+
+def info(path):
+    with path.open('rb') as stream:
+        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    return {'bytes': path.stat().st_size, 'sha256': digest}
+
+def load(name):
+    return json.loads((RUN / name).read_text(encoding='utf-8'))
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=True) + '\n', encoding='utf-8')
+
+def sanitize(text):
+    text = re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])', '[REDACTED_THREE_PART_TOKEN]', text)
+    text = re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])', '[REDACTED_TWO_PART_TOKEN]', text)
+    return text
+
+assert sanitize('a' * 16 + '.' + 'b' * 16) == '[REDACTED_TWO_PART_TOKEN]'
+assert sanitize('a' * 16 + '.' + 'b' * 16 + '.' + 'c' * 16) == '[REDACTED_THREE_PART_TOKEN]'
+assert not PUBLIC.exists()
+diagnostic = load('native-diagnostic-v3-probe-source.json')
+native = load('native-build-receipt.json')
+final = load('final-readonly-capture-source.json')
+image = load('native-image-identity-source.json')
+namespace = load('namespace-comparison-source.json')
+call_flags = load('call-flags-capture-source.json')
+compiler_source = load('compiler-source-capture-source.json')
+assert native['exit_code'] == 0
+assert diagnostic['complete_acceptance'] is False and diagnostic['status'] == 'PROVENANCE_GAP'
+assert diagnostic['compiler_commands_count'] == 0 and not diagnostic['compiler_trace_complete']
+assert diagnostic['namespace_guard_ok'] is False and diagnostic['namespace_exports_equal_base'] is False
+assert diagnostic['original_pyexpat_elf']['defined_exports'] == ['PyInit_pyexpat']
+assert len(diagnostic['pyexpat_elf']['defined_exports']) == 93
+assert len(diagnostic['pyexpat_exports_added']) == 92 and diagnostic['pyexpat_exports_removed'] == []
+assert diagnostic['namespace_unprefixed_exports'] == ['XML_SetHashSalt16Bytes']
+assert diagnostic['psycopg']['compile_time_libpq'] == diagnostic['psycopg']['runtime_libpq'] == 170011
+assert len(diagnostic['independent_small_binding_cases']) == diagnostic['builder_small_binding_cases']['small_cases'] == 6
+assert final['input_hashes_unchanged'] and final['source_worktree_clean']
+assert final['owned_qemu_birth_unchanged'] and not final['guest_after']['running_containers'].strip()
+assert final['guest_after']['image_inspect_sha256'] == image['image_inspect_sha256']
+assert load('native-independent-probe-receipt.json')['exit_code'] == 1
+assert load('native-diagnostic-probe-receipt.json')['exit_code'] == 1
+assert load('native-diagnostic-v2-probe-receipt.json')['exit_code'] == 1
+assert load('native-diagnostic-v3-probe-receipt.json')['exit_code'] == 0
+provenance = json.loads((RUN / 'native-outputs/expat-output/build-provenance.json').read_text())
+assert provenance['compiler_commands'] == []
+
+prior_proofs = {}
+for label, directory, expected in [
+ ('D60 native failure', LAB / 'evidence/expat-sec10-d60-native-failed-20261019',
+  {'source.json': '3862a325749668d500a1a0201d806c72bc5d051942a8da805174ddd887a0b1f4', 'manifest.json': '099e43674b96cb6c4d03fd0feeca5d30f9336d962b17ff14828993434057318d'}),
+ ('DE69 independent static security', MAIN / 'docs/implementation/20261018-evolution/evidence/security-expat-clinic-independent-20261019',
+  {'source.json': '66f909964f8fa7cc49c4ad26ef55244a6b8399f4b5496d493a82ab5f10a79aa3', 'manifest.json': '7e0d481601b2f28622506c85437323b625776c7406abf84e3eb3b50dc8da0804'})]:
+    rows = {name: info(directory / name) for name in expected}
+    assert {name: row['sha256'] for name, row in rows.items()} == expected
+    prior_proofs[label] = {'path': str(directory), 'files': rows, 'prior_scope_unchanged': True}
+
+PUBLIC.mkdir()
+selected_json = ['host-preflight-before.json', 'guest-preflight-source.json', 'owned-qemu-fingerprint-source.json',
+ 'remote-context-source.json', 'native-build-receipt.json', 'native-image-identity-source.json',
+ 'native-output-manifest-source.json', 'native-independent-probe-receipt.json',
+ 'native-diagnostic-probe-receipt.json', 'native-diagnostic-v2-probe-receipt.json',
+ 'native-diagnostic-v3-probe-receipt.json', 'native-diagnostic-v3-probe-source.json',
+ 'namespace-comparison-source.json', 'compiler-source-capture-source.json',
+ 'call-flags-capture-source.json', 'final-readonly-capture-source.json']
+for name in selected_json:
+    shutil.copy2(RUN / name, PUBLIC / name)
+shutil.copytree(RUN / 'native-outputs', PUBLIC / 'native-outputs')
+shutil.copytree(RUN / 'installed-setuptools-source', PUBLIC / 'installed-setuptools-source')
+shutil.copytree(RUN / 'compiler-call-flags-sources', PUBLIC / 'compiler-call-flags-sources')
+shutil.copy2(CONTEXT / 'receipt.json', PUBLIC / 'exact-git-context-receipt.json')
+for name in ['native_independent_probe.py', 'native_diagnostic_probe.py', 'native_diagnostic_probe_v2.py',
+ 'run_native_build.py', 'run_native_independent_probe.py', 'run_native_diagnostic_probe.py',
+ 'run_native_diagnostic_probe_v2.py', 'run_native_diagnostic_probe_v3.py',
+ 'capture_compiler_source_probe.py', 'capture_call_flags_probe.py', 'capture_final_readonly.py', 'seal_native_diagnostic.py']:
+    shutil.copy2(RUN / name, PUBLIC / (name + '.txt'))
+for name in ['native-build-raw.log', 'native-independent-probe-raw.stderr', 'native-diagnostic-probe-raw.stderr',
+             'native-diagnostic-v2-probe-raw.stderr', 'compiler-source-capture-raw-initial.stderr']:
+    raw = (RUN / name).read_text(encoding='utf-8', errors='replace')
+    assert 'PRIVATE KEY' not in raw
+    (PUBLIC / (name + '.redacted.txt')).write_text(sanitize(raw), encoding='utf-8')
+
+errata = [
+ {'phase': 'original independent probe', 'exit_code': 1, 'cause': 'Expected five compiler command records; actual original provenance has zero. Original guard unchanged and preserved.'},
+ {'phase': 'functional diagnostic v1', 'exit_code': 1, 'cause': 'Namespace guard rejected unprefixed XML export. Subsequent base comparison independently confirmed 92 additional defined dynamic exports.'},
+ {'phase': 'functional diagnostic v2', 'exit_code': 1, 'cause': 'The private probe tmpfs default noexec prevented mapping the pinned psycopg native wheel. The target was unchanged.'},
+ {'phase': 'functional diagnostic v3', 'exit_code': 0, 'cause': 'Same v2 probe and image, explicit exec only for its disposable /tmp tmpfs. All functional checks passed; provenance and namespace guards still false.'},
+ {'phase': 'read-only source inspector initial attempt', 'cause': 'inspect.getsourcefile rejected an lru_cache wrapper. Initial attempt preserved; inspector used inspect.unwrap and recorded wrapper types without creating a compiler.'}
+]
+write(PUBLIC / 'attempts-and-limitations.json', errata)
+record = {
+ 'status': 'PROVENANCE_GAP', 'complete_acceptance': False, 'sealed_utc': datetime.now(timezone.utc).isoformat(),
+ 'source_commit': final['source_commit'], 'target': 'expat-build',
+ 'image_id': image['image_id'], 'context': info(CONTEXT / 'native-build-context.tar'), 'context_files': 12,
+ 'native_build_exit_code': native['exit_code'], 'native_build_elapsed_seconds': native['elapsed_seconds'],
+ 'native_output_tar': {'private_path': str(RUN / 'native-output-raw.tar'), **info(RUN / 'native-output-raw.tar')},
+ 'native_output_files': load('native-output-manifest-source.json'),
+ 'blockers': [
+  {'name': 'compiler command provenance absent', 'compiler_commands_count': 0,
+   'measured_cause': 'Installed setuptools 84 UnixCCompiler._compile and link call self.call directly; helper intercepts spawn. Compiler.spawn itself is a deprecated wrapper over call.',
+   'historical_argv_reconstructed_or_claimed': False},
+  {'name': 'ELF dynamic export surface differs from pinned base', 'base_exports': 1, 'new_exports': 93, 'added': 92, 'removed': 0,
+   'unprefixed_exports': diagnostic['namespace_unprefixed_exports'],
+   'measured_flags': 'Base Makefile PY_STDMODULE_CFLAGS and PY_CFLAGS_NODIST contain -fvisibility=hidden; public CFLAGS consumed by customize_compiler do not. Signed PSF namespace/config headers equal selected headers.',
+   'full_original_build_argv_known': False, 'target_flags_changed': False}
+ ],
+ 'functional_diagnostic': {'exit_code': 0, 'image_unchanged': True, 'compiler_commands_count': 0,
+  'complete_acceptance': False, 'independent_binding_cases': diagnostic['independent_small_binding_cases'],
+  'builder_binding_cases': diagnostic['builder_small_binding_cases'],
+  'compile_time_libpq': diagnostic['psycopg']['compile_time_libpq'], 'runtime_libpq': diagnostic['psycopg']['runtime_libpq'],
+  'psycopg_version': diagnostic['psycopg']['version'], 'openssl': diagnostic['openssl'],
+  'stage_package_counts': diagnostic['stage_package_counts'], 'base_identity_file_count': diagnostic['base_identity_file_count'],
+  'all_base_identity_files_unchanged': diagnostic['all_base_identity_files_unchanged'],
+  'original_elementtree_sha256': diagnostic['base_elementtree_sha256'],
+  'pyexpat_elf_sha256': diagnostic['pyexpat_elf']['sha256'],
+  'wheel_sha256': diagnostic['psycopg']['wheel_sha256'],
+  'pyexpat_needed': diagnostic['pyexpat_elf']['needed'], 'pyexpat_rpath_or_runpath': diagnostic['pyexpat_elf']['rpath_or_runpath']},
+ 'before_after': final, 'prior_proofs_preserved': prior_proofs,
+ 'attempts_preserved': errata,
+ 'source_inspection': {'setuptools': compiler_source, 'call_and_flags': call_flags, 'compiler_instantiated_or_invoked_by_inspector': False},
+ 'raw_private_directory': str(RUN),
+ 'private_raw_inventory': {p.relative_to(RUN).as_posix(): info(p) for p in sorted(RUN.rglob('*'))
+   if p.is_file() and p.name != 'seal-native-diagnostic-driver-raw.log'},
+ 'sanitization': {'public_log_projection': 'two/three component token patterns redacted; originals retained privately',
+  'expanded_wheel': 'Exact new psycopg source wheel only, inspected safe members/CRC/no vendored libs, no app data or secret input',
+  'private_key_content_read_or_published': False},
+ 'scope': {'compiler_stage_only': True, 'final_runtime_or_application_accepted': False,
+  'runtime54_claim': False, 'os71_claim': False, 'sca_or_security_closure_claim': False,
+  'mfa_or_aal2_claim': False, 'production_access_or_changes': False, 'db_connection_or_pg_proxy': False,
+  'product_or_helper_or_flags_or_locks_edited': False, 'target_rebuilt_after_diagnostic_failures': False},
+ 'lease': {'pid': 29768, 'fingerprint': final['owned_qemu_fingerprint'], 'state': 'idle retained for ROOT/Security',
+  'running_containers': False, 'close_authorized_now': False}
+}
+write(PUBLIC / 'source.json', record)
+(PUBLIC / 'REVIEW.md').write_text('''La etapa nativa DE69 compila, pero su aceptación completa sigue bloqueada. La imagen exacta conserva `compiler_commands: []` y cambia la superficie de exportaciones ELF respecto de la base fijada. Estado: `PROVENANCE_GAP`; `complete_acceptance: false`.
+
+La compilación real de `expat-build` terminó con exit 0. El diagnóstico funcional separado pasó seis casos XML propios y los seis del builder, cargó el wheel fuente psycopg2 2.9.13, confirmó libpq 170011 en compilación y ejecución, y OpenSSL 3.5.7. Los inventarios medidos son 87 → 97 → 135; 218 archivos de identidad base y `_elementtree` permanecen iguales. Expat sigue publicando versión 2.8.5 con el backport autenticado, sin alterar su etiqueta de versión.
+
+La traza vacía tiene causa comprobada en los archivos instalados de setuptools 84: `_compile` y `link` llaman a `self.call`; el helper intercepta `spawn`. La inspección fue de lectura, registró rutas, líneas y hashes, y no creó ni invocó un compilador. No se reemplaza la traza ausente por comandos deducidos del log o sysconfig.
+
+El ELF de base exporta sólo `PyInit_pyexpat`. El nuevo exporta 93 símbolos: los 92 adicionales incluyen `XML_SetHashSalt16Bytes` sin prefijo. Ambos dependen sólo de libc y no tienen RPATH/RUNPATH. Los headers de namespace/config seleccionados son idénticos a los del tar PSF firmado. El Makefile base incluye `-fvisibility=hidden` entre sus flags internos de módulos, ausente de los CFLAGS públicos usados por el helper. Es evidencia de diferencia real de visibilidad; no acredita conocer todos los argumentos históricos ni prescribe copiar ciegamente flags LTO/PGO.
+
+Se conservan los intentos fallidos: guard original de cinco comandos, guard namespace, mmap del wheel sobre tmpfs noexec y primer inspector de funciones envueltas. El diagnóstico v3 usó la misma imagen y el mismo script v2, cambiando sólo su tmpfs desechable a exec para permitir mmap del wheel. Mantiene ambos bloqueos y la aceptación falsa. No se modificó ni reconstruyó el target para adaptar las pruebas.
+
+Este sello sólo cubre la etapa compiladora y el diagnóstico descrito. No aprueba imagen runtime final, aplicación, 54 imports, OS71, SCA, SEC10, MFA/AAL2 ni producción. El contexto DE69 de 12 blobs, los contextos anteriores, sus pruebas selladas y las tres preimágenes anteriores permanecen conservados. RAW originales y scripts están inventariados en `source.json`; los logs públicos son proyecciones saneadas.
+
+La VM propia PID 29768 conserva nacimiento, ejecutable y hash de comando; SSH 53105/QMP 53106. Queda idle, sin contenedores en ejecución, bajo lease explícita de ROOT para Seguridad y reparación. No se abre PostgreSQL ni proxy y no se cierra esta VM durante el handoff.
+''', encoding='utf-8')
+manifest = {p.relative_to(PUBLIC).as_posix(): info(p) for p in sorted(PUBLIC.rglob('*')) if p.is_file()}
+write(PUBLIC / 'manifest.json', manifest)
+print(json.dumps({'status': record['status'], 'complete_acceptance': False, 'public_prefix': str(PUBLIC),
+ 'files': len(manifest), 'source_sha256': info(PUBLIC / 'source.json')['sha256'],
+ 'manifest_sha256': info(PUBLIC / 'manifest.json')['sha256'], 'raw_private_directory': str(RUN),
+ 'owned_vm_pid': 29768, 'lease': 'idle ROOT/Security'}, indent=2))

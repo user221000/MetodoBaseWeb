@@ -1,0 +1,656 @@
+{
+  "status": "NATIVE_FAILED_GENERATED_CLINIC_HEADER_OMITTED",
+  "sealed_utc": "2026-10-19T18:35:19.799340+00:00",
+  "source_commit": "d60d259c6d853483290efb65fa2d33ec14840207",
+  "context_sha256": "589c9f65805b205009823aad0806fad8252dd55acc6b3f22b0b6217fc4caafa6",
+  "context_files": 12,
+  "native_build_exit": 1,
+  "native_build_elapsed_seconds": 735.625,
+  "failed_step": "15/16",
+  "failed_container_id": "9010e255a90c0e8382323912ba4f0c1e7ded39032163c1d0a64f5f0f2be49bbd",
+  "first_failing_compiler_argv": [
+    "gcc",
+    "-fno-strict-overflow",
+    "-Wsign-compare",
+    "-DNDEBUG",
+    "-g",
+    "-O3",
+    "-Wall",
+    "-fPIC",
+    "-DHAVE_EXPAT_CONFIG_H=1",
+    "-I/usr/local/include/python3.12",
+    "-I/usr/local/include/python3.12/internal",
+    "-I/expat-output/source/Modules/expat",
+    "-c",
+    "/expat-output/source/Modules/pyexpat.c",
+    "-o",
+    "/expat-output/objects/expat-output/source/Modules/pyexpat.o",
+    "-g0",
+    "-ffile-prefix-map=/expat-output=."
+  ],
+  "causal": {
+    "status": "NATIVE_COMPILE_FAILED_MISSING_AUTHENTICATED_GENERATED_HEADER",
+    "failed_step": "15/16 RUN helper --build",
+    "failed_container_id": "9010e255a90c0e8382323912ba4f0c1e7ded39032163c1d0a64f5f0f2be49bbd",
+    "state": {
+      "Running": false,
+      "ExitCode": 1,
+      "StartedAt": "2026-10-19T18:27:43.309731356Z",
+      "FinishedAt": "2026-10-19T18:28:24.623034799Z"
+    },
+    "container_inspect_sha256": "cf7ad986b5d04649b8b5522fe72eb2d2c94a996014434031f1e7360ac64cda48",
+    "intermediate_image_id": "sha256:69f242bf48946692c8b044db709eb357b280457ae5ecbc8bd2595a30c58157a6",
+    "image_layers": [
+      "sha256:15f1c8eb1ab18eae260c7fb6296434cbe1ff0e1e30fd814ae92a80dd54005e62",
+      "sha256:e1fa2746ad6d51e7de9171dfcbb1fe93d01d51c5d8d3623e0c3b223076dc5d23",
+      "sha256:b361fa3b97940ee89a1aab8fde1027e47ab2c2e700ca2f8d5988ad2c64386e5c",
+      "sha256:dca2a125b4903477bcb42084172cfc98865299810620ffd617bf6e12dd83d89f",
+      "sha256:797bde219208946f5ed7e51a48d25aa4f95cedf7ae28faa5b604ef91c9c26b9b",
+      "sha256:5abaa708884f6e65959481287a8cfaef6276748e153b0e84e057beac6a806a86",
+      "sha256:0391d583726223ae86c87e8787d238f7f4ab0ba310cada5c2c621453490cb0ab",
+      "sha256:89a35724b8dc8f7ff0144abd7e92e63cdb43e93057bf73f00c491313a33e7b0f",
+      "sha256:627cc33056c237bda3f53f04a2ecc660181bb5d672680771f5cae05ed2f4f414",
+      "sha256:5360932f9f8271a724fbd1de4a9923a61be8e816c78fe97c09dc15b117a72e87",
+      "sha256:1b83b59258f059db3852d7079ecfcab7fe0f63cab1807f1db474d3169935acff",
+      "sha256:66e0821ad84e83f6657cbd0f0dc78eed6081f8b10388b1c4f4c30b5a805707af",
+      "sha256:4f3d0ffd4858628b3736f84a51c5c4511e95028373d6ae18c2c80daab2bc2206"
+    ],
+    "command": [
+      "/bin/sh",
+      "-c",
+      "/opt/psycopg-build-tools/bin/python -I /tmp/metodobase-expat-sec10/rebuild_pyexpat.py --build --output /expat-output"
+    ],
+    "pinned_psf_archive": {
+      "bytes": 20829824,
+      "sha256": "c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a",
+      "matches_prior_authenticated_pin": true
+    },
+    "selected_pyexpat_sha256": "f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db",
+    "include": [
+      {
+        "line": 106,
+        "source": "#include \"clinic/pyexpat.c.h\""
+      }
+    ],
+    "missing_header": {
+      "archive_member": "Python-3.12.15/Modules/clinic/pyexpat.c.h",
+      "bytes": 29204,
+      "sha256": "5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb",
+      "quoted_includes": [
+        "pycore_gc.h",
+        "pycore_runtime.h"
+      ]
+    },
+    "source_selector_count": 30,
+    "header_omitted_from_selector": true,
+    "source_preparation": {
+      "source_sha256": "c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a",
+      "fix_commit": "13c5f63a7f1c52c2feee3b16a1134d4fb68e9ea0",
+      "cve": "CVE-2026-77214",
+      "version": "2.8.5",
+      "before": {
+        "Include/pyexpat.h": "d3564a35c027eb7a0e4ddbf8659769bf4be61b0c39666c79c555249fa8b0d099",
+        "Modules/_elementtree.c": "63cd614f8edb692aecbb3322c632bfbe3fd9587d3e7dab0aa7c5f8ddef24a7c9",
+        "Modules/expat/COPYING": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+        "Modules/expat/ascii.h": "5ce49460794894b78f97060f634c129d13f2e9cc9b8dacd829f4be2dbc6e0649",
+        "Modules/expat/asciitab.h": "5792cb56f285c8876b988d875a70d49019bc7e6d5ebcd0f8224b24e695301832",
+        "Modules/expat/expat.h": "17cd1fc3b4c61d00de96091ceed0a3721d5bac9755c6d04e89d9f8a79d037c12",
+        "Modules/expat/expat_config.h": "fc918070c65fa23613e4ba5a44b3407e5eb2a503ec42fbfeebee19d9e5eb5649",
+        "Modules/expat/expat_external.h": "ec35498736485b2321610a750e5b2534399fed87dc44bc4ace529eeb5a280a53",
+        "Modules/expat/fallthrough.h": "5e42477487bca7e7caac6b832ab940f39a1a20b8765c945374e4f6c2670f55b6",
+        "Modules/expat/hash_table.h": "ad93851f86df1f4e8f85488dbac53cab3539e59d701ad747c7beea354d69e0dc",
+        "Modules/expat/iasciitab.h": "a9cd6f2cf5199ae3c29d22ee4913736fcd984f62132146a0352c88549700e83f",
+        "Modules/expat/internal.h": "0123d00963768b5779544cc54dcccad311824b192a38d3489c4fb1fbbfa33b17",
+        "Modules/expat/latin1tab.h": "b0daf8a75c690e895421f765ddb2ae2fbc1ba14694e06a3215dba84f1ff3427d",
+        "Modules/expat/memory_sanitizer.h": "377ca054fdc531360f42a5cb7c522bcbf88b6c67aebc2e29544c37d14e836bde",
+        "Modules/expat/nametab.h": "8f78e64f11e2b23df8b32cb5528cfeda6215acd6abf6bcf1ad59fdc7b1ffd105",
+        "Modules/expat/pyexpatns.h": "c95154ba28b798023705319cd52711367ff5236b6b4b03c4cf8f1bd6ab350885",
+        "Modules/expat/refresh.sh": "624c33f8444bdf3c6f2731fecb98f6ded83eaed25e2ea7db1c544375cf43f079",
+        "Modules/expat/siphash.h": "12ecc9915bccb793ea8bb543cc7d002e226f4e4d6b97ec9839dca41cbe4e2e27",
+        "Modules/expat/utf8tab.h": "3fa349a3a19143366e80a58d9aa950152ef9cd7903f557f971051410b47f335c",
+        "Modules/expat/winconfig.h": "0ab6446eb98abc492ae341ef7607b535e44dedf52633fdc7c6e1a1361aec3922",
+        "Modules/expat/xcsinc.c": "1210979a688301412f46e058d0497fa3c1c63c296c2e015834cda0f0b314875d",
+        "Modules/expat/xmlparse.c": "9a4969bb0ac497803866705f3fa233cc4b487e7685800d9222bd0ab38d1b8a20",
+        "Modules/expat/xmlrole.c": "b1ad87cc3c0d4722358a7dfb1642df7f62066d1613a0a56dc9289e7112fb3f0c",
+        "Modules/expat/xmlrole.h": "8a0b61cd6efcd7427acbc86759e9013e7a61755097a1f82cbb2a79c011af5ee5",
+        "Modules/expat/xmltok.c": "47ffd58f56f61284fd84cecd94ddad4c79cde922f57994c1525f8df1eb9272eb",
+        "Modules/expat/xmltok.h": "623dea24bc27712e2e205a0c0517c79e211234f8d1051fe46d780839f754cf9e",
+        "Modules/expat/xmltok_impl.c": "4dcd7ae88dd90bbc89d0e41ba6affb46a107ee28df3b49cb84cdf228b7cc7981",
+        "Modules/expat/xmltok_impl.h": "a5053c69219d12788088de9bd670537e1c784302766c331afe6b253460d0417d",
+        "Modules/expat/xmltok_ns.c": "ea723a3470d3eed5c4a4e873bec2f996c605326fad25709b45452664261c5465",
+        "Modules/pyexpat.c": "f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db"
+      },
+      "after": {
+        "Include/pyexpat.h": "d3564a35c027eb7a0e4ddbf8659769bf4be61b0c39666c79c555249fa8b0d099",
+        "Modules/_elementtree.c": "63cd614f8edb692aecbb3322c632bfbe3fd9587d3e7dab0aa7c5f8ddef24a7c9",
+        "Modules/expat/COPYING": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+        "Modules/expat/ascii.h": "5ce49460794894b78f97060f634c129d13f2e9cc9b8dacd829f4be2dbc6e0649",
+        "Modules/expat/asciitab.h": "5792cb56f285c8876b988d875a70d49019bc7e6d5ebcd0f8224b24e695301832",
+        "Modules/expat/expat.h": "17cd1fc3b4c61d00de96091ceed0a3721d5bac9755c6d04e89d9f8a79d037c12",
+        "Modules/expat/expat_config.h": "fc918070c65fa23613e4ba5a44b3407e5eb2a503ec42fbfeebee19d9e5eb5649",
+        "Modules/expat/expat_external.h": "ec35498736485b2321610a750e5b2534399fed87dc44bc4ace529eeb5a280a53",
+        "Modules/expat/fallthrough.h": "5e42477487bca7e7caac6b832ab940f39a1a20b8765c945374e4f6c2670f55b6",
+        "Modules/expat/hash_table.h": "ad93851f86df1f4e8f85488dbac53cab3539e59d701ad747c7beea354d69e0dc",
+        "Modules/expat/iasciitab.h": "a9cd6f2cf5199ae3c29d22ee4913736fcd984f62132146a0352c88549700e83f",
+        "Modules/expat/internal.h": "0123d00963768b5779544cc54dcccad311824b192a38d3489c4fb1fbbfa33b17",
+        "Modules/expat/latin1tab.h": "b0daf8a75c690e895421f765ddb2ae2fbc1ba14694e06a3215dba84f1ff3427d",
+        "Modules/expat/memory_sanitizer.h": "377ca054fdc531360f42a5cb7c522bcbf88b6c67aebc2e29544c37d14e836bde",
+        "Modules/expat/nametab.h": "8f78e64f11e2b23df8b32cb5528cfeda6215acd6abf6bcf1ad59fdc7b1ffd105",
+        "Modules/expat/pyexpatns.h": "c95154ba28b798023705319cd52711367ff5236b6b4b03c4cf8f1bd6ab350885",
+        "Modules/expat/refresh.sh": "624c33f8444bdf3c6f2731fecb98f6ded83eaed25e2ea7db1c544375cf43f079",
+        "Modules/expat/siphash.h": "12ecc9915bccb793ea8bb543cc7d002e226f4e4d6b97ec9839dca41cbe4e2e27",
+        "Modules/expat/utf8tab.h": "3fa349a3a19143366e80a58d9aa950152ef9cd7903f557f971051410b47f335c",
+        "Modules/expat/winconfig.h": "0ab6446eb98abc492ae341ef7607b535e44dedf52633fdc7c6e1a1361aec3922",
+        "Modules/expat/xcsinc.c": "1210979a688301412f46e058d0497fa3c1c63c296c2e015834cda0f0b314875d",
+        "Modules/expat/xmlparse.c": "8c85e2537e27d7cabfa3cf21ed372505351a2617a717b8c69df6111e3c19d89c",
+        "Modules/expat/xmlrole.c": "b1ad87cc3c0d4722358a7dfb1642df7f62066d1613a0a56dc9289e7112fb3f0c",
+        "Modules/expat/xmlrole.h": "8a0b61cd6efcd7427acbc86759e9013e7a61755097a1f82cbb2a79c011af5ee5",
+        "Modules/expat/xmltok.c": "47ffd58f56f61284fd84cecd94ddad4c79cde922f57994c1525f8df1eb9272eb",
+        "Modules/expat/xmltok.h": "623dea24bc27712e2e205a0c0517c79e211234f8d1051fe46d780839f754cf9e",
+        "Modules/expat/xmltok_impl.c": "4dcd7ae88dd90bbc89d0e41ba6affb46a107ee28df3b49cb84cdf228b7cc7981",
+        "Modules/expat/xmltok_impl.h": "a5053c69219d12788088de9bd670537e1c784302766c331afe6b253460d0417d",
+        "Modules/expat/xmltok_ns.c": "ea723a3470d3eed5c4a4e873bec2f996c605326fad25709b45452664261c5465",
+        "Modules/pyexpat.c": "f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db"
+      },
+      "changed_source_files": [
+        "Modules/expat/xmlparse.c"
+      ],
+      "scope": "Exact five-line upstream capacity guard backport; no version/header/CAPI/config/namespace changes."
+    },
+    "wheel": {
+      "name": "psycopg2-2.9.13-cp312-cp312-linux_x86_64.whl",
+      "bytes": 172180,
+      "sha256": "f32aec907a8e0dbb3215546eb651059cd7dbf240a370d33246f21942ff637dbe",
+      "built_wheel_lock": "psycopg2==2.9.13 --hash=sha256:f32aec907a8e0dbb3215546eb651059cd7dbf240a370d33246f21942ff637dbe\n",
+      "pg_config_version": "PostgreSQL 17.11 (Debian 17.11-0+deb13u1)"
+    },
+    "stage_dpkg_counts": {
+      "before_native": 87,
+      "after_native": 97,
+      "compiler_stage": 135
+    },
+    "build_tools": "pip==26.2.1\nsetuptools==84.0.0\n",
+    "target_iid_absent": true,
+    "target_tag_absent": true,
+    "native_elf_or_bindings_pass": false,
+    "no_fixes_or_retry": true
+  },
+  "input_hashes_before": {
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-expat-d60-native-context-20261019\\native-build-context.tar": {
+      "bytes": 174080,
+      "sha256": "589c9f65805b205009823aad0806fad8252dd55acc6b3f22b0b6217fc4caafa6"
+    },
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-expat-d60-native-context-20261019\\receipt.json": {
+      "bytes": 3830,
+      "sha256": "7a7cf3e4000c832579155bb2b1062847837f99a20b3b91baaa09fd2bdac14c65"
+    },
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-expat-d60-native-context-20261019\\driver.py": {
+      "bytes": 4122,
+      "sha256": "69a000ed1049fb7975f2d88b7b4a17465723556a919608298583d4f7439c4000"
+    },
+    "F:\\MetodoBaseWeb-linux-lab-20261019\\scripts\\lab_control.py": {
+      "bytes": 4634,
+      "sha256": "b5729b9ad3746bc9d18fc50f8ed14ad5acb2015326a8b9f856aadb745d1cf7d0"
+    },
+    "F:\\MetodoBaseWeb-linux-lab-20261019\\scripts\\guest_access.py": {
+      "bytes": 2148,
+      "sha256": "616b66b791140966dac837fbd58808291b165d4ae06011a1395279462f43b7a7"
+    },
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-desktop-package-20261019\\Scripts\\python.exe": {
+      "bytes": 45568,
+      "sha256": "17a467b54770abb405242623cbf1fa700c40b9d31f8c100fc7e5e2f1f43fd870"
+    },
+    "C:\\Windows\\System32\\OpenSSH\\ssh.exe": {
+      "bytes": 1246208,
+      "sha256": "c9a80ae8af88aa0ff7a08a7e65dbad0d408854d757a433c6a78ab46d8d38aad1"
+    },
+    "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe": {
+      "bytes": 25457048,
+      "sha256": "47d57a6072e0bb3bd98f87926eb129eb1736dfe818c67b3b81ef7ce4edd0b3cd"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\.dockerignore": {
+      "bytes": 436,
+      "sha256": "c9aeff97decc16af7d085a81578f4f4551ad0cad15d770a02b74b29f74da2d5f"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\Dockerfile": {
+      "bytes": 15508,
+      "sha256": "0d94653622cb859039f5d2be0d67d5a02b82197ab954fe68dcb469ded0f53e94"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-apt-metadata.lock": {
+      "bytes": 551,
+      "sha256": "38c46d40f0a9949d541e99455143eb533f65aa8e8746ee980cc8f55b968a3e4a"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-bootstrap.lock": {
+      "bytes": 240,
+      "sha256": "01cb7092ff6e66c2d52618b2076234ca877f833c067c6c3b51fd8607cebc15aa"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-build.lock": {
+      "bytes": 179,
+      "sha256": "f51592f81ddb5d3ccf8e01c7b226bde1d1def49e207ce46a8fab488075ff3638"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-psycopg.lock": {
+      "bytes": 169,
+      "sha256": "a9d2e085a0958d9b9b1907e6b737de57fd41e6c19749a5068a3182c10e033921"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container.lock": {
+      "bytes": 129576,
+      "sha256": "7b3af38025ed496e531680805870f18bbeaa62014ccfb7acc9514b302f0ff612"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\.gitattributes": {
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\13c5f63.patch": {
+      "bytes": 528,
+      "sha256": "c6c65ee12b494dac2b74e4abb1281a535bb701fcc81880254f13cb77d7a3c2aa"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\CONTRATO.md": {
+      "bytes": 2565,
+      "sha256": "69c3fa95be6e80b0f5a0bb15c0ad444f6d36b4a3e06cdb965e47a47c1c1ea12c"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\rebuild_pyexpat.py": {
+      "bytes": 10847,
+      "sha256": "9d25c6d722f19e8cd932d4b92c3b49ff8212b4fc7606dcd0e4ba2fb6fe6d473d"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\source-pins.json": {
+      "bytes": 984,
+      "sha256": "4801d7f22ead6faec6e2b1e8d2d6f8f1ab4aa62ffb7206e3c3c0ad0f8300d274"
+    }
+  },
+  "input_hashes_after": {
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-expat-d60-native-context-20261019\\native-build-context.tar": {
+      "bytes": 174080,
+      "sha256": "589c9f65805b205009823aad0806fad8252dd55acc6b3f22b0b6217fc4caafa6"
+    },
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-expat-d60-native-context-20261019\\receipt.json": {
+      "bytes": 3830,
+      "sha256": "7a7cf3e4000c832579155bb2b1062847837f99a20b3b91baaa09fd2bdac14c65"
+    },
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-expat-d60-native-context-20261019\\driver.py": {
+      "bytes": 4122,
+      "sha256": "69a000ed1049fb7975f2d88b7b4a17465723556a919608298583d4f7439c4000"
+    },
+    "F:\\MetodoBaseWeb-linux-lab-20261019\\scripts\\lab_control.py": {
+      "bytes": 4634,
+      "sha256": "b5729b9ad3746bc9d18fc50f8ed14ad5acb2015326a8b9f856aadb745d1cf7d0"
+    },
+    "F:\\MetodoBaseWeb-linux-lab-20261019\\scripts\\guest_access.py": {
+      "bytes": 2148,
+      "sha256": "616b66b791140966dac837fbd58808291b165d4ae06011a1395279462f43b7a7"
+    },
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-desktop-package-20261019\\Scripts\\python.exe": {
+      "bytes": 45568,
+      "sha256": "17a467b54770abb405242623cbf1fa700c40b9d31f8c100fc7e5e2f1f43fd870"
+    },
+    "C:\\Windows\\System32\\OpenSSH\\ssh.exe": {
+      "bytes": 1246208,
+      "sha256": "c9a80ae8af88aa0ff7a08a7e65dbad0d408854d757a433c6a78ab46d8d38aad1"
+    },
+    "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe": {
+      "bytes": 25457048,
+      "sha256": "47d57a6072e0bb3bd98f87926eb129eb1736dfe818c67b3b81ef7ce4edd0b3cd"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\.dockerignore": {
+      "bytes": 436,
+      "sha256": "c9aeff97decc16af7d085a81578f4f4551ad0cad15d770a02b74b29f74da2d5f"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\Dockerfile": {
+      "bytes": 15508,
+      "sha256": "0d94653622cb859039f5d2be0d67d5a02b82197ab954fe68dcb469ded0f53e94"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-apt-metadata.lock": {
+      "bytes": 551,
+      "sha256": "38c46d40f0a9949d541e99455143eb533f65aa8e8746ee980cc8f55b968a3e4a"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-bootstrap.lock": {
+      "bytes": 240,
+      "sha256": "01cb7092ff6e66c2d52618b2076234ca877f833c067c6c3b51fd8607cebc15aa"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-build.lock": {
+      "bytes": 179,
+      "sha256": "f51592f81ddb5d3ccf8e01c7b226bde1d1def49e207ce46a8fab488075ff3638"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container-psycopg.lock": {
+      "bytes": 169,
+      "sha256": "a9d2e085a0958d9b9b1907e6b737de57fd41e6c19749a5068a3182c10e033921"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\requirements-container.lock": {
+      "bytes": 129576,
+      "sha256": "7b3af38025ed496e531680805870f18bbeaa62014ccfb7acc9514b302f0ff612"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\.gitattributes": {
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\13c5f63.patch": {
+      "bytes": 528,
+      "sha256": "c6c65ee12b494dac2b74e4abb1281a535bb701fcc81880254f13cb77d7a3c2aa"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\CONTRATO.md": {
+      "bytes": 2565,
+      "sha256": "69c3fa95be6e80b0f5a0bb15c0ad444f6d36b4a3e06cdb965e47a47c1c1ea12c"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\rebuild_pyexpat.py": {
+      "bytes": 10847,
+      "sha256": "9d25c6d722f19e8cd932d4b92c3b49ff8212b4fc7606dcd0e4ba2fb6fe6d473d"
+    },
+    "F:\\mb-container-apt-refresh-sec10-20261019\\runtime-source\\expat-sec10\\source-pins.json": {
+      "bytes": 984,
+      "sha256": "4801d7f22ead6faec6e2b1e8d2d6f8f1ab4aa62ffb7206e3c3c0ad0f8300d274"
+    }
+  },
+  "source_head_status_unchanged": true,
+  "remote_after": {
+    "context_files_after": {
+      "requirements-container-psycopg.lock": {
+        "bytes": 169,
+        "sha256": "a9d2e085a0958d9b9b1907e6b737de57fd41e6c19749a5068a3182c10e033921"
+      },
+      "Dockerfile": {
+        "bytes": 15508,
+        "sha256": "0d94653622cb859039f5d2be0d67d5a02b82197ab954fe68dcb469ded0f53e94"
+      },
+      ".dockerignore": {
+        "bytes": 436,
+        "sha256": "c9aeff97decc16af7d085a81578f4f4551ad0cad15d770a02b74b29f74da2d5f"
+      },
+      "requirements-container-bootstrap.lock": {
+        "bytes": 240,
+        "sha256": "01cb7092ff6e66c2d52618b2076234ca877f833c067c6c3b51fd8607cebc15aa"
+      },
+      "requirements-container-apt-metadata.lock": {
+        "bytes": 551,
+        "sha256": "38c46d40f0a9949d541e99455143eb533f65aa8e8746ee980cc8f55b968a3e4a"
+      },
+      "requirements-container.lock": {
+        "bytes": 129576,
+        "sha256": "7b3af38025ed496e531680805870f18bbeaa62014ccfb7acc9514b302f0ff612"
+      },
+      "requirements-container-build.lock": {
+        "bytes": 179,
+        "sha256": "f51592f81ddb5d3ccf8e01c7b226bde1d1def49e207ce46a8fab488075ff3638"
+      },
+      "runtime-source/expat-sec10/source-pins.json": {
+        "bytes": 984,
+        "sha256": "4801d7f22ead6faec6e2b1e8d2d6f8f1ab4aa62ffb7206e3c3c0ad0f8300d274"
+      },
+      "runtime-source/expat-sec10/13c5f63.patch": {
+        "bytes": 528,
+        "sha256": "c6c65ee12b494dac2b74e4abb1281a535bb701fcc81880254f13cb77d7a3c2aa"
+      },
+      "runtime-source/expat-sec10/rebuild_pyexpat.py": {
+        "bytes": 10847,
+        "sha256": "9d25c6d722f19e8cd932d4b92c3b49ff8212b4fc7606dcd0e4ba2fb6fe6d473d"
+      },
+      "runtime-source/expat-sec10/.gitattributes": {
+        "bytes": 8,
+        "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+      },
+      "runtime-source/expat-sec10/CONTRATO.md": {
+        "bytes": 2565,
+        "sha256": "69c3fa95be6e80b0f5a0bb15c0ad444f6d36b4a3e06cdb965e47a47c1c1ea12c"
+      }
+    },
+    "context_exact_after": true,
+    "failed_container_inspect_sha256": "80db40e278af33c122ab9843f7000df71163d6d4db35fc6569e4342fe456c990",
+    "failed_container_id": "9010e255a90c0e8382323912ba4f0c1e7ded39032163c1d0a64f5f0f2be49bbd",
+    "state": {
+      "Status": "exited",
+      "Running": false,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 0,
+      "ExitCode": 1,
+      "Error": "",
+      "StartedAt": "2026-10-19T18:27:43.309731356Z",
+      "FinishedAt": "2026-10-19T18:28:24.623034799Z"
+    },
+    "native_tool_and_installed_header_hashes_after_failure": {
+      "/usr/bin/x86_64-linux-gnu-gcc-14": {
+        "bytes": 1162264,
+        "sha256": "a23ecab8ff08f09ad8c80602c2c5df7f49e09c25905cb8975902e101bf72635f"
+      },
+      "/usr/local/include/python3.12/internal/pycore_gc.h": {
+        "bytes": 7658,
+        "sha256": "d0349a94dafb16ec4c05ba5a94d3b9e6cec53fe7b5e0d74216ea31996546f9a3"
+      },
+      "/usr/local/include/python3.12/internal/pycore_runtime.h": {
+        "bytes": 8429,
+        "sha256": "d47fe4de4c245e2f90ce73792337565cae6ce95d8e2cd08bcda43ec92832b1ac"
+      }
+    },
+    "guest_disk_free_bytes": 4425154560,
+    "images": "sha256:69f242bf48946692c8b044db709eb357b280457ae5ecbc8bd2595a30c58157a6 <none>:<none>\nsha256:728ab7e60cd96cf9f4a200ad411620497d8ea9090e89fdcd3b87d5112c36aeec <none>:<none>\nsha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c metodobase-lab:recovery28-bc365c1\nsha256:55511cca9e8ce4b8360bd0824ea08c4a7b4492d22cbe8529494448f3e3e30387 <none>:<none>\nsha256:ecae2829be01f92f56c722d28e13783c3f80c35a1051f0745abcbc5208db888e metodobase-lab:recovery28-abd559a\nsha256:b161314014606d53eb1c6eabd9ce99b09f83067990681f37031e593414c21224 <none>:<none>\nsha256:5eb6d3009ae98c845f2eab0aeff0d249bf336887f124578284714728a3359d0e metodobase-lab:recovery28-92615d7\nsha256:e341a15edb2bd1b1d36d50f889cc4cdfd8eb29e4ca7f38fa107a262df7b96f7e <none>:<none>\nsha256:df18428df8a0f9189c84e7424d214b4c50092af1f9dca5842a00c41c39bda316 python:<none>\nsha256:54a0b2beae90fe14c2131f1e880e1388c9df77390bc260d7317e589765e064e8 python:<none>\n",
+    "containers": "9010e255a90c0e8382323912ba4f0c1e7ded39032163c1d0a64f5f0f2be49bbd serene_khayyam Exited (1) 6 minutes ago\n399a539cec64b995e2f41e1cd810f3d345c72263ca8e0e84a5924391f2bce9b7 metodobase-expat-keyring-base-proof-20261019 Created\n7cbc85823cbad56b4e4b6d0f53342a53b605149639e9dfa3fb930477dc5d9cd5 nervous_sinoussi Exited (1) 43 minutes ago\n"
+  },
+  "existing_images_preserved": true,
+  "old7c_context_preserved": {
+    "bytes": 174080,
+    "sha256": "0c6395021e7ea2546583439784b6691baa07cf50b2db48197eedd01214aea709"
+  },
+  "cached_wheel_static_check": {
+    "crc_ok": true,
+    "safe_unique_members": true,
+    "vendored_libs_absent": true,
+    "native_members": [
+      {
+        "member": "psycopg2/_psycopg.cpython-312-x86_64-linux-gnu.so",
+        "bytes": 426280,
+        "sha256": "235f936103806629db8f25f20e30e1f6eda4292af35b0097d56bfb96fad1c7af",
+        "elf_class": 64,
+        "machine": 62
+      }
+    ],
+    "import_or_linkage_tested": false
+  },
+  "raw_private_directory": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-expat-d60-native-validation-20261019",
+  "raw_and_driver_files_sha256": {
+    "build-progress-owned-processes.log": {
+      "bytes": 259,
+      "sha256": "be9ae124cb02ea1354f651b490e7feb3a50630c483ca71b8670ef7171ae16002"
+    },
+    "context-transfer-raw.log": {
+      "bytes": 8,
+      "sha256": "a3680b6601c39b586ea892ad2bbaa58a7f72b62a64f73917b09aa8c5f188110e"
+    },
+    "context-verification-raw.log": {
+      "bytes": 1909,
+      "sha256": "96df67f7c86414701c50c0d8bbf956e0f0868243a45236c58efc6a42a140cc22"
+    },
+    "diagnose-missing-header-driver-raw.log": {
+      "bytes": 1888,
+      "sha256": "d4beec70d8fc07876326863cf23f95c487ebc1bb00aff841f984c213f140a323"
+    },
+    "diagnose_missing_header.py": {
+      "bytes": 6065,
+      "sha256": "ed67f6ac45854257af4ab8ea9a90a9bf5a382a668264c457145690d803e03eb5"
+    },
+    "export_native_outputs.py": {
+      "bytes": 2026,
+      "sha256": "d4e9ad2062aac80a478bfe928212ccbbeb9cb1b687b73a3f40f8ca3f4ad0b3df"
+    },
+    "final-readonly-capture-raw-initial.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-readonly-capture-raw-initial.stdout": {
+      "bytes": 3917,
+      "sha256": "6c49cc043b2f002b60acd0db65774e571c087997417c8b4d45e1805c0ca5027d"
+    },
+    "final-readonly-capture-raw.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "final-readonly-capture-raw.stdout": {
+      "bytes": 3917,
+      "sha256": "e029f035bf58be6c59ee38f6f453a15c6069837b0099fa2e3ae13cbc7909677f"
+    },
+    "guest-preflight-raw.log": {
+      "bytes": 1370,
+      "sha256": "025fbdd2fee9f8186ce53380bd054dd450be0cc57e086f93ab62d0ef83825912"
+    },
+    "guest-preflight-source.json": {
+      "bytes": 1362,
+      "sha256": "5522ded4114c1aff2ca276fa845b5f0c4eecb3dfa9b62e7ca04656e8141f4c90"
+    },
+    "host-preflight-before.json": {
+      "bytes": 4901,
+      "sha256": "1e955d813fdec53061ed745eb1cf7d60033e5eab88794bf56a5be2c3983ecdd4"
+    },
+    "missing-header-causal-raw.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "missing-header-causal-raw.stdout": {
+      "bytes": 297516,
+      "sha256": "08ebcf140d1618bb71450483a7e6a5bfb7d55e0374e498396365f5c37b812cff"
+    },
+    "missing-header-causal-source.json": {
+      "bytes": 9905,
+      "sha256": "44cfdc26b4c431e98ec9f4be47351deba06fb800dc49f649ca7ba436cd3df6ab"
+    },
+    "native-build-raw.log": {
+      "bytes": 36205,
+      "sha256": "c70874b99a2f95dd5b345803435bd7ef20b02b14f2c21fd793b611649c6d7bbc"
+    },
+    "native-build-receipt.json": {
+      "bytes": 538,
+      "sha256": "97c6a7561db90cccddf52fefe776bb9b5fe7ef40f57cd6771517cc4c10f577d2"
+    },
+    "native_export_probe.py": {
+      "bytes": 1304,
+      "sha256": "70633fe68ecc444e28e6d67b08f491ab8584cbf2fc8ff06a911cf60c93a34a7d"
+    },
+    "native_independent_probe.py": {
+      "bytes": 9775,
+      "sha256": "e18d178216f755741bb840a26fa19030e860d9131dd10560098ca221592e0ebb"
+    },
+    "owned-build-ssh-identity.json": {
+      "bytes": 433,
+      "sha256": "d89d1c58529ff8e1c873f91c0ec5bbba3db25d9d8b97d9a0f234724f2095c46e"
+    },
+    "owned-qemu-fingerprint-source.json": {
+      "bytes": 541,
+      "sha256": "022e02f03f80d7947ab69ec182ef4b9ea97336a6e4fb5ea2dff4969d3d53d7eb"
+    },
+    "preparation-errata-source.json": {
+      "bytes": 537,
+      "sha256": "2205e6bc42409194cfbbbebe0358d7a803f6d949544fac6597b05e0a3142816c"
+    },
+    "receipt-transfer-raw.log": {
+      "bytes": 8,
+      "sha256": "a3680b6601c39b586ea892ad2bbaa58a7f72b62a64f73917b09aa8c5f188110e"
+    },
+    "remote-context-source.json": {
+      "bytes": 1901,
+      "sha256": "d089d783e02905449a2c01d86487d7f080cb4056ebbacc320ff2884f62fde509"
+    },
+    "run-native-build-driver-raw.log": {
+      "bytes": 372,
+      "sha256": "ff00fa8826d50ace8880335cd43c156e5d5a104e21ce4106f3896131fb499604"
+    },
+    "run_native_build.py": {
+      "bytes": 5743,
+      "sha256": "c9abc6360136f7933bf153411c148ddc296c646acf5bba7c353227226e2dbd1e"
+    },
+    "run_native_independent_probe.py": {
+      "bytes": 3500,
+      "sha256": "aefaf36c7db55706ffab33e938c9d7b0f2af106455b3a3cc76c54df743ca2aeb"
+    },
+    "seal-native-failure-driver-raw-initial.log": {
+      "bytes": 1382,
+      "sha256": "ddcc5a859dc12b456b7b3fceaa4fa5333ba5548ee628179b4bf0505250db07ed"
+    },
+    "seal_native_failure-initial.py": {
+      "bytes": 9730,
+      "sha256": "95add4ed49fafe66567b9798d8495183d131e77808f8944286f61c6b2040a926"
+    },
+    "seal_native_failure.py": {
+      "bytes": 10018,
+      "sha256": "e4cdbb18700c2d364cf69d822cc2d71b6a4edc8a60f2600c5b35fd19fe3265c8"
+    },
+    "show_native_progress.py": {
+      "bytes": 734,
+      "sha256": "2d9e13870961efa801e52f911bf32899c5d363c40496df140dd1ea9281daa25f"
+    },
+    "causal-artifacts/builder-dpkg.tsv": {
+      "bytes": 3563,
+      "sha256": "34ef8db3c529e80181fe4086b95b2f840f77eccc79410438f9510463df4ae14f"
+    },
+    "causal-artifacts/Modules-clinic-pyexpat.c.h": {
+      "bytes": 29204,
+      "sha256": "5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb"
+    },
+    "causal-artifacts/native-after.tsv": {
+      "bytes": 2584,
+      "sha256": "68854cfb9bc530364f378d661263bb04aafe00c637a87a0dbedd09962282977e"
+    },
+    "causal-artifacts/native-before.tsv": {
+      "bytes": 2247,
+      "sha256": "c114ff06e9e3bf4e5049a1a5e8d15483fdbc9057eb32c8ce7b853f2ff8884dfb"
+    },
+    "causal-artifacts/psycopg2.whl": {
+      "bytes": 172180,
+      "sha256": "f32aec907a8e0dbb3215546eb651059cd7dbf240a370d33246f21942ff637dbe"
+    },
+    "causal-artifacts/source-preparation.json": {
+      "bytes": 6407,
+      "sha256": "2670b78926284e4e9ff0e04a85d2c89f0578add47ea607b5a3f2ef544617a1e1"
+    }
+  },
+  "prepared_probe_was_not_executed": true,
+  "reused_psf_signature_evidence": {
+    "path": "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\security-sec10-m2-independent-20261019\\signature-result.json",
+    "bytes": 1231,
+    "sha256": "345aac8661cb13c032485b40fae625bcfc71194bb7e67679b073ca2e85c68344",
+    "new_signature_verification_claimed": false
+  },
+  "preparation_errata": [
+    {
+      "phase": "readonly progress monitor",
+      "error": "UnicodeEncodeError cp1252 on pip Unicode progress bar",
+      "scope": "Only rendering failed. Original UTF8 build log unchanged, native build continued. Replaced monitor with ASCII JSON projection."
+    },
+    {
+      "phase": "sealing writer v1",
+      "error": "TypeError combining Path and str for a copied evidence filename",
+      "scope": "No native mutation. Initial driver/log/captures and initial-unsealed projection preserved. Parenthesized filename in v2."
+    }
+  ],
+  "scope": {
+    "no_fix_or_retry": true,
+    "target_image_produced": false,
+    "native_pyexpat_elf_produced": false,
+    "binding_cases_executed": 0,
+    "runtime54_or_os71_or_product_or_mfa_image_accepted": false,
+    "private_key_content_disclosed": false,
+    "network_policy": "Build downloaded public hash-pinned upstream inputs. No app, provider, PG/proxy or business flow."
+  },
+  "lease": {
+    "owned_qemu_pid": 29768,
+    "fingerprint": {
+      "pid": 29768,
+      "creation_date": "/Date(1792432085880)/",
+      "executable": "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe",
+      "executable_sha256": "47d57a6072e0bb3bd98f87926eb129eb1736dfe818c67b3b81ef7ce4edd0b3cd",
+      "commandline_sha256": "ec3db894a737febc64bbeb8930b7be4b5436ad612661edac3fbdc21589bc6d94",
+      "ports": {
+        "ssh": 53105,
+        "qmp": 53106
+      },
+      "resources": {
+        "vcpus": 2,
+        "memory_mib": 2048,
+        "acceleration": "tcg,thread=multi"
+      },
+      "same_owned_instance": true
+    },
+    "state": "idle retained by explicit root repair/security lease",
+    "ports": {
+      "ssh": 53105,
+      "qmp": 53106
+    }
+  }
+}

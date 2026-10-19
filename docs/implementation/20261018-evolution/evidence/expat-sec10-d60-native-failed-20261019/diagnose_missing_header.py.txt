@@ -1,0 +1,84 @@
+"""Read-only causal capture of the failed native compile; no fix or build."""
+from pathlib import Path
+import base64,hashlib,json,sys
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-d60-native-validation-20261019')
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+remote="""python3 - <<'PY'
+from pathlib import Path
+import base64,hashlib,io,json,re,subprocess,tarfile
+container='9010e255a90c'
+root=Path('/var/tmp/metodobase-expat-d60-native-20261019')
+def cmd(*args):return subprocess.check_output(args)
+before=json.loads(cmd('sudo','-n','docker','inspect',container))[0]
+assert not before['State']['Running'] and before['State']['ExitCode']==1
+def copy(path,limit=25000000):
+ raw=cmd('sudo','-n','docker','cp',container+':'+path,'-')
+ with tarfile.open(fileobj=io.BytesIO(raw)) as tar:
+  members=tar.getmembers();assert len(members)==1 and members[0].isfile() and members[0].size<limit
+  return tar.extractfile(members[0]).read()
+pins=json.loads((root/'context/runtime-source/expat-sec10/source-pins.json').read_text())
+archive=copy('/tmp/psf-expat-sec10.tar.xz')
+assert len(archive)==20829824 and hashlib.sha256(archive).hexdigest()==pins['psf_source_sha256']
+with tarfile.open(fileobj=io.BytesIO(archive),mode='r:xz') as tar:
+ name='Python-3.12.15/Modules/clinic/pyexpat.c.h'
+ member=tar.getmember(name);assert member.isfile() and not member.issym() and not member.islnk() and member.size<200000
+ header=tar.extractfile(member).read()
+ original=tar.extractfile('Python-3.12.15/Modules/pyexpat.c').read()
+selected=copy('/expat-output/source/Modules/pyexpat.c')
+assert selected==original
+include=[{'line':i,'source':line} for i,line in enumerate(selected.decode().splitlines(),1) if '#include \"clinic/pyexpat.c.h\"' in line]
+assert include==[{'line':106,'source':'#include \"clinic/pyexpat.c.h\"'}]
+prepared_raw=copy('/expat-output/source-preparation.json')
+prepared=json.loads(prepared_raw)
+assert len(prepared['before'])==len(prepared['after'])==30 and 'Modules/clinic/pyexpat.c.h' not in prepared['after']
+assert prepared['changed_source_files']==['Modules/expat/xmlparse.c']
+wheel_lock=copy('/wheelhouse/built-wheel.lock').decode()
+wheel_name='psycopg2-2.9.13-cp312-cp312-linux_x86_64.whl'
+wheel=copy('/wheelhouse/'+wheel_name,2000000);wheel_sha=hashlib.sha256(wheel).hexdigest()
+assert wheel_sha=='f32aec907a8e0dbb3215546eb651059cd7dbf240a370d33246f21942ff637dbe'
+assert wheel_lock.strip()=='psycopg2==2.9.13 --hash=sha256:'+wheel_sha
+builder=copy('/wheelhouse/builder-dpkg.tsv')
+native_before=copy('/usr/local/share/metodobase/native-runtime/before.tsv')
+native_after=copy('/usr/local/share/metodobase/native-runtime/after.tsv')
+tools=copy('/wheelhouse/build-tools.txt')
+pg=copy('/wheelhouse/pg-config-version.txt')
+image=json.loads(cmd('sudo','-n','docker','image','inspect',before['Image']))[0]
+state_after=json.loads(cmd('sudo','-n','docker','inspect',container))[0]
+assert before['State']==state_after['State']
+report={'status':'NATIVE_COMPILE_FAILED_MISSING_AUTHENTICATED_GENERATED_HEADER','failed_step':'15/16 RUN helper --build',
+ 'failed_container_id':before['Id'],'state':{k:before['State'][k] for k in ('Running','ExitCode','StartedAt','FinishedAt')},
+ 'container_inspect_sha256':hashlib.sha256(json.dumps(before,sort_keys=True).encode()).hexdigest(),
+ 'intermediate_image_id':before['Image'],'image_layers':image['RootFS']['Layers'],
+ 'command':before['Config']['Cmd'],'pinned_psf_archive':{'bytes':len(archive),'sha256':hashlib.sha256(archive).hexdigest(),'matches_prior_authenticated_pin':True},
+ 'selected_pyexpat_sha256':hashlib.sha256(selected).hexdigest(),'include':include,
+ 'missing_header':{'archive_member':name,'bytes':len(header),'sha256':hashlib.sha256(header).hexdigest(),
+                   'quoted_includes':re.findall(r'^#\\s*include\\s+\"([^\"]+)\"',header.decode(),re.M)},
+ 'source_selector_count':30,'header_omitted_from_selector':True,'source_preparation':prepared,
+ 'wheel':{'name':wheel_name,'bytes':len(wheel),'sha256':wheel_sha,'built_wheel_lock':wheel_lock,'pg_config_version':pg.decode().strip()},
+ 'stage_dpkg_counts':{'before_native':len(native_before.decode().splitlines()),'after_native':len(native_after.decode().splitlines()),'compiler_stage':len(builder.decode().splitlines())},
+ 'build_tools':tools.decode(),'target_iid_absent':not(root/'expat-build.iid').exists(),
+ 'target_tag_absent':not bool(cmd('sudo','-n','docker','image','ls','-q','metodobase-lab:expat-sec10-m2-d60d259').strip()),
+ 'native_elf_or_bindings_pass':False,'no_fixes_or_retry':True,
+ 'artifacts_base64':{'Modules-clinic-pyexpat.c.h':base64.b64encode(header).decode(),'psycopg2.whl':base64.b64encode(wheel).decode(),
+ 'builder-dpkg.tsv':base64.b64encode(builder).decode(),'native-before.tsv':base64.b64encode(native_before).decode(),'native-after.tsv':base64.b64encode(native_after).decode(),
+ 'source-preparation.json':base64.b64encode(prepared_raw).decode()}}
+(root/'missing-header-causal.json').write_text(json.dumps({k:v for k,v in report.items() if k!='artifacts_base64'},indent=2)+'\\n')
+print(json.dumps(report))
+PY
+"""
+result=guest_access.run(remote,timeout=120)
+(RUN/'missing-header-causal-raw.stdout').write_bytes(result.stdout)
+(RUN/'missing-header-causal-raw.stderr').write_bytes(result.stderr)
+assert result.returncode==0,result.stderr.decode('utf-8','replace')
+report=json.loads(result.stdout)
+artifacts=report.pop('artifacts_base64')
+target=RUN/'causal-artifacts';target.mkdir()
+for name,encoded in artifacts.items():
+ assert name==Path(name).name
+ (target/name).write_bytes(base64.b64decode(encoded,validate=True))
+(RUN/'missing-header-causal-source.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'status':report['status'],'container':report['failed_container_id'],'header':report['missing_header'],'counts':report['stage_dpkg_counts'],'wheel':report['wheel'],'no_target':report['target_tag_absent'] and report['target_iid_absent']},indent=2))
+

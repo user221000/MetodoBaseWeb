@@ -1,0 +1,7 @@
+Author probe, exec session80436 returned exit1 after all frontend run blocks and their acceptance gates completed.
+The collector then failed while reading the first legacy report with a different list key:
+  File "F:\MetodoBaseWeb-linux-lab-20261019\evidence\mfa31-ci-three-boundaries-fix-20261019\frontend_driver.py", line 61, in <module>
+    assert isinstance(cases, list) and cases
+AssertionError
+The legacy auth-refresh-reproductions.json uses report[], while this first collector read only results[]/checks[].
+No source or test result was changed. The exact executed driver and all command scripts/logs remain preserved.
