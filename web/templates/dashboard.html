@@ -16,9 +16,9 @@
 
 <!-- ── Context bar ────────────────────────────────────────────── -->
 <div class="context-bar">
-  <span class="context-bar-item">💼 Panel de gestión · clientes, planes y suscripciones</span>
-  <span class="context-bar-item">⚡ Un plan nutricional completo se genera en menos de 30 segundos</span>
-  <span class="context-bar-item" id="ctx-dynamic">🎯 Cada cliente activo genera ingresos recurrentes para tu gym</span>
+  <span class="context-bar-item">Panel de gestión · clientes y planes guardados</span>
+  <span class="context-bar-item">Las fechas de membresía no confirman cobros</span>
+  <span class="context-bar-item" id="ctx-dynamic">Consulta la actividad antes de decidir el próximo paso</span>
 </div>
 
 <!-- KPIs ACCIONABLES — Suscripciones de clientes -->
@@ -27,8 +27,8 @@
   <!-- KPI 1: Suscripciones nuevas este mes -->
   <button type="button" class="kpi-card kpi-actionable kpi-info kpi-btn-drawer" data-drawer="sub-nuevas">
     <div class="kpi-header">
-      <div class="kpi-label">Clientes nuevos este mes</div>
-      <span class="kpi-badge info">Nuevas</span>
+      <div class="kpi-label">Inicio de membresía este mes</div>
+      <span class="kpi-badge info">Fecha registrada</span>
     </div>
     <div class="kpi-num" id="kpi-sub-nuevas">—</div>
     <div class="kpi-action">Ver clientes →</div>
@@ -37,8 +37,8 @@
   <!-- KPI 2: Suscripciones activas -->
   <button type="button" class="kpi-card kpi-actionable kpi-success kpi-btn-drawer" data-drawer="sub-activas">
     <div class="kpi-header">
-      <div class="kpi-label">Clientes activos</div>
-      <span class="kpi-badge success">Activos</span>
+      <div class="kpi-label">Fecha de fin vigente</div>
+      <span class="kpi-badge success">Vigencia registrada</span>
     </div>
     <div class="kpi-num" id="kpi-sub-activas">—</div>
     <div class="kpi-action">Ver clientes →</div>
@@ -47,11 +47,11 @@
   <!-- KPI 3: Suscripciones inactivas -->
   <button type="button" class="kpi-card kpi-actionable kpi-warning kpi-btn-drawer" data-drawer="sub-inactivas">
     <div class="kpi-header">
-      <div class="kpi-label">Sin plan activo</div>
-      <span class="kpi-badge warning">Sin plan</span>
+      <div class="kpi-label">Sin fecha de fin o fecha pasada</div>
+      <span class="kpi-badge warning">Revisar fecha</span>
     </div>
     <div class="kpi-num" id="kpi-sub-inactivas">—</div>
-    <div class="kpi-action">Activar →</div>
+    <div class="kpi-action">Revisar clientes →</div>
   </button>
 
 </div>
@@ -417,14 +417,20 @@
 <!-- ═══════════════════════════════════════════════════════════════════════════
      AI INSIGHTS — Heuristic business intelligence
 ═══════════════════════════════════════════════════════════════════════════ -->
-<section class="chart-container mb-4" id="ai-insights" style="display:none;">
-  <div class="chart-header" style="padding:0 0 12px;">
-    <div>
-      <p class="chart-title" id="ai-insight-title">Inteligencia de negocio</p>
-      <p class="chart-subtitle">Basado en la actividad de tu gym esta semana.</p>
-    </div>
+<section class="chart-container mb-4" id="followup-section" aria-labelledby="followup-title" aria-busy="true">
+  <h2 id="followup-title">Seguimiento por revisar</h2>
+  <p>Orden operativo: sin plan guardado, sin plan en la ventana de actividad, fecha de plan desconocida y fecha de membresía pasada. No indica urgencia médica ni caducidad del plan.</p>
+  <p>La ventana usa el periodo de actividad del dashboard, indicado al consultar. Abrir un cliente o preparar un plan no registra contacto, entrega ni cobro.</p>
+  <div class="followup-actions">
+    <label for="followup-limit">Máximo de clientes</label>
+    <select id="followup-limit" class="input"><option value="50">50</option><option value="100">100</option></select>
+    <button type="button" class="btn btn-outline" id="followup-refresh">Actualizar seguimiento</button>
   </div>
-  <ul id="ai-insight-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;font-size:.88rem;line-height:1.55;"></ul>
+  <p id="followup-status" role="status" aria-live="polite">Consultando seguimiento…</p>
+  <p id="followup-error" role="alert" hidden></p>
+  <div id="followup-metrics" aria-label="Hechos guardados en la ventana de actividad"></div>
+  <p>Los conteos son hechos persistidos del periodo, sin atribución al dashboard. Un PDF con metadatos listos aún debe verificarse al descargarlo; no prueba su entrega. Pagos: no disponibles. No hay evidencia de cobro ni asignación de responsables en esta vista.</p>
+  <ol id="followup-list" class="followup-list"></ol>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
@@ -668,7 +674,24 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/dashboard-seguimiento.js?v=r23-1" defer></script>
 <style>
+  #followup-section {overflow-wrap:anywhere;}
+  #followup-section h2 {font-size:1.2rem;}
+  #followup-section p {line-height:1.6;}
+  .followup-list {padding-left:1.5rem;}
+  .followup-item {padding:1rem 0;border-bottom:1px solid var(--border-subtle);}
+  .followup-item h3 {font-size:1rem;}
+  .followup-actions {display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;}
+  #followup-limit {width:auto;max-width:100%;}
+  #followup-error {color:var(--text-primary);border-left:3px solid currentColor;padding:.75rem;}
+  #followup-section button:focus-visible,#followup-section select:focus-visible {outline:3px solid var(--accent-primary,#e5b800);outline-offset:3px;}
+  @media(max-width:480px) { #followup-section {padding:1rem;} .followup-actions .btn {width:100%;white-space:normal;}}
+  @media(max-width:480px) {
+    .action-zone {grid-template-columns:minmax(0,1fr);}
+    .action-hero,.activity-feed {min-width:0;}
+    .action-hero .btn {max-width:100%;white-space:normal;}
+  }
 /* ── Modal centering (ID selector overrides cached .modal-backdrop) ── */
 #modal-cliente {
   position: fixed;
@@ -1100,9 +1123,9 @@
 
   // ── Drawer lateral: clientes por suscripción ──────────────
   const _DRAWER_LABELS = {
-    'sub-nuevas':    { title: 'Clientes nuevos este mes',      subtitle: 'Clientes que se suscribieron este mes', link: '/clientes?filter=sub-nuevas' },
-    'sub-activas':   { title: 'Clientes activos',              subtitle: 'Clientes con suscripción vigente',       link: '/clientes?filter=sub-activas' },
-    'sub-inactivas': { title: 'Sin plan activo',               subtitle: 'Clientes que necesitan un plan o renovación', link: '/clientes?filter=sub-inactivas' },
+    'sub-nuevas':    { title: 'Inicio de membresía este mes', subtitle: 'Fecha administrativa registrada; no confirma un pago', link: '/clientes?filter=sub-nuevas' },
+    'sub-activas':   { title: 'Fecha de fin vigente', subtitle: 'Vigencia administrativa registrada; no confirma cobro ni plan nutricional', link: '/clientes?filter=sub-activas' },
+    'sub-inactivas': { title: 'Sin fecha de fin o fecha pasada', subtitle: 'Revisar fecha administrativa; no implica falta de pago ni necesidad de otro plan', link: '/clientes?filter=sub-inactivas' },
   };
 
   function _fmtSubStatus(c) {
@@ -1111,11 +1134,11 @@
       const fin = new Date(c.fecha_fin_suscripcion).getTime();
       if (fin >= ahora) {
         const dias = Math.ceil((fin - ahora) / 86400000);
-        return { label: `Activa · ${dias}d`, cls: 'drawer-sub-active' };
+        return { label: `Fecha vigente · ${dias}d`, cls: 'drawer-sub-active' };
       }
-      return { label: 'Expirada', cls: 'drawer-sub-expired' };
+      return { label: 'Fecha pasada', cls: 'drawer-sub-expired' };
     }
-    return { label: 'Sin plan', cls: 'drawer-sub-none' };
+    return { label: 'Sin fecha', cls: 'drawer-sub-none' };
   }
 
   function _renderDrawerClients(clientes) {
