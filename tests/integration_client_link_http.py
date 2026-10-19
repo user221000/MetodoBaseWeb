@@ -135,12 +135,16 @@ def test_http_explicit_publication_and_exact_old_pdf_replacement(http):
 @pytest.mark.parametrize('path,method',[
     ('/api/usuario/vinculaciones/aceptar','get'),('/api/usuario/vinculaciones/invitacion','get'),
     ('/api/usuario/vinculos','post'),('/auth/accept-client-link','get'),
+    ('/auth/accept-client-link','post'),
     ('/api/clientes/c/vinculacion/invitaciones/not-a-uuid/reenviar','get'),
     ('/api/usuario/vinculos/not-a-uuid/publicaciones/not-a-uuid/pdf','post'),
 ])
 def test_privacy_headers_survive_wrong_method_and_missing_page(http,path,method):
     response=getattr(http['client_http'],method)(path,headers=http['headers']['person'])
-    assert response.status_code in {404,405}
+    if path=='/auth/accept-client-link' and method=='get':
+        assert response.status_code==200
+    else:
+        assert response.status_code in {404,405}
     assert response.headers['referrer-policy']=='no-referrer' and response.headers['cache-control']=='no-store'
     if path=='/auth/accept-client-link':
         csp=response.headers['content-security-policy']
