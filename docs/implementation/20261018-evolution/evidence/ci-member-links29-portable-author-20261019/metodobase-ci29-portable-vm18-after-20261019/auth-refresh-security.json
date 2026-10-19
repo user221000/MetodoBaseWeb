@@ -1,0 +1,60 @@
+{
+  "scope": "Independent in-memory SEC02 probes; no browser, backend, signature, provider or cross-tab atomicity claim",
+  "source_sha256": "ee7a4deded0107341051e87e5778c6f75556866be0180fe20ca205e79a1a62c5",
+  "passed": 13,
+  "total": 13,
+  "results": [
+    {
+      "case": "Only token changes: a delayed mutation cannot refresh or replay",
+      "passed": true
+    },
+    {
+      "case": "Only refresh changes: a delayed mutation cannot refresh or replay",
+      "passed": true
+    },
+    {
+      "case": "Helper ABA clear/save of the identical pair invalidates its older request",
+      "passed": true
+    },
+    {
+      "case": "A mixed JSON/upload/export queue cannot retry any A payload under B credentials",
+      "passed": true
+    },
+    {
+      "case": "A very late A401 after two valid rotations retries once with A2 and the original operation",
+      "passed": true
+    },
+    {
+      "case": "A retry401 arriving after a second valid rotation cannot expire A2",
+      "passed": true
+    },
+    {
+      "case": "Public invitation info never sends Bearer or refreshes an unauthorized response",
+      "passed": true
+    },
+    {
+      "case": "Public invitation accept never sends Bearer or refreshes an unauthorized response",
+      "passed": true
+    },
+    {
+      "case": "Multipart retry reuses the original bytes without adding JSON Content-Type",
+      "passed": true
+    },
+    {
+      "case": "Late network failure of A is classified as session_changed and preserves B",
+      "passed": true
+    },
+    {
+      "case": "Logout waiting on A refresh cannot clear B or send its logout with B credentials",
+      "passed": true
+    },
+    {
+      "case": "Invalid refresh credentials settle a mixed queue and a fresh explicit B login restores transport",
+      "passed": true
+    },
+    {
+      "case": "A partial explicit token save must not later replay a B mutation using the old A refresh authority",
+      "passed": true
+    }
+  ]
+}

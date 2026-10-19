@@ -1,0 +1,67 @@
+{
+  "scope": "Exact template bootstrap in offline VM, no API/browser claim",
+  "passed": 15,
+  "total": 15,
+  "results": [
+    {
+      "case": "valid bearer is removed from URL before the first own asset and can only be taken once",
+      "passed": true
+    },
+    {
+      "case": "missing fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "too short fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "digest as bearer fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "duplicate fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "extra property fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "encoded fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "unicode fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "wrong key fragment is rejected without I/O or token persistence",
+      "passed": true
+    },
+    {
+      "case": "query bearer is rejected and cleaned without fallback",
+      "passed": true
+    },
+    {
+      "case": "failed URL cleanup discards the bearer and reports no usable invitation",
+      "passed": true
+    },
+    {
+      "case": "pagehide clears the token even if the consumer has not loaded",
+      "passed": true
+    },
+    {
+      "case": "session change clears the token before the resource consumer has loaded",
+      "passed": true
+    },
+    {
+      "case": "credential Storage event clears the token without reading Storage",
+      "passed": true
+    },
+    {
+      "case": "login and registration links carry no token or return destination and cannot accept",
+      "passed": true
+    }
+  ]
+}

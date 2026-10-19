@@ -140,6 +140,8 @@ jobs:
           python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16
           node tests/e2e/member_link_export.cjs > member-link-export.json
           python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
+          node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
+          python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -446,6 +448,21 @@ jobs:
           run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs "${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 17 named 8 tests/e2e/personal_export_context_browser.cjs "${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 4 strings 4 personal-diary-ui
           run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 10 strings 4 "" "" 0 strings 0 personal-history-ui
           run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 8 strings 4 "" "" 0 strings 0 public-landing
+      - name: Real member linking browser with restricted migrated PostgreSQL and private mail transport
+        env:
+          METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+          METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+          METODOBASE_TEST_PG_BIN: /usr/bin
+        run: |
+          export QA_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"
+          export QA_CHROME=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+          python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: member-link-real-browser
+          path: ${{ runner.temp }}/member-link-public
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:

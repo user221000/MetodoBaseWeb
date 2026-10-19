@@ -27,7 +27,16 @@ ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT = ROOT / 'tests/ci_member_links29'
 WORKFLOW_SHA = '7077a47e2d5255695117d07d8b42fe1fff33876141abbb67375e3154de0b45c8'
 BASELINE_SHA = 'fddb39ddbf9dc59460464192b44a2833a9546625ad492f49c1e7cab1f4f5198c'
-PINNED_CURRENT_GATES = {'tests/check_member_link_reports.py': 'd617301259208f8fc8da91ddd6f8bdbdc43a35a4cdfb059d94f4de60513e8e62', 'tests/run_reviewed_ci28.py': 'ae535aab4f27b0ea2f76da4ef6068129c2a7520326012c77c1142a1a6cea14e6'}
+PINNED_CURRENT_GATES = {
+    'tests/check_member_link_reports.py': 'd617301259208f8fc8da91ddd6f8bdbdc43a35a4cdfb059d94f4de60513e8e62',
+    'tests/run_reviewed_ci28.py': 'ae535aab4f27b0ea2f76da4ef6068129c2a7520326012c77c1142a1a6cea14e6',
+    'tests/e2e/member_link_postgres_server.py': '307d95b8f4644b462b036863ac22f65c03772f900f4fbe5d6425550d1d9347fc',
+    'tests/e2e/member_link_browser.cjs': '90c826948d84ed1b2556ffa395e8911f5520490a082c904a0c9a191a6bccbce8',
+    'tests/e2e/normalize_member_link_report.py': 'd415ec90669856e6613840a3c09da7c1881a37ea96da9f5b51b0d01bd715eaab',
+    'tests/e2e/run_member_link_browser.py': 'b0c23986c4d02693f4713b8e9bf8e1cc7f9e115f442218e1bfe86281c90190ba',
+    'tests/e2e/member_link_controls.cjs': '51f9a1bc7a3b7a90d906017920ece2c5c54f37275aa2d9ed9728ba6c4f374c1d',
+    'tests/e2e/member_link_export.cjs': '287488236fe8cce0fee492145abf5e1b147ad9e038b7b03ada44285c9e6bd0d4',
+}
 EXPECTED_CURRENT_REPORTS = {
     'pytest-postgres-member-migrations.xml': (5, ('tests.integration_client_link_migrations',)),
     'pytest-postgres-member-services.xml': (16, ('tests.integration_client_link_services',)),
@@ -43,10 +52,13 @@ WIRING_STEP = {
     'run': 'python -X utf8 tests/verify_member_links_ci.py --output "$RUNNER_TEMP/member-links-ci"',
 }
 VM_MODULES = {'member_link_context': 26, 'member_link_fragment': 15,
-              'member_link_api': 23, 'member_link_consumers': 16, 'member_link_export': 32}
+              'member_link_api': 23, 'member_link_consumers': 16, 'member_link_export': 32,
+              'member_link_controls': 3}
 VM_STEP = {
     'name': 'Member link API, context, fragment, consumers and seven-collection export contracts',
-    'run': ''.join('node tests/e2e/' + name + '.cjs > ' + name.replace('_', '-') + '.json\n'
+    'run': ''.join('node tests/e2e/' + name + '.cjs' +
+                   (' web/static/js/vinculos-ui.js' if name == 'member_link_controls' else '') +
+                   ' > ' + name.replace('_', '-') + '.json\n'
                    'python scripts/check_frontend_report.py ' + name.replace('_', '-') +
                    '.json --format counts --minimum ' + str(minimum) + '\n'
                    for name, minimum in VM_MODULES.items()),
@@ -66,6 +78,22 @@ PG_SPECS = (
 NEW_REPORTS = tuple('pytest-postgres-' + suffix + '.xml' for _, _, suffix in PG_SPECS)
 REPORT_STEP = {'name': 'Current member link reports retain all selected PostgreSQL cases',
                'run': 'python tests/check_member_link_reports.py'}
+BROWSER_STEP = {
+    'name': 'Real member linking browser with restricted migrated PostgreSQL and private mail transport',
+    'env': {
+        'METODOBASE_TEST_MIGRATOR_URL': 'postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image',
+        'METODOBASE_TEST_POSTGRES_URL': 'postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image',
+        'METODOBASE_TEST_PG_BIN': '/usr/bin',
+    },
+    'run': 'export QA_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"\n'
+           'export QA_CHROME=$(node -e "process.stdout.write(require(\'./tests/e2e/node_modules/playwright-core\').chromium.executablePath())")\n'
+           'python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794\n',
+}
+BROWSER_UPLOAD = {
+    'uses': 'actions/upload-artifact@v4', 'if': 'always()',
+    'with': {'name': 'member-link-real-browser', 'path': '${{ runner.temp }}/member-link-public',
+             'if-no-files-found': 'error'},
+}
 
 
 def normalized(path: Path) -> bytes:
@@ -123,6 +151,9 @@ def expected_workflow(old: dict) -> dict:
     needle = '--tables 26 --revision ' + PREVIOUS
     assert browser['run'].count(needle) == 1
     browser['run'] = browser['run'].replace(needle, '--tables 29 --revision ' + REVISION)
+    image_steps = expected['jobs']['image']['steps']
+    index = image_steps.index(browser) + 1
+    image_steps[index:index] = [BROWSER_STEP, BROWSER_UPLOAD]
     return expected
 
 
@@ -175,7 +206,9 @@ def delta_cases(workflow: dict, old: dict) -> list[dict]:
              'allow-SQLite-in-PG', 'missing-report-parser', 'lower-report-count',
              'missing-new-report', 'omit-historical-report', 'missing-VM', 'lower-VM-minimum',
              'missing-VM-upload', 'old-fixture-head', 'old-fixture-tables',
-             'changed-process-cleanup', 'changed-liveness', 'omit-old-browser', 'unrelated-job']
+             'changed-process-cleanup', 'changed-liveness', 'omit-old-browser', 'unrelated-job',
+             'missing-real-member-browser', 'public-private-directory-glob',
+             'missing-real-browser-upload', 'missing-owned-controls', 'wrong-owned-controls-source']
     for name in names:
         mutant = copy.deepcopy(workflow)
         web = mutant['jobs']['test-web']['steps']
@@ -213,6 +246,19 @@ def delta_cases(workflow: dict, old: dict) -> list[dict]:
         elif name == 'changed-liveness': browser['run'] = browser['run'].replace('kill -0 "$browser_fixture_pid" || return 1', 'true')
         elif name == 'omit-old-browser': browser['run'] = '\n'.join(line for line in browser['run'].splitlines() if not line.startswith('run_browser_fixture tests/e2e/gym_generation_server.py')) + '\n'
         elif name == 'unrelated-job': mutant['jobs']['redis']['runs-on'] = 'windows-latest'
+        elif name == 'missing-real-member-browser': mutant['jobs']['image']['steps'].remove(BROWSER_STEP)
+        elif name == 'public-private-directory-glob':
+            step = next(step for step in mutant['jobs']['image']['steps']
+                        if step.get('with', {}).get('name') == BROWSER_UPLOAD['with']['name'])
+            step['with']['path'] = '${{ runner.temp }}/**'
+        elif name == 'missing-real-browser-upload': mutant['jobs']['image']['steps'].remove(BROWSER_UPLOAD)
+        elif name in ['missing-owned-controls', 'wrong-owned-controls-source']:
+            step = next(step for step in front if step.get('name') == VM_STEP['name'])
+            if name == 'missing-owned-controls':
+                step['run'] = '\n'.join(line for line in step['run'].splitlines()
+                                         if 'member-link-controls' not in line and 'member_link_controls' not in line) + '\n'
+            else:
+                step['run'] = step['run'].replace(' web/static/js/vinculos-ui.js', ' web/static/js/api.js')
         assert mutant != workflow, name
         try: verify_workflow(mutant, old)
         except AssertionError: rows.append({'case': name, 'rejected': True})
@@ -345,7 +391,7 @@ def main() -> None:
     report = {'scope': 'Local CI29 wiring/parsers/actual marker expressions and owned inert Bash; no Actions/browser/PG/provider execution',
         'historical_source_pin': '66d9dec0e15dd873038bd248d3883daeeb27d4ca',
         'historical_exit': historical.returncode, 'reports': reports, 'current_PG_minimum_cases': 60,
-        'VM_minima': VM_MODULES, 'VM_executions_in_full17': 297, 'VM_unique_criteria': 276,
+        'VM_minima': VM_MODULES, 'VM_executions_in_full18': 300, 'VM_unique_criteria': 279,
         'duplicate_legacy_export_executions': 21, 'actual_markers': actual_fixture_markers(),
         'unauthorized_delta_canaries': delta_cases(workflow, old)}
     if not args.verify_only:

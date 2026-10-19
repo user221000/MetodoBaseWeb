@@ -22,7 +22,7 @@ test('Recipient OWNER exports only own active metadata without adopting six pers
 test('Missing seventh dataset fails the whole page without claiming completion',async()=>{
  const e=await fixture();e.setTransport(async()=>{const d=page();delete d.member_links;return Response.json(d);});await e.prepare();assert.equal(e.downloads.length,0);assert.equal(e.node('privacy-error').hidden,false);assert(!e.node('privacy-status').textContent.includes('todas las partes'));
 });
-for(const bad of [{...linked(),status:'revoked'},{...linked(),recipient_user_id:'synthetic-foreign'},{...linked(),publication:{id:LINK_B,version:1,published_at:'2026-10-19T12:00:00Z',object_key:'must-not-export'}}])test('Non-contract or revoked member metadata is rejected entirely: '+Object.keys(bad).at(-1),async()=>{
+for(const [field,bad] of [['status',{...linked(),status:'revoked'}],['recipient_user_id',{...linked(),recipient_user_id:'synthetic-foreign'}],['publication',{...linked(),publication:{id:LINK_B,version:1,published_at:'2026-10-19T12:00:00Z',object_key:'must-not-export'}}]])test('Non-contract or revoked member metadata is rejected entirely: '+field,async()=>{
  const e=await fixture();e.setTransport(async()=>{const d=page();d.member_links.records=[bad];return Response.json(d);});await e.prepare();assert.equal(e.downloads.length,0);assert.equal(e.node('privacy-error').hidden,false);e.intact();
 });
 test('Oversize member section is rejected before constructing an export Blob',async()=>{
