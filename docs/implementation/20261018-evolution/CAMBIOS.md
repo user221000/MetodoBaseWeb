@@ -57,3 +57,9 @@ Hallazgos abiertos: SEC02 confirmado con dos casos rojos de refresh en memoria; 
 `754d56d` vincula refresh/reintentos/lecturas al contexto de sesión inicial y comparte una promesa que siempre resuelve sus consumidores. Fallos parciales de Storage bloquean I/O hasta guardar o limpiar completamente el par.74 VM independientes y navegador actual aceptan esta contención por instancia; reload/cross-tab y otros escritores siguen abiertos. El candidato histórico275 se preservó por SHA exacto en copia, sin inventar commit.
 
 `6d33b9e` exige reportes Node tipados/no vacíos,17 JUnit PG y cinco fixtures navegador con logs diferenciados. QA actual36 grupos/19 pantallas más3 Storage; serial1813/1skip Windows, n2shuffle1813/1skip en133.73s,519 fuentes y89 paquetes estables. No se ejecutó Actions, imagen Linux ni Redis real. Desktop41ad55f y UI individual se desarrollan en worktrees separados y aún no integrados.
+
+## Checkpoint local 19 de octubre: UI, disponibilidad y procedencia
+
+Integrados c11256a (UI personal40fd2af),0fa124e (SEC037321d3b) y desktop3930398/171a8f0/9f3f32e. Estadísticas ba4deb4 ya tiene QA independiente0e4bc07. Evidencias del autor y de QA se mantienen separadas, incluida reproducción de400 tras commit, HTML con CSP activa, source flags y controles binarios/CR aislado.
+
+La receta desktop exige bytes exactos para controles ASCII/DEL/CR aislado; ESC es conservador aunque Git lo considere texto. La primera compilación9f3f32e rechazó un log ANSI convertido por autocrlf antes de Analysis; fuentes estables y diagnóstico preservados. Se ensaya el mismo commit en checkout LF sin cambiar configuración Git. Todavía sin artefacto aceptado, Inno, firma o publicación.

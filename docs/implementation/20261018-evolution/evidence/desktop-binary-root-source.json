@@ -1,0 +1,32 @@
+{
+  "scope": "Coordinator author narrow conservative control-byte provenance fix, not independent acceptance or build.",
+  "base_commit": "abfee196ef6519ebf1a71687bdd8240fa2734580",
+  "sources": {
+    "build.py": "756acf56617e0d24ec244c5e3e3421358a193c6357f8e432fd163f986583eccb",
+    "tests/test_desktop_provenance.py": "20007f7f2a6b89b3e058f7504624a85574a9c72ea5250926df3b406637215e6d"
+  },
+  "immutable_qa_test_sha256": "41e0ce9ce6b9d130716b4fe4aa6db251646448f6fc5ee9eb566880bbf910f4c0",
+  "before": {
+    "failed": 1,
+    "deselected": 7,
+    "junit": "desktop-binary-root-before.xml"
+  },
+  "after_before_adding_portable_cases": {
+    "passed": 89,
+    "seconds": 20.5,
+    "junit": "desktop-binary-root-after.xml"
+  },
+  "portable_cases": {
+    "passed": 3,
+    "seconds": 4.19,
+    "junit": "desktop-binary-root-portable-final.xml"
+  },
+  "harness_erratum": {
+    "junit": "desktop-binary-root-portable.xml",
+    "failed": 1,
+    "passed": 2,
+    "cause": "Own added ESC case incorrectly expected Git i/-text; actual Git i/lf. Corrected only the author Git-observation expectation. Conservative packaging still requires exact bytes for ESC; independent binary test is unchanged."
+  },
+  "policy": "ASCII controls except TAB/LF/CR and DEL require exact bytes, including valid UTF8. Stricter than Git for some ESC text; such checkouts may use exact LF bytes. NUL/invalid UTF8/committed -text remain exact. No index/config/attribute mutation or filter execution added.",
+  "pending": "QA repeat immutable case and affected suite, then local commit/integration before an artifact."
+}

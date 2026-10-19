@@ -1,0 +1,82 @@
+{
+  "head": "abfee196ef6519ebf1a71687bdd8240fa2734580",
+  "sourceCount": 27,
+  "sourceStable": true,
+  "sources": {
+    "build.py": "1e3aa2a5c8a8baebbf7dcd11f543b5462481015c386caebf2a6db4389326eb31",
+    "setup.py": "466b40c1b3c51c0c1a629c9e996948621588b3c94c1d427ef63d4e7c51746e6a",
+    "build_config.py": "8353bd72dbee4d3927bad7edd47aa58eb4bf890fbe9e6ab9d625e02b19c1f92c",
+    "build_all.bat": "82b263e192a368cc7b6dc92a71033fbd6450d447e3ca0fbb9444d4614dce6ca5",
+    "metodobase_iniciar.bat": "7efae1765e48af60d73aef6711bf005ffaa6d9208231eb8381de774db28a46c3",
+    "setup_installer.iss": "6ca6e8d9f5afadd58168993470d1612ed3dfa321ab4515e2e7de8cf2e75a992e",
+    "README_DISTRIBUCION.md": "81ccc8a8fe5cf1a7e5b4d11b1e555acb4747f4aaec034cead4c888af25016839",
+    "README.md": "8dbc39f384f19c9dabc517db4bda99261f863590076ea6f43d5cbf93cba4a0b2",
+    "docs/implementation/20261018-evolution/DESKTOP_EMPAQUETADO.md": "07c6bc9d67a305fd401b585c762993e11f5f7e5dd08fc03d314cb9bed9822c8d",
+    "tests/test_desktop_provenance.py": "4110f4a4782492206deaac83a855f9ec4901235a88d02f1cf30e17c5176207e9",
+    "tests/test_desktop_entrypoints.py": "dde7c002fad31f9d2ea3e21f8ac7f6ae5846e5813aafda32a6597513d19d32d3",
+    "MetodoBase.spec": "a16c68e432e044e049be3f4f5a3c2d4129c0652b2c9b3de06e8e122eaa04ca3a",
+    "validate_build.py": "5a0e96a546d835ed982b28de7edbf30a74d986d7ea4ed7e1e95f2c4694f900e1",
+    "scripts/desktop_runtime_hook.py": "cfa4fe40b5de8df1cd201315624c8d9f266ba035d39878bb6953cbece613a459",
+    "build_all.sh": "6e5cbe6f38e3f6c34511e128a7b9e63cd8e3e5b00458208a526c9d8e4d1ef253",
+    "requirements_build.txt": "aa632b4f31079d6f55d43d2bdbe4e43ea26a698be77c2a4842806282c3a8c3d2",
+    "requirements_build.lock": "1c295be361d6627efe876cd794bb47143806fffba17cdc62dea5eb2edc9d8cc7",
+    "tests/test_desktop_packaging.py": "c93c650617e1cde9c0e7e6e6dad141d017c684c5f2bb5784e30f4d1d9a0ef616",
+    "tests/test_desktop_packaging_review.py": "910f62f7dfeab1ab2e3af2f2f7cb01e77b3c719d27a54017d7606936a5e8c78f",
+    "ui_desktop/pyside/ventana_login_unificada.py": "25580a74d07d9ffd19fd6851c351c58fe25d19a4b14cc60cfe6b4ae2c20073ad",
+    "ui_desktop/pyside/theme_manager.py": "842d1d6b62f3799dc90b96c4dafb47bfd88639e73120a201b4119d600f35cec8",
+    "core/services/auth_service.py": "368c00d82653d626338c1b98455707063b985f5b3455237e4c5fb0cd1e0f65b2",
+    "core/services/key_manager.py": "acb887b8c44035f4a5cbbff98793983cee35824584d08d6fe3dbc14f0fd483e0",
+    "src/gestor_usuarios.py": "b1cace63e63aad89101109c5d710c2e758a49e9c87e1ce35aa956c8a429f962f",
+    "core/branding.py": "d869b478f8df7926612b6e584ea4f0f1565711787887e195c253af84ae2048a9",
+    "config/constantes.py": "8a11c51cd25efae5447e17e8bddc6f8f478e7d15d7f4341370a85ae0eb3cb61a",
+    "utils/logger.py": "3384e3349c2f33ffeb9efb5709ee282a3947567a05d0d441ee01b2d7cd5d4944"
+  },
+  "indexFlagsConfigUnchanged": true,
+  "existingGate": {
+    "passed": 81,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 12.4,
+    "log": "desktop-independent.log",
+    "junit": "desktop-independent.xml"
+  },
+  "newAdversarialGate": {
+    "passed": 7,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 6.12,
+    "log": "desktop-adversarial-before.log",
+    "junit": "desktop-adversarial-before.xml",
+    "testSource": "test_desktop_source_review.py",
+    "testSourceSha256": "41e0ce9ce6b9d130716b4fe4aa6db251646448f6fc5ee9eb566880bbf910f4c0"
+  },
+  "blockingObservation": {
+    "code": "OPS09_BINARY_PROVENANCE",
+    "source": "build.py::_checkout_matches",
+    "reproduction": "Committed binary.dat bytes 01 02 03 04 05 06 0a, classified Git i/-text, replaced with 01 02 03 04 05 06 0d 0a, Git w/-text. source_snapshot incorrectly accepts altered working SHA as committed provenance.",
+    "expectation": "Binary source bytes must match commit exactly. Preserve test and constrain only text checkout conversion. No extension allow/deny shortcut.",
+    "productModified": false
+  },
+  "controls": [
+    "Positive snapshots preserve assume-unchanged and skip-worktree flags, raw index and local config",
+    "Staged/index replacement rejected although working bytes restored to commit",
+    "Inherited global/env Git configuration ignored",
+    "Local external attributes and fsmonitor disabled without executing marker command",
+    "Historical CRLF-to-LF and mixed source replacements rejected"
+  ],
+  "reviewedEntrypoints": [
+    "setup.py delegates build.py",
+    "build_config.py uses AST/no product import/per-file inventory",
+    "build_all.bat delegates absolute script without cleanup/install",
+    "launcher checks bundle and does not install Python/server",
+    "ISS retains AppId and upgrade directory, explicit verified files, no Run/UninstallDelete"
+  ],
+  "limits": [
+    "No PyInstaller Analysis/build/GUI/ISCC/installer/signature/publish",
+    "Synthetic cross-platform file layouts are not native artifacts",
+    "Git object store and binary remain trusted tools; not hostile concurrent namespace substitution"
+  ],
+  "assessment": "Blocked pending narrow binary classification fix. Existing 81 pass does not override new red."
+}
