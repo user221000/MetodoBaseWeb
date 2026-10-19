@@ -1,0 +1,251 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\check_history_index_reports.py:6:1
+   |
+ 4 |   identities prevent replacing a missing index case with an unrelated PG case.
+ 5 |   """
+ 6 | / from __future__ import annotations
+ 7 | | import argparse
+ 8 | | from pathlib import Path
+ 9 | | import xml.etree.ElementTree as ET
+   | |__________________________________^
+10 |
+11 |   MIGRATIONS = 'tests.integration_personal_history_index_migrations'
+   |
+help: Organize imports
+   |
+6  | from __future__ import annotations
+7  +
+8  | import argparse
+   - from pathlib import Path
+9  | import xml.etree.ElementTree as ET
+10 + from pathlib import Path
+11 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\run_reviewed_ci29.py:9:1
+   |
+ 7 |   using that source/runtime and the caller's explicitly isolated test database.
+ 8 |   """
+ 9 | / from __future__ import annotations
+10 | |
+11 | | import argparse
+12 | | import hashlib
+13 | | import io
+14 | | import json
+15 | | import os
+16 | | from pathlib import Path, PurePosixPath
+17 | | import re
+18 | | import subprocess
+19 | | import sys
+20 | | import tarfile
+   | |______________^
+21 |
+22 |   ROOT = Path(__file__).resolve().parents[1]
+   |
+help: Organize imports
+   |
+15 | import os
+   - from pathlib import Path, PurePosixPath
+16 | import re
+17 | import subprocess
+18 | import sys
+19 | import tarfile
+20 + from pathlib import Path, PurePosixPath
+21 |
+   |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> tests\run_reviewed_ci29.py:160:14
+    |
+158 |         timeout = 45
+159 |         report['scope'] = 'Historical CI29 wiring/assertions and actual revision29 ORM markers; no restore/browser/services'
+160 |     result = subprocess.run(command, cwd=source, capture_output=True, timeout=timeout)
+    |              ^^^^^^^^^^^^^^
+161 |     (out / 'stdout.log').write_bytes(result.stdout)
+162 |     (out / 'stderr.log').write_bytes(result.stderr)
+    |
+help: Add explicit `check=False`
+    |
+159 |         report['scope'] = 'Historical CI29 wiring/assertions and actual revision29 ORM markers; no restore/browser/services'
+    -     result = subprocess.run(command, cwd=source, capture_output=True, timeout=timeout)
+160 +     result = subprocess.run(command, check=False, cwd=source, capture_output=True, timeout=timeout)
+161 |     (out / 'stdout.log').write_bytes(result.stdout)
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> tests\test_history_index_ci_trust.py:2:1
+  |
+1 |   """Keep the new historical runner and exact current index cases fail closed."""
+2 | / import ast
+3 | | from pathlib import Path
+4 | | import xml.etree.ElementTree as ET
+5 | |
+6 | | import pytest
+7 | |
+8 | | from tests import check_history_index_reports as reports
+9 | | from tests import verify_history_index_ci as guard
+  | |__________________________________________________^
+help: Organize imports
+  |
+2 | import ast
+3 + import xml.etree.ElementTree as ET
+4 | from pathlib import Path
+  - import xml.etree.ElementTree as ET
+5 |
+  |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests\verify_history_index_ci.py:7:1
+   |
+ 5 |   The pinned historical runner evaluates actual old metadata in old source.
+ 6 |   """
+ 7 | / from __future__ import annotations
+ 8 | |
+ 9 | | import argparse
+10 | | import ast
+11 | | import copy
+12 | | import hashlib
+13 | | import json
+14 | | import os
+15 | | from pathlib import Path
+16 | | import re
+17 | | import shlex
+18 | | import shutil
+19 | | import subprocess
+20 | | import sys
+21 | | import xml.etree.ElementTree as ET
+22 | | import zipfile
+23 | |
+24 | | import yaml
+   | |___________^
+25 |
+26 |   ROOT = Path(__file__).resolve().parents[1]
+   |
+help: Organize imports
+   |
+14 | import os
+   - from pathlib import Path
+15 | import re
+--------------------------------------------------------------------------------
+21 | import zipfile
+22 + from pathlib import Path
+23 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests\verify_history_index_ci.py:165:5
+    |
+163 |     """Evaluate just existing marker expressions with actual current ORM metadata."""
+164 |     sys.path.insert(0, str(ROOT))
+165 |     from tests.isolation import prepare_environment, block_external_sockets
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+166 |     prepare_environment(discard_inherited=True)
+167 |     block_external_sockets()
+    |
+help: Organize imports
+    |
+164 |     sys.path.insert(0, str(ROOT))
+    -     from tests.isolation import prepare_environment, block_external_sockets
+165 +     from tests.isolation import block_external_sockets, prepare_environment
+166 |     prepare_environment(discard_inherited=True)
+    |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> tests\verify_history_index_ci.py:267:22
+    |
+265 |             elif mode == 'malformed': (directory / target).write_bytes(b'<testsuite')
+266 |             positive = mode == 'positive'
+267 |             result = subprocess.run([sys.executable, str(ROOT / 'tests/check_member_link_reports.py'),
+    |                      ^^^^^^^^^^^^^^
+268 |                                      '--directory', str(directory)], capture_output=True, timeout=10)
+269 |             (directory / 'stdout.log').write_bytes(result.stdout)
+    |
+help: Add explicit `check=False`
+    |
+267 |             result = subprocess.run([sys.executable, str(ROOT / 'tests/check_member_link_reports.py'),
+    -                                      '--directory', str(directory)], capture_output=True, timeout=10)
+268 +                                      '--directory', str(directory)], check=False, capture_output=True, timeout=10)
+269 |             (directory / 'stdout.log').write_bytes(result.stdout)
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> tests\verify_history_index_ci.py:302:22
+    |
+300 |             if mode == 'missing': (directory / target).unlink()
+301 |             elif mode == 'malformed': (directory / target).write_bytes(b'<testsuite')
+302 |             result = subprocess.run([sys.executable, str(ROOT / 'tests/check_history_index_reports.py'),
+    |                      ^^^^^^^^^^^^^^
+303 |                 '--directory', str(directory)], capture_output=True, timeout=10)
+304 |             (directory / 'stdout.log').write_bytes(result.stdout); (directory / 'stderr.log').write_bytes(result.stderr)
+    |
+help: Add explicit `check=False`
+    |
+302 |             result = subprocess.run([sys.executable, str(ROOT / 'tests/check_history_index_reports.py'),
+    -                 '--directory', str(directory)], capture_output=True, timeout=10)
+303 +                 '--directory', str(directory)], check=False, capture_output=True, timeout=10)
+304 |             (directory / 'stdout.log').write_bytes(result.stdout); (directory / 'stderr.log').write_bytes(result.stderr)
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> tests\verify_history_index_ci.py:361:22
+    |
+359 |                 CI_REVISION=PREVIOUS if mode == 'old-head' else REVISION,
+360 |                 CI_TABLES='26' if mode == 'old-tables' else '29', METODOBASE_EVIDENCE_BATCH='inert')
+361 |             result = subprocess.run([bash, script.as_posix()], cwd=directory, env=environment,
+    |                      ^^^^^^^^^^^^^^
+362 |                                     capture_output=True, timeout=25)
+363 |             (directory / 'stdout.log').write_bytes(result.stdout)
+    |
+help: Add explicit `check=False`
+    |
+360 |                 CI_TABLES='26' if mode == 'old-tables' else '29', METODOBASE_EVIDENCE_BATCH='inert')
+    -             result = subprocess.run([bash, script.as_posix()], cwd=directory, env=environment,
+361 +             result = subprocess.run([bash, script.as_posix()], check=False, cwd=directory, env=environment,
+362 |                                     capture_output=True, timeout=25)
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> tests\verify_history_index_ci.py:389:18
+    |
+387 |     workflow = yaml.safe_load(args.workflow.read_text(encoding='utf8'))
+388 |     _, reports = verify_workflow(workflow, old)
+389 |     historical = subprocess.run([sys.executable, '-X', 'utf8', str(ROOT / 'tests/run_reviewed_ci29.py'),
+    |                  ^^^^^^^^^^^^^^
+390 |         '--output', str(out / 'historical-ci29'), '--history-repository', str(args.history_repository)],
+391 |         cwd=ROOT, capture_output=True, timeout=90)
+    |
+help: Add explicit `check=False`
+    |
+390 |         '--output', str(out / 'historical-ci29'), '--history-repository', str(args.history_repository)],
+    -         cwd=ROOT, capture_output=True, timeout=90)
+391 +         check=False, cwd=ROOT, capture_output=True, timeout=90)
+392 |     (out / 'historical.log').write_bytes(historical.stdout + historical.stderr)
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> tests\verify_history_index_ci.py:405:22
+    |
+403 |         blocks = [step['run'] for job in workflow['jobs'].values() for step in job.get('steps', []) if 'run' in step]
+404 |         for block in blocks:
+405 |             result = subprocess.run([bash, '-n'], input=block.encode(), capture_output=True, timeout=15)
+    |                      ^^^^^^^^^^^^^^
+406 |             assert result.returncode == 0, result.stderr
+407 |         refs = sorted(set(re.findall(r'(?:scripts|tests)/[A-Za-z0-9_./-]+\.(?:py|cjs)', args.workflow.read_text(encoding='utf8'))))
+    |
+help: Add explicit `check=False`
+    |
+404 |         for block in blocks:
+    -             result = subprocess.run([bash, '-n'], input=block.encode(), capture_output=True, timeout=15)
+405 +             result = subprocess.run([bash, '-n'], check=False, input=block.encode(), capture_output=True, timeout=15)
+406 |             assert result.returncode == 0, result.stderr
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+Found 11 errors.
+[*] 5 fixable with `--fix`.
