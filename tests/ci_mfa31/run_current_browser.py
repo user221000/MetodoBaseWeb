@@ -107,8 +107,7 @@ def fixture(argv: list[str], phase: Path, name: str, environment: dict, stop_fil
 def validate_pg_marker(value, pid):
     assert value['pid'] == pid and value['runtime_revision'] == '20261019_mfa'
     assert value['model_tables'] == 32 and value['actual_tables'] == 33
-    if 'application_role_restricted_nonowner' in value:
-        assert value['application_role_restricted_nonowner'] is True
+    assert value['application_role_restricted_nonowner'] is True
 
 
 def require_browser_report(path: Path, count: int, *, list_name='checks', completed=None) -> None:
@@ -174,6 +173,7 @@ def image(tag: str, phase: Path, environment: dict) -> None:
                       stdin=(ROOT / 'tests/ci_mfa31/image_inventory.py').read_bytes())
         inventory = json.loads(raw)
         assert inventory['complete'] is True
+        assert inventory['application_role_restricted_nonowner'] is True
         for name, digest in inventory['sources_sha256'].items():
             assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest
         (phase / 'image-inventory.json').write_bytes(raw)

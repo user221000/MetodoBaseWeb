@@ -21,17 +21,37 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+# Authenticate the executable checker before importing its API. API-only
+# canaries cannot detect a replacement main() that unconditionally returns 0.
+REPORT_CHECKER_SHA256 = 'b375cfda1eedefa1716af5150a9d7935c27f7e3b4e4f1fe21548aeead8e04484'
+
+
+def verify_report_checker(path: Path) -> None:
+    if path.is_symlink() or not path.is_file() or path.resolve() != path.absolute():
+        raise ValueError('Current31 report checker is missing or aliased')
+    if hashlib.sha256(path.read_bytes().replace(b'\r\n', b'\n')).hexdigest() != REPORT_CHECKER_SHA256:
+        raise ValueError('Current31 report checker executable differs from its reviewed source')
+
+
+verify_report_checker(ROOT / 'tests/check_mfa31_reports.py')
+
 import yaml
 from tests.check_mfa31_reports import required_reports
 from tests.ci_mfa31.workflow import expected_workflow, CURRENT_VM
 from tests.run_reviewed_ci30 import new_directory, require, trusted_baseline, REVISION
 
 MEMBER31_SHA256 = '4b8db35bfac09bef72b32940dab81245a316385d7a78a05a1c725b67b4167be6'
+SNAPSHOT_SHA256 = 'e61033118012fb2357ae978ab28171a9f0b41f54a9f559b18a487ffcfd275fa0'
+DIARY_CONTROLLER_SHA256 = 'e6b407d7b68a8536a14e4b195a4728f5f79edc1f7b5d24529b76715666bd5e10'
 MAPPING_SHA256 = '16b09c49bd3a84eb4849586465664ac5f86e85ea77dcb5d940c4e5c54889d6a7'
-BROWSER_MAPPING_SHA256 = '0667d88971c8515ef9331183f3d6cb9b215a9287cfffe11fd0345fa088e59529'
+BROWSER_MAPPING_SHA256 = 'f7c779a99e18f59a36b42f96cf223bc0f9e94e7e6b1b67c9bcb896ff8bdb854a'
 
 
 def verify_workflow(actual: dict) -> None:
+    require(CURRENT_VM == {'mfa_api': 28, 'mfa_state': 30, 'mfa_consumers': 8, 'mfa_prompt': 8,
+            'daily_plan_data': 23, 'daily_plan_controls': 17, 'daily_plan_snapshot': 25,
+            'personal_export_context': 17, 'personal_export_url_contract': 15},
+            'Current31 must retain all snapshot25 executions: 7 new and18 replayed criteria')
     require(actual == expected_workflow(), 'CI31 differs from the exact reviewed historical/current composition')
 
 
@@ -118,6 +138,11 @@ def verify_current_sources() -> dict:
         require(endpoint in helper, 'Current31 fixture omitted a real MFA protocol stage')
     member = (ROOT / 'tests/e2e/member_link_consumers31.cjs').read_bytes().replace(b'\r\n', b'\n')
     require(hashlib.sha256(member).hexdigest() == MEMBER31_SHA256, 'Current31 companion/DOM fixture differs from reviewed root freeze')
+    for name, digest in [('daily_plan_snapshot.cjs', SNAPSHOT_SHA256),
+                         ('personal_diary_controller.cjs', DIARY_CONTROLLER_SHA256)]:
+        raw = (ROOT / 'tests/e2e' / name).read_bytes().replace(b'\r\n', b'\n')
+        require(hashlib.sha256(raw).hexdigest() == digest,
+                'Current31 snapshot25 or its18 original diary criteria changed')
     reports = required_reports()
     # Import actual ORM/revision only after process-local test isolation. This
     # reads model metadata and version files, never connects to PostgreSQL.

@@ -23,8 +23,10 @@ verify_runtime_schema(engine, expected_revision='20261019_mfa')
 with engine.connect() as db:
     assert len(inspect(db).get_table_names()) == 33
     assert db.scalar(text('SELECT version_num FROM alembic_version')) == '20261019_mfa'
-    assert tuple(db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()) == (False, False, False, False)
-    assert db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
+    flags = db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
+    database_nonowner = db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
+    application_role_restricted_nonowner = tuple(flags) == (False, False, False, False) and database_nonowner is True
+    assert application_role_restricted_nonowner is True
     index = history_index_signature(db)
     assert index == expected_history_index('postgresql')
 sources = ['web/main_web.py', 'web/database/models.py', 'web/routes/mfa.py',
@@ -32,6 +34,8 @@ sources = ['web/main_web.py', 'web/database/models.py', 'web/routes/mfa.py',
            'web/static/js/mfa-ui.js', 'entrypoint.sh']
 print(json.dumps({'complete': True, 'model_tables': 32, 'actual_tables': 33,
     'runtime_revision': expected_head(), 'history_order_index': index,
-    'restricted_nonowner': True, 'migrator_absent_in_exec_child_and_pid1': True,
+    'restricted_nonowner': application_role_restricted_nonowner,
+    'application_role_restricted_nonowner': application_role_restricted_nonowner,
+    'migrator_absent_in_exec_child_and_pid1': True,
     'actual_pid1_main_web': True, 'lab_cap_eff_zero_no_new_privs': True,
     'sources_sha256': {name: hashlib.sha256(Path('/app', name).read_bytes()).hexdigest() for name in sources}}))

@@ -26,7 +26,7 @@ CURRENT_REPORT_COMMANDS = (
     ('diary', ['tests/integration_personal_diary_postgres.py', 'tests/integration_personal_diary_security_review.py'], ''),
 )
 CURRENT_VM = {'mfa_api': 28, 'mfa_state': 30, 'mfa_consumers': 8, 'mfa_prompt': 8,
-              'daily_plan_data': 23, 'daily_plan_controls': 17,
+              'daily_plan_data': 23, 'daily_plan_controls': 17, 'daily_plan_snapshot': 25,
               'personal_export_context': 17, 'personal_export_url_contract': 15}
 
 

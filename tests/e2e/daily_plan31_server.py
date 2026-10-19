@@ -69,8 +69,10 @@ def main():
     verify_runtime_schema(engine,require_revision=True)
     with engine.connect() as connection:
         revision=connection.execute(text('SELECT version_num FROM alembic_version')).scalar_one()
-        assert tuple(connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one())==(False,False,False,False)
-        assert connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+        flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
+        database_nonowner=connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+        application_role_restricted_nonowner=tuple(flags)==(False,False,False,False) and database_nonowner is True
+        assert application_role_restricted_nonowner is True
         assert connection.execute(text("SELECT count(*) FROM pg_class WHERE relname IN ('personal_diary_days','client_account_links','client_plan_publications') AND relrowsecurity AND relforcerowsecurity")).scalar_one()==3
     resource.update(role_super=False,role_bypass=False,app_database_owner=False,force_rls_families=3,runtime_revision=revision)
     assert revision==expected_head()=='20261019_mfa'
@@ -124,6 +126,7 @@ def main():
     hashes=lambda:{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in names}
     assert len(Base.metadata.tables)==32 and len(__import__('sqlalchemy').inspect(engine).get_table_names())==33
     before=hashes();startup={'fixture':'r24-daily-plan31','pid':os.getpid(),'origin':origin,'runtime_revision':revision,'model_tables':len(Base.metadata.tables),'actual_tables':len(__import__('sqlalchemy').inspect(engine).get_table_names()),
+        'application_role_restricted_nonowner':application_role_restricted_nonowner,
         'preparation':'actual Alembic31 on own UUID PostgreSQL restricted runtime role, real HTTP registrations/worker, synthetic persisted subscriptions only, no-send email boundary',
         'external_sockets':'blocked before product imports; not an OS sandbox','sources':before}
     (private/'startup.json').write_text(json.dumps(startup,indent=2),encoding='utf8');print(json.dumps({'fixture':startup['fixture'],'pid':os.getpid(),'origin':origin,'runtime_revision':revision,'source_count':len(before)}),flush=True)

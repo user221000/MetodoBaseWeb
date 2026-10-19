@@ -85,8 +85,9 @@ def main():
         assert expected_head()=='20261019_mfa'
         with app.connect() as connection:
             flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
-            assert tuple(flags)==(False,False,False,False)
-            assert connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+            database_nonowner=connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+            application_role_restricted_nonowner=tuple(flags)==(False,False,False,False) and database_nonowner is True
+            assert application_role_restricted_nonowner is True
             actual_revision=connection.execute(text('SELECT version_num FROM alembic_version')).scalar_one()
             runtime_history_index=history_index_signature(connection)
         assert actual_revision==expected_head()
@@ -178,7 +179,7 @@ def main():
                 'database_kind':'postgresql','executed_revision':actual_revision,'model_target_revision':expected_head(),
                 'business_contract_revision':'20261019_client_account_links','history_order_index':runtime_history_index,
                 'model_tables':len(Base.metadata.tables),'actual_tables':len(inspect(admin).get_table_names()),
-                'application_role_restricted_nonowner':True,'runtime_pool_size':app.pool.size(),'runtime_max_overflow':app.pool._max_overflow,'mail_transport':'private-filesystem-after-commit-witness',
+                'application_role_restricted_nonowner':application_role_restricted_nonowner,'runtime_pool_size':app.pool.size(),'runtime_max_overflow':app.pool._max_overflow,'mail_transport':'private-filesystem-after-commit-witness',
                 'R12_API_doubles':False,'source_plan_pdf':'Synthetic four-meal JSON and labelled local bytes; not a generation/provider demonstration',
                 'outbound_socket_guard':'loopback-only in-process','first_party_origin':origin}
         (out/'startup.json').write_text(json.dumps(marker,indent=2)+'\n',encoding='utf8')

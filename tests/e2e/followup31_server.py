@@ -70,6 +70,10 @@ try:
     assert physical_tables==33 and len(Base.metadata.tables)==32
     assert history_index==expected_history_index('postgresql')
     with app_engine.connect() as connection:
+        flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
+        database_nonowner=connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+        application_role_restricted_nonowner=tuple(flags)==(False,False,False,False) and database_nonowner is True
+        assert application_role_restricted_nonowner is True
         restricted=connection.execute(text("SELECT r.rolsuper,r.rolbypassrls,"
             "current_user=pg_get_userbyid(c.relowner),c.relrowsecurity,c.relforcerowsecurity "
             "FROM pg_roles r CROSS JOIN pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
@@ -107,7 +111,7 @@ try:
     report={'fixture':'r23-followup-real-pg31','pid':os.getpid(),'port':args.port,'database':name,
         'runtime_revision':revision,'revision_method':'SELECT alembic_version after db_bootstrap --revision head',
         'model_tables':len(Base.metadata.tables),'model_tables_method':'ORM metadata count, not a migration claim',
-        'actual_tables':physical_tables,'history_order_index':history_index,'application_role_restricted_nonowner':True,
+        'actual_tables':physical_tables,'history_order_index':history_index,'application_role_restricted_nonowner':application_role_restricted_nonowner,
         'providers':'disabled; outbound sockets guarded; fixture synthetic only',
         'sources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in names}}
     args.report.write_bytes((json.dumps(report,indent=2)+'\n').encode())
