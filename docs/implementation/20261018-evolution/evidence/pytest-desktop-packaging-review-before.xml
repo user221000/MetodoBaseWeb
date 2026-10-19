@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="30" time="2.145" timestamp="2026-10-18T23:27:17.823145-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_desktop_packaging_review" name="test_platform_structure_is_checked_without_launching[win32]" time="0.040" /><testcase classname="tests.test_desktop_packaging_review" name="test_platform_structure_is_checked_without_launching[linux]" time="0.034" /><testcase classname="tests.test_desktop_packaging_review" name="test_platform_structure_is_checked_without_launching[darwin]" time="0.034" /><testcase classname="tests.test_desktop_packaging_review" name="test_incomplete_onedir_is_rejected[_internal]" time="0.018" /><testcase classname="tests.test_desktop_packaging_review" name="test_incomplete_onedir_is_rejected[_internal/fonts/Inter/Inter-Regular.ttf]" time="0.030" /><testcase classname="tests.test_desktop_packaging_review" name="test_incomplete_onedir_is_rejected[_internal/ui_desktop/pyside/styles/amarillo_neon.qss]" time="0.033" /><testcase classname="tests.test_desktop_packaging_review" name="test_gui_platform_plugin_is_mandatory" time="0.030" /><testcase classname="tests.test_desktop_packaging_review" name="test_bare_executable_cannot_be_published_as_onedir" time="0.014" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/.env]" time="0.022" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/config/.env.production]" time="0.024" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/licencia.lic]" time="0.022" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/config/licencia_config.json]" time="0.103"><failure message="Failed: DID NOT RAISE BuildError">packaging = &lt;module 'desktop_packaging_independent_review' from 'F:\\MetodoBaseWeb-desktop-20261019\\build.py'&gt;
+bundle = WindowsPath('C:/Users/Consu/AppData/Local/Temp/pytest-of-Consu/pytest-748/test_accidental_user_material_3/release with spaces/MetodoBase')
+relative = '_internal/config/licencia_config.json'
+
+    @pytest.mark.parametrize("relative", [
+        "_internal/.env", "_internal/config/.env.production", "_internal/licencia.lic",
+        "_internal/config/licencia_config.json", "_internal/local.db", "_internal/local.sqlite3",
+        "_internal/registros/clients.json", "_internal/planes/personal.pdf",
+        "_internal/logs/runtime.log", "_internal/backups/customer.bak",
+    ])
+    def test_accidental_user_material_is_rejected_before_manifest(packaging, bundle, relative):
+        extra = bundle / relative
+        extra.parent.mkdir(parents=True, exist_ok=True)
+        extra.write_bytes(b"synthetic confidential content")
+&gt;       with pytest.raises(packaging.BuildError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE BuildError
+
+tests\test_desktop_packaging_review.py:120: Failed</failure></testcase><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/local.db]" time="0.021" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/local.sqlite3]" time="0.020" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/registros/clients.json]" time="0.023" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/planes/personal.pdf]" time="0.021" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/logs/runtime.log]" time="0.021" /><testcase classname="tests.test_desktop_packaging_review" name="test_accidental_user_material_is_rejected_before_manifest[_internal/backups/customer.bak]" time="0.017" /><testcase classname="tests.test_desktop_packaging_review" name="test_manifest_covers_the_exact_complete_tree" time="0.137" /><testcase classname="tests.test_desktop_packaging_review" name="test_manifest_detects_payload_changes[extra]" time="0.087" /><testcase classname="tests.test_desktop_packaging_review" name="test_manifest_detects_payload_changes[missing]" time="0.077" /><testcase classname="tests.test_desktop_packaging_review" name="test_manifest_detects_payload_changes[tampered]" time="0.107" /><testcase classname="tests.test_desktop_packaging_review" name="test_manifest_detects_payload_changes[malformed-manifest]" time="0.084" /><testcase classname="tests.test_desktop_packaging_review" name="test_zip_contains_every_dependency_and_manifest_with_portable_names" time="0.210" /><testcase classname="tests.test_desktop_packaging_review" name="test_failed_validation_preserves_previous_zip_and_creates_no_partial" time="0.123" /><testcase classname="tests.test_desktop_packaging_review" name="test_archive_write_failure_preserves_previous_zip_and_removes_partial" time="0.132" /><testcase classname="tests.test_desktop_packaging_review" name="test_linked_directory_never_imports_external_data" time="0.139" /><testcase classname="tests.test_desktop_packaging_review" name="test_clean_refuses_output_directory_link_and_preserves_external_data" time="0.029"><failure message="Failed: DID NOT RAISE BuildError">packaging = &lt;module 'desktop_packaging_independent_review' from 'F:\\MetodoBaseWeb-desktop-20261019\\build.py'&gt;
+tmp_path = WindowsPath('C:/Users/Consu/AppData/Local/Temp/pytest-of-Consu/pytest-748/test_clean_refuses_output_dire0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000020CD54806B0&gt;
+
+    def test_clean_refuses_output_directory_link_and_preserves_external_data(packaging, tmp_path, monkeypatch):
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+        outside = tmp_path / "outside workspace"
+        outside.mkdir()
+        sentinel = outside / "keep.txt"
+        sentinel.write_bytes(b"never remove")
+        link = workspace / "dist"
+        _directory_link(link, outside)
+        monkeypatch.setattr(packaging, "BASE_DIR", workspace)
+        try:
+&gt;           with pytest.raises(packaging.BuildError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE BuildError
+
+tests\test_desktop_packaging_review.py:227: Failed</failure></testcase><testcase classname="tests.test_desktop_packaging_review" name="test_clean_preserves_source_spec_and_unrelated_files" time="0.020"><failure message="AssertionError: assert not True&#10; +  where True = exists()&#10; +    where exists = (WindowsPath('C:/Users/Consu/AppData/Local/Temp/pytest-of-Consu/pytest-748/test_clean_preserves_source_sp0/workspace') / 'build').exists">packaging = &lt;module 'desktop_packaging_independent_review' from 'F:\\MetodoBaseWeb-desktop-20261019\\build.py'&gt;
+tmp_path = WindowsPath('C:/Users/Consu/AppData/Local/Temp/pytest-of-Consu/pytest-748/test_clean_preserves_source_sp0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000020CD548EE10&gt;
+
+    def test_clean_preserves_source_spec_and_unrelated_files(packaging, tmp_path, monkeypatch):
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+        recipe = workspace / "MetodoBase.spec"
+        recipe.write_text("source recipe", encoding="utf-8")
+        cache = workspace / "__pycache__"
+        cache.mkdir()
+        marker = cache / "do-not-clean.pyc"
+        marker.write_bytes(b"outside build output scope")
+        for name in ("build", "dist"):
+            (workspace / name).mkdir()
+            (workspace / name / "artifact").write_bytes(b"old artifact")
+        monkeypatch.setattr(packaging, "BASE_DIR", workspace)
+        packaging.clean_build_dirs()
+        assert recipe.read_text(encoding="utf-8") == "source recipe"
+        assert marker.read_bytes() == b"outside build output scope"
+&gt;       assert not (workspace / "build").exists()
+E       AssertionError: assert not True
+E        +  where True = exists()
+E        +    where exists = (WindowsPath('C:/Users/Consu/AppData/Local/Temp/pytest-of-Consu/pytest-748/test_clean_preserves_source_sp0/workspace') / 'build').exists
+
+tests\test_desktop_packaging_review.py:250: AssertionError</failure></testcase><testcase classname="tests.test_desktop_packaging_review" name="test_import_and_version_read_never_load_product_or_touch_user_profile" time="0.228" /></testsuite></testsuites>
