@@ -1,0 +1,57 @@
+{
+  "product_delta_vsC669": [
+    "web/static/js/mfa-ui.js"
+  ],
+  "MFA_UI_two_insertions_inverse_Git_bytes_exact": true,
+  "original_SHA": "1f8a17d7631ac7e25e43488cff5242958278a363f839684b23c989bf7f9cad74",
+  "fixed_SHA": "67547bd27dc42b7cc0c369daaf680db8616f34d5406b8dc6220d4b5d06210254",
+  "no_request_refresh_authority_storage_changes": true,
+  "original3_immutable_SHA": "b704b6b2a8c8296306fcf9176b10fbfb13dec058100297ff3443fb9c7bda7239",
+  "outcomes": [
+    {
+      "label": "original3",
+      "exit": 0,
+      "report": {
+        "scope": "Actual MfaUI.mountAccount and actual central api.js. Minimal DOM/explicit RAM HTTP only; not a second browser/PG/provider claim.",
+        "total": 3,
+        "passed": 3,
+        "results": [
+          {
+            "case": "Mounted confirm ACK closes its session and removes the previously current MFA summary",
+            "passed": true
+          },
+          {
+            "case": "Mounted regenerate ACK closes its session and removes the previously current MFA summary",
+            "passed": true
+          },
+          {
+            "case": "Mounted revoke ACK closes its session and removes the previously current MFA summary",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "label": "own2guards",
+      "exit": 0,
+      "report": {
+        "scope": "Actual mountAccount/API and added DOM-clear reentrancy controls; RAM transport/minimal DOM only.",
+        "total": 2,
+        "passed": 2,
+        "results": [
+          {
+            "case": "New confirm summary-clear boundary cannot reveal an old kit or clear B during synchronous account replacement",
+            "passed": true
+          },
+          {
+            "case": "New revoke summary-clear boundary cannot reveal an old kit or clear B during synchronous account replacement",
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "source_files": 10111,
+  "packages": 89,
+  "source_helpers_packages_Node_exact_before_after": true
+}

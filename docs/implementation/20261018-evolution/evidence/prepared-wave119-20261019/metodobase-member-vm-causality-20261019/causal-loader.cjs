@@ -1,0 +1,12 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
+const root=path.resolve(process.argv[2]),mode=process.argv[3];
+const filename=path.join(root,'tests/e2e/member_link_consumers.cjs');
+const original=fs.readFileSync(filename,'utf8');
+const needle='};box.window=box;vm.createContext(box);';
+const injection='};box.PlanDayUI={mount(){return {setSource(){},invalidate(){}};}};box.PublicationConsumption={mount(){return {invalidate(){}};}};box.window=box;vm.createContext(box);';
+if(original.split(needle).length!==2)throw Error('Unexpected frozen fixture shape');
+if(!['original','missing-globals-only'].includes(mode))throw Error('Unexpected probe mode');
+const content=mode==='original'?original:original.replace(needle,injection);
+if(mode!=='original'&&content.replace(injection,needle)!==original)throw Error('Probe changed original assertions');
+const entry=new Module(filename,module);entry.filename=filename;entry.paths=Module._nodeModulePaths(path.dirname(filename));entry._compile(content,filename);

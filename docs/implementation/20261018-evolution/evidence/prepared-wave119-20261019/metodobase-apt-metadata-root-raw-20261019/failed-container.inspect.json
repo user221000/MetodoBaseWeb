@@ -1,0 +1,212 @@
+[
+    {
+        "Id": "7cbc85823cbad56b4e4b6d0f53342a53b605149639e9dfa3fb930477dc5d9cd5",
+        "Created": "2026-10-19T17:51:17.202579142Z",
+        "Path": "/bin/sh",
+        "Args": [
+            "-c",
+            "set -eu;     printf '%s\\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-native.list;     mkdir -p /usr/local/share/metodobase/native-runtime;     dpkg-query -W -f='${binary:Package}\\t${Version}\\n' > /usr/local/share/metodobase/native-runtime/before.tsv;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Update::Error-Mode=any -o Acquire::AllowInsecureRepositories=false update;     sha256sum --check /usr/local/share/metodobase/requirements-container-apt-metadata.lock;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends libpq5=17.11-0+deb13u1;     test \"$(dpkg-query -W -f='${Version}' libpq5)\" = '17.11-0+deb13u1';     test \"$(dpkg-query -W -f='${Version}' libssl3t64)\" = '3.5.7-1~deb13u3';     dpkg-query -W -f='${binary:Package}\\t${Version}\\n' > /usr/local/share/metodobase/native-runtime/after.tsv;     python -c \"from pathlib import Path; p=Path('/usr/local/share/metodobase/native-runtime'); rows=lambda n:dict(line.split('\\t') for line in (p/n).read_text().splitlines()); before=rows('before.tsv'); after=rows('after.tsv'); assert all(after.get(k)==v for k,v in before.items()), 'Existing base packages changed'\";     rm -f /tmp/metodobase-native.list;     rm -rf /var/lib/apt/lists/*"
+        ],
+        "State": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 1,
+            "Error": "",
+            "StartedAt": "2026-10-19T17:51:23.642425116Z",
+            "FinishedAt": "2026-10-19T17:51:53.565234567Z"
+        },
+        "Image": "sha256:728ab7e60cd96cf9f4a200ad411620497d8ea9090e89fdcd3b87d5112c36aeec",
+        "ResolvConfPath": "/var/lib/docker/containers/7cbc85823cbad56b4e4b6d0f53342a53b605149639e9dfa3fb930477dc5d9cd5/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/7cbc85823cbad56b4e4b6d0f53342a53b605149639e9dfa3fb930477dc5d9cd5/hostname",
+        "HostsPath": "/var/lib/docker/containers/7cbc85823cbad56b4e4b6d0f53342a53b605149639e9dfa3fb930477dc5d9cd5/hosts",
+        "LogPath": "",
+        "Name": "/nervous_sinoussi",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "none",
+                "Config": {}
+            },
+            "NetworkMode": "default",
+            "PortBindings": null,
+            "RestartPolicy": {
+                "Name": "",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "KernelMemory": 0,
+            "KernelMemoryTCP": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/90edd69c5abe5e061f780fab16f2f36652893663a6e50b3bf97850fb8a62988f-init/diff:/var/lib/docker/overlay2/6adecc1dd992fccbc7580d715142052f93e976dc12ccd3c545d86e101ad98629/diff:/var/lib/docker/overlay2/774d20f918657ff71ecad0af834972d1e6b55b55979a752d432dcc3fb8c4757e/diff:/var/lib/docker/overlay2/4950484d48583e441f451f142dfa7c79f55c298d86f29946c0a4d675f3b7bf74/diff:/var/lib/docker/overlay2/0175a70e7342aadbc8e98ec2281144af762cbd3f8f3c3c407c6ea67cf9130d3c/diff:/var/lib/docker/overlay2/a3e327a3daa7029f72863ef8bcd5208454b61520223e3dc902b58b26023746fb/diff:/var/lib/docker/overlay2/a84e2b0816c66e89f381d4756480f2b535e54d81f8cdc651205b66ebfe0a3e68/diff:/var/lib/docker/overlay2/d0b8c79ff53d01498eae6aee54e5f3d327c4e59dabd3aeb90e3edf5674e0d5c0/diff:/var/lib/docker/overlay2/9cfb6705f452d8646bd79acb523a1c295fe96bb27b9d6b17fafb88e73fbfee9f/diff:/var/lib/docker/overlay2/c0165e7530f8c72715fe135398d4291f089891afff03428cf1541aa4ed76843d/diff",
+                "MergedDir": "/var/lib/docker/overlay2/90edd69c5abe5e061f780fab16f2f36652893663a6e50b3bf97850fb8a62988f/merged",
+                "UpperDir": "/var/lib/docker/overlay2/90edd69c5abe5e061f780fab16f2f36652893663a6e50b3bf97850fb8a62988f/diff",
+                "WorkDir": "/var/lib/docker/overlay2/90edd69c5abe5e061f780fab16f2f36652893663a6e50b3bf97850fb8a62988f/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "7cbc85823cba",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.12.15",
+                "PYTHON_SHA256=c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1"
+            ],
+            "Cmd": [
+                "/bin/sh",
+                "-c",
+                "set -eu;     printf '%s\\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-native.list;     mkdir -p /usr/local/share/metodobase/native-runtime;     dpkg-query -W -f='${binary:Package}\\t${Version}\\n' > /usr/local/share/metodobase/native-runtime/before.tsv;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Update::Error-Mode=any -o Acquire::AllowInsecureRepositories=false update;     sha256sum --check /usr/local/share/metodobase/requirements-container-apt-metadata.lock;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends libpq5=17.11-0+deb13u1;     test \"$(dpkg-query -W -f='${Version}' libpq5)\" = '17.11-0+deb13u1';     test \"$(dpkg-query -W -f='${Version}' libssl3t64)\" = '3.5.7-1~deb13u3';     dpkg-query -W -f='${binary:Package}\\t${Version}\\n' > /usr/local/share/metodobase/native-runtime/after.tsv;     python -c \"from pathlib import Path; p=Path('/usr/local/share/metodobase/native-runtime'); rows=lambda n:dict(line.split('\\t') for line in (p/n).read_text().splitlines()); before=rows('before.tsv'); after=rows('after.tsv'); assert all(after.get(k)==v for k,v in before.items()), 'Existing base packages changed'\";     rm -f /tmp/metodobase-native.list;     rm -rf /var/lib/apt/lists/*"
+            ],
+            "Healthcheck": {
+                "Test": [
+                    "NONE"
+                ]
+            },
+            "Image": "sha256:728ab7e60cd96cf9f4a200ad411620497d8ea9090e89fdcd3b87d5112c36aeec",
+            "Volumes": null,
+            "WorkingDir": "/app",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "4a29a74924c193099569c749e4a7c11cb4cda436cae318ca47dee5dab92d62e7",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/4a29a74924c1",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "9eb7abf260492f829bf972965acb9b1a0d607458ca7937694fa73a27c518a9f8",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]

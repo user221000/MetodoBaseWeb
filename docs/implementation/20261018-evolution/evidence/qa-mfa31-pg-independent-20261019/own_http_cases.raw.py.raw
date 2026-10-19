@@ -1,0 +1,58 @@
+"""Own real-factory MFA state transitions; SQLite metadata only, no PG/restore claim."""
+import base64
+from datetime import timedelta
+import pytest
+from tests.test_mfa31_http import mfa_client,enroll,authenticate
+
+
+def private(response):
+    assert 'no-store'in response.headers.get('cache-control','')
+    assert response.headers.get('referrer-policy')=='no-referrer'
+
+
+def refresh_count():
+    from sqlalchemy.orm import Session
+    from web.database.engine import get_engine
+    from web.database.models import RefreshToken
+    with Session(get_engine())as session:return session.query(RefreshToken).count()
+
+
+def test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority(mfa_client,monkeypatch):
+    client,actor,clock=mfa_client
+    from web.services import stripe_service
+    from web.services.mfa_crypto import totp
+    from web.auth import verificar_token,verificar_refresh_token
+    calls=[]
+    monkeypatch.setattr(stripe_service,'create_portal_session',lambda **kw:calls.append(True)or{'url':'https://provider.example.invalid/no-contact'})
+    _,kit=enroll(client,clock)
+    old_pair,_=authenticate(client,actor,clock,recovery=kit['recovery_codes'][0])
+    proof=client.post('/api/auth/mfa/reauth',json={'password':'test123'});assert proof.status_code==200
+    pending=client.post('/api/auth/mfa/enroll',json={'reauthentication_token':proof.json()['reauthentication_token'],'recovery_code':kit['recovery_codes'][1]});assert pending.status_code==200;private(pending)
+    state=client.get('/api/auth/mfa/status');assert state.status_code==200 and state.json()['enabled']and state.json()['pending'];private(state)
+    assert pending.json()['secret']not in state.text
+    second,_=authenticate(client,actor,clock,recovery=kit['recovery_codes'][2])
+    assert verificar_token(old_pair['token'])is not None
+    challenge=client.post('/api/auth/login',json={'email':actor['email'],'password':'test123'});assert challenge.status_code==202 and 'refresh_token'not in challenge.json();private(challenge)
+    op={'method':'POST','path':'/api/billing/portal','body':{'return_url':'/dashboard'}}
+    grant=client.post('/api/auth/mfa/step-up',json=op);assert grant.status_code==200
+    confirmed=client.post('/api/auth/mfa/enroll/confirm',json={'enrollment_id':pending.json()['enrollment_id'],'code':totp(base64.b32decode(pending.json()['secret']),int(clock[0].timestamp())//30)});assert confirmed.status_code==200;private(confirmed)
+    assert verificar_token(old_pair['token'])is None and verificar_token(second['token'])is None
+    assert verificar_refresh_token(old_pair['refresh_token'])is None and verificar_refresh_token(second['refresh_token'])is None
+    stale=client.post('/api/auth/mfa/login/verify',json={'challenge':challenge.json()['challenge'],'recovery_code':kit['recovery_codes'][3]});assert stale.status_code==401 and stale.json()['detail']['code']=='mfa_identity_unavailable';private(stale)
+    business=client.post(op['path'],json=op['body'],headers={'X-MFA-Grant':grant.json()['grant']});assert business.status_code==401 and calls==[]
+    status=client.get('/api/auth/mfa/status');assert status.status_code==401;private(status)
+
+
+def test_tampered_and_expired_challenges_mint_no_refresh_then_exact_fresh_proof_mints_once(mfa_client):
+    client,actor,clock=mfa_client
+    _,kit=enroll(client,clock);baseline=refresh_count()
+    primary=client.post('/api/auth/login',json={'email':actor['email'],'password':'test123'});assert primary.status_code==202;private(primary)
+    assert set(primary.json())=={'mfa_required','challenge','expires_at','methods'}and refresh_count()==baseline
+    challenge=primary.json()['challenge'];tamper=('A'if challenge[0]!='A'else'B')+challenge[1:]
+    denied=client.post('/api/auth/mfa/login/verify',json={'challenge':tamper,'recovery_code':kit['recovery_codes'][0]});assert denied.status_code==400 and refresh_count()==baseline;private(denied)
+    clock[0]+=timedelta(seconds=301)
+    expired=client.post('/api/auth/mfa/login/verify',json={'challenge':challenge,'recovery_code':kit['recovery_codes'][0]});assert expired.status_code==400 and refresh_count()==baseline;private(expired)
+    current=client.post('/api/auth/login',json={'email':actor['email'],'password':'test123'});assert current.status_code==202 and refresh_count()==baseline
+    body={'challenge':current.json()['challenge'],'recovery_code':kit['recovery_codes'][0]}
+    valid=client.post('/api/auth/mfa/login/verify',json=body);assert valid.status_code==200 and refresh_count()==baseline+1;private(valid)
+    replay=client.post('/api/auth/mfa/login/verify',json=body);assert replay.status_code==400 and refresh_count()==baseline+1;private(replay)

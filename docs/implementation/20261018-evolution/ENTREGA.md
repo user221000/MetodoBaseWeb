@@ -1,9 +1,9 @@
 # Entrega candidata en curso
 
-Checkpoint118:110 requisitos,92 identificadores originales y110 criterios intactos. La rama de ejecución continúa con esquema30; su última regresión amplia pasó2597 casos y una omisión Windows por modo serial/cobertura y dos workers con orden mezclado.
+Checkpoint 119: 112 requisitos. Los 92 originales y los 110 criterios previos permanecen exactos. MAIN sigue en esquema 30, con 2597 aprobadas y una omisión de symlinks en Windows por cada modo: serial con cobertura y dos workers con orden mezclado.
 
-MFA31 está en la candidata aislada da34304aaf9066f45c6fc854cfd81d00e2fbc581. El backend440 tiene aceptación de seguridad acotada; la UI está compuesta y pasó el replay de74VM y14SSR/HTTP. QA y CI31 siguen en curso. No se atribuyen a esa candidata las pruebas de otro freeze ni se declara aceptación integral.
+MFA 31 está aislado en 4a5475ccd6c7ac7525e2a1e30f7d2801bf19aaae. Tiene aceptación de backend 440 acotada, revisión QA de diez VM y cuatro flujos HTTP y su repetición en PostgreSQL, quince grupos Chrome sobre c669, restauración poblada sobre 4a y corrección UX-19 focal de tres casos y dos adicionales. Los replays no son casos nuevos. Fixtures DAB y CI 31 siguen en revisión e integración; falta la regresión amplia actual y una imagen común.
 
-R34 completó un diagnóstico natural de16 solicitudes200 sin reproducir el timeout histórico; no demuestra un SLO ni una corrección del pool. Linux/Expat sigue pendiente de build y validación dinámica, con71 identificadores OS abiertos. Desktop continúa soportado. Free:10 clientes,1 plan por cliente al día y10 totales por gimnasio al día.
+D60 sólo tiene aceptación de metadata APT. Compilación, ABI, linkage, SCA y los 71 identificadores OS siguen pendientes. Desktop continúa soportado. Free: diez clientes, un plan por cliente al día y diez totales por gimnasio al día.
 
-No es una entrega final. Sin push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md).
+No es una entrega final. Sin push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md), [registro](TRAZABILIDAD.md).

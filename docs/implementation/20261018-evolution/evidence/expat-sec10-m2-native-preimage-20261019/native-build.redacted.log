@@ -1,0 +1,38 @@
+Sending build context to Docker daemon  174.1kB
+
+Step 1/16 : FROM python:3.12.15-slim@sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe AS base
+ ---> df18428df8a0
+Step 2/16 : RUN printf '%s\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-security.list     && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list         -o Dir::Etc::sourceparts=- -o APT::Update::Error-Mode=any         -o Acquire::AllowInsecureRepositories=false update     && cd /tmp     && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list         -o Dir::Etc::sourceparts=- -o APT::Get::AllowUnauthenticated=false         download liblzma5=5.8.1-1+deb13u2     && test "$(stat -c %s /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb)" = '309696'     && printf '%s  %s\n'         'b38acab30f295bf1066a6632e31cbd0a1980f2924b38040cda131d5dea5384ec'         '/tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb' | sha256sum --check -     && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list         -o Dir::Etc::sourceparts=- -o APT::Get::AllowUnauthenticated=false         install -y --only-upgrade --no-install-recommends /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb     && test "$(dpkg-query -W -f='${Version}' liblzma5)" = '5.8.1-1+deb13u2'     && rm -f /tmp/metodobase-security.list /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3094037fe3cf
+Step 3/16 : COPY requirements-container-bootstrap.lock /usr/local/share/metodobase/requirements-container-bootstrap.lock
+ ---> Using cache
+ ---> 90bffb05f0e0
+Step 4/16 : RUN python -m pip --isolated install --no-cache-dir --require-hashes --only-binary=:all:     --index-url https://pypi.org/simple -r /usr/local/share/metodobase/requirements-container-bootstrap.lock
+ ---> Using cache
+ ---> a51e551b61ee
+Step 5/16 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1
+ ---> Using cache
+ ---> a74a93e41db4
+Step 6/16 : WORKDIR /app
+ ---> Using cache
+ ---> 83b4b91ebaf4
+Step 7/16 : FROM base AS native-runtime
+ ---> 83b4b91ebaf4
+Step 8/16 : COPY requirements-container-apt-metadata.lock /usr/local/share/metodobase/requirements-container-apt-metadata.lock
+ ---> 728ab7e60cd9
+Step 9/16 : RUN set -eu;     printf '%s\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-native.list;     mkdir -p /usr/local/share/metodobase/native-runtime;     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/native-runtime/before.tsv;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Update::Error-Mode=any -o Acquire::AllowInsecureRepositories=false update;     sha256sum --check /usr/local/share/metodobase/requirements-container-apt-metadata.lock;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends libpq5=17.11-0+deb13u1;     test "$(dpkg-query -W -f='${Version}' libpq5)" = '17.11-0+deb13u1';     test "$(dpkg-query -W -f='${Version}' libssl3t64)" = '3.5.7-1~deb13u3';     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/native-runtime/after.tsv;     python -c "from pathlib import Path; p=Path('/usr/local/share/metodobase/native-runtime'); rows=lambda n:dict(line.split('\t') for line in (p/n).read_text().splitlines()); before=rows('before.tsv'); after=rows('after.tsv'); assert all(after.get(k)==v for k,v in before.items()), 'Existing base packages changed'";     rm -f /tmp/metodobase-native.list;     rm -rf /var/lib/apt/lists/*
+ ---> Running in 7cbc85823cba
+Get:1 https://deb.debian.org/debian trixie InRelease [140 kB]
+Get:2 https://security.debian.org/debian-security trixie-security InRelease [43.4 kB]
+Get:3 https://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+Get:4 https://security.debian.org/debian-security trixie-security/main amd64 Packages [269 kB]
+Get:5 https://deb.debian.org/debian trixie/main amd64 Packages [9678 kB]
+Get:6 https://deb.debian.org/debian trixie-updates/main amd64 Packages [4412 B]
+Fetched 10.2 MB in 14s (738 kB/s)
+Reading package lists...
+/var/lib/apt/lists/deb.debian.org_debian_dists_trixie_InRelease: OK
+/var/lib/apt/lists/deb.debian.org_debian_dists_trixie-updates_InRelease: FAILED
+/var/lib/apt/lists/security.debian.org_debian-security_dists_trixie-security_InRelease: OK
+[91msha256sum: WARNING: 1 computed checksum did NOT match
+[0mThe command '/bin/sh -c set -eu;     printf '%s\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-native.list;     mkdir -p /usr/local/share/metodobase/native-runtime;     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/native-runtime/before.tsv;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Update::Error-Mode=any -o Acquire::AllowInsecureRepositories=false update;     sha256sum --check /usr/local/share/metodobase/requirements-container-apt-metadata.lock;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends libpq5=17.11-0+deb13u1;     test "$(dpkg-query -W -f='${Version}' libpq5)" = '17.11-0+deb13u1';     test "$(dpkg-query -W -f='${Version}' libssl3t64)" = '3.5.7-1~deb13u3';     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/native-runtime/after.tsv;     python -c "from pathlib import Path; p=Path('/usr/local/share/metodobase/native-runtime'); rows=lambda n:dict(line.split('\t') for line in (p/n).read_text().splitlines()); before=rows('before.tsv'); after=rows('after.tsv'); assert all(after.get(k)==v for k,v in before.items()), 'Existing base packages changed'";     rm -f /tmp/metodobase-native.list;     rm -rf /var/lib/apt/lists/*' returned a non-zero code: 1

@@ -1,0 +1,47 @@
+{
+  "scope": "Independent state sequences on actual api.js/mfa-login.js/mfa-ui.js; minimal fixture DOM and explicit RAM transport, no backend/PG/browser/provider claim",
+  "total": 10,
+  "passed": 10,
+  "results": [
+    {
+      "case": "Concurrent verify presses issue only one factor HTTP request while its response is held",
+      "passed": true
+    },
+    {
+      "case": "Changing the method back to TOTP never carries the old recovery value into verification",
+      "passed": true
+    },
+    {
+      "case": "An expired seed cannot emit a confirm request or recovery kit",
+      "passed": true
+    },
+    {
+      "case": "A held regeneration acknowledgement cannot render an old kit after a raw storage replacement without event",
+      "passed": true
+    },
+    {
+      "case": "Duplicate recovery entries in a successful-looking confirm response cannot clear credentials or render kit",
+      "passed": true
+    },
+    {
+      "case": "A confirm acknowledgement with enabled=false cannot announce activation or reveal its kit",
+      "passed": true
+    },
+    {
+      "case": "An old discarded Google intent remains inert after a new Google intent starts",
+      "passed": true
+    },
+    {
+      "case": "Storage removal failure at a confirmed kit ACK never renders secrets or calls success callbacks",
+      "passed": true
+    },
+    {
+      "case": "Pagehide during primary reauthentication prevents the later enroll request entirely",
+      "passed": true
+    },
+    {
+      "case": "An uncertain regeneration503 emits no automatic followup and preserves the new account if switched afterward",
+      "passed": true
+    }
+  ]
+}

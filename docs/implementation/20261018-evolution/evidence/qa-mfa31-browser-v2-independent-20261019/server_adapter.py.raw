@@ -1,0 +1,39 @@
+"""Own controlled fixture adapter: only port and native STOP/started observability."""
+from pathlib import Path
+import sys,threading,time,json,os,socket,ctypes,hashlib
+from ctypes import wintypes
+ROOT=Path('F:/mb-mfa31-qa-20261019');OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-browser-v2-independent-20261019');sys.path.insert(0,str(ROOT));sys.dont_write_bytecode=True
+source=ROOT/'tests/e2e/mfa_ui_server.py';raw=source.read_text();assert raw.count('port = 8802')==1;adapted=raw.replace('port = 8802','port = 8805')
+def birth():
+ k=ctypes.WinDLL('kernel32',use_last_error=True);k.GetCurrentProcess.restype=wintypes.HANDLE;k.GetProcessTimes.argtypes=[wintypes.HANDLE]+[ctypes.POINTER(wintypes.FILETIME)]*4;values=[wintypes.FILETIME()for _ in range(4)];assert k.GetProcessTimes(k.GetCurrentProcess(),*(ctypes.byref(v)for v in values));return(((values[0].dwHighDateTime<<32)|values[0].dwLowDateTime)-116444736000000000)/10000000
+import uvicorn
+original=uvicorn.run
+born=birth()
+def controlled_run(app,**kwargs):
+ assert kwargs['host']=='127.0.0.1'and kwargs['port']==8805
+ origins={}
+ for name,module in list(sys.modules.items()):
+  if name.split('.')[0]in {'web','api','core','tests'}and getattr(module,'__file__',None):
+   p=Path(module.__file__).resolve();assert p.is_relative_to(ROOT);origins[name]=str(p.relative_to(ROOT))
+ (OUT/'server-module-origins.json').write_text(json.dumps(origins,indent=2)+'\n')
+ from web.settings import get_settings
+ def config_hashes():
+  settings=get_settings();return {name:hashlib.sha256(str(os.environ.get(name,'')if name=='DATABASE_URL'else getattr(settings,name)).encode()).hexdigest()for name in ['SECRET_KEY','MFA_ENCRYPTION_KEY','DATABASE_URL','BASE_URL','GOOGLE_CLIENT_ID','STRIPE_SECRET_KEY','REDIS_URL']}
+ config_before=config_hashes()
+ server=uvicorn.Server(uvicorn.Config(app,**kwargs))
+ def control():
+  line=sys.stdin.readline();assert line=='STOPOWN\n';server.should_exit=True
+ def ready():
+  while not server.started and not server.should_exit:time.sleep(.05)
+  if server.started:print(json.dumps({'phase':'OWN_READY','pid':os.getpid(),'birth_unix':born,'port':8805,'config_hashes':config_before}),flush=True)
+ thread=threading.Thread(target=control,daemon=True);thread.start();threading.Thread(target=ready,daemon=True).start()
+ try:server.run()
+ finally:
+  from web.database.engine import get_engine
+  engine=get_engine();checked=engine.pool.checkedout();engine.dispose()
+  with socket.socket()as p:closed=p.connect_ex(('127.0.0.1',8805))!=0
+  (OUT/'server-controlled-close.json').write_text(json.dumps({'pid':os.getpid(),'birth_unchanged':birth()==born,'server_returned':True,'pool_checked_out_before_dispose':checked,'listener8805_closed':closed,'config_hashes_unchanged':config_before==config_hashes(),'config_hashes':config_hashes()},indent=2)+'\n')
+uvicorn.run=controlled_run
+namespace={'__file__':str(source),'__name__':'qa_owned_mfa_fixture'}
+try:exec(compile(adapted,str(source),'exec'),namespace);namespace['main']()
+finally:uvicorn.run=original

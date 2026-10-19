@@ -1,0 +1,48 @@
+{
+  "result": "PASS_OFFLINE_RAW_PROVENANCE",
+  "capture_author": "root read-only witness, D60 author ops_deployment; no claim of remote execution by reviewer",
+  "immutable_base_digest": "sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe",
+  "base_image_id": "sha256:df18428df8a0f9189c84e7424d214b4c50092af1f9dca5842a00c41c39bda316",
+  "base_container_never_started": true,
+  "failed_image_extends_base_exact_layers": true,
+  "base_keyring_bytes_sha_matches_own_gpg_inputs": {
+    "tar_sha256": "1708843c37aa4707e788fd4682c1e52de41b3d03102c551b2b0135a34bef7c39",
+    "member": "debian-archive-keyring.pgp",
+    "member_bytes": 55918,
+    "member_sha256": "506b815cbb32d9b6066b4a2aa524071e071761e7e7f68c3ac74f3061ba852017"
+  },
+  "native_before_equals_failed_installed_names_versions": true,
+  "package_count": 87,
+  "original_base_to_native_only_change": {
+    "liblzma5": {
+      "base": "5.8.1-1+deb13u1",
+      "native": "5.8.1-1+deb13u2"
+    }
+  },
+  "libpq_and_compiler_not_yet_installed": true,
+  "raw_captures_read_before_after_stable": true,
+  "raw_files_count": 25,
+  "raw_inventory_aggregate_sha256": "6d627a5f4a3a662fc0e0b75b46ade1e2d40da1453858717fd7b26a296188076c",
+  "tar_inputs": {
+    "base_status": {
+      "tar_sha256": "283afbef0df737f5788dbd531f2227040a58dab8ba6473a656c6910d2a131079",
+      "member": "status",
+      "member_bytes": 77506,
+      "member_sha256": "99b3d2067fdc7ba52368c4dfd1aa0e4f4ef8ed4bd12e64b8078d7d60b15d3c4c"
+    },
+    "failed_status": {
+      "tar_sha256": "f0eb89d33f53a684ca28962489303b5bc2a1c532ff755391f5cd0b16025897b3",
+      "member": "status",
+      "member_bytes": 77506,
+      "member_sha256": "d31aa859dce6d8f594a54aa3c6eb53cd8b32c2c85dccf5d969aa58adb80a0e1d"
+    },
+    "native_before": {
+      "tar_sha256": "96391c0547e7ad38184c3ba0b27e7c533dfe4fe6358d854d9aaa1b24a94715d9",
+      "member": "before.tsv",
+      "member_bytes": 2247,
+      "member_sha256": "c114ff06e9e3bf4e5049a1a5e8d15483fdbc9057eb32c8ce7b853f2ff8884dfb"
+    }
+  },
+  "root_preparation_errata_preserved": "Two guards incorrectly compared original base status/version with intended preceding liblzma upgrade; root originals preserved, no refresh-induced package change inferred",
+  "VM_build_lifecycle_or_remote_execution_by_reviewer": false
+}

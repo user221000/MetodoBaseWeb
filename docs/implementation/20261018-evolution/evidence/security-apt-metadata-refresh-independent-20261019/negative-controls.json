@@ -1,0 +1,45 @@
+{
+  "total": 7,
+  "passed": 7,
+  "results": [
+    {
+      "name": "signed_Date_byte_changed",
+      "rejected": true,
+      "exit": 1,
+      "BADSIG_present": true,
+      "mutant_sha256": "318f964c9509e3ddf7687137093910a5b5640f588fdacec0273d68bf44632def"
+    },
+    {
+      "name": "signed_leaf_digest_changed",
+      "rejected": true,
+      "exit": 1,
+      "BADSIG_present": true,
+      "mutant_sha256": "5460519d8f15e26184d6d24ae03b50351107602dba26a0f65528b1824c7d5887"
+    },
+    {
+      "name": "old_signature_over_new_payload",
+      "rejected": true,
+      "exit": 1,
+      "BADSIG_present": true,
+      "mutant_sha256": "5d50e8d87cc8f7a96515239a3151df02018893d5d9e90574f7df1e4d8e180efb"
+    },
+    {
+      "name": "empty_keyring_no_other_home_keys",
+      "rejected": true,
+      "exit": 2
+    },
+    {
+      "name": "new_document_fails_old_pin",
+      "rejected": true
+    },
+    {
+      "name": "Valid_Until_boundary_is_exclusive",
+      "rejected": true
+    },
+    {
+      "name": "future_Date_rejected",
+      "rejected": true
+    }
+  ],
+  "scope": "Independent verification harness controls; no product runtime execution"
+}

@@ -1,0 +1,77 @@
+﻿"""Exactly two owned PG31 DBs: own four HTTP transitions against both real factories."""
+import ctypes
+from ctypes import wintypes
+from datetime import datetime,timezone
+import importlib,importlib.util,json,os,uuid
+from pathlib import Path
+from urllib.parse import urlsplit,urlunsplit
+import pytest
+from tests.integration_mfa31_postgres import mfa_pg
+from sqlalchemy import create_engine,text
+from sqlalchemy.orm import Session
+BASE=Path(__file__).parent
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-pg-independent-20261019')
+ROOT=Path('F:/mb-mfa31-qa-20261019')
+pytestmark=pytest.mark.parametrize('migration_database',['postgresql'],indirect=True)
+def save(name,value):
+    with (OUT/name).open('x',encoding='utf8')as stream:json.dump(value,stream,indent=2,default=str);stream.write('\n')
+def birth():
+    kernel=ctypes.WinDLL('kernel32',use_last_error=True);kernel.GetCurrentProcess.restype=wintypes.HANDLE;kernel.GetProcessTimes.argtypes=[wintypes.HANDLE]+[ctypes.POINTER(wintypes.FILETIME)]*4;values=[wintypes.FILETIME()for _ in range(4)]
+    if not kernel.GetProcessTimes(kernel.GetCurrentProcess(),*(ctypes.byref(v)for v in values)):raise ctypes.WinError(ctypes.get_last_error())
+    return (((values[0].dwHighDateTime<<32)|values[0].dwLowDateTime)-116444736000000000)/10000000
+@pytest.fixture
+def migration_database(request):
+    import psycopg2
+    from psycopg2 import sql
+    from tests.isolation import validate_postgres_test_url
+    assert request.param=='postgresql';parent=validate_postgres_test_url(os.environ['METODOBASE_TEST_MIGRATOR_URL']);name='metodobase_test_mfa_qa_'+uuid.uuid4().hex[:12];born=birth();lease={'database':name,'pid':os.getpid(),'birth':datetime.fromtimestamp(born,timezone.utc).isoformat(),'fixture':'own migration_database','planned_UTC':datetime.now(timezone.utc).isoformat()};save(name+'-planned.json',lease)
+    control=None;engine=None;created=False
+    try:
+        control=psycopg2.connect(parent.replace('postgresql+psycopg2://','postgresql://',1),connect_timeout=5);control.autocommit=True
+        with control.cursor()as c:
+            c.execute('SELECT count(*)FROM pg_database WHERE datname=%s',(name,));assert c.fetchone()[0]==0;c.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)));created=True
+        save(name+'-created.json',{**lease,'CREATE_confirmed_UTC':datetime.now(timezone.utc).isoformat(),'absent_before_CREATE':True});url=urlunsplit(urlsplit(parent)._replace(path='/'+name));engine=create_engine(url);yield url,engine
+    finally:
+        if engine is not None:engine.dispose()
+        active=[];absent=None
+        if created:
+            with control.cursor()as c:
+                c.execute('SELECT pid,state,wait_event_type FROM pg_stat_activity WHERE datname=%s',(name,));active=[{'pid':r[0],'state':r[1],'wait_event_type':r[2]}for r in c.fetchall()];c.execute(sql.SQL('DROP DATABASE {} WITH(FORCE)').format(sql.Identifier(name)));c.execute('SELECT count(*)FROM pg_database WHERE datname=%s',(name,));absent=c.fetchone()[0]==0
+        if control is not None:control.close()
+        save(name+'-closed.json',{'database':name,'CREATE_confirmed':created,'exact_DROP_and_absence':absent,'sessions_before_DROP':active,'force_needed':bool(active),'owner_pid':os.getpid(),'owner_birth_unchanged':birth()==born});assert created and absent and not active
+
+@pytest.mark.parametrize('factory',['api.app','web.main_web'])
+def test_actual_restricted_pg31_both_factory_own_transition_groups(mfa_pg,monkeypatch,factory):
+    from fastapi.testclient import TestClient
+    from web import auth
+    from web.services import mfa_service
+    from web.database.models import Usuario,RefreshToken,Base
+    from web.database.schema_control import verify_runtime_schema,expected_head
+    from web.database.alembic.history_index_contract_v1 import history_index_signature,expected_history_index
+    admin,app,ids=mfa_pg;assert len(Base.metadata.tables)==32
+    verify_runtime_schema(app,expected_revision='20261019_mfa')
+    with app.connect()as c:
+        flags=tuple(c.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one());assert flags==(False,False,False,False)
+        assert c.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+        head=c.execute(text('SELECT version_num FROM alembic_version')).scalar_one();assert head==expected_head()=='20261019_mfa'
+        physical=c.execute(text("SELECT count(*)FROM information_schema.tables WHERE table_schema='public'AND table_type='BASE TABLE'")).scalar_one();assert physical==33
+        families=c.execute(text('SELECT count(*)FROM pg_class WHERE relrowsecurity AND relforcerowsecurity')).scalar_one();assert families==25
+        index=history_index_signature(c);assert index==expected_history_index('postgresql')
+    save('runtime-'+factory.replace('.','-')+'.json',{'head':head,'model_tables':32,'physical_tables':physical,'FORCE_RLS_families':families,'restricted_role_flags':list(flags),'database_nonowner':True,'history_index':index,'database':admin.url.database,'no_backend_routes_or_MFA_services_doubled':True})
+    with Session(admin)as db:
+        for actor in ids[:2]:db.get(Usuario,actor).password_hash=auth.hash_password('test123')
+        db.commit()
+    spec=importlib.util.spec_from_file_location('own_mfa31_http_cases',BASE/'own_http_cases.raw.py');helpers=importlib.util.module_from_spec(spec);spec.loader.exec_module(helpers)
+    def monitor_refresh_count():
+        with Session(admin)as db:return db.query(RefreshToken).count()
+    helpers.refresh_count=monitor_refresh_count
+    now=[datetime.now(timezone.utc)];actual=mfa_service.instant;monkeypatch.setattr(mfa_service,'instant',lambda value=None:actual(now[0]if value is None else value))
+    application=importlib.import_module(factory).create_app()
+    for index,case in enumerate([helpers.test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority,helpers.test_tampered_and_expired_challenges_mint_no_refresh_then_exact_fresh_proof_mints_once]):
+        actor={'id':ids[index],'email':ids[index]+'@example.invalid'}
+        with TestClient(application,raise_server_exceptions=False,client=('127.4.'+str(index)+'.'+str(int(uuid.uuid4().hex[:2],16)),50000))as client:
+            primary=client.post('/api/auth/login',json={'email':actor['email'],'password':'test123'});assert primary.status_code==200
+            client.headers['Authorization']='Bearer '+primary.json()['token']
+            if index==0:case((client,actor,now),monkeypatch)
+            else:case((client,actor,now))
+    save('case-groups-'+factory.replace('.','-')+'.json',{'passed':2,'case_names':['pending_replacement_and_all_old_authority','tampered_expired_no_refresh_then_exact_once'],'actual_factories':factory,'refresh_rows_observed_with_admin_only':'Observer count, while all MFA/auth mutations run restricted app role.','PG_load_or_SLO_claim':False})

@@ -1,0 +1,62 @@
+﻿"""Serial actual MFA browser15, own SQLite31/server/profile lifecycle; no PG/provider."""
+import argparse,datetime,hashlib,importlib.metadata,json,os,queue,re,socket,subprocess,sys,threading,time,urllib.request
+from pathlib import Path
+p=argparse.ArgumentParser();p.add_argument('--root-window-ack',action='store_true');a=p.parse_args();assert a.root_window_ack
+ROOT=Path('F:/mb-mfa31-qa-20261019');TEMP=Path(__file__).parent;OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-browser-independent-20261019');NODE=Path('C:/Program Files/nodejs/node.exe');CHROME=Path('C:/Program Files/Google/Chrome/Application/chrome.exe');DEPS=Path('F:/MetodoBaseWeb-execution-20261018/tests/e2e/node_modules');PROFILES=TEMP/'owned-profiles';PROFILES.mkdir();sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()=='c66902f39e64d0aa501392dfecd0a77660540fea'and not git('status','--porcelain').strip();names=[n for n in git('ls-files','-co','--exclude-standard','-z').decode().split('\0')if n]
+def save(name,value):
+    with (OUT/name).open('x',encoding='utf8')as stream:json.dump(value,stream,indent=2,default=str);stream.write('\n')
+def photo():return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{n:sha((ROOT/n).read_bytes())for n in names},'helpers':{p.name:sha(p.read_bytes())for p in TEMP.iterdir()if p.suffix in {'.py','.cjs','.ps1'}},'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions()),'Nodefiles':{p.relative_to(DEPS).as_posix():sha(p.read_bytes())for p in DEPS.rglob('*')if p.is_file()},'binaries':{p.name:sha(p.read_bytes())for p in [Path(sys.executable),Path(sys._base_executable),NODE,CHROME]}}
+cache={}
+def inventory():
+    raw=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',str(TEMP/'inventory.ps1')]);data=json.loads(raw);rows={int(x['pid']):x for x in data['processes']};public=[]
+    for x in rows.values():
+        if x['name'].lower()not in {'chrome.exe','msedge.exe','python.exe','node.exe'}:continue
+        exe=x.get('exe');digest=None
+        if exe and Path(exe).is_file():
+            if exe not in cache:cache[exe]=sha(Path(exe).read_bytes())
+            digest=cache[exe]
+        parent=rows.get(int(x['parent']));valid=bool(parent and parent['birth']and x['birth']and parent['birth']<=x['birth'])
+        command=x.get('command')or'';public.append({'pid':x['pid'],'parent_pid':x['parent'],'name':x['name'],'birth':x['birth'],'exe_SHA':digest,'command_SHA':sha(command.encode()),'owned_profile_argument':str(PROFILES).lower()in command.lower()or PROFILES.as_posix().lower()in command.lower(),'own_server_script':str(TEMP/'server_adapter.py').lower()in command.lower()or(TEMP/'server_adapter.py').as_posix().lower()in command.lower(),'current_parent_generation_valid':valid,'current_parent_birth':parent['birth']if parent else None})
+    return {'processes':public,'listeners':data['listeners']}
+before=photo();assert len(before['packages'])==89 and len(before['Nodefiles'])==157;save('before.json',before);p=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-before.log').write_bytes(p.stdout+p.stderr);assert p.returncode==0
+start=inventory();save('process-before.json',start);assert not any(x['port']==8805 for x in start['listeners']);server=None;node=None;reader=None;error=None;reports=[];observations=[];startup=None;ready=None;own_nodes=[]
+server_stdout=(TEMP/'server.stdout.private.log').open('w',encoding='utf8');server_stderr=(TEMP/'server.stderr.private.log').open('w',encoding='utf8');incoming=queue.Queue();env=dict(os.environ,PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1');env.pop('DATABASE_URL',None)
+try:
+    server=subprocess.Popen([sys.executable,'-X','utf8','-B',str(TEMP/'server_adapter.py')],cwd=ROOT,env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=server_stderr,text=True,encoding='utf8',creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+    def read():
+        for line in server.stdout:server_stdout.write(line);server_stdout.flush();incoming.put(line)
+        incoming.put(None)
+    reader=threading.Thread(target=read,daemon=True);reader.start();deadline=time.monotonic()+120
+    while ready is None:
+        assert server.poll()is None and time.monotonic()<deadline,'Own fixture startup did not complete'
+        try:line=incoming.get(timeout=1)
+        except queue.Empty:continue
+        assert line is not None
+        if not line.lstrip().startswith('{'):continue
+        value=json.loads(line)
+        if value.get('fixture')=='mfa-ui31':startup=value
+        if value.get('phase')=='OWN_READY':ready=value
+    assert startup and startup['origin']=='http://127.0.0.1:8805'and startup['expected_runtime_revision']==startup['actual_alembic_revision']=='20261019_mfa'and startup['metadata_table_count']==32 and startup['physical_table_count']==33
+    assert all(sha((ROOT/n).read_bytes())==digest for n,digest in startup['runtime_raw_sha256'].items());save('startup.json',startup);save('owned-ready.json',ready)
+    active=inventory();save('process-ready.json',active);assert any(x['port']==8805 and x['pid']==ready['pid']for x in active['listeners'])
+    nodeenv=dict(env,METODOBASE_E2E_DEPENDENCIES=str(DEPS),METODOBASE_E2E_URL='http://127.0.0.1:8805',METODOBASE_EVIDENCE_BATCH='independent-20261019',CHROME_PATH=str(CHROME),TMP=str(PROFILES),TEMP=str(PROFILES))
+    for driver,part,expected in [('mfa_ui_browser.cjs','main',11),('mfa_personal_browser.cjs','personal',4)]:
+        stdout=(TEMP/(part+'.stdout.private.log')).open('w',encoding='utf8');stderr=(TEMP/(part+'.stderr.private.log')).open('w',encoding='utf8');node=subprocess.Popen([str(NODE),str(TEMP/driver)],cwd=ROOT,env=nodeenv,stdout=stdout,stderr=stderr,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0));own_nodes.append(node.pid);deadline=time.monotonic()+240
+        while node.poll()is None:
+            observations.append(inventory());assert time.monotonic()<deadline,'Own browser driver exceeded bounded orchestration deadline';time.sleep(.5)
+        stdout.close();stderr.close();code=node.returncode;node=None
+        report=json.loads((OUT/part/'report.json').read_text());reports.append({'part':part,'exit':code,'complete':report.get('complete'),'checks':len(report['checks']),'screens':len(report['screens'])});assert code==0 and report.get('complete')and len(report['checks'])==expected,'Actual maintained browser criteria did not complete'
+except BaseException as exc:error={'class':type(exc).__name__,'message_or_secret_values_recorded':False}
+finally:
+    if server and server.poll()is None:server.stdin.write('STOPOWN\n');server.stdin.flush()
+    if server:
+        try:server.wait(timeout=20)
+        except subprocess.TimeoutExpired:error=error or{'class':'OwnServerStopTimeout','message_or_secret_values_recorded':False}
+        if server.stdin and not server.stdin.closed:server.stdin.close()
+    if reader:reader.join(5)
+    server_stdout.close();server_stderr.close();after_process=inventory();save('process-after.json',after_process);save('process-observations.json',observations)
+    old_foreign={(x['pid'],x['birth'],x['command_SHA'])for x in start['processes']if x['name'].lower()in {'chrome.exe','msedge.exe'}};after_all={(x['pid'],x['birth'],x['command_SHA'])for x in after_process['processes']};own_alive=[x for x in after_process['processes']if x['owned_profile_argument']or x['own_server_script']];foreign8776before=[x for x in start['listeners']if x['port']==8776];foreign8776after=[x for x in after_process['listeners']if x['port']==8776]
+    closure={'server_launcher_pid':server.pid if server else None,'server_exit':server.returncode if server else None,'actual_server_ready':ready,'owned_node_pids':own_nodes,'owned_profile_root':str(PROFILES),'own_processes_remaining_by_exact_profile_or_script':own_alive,'foreign_browser_identities_preserved':old_foreign<=after_all,'foreign8776_listener_before':foreign8776before,'foreign8776_listener_after':foreign8776after,'foreign8776_listener_preserved':foreign8776before==foreign8776after,'listener8805_closed':not any(x['port']==8805 for x in after_process['listeners']),'ownership_rule':'PID plus birth plus exact script/profile argument; ancestry only when current parent generation birth<=child birth. ParentPID number alone is never used for termination. No foreign process terminated.','error':error,'reports':reports};save('resource-closure.json',closure)
+after=photo();save('after.json',after);assert before==after;p=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-after.log').write_bytes(p.stdout+p.stderr);assert p.returncode==0
+print(json.dumps({'source_files':len(names),'Nodefiles':157,'packages':89,'source_stable':True,'reports':reports,'server_exit':closure['server_exit'],'own_processes_remaining':len(own_alive),'listener8805_closed':closure['listener8805_closed'],'foreign_preserved':closure['foreign_browser_identities_preserved'],'error':error}));assert error is None and not own_alive and closure['server_exit']==0 and closure['listener8805_closed']and closure['foreign_browser_identities_preserved']and closure['foreign8776_listener_preserved']

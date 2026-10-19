@@ -1,0 +1,30 @@
+import sys,os,json,hashlib,subprocess,importlib.metadata
+from pathlib import Path
+root=Path('F:/mb-mfa31-qa-20261019');temp=Path(__file__).parent;out=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-composition-independent-20261019');sha=lambda b:hashlib.sha256(b).hexdigest();sys.path.insert(0,str(root));os.chdir(root)
+for key in list(os.environ):
+    upper=key.upper()
+    if upper=='DATABASE_URL'or upper.endswith('_DATABASE_URL')or upper.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST'))or any(x in upper for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):os.environ.pop(key,None)
+os.environ.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+from tests.isolation import prepare_environment,block_external_sockets
+prepare_environment(discard_inherited=True);block_external_sockets()
+git=lambda*a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=root);assert not git('status','--porcelain').strip();names=[n for n in git('ls-files','-co','--exclude-standard','-z').decode().split('\0')if n]
+def photo():return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{n:sha((root/n).read_bytes())for n in names},'own_helpers':{p.name:sha(p.read_bytes())for p in temp.iterdir()if p.suffix in {'.py','.cjs'}},'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions())}
+before=photo();assert len(before['packages'])==89;(out/'http-v2-before.json').write_text(json.dumps(before,indent=2)+'\n')
+import pytest
+class OriginFence:
+    def pytest_runtest_call(self,item):self.check()
+    def pytest_sessionfinish(self,session,exitstatus):self.check()
+    def check(self):
+        origins={}
+        for name,module in list(sys.modules.items()):
+            if name.split('.')[0]in {'web','api','core','tests'}and getattr(module,'__file__',None):
+                origin=Path(module.__file__).resolve();assert origin.is_relative_to(root),'Module origin outside frozen own WT';origins[name]=str(origin.relative_to(root))
+        from web.database.models import Base
+        assert Base.__module__=='web.database.models'
+        (out/'http-v2-module-origins.json').write_text(json.dumps(origins,indent=2)+'\n')
+args=['-q','-k','pending_replacement','--tb=short','--noconftest','--import-mode=importlib','-p','conftest','--rootdir',str(root),'--basetemp',str(temp/'pytest-data-v2'),'--junitxml',str(temp/'http-v2-own.private.xml'),str(temp/'test_own_http_v2.py')]
+with (temp/'http-v2-own.private.log').open('w',encoding='utf8')as log:
+    import contextlib
+    with contextlib.redirect_stdout(log),contextlib.redirect_stderr(log):code=pytest.main(args,plugins=[OriginFence()])
+after=photo();(out/'http-v2-after.json').write_text(json.dumps(after,indent=2)+'\n');assert before==after
+print(json.dumps({'HTTP_exit':int(code),'source_files':len(names),'packages':89,'sources_helpers_stable':True,'log_private':True}));raise SystemExit(code)

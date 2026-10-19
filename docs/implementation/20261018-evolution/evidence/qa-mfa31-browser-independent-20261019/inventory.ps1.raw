@@ -1,0 +1,4 @@
+﻿[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$taskProcesses = @(Get-CimInstance Win32_Process | ForEach-Object { [pscustomobject]@{ pid=$_.ProcessId; parent=$_.ParentProcessId; name=$_.Name; birth=if ($_.CreationDate) { $_.CreationDate.ToUniversalTime().ToString('o') } else { $null }; exe=$_.ExecutablePath; command=$_.CommandLine } })
+$taskListeners = @(Get-NetTCPConnection -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Listen' -and $_.LocalPort -in @(8776,8805) } | ForEach-Object { [pscustomobject]@{port=$_.LocalPort;pid=$_.OwningProcess;local=$_.LocalAddress} })
+[pscustomobject]@{processes=$taskProcesses;listeners=$taskListeners} | ConvertTo-Json -Depth 5 -Compress

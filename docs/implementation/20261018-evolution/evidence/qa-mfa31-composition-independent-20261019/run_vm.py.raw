@@ -1,0 +1,11 @@
+﻿import hashlib,subprocess,json,sys,importlib.metadata
+from pathlib import Path
+root=Path('F:/mb-mfa31-qa-20261019');temp=Path(__file__).parent;out=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-composition-independent-20261019');sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=root)
+assert git('rev-parse','HEAD').decode().strip()=='da34304aaf9066f45c6fc854cfd81d00e2fbc581'and not git('status','--porcelain').strip();names=[n for n in git('ls-files','-co','--exclude-standard','-z').decode().split('\0')if n]
+def photo():return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{n:sha((root/n).read_bytes())for n in names},'own_helpers':{p.name:sha(p.read_bytes())for p in temp.iterdir()if p.suffix in {'.py','.cjs'}},'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions()),'Node_executable_sha256':sha(Path('C:/Program Files/nodejs/node.exe').read_bytes()),'Python_executable_sha256':sha(Path(sys.executable).read_bytes())}
+before=photo();assert len(before['packages'])==89;(out/'vm-before.json').write_text(json.dumps(before,indent=2)+'\n');p=subprocess.run(['C:/Program Files/nodejs/node.exe',str(temp/'own_state.cjs')],cwd=root,capture_output=True);(out/'vm-own.stdout.raw').write_bytes(p.stdout);(out/'vm-own.stderr.raw').write_bytes(p.stderr);after=photo();(out/'vm-after.json').write_text(json.dumps(after,indent=2)+'\n');assert before==after
+print(json.dumps({'VM_exit':p.returncode,'source_count':len(names),'packages':89,'source_stable':True}))
+if p.stdout:
+    try:print(json.dumps(json.loads(p.stdout)))
+    except Exception:print(json.dumps({'stdout_not_report':True,'stderr_bytes':len(p.stderr)}))
+raise SystemExit(p.returncode)

@@ -1,0 +1,25 @@
+{
+  "scope": "Actual MfaUI.mountAccount and actual central api.js. Minimal DOM/explicit RAM HTTP only; not a second browser/PG/provider claim.",
+  "total": 3,
+  "passed": 0,
+  "results": [
+    {
+      "case": "Mounted confirm ACK closes its session and removes the previously current MFA summary",
+      "passed": false,
+      "error_class": "AssertionError",
+      "criterion": "prior-summary-not-retained"
+    },
+    {
+      "case": "Mounted regenerate ACK closes its session and removes the previously current MFA summary",
+      "passed": false,
+      "error_class": "AssertionError",
+      "criterion": "prior-summary-not-retained"
+    },
+    {
+      "case": "Mounted revoke ACK closes its session and removes the previously current MFA summary",
+      "passed": false,
+      "error_class": "AssertionError",
+      "criterion": "prior-summary-not-retained"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+FF..                                                                     [100%]
+================================== FAILURES ===================================
+_ test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority[api.app] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-composition-independent-20261019\test_own_http.py:41: in test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority
+    stale=client.post('/api/auth/mfa/login/verify',json={'challenge':challenge.json()['challenge'],'recovery_code':kit['recovery_codes'][3]});assert stale.status_code==400;private(stale)
+                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 401 == 400
+E    +  where 401 = <Response [401 Unauthorized]>.status_code
+_ test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority[web.main_web] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-composition-independent-20261019\test_own_http.py:41: in test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority
+    stale=client.post('/api/auth/mfa/login/verify',json={'challenge':challenge.json()['challenge'],'recovery_code':kit['recovery_codes'][3]});assert stale.status_code==400;private(stale)
+                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 401 == 400
+E    +  where 401 = <Response [401 Unauthorized]>.status_code
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED ::test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority[api.app]
+FAILED ::test_pending_replacement_preserves_old_factor_until_confirm_then_invalidates_all_old_authority[web.main_web]
+2 failed, 2 passed, 1 warning in 14.75s

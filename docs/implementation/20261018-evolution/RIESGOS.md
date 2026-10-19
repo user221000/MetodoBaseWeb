@@ -102,3 +102,8 @@ SEC13 parent/actor canónicos de31 requieren invitation_token estrictamenteNULL 
 ## Checkpoint 118
 
 MFA no está aceptado integralmente: faltan QA de integración/UI, CI31 y restauración independiente, avisos, custodia/rotación de claves y configuración real de servicios. No existe recuperación administrativa simulada ante pérdida de todos los factores. R34 no reprodujo el timeout, por lo que ampliar el pool no acredita solución. Continúan los71 IDs OS, la política de privacidad y los pilotos externos.
+
+
+## Checkpoint119
+
+PersistenCI31/regresiónactual/imagen,avisosMFA/custodia/configuraciónrealypérdidatotaldefactores. UX19tieneaceptaciónfocal, noreplay15posterior. STOPbrowsernoobservócierregrácil/claveRAMafter,limitesexplícitos. QA-12confianzaenfixtureenpeer. D60noacreditaABI/linkage/SCA/71OS. Políticas,pilotos,clínicaySLOrequierenhechos/decisionesreales.

@@ -1,0 +1,12 @@
+{
+  "original_driver_SHA": "54c25b1dae85c14d3f44de9a8b583a2a9260d09a6f351b5f301b4abe94ad86f9",
+  "new_driver_SHA": "3294db3e15c0b3181704549314b381d995d09f4b28dbdcc78f49db9ddd4fd5d1",
+  "only_assertion_substitution": {
+    "before": "assert stale.status_code==400;private(stale)",
+    "after": "assert stale.status_code==401 and stale.json()['detail']['code']=='mfa_identity_unavailable';private(stale)"
+  },
+  "inverse_exact_after_UTF8_BOM_and_EOL_normalization": true,
+  "source_contract": "verify_login loads proof.sv; lock_actor rejects when persisted SV changed with401 mfa_identity_unavailable. Confirm increments SV before old challenge reuse.",
+  "before_results": "Two wrong400 assertions; other two own tests green. Original test/log/XML immutable private.",
+  "replay_scope": "Only two pending_replacement cases, not the two already-green expiry/tamper cases."
+}

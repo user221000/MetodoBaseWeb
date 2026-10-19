@@ -79,3 +79,8 @@ CongelarMAINduranteamplia dio9542fuentes/89paquetes exactos. Registrar109criteri
 ## Checkpoint 118
 
 Conservar separados los freezes56,440,913,087 yda343 y sus alcances. Los replays no se suman como casos nuevos. Los históricos se ejecutan con su fuente auténtica y current31 tendrá contratos propios. Se acepta documentar la nueva precedencia403 de MFA para recursos ajenos o inexistentes, preservando la opacidad, la denegación y las demás aserciones; no se modifica producto para eludir el control. Objetivos R34 consultados y pendientes.
+
+
+## Checkpoint119
+
+HistóricoCI31 cambia justificadamente deeea8postR24(3rojosinfrafixture) a57335e5aceptadoanteriorR24, ambos auténticosypreservados; current31pruebaR24conacompañantesreales. Conservar23helpersinmutables ytodoslos16callbacks. D60aceptaciónmetadatasólo para nueva compilación. LF/CRLF RAWsepreservansinreescritura.

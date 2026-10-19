@@ -1,0 +1,15 @@
+# PASS_METADATA_ONLY — revisión independiente D60
+
+Se acepta únicamente el refresco de metadata del commit d60d259c6d853483290efb65fa2d33ec14840207, padre7c013f12. Checkout propio, sin overlays. El único cambio de producto es una sustitución literal en requirements-container-apt-metadata.lock; permanecen idénticos los otros once locks, Dockerfile y fuentes/pins/parche M2. Las4783 fuentes y89 paquetes del entorno revisor conservan sus bytes/versiones entre fotos.
+
+GPGv local2.4.9 verifica ambos InRelease con salida0, homedir inicialmente vacío y copia exacta del ring55918bytes. GPG --check-sigs confirma enlaces criptográficos18x: subkey4CB501… pertenece a primaryB8B80B5B… y subkeyB8E5F1… a primary04B54C3C…. Las primarias coinciden con las autoridades publicadas para bookworm ytrixie en [Debian FTP](https://ftp-master.debian.org/keys.html). La página es información complementaria; el anclaje de bytes proviene además de la imagen base fijada y del ring conservado, sin descargar claves ni usar keyservers.
+
+El hash viejo1ff5b584… y el nuevo3ea800ba… corresponden a documentos firmados distintos, válidos al comprobarse el19oct2026. El contenido firmado sólo cambia Date08:07:51→14:08:25UTC y Valid-Until correspondiente del26oct; las409 hojas SHA256 quedan idénticas. El límite Valid-Until es exclusivo. Stable no trae ese campo: no se inventa una expiración. Security conserva vigencia hasta25oct y sus bytes; stable/security y sus firmas se comprobaron localmente también.
+
+Los tres Packages.xz completos coinciden con las hojas firmadas y las primarias preservadas. Once registros seleccionados conservan Version/Depends/Filename/Size/SHA256; diez registros del cierre runtime previsto conservan dependencia y paquete. Es invariancia de índices y plan, sin nueva ejecución del solverAPT ni instalación.
+
+Las capturas RAW posteriores de root se verificaron offline: base digest2b4f19…/imageIDdf18428…, container en estadocreated nunca iniciado, parent fallido728… con prefijo de layers exacto. El tar del ring reproduce los bytes usados en mi GPG. Native-before.tsv y STATUS del intento fallido coinciden en87 nombres/versiones; respecto de la base original sólo cambió liblzma5 u1→u2 por el paso Docker ya fijado previamente. Libpq/gcc aún no estaban instalados. No se atribuye ejecución remota al revisor ni autoríaD60 al agente histórico d038: autorD60ops_deployment, capturas de contraste root.
+
+Siete negativos propios pasan: cuatro rechazos reales de gpgv (Date, hoja, firma vieja sobre payload nuevo y ring vacío), hash viejo que rechaza el documento nuevo, expiración exacta y Date futura. No hubo build, VM, PG, Chrome, proveedor ni cambio de dependencias por este revisor. La lease de VM ajena quedó intacta.
+
+El primer build rojo original y los freezes anteriores permanecen intactos. Este PASS no acredita compilación de pyexpat/psycopg, ABI, ELF, linkage, runtime54 ni cierre de71IDsOS, SEC10/R18, ASVS o AAL2. Un nuevo InRelease distinto o expirado debe volver a fallar cerrado; no hay refresh silencioso.

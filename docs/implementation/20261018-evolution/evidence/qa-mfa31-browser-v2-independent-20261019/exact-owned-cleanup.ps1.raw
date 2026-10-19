@@ -1,0 +1,39 @@
+﻿$ErrorActionPreference = 'Stop'
+$taskEvidence = 'F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-browser-v2-independent-20261019'
+$taskClosure = Get-Content -LiteralPath ($taskEvidence + '/resource-closure.json') -Raw | ConvertFrom-Json
+$taskExpected = @($taskClosure.own_processes_remaining_by_exact_profile_or_script)
+if ($taskExpected.Count -ne 2) { throw 'Expected exactly two previously attributed server processes' }
+$taskRecords = @()
+$taskSha = [System.Security.Cryptography.SHA256]::Create()
+function Task-HashText([string]$value) { ([BitConverter]::ToString($taskSha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($value)))).Replace('-','').ToLowerInvariant() }
+function Task-Verify($expected) {
+    $process = Get-CimInstance Win32_Process -Filter ('ProcessId = ' + [string]$expected.pid)
+    if (-not $process) { return $null }
+    $birth = $process.CreationDate.ToUniversalTime().ToString('o')
+    $exeHash = (Get-FileHash -LiteralPath $process.ExecutablePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $commandHash = Task-HashText ([string]$process.CommandLine)
+    if (($birth -ne $expected.birth) -or ($exeHash -ne $expected.exe_SHA) -or ($commandHash -ne $expected.command_SHA)) { throw 'Exact PID/birth/executable/command fingerprint changed; no process stopped' }
+    if (([string]$process.CommandLine).Replace('\','/').ToLowerInvariant() -notlike '*metodobase-mfa31-browser-v2-independent-20261019/server_adapter.py*') { throw 'Not the owned server script' }
+    return $process
+}
+foreach ($expected in $taskExpected) {
+    $process = Task-Verify $expected
+    if (-not $process) { throw 'Expected original process no longer alive before preflight' }
+    $threads = @(([System.Diagnostics.Process]::GetProcessById($process.ProcessId)).Threads | ForEach-Object { [pscustomobject]@{id=$_.Id;state=[string]$_.ThreadState;wait=if ($_.ThreadState -eq 'Wait') {[string]$_.WaitReason} else {$null}} })
+    $taskRecords += [pscustomobject]@{pid=$process.ProcessId;parent=$process.ParentProcessId;birth=$expected.birth;exe_SHA=$expected.exe_SHA;command_SHA=$expected.command_SHA;exact_original_identity_verified=$true;threads=$threads}
+}
+$taskBase = $taskExpected | Where-Object { $_.pid -eq $taskClosure.actual_server_ready.pid }
+$taskShim = $taskExpected | Where-Object { $_.pid -eq $taskClosure.server_launcher_pid }
+if (-not $taskBase -or -not $taskShim) { throw 'Expected actual server/base and launcher pair' }
+if (($taskBase.parent_pid -ne $taskShim.pid) -or ($taskShim.birth -gt $taskBase.birth)) { throw 'Parent generation invalid' }
+$taskForceStopped = @()
+foreach ($expected in @($taskBase,$taskShim)) {
+    $process = Task-Verify $expected
+    if ($process) { Stop-Process -Id $process.ProcessId -Force; $taskForceStopped += $process.ProcessId }
+}
+$taskRemaining = @(Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -in @($taskBase.pid,$taskShim.pid) })
+if ($taskRemaining.Count) { throw 'Original own PIDs still present after native close' }
+$taskListener = @(Get-NetTCPConnection -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Listen' -and $_.LocalPort -eq 8805 })
+if ($taskListener.Count) { throw 'Own listener still present' }
+[pscustomobject]@{classification='Explicit owned fixture cleanup after bounded STOP timeout; no graceful server return claim';verified_before=$taskRecords;force_stopped_exact_owned_pids=$taskForceStopped;remaining_original_pids=@();listener8805_closed=$true;no_foreign_process_signalled=$true;root_source_unchanged=$true;UTC=(Get-Date).ToUniversalTime().ToString('o')} | ConvertTo-Json -Depth 7 | Set-Content -LiteralPath ($taskEvidence + '/owned-server-close-native.json') -Encoding UTF8
+[pscustomobject]@{owned_force_stopped=$taskForceStopped;original_PIDs_absent=$true;port8805_closed=$true;foreign_signalled=$false} | ConvertTo-Json -Compress

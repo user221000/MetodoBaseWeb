@@ -1,0 +1,16 @@
+﻿/* Own guard reentrancy controls at the new summary-clear rendering boundary. */
+const fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),assert=require('node:assert/strict');
+const ROOT=process.env.MFA_SUMMARY_REVIEW_ROOT||'F:/mb-mfa31-summary-after-qa-20261019',base=path.join(ROOT,'tests/e2e');
+const apiRaw=fs.readFileSync(path.join(base,'mfa_api.cjs'),'utf8'),marker='const tests=[];',fixture=fs.readFileSync('C:/Users/Consu/AppData/Local/Temp/metodobase-mfa31-summary-independent-20261019/own_summary.cjs','utf8');
+const prefix=fixture.slice(fixture.indexOf('class Element {'),fixture.indexOf('\nconst tests=[];'));
+const own=String.raw`
+const tests=[];const test=(name,body)=>tests.push({name,body});
+for(const action of ['confirm','revoke'])test('New '+action+' summary-clear boundary cannot reveal an old kit or clear B during synchronous account replacement',async()=>{
+ const e=mounted(action==='revoke');await settled(e);const summary=e.nodes.get('mfa-account-summary'),descriptor=Object.getOwnPropertyDescriptor(Element.prototype,'textContent');let armed=true,fired=false;
+ Object.defineProperty(summary,'textContent',{get(){return descriptor.get.call(this);},set(value){descriptor.set.call(this,value);if(armed&&value===''){armed=false;fired=true;e.api.saveTokens(other);}}});
+ if(action==='confirm'){assert.equal(await e.controller.mutate('enroll',{password:'synthetic'},{}),true);assert.equal(await e.controller.confirm('123456'),false);}else assert.equal(await e.controller.mutate('revoke',{password:'synthetic'},{recovery_code:'R'.repeat(22)}),false);
+ assert.equal(fired,true,'The new clear boundary was actually crossed');assert.equal(e.values.get('mb_token'),other.token);assert.equal(e.values.get('mb_refresh_token'),other.refresh_token);assert.equal(e.nodes.get('mfa-account-kit').textContent.includes('R'.repeat(20)),false);assert.equal(e.calls.filter(x=>x.url==='/api/auth/me').length,1);assert.equal(e.nodes.get('mfa-account-summary').textContent,'');
+});
+(async()=>{const results=[];for(const item of tests){try{await item.body();results.push({case:item.name,passed:true});}catch(error){results.push({case:item.name,passed:false,error_class:error.name});}}console.log(JSON.stringify({scope:'Actual mountAccount/API and added DOM-clear reentrancy controls; RAM transport/minimal DOM only.',total:results.length,passed:results.filter(x=>x.passed).length,results},null,2));if(results.some(x=>!x.passed))process.exitCode=1;})();
+`;
+const candidate=new Module(path.join(base,'qa_mfa_summary_guard.cjs'),module);candidate.filename=path.join(base,'qa_mfa_summary_guard.cjs');candidate.paths=module.paths;candidate._compile(apiRaw.slice(0,apiRaw.indexOf(marker))+prefix+own,candidate.filename);
