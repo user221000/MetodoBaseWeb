@@ -117,6 +117,7 @@
     if(busy || invalid || !pageContext)return;
     var ticket=epoch,context=pageContext;
     busy=true;failed=false;errorBox.hidden=true;controls();
+    if(ticket!==epoch || invalid)return;
     status.textContent='Consultando tus datos y preparando una parte…';
     try{
       await verify(context,ticket);check(context,ticket);
@@ -141,8 +142,9 @@
   start.addEventListener('click',function(){part(true);});next.addEventListener('click',function(){part(false);});
   restart.addEventListener('click',function(){if(busy || invalid)return;try{check(pageContext,epoch);discard(true);errorBox.hidden=true;status.textContent='Puedes iniciar otra descarga desde la primera parte.';controls();start.focus();}catch(error){invalidate(error);}});
   again.addEventListener('click',async function(){
-    if(busy || invalid || !lastFile)return;busy=true;errorBox.hidden=true;controls();
-    var ticket=epoch,context=state.context,exportId=state.id,file=lastFile;
+    if(busy || invalid || !lastFile)return;var ticket=epoch;busy=true;errorBox.hidden=true;controls();
+    if(ticket!==epoch || invalid || !state || !lastFile)return;
+    var context=state.context,exportId=state.id,file=lastFile;
     try{await verify(context,ticket);check(context,ticket);if(!state || state.id!==exportId || lastFile!==file)throw changed();download(file,context,ticket);check(context,ticket);status.textContent='Se volvió a preparar la descarga de la parte '+state.part+'. '+(state.complete ? 'Ya se prepararon todas las partes de este alcance.' : 'Quedan registros; descarga la siguiente parte para continuar.');check(context,ticket);}
     catch(error){if(ticket===epoch && !invalid){try{check(context,ticket);}catch(sessionError){invalidate(sessionError);return;}if(sessionCodes.includes(error.code))invalidate(error);else fail(error);}}
     finally{if(ticket===epoch && !invalid){busy=false;controls();}}

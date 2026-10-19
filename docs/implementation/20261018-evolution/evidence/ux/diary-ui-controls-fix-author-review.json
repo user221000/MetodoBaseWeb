@@ -1,0 +1,45 @@
+{
+  "status": "Author complete and frozen, reviewer acceptance pending",
+  "problem": "controls() can synchronously invalidate the export consumer. Repeat then dereferenced state.context outside try, throwing TypeError; first/next part could overwrite invalidation with a false loading message. Cache/count/URL clearing already worked.",
+  "fix": "Capture the epoch before controls(), then return if invalidated or epoch changed. Repeat also checks state and lastFile before dereferencing. Part returns before writing its loading status.",
+  "validation": {
+    "vm_unique_passed": 162,
+    "extras_frozen": {
+      "sha256": "903a4fe4e8fa0ee556f5d9218a3aab7c9c398ad6949bb16e07e53e4f4ab6342b",
+      "before": 9,
+      "after": 11,
+      "total": 11
+    },
+    "machineack_frozen": {
+      "sha256": "027d50ffe765fb6fca8b2a38cc3c529e4d82d62b079c76699c0b92bbf09fd142",
+      "passed": 10,
+      "total": 10
+    },
+    "own_added_controls": {
+      "historical": 17,
+      "current": 21,
+      "total": 21,
+      "unchanged_reused": 17,
+      "new_regressions": 4
+    },
+    "browser_groups": 4,
+    "scoped_screens": 4,
+    "page_errors": [],
+    "axe_violations": 0,
+    "overflow": false,
+    "browser_report": "diary-ui-consumer-fix-browser-controls-fix-author/report.json"
+  },
+  "preservation": "Original6066/10, machine ACK10/10 and87/21browser evidence remain intact. Extras903 before9/11 and exact87 consumer are retained separately. All immutable assertions remain unchanged.",
+  "limits": [
+    "VM drivers are author executions, not independent acceptance.",
+    "The four current browser states cover the scoped export/logout region; prior21-browser evidence remains87 evidence and was not rerun or relabeled.",
+    "Broader R10 reload/two-key cross-tab/direct-writer atomicity and other previously documented limits stay open.",
+    "No new Python run was needed for this consumer-only guard change; no new backend/migration/PG/provider claim."
+  ],
+  "reproduction": {
+    "extras": "DIARY_UI_SOURCE_ROOT=<candidate>; DIARY_UI_REVIEW_OUTPUT=<new directory>; node MAIN evidence/ux/diary-ui-consumer-security-extras-frozen.cjs",
+    "machineack": "same env; node MAIN evidence/ux/diary-ui-security-independent-driver-param-machineack.cjs",
+    "own": "node tests/e2e/personal_export_controls.cjs; set DIARY_UI_EXPORT_SOURCE to preserved87 consumer to repeat before",
+    "browser": "NODE_PATH=<accepted tests/e2e/node_modules>; METODOBASE_EVIDENCE_BATCH=<unique>; node tests/e2e/personal_export_context_browser.cjs against own fixture8777 with synthetic persisted diary records; do not touch unrelated listeners"
+  }
+}

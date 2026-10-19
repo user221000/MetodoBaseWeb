@@ -1,0 +1,90 @@
+{
+  "scope": "Additional independent VM negatives and lifecycle/cache probes; synthetic transport/DOM/Storage only; not author replay or browser evidence",
+  "sourceBefore": {
+    "web/static/js/api.js": "ec8ddcf7dd62d79f2a55860cdb98ec02e1759df02e9ddf031ec45f9399c0a19f",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "2d94a7569689cf5018c88424506204cc6d961707240b13bceab0b5be9c312302",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sourceAfter": {
+    "web/static/js/api.js": "ec8ddcf7dd62d79f2a55860cdb98ec02e1759df02e9ddf031ec45f9399c0a19f",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "2d94a7569689cf5018c88424506204cc6d961707240b13bceab0b5be9c312302",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sources_stable": true,
+  "driver_sha256": "903a4fe4e8fa0ee556f5d9218a3aab7c9c398ad6949bb16e07e53e4f4ab6342b",
+  "total": 11,
+  "passed": 9,
+  "results": [
+    {
+      "case": "Cached repeat after explicit same-tab B replacement settles without rejection and discards A before I/O",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ {\n+   message: \"Cannot read properties of null (reading 'context')\",\n+   name: 'TypeError'\n+ }\n- null\n"
+    },
+    {
+      "case": "Cached repeat with a newly unreadable token settles without rejection and surfaces Storage invalidation",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ {\n+   message: \"Cannot read properties of null (reading 'context')\",\n+   name: 'TypeError'\n+ }\n- null\n"
+    },
+    {
+      "case": "Persisted BFCache restoration invalidates cached files without adopting an account",
+      "passed": true
+    },
+    {
+      "case": "Late verification of a cached repeat cannot restore a pagehidden private file",
+      "passed": true
+    },
+    {
+      "case": "Late initial canonical context cannot reopen a pagehidden export consumer",
+      "passed": true
+    },
+    {
+      "case": "Malformed export combined with a changed canonical team discards the preceding private cache",
+      "passed": true
+    },
+    {
+      "case": "Restart after a completed part revokes the old URL and never repeats the prior part accidentally",
+      "passed": true
+    },
+    {
+      "case": "Non-machine ACK {\"message\":\"Sesión cerrada. Todas las sesiones revocadas.\"} closes locally without claiming server confirmation",
+      "passed": true
+    },
+    {
+      "case": "Non-machine ACK {\"success\":\"true\"} closes locally without claiming server confirmation",
+      "passed": true
+    },
+    {
+      "case": "Non-machine ACK {\"success\":1} closes locally without claiming server confirmation",
+      "passed": true
+    },
+    {
+      "case": "Non-machine ACK null closes locally without claiming server confirmation",
+      "passed": true
+    }
+  ],
+  "observations": [
+    {
+      "case": "repeat_after_B",
+      "rejected": {
+        "name": "TypeError",
+        "message": "Cannot read properties of null (reading 'context')"
+      },
+      "new_requests": 0,
+      "downloads": 1,
+      "repeat_hidden": true
+    },
+    {
+      "case": "repeat_storage_fault",
+      "rejected": {
+        "name": "TypeError",
+        "message": "Cannot read properties of null (reading 'context')"
+      },
+      "new_requests": 0,
+      "downloads": 1
+    }
+  ]
+}
