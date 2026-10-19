@@ -1,0 +1,25 @@
+import sys,json,xml.etree.ElementTree as ET
+from pathlib import Path
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019');sys.path.insert(0,str(OUT))
+from support import *
+from r23_recovery_compare import compare
+for mode in ('full','units82'):
+    phase=TEMP/mode
+    before=json.loads((OUT/(mode+'-before-photo.json')).read_bytes());after=json.loads((OUT/(mode+'-after-photo.json')).read_bytes())
+    inventory=compare(before,after)
+    if mode=='full':
+        value=json.loads((phase/'guard/review.json').read_bytes())
+        checks={'reports':len(value['reports']),'workflow':len(value['unauthorized_delta_canaries']),'old_parser':len(value['current_report_canaries']),'index_parser':len(value['index_report_canaries']),'followup_parser':len(value['followup_report_canaries']),'inert':len(value['current_inert_fixture_cases']),'Bash_blocks':value['bash_blocks'],'references':len(value['references'])}
+        assert [checks[k] for k in ['reports','workflow','old_parser','index_parser','followup_parser','inert']]==[29,33,55,24,12,27]
+        witness=json.loads((phase/'stdout.raw.log').read_text().splitlines()[-1]);assert witness['historical_exit']==0 and witness['reports']==29
+    else:
+        cases=ET.parse(phase/'junit.xml').findall('.//testcase');checks={'total':len(cases),'passed':sum(not any(c.find(tag)is not None for tag in ['failure','error','skipped']) for c in cases)}
+        assert checks['total']==checks['passed']==82
+        assert '82 passed in' in (phase/'stdout.raw.log').read_text()
+    assert not (phase/'stderr.raw.log').read_bytes()
+    outputs=[]
+    for path in sorted(phase.rglob('*')):
+        rel=path.relative_to(phase)
+        if path.is_file() and not {'source','owned-probes'}.intersection(rel.parts):outputs.append(publish(path,mode+'-'+rel.as_posix().replace('/','--')))
+    save(mode+'-result.json',{'head':HEAD,'original_wrapper_exit':1,'wrapper_failure':'Photo inventory included subsequently published inert writer artifacts as helpers; maintained child completed successfully before photo assertion.','child_exit_code_not_persisted_by_original_wrapper':True,'completed_child_success_witness':checks,'checks':checks,'sources':6591,'original_executing_helpers':5,'packages':89,'stable_sources_packages_executed_helpers':True,'inventory_recovery':inventory,'outputs':outputs,'no_repeat':True,'scope':'Complete maintained final guard or82 focused unit cases, with completed outputs preserved; original wrapper reporting error retained separately. No Actions/Linux/image/SLO.'})
+    print(json.dumps({'mode':mode,'completed':checks,'wrapper_reporting_error_preserved':True,'no_repeat':True}))

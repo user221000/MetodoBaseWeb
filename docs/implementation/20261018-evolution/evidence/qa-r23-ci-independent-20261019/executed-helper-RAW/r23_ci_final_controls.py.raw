@@ -1,0 +1,46 @@
+import sys,json,re,os,subprocess,ast
+from pathlib import Path
+from datetime import datetime
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019');sys.path.insert(0,str(OUT))
+from support import *
+PUBLIC=OUT/'fresh-browser8';RUN=TEMP/'fresh-browser8'
+rows=json.loads((RUN/'observed-processes.private.json').read_bytes());mapping={r['ProcessId']:r for r in rows}
+foreign_ids={15548,26876,16092,28768,26224};foreign=[mapping[n]for n in sorted(foreign_ids)]
+instant=lambda s:datetime.fromisoformat(s.replace('Z','+00:00'))
+misparent=mapping[14120];edge_root=mapping[15548]
+assert edge_root['ParentProcessId']==14120 and Path(misparent['ExecutablePath']).name.lower()=='chrome.exe'
+assert instant(edge_root['Created'])<instant(misparent['Created'])
+for row in foreign:
+    assert Path(row['ExecutablePath']).name.lower()=='msedge.exe'
+    assert row['Created'].startswith('2026-10-19T15:47:')
+    if row['ProcessId']!=15548:
+        assert row['ParentProcessId']==15548 and instant(row['Created'])>=instant(edge_root['Created'])
+chrome=[r for r in rows if Path(r['ExecutablePath']).name.lower()=='chrome.exe']
+profile_paths=set();checks=[]
+for row in chrome:
+    match=re.search(r'--user-data-dir=(?:"([^"]+)"|(\S+))',row.get('CommandLine')or'')
+    if match:
+        path=Path(match.group(1)or match.group(2));assert path.is_relative_to(Path(os.environ['TEMP']))and path.name.startswith('playwright_chromiumdev_profile-');profile_paths.add(str(path))
+    parent=mapping.get(row['ParentProcessId'])
+    if parent:assert instant(row['Created'])>=instant(parent['Created'])
+    checks.append({'pid':row['ProcessId'],'birth':row['Created'],'parent_pid':row['ParentProcessId'],'known_parent_birth':parent['Created']if parent else None,'known_parent_generation_order_verified':parent is not None,'exact_Chrome_binary_verified':row['ExecutablePath'].lower()=='c:\\program files\\google\\chrome\\application\\chrome.exe','owned_profile_argument_present':match is not None})
+assert len(profile_paths)==1 and all(not Path(p).exists()for p in profile_paths)
+save('exact-parent-generation-attribution.json',{'misleading_numeric_parent_PID':14120,'new_Chrome_parent':{k:misparent[k]for k in ['ProcessId','ParentProcessId','Created','ExecutablePath']},'foreign_Edge_root':{k:edge_root[k]for k in ['ProcessId','ParentProcessId','Created','ExecutablePath']},'foreign_root_born_before_registered_parent_generation':True,'foreign_exact_descendants':[{k:r[k]for k in ['ProcessId','ParentProcessId','Created','ExecutablePath']}for r in foreign],'literal_five_foreign_identities_only':True,'ownership_criterion':'Numeric PID alone never establishes ownership. Require exact PID+birth and authenticated own fixture path/startup path or actual Chrome binary/profile; when a parent generation is known child birth must be at/after it. Root Edge was born before registered Chrome parent generation, so its exact subtree is foreign.','own_Chrome_identity_and_parent_generation_checks':checks,'own_profile_paths':sorted(profile_paths),'all_own_profiles_absent':True,'no_process_termination_in_recovery':True,'no_generic_exclusions':True})
+# Collect only: no database creation/session/fixture execution.
+phase=TEMP/'collect-followup';phase.mkdir();origin=phase/'origin';origin.mkdir();before=photo('collect-before')
+env=os.environ.copy()
+for name in list(env):
+    key=name.upper()
+    if key=='DATABASE_URL'or key.endswith('_DATABASE_URL')or key.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST'))or any(x in key for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):env.pop(name,None)
+env.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1',PYTHONPATH=str(ROOT)+os.pathsep+str(OUT),QA_HISTORY30_MODULE_ORIGIN_OUT=str(origin))
+command=[str(PYTHON),'-X','utf8','-B','tests/run_isolated.py','-p','qa_r23_ci_origin','--collect-only','-q','tests/integration_followup_postgres.py']
+result=subprocess.run(command,cwd=ROOT,env=env,capture_output=True,timeout=60)
+(phase/'stdout.log').write_bytes(result.stdout);(phase/'stderr.log').write_bytes(result.stderr);assert result.returncode==0
+nodeids=[line.strip()for line in result.stdout.decode().splitlines()if line.startswith('tests/integration_followup_postgres.py::')]
+assert len(nodeids)==2
+module=ast.parse((ROOT/'tests/check_followup_reports.py').read_bytes());required=ast.literal_eval(next(n.value.args[0]for n in module.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='REQUIRED'for t in n.targets)))
+actual={('tests.integration_followup_postgres',n.split('::')[-1])for n in nodeids};assert actual==required
+after=photo('collect-after');assert before==after
+outputs=[publish(p,'collect-'+p.relative_to(phase).as_posix().replace('/','--'))for p in sorted(phase.rglob('*'))if p.is_file()]
+save('actual-followup-collection.json',{'head':HEAD,'exit':0,'nodeids':nodeids,'exact_current_parser_REQUIRED_matches_actual_collection':True,'source_files':6591,'packages':89,'stable':True,'outputs':outputs,'scope':'Collection only, zero PostgreSQL fixture/session or browser execution.'})
+print(json.dumps({'exact_parent_generation':True,'collected_PG_nodeids':len(nodeids),'no_services':True,'stable':True}))

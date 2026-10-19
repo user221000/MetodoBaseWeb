@@ -1,0 +1,14 @@
+--- a/Modules/expat/xmlparse.c
++++ b/Modules/expat/xmlparse.c
+@@ -2444,6 +2444,11 @@
+     EXPAT_FALLTHROUGH;
+   default:
+     parser->m_parsingStatus.parsing = XML_PARSING;
++  }
++
++  if (len > EXPAT_SAFE_PTR_DIFF(parser->m_bufferLim, parser->m_bufferEnd)) {
++    parser->m_errorCode = XML_ERROR_INVALID_ARGUMENT;
++    return XML_STATUS_ERROR;
+   }
+ 
+   // Detect and avoid integer overflow

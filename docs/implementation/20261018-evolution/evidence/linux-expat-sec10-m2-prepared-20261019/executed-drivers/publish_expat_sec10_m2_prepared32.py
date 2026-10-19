@@ -1,0 +1,28 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,subprocess
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019');SRC=LAB/'evidence/expat-sec10-preparation32-20261019';WT=Path(r'F:\mb-container-expat-sec10-20261019');CACHE=LAB/'evidence/sca-native-triage31-20261019';E=Path(r'F:\MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence');DST=E/'linux-expat-sec10-m2-prepared-20261019'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def cp(source,target):
+    assert source.is_file() and not source.is_symlink() and not target.exists();target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(source.read_bytes());assert sha(source)==sha(target)
+head=subprocess.check_output(['git','-C',str(WT),'rev-parse','HEAD'],text=True).strip();parent=subprocess.check_output(['git','-C',str(WT),'rev-parse','HEAD^'],text=True).strip();assert parent=='c02e3a1e1c10e0c6102d9a240697013f7246cfa5';assert not subprocess.check_output(['git','-C',str(WT),'status','--porcelain']);assert not DST.exists();DST.mkdir()
+changed=subprocess.check_output(['git','-C',str(WT),'diff-tree','--no-commit-id','--name-only','-r','HEAD'],text=True).splitlines();assert len(changed)==6 and changed[0]=='Dockerfile'
+quiet={p:sha(p) for p in [CACHE/'primary/Python-3.12.15.tar.xz',E/'security-native31-sca-independent-20261019/source.json',E/'linux-sca-native31-triage-20261019/manifest.json']};assert quiet[E/'security-native31-sca-independent-20261019/source.json']=='2a93fdbd3e62070b6ce5c918512380d676e8c2b2e43769237573422379472794'
+excluded=[]
+for source in sorted(SRC.rglob('*')):
+    if not source.is_file():continue
+    if source.name.endswith(('.tar.xz','.tar.gz')):excluded.append({'path':str(source),'sha256':sha(source),'bytes':source.stat().st_size});continue
+    cp(source,DST/'author-evidence'/source.relative_to(SRC))
+for rel in changed:cp(WT/rel,DST/'candidate-source'/rel)
+for name in ['prepare_expat_sec10_sources32.py','prepare_expat_sec10_refresh32.py','verify_expat_sec10_static32.py','verify_expat_sec10_static32-v2.py','verify_psf_source_signature32.py','publish_expat_sec10_m2_prepared32.py']:cp(LAB/'scripts'/name,DST/'executed-drivers'/name)
+for name in ['CVE-2026-77214.json','expat-fix-77214-commit.json','cpython-tag-3.12.15.json','cpython-annotated-tag-3.12.15.json','cpython-commit-xmlparse.json','cpython-commit-elementtree.json','cpython-commit-pyexpat.json','cpython-commit-expat-h.json']:cp(CACHE/'primary'/name,DST/'reused-primary'/name)
+cp(WT/'runtime-source/expat-sec10/CONTRATO.md',DST/'CONTRATO.md')
+excluded.append({'path':str(CACHE/'primary/Python-3.12.15.tar.xz'),'sha256':sha(CACHE/'primary/Python-3.12.15.tar.xz'),'bytes':(CACHE/'primary/Python-3.12.15.tar.xz').stat().st_size})
+(DST/'large-source-pointers.json').write_text(json.dumps(excluded,indent=2)+'\n',encoding='utf-8');(DST/'.gitattributes').write_text('* -text\n',encoding='ascii')
+locks={rel:sha(WT/rel) for rel in subprocess.check_output(['git','-C',str(WT),'ls-files','*lock'],text=True).splitlines()};assert len(locks)==12
+raw=json.loads((LAB/'evidence/runtime28-native-20261019/native/native.json').read_text());native={'raw_native_sha256':'9cbf93d511d52a80272f9d5525058062f282202934c2dc6e26aa8347d774eaec','versions':raw['versions'],'consumers':[x for x in raw['elf_files'] if 'pyexpat.' in x['path'] or '_elementtree.' in x['path']]};(DST/'native-consumer-reference.json').write_text(json.dumps(native,indent=2)+'\n',encoding='utf-8')
+freeze={'frozen_utc':datetime.now(timezone.utc).isoformat(),'head':head,'parent':parent,'worktree':str(WT),'clean':True,'changed_files':changed,'source_hashes':{p:sha(WT/p) for p in changed},'unchanged_locks':locks,'author_static_checks':22,'psf_detached_gpg_verified':True,'patch_target':'CVE-2026-77214','source_before_sha256':'9a4969bb0ac497803866705f3fa233cc4b487e7685800d9222bd0ab38d1b8a20','source_after_sha256':'8c85e2537e27d7cabfa3cf21ed372505351a2617a717b8c69df6111e3c19d89c','m1_preview':'Retained failed 2.9 refresh; new APIs/removal require larger integration; not accepted or built.','pending':['Independent SEC review of source/patch/helper/Docker','Real Linux compilation and native import/linkage/ABI checks','Bounded stdlib and application XML tests on final composed source','Runtime/build/SBOM/SCA inventory, exact54 Python distributions; no scanner ignores'],'scope':'Prepared source only. No C/compiler, QEMU/Docker build or product execution. Source branch based on c02 is a native delta; root must compose current accepted application before real image build. SQLite50812, zlib27171, OS71 and SEC09 remain open.'}
+assert all(sha(p)==h for p,h in quiet.items());freeze['reused_inputs_quiet']={str(p):h for p,h in quiet.items()};(DST/'freeze.json').write_text(json.dumps(freeze,indent=2)+'\n',encoding='utf-8')
+rows=[{'path':p.relative_to(DST).as_posix(),'bytes':p.stat().st_size,'sha256':sha(p)} for p in sorted(DST.rglob('*')) if p.is_file()];data=(json.dumps({'sealed_utc':datetime.now(timezone.utc).isoformat(),'head':head,'files':rows,'file_count_excluding_manifest':len(rows)},indent=2)+'\n').encode();(DST/'manifest.json').write_bytes(data);digest=hashlib.sha256(data).hexdigest();(DST/'manifest.sha256').write_text(digest+'  manifest.json\n',encoding='ascii')
+for row in rows:assert sha(DST/row['path'])==row['sha256']
+r={'head':head,'folder':str(DST),'manifest_sha256':digest,'freeze_sha256':sha(DST/'freeze.json'),'contract_sha256':sha(DST/'CONTRATO.md'),'files_excluding_manifest_and_sidecar':len(rows),'frozen':True,'no_build':True};(LAB/'evidence/expat-sec10-m2-publication32.json').write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8');print(json.dumps(r,indent=2))

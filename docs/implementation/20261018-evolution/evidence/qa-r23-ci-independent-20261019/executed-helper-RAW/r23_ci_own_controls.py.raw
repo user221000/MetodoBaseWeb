@@ -1,0 +1,98 @@
+"""Independent real CLI and owned inert process adversaries; no real services."""
+import sys
+from pathlib import Path
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019');sys.path.insert(0,str(OUT))
+from support import *
+import shlex,xml.etree.ElementTree as ET,yaml
+sys.path.insert(0,str(ROOT));from tests import verify_history_index_ci as guard
+before=photo('own-before');phase=TEMP/'own';phase.mkdir(exist_ok=False);rows=[];self_sha=sha(Path(__file__).read_bytes())
+def run(command,directory):
+    result=subprocess.run(command,cwd=ROOT,capture_output=True,timeout=45)
+    (directory/'stdout.log').write_bytes(result.stdout);(directory/'stderr.log').write_bytes(result.stderr);return result
+for label,target,body in [('checker','tests/check_followup_reports.py',b'REPORT = "fake"\nREQUIRED = set()\n'),('normalizer','tests/e2e/normalize_followup_report.py',b'print("FAKE_EXECUTED")\n'),('startup','scripts/check_followup_fixture.py',b'print("FAKE_EXECUTED")\n'),('fixture','tests/e2e/followup_server.py',b'print("FAKE_EXECUTED")\n')]:
+    directory=phase/('pin-'+label);directory.mkdir();copy=directory/'repository';copy.mkdir()
+    for name in set(guard.PINNED_CURRENT_GATES)|{'tests/verify_history_index_ci.py'}:
+        path=copy/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/name).read_bytes())
+    (copy/target).write_bytes(body)
+    result=run([str(PYTHON),'-B',str(copy/'tests/verify_history_index_ci.py'),'--output',str(directory/'gate'),'--verify-only'],directory)
+    assert result.returncode!=0 and b'FAKE_EXECUTED' not in result.stdout and not (directory/'gate/historical-ci29').exists();rows.append({'case':'mutated-'+label+'-CLI-rejected-before-use','passed':True})
+workflow=yaml.safe_load((ROOT/'.github/workflows/ci.yml').read_bytes())
+for label in ['public-plus-private','private-glob','no-finalizer-wait','no-shutdown-trap','skip-post-browser-witness']:
+    directory=phase/label;directory.mkdir();value=deepcopy(workflow);steps=value['jobs']['image']['steps']
+    browser=next(s for s in steps if s==guard.FOLLOWUP_BROWSER_STEP);upload=next(s for s in steps if s==guard.FOLLOWUP_BROWSER_UPLOAD)
+    if label=='public-plus-private':upload['with']['path']+='\n${{ runner.temp }}/followup-private'
+    elif label=='private-glob':upload['with']['path']='${{ runner.temp }}/followup-*'
+    elif label=='no-finalizer-wait':browser['run']=browser['run'].replace('elif ! wait "$fixture_pid"; then','elif false; then')
+    elif label=='no-shutdown-trap':browser['run']=browser['run'].replace('trap finish_followup EXIT','trap : EXIT')
+    else:
+        needle='python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795\n';assert browser['run'].count(needle)==1;browser['run']=browser['run'].replace(needle,'echo bypass\n')
+    path=directory/'workflow.yml';path.write_text(yaml.safe_dump(value,sort_keys=False))
+    result=run([str(PYTHON),'-B',str(ROOT/'tests/verify_history_index_ci.py'),'--output',str(directory/'gate'),'--workflow',str(path),'--verify-only'],directory)
+    assert result.returncode!=0 and not (directory/'gate/historical-ci29').exists();rows.append({'case':label+'-CLI-rejected-before-history','passed':True})
+tree=ast.parse((ROOT/'tests/e2e/followup_server.py').read_text());names=ast.literal_eval(next(n.value for n in ast.walk(tree) if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='names' for t in n.targets)))
+index=json.loads((ROOT/'web/database/alembic/schema_targets/20261019_personal_history_index_postgresql.json').read_bytes())['history_order_index']
+marker={'fixture':'r23-followup-real-pg','pid':123,'port':8795,'database':'metodobase_test_followup_'+'a'*16,'runtime_revision':'20261019_personal_history_index','model_tables':29,'actual_tables':30,'application_role_restricted_nonowner':True,'history_order_index':index,'sources':{n:sha((ROOT/n).read_bytes()) for n in names}}
+for label in ['positive','float-physical','string-model','boolean-PID','other-port','NULLS-FIRST','opclass-swapped','source-alias','source-extra','oversize','malformed']:
+    directory=phase/('startup-'+label);directory.mkdir();value=deepcopy(marker)
+    if label=='float-physical':value['actual_tables']=30.0
+    elif label=='string-model':value['model_tables']='29'
+    elif label=='boolean-PID':value['pid']=True
+    elif label=='other-port':value['port']=8799
+    elif label=='NULLS-FIRST':value['history_order_index']['indoption']=[0,0,3,1]
+    elif label=='opclass-swapped':value['history_order_index']['operator_classes'][-2:]=['pg_catalog.int4_ops','pg_catalog.timestamp_ops']
+    elif label=='source-alias':value['sources']['web/../web/auth.py']=value['sources'].pop('web/auth.py')
+    elif label=='source-extra':value['sources']['private/config.json']='0'*64
+    path=directory/'input.json';path.write_bytes(b'x'*65537 if label=='oversize' else b'{' if label=='malformed' else json.dumps(value).encode())
+    result=run([str(PYTHON),'-B',str(ROOT/'scripts/check_followup_fixture.py'),str(path),'--pid','123','--port','8795'],directory)
+    assert (result.returncode==0)==(label=='positive');rows.append({'case':'startup-'+label,'passed':True,'CLI_exit':result.returncode,'synthetic_marker_only':True})
+synthetic={'results':[{'name':'SYNTHETIC-'+str(i),'passed':True} for i in range(8)],'executed_revision':'20261019_personal_history_index','model_tables':29,'actual_tables':30,'history_order_index':index,'pageErrors':[],'startup_delta':{},'source_start':marker['sources'],'source_end':marker['sources'],'screens':['followup-320.png','followup-390.png','followup-1440.png','followup-stale-error.png','followup-late-session.png']}
+for label in ['synthetic-positive','actual-8d-metadata-absent','row-numeric-true','wrong-opclass','source-empty','source-mismatch','after-all-checks-failure','duplicate-screen','existing-output','oversize']:
+    directory=phase/('normalize-'+label);directory.mkdir();value=deepcopy(synthetic);target=directory/'normalized.json'
+    if label=='actual-8d-metadata-absent':value=json.loads((OUT.parent/'qa-r23-composition30-independent-20261019/r23-real/public/report.json').read_bytes())
+    elif label=='row-numeric-true':value['results'][0]['passed']=1
+    elif label=='wrong-opclass':value['history_order_index']['operator_classes'][-1]='pg_catalog.text_ops'
+    elif label=='source-empty':value['source_start']=value['source_end']={}
+    elif label=='source-mismatch':value['source_end']=dict(value['source_end'],extra='changed')
+    elif label=='after-all-checks-failure':value['failure']={'name':'SyntheticFailureAfterAllEight'}
+    elif label=='duplicate-screen':value['screens'].append(value['screens'][0])
+    elif label=='existing-output':target.write_bytes(b'OWN_UNCHANGED_SENTINEL')
+    source=directory/'input.json';source.write_bytes(b'x'*1048577 if label=='oversize' else json.dumps(value).encode())
+    result=run([str(PYTHON),'-B',str(ROOT/'tests/e2e/normalize_followup_report.py'),str(source),str(target),'--kind','browser','--minimum','8'],directory)
+    assert (result.returncode==0)==(label=='synthetic-positive')
+    if label=='existing-output':assert target.read_bytes()==b'OWN_UNCHANGED_SENTINEL'
+    elif label!='synthetic-positive':assert not target.exists()
+    rows.append({'case':'normalizer-'+label,'passed':True,'CLI_exit':result.returncode,'synthetic_or_unchanged_retained_negative_only':True})
+# Extra process probes use the actual current Bash body and explicit inert seams.
+process_tree=ast.parse((ROOT/'tests/test_followup_ci_process.py').read_text());function=next(n for n in process_tree.body if isinstance(n,ast.FunctionDef))
+prefix=ast.literal_eval(next(n.value for n in ast.walk(function) if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='prefix' for t in n.targets)))
+writer_body=ast.literal_eval(next(n.args[0] for n in ast.walk(function) if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='write_text'and isinstance(n.func.value,ast.Name)and n.func.value.id=='writer'))
+for label in ['privacy-positive','SIGTERM','SIGINT','missing-marker','bad-report-and-finalizer']:
+    directory=phase/('trap-'+label);directory.mkdir();runner=directory/'runner';runner.mkdir();value=deepcopy(synthetic)
+    if label=='bad-report-and-finalizer':value['failure']={'name':'SyntheticBadReport'}
+    template=directory/'template.json';template.write_text(json.dumps({'marker':marker,'report':value}))
+    writer=directory/'writer.py';writer.write_text(writer_body)
+    own_prefix=prefix.replace('"$CI_PYTHON" "$CI_WRITER" marker "$report" "$own_pid"','if [[ "$CI_MODE" != "missing-marker" ]]; then "$CI_PYTHON" "$CI_WRITER" marker "$report" "$own_pid"; fi')
+    own_prefix=own_prefix.replace('if [[ "$CI_MODE" == \'old-head\' ]]; then','if [[ "$CI_MODE" == \'old-head\' || "$CI_MODE" == \'missing-marker\' ]]; then')
+    own_prefix=own_prefix.replace('if [[ "$CI_MODE" == \'finalizer-error\' ]]; then','if [[ "$CI_MODE" == \'finalizer-error\' || "$CI_MODE" == \'bad-report-and-finalizer\' ]]; then')
+    own_prefix=own_prefix.replace('printf \'driver\\n\' >> "$CI_EVENTS"','printf \'driver\\n\' >> "$CI_EVENTS"\n if [[ "$CI_MODE" == "SIGTERM" ]]; then builtin kill -TERM "$$"; fi\n if [[ "$CI_MODE" == "SIGINT" ]]; then builtin kill -INT "$$"; fi')
+    own_prefix=own_prefix.replace('curl() { return 0; }','curl() { printf \'health\\n\' >> "$CI_EVENTS"; return 0; }')
+    script=directory/'probe.sh';script.write_bytes((own_prefix+guard.FOLLOWUP_BROWSER_STEP['run']).encode())
+    canary='SyntheticPrivate'+('q'*35)+'.'+('d'*64)
+    env=dict(os.environ,RUNNER_TEMP=runner.as_posix(),GITHUB_WORKSPACE=ROOT.as_posix(),CI_PYTHON=PYTHON.as_posix(),CI_WRITER=writer.as_posix(),CI_TEMPLATE=template.as_posix(),CI_EVENTS=(directory/'events.log').as_posix(),CI_MODE=label,METODOBASE_TEST_MIGRATOR_URL='postgresql+psycopg2://synthetic:'+canary+'@127.0.0.1:55483/metodobase_test_inert',METODOBASE_TEST_POSTGRES_URL='postgresql+psycopg2://synthetic:'+canary+'@127.0.0.1:55483/metodobase_test_inert',METODOBASE_TEST_PG_BIN='/inert/not-executed')
+    result=subprocess.run(['C:/Program Files/Git/bin/bash.exe',script.as_posix()],cwd=ROOT,env=env,capture_output=True,timeout=30)
+    (directory/'stdout.log').write_bytes(result.stdout);(directory/'stderr.log').write_bytes(result.stderr)
+    assert (result.returncode==0)==(label=='privacy-positive')
+    events=(directory/'events.log').read_text().splitlines();starts=[r for r in events if r.startswith('start ')];closed=[r for r in events if r.startswith('closed ')]
+    assert len(starts)==len(closed)==1 and starts[0].split()[1]==closed[0].split()[1]
+    if label=='missing-marker':assert 'driver' not in events and 'health' not in events
+    public=runner/'followup-public';assert not (public/'config.json').exists() and not (public/'server.stdout.log').exists()
+    assert all(canary.encode() not in p.read_bytes() for p in public.rglob('*') if p.is_file())
+    assert canary.encode() in (runner/'followup-private/config.json').read_bytes()
+    rows.append({'case':'owned-trap-'+label,'passed':True,'exit':result.returncode,'events':events,'services':'Explicitly inert; no real HTTP/Chrome/PG','private_canary_in_public':False})
+after=photo('own-after');assert before==after and sha(Path(__file__).read_bytes())==self_sha
+outputs=[]
+for path in sorted(phase.rglob('*')):
+    rel=path.relative_to(phase)
+    if path.is_file() and not {'repository','followup-private'}.intersection(rel.parts):outputs.append(publish(path,'own-'+rel.as_posix().replace('/','--')))
+save('own-result.json',{'head':HEAD,'passed':len(rows),'total':len(rows),'cases':rows,'sources':before['source_count'],'helpers':before['helper_count'],'packages':89,'stable':True,'own_driver_sha256':self_sha,'outputs':outputs,'scope':'Independent actual CLI and owned Bash signals/readiness/privacy probes, services all inert. No browser/PG/Actions/Linux-image/SLO.'})
+print(json.dumps({'passed':len(rows),'sources':before['source_count'],'helpers':before['helper_count'],'packages':89,'stable':True,'no_real_services':True}))

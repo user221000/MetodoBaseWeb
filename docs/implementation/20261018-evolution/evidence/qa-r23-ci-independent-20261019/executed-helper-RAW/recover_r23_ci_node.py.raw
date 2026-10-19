@@ -1,0 +1,26 @@
+import sys,shlex,yaml
+from pathlib import Path
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019');sys.path.insert(0,str(OUT))
+from support import *
+from r23_recovery_compare import compare
+phase=TEMP/'node';before=json.loads((OUT/'node-before-photo.json').read_bytes());after=photo('node-reporting-error-recovery2-before');inventory_before=compare(before,after)
+workflow=yaml.safe_load((ROOT/'.github/workflows/ci.yml').read_bytes());selected=[];inline=[]
+for step in workflow['jobs']['frontend-contracts']['steps']:
+    for line in step.get('run','').splitlines():
+        if line.startswith(('node tests/e2e/','python scripts/check_frontend_report.py ','python tests/e2e/normalize_followup_report.py ')):selected.append(line)
+        elif line.startswith('node -e '):inline.append(line)
+assert len(inline)==1
+NODE=Path('C:/Program Files/nodejs/node.exe');parts=shlex.split(inline[0]);parts[0]=str(NODE)
+result=subprocess.run(parts,cwd=phase,capture_output=True,timeout=30);(phase/'legacy-inline.stdout.log').write_bytes(result.stdout);(phase/'legacy-inline.stderr.log').write_bytes(result.stderr)
+assert result.returncode==0
+finished=photo('node-recovered-after');inventory_after=compare(before,finished)
+modules=[line for line in selected if line.startswith('node tests/')];parsers=[line for line in selected if line.startswith('python scripts/')];normalizers=[line for line in selected if line.startswith('python tests/')]
+assert len(modules)==23 and len(parsers)==19 and len(normalizers)==5
+for line in modules:
+    output=phase/shlex.split(line)[-1];assert output.is_file()
+    value=json.loads(output.read_bytes());cases=value.get('results',value.get('report',[]));assert cases and all(case['passed'] is True for case in cases)
+for i in range(len(selected)):assert (phase/('command-'+str(i)+'.stderr.log')).exists()
+outputs=[publish(path,'node-'+path.name) for path in sorted(phase.iterdir()) if path.is_file()]
+save('node-reporting-error.json',{'original_wrapper':str(OUT/'run_node.py'),'original_failure':'Postcondition at line26 expected23 shared parser calls; actual frozen workflow has19 shared calls and1 Node-e inline validator covering4 legacy auth reports. All selected subprocesses completed their per-command exit0 assertion before this reporting assertion.','original23VM_not_repeated':True,'recovery':'Run only the exact omitted Node-e validator once against retained reports; source/executed-helper/package hashes unchanged. Exact generated writer artifacts separately identified, without generic exclusions.','original_traceback':'AssertionError at run_node.py line26: assert node_count==parsers==23 and normalizers==5','source_and_helpers_preserved':True,'first_recovery_photo_error':'First recovery stopped before Node-e: OUT glob classified published inert writer outputs as helpers. Original photos retained.','inventory_before':inventory_before,'inventory_after':inventory_after})
+save('node-result.json',{'head':HEAD,'VM_modules':23,'shared_parsers':19,'legacy_inline_validator_calls':1,'legacy_inline_validated_reports':4,'actual_normalizers':5,'minimum_assertion_executions':348,'legacy_executions':300,'legacy_unique_criteria':279,'additional_executions_no_dedup_claim':48,'workflow_selected_commands':selected,'omitted_validator_executed_once':inline[0],'legacy_inline_exit':result.returncode,'sources':before['source_count'],'helpers':before['helper_count'],'packages':89,'stable':True,'outputs':outputs,'scope':'Actual23 local Node VM/controlled DOM executions,19 actual shared parser calls+one actual inline validator of4 legacy reports and5 actual normalizers. Reporting recovery only; no VM repetition or services.'})
+print(json.dumps({'VM':23,'shared_parsers':19,'legacy_inline':1,'validated_reports':23,'normalizers':5,'no_VM_repeat':True,'sources':before['source_count'],'packages':89,'stable':True}))

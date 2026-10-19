@@ -86,3 +86,12 @@ La imagen99c mide pyexpat2.8.5 embebido en CPython3.12.15; el CNA primario inclu
 Cierre exigido: Conservar cadena de procedencia PSF/tag/commit/blobs y ELF por artefacto; verificar rango/fix y alcanzabilidad real sin afirmar explotación sólo por versión; aplicar una reparación mantenida y fijada al componente realmente cargado, reconstruir el artefacto, comprobar versión/parche efectivo, SBOM/SCA y regresiones de parsers/runtime con revisión independiente. No sustituir Expat embebido instalando sólo libexpat Debian ni ignorar el aviso; mantener abierto el alcance no ejecutado.
 
 [Seguridad independiente](evidence/security-native31-sca-independent-20261019/source.json). Sin reparación, explotación remota o dictamen global acreditados.
+
+
+## SEC11: Retorno de portal fuera del origen y validación anterior al circuito
+
+create_portal_session concatena BASE_URL y return_url sin exigir ruta relativa. Con @outside.example.invalid/path el puerto Stripe recibe otro host. Validar dentro del decorador de reintentos también puede clasificar entradas inválidas como fallos del proveedor y abrir el circuito compartido; la corrección debe evitar ambos efectos.
+
+Criterio de cierre: Validar el retorno con un helper canónico antes de emitir grants y antes del circuito/puerto Stripe: una sola barra inicial, sin autoridad/esquema, backslash, espacios o controles ASCII/DEL; preservar rutas /usuario y B2B con query/fragmento permitidos. Rechazar antes de cualquier llamada externa; una secuencia de entradas inválidas no abre el circuito ni bloquea una solicitud válida. Verificar ambas factories, contratos previos, cuerpo ligado al grant y origen/URL exactos mediante puertos sintéticos y revisión independiente, sin llamadas o cargos reales.
+
+Reproducción independiente local de preimagen:8rojos/3controles, sin DB/HTTP/red. Corrección final y revisión pendientes. [Recibo](evidence/prepared-wave114-20261019/SEC11-root-before/receipt.json).

@@ -196,3 +196,8 @@ QA navegador30:50unit+22propios+16freshreal/fixture0,5496fuentes/5helpers/89paqu
 ## Checkpoint 113
 
 MAIN30 6d4e8b4:2491pass+1skip Windows conocido en serie/cobertura731.093s y n2/shuffle277.25s. Gate cobertura0,7381fuentes/89paquetes quietos,pip0. QA R23 aislado53HTTP/50R12unit/2PG/4propios/118Node/8R23real/16R12real; addon768 antes1/3 por foco, después mismo3/3 y30Node. Recursos propios cerrados, evidencias exactas por scope; sin Actions/imagen/SLO.
+
+
+## Checkpoint 114
+
+QA CI573:87mantenidas disjuntas+35propias,23VM/348mínimos,19parsers+Node-e4legacy+5normalizers y8freshreal;6591fuentes/5helpers/89pkgs/157Node quietos y recursos propios cerrados. ExpatM2 sólo estático37+6+22/GPG0. R24 rootquality0 sobre5942/89 y fix9bfa16/16+17VM; fuente/browser anteriores se conservan por scope. SEC11 root11:8rojos+3verdes,6fuentes/89pkgs quietos, sin DB/HTTP/red.

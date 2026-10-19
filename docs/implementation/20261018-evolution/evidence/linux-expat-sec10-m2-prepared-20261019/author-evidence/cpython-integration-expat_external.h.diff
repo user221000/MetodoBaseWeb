@@ -1,0 +1,12 @@
+--- upstream-2.8.5/expat_external.h
++++ cpython-3.12.15/expat_external.h
+@@ -43,6 +43,9 @@
+ 
+ #ifndef Expat_External_INCLUDED
+ #  define Expat_External_INCLUDED 1
++/* Namespace external symbols to allow multiple libexpat version to
++   co-exist. */
++#include "pyexpatns.h"
+ 
+ /* External API definitions */
+ 

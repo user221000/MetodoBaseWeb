@@ -54,3 +54,8 @@ MFA31 reservado exclusivamente a backend; sin migraciones paralelas. R24 usa bor
 ## Checkpoint 113
 
 No repetir amplia30 ya verde sin cambios de fuente relevantes. Conservar el control768 rojo y validar corrección con addon idéntico. Registro de consumo evita doble escritura antes de await y conserva CAS real; contratos R24/MFA31 aún en validación, sin nuevas políticas comerciales o de retención.
+
+
+## Checkpoint 114
+
+Conservar la política de retención pendiente y separar retención de uso R30 de conservación personal R31. No imponer política de caché como bloqueo de un acceso online sin nueva caché; la implementación PWA sigue condicionada a beneficio medido. Validar entradas del portal antes de resiliencia/proveedor. Los recibos de procesos exigen PID+nacimiento+perfil y generación del padre, nunca ParentPID numérico aislado.

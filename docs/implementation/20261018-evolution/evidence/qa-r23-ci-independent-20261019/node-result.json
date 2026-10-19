@@ -1,0 +1,1383 @@
+{
+  "head": "57335e5b4bcba3c76c97d47e481b526fb52874a6",
+  "VM_modules": 23,
+  "shared_parsers": 19,
+  "legacy_inline_validator_calls": 1,
+  "legacy_inline_validated_reports": 4,
+  "actual_normalizers": 5,
+  "minimum_assertion_executions": 348,
+  "legacy_executions": 300,
+  "legacy_unique_criteria": 279,
+  "additional_executions_no_dedup_claim": 48,
+  "workflow_selected_commands": [
+    "node tests/e2e/auth_refresh.cjs > auth-refresh-contracts.json",
+    "node tests/e2e/auth_refresh_storage.cjs > auth-refresh-storage.json",
+    "node tests/e2e/auth_refresh_race_review.cjs > auth-refresh-reproductions.json",
+    "node tests/e2e/auth_refresh_security_review.cjs > auth-refresh-security.json",
+    "node tests/e2e/personal_operation.cjs > personal-operation-contracts.json",
+    "node tests/e2e/personal_operation_ambiguity_review.cjs > personal-operation-ambiguity.json",
+    "python scripts/check_frontend_report.py personal-operation-contracts.json --format counts --minimum 18",
+    "python scripts/check_frontend_report.py personal-operation-ambiguity.json --format counts --minimum 2",
+    "node tests/e2e/personal_diary_api.cjs > personal-diary-api.json",
+    "node tests/e2e/personal_diary_controller.cjs > personal-diary-controller.json",
+    "node tests/e2e/personal_logout.cjs > personal-diary-logout.json",
+    "node tests/e2e/personal_logout_ack.cjs > personal-diary-logout-ack.json",
+    "node tests/e2e/personal_export_controls.cjs > personal-export-controls.json",
+    "python scripts/check_frontend_report.py personal-diary-api.json --format counts --minimum 7",
+    "python scripts/check_frontend_report.py personal-diary-controller.json --format counts --minimum 18",
+    "python scripts/check_frontend_report.py personal-diary-logout.json --format counts --minimum 10",
+    "python scripts/check_frontend_report.py personal-diary-logout-ack.json --format counts --minimum 12",
+    "python scripts/check_frontend_report.py personal-export-controls.json --format counts --minimum 21",
+    "node tests/e2e/personal_history.cjs > personal-history-contracts.json",
+    "python scripts/check_frontend_report.py personal-history-contracts.json --format counts --minimum 23",
+    "node tests/e2e/member_link_context.cjs > member-link-context.json",
+    "python scripts/check_frontend_report.py member-link-context.json --format counts --minimum 26",
+    "node tests/e2e/member_link_fragment.cjs > member-link-fragment.json",
+    "python scripts/check_frontend_report.py member-link-fragment.json --format counts --minimum 15",
+    "node tests/e2e/member_link_api.cjs > member-link-api.json",
+    "python scripts/check_frontend_report.py member-link-api.json --format counts --minimum 23",
+    "node tests/e2e/member_link_consumers.cjs > member-link-consumers.json",
+    "python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16",
+    "node tests/e2e/member_link_export.cjs > member-link-export.json",
+    "python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32",
+    "node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json",
+    "python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3",
+    "node tests/e2e/session_revision_events.cjs > followup-contracts-session_revision_events.raw.json",
+    "python tests/e2e/normalize_followup_report.py followup-contracts-session_revision_events.raw.json followup-contracts-session_revision_events.json --kind counts --minimum 11",
+    "python scripts/check_frontend_report.py followup-contracts-session_revision_events.json --format counts --minimum 11",
+    "node tests/e2e/session_expiry_fences.cjs > followup-contracts-session_expiry_fences.raw.json",
+    "python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_fences.raw.json followup-contracts-session_expiry_fences.json --kind counts --minimum 3",
+    "python scripts/check_frontend_report.py followup-contracts-session_expiry_fences.json --format counts --minimum 3",
+    "node tests/e2e/dashboard_followup.cjs > followup-contracts-dashboard_followup.raw.json",
+    "python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup.raw.json followup-contracts-dashboard_followup.json --kind counts --minimum 20",
+    "python scripts/check_frontend_report.py followup-contracts-dashboard_followup.json --format counts --minimum 20",
+    "node tests/e2e/session_expiry_security.cjs > followup-contracts-session_expiry_security.raw.json",
+    "python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_security.raw.json followup-contracts-session_expiry_security.json --kind counts --minimum 10",
+    "python scripts/check_frontend_report.py followup-contracts-session_expiry_security.json --format counts --minimum 10",
+    "node tests/e2e/dashboard_followup_focus.cjs > followup-contracts-dashboard_followup_focus.raw.json",
+    "python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup_focus.raw.json followup-contracts-dashboard_followup_focus.json --kind counts --minimum 4",
+    "python scripts/check_frontend_report.py followup-contracts-dashboard_followup_focus.json --format counts --minimum 4"
+  ],
+  "omitted_validator_executed_once": "node -e \"const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)\"",
+  "legacy_inline_exit": 0,
+  "sources": 6591,
+  "helpers": 5,
+  "packages": 89,
+  "stable": true,
+  "outputs": [
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\auth-refresh-contracts.json",
+      "original_sha256": "aa7d45f62a9bfe4dfc8e98f16af656c2e4aee91131570121c6c333befc74c606",
+      "public_file": "node-auth-refresh-contracts.json",
+      "public_sha256": "aa7d45f62a9bfe4dfc8e98f16af656c2e4aee91131570121c6c333befc74c606",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\auth-refresh-reproductions.json",
+      "original_sha256": "05230647f4c98135f269b89c19fd7637599aed7285d48c0e4bee3b74d1b65c80",
+      "public_file": "node-auth-refresh-reproductions.json",
+      "public_sha256": "05230647f4c98135f269b89c19fd7637599aed7285d48c0e4bee3b74d1b65c80",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\auth-refresh-security.json",
+      "original_sha256": "25586bb9d5604432112fdbd083966ed37080cd9ca08eee507f4601ebafa38941",
+      "public_file": "node-auth-refresh-security.json",
+      "public_sha256": "25586bb9d5604432112fdbd083966ed37080cd9ca08eee507f4601ebafa38941",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\auth-refresh-storage.json",
+      "original_sha256": "dac1d5f409cc5107ea89850f378d2dde7b829a05ed94d2c1f42a5a835b49f2ef",
+      "public_file": "node-auth-refresh-storage.json",
+      "public_sha256": "dac1d5f409cc5107ea89850f378d2dde7b829a05ed94d2c1f42a5a835b49f2ef",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-0.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-0.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-1.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-1.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-10.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-10.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-11.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-11.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-12.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-12.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-13.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-13.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-13.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-13.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-14.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-14.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-14.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-14.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-15.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-15.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-15.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-15.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-16.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-16.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-16.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-16.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-17.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-17.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-17.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-17.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-18.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-18.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-19.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-19.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-19.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-19.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-2.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-2.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-20.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-20.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-21.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-21.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-21.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-21.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-22.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-22.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-23.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-23.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-23.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-23.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-24.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-24.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-25.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-25.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-25.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-25.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-26.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-26.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-27.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-27.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-27.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-27.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-28.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-28.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-29.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-29.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-29.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-29.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-3.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-3.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-30.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-30.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-31.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-31.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-31.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-31.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-32.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-32.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-33.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-33.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-33.stdout.log",
+      "original_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_file": "node-command-33.stdout.log",
+      "public_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-34.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-34.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-34.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-34.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-35.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-35.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-36.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-36.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-36.stdout.log",
+      "original_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_file": "node-command-36.stdout.log",
+      "public_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-37.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-37.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-37.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-37.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-38.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-38.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-39.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-39.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-39.stdout.log",
+      "original_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_file": "node-command-39.stdout.log",
+      "public_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-4.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-4.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-40.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-40.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-40.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-40.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-41.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-41.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-42.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-42.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-42.stdout.log",
+      "original_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_file": "node-command-42.stdout.log",
+      "public_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-43.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-43.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-43.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-43.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-44.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-44.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-45.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-45.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-45.stdout.log",
+      "original_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_file": "node-command-45.stdout.log",
+      "public_sha256": "f2ec4b4f1d48ec75efc24ef2b6bce1bd19e0e85c4cb32fc361ef6cbb36ef9f6a",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-46.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-46.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-46.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-46.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-5.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-5.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-6.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-6.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-6.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-6.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-7.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-7.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-7.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-7.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-8.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-8.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\command-9.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-command-9.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-dashboard_followup.json",
+      "original_sha256": "a0f46a8ac40ea0c54d4b7f0634b09590af7a7e7cb66f6ad1e84e81b98d0d62e7",
+      "public_file": "node-followup-contracts-dashboard_followup.json",
+      "public_sha256": "a0f46a8ac40ea0c54d4b7f0634b09590af7a7e7cb66f6ad1e84e81b98d0d62e7",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-dashboard_followup.raw.json",
+      "original_sha256": "ae9ebe6e8560e68a4fff1082189fdc7fc7c8c25537561aa9e53eb4354f88536e",
+      "public_file": "node-followup-contracts-dashboard_followup.raw.json",
+      "public_sha256": "ae9ebe6e8560e68a4fff1082189fdc7fc7c8c25537561aa9e53eb4354f88536e",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-dashboard_followup_focus.json",
+      "original_sha256": "55a1c063f4f9dd8a6fbf83157d7289fb8081ad65cf850fdfe5ede94e1d84b7f2",
+      "public_file": "node-followup-contracts-dashboard_followup_focus.json",
+      "public_sha256": "55a1c063f4f9dd8a6fbf83157d7289fb8081ad65cf850fdfe5ede94e1d84b7f2",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-dashboard_followup_focus.raw.json",
+      "original_sha256": "ba4b2c827534f50bdf18ca29760ea1a71774eef491655ed3545c7629a6b56ab7",
+      "public_file": "node-followup-contracts-dashboard_followup_focus.raw.json",
+      "public_sha256": "ba4b2c827534f50bdf18ca29760ea1a71774eef491655ed3545c7629a6b56ab7",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-session_expiry_fences.json",
+      "original_sha256": "ac4cd0a0b7788530f44757ded7235bb5a38450ccd6a50a29dd7fa71876ee80ed",
+      "public_file": "node-followup-contracts-session_expiry_fences.json",
+      "public_sha256": "ac4cd0a0b7788530f44757ded7235bb5a38450ccd6a50a29dd7fa71876ee80ed",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-session_expiry_fences.raw.json",
+      "original_sha256": "1de8d4ff2eac96a964e88c12ba114a18a82cdd569920ffecffaae3f56eb361fd",
+      "public_file": "node-followup-contracts-session_expiry_fences.raw.json",
+      "public_sha256": "1de8d4ff2eac96a964e88c12ba114a18a82cdd569920ffecffaae3f56eb361fd",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-session_expiry_security.json",
+      "original_sha256": "446e544e1bfc5da2e31a50bbc6975bd334ef174fe2796735baa7e58838d7554d",
+      "public_file": "node-followup-contracts-session_expiry_security.json",
+      "public_sha256": "446e544e1bfc5da2e31a50bbc6975bd334ef174fe2796735baa7e58838d7554d",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-session_expiry_security.raw.json",
+      "original_sha256": "c1852aa8e46b92e122a2e5f5d0e46cab828ecc26347c8170e03d7afd982fb590",
+      "public_file": "node-followup-contracts-session_expiry_security.raw.json",
+      "public_sha256": "c1852aa8e46b92e122a2e5f5d0e46cab828ecc26347c8170e03d7afd982fb590",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-session_revision_events.json",
+      "original_sha256": "46e52da73846cd5d8b2d15feca6a8aa9c3094f1bf910c92834ed1d5e1d7c5cc8",
+      "public_file": "node-followup-contracts-session_revision_events.json",
+      "public_sha256": "46e52da73846cd5d8b2d15feca6a8aa9c3094f1bf910c92834ed1d5e1d7c5cc8",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\followup-contracts-session_revision_events.raw.json",
+      "original_sha256": "5c63d2b515849b617d23eee7ef937b2063b20f8a201219d269f7b0666023e91f",
+      "public_file": "node-followup-contracts-session_revision_events.raw.json",
+      "public_sha256": "5c63d2b515849b617d23eee7ef937b2063b20f8a201219d269f7b0666023e91f",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\legacy-inline.stderr.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-legacy-inline.stderr.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\legacy-inline.stdout.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_file": "node-legacy-inline.stdout.log",
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\member-link-api.json",
+      "original_sha256": "ef6643969f9de928bab0122e699d599aec8e8365f57efaed06787300bc62953b",
+      "public_file": "node-member-link-api.json",
+      "public_sha256": "ef6643969f9de928bab0122e699d599aec8e8365f57efaed06787300bc62953b",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\member-link-consumers.json",
+      "original_sha256": "1cd963479f603c2747afc717a7e4bd79f0157d301618f3a3e5ce1da60c9769eb",
+      "public_file": "node-member-link-consumers.json",
+      "public_sha256": "1cd963479f603c2747afc717a7e4bd79f0157d301618f3a3e5ce1da60c9769eb",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\member-link-context.json",
+      "original_sha256": "434ae5a6962d465ac64c830694de1b1c00eaa5ec1d85c3bf8bc23515fb0e8e31",
+      "public_file": "node-member-link-context.json",
+      "public_sha256": "434ae5a6962d465ac64c830694de1b1c00eaa5ec1d85c3bf8bc23515fb0e8e31",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\member-link-controls.json",
+      "original_sha256": "fa030403a6f39f8f3c563d3946e98900cdd7be13c9556a69a1c43cf1d746466f",
+      "public_file": "node-member-link-controls.json",
+      "public_sha256": "fa030403a6f39f8f3c563d3946e98900cdd7be13c9556a69a1c43cf1d746466f",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\member-link-export.json",
+      "original_sha256": "6789b0bf5d455a532f3fbadd29bd8dee8fbb8d33d4972c8cf56408d929130d1e",
+      "public_file": "node-member-link-export.json",
+      "public_sha256": "6789b0bf5d455a532f3fbadd29bd8dee8fbb8d33d4972c8cf56408d929130d1e",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\member-link-fragment.json",
+      "original_sha256": "0402b93e98bd34713493e7aef0244ccb00d75c07cf1f43d244aff2c6de5e4114",
+      "public_file": "node-member-link-fragment.json",
+      "public_sha256": "0402b93e98bd34713493e7aef0244ccb00d75c07cf1f43d244aff2c6de5e4114",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-diary-api.json",
+      "original_sha256": "41e8d5c6a3f9eb21385531c5f392e2ac8720a0b3530fc8fd040996c9164c7c77",
+      "public_file": "node-personal-diary-api.json",
+      "public_sha256": "41e8d5c6a3f9eb21385531c5f392e2ac8720a0b3530fc8fd040996c9164c7c77",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-diary-controller.json",
+      "original_sha256": "f628e663b22f1946e289c6fe8a1fef9c4f84bdbeafd744b324e937058b6b6068",
+      "public_file": "node-personal-diary-controller.json",
+      "public_sha256": "f628e663b22f1946e289c6fe8a1fef9c4f84bdbeafd744b324e937058b6b6068",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-diary-logout-ack.json",
+      "original_sha256": "fe956605e5f2ebfbb10574624e38aed3ec2da29397e1573e22c5033599c0970c",
+      "public_file": "node-personal-diary-logout-ack.json",
+      "public_sha256": "fe956605e5f2ebfbb10574624e38aed3ec2da29397e1573e22c5033599c0970c",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-diary-logout.json",
+      "original_sha256": "db8b93ee619e44202c228cb13be63077fae932c884d7ac3fa3aa6e53f7f29429",
+      "public_file": "node-personal-diary-logout.json",
+      "public_sha256": "db8b93ee619e44202c228cb13be63077fae932c884d7ac3fa3aa6e53f7f29429",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-export-controls.json",
+      "original_sha256": "cca6633f41b3a6798b2efd4318f83b98e553e1f5dbbf72b09529d91a50990368",
+      "public_file": "node-personal-export-controls.json",
+      "public_sha256": "cca6633f41b3a6798b2efd4318f83b98e553e1f5dbbf72b09529d91a50990368",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-history-contracts.json",
+      "original_sha256": "ac6d6807a1e0bf62951d4563883b9b39e96954a299bc992a3bfe5563414cbbb0",
+      "public_file": "node-personal-history-contracts.json",
+      "public_sha256": "ac6d6807a1e0bf62951d4563883b9b39e96954a299bc992a3bfe5563414cbbb0",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-operation-ambiguity.json",
+      "original_sha256": "5357c0f2dd9a06a49c492405a3ddfe0dfa78e1145f6e5b78e82293f04969782e",
+      "public_file": "node-personal-operation-ambiguity.json",
+      "public_sha256": "5357c0f2dd9a06a49c492405a3ddfe0dfa78e1145f6e5b78e82293f04969782e",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    },
+    {
+      "private_original": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r23-ci-independent-20261019\\node\\personal-operation-contracts.json",
+      "original_sha256": "65a269ee36dd7d3e738e68ab995a9e985bf1a709f98e46f61418b67d07c315c2",
+      "public_file": "node-personal-operation-contracts.json",
+      "public_sha256": "65a269ee36dd7d3e738e68ab995a9e985bf1a709f98e46f61418b67d07c315c2",
+      "public_is_RAW_exact": true,
+      "redactions": {
+        "COMPLETE_SYNTHETIC_JWT": 0,
+        "PRIVATE_DATABASE_URL": 0,
+        "INVITATION_FRAGMENT": 0,
+        "INVITATION_BODY": 0
+      }
+    }
+  ],
+  "scope": "Actual23 local Node VM/controlled DOM executions,19 actual shared parser calls+one actual inline validator of4 legacy reports and5 actual normalizers. Reporting recovery only; no VM repetition or services."
+}

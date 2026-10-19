@@ -1,0 +1,46 @@
+from pathlib import Path
+import ast,hashlib,json,subprocess
+ROOT=Path('F:/mb-r23-ci-qa-20261019');AUTHOR=Path('F:/mb-r23-history30-20261019')
+BASE=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence')
+OUT=BASE/'qa-r23-ci-independent-20261019';TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r23-ci-independent-20261019')
+HEAD='57335e5b4bcba3c76c97d47e481b526fb52874a6';PREVIOUS='ee361d5f173ca0e5b748b34be1bff2e8672042e1'
+OUT.mkdir(exist_ok=False);TEMP.mkdir(exist_ok=False);(OUT/'.gitattributes').write_bytes(b'* -text\n')
+sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a,**kw:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT,**kw)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+rel='docs/implementation/20261018-evolution/evidence/r23-ci30-author-20261019'
+freeze_raw=(AUTHOR/rel/'source-freeze.json').read_bytes();manifest_raw=(AUTHOR/rel/'manifest.json').read_bytes()
+assert sha(freeze_raw)=='923eca9074ce7d1de15dbf939d5060793c5cde06a71b6c1bb474cc14c8571c20'
+assert sha(manifest_raw)=='2c31d9e7bc97f8e051d986a9cd69cfd02948f054eca30b6acf4c113416364512'
+freeze=json.loads(freeze_raw);manifest=json.loads(manifest_raw);sources=[]
+for name,row in freeze['source_files'].items():
+    raw=(AUTHOR/name).read_bytes();blob=git('show',HEAD+':'+name)
+    assert sha(raw)==row['raw_sha256'] and len(raw)==row['bytes'] and sha(blob)==row['git_lf_sha256'] and raw.replace(b'\r\n',b'\n')==blob==(ROOT/name).read_bytes().replace(b'\r\n',b'\n')
+    sources.append({'path':name,**row})
+files=dict(manifest['files']);files['manifest.json']={'bytes':len(manifest_raw),'sha256':sha(manifest_raw)}
+trailer=(AUTHOR/rel/'manifest.sha256').read_bytes();files['manifest.sha256']={'bytes':len(trailer),'sha256':sha(trailer)}
+assert len(files)==768
+buffer=git('cat-file','--batch',input=''.join(HEAD+':'+rel+'/'+name+'\n' for name in files).encode());cursor=0;proofs=[]
+for name,row in files.items():
+    end=buffer.index(b'\n',cursor);header=buffer[cursor:end].split();assert header[1]==b'blob';size=int(header[2]);cursor=end+1;blob=buffer[cursor:cursor+size];cursor+=size+1
+    raw=(AUTHOR/rel/name).read_bytes();assert len(raw)==row['bytes'] and sha(raw)==row['sha256'] and raw==blob==(ROOT/rel/name).read_bytes();proofs.append({'path':name,**row})
+assert cursor==len(buffer)
+driver=git('show',HEAD+':tests/e2e/dashboard_followup_browser.cjs')
+metadata=b'report.executed_revision=startup.runtime_revision;\nreport.model_tables=startup.model_tables;report.actual_tables=startup.actual_tables;\nreport.history_order_index=startup.history_order_index;\n'
+assert driver.count(metadata)==1 and driver.replace(metadata,b'')==git('show',PREVIOUS+':tests/e2e/dashboard_followup_browser.cjs')
+sec=git('show',HEAD+':tests/e2e/session_expiry_security.cjs');assert sec.replace(b"path.resolve(__dirname,'../..')",b"'F:/mb-event-sec'")==git('show',PREVIOUS+':docs/implementation/20261018-evolution/evidence/r23-session-expiry/security-driver-frozen.cjs')
+for name in git('ls-tree','-r','--name-only',PREVIOUS,'--','web','api','tests/ci_history_index30','tests/ci_member_links29','tests/run_reviewed_ci28.py','tests/run_reviewed_ci29.py','tests/verify_member_links_ci.py','tests/check_member_link_reports.py','tests/check_history_index_reports.py','tests/integration_client_link_restore.py','tests/integration_personal_history_index_restore.py').decode().splitlines():assert git('show',PREVIOUS+':'+name)==git('show',HEAD+':'+name),name
+tree=ast.parse((ROOT/'tests/verify_history_index_ci.py').read_text());pins=ast.literal_eval(next(n.value for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name)and t.id=='PINNED_CURRENT_GATES' for t in n.targets)));assert len(pins)==22
+for name,digest in pins.items():assert sha((ROOT/name).read_bytes().replace(b'\r\n',b'\n'))==digest
+for prefix,manifest_name,digest in [('qa-r23-composition30-independent-20261019','partial-manifest.json','76eceb4053df86d4ef41b6f45dceeddf8232c0f52c8709c7ec23b5d9d7012650'),('qa-r23-focus-independent-20261019','manifest.json','43d78445c7a90cae3b997aa4dc63c648eef3f1f7b877d7ea196fb71a9bf69880')]:
+    old=BASE/prefix;assert sha((old/manifest_name).read_bytes())==digest
+    for row in json.loads((old/manifest_name).read_bytes())['files']:assert sha((old/row['path']).read_bytes())==row['sha256']
+(OUT/'source-authentication.json').write_text(json.dumps({'head':HEAD,'previous':PREVIOUS,'source_freeze_RAW_sha256':sha(freeze_raw),'manifest_RAW_sha256':sha(manifest_raw),'sources':sources,'RAW_proofs':proofs,'RAW_proofs_count':len(proofs),'RAW_Git_blobs_and_own_checkout_all_exact':True,'driver_inverse_only3lines4metadata_entire_original_exact':True,'SEC_entire_file_inverse_root_fallback_only':True,'production_runtime_R23_focus_API_R12_core_old_targets_and_restore_sources_unchanged':True,'helper_pins':pins,'previous_QA8_16_768_proofs_unchanged':True},indent=2)+'\n')
+(OUT/'author-source-freeze.raw.json').write_bytes(freeze_raw);(OUT/'author-manifest.raw.json').write_bytes(manifest_raw)
+previous=BASE/'qa-ci-history30-independent-20261019'
+support=(previous/'support.py').read_text().replace('F:\\mb-ci30-qa-20261019','F:\\mb-r23-ci-qa-20261019').replace('metodobase-ci30-independent-20261019','metodobase-r23-ci-independent-20261019').replace('3c764d8486eb111f1dfa0ff2f238dd2ab0308792',HEAD)
+(OUT/'support.py').write_text(support)
+origin=(previous/'qa_ci30_origin.py').read_text().replace('F:/mb-ci30-qa-20261019','F:/mb-r23-ci-qa-20261019').replace("PREFIXES=('web','api','core','tests','config','scripts')","PREFIXES=('web','api','core','tests','config','scripts','conftest')")
+(OUT/'qa_r23_ci_origin.py').write_text(origin)
+fenced=(previous/'fenced_guard.py').read_text().replace('F:/mb-ci30-qa-20261019','F:/mb-r23-ci-qa-20261019').replace('from qa_ci30_origin import audit','from qa_r23_ci_origin import audit')
+(OUT/'fenced_guard.py').write_text(fenced)
+print(json.dumps({'head':HEAD,'sources':len(sources),'RAW':len(proofs),'pins':len(pins),'metadata_inverse_exact':True,'SEC_inverse_exact':True,'no_services_started':True}))

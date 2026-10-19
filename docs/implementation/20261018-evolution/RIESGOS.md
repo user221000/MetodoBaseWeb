@@ -77,3 +77,8 @@ SEC10 Expat2.8.5 embebido sincapacityfix13c5f63; no reparación ni vía remota d
 ## Checkpoint 113
 
 R23 sigue parcial por responsables/eventos no persistidos. El foco768 fue corregido y revisado sólo en fuente aislada; no declaración global de accesibilidad. MFA31 y R24 tienen hallazgos funcionales/concurrencia en corrección; no aceptados. Expat requiere reparar componente cargado y artefacto real; Linux y71OS siguen abiertos.
+
+
+## Checkpoint 114
+
+SEC11 retorno fuera de origen y validación dentro de breaker requieren corrección común previa al puerto/circuito. Restore31 tiene deriva CHECK en corrección sólo31;22–30 intactos. Cuatro UUID candidatos de spawn sin atribución no se eliminan. R24 botón oculto se mantiene disabled en9bfa, sin fuga/capacidad demostrada; revisión final pendiente. Expat necesita artefacto real;71OS abiertos.

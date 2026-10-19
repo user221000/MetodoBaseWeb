@@ -1,0 +1,45 @@
+import sys,json,hashlib,subprocess,re,socket
+from pathlib import Path
+from datetime import datetime
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019');sys.path.insert(0,str(OUT))
+from support import sha,publish,TEMP,ROOT,HEAD,PRIVATE,PYTHON,save
+PUBLIC=OUT/'fresh-browser8';RUN=TEMP/'fresh-browser8'
+before=json.loads((PUBLIC/'before.json').read_bytes());after=json.loads((PUBLIC/'after.json').read_bytes());assert before==after
+closure=json.loads((PUBLIC/'resource-closure.json').read_bytes());report=json.loads((RUN/'browser/report.json').read_bytes());startup=json.loads((RUN/'startup.json').read_bytes())
+assert closure['fixture_exit']==closure['browser_exit']==0 and closure['error']is None
+assert closure['remaining_owned_databases']==[] and closure['listener8795_closed']is True
+assert closure['owned_chrome_profiles']==1 and closure['owned_profiles_absent']==[True]
+start=datetime.fromisoformat(closure['start_utc'])
+def instant(text):return datetime.fromisoformat(text.replace('Z','+00:00'))
+all_known=json.loads((RUN/'observed-processes.private.json').read_bytes())
+old=[row for row in all_known if instant(row['Created'])<start];recent=[row for row in all_known if instant(row['Created'])>=start]
+expected={(row['ProcessId'],row['Created']) for row in closure['remaining_exact_processes']}
+assert len(old)==5 and {(row['ProcessId'],row['Created']) for row in old}==expected
+assert all(Path(row['ExecutablePath']).name.lower()=='msedge.exe' for row in old)
+assert all(row['Created'].startswith('2026-10-19T15:47:') for row in old)
+def processes(pids):
+    command="Get-CimInstance Win32_Process -Filter '"+' OR '.join('ProcessId='+str(n) for n in sorted(pids))+"' | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='Created';Expression={$_.CreationDate.ToUniversalTime().ToString('o')}} | ConvertTo-Json -Depth 3 -Compress"
+    value=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,text=True,encoding='utf8',errors='replace',timeout=15);assert value.returncode==0
+    data=json.loads(value.stdout) if value.stdout.strip() else [];return data if isinstance(data,list)else[data]
+live=processes({row['ProcessId'] for row in all_known});live_ident={(row['ProcessId'],row['Created'])for row in live}
+remaining_own=[row for row in recent if (row['ProcessId'],row['Created'])in live_ident];assert remaining_own==[]
+assert expected<=live_ident
+with socket.socket()as probe:assert probe.connect_ex(('127.0.0.1',8795))!=0
+assert (PUBLIC/'foreign-chrome-before.json').read_bytes()==(PUBLIC/'foreign-chrome-after.json').read_bytes()
+assert (PUBLIC/'foreign-listener8776-before.json').read_bytes()==(PUBLIC/'foreign-listener8776-after.json').read_bytes()
+assert len(report['results'])==8 and all(row['passed']is True for row in report['results']) and report['pageErrors']==[] and report['startup_delta']=={} and len(report['screens'])==5
+for key,source in [('executed_revision','runtime_revision'),('model_tables','model_tables'),('actual_tables','actual_tables'),('history_order_index','history_order_index')]:assert report[key]==startup[source]
+for label in ['startup-before-health','startup-after-browser','normalize-actual-browser','parse-actual-browser']:assert json.loads((PUBLIC/(label+'-receipt.json')).read_bytes())['exit']==0
+configuration=json.loads(PRIVATE.read_text(encoding='utf-8-sig'));private_values=[configuration[k].encode()for k in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL']]
+outputs=[]
+for name in ['report.json','normalized.json','followup-1440.png','followup-390.png','followup-320.png','followup-stale-error.png','followup-late-session.png']:
+    source=RUN/'browser'/name;assert source.is_file();assert all(value not in source.read_bytes()for value in private_values)
+    target=PUBLIC/'public'/name;target.parent.mkdir(exist_ok=True);target.write_bytes(source.read_bytes());outputs.append({'path':target.relative_to(OUT).as_posix(),'sha256':sha(source.read_bytes()),'RAW_exact':True})
+(PUBLIC/'startup.raw.json').write_bytes((RUN/'startup.json').read_bytes())
+for path in sorted(RUN.glob('*.log')):
+    outputs.append(publish(path,'fresh-browser8-'+path.name))
+recovery={'head':HEAD,'original_outer_wrapper_exit':1,'original_failure':'Final closure assertion included five pre-existing Edge processes because observation followed a reused numeric historical ParentPID without a creation-time fence. No process was killed; fixture used cooperative exact stop. Browser8 and all maintained final validators completed successfully.','original_receipt_unchanged':True,'start_utc':closure['start_utc'],'exact_foreign_misattributed_processes':[{k:row[k]for k in ['ProcessId','ParentProcessId','Created','ExecutablePath']}for row in old],'each_foreign_created_before_launch':True,'all_five_still_live_same_creation_after_cleanup':True,'remaining_actual_own_processes':[],'genuine_owned_process_identities':[{k:row[k]for k in ['ProcessId','ParentProcessId','Created','ExecutablePath']}for row in recent],'database_absence_rechecked_from_original_closure':closure['remaining_owned_databases'],'foreign_Chrome_and_listener8776_preserved':True,'sources_helpers_packages_tools_config_byte_stable':True,'no_browser_repeat':True,'scope':'Exact additive attribution correction; original false-ownership observation/error retained, no weakening of browser assertions or runtime metadata.'}
+save('fresh-browser-reporting-error.json',recovery)
+summary={'head':HEAD,'status':'PASS','executed_revision':report['executed_revision'],'model_tables':29,'actual_tables':30,'passed':8,'total':8,'browser_exit':0,'fixture_exit':0,'maintained_startup_checks':2,'normalizer_exit':0,'shared_parser_exit':0,'all_four_metadata_from_actual_fresh_driver':True,'source_files':len(before['sources']),'original_executing_helpers':5,'generated_inert_writer_artifacts':10,'all_photographed_OUT_python_files':len(before['owned_helpers']),'packages':len(before['packages']),'Node_dependency_files':len(before['node_modules']),'source_helpers_packages_tools_config_stable':True,'owned_database_names':closure['owned_database_names'],'remaining_owned_databases':[],'owned_actual_processes':len(recent),'remaining_owned_actual_processes':0,'owned_Chrome_processes':closure['owned_chrome_processes'],'owned_Chrome_profiles':1,'profile_absent':True,'port8795_closed':True,'foreign_Chrome_and_listener8776_preserved':True,'pageErrors':[],'startup_delta':{},'screens':report['screens'],'wrapper_ownership_error_preserved_separately':True,'outputs':outputs,'scope':'One fresh actual Chrome/HTTP/restricted FORCE-RLS PostgreSQL30 R23 integration, original8 groups and four physical metadata fields; only declared503/delay doubles. No Actions/Linux/image/provider/fullR23/SLO claim.'}
+(PUBLIC/'summary.json').write_bytes((json.dumps(summary,indent=2)+'\n').encode())
+print(json.dumps({k:summary[k]for k in ['status','passed','total','source_files','packages','Node_dependency_files','owned_database_names','remaining_owned_actual_processes','port8795_closed']}))

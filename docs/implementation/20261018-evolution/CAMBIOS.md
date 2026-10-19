@@ -135,3 +135,8 @@ Se integra30 y CI30 con ancestry29 real. Se registraSEC10 sin renumerar106 previ
 ## Checkpoint 113
 
 Se sella regresión amplia del esquema30 integrado. Se autentican147+manifest de composición R23 y42+manifest de corrección de foco; ambos aislados, sin presentar CI adicional como integrado.107 criterios exactos preservados.
+
+
+## Checkpoint 114
+
+Se registra SEC11:108 total,107 criterios previos exactos. Se sella aceptación CI573 y M2 estático; no merge de esas fuentes en este checkpoint. R24/MFA31 están aislados, R25 diseño y R35 evaluación inicial explícitos.

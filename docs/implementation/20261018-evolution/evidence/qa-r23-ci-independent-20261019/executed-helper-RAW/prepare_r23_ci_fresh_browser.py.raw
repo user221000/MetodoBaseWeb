@@ -1,0 +1,69 @@
+import json,hashlib
+from pathlib import Path
+OLD=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r23-composition30-independent-20261019/fresh_r23_real.py')
+TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r23-ci-independent-20261019')
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019')
+raw=OLD.read_bytes();assert hashlib.sha256(raw).hexdigest()=='9660b701ead048e24fe84cb38976f4458744db30089fcd15d41a9c332e07d320'
+text=raw.decode();changes=[]
+def replace(old,new):
+    global text
+    assert text.count(old)==1,(old[:80],text.count(old));text=text.replace(old,new);changes.append([old,new])
+replace("ROOT=Path('F:/mb-r23-qa30-20261019')","ROOT=Path('F:/mb-r23-ci-qa-20261019')")
+replace("OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-composition30-independent-20261019/r23-real')","OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019/fresh-browser8')")
+replace("TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r23-composition30-independent-20261019')","TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r23-ci-independent-20261019')")
+replace("RUN=TEMP/'r23-real30'","RUN=TEMP/'fresh-browser8'")
+replace("assert head=='8d806a7fdcf2fbb1d39a7c91b9afcdbeedd9c10b'","assert head=='57335e5b4bcba3c76c97d47e481b526fb52874a6'")
+replace("save('foreign-chrome-before.json',fingerprint(foreign_before))",'''save('foreign-chrome-before.json',fingerprint(foreign_before))
+def listener_foreign():
+    command="@(Get-NetTCPConnection -State Listen -LocalPort 8776 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique) | ConvertTo-Json -Compress"
+    result=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,text=True,timeout=15)
+    assert result.returncode==0
+    pids=json.loads(result.stdout) if result.stdout.strip() else []
+    if isinstance(pids,int):pids=[pids]
+    return fingerprint(processes(' OR '.join('ProcessId='+str(pid) for pid in pids))) if pids else []
+foreign_listener_before=listener_foreign();save('foreign-listener8776-before.json',foreign_listener_before)
+def maintained_cli(label,args):
+    result=subprocess.run([sys.executable,'-X','utf8','-B',*args],cwd=ROOT,env=env,capture_output=True,timeout=30)
+    (RUN/(label+'.stdout.log')).write_bytes(result.stdout);(RUN/(label+'.stderr.log')).write_bytes(result.stderr)
+    save(label+'-receipt.json',{'arguments':args,'exit':result.returncode})
+    assert result.returncode==0,'Maintained final CI command rejected actual evidence: '+label
+startup_checked=False''')
+replace("assert all(sha((ROOT/name).read_bytes())==digest for name,digest in startup['sources'].items())",'''assert all(sha((ROOT/name).read_bytes())==digest for name,digest in startup['sources'].items())
+                    if not startup_checked:
+                        observe()
+                        actual_pid=startup['pid'];assert type(actual_pid)is int
+                        actual=processes('ProcessId='+str(actual_pid));assert len(actual)==1
+                        row=actual[0]
+                        own_identity=(actual_pid,row['Created'])
+                        manager=processes('ProcessId='+str(fixture.pid));assert len(manager)==1
+                        assert actual_pid==fixture.pid or own_identity in known,'Marker PID not witnessed in owned process descendant chain'
+                        command=row.get('CommandLine')or''
+                        assert 'followup_server.py' in command and str(startup_path) in command
+                        assert Path(row['ExecutablePath']).name.lower()=='python.exe'
+                        save('windows-owned-pid-adapter.json',{'manager_pid':fixture.pid,'actual_server_pid':actual_pid,'server_identity':fingerprint(actual),'manager_identity':fingerprint(manager),'marker_PID_is_witnessed_own_live_descendant_or_manager':True,'actual_fixture_command_and_exact_startup_path_verified_privately':True,'scope':'Windows venv launcher may delegate Python; checker receives witnessed actual server PID, without changing maintained assertions.'})
+                        maintained_cli('startup-before-health',['scripts/check_followup_fixture.py',str(startup_path),'--pid',str(actual_pid),'--port','8795'])
+                        startup_checked=True''')
+replace("node_code=node.wait()",'''node_code=node.wait()
+            if node_code==0:
+                report_value=json.loads((browser_out/'report.json').read_bytes())
+                assert report_value['executed_revision']==startup['runtime_revision']
+                assert report_value['model_tables']==startup['model_tables']==29
+                assert report_value['actual_tables']==startup['actual_tables']==30
+                assert report_value['history_order_index']==startup['history_order_index']
+                maintained_cli('normalize-actual-browser',['tests/e2e/normalize_followup_report.py',str(browser_out/'report.json'),str(browser_out/'normalized.json'),'--kind','browser','--minimum','8'])
+                maintained_cli('parse-actual-browser',['scripts/check_frontend_report.py',str(browser_out/'normalized.json'),'--format','named','--minimum','8','--minimum-screens','5'])
+                maintained_cli('startup-after-browser',['scripts/check_followup_fixture.py',str(startup_path),'--pid',str(actual_pid),'--port','8795'])''')
+replace("with socket.socket() as probe:listener_closed=probe.connect_ex(('127.0.0.1',8795))!=0",'''foreign_listener_after=listener_foreign();save('foreign-listener8776-after.json',foreign_listener_after)
+assert foreign_listener_before==foreign_listener_after
+with socket.socket() as probe:listener_closed=probe.connect_ex(('127.0.0.1',8795))!=0''')
+replace("public_names=['report.json','followup-1440.png'","public_names=['report.json','normalized.json','followup-1440.png'")
+replace("for name in ['fixture.stdout.raw.log','fixture.stderr.raw.log','browser.stdout.raw.log','browser.stderr.raw.log']:","for name in ['fixture.stdout.raw.log','fixture.stderr.raw.log','browser.stdout.raw.log','browser.stderr.raw.log',*[p.name for p in sorted(RUN.glob('*.stdout.log'))],*[p.name for p in sorted(RUN.glob('*.stderr.log'))]]:")
+replace("save('summary.json',summary);print(json.dumps(summary),flush=True)",'''summary.update(actual_four_metadata_from_fresh_driver_verified_against_startup=True,actual_startup_checks_before_health_and_after_browser=True,actual_normalizer_and_shared_parser_passed=True,foreign_listener8776_preserved=True,executing_original_QA_helpers=5,generated_inert_writer_artifacts=10)
+save('summary.json',summary);print(json.dumps(summary),flush=True)''')
+original=text
+for old,new in reversed(changes):original=original.replace(new,old,1)
+assert original.encode()==raw
+script=TEMP/'fresh_final573_browser.py';script.write_bytes(text.encode())
+(OUT/'fresh-browser-launcher.raw').write_bytes(script.read_bytes())
+(OUT/'fresh-browser-launcher-adaptation.json').write_text(json.dumps({'original_launcher':str(OLD),'original_sha256':hashlib.sha256(raw).hexdigest(),'new_launcher':str(script),'new_sha256':hashlib.sha256(script.read_bytes()).hexdigest(),'whole_launcher_inverse_byte_exact':True,'changes':changes,'preserved_original8_browser_assertions':True,'maintained_driver_unchanged':True,'scope':'Root/head/output adaptation and additive actual final CI startup/parser metadata checks; transparent witnessed Windows process adapter.'},indent=2)+'\n',encoding='utf8')
+print(json.dumps({'prepared':str(script),'sha256':hashlib.sha256(script.read_bytes()).hexdigest(),'inverse_exact':True}))

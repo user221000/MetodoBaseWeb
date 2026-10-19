@@ -1,0 +1,14 @@
+from pathlib import Path
+import hashlib,json
+temp=Path('C:/Users/Consu/AppData/Local/Temp');first=temp/'seal_r23_ci_review.py';text=first.read_text();out=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r23-ci-independent-20261019')
+start=text.index('helpers=[');end=text.index("own=json.loads")
+text=text[:start]+'''helper_records=json.loads((OUT/'executed-helper-authentication.json').read_bytes())['explicit_executed_and_recovery_helpers']
+for p in [Path(__file__),Path('C:/Users/Consu/AppData/Local/Temp/prepare_seal_r23_ci_v2.py')]:
+    target=OUT/'executed-helper-RAW'/(p.name+'.raw');target.write_bytes(p.read_bytes());helper_records.append({'source':str(p),'RAW_file':target.relative_to(OUT).as_posix(),'sha256':sha(p.read_bytes()),'RAW_exact':True})
+save('seal-EOL-reporting-error.json',{'original_sealer_exit':1,'original_script_RAW':'executed-helper-RAW/seal_r23_ci_review.py.raw','failure':'Final sealer incorrectly compared own Git checkout RAW with author CRLF source RAW. Earlier source authentication already distinguishes RAW and GitLF; initial own6591-source photo remains exact.','correction':'Compare current own bytes to initial own photo and LF-normalized author GitLF hashes; no file changes/retesting.','no_product_change_or_regression':True})
+''' + text[end:]
+old="for source in authentication['sources']:assert sha((ROOT/source['path']).read_bytes())==source['raw_sha256']"
+new="initial_sources=json.loads((OUT/'full-before-photo.json').read_bytes())['sources']\nfor source in authentication['sources']:\n    own_raw=(ROOT/source['path']).read_bytes();assert sha(own_raw)==initial_sources[source['path']] and sha(own_raw.replace(b'\\r\\n',b'\\n'))==source['git_lf_sha256']"
+assert text.count(old)==1;text=text.replace(old,new)
+target=temp/'seal_r23_ci_review_v2.py';target.write_text(text,encoding='utf8',newline='\n')
+print(json.dumps({'new_seal_helper_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'original_sealer_RAW_preserved':True}))

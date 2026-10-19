@@ -1,0 +1,22 @@
+{
+  "status": "Design draft for next wave only; not implemented, reviewed, consented, or a schema reservation",
+  "source": "R25 exact original ROADMAP_PRIORIZADO.md: trends of measures/adherence, date/source visible and explicit permissions, no fictitious charts or automatic medical conclusions",
+  "dependencies": "Accepted R12/R14 foundations and exact future runtime; coordinate DDL only after exclusive MFA31 freeze. No writes to current models/migrations or frozen R24.",
+  "existing_data": {
+    "ClientProgress": "id, id_cliente, gym_id, nullable fecha/peso_kg/grasa_corporal_pct/masa_magra_kg/notas. Existing rows have no authenticated author/source-verification metadata; never label clinically verified.",
+    "PersonalDiaryDay": "Own subject/date and immutable confirmed food snapshots, separate completed marks. Does not establish medical adherence or verified ingestion.",
+    "ClientAccountLink": "Exact accepted actor/gym/client relation, current versions and revocation; no progress-sharing consent exists and share_personal_diary/read_shared_progress remain false today."
+  },
+  "proposed_contract": [
+    "Show personal and professional data sources separately. Own records require repeated subject and own-profile predicates; professional records require both gym and client predicates. No adoption of professional profile or email-based joining.",
+    "Persist explicit opt-in, versioned and revocable for the exact active link/recipient/purpose and selected metric/date categories. Default no share. Consent UI states actual data/scope and offers immediate withdrawal; a generic privacy checkbox is insufficient.",
+    "Only current owner/admin/nutritionist permitted by canonical persisted RBAC may read selected progress through an active accepted link and live consent. VIEWER, unknown roles, unrelated tenants, revoked/deleted subjects, stale link/consent versions fail closed. No universal support bypass.",
+    "Share live minimum projections, not raw professional plan, full diary, health notes, foods, or contact data. No copying personal histories into gym ownership. Retain no professional cache as substitute for revoked source authority.",
+    "Use actual measurement dates and units, mark missing/invalid historical dates as unknown; no plotting invented zero, interpolation, unmeasured targets, or automatic medical conclusions.",
+    "Separate stored snapshot counts from completed marks. A ratio may use an explicit truthful denominator such as completed among recorded snapshots, never assume four prescribed/consumed meals on an unobserved day or claim clinical adherence.",
+    "Use typed input and existing validators/units; technical bounds are not recommended medical ranges. Do not invent verified authorship for historical ClientProgress rows.",
+    "Bounded pagination/time range, readable table and accessible truthful graph where data supports it; explicit empty/loading/error/stale/revoked states; RAM only and synchronous session invalidation.",
+    "Add export projection of own consent/measurement metadata as appropriate. Retention/destruction periods and applicable legal review remain separate pending approved policy. No new automatic purges."
+  ],
+  "expected_evidence": "Before reproduction; author domain/HTTP and actual restricted PostgreSQL RLS/two-tenant/CAS/revocation concurrency; fresh browser narrow widths/keyboard/focus/axe/late session; independent QA and privacy/security review, new historical migration target/restore if DDL needed. No human or clinical validation claim."
+}
