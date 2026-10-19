@@ -157,7 +157,7 @@ class TestFeatureGateBasic:
     def test_plan_with_subscription_returns_plan(self):
         """Con suscripción, retorna el plan correcto."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "gym_comercial"
         mock_sub.status = "active"
         mock_db.query.return_value.filter.return_value.first.return_value = mock_sub
@@ -168,7 +168,7 @@ class TestFeatureGateBasic:
     def test_is_trial_false_when_active(self):
         """is_trial es False cuando status es active."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "standard"
         mock_sub.status = "active"
         mock_db.query.return_value.filter.return_value.first.return_value = mock_sub
@@ -179,7 +179,7 @@ class TestFeatureGateBasic:
     def test_is_trial_true_when_trialing(self):
         """is_trial es True cuando status es trialing."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "standard"
         mock_sub.status = "trialing"
         mock_db.query.return_value.filter.return_value.first.return_value = mock_sub
@@ -194,7 +194,7 @@ class TestFeatureGateLimits:
     def test_get_remaining_clients_unlimited_plan(self):
         """Plan ilimitado retorna 999999."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "clinica"
         mock_sub.status = "active"
         mock_db.query.return_value.filter.return_value.first.return_value = mock_sub
@@ -206,7 +206,7 @@ class TestFeatureGateLimits:
     def test_get_remaining_clients_with_limit(self):
         """Calcula correctamente clientes restantes."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "standard"  # max 25
         mock_sub.status = "active"
         
@@ -236,7 +236,7 @@ class TestFeatureGateChecks:
     def test_check_can_create_client_unlimited(self):
         """Plan ilimitado siempre permite crear."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "clinica"  # unlimited
         mock_sub.status = "active"
         mock_db.query.return_value.filter.return_value.first.return_value = mock_sub
@@ -248,7 +248,7 @@ class TestFeatureGateChecks:
     def test_check_can_create_client_at_limit_raises_402(self):
         """En el límite, lanza HTTPException 402."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "free"  # max 10
         mock_sub.status = "active"
         
@@ -279,7 +279,7 @@ class TestFeatureGateChecks:
     def test_check_can_create_client_below_limit_passes(self):
         """Debajo del límite, no lanza excepción."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "free"  # max 10
         mock_sub.status = "active"
         
@@ -346,7 +346,7 @@ class TestFeatureGateTrialBehavior:
     def test_trial_gets_standard_features(self):
         """Durante trial, obtiene features de standard."""
         mock_db = MagicMock()
-        mock_sub = MagicMock()
+        mock_sub = MagicMock(current_period_end=None, trial_end=None)
         mock_sub.plan = "standard"
         mock_sub.status = "trialing"
         mock_db.query.return_value.filter.return_value.first.return_value = mock_sub

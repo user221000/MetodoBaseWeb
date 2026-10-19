@@ -26,6 +26,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from web.constants import PLANES_LICENCIA, TRIAL_DAYS
+from core.subscription_policy import gym_subscription_is_current
 from web.database.models import Subscription, Cliente
 
 logger = logging.getLogger(__name__)
@@ -84,7 +85,7 @@ def _build_plan_features() -> dict[str, "PlanFeatures"]:
             "can_custom_branding": False, "can_custom_templates": False,
             "can_multi_user": False, "max_team_members": 1,
             "can_api_access": False, "can_webhooks": False,
-            "support_level": "community", "max_planes_por_mes": 20,
+            "support_level": "community",
             "can_food_preferences": True,
         },
         "standard": {
@@ -92,7 +93,7 @@ def _build_plan_features() -> dict[str, "PlanFeatures"]:
             "can_custom_branding": False, "can_custom_templates": False,
             "can_multi_user": False, "max_team_members": 1,
             "can_api_access": True, "can_webhooks": False,
-            "support_level": "email", "max_planes_por_mes": 100,
+            "support_level": "email",
             "can_food_preferences": True,
         },
         "gym_comercial": {
@@ -100,7 +101,7 @@ def _build_plan_features() -> dict[str, "PlanFeatures"]:
             "can_custom_branding": True, "can_custom_templates": True,
             "can_multi_user": False, "max_team_members": 1,
             "can_api_access": True, "can_webhooks": True,
-            "support_level": "email", "max_planes_por_mes": 0,
+            "support_level": "email",
             "can_food_preferences": True,
         },
         "clinica": {
@@ -108,7 +109,7 @@ def _build_plan_features() -> dict[str, "PlanFeatures"]:
             "can_custom_branding": True, "can_custom_templates": True,
             "can_multi_user": True, "max_team_members": 0,
             "can_api_access": True, "can_webhooks": True,
-            "support_level": "priority", "max_planes_por_mes": 0,
+            "support_level": "priority",
             "can_food_preferences": True,
         },
     }
@@ -118,7 +119,7 @@ def _build_plan_features() -> dict[str, "PlanFeatures"]:
         result[plan_key] = PlanFeatures(
             plan_name=plan_key.replace("_", " ").title(),
             max_clientes=plan_data["max_clientes"],
-            max_planes_por_mes=extras["max_planes_por_mes"],
+            max_planes_por_mes=plan_data["max_planes_mes"],
             max_registros_diarios=plan_data.get("max_registros_diarios", 0),
             max_planes_por_cliente_dia=plan_data.get("max_planes_por_cliente_dia", 0),
             can_export_excel=extras["can_export_excel"],
@@ -194,16 +195,23 @@ class FeatureGate:
         self.db = db
         self.gym_id = gym_id
         self._subscription: Optional[Subscription] = None
+        self._subscription_resolved = False
         self._features: Optional[PlanFeatures] = None
     
     @property
     def subscription(self) -> Optional[Subscription]:
         """Obtiene la suscripción activa del gym (cached)."""
-        if self._subscription is None:
-            self._subscription = self.db.query(Subscription).filter(
+        if not self._subscription_resolved:
+            candidate = self.db.query(Subscription).filter(
                 Subscription.gym_id == self.gym_id,
-                Subscription.status.in_(["active", "trialing", "past_due"]),
+                Subscription.status.in_(["active", "trialing"]),
             ).first()
+            if candidate is not None and gym_subscription_is_current(
+                plan=candidate.plan, status=candidate.status,
+                period_end=candidate.current_period_end, trial_end=candidate.trial_end,
+            ):
+                self._subscription = candidate
+            self._subscription_resolved = True
         return self._subscription
     
     @property
