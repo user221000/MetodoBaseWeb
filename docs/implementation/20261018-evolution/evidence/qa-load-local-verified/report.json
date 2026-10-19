@@ -1,0 +1,2973 @@
+{
+  "scope": "Local Windows loopback TCP HTTP; synthetic migrated PostgreSQL; bounded closed-loop reads",
+  "commit": "939681e7b647b3eeeb7e68f252b2f5de2810ec52",
+  "clock_utc": "2026-10-19T07:41:21.777807+00:00",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "processor": "Intel64 Family 6 Model 158 Stepping 10, GenuineIntel",
+  "python": "3.12.13",
+  "cpu_logical": 12,
+  "versions": {
+    "fastapi": "0.146.0",
+    "uvicorn": "0.54.0",
+    "sqlalchemy": "2.1.5",
+    "httpx": "0.28.1",
+    "psycopg2-binary": "2.9.13"
+  },
+  "bounds": {
+    "concurrency": [
+      1,
+      5
+    ],
+    "requests_per_scenario": 100,
+    "seconds_per_scenario": 30
+  },
+  "pool": {
+    "size": 20,
+    "max_overflow": 10,
+    "timeout_seconds": 30,
+    "workers": 1
+  },
+  "limitations": [
+    "No agreed SLO, pass/fail latency threshold, production extrapolation, Linux/container/Redis proof",
+    "No CPU generation/PDF/PUT or durable-job queue measurement; existing stored-plan read paths only",
+    "Closed-loop offered load; coordinated omission possible; no business arrival-rate model",
+    "First request per route/identity excluded as warmup; OS and PostgreSQL cache not flushed",
+    "SQLAlchemy event overhead included; SQL counters omit pre_ping and DB network protocol operations",
+    "Pool _do_get timer includes connection creation/queue acquisition, excludes pre_ping; no worker queue timer",
+    "Single shared local host/cluster; coordinated window reduces but cannot prove absence of host noise"
+  ],
+  "cleanup": {
+    "owned_uuid_database_created": true,
+    "owned_uuid_database_removed": true
+  },
+  "schema_revision": "20261019_personal_diary",
+  "postgres_version": "17.11",
+  "session_timezone": "America/Mexico_City",
+  "seed": {
+    "personal_subjects": 5,
+    "professional_owners": 5,
+    "plans_per_personal_subject": [
+      10,
+      50,
+      200,
+      500,
+      1000
+    ],
+    "personal_plans": 1760,
+    "professional_clients_per_owner": 250,
+    "professional_clients": 1250,
+    "personal_profiles": 5,
+    "diary_days_per_person": 30,
+    "diary_days": 150,
+    "plan_content_utf8_bytes": 762,
+    "pdf_objects": 0,
+    "data_origin": "synthetic ORM seed; no nutrition generation or historical account mutation",
+    "commercial_note": "Portfolio read-size fixture; no Free entitlement or admission assertion"
+  },
+  "readiness": {
+    "attempts": 3,
+    "last_status": 200
+  },
+  "server_identity": {
+    "nonce": "32fd66b4adc04e938985b9e6934eb72a",
+    "pid": 23968,
+    "parent_pid": 9084,
+    "launcher_pid": 9084,
+    "relation_verified": true,
+    "counter_pid": 23968
+  },
+  "warmup": [
+    {
+      "name": "latest-plan",
+      "cohort": 0,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "latest-plan",
+      "cohort": 1,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "latest-plan",
+      "cohort": 2,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "latest-plan",
+      "cohort": 3,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "latest-plan",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "history",
+      "cohort": 0,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "history",
+      "cohort": 1,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "history",
+      "cohort": 2,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "history",
+      "cohort": 3,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "history",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "export-25",
+      "cohort": 0,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "export-25",
+      "cohort": 1,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "export-25",
+      "cohort": 2,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "export-25",
+      "cohort": 3,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "export-25",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "diary-30",
+      "cohort": 0,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "diary-30",
+      "cohort": 1,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "diary-30",
+      "cohort": 2,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "diary-30",
+      "cohort": 3,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "diary-30",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-25",
+      "cohort": 0,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-25",
+      "cohort": 1,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-25",
+      "cohort": 2,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-25",
+      "cohort": 3,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-25",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-100",
+      "cohort": 0,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-100",
+      "cohort": 1,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-100",
+      "cohort": 2,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-100",
+      "cohort": 3,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "clients-100",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "client-detail",
+      "cohort": 0,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "client-detail",
+      "cohort": 1,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "client-detail",
+      "cohort": 2,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "client-detail",
+      "cohort": 3,
+      "status": 200,
+      "semantic_valid": true
+    },
+    {
+      "name": "client-detail",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    }
+  ],
+  "owned_server_stopped": true,
+  "scenarios": [
+    {
+      "name": "latest-plan",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.0565584999858402,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 3.921875,
+        "rss_bytes": 158826496,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 4.6875,
+        "rss_bytes": 158826496,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 0.765625,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 8.47469997825101,
+        "p50": 9.941200027242303,
+        "p95": 11.97590003721416,
+        "max": 33.85159996105358
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 934,
+        "p50": 936,
+        "p95": 938,
+        "max": 938
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 8.11769999563694,
+        "p50": 9.542100015096366,
+        "p95": 11.63970003835857,
+        "max": 15.14209999004379
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 1.7859999788925052,
+        "p50": 2.481799980159849,
+        "p95": 3.9613000117242336,
+        "max": 4.635699966456741
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 934,
+        "p50": 936,
+        "p95": 938,
+        "max": 938
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 2
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004399975296109915,
+        "p50": 0.005999987479299307,
+        "p95": 0.009700015652924776,
+        "max": 0.019499973859637976
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 8.47469997825101,
+            "p50": 9.163200040347874,
+            "p95": 10.084500012453645,
+            "max": 33.85159996105358
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 934,
+            "p50": 934,
+            "p95": 934,
+            "max": 934
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 8.872200036421418,
+            "p50": 9.548199945129454,
+            "p95": 11.631499975919724,
+            "max": 11.677900038193911
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 936,
+            "p50": 936,
+            "p95": 936,
+            "max": 936
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 9.104900003876537,
+            "p50": 9.811899974010885,
+            "p95": 11.97590003721416,
+            "max": 12.755600037053227
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 936,
+            "p50": 936,
+            "p95": 936,
+            "max": 936
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 9.349500003736466,
+            "p50": 10.263999982271343,
+            "p95": 11.529000010341406,
+            "max": 12.539199960883707
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 938,
+            "p50": 938,
+            "p95": 938,
+            "max": 938
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 10.197099996730685,
+            "p50": 11.024899955373257,
+            "p95": 12.101400003302842,
+            "max": 15.137400012463331
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 938,
+            "p50": 938,
+            "p95": 938,
+            "max": 938
+          },
+          "records": []
+        }
+      }
+    },
+    {
+      "name": "history",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 2.9832717000390403,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 4.6875,
+        "rss_bytes": 158826496,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 7.328125,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 2.640625,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 9.37699998030439,
+        "p50": 19.407199986744672,
+        "p95": 68.31740000052378,
+        "max": 135.1346999872476
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 1613,
+        "p50": 32373,
+        "p95": 162773,
+        "max": 162773
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 8.761500008404255,
+        "p50": 18.958000000566244,
+        "p95": 65.15440001385286,
+        "max": 132.81020004069433
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 1.8524000188335776,
+        "p50": 2.871599921490997,
+        "p95": 6.430600071325898,
+        "max": 7.098599919117987
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 1613,
+        "p50": 32373,
+        "p95": 162773,
+        "max": 162773
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004599976819008589,
+        "p50": 0.006300047971308231,
+        "p95": 0.00890000956133008,
+        "max": 0.013500044587999582
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 9.37699998030439,
+            "p50": 10.378299979493022,
+            "p95": 11.815399979241192,
+            "max": 11.89879997400567
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 1613,
+            "p50": 1613,
+            "p95": 1613,
+            "max": 1613
+          },
+          "records": [
+            10
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 10.50180004676804,
+            "p50": 11.691399966366589,
+            "p95": 12.951200013048947,
+            "max": 13.381099968682975
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8062,
+            "p50": 8062,
+            "p95": 8062,
+            "max": 8062
+          },
+          "records": [
+            50
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 17.101100005675107,
+            "p50": 19.407199986744672,
+            "p95": 23.37799995439127,
+            "max": 23.830900026950985
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 32373,
+            "p50": 32373,
+            "p95": 32373,
+            "max": 32373
+          },
+          "records": [
+            200
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 30.230199976358563,
+            "p50": 34.67379999347031,
+            "p95": 40.473700035363436,
+            "max": 41.701699956320226
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 81012,
+            "p50": 81012,
+            "p95": 81012,
+            "max": 81012
+          },
+          "records": [
+            500
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 53.32760000601411,
+            "p50": 61.13540002843365,
+            "p95": 126.38839997816831,
+            "max": 135.1346999872476
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 162773,
+            "p50": 162773,
+            "p95": 162773,
+            "max": 162773
+          },
+          "records": [
+            1000
+          ]
+        }
+      }
+    },
+    {
+      "name": "export-25",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 3.8537848999840207,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 7.328125,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 10.171875,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 2.84375,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 26.405999960843474,
+        "p50": 35.858699993696064,
+        "p95": 49.84809999587014,
+        "max": 130.4105000454001
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 20588,
+        "p50": 37532,
+        "p95": 37559,
+        "max": 37559
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 25.78720002202317,
+        "p50": 35.16259999014437,
+        "p95": 48.00950002390891,
+        "max": 129.42429998656735
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 3.6041000857949257,
+        "p50": 4.437799914740026,
+        "p95": 5.773800075985491,
+        "max": 7.273999974131584
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 20588,
+        "p50": 37532,
+        "p95": 37559,
+        "max": 37559
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 15,
+          "p50": 15,
+          "p95": 15,
+          "max": 15
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004599976819008589,
+        "p50": 0.007499998901039362,
+        "p95": 0.012899981811642647,
+        "max": 0.01680001150816679
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 26.405999960843474,
+            "p50": 29.75940000033006,
+            "p95": 35.858699993696064,
+            "max": 36.76300001097843
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 20588,
+            "p50": 20588,
+            "p95": 20588,
+            "max": 20588
+          },
+          "records": [
+            10
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 30.278499994892627,
+            "p50": 35.58190003968775,
+            "p95": 47.09879995789379,
+            "max": 56.47900002077222
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37532,
+            "p50": 37532,
+            "p95": 37532,
+            "max": 37532
+          },
+          "records": [
+            25
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 31.018400040920824,
+            "p50": 37.31690003769472,
+            "p95": 47.566099965479225,
+            "max": 56.84279999695718
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37532,
+            "p50": 37532,
+            "p95": 37532,
+            "max": 37532
+          },
+          "records": [
+            25
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 33.01600000122562,
+            "p50": 38.40760001912713,
+            "p95": 49.84809999587014,
+            "max": 130.4105000454001
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37558,
+            "p50": 37558,
+            "p95": 37558,
+            "max": 37558
+          },
+          "records": [
+            25
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 33.89350004727021,
+            "p50": 40.35910003585741,
+            "p95": 51.90819996641949,
+            "max": 52.33649996807799
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37559,
+            "p50": 37559,
+            "p95": 37559,
+            "max": 37559
+          },
+          "records": [
+            25
+          ]
+        }
+      }
+    },
+    {
+      "name": "diary-30",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.326993599999696,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 10.171875,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 11.40625,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 1.234375,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 11.262700019869953,
+        "p50": 12.783500016666949,
+        "p95": 15.035999997053295,
+        "max": 18.39699997799471
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 8494,
+        "p50": 8494,
+        "p95": 8494,
+        "max": 8494
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 10.771000001113862,
+        "p50": 12.292200000956655,
+        "p95": 14.604599971789867,
+        "max": 17.794599989429116
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 1.6680999542586505,
+        "p50": 1.997399958781898,
+        "p95": 2.2514999145641923,
+        "max": 2.4799000238999724
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 8494,
+        "p50": 8494,
+        "p95": 8494,
+        "max": 8494
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 8,
+          "p50": 8,
+          "p95": 8,
+          "max": 8
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.005200039595365524,
+        "p50": 0.007299997378140688,
+        "p95": 0.011000025551766157,
+        "max": 0.013299984857439995
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 12.01720000244677,
+            "p50": 12.639400025364012,
+            "p95": 13.909000030253083,
+            "max": 15.035999997053295
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 11.510100041050464,
+            "p50": 12.686600035522133,
+            "p95": 14.01879999320954,
+            "max": 17.827100004069507
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 11.549899994861335,
+            "p50": 12.382800050545484,
+            "p95": 14.66479996452108,
+            "max": 18.39699997799471
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 11.262700019869953,
+            "p50": 12.88689998909831,
+            "p95": 15.022400009911507,
+            "max": 15.540899999905378
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 11.501299974042922,
+            "p50": 12.783500016666949,
+            "p95": 15.297200006898493,
+            "max": 16.521000012289733
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        }
+      }
+    },
+    {
+      "name": "clients-25",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.3767681999597698,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 11.40625,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 12.578125,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 1.171875,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 11.853999982122332,
+        "p50": 13.459599984344095,
+        "p95": 15.337000018917024,
+        "max": 19.057500001508743
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 15297,
+        "p50": 15297,
+        "p95": 15297,
+        "max": 15297
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 11.348000029101968,
+        "p50": 12.836100009735674,
+        "p95": 14.755799958948046,
+        "max": 18.713299999944866
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 1.978099870029837,
+        "p50": 2.2950000129640102,
+        "p95": 2.5776998954825103,
+        "max": 2.71279999287799
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 15297,
+        "p50": 15297,
+        "p95": 15297,
+        "max": 15297
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004999979864805937,
+        "p50": 0.006999995093792677,
+        "p95": 0.011700030881911516,
+        "max": 0.023500004317611456
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 12.019299960229546,
+            "p50": 13.907999964430928,
+            "p95": 15.337000018917024,
+            "max": 15.546299982815981
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 11.868599976878613,
+            "p50": 13.484700000844896,
+            "p95": 14.860400056932122,
+            "max": 15.674500027671456
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 12.316800013650209,
+            "p50": 13.288000016473234,
+            "p95": 14.556799957063049,
+            "max": 15.856399957556278
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 12.311100028455257,
+            "p50": 13.122999982442707,
+            "p95": 14.305600023362786,
+            "max": 14.556100009940565
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 11.853999982122332,
+            "p50": 13.213899976108223,
+            "p95": 15.511300007347018,
+            "max": 19.057500001508743
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        }
+      }
+    },
+    {
+      "name": "clients-100",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 2.3109588000224903,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 12.578125,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 14.578125,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 2.0,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 17.467800003942102,
+        "p50": 22.243599989451468,
+        "p95": 27.66319998772815,
+        "max": 38.56010001618415
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 61105,
+        "p50": 61105,
+        "p95": 61105,
+        "max": 61105
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 16.75670000258833,
+        "p50": 21.33519999915734,
+        "p95": 26.74910001223907,
+        "max": 36.82959999423474
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 2.075200027320534,
+        "p50": 2.4591999244876206,
+        "p95": 3.1611000886186957,
+        "max": 4.251200123690069
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 61105,
+        "p50": 61105,
+        "p95": 61105,
+        "max": 61105
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004799978341907263,
+        "p50": 0.007399998139590025,
+        "p95": 0.01209997572004795,
+        "max": 0.014499993994832039
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 19.850999990012497,
+            "p50": 23.041000007651746,
+            "p95": 25.396800017915666,
+            "max": 36.11689998069778
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 19.898800004739314,
+            "p50": 21.944999985862523,
+            "p95": 25.831100007053465,
+            "max": 30.535499972756952
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 19.518199958838522,
+            "p50": 22.200700012035668,
+            "p95": 26.506899972446263,
+            "max": 32.998799986671656
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 17.467800003942102,
+            "p50": 22.665299999061972,
+            "p95": 25.76380001846701,
+            "max": 27.927599963732064
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 17.835200007539243,
+            "p50": 22.291300003416836,
+            "p95": 27.66319998772815,
+            "max": 38.56010001618415
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        }
+      }
+    },
+    {
+      "name": "client-detail",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 0.8512577000074089,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 14.578125,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 15.25,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 0.671875,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 7.2536999941803515,
+        "p50": 8.079699997324497,
+        "p95": 9.684199991170317,
+        "max": 20.750899973791093
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 608,
+        "p50": 608,
+        "p95": 608,
+        "max": 608
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 6.989799963776022,
+        "p50": 7.706900010816753,
+        "p95": 8.624700014479458,
+        "max": 9.82460001250729
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 1.1952000786550343,
+        "p50": 1.405100047122687,
+        "p95": 1.6561999218538404,
+        "max": 2.0471999887377024
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 608,
+        "p50": 608,
+        "p95": 608,
+        "max": 608
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 6,
+          "p50": 6,
+          "p95": 6,
+          "max": 6
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004199973773211241,
+        "p50": 0.006100046448409557,
+        "p95": 0.009499955922365189,
+        "max": 0.07339997682720423
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 7.36210000468418,
+            "p50": 8.062399982009083,
+            "p95": 9.684199991170317,
+            "max": 20.750899973791093
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 7.464999973308295,
+            "p50": 8.067800023127347,
+            "p95": 9.275900025386363,
+            "max": 10.420900012832135
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 7.3797000222839415,
+            "p50": 8.099000027868897,
+            "p95": 8.561900001950562,
+            "max": 9.141999995335937
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 7.2536999941803515,
+            "p50": 8.010399993509054,
+            "p95": 9.769500000402331,
+            "max": 10.112200048752129
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 7.348099956288934,
+            "p50": 8.079699997324497,
+            "p95": 8.879100030753762,
+            "max": 9.833200019784272
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        }
+      }
+    },
+    {
+      "name": "latest-plan",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.3152709999703802,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 15.265625,
+        "rss_bytes": 160784384,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 16.09375,
+        "rss_bytes": 160944128,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_cpu_seconds": 0.828125,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 31.129700015299022,
+        "p50": 47.86940000485629,
+        "p95": 112.49080003472045,
+        "max": 339.62500002235174
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 934,
+        "p50": 936,
+        "p95": 938,
+        "max": 938
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 28.00099999876693,
+        "p50": 73.95259995246306,
+        "p95": 113.2783999782987,
+        "max": 373.35230002645403
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 2.109499939251691,
+        "p50": 3.7055000429973006,
+        "p95": 11.227699869778007,
+        "max": 17.405300051905215
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 934,
+        "p50": 936,
+        "p95": 938,
+        "max": 938
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 5,
+        "p95": 6,
+        "max": 6
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 8,
+        "p95": 9,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004300032742321491,
+        "p50": 0.006699992809444666,
+        "p95": 0.011199968867003918,
+        "max": 147.23620004951954
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 32.20879996661097,
+            "p50": 47.43510001571849,
+            "p95": 112.49080003472045,
+            "max": 267.8498999448493
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 934,
+            "p50": 934,
+            "p95": 934,
+            "max": 934
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 41.598500043619424,
+            "p50": 47.43690002942458,
+            "p95": 112.41739999968559,
+            "max": 266.7262000031769
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 936,
+            "p50": 936,
+            "p95": 936,
+            "max": 936
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 35.756099969148636,
+            "p50": 49.50480000115931,
+            "p95": 83.72479997342452,
+            "max": 339.62500002235174
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 936,
+            "p50": 936,
+            "p95": 936,
+            "max": 936
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 34.670099965296686,
+            "p50": 48.51349996170029,
+            "p95": 81.9679000414908,
+            "max": 337.5660000019707
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 938,
+            "p50": 938,
+            "p95": 938,
+            "max": 938
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 31.129700015299022,
+            "p50": 46.24500003410503,
+            "p95": 80.67220001248643,
+            "max": 335.9787000226788
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 938,
+            "p50": 938,
+            "p95": 938,
+            "max": 938
+          },
+          "records": []
+        }
+      }
+    },
+    {
+      "name": "history",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 2.9323414000100456,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 16.09375,
+        "rss_bytes": 160944128,
+        "lifetime_peak_rss_bytes": 161042432
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 18.796875,
+        "rss_bytes": 163172352,
+        "lifetime_peak_rss_bytes": 163176448
+      },
+      "server_cpu_seconds": 2.703125,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 34.887899993918836,
+        "p50": 140.13209997210652,
+        "p95": 209.11499997600913,
+        "max": 243.71140002040192
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 1613,
+        "p50": 32373,
+        "p95": 162773,
+        "max": 162773
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 94.97539995936677,
+        "p50": 164.14099995745346,
+        "p95": 260.83649997599423,
+        "max": 323.16199998604134
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 2.156600065063685,
+        "p50": 3.8838000036776066,
+        "p95": 7.56929989438504,
+        "max": 8.73239996144548
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 1613,
+        "p50": 32373,
+        "p95": 162773,
+        "max": 162773
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 5,
+        "p95": 6,
+        "max": 6
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 7,
+        "p95": 9,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004600035026669502,
+        "p50": 0.007099995855242014,
+        "p95": 0.010599964298307896,
+        "max": 0.02010003663599491
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 122.28650000179186,
+            "p50": 133.7375000002794,
+            "p95": 177.62169998604804,
+            "max": 210.009100032039
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 1613,
+            "p50": 1613,
+            "p95": 1613,
+            "max": 1613
+          },
+          "records": [
+            10
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 68.21139995008707,
+            "p50": 140.13209997210652,
+            "p95": 175.68210000172257,
+            "max": 189.88309998530895
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8062,
+            "p50": 8062,
+            "p95": 8062,
+            "max": 8062
+          },
+          "records": [
+            50
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 34.887899993918836,
+            "p50": 139.3460999825038,
+            "p95": 209.7638999694027,
+            "max": 243.71140002040192
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 32373,
+            "p50": 32373,
+            "p95": 32373,
+            "max": 32373
+          },
+          "records": [
+            200
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 115.94739998690784,
+            "p50": 143.35909998044372,
+            "p95": 208.03540002088994,
+            "max": 216.472799947951
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 81012,
+            "p50": 81012,
+            "p95": 81012,
+            "max": 81012
+          },
+          "records": [
+            500
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 116.32329999702051,
+            "p50": 139.19909996911883,
+            "p95": 209.11499997600913,
+            "max": 220.80749995075166
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 162773,
+            "p50": 162773,
+            "p95": 162773,
+            "max": 162773
+          },
+          "records": [
+            1000
+          ]
+        }
+      }
+    },
+    {
+      "name": "export-25",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 2.8762690000003204,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 18.796875,
+        "rss_bytes": 163172352,
+        "lifetime_peak_rss_bytes": 163176448
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 22.046875,
+        "rss_bytes": 163221504,
+        "lifetime_peak_rss_bytes": 163225600
+      },
+      "server_cpu_seconds": 3.25,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 74.69850004417822,
+        "p50": 132.27820000611246,
+        "p95": 206.97840000502765,
+        "max": 247.58520000614226
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 20588,
+        "p50": 37532,
+        "p95": 37559,
+        "max": 37559
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 73.08000000193715,
+        "p50": 144.09499999601394,
+        "p95": 225.3091000020504,
+        "max": 259.2556999879889
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 9.651599975768477,
+        "p50": 18.372399907093495,
+        "p95": 31.844500044826418,
+        "max": 39.2286999267526
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 20588,
+        "p50": 37532,
+        "p95": 37559,
+        "max": 37559
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 2,
+        "p50": 5,
+        "p95": 6,
+        "max": 7
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 6,
+        "p95": 7,
+        "max": 8
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 15,
+          "p50": 15,
+          "p95": 15,
+          "max": 15
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004699977580457926,
+        "p50": 0.007599999662488699,
+        "p95": 0.012899981811642647,
+        "max": 0.015099998563528061
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 100.737200002186,
+            "p50": 118.93769999733195,
+            "p95": 175.8435999508947,
+            "max": 206.98919997084886
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 20588,
+            "p50": 20588,
+            "p95": 20588,
+            "max": 20588
+          },
+          "records": [
+            10
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 114.9285999708809,
+            "p50": 133.78729997202754,
+            "p95": 206.0605000006035,
+            "max": 247.58520000614226
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37532,
+            "p50": 37532,
+            "p95": 37532,
+            "max": 37532
+          },
+          "records": [
+            25
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 107.60330001357943,
+            "p50": 128.49969998933375,
+            "p95": 213.2708000135608,
+            "max": 229.2664999840781
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37532,
+            "p50": 37532,
+            "p95": 37532,
+            "max": 37532
+          },
+          "records": [
+            25
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 88.82180001819506,
+            "p50": 140.09030000306666,
+            "p95": 195.84119995124638,
+            "max": 206.97840000502765
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37558,
+            "p50": 37558,
+            "p95": 37558,
+            "max": 37558
+          },
+          "records": [
+            25
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 74.69850004417822,
+            "p50": 145.57360002072528,
+            "p95": 203.42520001577213,
+            "max": 209.51029995922
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 37559,
+            "p50": 37559,
+            "p95": 37559,
+            "max": 37559
+          },
+          "records": [
+            25
+          ]
+        }
+      }
+    },
+    {
+      "name": "diary-30",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.0333645999780856,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 22.046875,
+        "rss_bytes": 163221504,
+        "lifetime_peak_rss_bytes": 163225600
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 23.125,
+        "rss_bytes": 163254272,
+        "lifetime_peak_rss_bytes": 163258368
+      },
+      "server_cpu_seconds": 1.078125,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 29.40509998006746,
+        "p50": 49.18329999782145,
+        "p95": 62.097900023218244,
+        "max": 67.82209995435551
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 8494,
+        "p50": 8494,
+        "p95": 8494,
+        "max": 8494
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 30.05130001110956,
+        "p50": 63.296400010585785,
+        "p95": 79.79659998090938,
+        "max": 90.7846000045538
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 2.611399977467954,
+        "p50": 8.902399917133152,
+        "p95": 14.127400063443929,
+        "max": 18.857399933040142
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 8494,
+        "p50": 8494,
+        "p95": 8494,
+        "max": 8494
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 5,
+        "p95": 6,
+        "max": 7
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 7,
+        "p95": 9,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 8,
+          "p50": 8,
+          "p95": 8,
+          "max": 8
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004399975296109915,
+        "p50": 0.006599992047995329,
+        "p95": 0.010000017937272787,
+        "max": 0.01309998333454132
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 29.40509998006746,
+            "p50": 48.58199995942414,
+            "p95": 60.75419997796416,
+            "max": 67.82209995435551
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 36.27959999721497,
+            "p50": 49.834500008728355,
+            "p95": 55.84909999743104,
+            "max": 56.13030004315078
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 37.218599987681955,
+            "p50": 49.461100017651916,
+            "p95": 56.14110000897199,
+            "max": 62.097900023218244
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 39.79290003189817,
+            "p50": 50.90979998931289,
+            "p95": 66.47279998287559,
+            "max": 66.7379000224173
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 35.80440004589036,
+            "p50": 48.573700012639165,
+            "p95": 65.82080002408475,
+            "max": 65.86139998398721
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 8494,
+            "p50": 8494,
+            "p95": 8494,
+            "max": 8494
+          },
+          "records": [
+            30
+          ]
+        }
+      }
+    },
+    {
+      "name": "clients-25",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.0422571999952197,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 23.125,
+        "rss_bytes": 163254272,
+        "lifetime_peak_rss_bytes": 163258368
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 24.171875,
+        "rss_bytes": 163254272,
+        "lifetime_peak_rss_bytes": 163258368
+      },
+      "server_cpu_seconds": 1.046875,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 27.80989999882877,
+        "p50": 51.15730001125485,
+        "p95": 61.04090000735596,
+        "max": 63.21240001125261
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 15297,
+        "p50": 15297,
+        "p95": 15297,
+        "max": 15297
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 25.75020003132522,
+        "p50": 66.1740000359714,
+        "p95": 80.43119998183101,
+        "max": 83.95249996101484
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 3.1180999940261245,
+        "p50": 6.897600018419325,
+        "p95": 11.63220003945753,
+        "max": 13.660199998412281
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 15297,
+        "p50": 15297,
+        "p95": 15297,
+        "max": 15297
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 2,
+        "p50": 5,
+        "p95": 6,
+        "max": 7
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 7,
+        "p95": 9,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004299974534660578,
+        "p50": 0.006399990525096655,
+        "p95": 0.009300012607127428,
+        "max": 0.05059997783973813
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 30.422299983911216,
+            "p50": 51.03949998738244,
+            "p95": 60.420599998906255,
+            "max": 61.59599998500198
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 31.687800015788525,
+            "p50": 50.39469996700063,
+            "p95": 57.22250003600493,
+            "max": 59.51869999989867
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 42.63270000228658,
+            "p50": 51.351799978874624,
+            "p95": 56.32440000772476,
+            "max": 63.21240001125261
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 32.49559999676421,
+            "p50": 49.96370000299066,
+            "p95": 61.60320003982633,
+            "max": 62.66900000628084
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 27.80989999882877,
+            "p50": 50.847999984398484,
+            "p95": 57.82109999563545,
+            "max": 61.04090000735596
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 15297,
+            "p50": 15297,
+            "p95": 15297,
+            "max": 15297
+          },
+          "records": [
+            25
+          ]
+        }
+      }
+    },
+    {
+      "name": "clients-100",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.8802479000296444,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 24.171875,
+        "rss_bytes": 163254272,
+        "lifetime_peak_rss_bytes": 163258368
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 26.109375,
+        "rss_bytes": 163254272,
+        "lifetime_peak_rss_bytes": 163258368
+      },
+      "server_cpu_seconds": 1.9375,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 39.38209998887032,
+        "p50": 89.47179996175691,
+        "p95": 114.6252999897115,
+        "max": 167.25329996552318
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 61105,
+        "p50": 61105,
+        "p95": 61105,
+        "max": 61105
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 47.80709999613464,
+        "p50": 116.93979997653514,
+        "p95": 184.47189999278635,
+        "max": 203.29159998800606
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 3.438800049480051,
+        "p50": 9.635799855459481,
+        "p95": 28.432499966584146,
+        "max": 36.32019995711744
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 61105,
+        "p50": 61105,
+        "p95": 61105,
+        "max": 61105
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 2,
+        "p50": 5,
+        "p95": 6,
+        "max": 7
+      },
+      "http_inflight_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 7,
+        "p95": 9,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004199973773211241,
+        "p50": 0.006599992047995329,
+        "p95": 0.010700023267418146,
+        "max": 0.5967000033706427
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 75.74369997018948,
+            "p50": 88.88289995957166,
+            "p95": 103.70770003646612,
+            "max": 166.89920000499114
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 39.38209998887032,
+            "p50": 88.19420001236722,
+            "p95": 104.30299997096881,
+            "max": 167.25329996552318
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 51.50529998354614,
+            "p50": 90.12160002021119,
+            "p95": 114.6252999897115,
+            "max": 161.19299997808412
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 52.78530000941828,
+            "p50": 89.8520999471657,
+            "p95": 114.15170005057007,
+            "max": 162.94790001120418
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 55.78380002407357,
+            "p50": 85.40779998293146,
+            "p95": 108.10210002819076,
+            "max": 160.42279999237508
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 61105,
+            "p50": 61105,
+            "p95": 61105,
+            "max": 61105
+          },
+          "records": [
+            100
+          ]
+        }
+      }
+    },
+    {
+      "name": "client-detail",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 0.7013778000255115,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 26.109375,
+        "rss_bytes": 163254272,
+        "lifetime_peak_rss_bytes": 163258368
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 26.828125,
+        "rss_bytes": 163254272,
+        "lifetime_peak_rss_bytes": 163258368
+      },
+      "server_cpu_seconds": 0.71875,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 1,
+      "client_ms": {
+        "n": 100,
+        "min": 19.6206999826245,
+        "p50": 33.95419998560101,
+        "p95": 41.03640001267195,
+        "max": 60.019000025931746
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 608,
+        "p50": 608,
+        "p95": 608,
+        "max": 608
+      },
+      "server_ms": {
+        "n": 99,
+        "min": 18.79290002398193,
+        "p50": 46.72089999075979,
+        "p95": 57.34529998153448,
+        "max": 62.67750001279637
+      },
+      "sql_ms": {
+        "n": 99,
+        "min": 1.6861999756656587,
+        "p50": 3.9539000717923045,
+        "p95": 6.496199930552393,
+        "max": 7.588400039821863
+      },
+      "wire_body_bytes": {
+        "n": 99,
+        "min": 608,
+        "p50": 608,
+        "p95": 608,
+        "max": 608
+      },
+      "pool_checked_out_peak": {
+        "n": 99,
+        "min": 3,
+        "p50": 5,
+        "p95": 6,
+        "max": 6
+      },
+      "http_inflight_at_start": {
+        "n": 99,
+        "min": 1,
+        "p50": 7,
+        "p95": 9,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 0,
+          "p50": 6,
+          "p95": 6,
+          "max": 6
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 297,
+        "min": 0.004100031219422817,
+        "p50": 0.005999987479299307,
+        "p95": 0.00879995059221983,
+        "max": 0.012999982573091984
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 20,
+            "min": 21.15709998179227,
+            "p50": 31.97609999915585,
+            "p95": 37.24929998861626,
+            "max": 37.60009998222813
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 20,
+            "min": 21.36489999247715,
+            "p50": 35.795000032521784,
+            "p95": 39.05459999805316,
+            "max": 45.6271999864839
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 20,
+            "min": 23.261700000148267,
+            "p50": 33.95419998560101,
+            "p95": 39.10290001658723,
+            "max": 41.40599997481331
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 20,
+            "min": 20.589399966411293,
+            "p50": 34.880699997302145,
+            "p95": 41.77140002138913,
+            "max": 43.78589999396354
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 20,
+            "min": 19.6206999826245,
+            "p50": 32.45579998474568,
+            "p95": 41.03640001267195,
+            "max": 60.019000025931746
+          },
+          "response_bytes": {
+            "n": 20,
+            "min": 608,
+            "p50": 608,
+            "p95": 608,
+            "max": 608
+          },
+          "records": []
+        }
+      }
+    }
+  ],
+  "outcome": "requires_review",
+  "source_count": 248,
+  "sources_stable": true
+}

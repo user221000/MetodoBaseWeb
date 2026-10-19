@@ -1,0 +1,72 @@
+{
+  "scope": "Local Windows loopback TCP HTTP; synthetic migrated PostgreSQL; bounded closed-loop reads",
+  "commit": "939681e7b647b3eeeb7e68f252b2f5de2810ec52",
+  "clock_utc": "2026-10-19T07:36:00.566047+00:00",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.12.13",
+  "cpu_logical": 12,
+  "versions": {
+    "fastapi": "0.146.0",
+    "uvicorn": "0.54.0",
+    "sqlalchemy": "2.1.5",
+    "httpx": "0.28.1",
+    "psycopg2-binary": "2.9.13"
+  },
+  "bounds": {
+    "concurrency": [
+      1,
+      5
+    ],
+    "requests_per_scenario": 5,
+    "seconds_per_scenario": 30
+  },
+  "pool": {
+    "size": 20,
+    "max_overflow": 10,
+    "timeout_seconds": 30,
+    "workers": 1
+  },
+  "limitations": [
+    "No agreed SLO, pass/fail latency threshold, production extrapolation, Linux/container/Redis proof",
+    "No CPU generation/PDF/PUT or durable-job queue measurement; existing stored-plan read paths only",
+    "Closed-loop offered load; coordinated omission possible; no business arrival-rate model",
+    "First request per route/identity excluded as warmup; OS and PostgreSQL cache not flushed",
+    "SQLAlchemy event overhead included; SQL counters omit pre_ping and DB network protocol operations",
+    "Pool _do_get timer includes connection creation/queue acquisition, excludes pre_ping; no worker queue timer",
+    "Single shared local host/cluster; coordinated window reduces but cannot prove absence of host noise"
+  ],
+  "cleanup": {
+    "owned_uuid_database_created": true,
+    "owned_uuid_database_removed": true
+  },
+  "schema_revision": "20261019_personal_diary",
+  "postgres_version": "17.11",
+  "session_timezone": "America/Mexico_City",
+  "seed": {
+    "personal_subjects": 5,
+    "professional_owners": 5,
+    "plans_per_personal_subject": [
+      10,
+      50,
+      200,
+      500,
+      1000
+    ],
+    "personal_plans": 1760,
+    "professional_clients_per_owner": 250,
+    "professional_clients": 1250,
+    "personal_profiles": 5,
+    "diary_days_per_person": 30,
+    "diary_days": 150,
+    "plan_content_utf8_bytes": 762,
+    "pdf_objects": 0,
+    "data_origin": "synthetic ORM seed; no nutrition generation or historical account mutation",
+    "commercial_note": "Portfolio read-size fixture; no Free entitlement or admission assertion"
+  },
+  "owned_server_stopped": true,
+  "outcome": "incomplete",
+  "error_class": "RuntimeError",
+  "error_stage": "Own characterization server did not become ready",
+  "source_count": 248,
+  "sources_stable": true
+}
