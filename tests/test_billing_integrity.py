@@ -575,3 +575,75 @@ def test_old_stripe_cancellation_cannot_revoke_current_mp_purchase(billing_case)
             assert current.status == "active"
             assert current.provider_payment_id == "mp-current"
     assert _stored_plan(factory, principal["id"]) == "pro"
+
+
+def test_subscription_get_month_reset_cannot_overwrite_reserved_credit(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+    from web.database.models import Base, Usuario, UserRole, UserSubscription
+    from web.services.billing_integrity import get_individual_subscription, current_quota_period
+    from web.services.generation_quota import reserve_generation
+    engine = create_engine("sqlite:///" + (tmp_path / "quota-race.db").as_posix(), connect_args={"timeout": 8})
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
+    with factory() as db:
+        db.add(Usuario(id="race-person", email="race@example.invalid", nombre="Synthetic",
+                       password_hash="unused", tipo="usuario", role=UserRole.VIEWER))
+        db.add(UserSubscription(user_id="race-person", plan="starter", max_planes_mes=1,
+                                planes_usados_mes=1, mes_actual="2000-01", status="active"))
+        db.commit()
+    read_ready, release_read, reserve_done = Event(), Event(), Event()
+    def read_subscription():
+        with factory() as db:
+            get_individual_subscription(db, "race-person")
+            read_ready.set()
+            assert release_read.wait(6)
+            db.commit()
+    def reserve():
+        try:
+            with factory() as db:
+                reserve_generation(db, "race-person", "concurrent-month-request")
+        finally:
+            reserve_done.set()
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        reader = pool.submit(read_subscription)
+        assert read_ready.wait(4)
+        writer = pool.submit(reserve)
+        # Before the fix, reservation completes while the stale GET waits and
+        # that GET later writes count=0. Correct locking makes reservation wait.
+        reserve_done.wait(1)
+        release_read.set()
+        reader.result(timeout=8)
+        writer.result(timeout=8)
+    with factory() as db:
+        sub = db.query(UserSubscription).one()
+        assert sub.mes_actual == current_quota_period()
+        assert sub.planes_usados_mes == 1
+    engine.dispose()
+
+
+def test_simultaneous_initial_subscription_gets_create_one_projection(tmp_path):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from web.database.models import Base, Usuario, UserRole, UserSubscription
+    from web.services.billing_integrity import get_individual_subscription
+    engine = create_engine("sqlite:///" + (tmp_path / "initial-subscription-race.db").as_posix(), connect_args={"timeout": 8})
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
+    with factory() as db:
+        db.add(Usuario(id="new-person", email="new@example.invalid", nombre="Synthetic",
+                       password_hash="unused", tipo="usuario", role=UserRole.VIEWER))
+        db.commit()
+    start = Barrier(2)
+    def get_initial():
+        start.wait(timeout=4)
+        with factory() as db:
+            sub = get_individual_subscription(db, "new-person")
+            db.commit()
+            return sub.plan
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = [pool.submit(get_initial) for _ in range(2)]
+        assert [result.result(timeout=8) for result in results] == ["starter", "starter"]
+    with factory() as db:
+        assert db.query(UserSubscription).count() == 1
+    engine.dispose()

@@ -459,9 +459,11 @@ async def historial_planes(
 
 # ── Subscription helpers ─────────────────────────────────────────────────
 
+from core.plan_catalog import get_individual_plan_catalog
+
 PLANES_USUARIO = {
-    "starter": {"max_planes_mes": 1, "precio_mxn": 0},
-    "pro":     {"max_planes_mes": 5, "precio_mxn": 79},
+    name: {"max_planes_mes": info["max_planes_mes"], "precio_mxn": info["precio_centavos"] / 100}
+    for name, info in get_individual_plan_catalog().items()
 }
 
 

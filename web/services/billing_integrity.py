@@ -8,6 +8,7 @@ from decimal import Decimal
 import logging
 import uuid
 from zoneinfo import ZoneInfo
+from core.plan_catalog import get_individual_plan_catalog
 
 from sqlalchemy.orm import Session
 
@@ -86,7 +87,7 @@ def sync_individual_entitlement(db: Session, sub: Subscription) -> None:
         db.add(projection)
     paid = sub.status == "active"
     projection.plan = "pro" if paid else "starter"
-    projection.max_planes_mes = 5 if paid else 1
+    projection.max_planes_mes = get_individual_plan_catalog()[projection.plan]["max_planes_mes"]
     projection.status = "active" if paid else "canceled"
     projection.updated_at = datetime.now(timezone.utc)
 
@@ -97,9 +98,14 @@ def get_individual_subscription(db: Session, user_id: str) -> UserSubscription:
     Existing pre-migration rights without provider mapping remain unchanged for
     an explicit reconciliation, rather than silently rewriting customer rights.
     """
-    projection = db.query(UserSubscription).filter_by(user_id=user_id).first()
+    # GET can initialize/reset the projection too. Use the same account lock as
+    # reservation and provider updates, so an old GET cannot overwrite a newly
+    # consumed credit when the local month changes or create duplicate rows.
+    if not db.query(Usuario).filter_by(id=user_id).update({Usuario.id: Usuario.id}):
+        raise ValueError("Cuenta no disponible")
+    projection = db.query(UserSubscription).filter_by(user_id=user_id).populate_existing().first()
     if projection is None:
-        projection = UserSubscription(user_id=user_id, plan="starter", max_planes_mes=1,
+        projection = UserSubscription(user_id=user_id, plan="starter", max_planes_mes=get_individual_plan_catalog()["starter"]["max_planes_mes"],
                                       planes_usados_mes=0, mes_actual=current_quota_period(), status="active")
         db.add(projection)
         db.flush()

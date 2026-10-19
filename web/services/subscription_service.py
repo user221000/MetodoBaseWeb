@@ -15,7 +15,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from web.constants import PLANES_LICENCIA
-from web.database.models import Subscription, CheckoutSession, Payment
+from web.database.models import Subscription, CheckoutSession, Payment, Usuario
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,9 @@ def activate_subscription(
         raise ValueError("Plan de suscripción inválido")
     info = PLANES_LICENCIA[plan]
     max_clientes = info["max_clientes"] or 999999
+    # Keep the lock order account -> subscription -> quota projection across
+    # reads, reservations and provider callbacks, including first-row creation.
+    db.query(Usuario).filter_by(id=gym_id).update({Usuario.id: Usuario.id})
 
     # Use FOR UPDATE to prevent race conditions on concurrent requests
     sub = db.query(Subscription).filter(
@@ -111,6 +114,7 @@ def update_subscription_status(db: Session, sub: Subscription, status: str) -> N
                 "incomplete_expired", "paused"}
     if status not in accepted:
         raise ValueError("Estado de suscripción no soportado")
+    db.query(Usuario).filter_by(id=sub.gym_id).update({Usuario.id: Usuario.id})
     sub.status = status
     sub.updated_at = datetime.now(timezone.utc)
     from web.services.billing_integrity import sync_individual_entitlement

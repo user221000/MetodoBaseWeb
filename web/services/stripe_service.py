@@ -674,7 +674,12 @@ def get_subscription(db: Session, gym_id: str) -> Optional[dict]:
     return {
         "plan": sub.plan,
         "status": sub.status,
+        "provider": sub.provider,
+        "currency": "MXN",
+        "precio_centavos": price_in_cents(sub.plan) if sub.plan in PLANES_LICENCIA and PLANES_LICENCIA[sub.plan].get("precio_mxn") else 0,
+        "period": "month",
         "max_clientes": sub.max_clientes,
+        "current_period_start": int((sub.current_period_start.replace(tzinfo=timezone.utc) if sub.current_period_start.tzinfo is None else sub.current_period_start).timestamp()) if sub.current_period_start else None,
         "current_period_end": period_end,
         "cancel_at_period_end": sub.cancel_at_period_end,
         "stripe_customer_id": sub.stripe_customer_id,

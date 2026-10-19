@@ -227,13 +227,7 @@ def _get_gym_plan(db: Session, gym_id: str) -> str:
 
 
 def _is_current_gym_subscription(sub: Optional[Subscription]) -> bool:
-    """Reject expired/unknown/B2C rights while preserving mapped legacy periods."""
-    if sub is None or sub.status not in {"active", "trialing"} or sub.plan not in {"standard", "gym_comercial", "clinica"}:
-        return False
-    end = sub.trial_end if sub.status == "trialing" and sub.trial_end else sub.current_period_end
-    if end is None:
-        # Historic provider mappings without a period need explicit reconciliation;
-        # this local change does not retrospectively rewrite customer contracts.
-        return True
-    aware = end.replace(tzinfo=timezone.utc) if end.tzinfo is None else end
-    return aware > datetime.now(timezone.utc)
+    """Resolve B2B state through the same pure policy as legacy FeatureGate."""
+    from core.subscription_policy import gym_subscription_is_current
+    return bool(sub is not None and gym_subscription_is_current(
+        plan=sub.plan, status=sub.status, period_end=sub.current_period_end, trial_end=sub.trial_end))
