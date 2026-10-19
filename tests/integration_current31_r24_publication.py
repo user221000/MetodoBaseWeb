@@ -4,4 +4,3 @@ from tests.ci_mfa31.current_link_fixtures import case, http, link_db
 from tests.integration_daily_plan_publication import (
     test_published_source_commit_is_personal_only_double_owner_scoped_and_revocation_blocks_new_reads,
 )
-

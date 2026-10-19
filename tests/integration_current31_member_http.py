@@ -12,4 +12,3 @@ from tests.integration_client_link_http import (
     test_current_real_worker_four_meals_and_pdf_can_be_explicitly_published,
     test_publication_lost_commit_ack_requires_fresh_exact_observation_before_replacement,
 )
-

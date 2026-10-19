@@ -15,4 +15,3 @@ from tests.integration_client_link_services import (
     test_professional_roles_are_reloaded_and_new_recipient_link_gives_no_professional_grant,
     test_uncertain_commit_is_visible_and_never_returns_a_send_packet,
 )
-

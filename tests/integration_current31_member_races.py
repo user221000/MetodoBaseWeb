@@ -10,4 +10,3 @@ from tests.integration_client_link_service_races import (
 from tests.integration_client_link_publication_cas import (
     test_stale_publication_identity_cannot_replace_a_new_row_with_the_same_version,
 )
-
