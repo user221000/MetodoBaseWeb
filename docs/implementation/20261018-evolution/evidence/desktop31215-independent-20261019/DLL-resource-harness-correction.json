@@ -1,0 +1,38 @@
+{
+  "original_sha256": "f70e14dd79456582908c2e5829c4a4725c147c748b6a191a3da72eb1d80faa75",
+  "adapted_sha256": "92ef9d9cc84c0fade8a9e64580bdeded0ad8597207a5de274590cbb377e54e5c",
+  "original_false_assumption": "The third VS_FIXEDFILEINFO integer equals micro version15. The authenticated source DLL itself has third15150/fourth1013 while both version strings are3.12.15.",
+  "correction": "Compare full bundled fixed tuple to authenticated source DLL and exact observed tuple; require both DLL FileVersion/ProductVersion strings3.12.15. Existing archive SHA/source/runtime version checks stay intact.",
+  "original_failure_preserved": [
+    "review_runtime.py",
+    "runtime-first-console.log",
+    "runtime-review.json"
+  ],
+  "additional_changes": "Only new phase labels/output filename to preserve original. No historical51/27 checks or product edited/repeated.",
+  "diagnostic_sha256": "5927b27337052557f8bbab45f4f3db50661f4359595a9c3a448da9d358bdbc3f",
+  "version_resources": [
+    {
+      "Path": "F:\\mb-d31215-20261019\\dist\\MetodoBase\\_internal\\python312.dll",
+      "FileVersion": "3.12.15",
+      "ProductVersion": "3.12.15",
+      "Fixed": [
+        3,
+        12,
+        15150,
+        1013
+      ]
+    },
+    {
+      "Path": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-python31215-windows-provenance-20261019\\runtime\\python\\python312.dll",
+      "FileVersion": "3.12.15",
+      "ProductVersion": "3.12.15",
+      "Fixed": [
+        3,
+        12,
+        15150,
+        1013
+      ]
+    }
+  ],
+  "new_runtime_checks_replayed": "Read-only own checks only; failure correction justifies rerun. No Qt packaged diagnostic, source test suite, SCA or build rerun."
+}

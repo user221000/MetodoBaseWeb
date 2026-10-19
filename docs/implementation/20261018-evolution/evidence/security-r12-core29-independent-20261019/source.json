@@ -1,0 +1,71 @@
+{
+  "kind": "R12_CORE29_INDEPENDENT_SECURITY_REVIEW_BLOCKED_BEFORE",
+  "created_at": "2026-10-19T11:42:22.154847+00:00",
+  "decision": "BLOCKED_PENDING_FIXED_CORE_REVIEW",
+  "source_head": "ad71241628021941ed927b066d2d6e8e72ddef2c",
+  "source_worktree": "F:\\mb-r12-sec29",
+  "author_core_freeze_raw_sha256": "72b2bce34fba31d74e24aaa2d06d910d47d0f27308855b9f75b689d367a7acc6",
+  "author_raw_archive_sha256": "a1ea7f6e011fa571354f2dc865d8689b039e186a7542720a64c664ebf96ecc8a",
+  "author_core_sources": 23,
+  "raw_git_eol_only_differences": [
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-owner-lock-after.log",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-storage-schema.log",
+    "web/database/models.py",
+    "web/database/schema_control.py",
+    "web/database/tenant_context.py"
+  ],
+  "executed_bytes": "Git LF checkout; five RAW/Git differences are verified CRLF-only, including three product modules.",
+  "source_review_scope": 121,
+  "tracked_guard_source_count": 3342,
+  "tracked_source_aggregate_before": "b0c0afb97a7bc8ffa67f68c3f7f13cfdceb482a6431937d71dcb8b0f47abd795",
+  "tracked_source_aggregate_after": "b0c0afb97a7bc8ffa67f68c3f7f13cfdceb482a6431937d71dcb8b0f47abd795",
+  "source_stable": true,
+  "packages_stable": true,
+  "original_dependencies_content_unchanged": 96,
+  "historical_dependency_RAW_to_Git_EOL_only": 99,
+  "own_tests": 21,
+  "passed": 18,
+  "failed": 3,
+  "errors": 0,
+  "skipped": 0,
+  "failed_nodes": [
+    "test_noncanonical_owner_parent_cannot_keep_recipient_publication[resource_owner]",
+    "test_noncanonical_owner_parent_cannot_keep_recipient_publication[actor_parent]",
+    "test_owner_own_acceptance_commit_requires_current_purpose[empty]"
+  ],
+  "controlled_positive_negative_nodes": [
+    "test_owner_own_acceptance_commit_requires_current_purpose[wrong_purpose]",
+    "test_owner_own_acceptance_commit_requires_current_purpose[valid]"
+  ],
+  "defects": [
+    {
+      "kind": "noncanonical_owner_or_professional_parent_readable",
+      "observed": "Both variants return canonical=false but restricted recipient still SELECTs1 publication.",
+      "HTTP_exercised": false
+    },
+    {
+      "kind": "OWN_gym_deferred_commit_proof_NULL",
+      "observed": "After initially valid consume/activation, clearing purpose GUC before commit does not reject commit for OWNER own gym.",
+      "limit": "Does not establish acceptance without initial token; valid/wrong-purpose controls remain distinct."
+    }
+  ],
+  "author55_replayed_by_this_reviewer": false,
+  "API_restore_acceptance": false,
+  "database_count": 2,
+  "owned_databases_dropped": 2,
+  "restricted_role_checked": true,
+  "product_mutations": 0,
+  "providers_contacted": 0,
+  "real_users": 0,
+  "benchmark_runs": 0,
+  "private_proof": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-security-r12-core29-independent-before-20261019.zip",
+  "private_proof_sha256": "e1d89e7ad46427df40c0d26d1cf84b4305d479dbccde854c102591a8090bc8dc",
+  "public_outputs_sha256": {
+    "review.md": "897c6f6e7e2431af170bbbbdef08d43fe12085eeee358b59190c2a9d4bb3f201",
+    "r12_core29_security_driver_frozen.py": "a51dde94ef7e2a7197c063ceb0b37c95d030c6cf05279bc8f3e0b2ad237fffdb",
+    "r12_core29_security_runner_original.py": "a1aa9ae1647a711e63207733acab67e21d452b3ff479354dcd8d8f1c453d812e",
+    "r12_core29_security_runner_source.py": "2caf371af1413d7dfe146c5cf0bebd17136c1250bb25b14e471a6fdf068eeb6d"
+  },
+  "errors_of_harness": "Initial CRLF/Git comparison and metadata assertion corrected with original scripts/capture retained before app/DB; auxiliary wrong read paths/cwd are separate from21 test outcomes.",
+  "followup": "Replay the same immutable21 driver against a new selective core+target29 freeze; preserve RLS Gscope invalidation/revoke/withdraw and the prior20/v1 targets."
+}

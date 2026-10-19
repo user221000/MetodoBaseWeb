@@ -1,0 +1,101 @@
+{
+  "kind": "R12_CORE29_V2_INDEPENDENT_SECURITY_REVIEW",
+  "created_at": "2026-10-19T12:00:12.645473+00:00",
+  "decision": "ACCEPTED_SCOPED_NULL_CANONICAL_OWNER_CORE_FIX_ONLY",
+  "source_head": "1aacbcb5e9d0a1ba0b2a08d5c3650e4bd9ff7ce6",
+  "source_worktree": "F:\\mb-r12-s2",
+  "base_head": "ad71241628021941ed927b066d2d6e8e72ddef2c",
+  "author_freeze_raw_sha256": "0decfcce8a8a047368342859e54f0765bbe7f0e991f787aa1498b26536ef4349",
+  "author_freeze_checkout_LF_sha256": "21d2fc4b21bcdc328a0f806dc204a8c7e27487d05544ec5452965da2a40471bc",
+  "author_freeze_provenance": "Archive contains14 sources, not freeze itself. CRLF freeze reconstructed from committed LF bytes; exact given RAW0dec and Git21d2 hashes verified independently. Not claimed as extracted from ZIP.",
+  "author_raw_to_checkout_EOL_only_paths": [
+    "docs/implementation/20261018-evolution/evidence/backend-r12-core-v2-gate-source.json",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before.log",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before.xml",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before-renderer-corrected.log",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before-renderer-corrected.xml",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-after.log",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-pg-migration.log"
+  ],
+  "product_changed_paths": [
+    "web/database/alembic/schema_targets/20261019_client_account_links_postgresql.json",
+    "web/database/member_link_policy_v1.py",
+    "web/database/member_link_projection_v1.py"
+  ],
+  "guard_counts": {
+    "web/database/member_link_policy_v1.py": {
+      "old_negative_helper_checks": 12,
+      "new_negative_helper_checks": 0,
+      "new_IS_NOT_TRUE": 12
+    },
+    "web/database/member_link_projection_v1.py": {
+      "old_negative_helper_checks": 19,
+      "new_negative_helper_checks": 0,
+      "new_IS_NOT_TRUE": 19
+    }
+  },
+  "only_target_section_changed": [
+    "member_link_security"
+  ],
+  "only_target_function_bodies_changed": [
+    "r12_actor_valid",
+    "r12_canonical_gym",
+    "r12_check_pair",
+    "r12_consumed_proof",
+    "r12_food",
+    "r12_guard_invitation",
+    "r12_guard_link",
+    "r12_guard_publication",
+    "r12_gym_scope",
+    "r12_keys",
+    "r12_lock_canonical_gym",
+    "r12_number",
+    "r12_pending_proof",
+    "r12_project_plan",
+    "r12_proof",
+    "r12_recipient",
+    "r12_require_rc",
+    "r12_unique_json"
+  ],
+  "structure_tenant_security_triggers_function_attributes_preserved": true,
+  "own_tests": 21,
+  "passed": 21,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "same_driver_sha256": "a51dde94ef7e2a7197c063ceb0b37c95d030c6cf05279bc8f3e0b2ad237fffdb",
+  "same_source_runner_sha256": "2caf371af1413d7dfe146c5cf0bebd17136c1250bb25b14e471a6fdf068eeb6d",
+  "same_assertions_negatives_and_fixtures": true,
+  "V1_before_kept": {
+    "source_sha256": "f02414062e52b8d0bb12475270b4a96a749bc6924bfb0deb0a9abeb70ee6a767",
+    "passed": 18,
+    "failed": 3,
+    "raw_bundle_unchanged": true
+  },
+  "tracked_sources": 3354,
+  "source_aggregate_before": "060a0fda913859d957ef066eceec56da031fba21a0d5adecde793c1419cb21f9",
+  "source_aggregate_after": "060a0fda913859d957ef066eceec56da031fba21a0d5adecde793c1419cb21f9",
+  "sources_stable": true,
+  "packages_stable": true,
+  "own_UUID_databases": 1,
+  "own_UUID_databases_dropped": 1,
+  "app_role_restricted_checked": true,
+  "author55_replayed": false,
+  "additional_tests_added": false,
+  "API_restore_casts_or_deployment_accepted": false,
+  "product_mutations": 0,
+  "provider_calls": 0,
+  "real_users": 0,
+  "private_proof": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-security-r12-core29-v2-independent-20261019.zip",
+  "private_proof_sha256": "6bf48cd279105d3736e1d9e125a29f3dca954efc2c8d00478448f40dcb665a57",
+  "public_output_sha256": {
+    "review.md": "c77e9f44b18e1dff9182082f904130a4889758050c64105be2d9f21481c80150",
+    "results.json": "d43382935764b6974ccef331b86d86180148ba6d01f97b0a1f203f628edf241b"
+  },
+  "capture_harness_errata": "Initial script assumed freeze was inside14-source archive; KeyError occurred before app/DB imports. Original script retained, no test assertion changed.",
+  "limits": [
+    "Only exact core1aacbcb5 is accepted for the repaired3 negatives and retained controls.",
+    "API/PDF/mail/UI/composition and restore/casts require separate review.",
+    "No general proof of all SQL inputs or future guards; no production/remote target was used."
+  ]
+}

@@ -1,24 +1,18 @@
 # Entrega candidata
 
-Implementación local en curso:104registros/92originales intactos. Rama implementation/20261018-execution,base daa25efbf51d154710bad625025b345fa9ec9252;runtime28 con historial/landing y corrección de test a753b2c. Gate amplio independiente2360pass/1skip en serial/n2,0fallos/errores. Sin release final ni despliegue. [Estado](ESTADO.md),[registro](TRAZABILIDAD.md),[validación](VALIDACION.md).
+Checkpoint107: trabajo local en curso sobre104 registros,92 originales intactos. Esquema integrado28, sin release final ni despliegue. [Estado](ESTADO.md), [registro](TRAZABILIDAD.md), [validación](VALIDACION.md).
 
-| Alcance | Evidencia local | Pendiente material |
+| Alcance | Resultado verificable | Pendiente material |
 | --- | --- | --- |
-| Datos/RLS/restore/cuenta | Recuperación28,26tablas/20familias,restore28,21PG/marker28,seguridad/QA aceptados | Backup/staging/live;R12nuevo29 aislado sinAPI aceptada |
-| Regresión actual | a753b2c:2360/1skip,serial588.64s,n2shuffle275.43s;667fuentes/89paquetes estables | SymlinkLinux,Actions/runtime imagen;CI historia/landing en revisión |
-| Historial/oferta | Paginación50/200 ycursor firmado;SEC07/R29/UX-16verificados localmente | Medición200HTTP/EXPLAIN PG,SLO ycriteriosR34 restantes |
-| Linux corregido | ecae:55PyPI OSV0/87OS Trivyrojo73IDs;bc365c1 construido conliblzma5u2 yOSV0 | ScanOS final/triage independiente/startup real/egress/PG/Redis;sin excepción de riesgo |
-| Desktop | 7bdeZIPf57a964b/Setup25ed92b1 revisados51+27;entorno nuevo3.12.15/83PyPI OSV0 y45+97tests verdes | Reconstruir y revisar nuevo payload,instalación/upgrade/desinstalación/firma/nativeDLL |
-| Archivos/diario/sesiones | Contratos25–28,lectores/worker/SDK/export/ACK/UI162VM aceptados por alcance | Legacy,destino durable real,reload/cross-tab/R12/borrado/retención |
-| Catálogo/compras | Free10/1/10 y ledger atómico;individual separado | Sandbox,reconciliaciónlegacy/transiciónworkers y demásR01 |
-| R21 | Scan41708e5:3028fuentes/2clasificados/0restantes | Nuevo scan exacto delcandidato completo;sin ampliación deexcepciones |
+| Regresión integrada28 | a753:2360 aprobadas/1skip conocido en serial y n2, mismos IDs y fuentes estables; CIhistory/landing integrado | Composición29/30, runtimeLinux y Actions |
+| Datos/cuenta | Recuperación28,26tablas/20familiasRLS, restore28 y gates aceptados | R12API/restore/UI29 todavía aislados; staging/live |
+| R12 | V1rechazado por3 negativos; coreV2 1aac revisado con mismo21/21verde | Casts/restore, API/PDF/privacidad, UI y revisión de composición29 |
+| Historial/oferta | Historial50/200, cursorHMAC, landing y200HTTP medidos | Índice/lector30 aislados; SLO y demásR34 |
+| Linux | Docker fixes aceptados; imagen99c846bd28b0,55PyPI OSV0;71IDsOS abiertos | Inventario nativo, arranque real/egress/PG/Redis, resolver gateOS |
+| Desktop | Python3.12.15; ZIP/Setup66 aceptados93 controles y1215 archivos idénticos | Setup sin ejecutar; instalación/upgrade/uninstall/firma y análisis nativo |
+| Privacidad/sesiones | Contratos y gates anteriores conservados | Composición exportvínculos, reload/cross-tab, R14/R25/borrado/retención |
+| Secretos | Scan41708e5 conservado,3028archivos y0pendientes en esa fuente | Scan exacto del candidato final |
 
-El primer amplio dd987 falló2tests que esperaban el HTMLcheckout retirado;se conservaron originales y se corrigió sólo la aserción vecina,con20focales y ambos amplios verdes. No runtime modificado ni casos perdidos. Los2064/1813 anteriores quedan históricos y no se suman al2360.
+ZIP actual: F:/mb-d31215-20261019/dist/MetodoBase_v2.0.0_win32.zip,122441614bytes, SHA2564966896c41e53b1b5df443045a0175626571a4bfd98731e200bcd299353ed353. Setup: C:/Users/Consu/AppData/Local/Temp/metodobase-desktop31215-build66-20261019/inno/compiled/MetodoBaseSetup_v2.0.0.exe,89973261bytes, SHA2565651f4189b7640edced7986db007a4a63f54ba00801658f31fa789587d219363. [Aceptación independiente](evidence/desktop31215-independent-20261019/final-summary.json). Paquetes anteriores conservados; no se ejecutó el instalador.
 
-Artefactos desktop7bde30b:ZIP122492985bytes SHA256f57a964b11bf547f25e1883b12519516ac513dcd521c2e3306916f80c9779161;Setup89965414bytes SHA25625ed92b1a29b0675a1eecc15dc10a4432ed1046fb7734631ec828164f055d06d. Conservados conPython3.12.13. Preparar3.12.15 no los corrige;no nuevoSetup aún.
-
-Antes de operación externa siguen pendientes candidato exacto completo,digests/config sin secretos,migraciones/backup/restore,transición de workers,rollback yobservación. Migración26 exige drenar workers antiguos. No push,PR,Railway,cargos,mensajes o contactos reales. Dictámenes legales/clínicos ypilotos no se sustituyen con agentes ni resultados sintéticos.
-
-Actualización local: CIhistory/landing52af400 integrado trasQA ycomposición. CandidatoLinuxbc365c1 finalizóauditoríaOS:71IDs abiertos,sólo2aliasXZ corregidos y0hallazgos nuevos;55PyPI siguenOSV0. Docker aún enrevisiónindependiente. QEMUpropioapagadoordenadamente para ventanaPG/desktop,overlayconservado. No startupdeproductoni nuevoSetup.
-
-Checkpoint106: Dockercorregido integrado localmente trasseguridad;OS71IDs abierto. Ensayo200HTTP/200ACK completado con límites descriptivos,EXPLAIN revela1000filas. Desktop3.12.15 ZIP4966896c/Setup5651f418 construido,pendiente revisiónindependiente delpayload. Núcleo29/API/UI/restore yoptimización30 siguenaislados. No nuevo despliegue niSetup ejecutado.
+La aceptación del núcleo29 y la del paquete desktop tienen alcances separados. No acreditan API29, runtimeLinux, cumplimiento clínico/legal, pilotos o un despliegue. Antes de operación externa se completará candidato exacto, configuración sin secretos, migraciones/backup/restore, transición de workers, rollback y observación. No push,PR,Railway,cargos,mensajes o contactos reales autorizados.

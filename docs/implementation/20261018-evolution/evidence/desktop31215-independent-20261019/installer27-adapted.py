@@ -1,0 +1,216 @@
+"""Independent artifact checks. Read-only outside private Temp/evidence output."""
+from __future__ import annotations
+import ast, base64, hashlib, json, marshal, math, os, re, secrets, stat, struct, subprocess, sys, tempfile, time, types, zipfile
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath
+ROOT = Path('F:\\mb-d31215-20261019')
+BUNDLE = ROOT / "dist/MetodoBase"
+ZIP = ROOT / "dist/MetodoBase_v2.0.0_win32.zip"
+PREP = ROOT / "dist/installer-inputs"
+OUT = Path('C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-desktop31215-independent-20261019')
+COMMIT = '66d9dec0e15dd873038bd248d3883daeeb27d4ca'
+EXPECTED_ZIP = '4966896c41e53b1b5df443045a0175626571a4bfd98731e200bcd299353ed353'
+R = {"started_utc":datetime.now(timezone.utc).isoformat(), "source_commit":COMMIT,
+     "review_method_origin":"Adapted from preserved desktop-artifact-independent-review-script.txt (39-check historical verifier; original author recorded as independent QA agent in prior report). Added index, exact resource-set, expanded embedded-code, OPS10 and CLI controls by ops_artifact27.",
+     "source_worktree":str(ROOT), "review_interpreter":sys.executable, "checks":{}, "scope":{
+     "build_repeated":False, "installer_compiled":False, "installation_tested":False,
+     "signature_verified":False, "product_login_or_registration":False,
+     "os_network_isolation_verified":False, "source_or_bundle_edited":False}}
+FAIL = []
+def check(name, condition, details=None):
+    R["checks"][name] = {"ok":bool(condition)}
+    if details is not None: R["checks"][name]["details"] = details
+    if not condition: FAIL.append(name)
+    print(name + ": " + ("PASS" if condition else "FAIL"), flush=True)
+def sha(data): return hashlib.sha256(data).hexdigest()
+def file_info(path):
+    h=hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda:f.read(1024*1024), b""): h.update(block)
+    return {"bytes":path.stat().st_size, "sha256":h.hexdigest()}
+def canonical(data): return json.dumps(data, sort_keys=True, separators=(",",":"), ensure_ascii=True).encode()
+def safe_path(rel):
+    p=PurePosixPath(rel)
+    return bool(rel and "\\" not in rel and ":" not in rel and not p.is_absolute()
+                and all(x not in ("", ".", "..") for x in rel.split("/")))
+def tree(path):
+    result={}; unsafe=[]
+    for base, dirs, files in os.walk(path, followlinks=False):
+        for name in dirs+files:
+            p=Path(base)/name; st=p.lstat()
+            if p.is_symlink() or getattr(st,"st_file_attributes",0)&0x400: unsafe.append(p.relative_to(path).as_posix())
+        for name in files:
+            p=Path(base)/name
+            if p.is_file() and not p.is_symlink(): result[p.relative_to(path).as_posix()]=file_info(p)
+    return dict(sorted(result.items())), unsafe
+GITENV={k:v for k,v in os.environ.items() if not k.startswith("GIT_")}
+GITENV.update(GIT_CONFIG_NOSYSTEM="1",GIT_CONFIG_GLOBAL=os.devnull,GIT_ATTR_NOSYSTEM="1",
+              GIT_NO_REPLACE_OBJECTS="1",GIT_OPTIONAL_LOCKS="0")
+GIT=["git","--no-optional-locks","-c","core.fsmonitor=false","-c","core.hooksPath="+os.devnull,
+     "-c","core.attributesFile="+os.devnull,"-c","core.excludesFile="+os.devnull,"-C",str(ROOT)]
+def git(*args): return subprocess.check_output(GIT+list(args),env=GITENV)
+def config_snapshot():
+    paths=[Path(git("rev-parse","--path-format=absolute","--git-common-dir").decode().strip())/"config",
+           Path(git("rev-parse","--absolute-git-dir").decode().strip())/"config.worktree",
+           Path.home()/".gitconfig",Path.home()/".config/git/config",
+           Path(git("rev-parse","--absolute-git-dir").decode().strip())/"index",
+           Path(git("rev-parse","--path-format=absolute","--git-common-dir").decode().strip())/"info/attributes"]
+    return {str(p):file_info(p) if p.is_file() else None for p in paths}
+def source_snapshot():
+    result={}; unsafe=[]
+    for rel in TRACKED:
+        p=ROOT/rel
+        if not p.is_file() or p.is_symlink() or getattr(p.lstat(),"st_file_attributes",0)&0x400:
+            unsafe.append(rel)
+        else: result[rel]=file_info(p)
+    return result,unsafe
+RECEIPT=Path('C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-desktop31215-independent-20261019\\inno-author-authenticated-compatibility-view.json')
+SETUP=Path('C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-desktop31215-build66-20261019\\inno\\compiled\\MetodoBaseSetup_v2.0.0.exe')
+EXTRACTOR=OUT/"extractor/innounp.exe"
+COMPILER=Path(r"C:\Users\Consu\AppData\Local\Temp\metodobase-inno673-20261019-w949e49l\compiler")
+R={"started_utc":datetime.now(timezone.utc).isoformat(),"source_commit":COMMIT,"checks":{},
+   "scope":{"product_installer_executed":False,"installation_upgrade_uninstall_tested":False,
+            "compiler_executed_by_this_reviewer":False,"product_signature_verified":False,
+            "os_network_isolation_verified":False,"third_party_extractor_from_maintainer_repository":True}}
+FAIL=[]
+try:
+    receipt=json.loads(RECEIPT.read_text(encoding="utf-8"))
+    check("finished_native_compile_receipt",receipt["exit"]==0 and receipt["source_commit"]==COMMIT
+          and receipt["sources_stable"] and receipt["bundle_stable"] and receipt["inputs_stable"] and receipt["tools_stable"],
+          {"receipt":str(RECEIPT),"receipt_sha256":file_info(RECEIPT)["sha256"],"compiler_version":receipt["compiler_version"],
+           "compile_exit":receipt["exit"],"compile_seconds":receipt["seconds"]})
+    if FAIL:raise RuntimeError("Compile receipt invalid; do not access candidate")
+    TRACKED=git("ls-files","-z").decode("utf-8").rstrip("\0").split("\0")
+    sb,su=source_snapshot();bb,bu=tree(BUNDLE);pb,pu=tree(PREP)
+    before={"tracked_sources":sb,"bundle":bb,"installer_inputs":pb,"zip":file_info(ZIP),"git_config_sha256_only":config_snapshot()}
+    R["before"]=before
+    prior=json.loads((OUT/"desktop-artifact27-independent-source.json").read_text(encoding="utf-8"))
+    check("continuity_with_51_check_bundle_review",not prior["failed_checks"] and len(prior["checks"])==51 and before==prior["after"])
+    if FAIL:raise RuntimeError("Continuity check failed; candidate not accessed")
+    def ancestry_links():
+        paths={ROOT,BUNDLE,PREP,ZIP,SETUP,EXTRACTOR,COMPILER}
+        paths.update((ROOT/p).parent for p in TRACKED)
+        expanded=set()
+        for p in paths:expanded.update((p,*p.parents))
+        return sorted(str(p) for p in expanded if p.exists() and (p.is_symlink() or getattr(p.lstat(),"st_file_attributes",0)&0x400))
+    root_links_before=ancestry_links()
+    check("source_and_artifact_reparse_boundaries_before",not(su or bu or pu or root_links_before),
+          {"source":su,"bundle":bu,"preparation":pu,"ancestors":root_links_before})
+    if FAIL:raise RuntimeError("Reparse boundary invalid; candidate not accessed")
+    setup_before=file_info(SETUP);extractor_before=file_info(EXTRACTOR)
+    compiler_before,compiler_links=tree(COMPILER)
+    record=receipt["outputs"][0]
+    check("new_installer_exact_compile_output",record["file"]==str(SETUP) and setup_before=={"bytes":record["bytes"],"sha256":record["sha256"]}
+          and setup_before=={"bytes":89973261,"sha256":'5651f4189b7640edced7986db007a4a63f54ba00801658f31fa789587d219363'},setup_before)
+    check("compiler_tool_tree_matches_compile_receipt",not compiler_links
+          and {p:i["sha256"] for p,i in compiler_before.items()}==receipt["tools"],{"files":len(compiler_before)})
+    check("extractor_exact_pinned_maintainer_binary",extractor_before=={"bytes":1742336,"sha256":"1c8453c198dd3fe7947f3705e59d2294ddce3dfa9f96a737e94449b119f44181"},extractor_before)
+    provenance=json.loads((OUT/"desktop-artifact27-independent-extractor-provenance.json").read_text(encoding="utf-8"))
+    check("extractor_pinned_zip_crc_and_two_download_receipt",provenance["two_downloads_identical"] and provenance["zip_crc_ok"]
+          and provenance["zip_sha256"]=="851772538a041229102ad9964542d49dc00c74002e3091a70469c079ae368f52"
+          and provenance["source_blob_sha1"]=="8f7b21c60a0b20d9d5482c37a2a28f454927c45f"
+          and provenance["release_commit"]=="97edd9e1346a5ec1f5c6bd2eb685e496b3128da8",provenance)
+    pinned_zip=OUT/"innounp-2.67.11-pinned.zip"
+    pinned_data=pinned_zip.read_bytes()
+    zip_blob_sha1=hashlib.sha1(b"blob "+str(len(pinned_data)).encode()+b"\0"+pinned_data).hexdigest()
+    with zipfile.ZipFile(pinned_zip) as pinned:
+        pinned_crc_ok=pinned.testzip() is None
+        binary_matches_zip=pinned.read("innounp.exe")==EXTRACTOR.read_bytes()
+    check("extractor_zip_and_binary_independently_reverified",len(pinned_data)==572591
+          and sha(pinned_data)=="851772538a041229102ad9964542d49dc00c74002e3091a70469c079ae368f52"
+          and zip_blob_sha1=="8f7b21c60a0b20d9d5482c37a2a28f454927c45f" and pinned_crc_ok and binary_matches_zip,
+          {"zip_sha256":sha(pinned_data),"git_blob_sha1":zip_blob_sha1,"zip_crc_ok":pinned_crc_ok,"exe_matches_zip_member":binary_matches_zip})
+    R["extractor_signature_receipt"]=json.loads((OUT/"desktop-artifact27-independent-extractor-signature.json").read_text(encoding="utf-8-sig"))
+    if FAIL:raise RuntimeError("Continuity/hash/provenance checks failed; extractor not executed")
+    allowed={"SYSTEMROOT","WINDIR","COMSPEC","PATH","PATHEXT","TMP","TEMP","LANG","LC_ALL"}
+    child={k:v for k,v in os.environ.items() if k.upper() in allowed}
+    profile=Path(tempfile.mkdtemp(prefix="extractor-profile-",dir=OUT))
+    for name in ("appdata","localappdata","home"):(profile/name).mkdir()
+    child.update(APPDATA=str(profile/"appdata"),LOCALAPPDATA=str(profile/"localappdata"),USERPROFILE=str(profile/"home"),HOME=str(profile/"home"))
+    def extract_command(label,*args):
+        command=[str(EXTRACTOR),*args,"-b","-n","-o","-u",str(SETUP)]
+        started=time.monotonic()
+        process=subprocess.run(command,cwd=profile,env=child,capture_output=True,timeout=180)
+        (OUT/("desktop-artifact27-independent-installer-"+label+".log")).write_bytes(process.stdout+b"\n"+process.stderr)
+        R.setdefault("commands",{})[label]={"command":command,"exit_code":process.returncode,"seconds":round(time.monotonic()-started,3),
+            "stdout_bytes":len(process.stdout),"stderr_bytes":len(process.stderr),"stdout_sha256":sha(process.stdout),"stderr_sha256":sha(process.stderr)}
+        return process
+    listing=extract_command("list","-s","-a","-h")
+    check("installer_listing_exit_zero",listing.returncode==0,R["commands"]["list"])
+    raw_listing_lines=[line for line in listing.stdout.decode("utf-8-sig").splitlines() if line!=""]
+    expected_headers=["Inno Setup archive:           MetodoBaseSetup_v2.0.0.exe",
+                      "Inno Setup version detected:  6.7.0 (Unicode)"]
+    headers_exact=raw_listing_lines[:2]==expected_headers
+    raw_member_lines=raw_listing_lines[2:]
+    indentation_exact=all(line.startswith("  ") for line in raw_member_lines)
+    # Remove the two fixed syntax spaces only; the actual member name is unchanged.
+    text_lines=[line[2:] if line.startswith("  ") else line for line in raw_member_lines]
+    listed=[line for line in text_lines if line.startswith("{app}\\")]
+    expected_list={"{app}\\"+rel.replace("/","\\") for rel in bb}
+    unexpected_listing_lines=[line for line in text_lines if line not in expected_list and line!="install_script.iss"]
+    def windows_path_safe(rel):
+        reserved=re.compile(r"^(?:con|prn|aux|nul|com[1-9???]|lpt[1-9???])(?:\.|$)",re.I)
+        return safe_path(rel) and all(not part.endswith(("."," ")) and not reserved.match(part)
+            and not any(ord(c)<32 or ord(c)==127 or c in '<>:"|?*' for c in part) for part in rel.split("/"))
+    paths_safe=all(windows_path_safe(line.removeprefix("{app}\\").replace("\\","/")) for line in listed)
+    check("frozen_bundle_windows_names_unambiguous",all(windows_path_safe(rel) for rel in bb),
+          {"policy":"No device names, controls, forbidden punctuation or trailing point/space; no name normalization"})
+    check("installer_list_all_app_paths_exact_unique_safe",headers_exact and indentation_exact and len(listed)==len(bb) and set(listed)==expected_list
+          and len(listed)==len(set(p.casefold() for p in listed)) and paths_safe and not unexpected_listing_lines and text_lines.count("install_script.iss")<=1,
+          {"headers_exact":headers_exact,"indentation_exact":indentation_exact,"listed_app_files":len(listed),"expected":len(bb),"missing":sorted(expected_list-set(listed)),
+           "extra":sorted(set(listed)-expected_list),"unexpected_listing_lines":unexpected_listing_lines})
+    if FAIL:raise RuntimeError("Pre-extraction checks failed; extraction skipped")
+    tested=extract_command("integrity-test","-t","-a")
+    check("installer_internal_integrity_test",tested.returncode==0,R["commands"]["integrity-test"])
+    if FAIL:raise RuntimeError("Installer integrity test failed; extraction skipped")
+    destination=OUT/"installer-payload";destination.mkdir()
+    extracted=extract_command("extract","-x","-a","-d"+str(destination))
+    check("installer_extraction_exit_zero",extracted.returncode==0,R["commands"]["extract"])
+    payload_root=destination/"{app}"
+    actual,links=tree(payload_root)
+    top_inventory,top_links=tree(destination)
+    check("extracted_payload_inventory_and_every_byte_exact",actual==bb and not links,
+          {"files":len(actual),"bytes":sum(i["bytes"] for i in actual.values()),
+           "missing":sorted(set(bb)-set(actual)),"extra":sorted(set(actual)-set(bb)),
+           "hash_or_size_differences":[p for p in actual.keys()&bb.keys() if actual[p]!=bb[p]],"links":links})
+    extra_files={p:i for p,i in top_inventory.items() if not p.startswith("{app}/")}
+    check("extraction_no_unexpected_external_payload",not top_links and set(extra_files)=={"install_script.iss"},
+          {"extractor_generated_files":extra_files,"reparse_points":top_links,
+           "meaning":"install_script.iss reconstructed by extractor is not app payload"})
+    check("extracted_manifest_matches_original_exact_bytes",file_info(payload_root/"build-manifest.json")==bb["build-manifest.json"])
+    excluded="_internal/assets/design-reference.png"
+    check("compiled_installer_ops10_casefold_exclusion",not any(p.casefold()==excluded for p in actual)
+          and not any(p.casefold()=="{app}\\"+excluded.replace("/","\\") for p in listed))
+    pe=SETUP.read_bytes();peoff=struct.unpack_from("<I",pe,0x3c)[0];opt=peoff+24
+    magic=struct.unpack_from("<H",pe,opt)[0]
+    directory=opt+(112 if magic==0x20b else 96)
+    certificate_offset,certificate_bytes=struct.unpack_from("<II",pe,directory+8*4)
+    check("new_installer_unsigned_candidate_explicit",certificate_offset==0 and certificate_bytes==0,
+          {"pe_magic":hex(magic),"machine":hex(struct.unpack_from("<H",pe,peoff+4)[0]),
+           "certificate_table_offset":certificate_offset,"certificate_table_bytes":certificate_bytes,
+           "meaning":"Installer stub machine does not change x64 application payload architecture"})
+    R["extracted_payload"]=actual
+    sa,sua=source_snapshot();ba,bua=tree(BUNDLE);pa,pua=tree(PREP)
+    root_links_after=ancestry_links()
+    check("source_and_artifact_reparse_boundaries_after",not(sua or bua or pua or root_links_after),
+          {"source":sua,"bundle":bua,"preparation":pua,"ancestors":root_links_after})
+    after={"tracked_sources":sa,"bundle":ba,"installer_inputs":pa,"zip":file_info(ZIP),"git_config_sha256_only":config_snapshot()}
+    R["after"]=after
+    for key in before:
+        check("stable_"+key,before[key]==after[key],{"before_inventory_sha256":sha(canonical(before[key])),"after_inventory_sha256":sha(canonical(after[key]))})
+    compiler_after,links=tree(COMPILER)
+    check("stable_installer_and_readonly_tools",setup_before==file_info(SETUP) and extractor_before==file_info(EXTRACTOR)
+          and compiler_before==compiler_after and not links)
+    check("clean_frozen_worktree_after_installer_review",git("status","--porcelain=v1","--untracked-files=all")==b"")
+    profile_tree,profile_links=tree(profile)
+    R["extractor_private_profile"]={"path":str(profile),"files":profile_tree,"reparse_points":profile_links}
+    check("extractor_private_profile_has_no_reparse_points",not profile_links)
+except Exception as exc:
+    R["unexpected_error"]={"type":type(exc).__name__,"message":str(exc)};FAIL.append("unexpected_error")
+    import traceback;traceback.print_exc()
+finally:
+    R["failed_checks"]=FAIL;R["finished_utc"]=datetime.now(timezone.utc).isoformat()
+    R["accepted_scope"]="Compiled candidate's complete app payload extracted without executing product setup and compared byte for byte with previously independently verified bundle/manifest. No Windows installation behavior or product-signature acceptance."
+    (OUT/"desktop-artifact27-independent-installer-source.json").write_text(json.dumps(R,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    print(json.dumps({"checks":len(R["checks"]),"failed_checks":FAIL}),flush=True)
+sys.exit(1 if FAIL else 0)
