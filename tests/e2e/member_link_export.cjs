@@ -4,8 +4,6 @@
 const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
 let source=fs.readFileSync(path.join(__dirname,'personal_export_context.cjs'),'utf8');
 const replaceOnce=(from,to)=>{if(source.split(from).length!==2)throw Error('Historical fixture marker changed');source=source.replace(from,to);};
-replaceOnce("'generation_requests','personal_diary'];","'generation_requests','personal_diary','member_links'];");
-replaceOnce("coverage:'account_and_persisted_personal_space'","member_links:'active_recipient_metadata_only',coverage:'account_persisted_personal_space_and_active_member_link_metadata'");
 replaceOnce('async function fixture(){','async function fixture(options={}){');
 replaceOnce("vm.runInContext(apiSource+'\\nglobalThis.api=Api;',context);", "if(options.recipient)node('personal-data-section').dataset.exportContext='recipient';if(options.owner)me={...identity,tipo:'gym',role:'owner'};vm.runInContext(apiSource+'\\nglobalThis.api=Api;',context);");
 const controls=fs.readFileSync(path.join(__dirname,'personal_export_controls.cjs'),'utf8').match(/const additions=String.raw`([\s\S]*?)`;/)[1];
