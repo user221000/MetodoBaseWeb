@@ -5,8 +5,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from tests.integration_client_link_http import http, issued
-from tests.integration_client_link_services import link_db,case,source
+from tests.integration_client_link_http import issued
+from tests.integration_client_link_services import source
+from tests.current_mfa31_publication_fixtures import http, link_db, case
 
 
 def test_explicit_fixed_source_resolves_real_grams_instead_of_empty_consumption():

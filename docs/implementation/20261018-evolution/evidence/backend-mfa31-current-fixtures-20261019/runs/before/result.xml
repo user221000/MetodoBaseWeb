@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="2" failures="2" skipped="0" tests="4" time="12.171" timestamp="2026-10-19T12:45:35.163262-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_identity_security" name="test_google_uses_same_member_identity" time="3.380"><failure message="assert 501 == 200&#10; +  where 501 = &lt;Response [501 Not Implemented]&gt;.status_code">tests\test_identity_security.py:158: in test_google_uses_same_member_identity
+    assert response.status_code == 200
+E   assert 501 == 200
+E    +  where 501 = &lt;Response [501 Not Implemented]&gt;.status_code</failure></testcase><testcase classname="tests.test_identity_security" name="test_disabled_google_account_is_not_recreated" time="0.659"><failure message="assert 501 == 401&#10; +  where 501 = &lt;Response [501 Not Implemented]&gt;.status_code">tests\test_identity_security.py:189: in test_disabled_google_account_is_not_recreated
+    assert response.status_code == 401
+E   assert 501 == 401
+E    +  where 501 = &lt;Response [501 Not Implemented]&gt;.status_code</failure></testcase><testcase classname="tests.test_publication_diary_consumption" name="test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access[web.main_web-sqlite]" time="4.705"><error message="failed on setup with &quot;RuntimeError: Database is missing an application table&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_client_link_http.py:44: in http
+    app=importlib.import_module(request.param).create_app()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\main_web.py:100: in create_app
+    verify_runtime_schema(_sa_engine, require_revision=settings.ENV != "testing")
+web\database\schema_control.py:91: in verify_runtime_schema
+    raise RuntimeError("Database is missing an application table")
+E   RuntimeError: Database is missing an application table</error></testcase><testcase classname="tests.test_publication_diary_consumption" name="test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access[api.app-sqlite]" time="0.171"><error message="failed on setup with &quot;RuntimeError: Database is missing an application table&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\integration_client_link_http.py:44: in http
+    app=importlib.import_module(request.param).create_app()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api\app.py:65: in create_app
+    verify_runtime_schema(get_engine(), require_revision=not (_s and _s.ENV == "testing"))
+web\database\schema_control.py:91: in verify_runtime_schema
+    raise RuntimeError("Database is missing an application table")
+E   RuntimeError: Database is missing an application table</error></testcase></testsuite></testsuites>
