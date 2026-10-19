@@ -38,7 +38,7 @@ from typing import Any, Dict, List, Optional, Set
 # Agregar root al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from scripts.etl_mapping import (
+from scripts.archive.etl_mapping import (
     CLIENTE_MAPPING,
     PLAN_MAPPING,
     ESTADISTICAS_MAPPING,
@@ -218,7 +218,13 @@ class MigrationEngine:
         """Lee batch de registros legacy."""
         conn = self._get_legacy_conn()
         
-        query = f"SELECT * FROM {table}"
+        queries = {
+            "clientes": "SELECT * FROM clientes",
+            "planes_generados": "SELECT * FROM planes_generados",
+        }
+        if table not in queries:
+            raise ValueError("Unsupported legacy migration table")
+        query = queries[table]
         params = []
         
         # Para continuar desde checkpoint
@@ -226,7 +232,8 @@ class MigrationEngine:
             query += " WHERE id_cliente > ?"
             params.append(after_id)
         
-        query += f" ORDER BY rowid LIMIT {limit} OFFSET {offset}"
+        query += " ORDER BY rowid LIMIT ? OFFSET ?"
+        params.extend((limit, offset))
         
         cursor = conn.execute(query, params)
         return [dict(row) for row in cursor.fetchall()]
@@ -314,7 +321,7 @@ class MigrationEngine:
                 table="clientes",
                 last_id=last_id,
                 records_migrated=stats.migrated,
-                checksum=hashlib.md5(str(stats.migrated).encode()).hexdigest(),
+                checksum=hashlib.md5(str(stats.migrated).encode(), usedforsecurity=False).hexdigest(),
             ))
         
         stats.duration_seconds = (datetime.now() - start).total_seconds()

@@ -215,7 +215,7 @@ class MigrationValidator:
             
             # Obtener muestra de legacy
             legacy_sample = legacy.execute(
-                f"SELECT * FROM clientes ORDER BY RANDOM() LIMIT {sample_size}"
+                "SELECT * FROM clientes ORDER BY RANDOM() LIMIT ?", (sample_size,)
             ).fetchall()
             
             mismatches = []
@@ -320,7 +320,7 @@ class MigrationValidator:
             
             # Muestra
             legacy_sample = legacy.execute(
-                f"SELECT id_cliente, nombre, peso_kg, objetivo FROM clientes LIMIT {sample_size}"
+                "SELECT id_cliente, nombre, peso_kg, objetivo FROM clientes LIMIT ?", (sample_size,)
             ).fetchall()
             
             checksum_mismatches = []
@@ -331,7 +331,7 @@ class MigrationValidator:
                 
                 # Calcular checksum legacy
                 legacy_str = f"{legacy_data.get('nombre')}|{legacy_data.get('peso_kg')}|{legacy_data.get('objetivo')}"
-                legacy_checksum = hashlib.md5(legacy_str.encode()).hexdigest()[:8]
+                legacy_checksum = hashlib.md5(legacy_str.encode(), usedforsecurity=False).hexdigest()[:8]
                 
                 # Buscar y calcular checksum SA
                 sa_cliente = session.query(Cliente).filter(
@@ -340,7 +340,7 @@ class MigrationValidator:
                 
                 if sa_cliente:
                     sa_str = f"{sa_cliente.nombre}|{sa_cliente.peso_kg}|{sa_cliente.objetivo}"
-                    sa_checksum = hashlib.md5(sa_str.encode()).hexdigest()[:8]
+                    sa_checksum = hashlib.md5(sa_str.encode(), usedforsecurity=False).hexdigest()[:8]
                     
                     if legacy_checksum != sa_checksum:
                         checksum_mismatches.append({

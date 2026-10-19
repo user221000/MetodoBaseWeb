@@ -9,7 +9,13 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = ("api", "core", "web", "src", "utils", "config", "ui_desktop", "design_system")
+SOURCES = ("api", "core", "web", "src", "utils", "config", "ui_desktop", "design_system", "scripts")
+
+
+def maintained_targets():
+    """Include runtime/build/operational entrypoints, excluding test fixtures."""
+    return [*SOURCES, *(path.name for path in sorted(ROOT.glob("*.py"))
+                        if path.name != "conftest.py")]
 
 
 def fingerprint(finding):
@@ -20,6 +26,9 @@ def fingerprint(finding):
 
 
 def main():
+    if sys.argv[1:] == ["lint"]:
+        return subprocess.run([sys.executable, "-m", "ruff", "check", *maintained_targets(),
+                               "--select", "F821"], cwd=ROOT, check=False).returncode
     if sys.argv[1:] == ["syntax"]:
         paths = set(ROOT.glob("*.py"))
         for source in (*SOURCES, "tests"):
@@ -29,8 +38,8 @@ def main():
         print(f"Parsed {len(paths)} maintained Python files")
         return 0
     if sys.argv[1:] != ["security"]:
-        raise SystemExit("usage: python tests/check_quality.py syntax|security")
-    result = subprocess.run([sys.executable, "-X", "utf8", "-m", "bandit", "-q", "-r", *SOURCES,
+        raise SystemExit("usage: python tests/check_quality.py lint|syntax|security")
+    result = subprocess.run([sys.executable, "-X", "utf8", "-m", "bandit", "-q", "-r", *maintained_targets(),
                              "-ll", "--skip", "B101", "-f", "json"],
                             cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
     if result.returncode not in {0, 1}:

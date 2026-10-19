@@ -20,11 +20,13 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install -r requirements-test-quality.txt
       - name: Undefined names block integration
-        run: ruff check api core web src utils config ui_desktop design_system --select F821
+        run: python tests/check_quality.py lint
       - name: Parse every maintained Python source
         run: python tests/check_quality.py syntax
       - name: Reviewed Bandit baseline; new findings block integration
         run: python tests/check_quality.py security
+      - name: Real quality tools reject synthetic script and entrypoint regressions
+        run: python tests/verify_quality_guards.py
   secrets:
     runs-on: ubuntu-latest
     steps:

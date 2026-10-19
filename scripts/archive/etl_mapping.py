@@ -438,7 +438,7 @@ def checksum_record(record: Dict[str, Any], key_fields: List[str]) -> str:
     """Genera checksum de un registro para comparación."""
     values = [str(record.get(k, "")) for k in sorted(key_fields)]
     content = "|".join(values)
-    return hashlib.md5(content.encode()).hexdigest()
+    return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
 
 def find_duplicates(

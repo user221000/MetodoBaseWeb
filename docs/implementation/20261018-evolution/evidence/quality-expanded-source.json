@@ -1,0 +1,20 @@
+{
+  "recorded_at_utc": "2026-10-19T02:30:16.326900+00:00",
+  "state": "Frozen quality expansion for independent coordinator review; author validation, no CLI executed",
+  "files": {
+    ".github/workflows/ci.yml": "fec4789b55584961360a85ebe488194f5a5e1ad95eec113dc8e0e88754a7871b",
+    "tests/check_quality.py": "aa7c8ae5d6cf1cd51831c7af6b79cc9802fa739673508ec229485e292b8f3c1f",
+    "tests/verify_quality_guards.py": "f50749fe5051b42ea4029bc7d37cda23e88a7f477b9248b98de219223eefd0ee",
+    "tests/test_archived_sql_boundaries.py": "8e06425e21d6135f1bf66f6485626fe112001252e9f760494b7c8dad61000145",
+    "scripts/archive/etl_mapping.py": "a4e3f883e0e645dd061fde40c4b0319c81329cfa994c1357f7c889a47fb763ec",
+    "scripts/archive/migrate_to_sa.py": "febb4c2c658a7b85c5a0ce79998a5557c5037680f01c1a123e3a04d78b56d25a",
+    "scripts/archive/validate_migration.py": "7e7bb9d4a8068722f811afffcfe2485fd83f5ba291ebc8709c269a2d88f88475"
+  },
+  "checks": {
+    "Ruff F821": "passed",
+    "AST": "304 maintained Python sources parsed",
+    "Bandit": "6 historical findings; 0 unreviewed; baseline unchanged",
+    "SQLite archive boundary tests": "9 passed in1.32s",
+    "real quality canaries": "F821, SyntaxError and B602 rejected in scripts and root entrypoints"
+  }
+}
