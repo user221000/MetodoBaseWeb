@@ -1,0 +1,103 @@
+"""Independent revision28 startup, exact body budget and session edge checks."""
+import importlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+import pytest
+
+from tests.test_account_recovery_contract_before import recovery_case
+from tests.test_password_recovery import recovery_http, issued, confirm, wait_idle, OWNER, OLD, NEW
+
+
+@pytest.mark.parametrize('factory', ['web.main_web', 'api.app'])
+def test_revision27_cannot_start_revision28_and_startup_never_repairs_it(factory, tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+    from sqlalchemy import create_engine, event
+    from sqlalchemy.orm import sessionmaker
+    from web.database import engine as database
+    from web.database.alembic.schema_contract_v1 import schema_signature
+    from web.database.schema_control import verify_runtime_schema
+
+    path = tmp_path / 'reviewed27.db'
+    url = 'sqlite:///' + path.as_posix()
+    root = Path(__file__).resolve().parents[1]
+    result = subprocess.run([sys.executable, '-X', 'utf8', 'db_bootstrap.py', '--revision', '20261019_personal_diary'],
+                            cwd=root, env=dict(os.environ, DATABASE_URL=url, METODOBASE_TEST_DATABASE_URL=''),
+                            capture_output=True, encoding='utf8')
+    assert result.returncode == 0, 'Reviewed27 preparation failed'
+    old = create_engine(url, connect_args={'check_same_thread': False})
+    try:
+        verify_runtime_schema(old, expected_revision='20261019_personal_diary')
+        with old.connect() as db:
+            before = schema_signature(db)
+        statements = []
+        def observed(connection, cursor, statement, parameters, context, executemany):
+            if statement.lstrip().split(None, 1)[0].upper() in {'CREATE', 'ALTER', 'DROP', 'INSERT', 'UPDATE', 'DELETE'}:
+                statements.append(statement.split(None, 1)[0].upper())
+        event.listen(old, 'before_cursor_execute', observed)
+        monkeypatch.setattr(database, '_engine', old)
+        monkeypatch.setattr(database, '_SessionLocal', sessionmaker(bind=old, autoflush=False))
+        application = importlib.import_module(factory).create_app()
+        with pytest.raises(RuntimeError, match='application columns'):
+            with TestClient(application, raise_server_exceptions=False):
+                pytest.fail('Revision28 accepted the old database')
+        with old.connect() as db:
+            assert schema_signature(db) == before
+            assert db.exec_driver_sql('SELECT version_num FROM alembic_version').scalar_one() == '20261019_personal_diary'
+        assert statements == []
+    finally:
+        old.dispose()
+
+
+def test_exact_4096_byte_http_budget_accepts_one_body_and_rejects_the_next_byte(recovery_http):
+    case = recovery_http
+    body = json.dumps({'email': 'own-body-boundary@example.invalid'}, separators=(',', ':')).encode()
+    body += b' ' * (4096 - len(body))
+    assert len(body) == 4096
+    accepted = case.client.post('/api/auth/password-reset/request', content=body, headers={'content-type': 'application/json'})
+    assert accepted.status_code == 202
+    wait_idle(case.client)
+    rejected = case.client.post('/api/auth/password-reset/request', content=body + b' ', headers={'content-type': 'application/json'})
+    assert rejected.status_code == 413
+    assert rejected.json()['detail']['code'] == 'password_reset_body_limit'
+    assert rejected.headers['cache-control'] == 'no-store'
+    assert rejected.headers['referrer-policy'] == 'no-referrer'
+    assert case.messages == [] and case.client.app.state.recovery_dispatcher.pending == 0
+
+
+def test_last_eligible_session_version_consumes_once_and_next_request_stays_generic(recovery_http):
+    from sqlalchemy.orm import Session
+    from web import auth
+    from web.database.models import AuthAuditLog, Usuario
+    from web.services.password_recovery import MAX_SESSION_VERSION
+
+    case = recovery_http
+    with Session(case.engine) as db:
+        row = db.get(Usuario, OWNER)
+        row.session_version = MAX_SESSION_VERSION - 1
+        db.commit()
+        identity = auth.identity_from_user(row, db)
+    pair = auth.crear_token_pair(identity)
+    token = issued(case)
+    response = confirm(case, token)
+    assert response.status_code == 200 and response.json()['code'] == 'password_reset_complete'
+    assert 'token' not in response.json() and 'refresh_token' not in response.json()
+    assert case.client.get('/api/auth/me').status_code == 401
+    assert auth.verificar_token(pair['access_token']) is None
+    previous_messages = len(case.messages)
+    retry = case.client.post('/api/auth/password-reset/request', json={'email': 'recovery-before@example.invalid'})
+    assert retry.status_code == 202 and retry.json()['code'] == 'password_reset_request_received'
+    wait_idle(case.client)
+    assert len(case.messages) == previous_messages
+    with Session(case.engine) as db:
+        row = db.get(Usuario, OWNER)
+        assert row.session_version == MAX_SESSION_VERSION
+        assert row.password_reset_hash is row.password_reset_expires_at is row.password_reset_session_version is None
+        assert auth.verify_password(NEW, row.password_hash)
+        assert db.query(AuthAuditLog).filter_by(user_id=OWNER, event_type='password_reset_complete').count() == 1
+    assert confirm(case, token).status_code == 400
+    assert case.client.post('/api/auth/login', json={'email': 'recovery-before@example.invalid', 'password': OLD}).status_code == 401
+    assert case.client.post('/api/auth/login', json={'email': 'recovery-before@example.invalid', 'password': NEW}).status_code == 200

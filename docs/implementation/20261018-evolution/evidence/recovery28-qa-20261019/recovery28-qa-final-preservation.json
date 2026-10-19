@@ -1,0 +1,35 @@
+{
+  "base_commit": "5c9e097",
+  "runtime_freeze_commit": "453cb7e1a7de76ce991a17980c7a0921ff04c495",
+  "historical27_entire_source_unchanged": true,
+  "historical27_current_sha256": "f0ca1a2e2290d4617eff35b25fbf9a54be8d155299de52a969f77dcee7b4069b",
+  "historical27_main_assertions": 40,
+  "new28_main_assertions": 40,
+  "assertion_ast_equal_after_only_target_revision_literal_delta": true,
+  "frozen_helpers_imported_without_replacement": [
+    "_populate_diary27",
+    "_verify_restored_diary27"
+  ],
+  "own_final_source_sha256": {
+    "tests/test_recovery28_review.py": "045721c1d8b5149c686216518d97e8abe41bc2194ddbe8f0bd4a25ac399c41b5",
+    "tests/integration_recovery28_restore_review.py": "7237332b0826c14024bdd3ddda5f142ba57e457f8a53ed7a8de7aff7bb4768f8",
+    "tests/recovery28_restore_helpers.py": "b4fefdcc44043153fd4a1c132359b9cdabb9dc4e409b6e3962cde1a3cc6a9b44"
+  },
+  "initial_proof_preserved": {
+    "path": "recovery28-qa-preservation-assertions.json",
+    "sha256": "733333342044595fc1369b0ac9be53942b7ef9856646389d282dc548d7108e24"
+  },
+  "initial_failed_restore_sources_preserved": {
+    "integration_recovery28_restore_review.first.txt": "4ac7bc010fe69f2d4a7eca5e90bd5722e0ed9de4c03ca06d132754da1bce27a5",
+    "recovery28_restore_helpers.first.txt": "bf892e9f9cecff19dd0ed48688537f61315b4f16571b131a875112adf018e237"
+  },
+  "explicitly_approved_qa_lifecycle_correction": {
+    "physical_before_factory": "Full restored rows equal every backup row, including all 8 refresh rows and 4 revoked rows.",
+    "after_existing_factory_cleanup": "Full rows equal a deep copy of backup with only the exact 4 pre-seeded revoked jtis removed; expected is never derived from observed target.",
+    "runtime_after_cleanup": "Old access and refresh rejected even after revoked rows are gone; the exact other 4 live jtis survive until their own reset.",
+    "auth_table_literal_guard": "AuthAuditLog.__tablename__ == 'auth_audit_log' and exact auth table names exist in reflected schema.",
+    "business_projection_after_reset": "Only usuarios, refresh_tokens and auth_audit_log mutate during actual credential/reset/login operations; all remaining tables exact.",
+    "historical27_fixture_modified": false,
+    "product_modified": false
+  }
+}

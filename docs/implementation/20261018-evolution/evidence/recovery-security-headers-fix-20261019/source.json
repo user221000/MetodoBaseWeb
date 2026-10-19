@@ -1,0 +1,57 @@
+{
+  "status": "Independent scoped acceptance of the minimal recovery response-header correction",
+  "author_commit": "890a435e757a671310b8b89c6e3dc934db862b5f",
+  "baseline_author_commit": "35a3c133c194b8f6c8864314500db42031b79e59",
+  "baseline_review_manifest_sha256": "2bd7f953fbca1385f17034f9e30d91d932185523e5e3ada9527826abc858c380",
+  "baseline87_only_expected_delta": [
+    "web/middleware/security_headers.py"
+  ],
+  "current_monitored_sources": 88,
+  "sources_stable_before_after": true,
+  "author_checkout_clean": true,
+  "sources_before_sha256": "1b1c69aa4db66a49cf63a42c04a8e7c2a79f088216d356c24e1d66091abd3ddd",
+  "sources_after_sha256": "1b1c69aa4db66a49cf63a42c04a8e7c2a79f088216d356c24e1d66091abd3ddd",
+  "product_sha256": "510ac917caccf26f2e37002155e4f03c39b0e6d29a4e76e94d93f61fe38496ac",
+  "frozen_semantic_driver_sha256": "5f47b04b387770499232c68418342304defbc67aec3c4e3095e3fcf1dc49b23a",
+  "results": {
+    "original_semantic_driver": {
+      "before35a_passed": 6,
+      "before35a_total": 10,
+      "before35a_failed": 4,
+      "current_passed": 10,
+      "current_total": 10,
+      "current_exit": 0
+    },
+    "new_independent_edges": {
+      "passed": 10,
+      "total": 10,
+      "exit": 0
+    },
+    "current_test_invocations_passed": 20,
+    "other46_reused_by_dependency_identity_not_rerun": true
+  },
+  "review": "The only product delta forces no-referrer for the two exact recovery API paths for every method. The original405 negatives now pass in both factories. Independent TRACE/CONNECT/PRIVATE/OPTIONS cases, adjacent/case/trailing/prefix paths, inherited private policy and actual duplicate CSP/referrer replacement pass. Ordinary CSP remains unchanged; no route/parser/service/auth/model/DDL edit. No new blocker found in this delta.",
+  "historical_preservation": "Prior6/10 red result, literal Cache-Control erratum,46 passing own canaries, PostgreSQL records and original manifest remain unchanged. No retrospective green attributed to35a.",
+  "limits": [
+    "HTTP/SQLite and in-memory ASGI only for this header delta; no PG,181 broad suite, author89 replay or browser repetition.",
+    "Author28/composer/main integration acceptance, restore28, provider/domain/link-tracking, real acceptance/receipt/bounce, durable queue, retention and MFA recovery remain separate.",
+    "No credential leak was demonstrated by the prior405 contract failure; this acceptance closes the observed header gap only."
+  ],
+  "replay": "Set optional R16_REVIEW_SOURCE_ROOT to exact frozen worktree and use candidate Python -X utf8 headers_runner.py headers-semantic; edges_runner.py is separate own added probe. Assertions in original test remain SHA5f47 unchanged.",
+  "artifacts": {
+    "sources-before.json": "1b1c69aa4db66a49cf63a42c04a8e7c2a79f088216d356c24e1d66091abd3ddd",
+    "sources-after.json": "1b1c69aa4db66a49cf63a42c04a8e7c2a79f088216d356c24e1d66091abd3ddd",
+    "freeze.py": "aafcc0ac1ae4f6b5664811143426d6bf17313bf2c3baebf391665a976ee51dd5",
+    "headers_runner.py": "3f2d2824fde59375e3221c8e77ab723c57aaf0d7295a7e6218f9ae0aa2714d4e",
+    "test_recovery_headers_semantic_security.py": "5f47b04b387770499232c68418342304defbc67aec3c4e3095e3fcf1dc49b23a",
+    "test_recovery_security.py": "297d3a7ce3f73872acb851ab7fbef089cd8da571bb029368eda5434593ea1618",
+    "headers-semantic.json": "b0643c5aa484a9262b7afeee1c563e5520c8763428a0495b2c0d8b3eab581471",
+    "headers-semantic.xml": "adc36d6ff2bf71c360d2947c8b1ca3c8b0c1c9668983b6fb2489452753f77dcc",
+    "headers-semantic.log": "aa17cfc76c63184f472a671c39e0a5755cd457d33113318ad17fef92696db842",
+    "edges_runner.py": "c40d52a11d63906755961f55ab9f1fd75f790419895e64eda44a15e3008b9f2a",
+    "test_recovery_method_edges.py": "9f5bb5446abcaafe209ca6da71c69a9b7cbe7b56923e415ae6ea7fe891818d7b",
+    "edges.json": "23715b7b60d587e90eee98afb596cb0611815038c497924e9b16f09175f8b79e",
+    "edges.xml": "badbe9e5d60f53972d8e9304ed99f8731ccfa9096f6930ec55a92b4af59b5238",
+    "edges.log": "09067a4095bd1acc5e73a8f15474344789f67a3b68e4f9a3638380ce55d8de62"
+  }
+}

@@ -114,3 +114,7 @@ Desktop:[build0/404.75s](evidence/desktop-real-build-7bde30b-source.json),[Inno0
 R34:[revisión de datos](evidence/qa-load-root-data-review.json),1400HTTP/observaciones enlazados,cuantiles recalculados y248fuentes quiet; pruebas acotadas a5clientes pendientes. No carga abierta,SLO o medición de producción. R16 autor181+17PG+6SQLite+9browser no constituye aceptación independiente ni validación del MAIN27. CI8435 integrado00d2114 tras replay162Node/21CLI/8startup/13inertes/15origen y43canarios propios,61Bash/82refs,275fuentes/89paquetes quiet. No nuevos browser/Actions/Linux/imagen.
 
 Calidad actual tras CI00d2114:436 fuentes Python mantenidas parseadas,F8210,Bandit6baseline/0nuevos,Windows local. [Recibo](evidence/quality-integrated27-final-source.json). Sin fotos dedicadas antes/después de este chequeo corto; no se inventa estabilidad de fuentes.
+
+## Recuperación28: aceptación independiente focal
+
+Seguridad46 propios contra35a; headers antes6/10 y después89010/10 más diez propios,88fuentes quiet. QA181dirigidas d9c; en453 seispropias/seisSQLite/17PG/restore28,0skip/fail/error.701fuentes/89paquetes quiet,pip0;40asserts26/27 preservadas y limpieza startup de cuatro revocados esperada por IDs exactos. No nuevo amplio2064 ni entregas reales. [Contrato y alcance](RECUPERACION_CUENTA.md). MAIN27 espera CI28 y composición.

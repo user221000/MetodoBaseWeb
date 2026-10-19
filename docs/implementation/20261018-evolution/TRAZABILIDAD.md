@@ -545,15 +545,15 @@ Commits: 93a9e1d
 
 Pruebas: 106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables.
 
-Evidencia: evidence/auth-telemetry-independent-source.json; evidence/pytest-auth-telemetry-independent.xml
+Evidencia: evidence/auth-telemetry-independent-source.json; evidence/pytest-auth-telemetry-independent.xml; evidence/recovery28-qa-20261019/recovery28-qa-final-summary.json; evidence/recovery-security-independent-20261019/source.json; evidence/recovery-security-headers-fix-20261019/source.json
 
-Documentación: evidence/auth-telemetry-privacy.md
+Documentación: evidence/auth-telemetry-privacy.md; RECUPERACION_CUENTA.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: Autor35a3c133 congelado,181 dirigidas/17PG/6SQLite/9browser; revisión independiente de seguridad activa y composición28 a5f5085 aislada. No integrado en MAIN, sin envíos reales, no cierre de recuperación/verificación/MFA.
+Observaciones: Autor35a3c133 congelado,181 dirigidas/17PG/6SQLite/9browser; revisión independiente de seguridad activa y composición28 a5f5085 aislada. No integrado en MAIN, sin envíos reales, no cierre de recuperación/verificación/MFA.; QA/seguridad aisladas aceptadas:46propios;405fix10+10;181d9c y6propias/6SQLite/17PG/restore453. Fuente27 intacta,nuevaQA92615d74. MAINsinfeature28 hastaCI/composición.
 
 ## R17
 

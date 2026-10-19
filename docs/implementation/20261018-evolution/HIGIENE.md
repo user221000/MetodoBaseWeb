@@ -39,3 +39,9 @@ Configuración final revisada: RAW14d11479aca0a7009d08349955daad864a64843e04fa00
 ## Scan exacto11b3123
 
 1554 archivos,3 coincidencias y árbol estable, exit1. Sólo evidence/statistics-http-independent-before.json líneas7/8/14, regla generic-api-key; valores omitidos del reporte. Las3 coincidencias se verificaron después contra blobs/checkout LF/CRLF públicos exactos de11b3123; evidencia secrets-protocol26-final-three-triage.json. No se cambió configuración: faltan excepción finita revisada y scan del candidato posterior a las integraciones. [Reporte rojo preservado](evidence/secrets-protocol26-final-11b3123.json). Config14d11479/normalizado42bf8058 conserva sus canarios independientes; no se presenta como limpio este checkpoint ni el head posterior.
+
+## Scan del candidato27 c28d718
+
+Scan real8.30.1 sobre detachedLF exacto:3026archivos estables,930coincidencias (892generic-api-key/38sentry-access-token),862ubicaciones. Son campos y líneas de fingerprints;116de123preimágenes se recalcularon independientemente con blobs/archivos conservados y variantes EOL explícitas. Siete huellas WIP ya no tienen cuerpo conservado: once entradas en nueve ubicaciones/seis archivos; no se presentan como procedencia verificada del candidato. Bruto saneado intacto fuera del checkout escaneado, sin valores de secretos.
+
+Excepciones nuevas sólo por regla+ruta literal+línea completa literal. El primer conjunto pasó canarios en primera línea, pero falló en contexto de archivos completos: Gitleaks8.30.1 conserva el LF previo en Finding.Line. Se investiga prefijo opcional de un LF; no se amplía a whitespace arbitrario, carpetas o reglas desactivadas. Configuración MAIN aún sin cambiar y scan limpio pendiente. Un resumen versionado deberá ligar HEAD/tree, inventario agregado, binario/config/wrapper y bruto externo por SHA; jamás afirmar que documentos escritos después estuvieron escaneados.

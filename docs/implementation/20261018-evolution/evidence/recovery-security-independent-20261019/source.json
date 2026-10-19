@@ -1,0 +1,136 @@
+{
+  "status": "Independent review held for accepted no-referrer contract gap on router-generated405; no credential leak demonstrated",
+  "author_commit": "35a3c133c194b8f6c8864314500db42031b79e59",
+  "author_manifest_sha256": "6a508f91806301d3b3c25f472c0f0b7cc4b9b0fcbbe2046c5eb30a1cc166e446",
+  "source_count": 87,
+  "sources_and_author_proofs_stable": true,
+  "author_checkout_clean": true,
+  "sources_before_sha256": "90a21786caae0dadb297442a49a4d22377bfe7ceee9376fcff16d90a73c063f0",
+  "sources_after_sha256": "90a21786caae0dadb297442a49a4d22377bfe7ceee9376fcff16d90a73c063f0",
+  "scope": "Author35a only, not main or integration composer. Independent synthetic HTTP/SQLite and restricted-loopback PostgreSQL; no real mail, provider/network destination, production user, deployment or restore claim.",
+  "results": {
+    "independent_http_sqlite": {
+      "passed": 35,
+      "total": 35,
+      "exit_code": 0
+    },
+    "independent_transport_and_worker": {
+      "passed": 6,
+      "total": 6,
+      "exit_code": 0
+    },
+    "independent_reverse_order_pg": {
+      "passed": 5,
+      "total": 5,
+      "exit_code": 0
+    },
+    "semantic_headers_and_exact_csp": {
+      "passed": 6,
+      "total": 10,
+      "exit_code": 1
+    },
+    "total_distinct_current_criteria": 56,
+    "passed_distinct_current_criteria": 52,
+    "failed_distinct_current_criteria": 4,
+    "author_gates_not_counted_as_independent": true
+  },
+  "finding": {
+    "classification": "R16/R31 response-header contract; no new SEC number assigned by reviewer",
+    "trigger": "GET /api/auth/password-reset/request and GET /api/auth/password-reset/confirm in both factories",
+    "actual": "HTTP405 with Cache-Control: no-store, max-age=0 (semantically correct) and Referrer-Policy: strict-origin-when-cross-origin",
+    "expected": "Promised Referrer-Policy: no-referrer on every recovery API response",
+    "cause": "Router Method Not Allowed bypasses RecoveryRoute.get_route_handler privacy wrapper; global SecurityHeadersMiddleware supplies its ordinary referrer policy.",
+    "impact": "Narrow declared response-policy inconsistency. Normal POST parser/service errors and first-party recovery page policy pass. No consumption by scanner GET, password mutation from GET, bearer URL leak or live exploit demonstrated.",
+    "root_decision": "Parent accepted finding and requested author-only minimal recovery path header correction; reviewer must not remediate.",
+    "frozen_test": "test_recovery_headers_semantic_security.py",
+    "frozen_test_sha256": "5f47b04b387770499232c68418342304defbc67aec3c4e3095e3fcf1dc49b23a",
+    "frozen_result_sha256": "cac13eaae597f723b61e2dae62745760c932862e90ceaebf79ba82c06326cdc3"
+  },
+  "reviewed_contracts": [
+    "Bearer256-bit opaque, purpose-prefixed digest only stored, request does not revoke current sessions or change authority, consume uses live subject and one atomic commit/SV/reset clear/refresh revoke/audit.",
+    "Explicit ambient subject mismatch, mass assignment, changed membership/parent, stale digest/version and inactive post-preview state rejected; other subject state retained.",
+    "Configured origin is not supplied by Host/forwarded headers. Form GET/scanner does not consume reset. Exact-route CSP and downstream-policy override controls pass.",
+    "Production recovery fails closed without Redis or during Redis outage even while general local limiter is disabled; parser bounds stop before overflow parsing/further chunks.",
+    "Mail acceptance uses strict True at service port; false/truthy non-boolean does not change persisted digest/session. Postcommit notice failure retains real successful password change and increments unconfirmed notice signal. Worker fresh Context, class-only error logging and bounded slot reuse checked.",
+    "PG reverse-order cases prove logout/reuse winning Usuario lock prevents stale consume, issuance blocked by logout reloads fresh SV, real membership revocation denies prior bearer but preserves personal identity/diary and new recovery. Restricted application role/RLS signature20 unchanged and pooled tenant context blank.",
+    "Migration28 adds only three nullable control-plane fields, all-or-none CHECK and unique digest; immutable prior targets/fixtures and three approved historical test adaptations reviewed. Restore28 is a separate QA gate."
+  ],
+  "harness_errata": [
+    {
+      "artifact_prefix": "harness-export-path-first",
+      "result": "33 passed / 2 failed from reviewer preparation: nonexistent export path and OWNER subject. Corrected only fixture to actual personal export route and separate personal subject carrying live reset state; original preserved. No product bug attributed."
+    },
+    {
+      "artifact_prefix": "harness-pg-meals-first",
+      "result": "Five setup errors because reviewer supplied Python dict for existing Text meals_json. Changed only seed to JSON text. First UUID dropped with absence verified before separate second UUID run; no assertions or product changed."
+    },
+    {
+      "artifact_prefix": "headers (literal original)",
+      "result": "First literal Cache-Control comparison rejected equivalent no-store, max-age=0. Original test/log/result retained. Separate additive semantic-cache variant accepts the no-store directive while retaining no-referrer expectation; its four real referrer failures are the finding. No caching defect claimed."
+    }
+  ],
+  "replay": {
+    "command": "Set R16_REVIEW_SOURCE_ROOT to frozen candidate worktree; run candidate Python -X utf8 headers_runner.py headers-semantic from this evidence directory. Driver accepts only source-root/transport harness adaptation; test assertions and negative requests remain frozen.",
+    "adapter_only": "headers_runner.py now accepts optional R16_REVIEW_SOURCE_ROOT after historical run; no test criterion changed.",
+    "advisory": "Do not rerun other46 by routine if their product dependencies remain unchanged; source-hash closure needed after minimal fix."
+  },
+  "limits": [
+    "No timing-side-channel equivalence proof for asynchronous queue, durable queue/outbox, retention/GC policy, legitimate MFA recovery, verified sender/domain, link tracking, real provider receipt/bounce or deployment.",
+    "No independent browser in this review. Existing author9 browser and181/17/6 gates remain author evidence, not independent counts.",
+    "No composer/MAIN behavioral acceptance. Historical restore27 untouched; restore28 belongs to QA.",
+    "Private config loaded only inside PG child; URL values excluded from evidence. Windows asyncio loopback self-pipe permitted while external socket destinations blocked."
+  ],
+  "runtime": {
+    "python": "3.12.13 (main, Jun 23 2026, 15:23:43) [MSC v.1944 64 bit (AMD64)]",
+    "packages": {
+      "pytest": "9.1.1",
+      "fastapi": "0.146.0",
+      "starlette": "1.9.0",
+      "SQLAlchemy": "2.1.5",
+      "psycopg2-binary": "2.9.13",
+      "resend": "2.50.0"
+    }
+  },
+  "artifacts": {
+    "sources-before.json": "90a21786caae0dadb297442a49a4d22377bfe7ceee9376fcff16d90a73c063f0",
+    "sources-after.json": "90a21786caae0dadb297442a49a4d22377bfe7ceee9376fcff16d90a73c063f0",
+    "freeze.py": "ccdb421f8b1f994ee8fdf7553f7314a055034b8c3a949af43ad920f6e89f9b2b",
+    "runner.py": "daee87c884d8b27920b17beb3157a235cd4c832dd77de917c613c32ce0191bbc",
+    "test_recovery_security.py": "297d3a7ce3f73872acb851ab7fbef089cd8da571bb029368eda5434593ea1618",
+    "http-sqlite.json": "5e9ab5940f3a3a80984d11bd31277e556fe7c441b335e2e6fe6adf9f6231111e",
+    "http-sqlite.xml": "0ceddb372bd3038f6055d74d0acdcba8a0d6ef861351d737a31c3bc6a1a7333a",
+    "http-sqlite.log": "e98cb938afcf19e12e22bf042fc8815212977fd769066885c0ebb1caf594629b",
+    "transport_runner.py": "3cff2894b75a86a1bcc83106dccb933a669c6e2a0020c5c8253ffcb4610a299a",
+    "test_recovery_transport_security.py": "7b402fd40091ed75e5b5df87f0a7dfca928a578dcc59343ad6768df6cebaac90",
+    "transport.json": "5f78c917cabcc4a7e7ed5a967a16d4599de1252b3a6875589cc0273c4ced85d8",
+    "transport.xml": "9c30b349440ac7b7bdec9af0096b9f1ed3c51e25e51ef03e55afe2a0fe3a06cc",
+    "transport.log": "49eb5c1f5e022bfad7adc63476b6f8e0afd4ed7869857bcca7ec1300a7aaab61",
+    "pg_runner.py": "b9eed5c83b95b7b11467788f1da5bd12b96f99a310516020788e88b64250e493",
+    "test_recovery_pg_security.py": "fc881daa7a0c00cf9f562f75dcc2ba803621f0433d383df1798afd844d7e0db7",
+    "pg.json": "406e0dcb880bbefc4ebe7e23bede19d3cfd3a503e5e6f4df8291c9b00f135fab",
+    "pg.xml": "477450e45704346a55008fc838a017f8110006f4e9b3f81fb7e736c7f0566ff1",
+    "pg.log": "ea8504b51c6a7f62bd44099a949651feb7c28f2aad7beb51e5f5d25b51248155",
+    "pg-migration.log": "6cbe9fcd358d848470bb05d3336f50c2bda808112f1f9ecd1d162053e89e1c0a",
+    "owned-database.json": "4be1159f5e5ccedcfe5d92f2287a21f1a99bc44c12f7c75f15d95cf48b293fd9",
+    "headers_runner.py": "3f2d2824fde59375e3221c8e77ab723c57aaf0d7295a7e6218f9ae0aa2714d4e",
+    "test_recovery_headers_security.py": "0858715e164ac2d1daa1e1a273c8a452e188cc02bb55751e5069f16b3c07ca5e",
+    "test_recovery_headers_semantic_security.py": "5f47b04b387770499232c68418342304defbc67aec3c4e3095e3fcf1dc49b23a",
+    "prepare_headers_semantic.py": "7a1a7cce9f0f0398e76cd264fbef680347732d56a5417709b96a38cf37a5ec7a",
+    "headers-semantic.json": "cac13eaae597f723b61e2dae62745760c932862e90ceaebf79ba82c06326cdc3",
+    "headers-semantic.xml": "ea98bd0a2d53d375492f947c8ff8d0e0aa8e8971d04afabbc1dc3ce6bd8e465d",
+    "headers-semantic.log": "eaa2a9b1bc281c24c1d94493ef6a9f7b2a1d546cab048dbec7b0007855993de7",
+    "headers.json": "6322584ff98136ebfe4390eb553de8c8e32c229a9204dc2fcd8986efd7d7a8bb",
+    "headers.xml": "a20bfc33443f34fc92c475954394c035311a71cd659cb61d7ba130004cbcba52",
+    "headers.log": "f61e5b23ec851bfca80a2e7019ec24b7cab4d464b14cc757e90c8074d569aca0",
+    "harness-export-path-first.json": "9c1598d9aa3d059415e660e20b4ed4b6784def5febe42023649c49ba1a8da799",
+    "harness-export-path-first.xml": "c2c608459355ee60372f90cee90cb6601a2b837855f69da09b229308f882c9c7",
+    "harness-export-path-first.log": "72ac65327394f3a68e41756f64489a7ff6b0e1acd7fd81074bd1cee9b7d42a60",
+    "harness-export-path-first-test.py": "408090d20e59508d202f821aafb5545e4699101580aa7a87956762d2dc7af0ec",
+    "harness-pg-meals-first.json": "801b6f406cbf35f8265a7fdb830bce69fccd98d039bf710844b95d10a11d0c17",
+    "harness-pg-meals-first.xml": "4fde55a21f89c5ceff85cd1d7c5b5400f8a889e429ae32c8513e9a56c45d2701",
+    "harness-pg-meals-first.log": "7b798b1ac0b144846d64f9ff43aa316e74cf1239b2b2c307b48455c09798e5d3",
+    "harness-pg-meals-first-test.py": "239c87b3256d7f6656fa946cef85cfd3a32fee7fdd509649ee25908a6185c49f",
+    "harness-pg-meals-first-migration.log": "6cbe9fcd358d848470bb05d3336f50c2bda808112f1f9ecd1d162053e89e1c0a",
+    "harness-pg-meals-first-owned-database.json": "3c1be938c7b7299f241b2bc9a053fe143177cd3aad2216e41e83291f482dd29e"
+  }
+}

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="10.775" timestamp="2026-10-19T02:25:40.736361-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="test_recovery_pg_security" name="test_revocation_winning_account_lock_prevents_old_reset_in_reverse_order[logout]" time="5.322"><error message="failed on setup with &quot;sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'&#10;[SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]&#10;[parameters: {'id': '48531f20-cd11-405c-90e8-e884d81ccc6c', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 46, 847658), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 46, 847658)}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)&quot;">..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.ProgrammingError: can't adapt type 'dict'
+
+The above exception was the direct cause of the following exception:
+test_recovery_pg_security.py:78: in seeded_pg
+    db.commit()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1052: in _emit_insert_statements
+    result = connection.execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'
+E   [SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]
+E   [parameters: {'id': '48531f20-cd11-405c-90e8-e884d81ccc6c', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 46, 847658), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 46, 847658)}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</error></testcase><testcase classname="test_recovery_pg_security" name="test_revocation_winning_account_lock_prevents_old_reset_in_reverse_order[reuse]" time="0.253"><error message="failed on setup with &quot;sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'&#10;[SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]&#10;[parameters: {'id': 'f85ee1cc-8368-42bc-b214-edb61bda6fba', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 47, 857599), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 47, 857599)}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)&quot;">..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.ProgrammingError: can't adapt type 'dict'
+
+The above exception was the direct cause of the following exception:
+test_recovery_pg_security.py:78: in seeded_pg
+    db.commit()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1052: in _emit_insert_statements
+    result = connection.execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'
+E   [SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]
+E   [parameters: {'id': 'f85ee1cc-8368-42bc-b214-edb61bda6fba', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 47, 857599), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 47, 857599)}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</error></testcase><testcase classname="test_recovery_pg_security" name="test_issuance_waiting_for_logout_reloads_current_sv_and_does_not_send_stale_bearer" time="0.261"><error message="failed on setup with &quot;sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'&#10;[SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]&#10;[parameters: {'id': 'de8f4eff-9008-4386-9f3d-b9963ddaf487', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 48, 702678), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 48, 702678)}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)&quot;">..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.ProgrammingError: can't adapt type 'dict'
+
+The above exception was the direct cause of the following exception:
+test_recovery_pg_security.py:78: in seeded_pg
+    db.commit()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1052: in _emit_insert_statements
+    result = connection.execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'
+E   [SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]
+E   [parameters: {'id': 'de8f4eff-9008-4386-9f3d-b9963ddaf487', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 48, 702678), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 48, 702678)}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</error></testcase><testcase classname="test_recovery_pg_security" name="test_real_membership_revocation_winning_lock_rejects_old_link_but_preserves_personal_identity" time="0.380"><error message="failed on setup with &quot;sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'&#10;[SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]&#10;[parameters: {'id': '05e3c209-c7e1-44cd-b6ba-30ec1a108f32', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 49, 723172), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 49, 723172)}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)&quot;">..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.ProgrammingError: can't adapt type 'dict'
+
+The above exception was the direct cause of the following exception:
+test_recovery_pg_security.py:78: in seeded_pg
+    db.commit()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1052: in _emit_insert_statements
+    result = connection.execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'
+E   [SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]
+E   [parameters: {'id': '05e3c209-c7e1-44cd-b6ba-30ec1a108f32', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 49, 723172), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 49, 723172)}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</error></testcase><testcase classname="test_recovery_pg_security" name="test_new_authority_fields_do_not_expand_rls_or_persist_subject_in_connection_pool" time="0.373"><error message="failed on setup with &quot;sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'&#10;[SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]&#10;[parameters: {'id': '6b14a832-8be1-4175-a379-68e866cb4e9b', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 50, 684268), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 50, 684268)}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)&quot;">..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.ProgrammingError: can't adapt type 'dict'
+
+The above exception was the direct cause of the following exception:
+test_recovery_pg_security.py:78: in seeded_pg
+    db.commit()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1052: in _emit_insert_statements
+    result = connection.execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+..\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.ProgrammingError) can't adapt type 'dict'
+E   [SQL: INSERT INTO personal_diary_days (id, user_id, local_date, timezone, water_ml, version, meals_json, created_at, updated_at) VALUES (%(id)s, %(user_id)s, %(local_date)s, %(timezone)s, %(water_ml)s, %(version)s, %(meals_json)s, %(created_at)s, %(updated_at)s)]
+E   [parameters: {'id': '6b14a832-8be1-4175-a379-68e866cb4e9b', 'user_id': 'pg-sec-recovery-member', 'local_date': datetime.date(2026, 10, 19), 'timezone': 'America/Mexico_City', 'water_ml': 925, 'version': 1, 'meals_json': {}, 'created_at': datetime.datetime(2026, 10, 19, 8, 25, 50, 684268), 'updated_at': datetime.datetime(2026, 10, 19, 8, 25, 50, 684268)}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</error></testcase></testsuite></testsuites>

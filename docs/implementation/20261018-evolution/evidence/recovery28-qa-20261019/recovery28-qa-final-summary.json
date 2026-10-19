@@ -1,0 +1,302 @@
+{
+  "decision": "Accepted for scoped independent recovery28 QA on composition; no open product blocker from this review.",
+  "phases": [
+    {
+      "label": "directed-d9c8f80",
+      "phase": "directed",
+      "head": "d9c8f806f1cae53c6b35cf0b2a6a8267e031a3dc",
+      "exit": 0,
+      "seconds": 116.609,
+      "junit": {
+        "tests": 181,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 697,
+      "source_stable": true,
+      "packages": 89,
+      "packages_stable": true,
+      "pip_check_before_after": [
+        0,
+        0
+      ],
+      "scope": "Fresh isolated SQLite; PG phases use dedicated loopback config in child memory and UUID-owned fixtures. No provider or deployment.",
+      "source_proof_sha256": "047013e6a5f7389df3605620454f8c9a0f12555de0a94dccf2ff69886611fd91",
+      "junit_sha256": "b9a579f9b466638db198027837234822650a8f0025c26dc2448454bf99dcce0b"
+    },
+    {
+      "label": "own-453cb7-final",
+      "phase": "own",
+      "head": "453cb7e1a7de76ce991a17980c7a0921ff04c495",
+      "exit": 0,
+      "seconds": 20.156,
+      "junit": {
+        "tests": 6,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 701,
+      "source_stable": true,
+      "packages": 89,
+      "packages_stable": true,
+      "pip_check_before_after": [
+        0,
+        0
+      ],
+      "scope": "Fresh isolated SQLite; PG phases use dedicated loopback config in child memory and UUID-owned fixtures. No provider or deployment.",
+      "source_proof_sha256": "6707f9471a977bf4e36e0d01b5678c379c13fa591323d3e06961b9ed3a3003cb",
+      "junit_sha256": "de1851f5a0523d108dbdda36c4205dd5fd4b78cf63503656f06947674e5fe9e8"
+    },
+    {
+      "label": "sqlite-453cb7",
+      "phase": "sqlite",
+      "head": "453cb7e1a7de76ce991a17980c7a0921ff04c495",
+      "exit": 0,
+      "seconds": 36.953,
+      "junit": {
+        "tests": 6,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 701,
+      "source_stable": true,
+      "packages": 89,
+      "packages_stable": true,
+      "pip_check_before_after": [
+        0,
+        0
+      ],
+      "scope": "Fresh isolated SQLite; PG phases use dedicated loopback config in child memory and UUID-owned fixtures. No provider or deployment.",
+      "source_proof_sha256": "a5dc5a2fc371d3850cfdee1e2f3b6d870d325feef753c3744a8476b5517b723c",
+      "junit_sha256": "089c14eab77d1d7661c52ea3aece6b7d232e4c4e0a673bee62409a3c815eed46"
+    },
+    {
+      "label": "postgres-453cb7",
+      "phase": "postgres",
+      "head": "453cb7e1a7de76ce991a17980c7a0921ff04c495",
+      "exit": 0,
+      "seconds": 115.594,
+      "junit": {
+        "tests": 17,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 701,
+      "source_stable": true,
+      "packages": 89,
+      "packages_stable": true,
+      "pip_check_before_after": [
+        0,
+        0
+      ],
+      "scope": "Fresh isolated SQLite; PG phases use dedicated loopback config in child memory and UUID-owned fixtures. No provider or deployment.",
+      "source_proof_sha256": "21eb36d20c6e2d59d716610b6f0ce118ea62001b80bfafaec20b73e3a2265fc2",
+      "junit_sha256": "1a0cbba3487ba9316c11c3e1791302cd95a67291fb54af80f288b4571e6ebcf5"
+    },
+    {
+      "label": "restore-453cb7-final",
+      "phase": "restore",
+      "head": "453cb7e1a7de76ce991a17980c7a0921ff04c495",
+      "exit": 0,
+      "seconds": 29.953,
+      "junit": {
+        "tests": 1,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 701,
+      "source_stable": true,
+      "packages": 89,
+      "packages_stable": true,
+      "pip_check_before_after": [
+        0,
+        0
+      ],
+      "scope": "Fresh isolated SQLite; PG phases use dedicated loopback config in child memory and UUID-owned fixtures. No provider or deployment.",
+      "source_proof_sha256": "96bb30cf29e347c6cecca0827a5d584a751d8e8154ab332295e3e03949f27693",
+      "junit_sha256": "88c96b601750a09143943e21eb8eeb81583784198e0aed791ca298b0269bd4da"
+    }
+  ],
+  "positive_test_observations": 211,
+  "directed_baseline_scope": "181 directed cases were run at d9c8f80 before the later header-only fix; the 6 own, 6 SQLite, 17 PostgreSQL and restore28 ran at453cb7. No claim that181 or broad2064 were rerun at453.",
+  "preservation": "28 historical contracts unchanged; three approved historical function deltas retain all assertions; nine prior email functions, two login script blocks and entire restore27 source unchanged. New28 retains40 main asserts.",
+  "restore": {
+    "environment": "synthetic PostgreSQL explicit revision28; preserved all revision26 private objects/ledger and revision27 diary plus account recovery state",
+    "tables": 26,
+    "schema_signature_sha256": "7f8952b29695e3e45d141f7a155eb7ed8c19e72c1366a493e7caef744ee67f1d",
+    "rls_families_force": 20,
+    "private_objects": 5,
+    "pending_objects": 1,
+    "legacy_files": 2,
+    "individual_reservations": 4,
+    "individual_consumed_credits": 3,
+    "diary_days": 5,
+    "diary_subjects": 2,
+    "deleted_source_snapshot_preserved": true,
+    "restored_diary_http": [
+      {
+        "factory": "web.main_web",
+        "startup": {
+          "commits": 1,
+          "dml": 1
+        },
+        "get_export_commits": 0,
+        "get_export_dml": 0,
+        "restored_subject_days": [
+          3,
+          2
+        ],
+        "cursor_pages_complete": true
+      },
+      {
+        "factory": "api.app",
+        "startup": {
+          "commits": 0,
+          "dml": 0
+        },
+        "get_export_commits": 0,
+        "get_export_dml": 0,
+        "restored_subject_days": [
+          3,
+          2
+        ],
+        "cursor_pages_complete": true
+      }
+    ],
+    "restored_recovery": {
+      "pending_subjects": 2,
+      "prebackup_consumed_subjects": 1,
+      "prebackup_stale_sv_subjects": 1,
+      "exact_seeded_revoked_ids_cleaned_by_existing_factory": 4,
+      "remaining_live_refresh_before_reset": 4,
+      "business_projection_unchanged": true,
+      "http": [
+        {
+          "factory": "web.main_web",
+          "restored_pending_bearer_consumed_once": true,
+          "old_access_refresh_rejected": true,
+          "normal_new_password_login": true,
+          "no_autologin": true
+        },
+        {
+          "factory": "api.app",
+          "restored_pending_bearer_consumed_once": true,
+          "old_access_refresh_rejected": true,
+          "normal_new_password_login": true,
+          "no_autologin": true
+        }
+      ]
+    },
+    "restored_recovery_material_before_factory": {
+      "constraint_sqlstates": [
+        "23514",
+        "23514",
+        "23514",
+        "23505"
+      ],
+      "utc_zones": [
+        "UTC",
+        "America/Mexico_City"
+      ],
+      "restored_refresh_rows_before_factory": 8,
+      "restored_revoked_rows_before_factory": 4,
+      "all_reset_states_persisted_exactly": true,
+      "plain_bearer_absent_in_restored_accounts": true
+    },
+    "physical_backup_rows_by_table": {
+      "alembic_version": 1,
+      "stripe_webhook_events": 0,
+      "usuarios": 4,
+      "audit_log": 0,
+      "auth_audit_log": 5,
+      "checkout_sessions": 0,
+      "clientes": 3,
+      "gym_branding": 0,
+      "gym_licenses": 1,
+      "gym_settings": 0,
+      "invoices": 0,
+      "payments": 0,
+      "personal_diary_days": 5,
+      "planes_suscripcion": 5,
+      "provider_subject_associations": 1,
+      "purchase_intents": 0,
+      "refresh_tokens": 8,
+      "stored_objects": 5,
+      "stripe_customers": 0,
+      "subscriptions": 0,
+      "user_subscriptions": 1,
+      "client_progress": 0,
+      "gym_profiles": 1,
+      "license_activations": 2,
+      "planes_generados": 4,
+      "generation_reservations": 4,
+      "gym_generation_reservations": 1
+    },
+    "alembic_revision": "20261019_account_recovery",
+    "rows_by_table": {
+      "alembic_version": 1,
+      "stripe_webhook_events": 0,
+      "usuarios": 4,
+      "audit_log": 0,
+      "auth_audit_log": 5,
+      "checkout_sessions": 0,
+      "clientes": 3,
+      "gym_branding": 0,
+      "gym_licenses": 1,
+      "gym_settings": 0,
+      "invoices": 0,
+      "payments": 0,
+      "personal_diary_days": 5,
+      "planes_suscripcion": 5,
+      "provider_subject_associations": 1,
+      "purchase_intents": 0,
+      "refresh_tokens": 4,
+      "stored_objects": 5,
+      "stripe_customers": 0,
+      "subscriptions": 0,
+      "user_subscriptions": 1,
+      "client_progress": 0,
+      "gym_profiles": 1,
+      "license_activations": 2,
+      "planes_generados": 4,
+      "generation_reservations": 4,
+      "gym_generation_reservations": 1
+    },
+    "backup_seconds": 0.6400000000139698,
+    "restore_seconds": 0.7970000000204891,
+    "snapshot_age_at_verification_seconds": 14.343231,
+    "scope": "Actual local candidate schema recovery; technical timings do not approve business RPO/RTO or production recovery."
+  },
+  "owned_database_cleanup": "Both first/final restore pairs were dropped by the accepted exact-name fixture and absence independently verified; no unrelated databases touched.",
+  "retained_red_and_corrections": [
+    {
+      "label": "own-453cb7-first",
+      "result": "4 pass/2 failed",
+      "classification": "QA observer scope: actual startup rejected old schema during create_app before the expected-error context. Moved create_app into the observer; product unchanged, final6/6."
+    },
+    {
+      "label": "restore-453cb7-first",
+      "result": "Physical restore checks passed; post-startup full rows comparison failed.",
+      "classification": "Existing factory startup legitimately deletes revoked refresh rows. Explicit parent-approved correction predicts only4 exact seeded revoked IDs from backup; preserves complete physical comparison and all40 assertions. Final1/1."
+    },
+    {
+      "classification": "Private config inspection orchestration error",
+      "detail": "A preliminary PowerShell linewise JSON parse produced errors containing local PostgreSQL URLs without passwords. No connection launched; corrected to load private config only in child Python memory. No URL or config content copied into this proof."
+    },
+    {
+      "classification": "QA helper literal correction before first runtime reached helper",
+      "detail": "Corrected auth audit table literal to actual singular auth_audit_log with reflection guard. No product or historical assertion changed."
+    }
+  ],
+  "pending_separate_integration_gates": [
+    "CI28 author wiring/delta verifier and independent acceptance",
+    "Final composition freeze followed by separately authorized broad serial and shuffled gate"
+  ],
+  "scope": "Windows candidate Python, real isolated SQLite and loopback PostgreSQL, synthetic UUID-owned databases and local object files. No real provider, deployment, Actions or Linux execution claim. No product/CI edits or commits.",
+  "final_preservation_proof_sha256": "10d14d23298f3dda9734b02130564b211b0d0a2670bd928f21ab7ecafc3c3817"
+}
