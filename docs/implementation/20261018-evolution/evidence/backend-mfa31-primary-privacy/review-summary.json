@@ -1,0 +1,80 @@
+{
+  "base": "78d27b5d3090cbd5a00c8de8b417f3bd48cb3fc1",
+  "scope": "Exact mounted primary APIs /api/auth/login and /api/auth/google: private headers on all statuses and existing opaque generic500 boundary.",
+  "original_driver_sha256": "602069c1a838cf12440250e167742c62f11a40a062fd16226428ac293aacd5f8",
+  "runner_adaptation": "Only ROOT coordinate; byte comparison verified.",
+  "replay": {
+    "before": {
+      "label": "before",
+      "exit": 1,
+      "cases": 20,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 845,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "e29fc2bcad0b800ada58b678d0f5f6844417d60bfb2a5bdacda89b8c2c6f4d0e",
+      "xml_sha256": "d079fe7a0a2ec2de259df691d4664f6330ddcdb57fb7f25e52cd026c93d138c2"
+    },
+    "after": {
+      "label": "after",
+      "exit": 0,
+      "cases": 20,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 846,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "ddc7887ccc07216563c79d2063b42011e21b05c216da86855bce579a98b463d0",
+      "xml_sha256": "dd2f1b409ba641a045630974c572da5f6f63071d599ec9a7903e940b8e3bbdb5"
+    },
+    "maintained-after": {
+      "label": "maintained-after",
+      "exit": 0,
+      "cases": 94,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 846,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "b33ee092b9fd77c2ba62b0c9cb7b9d4ace84db5473dcf1a992795fb8bf799780",
+      "xml_sha256": "0c4205ca8087ad05ad506ba30fd98dc9874d5f15ffb8b116856e5b05419e8364"
+    }
+  },
+  "maintained_breakdown": {
+    "tests.test_mfa31_primary_privacy": 30,
+    "tests.test_security_middleware.TestSecurityHeadersMiddleware": 13,
+    "tests.test_security_middleware.TestRequestIDMiddleware": 4,
+    "tests.test_security_middleware.TestCombinedMiddleware": 2,
+    "tests.test_security_middleware.TestSecurityMiddlewareConfig": 3,
+    "tests.test_recovery_method_headers": 42
+  },
+  "inverse_ast_equal_after_removing_primary_delta": true,
+  "proof_meaning": "All prior middleware branches, including CSP, remain AST-identical after removing exact primary-path additions.",
+  "cases": "Real factories: validation422, invalid password/provider401, real limiter dependency429, real fail-closed Redis conversion503 with synthetic transport, unhandled primary-port500 opaque body/logs, wrong-method405, primary200 and factor202; real login pages/adjacent404 normal policy; existing MFA/history/R12 private routes preserved.",
+  "primary_paths_provenance": "web/routes/auth.py @router.post /auth/login and /auth/google, mounted prefix /api by api.app and web.main_web; positive actual requests, no test routes installed.",
+  "no_privilege_change": "No auth authority, parent eligibility, factor/enrollment, grant, or provider behavior changes. Separate parentpending finding remains outside this fix.",
+  "isolation": "SQLite/ASGI only, external sockets blocked, Google/Redis transports synthetic. No PG, Chrome, DDL, mail or real providers.",
+  "stability": "845 files before, 846 after adding the maintained test; each run has identical before/after source and89 package photographs. Immutable driver remains602069 unchanged.",
+  "source_hashes": {
+    "web/middleware/security_headers.py": {
+      "raw_sha256": "93c81e4041791263493dbac1fb9ac8c1eeaa5e6a6d69b88e52c73284df39c244",
+      "git_lf_sha256": "ef3350bd5299054261d26b4c2428759b56b7ae993ca286e6e61453e67e08a806",
+      "raw_bytes": 9138
+    },
+    "tests/test_mfa31_primary_privacy.py": {
+      "raw_sha256": "2c33d96a49e96c75892f175e4b3d7418fe100bb7be0cf38bcbdd59242ac28937",
+      "git_lf_sha256": "2c33d96a49e96c75892f175e4b3d7418fe100bb7be0cf38bcbdd59242ac28937",
+      "raw_bytes": 6682
+    }
+  },
+  "historical": "Original frozen31/keyfix worktrees and targets22-31 untouched. Diary R24 policy belongs to later coordinator composition; this delta preserves this ancestor middleware and does not claim a R24 composition gate.",
+  "independent_final_replay": "Pending SEC20 replay on the candidate commit.",
+  "encoding": "Evidence directory * -text before first RAW write; source is normal GitLF. RAW/GitLF hashes below; original logs and preimage retained."
+}
