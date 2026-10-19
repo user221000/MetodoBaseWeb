@@ -96,7 +96,6 @@ def create_app() -> FastAPI:
     )
 
     # ── Security Headers ─────────────────────────────────────────────────────
-    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(GZipMiddleware, minimum_size=500)
     
@@ -313,4 +312,6 @@ def create_app() -> FastAPI:
     # ── Web page routes ───────────────────────────────────────────────────────
     app.include_router(web_pages.router)
 
+    # Wrap early middleware responses as well as routes, with one nonce/policy.
+    app.add_middleware(SecurityHeadersMiddleware)
     return app
