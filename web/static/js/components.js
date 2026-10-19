@@ -10,6 +10,9 @@ const Toast = (() => {
     if (!container) {
       container = document.createElement('div');
       container.id = 'toast-container';
+      container.setAttribute('role', 'status');
+      container.setAttribute('aria-live', 'polite');
+      container.setAttribute('aria-atomic', 'true');
       document.body.appendChild(container);
     }
 
@@ -122,6 +125,8 @@ function setActiveSidebarLink() {
     const href = item.getAttribute('href') || '';
     const isActive = href === path || (href !== '/' && path.startsWith(href));
     item.classList.toggle('active', isActive);
+    if (isActive) item.setAttribute('aria-current', 'page');
+    else item.removeAttribute('aria-current');
   });
 }
 

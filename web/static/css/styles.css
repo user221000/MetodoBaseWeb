@@ -6,6 +6,7 @@
    ============================================================ */
 
 /* ── Design Tokens ─────────────────────────────────────────── */
+[hidden] { display: none !important; }
 :root {
   /* ── Fondos (Warm charcoal) ── */
   --bg-primary:    #0C0B09;
@@ -40,7 +41,7 @@
   /* ── Textos ── */
   --text-primary:   #EEEEF2;
   --text-secondary: #94908A;
-  --text-muted:     #6B6660;
+  --text-muted:     #A39C93;
 
   /* ── Bordes ── */
   --border-glass:   rgba(255, 255, 255, 0.07);
@@ -2363,4 +2364,31 @@ a, button, .btn, .kpi-card, .feed-item {
   .onboarding-header { flex-direction: column; }
   .onboarding-step { flex-wrap: wrap; }
   .ob-step-action { margin-left: 42px; }
+}
+
+/* Accessible navigation, compact layouts and tables keep actions reachable. */
+.main-content, .chart-container, .input-wrap, .page-header > div { min-width: 0; }
+.settings-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+.accessible-table-scroll { max-width: 100%; overflow-x: auto; }
+.accessible-table-scroll table { min-width: 760px; }
+.form-error-message { padding: 12px; margin-bottom: 16px; border: 1px solid var(--accent-red); border-radius: 8px; color: var(--accent-red); overflow-wrap: anywhere; }
+.food-item-row { width: 100%; border: 0; background: none; text-align: left; font: inherit; }
+.dialog-focus-open { overscroll-behavior: contain; }
+.time-tab, .sub-btn-reset, .modal-close { min-height: 44px; }
+@media (max-width: 768px) {
+  .main-content { padding-top: 80px; }
+  .sidebar { max-width: calc(100vw - 64px); }
+  .page-header { flex-wrap: wrap; gap: 16px; }
+  .page-header > button { width: 100%; justify-content: center; }
+  .search-bar { flex-wrap: wrap; }
+  .search-bar > .input-wrap { flex-basis: 100%; max-width: none !important; }
+  .search-bar > .flex { width: 100%; margin-left: 0 !important; flex-wrap: wrap; }
+  .time-tabs { flex-wrap: wrap; }
+  .subscription-buttons { flex-wrap: wrap; }
+  .sub-btn { min-width: 0; flex: 1 1 100px; }
+  .context-bar { flex-wrap: wrap; }
+  .context-bar-item { white-space: normal; }
+  #modal-cliente > .chart-container { padding: 24px 16px !important; width: calc(100vw - 24px) !important; }
+  #modal-cliente .modal-close { position: static; margin-left: auto; display: flex; }
+  .settings-grid { grid-template-columns: minmax(0,1fr); }
 }

@@ -74,12 +74,13 @@ const Api = (() => {
     return success;
   }
 
-  async function request(method, path, body = null) {
+  async function request(method, path, body = null, extraHeaders = {}) {
     const token = getToken();
     const opts = {
       method,
       headers: {
         'Content-Type': 'application/json',
+        ...extraHeaders,
         ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       },
     };
@@ -116,7 +117,12 @@ const Api = (() => {
       }
     }
 
-    const data = await res.json();
+    let data;
+    try { data = await res.json(); }
+    catch {
+      if (res.ok && res.status !== 204) throw new Error('El servidor devolvió una respuesta no válida. Intenta consultar de nuevo.');
+      data = {};
+    }
 
     if (!res.ok) {
       let msg;
@@ -133,6 +139,8 @@ const Api = (() => {
         msg = data.detail || data.message || `HTTP ${res.status}`;
       }
       const err = new Error(msg);
+      err.status = res.status;
+      err.requestId = (data.detail && data.detail.request_id) || res.headers.get('X-Request-ID') || null;
       if (errorCode) err.code = errorCode;
       if (upgradeUrl) err.upgradeUrl = upgradeUrl;
       throw err;
@@ -257,12 +265,12 @@ const Api = (() => {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
     payments:     () => request('GET', '/api/billing/payments'),
-    checkout: (plan) =>
+    checkout: (plan, key) =>
       request('POST', '/api/billing/checkout', {
         plan,
         success_url: '/suscripciones?result=success',
         cancel_url: '/suscripciones?result=canceled',
-      }),
+      }, key ? { 'Idempotency-Key': key } : {}),
     stripeSubscribe: (plan, payment_method_id) =>
       request('POST', '/api/billing/stripe/subscribe', {
         plan,
@@ -272,12 +280,12 @@ const Api = (() => {
       request('POST', '/api/billing/confirm-subscription', {
         subscription_id,
       }),
-    mpPreference: (plan) =>
+    mpPreference: (plan, key) =>
       request('POST', '/api/billing/mp/preference', {
         plan,
         success_url: '/suscripciones?result=success',
         cancel_url: '/suscripciones?result=canceled',
-      }),
+      }, key ? { 'Idempotency-Key': key } : {}),
     portal: () =>
       request('POST', '/api/billing/portal', {
         return_url: '/suscripciones',
@@ -334,16 +342,21 @@ const Api = (() => {
     suscripcion:    () => request('GET', '/api/usuario/suscripcion'),
     cambiarPlan:    (plan) => request('POST', '/api/usuario/suscripcion', { plan }),
     billingConfig:  () => request('GET', '/api/usuario/billing-config'),
+    checkout: (key) => request('POST', '/api/usuario/checkout', {
+      success_url: '/mi-suscripcion?result=success',
+      cancel_url: '/mi-suscripcion?result=canceled',
+    }, { 'Idempotency-Key': key }),
+    portal: () => request('POST', '/api/usuario/billing-portal', { return_url: '/mi-suscripcion' }),
     stripeSubscribe: (plan, payment_method_id) =>
       request('POST', '/api/usuario/stripe-subscribe', { plan, payment_method_id }),
     confirmSubscription: (subscription_id) =>
       request('POST', '/api/usuario/confirm-subscription', { subscription_id }),
-    mpPreference:   (plan) =>
+    mpPreference:   (plan, key) =>
       request('POST', '/api/usuario/mp-preference', {
         plan,
         success_url: '/mi-suscripcion?result=success',
         cancel_url: '/mi-suscripcion?result=canceled',
-      }),
+      }, key ? { 'Idempotency-Key': key } : {}),
   };
 
   return { clientes, planes, stats, auth, billing, gym, usuario, clearTokens, saveTokens };

@@ -17,14 +17,14 @@
   --u-bg-badge:      #F0EDEA;
 
   /* Accent (Coral) */
-  --u-accent:        #E8634A;
-  --u-accent-dark:   #D4543A;
+  --u-accent:        #BA422E;
+  --u-accent-dark:   #A33725;
   --u-accent-light:  rgba(232, 99, 74, 0.10);
   --u-accent-glow:   rgba(232, 99, 74, 0.18);
   --u-accent-soft:   #FDEAE6;
 
   /* Semantic */
-  --u-green:         #34D399;
+  --u-green:         #087E54;
   --u-green-bg:      rgba(52, 211, 153, 0.10);
   --u-orange:        #FB923C;
   --u-orange-bg:     rgba(251, 146, 60, 0.10);
@@ -37,9 +37,9 @@
   /* Text */
   --u-text:          #1A1A1A;
   --u-text-secondary:#6B6660;
-  --u-text-muted:    #9B9590;
+  --u-text-muted:    #6D655F;
   --u-text-inverse:  #FFFFFF;
-  --u-text-sidebar:  #7A7A7A;
+  --u-text-sidebar:  #AAAAAA;
   --u-text-sidebar-active: #FFFFFF;
 
   /* Borders */
@@ -76,6 +76,33 @@
   --u-duration:      200ms;
   --u-duration-slow: 350ms;
 }
+
+/* Account state and provider handoff */
+[hidden] { display: none !important; }
+.u-inline-notice { max-width: 900px; padding: 14px 16px; margin: 0 0 20px; border: 1px solid #7A6B59; border-radius: 12px; color: #463B2F; background: #FFF8E9; line-height: 1.6; overflow-wrap: anywhere; }
+.u-inline-error { border-color: #A33725; color: #8D291B; background: #FFF0ED; }
+.u-sub-account-actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0 10px; }
+.u-sub-explanation { max-width: 900px; color: var(--u-text-secondary); line-height: 1.6; margin-bottom: 28px; }
+.u-sub-faq { max-width: 900px; }
+.u-price-period { font-size: .5em; font-weight: 500; color: var(--u-text-muted); }
+.u-pm-btn > span { display: block; }
+.u-pm-btn > .u-pm-desc { margin-top: 6px; white-space: normal; }
+.u-pago-actions { flex-wrap: wrap; }
+.u-pago-actions > button { min-height: 44px; }
+.u-dialog-open { overflow: hidden; }
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid #174EA6; outline-offset: 4px; }
+@media (max-width: 600px) {
+  .u-sub-current, .u-plan-card, .u-card { min-width: 0; }
+  .u-sub-stats { flex-wrap: wrap; }
+  .u-sub-account-actions > button { width: 100%; }
+  .u-sub-current { gap: 12px; }
+  .u-modal { max-height: calc(100dvh - 32px); overflow-y: auto; }
+  .u-pago-actions > button { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
 
 
 /* ── Base Reset ───────────────────────────────────────────────────────────── */
@@ -245,7 +272,7 @@ input, select, textarea { font-family: inherit; }
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.25);
+  color: #AAAAAA;
   padding: 20px 14px 6px;
   font-weight: 600;
 }
@@ -1933,7 +1960,7 @@ textarea.u-form-input {
   border-radius: var(--u-radius);
   border: 1px solid var(--u-border-card);
   box-shadow: var(--u-shadow-sm);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .u-table {
@@ -3008,3 +3035,14 @@ textarea.u-form-input {
   background: #e55a5a;
   border-color: #e55a5a;
 }
+
+/* History keeps the PDF column available at narrow widths. */
+#historial-list .u-table { min-width: 740px; }
+.u-history-open { color: var(--u-text); background: none; border: 0; font: inherit; text-decoration: underline; min-height: 44px; text-align: left; }
+.u-pdf-btn { min-width: 44px; min-height: 44px; }
+button.u-cal-day { border: 1px solid var(--u-border); font: inherit; width: 100%; min-width: 0; padding: 0; aspect-ratio: auto; }
+#panel-progreso .u-cal-days, #panel-progreso .u-cal-header { grid-template-columns: repeat(7,minmax(0,1fr)); }
+#panel-progreso .u-prog-plan-badge, #panel-progreso .u-cal-header span, #panel-progreso .u-day-macro-lbl, #panel-progreso .u-day-no-data { color: #504A44; }
+#panel-progreso .u-day-zero { color: #504A44 !important; }
+@media (max-width: 400px) { #panel-progreso .u-panel-body { padding: 16px; } }
+.u-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }

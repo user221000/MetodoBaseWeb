@@ -41,7 +41,7 @@
   </div>
 
   <!-- Navigation -->
-  <nav class="u-sidebar-nav">
+  <nav class="u-sidebar-nav" aria-label="Menú principal">
 
     <span class="u-nav-section">Principal</span>
 
@@ -84,7 +84,7 @@
   <!-- Promo card -->
   <div class="u-sidebar-promo">
     <h4>🔥 Consejo del día</h4>
-    <p>Mantén tu hidratación: 2L de agua mejoran tu metabolismo un 30%.</p>
+    <p>Ten agua a mano y adapta tu hidratación a tus necesidades y a la orientación de tu profesional de salud.</p>
     <a href="/mi-plan" class="u-promo-btn">Ver mi plan →</a>
   </div>
 
@@ -111,7 +111,7 @@
 </aside>
 
 <!-- ── Mobile hamburger ───────────────────────────────────── -->
-<button class="u-mobile-menu-btn" id="btn-hamburger" aria-label="Abrir menú">☰</button>
+<button class="u-mobile-menu-btn" id="btn-hamburger" aria-label="Abrir menú" aria-controls="main-sidebar" aria-expanded="false">☰</button>
 <div class="u-sidebar-overlay" id="sidebar-overlay"></div>
 
 <!-- ── Main Content ───────────────────────────────────────── -->
@@ -120,7 +120,7 @@
 </main>
 
 <!-- Toast container -->
-<div id="toast-container"></div>
+<div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Scripts -->
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
@@ -137,13 +137,13 @@
   if (av && nombre) {
     var parts = nombre.trim().split(' ');
     var initials = parts.map(function(p){ return p[0]; }).join('').substring(0,2).toUpperCase();
-    if (initials) av.innerHTML = initials;
+    if (initials) av.textContent = initials;
   }
 
   // Active sidebar link
   var path = window.location.pathname;
   document.querySelectorAll('.u-nav-item').forEach(function(a) {
-    if (a.getAttribute('href') === path) a.classList.add('active');
+    if (a.getAttribute('href') === path) { a.classList.add('active'); a.setAttribute('aria-current', 'page'); }
   });
 
   // Hamburger menu
@@ -151,13 +151,22 @@
   var sidebar = document.getElementById('main-sidebar');
   var overlay = document.getElementById('sidebar-overlay');
   if (btn && sidebar && overlay) {
-    btn.addEventListener('click', function() {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('active');
-    });
-    overlay.addEventListener('click', function() {
+    function closeMenu() {
       sidebar.classList.remove('open');
       overlay.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+    btn.addEventListener('click', function() {
+      var open = !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', open);
+      overlay.classList.toggle('active', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) sidebar.querySelector('a').focus();
+    });
+    overlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && sidebar.classList.contains('open')) closeMenu();
     });
   }
 

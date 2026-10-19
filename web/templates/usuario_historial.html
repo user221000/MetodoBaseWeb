@@ -26,9 +26,14 @@
   </div>
 </div>
 
+<div id="history-error" class="u-inline-notice u-inline-error" role="alert" hidden>
+  <p id="history-error-message"></p>
+  <button type="button" class="u-btn u-btn-secondary" id="history-retry">Volver a consultar</button>
+</div>
 <div id="historial-list" style="display:none;">
-  <div class="u-table-wrap">
+  <div class="u-table-wrap" role="region" aria-label="Planes generados, desplaza para ver el PDF" tabindex="0">
     <table class="u-table">
+      <caption class="u-sr-only">Historial de planes nutricionales</caption>
       <thead>
         <tr>
           <th>#</th>
@@ -44,24 +49,24 @@
       <tbody id="tbody-planes"></tbody>
     </table>
   </div>
-  <p class="u-historial-hint">💡 Haz clic en cualquier plan para ver tu progreso día a día</p>
+  <p class="u-historial-hint">Abre la fecha de un plan para consultar el calendario. Desplaza la tabla para descargar su PDF.</p>
 </div>
 
 <!-- ── PROGRESS CALENDAR PANEL ────────────────────────────── -->
-<div class="u-panel-overlay" id="panel-progreso-overlay" style="display:none;">
+<div class="u-panel-overlay" id="panel-progreso-overlay" role="dialog" aria-modal="true" aria-labelledby="progress-title" tabindex="-1" style="display:none;">
   <div class="u-panel u-panel-lg" id="panel-progreso">
     <div class="u-panel-header">
-      <h3 class="u-panel-title">📅 Progreso Diario</h3>
-      <button class="u-panel-close" id="panel-progreso-close">&times;</button>
+      <h2 class="u-panel-title" id="progress-title">📅 Progreso Diario</h2>
+      <button class="u-panel-close" id="panel-progreso-close" aria-label="Cerrar calendario">&times;</button>
     </div>
     <div class="u-panel-body">
       <!-- Plan info -->
       <div class="u-prog-plan-info" id="prog-plan-info"></div>
       <!-- Calendar nav -->
       <div class="u-cal-nav">
-        <button class="u-cal-nav-btn" id="cal-prev">‹</button>
-        <span class="u-cal-month-label" id="cal-month-label"></span>
-        <button class="u-cal-nav-btn" id="cal-next">›</button>
+        <button class="u-cal-nav-btn" id="cal-prev" aria-label="Mes anterior">‹</button>
+        <span class="u-cal-month-label" id="cal-month-label" aria-live="polite"></span>
+        <button class="u-cal-nav-btn" id="cal-next" aria-label="Mes siguiente">›</button>
       </div>
       <!-- Calendar grid -->
       <div class="u-cal-grid">
@@ -71,7 +76,7 @@
         <div class="u-cal-days" id="cal-days"></div>
       </div>
       <!-- Day detail -->
-      <div class="u-day-detail" id="day-detail" style="display:none;"></div>
+      <div class="u-day-detail" id="day-detail" aria-live="polite" style="display:none;"></div>
       <!-- Warning message -->
       <div class="u-prog-warning" id="prog-warning">
         <span class="u-prog-warning-icon">⚠️</span>
@@ -84,6 +89,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 
@@ -104,15 +110,13 @@
   }
 
   var allPlanes = [];
+  document.getElementById('history-retry').addEventListener('click', function() { location.reload(); });
 
   try {
-    var res = await fetch('/api/usuario/historial', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-    });
+    var data = await Api.usuario.historial();
     document.getElementById('loading').style.display = 'none';
-    if (!res.ok) throw new Error('Error');
-    var data = await res.json();
-    if (!data.planes || data.planes.length === 0) {
+    if (!data || !Array.isArray(data.planes)) throw new Error('El servidor devolvió un historial incompleto.');
+    if (data.planes.length === 0) {
       document.getElementById('empty-state').style.display = 'block';
       return;
     }
@@ -125,13 +129,13 @@
       tr.dataset.planIdx = i;
       tr.innerHTML =
         '<td>' + (data.planes.length - i) + '</td>' +
-        '<td>' + esc(fecha) + '</td>' +
+        '<td><button type="button" class="u-history-open" aria-label="Abrir calendario del plan del ' + esc(fecha) + '">' + esc(fecha) + '</button></td>' +
         '<td>' + Math.round(p.kcal_objetivo || 0) + ' kcal</td>' +
         '<td>' + Math.round(p.proteina_g || 0) + 'g</td>' +
         '<td>' + Math.round(p.carbs_g || 0) + 'g</td>' +
         '<td>' + Math.round(p.grasa_g || 0) + 'g</td>' +
         '<td><span class="u-badge">' + esc(p.tipo_plan || 'menú fijo') + '</span></td>' +
-        '<td>' + (p.tiene_pdf ? '<button class="u-pdf-btn" data-plan-id="' + parseInt(p.id) + '" title="Descargar PDF">📥</button>' : '—') + '</td>';
+        '<td>' + (p.tiene_pdf ? '<button class="u-pdf-btn" data-plan-id="' + parseInt(p.id) + '" aria-label="Descargar PDF del plan del ' + esc(fecha) + '">📥</button>' : '—') + '</td>';
       tbody.appendChild(tr);
     });
     document.getElementById('historial-list').style.display = 'block';
@@ -154,7 +158,8 @@
 
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('empty-state').style.display = 'block';
+    document.getElementById('history-error').hidden = false;
+    document.getElementById('history-error-message').textContent = 'No se pudo consultar tu historial. ' + e.message;
   }
 
   async function descargarPDF(planId) {
@@ -187,11 +192,13 @@
 
   var MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-  document.getElementById('panel-progreso-close').addEventListener('click', function() {
+  function closeProgressPanel() {
     progresoOverlay.style.display = 'none';
-  });
+    DialogFocus.close(progresoOverlay);
+  }
+  document.getElementById('panel-progreso-close').addEventListener('click', closeProgressPanel);
   progresoOverlay.addEventListener('click', function(e) {
-    if (e.target === progresoOverlay) progresoOverlay.style.display = 'none';
+    if (e.target === progresoOverlay) closeProgressPanel();
   });
   document.getElementById('cal-prev').addEventListener('click', function() {
     calMonth--;
@@ -235,6 +242,7 @@
     dayDetail.style.display = 'none';
     renderCalendar();
     progresoOverlay.style.display = 'flex';
+    DialogFocus.open(progresoOverlay, closeProgressPanel, document.getElementById('panel-progreso-close'));
 
     // Auto-select and show today
     var todayStr = now.toISOString().slice(0, 10);
@@ -276,10 +284,10 @@
         preview = '<span class="u-cal-day-kcal">' + daily.kcal + '</span>';
       }
 
-      html += '<div class="' + cls + '" data-date="' + dateStr + '">' +
+      html += '<button type="button" class="' + cls + '" data-date="' + dateStr + '" aria-label="Consultar ' + dateStr + '">' +
         '<span class="u-cal-day-num">' + d + '</span>' +
         preview +
-      '</div>';
+      '</button>';
     }
 
     calDays.innerHTML = html;

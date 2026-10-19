@@ -142,7 +142,7 @@
             <div style="position:relative;">
               <input type="password" name="password" id="pwdField" class="input-field"
                      placeholder="••••••••" required autocomplete="current-password" style="padding-right:44px;" />
-              <button type="button" class="pwd-toggle" data-action="toggle-password">
+              <button type="button" class="pwd-toggle" data-action="toggle-password" aria-label="Mostrar contraseña" aria-controls="pwdField" aria-pressed="false">
                 <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -165,7 +165,7 @@
           </button>
         </form>
 
-        <p style="text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;opacity:.65;">
+        <p style="text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;">
           🔒 Solo tú puedes ver tu plan &middot; 100% privado
         </p>
 
@@ -189,6 +189,9 @@
     function togglePassword() {
       const field = document.getElementById('pwdField');
       field.type = field.type === 'password' ? 'text' : 'password';
+      const toggle = document.querySelector('.pwd-toggle');
+      toggle.setAttribute('aria-pressed', String(field.type === 'text'));
+      toggle.setAttribute('aria-label', field.type === 'text' ? 'Ocultar contraseña' : 'Mostrar contraseña');
     }
     document.querySelector('.pwd-toggle')?.addEventListener('click', togglePassword);
 

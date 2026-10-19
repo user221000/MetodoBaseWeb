@@ -17,8 +17,8 @@
   --bg-primary:     #0C0B09;
   --text-primary:   #EEEEF2;
   --text-secondary: #94908A;
-  --text-muted:     #6B6660;
-  --text-dark:      #3a3c44;
+  --text-muted:     #A39C93;
+  --text-dark:      #94908A;
   --accent-green:   #34D399;
   --accent-purple:  #2DD4BF;
   --accent-red:     #F87171;
@@ -335,6 +335,8 @@ body {
   transition: color .2s;
 }
 .pwd-toggle:hover { color: var(--auth-accent); }
+.pwd-toggle { min-width: 44px; min-height: 44px; }
+:where(a,button,input,select,textarea):focus-visible { outline: 3px solid var(--auth-accent); outline-offset: 3px; }
 
 .remember-row {
   display: flex; align-items: center; justify-content: space-between;

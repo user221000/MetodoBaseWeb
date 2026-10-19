@@ -1,600 +1,70 @@
 {% extends "base.html" %}
 {% block title %}Suscripción{% endblock %}
-
+{% block head %}<link rel="stylesheet" href="/static/css/subscription.css?v={{ static_version }}">{% endblock %}
 {% block content %}
-<script nonce="{{ request.state.csp_nonce }}">
-  (function() {
-    var t = localStorage.getItem('mb_tipo') || '';
-    if (t === 'usuario') {
-      window.location.replace('/mi-suscripcion');
-    }
-  })();
-</script>
-
-<!-- ── Page header ────────────────────────────────────────────── -->
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Tu plan de crecimiento</h1>
-    <p class="page-subtitle">Más clientes, más ingresos — escala sin límites.</p>
+<div class="page-header"><div>
+  <h1 class="page-title">Suscripción del gimnasio</h1>
+  <p class="page-subtitle">Consulta el acceso de tu cuenta y los planes disponibles.</p>
+</div></div>
+<div id="billing-feedback" class="billing-notice" role="status" aria-live="polite" hidden></div>
+<section class="chart-container mb-6" aria-labelledby="current-subscription-title">
+  <h2 class="chart-title" id="current-subscription-title">Estado de la cuenta</h2>
+  <p class="billing-current-plan" id="sub-plan-name">Por confirmar</p>
+  <p><span class="badge" id="sub-status-badge">Consultando</span></p>
+  <dl class="billing-summary">
+    <div><dt>Vigencia confirmada</dt><dd id="sub-renewal">—</dd></div>
+    <div><dt>Proveedor</dt><dd id="sub-provider">—</dd></div>
+    <div><dt>Límite de clientes</dt><dd id="sub-max-clientes">—</dd></div>
+    <div><dt>Precio mensual del catálogo</dt><dd id="sub-precio">—</dd></div>
+  </dl>
+  <p id="sub-renewal-note" class="text-secondary">Consulta el estado antes de iniciar otro pago.</p>
+  <div class="billing-actions">
+    <button type="button" class="btn btn-outline" id="btn-refresh-billing">Consultar estado</button>
+    <button type="button" class="btn btn-outline" id="btn-portal" hidden>Gestionar en Stripe</button>
   </div>
-</div>
-
-<!-- ── Trust bar ──────────────────────────────────────────────── -->
-<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;padding:12px 18px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);">
-  <span style="font-size:.75rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">🔒 Pagos procesados con cifrado TLS 1.3</span>
-  <span style="font-size:.75rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">🛡️ Sin almacenamiento de datos de tarjeta</span>
-  <span style="font-size:.75rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">✓ Cancela cuando quieras — sin cargos adicionales</span>
-  <span style="font-size:.75rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">📈 Gyms y nutriólogos ya escalan con MetodoBase</span>
-</div>
-
-<!-- ── Current plan status ────────────────────────────────────── -->
-<div class="chart-container mb-6" id="sub-status-panel" style="padding:28px;">
-  <div class="flex items-center gap-4" style="flex-wrap:wrap;">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div id="sub-plan-icon" style="width:48px;height:48px;border-radius:14px;background:var(--accent-primary-glow);display:flex;align-items:center;justify-content:center;">
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      <div>
-        <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;">Plan actual</p>
-        <p style="font-size:1.5rem;font-weight:800;letter-spacing:-0.5px;color:var(--text-primary);" id="sub-plan-name">Cargando...</p>
-      </div>
-    </div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <span class="badge" id="sub-status-badge" style="font-size:.78rem;padding:4px 14px;">—</span>
-      <button class="btn btn-outline btn-sm" id="btn-portal" style="display:none;">Gestionar facturación →</button>
-      <button class="btn btn-outline btn-sm" id="btn-cancel-plan" style="display:none;border-color:rgba(255,59,92,.35);color:var(--accent-red);">Cancelar plan</button>
-    </div>
-  </div>
-  <div class="sub-stat-grid sub-stat-grid-3" style="margin-top:18px;">
-    <div class="transfer-details subscription-info-card" style="margin:0;">
-      <p class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.08em;">Renovación</p>
-      <p style="font-weight:700;font-size:1rem;color:var(--text-primary);" id="sub-renewal">—</p>
-      <p style="font-size:.72rem;color:var(--text-muted);" id="sub-renewal-note">—</p>
-    </div>
-    <div class="transfer-details subscription-info-card" style="margin:0;">
-      <p class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.08em;">Proveedor</p>
-      <p style="font-weight:700;font-size:1rem;color:var(--text-primary);" id="sub-provider">—</p>
-      <p style="font-size:.72rem;color:var(--text-muted);">Cobro seguro y tokenizado</p>
-    </div>
-    <div class="transfer-details subscription-info-card" style="margin:0;">
-      <p class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.08em;">Facturación</p>
-      <p style="font-weight:700;font-size:1rem;color:var(--text-primary);" id="sub-invoice">—</p>
-      <p style="font-size:.72rem;color:var(--text-muted);">Recibos disponibles en el portal</p>
-    </div>
-  </div>
-  <div class="sub-stat-grid sub-stat-grid-4" style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.04);">
-    <div>
-      <p class="text-xs text-muted">Clientes usados</p>
-      <p style="font-weight:700;font-size:1.1rem;color:var(--text-primary);" id="sub-clientes-uso">—</p>
-    </div>
-    <div>
-      <p class="text-xs text-muted">Límite del plan</p>
-      <p style="font-weight:700;font-size:1.1rem;color:var(--text-primary);" id="sub-max-clientes">—</p>
-    </div>
-    <div>
-      <p class="text-xs text-muted">Próximo cobro</p>
-      <p style="font-weight:600;font-size:1.1rem;color:var(--text-secondary);" id="sub-next-billing">—</p>
-    </div>
-    <div>
-      <p class="text-xs text-muted">Precio mensual</p>
-      <p style="font-weight:700;font-size:1.1rem;color:var(--accent-primary);" id="sub-precio">—</p>
-    </div>
-  </div>
-</div>
-
-<!-- ── Plans grid ─────────────────────────────────────────────── -->
-<p class="chart-title mb-4">Elige tu etapa de crecimiento</p>
-<div id="plans-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:32px;">
-
-  <!-- Standard -->
-  <div class="chart-container plan-card" id="plan-standard" data-plan="standard">
-    <span class="plan-badge" style="display:none;"></span>
-    <div class="flex items-center gap-3 mb-4">
-      <div class="plan-icon" style="background:rgba(251,191,36,.08);">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-        </svg>
-      </div>
-      <span class="plan-name">Standard</span>
-    </div>
-    <p class="plan-price" style="color:var(--accent-primary);">$159<span class="plan-period"> MXN/mes</span></p>
-    <p class="plan-desc">Para arrancar — genera tu primera base de clientes</p>
+</section>
+<section class="chart-container mb-6" aria-labelledby="free-plan-title">
+  <h2 class="chart-title" id="free-plan-title">Free · sin cargo mensual</h2>
+  <p>Hasta {{ plan_catalog.free.max_clientes }} clientes. {{ plan_catalog.free.max_planes_por_cliente_dia }} plan por cliente al día. Incluye exclusiones de alimentos y descarga del plan en PDF.</p>
+  <p class="text-secondary">Hasta {{ plan_catalog.free.max_planes_diarios }} planes totales del gimnasio al día. Las cuotas adicionales de la cuenta se consultan al generar un plan.</p>
+</section>
+<h2 class="chart-title mb-4">Planes de pago</h2>
+<p class="text-secondary mb-4">El acceso cambia después de confirmar el pago. Gestiona una suscripción existente desde el portal antes de contratar otra.</p>
+<fieldset class="billing-methods" id="billing-methods" aria-describedby="billing-method-description" disabled>
+  <legend>Proveedor de pago</legend>
+  <label><input type="radio" name="billing-provider" value="stripe"> Stripe · suscripción mensual</label>
+  <label><input type="radio" name="billing-provider" value="mercadopago"> Mercado Pago · pago único</label>
+</fieldset>
+<p id="billing-method-description" class="text-secondary mb-4">Consultando disponibilidad de pagos…</p>
+<div class="billing-plans-grid" id="plans-grid">
+{% for key, label in [('standard', 'Standard'), ('gym_comercial', 'Gym Comercial'), ('clinica', 'Clínica')] %}
+  {% set plan = plan_catalog[key] %}
+  <section class="chart-container plan-card" id="plan-{{ key }}" data-plan="{{ key }}" aria-labelledby="title-{{ key }}">
+    <h3 class="plan-name" id="title-{{ key }}">{{ label }}</h3>
+    <p class="plan-price">${{ plan.precio_mxn }}<span class="plan-period"> {{ plan.moneda }}/mes</span></p>
+    <p class="plan-desc">{{ plan.descripcion }}</p>
     <ul class="plan-features">
-      <li><span class="check">✓</span> 25 clientes incluidos</li>
-      <li><span class="check">✓</span> 2 nutris activos simultáneamente</li>
-      <li><span class="check">✓</span> Plan nutricional completo en segundos</li>
-      <li><span class="check">✓</span> PDF profesional por cliente</li>
-      <li><span class="cross">✗</span> Personalización avanzada de alimentos</li>
+      <li><span class="check" aria-hidden="true">✓</span>{% if plan.max_clientes %}Hasta {{ plan.max_clientes }} clientes{% else %}Sin límite de clientes del plan{% endif %}</li>
+      <li><span class="check" aria-hidden="true">✓</span>{% if plan.max_planes_por_cliente_dia %}{{ plan.max_planes_por_cliente_dia }} plan{% if plan.max_planes_por_cliente_dia > 1 %}es{% endif %} por cliente al día{% else %}Sin límite diario del plan por cliente{% endif %}</li>
+      <li><span class="check" aria-hidden="true">✓</span>Exclusiones de alimentos</li>
+      <li><span class="check" aria-hidden="true">✓</span>Descarga de planes en PDF</li>
     </ul>
-    <button class="btn btn-outline btn-full btn-plan" data-plan="standard">Empezar con Standard →</button>
-  </div>
-
-  <!-- Gym Comercial -->
-  <div class="chart-container plan-card plan-featured" id="plan-gym_comercial" data-plan="gym_comercial">
-    <span class="plan-badge">Mejor valor</span>
-    <div class="flex items-center gap-3 mb-4">
-      <div class="plan-icon" style="background:rgba(45,212,191,.08);">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--accent-purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-      </div>
-      <span class="plan-name">Gym Comercial</span>
-    </div>
-    <p class="plan-price" style="color:var(--accent-purple);">$479<span class="plan-period"> MXN/mes</span></p>
-    <p class="plan-desc">Para gyms que crecen — el preferido de los que escalan</p>
-    <ul class="plan-features">
-      <li><span class="check">✓</span> 75 clientes — triplica tu capacidad actual</li>
-      <li><span class="check">✓</span> 4 nutris o entrenadores en paralelo</li>
-      <li><span class="check">✓</span> 3 variantes de plan por cliente al día</li>
-      <li><span class="check">✓</span> Gestión integrada de suscripciones</li>
-      <li><span class="check">✓</span> Planes personalizados por exclusión de alimentos</li>
-    </ul>
-    <button class="btn btn-primary btn-full btn-plan" data-plan="gym_comercial">Activar Gym Comercial →</button>
-  </div>
-
-  <!-- Clínica -->
-  <div class="chart-container plan-card" id="plan-clinica" data-plan="clinica">
-    <span class="plan-badge" style="display:none;"></span>
-    <div class="flex items-center gap-3 mb-4">
-      <div class="plan-icon" style="background:rgba(52,211,153,.08);">
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 21h18"/>
-          <path d="M5 21V7l8-4v18"/>
-          <path d="M19 21V11l-6-4"/>
-          <path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/>
-        </svg>
-      </div>
-      <span class="plan-name">Clínica</span>
-    </div>
-    <p class="plan-price" style="color:var(--accent-green);">$979<span class="plan-period"> MXN/mes</span></p>
-    <p class="plan-desc">Para clínicas serias — sin límites que frenen tu crecimiento</p>
-    <ul class="plan-features">
-      <li><span class="check">✓</span> Clientes sin límite — crece a cualquier escala</li>
-      <li><span class="check">✓</span> Todo tu equipo activo en simultáneo</li>
-      <li><span class="check">✓</span> Planes diarios ilimitados por cliente</li>
-      <li><span class="check">✓</span> Gestión integrada de suscripciones</li>
-      <li><span class="check">✓</span> Seguimiento de progresión por cliente</li>
-      <li><span class="check">✓</span> Personalización avanzada de alimentos</li>
-    </ul>
-    <button class="btn btn-outline btn-full btn-plan" data-plan="clinica">Activar Clínica →</button>
-  </div>
-
+    <button type="button" class="btn btn-outline btn-full btn-plan" data-plan="{{ key }}" disabled>Consultar disponibilidad</button>
+  </section>
+{% endfor %}
 </div>
-
-
-<!-- ── Payment history ────────────────────────────────────────── -->
-<div class="chart-container" style="padding:0;overflow:hidden;">
-  <div class="chart-header" style="padding:20px 24px 0;">
-    <div>
-      <p class="chart-title">Historial de pagos</p>
-      <p class="chart-subtitle">Últimas transacciones</p>
-    </div>
-  </div>
-  <div style="overflow-x:auto;">
+<section class="chart-container billing-history" aria-labelledby="payment-history-title">
+  <h2 class="chart-title" id="payment-history-title">Historial de pagos</h2>
+  <p id="payments-state" role="status">Consultando pagos…</p>
+  <div class="billing-table-scroll" role="region" aria-label="Pagos de la cuenta" tabindex="0">
     <table class="data-table">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Monto</th>
-          <th>Estado</th>
-          <th>Plan</th>
-        </tr>
-      </thead>
-      <tbody id="payments-tbody">
-        <tr><td colspan="4"><div class="empty-state" style="padding:32px;"><div class="empty-state-icon"><img src="/static/img/shopping-cart.png" style="width:32px;height:32px"></div><p>Aún no tienes pagos — activa tu plan para empezar a generar ingresos</p></div></td></tr>
-      </tbody>
+      <caption class="sr-only">Pagos registrados en tu cuenta</caption>
+      <thead><tr><th scope="col">Fecha</th><th scope="col">Monto</th><th scope="col">Estado</th><th scope="col">Plan</th></tr></thead>
+      <tbody id="payments-tbody"></tbody>
     </table>
   </div>
-</div>
-
+</section>
 {% endblock %}
-
 {% block scripts %}
-<style>
-</style>
-
-<script nonce="{{ request.state.csp_nonce }}">
-/* ══════════════════════════════════════════════════════════════
-   suscripciones.js — Production-ready subscription management
-═════════════════════════════════════════════════════════════ */
-const _waNumber = '{{ branding.contacto.whatsapp | default("") }}';
-// Payment links inyectados server-side (sin depender del API call de billing)
-const _SERVER_PAYMENT_LINKS = {
-  standard:      '{{ payment_links.standard | default("") }}',
-  gym_comercial: '{{ payment_links.gym_comercial | default("") }}',
-  clinica:       '{{ payment_links.clinica | default("") }}',
-};
-const _PLAN_META = {
-  standard:      { icon: '🚀', color: 'var(--accent-primary)',  label: 'Standard' },
-  gym_comercial: { icon: '⚡', color: 'var(--accent-purple)',   label: 'Gym Comercial' },
-  clinica:       { icon: '🏥', color: 'var(--accent-green)',    label: 'Clínica' },
-};
-const _PLAN_PRICES = { standard: 159, gym_comercial: 479, clinica: 979 };
-const _STRIPE_PAYMENT_LINK_PREFIXES = ['https://buy.stripe.com/', 'https://checkout.stripe.com/'];
-
-function _getPlanInfo(plan) {
-  const info = _billingConfig?.plans?.[plan] || {};
-  if (!info.precio_mxn && _PLAN_PRICES[plan]) info.precio_mxn = _PLAN_PRICES[plan];
-  return info;
-}
-
-function normalizeStripePaymentLink(url) {
-  const clean = String(url || '').trim().replace(/^['"]+|['"]+$/g, '').trim();
-  if (!clean) return '';
-  return _STRIPE_PAYMENT_LINK_PREFIXES.some(p => clean.startsWith(p)) ? clean : '';
-}
-
-function resolvePaymentLink(plan) {
-  const fromServer = normalizeStripePaymentLink(_SERVER_PAYMENT_LINKS?.[plan]);
-  if (fromServer) return fromServer;
-
-  const links = _billingConfig?.payment_links || {};
-  const aliases = [plan];
-  if (plan === 'gym_comercial') aliases.push('gymComercial', 'gym-commercial');
-  if (plan === 'standard') aliases.push('standar');
-
-  for (const key of aliases) {
-    const candidate = normalizeStripePaymentLink(links[key]);
-    if (candidate) return candidate;
-  }
-  return '';
-}
-
-function buildPaymentDestination(paymentLink) {
-  const gymId  = _userMe?.id    || '';
-  const email  = _userMe?.email || '';
-  const sep    = paymentLink.includes('?') ? '&' : '?';
-  return paymentLink + sep
-    + 'client_reference_id=' + encodeURIComponent(gymId)
-    + (email ? '&prefilled_email=' + encodeURIComponent(email) : '');
-}
-
-async function tryDirectPlanCheckout(plan) {
-  // 1) Prefer Stripe Payment Link
-  let paymentLink = resolvePaymentLink(plan);
-  if (!paymentLink) {
-    try {
-      _billingConfig = await Api.billing.config();
-    } catch (_) {}
-    paymentLink = resolvePaymentLink(plan);
-  }
-  if (paymentLink) {
-    window.location.href = buildPaymentDestination(paymentLink);
-    return true;
-  }
-
-  // 2) Fallback to Stripe Checkout Session (también redirección directa)
-  try {
-    const checkout = await Api.billing.checkout(plan);
-    if (checkout?.url) {
-      window.location.href = checkout.url;
-      return true;
-    }
-  } catch (_) {}
-
-  return false;
-}
-
-let _billingConfig = null;
-let _currentSub = null;
-let _selectedPlan = null;
-let _userMe = null;
-
-// ── Init: Load billing config + subscription state ──────────
-(async () => {
-  // Parallel load: config, subscription, payments, me
-  const [configRes, subRes, payRes, meRes] = await Promise.allSettled([
-    Api.billing.config(),
-    Api.billing.subscription(),
-    Api.billing.payments(),
-    Api.auth.me(),
-  ]);
-
-  _billingConfig = configRes.status === 'fulfilled' ? configRes.value : null;
-  _userMe = meRes.status === 'fulfilled' ? meRes.value : null;
-  _currentSub = subRes.status === 'fulfilled' ? subRes.value : null;
-
-  renderSubscription(_currentSub || { plan: null, status: 'none', clientes_usados: 0, max_clientes: 0 });
-  renderPlanButtons();
-
-  const payments = payRes.status === 'fulfilled' ? (payRes.value.payments || []) : [];
-  renderPayments(payments);
-  renderUpgradeNudge();
-})();
-
-// ── Render current subscription status ──────────────────────
-function renderSubscription(sub) {
-  const plan = sub.plan || null;
-  const planName = plan ? (plan.charAt(0).toUpperCase() + plan.slice(1)) : 'Sin plan';
-  const meta = _PLAN_META[plan] || { icon: '📦', color: 'var(--text-muted)', label: planName };
-
-  document.getElementById('sub-plan-name').textContent = meta.label;
-  document.getElementById('sub-plan-icon').textContent = meta.icon;
-  const _colorMap = {
-    'var(--accent-primary)':  'rgba(255,229,0,.12)',
-    'var(--accent-purple)':   'rgba(45,212,191,.12)',
-    'var(--accent-green)':    'rgba(0,255,136,.12)',
-    'var(--text-muted)':      'rgba(255,255,255,.06)',
-  };
-  document.getElementById('sub-plan-icon').style.background = _colorMap[meta.color] || 'rgba(255,255,255,.06)';
-
-  const badge = document.getElementById('sub-status-badge');
-  const statusMap = {
-    active: ['Activo', 'badge-active'],
-    trialing: ['Período de prueba', 'badge-active'],
-    past_due: ['Pago pendiente', 'badge-warning'],
-    canceled: ['Cancelada', 'badge-error'],
-    inactive: ['Inactiva', 'badge-error'],
-    none: ['Sin plan', 'badge-error'],
-  };
-  const [label, cls] = statusMap[sub.status] || ['—', ''];
-  badge.textContent = label;
-  badge.className = 'badge ' + cls;
-
-  const used = sub.clientes_usados ?? 0;
-  const max = sub.max_clientes || 0;
-  document.getElementById('sub-clientes-uso').textContent = used;
-  document.getElementById('sub-max-clientes').textContent = max ? max : '∞';
-  document.getElementById('sub-next-billing').textContent = sub.current_period_end
-    ? new Date(sub.current_period_end * 1000).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
-    : '—';
-
-  const renewalLabel = sub.current_period_end
-    ? 'Se renueva el ' + new Date(sub.current_period_end * 1000).toLocaleDateString('es-MX')
-    : 'Renovación mensual automática';
-  document.getElementById('sub-renewal').textContent = renewalLabel;
-  document.getElementById('sub-renewal-note').textContent =
-    (sub.cancel_at_period_end || sub.status === 'canceled') ? 'Acceso completo hasta fin del período' : 'Renovación automática activa';
-
-  const providerEl = document.getElementById('sub-provider');
-  if (providerEl) {
-    if (_billingConfig?.stripe_configured) providerEl.textContent = 'Stripe (seguro)';
-    else if (_billingConfig?.mercadopago_configured) providerEl.textContent = 'Mercado Pago';
-    else providerEl.textContent = 'Manual';
-  }
-  const invoiceEl = document.getElementById('sub-invoice');
-  if (invoiceEl) {
-    invoiceEl.textContent = _billingConfig?.stripe_configured ? 'Portal de facturación' : 'Escríbenos por soporte';
-  }
-
-  const _pi = _getPlanInfo(plan);
-  const precio = plan && _pi.precio_mxn
-    ? '$' + _pi.precio_mxn + ' MXN'
-    : '—';
-  document.getElementById('sub-precio').textContent = precio;
-
-  // Highlight current plan card
-  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('current-plan'));
-  if (plan) {
-    const card = document.getElementById('plan-' + plan);
-    if (card) card.classList.add('current-plan');
-  }
-
-  // Show portal button if active subscription with Stripe
-  if ((sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') && _billingConfig?.stripe_configured) {
-    document.getElementById('btn-portal').style.display = '';
-  }
-
-  const cancelBtn = document.getElementById('btn-cancel-plan');
-  if (cancelBtn) {
-    if (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') {
-      cancelBtn.style.display = '';
-      cancelBtn.disabled = false;
-    } else {
-      cancelBtn.style.display = 'none';
-    }
-  }
-}
-
-
-// ── Usage-based upgrade nudge ────────────────────────
-function renderUpgradeNudge() {
-  const used = _currentSub?.clientes_usados ?? 0;
-  const max  = _currentSub?.max_clientes ?? 0;
-  const plan = _currentSub?.plan;
-  if (!max || !plan) return;
-  const ratio = used / max;
-  if (ratio < 0.8) return;
-  const planOrder = ['standard', 'gym_comercial', 'clinica'];
-  const nextPlan = planOrder[planOrder.indexOf(plan) + 1];
-  if (!nextPlan) return;
-  const card = document.getElementById('plan-' + nextPlan);
-  if (!card || card.querySelector('.plan-nudge')) return;
-  const nudge = document.createElement('p');
-  nudge.className = 'plan-nudge';
-  nudge.style.cssText = 'font-size:.72rem;color:var(--accent-primary);margin:0 0 12px;font-weight:600;';
-  nudge.textContent = `⚡ Usas el ${Math.round(ratio * 100)}% de tu capacidad — escala ahora`;
-  card.querySelector('.plan-desc').insertAdjacentElement('afterend', nudge);
-}
-// ── Render plan button labels (current/upgrade/downgrade) ───
-function renderPlanButtons() {
-  const currentPlan = _currentSub?.plan;
-  const planOrder = ['standard', 'gym_comercial', 'clinica'];
-  const currentIdx = planOrder.indexOf(currentPlan);
-
-  document.querySelectorAll('.btn-plan').forEach(btn => {
-    const plan = btn.dataset.plan;
-    const planIdx = planOrder.indexOf(plan);
-
-    if (plan === currentPlan && (_currentSub?.status === 'active' || _currentSub?.status === 'trialing')) {
-      btn.textContent = '✓ Plan actual';
-      btn.classList.remove('btn-primary');
-      btn.classList.add('btn-outline');
-      btn.disabled = true;
-    } else if (currentIdx >= 0 && planIdx > currentIdx) {
-      btn.textContent = '↑ Subir a ' + _PLAN_META[plan].label + ' →';
-    } else if (currentIdx >= 0 && planIdx < currentIdx) {
-      btn.textContent = 'Cambiar a ' + _PLAN_META[plan].label;
-    }
-  });
-}
-
-// ── Payment history ─────────────────────────────────────────
-function renderPayments(payments) {
-  const tbody = document.getElementById('payments-tbody');
-  if (!payments.length) return;
-  tbody.innerHTML = '';
-  payments.forEach(p => {
-    const tr = document.createElement('tr');
-    tr.innerHTML =
-      '<td class="text-sm">' + new Date(p.created_at).toLocaleDateString('es-MX') + '</td>' +
-      '<td class="font-semibold">$' + (p.amount / 100).toFixed(2) + ' ' + (p.currency || 'USD').toUpperCase() + '</td>' +
-      '<td><span class="badge ' + (p.status === 'succeeded' ? 'badge-active' : 'badge-warning') + '">' + esc(p.status) + '</span></td>' +
-      '<td class="text-sm text-secondary-color">' + esc(p.plan || '—') + '</td>';
-    tbody.appendChild(tr);
-  });
-}
-
-// ── Plan card click → select & glow ─────────────────────────
-function selectPlanCard(plan) {
-  const cards = document.querySelectorAll('.plan-card');
-  cards.forEach(c => {
-    const badge = c.querySelector('.plan-badge');
-    if (c.dataset.plan === plan) {
-      c.classList.add('plan-selected');
-      c.classList.add('plan-featured');
-      if (badge) { badge.textContent = 'Tu selección'; badge.style.display = ''; }
-    } else {
-      c.classList.remove('plan-selected');
-      // Restore default badge state
-      if (c.dataset.plan === 'gym_comercial' && !c.classList.contains('plan-selected')) {
-        if (badge) { badge.textContent = 'Mejor valor'; badge.style.display = ''; }
-      } else {
-        c.classList.remove('plan-featured');
-        if (badge) { badge.style.display = 'none'; badge.textContent = ''; }
-      }
-    }
-  });
-}
-
-document.querySelectorAll('.plan-card').forEach(card => {
-  card.addEventListener('click', (e) => {
-    // Don't double-fire if clicking the button directly
-    if (e.target.closest('.btn-plan')) return;
-    const plan = card.dataset.plan;
-    if (card.classList.contains('current-plan')) return;
-    selectPlanCard(plan);
-  });
-});
-
-// ── Plan button click → redirect to Payment Link or open modal ─
-document.querySelectorAll('.btn-plan').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    if (btn.disabled) return;
-    _selectedPlan = btn.dataset.plan;
-    selectPlanCard(_selectedPlan);
-    const prevText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Redirigiendo...';
-
-    // Direct checkout only: payment link -> checkout session
-    const redirected = await tryDirectPlanCheckout(_selectedPlan);
-    if (redirected) return;
-
-    btn.disabled = false;
-    btn.innerHTML = prevText;
-    Toast.error('No se pudo iniciar el pago directo. Verifica STRIPE_PAYMENT_LINK_* o Stripe Checkout.');
-  });
-});
-
-// ── Portal button ───────────────────────────────────────────
-document.getElementById('btn-portal').addEventListener('click', async () => {
-  try {
-    const res = await Api.billing.portal();
-    if (res.url) window.location.href = res.url;
-    else Toast.info('Portal no disponible');
-  } catch(e) {
-    Toast.error('Error: ' + e.message);
-  }
-});
-
-document.getElementById('btn-cancel-plan').addEventListener('click', async () => {
-  if (!_currentSub || !(_currentSub.status === 'active' || _currentSub.status === 'trialing' || _currentSub.status === 'past_due')) {
-    Toast.info('No hay una suscripcion activa para cancelar.');
-    return;
-  }
-  const ok = window.confirm('¿Cancelar tu plan? Conservarás el acceso completo hasta el fin del período.');
-  if (!ok) return;
-  if (!_billingConfig?.stripe_configured) {
-    Toast.info('La cancelacion se gestiona con soporte.');
-    return;
-  }
-  try {
-    const res = await Api.billing.portal();
-    if (res.url) window.location.href = res.url;
-    else Toast.info('Portal no disponible');
-  } catch(e) {
-    Toast.error('Error: ' + e.message);
-  }
-});
-
-// ── Confetti ─────────────────────────────────────────────────
-function launchConfetti() {
-  const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:99999';
-  document.body.appendChild(canvas);
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const colors = ['#FBBF24','#2DD4BF','#A78BFA','#F472B6','#34D399','#FB923C','#60A5FA'];
-  const pieces = Array.from({length: 120}, () => ({
-    x: canvas.width * Math.random(),
-    y: canvas.height * Math.random() * -1,
-    w: 6 + Math.random() * 6,
-    h: 4 + Math.random() * 4,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    vx: (Math.random() - 0.5) * 6,
-    vy: 2 + Math.random() * 4,
-    rot: Math.random() * 360,
-    rv: (Math.random() - 0.5) * 12,
-    opacity: 1
-  }));
-  let frame = 0;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let alive = false;
-    pieces.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.rot += p.rv;
-      if (frame > 60) p.opacity = Math.max(0, p.opacity - 0.015);
-      if (p.opacity <= 0) return;
-      alive = true;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot * Math.PI / 180);
-      ctx.globalAlpha = p.opacity;
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx.restore();
-    });
-    frame++;
-    if (alive && frame < 180) requestAnimationFrame(draw);
-    else canvas.remove();
-  }
-  requestAnimationFrame(draw);
-}
-
-// ── Post-payment success redirect ────────────────────────────
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('result') === 'success' || params.get('subscription') === 'success') {
-    launchConfetti();
-    Toast.success('¡Plan activado! Tu negocio está listo para crecer — genera tu primer plan ahora.');
-    history.replaceState({}, '', '/suscripciones');
-  } else if (params.get('redirect_status') === 'succeeded') {
-    // 3DS redirect back from bank auth
-    launchConfetti();
-    Toast.success('¡Plan activado! Tu negocio está listo para crecer — genera tu primer plan ahora.');
-    history.replaceState({}, '', '/suscripciones');
-  } else if (params.get('subscription') === 'canceled') {
-    Toast.info('No se completó el pago. Puedes intentarlo cuando estés listo.');
-    history.replaceState({}, '', '/suscripciones');
-  }
-})();
-
-
-</script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/gym-suscripcion.js?v={{ static_version }}"></script>
 {% endblock %}

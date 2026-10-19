@@ -5,23 +5,14 @@ BUILD_VERSION: v6-TEMPLATEFIX-20260401
 Extracted from web/main_web.py (god function) for maintainability.
 """
 # BUILD MARKER: v6-20260401-2130-TEMPLATEFIX
-import json as _json
-import logging
-
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from web.template_compat import template_response
-
-_logger = logging.getLogger(__name__)
-_STRIPE_PAYMENT_LINK_PREFIXES = (
-    "https://buy.stripe.com/",
-    "https://checkout.stripe.com/",
-)
+from core.plan_catalog import get_individual_plan_catalog, get_plan_catalog
 
 _TMPL_DIR = Path(__file__).resolve().parent.parent / "templates"
-_BRANDING_PATH = Path(__file__).resolve().parent.parent.parent / "config" / "branding.json"
 
 templates = Jinja2Templates(directory=str(_TMPL_DIR))
 
@@ -88,42 +79,11 @@ async def planes_historial(request: Request):
 
 @router.get("/suscripciones", response_class=HTMLResponse)
 async def suscripciones(request: Request):
-    import os as _os
-    try:
-        with open(_BRANDING_PATH, encoding="utf-8") as f:
-            branding = _json.load(f)
-    except Exception:
-        branding = {"contacto": {"whatsapp": ""}}
-    def _safe_link(url: str) -> str:
-        clean = (url or "").strip().strip('"').strip("'").strip()
-        return clean if any(clean.startswith(p) for p in _STRIPE_PAYMENT_LINK_PREFIXES) else ""
-    # Lee directamente de os.getenv para evitar stale lru_cache de Settings
-    payment_links = {
-        "standard":      _safe_link(_os.getenv("STRIPE_PAYMENT_LINK_STANDARD", "")),
-        "gym_comercial": _safe_link(_os.getenv("STRIPE_PAYMENT_LINK_GYM_COMERCIAL", "")),
-        "clinica":       _safe_link(_os.getenv("STRIPE_PAYMENT_LINK_CLINICA", "")),
-    }
-    # Debug: log raw env values (prefix only, for security)
-    _raw_gym = _os.getenv("STRIPE_PAYMENT_LINK_GYM_COMERCIAL", "")
-    _raw_std = _os.getenv("STRIPE_PAYMENT_LINK_STANDARD", "")
-    _raw_cli = _os.getenv("STRIPE_PAYMENT_LINK_CLINICA", "")
-    _logger.info(
-        "[pages/suscripciones] RAW env — standard=%r(%d) gym=%r(%d) clinica=%r(%d)",
-        _raw_std[:30] + "..." if len(_raw_std) > 30 else _raw_std, len(_raw_std),
-        _raw_gym[:30] + "..." if len(_raw_gym) > 30 else _raw_gym, len(_raw_gym),
-        _raw_cli[:30] + "..." if len(_raw_cli) > 30 else _raw_cli, len(_raw_cli),
-    )
-    _logger.info(
-        "[pages/suscripciones] payment_links — standard=%s gym_comercial=%s clinica=%s",
-        bool(payment_links["standard"]),
-        bool(payment_links["gym_comercial"]),
-        bool(payment_links["clinica"]),
-    )
     return template_response(
         templates,
         request,
         "suscripciones.html",
-        {"request": request, "branding": branding, "payment_links": payment_links},
+        {"request": request, "plan_catalog": get_plan_catalog(target="web")},
     )
 
 
@@ -148,4 +108,4 @@ async def mi_historial_page(request: Request):
 
 @router.get("/mi-suscripcion", response_class=HTMLResponse)
 async def mi_suscripcion_page(request: Request):
-    return template_response(templates, request, "usuario_suscripcion.html", {"request": request})
+    return template_response(templates, request, "usuario_suscripcion.html", {"request": request, "individual_plans": get_individual_plan_catalog()})

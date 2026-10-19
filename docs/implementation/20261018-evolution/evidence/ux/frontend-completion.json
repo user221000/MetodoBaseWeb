@@ -1,0 +1,81 @@
+{
+  "timestamp_utc": "2026-10-19T02:10:17.358217+00:00",
+  "implementation_author": "frontend_finish, continuation of security frontend work",
+  "review_state": "Ready for independent QA; author validation is not independent approval",
+  "inherited": [
+    "Individual subscription template/module with authenticated checkout and portal; already independently reviewed by QA in five flows",
+    "Shared API error parsing, native Enter correction and canonical catalog injection from prior frontend agent"
+  ],
+  "implemented": [
+    "Gym subscription replaces PaymentLinks and redirect activation with authenticated Stripe Checkout, Mercado Pago preference, retry keys and Stripe portal",
+    "Billing state/config/history validation distinguishes errors from empty/active state, enforces owner UI and never grants paid access from URL",
+    "R13 responsive client/settings/subscription layouts, reserved mobile navigation space, accessible scrolling and keyboard PDF download",
+    "Named password toggles, associated client/settings/price labels, status/error regions, client validation and nested focus-managed dialogs",
+    "Keyboard history date/calendar controls, explicit failed-history state and narrow calendar sizing/contrast"
+  ],
+  "contracts": [
+    "POST /api/billing/checkout with plan, relative return URLs and Idempotency-Key",
+    "POST /api/billing/mp/preference with plan, relative return URLs and Idempotency-Key; redirect_url",
+    "POST /api/billing/portal with return_url; authenticated GET subscription/config/payments",
+    "Catalog presentation from core.plan_catalog; Free 10 clients, one plan/client/day and 10 gym plans/day"
+  ],
+  "author_results": {
+    "gym_subscription": {
+      "checks": 6,
+      "viewports": [
+        320,
+        390,
+        768,
+        1440
+      ],
+      "wcag_violations": 0,
+      "page_errors": 0,
+      "report": "gym-subscription-browser.json",
+      "log": "gym-subscription-frontend.log"
+    },
+    "responsive_accessibility": {
+      "screens": 17,
+      "wcag_violations": 0,
+      "page_errors": 0,
+      "document_overflow": 0,
+      "report": "responsive-accessibility-browser.json",
+      "log": "responsive-accessibility-frontend.log"
+    },
+    "individual_regression": "Five existing flows passed after shared API extension; no individual module/template changes",
+    "diff_check": "Passed for this agent owned changed frontend sources"
+  },
+  "preserved_individual_source_hashes": {
+    "web/templates/usuario_suscripcion.html": {
+      "sha256": "c79c6d3d7d6a87d4fa6f90e9fa174caf5043850f5ae37343c575a5993db6acb1",
+      "matches_prior_independent_review": true
+    },
+    "web/static/js/usuario-suscripcion.js": {
+      "sha256": "dce74d54435d12d714587e364438dd608f9ab30fad4ddcb87d18a9bdb0cfcee1",
+      "matches_prior_independent_review": true
+    },
+    "web/templates/base_usuario.html": {
+      "sha256": "1d6ae003c5894fb09bcbff3ecd74e19fc2fd4e44029aa56ab1f389f248e85692",
+      "matches_prior_independent_review": true
+    },
+    "tests/e2e/subscription.cjs": {
+      "sha256": "f589e481939f41c9a56f2211a8cb9e4347f73f39cd29c6024242097707397b5e",
+      "matches_prior_independent_review": true
+    }
+  },
+  "shared_individual_dependencies_changed": {
+    "web/static/js/api.js": "Only B2B mpPreference gains optional idempotency key; personal API unchanged",
+    "web/static/css/styles-usuario.css": "History scroll/PDF/calendar styles; individual subscription styling preserved"
+  },
+  "before_screenshots": [
+    "docs/audit/2026-10-18/ux/local-gym-subscription-mobile.png",
+    "docs/audit/2026-10-18/ux/local-gym-clientes-mobile.png",
+    "docs/audit/2026-10-18/ux/local-user-history-mobile.png"
+  ],
+  "pending": [
+    "Independent QA on the frozen sources",
+    "Real provider sandbox/webhook verification and production deployment remain outside this local UI validation",
+    "R14 persisted diary/timezone, complete team flows and clinical review remain separate requirements"
+  ],
+  "source_manifest": "frontend-freeze-source.json",
+  "source_manifest_sha256": "5c6eb98d7d8fd1b86ccf6a93dd2b1e14bed6f61e2c301230efde1018664154a5"
+}

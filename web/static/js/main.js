@@ -249,7 +249,7 @@ function updateOnboarding(stats) {
   }
 }
 
-// ── Keyboard UX — Enter triggers primary action everywhere ─────────────────
+// Native controls own Enter; the shared helper only handles modal navigation.
 
 function initKeyboardUX() {
   // Wire Enter key for all search inputs globally
@@ -267,46 +267,6 @@ function initKeyboardUX() {
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
-  });
-
-  document.addEventListener('keydown', (e) => {
-    // Only handle Enter key
-    if (e.key !== 'Enter') return;
-
-    // Don't interfere with textareas or contenteditable
-    const tag = e.target.tagName;
-    if (tag === 'TEXTAREA' || e.target.isContentEditable) return;
-
-    // If inside a form, let the form handle it naturally
-    if (e.target.closest('form')) return;
-
-    // If target is a search input, already handled above
-    if (e.target.type === 'search' || e.target.id?.includes('search')) return;
-
-    // If a modal is open, trigger its primary button
-    const openModal = document.querySelector('.modal-backdrop:not(.hidden)');
-    if (openModal) {
-      const primaryBtn = openModal.querySelector('.btn-primary:not(:disabled)');
-      if (primaryBtn) {
-        e.preventDefault();
-        primaryBtn.click();
-        return;
-      }
-    }
-
-    // On dashboard, trigger the hero CTA
-    const heroCta = document.getElementById('btn-generar-plan');
-    if (heroCta && !heroCta.disabled && document.getElementById('kpi-section')) {
-      e.preventDefault();
-      heroCta.click();
-    }
-  });
-
-  // Tab navigation: ensure all interactive elements are focusable
-  document.querySelectorAll('.kpi-card, .nav-item, .btn, button, a[href]').forEach(el => {
-    if (!el.getAttribute('tabindex') && el.tagName !== 'A' && el.tagName !== 'BUTTON' && el.tagName !== 'INPUT') {
-      el.setAttribute('tabindex', '0');
-    }
   });
 
   // Escape key closes any open modal

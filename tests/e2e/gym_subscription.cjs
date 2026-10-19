@@ -1,0 +1,106 @@
+/* Local synthetic account and intercepted provider transport; no provider payment. */
+const { chromium } = require('playwright-core');
+const { AxeBuilder } = require('@axe-core/playwright');
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const base = process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8765';
+if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(base)) throw Error('Only a local synthetic server is allowed');
+const out = path.resolve(__dirname, '../../docs/implementation/20261018-evolution/evidence/ux');
+const state = {status:'none',plan:null};
+const config = {stripe_configured:true,mercadopago_configured:true,plans:{standard:{precio_mxn:159},gym_comercial:{precio_mxn:479},clinica:{precio_mxn:979}}};
+(async()=>{
+  const browser = await chromium.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+  try {
+    const context = await browser.newContext({viewport:{width:390,height:844}});
+    const page = await context.newPage(), errors=[], requests=[];
+    page.on('pageerror',error=>errors.push(error.message));
+    await context.route('**/*',route=>route.request().url().startsWith(base) ? route.continue() : route.abort());
+    const response = await context.request.post(base+'/api/auth/registro',{data:{email:'gym-browser-'+Date.now()+'@example.invalid',password:'Synthetic-Test-Password-2026!',nombre:'Synthetic Gym',tipo:'gym'}});
+    assert.ok(response.ok(),await response.text());
+    await context.addInitScript(auth=>{localStorage.setItem('mb_token',auth.access_token);localStorage.setItem('mb_tipo','gym');localStorage.setItem('mb_nombre','Synthetic Gym');},await response.json());
+    let role='owner', invalidState=null, invalidConfig=false, malformedPayments=false, checkoutSuccess=false;
+    await page.route('**/api/auth/me',route=>route.fulfill({json:{role,tipo:'gym'}}));
+    await page.route('**/api/billing/**',route=>{
+      const endpoint=new URL(route.request().url()).pathname;
+      if(route.request().method()==='POST') requests.push({endpoint,key:route.request().headers()['idempotency-key'],body:route.request().postDataJSON()});
+      if(endpoint.endsWith('/config')) return route.fulfill({json:invalidConfig ? {} : config});
+      if(endpoint.endsWith('/subscription')) return invalidState==='html' ? route.fulfill({contentType:'text/html',body:'<html>Unavailable</html>'}) : route.fulfill({json:invalidState==='empty' ? {} : state});
+      if(endpoint.endsWith('/payments')) return route.fulfill({json:malformedPayments ? {} : {payments:[{created_at:'2026-10-18',amount_cents:15900,currency:'mxn',status:'paid',plan:'standard'}]}});
+      if(checkoutSuccess && endpoint.endsWith('/checkout')) return route.fulfill({json:{url:'https://checkout.stripe.com/c/pay/synthetic'}});
+      return route.fulfill({status:502,json:{detail:{code:'payment_service_unavailable',message:'Proveedor temporalmente no disponible.',request_id:'synthetic-b2b-reference'}}});
+    });
+    const report={scope:'Real local candidate; synthetic account; payment transport fixtures; no provider connection',checks:[],viewports:[]};
+    await page.goto(base+'/suscripciones?result=success');
+    await page.waitForFunction(()=>document.querySelector('#sub-status-badge').textContent==='Sin suscripción de pago');
+    assert.match(await page.locator('#billing-feedback').textContent(),/aún no aparece confirmado/);
+    assert.equal(requests.length,0);
+    report.checks.push('A success return does not activate a paid plan or post a plan mutation');
+    await page.locator('[data-plan="standard"].btn-plan').focus();
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(()=>document.querySelector('#billing-feedback').textContent.includes('synthetic-b2b-reference'));
+    await page.locator('[data-plan="standard"].btn-plan').click();
+    await page.waitForFunction(()=>document.querySelector('[data-plan="standard"].btn-plan').disabled===false);
+    assert.equal(requests.length,2); assert.ok(requests[0].key); assert.equal(requests[0].key,requests[1].key);
+    assert.equal(requests[0].endpoint,'/api/billing/checkout');
+    assert.deepEqual(requests[0].body,{plan:'standard',success_url:'/suscripciones?result=success',cancel_url:'/suscripciones?result=canceled'});
+    await page.locator('[name="billing-provider"][value="mercadopago"]').check();
+    await page.locator('[data-plan="standard"].btn-plan').click();
+    await page.waitForFunction(()=>document.querySelector('[data-plan="standard"].btn-plan').disabled===false);
+    assert.equal(requests[2].endpoint,'/api/billing/mp/preference'); assert.notEqual(requests[2].key,requests[0].key);
+    report.checks.push('Native Enter requests backend checkout; retries keep their key; Mercado Pago uses a separate backend intent and key');
+    for(const width of [320,390,768,1440]){
+      await page.setViewportSize({width,height:900});
+      await page.evaluate(()=>scrollTo(0,0));
+      const dimensions=await page.evaluate(()=>({viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,titleTop:document.querySelector('h1').getBoundingClientRect().top}));
+      const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
+      report.viewports.push({width,dimensions,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))}))});
+      await page.screenshot({path:path.join(out,'gym-subscription-after-'+width+'.png'),fullPage:true});
+    }
+    state.status='active';state.plan='standard';state.provider='stripe';state.max_clientes=25;state.current_period_end=1794960000;
+    await page.locator('#btn-refresh-billing').click();
+    await page.waitForFunction(()=>document.querySelector('#sub-plan-name').textContent==='Standard');
+    assert.ok(await page.locator('[data-plan="standard"].btn-plan').isDisabled());
+    const beforePortal=requests.length;
+    await page.locator('[data-plan="clinica"].btn-plan').click();
+    await page.waitForFunction(()=>document.querySelector('#billing-feedback').textContent.includes('synthetic-b2b-reference'));
+    assert.equal(requests.length,beforePortal+1); assert.equal(requests.at(-1).endpoint,'/api/billing/portal');
+    report.checks.push('Existing Stripe subscription manages changes in the backend portal; it never starts another checkout');
+    for(const invalid of ['html','empty']){
+      invalidState=invalid;
+      await page.locator('#btn-refresh-billing').click();
+      await page.waitForFunction(()=>document.querySelector('#sub-plan-name').textContent==='Por confirmar' && !document.querySelector('#btn-refresh-billing').disabled);
+      assert.ok(await page.locator('[data-plan="clinica"].btn-plan').isDisabled());
+      assert.ok(await page.locator('#btn-portal').isHidden());
+    }
+    invalidState=null; invalidConfig=true; malformedPayments=true;
+    await page.locator('#btn-refresh-billing').click();
+    await page.waitForFunction(()=>document.querySelector('#billing-feedback').textContent.includes('incompleta'));
+    assert.equal(await page.locator('#sub-plan-name').textContent(),'Por confirmar');
+    await page.waitForFunction(()=>document.querySelector('#payments-state').textContent.includes('incompleto'));
+    invalidConfig=false;malformedPayments=false;
+    await page.locator('#btn-refresh-billing').click();
+    await page.waitForFunction(()=>document.querySelector('#sub-plan-name').textContent==='Standard');
+    report.checks.push('HTTP200 HTML, missing state/config and malformed payment history show errors; valid retries recover');
+    role='viewer';const beforeMember=requests.length;
+    await page.goto(base+'/suscripciones');
+    await page.waitForFunction(()=>document.querySelector('#billing-feedback').textContent.includes('propietaria'));
+    assert.ok(await page.locator('[data-plan="standard"].btn-plan').isDisabled());
+    assert.equal(requests.length,beforeMember);
+    report.checks.push('A non-owner cannot initiate checkout or portal');
+    role='owner';state.status='none';state.plan=null;state.provider=null;
+    checkoutSuccess=true;
+    await page.route('https://checkout.stripe.com/**',route=>route.fulfill({contentType:'text/html',body:'<title>Intercepted synthetic provider</title>'}));
+    await page.goto(base+'/suscripciones');
+    await page.waitForFunction(()=>!document.querySelector('[data-plan="standard"].btn-plan').disabled);
+    await page.locator('[data-plan="standard"].btn-plan').click();
+    await page.waitForURL('https://checkout.stripe.com/c/pay/synthetic');
+    report.checks.push('A validated backend checkout URL opens the intercepted provider; no external connection');
+    report.errors=errors;
+    fs.writeFileSync(path.join(out,'gym-subscription-browser.json'),JSON.stringify(report,null,2));
+    assert.deepEqual(errors,[]);
+    assert.ok(report.viewports.every(v=>v.dimensions.scrollWidth<=v.width),'Horizontal overflow');
+    assert.ok(report.viewports.every(v=>v.violations.length===0),'WCAG AA automated violations');
+    console.log(JSON.stringify(report));
+  } finally { await browser.close(); }
+})().catch(error=>{console.error(error);process.exit(1)});

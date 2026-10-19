@@ -54,7 +54,7 @@
 <!-- ── Search bar ─────────────────────────────────────────────── -->
 <div class="chart-container search-bar mb-4">
   <div class="input-wrap flex-1" style="max-width:480px;">
-    <span class="input-icon"><img src="/static/img/search.png" style="width:16px;height:16px"></span>
+    <span class="input-icon"><img src="/static/img/search.png" alt="" style="width:16px;height:16px"></span>
     <input
       id="search-input"
       type="search"
@@ -79,7 +79,7 @@
 
 <!-- ── Tabla ──────────────────────────────────────────────────── -->
 <div class="chart-container overflow-hidden">
-  <div style="overflow-x:auto;">
+  <div class="accessible-table-scroll" role="region" aria-label="Cartera de clientes, desplaza para ver las acciones" tabindex="0">
     <table class="data-table" id="tabla-clientes">
       <thead>
         <tr>
@@ -109,10 +109,10 @@
 <!-- ══════════════════════════════════════════════════════════════
      Modal — Nuevo / Editar Cliente
 ══════════════════════════════════════════════════════════════ -->
-<div id="modal-cliente" class="modal-backdrop hidden">
+<div id="modal-cliente" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
   <div class="chart-container" style="width:min(620px,95vw);padding:32px;position:relative;max-height:90vh;overflow-y:auto;">
 
-    <button id="modal-close" class="btn btn-icon btn-secondary modal-close" type="button">✕</button>
+    <button id="modal-close" class="btn btn-icon btn-secondary modal-close" type="button" aria-label="Cerrar formulario de cliente">✕</button>
 
     <!-- Header con icono -->
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
@@ -127,7 +127,8 @@
       </div>
     </div>
 
-    <form id="form-cliente" novalidate>
+    <form id="form-cliente">
+      <p id="client-form-error" class="form-error-message" role="alert" hidden></p>
       <input type="hidden" id="field-id" />
 
       <!-- ── Datos personales ── -->
@@ -137,25 +138,25 @@
 
       <div class="grid-2">
         <div class="input-group">
-          <label class="input-label required">Nombre completo</label>
+          <label class="input-label required" for="field-nombre">Nombre completo</label>
           <input id="field-nombre" class="input" type="text" placeholder="Juan Pérez" required />
         </div>
         <div class="input-group">
-          <label class="input-label">Teléfono</label>
+          <label class="input-label" for="field-telefono">Teléfono</label>
           <input id="field-telefono" class="input" type="tel" placeholder="3312345678" />
         </div>
       </div>
 
       <div class="grid-2">
         <div class="input-group">
-          <label class="input-label required">Edad</label>
+          <label class="input-label required" for="field-edad">Edad</label>
           <div class="input-wrap">
             <span class="input-icon">🎂</span>
             <input id="field-edad" class="input has-icon" type="number" min="15" max="80" placeholder="28" required />
           </div>
         </div>
         <div class="input-group">
-          <label class="input-label required">Objetivo</label>
+          <label class="input-label required" for="field-objetivo">Objetivo</label>
           <select id="field-objetivo" class="input" required>
             <option value="">Seleccionar...</option>
             <option value="deficit">Déficit (bajar grasa)</option>
@@ -172,21 +173,21 @@
 
       <div class="grid-3">
         <div class="input-group">
-          <label class="input-label required">Peso (kg)</label>
+          <label class="input-label required" for="field-peso">Peso (kg)</label>
           <div class="input-wrap">
             <span class="input-icon">⚖️</span>
             <input id="field-peso" class="input has-icon" type="number" step="0.1" min="40" max="200" placeholder="75.0" required />
           </div>
         </div>
         <div class="input-group">
-          <label class="input-label required">Estatura (cm)</label>
+          <label class="input-label required" for="field-estatura">Estatura (cm)</label>
           <div class="input-wrap">
             <span class="input-icon">📏</span>
             <input id="field-estatura" class="input has-icon" type="number" step="0.1" min="140" max="220" placeholder="175" required />
           </div>
         </div>
         <div class="input-group">
-          <label class="input-label required">Nivel actividad</label>
+          <label class="input-label required" for="field-nivel">Nivel actividad</label>
           <select id="field-nivel" class="input" required>
             <option value="">Seleccionar...</option>
             <option value="nula">Sedentario (nula)</option>
@@ -199,7 +200,7 @@
 
       <div class="grid-2">
         <div class="input-group">
-          <label class="input-label">Sexo</label>
+          <label class="input-label" for="field-sexo">Sexo</label>
           <select id="field-sexo" class="input">
             <option value="">Sin especificar</option>
             <option value="M">Masculino</option>
@@ -208,7 +209,7 @@
           </select>
         </div>
         <div class="input-group">
-          <label class="input-label">% Grasa corporal</label>
+          <label class="input-label" for="field-grasa">% Grasa corporal</label>
           <div class="input-wrap">
             <span class="input-icon">💧</span>
             <input id="field-grasa" class="input has-icon" type="number" step="0.1" min="5" max="60" placeholder="20.0" />
@@ -223,7 +224,7 @@
       </div>
 
       <div class="input-group">
-        <label class="input-label">Plan de suscripción</label>
+        <label class="input-label" for="field-plan-suscripcion">Plan de suscripción</label>
         <select id="field-plan-suscripcion" class="input">
           <option value="">— Sin plan —</option>
         </select>
@@ -231,14 +232,14 @@
 
       <div class="grid-2">
         <div class="input-group">
-          <label class="input-label">Fecha inicio</label>
+          <label class="input-label" for="field-fecha-suscripcion">Fecha inicio</label>
           <div class="input-wrap">
             <span class="input-icon"><img src="/static/img/calendar.gif" alt="Fecha inicio" style="width:22px;height:22px;vertical-align:middle;filter:brightness(0) invert(1);opacity:0.85;"></span>
             <input id="field-fecha-suscripcion" class="input has-icon" type="date" />
           </div>
         </div>
         <div class="input-group">
-          <label class="input-label">Fecha fin</label>
+          <label class="input-label" for="field-fecha-fin-suscripcion">Fecha fin</label>
           <div class="input-wrap">
             <span class="input-icon"><img src="/static/img/schedule.gif" alt="Fecha fin" style="width:22px;height:22px;vertical-align:middle;filter:brightness(0) invert(1);opacity:0.85;"></span>
             <input id="field-fecha-fin-suscripcion" class="input has-icon" type="date" />
@@ -248,13 +249,13 @@
       </div><!-- /seccion-suscripcion-cliente -->
 
       <!-- ── Avanzados (colapsable) ── -->
-      <button type="button" class="collapsible-toggle" id="toggle-avanzados">
+      <button type="button" class="collapsible-toggle" id="toggle-avanzados" aria-controls="campos-avanzados" aria-expanded="false">
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l2.828 2.818L15 12.182"/></svg>
         Datos avanzados ▾
       </button>
       <div class="collapsible-content" id="campos-avanzados">
         <div class="input-group">
-          <label class="input-label">Notas internas</label>
+          <label class="input-label" for="field-notas">Notas internas</label>
           <textarea id="field-notas" class="input" rows="2" placeholder="Alergias, preferencias, etc..." style="resize:vertical"></textarea>
         </div>
 
@@ -291,15 +292,15 @@
 <!-- ══════════════════════════════════════════════════════════════
      Panel — Exclusión de Alimentos
 ══════════════════════════════════════════════════════════════ -->
-<div id="panel-exclusiones" class="modal-backdrop hidden">
+<div id="panel-exclusiones" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="exclusions-title" tabindex="-1">
   <div class="modal" style="max-width:520px;">
-    <button id="panel-excl-close" class="btn btn-icon btn-secondary modal-close" type="button">✕</button>
+    <button id="panel-excl-close" class="btn btn-icon btn-secondary modal-close" type="button" aria-label="Cerrar exclusiones">✕</button>
 
     <!-- Header con icono GIF -->
     <div class="food-panel-header">
       <img src="/static/img/no-cupcake.gif" alt="Excluir alimentos" class="food-panel-gif">
       <div>
-        <h2 class="chart-title" style="margin:0;font-size:1.1rem;">Quitar alimentos</h2>
+        <h2 class="chart-title" id="exclusions-title" style="margin:0;font-size:1.1rem;">Quitar alimentos</h2>
         <p style="margin:2px 0 0;font-size:.78rem;color:var(--text-secondary);">Selecciona los alimentos que <strong>no</strong> deben incluirse en el plan</p>
       </div>
     </div>
@@ -307,7 +308,7 @@
     <!-- Search -->
     <div class="food-panel-search">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--text-muted)" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-      <input id="food-search" class="input" type="text" placeholder="Buscar alimento..." autocomplete="off" style="padding-left:36px;" />
+      <input id="food-search" class="input" type="text" aria-label="Buscar alimentos para excluir" placeholder="Buscar alimento..." autocomplete="off" style="padding-left:36px;" />
     </div>
 
     <!-- Tags de excluidos -->
@@ -638,10 +639,6 @@ document.getElementById('btn-buscar').addEventListener('click', () => {
   cargarClientes(document.getElementById('search-input').value.trim(), _filtroSuscripcion);
 });
 
-document.getElementById('search-input').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') cargarClientes(e.target.value.trim(), _filtroSuscripcion);
-});
-
 // ── Filtro por suscripción ─────────────────────────────────
 document.querySelectorAll('#filter-suscripcion .sub-btn').forEach(btn => {
   btn.addEventListener('click', async () => {
@@ -669,6 +666,7 @@ document.getElementById('modal-cliente').addEventListener('click', (e) => {
 });
 
 function abrirModalNuevo() {
+  document.getElementById('client-form-error').hidden = true;
   document.getElementById('modal-title').textContent = 'Nuevo Cliente';
   document.getElementById('form-cliente').reset();
   document.getElementById('field-id').value = '';
@@ -681,9 +679,11 @@ function abrirModalNuevo() {
   _alimentosExcluidos.clear();
   syncExclBadgeAndTags();
   document.getElementById('modal-cliente').classList.remove('hidden');
+  DialogFocus.open(document.getElementById('modal-cliente'), cerrarModal, document.getElementById('field-nombre'));
 }
 
 function abrirModalEditar(c) {
+  document.getElementById('client-form-error').hidden = true;
   document.getElementById('modal-title').textContent = 'Editar Cliente';
   document.getElementById('field-id').value   = c.id_cliente ?? '';
   document.getElementById('field-nombre').value    = c.nombre ?? '';
@@ -703,10 +703,12 @@ function abrirModalEditar(c) {
   const _ffs2 = document.getElementById('field-fecha-fin-suscripcion');
   if (_ffs2) _ffs2.value = c.fecha_fin_suscripcion ? c.fecha_fin_suscripcion.slice(0,10) : '';
   document.getElementById('modal-cliente').classList.remove('hidden');
+  DialogFocus.open(document.getElementById('modal-cliente'), cerrarModal, document.getElementById('field-nombre'));
 }
 
 function cerrarModal() {
   document.getElementById('modal-cliente').classList.add('hidden');
+  DialogFocus.close(document.getElementById('modal-cliente'));
 }
 
 // ── Submit form ──────────────────────────────────────────────
@@ -714,6 +716,7 @@ document.getElementById('form-cliente').addEventListener('submit', async (e) => 
   e.preventDefault();
   const btn = document.getElementById('btn-guardar-cliente');
   const id  = document.getElementById('field-id').value;
+  document.getElementById('client-form-error').hidden = true;
 
   const payload = {
     nombre:            document.getElementById('field-nombre').value.trim(),
@@ -746,7 +749,10 @@ document.getElementById('form-cliente').addEventListener('submit', async (e) => 
     await actualizarContadores();
     await cargarClientes('', _filtroSuscripcion);
   } catch (err) {
-    Toast.error('Error: ' + err.message);
+    const message = document.getElementById('client-form-error');
+    message.textContent = 'No se pudo guardar el cliente. ' + err.message;
+    message.hidden = false;
+    message.scrollIntoView({block:'nearest'});
   } finally {
     btn.disabled = false;
     btn.innerHTML = 'Guardar Cliente';
@@ -776,6 +782,7 @@ if (window.location.hash === '#nuevo') {
 document.getElementById('toggle-avanzados').addEventListener('click', function() {
   const content = document.getElementById('campos-avanzados');
   content.classList.toggle('open');
+  this.setAttribute('aria-expanded', String(content.classList.contains('open')));
   this.textContent = content.classList.contains('open') ? 'Datos avanzados ▴' : 'Datos avanzados ▾';
 });
 
@@ -814,10 +821,12 @@ function syncExclBadgeAndTags() {
   if (!container) return;
   container.innerHTML = '';
   _alimentosExcluidos.forEach(food => {
-    const tag = document.createElement('span');
+    const tag = document.createElement('button');
+    tag.type = 'button';
     tag.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:0.73rem;background:rgba(239,68,68,0.14);color:#f87171;cursor:pointer;transition:all 0.15s';
     tag.textContent = humanize(food) + ' ✕';
     tag.title = 'Click para restaurar';
+    tag.setAttribute('aria-label', 'Restaurar ' + humanize(food));
     tag.addEventListener('click', () => {
       _alimentosExcluidos.delete(food);
       syncExclBadgeAndTags();
@@ -832,7 +841,7 @@ if (_btnAbrirExcl) {
     document.getElementById('panel-exclusiones').classList.remove('hidden');
     renderFullCatalog();
     document.getElementById('food-search').value = '';
-    document.getElementById('food-search').focus();
+    DialogFocus.open(document.getElementById('panel-exclusiones'), closeExclPanel, document.getElementById('food-search'));
   });
   document.getElementById('panel-excl-close').addEventListener('click', closeExclPanel);
   document.getElementById('panel-exclusiones').addEventListener('click', e => {
@@ -842,6 +851,7 @@ if (_btnAbrirExcl) {
 
   function closeExclPanel() {
     document.getElementById('panel-exclusiones').classList.add('hidden');
+    DialogFocus.close(document.getElementById('panel-exclusiones'));
     syncExclBadgeAndTags();
   }
 
@@ -855,13 +865,13 @@ function renderFullCatalog(query) {
   for (const [cat, foods] of Object.entries(_catalogoAlimentos)) {
     const filtered = foods.filter(f => !q || humanize(f).toLowerCase().includes(q));
     if (!filtered.length) continue;
-    html += `<div class="food-cat-header">${_CAT_ICONS[cat] || '📦'} ${_CAT_LABELS[cat] || cat} <span style="opacity:.5;font-weight:400">· ${filtered.length}</span></div>`;
+    html += `<div class="food-cat-header">${_CAT_ICONS[cat] || '📦'} ${_CAT_LABELS[cat] || cat} <span style="color:var(--text-secondary);font-weight:400">· ${filtered.length}</span></div>`;
     filtered.forEach(f => {
       const isExcl = _alimentosExcluidos.has(f);
-      html += `<div class="food-item-row${isExcl ? ' excluded' : ''}" data-food="${f}">`
+      html += `<button type="button" class="food-item-row${isExcl ? ' excluded' : ''}" data-food="${f}" aria-pressed="${isExcl}">`
         + `<div class="food-item-check">${isExcl ? '<svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12"/></svg>' : ''}</div>`
         + `<span class="food-item-name">${humanize(f)}</span>`
-        + `</div>`;
+        + `</button>`;
       totalVisible++;
     });
   }
@@ -881,6 +891,8 @@ function renderFullCatalog(query) {
       if (_alimentosExcluidos.has(food)) _alimentosExcluidos.delete(food);
       else _alimentosExcluidos.add(food);
       renderFullCatalog(document.getElementById('food-search').value);
+      const selected = Array.from(list.querySelectorAll('.food-item-row')).find(item => item.dataset.food === food);
+      if (selected) selected.focus();
       syncPanelTags();
       updateFoodCount();
     });
@@ -893,7 +905,8 @@ function syncPanelTags() {
   const container = document.getElementById('food-panel-tags');
   container.innerHTML = '';
   _alimentosExcluidos.forEach(food => {
-    const tag = document.createElement('span');
+    const tag = document.createElement('button');
+    tag.type = 'button';
     tag.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:0.73rem;background:rgba(239,68,68,0.14);color:#f87171;cursor:pointer;transition:all 0.15s;border:1px solid rgba(239,68,68,.12)';
     tag.textContent = humanize(food) + ' ✕';
     tag.title = 'Click para restaurar';
