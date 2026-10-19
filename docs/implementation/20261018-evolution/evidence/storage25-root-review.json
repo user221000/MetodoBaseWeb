@@ -1,0 +1,14 @@
+{
+  "scope": "Independent coordinator review of backend metadata25, separate from application-consumer authorship",
+  "reviewed_author_manifest": "backend-storage25-source.json",
+  "author_manifest_sources_unchanged": true,
+  "historical_contract_files_unchanged": 16,
+  "gates": [
+    {"junit": "pytest-storage25-independent-final.xml", "passed": 22, "failed": 0, "errors": 0, "skipped": 0, "seconds": 75.718, "scope": "12 real SQLite/PostgreSQL metadata25 cases and10 schema/startup cases"},
+    {"junit": "pytest-storage25-previous-contract-independent.xml", "passed": 6, "failed": 0, "errors": 0, "skipped": 0, "seconds": 22.458, "scope": "Historical24 migration acceptance remains explicitly pinned"}
+  ],
+  "review": "Only table25, two nullable object references and owner compound RESTRICT FKs added; legacy values/rows and historical16 contracts unchanged. PostgreSQL family19 ENABLE/FORCE denies absent/foreign owner. Exact source drift aborts before DDL; injected failure after actual rebuild/ALTER rolls back schema/revision/rows. Kind/readiness/integrity belong to application services and are reviewed separately.",
+  "independent_qa": "storage25-ddl-independent-source.json:18 passed,37 stable sources/contracts",
+  "harness_failure": "pytest-storage25-independent.log/xml invoked a nonexistent startup test filename and ran zero tests; superseded by the two explicit final gates, not a product failure",
+  "limitations": ["Local synthetic UUID databases only", "No production migration, provider, container or populated object restore accepted by this checkpoint"]
+}

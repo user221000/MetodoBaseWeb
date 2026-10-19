@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="18" time="83.034" timestamp="2026-10-18T22:17:18.727104-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[sqlite-empty]" time="4.056" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[sqlite-legacy]" time="4.689" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[sqlite-populated24]" time="4.951" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[postgresql-empty]" time="5.481" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[postgresql-legacy]" time="7.200" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[postgresql-populated24]" time="7.023" /><testcase classname="tests.integration_stored_objects_migrations" name="test_source_drift_aborts_before_object_metadata_ddl[sqlite]" time="3.712" /><testcase classname="tests.integration_stored_objects_migrations" name="test_source_drift_aborts_before_object_metadata_ddl[postgresql]" time="4.759" /><testcase classname="tests.integration_stored_objects_migrations" name="test_ddl_failure_rolls_back_table_columns_revision_and_rows[sqlite]" time="2.925" /><testcase classname="tests.integration_stored_objects_migrations" name="test_ddl_failure_rolls_back_table_columns_revision_and_rows[postgresql]" time="3.832" /><testcase classname="tests.integration_stored_objects_migrations" name="test_metadata_constraints_and_same_owner_composite_references[sqlite]" time="4.684" /><testcase classname="tests.integration_stored_objects_migrations" name="test_metadata_constraints_and_same_owner_composite_references[postgresql]" time="5.289"><failure message="sqlalchemy.exc.DataError: (psycopg2.errors.StringDataRightTruncation) value too long for type character varying(512)&#10;&#10;[SQL: INSERT INTO stored_objects (id, gym_id, kind, key, content_type, byte_size, sha256, storage_backend, status, created_at, updated_at) VALUES (%(id)s, %(gym_id)s, %(kind)s, %(key)s, %(content_type)s, %(byte_size)s, %(sha256)s, %(storage_backend)s, %(status)s, %(created_at)s, %(updated_at)s)]&#10;[parameters: {'id': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'gym_id': 'object-owner-a', 'kind': 'plan_pdf', 'key': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ... (215 characters truncated) ... xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'content_type': 'application/pdf', 'byte_size': 100, 'sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'storage_backend': 'local', 'status': 'pending', 'created_at': datetime.datetime(2026, 10, 19, 4, 18, 17, 956759), 'updated_at': datetime.datetime(2026, 10, 19, 4, 18, 17, 956759)}]&#10;(Background on this error at: https://sqlalche.me/e/21/9h9h)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.StringDataRightTruncation: value too long for type character varying(512)
+
+The above exception was the direct cause of the following exception:
+tests\integration_stored_objects_migrations.py:159: in test_metadata_constraints_and_same_owner_composite_references
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1052: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.DataError: (psycopg2.errors.StringDataRightTruncation) value too long for type character varying(512)
+E   
+E   [SQL: INSERT INTO stored_objects (id, gym_id, kind, key, content_type, byte_size, sha256, storage_backend, status, created_at, updated_at) VALUES (%(id)s, %(gym_id)s, %(kind)s, %(key)s, %(content_type)s, %(byte_size)s, %(sha256)s, %(storage_backend)s, %(status)s, %(created_at)s, %(updated_at)s)]
+E   [parameters: {'id': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'gym_id': 'object-owner-a', 'kind': 'plan_pdf', 'key': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ... (215 characters truncated) ... xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'content_type': 'application/pdf', 'byte_size': 100, 'sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'storage_backend': 'local', 'status': 'pending', 'created_at': datetime.datetime(2026, 10, 19, 4, 18, 17, 956759), 'updated_at': datetime.datetime(2026, 10, 19, 4, 18, 17, 956759)}]
+E   (Background on this error at: https://sqlalche.me/e/21/9h9h)</failure></testcase><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[sqlite-empty]" time="2.621" /><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[sqlite-unversioned-legacy]" time="2.080" /><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[postgresql-empty]" time="3.999" /><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[postgresql-unversioned-legacy]" time="3.679" /><testcase classname="tests.integration_gym_quota_migrations" name="test_source_drift_aborts_before_creating_ledger[schema-postgresql]" time="4.860" /><testcase classname="tests.integration_gym_quota_migrations" name="test_source_drift_aborts_before_creating_ledger[policy-postgresql]" time="5.726" /></testsuite></testsuites>

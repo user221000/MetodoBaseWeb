@@ -1,0 +1,156 @@
+{
+  "sqlite": {
+    "old_tables": 24,
+    "new_tables": 25,
+    "only_changed_old_tables": {
+      "gym_profiles": {
+        "added_columns": [
+          {
+            "name": "logo_object_id",
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "length": 32,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "added_foreign_keys": [
+          {
+            "columns": [
+              "gym_id",
+              "logo_object_id"
+            ],
+            "table": "stored_objects",
+            "referred_columns": [
+              "gym_id",
+              "id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            }
+          }
+        ]
+      },
+      "planes_generados": {
+        "added_columns": [
+          {
+            "name": "pdf_object_id",
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "length": 32,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "added_foreign_keys": [
+          {
+            "columns": [
+              "gym_id",
+              "pdf_object_id"
+            ],
+            "table": "stored_objects",
+            "referred_columns": [
+              "gym_id",
+              "id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            }
+          }
+        ]
+      }
+    },
+    "security": {}
+  },
+  "postgresql": {
+    "old_tables": 24,
+    "new_tables": 25,
+    "only_changed_old_tables": {
+      "gym_profiles": {
+        "added_columns": [
+          {
+            "name": "logo_object_id",
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "length": 32,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "added_foreign_keys": [
+          {
+            "columns": [
+              "gym_id",
+              "logo_object_id"
+            ],
+            "table": "stored_objects",
+            "referred_columns": [
+              "gym_id",
+              "id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            }
+          }
+        ]
+      },
+      "planes_generados": {
+        "added_columns": [
+          {
+            "name": "pdf_object_id",
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "length": 32,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "added_foreign_keys": [
+          {
+            "columns": [
+              "gym_id",
+              "pdf_object_id"
+            ],
+            "table": "stored_objects",
+            "referred_columns": [
+              "gym_id",
+              "id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            }
+          }
+        ]
+      }
+    },
+    "security": {
+      "added_table_flags": [
+        [
+          "stored_objects",
+          true,
+          true
+        ]
+      ],
+      "added_policy": [
+        [
+          "stored_objects",
+          "tenant_isolation_stored_objects",
+          "PERMISSIVE",
+          "{public}",
+          "ALL",
+          "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+          "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+        ]
+      ],
+      "old_policies_and_helper_unchanged": true
+    }
+  }
+}

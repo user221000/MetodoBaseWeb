@@ -14,12 +14,12 @@ from web.database.schema_control import verify_runtime_schema
 @pytest.mark.parametrize('origin', ['empty','unversioned-legacy'])
 def test_empty_and_legacy_upgrade_to_frozen_quota_head(migration_database, origin):
     url, engine = migration_database
-    arguments = ['db_bootstrap.py','--revision','head']
+    arguments = ['db_bootstrap.py','--revision','20261018_gym_generation_quota']
     if origin == 'unversioned-legacy':
         _fixture(engine)
         arguments.append('--adopt-verified-legacy')
     run_migration(url, *arguments)
-    verify_runtime_schema(engine)
+    verify_runtime_schema(engine, expected_revision='20261018_gym_generation_quota')
     with engine.connect() as connection:
         assert connection.scalar(text('SELECT version_num FROM alembic_version')) == '20261018_gym_generation_quota'
         assert len(inspect(connection).get_table_names()) == 25  # 24 business + Alembic version.

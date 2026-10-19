@@ -1,0 +1,4301 @@
+{
+  "format": 1,
+  "revision": "20261018_stored_objects",
+  "base_revision": "20261018_gym_generation_quota",
+  "model_sha256": "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",
+  "fixture_sha256": "09a4330f37eac1fc7f7f901cdfd78b59f89f85939825e50f81442f90145498dc",
+  "signature": {
+    "dialect": "sqlite",
+    "tables": {
+      "audit_log": {
+        "columns": [
+          {
+            "name": "accion",
+            "type": "VARCHAR(50)",
+            "type_attributes": {
+              "length": 50,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "detalle",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "entidad",
+            "type": "VARCHAR(50)",
+            "type_attributes": {
+              "length": 50,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "entidad_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "ip",
+            "type": "VARCHAR(45)",
+            "type_attributes": {
+              "length": 45,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "timestamp",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_audit_log_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_audit_log_timestamp",
+            "columns": [
+              "timestamp"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "auth_audit_log": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "event_metadata",
+            "type": "JSON",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "event_type",
+            "type": "VARCHAR(50)",
+            "type_attributes": {
+              "length": 50,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "ip_address",
+            "type": "VARCHAR(45)",
+            "type_attributes": {
+              "length": 45,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "request_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "user_agent",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "user_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          },
+          {
+            "columns": [
+              "user_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_auth_audit_gym",
+            "columns": [
+              "gym_id",
+              "created_at"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_auth_audit_gym_event",
+            "columns": [
+              "gym_id",
+              "event_type"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_auth_audit_log_created_at",
+            "columns": [
+              "created_at"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_auth_audit_log_event_type",
+            "columns": [
+              "event_type"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_auth_audit_log_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_auth_audit_log_user_id",
+            "columns": [
+              "user_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_auth_audit_type",
+            "columns": [
+              "event_type",
+              "created_at"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_auth_audit_user",
+            "columns": [
+              "user_id",
+              "created_at"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "checkout_sessions": {
+        "columns": [
+          {
+            "name": "completed_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "VARCHAR(120)",
+            "type_attributes": {
+              "length": 120,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(64)",
+            "type_attributes": {
+              "length": 64,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "plan",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "stripe_session_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "stripe_session_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {}
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_checkout_sessions_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "client_progress": {
+        "columns": [
+          {
+            "name": "fecha",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "grasa_corporal_pct",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id_cliente",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "masa_magra_kg",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "notas",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "peso_kg",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          },
+          {
+            "columns": [
+              "id_cliente"
+            ],
+            "table": "clientes",
+            "referred_columns": [
+              "id_cliente"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_client_progress_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_client_progress_id_cliente",
+            "columns": [
+              "id_cliente"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_progress_cliente_fecha",
+            "columns": [
+              "id_cliente",
+              "fecha"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "clientes": {
+        "columns": [
+          {
+            "name": "activo",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "alimentos_excluidos",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "deleted_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "edad",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "estatura_cm",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "fecha_fin_suscripcion",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "fecha_registro",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "fecha_suscripcion",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "grasa_corporal_pct",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id_cliente",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "masa_magra_kg",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "nivel_actividad",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "nombre",
+            "type": "VARCHAR(200)",
+            "type_attributes": {
+              "length": 200,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "notas",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "objetivo",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "peso_kg",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "plantilla_tipo",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "sexo",
+            "type": "VARCHAR(10)",
+            "type_attributes": {
+              "length": 10,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "telefono",
+            "type": "VARCHAR(50)",
+            "type_attributes": {
+              "length": 50,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "total_planes_generados",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "ultimo_plan",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "id_cliente"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_cliente_sexo",
+            "sql": "sexo IN ('M', 'F', 'Otro') OR sexo IS NULL"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_clientes_deleted",
+            "columns": [
+              "deleted_at"
+            ],
+            "unique": false,
+            "where": "deleted_at IS NULL"
+          },
+          {
+            "name": "ix_clientes_fecha_fin_suscripcion",
+            "columns": [
+              "fecha_fin_suscripcion"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_clientes_gym_activo",
+            "columns": [
+              "gym_id",
+              "activo"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_clientes_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_clientes_gym_nombre",
+            "columns": [
+              "gym_id",
+              "nombre"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "generation_reservations": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "period",
+            "type": "VARCHAR(7)",
+            "type_attributes": {
+              "length": 7,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "plan_id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "request_key",
+            "type": "VARCHAR(128)",
+            "type_attributes": {
+              "length": 128,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "user_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "request_key",
+            "user_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "plan_id"
+            ],
+            "table": "planes_generados",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          },
+          {
+            "columns": [
+              "user_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_generation_reservation_status",
+            "sql": "status IN ('reserved', 'completed', 'released')"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_generation_reservations_user_id",
+            "columns": [
+              "user_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "gym_branding": {
+        "columns": [
+          {
+            "name": "color_primario",
+            "type": "VARCHAR(7)",
+            "type_attributes": {
+              "length": 7,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "color_secundario",
+            "type": "VARCHAR(7)",
+            "type_attributes": {
+              "length": 7,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "cuota_mensual",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "direccion_linea1",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "direccion_linea2",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "direccion_linea3",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "facebook",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "instagram",
+            "type": "VARCHAR(100)",
+            "type_attributes": {
+              "length": 100,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "logo_path",
+            "type": "VARCHAR(500)",
+            "type_attributes": {
+              "length": 500,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "nombre_corto",
+            "type": "VARCHAR(100)",
+            "type_attributes": {
+              "length": 100,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "nombre_gym",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "tagline",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "telefono",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "tiktok",
+            "type": "VARCHAR(100)",
+            "type_attributes": {
+              "length": 100,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "whatsapp",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_gym_branding_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": true,
+            "where": null
+          }
+        ]
+      },
+      "gym_generation_reservations": {
+        "columns": [
+          {
+            "name": "catalog_plan",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "client_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "local_date",
+            "type": "DATE",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "period",
+            "type": "VARCHAR(7)",
+            "type_attributes": {
+              "length": 7,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "persisted_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "plan_id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "request_hash",
+            "type": "VARCHAR(64)",
+            "type_attributes": {
+              "length": 64,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "request_key",
+            "type": "VARCHAR(128)",
+            "type_attributes": {
+              "length": 128,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "result_json",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "timezone",
+            "type": "VARCHAR(64)",
+            "type_attributes": {
+              "length": 64,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "gym_id",
+            "request_key"
+          ],
+          [
+            "plan_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "client_id"
+            ],
+            "table": "clientes",
+            "referred_columns": [
+              "id_cliente"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          },
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          },
+          {
+            "columns": [
+              "plan_id"
+            ],
+            "table": "planes_generados",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_gym_generation_completed_result",
+            "sql": "status <> 'completed' OR result_json IS NOT NULL"
+          },
+          {
+            "name": "ck_gym_generation_no_persisted_refund",
+            "sql": "status <> 'released' OR persisted_at IS NULL"
+          },
+          {
+            "name": "ck_gym_generation_request_hash",
+            "sql": "length(request_hash) = 64"
+          },
+          {
+            "name": "ck_gym_generation_status",
+            "sql": "status IN ('reserved', 'completed', 'released')"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_gym_generation_day_client",
+            "columns": [
+              "gym_id",
+              "local_date",
+              "client_id",
+              "status"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_gym_generation_period_status",
+            "columns": [
+              "gym_id",
+              "period",
+              "status"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_gym_generation_reservations_client_id",
+            "columns": [
+              "client_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_gym_generation_reservations_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "gym_licenses": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "expires_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "is_active",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "legacy_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "license_key",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "max_clients",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "payment_provider",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "payment_reference",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "plan_tier",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "revoked_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "legacy_id"
+          ],
+          [
+            "license_key"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_gym_licenses_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "gym_profiles": {
+        "columns": [
+          {
+            "name": "ciudad",
+            "type": "VARCHAR(150)",
+            "type_attributes": {
+              "length": 150,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "codigo_postal_fiscal",
+            "type": "VARCHAR(5)",
+            "type_attributes": {
+              "length": 5,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "color_primario",
+            "type": "VARCHAR(7)",
+            "type_attributes": {
+              "length": 7,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "color_secundario",
+            "type": "VARCHAR(7)",
+            "type_attributes": {
+              "length": 7,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "direccion",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "estado",
+            "type": "VARCHAR(100)",
+            "type_attributes": {
+              "length": 100,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "facebook",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "horarios_comidas",
+            "type": "JSON",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "instagram",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "logo_object_id",
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "length": 32,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "logo_url",
+            "type": "VARCHAR(500)",
+            "type_attributes": {
+              "length": 500,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "nombre_negocio",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "pais",
+            "type": "VARCHAR(100)",
+            "type_attributes": {
+              "length": 100,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "razon_social",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "regimen_fiscal",
+            "type": "VARCHAR(10)",
+            "type_attributes": {
+              "length": 10,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "rfc",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "sitio_web",
+            "type": "VARCHAR(500)",
+            "type_attributes": {
+              "length": 500,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "telefono",
+            "type": "VARCHAR(50)",
+            "type_attributes": {
+              "length": 50,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "tiktok",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "uso_cfdi",
+            "type": "VARCHAR(10)",
+            "type_attributes": {
+              "length": 10,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id",
+              "logo_object_id"
+            ],
+            "table": "stored_objects",
+            "referred_columns": [
+              "gym_id",
+              "id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            }
+          },
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_gym_profiles_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": true,
+            "where": null
+          }
+        ]
+      },
+      "gym_settings": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "legacy_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "locale",
+            "type": "VARCHAR(10)",
+            "type_attributes": {
+              "length": 10,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "strict_mode",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "timezone",
+            "type": "VARCHAR(64)",
+            "type_attributes": {
+              "length": 64,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "trial_days",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "trial_max_clients",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "legacy_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_gym_settings_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": true,
+            "where": null
+          }
+        ]
+      },
+      "invoices": {
+        "columns": [
+          {
+            "name": "amount_due",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "amount_paid",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "amount_remaining",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "currency",
+            "type": "VARCHAR(3)",
+            "type_attributes": {
+              "length": 3,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "due_date",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "hosted_invoice_url",
+            "type": "VARCHAR(500)",
+            "type_attributes": {
+              "length": 500,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "invoice_pdf",
+            "type": "VARCHAR(500)",
+            "type_attributes": {
+              "length": 500,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "paid",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "paid_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "period_end",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "period_start",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "stripe_invoice_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "stripe_subscription_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "subtotal",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "tax",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "total",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "stripe_invoice_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_invoices_gym_created",
+            "columns": [
+              "gym_id",
+              "created_at"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_invoices_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_invoices_stripe_subscription_id",
+            "columns": [
+              "stripe_subscription_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "license_activations": {
+        "columns": [
+          {
+            "name": "activa",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "clave_hash",
+            "type": "VARCHAR(64)",
+            "type_attributes": {
+              "length": 64,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "VARCHAR(120)",
+            "type_attributes": {
+              "length": 120,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "expira",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "hardware_id",
+            "type": "VARCHAR(128)",
+            "type_attributes": {
+              "length": 128,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "issued_license_id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "plan",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "revocada",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          },
+          {
+            "columns": [
+              "issued_license_id"
+            ],
+            "table": "gym_licenses",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_license_activations_email",
+            "columns": [
+              "email"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_license_activations_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_license_activations_hardware_id",
+            "columns": [
+              "hardware_id"
+            ],
+            "unique": true,
+            "where": null
+          },
+          {
+            "name": "ix_license_activations_issued_license_id",
+            "columns": [
+              "issued_license_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "payments": {
+        "columns": [
+          {
+            "name": "amount_cents",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "currency",
+            "type": "VARCHAR(3)",
+            "type_attributes": {
+              "length": 3,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "plan",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "stripe_invoice_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "stripe_payment_intent_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "stripe_payment_intent_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_payments_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "planes_generados": {
+        "columns": [
+          {
+            "name": "carbs_g",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "deleted_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "desviacion_maxima_pct",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "fecha_generacion",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "get_total",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "grasa_en_momento",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "grasa_g",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id_cliente",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "kcal_objetivo",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "kcal_real",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "nivel_actividad",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "objetivo",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "pdf_object_id",
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "length": 32,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "peso_en_momento",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "plan_json",
+            "type": "TEXT",
+            "type_attributes": {
+              "length": null,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "plantilla_tipo",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "proteina_g",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "ruta_pdf",
+            "type": "VARCHAR(500)",
+            "type_attributes": {
+              "length": 500,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "tipo_plan",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "tmb",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id",
+              "pdf_object_id"
+            ],
+            "table": "stored_objects",
+            "referred_columns": [
+              "gym_id",
+              "id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            }
+          },
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          },
+          {
+            "columns": [
+              "id_cliente"
+            ],
+            "table": "clientes",
+            "referred_columns": [
+              "id_cliente"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_planes_generados_deleted",
+            "columns": [
+              "deleted_at"
+            ],
+            "unique": false,
+            "where": "deleted_at IS NULL"
+          },
+          {
+            "name": "ix_planes_generados_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_planes_generados_id_cliente",
+            "columns": [
+              "id_cliente"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_planes_gym_fecha",
+            "columns": [
+              "gym_id",
+              "fecha_generacion"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "planes_suscripcion": {
+        "columns": [
+          {
+            "name": "activo",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "duracion_dias",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "moneda",
+            "type": "VARCHAR(10)",
+            "type_attributes": {
+              "length": 10,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "nombre",
+            "type": "VARCHAR(100)",
+            "type_attributes": {
+              "length": 100,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "precio",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "template_key",
+            "type": "VARCHAR(40)",
+            "type_attributes": {
+              "length": 40,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "gym_id",
+            "template_key"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_planes_sub_gym",
+            "columns": [
+              "gym_id",
+              "activo"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_planes_suscripcion_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "provider_subject_associations": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "provenance",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "provider",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "resource_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "resource_type",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "source_ref",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "subject_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "provider",
+          "resource_type",
+          "resource_id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "subject_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_provider_subject_provenance",
+            "sql": "provenance IN ('legacy_subscription','legacy_customer','verified_purchase')"
+          },
+          {
+            "name": "ck_provider_subject_provider",
+            "sql": "provider IN ('stripe','mercadopago')"
+          },
+          {
+            "name": "ck_provider_subject_resource",
+            "sql": "resource_type IN ('customer','subscription','payment','preference')"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_provider_subject_associations_subject_id",
+            "columns": [
+              "subject_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "purchase_intents": {
+        "columns": [
+          {
+            "name": "amount_cents",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "currency",
+            "type": "VARCHAR(3)",
+            "type_attributes": {
+              "length": 3,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "operation",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "plan",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "provider",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "provider_customer_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "provider_reference_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "request_key",
+            "type": "VARCHAR(128)",
+            "type_attributes": {
+              "length": 128,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "subject_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "operation",
+            "provider",
+            "request_key",
+            "subject_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "subject_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_purchase_positive_amount",
+            "sql": "amount_cents > 0"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_purchase_intents_provider_reference_id",
+            "columns": [
+              "provider_reference_id"
+            ],
+            "unique": false,
+            "where": null
+          },
+          {
+            "name": "ix_purchase_intents_subject_id",
+            "columns": [
+              "subject_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "refresh_tokens": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "expires_at",
+            "type": "FLOAT",
+            "type_attributes": {
+              "precision": null,
+              "scale": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "jti",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "revoked",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "user_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "jti"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "user_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_refresh_tokens_user_id",
+            "columns": [
+              "user_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "stored_objects": {
+        "columns": [
+          {
+            "name": "byte_size",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "content_type",
+            "type": "VARCHAR(128)",
+            "type_attributes": {
+              "length": 128,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "length": 32,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "key",
+            "type": "VARCHAR(512)",
+            "type_attributes": {
+              "length": 512,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "kind",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "sha256",
+            "type": "VARCHAR(64)",
+            "type_attributes": {
+              "length": 64,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(10)",
+            "type_attributes": {
+              "length": 10,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "storage_backend",
+            "type": "VARCHAR(10)",
+            "type_attributes": {
+              "length": 10,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "gym_id",
+            "id"
+          ],
+          [
+            "key"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_stored_object_backend",
+            "sql": "storage_backend IN ('local', 's3')"
+          },
+          {
+            "name": "ck_stored_object_content_type",
+            "sql": "length(content_type) BETWEEN 1 AND 128"
+          },
+          {
+            "name": "ck_stored_object_id",
+            "sql": "length(id) = 32"
+          },
+          {
+            "name": "ck_stored_object_key",
+            "sql": "length(key) BETWEEN 1 AND 512"
+          },
+          {
+            "name": "ck_stored_object_kind",
+            "sql": "kind IN ('plan_pdf', 'gym_logo')"
+          },
+          {
+            "name": "ck_stored_object_sha256",
+            "sql": "length(sha256) = 64"
+          },
+          {
+            "name": "ck_stored_object_size",
+            "sql": "byte_size BETWEEN 1 AND 67108864"
+          },
+          {
+            "name": "ck_stored_object_status",
+            "sql": "status IN ('pending', 'ready')"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_stored_objects_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "stripe_customers": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "currency",
+            "type": "VARCHAR(3)",
+            "type_attributes": {
+              "length": 3,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "default_payment_method",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "name",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "stripe_customer_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "tax_exempt",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "stripe_customer_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_stripe_customers_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": true,
+            "where": null
+          }
+        ]
+      },
+      "stripe_webhook_events": {
+        "columns": [
+          {
+            "name": "event_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "event_type",
+            "type": "VARCHAR(100)",
+            "type_attributes": {
+              "length": 100,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "processed_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "result",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "event_id"
+        ],
+        "unique": [],
+        "foreign_keys": [],
+        "checks": [],
+        "indexes": [
+          {
+            "name": "ix_stripe_webhook_events_processed_at",
+            "columns": [
+              "processed_at"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      },
+      "subscriptions": {
+        "columns": [
+          {
+            "name": "cancel_at_period_end",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "canceled_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "current_period_end",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "current_period_start",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "ended_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "max_clientes",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "plan",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "provider",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "provider_payment_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(30)",
+            "type_attributes": {
+              "length": 30,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "stripe_customer_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "stripe_price_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "stripe_subscription_id",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "trial_end",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "trial_start",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "provider_payment_id"
+          ],
+          [
+            "stripe_subscription_id"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_subscription_plan",
+            "sql": "plan IN ('free', 'standard', 'gym_comercial', 'clinica', 'pro_usuario')"
+          },
+          {
+            "name": "ck_subscription_status",
+            "sql": "status IN ('active', 'canceled', 'past_due', 'trialing', 'unpaid', 'incomplete', 'incomplete_expired', 'paused')"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_subscriptions_gym_id",
+            "columns": [
+              "gym_id"
+            ],
+            "unique": true,
+            "where": null
+          }
+        ]
+      },
+      "user_subscriptions": {
+        "columns": [
+          {
+            "name": "created_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "max_planes_mes",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "mes_actual",
+            "type": "VARCHAR(7)",
+            "type_attributes": {
+              "length": 7,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "plan",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "planes_usados_mes",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "updated_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "user_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [],
+        "foreign_keys": [
+          {
+            "columns": [
+              "user_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_user_sub_plan",
+            "sql": "plan IN ('starter', 'pro')"
+          },
+          {
+            "name": "ck_user_sub_status",
+            "sql": "status IN ('active', 'canceled')"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_user_subscriptions_user_id",
+            "columns": [
+              "user_id"
+            ],
+            "unique": true,
+            "where": null
+          }
+        ]
+      },
+      "usuarios": {
+        "columns": [
+          {
+            "name": "activo",
+            "type": "BOOLEAN",
+            "type_attributes": {
+              "name": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "apellido",
+            "type": "VARCHAR(150)",
+            "type_attributes": {
+              "length": 150,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "deleted_at",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "fecha_registro",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "invitation_expires",
+            "type": "DATETIME",
+            "type_attributes": {
+              "timezone": false
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "invitation_role",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "invitation_token",
+            "type": "VARCHAR(64)",
+            "type_attributes": {
+              "length": 64,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "invited_by",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "nombre",
+            "type": "VARCHAR(150)",
+            "type_attributes": {
+              "length": 150,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "password_hash",
+            "type": "VARCHAR(255)",
+            "type_attributes": {
+              "length": 255,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "role",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "session_version",
+            "type": "INTEGER",
+            "type_attributes": {},
+            "nullable": false,
+            "default": "'0'"
+          },
+          {
+            "name": "team_gym_id",
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "length": 36,
+              "collation": null
+            },
+            "nullable": true,
+            "default": null
+          },
+          {
+            "name": "tipo",
+            "type": "VARCHAR(20)",
+            "type_attributes": {
+              "length": 20,
+              "collation": null
+            },
+            "nullable": false,
+            "default": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "invitation_token"
+          ]
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "invited_by"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "SET NULL"
+            }
+          },
+          {
+            "columns": [
+              "team_gym_id"
+            ],
+            "table": "usuarios",
+            "referred_columns": [
+              "id"
+            ],
+            "options": {
+              "ondelete": "CASCADE"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "name": "ck_usuario_tipo",
+            "sql": "tipo IN ('gym', 'usuario', 'admin')"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "ix_usuarios_deleted",
+            "columns": [
+              "deleted_at"
+            ],
+            "unique": false,
+            "where": "deleted_at IS NULL"
+          },
+          {
+            "name": "ix_usuarios_email",
+            "columns": [
+              "email"
+            ],
+            "unique": true,
+            "where": null
+          },
+          {
+            "name": "ix_usuarios_team_gym_id",
+            "columns": [
+              "team_gym_id"
+            ],
+            "unique": false,
+            "where": null
+          }
+        ]
+      }
+    }
+  },
+  "tenant_security": {
+    "dialect": "sqlite"
+  }
+}

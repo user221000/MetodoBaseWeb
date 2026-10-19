@@ -15,6 +15,7 @@ TENANT_COLUMNS = {
     "user_subscriptions": "user_id", "generation_reservations": "user_id",
     "license_activations": "gym_id",
     "gym_generation_reservations": "gym_id",
+    "stored_objects": "gym_id",
 }
 CONTROL_PLANE = frozenset({"usuarios", "refresh_tokens", "purchase_intents",
     "stripe_webhook_events", "auth_audit_log", "provider_subject_associations"})

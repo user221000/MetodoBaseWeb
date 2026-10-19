@@ -17,7 +17,7 @@ from typing import Optional
 
 from sqlalchemy import (
     Boolean, Column, Date, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text,
-    CheckConstraint, UniqueConstraint, Enum as SQLEnum, text,
+    CheckConstraint, ForeignKeyConstraint, UniqueConstraint, Enum as SQLEnum, text,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -238,6 +238,7 @@ class PlanGenerado(Base):
     objetivo = Column(String(30))
     nivel_actividad = Column(String(30))
     ruta_pdf = Column(String(500))
+    pdf_object_id = Column(String(32), nullable=True)
     plan_json = Column(Text, nullable=True)  # serialized plan JSON (persists across container restarts)
     deleted_at = Column(UTCDateTime, nullable=True)
     peso_en_momento = Column(Float)
@@ -250,6 +251,8 @@ class PlanGenerado(Base):
     cliente = relationship("Cliente", back_populates="planes")
 
     __table_args__ = (
+        ForeignKeyConstraint(["gym_id", "pdf_object_id"], ["stored_objects.gym_id", "stored_objects.id"],
+                             name="fk_plan_pdf_object_owner", ondelete="RESTRICT"),
         Index("ix_planes_gym_fecha", "gym_id", "fecha_generacion"),
         Index("ix_planes_generados_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
     )
@@ -454,6 +457,7 @@ class GymProfile(Base):
     estado = Column(String(100), default="")
     pais = Column(String(100), default="México")
     logo_url = Column(String(500), default="")
+    logo_object_id = Column(String(32), nullable=True)
     color_primario = Column(String(7), default="#E5B800")
     color_secundario = Column(String(7), default="#292524")
     sitio_web = Column(String(500), default="")
@@ -473,6 +477,11 @@ class GymProfile(Base):
     horarios_comidas = Column(JSON, nullable=True, default=None)
 
     gym = relationship("Usuario", backref="gym_profile", foreign_keys=[gym_id])
+
+    __table_args__ = (
+        ForeignKeyConstraint(["gym_id", "logo_object_id"], ["stored_objects.gym_id", "stored_objects.id"],
+                             name="fk_gym_logo_object_owner", ondelete="RESTRICT"),
+    )
 
 
 # ── Planes de suscripción configurables por gym ─────────────────────────────
@@ -802,4 +811,38 @@ class GymGenerationReservation(Base):
         CheckConstraint("status <> 'completed' OR result_json IS NOT NULL", name="ck_gym_generation_completed_result"),
         Index("ix_gym_generation_period_status", "gym_id", "period", "status"),
         Index("ix_gym_generation_day_client", "gym_id", "local_date", "client_id", "status"),
+    )
+
+
+class StoredObject(Base):
+    """Private immutable bytes tracked before upload and published by reference.
+
+    Publication, integrity and kind/content association are application rules.
+    Restrictive FKs preserve metadata until an explicit deletion workflow exists.
+    """
+    __tablename__ = "stored_objects"
+
+    id = Column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
+    gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=False, index=True)
+    kind = Column(String(20), nullable=False)
+    key = Column(String(512), nullable=False, unique=True)
+    content_type = Column(String(128), nullable=False)
+    byte_size = Column(Integer, nullable=False)
+    sha256 = Column(String(64), nullable=False)
+    storage_backend = Column(String(10), nullable=False)
+    status = Column(String(10), nullable=False, default="pending")
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc),
+                        onupdate=lambda: datetime.now(timezone.utc))
+
+    __table_args__ = (
+        UniqueConstraint("gym_id", "id", name="uq_stored_object_owner_id"),
+        CheckConstraint("length(id) = 32", name="ck_stored_object_id"),
+        CheckConstraint("kind IN ('plan_pdf', 'gym_logo')", name="ck_stored_object_kind"),
+        CheckConstraint("length(key) BETWEEN 1 AND 512", name="ck_stored_object_key"),
+        CheckConstraint("length(content_type) BETWEEN 1 AND 128", name="ck_stored_object_content_type"),
+        CheckConstraint("byte_size BETWEEN 1 AND 67108864", name="ck_stored_object_size"),
+        CheckConstraint("length(sha256) = 64", name="ck_stored_object_sha256"),
+        CheckConstraint("storage_backend IN ('local', 's3')", name="ck_stored_object_backend"),
+        CheckConstraint("status IN ('pending', 'ready')", name="ck_stored_object_status"),
     )
