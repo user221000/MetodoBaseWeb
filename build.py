@@ -23,6 +23,9 @@ TOOL_VERSIONS = {"pyinstaller": "6.22.3", "pyinstaller-hooks-contrib": "2026.8"}
 RESOURCE_ROOTS = ("assets", "fonts", "static", "ui_desktop/pyside/styles")
 RESOURCE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico", ".icns", ".ttf", ".otf", ".qss"}
 REQUIRED_RESOURCES = ("fonts/Inter/Inter-Regular.ttf", "ui_desktop/pyside/styles/amarillo_neon.qss")
+# OPS10: retain the unverified design reference in source, never distribute it.
+EXCLUDED_RESOURCES = frozenset({"assets/design-reference.png"})
+EXCLUDED_BUNDLE_RESOURCES = frozenset("_internal/" + name for name in EXCLUDED_RESOURCES)
 HIDDEN_IMPORTS = (
     "PySide6.QtWidgets", "PySide6.QtCore", "PySide6.QtGui", "core.branding", "core.licencia",
     "ui_desktop.pyside.theme_manager", "ui_desktop.pyside.flow_controller", "ui_desktop.pyside.gym_app_window",
@@ -100,6 +103,8 @@ def collect_resources(root: Path = BASE_DIR) -> list[tuple[str, str]]:
         if name.casefold() in folded or _forbidden(relative):
             raise BuildError("Private or case-colliding tracked resource")
         folded.add(name.casefold())
+        if relative.as_posix().casefold() in EXCLUDED_RESOURCES:
+            continue
         source = root / relative
         _check_tree_path(source, root)
         if not source.is_file():
@@ -115,7 +120,8 @@ def _forbidden(relative: Path) -> bool:
     parts = [part.lower() for part in relative.parts]
     directories = {".git", ".venv", "venv", ".env", "backups", "registros", "planes", "logs", "datos"}
     name = parts[-1]
-    return (any(part in directories for part in parts) or name.startswith(".env") or
+    return (relative.as_posix().casefold() in EXCLUDED_BUNDLE_RESOURCES or
+            any(part in directories for part in parts) or name.startswith(".env") or
             (name.startswith(("licencia", "license_cache", "license_status")) and name.endswith(".json")) or
             name.endswith((".db", ".db-wal", ".db-shm", ".sqlite", ".sqlite3", ".lic", ".dump", ".bak", ".log", ".key")))
 
