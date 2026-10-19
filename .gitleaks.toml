@@ -22,6 +22,13 @@ id = "generic-api-key"
     regexTarget = "secret"
     regexes = ['''^(?:test_secret_key_at_least_32_characters_long|this_is_a_valid_secret_key_32_chars_plus)$''']
 
+    [[rules.allowlists]]
+    description = "Exact public SHA256 of the historical auth review, verified LF and CRLF bytes"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/(?:secrets-tree-final|secrets-checkpoint-source)\.json$''']
+    regexTarget = "line"
+    regexes = ['''^\s*"docs/implementation/20261018-evolution/evidence/backend-auth-review\.md"\s*:\s*"(?:23b64c78dfd83504804132d37d1a331cd4da81eddbfe3129c18a438d72b2a0e7|8773f2e2a9b4cf567bc76f138965d605cf89a21632dcd78379fcbc6f1e42a69f)",?\s*$''']
+
 [[rules]]
 id = "sentry-access-token"
     [[rules.allowlists]]

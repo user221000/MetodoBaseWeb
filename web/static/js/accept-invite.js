@@ -27,7 +27,11 @@
     var incoming=new URLSearchParams(location.hash.slice(1)).getAll('token');
     history.replaceState({},'',location.pathname);
     if(busy){notify('Hay una solicitud en curso. Espera su resultado antes de abrir otra invitación.');return;}
-    token=incoming.length===1 ? incoming[0] : null;
+    if (incoming.length === 1) {
+      token = incoming[0];
+    } else {
+      token = null;
+    }
     valid=false;document.getElementById('invite-details-section').hidden=true;
     document.getElementById('invite-password').value='';document.getElementById('invite-confirm').value='';
     load();
