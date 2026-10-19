@@ -1,0 +1,52 @@
+{
+  "explain-MetodoBase_API.json": {
+    "scope": "SQLite read-only EXPLAIN of 51 summary candidates from 1000 rows; no PostgreSQL performance claim",
+    "sql": "SELECT planes_generados.id AS planes_generados_id, planes_generados.fecha_generacion AS planes_generados_fecha_generacion, planes_generados.kcal_objetivo AS planes_generados_kcal_objetivo, planes_generados.proteina_g AS planes_generados_proteina_g, planes_generados.carbs_g AS planes_generados_carbs_g, planes_generados.grasa_g AS planes_generados_grasa_g, planes_generados.tipo_plan AS planes_generados_tipo_plan, planes_generados.pdf_object_id AS planes_generados_pdf_object_id, planes_generados.ruta_pdf AS planes_generados_ruta_pdf \nFROM planes_generados JOIN clientes ON clientes.id_cliente = planes_generados.id_cliente \nWHERE planes_generados.gym_id = ? AND clientes.gym_id = ? AND planes_generados.deleted_at IS NULL AND clientes.deleted_at IS NULL AND planes_generados.id_cliente = ? ORDER BY planes_generados.fecha_generacion DESC NULLS LAST, planes_generados.id DESC\n LIMIT ? OFFSET ?",
+    "parameters": [
+      "history-person",
+      "history-person",
+      "history-person-profile",
+      51,
+      0
+    ],
+    "plan": [
+      [
+        10,
+        0,
+        46,
+        "SEARCH clientes USING INDEX sqlite_autoindex_clientes_1 (id_cliente=?)"
+      ],
+      [
+        20,
+        0,
+        61,
+        "SEARCH planes_generados USING INDEX ix_planes_gym_fecha (gym_id=?)"
+      ]
+    ]
+  },
+  "explain-MetodoBase_Web.json": {
+    "scope": "SQLite read-only EXPLAIN of 51 summary candidates from 1000 rows; no PostgreSQL performance claim",
+    "sql": "SELECT planes_generados.id AS planes_generados_id, planes_generados.fecha_generacion AS planes_generados_fecha_generacion, planes_generados.kcal_objetivo AS planes_generados_kcal_objetivo, planes_generados.proteina_g AS planes_generados_proteina_g, planes_generados.carbs_g AS planes_generados_carbs_g, planes_generados.grasa_g AS planes_generados_grasa_g, planes_generados.tipo_plan AS planes_generados_tipo_plan, planes_generados.pdf_object_id AS planes_generados_pdf_object_id, planes_generados.ruta_pdf AS planes_generados_ruta_pdf \nFROM planes_generados JOIN clientes ON clientes.id_cliente = planes_generados.id_cliente \nWHERE planes_generados.gym_id = ? AND clientes.gym_id = ? AND planes_generados.deleted_at IS NULL AND clientes.deleted_at IS NULL AND planes_generados.id_cliente = ? ORDER BY planes_generados.fecha_generacion DESC NULLS LAST, planes_generados.id DESC\n LIMIT ? OFFSET ?",
+    "parameters": [
+      "history-person",
+      "history-person",
+      "history-person-profile",
+      51,
+      0
+    ],
+    "plan": [
+      [
+        10,
+        0,
+        46,
+        "SEARCH clientes USING INDEX sqlite_autoindex_clientes_1 (id_cliente=?)"
+      ],
+      [
+        20,
+        0,
+        61,
+        "SEARCH planes_generados USING INDEX ix_planes_gym_fecha (gym_id=?)"
+      ]
+    ]
+  }
+}

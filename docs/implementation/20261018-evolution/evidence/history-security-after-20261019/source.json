@@ -1,0 +1,60 @@
+{
+  "status": "Scoped acceptance of R34 error-boundary fix; both original failures resolved without changing frozen assertions.",
+  "reviewed_commit": "57cdc0d51848203bdd89c0b9f0f3c426f1b285d8",
+  "reviewed_tree": "01a47b182a63c471d57a603236d2c9f99f7ea4b6",
+  "source_worktree": "F:\\MetodoBaseWeb-history-ui-20261019",
+  "source_files_checked": 20,
+  "source_stable": true,
+  "worktree_clean": true,
+  "source_inventory_aggregate_before": "aaaefe6192de0fa6028154458ddba5260f983142542e606ea1853ecb480a06c4",
+  "source_inventory_aggregate_after": "aaaefe6192de0fa6028154458ddba5260f983142542e606ea1853ecb480a06c4",
+  "middleware_RAW_sha256": "29522432056ee1d03565afa8c733cca75bbf1533d37e000eec538ef740faf29c",
+  "middleware_LF_sha256": "190cbab8921e58cdea7ac902b963511f70d2e99827c9e12a4bcf0d51365abf10",
+  "original_before": {
+    "evidence": "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\history-security-independent-20261019\\source.json",
+    "sha256": "c1ca171ebf8bf699a84db4acabe47899605678f996549f39a1103f918243a057",
+    "header_failures": 2,
+    "green_HTTP_cursor_root": 24,
+    "green_VM_composition": 12,
+    "historical_proofs_unchanged": true
+  },
+  "after_focal": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "immutable_original_negatives": 2,
+    "original_driver_sha256": "56acd85a2d72d55dbcf0c564aba263945ecba28ad2b6235c15e8c04e996baac7",
+    "immutable_root_controls": 8,
+    "root_driver_sha256": "e2cc888f0919aa890003e040b093d0f672db633c009fb3b769e2e403f5058755",
+    "own_new_cases": 14,
+    "own_new_driver_sha256": "4a2c3e4503d3b58f9879dc10aa524cecd2395b53dc692d4552f99fafc0e48108",
+    "own_new_driver_copy": "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\history-security-after-20261019\\test_history_boundary_security_review_frozen.py"
+  },
+  "security_findings_resolved": "Summary-query exceptions now return generic private 500 in both real factories with no-store and no-referrer. No actual data leak was demonstrated by the original defect.",
+  "own_focal_checks": [
+    "Real DI failure invokes the existing generic factory handler exactly once.",
+    "Missing or failing handlers in both factories retain only generic detail and matching body/header request ID; logs retain original exception class without private marker.",
+    "Sync and sync-returning-awaitable handlers work. Invalid response type, wrong status, or raising async handler falls back to generic 500.",
+    "Error responses cannot keep public cache or unsafe referrer headers. Nonce CSP is applied.",
+    "Adjacent error route preserves its original outer-handler 502 body and policy. Controlled HTTP 503 retains 503.",
+    "Normal adjacent responses retain the default referrer policy and distinct per-request nonce CSP."
+  ],
+  "delta_scope": {
+    "only_product_changed_since49": "web/middleware/security_headers.py",
+    "original_19_photos": "Exactly the expected middleware delta; other18 identical.",
+    "CSP_and_constructor_AST_unchanged": true,
+    "prior_checks_carried_forward": "24 HTTP/cursor/root and12 VM from49 retained; root8 deliberately replayed here. No broad repeat."
+  },
+  "integration_boundary": "This acceptance is for the history worktree at57cdc0d. It does not validate a composed schema28/recovery candidate or the future merge preserving all three exact sensitive paths. No R16, browser or PG execution is claimed.",
+  "proof": {
+    "private_directory": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-history-security-after-20261019",
+    "archive": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-history-security-after-20261019\\history-security-after-proof.zip",
+    "archive_sha256": "53d914734b593d596866943d8b237c58776cbde60368e05d07b4ea215ab1e934",
+    "junit": "after.xml",
+    "log": "after.log",
+    "raw_source_photos": "frozen-source with20 files"
+  },
+  "no_product_author_tests_or_historical_proofs_modified": true,
+  "providers_network": "Disabled isolation; synthetic SQLite and ASGI only."
+}

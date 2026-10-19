@@ -75,3 +75,5 @@ Los tres ensayos previos permanecen completos y separados; las correcciones fuer
 - `qa-load-local-verified`: CPU/RSS del PID real y 1400 HTTP 200/contratos válidos; faltó la última observación SQL porque el proceso se cerró después del body antes del `finally`. Conserva `requires_review` y exit 1. Se añadió confirmación de escritura de 1400 filas antes del cierre; no se relajó el conteo.
 
 La captura `qa-load-local-final-ack` pasó las mismas condiciones, con 1400 observaciones, salida 0 y fuentes estables. Los contadores previos llamados `http_inflight_at_start` se referían a ciclos ASGI completos; el nombre final aclara su alcance. Los archivos originales no se reescriben. [Índice de huellas y revisiones](evidence/qa-load-local-manifest.json).
+
+Paginación R34 integrada21b7ed9/924dd6f/fdfc9cb:50/default y200máximo, keyset HMAC y summaries sin COUNT ni JSON del plan. QA funcional y revisión de seguridad aceptadas; composición con28 aprobada36/36. El baseline1400HTTP anterior se conserva; la medición posterior de200HTTP C1/C5 sobre1000planes y EXPLAIN PostgreSQL sigue pendiente. No se infiere p95 ni SLO de SQLite o de TCG.

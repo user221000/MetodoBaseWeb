@@ -34,12 +34,12 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [R26](#r26) | P1 | Backend y datos | R26 | en_revision | en_curso | local |
 | [R27](#r27) | P2 | Backend y datos | R27 | pendiente | pendiente | local |
 | [R28](#r28) | P2 | Backend y datos | R28 | en_curso | pendiente | local |
-| [R29](#r29) | P2 | Frontend y UX/UI | R29 | pendiente | pendiente | local |
+| [R29](#r29) | P2 | Frontend y UX/UI | R29 | verificado | verificado | local |
 | [R30](#r30) | P1 | Coordinación y arquitectura | R30 | pendiente | pendiente | local |
 | [R31](#r31) | P1 | Seguridad y privacidad | R31 | en_revision | parcial | local |
 | [R32](#r32) | P1 | Seguridad y privacidad | R32 | pendiente | pendiente | local |
 | [R33](#r33) | P1 | Coordinación y arquitectura | R33 | en_curso | en_curso | local |
-| [R34](#r34) | P2 | QA y automatización | R34 | en_curso | parcial | local |
+| [R34](#r34) | P2 | QA y automatización | R34 | en_curso | en_curso | local |
 | [R35](#r35) | P2 | Frontend y UX/UI | R35 | pendiente | pendiente | local |
 | [B01](#b01) | P0 | Backend y datos | R01 | en_curso | en_curso | local |
 | [B02](#b02) | P1 | Backend y datos | R01, R09, R26 | pendiente | pendiente | local |
@@ -96,7 +96,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [UX-13](#ux-13) | P2 | Backend y datos | R01, R15, R23, R26, R27 | en_revision | en_curso | local |
 | [UX-14](#ux-14) | P2 | Backend y datos | R03 | en_revision | en_curso | local |
 | [UX-15](#ux-15) | P2 | Backend y datos | R06, R16 | en_curso | en_curso | local |
-| [UX-16](#ux-16) | P2 | Coordinación y arquitectura | R09, R29 | pendiente | pendiente | local |
+| [UX-16](#ux-16) | P2 | Coordinación y arquitectura | R09, R29 | verificado | verificado | local |
 | [UX-17](#ux-17) | P2 | Frontend y UX/UI | R15, R22, R24, R30 | pendiente | pendiente | local |
 | [OPS08](#ops08) | P1 | Coordinación y operación | R03, R18, R20 | en_revision | parcial | local |
 | [SEC01](#sec01) | P0 | Root - seguridad y licencias; backend - campos/preparaciónR04 | R01, R04, R09, R31 | en_revision | parcial | local |
@@ -108,7 +108,8 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [SEC05](#sec05) | P1 | Coordinacion y seguridad | R17, R31 | verificado | verificado | local |
 | [SEC06](#sec06) | P1 | Coordinación y seguridad | R05, R18, R21 | verificado | verificado | local |
 | [QA-11](#qa-11) | P1 | Backend y QA | R05, R19 | verificado | verificado | local |
-| [SEC07](#sec07) | P1 | Frontend y seguridad | R13, R31, R34 | en_curso | en_curso | local |
+| [SEC07](#sec07) | P1 | Frontend y seguridad | R13, R31, R34 | verificado | verificado | local |
+| [SEC08](#sec08) | P1 | Operación y seguridad | R09, R18, R21, R31 | en_curso | en_curso | local |
 
 ## R01
 
@@ -604,7 +605,7 @@ Commits: 822de09, 0459b0f, 6d33b9e
 
 Pruebas: Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.; Cierre independiente candidato26: serial1813/1skip/232.55s y n2shuffle seed20261018 1813/1skip/133.73s; cuatro fotos519fuentes/403Python y89paquetes idénticos; pipcheck0. Único skip symlink Windows, Linux pendiente. No fallos; tres categorías de deprecación conocidas.; QA91CLI+27pytest+20Node+8reportes+8escenarios inertes; routing9negativos,58Bash y85/83 colección local. AutorWindows85 reales/0skip/0fail. No Actions/Linux real.; Operación independiente51 controlesbundle/ZIP:2595blobs,1215archivos/217PE/34recursos/90módulos propios yQt0;27 controlesSetup:1215archivos/254690179bytes iguales. CompilaciónInno6.7.3 0/97.19s;sin ejecutarSetup ni instalación/firma.
 
-Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/backend-runtime-static-review.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/desktop-package-environment-prebuild.json; evidence/ci-personal-independent/ci-personal-independent-source.json; evidence/ci-desktop-routing-independent/ci-desktop-routing-independent-source.json; evidence/ci-desktop-routing-windows-author.xml; evidence/desktop-real-build-7bde30b-source.json; evidence/desktop-inno673-compile7bde-source.json; evidence/desktop-artifact27-independent-source.json; evidence/desktop-artifact27-independent-installer-source.json; evidence/desktop-artifact27-independent-evidence-manifest-final.json
+Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/backend-runtime-static-review.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/desktop-package-environment-prebuild.json; evidence/ci-personal-independent/ci-personal-independent-source.json; evidence/ci-desktop-routing-independent/ci-desktop-routing-independent-source.json; evidence/ci-desktop-routing-windows-author.xml; evidence/desktop-real-build-7bde30b-source.json; evidence/desktop-inno673-compile7bde-source.json; evidence/desktop-artifact27-independent-source.json; evidence/desktop-artifact27-independent-installer-source.json; evidence/desktop-artifact27-independent-evidence-manifest-final.json; evidence/linux-recovery28-image-92615d7/build-summary.json; evidence/linux-recovery28-image-92615d7/sca-before/summary.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; DESKTOP_PUBLICACION.md
 
@@ -612,7 +613,7 @@ Revisión: pendiente
 
 Bloqueo: {"falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.", "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.", "responsable": "Usuario/operación", "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."}
 
-Observaciones: 32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime.; WIP posterior93a9e1d: DDL25(18+10 autor),consumidores privados120 autor,SDK/config candidato,locks y SBOM/SCA54Linux/53Windows sin vulnerabilidades conocidas. Revision independiente/restore25/UIlogos/migracion historica aun en curso; no aceptacion ni imagen/proveedor real.; Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.; Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado.
+Observaciones: 32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime.; WIP posterior93a9e1d: DDL25(18+10 autor),consumidores privados120 autor,SDK/config candidato,locks y SBOM/SCA54Linux/53Windows sin vulnerabilidades conocidas. Revision independiente/restore25/UIlogos/migracion historica aun en curso; no aceptacion ni imagen/proveedor real.; Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.; Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado.; Build Linux real logrado; SCA roja del artefacto anterior registrada SEC08. Nuevo candidato aislado en construcción y auditoría OS pendiente; R18 abierto.
 
 ## R19
 
@@ -902,25 +903,25 @@ Problema: Landing comercial conectada al producto
 
 Criterio original: Mensaje para dueño y socio, prueba/demo y precio vigente; CTAs visibles en móvil; enlazar recorridos reales; retirar promesas y páginas huérfanas
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: verificado; implementación: verificado; validación: verificado; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Cambios: pendiente
+Cambios: Landing integrada647eda8/1f9bdb1: catálogo canónico B2B/B2C, CTA móvil por audiencia, acceso rápido, ejemplo sintético derivado de worker/PDF real y FAQ factual.; Registro conserva selección explícita y default individual. Duplicados comerciales web/pages/landing.html y checkout.html retirados tras verificar ausencia de referencias/montaje; originales conservados.
 
-Commits: pendiente
+Commits: 647eda8, 1f9bdb1, 6270658d76480cb960c637ea1457f400ec440347
 
-Pruebas: pendiente
+Pruebas: QA independiente12HTTP,2negativos dinámicos antes/2verdes después,8grupos browser de autor una vez y3propios,4pantallas axe AA/overflow/JS verdes; fuentes/89paquetes estables.; Composición MAIN28+R34:20/20 antes de retirar checkout y6/6 rutas404 después; único delta de622a621fuentes es el HTML huérfano.
 
-Evidencia: pendiente
+Evidencia: evidence/landing-independent-20261019/final-summary.json; evidence/r29-main-composition-20261019/summary.json
 
 Documentación: pendiente
 
-Revisión: pendiente
+Revisión: QA independiente; coordinador revisa composición y retiro de páginas sin uso.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Criterio local verificado; no publicación, compra, piloto ni validación clínica.
 
 ## R30
 
@@ -1042,17 +1043,17 @@ Problema: Rendimiento con carga representativa
 
 Criterio original: Datos sintéticos, p95 y colas medidos por flujo; índices/paginación/pools ajustados a hallazgos; objetivos acordados; sin pruebas de carga sobre producción
 
-Estado: en_curso; implementación: en_curso; validación: parcial; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Cambios: db368a8 incorpora caracterización local acotada de1400HTTP en7flujos C1/C5, sin cambiar producto. Confirma historial sin paginación; propuesta siguiente por cursor(fecha,id),sin ampliar pools sin evidencia.
+Cambios: db368a8 incorpora caracterización local acotada de1400HTTP en7flujos C1/C5, sin cambiar producto. Confirma historial sin paginación; propuesta siguiente por cursor(fecha,id),sin ampliar pools sin evidencia.; Historial paginado50/default y200máximo con cursor HMAC por identidad/perfil, summaries acotados y UI Cargar anteriores integrado21b7ed9/924dd6f/fdfc9cb; SEC07 cerrado localmente.
 
-Commits: db368a8
+Commits: db368a8, 21b7ed9, 924dd6f, fdfc9cb98c7cdb437ac70e422e517a0ca4ae04f2
 
-Pruebas: 1400respuestas válidas y observaciones exactamente enlazadas;14grupos de100,cuantiles recalculados por coordinador,248fuentes quiet.5 clientes pendientes máximos,cohortes10..1000planes;sinSLO ni carga abierta/imagenLinux.
+Pruebas: 1400respuestas válidas y observaciones exactamente enlazadas;14grupos de100,cuantiles recalculados por coordinador,248fuentes quiet.5 clientes pendientes máximos,cohortes10..1000planes;sinSLO ni carga abierta/imagenLinux.; QA74Python+8propios SQLite,23VM nuevos,10grupos browser autor una vez+3propios; seguridad24 y composición36 separados. No se suman al gate amplio27 ni al baseline1400HTTP.
 
-Evidencia: evidence/jobs-static-evaluation-source.json; evidence/qa-load-root-data-review.json
+Evidencia: evidence/jobs-static-evaluation-source.json; evidence/qa-load-root-data-review.json; evidence/history-independent-20261019/final-summary.json; evidence/history-security-after-20261019/source.json; evidence/history-recovery28-main-composition-20261019/summary.json
 
 Documentación: JOBS_EVALUACION.md; CARGA_LOCAL.md
 
@@ -1060,7 +1061,7 @@ Revisión: Operación: revisión estática; coordinación: contrato y límites. 
 
 Bloqueo: no registrado
 
-Observaciones: Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía.
+Observaciones: Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía.; Pendientes medición PostgreSQL posterior de200HTTP C1/C5, SLO y criterios restantes; índice SQLite no acredita rendimiento PostgreSQL.
 
 ## R35
 
@@ -2678,25 +2679,25 @@ Problema: Landing real (`pages.py:37`, `templates/landing.html`) es principalmen
 
 Criterio original: Conservar accesos rápidos para usuarios recurrentes y añadir recorrido comercial para prospectos con ejemplo de plan, beneficios verificables, precios/límites, FAQ, privacidad y CTA contextual de registro. El registro por defecto es individual aunque el usuario puede llegar buscando un gimnasio.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: verificado; implementación: verificado; validación: verificado; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Cambios: pendiente
+Cambios: Landing integrada647eda8/1f9bdb1: catálogo canónico B2B/B2C, CTA móvil por audiencia, acceso rápido, ejemplo sintético derivado de worker/PDF real y FAQ factual.; Registro conserva selección explícita y default individual. Duplicados comerciales web/pages/landing.html y checkout.html retirados tras verificar ausencia de referencias/montaje; originales conservados.
 
-Commits: af177b1
+Commits: af177b1, 647eda8, 1f9bdb1, 6270658d76480cb960c637ea1457f400ec440347
 
-Pruebas: pendiente
+Pruebas: QA independiente12HTTP,2negativos dinámicos antes/2verdes después,8grupos browser de autor una vez y3propios,4pantallas axe AA/overflow/JS verdes; fuentes/89paquetes estables.; Composición MAIN28+R34:20/20 antes de retirar checkout y6/6 rutas404 después; único delta de622a621fuentes es el HTML huérfano.
 
-Evidencia: pendiente
+Evidencia: evidence/landing-independent-20261019/final-summary.json; evidence/r29-main-composition-20261019/summary.json
 
 Documentación: CATALOGO.md
 
-Revisión: pendiente
+Revisión: QA independiente; coordinador revisa composición y retiro de páginas sin uso.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Criterio local verificado; no publicación, compra, piloto ni validación clínica.
 
 ## UX-17
 
@@ -3014,22 +3015,50 @@ Problema: El nuevo historial paginado pierde no-store/no-referrer en422/405 del 
 
 Criterio original: Conservar Cache-Control no-store y Referrer-Policy no-referrer en respuestas del historial privado incluidas422,405y500 de ambas factories; preservar status/cuerpo público genérico sin cursor/planes, CSP y políticas de rutas ajenas; revisar negativos originales sin alterarlos y controles adyacentes independientemente.
 
-Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
+Estado: verificado; implementación: verificado; validación: verificado; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Cambios: Fix49 conserva422/405; contención focal500 todavía pendiente, no integrada.
+Cambios: Fix49 conserva422/405; contención focal500 todavía pendiente, no integrada.; Boundary focal del historial usa respuesta500 genérica y conserva no-store/no-referrer, handlers y CSP; composición mantiene las dos rutas privadas de recuperación y CSP de su página.
 
-Commits: 71e2481ce37d64a244ae1fba3754ebfeba1d0a0d, 49eb44124d36a0d0aeaf732d7f720d969f1d517c
+Commits: 71e2481ce37d64a244ae1fba3754ebfeba1d0a0d, 49eb44124d36a0d0aeaf732d7f720d969f1d517c, 57cdc0d51848203bdd89c0b9f0f3c426f1b285d8, fdfc9cb98c7cdb437ac70e422e517a0ca4ae04f2
 
-Pruebas: Root5rojos/3controles frente71 y8verdes tras49;10fuentes estables. Seguridad confirma2rojos500 reales con19fuentes quietas, sin contenido privado en respuesta. Fix focal pendiente.
+Pruebas: Root5rojos/3controles frente71 y8verdes tras49;10fuentes estables. Seguridad confirma2rojos500 reales con19fuentes quietas, sin contenido privado en respuesta. Fix focal pendiente.; Seguridad24/24:2negativos originales intactos,8root y14propios;20fuentes estables, sólo middleware cambió.; Composición integrada36/36 de historial y recuperación;616fuentes estables.
 
-Evidencia: evidence/history-headers-root-independent-20261019/before.xml; evidence/history-headers-root-independent-20261019/after-root-source.json; evidence/history-security-independent-20261019/source.json
+Evidencia: evidence/history-headers-root-independent-20261019/before.xml; evidence/history-headers-root-independent-20261019/after-root-source.json; evidence/history-security-independent-20261019/source.json; evidence/history-security-after-20261019/source.json; evidence/history-recovery28-main-composition-20261019/summary.json
 
 Documentación: NUEVOS_HALLAZGOS.md
 
-Revisión: Seguridad independiente conserva2negativos500; QA en curso, no aceptación final.
+Revisión: Seguridad independiente acepta57; coordinador verifica composición36.
 
 Bloqueo: no registrado
 
 Observaciones: Frontera local de herramientas; no demuestra incidente ni uso de credenciales reales.
+
+## SEC08
+
+Fuente: [Componentes heredados vulnerables en runtime y artefactos](NUEVOS_HALLAZGOS.md).
+
+Problema: La primera imagen real hereda pip25.0.1 con seis avisos únicos en SCA; CPython3.12.13 precede correcciones de seguridad publicadas para3.12.15. Los intérpretes Windows y artefactos históricos usan3.12.13 también.
+
+Criterio original: Inventariar componentes efectivos por artefacto soportado; preservar la imagen y reportes anteriores; actualizar desde fuentes oficiales con versiones/digests/hashes fijados; reconstruir y verificar inventario sin metadata duplicada, pip check, SCA Python, avisos CPython y auditoría OS con alcance explícito; ejecutar regresiones pertinentes e independencia del autor. Evaluar por separado web Linux y desktop Windows, sin atribuir a un artefacto resultados de otro ni aceptar excepciones generales.
+
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: Candidato aislado23e57e0/abd559a fija pip26.2.1 por wheel SHA256 en base común y python3.12.15-slim por digest linux/amd64; build y auditorías pendientes de aceptación.
+
+Commits: 23e57e07b49bc0ac94cb66613d0c5fb857941683, abd559a9ea3227e6c3bdb141241c11f7196c7682
+
+Pruebas: Imagen5eb6d300 de fuente92615d7: build0/698.969s;55distribuciones reales,pipcheck0,uid999/no-root. SCA OSV exit1:12entradas duplicadas/6IDs únicos,todos pip25.0.1; otros54 sin coincidencias de esa consulta. No startup, auditoría OS ni cobertura CPython por pip-audit.
+
+Evidencia: evidence/linux-recovery28-image-92615d7/runtime-inventory.json; evidence/linux-recovery28-image-92615d7/sca-before/summary.json
+
+Documentación: NUEVOS_HALLAZGOS.md; ESTADO.md; RIESGOS.md; VALIDACION.md
+
+Revisión: Coordinación revisa procedencia; aceptación independiente y artefactos corregidos pendientes.
+
+Bloqueo: no registrado
+
+Observaciones: No se ha demostrado explotación. Entornos Windows e instaladores históricos se conservan; el cambio Linux aislado no los corrige. No excepción de riesgo ni release.

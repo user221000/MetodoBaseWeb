@@ -87,3 +87,9 @@ e0f74da/06d291b/6abe08c conectan el diario persistente y corrigen las continuaci
 7bde30b elimina direcciones/rutas concretas de memoria y errores de métricas; usa rutas declaradas y fallback fijo. Seguridad independiente aceptó15propios+63replay; el mismo driver conserva12rojos/3controles antes.5c9e097 conserva esos15 en suite mediante copia de funciones/aserciones AST idénticas, gate focal15/15.
 
 El gate amplio7bde30b pasó2064/1skip en serial y n2; no se suman15posteriores ni gates de otros entornos. Desktop7bde30b reemplaza el ensayo9f:51controlesbundle/ZIP/Qt y27payloadInno exacto; OPS10 ausente. Setup compilado sin ejecutar, instalar o firmar. db368a8 añade caracterización local1400HTTP sin cambiar producto; revela historial ilimitado pendiente de paginar. R16/schema28 sigue aislado y no integrado.
+
+## Checkpoint104: historial y oferta pública integrados
+
+Historial antes ilimitado pasa a summaries50/default,200máximo, cursor HMAC por identidad/perfil y carga explícita de páginas. Boundary privado conserva cabeceras también en errores422/405/500. Integrados21b7ed9/924dd6f/fdfc9cb; seguridad24 y composición36 con recuperación28 aceptadas. R34 no declara todavía mejora de p95 PostgreSQL.
+
+Landing integrada647eda8/1f9bdb1 muestra catálogo canónico B2B/B2C, CTA móvil por audiencia, acceso rápido, ejemplo sintético y FAQ factual; registro inicializa modo correcto. Retirados los dos HTML comerciales huérfanos tras comprobar ausencia de montaje y referencias; RAW originales fuera del entregable y Git preservados. R29/UX-16 verificados localmente por QA y composición20+6; sin publicación ni compras. [QA historial](evidence/history-independent-20261019/final-summary.json),[QA landing](evidence/landing-independent-20261019/final-summary.json).

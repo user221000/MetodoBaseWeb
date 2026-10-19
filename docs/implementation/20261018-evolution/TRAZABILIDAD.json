@@ -1113,7 +1113,9 @@
         "evidence/desktop-inno673-compile7bde-source.json",
         "evidence/desktop-artifact27-independent-source.json",
         "evidence/desktop-artifact27-independent-installer-source.json",
-        "evidence/desktop-artifact27-independent-evidence-manifest-final.json"
+        "evidence/desktop-artifact27-independent-evidence-manifest-final.json",
+        "evidence/linux-recovery28-image-92615d7/build-summary.json",
+        "evidence/linux-recovery28-image-92615d7/sca-before/summary.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -1135,7 +1137,8 @@
         "CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.",
         "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
         "Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.",
-        "Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado."
+        "Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado.",
+        "Build Linux real logrado; SCA roja del artefacto anterior registrada SEC08. Nuevo candidato aislado en construcción y auditoría OS pendiente; R18 abierto."
       ]
     },
     {
@@ -1645,19 +1648,34 @@
         "R29"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "verificado",
+      "implementacion": "verificado",
+      "validacion": "verificado",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
+      "cambios": [
+        "Landing integrada647eda8/1f9bdb1: catálogo canónico B2B/B2C, CTA móvil por audiencia, acceso rápido, ejemplo sintético derivado de worker/PDF real y FAQ factual.",
+        "Registro conserva selección explícita y default individual. Duplicados comerciales web/pages/landing.html y checkout.html retirados tras verificar ausencia de referencias/montaje; originales conservados."
+      ],
+      "commits": [
+        "647eda8",
+        "1f9bdb1",
+        "6270658d76480cb960c637ea1457f400ec440347"
+      ],
+      "pruebas": [
+        "QA independiente12HTTP,2negativos dinámicos antes/2verdes después,8grupos browser de autor una vez y3propios,4pantallas axe AA/overflow/JS verdes; fuentes/89paquetes estables.",
+        "Composición MAIN28+R34:20/20 antes de retirar checkout y6/6 rutas404 después; único delta de622a621fuentes es el HTML huérfano."
+      ],
+      "evidencia": [
+        "evidence/landing-independent-20261019/final-summary.json",
+        "evidence/r29-main-composition-20261019/summary.json"
+      ],
       "documentacion": [],
-      "revisor": null,
+      "revisor": "QA independiente; coordinador revisa composición y retiro de páginas sin uso.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Criterio local verificado; no publicación, compra, piloto ni validación clínica."
+      ]
     },
     {
       "id": "R30",
@@ -1862,21 +1880,29 @@
       "dependencias": [],
       "estado": "en_curso",
       "implementacion": "en_curso",
-      "validacion": "parcial",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "db368a8 incorpora caracterización local acotada de1400HTTP en7flujos C1/C5, sin cambiar producto. Confirma historial sin paginación; propuesta siguiente por cursor(fecha,id),sin ampliar pools sin evidencia."
+        "db368a8 incorpora caracterización local acotada de1400HTTP en7flujos C1/C5, sin cambiar producto. Confirma historial sin paginación; propuesta siguiente por cursor(fecha,id),sin ampliar pools sin evidencia.",
+        "Historial paginado50/default y200máximo con cursor HMAC por identidad/perfil, summaries acotados y UI Cargar anteriores integrado21b7ed9/924dd6f/fdfc9cb; SEC07 cerrado localmente."
       ],
       "commits": [
-        "db368a8"
+        "db368a8",
+        "21b7ed9",
+        "924dd6f",
+        "fdfc9cb98c7cdb437ac70e422e517a0ca4ae04f2"
       ],
       "pruebas": [
-        "1400respuestas válidas y observaciones exactamente enlazadas;14grupos de100,cuantiles recalculados por coordinador,248fuentes quiet.5 clientes pendientes máximos,cohortes10..1000planes;sinSLO ni carga abierta/imagenLinux."
+        "1400respuestas válidas y observaciones exactamente enlazadas;14grupos de100,cuantiles recalculados por coordinador,248fuentes quiet.5 clientes pendientes máximos,cohortes10..1000planes;sinSLO ni carga abierta/imagenLinux.",
+        "QA74Python+8propios SQLite,23VM nuevos,10grupos browser autor una vez+3propios; seguridad24 y composición36 separados. No se suman al gate amplio27 ni al baseline1400HTTP."
       ],
       "evidencia": [
         "evidence/jobs-static-evaluation-source.json",
-        "evidence/qa-load-root-data-review.json"
+        "evidence/qa-load-root-data-review.json",
+        "evidence/history-independent-20261019/final-summary.json",
+        "evidence/history-security-after-20261019/source.json",
+        "evidence/history-recovery28-main-composition-20261019/summary.json"
       ],
       "documentacion": [
         "JOBS_EVALUACION.md",
@@ -1885,7 +1911,8 @@
       "revisor": "Operación: revisión estática; coordinación: contrato y límites. No ejecución de carga/job.",
       "bloqueo": null,
       "observaciones": [
-        "Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía."
+        "Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía.",
+        "Pendientes medición PostgreSQL posterior de200HTTP C1/C5, SLO y criterios restantes; índice SQLite no acredita rendimiento PostgreSQL."
       ]
     },
     {
@@ -4591,23 +4618,37 @@
         "R29"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "verificado",
+      "implementacion": "verificado",
+      "validacion": "verificado",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [
-        "af177b1"
+      "cambios": [
+        "Landing integrada647eda8/1f9bdb1: catálogo canónico B2B/B2C, CTA móvil por audiencia, acceso rápido, ejemplo sintético derivado de worker/PDF real y FAQ factual.",
+        "Registro conserva selección explícita y default individual. Duplicados comerciales web/pages/landing.html y checkout.html retirados tras verificar ausencia de referencias/montaje; originales conservados."
       ],
-      "pruebas": [],
-      "evidencia": [],
+      "commits": [
+        "af177b1",
+        "647eda8",
+        "1f9bdb1",
+        "6270658d76480cb960c637ea1457f400ec440347"
+      ],
+      "pruebas": [
+        "QA independiente12HTTP,2negativos dinámicos antes/2verdes después,8grupos browser de autor una vez y3propios,4pantallas axe AA/overflow/JS verdes; fuentes/89paquetes estables.",
+        "Composición MAIN28+R34:20/20 antes de retirar checkout y6/6 rutas404 después; único delta de622a621fuentes es el HTML huérfano."
+      ],
+      "evidencia": [
+        "evidence/landing-independent-20261019/final-summary.json",
+        "evidence/r29-main-composition-20261019/summary.json"
+      ],
       "documentacion": [
         "CATALOGO.md"
       ],
-      "revisor": null,
+      "revisor": "QA independiente; coordinador revisa composición y retiro de páginas sin uso.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Criterio local verificado; no publicación, compra, piloto ni validación clínica."
+      ]
     },
     {
       "id": "UX-17",
@@ -5169,33 +5210,87 @@
         "R34"
       ],
       "dependencias": [],
+      "estado": "verificado",
+      "implementacion": "verificado",
+      "validacion": "verificado",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [
+        "Fix49 conserva422/405; contención focal500 todavía pendiente, no integrada.",
+        "Boundary focal del historial usa respuesta500 genérica y conserva no-store/no-referrer, handlers y CSP; composición mantiene las dos rutas privadas de recuperación y CSP de su página."
+      ],
+      "commits": [
+        "71e2481ce37d64a244ae1fba3754ebfeba1d0a0d",
+        "49eb44124d36a0d0aeaf732d7f720d969f1d517c",
+        "57cdc0d51848203bdd89c0b9f0f3c426f1b285d8",
+        "fdfc9cb98c7cdb437ac70e422e517a0ca4ae04f2"
+      ],
+      "pruebas": [
+        "Root5rojos/3controles frente71 y8verdes tras49;10fuentes estables. Seguridad confirma2rojos500 reales con19fuentes quietas, sin contenido privado en respuesta. Fix focal pendiente.",
+        "Seguridad24/24:2negativos originales intactos,8root y14propios;20fuentes estables, sólo middleware cambió.",
+        "Composición integrada36/36 de historial y recuperación;616fuentes estables."
+      ],
+      "evidencia": [
+        "evidence/history-headers-root-independent-20261019/before.xml",
+        "evidence/history-headers-root-independent-20261019/after-root-source.json",
+        "evidence/history-security-independent-20261019/source.json",
+        "evidence/history-security-after-20261019/source.json",
+        "evidence/history-recovery28-main-composition-20261019/summary.json"
+      ],
+      "documentacion": [
+        "NUEVOS_HALLAZGOS.md"
+      ],
+      "revisor": "Seguridad independiente acepta57; coordinador verifica composición36.",
+      "bloqueo": null,
+      "observaciones": [
+        "Frontera local de herramientas; no demuestra incidente ni uso de credenciales reales."
+      ]
+    },
+    {
+      "id": "SEC08",
+      "identificador_original": "SEC08",
+      "fuente": "docs/implementation/20261018-evolution/NUEVOS_HALLAZGOS.md",
+      "seccion": "Componentes heredados vulnerables en runtime y artefactos",
+      "problema": "La primera imagen real hereda pip25.0.1 con seis avisos únicos en SCA; CPython3.12.13 precede correcciones de seguridad publicadas para3.12.15. Los intérpretes Windows y artefactos históricos usan3.12.13 también.",
+      "criterio_exacto": "Inventariar componentes efectivos por artefacto soportado; preservar la imagen y reportes anteriores; actualizar desde fuentes oficiales con versiones/digests/hashes fijados; reconstruir y verificar inventario sin metadata duplicada, pip check, SCA Python, avisos CPython y auditoría OS con alcance explícito; ejecutar regresiones pertinentes e independencia del autor. Evaluar por separado web Linux y desktop Windows, sin atribuir a un artefacto resultados de otro ni aceptar excepciones generales.",
+      "prioridad": "P1",
+      "responsable": "Operación y seguridad",
+      "tareas": [
+        "R09",
+        "R18",
+        "R21",
+        "R31"
+      ],
+      "dependencias": [],
       "estado": "en_curso",
       "implementacion": "en_curso",
       "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Fix49 conserva422/405; contención focal500 todavía pendiente, no integrada."
+        "Candidato aislado23e57e0/abd559a fija pip26.2.1 por wheel SHA256 en base común y python3.12.15-slim por digest linux/amd64; build y auditorías pendientes de aceptación."
       ],
       "commits": [
-        "71e2481ce37d64a244ae1fba3754ebfeba1d0a0d",
-        "49eb44124d36a0d0aeaf732d7f720d969f1d517c"
+        "23e57e07b49bc0ac94cb66613d0c5fb857941683",
+        "abd559a9ea3227e6c3bdb141241c11f7196c7682"
       ],
       "pruebas": [
-        "Root5rojos/3controles frente71 y8verdes tras49;10fuentes estables. Seguridad confirma2rojos500 reales con19fuentes quietas, sin contenido privado en respuesta. Fix focal pendiente."
+        "Imagen5eb6d300 de fuente92615d7: build0/698.969s;55distribuciones reales,pipcheck0,uid999/no-root. SCA OSV exit1:12entradas duplicadas/6IDs únicos,todos pip25.0.1; otros54 sin coincidencias de esa consulta. No startup, auditoría OS ni cobertura CPython por pip-audit."
       ],
       "evidencia": [
-        "evidence/history-headers-root-independent-20261019/before.xml",
-        "evidence/history-headers-root-independent-20261019/after-root-source.json",
-        "evidence/history-security-independent-20261019/source.json"
+        "evidence/linux-recovery28-image-92615d7/runtime-inventory.json",
+        "evidence/linux-recovery28-image-92615d7/sca-before/summary.json"
       ],
       "documentacion": [
-        "NUEVOS_HALLAZGOS.md"
+        "NUEVOS_HALLAZGOS.md",
+        "ESTADO.md",
+        "RIESGOS.md",
+        "VALIDACION.md"
       ],
-      "revisor": "Seguridad independiente conserva2negativos500; QA en curso, no aceptación final.",
+      "revisor": "Coordinación revisa procedencia; aceptación independiente y artefactos corregidos pendientes.",
       "bloqueo": null,
       "observaciones": [
-        "Frontera local de herramientas; no demuestra incidente ni uso de credenciales reales."
+        "No se ha demostrado explotación. Entornos Windows e instaladores históricos se conservan; el cambio Linux aislado no los corrige. No excepción de riesgo ni release."
       ]
     }
   ]

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="2" failures="0" skipped="0" tests="2" time="4.833" timestamp="2026-10-19T03:35:16.120356-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="" name="test_changed_billing_period_is_consistent_in_cards_and_catalog_note[web.main_web]" time="1.095"><error message="failed on setup with &quot;RuntimeError: Database is missing an application table&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\test_landing_commercial.py:40: in landing
+    with TestClient(importlib.import_module(request.param).create_app()) as client:
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\main_web.py:100: in create_app
+    verify_runtime_schema(_sa_engine, require_revision=settings.ENV != "testing")
+web\database\schema_control.py:79: in verify_runtime_schema
+    raise RuntimeError("Database is missing an application table")
+E   RuntimeError: Database is missing an application table</error></testcase><testcase classname="" name="test_changed_billing_period_is_consistent_in_cards_and_catalog_note[api.app]" time="1.672"><error message="failed on setup with &quot;RuntimeError: Database is missing an application table&quot;">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\test_landing_commercial.py:40: in landing
+    with TestClient(importlib.import_module(request.param).create_app()) as client:
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api\app.py:65: in create_app
+    verify_runtime_schema(get_engine(), require_revision=not (_s and _s.ENV == "testing"))
+web\database\schema_control.py:79: in verify_runtime_schema
+    raise RuntimeError("Database is missing an application table")
+E   RuntimeError: Database is missing an application table</error></testcase></testsuite></testsuites>
