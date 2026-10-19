@@ -1,0 +1,106 @@
+{
+  "base_commit": "49eb44124d36a0d0aeaf732d7f720d969f1d517c",
+  "sources": {
+    "web/middleware/security_headers.py": {
+      "raw_sha256": "29522432056ee1d03565afa8c733cca75bbf1533d37e000eec538ef740faf29c",
+      "lf_sha256": "190cbab8921e58cdea7ac902b963511f70d2e99827c9e12a4bcf0d51365abf10"
+    },
+    "tests/test_history_error_boundary.py": {
+      "raw_sha256": "5ea7b2494886d0091fa38bd28eb1687d7bec4e9c1b7d1ab7a713addbe8c3d81b",
+      "lf_sha256": "5ea7b2494886d0091fa38bd28eb1687d7bec4e9c1b7d1ab7a713addbe8c3d81b"
+    },
+    "docs/implementation/20261018-evolution/HISTORIAL_PERSONAL_ERROR_BOUNDARY.json": {
+      "raw_sha256": "e235e8fc84d3a3a8df0bdf4a2af8277651322f2ac74b3b42a47b9709a046ec2e",
+      "lf_sha256": "04cda1f9e98223c838e0ad225b9a4d51bbb9c973d449b16f9e8e0b9d64509e4b"
+    }
+  },
+  "readonly_dependencies": {
+    "api/app.py": "b4a68539e2e8314a580931b046cb54270a5a069c5b5f81d6fdb968db4f3970ea",
+    "tests/test_history_headers_followup.py": "db4bd7484cd9d788eb689335f852a80bb958871853be250ab48e57eeac4ad6c3",
+    "web/templates/usuario_historial.html": "6ceddd4d4d65538a87c3604d2d793cd091fb766d41f26c5be9d5b9fe9ca079f3",
+    "web/static/js/usuario-historial.js": "d53b0847243377a3037ee2f645f9898a7ebf6ec08ef039db7fd1efb4cf2e0ce3",
+    "web/main_web.py": "eb8056f690940ea8ed604ef0e4949cb6dd3e4b6c158c80899769ca5982744e1b",
+    "web/static/js/api.js": "ac6894310a277acb5197209ff34cbd38585da3e42e9726dc00573714de66dd6e",
+    "tests/test_security_middleware.py": "2d63727dc64bbb5dec187958e9d5e95b99daf77281d7220e0d0618f044c74b7d",
+    "tests/isolation.py": "b5381802b30c26c734721062b5d0c4d91cbc5be0c82fca2644b9e3438783cae3",
+    "tests/test_personal_history_pagination.py": "7df57bf8f7ce02b850d5a709218a204e648a78985b7898ce73a9c2e3e679aec3",
+    "web/services/personal_history_cursor.py": "0dce2e1a7ff4cb5873a4b08112698262af765976d5cc493f208db5570d951d55",
+    "tests/run_isolated.py": "99080ea5b401fdd40678610d7b5f4bc9a2626134819432b2168854900497d604",
+    "conftest.py": "b73ed9d5f8563266ebb9636e87097f187c64d865fab12d2d7ce01e574bfd098c",
+    "web/routes/usuario.py": "55e30337e98ac4aaa312e6d3b8ee07bb9984939d8abca705f12f02f98dba786a"
+  },
+  "raw_source_archive": {
+    "path": "docs/implementation/20261018-evolution/evidence/history-error-boundary/source-snapshot-tested.zip",
+    "sha256": "b92d6c7eabbe3ed0abc0fecbdd561b8d916daae3212bdc1053d9f8d15355aae1",
+    "verified_readback": true
+  },
+  "before_middleware_raw_sha256": "841f59334b11ea062a59bfaeb9fdb2f74070f177b344fbe4970413c18228a2b7",
+  "security_driver_sha256": "56acd85a2d72d55dbcf0c564aba263945ecba28ad2b6235c15e8c04e996baac7",
+  "final_validation": {
+    "immutable_security_driver": {
+      "before_failed": 2,
+      "final_passed": 2,
+      "sha256": "56acd85a2d72d55dbcf0c564aba263945ecba28ad2b6235c15e8c04e996baac7"
+    },
+    "root_header_driver_final_passed": 8,
+    "new_boundary_cases_final_passed": 12,
+    "existing_middleware_cases_passed": 22,
+    "real_factory_401_403_passed": 2,
+    "note": "The earlier 36-case focused run includes the same 12 boundary cases; final 12 and the 2+8 replays are repeat checks, not additional unique cases. 46 unique targeted cases across these groups.",
+    "static": [
+      "lint",
+      "security"
+    ],
+    "broad_PG_browser_replayed": false,
+    "diff_check_exception": {
+      "path": "docs/implementation/20261018-evolution/evidence/history-error-boundary/before-security_headers.py.txt",
+      "reason": "Exact prior middleware source contains historical whitespace-only lines; preserve proof bytes. New code and all other added evidence pass the diff whitespace check. Raw before body is also preserved and verified in source-snapshot-tested.zip.",
+      "lines": [
+        25,
+        29,
+        47,
+        50,
+        76,
+        84,
+        89,
+        91,
+        98,
+        102,
+        119,
+        128
+      ]
+    }
+  },
+  "unchanged_older_proof_directories": [
+    "history-pagination",
+    "history-headers-followup"
+  ],
+  "evidence": {
+    "before-security_headers.py.txt": "841f59334b11ea062a59bfaeb9fdb2f74070f177b344fbe4970413c18228a2b7",
+    "boundary-final.log": "ee5f5f279745cd37fb2e4d369f9465781f54e2a2b942f4de6bcd67d8c12834b7",
+    "boundary-final.xml": "f7d47feb91bc2457520cf912ee483d0facdb9b88c77d914ca2f69b4ef5123f5e",
+    "driver-replay-path.json": "ae69c5e51d3b9819800a6862ebc66239728d79c0b5e7c76e027960eaceb8ab13",
+    "failure-headers-MetodoBase_API.json": "4c18277f441a0fbebc98899254bdd8a6d278c0e5b86ffb7bcbb672346ee14363",
+    "failure-headers-MetodoBase_Web.json": "f1f12b6559467f87724af532e8da5b2f0116b805ec5923feaf572f40fc0d4d6d",
+    "final-driver-replay-path.json": "3426ee320b4b77c7a0f5060b275704771cd18fff3a7302768b9a01aeccf28332",
+    "final-failure-headers-MetodoBase_API.json": "bb2c109d8f81317244448cac9b18ee8d89005a06964cdc753dbd8fa476c89a27",
+    "final-failure-headers-MetodoBase_Web.json": "09f90e3ca3cd7cd7f14bf330d589a61590b2b61f2b4982a71ecbe954c52401a1",
+    "focused.log": "09c8502d66d8e826522436449ccaaefb9613cc75b7122b9a9b22b21b6ec7edc2",
+    "focused.xml": "c95af025ca21eae5ca4d4751a61d08f7d14699c33103c00bbc4e85cc9f196d51",
+    "quality-lint.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "quality-security.log": "cc1fc06b1fba5be277a13e17b285b1fb3ac2b52d0fb7389fe75fe06584b0b1a6",
+    "root-eight-final.log": "dbffec04323589ec451a9b278949d8921cf3581a8f5ed24788b7fd7acfa187ad",
+    "root-eight-final.xml": "f6e1ae03bd64eee0149f1b8e420c4f7309992d68be1158fe1b758290dcd942dc",
+    "root-eight.log": "f9c428ce47c30f849f640a7641d931cdb0e3ebdc7b8762c9160349f5ae9c65ee",
+    "root-eight.xml": "d8edf5f228c4af50590bf982ded41e1004e93cf75b1389e62ff6e03ee8ddc5e4",
+    "security-after.log": "fba8800719ce02539088471346d9d0fcc34fc0f5d7c14557937cc128121ff3f1",
+    "security-after.xml": "4e8b70992a2c232cc7793e1a1c92b140663b685978be77936170c8b54669065e",
+    "security-before-failure-headers.log": "29959bbb227c871f877ee52a41408a16b053fa5578140f90d2f7cee2488ea8b4",
+    "security-before-failure-headers.xml": "84d0a23cb9dd75a97f6129ca1183cda34c4e8b178aed991c1d544a802ae4ddeb",
+    "security-before-source.json": "c1ca171ebf8bf699a84db4acabe47899605678f996549f39a1103f918243a057",
+    "security-driver-frozen.py": "56acd85a2d72d55dbcf0c564aba263945ecba28ad2b6235c15e8c04e996baac7",
+    "security-final.log": "6ecf0e0a68539c5db4c5ec5828b29ac19466a1bab9cae1966e03e3aba605171a",
+    "security-final.xml": "34f4b25bb84d23f4e545cfd554c281f8ee9ab74441b83dcc08b9f60cc2423f5a",
+    "source-snapshot-tested.zip": "b92d6c7eabbe3ed0abc0fecbdd561b8d916daae3212bdc1053d9f8d15355aae1"
+  }
+}

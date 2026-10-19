@@ -1,0 +1,53 @@
+{
+  "scope": "R34 exact private-history 500 error boundary; isolated follow-up to 49eb441; not R16 composition",
+  "path": "/api/usuario/historial",
+  "behavior": [
+    "Only an unexpected Exception at the exact history path is contained, including dependency failure before the endpoint.",
+    "Invoke the factory registered Exception handler; await an awaitable result or accept its synchronous Response. Preserve its 500 body, request identifier and existing class-only logging.",
+    "If the handler is absent, fails or returns an invalid/non-500 response, produce the existing generic Spanish JSON detail and available request_id; log only the original exception class.",
+    "Apply no-store and no-referrer to this contained 500. Existing CSP generation is unchanged. Exceptions on adjacent or other paths retain their existing behavior.",
+    "Controlled HTTP statuses are not converted to 500. No cursor, SQL, exception message or private plan data is echoed."
+  ],
+  "validation": {
+    "immutable_security_driver": {
+      "before_failed": 2,
+      "final_passed": 2,
+      "sha256": "56acd85a2d72d55dbcf0c564aba263945ecba28ad2b6235c15e8c04e996baac7"
+    },
+    "root_header_driver_final_passed": 8,
+    "new_boundary_cases_final_passed": 12,
+    "existing_middleware_cases_passed": 22,
+    "real_factory_401_403_passed": 2,
+    "note": "The earlier 36-case focused run includes the same 12 boundary cases; final 12 and the 2+8 replays are repeat checks, not additional unique cases. 46 unique targeted cases across these groups.",
+    "static": [
+      "lint",
+      "security"
+    ],
+    "broad_PG_browser_replayed": false,
+    "diff_check_exception": {
+      "path": "docs/implementation/20261018-evolution/evidence/history-error-boundary/before-security_headers.py.txt",
+      "reason": "Exact prior middleware source contains historical whitespace-only lines; preserve proof bytes. New code and all other added evidence pass the diff whitespace check. Raw before body is also preserved and verified in source-snapshot-tested.zip.",
+      "lines": [
+        25,
+        29,
+        47,
+        50,
+        76,
+        84,
+        89,
+        91,
+        98,
+        102,
+        119,
+        128
+      ]
+    }
+  },
+  "before_provenance": {
+    "security_source_manifest": "evidence/history-error-boundary/security-before-source.json",
+    "security_archive_sha256": "d9d7e804eb0fcecda5d21a889bd23185ff2fbfa69565a8f86e5e0ee224c3db20",
+    "raw_middleware": "evidence/history-error-boundary/before-security_headers.py.txt",
+    "old_history_proofs": "Unmodified; base49 and earlier source ZIPs preserved."
+  },
+  "limits": "Author targeted SQLite/ASGI checks only. Prior independent 74 Python/23 VM checks remain prior checkpoints. Security replay and QA final browser remain independent review gates. No listener started, no migrations, no load measurement, no main integration."
+}

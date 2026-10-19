@@ -15,8 +15,10 @@ Uso:
 """
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 
+import inspect
+import logging
 import secrets
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -87,7 +89,28 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         nonce = secrets.token_urlsafe(16)
         request.state.csp_nonce = nonce
         
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception as error:
+            if request.url.path != "/api/usuario/historial":
+                raise
+            # Generic handlers live outside response middleware. Reuse the
+            # factory's existing public error body, then apply private headers.
+            try:
+                handler = request.app.exception_handlers.get(Exception)
+                if handler is None:
+                    raise LookupError('No generic handler')
+                result = handler(request, error)
+                response = await result if inspect.isawaitable(result) else result
+                if not isinstance(response, Response) or response.status_code != 500:
+                    raise ValueError('Invalid generic error response')
+            except Exception:
+                logging.getLogger(__name__).error("Private history failed class=%s", type(error).__name__)
+                body = {"detail": "Error interno del servidor"}
+                if getattr(request.state, "request_id", None):
+                    body["request_id"] = request.state.request_id
+                response = JSONResponse(body, status_code=500)
+            response.headers["Cache-Control"] = "no-store"
         
         # ─── HSTS ───────────────────────────────────────────────────────────
         if self.hsts_enabled:
