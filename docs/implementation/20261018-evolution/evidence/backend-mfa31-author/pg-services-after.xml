@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="12" time="379.570" timestamp="2026-10-19T09:36:33.319146-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_mfa31_postgres" name="test_restricted_actor_only_force_rls_context_commit_rollback_and_pool[postgresql]" time="11.081" /><testcase classname="tests.integration_mfa31_postgres" name="test_two_processes_cannot_replay_otp_recovery_or_exact_action[otp-postgresql]" time="36.163"><failure message="_queue.Empty">tests\integration_mfa31_postgres.py:187: in test_two_processes_cannot_replay_otp_recovery_or_exact_action
+    assert ready.get(timeout=25) and ready.get(timeout=25)
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\queues.py:114: in get
+    raise Empty
+E   _queue.Empty</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_two_processes_cannot_replay_otp_recovery_or_exact_action[recovery-postgresql]" time="38.071"><failure message="_queue.Empty">tests\integration_mfa31_postgres.py:187: in test_two_processes_cannot_replay_otp_recovery_or_exact_action
+    assert ready.get(timeout=25) and ready.get(timeout=25)
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\queues.py:114: in get
+    raise Empty
+E   _queue.Empty</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_two_processes_cannot_replay_otp_recovery_or_exact_action[action-postgresql]" time="42.640"><failure message="sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)">tests\integration_mfa31_postgres.py:177: in test_two_processes_cannot_replay_otp_recovery_or_exact_action
+    grant = mfa.issue_step_up(db, current, access, "PATCH", body["path"], body["body"], now=now)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:425: in issue_step_up
+    claims = verificar_token(access)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:476: in verificar_token
+    current = _current_token_identity(payload)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:458: in _current_token_identity
+    current = _get_user_by_id(payload["id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:626: in _get_user_by_id
+    ).first()
+      ^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2823: in first
+    return self.limit(1)._iter().first()  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2921: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2473: in execute
+    return self._execute_internal(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2350: in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2173: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._connection_for_bind&gt;:2: in _connection_for_bind
+    return target(fn, self, bind, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1203: in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3270: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:149: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3294: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:445: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:1317: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:709: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\impl.py:165: in _do_get
+    raise exc.TimeoutError(
+E   sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_stepup_revalidates_role_membership_activity_and_session[role-postgresql]" time="37.329"><failure message="sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)">tests\integration_mfa31_postgres.py:217: in test_stepup_revalidates_role_membership_activity_and_session
+    grant = mfa.issue_step_up(db, current, pair["token"], "POST", path, body, now=now)["grant"]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:425: in issue_step_up
+    claims = verificar_token(access)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:476: in verificar_token
+    current = _current_token_identity(payload)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:458: in _current_token_identity
+    current = _get_user_by_id(payload["id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:626: in _get_user_by_id
+    ).first()
+      ^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2823: in first
+    return self.limit(1)._iter().first()  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2921: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2473: in execute
+    return self._execute_internal(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2350: in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2173: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._connection_for_bind&gt;:2: in _connection_for_bind
+    return target(fn, self, bind, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1203: in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3270: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:149: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3294: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:445: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:1317: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:709: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\impl.py:165: in _do_get
+    raise exc.TimeoutError(
+E   sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_stepup_revalidates_role_membership_activity_and_session[expulsion-postgresql]" time="37.852"><failure message="sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)">tests\integration_mfa31_postgres.py:217: in test_stepup_revalidates_role_membership_activity_and_session
+    grant = mfa.issue_step_up(db, current, pair["token"], "POST", path, body, now=now)["grant"]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:425: in issue_step_up
+    claims = verificar_token(access)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:476: in verificar_token
+    current = _current_token_identity(payload)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:458: in _current_token_identity
+    current = _get_user_by_id(payload["id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:626: in _get_user_by_id
+    ).first()
+      ^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2823: in first
+    return self.limit(1)._iter().first()  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2921: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2473: in execute
+    return self._execute_internal(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2350: in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2173: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._connection_for_bind&gt;:2: in _connection_for_bind
+    return target(fn, self, bind, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1203: in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3270: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:149: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3294: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:445: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:1317: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:709: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\impl.py:165: in _do_get
+    raise exc.TimeoutError(
+E   sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_stepup_revalidates_role_membership_activity_and_session[deactivate-postgresql]" time="40.612"><failure message="sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)">tests\integration_mfa31_postgres.py:217: in test_stepup_revalidates_role_membership_activity_and_session
+    grant = mfa.issue_step_up(db, current, pair["token"], "POST", path, body, now=now)["grant"]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:425: in issue_step_up
+    claims = verificar_token(access)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:476: in verificar_token
+    current = _current_token_identity(payload)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:458: in _current_token_identity
+    current = _get_user_by_id(payload["id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:626: in _get_user_by_id
+    ).first()
+      ^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2823: in first
+    return self.limit(1)._iter().first()  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2921: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2473: in execute
+    return self._execute_internal(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2350: in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2173: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._connection_for_bind&gt;:2: in _connection_for_bind
+    return target(fn, self, bind, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1203: in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3270: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:149: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3294: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:445: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:1317: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:709: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\impl.py:165: in _do_get
+    raise exc.TimeoutError(
+E   sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_stepup_revalidates_role_membership_activity_and_session[logout-postgresql]" time="37.415"><failure message="sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)">tests\integration_mfa31_postgres.py:217: in test_stepup_revalidates_role_membership_activity_and_session
+    grant = mfa.issue_step_up(db, current, pair["token"], "POST", path, body, now=now)["grant"]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:425: in issue_step_up
+    claims = verificar_token(access)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:476: in verificar_token
+    current = _current_token_identity(payload)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:458: in _current_token_identity
+    current = _get_user_by_id(payload["id"])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\auth.py:626: in _get_user_by_id
+    ).first()
+      ^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2823: in first
+    return self.limit(1)._iter().first()  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\query.py:2921: in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2473: in execute
+    return self._execute_internal(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2350: in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2173: in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._connection_for_bind&gt;:2: in _connection_for_bind
+    return target(fn, self, bind, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1203: in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3270: in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:149: in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:3294: in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:445: in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:1317: in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\base.py:709: in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\pool\impl.py:165: in _do_get
+    raise exc.TimeoutError(
+E   sqlalchemy.exc.TimeoutError: QueuePool limit of size 1 overflow 0 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/21/3o7r)</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_login_commit_failure_never_returns_unconfirmed_tokens[False-postgresql]" time="7.531" /><testcase classname="tests.integration_mfa31_postgres" name="test_login_commit_failure_never_returns_unconfirmed_tokens[True-postgresql]" time="7.785" /><testcase classname="tests.integration_mfa31_postgres" name="test_real_restricted_http_login_and_stepup_in_both_factories[api.app-postgresql]" time="39.165"><failure message="AssertionError: {&quot;detail&quot;:{&quot;code&quot;:&quot;mfa_unconfirmed&quot;,&quot;message&quot;:&quot;No pudimos confirmar la operación. Consulta el estado o inicia sesión de nuevo.&quot;}}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code">tests\integration_mfa31_postgres.py:274: in test_real_restricted_http_login_and_stepup_in_both_factories
+    assert grant.status_code == 200, grant.text
+E   AssertionError: {"detail":{"code":"mfa_unconfirmed","message":"No pudimos confirmar la operación. Consulta el estado o inicia sesión de nuevo."}}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code</failure></testcase><testcase classname="tests.integration_mfa31_postgres" name="test_real_restricted_http_login_and_stepup_in_both_factories[web.main_web-postgresql]" time="38.993"><failure message="AssertionError: {&quot;detail&quot;:{&quot;code&quot;:&quot;mfa_unconfirmed&quot;,&quot;message&quot;:&quot;No pudimos confirmar la operación. Consulta el estado o inicia sesión de nuevo.&quot;}}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code">tests\integration_mfa31_postgres.py:274: in test_real_restricted_http_login_and_stepup_in_both_factories
+    assert grant.status_code == 200, grant.text
+E   AssertionError: {"detail":{"code":"mfa_unconfirmed","message":"No pudimos confirmar la operación. Consulta el estado o inicia sesión de nuevo."}}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503 Service Unavailable]&gt;.status_code</failure></testcase></testsuite></testsuites>

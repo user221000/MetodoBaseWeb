@@ -1,0 +1,13 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts _
+tests\integration_mfa31_restore.py:395: in test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+    original_rows["refresh_tokens"] = sorted([*original_rows["refresh_tokens"], *mfa_refresh_rows], key=lambda row: row["id"])
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_restore.py:395: in <lambda>
+    original_rows["refresh_tokens"] = sorted([*original_rows["refresh_tokens"], *mfa_refresh_rows], key=lambda row: row["id"])
+                                                                                                                    ^^^^^^^^^
+E   KeyError: 'id'
+=========================== short test summary info ===========================
+FAILED tests/integration_mfa31_restore.py::test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+1 failed in 33.48s

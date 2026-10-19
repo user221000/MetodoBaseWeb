@@ -1,0 +1,24 @@
+..........F                                                              [100%]
+================================== FAILURES ===================================
+_ test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts _
+tests\integration_mfa31_restore.py:265: in test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+    verify_runtime_schema(target, expected_revision="20261019_mfa")
+web\database\schema_control.py:71: in verify_runtime_schema
+    raise RuntimeError("Database structure differs from the reviewed application schema")
+E   RuntimeError: Database structure differs from the reviewed application schema
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+------------------------------ Captured log call ------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl PostgresqlImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume transactional DDL.
+============================== warnings summary ===============================
+tests/integration_mfa31_migrations.py::test_security_state_prevents_destructive_downgrade[sqlite]
+tests/integration_mfa31_migrations.py::test_security_state_prevents_destructive_downgrade[sqlite]
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor.execute(statement, parameters)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration_mfa31_restore.py::test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+1 failed, 10 passed, 2 warnings in 129.14s (0:02:09)

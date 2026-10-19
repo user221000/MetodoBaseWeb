@@ -1,0 +1,89 @@
+.....FFFFFFFF                                                            [100%]
+================================== FAILURES ===================================
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario\n-False] _
+tests\test_billing_return_paths.py:33: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    stripe_service.create_portal_session(db,test_gym_user["id"],path)
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 29.7s
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario\x7f-False] _
+tests\test_billing_return_paths.py:33: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    stripe_service.create_portal_session(db,test_gym_user["id"],path)
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 28.8s
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[ /usuario-False] _
+tests\test_billing_return_paths.py:33: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    stripe_service.create_portal_session(db,test_gym_user["id"],path)
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 28.4s
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario-True] _
+tests\test_billing_return_paths.py:37: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    assert stripe_service.create_portal_session(db,test_gym_user["id"],path) == {"url":"https://provider.example.invalid/portal"}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 28.0s
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario?billing=return#plan-True] _
+tests\test_billing_return_paths.py:37: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    assert stripe_service.create_portal_session(db,test_gym_user["id"],path) == {"url":"https://provider.example.invalid/portal"}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 27.7s
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/dashboard?x=1-True] _
+tests\test_billing_return_paths.py:37: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    assert stripe_service.create_portal_session(db,test_gym_user["id"],path) == {"url":"https://provider.example.invalid/portal"}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 27.3s
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/suscripciones-True] _
+tests\test_billing_return_paths.py:37: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    assert stripe_service.create_portal_session(db,test_gym_user["id"],path) == {"url":"https://provider.example.invalid/portal"}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 27.0s
+_ test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/configuracion#billing-True] _
+tests\test_billing_return_paths.py:37: in test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths
+    assert stripe_service.create_portal_session(db,test_gym_user["id"],path) == {"url":"https://provider.example.invalid/portal"}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:222: in wrapper
+    return circuit.call(func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\resilience.py:106: in call
+    raise CircuitOpenError(self.name, retry_after)
+E   web.services.resilience.CircuitOpenError: Circuit 'stripe' is open. Retry after 26.7s
+=========================== short test summary info ===========================
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario\n-False]
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario\x7f-False]
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[ /usuario-False]
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario-True]
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/usuario?billing=return#plan-True]
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/dashboard?x=1-True]
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/suscripciones-True]
+FAILED tests/test_billing_return_paths.py::test_portal_rejects_invalid_destinations_before_external_port_and_preserves_valid_private_paths[/configuracion#billing-True]
+8 failed, 5 passed in 9.63s

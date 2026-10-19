@@ -1,0 +1,321 @@
+.....FFFFFFFFFFFF                                                        [100%]
+================================== FAILURES ===================================
+_ test_restricted_actor_only_force_rls_context_commit_rollback_and_pool[postgresql] _
+tests\integration_mfa31_postgres.py:97: in test_restricted_actor_only_force_rls_context_commit_rollback_and_pool
+    enrolled(app, actor, now)
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed8300800>' has been deleted, or its row is otherwise not present.
+_ test_two_processes_cannot_replay_otp_recovery_or_exact_action[otp-postgresql] _
+tests\integration_mfa31_postgres.py:167: in test_two_processes_cannot_replay_otp_recovery_or_exact_action
+    seed, codes, current = enrolled(app, ids[0], now - timedelta(seconds=31))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed84b53a0>' has been deleted, or its row is otherwise not present.
+_ test_two_processes_cannot_replay_otp_recovery_or_exact_action[recovery-postgresql] _
+tests\integration_mfa31_postgres.py:167: in test_two_processes_cannot_replay_otp_recovery_or_exact_action
+    seed, codes, current = enrolled(app, ids[0], now - timedelta(seconds=31))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed84b6600>' has been deleted, or its row is otherwise not present.
+_ test_two_processes_cannot_replay_otp_recovery_or_exact_action[action-postgresql] _
+tests\integration_mfa31_postgres.py:167: in test_two_processes_cannot_replay_otp_recovery_or_exact_action
+    seed, codes, current = enrolled(app, ids[0], now - timedelta(seconds=31))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed86e4b30>' has been deleted, or its row is otherwise not present.
+_ test_stepup_revalidates_role_membership_activity_and_session[role-postgresql] _
+tests\integration_mfa31_postgres.py:214: in test_stepup_revalidates_role_membership_activity_and_session
+    pair, current, _, _ = logged_in(app, ids[2], now)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:85: in logged_in
+    seed, codes, current = enrolled(app, actor, now)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed849e2a0>' has been deleted, or its row is otherwise not present.
+_ test_stepup_revalidates_role_membership_activity_and_session[expulsion-postgresql] _
+tests\integration_mfa31_postgres.py:214: in test_stepup_revalidates_role_membership_activity_and_session
+    pair, current, _, _ = logged_in(app, ids[2], now)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:85: in logged_in
+    seed, codes, current = enrolled(app, actor, now)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed7153ef0>' has been deleted, or its row is otherwise not present.
+_ test_stepup_revalidates_role_membership_activity_and_session[deactivate-postgresql] _
+tests\integration_mfa31_postgres.py:214: in test_stepup_revalidates_role_membership_activity_and_session
+    pair, current, _, _ = logged_in(app, ids[2], now)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:85: in logged_in
+    seed, codes, current = enrolled(app, actor, now)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed7057fb0>' has been deleted, or its row is otherwise not present.
+_ test_stepup_revalidates_role_membership_activity_and_session[logout-postgresql] _
+tests\integration_mfa31_postgres.py:214: in test_stepup_revalidates_role_membership_activity_and_session
+    pair, current, _, _ = logged_in(app, ids[2], now)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:85: in logged_in
+    seed, codes, current = enrolled(app, actor, now)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed6c5f350>' has been deleted, or its row is otherwise not present.
+_ test_login_commit_failure_never_returns_unconfirmed_tokens[False-postgresql] _
+tests\integration_mfa31_postgres.py:238: in test_login_commit_failure_never_returns_unconfirmed_tokens
+    seed, codes, current = enrolled(app, ids[0], now)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed84dd820>' has been deleted, or its row is otherwise not present.
+_ test_login_commit_failure_never_returns_unconfirmed_tokens[True-postgresql] _
+tests\integration_mfa31_postgres.py:238: in test_login_commit_failure_never_returns_unconfirmed_tokens
+    seed, codes, current = enrolled(app, ids[0], now)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14ed7124680>' has been deleted, or its row is otherwise not present.
+_ test_real_restricted_http_login_and_stepup_in_both_factories[api.app-postgresql] _
+tests\integration_mfa31_postgres.py:263: in test_real_restricted_http_login_and_stepup_in_both_factories
+    _, codes, _ = enrolled(app, ids[0], now)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14edaed9430>' has been deleted, or its row is otherwise not present.
+_ test_real_restricted_http_login_and_stepup_in_both_factories[web.main_web-postgresql] _
+tests\integration_mfa31_postgres.py:263: in test_real_restricted_http_login_and_stepup_in_both_factories
+    _, codes, _ = enrolled(app, ids[0], now)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_mfa31_postgres.py:72: in enrolled
+    started = mfa.enroll(db, current, access, proof, now=now)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\mfa_service.py:353: in enroll
+    "expires_at": row.pending_expires_at, "shown_once": True}
+                  ^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:575: in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1091: in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\attributes.py:1121: in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state.py:833: in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\loading.py:1712: in _load_scalar_attributes
+    raise orm_exc.ObjectDeletedError(state)
+E   sqlalchemy.orm.exc.ObjectDeletedError: Instance '<MfaCredential at 0x14edaf275c0>' has been deleted, or its row is otherwise not present.
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration_mfa31_postgres.py::test_restricted_actor_only_force_rls_context_commit_rollback_and_pool[postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_two_processes_cannot_replay_otp_recovery_or_exact_action[otp-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_two_processes_cannot_replay_otp_recovery_or_exact_action[recovery-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_two_processes_cannot_replay_otp_recovery_or_exact_action[action-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_stepup_revalidates_role_membership_activity_and_session[role-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_stepup_revalidates_role_membership_activity_and_session[expulsion-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_stepup_revalidates_role_membership_activity_and_session[deactivate-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_stepup_revalidates_role_membership_activity_and_session[logout-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_login_commit_failure_never_returns_unconfirmed_tokens[False-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_login_commit_failure_never_returns_unconfirmed_tokens[True-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_real_restricted_http_login_and_stepup_in_both_factories[api.app-postgresql]
+FAILED tests/integration_mfa31_postgres.py::test_real_restricted_http_login_and_stepup_in_both_factories[web.main_web-postgresql]
+12 failed, 5 passed, 5 deselected, 1 warning in 176.29s (0:02:56)

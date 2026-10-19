@@ -12,6 +12,8 @@ from sqlalchemy.orm import Session
 from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
 from web.account_values import normalize_account_email
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Auth"])
@@ -48,12 +50,28 @@ from web.middleware.rate_limiter import rate_limit_dependency
 _login_rate_limit = [Depends(rate_limit_dependency(requests_per_minute=5, window_seconds=900, account_field="email"))]
 
 
+def _primary_result(identity, *, remember=False, method="password"):
+    """No token escapes before the factor/mint decision commits under User lock."""
+    from web.database.engine import SessionLocal
+    from web.services import mfa_service
+    try:
+        with SessionLocal() as db:
+            result = mfa_service.login(db, identity, remember=remember, method=method)
+    except HTTPException:
+        raise
+    except Exception as error:
+        logger.error("Primary login unconfirmed class=%s", type(error).__name__)
+        mfa_service.fail(503, "mfa_unconfirmed")
+    return JSONResponse(jsonable_encoder(result), status_code=202 if result["mfa_required"] else 200,
+        headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+
+
 # ── Endpoints ─────────────────────────────────────────────────────────────
 
 @router.post("/auth/login", dependencies=_login_rate_limit)
 async def login_universal(data: LoginRequest, request: Request):
     """Password login resolves the same persisted identity as OAuth/refresh."""
-    from web.auth import verificar_credenciales, crear_token_pair
+    from web.auth import verificar_credenciales
     from web.services.auth_audit import log_auth_event_from_request, AuthEventType
 
     usuario = verificar_credenciales(
@@ -61,20 +79,15 @@ async def login_universal(data: LoginRequest, request: Request):
         ip=request.client.host if request.client else "unknown",
     )
     if usuario:
-        tokens = crear_token_pair(usuario, remember_me=data.remember_me)
-        await log_auth_event_from_request(
-            AuthEventType.LOGIN_SUCCESS, request,
-            gym_id=usuario.get("team_gym_id") or usuario["id"],
-            user_id=usuario["id"],
-            metadata={"tipo": usuario["tipo"], "role": usuario["role"], "remember_me": data.remember_me},
-        )
-        return {
-            "token": tokens["access_token"], "refresh_token": tokens["refresh_token"],
-            "tipo": usuario["tipo"], "role": usuario["role"],
-            "team_gym_id": usuario.get("team_gym_id"),
-            "nombre": f"{usuario['nombre']} {usuario['apellido']}".strip(),
-            "email": usuario["email"],
-        }
+        response = _primary_result(usuario, remember=data.remember_me)
+        if response.status_code == 200:
+            await log_auth_event_from_request(
+                AuthEventType.LOGIN_SUCCESS, request,
+                gym_id=usuario.get("team_gym_id") or usuario["id"],
+                user_id=usuario["id"],
+                metadata={"tipo": usuario["tipo"], "role": usuario["role"], "remember_me": data.remember_me},
+            )
+        return response
 
     # Log login fallido
     await log_auth_event_from_request(
@@ -94,37 +107,13 @@ async def google_login(data: GoogleLoginRequest, request: Request):
     Recibe el credential (ID token) de Google Identity Services,
     lo verifica contra Google, y crea o busca el usuario en la BD.
     """
-    import httpx
     import uuid
     from datetime import datetime, timezone
-    from config.settings import Settings
-    from web.auth import crear_token_pair, identity_from_user
+    from web.auth import identity_from_user
     from web.services.auth_audit import log_auth_event_from_request, AuthEventType
 
-    settings = Settings()
-    client_id = settings.GOOGLE_CLIENT_ID.strip()
-    if not client_id:
-        raise HTTPException(501, "Google login no está configurado.")
-
-    # Verificar el ID token con Google
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(
-            "https://oauth2.googleapis.com/tokeninfo",
-            params={"id_token": data.credential},
-        )
-
-    if resp.status_code != 200:
-        raise HTTPException(401, "Token de Google inválido.")
-
-    google_info = resp.json()
-
-    # Verificar audience (aud) = nuestro client_id
-    if google_info.get("aud") != client_id:
-        raise HTTPException(401, "Token de Google no pertenece a esta aplicación.")
-
-    # Verificar email verificado
-    if google_info.get("email_verified") != "true":
-        raise HTTPException(401, "El email de Google no está verificado.")
+    from web.services.google_identity import verified_google_info
+    google_info = await verified_google_info(data.credential)
 
     email = normalize_account_email(google_info["email"])
     nombre = google_info.get("given_name", google_info.get("name", "")).strip()
@@ -176,25 +165,18 @@ async def google_login(data: GoogleLoginRequest, request: Request):
                 session.commit()
 
     _sync_user_to_sa(usuario)
-    tokens = crear_token_pair(usuario, remember_me=True)
+    response = _primary_result(usuario, remember=True, method="google")
 
-    await log_auth_event_from_request(
-        AuthEventType.LOGIN_SUCCESS,
-        request,
-        gym_id=usuario.get("id") if usuario["tipo"] == "gym" else None,
-        user_id=usuario["id"],
-        metadata={"tipo": usuario["tipo"], "source": "google", "google_email": email},
-    )
+    if response.status_code == 200:
+        await log_auth_event_from_request(
+            AuthEventType.LOGIN_SUCCESS,
+            request,
+            gym_id=usuario.get("id") if usuario["tipo"] == "gym" else None,
+            user_id=usuario["id"],
+            metadata={"tipo": usuario["tipo"], "source": "google"},
+        )
 
-    return {
-        "token": tokens["access_token"],
-        "refresh_token": tokens["refresh_token"],
-        "tipo": usuario["tipo"],
-        "role": usuario.get("role", "viewer"),
-        "team_gym_id": usuario.get("team_gym_id"),
-        "nombre": f"{usuario['nombre']} {usuario.get('apellido', '')}".strip(),
-        "email": usuario["email"],
-    }
+    return response
 
 
 @router.post("/auth/registro", dependencies=_login_rate_limit)

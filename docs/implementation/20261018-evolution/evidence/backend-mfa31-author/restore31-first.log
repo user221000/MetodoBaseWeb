@@ -1,0 +1,14 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts _
+tests\integration_mfa31_restore.py:217: in test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+    assert {name for name, enabled, forced in policy_state if enabled or forced} == set(TENANT_COLUMNS) | set(MEMBER_LINK_TABLES)
+E   AssertionError: assert {'audit_log',...rogress', ...} == {'audit_log',...rogress', ...}
+E     
+E     Extra items in the left set:
+E     'mfa_credentials'
+E     'mfa_recovery_codes'
+E     Use -v to get more diff
+=========================== short test summary info ===========================
+FAILED tests/integration_mfa31_restore.py::test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+1 failed in 18.73s

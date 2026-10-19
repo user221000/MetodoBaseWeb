@@ -168,6 +168,69 @@ class RefreshToken(Base):
     usuario = relationship("Usuario", back_populates="refresh_tokens")
 
 
+class MfaCredential(Base):
+    """Personal encrypted factor; never an association with a professional gym."""
+    __tablename__ = "mfa_credentials"
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), primary_key=True)
+    factor_id = Column(String(32), nullable=False, unique=True)
+    generation = Column(Integer, nullable=False, default=0, server_default="0")
+    secret_ciphertext = Column(Text, nullable=True)
+    enabled_at = Column(UTCDateTime, nullable=True)
+    last_counter = Column(Integer, nullable=False, default=-1, server_default="-1")
+    pending_id = Column(String(32), nullable=True)
+    pending_ciphertext = Column(Text, nullable=True)
+    pending_expires_at = Column(UTCDateTime, nullable=True)
+    attempts = Column(JSON, nullable=False, default=dict, server_default="{}")
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (
+        CheckConstraint("generation >= 0 AND last_counter >= -1", name="ck_mfa_credential_counters"),
+        CheckConstraint("(secret_ciphertext IS NULL AND enabled_at IS NULL) OR (secret_ciphertext IS NOT NULL AND enabled_at IS NOT NULL AND generation > 0)", name="ck_mfa_credential_active"),
+        CheckConstraint("(pending_id IS NULL AND pending_ciphertext IS NULL AND pending_expires_at IS NULL) OR (pending_id IS NOT NULL AND pending_ciphertext IS NOT NULL AND pending_expires_at IS NOT NULL)", name="ck_mfa_credential_pending"),
+    )
+
+
+class MfaRecoveryCode(Base):
+    """High-entropy, purpose-hashed, one-use recovery possession evidence."""
+    __tablename__ = "mfa_recovery_codes"
+    id = Column(String(32), primary_key=True, default=lambda: uuid.uuid4().hex)
+    user_id = Column(String(36), ForeignKey("mfa_credentials.user_id", ondelete="RESTRICT"), nullable=False, index=True)
+    generation = Column(Integer, nullable=False)
+    code_hash = Column(String(64), nullable=False, unique=True)
+    used_at = Column(UTCDateTime, nullable=True)
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (CheckConstraint("generation > 0 AND length(code_hash) = 64", name="ck_mfa_recovery_state"),)
+
+
+class MfaAuthorization(Base):
+    """Opaque authentication control plane; access is by digest and exact purpose.
+
+    Public primary-verified challenges precede personal RLS context. Action
+    grants must be consumable in the business transaction without switching its
+    tenant; neither kind contains a plaintext secret or business record.
+    """
+    __tablename__ = "mfa_authorizations"
+    token_hash = Column(String(64), primary_key=True)
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=False, index=True)
+    session_version = Column(Integer, nullable=False)
+    generation = Column(Integer, nullable=False)
+    purpose = Column(String(16), nullable=False)
+    access_hash = Column(String(64), nullable=True)
+    action_binding = Column(String(64), nullable=True)
+    primary_method = Column(String(16), nullable=False)
+    remember_me = Column(Boolean, nullable=False, default=False, server_default="false")
+    attempts = Column(Integer, nullable=False, default=0, server_default="0")
+    expires_at = Column(UTCDateTime, nullable=False)
+    consumed_at = Column(UTCDateTime, nullable=True)
+    factor_verified_at = Column(UTCDateTime, nullable=True)
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    __table_args__ = (
+        CheckConstraint("CAST(purpose AS TEXT) IN (CAST('login' AS TEXT),CAST('reauth' AS TEXT),CAST('action' AS TEXT)) AND CAST(primary_method AS TEXT) IN (CAST('password' AS TEXT),CAST('google' AS TEXT))", name="ck_mfa_authorization_purpose"),
+        CheckConstraint("session_version >= 0 AND generation >= 0 AND attempts >= 0 AND length(token_hash) = 64", name="ck_mfa_authorization_counters"),
+        CheckConstraint("(purpose = 'login' AND access_hash IS NULL AND action_binding IS NULL AND ((consumed_at IS NULL AND factor_verified_at IS NULL) OR (consumed_at IS NOT NULL AND factor_verified_at IS NOT NULL AND factor_verified_at = consumed_at AND factor_verified_at >= created_at))) OR (purpose = 'reauth' AND access_hash IS NOT NULL AND length(access_hash) = 64 AND action_binding IS NULL AND factor_verified_at IS NULL) OR (purpose = 'action' AND access_hash IS NOT NULL AND length(access_hash) = 64 AND action_binding IS NOT NULL AND length(action_binding) = 64 AND factor_verified_at IS NOT NULL AND factor_verified_at <= created_at)", name="ck_mfa_authorization_binding"),
+        Index("ix_mfa_authorizations_recent", "user_id", "access_hash", "factor_verified_at"),
+    )
+
+
 # ── Clientes (multi-tenant via gym_id) ───────────────────────────────────────
 
 class Cliente(Base):

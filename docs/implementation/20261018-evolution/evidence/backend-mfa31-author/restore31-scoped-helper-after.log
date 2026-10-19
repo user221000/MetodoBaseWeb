@@ -1,0 +1,25 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts _
+tests\integration_mfa31_restore.py:403: in test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+    assert snapshot(target) == original_rows
+E   AssertionError: assert {'alembic_ver...log': [], ...} == {'alembic_ver...log': [], ...}
+E     
+E     Omitting 30 identical items, use -vv to show
+E     Differing items:
+E     {'auth_audit_log': [{'id': '02c061fc-4d0d-4639-9f54-bc05303ed625', 'gym_id': None, 'user_id': 'cf2eae1d-9d12-4543-b568...0ff-f4951300a485', 'gym_id': None, 'user_id': 'restore-mfa-member', 'event_type': '[REDACTED_POSSIBLE_RECOVERY_CODE]', ...}, ...]} != {'auth_audit_log': [{'id': '02c061fc-4d0d-4639-9f54-bc05303ed625', 'gym_id': None, 'user_id': 'cf2eae1d-9d12-4543-b568...0ff-f4951300a485', 'gym_id': None, 'user_id': 'restore-mfa-member', 'event_type': '[REDACTED_POSSIBLE_RECOVERY_CODE]', ...}, ...]}
+E     {'refresh_tokens': [{'jti': '1f0...
+E     
+E     ...Full output truncated (3 lines hidden), use '-vv' to show
+------------------------------ Captured log call ------------------------------
+WARNING  web.auth:auth.py:271 [AUTH] login_failed reason=invalid_credentials
+WARNING  web.auth:auth.py:271 [AUTH] login_failed reason=invalid_credentials
+============================== warnings summary ===============================
+tests/integration_mfa31_restore.py::test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration_mfa31_restore.py::test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+1 failed, 1 warning in 34.19s
