@@ -226,6 +226,8 @@ def create_app() -> FastAPI:
     app.include_router(stats_routes.router, prefix="/api")
     from web.routes.followup import router as followup_router
     app.include_router(followup_router, prefix="/api")
+    from web.routes import followup_tasks
+    app.include_router(followup_tasks.router, prefix="/api")
     app.include_router(planes_routes.router, prefix="/api")
     app.include_router(licencias_routes.router, prefix="/api")
     app.include_router(pagos_routes.router, prefix="/api")
