@@ -55,6 +55,9 @@ Railway existente ejecuta `preDeployCommand`; Docker independiente migra mediant
 - [Sesiones, controles y datos](docs/implementation/20261018-evolution/evidence/security-controls.md): revisión acotada y pendientes explícitos; no certificación integral.
 - [Redis y degradación](docs/implementation/20261018-evolution/REDIS.md): acciones sensibles cerradas ante fallo y fallback de lecturas acotado.
 - [Continuidad](docs/implementation/20261018-evolution/BACKUP_RESTORE.md): fuentes explícitas, cifrado/MAC y restauración a destino vacío.
+- [Arquitectura actual y transitoria](docs/implementation/20261018-evolution/ARQUITECTURA_ACTUAL.md): composición SaaS, módulos compartidos y relaciones de autoridad, con pendientes explícitos.
+- [Aislamiento y migrador](docs/implementation/20261018-evolution/AISLAMIENTO.md):17 familias R04 y seis grupos de control; rol app distinto del propietario/migrador.
+- [Equipo](docs/implementation/20261018-evolution/EQUIPO.md), [licencias](docs/implementation/20261018-evolution/LICENCIAS.md) y [objetos privados](docs/implementation/20261018-evolution/ALMACENAMIENTO.md): compatibilidad y alcance revisado de cada consumidor.
 
 Los catálogos nutricionales nuevos son inmutables por solicitud; exclusiones estructuradas llegan a todos los selectores y se verifican en el resultado. Las notas libres no garantizan protección clínica. La revisión nutricional profesional permanece separada de las pruebas del motor.
 

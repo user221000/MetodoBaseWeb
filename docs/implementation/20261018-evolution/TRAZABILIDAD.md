@@ -14,7 +14,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [R06](#r06) | P0 | Backend y datos | R06 | en_curso | en_curso | local |
 | [R07](#r07) | P1 | Operación y documentación | R07 | en_revision | parcial | local |
 | [R08](#r08) | P1 | Operación y documentación | R08 | en_revision | en_curso | local |
-| [R09](#r09) | P1 | Coordinación y arquitectura | R09 | en_curso | en_curso | local |
+| [R09](#r09) | P1 | Coordinación y arquitectura | R09 | en_revision | en_curso | local |
 | [R10](#r10) | P1 | Seguridad y privacidad | R10 | en_curso | en_curso | local |
 | [R11](#r11) | P1 | Backend y datos | R11 | en_revision | parcial | local |
 | [R12](#r12) | P1 | Backend y datos | R12 | pendiente | pendiente | local |
@@ -23,8 +23,8 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [R15](#r15) | P1 | Frontend y UX/UI | R15 | en_revision | en_curso | local |
 | [R16](#r16) | P1 | Backend y datos | R16 | pendiente | pendiente | local |
 | [R17](#r17) | P1 | Operación y documentación | R17 | en_revision | en_curso | local |
-| [R18](#r18) | P1 | QA y automatización | R18 | en_curso | en_curso | local |
-| [R19](#r19) | P1 | QA y automatización | R19 | pendiente | pendiente | local |
+| [R18](#r18) | P1 | QA y automatización | R18 | en_revision | en_curso | local |
+| [R19](#r19) | P1 | QA y automatización | R19 | en_revision | pendiente | local |
 | [R20](#r20) | P1 | Coordinación y arquitectura | R20 | en_curso | en_curso | local |
 | [R21](#r21) | P2 | Operación y documentación | R21 | en_revision | en_curso | local |
 | [R22](#r22) | P1 | Frontend y UX/UI | R22 | pendiente | pendiente | local |
@@ -36,7 +36,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [R28](#r28) | P2 | Backend y datos | R28 | pendiente | pendiente | local |
 | [R29](#r29) | P2 | Frontend y UX/UI | R29 | pendiente | pendiente | local |
 | [R30](#r30) | P1 | Coordinación y arquitectura | R30 | pendiente | pendiente | local |
-| [R31](#r31) | P1 | Seguridad y privacidad | R31 | en_curso | en_curso | local |
+| [R31](#r31) | P1 | Seguridad y privacidad | R31 | en_revision | parcial | local |
 | [R32](#r32) | P1 | Seguridad y privacidad | R32 | pendiente | pendiente | local |
 | [R33](#r33) | P1 | Coordinación y arquitectura | R33 | en_curso | en_curso | local |
 | [R34](#r34) | P2 | QA y automatización | R34 | pendiente | pendiente | local |
@@ -56,7 +56,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [B13](#b13) | P2 | Backend y datos | R01, R19, R26 | en_curso | en_curso | local |
 | [B14](#b14) | P2 | Backend y datos | R01, R19, R26 | en_curso | en_curso | local |
 | [B15](#b15) | P1 | Backend y datos | R01, R26, R27 | en_curso | en_curso | local |
-| [B16](#b16) | P2 | Backend y datos | R01, R19, R28 | en_curso | en_curso | local |
+| [B16](#b16) | P2 | Backend y datos | R01, R19, R28 | en_revision | en_curso | local |
 | [B17](#b17) | P2 | Backend y datos | R01, R14, R19, R28, R34 | en_revision | en_curso | local |
 | [B18](#b18) | P2 | Backend y datos | R03, R26 | en_revision | en_curso | local |
 | [B19](#b19) | P2 | Seguridad y privacidad | R10, R11, R16, R32 | en_curso | en_curso | local |
@@ -113,21 +113,21 @@ Estado: en_revision; implementación: en_curso; validación: en_curso; despliegu
 
 Dependencias: sin dependencia declarada
 
-Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.; Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, c769667
+Commits: 166038f88b211c52f0d149ce550880795361707c, c769667, b81cfc1, e3039c2
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; 18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows.
 
-Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md; B2B_CUOTAS.md
 
-Revisión: QA independiente PG y revisión de locks por coordinador/backend.
+Revisión: QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue
 
 Bloqueo: no registrado
 
-Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.
+Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.
 
 ## R02
 
@@ -171,11 +171,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Commits: e8a6806
+Commits: e8a6806, b81cfc1
 
 Pruebas: pendiente
 
-Evidencia: evidence/alembic-empty-psycopg2-before.log; evidence/backend-r03-before.log; evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+Evidencia: evidence/alembic-empty-psycopg2-before.log; evidence/backend-r03-before.log; evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json; evidence/gym-migrations-independent-source.json; evidence/pytest-gym24-restore-independent.xml; evidence/gym24-restore-independent-source.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
 
@@ -183,7 +183,7 @@ Revisión: Coordinador y QA independientes del autor backend; alcance local R03/
 
 Bloqueo: no registrado
 
-Observaciones: Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.
+Observaciones: Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.; Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.
 
 ## R04
 
@@ -199,11 +199,11 @@ Dependencias: R02, R03
 
 Cambios: pendiente
 
-Commits: f325fc4, 501ceaa
+Commits: f325fc4, 501ceaa, b81cfc1
 
 Pruebas: Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas
 
-Evidencia: evidence/coordinator-r04-preparation-review.md; evidence/r04-preparation-root.xml; evidence/r04-preparation-root-source.json; evidence/r04-followup-independent-source.json; evidence/pytest-r04-followup-independent.xml; evidence/r04-activation-root-final.xml
+Evidencia: evidence/coordinator-r04-preparation-review.md; evidence/r04-preparation-root.xml; evidence/r04-preparation-root-source.json; evidence/r04-followup-independent-source.json; evidence/pytest-r04-followup-independent.xml; evidence/r04-activation-root-final.xml; evidence/gym-migrations-independent-source.json; evidence/pytest-gym24-restore-independent.xml; evidence/gym24-restore-independent-source.json
 
 Documentación: AISLAMIENTO.md
 
@@ -211,7 +211,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes.
+Observaciones: Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes.; Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.
 
 ## R05
 
@@ -227,11 +227,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, 64fe65a
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, 64fe65a, e3039c2
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo; 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.
 
-Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/coordinator-quality-expansion-review.md; evidence/quality-expanded-source.json; evidence/quality-expanded-root-canaries.log; evidence/pytest-team-quality-root.xml
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/coordinator-quality-expansion-review.md; evidence/quality-expanded-source.json; evidence/quality-expanded-root-canaries.log; evidence/pytest-team-quality-root.xml; evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
@@ -283,11 +283,11 @@ Dependencias: R04
 
 Cambios: pendiente
 
-Commits: abc896f
+Commits: abc896f, 9b97068
 
-Pruebas: 33 pruebas independientes aprobadas y1 symlink omitida Windows; volumen privado y SDK S3 Stubber. Sin DB/consumidores/proveedor real.
+Pruebas: 33 pruebas independientes aprobadas y1 symlink omitida Windows; volumen privado y SDK S3 Stubber. Sin DB/consumidores/proveedor real.; 32 SDK independientes de configuracion explicita (27autor+5seguridad); no runtimemetadata/consumidor aun.
 
-Evidencia: evidence/storage-volume-author.xml; evidence/storage-sdk-author.xml; evidence/storage-volume-harness-before.json; evidence/r07-storage-frontend-independent-source.json; evidence/r07-storage-frontend-fix-independent.xml
+Evidencia: evidence/storage-volume-author.xml; evidence/storage-sdk-author.xml; evidence/storage-volume-harness-before.json; evidence/r07-storage-frontend-independent-source.json; evidence/r07-storage-frontend-fix-independent.xml; evidence/security-storage-configuration-source.json; evidence/security-storage-configuration.xml
 
 Documentación: ALMACENAMIENTO.md
 
@@ -311,11 +311,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Restore real del esquema Alembic22tablas, relaciones/secuencias/revisión/PDF/logo; cifrado+MAC. Tiempos técnicos no equivalen a RPO/RTO ni backup nativo.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, e8a6806
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8a6806, b81cfc1
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
 
-Evidencia: BACKUP_RESTORE.md; evidence/security-review.md; evidence/postgres-restore-independent.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/postgres-restore-release-schema-independent.json; evidence/pytest-r03-restorable-independent.xml
+Evidencia: BACKUP_RESTORE.md; evidence/security-review.md; evidence/postgres-restore-independent.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/postgres-restore-release-schema-independent.json; evidence/pytest-r03-restorable-independent.xml; evidence/gym-migrations-independent-source.json; evidence/pytest-gym24-restore-independent.xml; evidence/gym24-restore-independent-source.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; BACKUP_RESTORE.md; evidence/coordinator-r03-review.md
 
@@ -323,7 +323,7 @@ Revisión: QA independiente y revisión seguridad/coordinador.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.
 
 ## R09
 
@@ -333,21 +333,21 @@ Problema: Una fuente de límites, precios y características
 
 Criterio original: Tras R01; decidir Free 5 o 10 sin inferirlo de un test; API, web y Stripe reflejan el catálogo; desktop sólo si sigue soportado; importes/moneda/periodicidad claros
 
-Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R01
 
-Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, af177b1
+Commits: 166038f88b211c52f0d149ce550880795361707c, af177b1, b81cfc1, e3039c2
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Seguimiento:3regresiones realesDBmoroso/expirado rojas antes;33after;QA46conlímites de periodos.
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Seguimiento:3regresiones realesDBmoroso/expirado rojas antes;33after;QA46conlímites de periodos.; 18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows.
 
-Evidencia: DECISIONES.md; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/catalog-before.log; evidence/catalog-after.xml
+Evidencia: DECISIONES.md; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/catalog-before.log; evidence/catalog-after.xml; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md; B2B_CUOTAS.md
 
-Revisión: QA (revisión local de catálogo/política/FeatureGate); alcance completo pendiente.
+Revisión: QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue
 
 Bloqueo: no registrado
 
@@ -367,19 +367,19 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c
+Commits: 166038f88b211c52f0d149ce550880795361707c, dbb6af5
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
 
-Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/security-error-privacy.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.
 
 ## R11
 
@@ -563,19 +563,19 @@ Dependencias: sin dependencia declarada
 
 Cambios: Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.; Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios.
 
-Commits: 0a0b6d4
+Commits: 0a0b6d4, dbb6af5
 
 Pruebas: pendiente
 
-Evidencia: evidence/redis-dependency-before.log; evidence/redis-final-author.xml; evidence/pytest-redis-final-independent.xml; evidence/redis-final-independent-source.json; evidence/backend-policy-review.md
+Evidencia: evidence/redis-dependency-before.log; evidence/redis-final-author.xml; evidence/pytest-redis-final-independent.xml; evidence/redis-final-independent-source.json; evidence/backend-policy-review.md; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml
 
-Documentación: REDIS.md
+Documentación: REDIS.md; evidence/security-error-privacy.md
 
 Revisión: QA y backend independientes del autor root.
 
 Bloqueo: no registrado
 
-Observaciones: 21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.
+Observaciones: 21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.; Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.
 
 ## R18
 
@@ -585,17 +585,17 @@ Problema: Dependencias e imagen trazables
 
 Criterio original: Lock Linux coherente con Docker, SBOM y escaneo de resolución/imagen; actualizar advisories aplicables; promover el mismo digest; excepciones con vencimiento
 
-Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
 Cambios: pendiente
 
-Commits: pendiente
+Commits: 822de09
 
 Pruebas: pendiente
 
-Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log
+Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/backend-runtime-static-review.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
@@ -603,7 +603,7 @@ Revisión: pendiente
 
 Bloqueo: {"falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.", "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.", "responsable": "Usuario/operación", "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."}
 
-Observaciones: sin observaciones
+Observaciones: 32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime.
 
 ## R19
 
@@ -613,17 +613,17 @@ Problema: Suite E2E de recorridos y abuso
 
 Criterio original: Tras R01/R02/R12; compra sandbox, impago, refresh, invitación, generación, PDF, seguimiento y dos tenants; workers aislados; cada error bloquea el release correspondiente
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R01, R02, R12
 
 Cambios: pendiente
 
-Commits: pendiente
+Commits: e3039c2
 
-Pruebas: pendiente
+Pruebas: 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.
 
-Evidencia: pendiente
+Evidencia: evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json
 
 Documentación: pendiente
 
@@ -647,19 +647,19 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c
+Commits: 166038f88b211c52f0d149ce550880795361707c, 9a53215, b81cfc1, dbb6af5
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
 
 Evidencia: ESTADO.md; TRAZABILIDAD.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; ARQUITECTURA_ACTUAL.md; B2B_CUOTAS.md; PRIVACIDAD.md; UTC_DATETIME.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Mapa actual/transitorio yERD explicitos; contratos/docs porhito. Inventario definitivo yrunbooks release/piloto aunpendientes.
 
 ## R21
 
@@ -949,25 +949,25 @@ Problema: Privacidad y gestión del dato personal
 
 Criterio original: Iniciar en fase 1; inventario/finalidad/retención, acceso de soporte, exportar/borrar, consentimientos aplicables y revisión legal del servicio; prueba de borrado en copias/objetos según política
 
-Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Cambios: pendiente
+Cambios: Exportacion personal readonly integrada ambosfactories/UI por partes; propietario excluye cartera profesional, UUID preservado, limites bytes y sin persistir descarga en navegador. Contencion de handlers/alertas automaticas sin str/traceback/metadata libre.
 
-Commits: pendiente
+Commits: dbb6af5, e3039c2
 
-Pruebas: pendiente
+Pruebas: 41 preparatorias+2 composiciones PG restringido reales+8 grupos navegador/5 pantallas independientes;13 seguridad incluidas en25 dirigidos y serial/n2 finales1621 cadauno.
 
-Evidencia: evidence/security-controls.md
+Evidencia: evidence/security-controls.md; evidence/privacy-independent-source.json; evidence/pytest-privacy-final-independent.xml; evidence/privacy-composition-independent-source.json; evidence/pytest-privacy-composition-independent.xml; evidence/ux/privacy-export-independent-source.json; evidence/security-error-privacy-source.json; evidence/pytest-error-compensation-final-independent.xml
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; PRIVACIDAD.md; evidence/security-error-privacy.md
 
-Revisión: pendiente
+Revisión: QA independiente de servicio/composicion/GUI; coordinador reviso servicio/UI y contencion; autor seguridad separado de autores B2B/UI
 
-Bloqueo: no registrado
+Bloqueo: "Retencion/borrado legal y de copias sin politica aprobada; cierre de cuenta/consentimientos/tokens/sinks restantes pendientes. Export tecnicamente integrado no sustituye esos criterios."
 
-Observaciones: Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.; Exportacion preparatoria:41 pruebas independientes aceptadas; presupuesto de bytes, identidad persistida, UUID con caso original y cero commits. Router montado despues en ambas fabricas; integracion PG y UI pendientes. Inventario preparado sin inventar retencion/borrado.
+Observaciones: Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.; Montado y aceptado localmente tras41preparatorias; documento actualizado despuesdel freeze sin cambiar servicio/router. No snapshot entre paginas ni binarios/desktop/diario local exportados.
 
 ## R32
 
@@ -1511,21 +1511,21 @@ Problema: `stripe_service.py:208` crea Customer antes de la llamada idempotente 
 
 Criterio original: Persistir intención y claves idempotentes por operación; reintentar sin duplicar Customer/cobro, conservar estados recuperables y reconciliar fallos DB posteriores al proveedor.
 
-Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c
+Commits: 166038f88b211c52f0d149ce550880795361707c, b81cfc1, e3039c2
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; 18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows.
 
-Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; B2B_CUOTAS.md
 
-Revisión: pendiente
+Revisión: QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue
 
 Bloqueo: no registrado
 
@@ -1543,17 +1543,17 @@ Estado: en_revision; implementación: en_curso; validación: en_curso; despliegu
 
 Dependencias: sin dependencia declarada
 
-Cambios: Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.
+Cambios: Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.; Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL.
 
-Commits: c769667
+Commits: c769667, b81cfc1, e3039c2
 
-Pruebas: pendiente
+Pruebas: 18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows.
 
-Evidencia: evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json
+Evidencia: evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json
 
-Documentación: CATALOGO.md
+Documentación: CATALOGO.md; B2B_CUOTAS.md
 
-Revisión: QA independiente PG y revisión de locks por coordinador/backend.
+Revisión: QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue
 
 Bloqueo: no registrado
 
@@ -1629,19 +1629,19 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c
+Commits: 166038f88b211c52f0d149ce550880795361707c, dbb6af5
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
 
-Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/security-error-privacy.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.
 
 ## B21
 
@@ -1685,19 +1685,19 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c
+Commits: 166038f88b211c52f0d149ce550880795361707c, dbb6af5
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
 
-Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; ESTADO.md; TRAZABILIDAD.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; ESTADO.md; TRAZABILIDAD.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/security-error-privacy.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.
 
 ## B23
 
@@ -1957,11 +1957,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, e3039c2
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.
 
-Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
@@ -1987,11 +1987,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, e3039c2
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.
 
-Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
@@ -2167,11 +2167,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, e3039c2
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.
 
-Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
@@ -2197,11 +2197,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Commits: c45a71c
+Commits: c45a71c, e3039c2
 
-Pruebas: pendiente
+Pruebas: 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.
 
-Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md; evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json
 
 Documentación: CATALOGO.md
 

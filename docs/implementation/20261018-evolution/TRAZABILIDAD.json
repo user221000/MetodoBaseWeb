@@ -22,14 +22,18 @@
       "entorno": "local",
       "cambios": [
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
-        "Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos."
+        "Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.",
+        "Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL."
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "c769667"
+        "c769667",
+        "b81cfc1",
+        "e3039c2"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows."
       ],
       "evidencia": [
         "evidence/backend-before.log",
@@ -39,19 +43,23 @@
         "evidence/A1-containment-source.json",
         "evidence/pytest-quota-postgres-before.xml",
         "evidence/pytest-quota-postgres-after.xml",
-        "evidence/quota-a1-snapshot.json"
+        "evidence/quota-a1-snapshot.json",
+        "evidence/gym-quota-independent-source.json",
+        "evidence/pytest-gym-quota-independent.xml",
+        "evidence/error-compensation-final-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
         "VALIDACION.md",
-        "CATALOGO.md"
+        "CATALOGO.md",
+        "B2B_CUOTAS.md"
       ],
-      "revisor": "QA independiente PG y revisión de locks por coordinador/backend.",
+      "revisor": "QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue",
       "bloqueo": null,
       "observaciones": [
         "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.",
-        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion."
+        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion."
       ]
     },
     {
@@ -118,7 +126,8 @@
         "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
       ],
       "commits": [
-        "e8a6806"
+        "e8a6806",
+        "b81cfc1"
       ],
       "pruebas": [],
       "evidencia": [
@@ -126,7 +135,10 @@
         "evidence/backend-r03-before.log",
         "evidence/backend-r03-paths-restorable.xml",
         "evidence/pytest-r03-restorable-independent.xml",
-        "evidence/r03-restorable-independent-source.json"
+        "evidence/r03-restorable-independent-source.json",
+        "evidence/gym-migrations-independent-source.json",
+        "evidence/pytest-gym24-restore-independent.xml",
+        "evidence/gym24-restore-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -138,7 +150,8 @@
       "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": [
-        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion."
+        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.",
+        "Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes."
       ]
     },
     {
@@ -165,7 +178,8 @@
       "cambios": [],
       "commits": [
         "f325fc4",
-        "501ceaa"
+        "501ceaa",
+        "b81cfc1"
       ],
       "pruebas": [
         "Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas"
@@ -176,7 +190,10 @@
         "evidence/r04-preparation-root-source.json",
         "evidence/r04-followup-independent-source.json",
         "evidence/pytest-r04-followup-independent.xml",
-        "evidence/r04-activation-root-final.xml"
+        "evidence/r04-activation-root-final.xml",
+        "evidence/gym-migrations-independent-source.json",
+        "evidence/pytest-gym24-restore-independent.xml",
+        "evidence/gym24-restore-independent-source.json"
       ],
       "documentacion": [
         "AISLAMIENTO.md"
@@ -184,7 +201,8 @@
       "revisor": null,
       "bloqueo": null,
       "observaciones": [
-        "Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes."
+        "Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes.",
+        "Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes."
       ]
     },
     {
@@ -212,11 +230,13 @@
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
         "e8e0c44",
-        "64fe65a"
+        "64fe65a",
+        "e3039c2"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
-        "Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo"
+        "Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo",
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
       ],
       "evidencia": [
         "QA_R05.md",
@@ -228,7 +248,12 @@
         "evidence/coordinator-quality-expansion-review.md",
         "evidence/quality-expanded-source.json",
         "evidence/quality-expanded-root-canaries.log",
-        "evidence/pytest-team-quality-root.xml"
+        "evidence/pytest-team-quality-root.xml",
+        "evidence/web-candidate-containment-final-source.json",
+        "evidence/pytest-web-candidate-containment-final.xml",
+        "evidence/web-candidate-containment-shuffle-source.json",
+        "evidence/pytest-web-candidate-containment-shuffle.xml",
+        "evidence/qa-b2b-privacy-utc-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -305,17 +330,21 @@
       "entorno": "local",
       "cambios": [],
       "commits": [
-        "abc896f"
+        "abc896f",
+        "9b97068"
       ],
       "pruebas": [
-        "33 pruebas independientes aprobadas y1 symlink omitida Windows; volumen privado y SDK S3 Stubber. Sin DB/consumidores/proveedor real."
+        "33 pruebas independientes aprobadas y1 symlink omitida Windows; volumen privado y SDK S3 Stubber. Sin DB/consumidores/proveedor real.",
+        "32 SDK independientes de configuracion explicita (27autor+5seguridad); no runtimemetadata/consumidor aun."
       ],
       "evidencia": [
         "evidence/storage-volume-author.xml",
         "evidence/storage-sdk-author.xml",
         "evidence/storage-volume-harness-before.json",
         "evidence/r07-storage-frontend-independent-source.json",
-        "evidence/r07-storage-frontend-fix-independent.xml"
+        "evidence/r07-storage-frontend-fix-independent.xml",
+        "evidence/security-storage-configuration-source.json",
+        "evidence/security-storage-configuration.xml"
       ],
       "documentacion": [
         "ALMACENAMIENTO.md"
@@ -350,7 +379,8 @@
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "e8a6806"
+        "e8a6806",
+        "b81cfc1"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -362,7 +392,10 @@
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
         "evidence/postgres-restore-release-schema-independent.json",
-        "evidence/pytest-r03-restorable-independent.xml"
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/gym-migrations-independent-source.json",
+        "evidence/pytest-gym24-restore-independent.xml",
+        "evidence/gym24-restore-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -373,7 +406,9 @@
       ],
       "revisor": "QA independiente y revisión seguridad/coordinador.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes."
+      ]
     },
     {
       "id": "R09",
@@ -390,36 +425,44 @@
       "dependencias": [
         "R01"
       ],
-      "estado": "en_curso",
+      "estado": "en_revision",
       "implementacion": "en_curso",
       "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL."
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "af177b1"
+        "af177b1",
+        "b81cfc1",
+        "e3039c2"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
-        "Seguimiento:3regresiones realesDBmoroso/expirado rojas antes;33after;QA46conlímites de periodos."
+        "Seguimiento:3regresiones realesDBmoroso/expirado rojas antes;33after;QA46conlímites de periodos.",
+        "18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows."
       ],
       "evidencia": [
         "DECISIONES.md",
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
         "evidence/catalog-before.log",
-        "evidence/catalog-after.xml"
+        "evidence/catalog-after.xml",
+        "evidence/gym-quota-independent-source.json",
+        "evidence/pytest-gym-quota-independent.xml",
+        "evidence/error-compensation-final-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
         "VALIDACION.md",
-        "CATALOGO.md"
+        "CATALOGO.md",
+        "B2B_CUOTAS.md"
       ],
-      "revisor": "QA (revisión local de catálogo/política/FeatureGate); alcance completo pendiente.",
+      "revisor": "QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue",
       "bloqueo": null,
       "observaciones": [
         "Usuario aprobó Free10clientes,1planporcliente/día,10planestotalesgym/día; soporte desktop continúa. Fuente única y precios/periodo/mes separados. Integración/aceptación completa aún abierta."
@@ -447,7 +490,8 @@
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "dbb6af5"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -456,16 +500,21 @@
         "evidence/backend-auth-review.md",
         "evidence/security-controls.md",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/security-error-privacy-source.json",
+        "evidence/security-error-privacy-after.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
-        "VALIDACION.md"
+        "VALIDACION.md",
+        "evidence/security-error-privacy.md"
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes."
+      ]
     },
     {
       "id": "R11",
@@ -691,7 +740,8 @@
         "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios."
       ],
       "commits": [
-        "0a0b6d4"
+        "0a0b6d4",
+        "dbb6af5"
       ],
       "pruebas": [],
       "evidencia": [
@@ -699,15 +749,19 @@
         "evidence/redis-final-author.xml",
         "evidence/pytest-redis-final-independent.xml",
         "evidence/redis-final-independent-source.json",
-        "evidence/backend-policy-review.md"
+        "evidence/backend-policy-review.md",
+        "evidence/security-error-privacy-source.json",
+        "evidence/security-error-privacy-after.xml"
       ],
       "documentacion": [
-        "REDIS.md"
+        "REDIS.md",
+        "evidence/security-error-privacy.md"
       ],
       "revisor": "QA y backend independientes del autor root.",
       "bloqueo": null,
       "observaciones": [
-        "21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17."
+        "21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.",
+        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes."
       ]
     },
     {
@@ -723,17 +777,20 @@
         "R18"
       ],
       "dependencias": [],
-      "estado": "en_curso",
+      "estado": "en_revision",
       "implementacion": "en_curso",
       "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
+      "commits": [
+        "822de09"
+      ],
       "pruebas": [],
       "evidencia": [
         "evidence/sbom-linux-runtime.json",
-        "evidence/sca-linux-runtime-final.log"
+        "evidence/sca-linux-runtime-final.log",
+        "evidence/backend-runtime-static-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -747,7 +804,9 @@
         "responsable": "Usuario/operación",
         "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."
       },
-      "observaciones": []
+      "observaciones": [
+        "32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime."
+      ]
     },
     {
       "id": "R19",
@@ -766,15 +825,25 @@
         "R02",
         "R12"
       ],
-      "estado": "pendiente",
+      "estado": "en_revision",
       "implementacion": "pendiente",
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
+      "commits": [
+        "e3039c2"
+      ],
+      "pruebas": [
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
+      ],
+      "evidencia": [
+        "evidence/web-candidate-containment-final-source.json",
+        "evidence/pytest-web-candidate-containment-final.xml",
+        "evidence/web-candidate-containment-shuffle-source.json",
+        "evidence/pytest-web-candidate-containment-shuffle.xml",
+        "evidence/qa-b2b-privacy-utc-final-source.json"
+      ],
       "documentacion": [],
       "revisor": null,
       "bloqueo": null,
@@ -802,7 +871,10 @@
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "9a53215",
+        "b81cfc1",
+        "dbb6af5"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -816,11 +888,17 @@
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
-        "VALIDACION.md"
+        "VALIDACION.md",
+        "ARQUITECTURA_ACTUAL.md",
+        "B2B_CUOTAS.md",
+        "PRIVACIDAD.md",
+        "UTC_DATETIME.md"
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Mapa actual/transitorio yERD explicitos; contratos/docs porhito. Inventario definitivo yrunbooks release/piloto aunpendientes."
+      ]
     },
     {
       "id": "R21",
@@ -1147,27 +1225,43 @@
         "R31"
       ],
       "dependencias": [],
-      "estado": "en_curso",
-      "implementacion": "en_curso",
-      "validacion": "en_curso",
+      "estado": "en_revision",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
+      "cambios": [
+        "Exportacion personal readonly integrada ambosfactories/UI por partes; propietario excluye cartera profesional, UUID preservado, limites bytes y sin persistir descarga en navegador. Contencion de handlers/alertas automaticas sin str/traceback/metadata libre."
+      ],
+      "commits": [
+        "dbb6af5",
+        "e3039c2"
+      ],
+      "pruebas": [
+        "41 preparatorias+2 composiciones PG restringido reales+8 grupos navegador/5 pantallas independientes;13 seguridad incluidas en25 dirigidos y serial/n2 finales1621 cadauno."
+      ],
       "evidencia": [
-        "evidence/security-controls.md"
+        "evidence/security-controls.md",
+        "evidence/privacy-independent-source.json",
+        "evidence/pytest-privacy-final-independent.xml",
+        "evidence/privacy-composition-independent-source.json",
+        "evidence/pytest-privacy-composition-independent.xml",
+        "evidence/ux/privacy-export-independent-source.json",
+        "evidence/security-error-privacy-source.json",
+        "evidence/pytest-error-compensation-final-independent.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
-        "VALIDACION.md"
+        "VALIDACION.md",
+        "PRIVACIDAD.md",
+        "evidence/security-error-privacy.md"
       ],
-      "revisor": null,
-      "bloqueo": null,
+      "revisor": "QA independiente de servicio/composicion/GUI; coordinador reviso servicio/UI y contencion; autor seguridad separado de autores B2B/UI",
+      "bloqueo": "Retencion/borrado legal y de copias sin politica aprobada; cierre de cuenta/consentimientos/tokens/sinks restantes pendientes. Export tecnicamente integrado no sustituye esos criterios.",
       "observaciones": [
         "Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.",
-        "Exportacion preparatoria:41 pruebas independientes aceptadas; presupuesto de bytes, identidad persistida, UUID con caso original y cero commits. Router montado despues en ambas fabricas; integracion PG y UI pendientes. Inventario preparado sin inventar retencion/borrado."
+        "Montado y aceptado localmente tras41preparatorias; documento actualizado despuesdel freeze sin cambiar servicio/router. No snapshot entre paginas ni binarios/desktop/diario local exportados."
       ]
     },
     {
@@ -1887,33 +1981,41 @@
         "R28"
       ],
       "dependencias": [],
-      "estado": "en_curso",
+      "estado": "en_revision",
       "implementacion": "en_revision",
       "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "b81cfc1",
+        "e3039c2"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows."
       ],
       "evidencia": [
         "evidence/backend-before.log",
         "evidence/backend-money-contract.md",
         "evidence/security-money-source.json",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/gym-quota-independent-source.json",
+        "evidence/pytest-gym-quota-independent.xml",
+        "evidence/error-compensation-final-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
-        "VALIDACION.md"
+        "VALIDACION.md",
+        "B2B_CUOTAS.md"
       ],
-      "revisor": null,
+      "revisor": "QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1940,21 +2042,30 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos."
+        "Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.",
+        "Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL."
       ],
       "commits": [
-        "c769667"
+        "c769667",
+        "b81cfc1",
+        "e3039c2"
       ],
-      "pruebas": [],
+      "pruebas": [
+        "18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows."
+      ],
       "evidencia": [
         "evidence/pytest-quota-postgres-before.xml",
         "evidence/pytest-quota-postgres-after.xml",
-        "evidence/quota-a1-snapshot.json"
+        "evidence/quota-a1-snapshot.json",
+        "evidence/gym-quota-independent-source.json",
+        "evidence/pytest-gym-quota-independent.xml",
+        "evidence/error-compensation-final-independent-source.json"
       ],
       "documentacion": [
-        "CATALOGO.md"
+        "CATALOGO.md",
+        "B2B_CUOTAS.md"
       ],
-      "revisor": "QA independiente PG y revisión de locks por coordinador/backend.",
+      "revisor": "QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue",
       "bloqueo": null,
       "observaciones": [
         "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas."
@@ -2068,7 +2179,8 @@
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "dbb6af5"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -2077,16 +2189,21 @@
         "evidence/backend-auth-review.md",
         "evidence/security-controls.md",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/security-error-privacy-source.json",
+        "evidence/security-error-privacy-after.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
-        "VALIDACION.md"
+        "VALIDACION.md",
+        "evidence/security-error-privacy.md"
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes."
+      ]
     },
     {
       "id": "B21",
@@ -2147,7 +2264,8 @@
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "dbb6af5"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -2161,16 +2279,21 @@
         "ESTADO.md",
         "TRAZABILIDAD.json",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/security-error-privacy-source.json",
+        "evidence/security-error-privacy-after.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
-        "VALIDACION.md"
+        "VALIDACION.md",
+        "evidence/security-error-privacy.md"
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes."
+      ]
     },
     {
       "id": "B23",
@@ -2493,10 +2616,12 @@
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "e8e0c44"
+        "e8e0c44",
+        "e3039c2"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
       ],
       "evidencia": [
         "QA_R05.md",
@@ -2504,7 +2629,12 @@
         "evidence/qa-r05-frozen-hashes.json",
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
-        "evidence/r05-followup-frozen-source.json"
+        "evidence/r05-followup-frozen-source.json",
+        "evidence/web-candidate-containment-final-source.json",
+        "evidence/pytest-web-candidate-containment-final.xml",
+        "evidence/web-candidate-containment-shuffle-source.json",
+        "evidence/pytest-web-candidate-containment-shuffle.xml",
+        "evidence/qa-b2b-privacy-utc-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2540,10 +2670,12 @@
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "e8e0c44"
+        "e8e0c44",
+        "e3039c2"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
       ],
       "evidencia": [
         "QA_R05.md",
@@ -2551,7 +2683,12 @@
         "evidence/qa-r05-frozen-hashes.json",
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
-        "evidence/r05-followup-frozen-source.json"
+        "evidence/r05-followup-frozen-source.json",
+        "evidence/web-candidate-containment-final-source.json",
+        "evidence/pytest-web-candidate-containment-final.xml",
+        "evidence/web-candidate-containment-shuffle-source.json",
+        "evidence/pytest-web-candidate-containment-shuffle.xml",
+        "evidence/qa-b2b-privacy-utc-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2773,10 +2910,12 @@
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "e8e0c44"
+        "e8e0c44",
+        "e3039c2"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
       ],
       "evidencia": [
         "QA_R05.md",
@@ -2784,7 +2923,12 @@
         "evidence/qa-r05-frozen-hashes.json",
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
-        "evidence/r05-followup-frozen-source.json"
+        "evidence/r05-followup-frozen-source.json",
+        "evidence/web-candidate-containment-final-source.json",
+        "evidence/pytest-web-candidate-containment-final.xml",
+        "evidence/web-candidate-containment-shuffle-source.json",
+        "evidence/pytest-web-candidate-containment-shuffle.xml",
+        "evidence/qa-b2b-privacy-utc-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2820,12 +2964,20 @@
         "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
       ],
       "commits": [
-        "c45a71c"
+        "c45a71c",
+        "e3039c2"
       ],
-      "pruebas": [],
+      "pruebas": [
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
+      ],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
-        "evidence/ux/frontend-independent-review.md"
+        "evidence/ux/frontend-independent-review.md",
+        "evidence/web-candidate-containment-final-source.json",
+        "evidence/pytest-web-candidate-containment-final.xml",
+        "evidence/web-candidate-containment-shuffle-source.json",
+        "evidence/pytest-web-candidate-containment-shuffle.xml",
+        "evidence/qa-b2b-privacy-utc-final-source.json"
       ],
       "documentacion": [
         "CATALOGO.md"
