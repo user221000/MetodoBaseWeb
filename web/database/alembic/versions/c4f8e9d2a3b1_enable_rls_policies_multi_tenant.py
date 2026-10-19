@@ -84,20 +84,11 @@ def upgrade() -> None:
         $$ LANGUAGE plpgsql SECURITY INVOKER SET search_path = pg_catalog
     """))
     
-    # ── Crear rol de aplicación si no existe ──────────────────────────────────
-    conn.execute(text("""
-        DO $$
-        BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'metodobase_app') THEN
-                CREATE ROLE metodobase_app;
-            END IF;
-        END
-        $$
-    """))
-    
-    # Otorgar permisos al rol de aplicación
-    for table in ['clientes', 'planes_generados', 'usuarios', 'refresh_tokens']:
-        conn.execute(text(f"GRANT SELECT, INSERT, UPDATE, DELETE ON {table} TO metodobase_app"))
+    # Role provisioning is external to schema migration. A dedicated database
+    # owner has NOCREATEROLE; the configured runtime role receives explicit DML
+    # grants from the deployment contract, independently of this historic name.
+    # Do not create a cluster-global role or grant it access opportunistically.
+    # Existing roles/ACLs and already-applied revisions remain untouched.
 
 
 def downgrade() -> None:
