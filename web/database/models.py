@@ -21,6 +21,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
+from web.database.utc_datetime import UTCDateTime
+
 
 # ── RBAC Enums ────────────────────────────────────────────────────────────────
 
@@ -95,7 +97,7 @@ class Usuario(Base):
     
     # Invitación pendiente
     invitation_token = Column(String(64), nullable=True, unique=True)
-    invitation_expires = Column(DateTime, nullable=True)
+    invitation_expires = Column(UTCDateTime, nullable=True)
     invitation_role = Column(
         SQLEnum(UserRole, native_enum=False, length=20),
         nullable=True
@@ -104,8 +106,8 @@ class Usuario(Base):
     activo = Column(Boolean, nullable=False, default=True)
     # Incremented transactionally on logout/revocation; legacy tokens use zero.
     session_version = Column(Integer, nullable=False, default=0, server_default="0")
-    deleted_at = Column(DateTime, nullable=True)
-    fecha_registro = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    deleted_at = Column(UTCDateTime, nullable=True)
+    fecha_registro = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # Relaciones
     refresh_tokens = relationship("RefreshToken", back_populates="usuario", cascade="all, delete-orphan")
@@ -182,11 +184,11 @@ class Cliente(Base):
     nivel_actividad = Column(String(30))
     objetivo = Column(String(30))
 
-    fecha_registro = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    ultimo_plan = Column(DateTime)
+    fecha_registro = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    ultimo_plan = Column(UTCDateTime)
     total_planes_generados = Column(Integer, default=0)
     activo = Column(Boolean, default=True)
-    deleted_at = Column(DateTime, nullable=True)
+    deleted_at = Column(UTCDateTime, nullable=True)
     notas = Column(Text)
     plantilla_tipo = Column(String(30), default="general")
     alimentos_excluidos = Column(Text, nullable=True)  # JSON list of excluded foods
@@ -225,7 +227,7 @@ class PlanGenerado(Base):
     id_cliente = Column(String(36), ForeignKey("clientes.id_cliente", ondelete="CASCADE"), nullable=False, index=True)
     gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
 
-    fecha_generacion = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    fecha_generacion = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
     tmb = Column(Float)
     get_total = Column(Float)
     kcal_objetivo = Column(Float)
@@ -237,7 +239,7 @@ class PlanGenerado(Base):
     nivel_actividad = Column(String(30))
     ruta_pdf = Column(String(500))
     plan_json = Column(Text, nullable=True)  # serialized plan JSON (persists across container restarts)
-    deleted_at = Column(DateTime, nullable=True)
+    deleted_at = Column(UTCDateTime, nullable=True)
     peso_en_momento = Column(Float)
     grasa_en_momento = Column(Float)
     desviacion_maxima_pct = Column(Float)
@@ -279,8 +281,8 @@ class StripeCustomer(Base):
     currency = Column(String(3), default="usd")
     tax_exempt = Column(String(20), default="none")  # none | exempt | reverse
     
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relación
     gym = relationship("Usuario", backref="stripe_customer", uselist=False)
@@ -322,12 +324,12 @@ class Subscription(Base):
     provider_payment_id = Column(String(255), unique=True, nullable=True)
     
     # ── Periods ──
-    current_period_start = Column(DateTime)
-    current_period_end = Column(DateTime)
-    trial_start = Column(DateTime)
-    trial_end = Column(DateTime)
-    canceled_at = Column(DateTime)
-    ended_at = Column(DateTime)
+    current_period_start = Column(UTCDateTime)
+    current_period_end = Column(UTCDateTime)
+    trial_start = Column(UTCDateTime)
+    trial_end = Column(UTCDateTime)
+    canceled_at = Column(UTCDateTime)
+    ended_at = Column(UTCDateTime)
     
     # ── Flags ──
     cancel_at_period_end = Column(Boolean, default=False)
@@ -336,8 +338,8 @@ class Subscription(Base):
     max_clientes = Column(Integer, nullable=False, default=10)  # Free default
 
     # ── Audit ──
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relaciones
     gym = relationship("Usuario", backref="subscription", foreign_keys=[gym_id])
@@ -390,12 +392,12 @@ class Invoice(Base):
     invoice_pdf = Column(String(500))         # URL del PDF
     
     # ── Dates ──
-    period_start = Column(DateTime)
-    period_end = Column(DateTime)
-    due_date = Column(DateTime)
-    paid_at = Column(DateTime)
+    period_start = Column(UTCDateTime)
+    period_end = Column(UTCDateTime)
+    due_date = Column(UTCDateTime)
+    paid_at = Column(UTCDateTime)
     
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         Index("ix_invoices_gym_created", "gym_id", "created_at"),
@@ -415,7 +417,7 @@ class Payment(Base):
     status = Column(String(30), nullable=False)  # succeeded | failed | pending | refunded
     plan = Column(String(30))
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
 
 
 # ── Webhook Idempotency (Stripe) ─────────────────────────────────────────────
@@ -432,7 +434,7 @@ class StripeWebhookEvent(Base):
 
     event_id = Column(String(255), primary_key=True)  # evt_xxx de Stripe
     event_type = Column(String(100), nullable=False)  # checkout.session.completed, etc.
-    processed_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    processed_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     result = Column(String(255))  # Resultado del procesamiento o error
 
     __table_args__ = (
@@ -465,8 +467,8 @@ class GymProfile(Base):
     facebook = Column(String(255), default="")
     tiktok = Column(String(255), default="")
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     horarios_comidas = Column(JSON, nullable=True, default=None)
 
@@ -493,8 +495,8 @@ class PlanSuscripcion(Base):
     moneda = Column(String(10), nullable=False, default="MXN")
     activo = Column(Boolean, nullable=False, default=True)
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     gym = relationship("Usuario", backref="planes_suscripcion", foreign_keys=[gym_id])
 
@@ -513,7 +515,7 @@ class ClientProgress(Base):
     id_cliente = Column(String(36), ForeignKey("clientes.id_cliente", ondelete="CASCADE"), nullable=False, index=True)
     gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
 
-    fecha = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    fecha = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
     peso_kg = Column(Float)
     grasa_corporal_pct = Column(Float)
     masa_magra_kg = Column(Float)
@@ -538,7 +540,7 @@ class AuditLog(Base):
     entidad_id = Column(String(36))
     detalle = Column(Text, default="")
     ip = Column(String(45))
-    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    timestamp = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
 
 # ── Branding dinámico per-gym ────────────────────────────────────────────────
@@ -584,8 +586,8 @@ class LicenseActivation(Base):
     plan = Column(String(30), nullable=False)
     activa = Column(Boolean, default=True)
     revocada = Column(Boolean, default=False)
-    expira = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    expira = Column(UTCDateTime, nullable=True)
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         Index("ix_license_activations_email", "email"),
@@ -604,8 +606,8 @@ class CheckoutSession(Base):
     plan = Column(String(30), nullable=False)
     email = Column(String(120), nullable=False)
     status = Column(String(30), default="pending")  # pending | completed | expired
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    completed_at = Column(DateTime, nullable=True)
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    completed_at = Column(UTCDateTime, nullable=True)
 
     gym = relationship("Usuario", backref="checkout_sessions", foreign_keys=[gym_id])
 
@@ -624,7 +626,7 @@ class AuthAuditLog(Base):
     user_agent = Column(Text, nullable=True)
     request_id = Column(String(36), nullable=True)
     event_metadata = Column(JSON, default=dict)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     __table_args__ = (
         Index("ix_auth_audit_gym_event", "gym_id", "event_type"),
@@ -648,8 +650,8 @@ class GymSettings(Base):
     strict_mode = Column(Boolean, default=True)
     timezone = Column(String(64), default="America/Mexico_City")
     locale = Column(String(10), default="es_MX")
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 # ── Gym License ───────────────────────────────────────────────────────────────
@@ -665,12 +667,12 @@ class GymLicense(Base):
     plan_tier = Column(String(30), nullable=False)
     max_clients = Column(Integer, nullable=False, default=50)
     is_active = Column(Boolean, default=True)
-    expires_at = Column(DateTime, nullable=True)
-    revoked_at = Column(DateTime, nullable=True)
+    expires_at = Column(UTCDateTime, nullable=True)
+    revoked_at = Column(UTCDateTime, nullable=True)
     payment_provider = Column(String(30), nullable=True)
     payment_reference = Column(String(255), nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 # ── Suscripción de usuario individual ────────────────────────────────────────
@@ -690,8 +692,8 @@ class UserSubscription(Base):
     planes_usados_mes = Column(Integer, nullable=False, default=0)
     mes_actual = Column(String(7), nullable=False)  # "2026-03"
     status = Column(String(20), nullable=False, default="active")
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+    created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc),
                         onupdate=lambda: datetime.now(timezone.utc))
 
     user = relationship("Usuario", backref="user_subscription", foreign_keys=[user_id])
@@ -721,8 +723,8 @@ class PurchaseIntent(Base):
     status = Column(String(30), nullable=False, default="pending")
     provider_customer_id = Column(String(255), nullable=True)
     provider_reference_id = Column(String(255), nullable=True, index=True)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         UniqueConstraint("subject_id", "provider", "operation", "request_key", name="uq_purchase_operation_key"),
@@ -740,8 +742,8 @@ class GenerationReservation(Base):
     period = Column(String(7), nullable=False)
     status = Column(String(20), nullable=False, default="reserved")
     plan_id = Column(Integer, ForeignKey("planes_generados.id", ondelete="SET NULL"), nullable=True)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         UniqueConstraint("user_id", "request_key", name="uq_generation_request_key"),
@@ -763,7 +765,7 @@ class ProviderSubjectAssociation(Base):
     subject_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
     provenance = Column(String(30), nullable=False)
     source_ref = Column(String(255), nullable=False)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         CheckConstraint("provider IN ('stripe','mercadopago')", name="ck_provider_subject_provider"),
@@ -787,10 +789,10 @@ class GymGenerationReservation(Base):
     catalog_plan = Column(String(30), nullable=False)
     status = Column(String(20), nullable=False, default="reserved")
     plan_id = Column(Integer, ForeignKey("planes_generados.id", ondelete="SET NULL"), nullable=True, unique=True)
-    persisted_at = Column(DateTime, nullable=True)
+    persisted_at = Column(UTCDateTime, nullable=True)
     result_json = Column(Text, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
-    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
 
     __table_args__ = (
         UniqueConstraint("gym_id", "request_key", name="uq_gym_generation_request_key"),

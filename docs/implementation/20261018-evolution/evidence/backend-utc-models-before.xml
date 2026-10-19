@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="20.089" timestamp="2026-10-18T21:53:10.409173-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_model_utc_postgres" name="test_current_orm_instants_and_typed_filters_have_same_utc_storage[-6-America/Mexico_City-postgresql]" time="4.939"><failure message="assert (datetime.dat..., 17, 123456)) == (datetime.dat..., 17, 123456))&#10;  &#10;  At index 0 diff: datetime.datetime(2032, 11, 1, 6, 30, 17, 123456) != datetime.datetime(2032, 11, 1, 12, 30, 17, 123456)&#10;  Use -v to get more diff">tests\integration_model_utc_postgres.py:76: in test_current_orm_instants_and_typed_filters_have_same_utc_storage
+    assert db.execute(text("SELECT fecha_registro,invitation_expires FROM usuarios WHERE id='utc-current-owner'")).one() == (expected, expected+timedelta(hours=1))
+E   assert (datetime.dat..., 17, 123456)) == (datetime.dat..., 17, 123456))
+E     
+E     At index 0 diff: datetime.datetime(2032, 11, 1, 6, 30, 17, 123456) != datetime.datetime(2032, 11, 1, 12, 30, 17, 123456)
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.integration_model_utc_postgres" name="test_current_orm_instants_and_typed_filters_have_same_utc_storage[0-America/Mexico_City-postgresql]" time="4.392"><failure message="assert (datetime.dat..., 17, 123456)) == (datetime.dat..., 17, 123456))&#10;  &#10;  At index 0 diff: datetime.datetime(2032, 11, 1, 6, 30, 17, 123456) != datetime.datetime(2032, 11, 1, 12, 30, 17, 123456)&#10;  Use -v to get more diff">tests\integration_model_utc_postgres.py:76: in test_current_orm_instants_and_typed_filters_have_same_utc_storage
+    assert db.execute(text("SELECT fecha_registro,invitation_expires FROM usuarios WHERE id='utc-current-owner'")).one() == (expected, expected+timedelta(hours=1))
+E   assert (datetime.dat..., 17, 123456)) == (datetime.dat..., 17, 123456))
+E     
+E     At index 0 diff: datetime.datetime(2032, 11, 1, 6, 30, 17, 123456) != datetime.datetime(2032, 11, 1, 12, 30, 17, 123456)
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.integration_model_utc_postgres" name="test_current_orm_instants_and_typed_filters_have_same_utc_storage[5.5-America/Mexico_City-postgresql]" time="4.746"><failure message="assert (datetime.dat..., 17, 123456)) == (datetime.dat..., 17, 123456))&#10;  &#10;  At index 0 diff: datetime.datetime(2032, 11, 1, 6, 30, 17, 123456) != datetime.datetime(2032, 11, 1, 12, 30, 17, 123456)&#10;  Use -v to get more diff">tests\integration_model_utc_postgres.py:76: in test_current_orm_instants_and_typed_filters_have_same_utc_storage
+    assert db.execute(text("SELECT fecha_registro,invitation_expires FROM usuarios WHERE id='utc-current-owner'")).one() == (expected, expected+timedelta(hours=1))
+E   assert (datetime.dat..., 17, 123456)) == (datetime.dat..., 17, 123456))
+E     
+E     At index 0 diff: datetime.datetime(2032, 11, 1, 6, 30, 17, 123456) != datetime.datetime(2032, 11, 1, 12, 30, 17, 123456)
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.integration_model_utc_postgres" name="test_actual_invitation_near_expiry_is_accepted_under_either_database_timezone[America/Mexico_City-postgresql]" time="5.055"><failure message="fastapi.exceptions.HTTPException: 410: {'code': 'invitation_expired', 'message': 'La invitación venció. Pide un enlace nuevo.'}">tests\integration_model_utc_postgres.py:119: in test_actual_invitation_near_expiry_is_accepted_under_either_database_timezone
+    identity = invitations.consume(db,offered['invitation_token'],'Synthetic-invitation-password-2026')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\team_invitation_service.py:153: in consume
+    fail(410, "invitation_expired", "La invitación venció. Pide un enlace nuevo.")
+web\services\team_invitation_service.py:32: in fail
+    raise HTTPException(status, detail={"code": code, "message": message})
+E   fastapi.exceptions.HTTPException: 410: {'code': 'invitation_expired', 'message': 'La invitación venció. Pide un enlace nuevo.'}</failure></testcase></testsuite></testsuites>

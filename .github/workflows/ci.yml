@@ -150,7 +150,7 @@ jobs:
       - name: Real factory privacy export preserves personal scope and performs no writes
         run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
       - name: UTC typed writes preserve physical schema and historical values in both session zones
-        run: python -X utf8 tests/run_isolated.py tests/integration_utc_datetime.py tests/integration_utc_datetime_review.py -q --tb=short --junitxml=pytest-postgres-utc.xml
+        run: python -X utf8 tests/run_isolated.py tests/integration_utc_datetime.py tests/integration_utc_datetime_review.py tests/integration_model_utc_postgres.py tests/integration_timestamp_observation.py -q --tb=short --junitxml=pytest-postgres-utc.xml
       - name: Two-process HTTP license activation retains hardware ownership and expiry
         run: python -X utf8 tests/run_isolated.py tests/integration_license_postgres.py -q --tb=short --junitxml=pytest-postgres-licenses.xml
       - name: Last-credit and subscription GET races across PostgreSQL processes

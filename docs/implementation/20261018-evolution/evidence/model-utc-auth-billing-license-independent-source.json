@@ -1,0 +1,50 @@
+{
+  "before": {
+    "web/database/models.py": "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",
+    "tests/integration_model_utc_postgres.py": "521a95fa4617654126fa64d803f74981cd5e255f39ad8c8d140ee2baa364028d",
+    "tests/integration_timestamp_observation.py": "4cfed598a0a0364265de5a42870d3b521cc3863e77bacdd54232b3586df3bb37",
+    "docs/implementation/20261018-evolution/UTC_DATETIME.md": "13b02a82b61de946eaf6b23d012bbd5ed1cf96c61eefdc06721430522331a3f3",
+    "web/database/utc_datetime.py": "d2e245708bca24e562c22b03bd468439fe5704cdd79dd6ce6e549616903039f0",
+    "tests/test_utc_datetime.py": "6a65d46def9a40bce09668ff9faf2deadf7a70a63474babce420af02bb4d3468",
+    "tests/integration_utc_datetime.py": "5ba9c0347ebe8907b66ea74251d4983624a4ef9b34f41dfbcf70203486651102",
+    "tests/test_identity_security.py": "eb8f04ae6993fea9bb7ec1968118278967f8bb615740ae002444290b0979a4cb",
+    "tests/test_billing_integrity.py": "fc39141ae08e89440b6375d27f03bc82e9f411b12b054eb9689c9e26d72ecc63",
+    "tests/test_license_activation_security.py": "a25f649dddd737788d8cfd6a41ec8b619cca6d85c5f954829e1fa22538c2c09a",
+    "tests/test_license_boundary_review.py": "7700cc62720879c6b8129532b58aa52bfc9f342b76728a4898b4abaa27070848",
+    "tests/test_catalog_contract.py": "0b2b046fc02b291ab68ab6701617f0b11d8dca9095ff826d4b920862b256bad9",
+    "tests/integration_license_postgres.py": "2cebf9bb5da3372775d789b0dbb22cbb33b655d4e5967f7cfca564282b9b7172"
+  },
+  "after": {
+    "web/database/models.py": "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",
+    "tests/integration_model_utc_postgres.py": "521a95fa4617654126fa64d803f74981cd5e255f39ad8c8d140ee2baa364028d",
+    "tests/integration_timestamp_observation.py": "4cfed598a0a0364265de5a42870d3b521cc3863e77bacdd54232b3586df3bb37",
+    "docs/implementation/20261018-evolution/UTC_DATETIME.md": "13b02a82b61de946eaf6b23d012bbd5ed1cf96c61eefdc06721430522331a3f3",
+    "web/database/utc_datetime.py": "d2e245708bca24e562c22b03bd468439fe5704cdd79dd6ce6e549616903039f0",
+    "tests/test_utc_datetime.py": "6a65d46def9a40bce09668ff9faf2deadf7a70a63474babce420af02bb4d3468",
+    "tests/integration_utc_datetime.py": "5ba9c0347ebe8907b66ea74251d4983624a4ef9b34f41dfbcf70203486651102",
+    "tests/test_identity_security.py": "eb8f04ae6993fea9bb7ec1968118278967f8bb615740ae002444290b0979a4cb",
+    "tests/test_billing_integrity.py": "fc39141ae08e89440b6375d27f03bc82e9f411b12b054eb9689c9e26d72ecc63",
+    "tests/test_license_activation_security.py": "a25f649dddd737788d8cfd6a41ec8b619cca6d85c5f954829e1fa22538c2c09a",
+    "tests/test_license_boundary_review.py": "7700cc62720879c6b8129532b58aa52bfc9f342b76728a4898b4abaa27070848",
+    "tests/test_catalog_contract.py": "0b2b046fc02b291ab68ab6701617f0b11d8dca9095ff826d4b920862b256bad9",
+    "tests/integration_license_postgres.py": "2cebf9bb5da3372775d789b0dbb22cbb33b655d4e5967f7cfca564282b9b7172"
+  },
+  "stable": true,
+  "exit_code": 0,
+  "seconds": 54.02,
+  "command": [
+    "-X",
+    "utf8",
+    "tests/run_isolated.py",
+    "tests/test_identity_security.py",
+    "tests/test_billing_integrity.py",
+    "tests/test_license_activation_security.py",
+    "tests/test_license_boundary_review.py",
+    "tests/test_catalog_contract.py",
+    "tests/integration_license_postgres.py",
+    "-q",
+    "--tb=short",
+    "--junitxml=F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\pytest-model-utc-auth-billing-license-independent.xml"
+  ],
+  "scope": "Directed regression for consumers affected by adopted timestamp types: persisted identity, billing periods/quotas, entitlement expiry and license authority; includes actual two-process PG license races under UTC/Mexico. No repeat broad1621."
+}

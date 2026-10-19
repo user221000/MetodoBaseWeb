@@ -1,10 +1,9 @@
-"""Observation, not an acceptance gate: aware binds into legacy naive columns.
+"""After adoption: actual model bindings preserve UTC in legacy naive columns.
 
-Each case owns a UUID migration database. Green means the documented driver
-behavior was reproduced; it does not mean production timestamps are correct.
+The four original PostgreSQL diagnostics remain in commit b81cfc1 and the
+timestamp-observation evidence. These cases now require zero stored shift.
 """
 from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
 
 import pytest
 from sqlalchemy import inspect, select, text
@@ -15,11 +14,11 @@ from tests.integration_schema_migrations import migration_database, run_migratio
 
 @pytest.mark.parametrize("zone", ["UTC", "America/Mexico_City"])
 @pytest.mark.parametrize("binding", ["aware_utc", "naive_utc"])
-def test_observe_timestamp_binding_without_changing_existing_data(migration_database, zone, binding, record_property):
+def test_model_timestamp_binding_has_no_session_timezone_shift(migration_database, zone, binding, record_property):
     from web.database.models import Cliente, PlanGenerado, Subscription, Usuario, UserRole
 
     url, engine = migration_database
-    run_migration(url, "db_bootstrap.py")
+    run_migration(url, "db_bootstrap.py", "--revision", "head")
     fixed = datetime(2026, 10, 19, 12, 30, tzinfo=timezone.utc)
     value = fixed if binding == "aware_utc" else fixed.replace(tzinfo=None)
     with Session(engine) as db:
@@ -44,18 +43,17 @@ def test_observe_timestamp_binding_without_changing_existing_data(migration_data
                 db.commit()
                 expiry = db.execute(select(Subscription.current_period_end)).scalar_one()
                 generated = db.execute(select(PlanGenerado.fecha_generacion)).scalar_one()
-            expected = (fixed.astimezone(ZoneInfo(zone)).replace(tzinfo=None)
-                if binding == "aware_utc" and engine.dialect.name == "postgresql" else fixed.replace(tzinfo=None))
+            expected = fixed.replace(tzinfo=None)
             assert expiry == expected and generated == expected
             for table, field in (("subscriptions", "current_period_end"), ("planes_generados", "fecha_generacion")):
                 column = next(item for item in inspect(connection).get_columns(table) if item["name"] == field)
                 assert column["type"].timezone is False
             shift = int((expiry - fixed.replace(tzinfo=None)).total_seconds())
-            record_property("observation_only", "not_application_acceptance")
+            record_property("model_binding_contract", "utc_naive_without_schema_migration")
             record_property("session_timezone", zone)
             record_property("input_binding", binding)
             record_property("stored_shift_seconds", shift)
-            assert shift == (-21600 if engine.dialect.name == "postgresql" and zone == "America/Mexico_City" and binding == "aware_utc" else 0)
+            assert shift == 0
         finally:
             if engine.dialect.name == "postgresql":
                 connection.rollback()
