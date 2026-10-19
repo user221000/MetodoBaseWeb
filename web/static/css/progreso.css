@@ -28,10 +28,11 @@ legend { font-weight: 650; padding: 0 .4rem; }
 .progress-error { padding: 1rem; border: 2px solid #a12a35; border-radius: .4rem; color: #80212a; background: #fff6f6; }
 [role="status"] { min-height: 1.6em; }
 .progress-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid #aec6bc; margin: 1rem 0; }
-table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+.progress-table-wrap table { border-collapse: collapse; width: 100%; min-width: 36rem; font-size: .95rem; }
 caption { padding: .8rem; text-align: left; font-weight: 650; }
-th, td { text-align: left; vertical-align: top; padding: .7rem; border-bottom: 1px solid #d6e1dc; overflow-wrap: anywhere; }
-th { background: #e9f2ed; }
+.progress-table-wrap th, .progress-table-wrap td { text-align: left; vertical-align: top; padding: .7rem; border-bottom: 1px solid #d6e1dc; overflow-wrap: normal; word-break: normal; }
+.progress-table-wrap th { min-width: 9rem; background: #e9f2ed; }
+.progress-table-wrap td { white-space: nowrap; }
 .progress-chart { width: 100%; max-width: 48rem; height: auto; background: #f6faf8; border: 1px solid #aec6bc; }
 .progress-chart text { fill: #19343a; font-size: 13px; }
 .progress-chart circle { fill: #075d60; stroke: white; stroke-width: 2; }
@@ -42,5 +43,5 @@ th { background: #e9f2ed; }
   .progress-page { margin: 0; border: 0; border-radius: 0; padding: 1rem; }
   .progress-actions > button { width: 100%; }
   fieldset { padding: .7rem; }
-  th, td { padding: .55rem; }
+  .progress-table-wrap th, .progress-table-wrap td { padding: .55rem; }
 }
