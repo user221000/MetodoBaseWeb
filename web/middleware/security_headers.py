@@ -16,6 +16,7 @@ Uso:
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, JSONResponse
+from web.client_link_paths import is_member_link_private
 
 import inspect
 import logging
@@ -121,7 +122,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # ─── CSP (with per-request nonce) ────────────────────────────────────
         if self.csp_enabled:
-            if request.url.path == "/auth/reset-password":
+            if request.url.path in {"/auth/reset-password", "/auth/accept-client-link"}:
                 # Fixed first-party policy for the public recovery form. Never
                 # accept an arbitrary policy supplied by a downstream handler.
                 response.headers["Content-Security-Policy"] = (
@@ -145,6 +146,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "no-referrer" if (
                 recovery_api
                 or request.url.path == "/api/usuario/historial"
+                or is_member_link_private(request.url.path)
                 or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
             )
             else "strict-origin-when-cross-origin"
@@ -153,6 +155,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
+        if is_member_link_private(request.url.path):
+            response.headers["Cache-Control"] = "no-store"
         
         # ─── Cache control para APIs ────────────────────────────────────────
         if request.url.path.startswith("/api/"):

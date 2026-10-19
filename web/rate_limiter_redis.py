@@ -15,6 +15,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from web.rate_limiter import RATE_RULES, _get_client_ip, _match_rule, _is_allowed
+from web.client_link_paths import is_member_link_api
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,8 @@ def _note_recovery() -> None:
 
 def _sensitive_path(path: str) -> bool:
     """Keep authentication and costly/financial writes closed during outage."""
+    if is_member_link_api(path):
+        return True
     if path.startswith("/api/auth/") and path not in {"/api/auth/logout", "/api/auth/me"}:
         return True
     return path.startswith(("/api/generar-plan", "/api/usuario/generar-plan",

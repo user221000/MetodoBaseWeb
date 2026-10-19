@@ -239,6 +239,8 @@ def create_app() -> FastAPI:
     app.include_router(personal_diary_router, prefix="/api")
     from web.routes.password_recovery import router as password_recovery_router
     app.include_router(password_recovery_router, prefix="/api")
+    from web.routes.client_links import router as client_links_router
+    app.include_router(client_links_router, prefix="/api")
 
     from web.routes.privacy import router as privacy_router
     app.include_router(privacy_router, prefix="/api")
