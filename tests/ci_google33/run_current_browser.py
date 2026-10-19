@@ -108,6 +108,9 @@ def validate_pg_marker(value, pid):
     assert value['pid'] == pid and value['runtime_revision'] == '20261019_google_subjects'
     assert value['model_tables'] == 35 and value['actual_tables'] == 36
     assert value['application_role_restricted_nonowner'] is True
+    from tests.ci_google33.witness import validate as validate_witness
+    pool=10 if value['fixture']=='r23-followup-real-pg31' else 20
+    validate_witness(value['physical_witness'],pool=pool)
 
 
 def require_browser_report(path: Path, count: int, *, list_name='checks', completed=None) -> None:
@@ -170,10 +173,12 @@ def image(tag: str, phase: Path, environment: dict) -> None:
         else:
             raise TimeoutError('Current image real entrypoint was not ready')
         raw = execute(['docker', 'exec', '-i', container, 'python', '-'], phase, 'image-inventory', environment,
-                      stdin=(ROOT / 'tests/ci_google33/image_inventory.py').read_bytes())
+                      stdin=(ROOT / 'tests/ci_google33/physical.py').read_bytes()+b'\n'+(ROOT / 'tests/ci_google33/image_inventory.py').read_bytes())
         inventory = json.loads(raw)
         assert inventory['complete'] is True
         assert inventory['application_role_restricted_nonowner'] is True
+        from tests.ci_google33.witness import validate as validate_witness
+        validate_witness(inventory['physical_witness'],pool=20)
         for name, digest in inventory['sources_sha256'].items():
             assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest
         (phase / 'image-inventory.json').write_bytes(raw)
@@ -214,6 +219,9 @@ def run(output: Path, tag: str) -> None:
         FOLLOWUP_NODE_MODULES=str(modules), METODOBASE_E2E_DEPENDENCIES=str(modules),
         NODE_PATH=str(modules), TEMP=tempfile.gettempdir(), TMPDIR=tempfile.gettempdir())
     image(tag, phase, environment)
+    leases=phase/'browser-leases';leases.mkdir(mode=0o700)
+    environment.update(CI33_LEASE_DIRECTORY=str(leases),CI33_RUN_NONCE=uuid.uuid4().hex,
+        PYTHONPATH=os.pathsep.join([str(ROOT/'tests/ci_google33/boot'),str(ROOT/'tests/ci_google33')]))
     execute([sys.executable, '-X', 'utf8', '-B', 'tests/e2e/run_member_link33_browser.py',
              '--output', str(phase / 'member'), '--port', '8794'], phase, 'member', environment)
     shutil.copyfile(phase / 'member/report.json', phase / 'member-report.json')
@@ -246,13 +254,23 @@ def run(output: Path, tag: str) -> None:
     with fixture([sys.executable, '-X', 'utf8', '-B', 'tests/e2e/mfa33_ui_server.py'], phase, 'mfa-ui',
                  environment, None) as process:
         def marker():
-            return json.loads((phase / 'mfa-ui.private.log').read_bytes().splitlines()[0])
+            raw=(phase/'mfa-ui.private.log').read_bytes()
+            assert len(raw)<=2*1024*1024
+            values=[]
+            for line in raw.splitlines():
+                try:value=json.loads(line)
+                except (ValueError,UnicodeError):continue
+                if isinstance(value,dict) and value.get('fixture')=='mfa-ui33':values.append(value)
+            if len(values)!=1:raise ValueError('Own MFA startup marker is not complete or unique')
+            return values[0]
         def validate(value, pid):
             assert value['pid'] == pid and value['actual_alembic_revision'] == '20261019_google_subjects'
             assert value['expected_runtime_revision'] == '20261019_google_subjects'
             assert value['metadata_table_count'] == 35 and value['physical_table_count'] == 36
+            from tests.ci_google33.witness import validate_sqlite
+            validate_sqlite(value['sqlite_witness'])
         wait_ready(process, 8802, marker, validate)
-        for driver in ('mfa_ui_browser', 'mfa_personal_browser'):
+        for driver in ('mfa_ui33_browser', 'mfa_personal33_browser'):
             execute([environment['CI33_NODE'], 'tests/e2e/' + driver + '.cjs'], phase, driver,
                     dict(environment, METODOBASE_EVIDENCE_BATCH=batch, METODOBASE_E2E_URL='http://127.0.0.1:8802'))
         reports = ROOT / 'docs/implementation/20261018-evolution/evidence/mfa-ui33'
@@ -260,8 +278,18 @@ def run(output: Path, tag: str) -> None:
             original = reports / (kind + '-' + batch) / 'report.json'
             require_browser_report(original, minimum, completed='complete')
             shutil.copyfile(original, phase / name)
+    from tests.ci_google33.run_postgres import lease_audit
+    closed_leases=lease_audit(leases,environment)
+    inventory={'phase':'owned_startup_after_upgrade_before_browser_business',
+        'member':json.loads((phase/'member/startup.json').read_bytes())['physical_witness'],
+        'followup':json.loads((followup/'startup.json').read_bytes())['physical_witness'],
+        'daily':json.loads((daily/'startup.json').read_bytes())['physical_witness'],
+        'mfa_sqlite':marker()['sqlite_witness'],'closed_UUID_leases':closed_leases}
+    from tests.ci_google33.witness import validate_browser_inventory
+    validate_browser_inventory(inventory)
+    (phase/'browser-runtime-inventory.json').write_bytes((json.dumps(inventory)+'\n').encode())
     assert source_hashes() == before, 'Current source changed while image/browser gates ran'
-    names = ['image-inventory.json', 'image-identity.json', 'image-browser.json', 'member-report.json',
+    names = ['browser-runtime-inventory.json','image-inventory.json', 'image-identity.json', 'image-browser.json', 'member-report.json',
              'followup-report.json', 'daily-report.json', 'mfa-ui-report.json', 'mfa-personal-report.json']
     publish(phase, output, names)
     print(json.dumps({'current33_components': 6, 'published_reports': len(names),

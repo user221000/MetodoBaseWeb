@@ -175,7 +175,9 @@ def main():
                 temporary.replace(out/'control-ack.private.json')
         control=threading.Thread(target=controller,daemon=True);control.start()
         assert len(Base.metadata.tables)==35 and len(inspect(admin).get_table_names())==36
-        marker={'fixture':'r12-real-postgres33','head':args.head,'pid':os.getpid(),'port':args.port,
+        from tests.ci_google33.physical import physical_contract
+        global_witness=physical_contract(app,expected_pool=20)
+        marker={'physical_witness':global_witness,'fixture':'r12-real-postgres33','head':args.head,'pid':os.getpid(),'port':args.port,
                 'database_kind':'postgresql','executed_revision':actual_revision,'model_target_revision':expected_head(),
                 'business_contract_revision':'20261019_client_account_links','history_order_index':runtime_history_index,
                 'model_tables':len(Base.metadata.tables),'actual_tables':len(inspect(admin).get_table_names()),

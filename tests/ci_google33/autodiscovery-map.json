@@ -1,0 +1,75 @@
+{
+  "base": "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+  "status": "current33_contract_providers_preserve_original16_case_IDs_once",
+  "historical31": "de506b6077ba055587f02e7d839387e7f5c56f84",
+  "providers": {
+    "tests/google33_identity_contract.py": {
+      "producer_source": "tests/test_google33_identity_contract.py",
+      "producer_normalized_sha256": "7db3a1cad3c6e5950f5c2020552bd2064c0d88c30d0fc42356c49a40e3f3e473",
+      "current_normalized_sha256": "394e4382e9e3b101e3c6f5a0e8db497e8e9aa0f908cdcd8aa2f52462502fee78",
+      "fixture_import_pair": [
+        "from tests.test_identity_security import identity_db,principal,auth_client",
+        "from tests.ci_google33.identity_fixtures import identity_db,principal,auth_client"
+      ]
+    },
+    "tests/google33_mfa_reauth_contract.py": {
+      "producer_source": "tests/test_google33_mfa_reauth_contract.py",
+      "producer_normalized_sha256": "f18e275a265bbb5e22a00078fa9055e16976837aadac6adcdba2ed202d3d5805",
+      "current_normalized_sha256": "f18e275a265bbb5e22a00078fa9055e16976837aadac6adcdba2ed202d3d5805",
+      "fixture_import_pair": null
+    }
+  },
+  "original_identity_normalized_sha256": "431daafaf34338499ac7d4d3df664912a5455a0d1d72769d2fbfb49f2fb21ec3",
+  "original_mfa_normalized_sha256": "65d0b6d9400eccd3eb1ff40d47ff1c266f195b2e66184d8f6adc02c0901722ec",
+  "identity_fixture_AST_exact": [
+    "identity_db",
+    "principal",
+    "auth_client"
+  ],
+  "identity_nonGoogle_function_AST_exact": [
+    "test_invalid_expiry_is_rejected",
+    "test_invalid_role_never_becomes_owner",
+    "test_legacy_access_epoch_zero_is_revoked_by_logout",
+    "test_logout_during_rotation_cannot_resurrect_session",
+    "test_logout_revokes_access_and_refresh",
+    "test_password_and_refresh_preserve_persisted_membership",
+    "test_public_emergency_maintenance_is_absent",
+    "test_remember_me_never_extends_access_to_days",
+    "test_removed_user_or_membership_cannot_use_old_access",
+    "test_role_downgrade_changes_existing_access_immediately",
+    "test_safety_exclusions_can_be_created_and_updated_without_paid_feature",
+    "test_unknown_permission_is_denied_even_to_owner",
+    "test_viewer_cannot_create_client"
+  ],
+  "identity_current_functions": [
+    "test_google_uses_same_member_identity",
+    "test_disabled_google_account_is_not_recreated"
+  ],
+  "identity_assertions_exact": 7,
+  "MFA_current_functions": [
+    "test_fresh_google_primary_reauth_accepts_only_matching_persisted_account",
+    "test_google_primary_admission_budget_survives_credential_rotation",
+    "test_google_primary_cannot_reauthenticate_a_different_persisted_account",
+    "test_google_primary_reauth_rejects_stale_or_absent_auth_time_despite_new_iat"
+  ],
+  "MFA_assertions_exact_except_URL_transport": 8,
+  "MFA_url_pair": [
+    "https://oauth2.googleapis.com/tokeninfo",
+    "https://www.googleapis.com/oauth2/v3/certs"
+  ],
+  "body_transport_changes": "Only the mapped current33 setup/credential expressions from frozen Backend. No principal or crypto substitution. Original functions remain exact in historical31.",
+  "identity_original_removed_segments": {
+    "identity_db": "@pytest.fixture\ndef identity_db(monkeypatch):\n    from web import auth\n    from web.database import engine as database\n    from web.database.models import Base, Usuario, UserRole\n\n    engine = create_engine(\"sqlite://\", connect_args={\"check_same_thread\": False}, poolclass=StaticPool)\n    Base.metadata.create_all(engine)\n    factory = sessionmaker(bind=engine, expire_on_commit=False)\n    monkeypatch.setattr(auth, \"_get_session\", factory)\n    monkeypatch.setattr(auth, \"SECRET_KEY\", \"synthetic-security-test-key-with-no-external-use\")\n    monkeypatch.setattr(database, \"_engine\", engine)\n    monkeypatch.setattr(database, \"_SessionLocal\", factory)\n    password = \"SyntheticPassword123!\"\n    owner_id, member_id = str(uuid.uuid4()), str(uuid.uuid4())\n    with factory() as db:\n        db.add(Usuario(id=owner_id, email=f\"{owner_id}@example.invalid\", password_hash=auth.hash_password(password), nombre=\"Owner\", tipo=\"gym\", role=UserRole.OWNER, activo=True))\n        db.commit()\n        db.add(Usuario(id=member_id, email=f\"{member_id}@example.invalid\", password_hash=auth.hash_password(password), nombre=\"Member\", tipo=\"usuario\", role=UserRole.NUTRIOLOGO, team_gym_id=owner_id, activo=True))\n        db.commit()\n    yield factory, owner_id, member_id, password\n    engine.dispose()\n",
+    "principal": "def principal(factory, user_id):\n    from web.database.models import Usuario\n    with factory() as db:\n        user = db.get(Usuario, user_id)\n        return {\"id\": user.id, \"email\": user.email, \"nombre\": user.nombre, \"apellido\": user.apellido, \"tipo\": user.tipo, \"role\": user.role.value, \"team_gym_id\": user.team_gym_id, \"session_version\": getattr(user, \"session_version\", 0)}\n",
+    "auth_client": "def auth_client(monkeypatch):\n    from web.routes import auth as routes\n    from web.services import auth_audit\n    monkeypatch.setattr(auth_audit, \"log_auth_event_from_request\", AsyncMock())\n    app = FastAPI()\n    app.include_router(routes.router, prefix=\"/api\")\n    return TestClient(app)\n",
+    "test_google_uses_same_member_identity": "def test_google_uses_same_member_identity(identity_db, monkeypatch):\n    from types import SimpleNamespace\n    from web import auth\n    from config import settings\n    factory, owner_id, member_id, _ = identity_db\n    user = principal(factory, member_id)\n    monkeypatch.setattr(settings.get_settings(), \"GOOGLE_CLIENT_ID\", \"synthetic-client-id\")\n\n    class FakeGoogleClient:\n        def __init__(self, **kwargs):\n            pass\n        async def __aenter__(self):\n            return self\n        async def __aexit__(self, *args):\n            pass\n        async def get(self, url, **kwargs):\n            return SimpleNamespace(status_code=200, json=lambda: {\"aud\": \"synthetic-client-id\", \"email_verified\": \"true\", \"email\": user[\"email\"]})\n\n    monkeypatch.setattr(\"httpx.AsyncClient\", FakeGoogleClient)\n    response = auth_client(monkeypatch).post(\"/api/auth/google\", json={\"credential\": \"synthetic-only\", \"tipo\": \"gym\"})\n    assert response.status_code == 200\n    assert response.json()[\"role\"] == \"nutriologo\"\n    assert response.json()[\"team_gym_id\"] == owner_id\n    identity = auth.verificar_token(response.json()[\"token\"])\n    assert identity[\"role\"] == \"nutriologo\"\n    assert identity[\"team_gym_id\"] == owner_id\n",
+    "test_disabled_google_account_is_not_recreated": "def test_disabled_google_account_is_not_recreated(identity_db, monkeypatch):\n    from types import SimpleNamespace\n    from web.database.models import Usuario\n    from config import settings\n    factory, _, member_id, _ = identity_db\n    user = principal(factory, member_id)\n    with factory() as db:\n        db.get(Usuario, member_id).activo = False\n        db.commit()\n    monkeypatch.setattr(settings.get_settings(), \"GOOGLE_CLIENT_ID\", \"synthetic-client-id\")\n\n    class FakeGoogleClient:\n        def __init__(self, **kwargs):\n            pass\n        async def __aenter__(self):\n            return self\n        async def __aexit__(self, *args):\n            pass\n        async def get(self, url, **kwargs):\n            return SimpleNamespace(status_code=200, json=lambda: {\"aud\": \"synthetic-client-id\", \"email_verified\": \"true\", \"email\": user[\"email\"]})\n\n    monkeypatch.setattr(\"httpx.AsyncClient\", FakeGoogleClient)\n    response = auth_client(monkeypatch).post(\"/api/auth/google\", json={\"credential\": \"synthetic-only\"})\n    assert response.status_code == 401\n    with factory() as db:\n        assert db.query(Usuario).filter(Usuario.email == user[\"email\"]).count() == 1\n"
+  },
+  "original_mfa_full_source": "\"\"\"Provider auth_time, not refresh iat or a supplied email, proves fresh primary.\"\"\"\nfrom datetime import timedelta\nimport httpx\nimport pytest\n\nfrom tests.test_mfa31_http import mfa_client\n\n\ndef google_transport(monkeypatch, actor, clock, *, freshness=\"fresh\", email=None):\n    from web.settings import get_settings\n    monkeypatch.setattr(get_settings(), \"GOOGLE_CLIENT_ID\", \"synthetic-mfa-google-client\")\n    info = {\"aud\":\"synthetic-mfa-google-client\", \"email_verified\":\"true\",\n        \"email\":email or actor[\"email\"], \"iat\":int(clock[0].timestamp()),\n        \"auth_time\":int(clock[0].timestamp())}\n    if freshness == \"stale\": info[\"auth_time\"] -= 3600\n    if freshness == \"missing\": info.pop(\"auth_time\")\n    if freshness == \"future\": info[\"auth_time\"] += 60\n    if freshness == \"boolean\": info[\"auth_time\"] = True\n    calls = []\n    class Client:\n        def __init__(self, *args, **kwargs): pass\n        async def __aenter__(self): return self\n        async def __aexit__(self, *args): pass\n        async def get(self, url, **kwargs):\n            calls.append((url,kwargs))\n            return httpx.Response(200,json=info)\n    monkeypatch.setattr(httpx, \"AsyncClient\", Client)\n    return calls\n\n\n@pytest.mark.parametrize(\"freshness\", [\"stale\", \"missing\", \"future\", \"boolean\"])\ndef test_google_primary_reauth_rejects_stale_or_absent_auth_time_despite_new_iat(mfa_client, monkeypatch, freshness):\n    client, actor, clock = mfa_client\n    calls = google_transport(monkeypatch, actor, clock, freshness=freshness)\n    response = client.post(\"/api/auth/mfa/reauth\", json={\"google_credential\":\"synthetic-verified-provider-credential\"})\n    assert response.status_code == 403\n    assert response.json()[\"detail\"][\"code\"] == \"mfa_primary_reauthentication_required\"\n    assert len(calls) == 1 and calls[0][0] == \"https://oauth2.googleapis.com/tokeninfo\"\n\n\ndef test_fresh_google_primary_reauth_accepts_only_matching_persisted_account(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    google_transport(monkeypatch, actor, clock)\n    response = client.post(\"/api/auth/mfa/reauth\", json={\"google_credential\":\"synthetic-verified-provider-credential\"})\n    assert response.status_code == 200, response.text\n    assert \"reauthentication_token\" in response.json()\n\n\ndef test_google_primary_cannot_reauthenticate_a_different_persisted_account(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    google_transport(monkeypatch,actor,clock,email=\"different-account@example.invalid\")\n    response = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":\"synthetic-provider-credential\"})\n    assert response.status_code == 400\n\n\ndef test_google_primary_admission_budget_survives_credential_rotation(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    calls = google_transport(monkeypatch,actor,clock,freshness=\"stale\")\n    for attempt in range(10):\n        response = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":\"synthetic-credential-\"+str(attempt)})\n        assert response.status_code == 403\n    blocked = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":\"new-synthetic-credential\"})\n    assert blocked.status_code == 429 and len(calls) == 10\n",
+  "pending_runtime_checks": [
+    "both fresh import orders",
+    "original16 caseIDs",
+    "fixture resolution",
+    "no duplicate criteria in discovery"
+  ]
+}

@@ -108,7 +108,9 @@ try:
         'config/constantes.py','tests/e2e/followup33_server.py','tests/e2e/dashboard_followup33_browser.cjs',
         'requirements_web-windows.lock','requirements-test-windows.lock','tests/e2e/package.json','tests/e2e/package-lock.json']
     args.report.parent.mkdir(parents=True,exist_ok=True)
-    report={'fixture':'r23-followup-real-pg31','pid':os.getpid(),'port':args.port,'database':name,
+    from tests.ci_google33.physical import physical_contract
+    global_witness=physical_contract(app_engine,expected_pool=10)
+    report={'physical_witness':global_witness,'fixture':'r23-followup-real-pg31','pid':os.getpid(),'port':args.port,'database':name,
         'runtime_revision':revision,'revision_method':'SELECT alembic_version after db_bootstrap --revision head',
         'model_tables':len(Base.metadata.tables),'model_tables_method':'ORM metadata count, not a migration claim',
         'actual_tables':physical_tables,'history_order_index':history_index,'application_role_restricted_nonowner':application_role_restricted_nonowner,

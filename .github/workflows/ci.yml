@@ -59,8 +59,21 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - run: python -m pip install --require-hashes -r requirements-test.lock
-    - name: Current MFA31 wiring, exact report nodes and offline trust canaries
-      run: python -X utf8 tests/verify_mfa31_ci.py --output "$RUNNER_TEMP/mfa31-ci-wiring"
+    - name: Current33 complete wiring/source-preservation/trust canaries
+      run: python -X utf8 tests/verify_google33_ci.py --output "$RUNNER_TEMP/google33-ci-wiring"
+    - name: R05 complete110 and exact49 reviewed-location critical identities
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/test_secret_scan_reviewed_locations.py tests/test_secret_scan_fragment_pins.py tests/test_secret_scan_safety.py -q --junitxml=pytest-r05-full110.xml
+        python -X utf8 tests/check_google33_r05.py --report pytest-r05-full110.xml
+        ) > "$RUNNER_TEMP/web-private/step-999.raw.log" 2>&1
+    - name: ROOT QA17 four original signup rollback/uncertainty criteria on real SQLite HTTP
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/test_google33_conflict_window.py -q --junitxml=pytest-google33-root-qa17.xml
+        ) > "$RUNNER_TEMP/web-private/step-1000.raw.log" 2>&1
     - name: SaaS regression suite in fresh isolated data
       run: |
         install -d -m 700 "$RUNNER_TEMP/web-private"
@@ -93,8 +106,9 @@ jobs:
     - name: Project current web reports without assertion bodies
       if: always()
       working-directory: ${{ github.workspace }}
-      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/web-public" --files
-        "pytest-web.xml" "pytest-web-shuffle.xml" "pytest-storage-sdk.xml" "coverage.xml" "coverage.json"
+      run: python -X utf8 tests/ci_google33/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/web-public"
+        --files "pytest-web.xml" "pytest-web-shuffle.xml" "pytest-storage-sdk.xml" "coverage.xml" "coverage.json" "pytest-r05-full110.xml"
+        "pytest-google33-root-qa17.xml"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -106,6 +120,8 @@ jobs:
           ${{ runner.temp }}/web-public/coverage.xml
           ${{ runner.temp }}/web-public/coverage.json
           ${{ runner.temp }}/web-public/publication.json
+          ${{ runner.temp }}/web-public/pytest-r05-full110.xml
+          ${{ runner.temp }}/web-public/pytest-google33-root-qa17.xml
         if-no-files-found: error
   frontend-contracts:
     runs-on: ubuntu-latest
@@ -145,7 +161,7 @@ jobs:
         node tests/e2e/personal_diary_controller.cjs > personal-diary-controller.json
         node tests/e2e/personal_logout.cjs > personal-diary-logout.json
         node tests/e2e/personal_logout_ack.cjs > personal-diary-logout-ack.json
-        node tests/e2e/personal_export_controls.cjs > personal-export-controls.json
+        node tests/e2e/current33_export_controls.cjs > personal-export-controls.json
         python scripts/check_frontend_report.py personal-diary-api.json --format counts --minimum 7
         python scripts/check_frontend_report.py personal-diary-controller.json --format counts --minimum 18
         python scripts/check_frontend_report.py personal-diary-logout.json --format counts --minimum 10
@@ -172,7 +188,7 @@ jobs:
         python scripts/check_frontend_report.py member-link-api.json --format counts --minimum 23
         node tests/e2e/member_link_consumers31.cjs > member-link-consumers.json
         python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16
-        node tests/e2e/member_link_export.cjs > member-link-export.json
+        node tests/e2e/current33_member_link_export.cjs > member-link-export.json
         python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
         node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
         python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
@@ -201,30 +217,55 @@ jobs:
       run: |
         install -d -m 700 "$RUNNER_TEMP/frontend-private"
         (
-        node tests/e2e/mfa_api.cjs > mfa-api-current31.json
-        python scripts/check_frontend_report.py mfa-api-current31.json --format counts --minimum 28
-        node tests/e2e/mfa_state.cjs > mfa-state-current31.json
-        python scripts/check_frontend_report.py mfa-state-current31.json --format counts --minimum 30
-        node tests/e2e/mfa_consumers.cjs > mfa-consumers-current31.json
-        python scripts/check_frontend_report.py mfa-consumers-current31.json --format counts --minimum 8
-        node tests/e2e/mfa_prompt.cjs > mfa-prompt-current31.json
-        python scripts/check_frontend_report.py mfa-prompt-current31.json --format counts --minimum 8
-        node tests/e2e/daily_plan_data.cjs > daily-plan-data-current31.raw.json
-        python tests/e2e/normalize_followup_report.py daily-plan-data-current31.raw.json daily-plan-data-current31.json --kind counts --minimum 23
-        python scripts/check_frontend_report.py daily-plan-data-current31.json --format counts --minimum 23
-        node tests/e2e/daily_plan_controls.cjs > daily-plan-controls-current31.json
-        python scripts/check_frontend_report.py daily-plan-controls-current31.json --format counts --minimum 17
-        node tests/e2e/daily_plan_snapshot.cjs > daily-plan-snapshot-current31.json
-        python scripts/check_frontend_report.py daily-plan-snapshot-current31.json --format counts --minimum 25
-        node tests/e2e/personal_export_context.cjs > personal-export-context-current31.json
-        python scripts/check_frontend_report.py personal-export-context-current31.json --format counts --minimum 17
-        node tests/e2e/personal_export_url_contract.cjs > personal-export-url-contract-current31.json
-        python scripts/check_frontend_report.py personal-export-url-contract-current31.json --format counts --minimum 15
+        node tests/e2e/mfa_api.cjs > mfa-api-current33.json
+        python scripts/check_frontend_report.py mfa-api-current33.json --format counts --minimum 28
+        node tests/e2e/mfa_state.cjs > mfa-state-current33.json
+        python scripts/check_frontend_report.py mfa-state-current33.json --format counts --minimum 30
+        node tests/e2e/mfa_consumers.cjs > mfa-consumers-current33.json
+        python scripts/check_frontend_report.py mfa-consumers-current33.json --format counts --minimum 8
+        node tests/e2e/mfa_prompt.cjs > mfa-prompt-current33.json
+        python scripts/check_frontend_report.py mfa-prompt-current33.json --format counts --minimum 8
+        node tests/e2e/daily_plan_data.cjs > daily-plan-data-current33.raw.json
+        python tests/e2e/normalize_followup_report.py daily-plan-data-current33.raw.json daily-plan-data-current33.json --kind counts --minimum 23
+        python scripts/check_frontend_report.py daily-plan-data-current33.json --format counts --minimum 23
+        node tests/e2e/daily_plan_controls.cjs > daily-plan-controls-current33.json
+        python scripts/check_frontend_report.py daily-plan-controls-current33.json --format counts --minimum 17
+        node tests/e2e/daily_plan_snapshot.cjs > daily-plan-snapshot-current33.json
+        python scripts/check_frontend_report.py daily-plan-snapshot-current33.json --format counts --minimum 25
+        node tests/e2e/current33_export_context.cjs > personal-export-context-current33.json
+        python scripts/check_frontend_report.py personal-export-context-current33.json --format counts --minimum 17
+        node tests/e2e/personal_export_url_contract.cjs > personal-export-url-contract-current33.json
+        python scripts/check_frontend_report.py personal-export-url-contract-current33.json --format counts --minimum 15
         ) > "$RUNNER_TEMP/frontend-private/step-9.raw.log" 2>&1
+    - name: Current33 progress/export/retirement and explicit GoogleUI VM contracts
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend33-private"
+        (
+        node tests/e2e/progress_export.cjs > progress-export-current33.json
+        python scripts/check_frontend_report.py progress-export-current33.json --format counts --minimum 38
+        node tests/e2e/progress_retirement.cjs > progress-retirement-current33.raw.json
+        python tests/ci_google33/normalize_vm.py progress-retirement-current33.raw.json progress-retirement-current33.json --label-field name --minimum 36
+        python scripts/check_frontend_report.py progress-retirement-current33.json --format counts --minimum 36
+        node tests/e2e/progress_retirement_dom.cjs > progress-retirement-dom-current33.raw.json
+        python tests/ci_google33/normalize_vm.py progress-retirement-dom-current33.raw.json progress-retirement-dom-current33.json --label-field name --minimum 9
+        python scripts/check_frontend_report.py progress-retirement-dom-current33.json --format counts --minimum 9
+        node tests/e2e/google_link_api.cjs > google-link-api-current33.raw.json
+        python tests/ci_google33/normalize_vm.py google-link-api-current33.raw.json google-link-api-current33.json --label-field name --minimum 10
+        python scripts/check_frontend_report.py google-link-api-current33.json --format counts --minimum 10
+        node tests/e2e/google_link_state.cjs > google-link-state-current33.raw.json
+        python tests/ci_google33/normalize_vm.py google-link-state-current33.raw.json google-link-state-current33.json --label-field name --minimum 28
+        python scripts/check_frontend_report.py google-link-state-current33.json --format counts --minimum 28
+        node tests/e2e/google_link_dom.cjs > google-link-dom-current33.raw.json
+        python tests/ci_google33/normalize_vm.py google-link-dom-current33.raw.json google-link-dom-current33.json --label-field name --minimum 8
+        python scripts/check_frontend_report.py google-link-dom-current33.json --format counts --minimum 8
+        node tests/e2e/google_link_login_review.cjs > google-link-login-review-current33.raw.json
+        python tests/ci_google33/normalize_vm.py google-link-login-review-current33.raw.json google-link-login-review-current33.json --label-field code --minimum 3
+        python scripts/check_frontend_report.py google-link-login-review-current33.json --format counts --minimum 3
+        ) > "$RUNNER_TEMP/frontend33-private/step-0.raw.log" 2>&1
     - name: Project frontend counters only; raw RAM harness diagnostics remain private
       if: always()
       working-directory: ${{ github.workspace }}
-      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/frontend-public"
+      run: python -X utf8 tests/ci_google33/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/frontend-public"
         --files "auth-refresh-contracts.json" "auth-refresh-storage.json" "auth-refresh-reproductions.json" "auth-refresh-security.json"
         "personal-operation-contracts.json" "personal-operation-ambiguity.json" "personal-diary-api.json" "personal-diary-controller.json"
         "personal-diary-logout.json" "personal-diary-logout-ack.json" "personal-export-controls.json" "personal-history-contracts.json"
@@ -232,10 +273,12 @@ jobs:
         "member-link-controls.json" "followup-contracts-session_revision_events.raw.json" "followup-contracts-session_revision_events.json"
         "followup-contracts-session_expiry_fences.raw.json" "followup-contracts-session_expiry_fences.json" "followup-contracts-dashboard_followup.raw.json"
         "followup-contracts-dashboard_followup.json" "followup-contracts-session_expiry_security.raw.json" "followup-contracts-session_expiry_security.json"
-        "followup-contracts-dashboard_followup_focus.raw.json" "followup-contracts-dashboard_followup_focus.json" "mfa-api-current31.json"
-        "mfa-state-current31.json" "mfa-consumers-current31.json" "mfa-prompt-current31.json" "daily-plan-data-current31.raw.json"
-        "daily-plan-data-current31.json" "daily-plan-controls-current31.json" "daily-plan-snapshot-current31.json" "personal-export-context-current31.json"
-        "personal-export-url-contract-current31.json"
+        "followup-contracts-dashboard_followup_focus.raw.json" "followup-contracts-dashboard_followup_focus.json" "mfa-api-current33.json"
+        "mfa-state-current33.json" "mfa-consumers-current33.json" "mfa-prompt-current33.json" "daily-plan-data-current33.raw.json"
+        "daily-plan-data-current33.json" "daily-plan-controls-current33.json" "daily-plan-snapshot-current33.json" "personal-export-context-current33.json"
+        "personal-export-url-contract-current33.json" "progress-export-current33.json" "progress-retirement-current33.json"
+        "progress-retirement-dom-current33.json" "google-link-api-current33.json" "google-link-state-current33.json" "google-link-dom-current33.json"
+        "google-link-login-review-current33.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -269,17 +312,24 @@ jobs:
           ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_security.json
           ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup_focus.raw.json
           ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup_focus.json
-          ${{ runner.temp }}/frontend-public/mfa-api-current31.json
-          ${{ runner.temp }}/frontend-public/mfa-state-current31.json
-          ${{ runner.temp }}/frontend-public/mfa-consumers-current31.json
-          ${{ runner.temp }}/frontend-public/mfa-prompt-current31.json
-          ${{ runner.temp }}/frontend-public/daily-plan-data-current31.raw.json
-          ${{ runner.temp }}/frontend-public/daily-plan-data-current31.json
-          ${{ runner.temp }}/frontend-public/daily-plan-controls-current31.json
-          ${{ runner.temp }}/frontend-public/daily-plan-snapshot-current31.json
-          ${{ runner.temp }}/frontend-public/personal-export-context-current31.json
-          ${{ runner.temp }}/frontend-public/personal-export-url-contract-current31.json
+          ${{ runner.temp }}/frontend-public/mfa-api-current33.json
+          ${{ runner.temp }}/frontend-public/mfa-state-current33.json
+          ${{ runner.temp }}/frontend-public/mfa-consumers-current33.json
+          ${{ runner.temp }}/frontend-public/mfa-prompt-current33.json
+          ${{ runner.temp }}/frontend-public/daily-plan-data-current33.raw.json
+          ${{ runner.temp }}/frontend-public/daily-plan-data-current33.json
+          ${{ runner.temp }}/frontend-public/daily-plan-controls-current33.json
+          ${{ runner.temp }}/frontend-public/daily-plan-snapshot-current33.json
+          ${{ runner.temp }}/frontend-public/personal-export-context-current33.json
+          ${{ runner.temp }}/frontend-public/personal-export-url-contract-current33.json
           ${{ runner.temp }}/frontend-public/publication.json
+          ${{ runner.temp }}/frontend-public/progress-export-current33.json
+          ${{ runner.temp }}/frontend-public/progress-retirement-current33.json
+          ${{ runner.temp }}/frontend-public/progress-retirement-dom-current33.json
+          ${{ runner.temp }}/frontend-public/google-link-api-current33.json
+          ${{ runner.temp }}/frontend-public/google-link-state-current33.json
+          ${{ runner.temp }}/frontend-public/google-link-dom-current33.json
+          ${{ runner.temp }}/frontend-public/google-link-login-review-current33.json
         if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
@@ -330,7 +380,7 @@ jobs:
     - name: Project desktop reports without assertion bodies
       if: always()
       working-directory: ${{ github.workspace }}
-      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/desktop-public"
+      run: python -X utf8 tests/ci_google33/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/desktop-public"
         --files "pytest-desktop.xml" "pytest-desktop-packaging.xml"
       shell: bash
     - uses: actions/upload-artifact@v4
@@ -380,6 +430,12 @@ jobs:
     - historical-image
     - current-postgres
     - current-image
+    - historical31-postgres
+    - historical31-image
+    - historical31-frontend
+    - historical31-web
+    - historical31-wiring
+    - historical32-postgres
     if: always()
     steps:
     - name: Every required gate must succeed
@@ -1038,74 +1094,58 @@ jobs:
         echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
         sudo apt-get update
         sudo apt-get install --yes postgresql-client-17
-    - name: Create private current31 evidence locations
-      run: install -d -m 700 "$RUNNER_TEMP/current31-private" "$METODOBASE_TEST_EVIDENCE_DIR" "$R24_PG_OUTPUT"
-    - name: Current31 real migrations and restricted runtime role
+    - name: Current33 real migrations and fresh CI restricted role
       run: python -X utf8 tests/prepare_postgres.py
-    - name: Current31 member-services; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_services.py -q --tb=short --junitxml=pytest-current31-member-services.xml
-        > "$RUNNER_TEMP/current31-private/member-services.raw.log" 2>&1
-    - name: Current31 member-http; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_http.py -q --tb=short --junitxml=pytest-current31-member-http.xml
-        > "$RUNNER_TEMP/current31-private/member-http.raw.log" 2>&1
-    - name: Current31 member-races; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_races.py -q --tb=short --junitxml=pytest-current31-member-races.xml
-        > "$RUNNER_TEMP/current31-private/member-races.raw.log" 2>&1
-    - name: Current31 r24-publication; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_publication.py -q --tb=short --junitxml=pytest-current31-r24-publication.xml
-        > "$RUNNER_TEMP/current31-private/r24-publication.raw.log" 2>&1
-    - name: Current31 r24-race; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_race.py -q --tb=short --junitxml=pytest-current31-r24-race.xml
-        > "$RUNNER_TEMP/current31-private/r24-race.raw.log" 2>&1
-    - name: Current31 mfa-migrations; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_migrations.py -k postgresql -q --tb=short --junitxml=pytest-current31-mfa-migrations.xml
-        > "$RUNNER_TEMP/current31-private/mfa-migrations.raw.log" 2>&1
-    - name: Current31 mfa-services; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_postgres.py -q --tb=short --junitxml=pytest-current31-mfa-services.xml
-        > "$RUNNER_TEMP/current31-private/mfa-services.raw.log" 2>&1
-    - name: Current31 mfa-restore; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_restore.py -q --tb=short --junitxml=pytest-current31-mfa-restore.xml
-        > "$RUNNER_TEMP/current31-private/mfa-restore.raw.log" 2>&1
-    - name: Current31 followup; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-current31-followup.xml
-        > "$RUNNER_TEMP/current31-private/followup.raw.log" 2>&1
-    - name: Current31 rls-worker; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-current31-rls-worker.xml
-        > "$RUNNER_TEMP/current31-private/rls-worker.raw.log" 2>&1
-    - name: Current31 privacy-export; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-current31-privacy-export.xml
-        > "$RUNNER_TEMP/current31-private/privacy-export.raw.log" 2>&1
-    - name: Current31 diary; original full business assertions
-      run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py
-        -q --tb=short --junitxml=pytest-current31-diary.xml > "$RUNNER_TEMP/current31-private/diary.raw.log" 2>&1
-    - name: Every exact current31 PG identity passes; no skips/errors/substitutions/duplicates
-      run: python -X utf8 tests/check_mfa31_reports.py
-    - name: Project all12 current31 reports without authentication diagnostics
-      if: always()
-      working-directory: ${{ github.workspace }}
-      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/current31-postgres-public"
-        --files "pytest-current31-member-services.xml" "pytest-current31-member-http.xml" "pytest-current31-member-races.xml"
-        "pytest-current31-r24-publication.xml" "pytest-current31-r24-race.xml" "pytest-current31-mfa-migrations.xml" "pytest-current31-mfa-services.xml"
-        "pytest-current31-mfa-restore.xml" "pytest-current31-followup.xml" "pytest-current31-rls-worker.xml" "pytest-current31-privacy-export.xml"
-        "pytest-current31-diary.xml"
+    - name: All current33 full identities and measured head/role/FK/function/GUC witnesses
+      run: python -X utf8 tests/ci_google33/run_postgres.py --schema 33 --source "$GITHUB_WORKSPACE" --private "$RUNNER_TEMP/current33-private"
+        --output "$RUNNER_TEMP/current33-public"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: current31-postgres-tests
+        name: current33-postgres-tests
         path: |-
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-services.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-http.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-races.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-r24-publication.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-r24-race.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-migrations.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-services.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-restore.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-followup.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-rls-worker.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-privacy-export.xml
-          ${{ runner.temp }}/current31-postgres-public/pytest-current31-diary.xml
-          ${{ runner.temp }}/current31-postgres-public/publication.json
+          ${{ runner.temp }}/current33-public/pytest-current33-member-services.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-member-services.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-member-http.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-member-http.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-member-races.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-member-races.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-r24-publication.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-r24-publication.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-r24-race.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-r24-race.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-mfa-services.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-mfa-services.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-followup.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-followup.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-rls-worker.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-rls-worker.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-privacy-export.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-privacy-export.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-diary.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-diary.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-progress.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-progress.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-progress-adversarial.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-progress-adversarial.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-progress-retirement.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-progress-retirement.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-google-migrations.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-google-migrations.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-google-guards.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-google-guards.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-google-services-races.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-google-services-races.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-google-onboarding.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-google-onboarding.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-google-conflict-window.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-google-conflict-window.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-google-signup-races.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-google-signup-races.witnesses.json
+          ${{ runner.temp }}/current33-public/pytest-current33-restore.xml
+          ${{ runner.temp }}/current33-public/pytest-current33-restore.witnesses.json
+          ${{ runner.temp }}/current33-public/runtime-summary.json
+          ${{ runner.temp }}/current33-public/publication.json
         if-no-files-found: error
   current-image:
     runs-on: ubuntu-latest
@@ -1151,15 +1191,195 @@ jobs:
         npm ci --prefix tests/e2e --ignore-scripts
         node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
     - name: Build current31 production Dockerfile from this exact checkout
-      run: docker build --tag metodobase-current31:${{ github.sha }} .
+      run: docker build --tag metodobase-current33:${{ github.sha }} .
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-        python -X utf8 tests/ci_mfa31/run_current_browser.py --image-tag metodobase-current31:${{ github.sha }} --output "$RUNNER_TEMP/current31-browser-public"
+        python -X utf8 tests/ci_google33/run_current_browser.py --image-tag metodobase-current33:${{ github.sha }} --output "$RUNNER_TEMP/current33-browser-public"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: current31-real-image-and-browser
+        name: current33-real-image-and-browser
+        path: |-
+          ${{ runner.temp }}/current33-browser-public/image-inventory.json
+          ${{ runner.temp }}/current33-browser-public/image-identity.json
+          ${{ runner.temp }}/current33-browser-public/image-browser.json
+          ${{ runner.temp }}/current33-browser-public/member-report.json
+          ${{ runner.temp }}/current33-browser-public/followup-report.json
+          ${{ runner.temp }}/current33-browser-public/daily-report.json
+          ${{ runner.temp }}/current33-browser-public/mfa-ui-report.json
+          ${{ runner.temp }}/current33-browser-public/mfa-personal-report.json
+          ${{ runner.temp }}/current33-browser-public/publication.json
+          ${{ runner.temp }}/current33-browser-public/browser-runtime-inventory.json
+        if-no-files-found: error
+  historical31-postgres:
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      postgres:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_integration
+        ports:
+        - 55482:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_integration" --health-interval 5s --health-timeout
+          5s --health-retries 10
+    env:
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
+      METODOBASE_TEST_EVIDENCE_DIR: ${{ runner.temp }}/current31-private/evidence
+      R24_PG_OUTPUT: ${{ runner.temp }}/current31-private/r24
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Materialize exact version31 Git blobs and detached source context
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-postgres"
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Matching PostgreSQL client tools from the official PGDG repository
+      run: |
+        . /etc/os-release
+        sudo install -d /usr/share/postgresql-common/pgdg
+        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-17
+    - name: Create private current31 evidence locations
+      run: install -d -m 700 "$RUNNER_TEMP/current31-private" "$METODOBASE_TEST_EVIDENCE_DIR" "$R24_PG_OUTPUT"
+    - name: Current31 real migrations and restricted runtime role
+      run: python -X utf8 tests/prepare_postgres.py
+    - name: Current31 member-services; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_services.py -q --tb=short --junitxml=pytest-current31-member-services.xml
+        > "$RUNNER_TEMP/current31-private/member-services.raw.log" 2>&1
+    - name: Current31 member-http; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_http.py -q --tb=short --junitxml=pytest-current31-member-http.xml
+        > "$RUNNER_TEMP/current31-private/member-http.raw.log" 2>&1
+    - name: Current31 member-races; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_races.py -q --tb=short --junitxml=pytest-current31-member-races.xml
+        > "$RUNNER_TEMP/current31-private/member-races.raw.log" 2>&1
+    - name: Current31 r24-publication; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_publication.py -q --tb=short --junitxml=pytest-current31-r24-publication.xml
+        > "$RUNNER_TEMP/current31-private/r24-publication.raw.log" 2>&1
+    - name: Current31 r24-race; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_race.py -q --tb=short --junitxml=pytest-current31-r24-race.xml
+        > "$RUNNER_TEMP/current31-private/r24-race.raw.log" 2>&1
+    - name: Current31 mfa-migrations; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_migrations.py -k postgresql -q --tb=short --junitxml=pytest-current31-mfa-migrations.xml
+        > "$RUNNER_TEMP/current31-private/mfa-migrations.raw.log" 2>&1
+    - name: Current31 mfa-services; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_postgres.py -q --tb=short --junitxml=pytest-current31-mfa-services.xml
+        > "$RUNNER_TEMP/current31-private/mfa-services.raw.log" 2>&1
+    - name: Current31 mfa-restore; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_restore.py -q --tb=short --junitxml=pytest-current31-mfa-restore.xml
+        > "$RUNNER_TEMP/current31-private/mfa-restore.raw.log" 2>&1
+    - name: Current31 followup; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-current31-followup.xml
+        > "$RUNNER_TEMP/current31-private/followup.raw.log" 2>&1
+    - name: Current31 rls-worker; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-current31-rls-worker.xml
+        > "$RUNNER_TEMP/current31-private/rls-worker.raw.log" 2>&1
+    - name: Current31 privacy-export; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-current31-privacy-export.xml
+        > "$RUNNER_TEMP/current31-private/privacy-export.raw.log" 2>&1
+    - name: Current31 diary; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py
+        -q --tb=short --junitxml=pytest-current31-diary.xml > "$RUNNER_TEMP/current31-private/diary.raw.log" 2>&1
+    - name: Every exact current31 PG identity passes; no skips/errors/substitutions/duplicates
+      run: python -X utf8 tests/check_mfa31_reports.py
+    - name: Project all12 current31 reports without authentication diagnostics
+      if: always()
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/historical31-postgres/source" --output "$RUNNER_TEMP/current31-postgres-public"
+        --files "pytest-current31-member-services.xml" "pytest-current31-member-http.xml" "pytest-current31-member-races.xml"
+        "pytest-current31-r24-publication.xml" "pytest-current31-r24-race.xml" "pytest-current31-mfa-migrations.xml" "pytest-current31-mfa-services.xml"
+        "pytest-current31-mfa-restore.xml" "pytest-current31-followup.xml" "pytest-current31-rls-worker.xml" "pytest-current31-privacy-export.xml"
+        "pytest-current31-diary.xml"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: historical31-current31-postgres-tests
+        path: |-
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-services.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-http.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-races.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-r24-publication.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-r24-race.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-migrations.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-services.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-restore.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-followup.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-rls-worker.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-privacy-export.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-diary.xml
+          ${{ runner.temp }}/current31-postgres-public/publication.json
+        if-no-files-found: error
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/historical31-postgres/source
+  historical31-image:
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      postgres-image:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_image
+        ports:
+        - 55483:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_image" --health-interval 5s --health-timeout
+          5s --health-retries 10
+    env:
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+      METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: npm
+        cache-dependency-path: tests/e2e/package-lock.json
+    - name: Materialize exact version31 Git blobs and detached source context
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-image"
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Matching PostgreSQL client tools from the official PGDG repository
+      run: |
+        . /etc/os-release
+        sudo install -d /usr/share/postgresql-common/pgdg
+        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-17
+    - name: Current31 locked browser dependencies and Chromium
+      run: |-
+        npm ci --prefix tests/e2e --ignore-scripts
+        node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
+    - name: Build current31 production Dockerfile from this exact checkout
+      run: docker build --tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 .
+    - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
+      run: |-
+        export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+        python -X utf8 tests/ci_mfa31/run_current_browser.py --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: historical31-current31-real-image-and-browser
         path: |-
           ${{ runner.temp }}/current31-browser-public/image-inventory.json
           ${{ runner.temp }}/current31-browser-public/image-identity.json
@@ -1171,6 +1391,350 @@ jobs:
           ${{ runner.temp }}/current31-browser-public/mfa-personal-report.json
           ${{ runner.temp }}/current31-browser-public/publication.json
         if-no-files-found: error
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/historical31-image/source
+  historical31-frontend:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Materialize exact version31 Git blobs and detached source context
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-frontend"
+    - name: Session refresh contracts and independent account-switch reproductions
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/auth_refresh.cjs > auth-refresh-contracts.json
+        node tests/e2e/auth_refresh_storage.cjs > auth-refresh-storage.json
+        node tests/e2e/auth_refresh_race_review.cjs > auth-refresh-reproductions.json
+        node tests/e2e/auth_refresh_security_review.cjs > auth-refresh-security.json
+        node -e "const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)"
+        ) > "$RUNNER_TEMP/frontend-private/step-3.raw.log" 2>&1
+    - name: Personal operation and uncertain publication retain one intent
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/personal_operation.cjs > personal-operation-contracts.json
+        node tests/e2e/personal_operation_ambiguity_review.cjs > personal-operation-ambiguity.json
+        python scripts/check_frontend_report.py personal-operation-contracts.json --format counts --minimum 18
+        python scripts/check_frontend_report.py personal-operation-ambiguity.json --format counts --minimum 2
+        ) > "$RUNNER_TEMP/frontend-private/step-4.raw.log" 2>&1
+    - name: Personal diary and private export consumer contracts
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/personal_diary_api.cjs > personal-diary-api.json
+        node tests/e2e/personal_diary_controller.cjs > personal-diary-controller.json
+        node tests/e2e/personal_logout.cjs > personal-diary-logout.json
+        node tests/e2e/personal_logout_ack.cjs > personal-diary-logout-ack.json
+        node tests/e2e/personal_export_controls.cjs > personal-export-controls.json
+        python scripts/check_frontend_report.py personal-diary-api.json --format counts --minimum 7
+        python scripts/check_frontend_report.py personal-diary-controller.json --format counts --minimum 18
+        python scripts/check_frontend_report.py personal-diary-logout.json --format counts --minimum 10
+        python scripts/check_frontend_report.py personal-diary-logout-ack.json --format counts --minimum 12
+        python scripts/check_frontend_report.py personal-export-controls.json --format counts --minimum 21
+        ) > "$RUNNER_TEMP/frontend-private/step-5.raw.log" 2>&1
+    - name: Bounded private history consumer contracts
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/personal_history.cjs > personal-history-contracts.json
+        python scripts/check_frontend_report.py personal-history-contracts.json --format counts --minimum 23
+        ) > "$RUNNER_TEMP/frontend-private/step-6.raw.log" 2>&1
+    - name: Member link API, context, fragment, consumers and seven-collection export contracts; current31 uses real R24 companions
+        with all16 original callbacks
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/member_link_context.cjs > member-link-context.json
+        python scripts/check_frontend_report.py member-link-context.json --format counts --minimum 26
+        node tests/e2e/member_link_fragment.cjs > member-link-fragment.json
+        python scripts/check_frontend_report.py member-link-fragment.json --format counts --minimum 15
+        node tests/e2e/member_link_api.cjs > member-link-api.json
+        python scripts/check_frontend_report.py member-link-api.json --format counts --minimum 23
+        node tests/e2e/member_link_consumers31.cjs > member-link-consumers.json
+        python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16
+        node tests/e2e/member_link_export.cjs > member-link-export.json
+        python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
+        node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
+        python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
+        ) > "$RUNNER_TEMP/frontend-private/step-7.raw.log" 2>&1
+    - name: Follow-up facts and synchronous session expiry regressions
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/session_revision_events.cjs > followup-contracts-session_revision_events.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-session_revision_events.raw.json followup-contracts-session_revision_events.json --kind counts --minimum 11
+        python scripts/check_frontend_report.py followup-contracts-session_revision_events.json --format counts --minimum 11
+        node tests/e2e/session_expiry_fences.cjs > followup-contracts-session_expiry_fences.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_fences.raw.json followup-contracts-session_expiry_fences.json --kind counts --minimum 3
+        python scripts/check_frontend_report.py followup-contracts-session_expiry_fences.json --format counts --minimum 3
+        node tests/e2e/dashboard_followup.cjs > followup-contracts-dashboard_followup.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup.raw.json followup-contracts-dashboard_followup.json --kind counts --minimum 20
+        python scripts/check_frontend_report.py followup-contracts-dashboard_followup.json --format counts --minimum 20
+        node tests/e2e/session_expiry_security.cjs > followup-contracts-session_expiry_security.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_security.raw.json followup-contracts-session_expiry_security.json --kind counts --minimum 10
+        python scripts/check_frontend_report.py followup-contracts-session_expiry_security.json --format counts --minimum 10
+        node tests/e2e/dashboard_followup_focus.cjs > followup-contracts-dashboard_followup_focus.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup_focus.raw.json followup-contracts-dashboard_followup_focus.json --kind counts --minimum 4
+        python scripts/check_frontend_report.py followup-contracts-dashboard_followup_focus.json --format counts --minimum 4
+        ) > "$RUNNER_TEMP/frontend-private/step-8.raw.log" 2>&1
+    - name: MFA31 transport/state/consumer/prompt and current R24/export VM contracts
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/mfa_api.cjs > mfa-api-current31.json
+        python scripts/check_frontend_report.py mfa-api-current31.json --format counts --minimum 28
+        node tests/e2e/mfa_state.cjs > mfa-state-current31.json
+        python scripts/check_frontend_report.py mfa-state-current31.json --format counts --minimum 30
+        node tests/e2e/mfa_consumers.cjs > mfa-consumers-current31.json
+        python scripts/check_frontend_report.py mfa-consumers-current31.json --format counts --minimum 8
+        node tests/e2e/mfa_prompt.cjs > mfa-prompt-current31.json
+        python scripts/check_frontend_report.py mfa-prompt-current31.json --format counts --minimum 8
+        node tests/e2e/daily_plan_data.cjs > daily-plan-data-current31.raw.json
+        python tests/e2e/normalize_followup_report.py daily-plan-data-current31.raw.json daily-plan-data-current31.json --kind counts --minimum 23
+        python scripts/check_frontend_report.py daily-plan-data-current31.json --format counts --minimum 23
+        node tests/e2e/daily_plan_controls.cjs > daily-plan-controls-current31.json
+        python scripts/check_frontend_report.py daily-plan-controls-current31.json --format counts --minimum 17
+        node tests/e2e/daily_plan_snapshot.cjs > daily-plan-snapshot-current31.json
+        python scripts/check_frontend_report.py daily-plan-snapshot-current31.json --format counts --minimum 25
+        node tests/e2e/personal_export_context.cjs > personal-export-context-current31.json
+        python scripts/check_frontend_report.py personal-export-context-current31.json --format counts --minimum 17
+        node tests/e2e/personal_export_url_contract.cjs > personal-export-url-contract-current31.json
+        python scripts/check_frontend_report.py personal-export-url-contract-current31.json --format counts --minimum 15
+        ) > "$RUNNER_TEMP/frontend-private/step-9.raw.log" 2>&1
+    - name: Project frontend counters only; raw RAM harness diagnostics remain private
+      if: always()
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/historical31-frontend/source" --output "$RUNNER_TEMP/frontend-public"
+        --files "auth-refresh-contracts.json" "auth-refresh-storage.json" "auth-refresh-reproductions.json" "auth-refresh-security.json"
+        "personal-operation-contracts.json" "personal-operation-ambiguity.json" "personal-diary-api.json" "personal-diary-controller.json"
+        "personal-diary-logout.json" "personal-diary-logout-ack.json" "personal-export-controls.json" "personal-history-contracts.json"
+        "member-link-context.json" "member-link-fragment.json" "member-link-api.json" "member-link-consumers.json" "member-link-export.json"
+        "member-link-controls.json" "followup-contracts-session_revision_events.raw.json" "followup-contracts-session_revision_events.json"
+        "followup-contracts-session_expiry_fences.raw.json" "followup-contracts-session_expiry_fences.json" "followup-contracts-dashboard_followup.raw.json"
+        "followup-contracts-dashboard_followup.json" "followup-contracts-session_expiry_security.raw.json" "followup-contracts-session_expiry_security.json"
+        "followup-contracts-dashboard_followup_focus.raw.json" "followup-contracts-dashboard_followup_focus.json" "mfa-api-current31.json"
+        "mfa-state-current31.json" "mfa-consumers-current31.json" "mfa-prompt-current31.json" "daily-plan-data-current31.raw.json"
+        "daily-plan-data-current31.json" "daily-plan-controls-current31.json" "daily-plan-snapshot-current31.json" "personal-export-context-current31.json"
+        "personal-export-url-contract-current31.json"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: historical31-frontend-session-contracts
+        path: |-
+          ${{ runner.temp }}/frontend-public/auth-refresh-contracts.json
+          ${{ runner.temp }}/frontend-public/auth-refresh-storage.json
+          ${{ runner.temp }}/frontend-public/auth-refresh-reproductions.json
+          ${{ runner.temp }}/frontend-public/auth-refresh-security.json
+          ${{ runner.temp }}/frontend-public/personal-operation-contracts.json
+          ${{ runner.temp }}/frontend-public/personal-operation-ambiguity.json
+          ${{ runner.temp }}/frontend-public/personal-diary-api.json
+          ${{ runner.temp }}/frontend-public/personal-diary-controller.json
+          ${{ runner.temp }}/frontend-public/personal-diary-logout.json
+          ${{ runner.temp }}/frontend-public/personal-diary-logout-ack.json
+          ${{ runner.temp }}/frontend-public/personal-export-controls.json
+          ${{ runner.temp }}/frontend-public/personal-history-contracts.json
+          ${{ runner.temp }}/frontend-public/member-link-context.json
+          ${{ runner.temp }}/frontend-public/member-link-fragment.json
+          ${{ runner.temp }}/frontend-public/member-link-api.json
+          ${{ runner.temp }}/frontend-public/member-link-consumers.json
+          ${{ runner.temp }}/frontend-public/member-link-export.json
+          ${{ runner.temp }}/frontend-public/member-link-controls.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_revision_events.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_revision_events.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_fences.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_fences.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_security.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_security.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup_focus.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup_focus.json
+          ${{ runner.temp }}/frontend-public/mfa-api-current31.json
+          ${{ runner.temp }}/frontend-public/mfa-state-current31.json
+          ${{ runner.temp }}/frontend-public/mfa-consumers-current31.json
+          ${{ runner.temp }}/frontend-public/mfa-prompt-current31.json
+          ${{ runner.temp }}/frontend-public/daily-plan-data-current31.raw.json
+          ${{ runner.temp }}/frontend-public/daily-plan-data-current31.json
+          ${{ runner.temp }}/frontend-public/daily-plan-controls-current31.json
+          ${{ runner.temp }}/frontend-public/daily-plan-snapshot-current31.json
+          ${{ runner.temp }}/frontend-public/personal-export-context-current31.json
+          ${{ runner.temp }}/frontend-public/personal-export-url-contract-current31.json
+          ${{ runner.temp }}/frontend-public/publication.json
+        if-no-files-found: error
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/historical31-frontend/source
+  historical31-web:
+    runs-on: ubuntu-latest
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+        - '3.11'
+        - '3.12'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Materialize exact version31 Git blobs and detached source context
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-web"
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Current MFA31 wiring, exact report nodes and offline trust canaries
+      run: python -X utf8 tests/verify_mfa31_ci.py --output "$RUNNER_TEMP/mfa31-ci-wiring"
+    - name: SaaS regression suite in fresh isolated data
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
+        ) > "$RUNNER_TEMP/web-private/step-4.raw.log" 2>&1
+    - name: Required SaaS cases cannot silently become skips
+      run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web.xml').findall('.//skipped'), 'Required
+        SaaS cases were skipped'"
+    - name: Private storage SDK parameters and explicit configuration without a provider
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_object_store_configuration.py tests/integration_object_store_configuration_review.py tests/integration_object_storage_sdk.py -q --tb=short --junitxml=pytest-storage-sdk.xml
+        ) > "$RUNNER_TEMP/web-private/step-6.raw.log" 2>&1
+    - name: Required private storage SDK cases cannot silently become skips
+      run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-storage-sdk.xml').findall('.//skipped'),
+        'Required storage SDK cases were skipped'"
+    - name: New nutrition contracts meet reviewed risk coverage
+      run: python tests/check_coverage.py coverage.json
+    - name: Full SaaS suite in shuffled order and two isolated workers
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py --shuffle-seed=20261018 -q -n 2 --tb=short --junitxml=pytest-web-shuffle.xml
+        ) > "$RUNNER_TEMP/web-private/step-9.raw.log" 2>&1
+    - name: Required shuffled SaaS cases cannot silently become skips
+      run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web-shuffle.xml').findall('.//skipped'),
+        'Required shuffled SaaS cases were skipped'"
+    - name: Project current web reports without assertion bodies
+      if: always()
+      working-directory: ${{ runner.temp }}/historical31-web/source
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/historical31-web/source" --output "$RUNNER_TEMP/web-public"
+        --files "pytest-web.xml" "pytest-web-shuffle.xml" "pytest-storage-sdk.xml" "coverage.xml" "coverage.json"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: historical31-web-tests-${{ matrix.python }}
+        path: |-
+          ${{ runner.temp }}/web-public/pytest-web.xml
+          ${{ runner.temp }}/web-public/pytest-web-shuffle.xml
+          ${{ runner.temp }}/web-public/pytest-storage-sdk.xml
+          ${{ runner.temp }}/web-public/coverage.xml
+          ${{ runner.temp }}/web-public/coverage.json
+          ${{ runner.temp }}/web-public/publication.json
+        if-no-files-found: error
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/historical31-web/source
+  historical31-wiring:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Materialize exact version31 Git blobs and detached source context
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-wiring"
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+      working-directory: ${{ runner.temp }}/historical31-wiring/source
+    - name: Original complete CI31 verifier and205 parser/trust controls; source31 only
+      working-directory: ${{ runner.temp }}/historical31-wiring/source
+      run: python -X utf8 tests/verify_mfa31_ci.py --output "$RUNNER_TEMP/historical31-wiring-review"
+  historical32-postgres:
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      postgres:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_integration
+        ports:
+        - 55482:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_integration" --health-interval 5s --health-timeout
+          5s --health-retries 10
+    env:
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
+      METODOBASE_TEST_EVIDENCE_DIR: ${{ runner.temp }}/current31-private/evidence
+      R24_PG_OUTPUT: ${{ runner.temp }}/current31-private/r24
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Materialize exact version32 Git blobs and detached source context
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_google33/history.py --schema 32 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical32-postgres"
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Matching PostgreSQL client tools from the official PGDG repository
+      run: |
+        . /etc/os-release
+        sudo install -d /usr/share/postgresql-common/pgdg
+        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-17
+    - name: Historical32 fresh CI role and schema32 bootstrap
+      run: python -X utf8 tests/prepare_postgres.py
+    - name: Historical32 complete progress/migrations/retirement/populated restore contracts
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_google33/run_postgres.py --schema 32 --source "$RUNNER_TEMP/historical32-postgres/source"
+        --private "$RUNNER_TEMP/historical32-private" --output "$RUNNER_TEMP/historical32-public"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: historical32-postgres-tests
+        path: |-
+          ${{ runner.temp }}/historical32-public/pytest-historical32-migrations.xml
+          ${{ runner.temp }}/historical32-public/pytest-historical32-migrations.witnesses.json
+          ${{ runner.temp }}/historical32-public/pytest-historical32-progress.xml
+          ${{ runner.temp }}/historical32-public/pytest-historical32-progress.witnesses.json
+          ${{ runner.temp }}/historical32-public/pytest-historical32-adversarial.xml
+          ${{ runner.temp }}/historical32-public/pytest-historical32-adversarial.witnesses.json
+          ${{ runner.temp }}/historical32-public/pytest-historical32-retirement.xml
+          ${{ runner.temp }}/historical32-public/pytest-historical32-retirement.witnesses.json
+          ${{ runner.temp }}/historical32-public/pytest-historical32-restore.xml
+          ${{ runner.temp }}/historical32-public/pytest-historical32-restore.witnesses.json
+          ${{ runner.temp }}/historical32-public/runtime-summary.json
+          ${{ runner.temp }}/historical32-public/publication.json
+        if-no-files-found: error
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/historical32-postgres/source
 'on':
   push:
     branches:

@@ -1,8 +1,8 @@
 """Resource-only portable adapter for the frozen32 Windows lease fixture."""
-from contextlib import contextmanager
 import os
-from urllib.parse import urlsplit,urlunsplit
 import uuid
+from contextlib import contextmanager
+from urllib.parse import urlsplit, urlunsplit
 
 from sqlalchemy import create_engine
 
@@ -11,8 +11,9 @@ from sqlalchemy import create_engine
 def owned_database(dialect,directory):
     assert dialect=='postgresql'
     import psycopg2
-    from psycopg2 import sql
     import resource_guard
+    from psycopg2 import sql
+
     from tests.isolation import validate_postgres_test_url
     assert resource_guard.INSTALLED
     source=validate_postgres_test_url(os.environ['METODOBASE_TEST_MIGRATOR_URL'])

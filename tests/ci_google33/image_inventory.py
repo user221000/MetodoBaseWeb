@@ -32,7 +32,15 @@ with engine.connect() as db:
 sources = ['web/main_web.py', 'web/database/models.py', 'web/routes/mfa.py',
            'web/services/mfa_service.py', 'web/static/js/api.js', 'web/static/js/mfa-login.js',
            'web/static/js/mfa-ui.js', 'entrypoint.sh']
-print(json.dumps({'complete': True, 'model_tables': 35, 'actual_tables': 36,
+from importlib import metadata
+import sys
+global_witness=globals()['physical_contract'](engine,expected_pool=20)
+sources+=['web/routes/google_link.py','web/services/google_identity.py','web/services/google_link.py',
+          'web/database/google_identity_policy.py','web/static/js/google-vinculo.js','web/static/js/google-vinculo-pagina.js',
+          'web/templates/cuenta_google.html']
+packages={name:{'version':metadata.version(name),'metadata_sha256':hashlib.sha256(metadata.distribution(name).read_text('METADATA').encode()).hexdigest()}
+          for name in ('google-auth','PyJWT','cryptography','pyasn1','pyasn1-modules')}
+print(json.dumps({'physical_witness':global_witness,'binary_sha256':hashlib.sha256(Path(sys.executable).read_bytes()).hexdigest(),'packages':packages,'complete': True, 'model_tables': 35, 'actual_tables': 36,
     'runtime_revision': expected_head(), 'history_order_index': index,
     'restricted_nonowner': application_role_restricted_nonowner,
     'application_role_restricted_nonowner': application_role_restricted_nonowner,

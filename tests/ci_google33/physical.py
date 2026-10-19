@@ -4,15 +4,18 @@ from __future__ import annotations
 import hashlib
 import json
 
-from sqlalchemy import inspect,text
+from sqlalchemy import inspect, text
 
 REVISION='20261019_google_subjects'
 
 
 def physical_contract(engine,*,expected_pool=1,schema='33'):
+    from web.database.alembic.history_index_contract_v1 import (
+        expected_history_index,
+        history_index_signature,
+    )
     from web.database.models import Base
-    from web.database.schema_control import expected_head,verify_runtime_schema
-    from web.database.alembic.history_index_contract_v1 import expected_history_index,history_index_signature
+    from web.database.schema_control import expected_head, verify_runtime_schema
     revision_expected={'33':REVISION,'32':'20261019_personal_progress'}[schema]
     model_expected={'33':35,'32':33}[schema]
     assert engine.dialect.name=='postgresql'
@@ -32,7 +35,9 @@ def physical_contract(engine,*,expected_pool=1,schema='33'):
         gucs=tuple(db.execute(text("SELECT current_setting('app.current_tenant',true),current_setting('app.client_invitation_digest',true),current_setting('app.mfa_actor',true)")).one())
         index=history_index_signature(db);google=None
         if schema=='33':
-            from web.database.google_identity_policy import signature as google_signature
+            from web.database.google_identity_policy import (
+                signature as google_signature,
+            )
             google=google_signature(db)
         assert physical==model_expected+1 and revision==revision_expected and flags==(False,)*4
         assert database_nonowner is True and owned==0 and force==26
@@ -41,10 +46,22 @@ def physical_contract(engine,*,expected_pool=1,schema='33'):
         assert gucs==('','','') and index==expected_history_index('postgresql')
         assert 'progress_consents' in inspect(db).get_table_names()
         if schema=='33':assert {'auth_external_identities','google_link_intents'}<=set(inspect(db).get_table_names())
+        from web.database.alembic.member_link_security_v1 import (
+            member_link_security_signature,
+        )
+        from web.database.alembic.schema_contract_v1 import schema_signature
+        from web.database.progress_policy import signature as progress_signature
+        from web.database.tenant_policy import tenant_security_signature
+        global_contract={'signature':schema_signature(db),'tenant_security':tenant_security_signature(db),
+            'member_link_security':member_link_security_signature(db),'progress_security':progress_signature(db),
+            'history_order_index':index}
+        if schema=='33':global_contract['google_identity_security']=google
     digest=lambda values:hashlib.sha256(json.dumps(values,default=list,sort_keys=True,separators=(',',':')).encode()).hexdigest()
-    return {'runtime_revision':revision,'model_tables':len(Base.metadata.tables),'actual_tables':physical,
+    return {'database_kind':'postgresql','runtime_revision':revision,'model_tables':len(Base.metadata.tables),'actual_tables':physical,
         'application_role_restricted_nonowner':True,'role_flags4':list(flags),'owned_tables':owned,
         'FORCE_RLS_tables':force,'application_pool_size':expected_pool,'signed_functions':len(functions),
         'signed_triggers':len(triggers),'functions_sha256':digest([list(row) for row in functions]),
         'triggers_sha256':digest([list(row) for row in triggers]),'foreign_keys_sha256':digest([list(row) for row in fks]),
-        'google_identity_signature_sha256':digest(google),'blank_GUCs':True,'history_index':index}
+        'global_contract_sha256':digest(global_contract),
+        'google_identity_signature_sha256':digest(google),'blank_GUCs':True,
+        'foreign_keys_validated':True,'history_index_sha256':digest(index)}

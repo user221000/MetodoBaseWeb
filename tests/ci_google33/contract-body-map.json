@@ -1,0 +1,60 @@
+{
+  "identity": {
+    "original_path": "tests/test_identity_security.py",
+    "provider_path": "tests/google33_identity_contract.py",
+    "base": "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+    "functions": [
+      {
+        "function": "test_google_uses_same_member_identity",
+        "original_function_source": "def test_google_uses_same_member_identity(identity_db, monkeypatch):\n    from types import SimpleNamespace\n    from web import auth\n    from config import settings\n    factory, owner_id, member_id, _ = identity_db\n    user = principal(factory, member_id)\n    monkeypatch.setattr(settings.get_settings(), \"GOOGLE_CLIENT_ID\", \"synthetic-client-id\")\n\n    class FakeGoogleClient:\n        def __init__(self, **kwargs):\n            pass\n        async def __aenter__(self):\n            return self\n        async def __aexit__(self, *args):\n            pass\n        async def get(self, url, **kwargs):\n            return SimpleNamespace(status_code=200, json=lambda: {\"aud\": \"synthetic-client-id\", \"email_verified\": \"true\", \"email\": user[\"email\"]})\n\n    monkeypatch.setattr(\"httpx.AsyncClient\", FakeGoogleClient)\n    response = auth_client(monkeypatch).post(\"/api/auth/google\", json={\"credential\": \"synthetic-only\", \"tipo\": \"gym\"})\n    assert response.status_code == 200\n    assert response.json()[\"role\"] == \"nutriologo\"\n    assert response.json()[\"team_gym_id\"] == owner_id\n    identity = auth.verificar_token(response.json()[\"token\"])\n    assert identity[\"role\"] == \"nutriologo\"\n    assert identity[\"team_gym_id\"] == owner_id",
+        "current_function_source": "def test_google_uses_same_member_identity(identity_db, monkeypatch):\n    from web import auth\n    factory, owner_id, member_id, _ = identity_db\n    user = principal(factory, member_id)\n    provider=linked(identity_db,monkeypatch)\n    response = auth_client(monkeypatch).post(\"/api/auth/google\", json={\"credential\": provider.credential(), \"tipo\": \"gym\"})\n    assert response.status_code == 200\n    assert response.json()[\"role\"] == \"nutriologo\"\n    assert response.json()[\"team_gym_id\"] == owner_id\n    identity = auth.verificar_token(response.json()[\"token\"])\n    assert identity[\"role\"] == \"nutriologo\"\n    assert identity[\"team_gym_id\"] == owner_id",
+        "assertions_exact_after_explicit_URL_pair": 5,
+        "complete_function_pair_inverse": true
+      },
+      {
+        "function": "test_disabled_google_account_is_not_recreated",
+        "original_function_source": "def test_disabled_google_account_is_not_recreated(identity_db, monkeypatch):\n    from types import SimpleNamespace\n    from web.database.models import Usuario\n    from config import settings\n    factory, _, member_id, _ = identity_db\n    user = principal(factory, member_id)\n    with factory() as db:\n        db.get(Usuario, member_id).activo = False\n        db.commit()\n    monkeypatch.setattr(settings.get_settings(), \"GOOGLE_CLIENT_ID\", \"synthetic-client-id\")\n\n    class FakeGoogleClient:\n        def __init__(self, **kwargs):\n            pass\n        async def __aenter__(self):\n            return self\n        async def __aexit__(self, *args):\n            pass\n        async def get(self, url, **kwargs):\n            return SimpleNamespace(status_code=200, json=lambda: {\"aud\": \"synthetic-client-id\", \"email_verified\": \"true\", \"email\": user[\"email\"]})\n\n    monkeypatch.setattr(\"httpx.AsyncClient\", FakeGoogleClient)\n    response = auth_client(monkeypatch).post(\"/api/auth/google\", json={\"credential\": \"synthetic-only\"})\n    assert response.status_code == 401\n    with factory() as db:\n        assert db.query(Usuario).filter(Usuario.email == user[\"email\"]).count() == 1",
+        "current_function_source": "def test_disabled_google_account_is_not_recreated(identity_db, monkeypatch):\n    from web.database.models import Usuario\n    factory, _, member_id, _ = identity_db\n    user = principal(factory, member_id)\n    provider=linked(identity_db,monkeypatch)\n    with factory() as db:\n        db.get(Usuario, member_id).activo = False\n        db.commit()\n    response = auth_client(monkeypatch).post(\"/api/auth/google\", json={\"credential\": provider.credential()})\n    assert response.status_code == 401\n    with factory() as db:\n        assert db.query(Usuario).filter(Usuario.email == user[\"email\"]).count() == 1",
+        "assertions_exact_after_explicit_URL_pair": 2,
+        "complete_function_pair_inverse": true
+      }
+    ],
+    "pytest_case_ID_owner": "tests/test_identity_security.py"
+  },
+  "MFA": {
+    "original_path": "tests/test_mfa31_google_reauth.py",
+    "provider_path": "tests/google33_mfa_reauth_contract.py",
+    "base": "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+    "functions": [
+      {
+        "function": "test_fresh_google_primary_reauth_accepts_only_matching_persisted_account",
+        "original_function_source": "def test_fresh_google_primary_reauth_accepts_only_matching_persisted_account(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    google_transport(monkeypatch, actor, clock)\n    response = client.post(\"/api/auth/mfa/reauth\", json={\"google_credential\":\"synthetic-verified-provider-credential\"})\n    assert response.status_code == 200, response.text\n    assert \"reauthentication_token\" in response.json()",
+        "current_function_source": "def test_fresh_google_primary_reauth_accepts_only_matching_persisted_account(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    google_transport(monkeypatch, actor, clock)\n    response = client.post(\"/api/auth/mfa/reauth\", json={\"google_credential\":actor[\"credential\"]()})\n    assert response.status_code == 200, response.text\n    assert \"reauthentication_token\" in response.json()",
+        "assertions_exact_after_explicit_URL_pair": 2,
+        "complete_function_pair_inverse": true
+      },
+      {
+        "function": "test_google_primary_admission_budget_survives_credential_rotation",
+        "original_function_source": "def test_google_primary_admission_budget_survives_credential_rotation(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    calls = google_transport(monkeypatch,actor,clock,freshness=\"stale\")\n    for attempt in range(10):\n        response = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":\"synthetic-credential-\"+str(attempt)})\n        assert response.status_code == 403\n    blocked = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":\"new-synthetic-credential\"})\n    assert blocked.status_code == 429 and len(calls) == 10",
+        "current_function_source": "def test_google_primary_admission_budget_survives_credential_rotation(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    calls = google_transport(monkeypatch,actor,clock,freshness=\"stale\")\n    for attempt in range(10):\n        response = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":actor[\"credential\"]()})\n        assert response.status_code == 403\n    blocked = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":actor[\"credential\"]()})\n    assert blocked.status_code == 429 and len(calls) == 10",
+        "assertions_exact_after_explicit_URL_pair": 2,
+        "complete_function_pair_inverse": true
+      },
+      {
+        "function": "test_google_primary_cannot_reauthenticate_a_different_persisted_account",
+        "original_function_source": "def test_google_primary_cannot_reauthenticate_a_different_persisted_account(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    google_transport(monkeypatch,actor,clock,email=\"different-account@example.invalid\")\n    response = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":\"synthetic-provider-credential\"})\n    assert response.status_code == 400",
+        "current_function_source": "def test_google_primary_cannot_reauthenticate_a_different_persisted_account(mfa_client, monkeypatch):\n    client, actor, clock = mfa_client\n    google_transport(monkeypatch,actor,clock,email=\"different-account@example.invalid\")\n    response = client.post(\"/api/auth/mfa/reauth\",json={\"google_credential\":actor[\"credential\"]()})\n    assert response.status_code == 400",
+        "assertions_exact_after_explicit_URL_pair": 1,
+        "complete_function_pair_inverse": true
+      },
+      {
+        "function": "test_google_primary_reauth_rejects_stale_or_absent_auth_time_despite_new_iat",
+        "original_function_source": "def test_google_primary_reauth_rejects_stale_or_absent_auth_time_despite_new_iat(mfa_client, monkeypatch, freshness):\n    client, actor, clock = mfa_client\n    calls = google_transport(monkeypatch, actor, clock, freshness=freshness)\n    response = client.post(\"/api/auth/mfa/reauth\", json={\"google_credential\":\"synthetic-verified-provider-credential\"})\n    assert response.status_code == 403\n    assert response.json()[\"detail\"][\"code\"] == \"mfa_primary_reauthentication_required\"\n    assert len(calls) == 1 and calls[0][0] == \"https://oauth2.googleapis.com/tokeninfo\"",
+        "current_function_source": "def test_google_primary_reauth_rejects_stale_or_absent_auth_time_despite_new_iat(mfa_client, monkeypatch, freshness):\n    client, actor, clock = mfa_client\n    calls = google_transport(monkeypatch, actor, clock, freshness=freshness)\n    response = client.post(\"/api/auth/mfa/reauth\", json={\"google_credential\":actor[\"credential\"]()})\n    assert response.status_code == 403\n    assert response.json()[\"detail\"][\"code\"] == \"mfa_primary_reauthentication_required\"\n    assert len(calls) == 1 and calls[0][0] == \"https://www.googleapis.com/oauth2/v3/certs\"",
+        "assertions_exact_after_explicit_URL_pair": 3,
+        "complete_function_pair_inverse": true
+      }
+    ],
+    "pytest_case_ID_owner": "tests/test_mfa31_google_reauth.py"
+  }
+}

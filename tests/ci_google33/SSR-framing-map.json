@@ -1,0 +1,22 @@
+{
+  "base": "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+  "scope": "Composed frontend SSR route framing only; no API/auth expectation widened",
+  "source": "tests/test_google33_headers.py",
+  "before_normalized_sha256": "a92c2d5705b9133c50dc9e66f6b96192eda1b1b4454787c5e3c3c058fd54cd86",
+  "after_normalized_sha256": "f639ecf7d2ab2ee626edbf4cd230ce4eaf7be2207684d69a2dae733953f80882",
+  "complete_inverse_exact": true,
+  "all_other_functions_AST_exact": true,
+  "same_pytest_case_IDs": true,
+  "pairs": [
+    [
+      "(\"GET\",\"/api/auth/google/link/status/\"),(\"GET\",\"/cuenta/google\"),(\"GET\",\"/cuenta/google/\")]:",
+      "(\"GET\",\"/api/auth/google/link/status/\"),(\"GET\",\"/cuenta/google\"),(\"GET\",\"/cuenta/google/\"),(\"HEAD\",\"/cuenta/google\"),(\"HEAD\",\"/cuenta/google/\")]:"
+    ],
+    [
+      "        assert response.status_code in (307,401,404,405,422)\n",
+      "        if (method,path)==(\"GET\",\"/cuenta/google\"):\n            assert response.status_code==200\n        elif path==\"/cuenta/google/\" and method in {\"GET\",\"HEAD\"}:\n            assert response.status_code==307\n            assert response.headers[\"Location\"]==str(response.request.url).rstrip(\"/\")\n        elif (method,path)==(\"HEAD\",\"/cuenta/google\"):\n            assert response.status_code==405\n        else:\n            assert response.status_code in (307,401,404,405,422)\n"
+    ]
+  ],
+  "new_requests": "HEAD canonical405 and HEAD slash307 with exact canonical Location",
+  "old_safety_assertions": "Every cache/referrer/CSP/GIS and neighbour assertion stays in the same loop; API allowed statuses unchanged"
+}

@@ -10,11 +10,11 @@ import argparse
 import hashlib
 import io
 import json
-from pathlib import Path
 import re
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -96,6 +96,67 @@ def json_projection(raw: bytes) -> bytes:
     return (json.dumps(result, indent=2) + '\n').encode('utf8')
 
 
+def runtime_projection(raw: bytes, name: str) -> bytes:
+    """Keep reviewed measured metadata; arbitrary dictionaries stay private."""
+    value = json.loads(raw)
+    if name.endswith('.witnesses.json'):
+        from tests.check_google33_reports import required_reports
+        # read_witnesses authenticates bytes from a named regular file in the
+        # caller below; this function only serializes its already checked form.
+        schema = value['schema']
+        required = required_reports(schema)[name.replace('.witnesses.json', '.xml')]
+        assert len(value['cases']) == len(required)
+    else:
+        expected = {'schema', 'reports', 'passed_nodes', 'sources_packages_binaries_quiet',
+            'pip_before', 'pip_after', 'closed_leases', 'postdrop_absence_fresh',
+            'executed_FORCE', 'backend_termination', 'private_raw_uploaded'}
+        if set(value) != expected or value['schema'] not in {'32', '33'}:
+            raise ValueError('Unexpected runtime summary fields')
+        schema = value['schema']
+        for key, expected_value in [('reports', 20 if schema == '33' else 5),
+                ('passed_nodes', 240 if schema == '33' else 38), ('pip_before', 0), ('pip_after', 0)]:
+            if type(value[key]) is not int or value[key] != expected_value:
+                raise ValueError('Unexpected runtime summary counts')
+        for key in ('sources_packages_binaries_quiet', 'postdrop_absence_fresh'):
+            if value[key] is not True:
+                raise ValueError('Runtime summary is incomplete')
+        if (type(value['closed_leases']) is not int or value['closed_leases'] < 1
+                or any(value[k] is not False for k in ('executed_FORCE', 'backend_termination', 'private_raw_uploaded'))):
+            raise ValueError('Runtime closure is incomplete')
+    return (json.dumps(value, indent=2) + '\n').encode('utf8')
+
+
+def image_projection(raw):
+    from tests.ci_google33.witness import closed_json, validate
+    value = closed_json(raw)
+    validate(value['physical_witness'], pool=20)
+    keys = {'physical_witness', 'binary_sha256', 'packages', 'complete', 'model_tables', 'actual_tables',
+        'runtime_revision', 'history_order_index', 'restricted_nonowner', 'application_role_restricted_nonowner',
+        'migrator_absent_in_exec_child_and_pid1', 'actual_pid1_main_web', 'lab_cap_eff_zero_no_new_privs', 'sources_sha256'}
+    if set(value) != keys or value['complete'] is not True:
+        raise ValueError('Unexpected image inventory fields')
+    for key in ('restricted_nonowner', 'application_role_restricted_nonowner',
+                'migrator_absent_in_exec_child_and_pid1', 'actual_pid1_main_web', 'lab_cap_eff_zero_no_new_privs'):
+        if value[key] is not True:
+            raise ValueError('Image process or application-role witness is absent')
+    if not re.fullmatch('[a-f0-9]{64}', value['binary_sha256']):
+        raise ValueError('Image binary hash is absent')
+    expected_packages = {'google-auth', 'PyJWT', 'cryptography', 'pyasn1', 'pyasn1-modules'}
+    if set(value['packages']) != expected_packages:
+        raise ValueError('Image verifier package inventory differs')
+    for package in value['packages'].values():
+        if (set(package) != {'version', 'metadata_sha256'} or not re.fullmatch('[0-9][0-9A-Za-z.+-]{0,60}', package['version'])
+                or not re.fullmatch('[a-f0-9]{64}', package['metadata_sha256'])):
+            raise ValueError('Image verifier package identity differs')
+    if not value['sources_sha256'] or any(canonical_name(name) != name or not re.fullmatch('[a-f0-9]{64}', digest)
+            for name, digest in value['sources_sha256'].items()):
+        raise ValueError('Image source identities differ')
+    # The history index is authenticated by physical_witness and represented
+    # publicly by its digest, never an open-ended nested source object.
+    del value['history_order_index']
+    return (json.dumps(value, indent=2) + '\n').encode('utf8')
+
+
 def publish(directory: Path, output: Path, names: list[str]) -> list[dict]:
     if not names or len(names) != len(set(name.casefold() for name in names)):
         raise ValueError('Publication requires an explicit distinct allowlist')
@@ -114,6 +175,19 @@ def publish(directory: Path, output: Path, names: list[str]) -> list[dict]:
             projected = raw
         elif name.endswith('.xml'):
             projected = xml_projection(raw)
+        elif name.endswith('.witnesses.json'):
+            from tests.check_google33_reports import read_witnesses, required_reports
+            schema = json.loads(raw)['schema']
+            read_witnesses(source, required_reports(schema)[name.replace('.witnesses.json', '.xml')], schema)
+            projected = runtime_projection(raw, name)
+        elif name == 'runtime-summary.json':
+            projected = runtime_projection(raw, name)
+        elif name == 'image-inventory.json':
+            projected = image_projection(raw)
+        elif name == 'browser-runtime-inventory.json':
+            from tests.ci_google33.witness import closed_json, validate_browser_inventory
+            value = validate_browser_inventory(closed_json(raw))
+            projected = (json.dumps(value, indent=2) + '\n').encode()
         elif name.endswith('.json'):
             projected = json_projection(raw)
         elif name.endswith('.zip'):

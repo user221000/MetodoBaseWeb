@@ -74,7 +74,15 @@ def main():
         for source in (root / directory).rglob("*"):
             if source.is_file() and source.suffix in {".py", ".js", ".html", ".css", ".json"}:
                 runtime[str(source.relative_to(root)).replace("\\", "/")] = hashlib.sha256(source.read_bytes()).hexdigest()
-    startup = {"fixture": "mfa-ui33", "origin": base, "pid": os.getpid(), "temporary_root": str(temporary),
+    from web.database.alembic.schema_contract_v1 import schema_signature
+    from web.database.google_identity_policy import signature as google_signature
+    with engine.connect() as connection:
+        assert connection.exec_driver_sql('PRAGMA foreign_key_check').all()==[]
+        sqlite_witness={'database_kind':'sqlite','runtime_revision':actual_revision,
+            'model_tables':len(Base.metadata.tables),'actual_tables':physical_tables,'foreign_keys_clean':True,
+            'schema_sha256':hashlib.sha256(json.dumps(schema_signature(connection),sort_keys=True,default=list).encode()).hexdigest(),
+            'google_identity_signature_sha256':hashlib.sha256(json.dumps(google_signature(connection),sort_keys=True,default=list).encode()).hexdigest()}
+    startup = {"sqlite_witness":sqlite_witness,"fixture": "mfa-ui33", "origin": base, "pid": os.getpid(), "temporary_root": str(temporary),
                "expected_runtime_revision": expected_head(), "actual_alembic_revision": actual_revision,
                "metadata_table_count": len(Base.metadata.tables), "physical_table_count": physical_tables,
                "schema_preparation": "db_bootstrap.main --revision20261019_google_subjects; real upgrade and runtime signature/index verification",

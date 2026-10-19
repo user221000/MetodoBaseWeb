@@ -9,9 +9,17 @@ def test_real_link_and_page_boundaries_have_private_headers_for_all_methods(goog
             ("GET","/api/auth/google/link/unlink"),("POST","/api/auth/google/link/status"),
             ("POST","/api/auth/google/link/start"),("POST","/api/auth/google/link/confirm"),
             ("POST","/api/auth/google/link/unlink"),("GET","/api/auth/google/link/status"),
-            ("GET","/api/auth/google/link/status/"),("GET","/cuenta/google"),("GET","/cuenta/google/")]:
+            ("GET","/api/auth/google/link/status/"),("GET","/cuenta/google"),("GET","/cuenta/google/"),("HEAD","/cuenta/google"),("HEAD","/cuenta/google/")]:
         response=client.request(method,path,follow_redirects=False)
-        assert response.status_code in (307,401,404,405,422)
+        if (method,path)==("GET","/cuenta/google"):
+            assert response.status_code==200
+        elif path=="/cuenta/google/" and method in {"GET","HEAD"}:
+            assert response.status_code==307
+            assert response.headers["Location"]==str(response.request.url).rstrip("/")
+        elif (method,path)==("HEAD","/cuenta/google"):
+            assert response.status_code==405
+        else:
+            assert response.status_code in (307,401,404,405,422)
         assert response.headers["Cache-Control"]=="no-store" and response.headers["Referrer-Policy"]=="no-referrer"
         policy=response.headers["Content-Security-Policy"]
         assert "unsafe-inline" not in policy and "cdn.jsdelivr.net" not in policy and "default-src 'none'" in policy

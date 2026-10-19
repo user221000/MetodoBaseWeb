@@ -125,7 +125,9 @@ def main():
     names+=['requirements_web.lock','requirements_web-windows.lock','requirements-test.lock','requirements-test-windows.lock','tests/e2e/daily_plan33_server.py']
     hashes=lambda:{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in names}
     assert len(Base.metadata.tables)==35 and len(__import__('sqlalchemy').inspect(engine).get_table_names())==36
-    before=hashes();startup={'fixture':'r24-daily-plan31','pid':os.getpid(),'origin':origin,'runtime_revision':revision,'model_tables':len(Base.metadata.tables),'actual_tables':len(__import__('sqlalchemy').inspect(engine).get_table_names()),
+    from tests.ci_google33.physical import physical_contract
+    global_witness=physical_contract(engine,expected_pool=20)
+    before=hashes();startup={'physical_witness':global_witness,'fixture':'r24-daily-plan31','pid':os.getpid(),'origin':origin,'runtime_revision':revision,'model_tables':len(Base.metadata.tables),'actual_tables':len(__import__('sqlalchemy').inspect(engine).get_table_names()),
         'application_role_restricted_nonowner':application_role_restricted_nonowner,
         'preparation':'actual Alembic31 on own UUID PostgreSQL restricted runtime role, real HTTP registrations/worker, synthetic persisted subscriptions only, no-send email boundary',
         'external_sockets':'blocked before product imports; not an OS sandbox','sources':before}

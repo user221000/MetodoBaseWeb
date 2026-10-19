@@ -15,44 +15,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 
-@pytest.fixture
-def identity_db(monkeypatch):
-    from web import auth
-    from web.database import engine as database
-    from web.database.models import Base, Usuario, UserRole
-
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    Base.metadata.create_all(engine)
-    factory = sessionmaker(bind=engine, expire_on_commit=False)
-    monkeypatch.setattr(auth, "_get_session", factory)
-    monkeypatch.setattr(auth, "SECRET_KEY", "synthetic-security-test-key-with-no-external-use")
-    monkeypatch.setattr(database, "_engine", engine)
-    monkeypatch.setattr(database, "_SessionLocal", factory)
-    password = "SyntheticPassword123!"
-    owner_id, member_id = str(uuid.uuid4()), str(uuid.uuid4())
-    with factory() as db:
-        db.add(Usuario(id=owner_id, email=f"{owner_id}@example.invalid", password_hash=auth.hash_password(password), nombre="Owner", tipo="gym", role=UserRole.OWNER, activo=True))
-        db.commit()
-        db.add(Usuario(id=member_id, email=f"{member_id}@example.invalid", password_hash=auth.hash_password(password), nombre="Member", tipo="usuario", role=UserRole.NUTRIOLOGO, team_gym_id=owner_id, activo=True))
-        db.commit()
-    yield factory, owner_id, member_id, password
-    engine.dispose()
 
 
-def principal(factory, user_id):
-    from web.database.models import Usuario
-    with factory() as db:
-        user = db.get(Usuario, user_id)
-        return {"id": user.id, "email": user.email, "nombre": user.nombre, "apellido": user.apellido, "tipo": user.tipo, "role": user.role.value, "team_gym_id": user.team_gym_id, "session_version": getattr(user, "session_version", 0)}
 
 
-def auth_client(monkeypatch):
-    from web.routes import auth as routes
-    from web.services import auth_audit
-    monkeypatch.setattr(auth_audit, "log_auth_event_from_request", AsyncMock())
-    app = FastAPI()
-    app.include_router(routes.router, prefix="/api")
-    return TestClient(app)
 
 
 @pytest.mark.parametrize("role", ["owner", "admin", "nutriologo", "viewer"])
@@ -135,60 +101,8 @@ def test_public_emergency_maintenance_is_absent(identity_db, monkeypatch):
     assert principal(factory, owner_id)["tipo"] == "gym"
 
 
-def test_google_uses_same_member_identity(identity_db, monkeypatch):
-    from types import SimpleNamespace
-    from web import auth
-    from config import settings
-    factory, owner_id, member_id, _ = identity_db
-    user = principal(factory, member_id)
-    monkeypatch.setattr(settings.get_settings(), "GOOGLE_CLIENT_ID", "synthetic-client-id")
-
-    class FakeGoogleClient:
-        def __init__(self, **kwargs):
-            pass
-        async def __aenter__(self):
-            return self
-        async def __aexit__(self, *args):
-            pass
-        async def get(self, url, **kwargs):
-            return SimpleNamespace(status_code=200, json=lambda: {"aud": "synthetic-client-id", "email_verified": "true", "email": user["email"]})
-
-    monkeypatch.setattr("httpx.AsyncClient", FakeGoogleClient)
-    response = auth_client(monkeypatch).post("/api/auth/google", json={"credential": "synthetic-only", "tipo": "gym"})
-    assert response.status_code == 200
-    assert response.json()["role"] == "nutriologo"
-    assert response.json()["team_gym_id"] == owner_id
-    identity = auth.verificar_token(response.json()["token"])
-    assert identity["role"] == "nutriologo"
-    assert identity["team_gym_id"] == owner_id
 
 
-def test_disabled_google_account_is_not_recreated(identity_db, monkeypatch):
-    from types import SimpleNamespace
-    from web.database.models import Usuario
-    from config import settings
-    factory, _, member_id, _ = identity_db
-    user = principal(factory, member_id)
-    with factory() as db:
-        db.get(Usuario, member_id).activo = False
-        db.commit()
-    monkeypatch.setattr(settings.get_settings(), "GOOGLE_CLIENT_ID", "synthetic-client-id")
-
-    class FakeGoogleClient:
-        def __init__(self, **kwargs):
-            pass
-        async def __aenter__(self):
-            return self
-        async def __aexit__(self, *args):
-            pass
-        async def get(self, url, **kwargs):
-            return SimpleNamespace(status_code=200, json=lambda: {"aud": "synthetic-client-id", "email_verified": "true", "email": user["email"]})
-
-    monkeypatch.setattr("httpx.AsyncClient", FakeGoogleClient)
-    response = auth_client(monkeypatch).post("/api/auth/google", json={"credential": "synthetic-only"})
-    assert response.status_code == 401
-    with factory() as db:
-        assert db.query(Usuario).filter(Usuario.email == user["email"]).count() == 1
 
 
 def test_logout_during_rotation_cannot_resurrect_session(identity_db, monkeypatch):
@@ -273,3 +187,7 @@ def test_safety_exclusions_can_be_created_and_updated_without_paid_feature(ident
     with factory() as db:
         saved = db.query(Cliente).filter(Cliente.id_cliente == client_id, Cliente.gym_id == owner_id).one()
         assert json.loads(saved.alimentos_excluidos) == ["avena"]
+
+
+from tests.ci_google33.identity_fixtures import identity_db, principal, auth_client
+from tests.google33_identity_contract import (test_google_uses_same_member_identity, test_disabled_google_account_is_not_recreated)

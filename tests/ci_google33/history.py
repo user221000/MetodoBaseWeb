@@ -1,23 +1,31 @@
 """Authenticated version31/32 source materialization, independent of current33.
 
-The selected31 freeze is an explicitly reviewed branch, not necessarily a Git
-ancestor. Its exact commit/tree/blobs are pinned; checkout filters never supply
-historical bytes. No old materializer or its23 immutable helpers is modified.
+The selected freezes are pinned ancestors in the composed33 history. Exact
+commit/tree/blobs are checked; checkout filters never supply historical bytes.
+No old materializer or its23 immutable helpers is modified.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
-from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+from pathlib import Path, PurePosixPath
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
-from tests.run_reviewed_ci30 import (canonical_name,git,git_environment,new_directory,
-                                   read_exact,regular_directory,require,trusted_baseline)
+from tests.run_reviewed_ci30 import (
+    canonical_name,
+    git,
+    git_environment,
+    new_directory,
+    read_exact,
+    regular_directory,
+    require,
+    trusted_baseline,
+)
 
 # Set only by the reviewed source-spec generation, not by command-line input.
 SPECS_SHA256='2be6cb886b85f10e031a97db3efa0d863832874c29b1615590f76c8424021af6'
@@ -37,6 +45,8 @@ def specifications():
 def specification(repository,spec):
     revision=spec['commit']
     require(git(repository,'rev-parse','--verify',revision+'^{commit}').decode().strip()==revision,'Historical commit absent')
+    require(subprocess.run(['git','--no-replace-objects','merge-base','--is-ancestor',revision,'HEAD'],
+        cwd=repository,env=git_environment(),capture_output=True,check=False).returncode==0,'Historical freeze is not an ancestor')
     require(git(repository,'rev-parse',revision+'^{tree}').decode().strip()==spec['tree'],'Historical tree differs')
     listing=git(repository,'ls-tree','-r','-z','--long',revision)
     require(listing.endswith(b'\0'),'Truncated historical Git listing')

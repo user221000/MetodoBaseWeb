@@ -44,6 +44,8 @@ def validate_startup(marker: dict, head: str, port: int) -> None:
     assert type(marker['actual_tables']) is int and marker['actual_tables'] == 36
     assert marker['application_role_restricted_nonowner'] is True
     assert marker['runtime_pool_size'] == 20 and marker['runtime_max_overflow'] == 10
+    from tests.ci_google33.witness import validate as validate_witness
+    validate_witness(marker['physical_witness'],pool=20)
     assert marker['R12_API_doubles'] is False
     assert marker['first_party_origin'] == 'http://127.0.0.1:' + str(port)
 

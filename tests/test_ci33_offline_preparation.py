@@ -10,7 +10,7 @@ from tests.ci_mfa31.workflow import expected_workflow as version31_workflow
 
 
 def test_all_prepared_frames_keep_complete_inverse_or_original_function_objects():
-    assert len(offline.validate_frames())==30
+    assert len(offline.validate_frames())==35
 
 
 @pytest.mark.parametrize('schema',['31','32'])

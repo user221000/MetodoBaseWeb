@@ -1,7 +1,7 @@
 """Current33 explicit HTTP associations preserve historical role/disable criteria."""
 from datetime import datetime,timezone
 import uuid
-from tests.test_identity_security import identity_db,principal,auth_client
+from tests.ci_google33.identity_fixtures import identity_db,principal,auth_client
 from tests.google33_signed_provider import SignedProvider
 
 def linked(identity_db,monkeypatch):

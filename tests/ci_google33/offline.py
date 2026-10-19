@@ -4,8 +4,8 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from tests.ci_google33.workflow import expected_workflow
 from tests.run_reviewed_ci30 import require
@@ -26,10 +26,11 @@ def validate_frames():
             current=(ROOT/name).read_bytes().replace(b'\r\n',b'\n')
             require(hashlib.sha256(current).hexdigest()==entry['current_normalized_sha256'],'Prepared framing bytes differ')
             if 'source' in entry:
-                original=subprocess.check_output(['git','--no-replace-objects','show',BASE+':'+entry['source']],cwd=ROOT).replace(b'\r\n',b'\n')
+                original=subprocess.check_output(['git','--no-replace-objects','show',entry.get('source_commit',BASE)+':'+entry['source']],cwd=ROOT).replace(b'\r\n',b'\n')
                 require(hashlib.sha256(original).hexdigest()==entry['source_normalized_sha256'],'Original frame source differs')
                 if entry.get('full_inverse_exact'):
                     inverse=current.decode()
+                    for before,after in reversed(entry.get('witness_additions',[])):inverse=inverse.replace(after,before)
                     if entry.get('addition'):inverse=inverse.replace(entry['addition'][1],entry['addition'][0])
                     for before,after in reversed(entry['framing_pairs']):inverse=inverse.replace(after,before)
                     require(inverse.encode()==original,'Complete frame inverse differs')

@@ -9,11 +9,14 @@ import ctypes
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
 
 import psycopg2
-from psycopg2.extensions import connection as PGConnection,cursor as PGCursor
+from psycopg2.extensions import connection as PGConnection
+from psycopg2.extensions import cursor as PGCursor
 
 ORIGINAL=psycopg2.connect
 OWNED={}
@@ -66,6 +69,19 @@ def write(path,value,previous=None):
     return raw
 
 
+def journal(lease):
+    """Append every attribution boundary; final lease never replaces chronology."""
+    path=root()/(lease['database']+'.events.jsonl')
+    entry={'at':datetime.now(UTC).isoformat(),'state':lease['state'],
+           'launcher':lease['launcher'],'oid':lease['oid'],
+           'run_nonce':os.environ['CI33_RUN_NONCE'],
+           'executable_sha256':hashlib.sha256(Path(sys.executable).read_bytes()).hexdigest(),
+           'guard_sha256':lease['guard_sha256']}
+    mode='xb' if lease['state']=='exclusive_before_CREATE' else 'ab'
+    with path.open(mode) as out:
+        out.write((json.dumps(entry,sort_keys=True)+'\n').encode());out.flush();os.fsync(out.fileno())
+
+
 def parse_ddl(query):
     if re.match(r'^\s*(CREATE|ALTER|DROP)\s+(ROLE|USER)\b',query,re.I) or 'pg_terminate_backend' in query.lower():
         raise AssertionError('Current33 forbids global role changes and backend termination')
@@ -86,10 +102,12 @@ class Cursor(PGCursor):
             lease={'database':name,'state':'exclusive_before_CREATE','launcher':identity,
                 'guard_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'created':False,'oid':None}
             previous=write(path,lease)
+            journal(lease)
             result=super().execute(query,variables)
             database,sessions=state(name);assert database is not None and sessions==[] and birth()==identity
             lease.update(created=True,oid=database[0],owner=database[1],state='created_exact_OID')
             previous=write(path,lease,previous);OWNED[name]=(lease,previous)
+            journal(lease)
             return result
         if drop:
             name=drop.group(1);assert name in OWNED,'DROP lacks exact process-owned lease'
@@ -97,11 +115,13 @@ class Cursor(PGCursor):
             assert database==(lease['oid'],lease['owner']) and sessions==[] and birth()==lease['launcher']
             lease.update(sessions_before_drop=0,original_requested_FORCE='FORCE' in rendered.upper(),state='zero_sessions_before_ordinary_DROP')
             previous=write(root()/(name+'.json'),lease,previous)
+            journal(lease)
             clean=re.sub(r' WITH \(FORCE\)$','',rendered,flags=re.I)
             result=super().execute(clean,variables)
             assert state(name)==(None,[])
             lease.update(state='closed_fresh_absent',executed_FORCE=False,backend_termination=False)
             write(root()/(name+'.json'),lease,previous);del OWNED[name]
+            journal(lease)
             return result
         return super().execute(query,variables)
 

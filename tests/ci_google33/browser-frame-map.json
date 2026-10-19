@@ -2,7 +2,7 @@
   "tests/ci_google33/run_current_browser.py": {
     "source": "tests/ci_mfa31/run_current_browser.py",
     "source_normalized_sha256": "1fe14e412f04f0c0e879950c3db6e8f246440b36ee7f168f47e3fd88025fe4e0",
-    "current_normalized_sha256": "6e99bdb42cc10555c803bab560e44855b6b068ff2f3587e5c82402164158b344",
+    "current_normalized_sha256": "6664f87aab2db016772ebbeee0e234fb6aa2c2e4abbaf6ff014dc93777326ed4",
     "full_inverse_exact": true,
     "framing_pairs": [
       [
@@ -62,12 +62,50 @@
         "== 36"
       ]
     ],
-    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance."
+    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.",
+    "witness_additions": [
+      [
+        "    assert value['application_role_restricted_nonowner'] is True\n",
+        "    assert value['application_role_restricted_nonowner'] is True\n    from tests.ci_google33.witness import validate as validate_witness\n    pool=10 if value['fixture']=='r23-followup-real-pg31' else 20\n    validate_witness(value['physical_witness'],pool=pool)\n"
+      ],
+      [
+        "stdin=(ROOT / 'tests/ci_google33/image_inventory.py').read_bytes())",
+        "stdin=(ROOT / 'tests/ci_google33/physical.py').read_bytes()+b'\\n'+(ROOT / 'tests/ci_google33/image_inventory.py').read_bytes())"
+      ],
+      [
+        "        assert inventory['application_role_restricted_nonowner'] is True",
+        "        assert inventory['application_role_restricted_nonowner'] is True\n        from tests.ci_google33.witness import validate as validate_witness\n        validate_witness(inventory['physical_witness'],pool=20)"
+      ],
+      [
+        "            assert value['metadata_table_count'] == 35 and value['physical_table_count'] == 36",
+        "            assert value['metadata_table_count'] == 35 and value['physical_table_count'] == 36\n            from tests.ci_google33.witness import validate_sqlite\n            validate_sqlite(value['sqlite_witness'])"
+      ],
+      [
+        "for driver in ('mfa_ui_browser', 'mfa_personal_browser'):",
+        "for driver in ('mfa_ui33_browser', 'mfa_personal33_browser'):"
+      ],
+      [
+        "    image(tag, phase, environment)\n",
+        "    image(tag, phase, environment)\n    leases=phase/'browser-leases';leases.mkdir(mode=0o700)\n    environment.update(CI33_LEASE_DIRECTORY=str(leases),CI33_RUN_NONCE=uuid.uuid4().hex,\n        PYTHONPATH=os.pathsep.join([str(ROOT/'tests/ci_google33/boot'),str(ROOT/'tests/ci_google33')]))\n"
+      ],
+      [
+        "    assert source_hashes() == before, 'Current source changed while image/browser gates ran'",
+        "    from tests.ci_google33.run_postgres import lease_audit\n    closed_leases=lease_audit(leases,environment)\n    inventory={'phase':'owned_startup_after_upgrade_before_browser_business',\n        'member':json.loads((phase/'member/startup.json').read_bytes())['physical_witness'],\n        'followup':json.loads((followup/'startup.json').read_bytes())['physical_witness'],\n        'daily':json.loads((daily/'startup.json').read_bytes())['physical_witness'],\n        'mfa_sqlite':marker()['sqlite_witness'],'closed_UUID_leases':closed_leases}\n    from tests.ci_google33.witness import validate_browser_inventory\n    validate_browser_inventory(inventory)\n    (phase/'browser-runtime-inventory.json').write_bytes((json.dumps(inventory)+'\\n').encode())\n    assert source_hashes() == before, 'Current source changed while image/browser gates ran'"
+      ],
+      [
+        "    names = ['image-inventory.json',",
+        "    names = ['browser-runtime-inventory.json','image-inventory.json',"
+      ],
+      [
+        "            return json.loads((phase / 'mfa-ui.private.log').read_bytes().splitlines()[0])",
+        "            raw=(phase/'mfa-ui.private.log').read_bytes()\n            assert len(raw)<=2*1024*1024\n            values=[]\n            for line in raw.splitlines():\n                try:value=json.loads(line)\n                except (ValueError,UnicodeError):continue\n                if isinstance(value,dict) and value.get('fixture')=='mfa-ui33':values.append(value)\n            if len(values)!=1:raise ValueError('Own MFA startup marker is not complete or unique')\n            return values[0]"
+      ]
+    ]
   },
   "tests/ci_google33/image_inventory.py": {
     "source": "tests/ci_mfa31/image_inventory.py",
     "source_normalized_sha256": "ebd62805c7917a004fd712e93881367a90c4fa00f9408748d882a8d5df41c3fc",
-    "current_normalized_sha256": "d09a02bee537f58fa37d51aa979f2552be1049f65513cc0aafdbe09a34deda32",
+    "current_normalized_sha256": "4c1ad0bde23999fed90fb1df6cf8e9d7ee64d8c6d8d64e31c9e174d36ae4da1c",
     "full_inverse_exact": true,
     "framing_pairs": [
       [
@@ -91,7 +129,13 @@
         "'actual_tables': 36"
       ]
     ],
-    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance."
+    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.",
+    "witness_additions": [
+      [
+        "print(json.dumps({'complete': True",
+        "from importlib import metadata\nimport sys\nglobal_witness=globals()['physical_contract'](engine,expected_pool=20)\nsources+=['web/routes/google_link.py','web/services/google_identity.py','web/services/google_link.py',\n          'web/database/google_identity_policy.py','web/static/js/google-vinculo.js','web/static/js/google-vinculo-pagina.js',\n          'web/templates/cuenta_google.html']\npackages={name:{'version':metadata.version(name),'metadata_sha256':hashlib.sha256(metadata.distribution(name).read_text('METADATA').encode()).hexdigest()}\n          for name in ('google-auth','PyJWT','cryptography','pyasn1','pyasn1-modules')}\nprint(json.dumps({'physical_witness':global_witness,'binary_sha256':hashlib.sha256(Path(sys.executable).read_bytes()).hexdigest(),'packages':packages,'complete': True"
+      ]
+    ]
   },
   "tests/ci_google33/image_roles.py": {
     "source": "tests/ci_mfa31/image_roles.py",
@@ -104,7 +148,7 @@
   "tests/e2e/run_member_link33_browser.py": {
     "source": "tests/e2e/run_member_link31_browser.py",
     "source_normalized_sha256": "44b3ccfc8feb083fcec1c33493d57b5457a23f9292ae115bc7cbfbd5b6ed25e2",
-    "current_normalized_sha256": "e7790916cc4d020213ac2d96a1d32da3f395bf0ac3891ad4016bb7295cf6ed04",
+    "current_normalized_sha256": "0e886f0ac82cebd21664d6cd243e743e2c76f16708627b2153d5587f4f13b95d",
     "full_inverse_exact": true,
     "framing_pairs": [
       [
@@ -132,12 +176,18 @@
         "== 36"
       ]
     ],
-    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance."
+    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.",
+    "witness_additions": [
+      [
+        "    assert marker['R12_API_doubles'] is False",
+        "    from tests.ci_google33.witness import validate as validate_witness\n    validate_witness(marker['physical_witness'],pool=20)\n    assert marker['R12_API_doubles'] is False"
+      ]
+    ]
   },
   "tests/e2e/member_link33_postgres_server.py": {
     "source": "tests/e2e/member_link31_postgres_server.py",
     "source_normalized_sha256": "1ab7d756eac90c10b3c928f94e054f1318106814ec408382838414014ad43c23",
-    "current_normalized_sha256": "45d68b6dba645c08b1679a47097a4b9cf2738280dc61e2017583e31cefc50ab7",
+    "current_normalized_sha256": "feb294dcb5c3563fc93813ed755a57714f7623fcd6dd916ad8742f49ebdb158a",
     "full_inverse_exact": true,
     "framing_pairs": [
       [
@@ -161,12 +211,18 @@
         "==36"
       ]
     ],
-    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance."
+    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.",
+    "witness_additions": [
+      [
+        "        marker={'fixture':",
+        "        from tests.ci_google33.physical import physical_contract\n        global_witness=physical_contract(app,expected_pool=20)\n        marker={'physical_witness':global_witness,'fixture':"
+      ]
+    ]
   },
   "tests/e2e/followup33_server.py": {
     "source": "tests/e2e/followup31_server.py",
     "source_normalized_sha256": "2027116a22083baa63b17cfba74732985f248fb1279f78db95c3e3ae9fd3ceac",
-    "current_normalized_sha256": "324bc1cfde362b470c38d7848e24acca792cc77a4800311da8b93db99fc44611",
+    "current_normalized_sha256": "5610ae65898e245fb04949ed65ac4c1798f9296690a2f4cae23269e4c1a748e2",
     "full_inverse_exact": true,
     "framing_pairs": [
       [
@@ -186,12 +242,18 @@
         "==36"
       ]
     ],
-    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance."
+    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.",
+    "witness_additions": [
+      [
+        "    report={'fixture':",
+        "    from tests.ci_google33.physical import physical_contract\n    global_witness=physical_contract(app_engine,expected_pool=10)\n    report={'physical_witness':global_witness,'fixture':"
+      ]
+    ]
   },
   "tests/e2e/daily_plan33_server.py": {
     "source": "tests/e2e/daily_plan31_server.py",
     "source_normalized_sha256": "f39c403696e109207cede77bb3baa4266b55ca8a2f68e72acb9ac203135f932d",
-    "current_normalized_sha256": "dd8cd88ebf63cd3cefae9c475765f977cde5df9eb28425231d07ef8bbe56d06f",
+    "current_normalized_sha256": "cf9b7dd16a124b70acd20af530dd2632943a6da23664139494f0a9860b418469",
     "full_inverse_exact": true,
     "framing_pairs": [
       [
@@ -211,12 +273,18 @@
         "==36"
       ]
     ],
-    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance."
+    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.",
+    "witness_additions": [
+      [
+        "    before=hashes();startup={'fixture':",
+        "    from tests.ci_google33.physical import physical_contract\n    global_witness=physical_contract(engine,expected_pool=20)\n    before=hashes();startup={'physical_witness':global_witness,'fixture':"
+      ]
+    ]
   },
   "tests/e2e/mfa33_ui_server.py": {
     "source": "tests/e2e/mfa_ui_server.py",
     "source_normalized_sha256": "8a43700830b167f6bd202f8e989f2ddbf3674942b8ffce696e149f32b03a22d8",
-    "current_normalized_sha256": "4e600e44893a5d5f352c53eae6ae0b3d5d20bca88a1794f267c755911793f658",
+    "current_normalized_sha256": "74a5ea580dcd2e13094c1ebac2d574d5df8995a2a0bf1ba6a5de573ba1ede8f0",
     "full_inverse_exact": true,
     "framing_pairs": [
       [
@@ -228,7 +296,13 @@
         "20261019_google_subjects"
       ]
     ],
-    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance."
+    "scope": "Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.",
+    "witness_additions": [
+      [
+        "    startup = {\"fixture\":",
+        "    from web.database.alembic.schema_contract_v1 import schema_signature\n    from web.database.google_identity_policy import signature as google_signature\n    with engine.connect() as connection:\n        assert connection.exec_driver_sql('PRAGMA foreign_key_check').all()==[]\n        sqlite_witness={'database_kind':'sqlite','runtime_revision':actual_revision,\n            'model_tables':len(Base.metadata.tables),'actual_tables':physical_tables,'foreign_keys_clean':True,\n            'schema_sha256':hashlib.sha256(json.dumps(schema_signature(connection),sort_keys=True,default=list).encode()).hexdigest(),\n            'google_identity_signature_sha256':hashlib.sha256(json.dumps(google_signature(connection),sort_keys=True,default=list).encode()).hexdigest()}\n    startup = {\"sqlite_witness\":sqlite_witness,\"fixture\":"
+      ]
+    ]
   },
   "tests/e2e/dashboard_followup33_browser.cjs": {
     "source": "tests/e2e/dashboard_followup31_browser.cjs",
@@ -264,5 +338,82 @@
     "current_normalized_sha256": "c44458d6e914acc1d32fc624dfdca87d66a70071deebdfa47ef78170290622fb",
     "original_callbacks_and_assertions_imported_exact": true,
     "fixture_only": "names/scope7\u21928; original controls additions retained verbatim"
+  },
+  "tests/e2e/mfa_ui33_browser.cjs": {
+    "source": "tests/e2e/mfa_ui_browser.cjs",
+    "source_normalized_sha256": "763d722add3d0219447a6a61da5f45ff6bbc4da0914b2f4a18ca903091bb4228",
+    "current_normalized_sha256": "561176a8ee48f87cd0e1db343e28e82b9e793a96ae22cecdcc66ef4b30167c86",
+    "full_inverse_exact": true,
+    "framing_pairs": [
+      [
+        "SQLite31",
+        "SQLite33"
+      ],
+      [
+        "migrated31",
+        "migrated33"
+      ],
+      [
+        "mfa-ui31",
+        "mfa-ui33"
+      ]
+    ],
+    "business_callbacks_assertions_unchanged": true
+  },
+  "tests/e2e/mfa_personal33_browser.cjs": {
+    "source": "tests/e2e/mfa_personal_browser.cjs",
+    "source_normalized_sha256": "b4f2fbbe0df2016ed589b9fc39aaf24bdb43bc5d58d5b5cb9f4dce7322867aab",
+    "current_normalized_sha256": "645625e0272896ab1c7b2e038387166bd2d1371b52ceec24f21384565d779991",
+    "full_inverse_exact": true,
+    "framing_pairs": [
+      [
+        "SQLite31",
+        "SQLite33"
+      ],
+      [
+        "migrated31",
+        "migrated33"
+      ],
+      [
+        "mfa-ui31",
+        "mfa-ui33"
+      ]
+    ],
+    "business_callbacks_assertions_unchanged": true
+  },
+  "tests/e2e/current33_member_link_export.cjs": {
+    "source": "tests/e2e/member_link_export.cjs",
+    "source_normalized_sha256": "287488236fe8cce0fee492145abf5e1b147ad9e038b7b03ada44285c9e6bd0d4",
+    "current_normalized_sha256": "d3c526d7d14b897b5ea7da02c570b0297519204789dff4feef3d2f360d4db5be",
+    "full_inverse_exact": true,
+    "framing_pairs": [
+      [
+        "repeat(233473)",
+        "repeat(266241)"
+      ]
+    ],
+    "addition": [
+      "const replaceOnce=(from,to)=>{if(source.split(from).length!==2)throw Error('Historical fixture marker changed');source=source.replace(from,to);};\n",
+      "const replaceOnce=(from,to)=>{if(source.split(from).length!==2)throw Error('Historical fixture marker changed');source=source.replace(from,to);};\nreplaceOnce(\"'personal_diary','member_links'];\",\"'personal_diary','member_links','progress_consents'];\");\nreplaceOnce(\"coverage:'account_persisted_personal_space_and_active_member_link_metadata'\",\"progress_consents:'own_append_only_scope_metadata',coverage:'account_persisted_personal_space_active_member_links_and_own_progress_consents'\");\n"
+    ],
+    "fixture_only_literals": [
+      [
+        "'personal_diary','member_links'];",
+        "'personal_diary','member_links','progress_consents'];"
+      ],
+      [
+        "coverage:'account_persisted_personal_space_and_active_member_link_metadata'",
+        "progress_consents:'own_append_only_scope_metadata',coverage:'account_persisted_personal_space_active_member_links_and_own_progress_consents'"
+      ]
+    ],
+    "all32_callbacks_and_assertions_exact": true,
+    "UTF8_fixture_reanchored_to_current8_dataset_budget": {
+      "old_limit": 933888,
+      "old_emoji_count": 233473,
+      "current_limit": 1064960,
+      "current_emoji_count": 266241,
+      "UTF8_padding_bytes": 1064964,
+      "original3_assertions_intact": true
+    }
   }
 }
