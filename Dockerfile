@@ -1,6 +1,6 @@
 # ══════════════════════════════════════════════════════════════════════════════
 # MetodoBase Web — Dockerfile de producción
-# REBUILD FORCED: 2026-04-01-22:10-v7
+# Candidato local 2026-10-18: lock con hashes y base fijada por digest.
 #
 # Multi-stage build:
 #   1. Instala dependencias web-only (sin PySide6, sin GUI)
@@ -11,10 +11,7 @@
 # Run:     docker run -p 8000:8000 --env-file .env metodobase-web
 # ══════════════════════════════════════════════════════════════════════════════
 
-FROM python:3.12-slim AS base
-
-# Cache buster - change this value to force rebuild
-ARG CACHEBUST=20260402v9
+FROM python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36 AS base
 
 # Prevenir bytecode + buffered output
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -25,8 +22,8 @@ WORKDIR /app
 # ── Stage 1: dependencias ────────────────────────────────────────────────────
 FROM base AS deps
 
-COPY requirements_web.txt .
-RUN pip install --no-cache-dir -r requirements_web.txt
+COPY requirements_web.lock .
+RUN pip install --no-cache-dir --require-hashes -r requirements_web.lock
 
 # ── Stage 2: app final ───────────────────────────────────────────────────────
 FROM base AS runtime
@@ -35,10 +32,7 @@ FROM base AS runtime
 COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=deps /usr/local/bin /usr/local/bin
 
-# CACHE BUSTER - Forces rebuild of all subsequent layers
-RUN echo "Build timestamp: 2026-04-02T18:00:00-v9-STATIC-FIX" > /tmp/build_version
-
-# Copy build version file FIRST to bust cache when it changes
+# Asset version used by existing templates.
 COPY web/.build_version /tmp/web_build_version
 
 # Copiar solo los módulos necesarios para el web server
@@ -74,12 +68,11 @@ COPY db_bootstrap.py /app/db_bootstrap.py
 USER appuser
 
 # Health check para Docker / Railway
-# Usa /health que ahora siempre retorna 200 (liveness)
-# Railway debe usar /health/ready para readiness si quiere verificar BD
+# Readiness returns non-success when the database cannot serve requests.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT}/health')" || exit 1
+    CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8000') + '/health/ready', timeout=5)" || exit 1
 
 EXPOSE ${PORT}
 
-# Ejecutar — Railway usa releaseCommand para migraciones; Docker usa entrypoint
+# Railway uses preDeployCommand; standalone Docker migrates via entrypoint.
 CMD ["/app/entrypoint.sh"]
