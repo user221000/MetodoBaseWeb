@@ -1,0 +1,21 @@
+{
+  "frozen_product_commit": "8a5e5dc235e96a47488befb743fc02a24b491939",
+  "immutable_RED_peer_commit": "0bf1d0a8c5a3470173faa36b094076843b76dd6f",
+  "commands": [
+    "python92 -B drivers/run.py sqlite",
+    "python92 -B drivers/run.py pg"
+  ],
+  "coordinate_note": "Driver pins the own WT/private prefix. A future replay records only coordinate changes and installs the byte-identical canaries under tests/; do not change assertions or identity verification. PG requires a fresh exclusive root handoff.",
+  "canary_SHA256s": {
+    "test_security_google33_peer.py": "77746aba862c45d935d0598d95448990412cdf8506f653cb2d64a02f13dcb366",
+    "test_security_google33_postgres_peer.py": "b96df8d6da0d1a21615b1c122cec435df47b84019067de76785243ceb2ffda04",
+    "test_security_google33_canonical_race_peer.py": "de85e39ac07fb46e5d297ca2c8117d7c6082723c27786a79021add517869938b",
+    "test_security_google33_postgres_true_peer.py": "b0ca2b1bb34f6044859b7eb7fccf633fd8b41452c9688eb9142df6f02ea1060b",
+    "test_security_google33_conflict_peer.py": "4d140f667699b02da8251d534bb1297a6318fc05f482b04a27ea6639df710ea7"
+  },
+  "fixtures": "Standard current33 maintained fixtures on frozen product; no compatibility dummy or identity override.",
+  "private_profile_values_published": false,
+  "owned_UUIDs": 3,
+  "closed_absent": true,
+  "PG_lease_returned_after_receipts": true
+}
