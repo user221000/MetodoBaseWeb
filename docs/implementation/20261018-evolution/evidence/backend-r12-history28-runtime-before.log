@@ -1,0 +1,18 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_empty_and_populated27_upgrade_repeat_and_preserve_authority[sqlite-False] _
+tests\integration_account_recovery_migrations.py:45: in test_empty_and_populated27_upgrade_repeat_and_preserve_authority
+    verify_runtime_schema(engine)
+web\database\schema_control.py:63: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations
+_ test_empty_and_populated27_upgrade_repeat_and_preserve_authority[sqlite-True] _
+tests\integration_account_recovery_migrations.py:45: in test_empty_and_populated27_upgrade_repeat_and_preserve_authority
+    verify_runtime_schema(engine)
+web\database\schema_control.py:63: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations
+=========================== short test summary info ===========================
+FAILED tests/integration_account_recovery_migrations.py::test_empty_and_populated27_upgrade_repeat_and_preserve_authority[sqlite-False]
+FAILED tests/integration_account_recovery_migrations.py::test_empty_and_populated27_upgrade_repeat_and_preserve_authority[sqlite-True]
+2 failed, 10 deselected in 10.58s
