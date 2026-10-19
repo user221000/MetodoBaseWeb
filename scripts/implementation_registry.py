@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from pathlib import Path
 
@@ -52,7 +53,7 @@ def record(ident: str, path: Path, section: str, problem: str, criterion: str, p
     tasks = [ident] if ident.startswith("R") else [r for r, refs in LINKS.items() if ident in refs.split()]
     return {"id": ident, "identificador_original": ident, "fuente": path.relative_to(ROOT).as_posix(),
         "seccion": section, "problema": problem.strip(), "criterio_exacto": criterion.strip(),
-        "prioridad": priority, "responsable": owner(tasks[0]), "tareas": tasks,
+        "prioridad": priority, "responsable": owner(tasks[0]) if tasks else "Coordinación y arquitectura", "tareas": tasks,
         "dependencias": DEPENDENCIES.get(ident, []), "estado": "pendiente",
         "implementacion": "pendiente", "validacion": "pendiente", "despliegue": "no_desplegado",
         "entorno": "local", "cambios": [], "commits": [], "pruebas": [], "evidencia": [],
@@ -111,11 +112,16 @@ def markdown(data: dict) -> str:
     for r in data["requisitos"]:
         lines.append(f"| [{r['id']}](#{r['id'].lower()}) | {r['prioridad']} | {r['responsable']} | {', '.join(r['tareas'])} | {r['estado']} | {r['validacion']} | {r['entorno']} |")
     for r in data["requisitos"]:
-        lines.extend(["", f"## {r['id']}", "", f"Fuente: [{r['seccion']}](../../audit/2026-10-18/{Path(r['fuente']).relative_to('docs/audit/2026-10-18').as_posix()}).",
+        source_link = Path(os.path.relpath(ROOT / r["fuente"], RUN)).as_posix()
+        lines.extend(["", f"## {r['id']}", "", f"Fuente: [{r['seccion']}]({source_link}).",
             "", "Problema: " + r["problema"], "", "Criterio original: " + r["criterio_exacto"], "",
             f"Estado: {r['estado']}; implementación: {r['implementacion']}; validación: {r['validacion']}; despliegue: {r['despliegue']}; entorno: {r['entorno']}.",
             "", "Dependencias: " + (", ".join(r["dependencias"]) or "sin dependencia declarada"),
+            "", "Cambios: " + ("; ".join(r["cambios"]) or "pendiente"),
+            "", "Commits: " + (", ".join(r["commits"]) or "pendiente"),
+            "", "Pruebas: " + ("; ".join(r["pruebas"]) or "pendiente"),
             "", "Evidencia: " + ("; ".join(r["evidencia"]) or "pendiente"),
+            "", "Documentación: " + ("; ".join(r["documentacion"]) or "pendiente"),
             "", "Revisión: " + (r["revisor"] or "pendiente"),
             "", "Bloqueo: " + (json.dumps(r["bloqueo"], ensure_ascii=False) if r["bloqueo"] else "no registrado"),
             "", "Observaciones: " + ("; ".join(r["observaciones"]) or "sin observaciones")])
@@ -132,6 +138,10 @@ def validate(data: dict) -> None:
             if not row.get(key): raise ValueError(f"{row['id']}: falta {key}")
         if row["estado"] not in states: raise ValueError(f"{row['id']}: estado inválido")
         if not (ROOT / row["fuente"]).is_file(): raise ValueError(f"Fuente ausente: {row['fuente']}")
+        for reference in row["evidencia"] + row["documentacion"]:
+            if not (RUN / reference).is_file(): raise ValueError(f"{row['id']}: evidencia/documento ausente: {reference}")
+        if any(task not in ids for task in row["tareas"] + row["dependencias"]):
+            raise ValueError(f"{row['id']}: tarea/dependencia huérfana")
         if row["estado"] == "verificado" and (not row["revisor"] or not row["evidencia"] or row["validacion"] != "verificado"):
             raise ValueError(f"{row['id']}: cierre sin revisión/evidencia")
 

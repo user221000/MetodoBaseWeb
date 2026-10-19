@@ -1,0 +1,90 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 01f435f74091, initial schema multi-tenant
+INFO  [alembic.runtime.migration] Running upgrade 01f435f74091 -> 936af15af980, add subscriptions and payments tables
+INFO  [alembic.runtime.migration] Running upgrade 936af15af980 -> c4f8e9d2a3b1, enable_rls_policies_multi_tenant
+INFO  [alembic.runtime.migration] Running upgrade c4f8e9d2a3b1 -> 62e2a638d74e, add_gym_branding_table
+INFO  [alembic.runtime.migration] Running upgrade 62e2a638d74e -> a19a0ae3ac49, add_license_activations_checkout_sessions_fiscal_fields
+Traceback (most recent call last):
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: relation "gym_profiles" does not exist
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\__main__.py", line 4, in <module>
+    main(prog="alembic")
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\config.py", line 1039, in main
+    CommandLine(prog=prog).main(argv=argv)
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\config.py", line 1029, in main
+    self.run_cmd(cfg, options)
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\config.py", line 963, in run_cmd
+    fn(
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\command.py", line 487, in upgrade
+    script.run_env()
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\script\base.py", line 550, in run_env
+    util.load_python_file(self.dir, "env.py")
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\util\pyfiles.py", line 114, in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\util\pyfiles.py", line 132, in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "F:\MetodoBaseWeb-execution-20261018\web\database\alembic\env.py", line 77, in <module>
+    run_migrations_online()
+  File "F:\MetodoBaseWeb-execution-20261018\web\database\alembic\env.py", line 71, in run_migrations_online
+    context.run_migrations()
+  File "<string>", line 8, in run_migrations
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\runtime\environment.py", line 970, in run_migrations
+    self.get_context().run_migrations(**kw)
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\runtime\migration.py", line 616, in run_migrations
+    step.migration_fn(**kw)
+  File "F:\MetodoBaseWeb-execution-20261018\web\database\alembic\versions\a19a0ae3ac49_add_license_activations_checkout_.py", line 56, in upgrade
+    op.add_column('gym_profiles', sa.Column('razon_social', sa.String(length=255), nullable=True))
+  File "<string>", line 8, in add_column
+  File "<string>", line 3, in add_column
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\operations\ops.py", line 2236, in add_column
+    return operations.invoke(op)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\operations\base.py", line 448, in invoke
+    return fn(self, operation)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\operations\toimpl.py", line 181, in add_column
+    operations.impl.add_column(
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\ddl\impl.py", line 384, in add_column
+    self._exec(
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\alembic\ddl\impl.py", line 252, in _exec
+    return conn.execute(construct, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py", line 1458, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\ddl.py", line 203, in _execute_on_connection
+    return connection._execute_ddl(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py", line 1567, in _execute_ddl
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py", line 1832, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py", line 1972, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py", line 2342, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "gym_profiles" does not exist
+
+[SQL: ALTER TABLE gym_profiles ADD COLUMN razon_social VARCHAR(255)]
+(Background on this error at: https://sqlalche.me/e/21/f405)

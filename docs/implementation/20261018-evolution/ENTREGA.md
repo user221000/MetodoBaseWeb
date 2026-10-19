@@ -1,6 +1,6 @@
 # Entrega candidata
 
-Estado: implementación local en curso; sin aprobación de release ni despliegue staging/producción. Rama: `implementation/20261018-execution`; base: `daa25efbf51d154710bad625025b345fa9ec9252`.
+Estado: implementación local en curso; sin aprobación de release ni despliegue staging/producción. Rama: `implementation/20261018-execution`; base: `daa25efbf51d154710bad625025b345fa9ec9252`; último hito integrado `166038f88b211c52f0d149ce550880795361707c` (A1). Evidencia: 207 pruebas congeladas aprobadas y revisiones independientes en QA_R05.md / evidence/security-review.md.
 
 Inventario completo: [TRAZABILIDAD.md](TRAZABILIDAD.md), generado desde [JSON](TRAZABILIDAD.json). Ningún registro pendiente se considera terminado por pertenecer a una tarea agrupadora.
 

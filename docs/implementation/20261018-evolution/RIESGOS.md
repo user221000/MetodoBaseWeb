@@ -8,4 +8,5 @@
 | EX-04 | Validación clínica/legal no disponible; ninguna revisión profesional ejecutada | Limitar promesas, registrar dictamen externo sin sustituirlo con agentes | Usuario / profesionales | pendiente |
 | EX-05 | Dependencias/imágenes no reproducibles; manifiestos históricos divergentes | Target Linux/Windows, lock, SBOM y escaneo efectivos | QA / operación | pendiente |
 | EX-06 | Confundir resultado local con despliegue o sandbox; no hay evidencia nueva live | Estado por entorno y artefacto, aprobación final sólo cuando paquete concreto exista | Coordinación | activo |
-| EX-07 | Tres pruebas Free 5/10 responden a decisión no documentada | Conservar expectativas, solicitar decisión comercial cuando contrato esté inventariado | Usuario / producto | pendiente |
+| EX-07 | La divergencia Free web/desktop tenía tres dimensiones comerciales | Usuario confirmó 10 clientes, 1 plan por cliente/día y 10 totales por gimnasio/día; catálogo único y 46 pruebas independientes. Falta consumo B2B atómico e integración UI | Backend / QA | decisión_resuelta; integración_abierta |
+| EX-08 | Redis caído permitía continuar acciones sensibles; login ignoraba ventana900s y era local por proceso | Rechazo503, fallback de lecturas acotado, Lua atómico y dependencia compartida. Falta revisión independiente y ejecución Redis real | Coordinación / backend / QA | en_curso |

@@ -15,19 +15,43 @@
         "R01"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "c769667"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-before.log",
+        "evidence/backend-money-contract.md",
+        "evidence/security-money-source.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/pytest-quota-postgres-before.xml",
+        "evidence/pytest-quota-postgres-after.xml",
+        "evidence/quota-a1-snapshot.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente PG y revisión de locks por coordinador/backend.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas."
+      ]
     },
     {
       "id": "R02",
@@ -42,16 +66,31 @@
         "R02"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -69,17 +108,33 @@
         "R03"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/alembic-empty-psycopg2-before.log",
+        "evidence/backend-r03-before.log",
+        "evidence/backend-r03-paths-restorable.xml",
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/r03-restorable-independent-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "evidence/backend-r03-design.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -99,15 +154,23 @@
         "R02",
         "R03"
       ],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
+      "commits": [
+        "f325fc4"
+      ],
+      "pruebas": [
+        "Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas"
+      ],
+      "evidencia": [
+        "evidence/coordinator-r04-preparation-review.md",
+        "evidence/r04-preparation-root.xml",
+        "evidence/r04-preparation-root-source.json"
+      ],
       "documentacion": [],
       "revisor": null,
       "bloqueo": null,
@@ -126,16 +189,42 @@
         "R05"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8e0c44",
+        "64fe65a"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo"
+      ],
+      "evidencia": [
+        "QA_R05.md",
+        "evidence/pytest-r05-frozen-candidate.xml",
+        "evidence/qa-r05-frozen-hashes.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/r05-followup-frozen-source.json",
+        "evidence/coordinator-quality-expansion-review.md",
+        "evidence/quality-expanded-source.json",
+        "evidence/quality-expanded-root-canaries.log",
+        "evidence/pytest-team-quality-root.xml"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "QA_R05.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -153,16 +242,32 @@
         "R06"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/security-review.md",
+        "evidence/pytest-nutrition-independent.xml",
+        "evidence/coverage-nutrition-focused.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -182,18 +287,24 @@
       "dependencias": [
         "R04"
       ],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
       "commits": [],
-      "pruebas": [],
-      "evidencia": [],
+      "pruebas": [
+        "Adaptadores iniciales autor:18 volumen pass/1 symlink omitida Windows;8 contratos SDK S3 Stubber pass. Sin DB/consumidores/proveedor real aun"
+      ],
+      "evidencia": [
+        "evidence/storage-volume-author.xml",
+        "evidence/storage-sdk-author.xml",
+        "evidence/storage-volume-harness-before.json"
+      ],
       "documentacion": [],
       "revisor": null,
-      "bloqueo": null,
+      "bloqueo": "Metadatos/RLS posteriores a R04, consumidores y migracion por implementar; proveedor/volumen persistente, contenedor y retencion pendientes de validacion/decision",
       "observaciones": []
     },
     {
@@ -209,17 +320,39 @@
         "R08"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Restore real del esquema Alembic22tablas, relaciones/secuencias/revisión/PDF/logo; cifrado+MAC. Tiempos técnicos no equivalen a RPO/RTO ni backup nativo."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8a6806"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "BACKUP_RESTORE.md",
+        "evidence/security-review.md",
+        "evidence/postgres-restore-independent.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/postgres-restore-release-schema-independent.json",
+        "evidence/pytest-r03-restorable-independent.xml"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "BACKUP_RESTORE.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "QA independiente y revisión seguridad/coordinador.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -238,19 +371,40 @@
       "dependencias": [
         "R01"
       ],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "af177b1"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "Seguimiento:3regresiones realesDBmoroso/expirado rojas antes;33after;QA46conlímites de periodos."
+      ],
+      "evidencia": [
+        "DECISIONES.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/catalog-before.log",
+        "evidence/catalog-after.xml"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "CATALOGO.md"
+      ],
+      "revisor": "QA (revisión local de catálogo/política/FeatureGate); alcance completo pendiente.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Usuario aprobó Free10clientes,1planporcliente/día,10planestotalesgym/día; soporte desktop continúa. Fuente única y precios/periodo/mes separados. Integración/aceptación completa aún abierta."
+      ]
     },
     {
       "id": "R10",
@@ -265,16 +419,31 @@
         "R10"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -295,9 +464,9 @@
         "R02",
         "R16"
       ],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
@@ -307,7 +476,9 @@
       "documentacion": [],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas."
+      ]
     },
     {
       "id": "R12",
@@ -351,17 +522,29 @@
         "R13"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -405,17 +588,29 @@
         "R15"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -459,19 +654,34 @@
         "R17"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.",
+        "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios."
+      ],
+      "commits": [
+        "0a0b6d4"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/redis-dependency-before.log",
+        "evidence/redis-final-author.xml",
+        "evidence/pytest-redis-final-independent.xml",
+        "evidence/redis-final-independent-source.json",
+        "evidence/backend-policy-review.md"
+      ],
+      "documentacion": [
+        "REDIS.md"
+      ],
+      "revisor": "QA y backend independientes del autor root.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17."
+      ]
     },
     {
       "id": "R18",
@@ -486,18 +696,30 @@
         "R18"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
       "commits": [],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "evidencia": [
+        "evidence/sbom-linux-runtime.json",
+        "evidence/sca-linux-runtime-final.log"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
-      "bloqueo": null,
+      "bloqueo": {
+        "falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.",
+        "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.",
+        "responsable": "Usuario/operación",
+        "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."
+      },
       "observaciones": []
     },
     {
@@ -544,16 +766,31 @@
         "R20"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "ESTADO.md",
+        "TRAZABILIDAD.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -571,19 +808,37 @@
         "R21"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Retiro del índice de1648archivos de entornos versionados; original e historial preservados.",
+        "Scan exacto de commit697archivos/0hallazgos, BOM transcodificado sólo en snapshot,11tests independientes. WIP posterior necesita scan antes cierre final."
+      ],
+      "commits": [
+        "dff6fd9",
+        "cd78c47"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/repository-comparison.json",
+        "evidence/secrets-tree-final.json",
+        "evidence/pytest-secret-encoding-independent.xml",
+        "evidence/secrets-encoding-wrapper-independent.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "HIGIENE.md"
+      ],
+      "revisor": "QA revisó configuración/wrapper/canarios; coordinador revisó retiro de artefactos.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito."
+      ]
     },
     {
       "id": "R22",
@@ -714,17 +969,26 @@
         "R01",
         "R09"
       ],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -852,19 +1116,27 @@
         "R31"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
       "commits": [],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "evidencia": [
+        "evidence/security-controls.md"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta."
+      ]
     },
     {
       "id": "R32",
@@ -909,19 +1181,28 @@
         "R33"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
       "commits": [],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "evidencia": [
+        "evidence/pytest-nutrition-independent.xml",
+        "evidence/security-review.md"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta."
+      ]
     },
     {
       "id": "R34",
@@ -993,16 +1274,32 @@
         "R01"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-before.log",
+        "evidence/backend-money-contract.md",
+        "evidence/security-money-source.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1061,7 +1358,9 @@
       "documentacion": [],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Contención individual no cierra reservaB2B, concurrenciaPG/multiproceso ni compra real sandbox; nueva carrera de lectura al cambio de mes identificada, pendiente corrección backend."
+      ]
     },
     {
       "id": "B04",
@@ -1077,17 +1376,28 @@
         "R04"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/backend-r03-paths-restorable.xml",
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/r03-restorable-independent-source.json"
+      ],
+      "documentacion": [
+        "evidence/backend-r03-design.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1132,16 +1442,31 @@
         "R11"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1159,16 +1484,31 @@
         "R02"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1186,16 +1526,31 @@
         "R10"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1214,16 +1569,32 @@
         "R33"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/security-review.md",
+        "evidence/pytest-nutrition-independent.xml",
+        "evidence/coverage-nutrition-focused.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1241,17 +1612,27 @@
         "R08"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Restore real del esquema Alembic22tablas, relaciones/secuencias/revisión/PDF/logo; cifrado+MAC. Tiempos técnicos no equivalen a RPO/RTO ni backup nativo."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/postgres-restore-release-schema-independent.json",
+        "evidence/pytest-r03-restorable-independent.xml"
+      ],
+      "documentacion": [
+        "BACKUP_RESTORE.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "QA independiente y revisión seguridad/coordinador.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1295,19 +1676,34 @@
         "R17"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.",
+        "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios."
+      ],
+      "commits": [
+        "0a0b6d4"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/redis-dependency-before.log",
+        "evidence/redis-final-author.xml",
+        "evidence/pytest-redis-final-independent.xml",
+        "evidence/redis-final-independent-source.json",
+        "evidence/backend-policy-review.md"
+      ],
+      "documentacion": [
+        "REDIS.md"
+      ],
+      "revisor": "QA y backend independientes del autor root.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17."
+      ]
     },
     {
       "id": "B13",
@@ -1324,16 +1720,32 @@
         "R26"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-before.log",
+        "evidence/backend-money-contract.md",
+        "evidence/security-money-source.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1353,16 +1765,32 @@
         "R26"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-before.log",
+        "evidence/backend-money-contract.md",
+        "evidence/security-money-source.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1382,16 +1810,32 @@
         "R27"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-before.log",
+        "evidence/backend-money-contract.md",
+        "evidence/security-money-source.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1411,16 +1855,32 @@
         "R28"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-before.log",
+        "evidence/backend-money-contract.md",
+        "evidence/security-money-source.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1442,19 +1902,31 @@
         "R34"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos."
+      ],
+      "commits": [
+        "c769667"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/pytest-quota-postgres-before.xml",
+        "evidence/pytest-quota-postgres-after.xml",
+        "evidence/quota-a1-snapshot.json"
+      ],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente PG y revisión de locks por coordinador/backend.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas."
+      ]
     },
     {
       "id": "B18",
@@ -1470,17 +1942,28 @@
         "R26"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/backend-r03-paths-restorable.xml",
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/r03-restorable-independent-source.json"
+      ],
+      "documentacion": [
+        "evidence/backend-r03-design.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1500,16 +1983,31 @@
         "R32"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1529,16 +2027,31 @@
         "R32"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1556,16 +2069,23 @@
         "R18"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
       "commits": [],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "evidencia": [
+        "evidence/sbom-linux-runtime.json",
+        "evidence/sca-linux-runtime-final.log"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1586,16 +2106,36 @@
         "R20"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-auth-review.md",
+        "evidence/security-controls.md",
+        "evidence/security-review.md",
+        "evidence/pytest-nutrition-independent.xml",
+        "evidence/coverage-nutrition-focused.json",
+        "ESTADO.md",
+        "TRAZABILIDAD.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1614,16 +2154,32 @@
         "R33"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/security-review.md",
+        "evidence/pytest-nutrition-independent.xml",
+        "evidence/coverage-nutrition-focused.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1641,17 +2197,28 @@
         "R03"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/backend-r03-paths-restorable.xml",
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/r03-restorable-independent-source.json"
+      ],
+      "documentacion": [
+        "evidence/backend-r03-design.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1722,17 +2289,39 @@
         "R08"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Restore real del esquema Alembic22tablas, relaciones/secuencias/revisión/PDF/logo; cifrado+MAC. Tiempos técnicos no equivalen a RPO/RTO ni backup nativo."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8a6806"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "BACKUP_RESTORE.md",
+        "evidence/security-review.md",
+        "evidence/postgres-restore-independent.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/postgres-restore-release-schema-independent.json",
+        "evidence/pytest-r03-restorable-independent.xml"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "BACKUP_RESTORE.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "QA independiente y revisión seguridad/coordinador.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1749,19 +2338,34 @@
         "R17"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.",
+        "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios."
+      ],
+      "commits": [
+        "0a0b6d4"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/redis-dependency-before.log",
+        "evidence/redis-final-author.xml",
+        "evidence/pytest-redis-final-independent.xml",
+        "evidence/redis-final-independent-source.json",
+        "evidence/backend-policy-review.md"
+      ],
+      "documentacion": [
+        "REDIS.md"
+      ],
+      "revisor": "QA y backend independientes del autor root.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17."
+      ]
     },
     {
       "id": "OPS06",
@@ -1805,18 +2409,32 @@
         "R18"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
+      ],
+      "commits": [
+        "e8e0c44"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "evidencia": [
+        "evidence/r05-followup-frozen-source.json",
+        "evidence/pytest-r05-frozen-candidate.xml"
+      ],
+      "documentacion": [
+        "QA_R05.md"
+      ],
       "revisor": null,
-      "bloqueo": null,
+      "bloqueo": {
+        "falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.",
+        "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.",
+        "responsable": "Usuario/operación",
+        "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."
+      },
       "observaciones": []
     },
     {
@@ -1832,16 +2450,36 @@
         "R05"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8e0c44"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "QA_R05.md",
+        "evidence/pytest-r05-frozen-candidate.xml",
+        "evidence/qa-r05-frozen-hashes.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/r05-followup-frozen-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "QA_R05.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1859,16 +2497,36 @@
         "R05"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8e0c44"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "QA_R05.md",
+        "evidence/pytest-r05-frozen-candidate.xml",
+        "evidence/qa-r05-frozen-hashes.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/r05-followup-frozen-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "QA_R05.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -1886,17 +2544,28 @@
         "R03"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/backend-r03-paths-restorable.xml",
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/r03-restorable-independent-source.json"
+      ],
+      "documentacion": [
+        "evidence/backend-r03-design.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1913,17 +2582,28 @@
         "R03"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/backend-r03-paths-restorable.xml",
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/r03-restorable-independent-source.json"
+      ],
+      "documentacion": [
+        "evidence/backend-r03-design.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -1975,13 +2655,19 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
+      "commits": [
+        "af177b1"
+      ],
       "pruebas": [],
       "evidencia": [],
-      "documentacion": [],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Usuario aprobó Free10clientes,1planporcliente/día,10planestotalesgym/día; soporte desktop continúa. Fuente única y precios/periodo/mes separados. Integración/aceptación completa aún abierta."
+      ]
     },
     {
       "id": "QA-07",
@@ -1996,16 +2682,36 @@
         "R05"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8e0c44"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "QA_R05.md",
+        "evidence/pytest-r05-frozen-candidate.xml",
+        "evidence/qa-r05-frozen-hashes.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/r05-followup-frozen-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "QA_R05.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2024,16 +2730,36 @@
         "R19"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8e0c44"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "QA_R05.md",
+        "evidence/pytest-r05-frozen-candidate.xml",
+        "evidence/qa-r05-frozen-hashes.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/r05-followup-frozen-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "QA_R05.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2053,17 +2779,26 @@
         "R19"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -2082,16 +2817,39 @@
         "R21"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c",
+        "e8e0c44"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "QA_R05.md",
+        "evidence/pytest-r05-frozen-candidate.xml",
+        "evidence/qa-r05-frozen-hashes.json",
+        "evidence/sbom-linux-runtime.json",
+        "evidence/sca-linux-runtime-final.log",
+        "evidence/repository-comparison.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json",
+        "evidence/r05-followup-frozen-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md",
+        "QA_R05.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2111,16 +2869,32 @@
         "R26"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/backend-before.log",
+        "evidence/backend-money-contract.md",
+        "evidence/security-money-source.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2140,16 +2914,32 @@
         "R33"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/security-review.md",
+        "evidence/pytest-nutrition-independent.xml",
+        "evidence/coverage-nutrition-focused.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2223,17 +3013,26 @@
         "R35"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -2305,17 +3104,26 @@
         "R13"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -2333,17 +3141,26 @@
         "R35"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -2449,17 +3266,26 @@
         "R27"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+      ],
+      "commits": [
+        "c45a71c"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/ux/frontend-independent-source.json",
+        "evidence/ux/frontend-independent-review.md"
+      ],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
+      "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -2476,17 +3302,28 @@
         "R03"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
+      "cambios": [
+        "Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos."
+      ],
+      "commits": [
+        "e8a6806"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/backend-r03-paths-restorable.xml",
+        "evidence/pytest-r03-restorable-independent.xml",
+        "evidence/r03-restorable-independent-source.json"
+      ],
+      "documentacion": [
+        "evidence/backend-r03-design.md",
+        "evidence/coordinator-r03-review.md"
+      ],
+      "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
       "observaciones": []
     },
@@ -2504,16 +3341,32 @@
         "R16"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+      ],
+      "commits": [
+        "166038f88b211c52f0d149ce550880795361707c"
+      ],
+      "pruebas": [
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+      ],
+      "evidencia": [
+        "evidence/security-review.md",
+        "evidence/pytest-nutrition-independent.xml",
+        "evidence/coverage-nutrition-focused.json",
+        "evidence/A1-containment.xml",
+        "evidence/A1-containment-source.json"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "DECISIONES.md",
+        "VALIDACION.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2538,10 +3391,14 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
+      "commits": [
+        "af177b1"
+      ],
       "pruebas": [],
       "evidencia": [],
-      "documentacion": [],
+      "documentacion": [
+        "CATALOGO.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2574,6 +3431,81 @@
       "documentacion": [],
       "revisor": null,
       "bloqueo": null,
+      "observaciones": []
+    },
+    {
+      "id": "OPS08",
+      "identificador_original": "OPS08",
+      "fuente": "docs/implementation/20261018-evolution/NUEVOS_HALLAZGOS.md",
+      "seccion": "OPS08 - Configuración Railway posterior al 1 de diciembre de 2026",
+      "problema": "Config as Code obsoleto: el archivo Railway existente deja de estar soportado tras el corte anunciado.",
+      "criterio_exacto": "Inventario efectivo saneado, IaC compatible preparado y fijado, diff revisado, sintaxis y contratos validados; pre-deploy/digest/salud/secretos/volúmenes/rollback ensayados en staging autorizado antes del corte. Sin aplicar infraestructura ni contratar recursos por esta entrada.",
+      "prioridad": "P1",
+      "responsable": "Coordinación y operación",
+      "tareas": [
+        "R03",
+        "R18",
+        "R20"
+      ],
+      "dependencias": [],
+      "estado": "pendiente",
+      "implementacion": "pendiente",
+      "validacion": "pendiente",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [],
+      "commits": [],
+      "pruebas": [],
+      "evidencia": [],
+      "documentacion": [
+        "NUEVOS_HALLAZGOS.md"
+      ],
+      "revisor": null,
+      "bloqueo": null,
+      "observaciones": [
+        "Fuente primaria consultada2026-10-18; no cambia los92IDs originales ni autoriza aplicar IaC."
+      ]
+    },
+    {
+      "id": "SEC01",
+      "identificador_original": "SEC01",
+      "fuente": "docs/implementation/20261018-evolution/NUEVOS_HALLAZGOS.md",
+      "seccion": "SEC01 - Licencias sin autoridad verificable",
+      "problema": "Activación pública deriva plan de prefijo, otorga365d y sobrescribehardware; offlineonline acepta falta de red sin licencia local demostrada.",
+      "criterio_exacto": "Ningún prefijo concede acceso; autoridad emitida y propietario verificados sin asociar por email; hardware ajeno no se sobrescribe; periodo/límites proceden de licencia emitida; revocación/caducidad/repetición seguros; caída de red no valida desconocidas; compatibilidad local existente y reconciliación con regresiones/revisión independientes.",
+      "prioridad": "P0",
+      "responsable": "Root - seguridad y licencias; backend - campos/preparaciónR04",
+      "tareas": [
+        "R01",
+        "R04",
+        "R09",
+        "R31"
+      ],
+      "dependencias": [],
+      "estado": "en_revision",
+      "implementacion": "parcial",
+      "validacion": "parcial",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [],
+      "commits": [
+        "4d03300",
+        "f325fc4"
+      ],
+      "pruebas": [
+        "19 fallos antes;40 aprobadas finales,7.98s; autoridad JWT persistida y Unicode rechazado"
+      ],
+      "evidencia": [
+        "evidence/license-security-before.xml",
+        "evidence/pytest-license-unicode-final.xml",
+        "evidence/license-independent-source.json"
+      ],
+      "documentacion": [
+        "NUEVOS_HALLAZGOS.md",
+        "LICENCIAS.md"
+      ],
+      "revisor": "QA independiente",
+      "bloqueo": "Pendiente concurrencia PostgreSQL, puente remoto autenticado, autoridad HMAC y campos comerciales legacy; contencion local aceptada, sin despliegue",
       "observaciones": []
     }
   ]

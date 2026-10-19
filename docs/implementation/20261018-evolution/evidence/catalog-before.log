@@ -1,0 +1,28 @@
+...F.FF.                                                                 [100%]
+================================== FAILURES ===================================
+_____ test_inactive_or_expired_paid_row_cannot_grant_features[past_due-5] _____
+tests\test_catalog_contract.py:42: in test_inactive_or_expired_paid_row_cannot_grant_features
+    assert gate.plan == "free"
+E   AssertionError: assert 'clinica' == 'free'
+E     
+E     - free
+E     + clinica
+_____ test_inactive_or_expired_paid_row_cannot_grant_features[active--1] ______
+tests\test_catalog_contract.py:42: in test_inactive_or_expired_paid_row_cannot_grant_features
+    assert gate.plan == "free"
+E   AssertionError: assert 'clinica' == 'free'
+E     
+E     - free
+E     + clinica
+____ test_inactive_or_expired_paid_row_cannot_grant_features[trialing--1] _____
+tests\test_catalog_contract.py:42: in test_inactive_or_expired_paid_row_cannot_grant_features
+    assert gate.plan == "free"
+E   AssertionError: assert 'clinica' == 'free'
+E     
+E     - free
+E     + clinica
+=========================== short test summary info ===========================
+FAILED tests/test_catalog_contract.py::test_inactive_or_expired_paid_row_cannot_grant_features[past_due-5]
+FAILED tests/test_catalog_contract.py::test_inactive_or_expired_paid_row_cannot_grant_features[active--1]
+FAILED tests/test_catalog_contract.py::test_inactive_or_expired_paid_row_cannot_grant_features[trialing--1]
+3 failed, 5 passed in 4.31s

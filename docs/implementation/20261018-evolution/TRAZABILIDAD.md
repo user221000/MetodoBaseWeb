@@ -6,98 +6,100 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 
 | ID | Prioridad | Responsable | Tareas | Estado | Validación | Entorno |
 |---|---|---|---|---|---|---|
-| [R01](#r01) | P0 | Backend y datos | R01 | pendiente | pendiente | local |
-| [R02](#r02) | P0 | Backend y datos | R02 | pendiente | pendiente | local |
-| [R03](#r03) | P0 | Backend y datos | R03 | pendiente | pendiente | local |
-| [R04](#r04) | P0 | Backend y datos | R04 | pendiente | pendiente | local |
-| [R05](#r05) | P0 | QA y automatización | R05 | pendiente | pendiente | local |
-| [R06](#r06) | P0 | Backend y datos | R06 | pendiente | pendiente | local |
-| [R07](#r07) | P1 | Operación y documentación | R07 | pendiente | pendiente | local |
-| [R08](#r08) | P1 | Operación y documentación | R08 | pendiente | pendiente | local |
-| [R09](#r09) | P1 | Coordinación y arquitectura | R09 | pendiente | pendiente | local |
-| [R10](#r10) | P1 | Seguridad y privacidad | R10 | pendiente | pendiente | local |
-| [R11](#r11) | P1 | Backend y datos | R11 | pendiente | pendiente | local |
+| [R01](#r01) | P0 | Backend y datos | R01 | en_revision | en_curso | local |
+| [R02](#r02) | P0 | Backend y datos | R02 | en_curso | en_curso | local |
+| [R03](#r03) | P0 | Backend y datos | R03 | en_revision | en_curso | local |
+| [R04](#r04) | P0 | Backend y datos | R04 | en_curso | parcial | local |
+| [R05](#r05) | P0 | QA y automatización | R05 | en_revision | en_curso | local |
+| [R06](#r06) | P0 | Backend y datos | R06 | en_curso | en_curso | local |
+| [R07](#r07) | P1 | Operación y documentación | R07 | en_curso | parcial | local |
+| [R08](#r08) | P1 | Operación y documentación | R08 | en_revision | en_curso | local |
+| [R09](#r09) | P1 | Coordinación y arquitectura | R09 | en_curso | en_curso | local |
+| [R10](#r10) | P1 | Seguridad y privacidad | R10 | en_curso | en_curso | local |
+| [R11](#r11) | P1 | Backend y datos | R11 | en_curso | parcial | local |
 | [R12](#r12) | P1 | Backend y datos | R12 | pendiente | pendiente | local |
-| [R13](#r13) | P1 | Frontend y UX/UI | R13 | pendiente | pendiente | local |
+| [R13](#r13) | P1 | Frontend y UX/UI | R13 | en_revision | en_curso | local |
 | [R14](#r14) | P1 | Backend y datos | R14 | pendiente | pendiente | local |
-| [R15](#r15) | P1 | Frontend y UX/UI | R15 | pendiente | pendiente | local |
+| [R15](#r15) | P1 | Frontend y UX/UI | R15 | en_revision | en_curso | local |
 | [R16](#r16) | P1 | Backend y datos | R16 | pendiente | pendiente | local |
-| [R17](#r17) | P1 | Operación y documentación | R17 | pendiente | pendiente | local |
-| [R18](#r18) | P1 | QA y automatización | R18 | pendiente | pendiente | local |
+| [R17](#r17) | P1 | Operación y documentación | R17 | en_revision | en_curso | local |
+| [R18](#r18) | P1 | QA y automatización | R18 | en_curso | en_curso | local |
 | [R19](#r19) | P1 | QA y automatización | R19 | pendiente | pendiente | local |
-| [R20](#r20) | P1 | Coordinación y arquitectura | R20 | pendiente | pendiente | local |
-| [R21](#r21) | P2 | Operación y documentación | R21 | pendiente | pendiente | local |
+| [R20](#r20) | P1 | Coordinación y arquitectura | R20 | en_curso | en_curso | local |
+| [R21](#r21) | P2 | Operación y documentación | R21 | en_revision | en_curso | local |
 | [R22](#r22) | P1 | Frontend y UX/UI | R22 | pendiente | pendiente | local |
 | [R23](#r23) | P2 | Frontend y UX/UI | R23 | pendiente | pendiente | local |
 | [R24](#r24) | P2 | Frontend y UX/UI | R24 | pendiente | pendiente | local |
 | [R25](#r25) | P2 | Backend y datos | R25 | pendiente | pendiente | local |
-| [R26](#r26) | P1 | Backend y datos | R26 | pendiente | pendiente | local |
+| [R26](#r26) | P1 | Backend y datos | R26 | en_revision | en_curso | local |
 | [R27](#r27) | P2 | Backend y datos | R27 | pendiente | pendiente | local |
 | [R28](#r28) | P2 | Backend y datos | R28 | pendiente | pendiente | local |
 | [R29](#r29) | P2 | Frontend y UX/UI | R29 | pendiente | pendiente | local |
 | [R30](#r30) | P1 | Coordinación y arquitectura | R30 | pendiente | pendiente | local |
-| [R31](#r31) | P1 | Seguridad y privacidad | R31 | pendiente | pendiente | local |
+| [R31](#r31) | P1 | Seguridad y privacidad | R31 | en_curso | en_curso | local |
 | [R32](#r32) | P1 | Seguridad y privacidad | R32 | pendiente | pendiente | local |
-| [R33](#r33) | P1 | Coordinación y arquitectura | R33 | pendiente | pendiente | local |
+| [R33](#r33) | P1 | Coordinación y arquitectura | R33 | en_curso | en_curso | local |
 | [R34](#r34) | P2 | QA y automatización | R34 | pendiente | pendiente | local |
 | [R35](#r35) | P2 | Frontend y UX/UI | R35 | pendiente | pendiente | local |
-| [B01](#b01) | P0 | Backend y datos | R01 | pendiente | pendiente | local |
+| [B01](#b01) | P0 | Backend y datos | R01 | en_curso | en_curso | local |
 | [B02](#b02) | P1 | Backend y datos | R01, R09, R26 | pendiente | pendiente | local |
 | [B03](#b03) | P1 | Backend y datos | R01 | pendiente | pendiente | local |
-| [B04](#b04) | P1 | Backend y datos | R03, R04 | pendiente | pendiente | local |
+| [B04](#b04) | P1 | Backend y datos | R03, R04 | en_revision | en_curso | local |
 | [B05](#b05) | P1 | Backend y datos | R04 | pendiente | pendiente | local |
-| [B06](#b06) | P1 | Backend y datos | R02, R11 | pendiente | pendiente | local |
-| [B07](#b07) | P1 | Backend y datos | R02 | pendiente | pendiente | local |
-| [B08](#b08) | P1 | Seguridad y privacidad | R10 | pendiente | pendiente | local |
-| [B09](#b09) | P1 | Backend y datos | R06, R33 | pendiente | pendiente | local |
-| [B10](#b10) | P1 | Operación y documentación | R08 | pendiente | pendiente | local |
+| [B06](#b06) | P1 | Backend y datos | R02, R11 | en_curso | en_curso | local |
+| [B07](#b07) | P1 | Backend y datos | R02 | en_curso | en_curso | local |
+| [B08](#b08) | P1 | Seguridad y privacidad | R10 | en_curso | en_curso | local |
+| [B09](#b09) | P1 | Backend y datos | R06, R33 | en_curso | en_curso | local |
+| [B10](#b10) | P1 | Operación y documentación | R08 | en_revision | en_curso | local |
 | [B11](#b11) | P1 | Operación y documentación | R07 | pendiente | pendiente | local |
-| [B12](#b12) | P1 | Operación y documentación | R17 | pendiente | pendiente | local |
-| [B13](#b13) | P2 | Backend y datos | R01, R19, R26 | pendiente | pendiente | local |
-| [B14](#b14) | P2 | Backend y datos | R01, R19, R26 | pendiente | pendiente | local |
-| [B15](#b15) | P1 | Backend y datos | R01, R26, R27 | pendiente | pendiente | local |
-| [B16](#b16) | P2 | Backend y datos | R01, R19, R28 | pendiente | pendiente | local |
-| [B17](#b17) | P2 | Backend y datos | R01, R14, R19, R28, R34 | pendiente | pendiente | local |
-| [B18](#b18) | P2 | Backend y datos | R03, R26 | pendiente | pendiente | local |
-| [B19](#b19) | P2 | Seguridad y privacidad | R10, R11, R16, R32 | pendiente | pendiente | local |
-| [B20](#b20) | P2 | Seguridad y privacidad | R10, R31, R32 | pendiente | pendiente | local |
-| [B21](#b21) | P1 | QA y automatización | R18 | pendiente | pendiente | local |
-| [B22](#b22) | P2 | Backend y datos | R02, R06, R17, R20 | pendiente | pendiente | local |
-| [B23](#b23) | P1 | Backend y datos | R06, R33 | pendiente | pendiente | local |
-| [OPS01](#ops01) | P0 | Backend y datos | R03 | pendiente | pendiente | local |
+| [B12](#b12) | P1 | Operación y documentación | R17 | en_revision | en_curso | local |
+| [B13](#b13) | P2 | Backend y datos | R01, R19, R26 | en_curso | en_curso | local |
+| [B14](#b14) | P2 | Backend y datos | R01, R19, R26 | en_curso | en_curso | local |
+| [B15](#b15) | P1 | Backend y datos | R01, R26, R27 | en_curso | en_curso | local |
+| [B16](#b16) | P2 | Backend y datos | R01, R19, R28 | en_curso | en_curso | local |
+| [B17](#b17) | P2 | Backend y datos | R01, R14, R19, R28, R34 | en_revision | en_curso | local |
+| [B18](#b18) | P2 | Backend y datos | R03, R26 | en_revision | en_curso | local |
+| [B19](#b19) | P2 | Seguridad y privacidad | R10, R11, R16, R32 | en_curso | en_curso | local |
+| [B20](#b20) | P2 | Seguridad y privacidad | R10, R31, R32 | en_curso | en_curso | local |
+| [B21](#b21) | P1 | QA y automatización | R18 | en_curso | en_curso | local |
+| [B22](#b22) | P2 | Backend y datos | R02, R06, R17, R20 | en_curso | en_curso | local |
+| [B23](#b23) | P1 | Backend y datos | R06, R33 | en_curso | en_curso | local |
+| [OPS01](#ops01) | P0 | Backend y datos | R03 | en_revision | en_curso | local |
 | [OPS02](#ops02) | P0 | Backend y datos | R04 | pendiente | pendiente | local |
 | [OPS03](#ops03) | P1 | Operación y documentación | R07 | pendiente | pendiente | local |
-| [OPS04](#ops04) | P1 | Operación y documentación | R08 | pendiente | pendiente | local |
-| [OPS05](#ops05) | P1 | Operación y documentación | R17 | pendiente | pendiente | local |
+| [OPS04](#ops04) | P1 | Operación y documentación | R08 | en_revision | en_curso | local |
+| [OPS05](#ops05) | P1 | Operación y documentación | R17 | en_revision | en_curso | local |
 | [OPS06](#ops06) | P1 | Backend y datos | R16, R27 | pendiente | pendiente | local |
-| [OPS07](#ops07) | P1 | QA y automatización | R05, R18 | pendiente | pendiente | local |
-| [QA-01](#qa-01) | P0 | QA y automatización | R05 | pendiente | pendiente | local |
-| [QA-02](#qa-02) | P0 | QA y automatización | R05 | pendiente | pendiente | local |
-| [QA-03](#qa-03) | P0 | Backend y datos | R03 | pendiente | pendiente | local |
-| [QA-04](#qa-04) | P0 | Backend y datos | R03 | pendiente | pendiente | local |
+| [OPS07](#ops07) | P1 | QA y automatización | R05, R18 | en_revision | en_curso | local |
+| [QA-01](#qa-01) | P0 | QA y automatización | R05 | en_revision | en_curso | local |
+| [QA-02](#qa-02) | P0 | QA y automatización | R05 | en_revision | en_curso | local |
+| [QA-03](#qa-03) | P0 | Backend y datos | R03 | en_revision | en_curso | local |
+| [QA-04](#qa-04) | P0 | Backend y datos | R03 | en_revision | en_curso | local |
 | [QA-05](#qa-05) | P0 | Backend y datos | R02, R04, R19 | pendiente | pendiente | local |
 | [QA-06](#qa-06) | P1 | Coordinación y arquitectura | R09 | pendiente | pendiente | local |
-| [QA-07](#qa-07) | P1 | QA y automatización | R05 | pendiente | pendiente | local |
-| [QA-08](#qa-08) | P1 | QA y automatización | R05, R19 | pendiente | pendiente | local |
-| [QA-09](#qa-09) | P1 | QA y automatización | R05, R13, R19 | pendiente | pendiente | local |
-| [QA-10](#qa-10) | P2 | QA y automatización | R05, R18, R21 | pendiente | pendiente | local |
-| [UX-01](#ux-01) | P0 | Backend y datos | R01, R15, R26 | pendiente | pendiente | local |
-| [UX-02](#ux-02) | P0 | Backend y datos | R06, R24, R33 | pendiente | pendiente | local |
+| [QA-07](#qa-07) | P1 | QA y automatización | R05 | en_revision | en_curso | local |
+| [QA-08](#qa-08) | P1 | QA y automatización | R05, R19 | en_revision | en_curso | local |
+| [QA-09](#qa-09) | P1 | QA y automatización | R05, R13, R19 | en_revision | en_curso | local |
+| [QA-10](#qa-10) | P2 | QA y automatización | R05, R18, R21 | en_revision | en_curso | local |
+| [UX-01](#ux-01) | P0 | Backend y datos | R01, R15, R26 | en_curso | en_curso | local |
+| [UX-02](#ux-02) | P0 | Backend y datos | R06, R24, R33 | en_curso | en_curso | local |
 | [UX-03](#ux-03) | P1 | Backend y datos | R14, R31 | pendiente | pendiente | local |
 | [UX-04](#ux-04) | P1 | Backend y datos | R14 | pendiente | pendiente | local |
-| [UX-05](#ux-05) | P1 | Frontend y UX/UI | R13, R35 | pendiente | pendiente | local |
+| [UX-05](#ux-05) | P1 | Frontend y UX/UI | R13, R35 | en_revision | en_curso | local |
 | [UX-06](#ux-06) | P1 | Backend y datos | R11 | pendiente | pendiente | local |
 | [UX-07](#ux-07) | P1 | Backend y datos | R12, R25 | pendiente | pendiente | local |
-| [UX-08](#ux-08) | P1 | Frontend y UX/UI | R13 | pendiente | pendiente | local |
-| [UX-09](#ux-09) | P1 | Frontend y UX/UI | R13, R35 | pendiente | pendiente | local |
+| [UX-08](#ux-08) | P1 | Frontend y UX/UI | R13 | en_revision | en_curso | local |
+| [UX-09](#ux-09) | P1 | Frontend y UX/UI | R13, R35 | en_revision | en_curso | local |
 | [UX-10](#ux-10) | P1 | Frontend y UX/UI | R15, R24 | pendiente | pendiente | local |
 | [UX-11](#ux-11) | P2 | Frontend y UX/UI | R15, R22 | pendiente | pendiente | local |
 | [UX-12](#ux-12) | P1 | Frontend y UX/UI | R15, R20, R22 | pendiente | pendiente | local |
-| [UX-13](#ux-13) | P2 | Backend y datos | R01, R15, R23, R26, R27 | pendiente | pendiente | local |
-| [UX-14](#ux-14) | P2 | Backend y datos | R03 | pendiente | pendiente | local |
-| [UX-15](#ux-15) | P2 | Backend y datos | R06, R16 | pendiente | pendiente | local |
+| [UX-13](#ux-13) | P2 | Backend y datos | R01, R15, R23, R26, R27 | en_revision | en_curso | local |
+| [UX-14](#ux-14) | P2 | Backend y datos | R03 | en_revision | en_curso | local |
+| [UX-15](#ux-15) | P2 | Backend y datos | R06, R16 | en_curso | en_curso | local |
 | [UX-16](#ux-16) | P2 | Coordinación y arquitectura | R09, R29 | pendiente | pendiente | local |
 | [UX-17](#ux-17) | P2 | Frontend y UX/UI | R15, R22, R24, R30 | pendiente | pendiente | local |
+| [OPS08](#ops08) | P1 | Coordinación y operación | R03, R18, R20 | pendiente | pendiente | local |
+| [SEC01](#sec01) | P0 | Root - seguridad y licencias; backend - campos/preparaciónR04 | R01, R04, R09, R31 | en_revision | parcial | local |
 
 ## R01
 
@@ -107,17 +109,25 @@ Problema: Unificar cobros, catálogo y derechos Pro
 
 Criterio original: Ningún POST/redirect ni pago incompleto concede acceso; `pro_usuario` persiste; cancelación/impago reconcilia ambas tablas y derechos; eventos repetidos/desordenados no duplican acceso; cuota agotada no genera
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.
 
-Revisión: pendiente
+Commits: 166038f88b211c52f0d149ce550880795361707c, c769667
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md
+
+Revisión: QA independiente PG y revisión de locks por coordinador/backend.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.
 
 ## R02
 
@@ -127,11 +137,19 @@ Problema: Corregir RBAC e identidad de equipo
 
 Criterio original: VIEWER recibe 403 al crear; login/refresh conservan membresía autorizada; cambios de rol tienen efecto verificable; matriz completa por recurso
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -147,13 +165,21 @@ Problema: Reconciliar esquema y reparar migraciones Railway
 
 Criterio original: Copia staging, inventario y backup; `preDeployCommand` real; base vacía y base existente llegan al mismo esquema; fallos detienen deploy; enum de roles coherente
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/alembic-empty-psycopg2-before.log; evidence/backend-r03-before.log; evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
+
+Revisión: Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.
 
 Bloqueo: no registrado
 
@@ -167,11 +193,19 @@ Problema: Implantar privilegios mínimos y aislamiento PostgreSQL
 
 Criterio original: Tras R02/R03; rol app sin superusuario/BYPASSRLS; tenant por transacción y por job; pruebas negativas con dos gimnasios y rol real restringido
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R02, R03
 
-Evidencia: pendiente
+Cambios: pendiente
+
+Commits: f325fc4
+
+Pruebas: Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas
+
+Evidencia: evidence/coordinator-r04-preparation-review.md; evidence/r04-preparation-root.xml; evidence/r04-preparation-root-source.json
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -187,11 +221,19 @@ Problema: CI web reproducible y pruebas bloqueantes
 
 Criterio original: Manifest de test explícito; SQLite local y PostgreSQL de CI separados; sin depender del orden global de tests; lint/seguridad material bloquean según baseline aprobado
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, 64fe65a
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo
+
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/coordinator-quality-expansion-review.md; evidence/quality-expanded-source.json; evidence/quality-expanded-root-canaries.log; evidence/pytest-team-quality-root.xml
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
 Revisión: pendiente
 
@@ -207,11 +249,19 @@ Problema: Contención de promesas alimentarias y validación básica
 
 Criterio original: Edad/peso/altura/grasa inválidos no se guardan; retirar promesa de aplicar notas; excluir categoría completa no restaura alimentos; bloquear garantías no soportadas; contrato completo pasa a R33
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -227,15 +277,23 @@ Problema: Almacenamiento persistente de documentos y logos
 
 Criterio original: Tras definición de tenant; archivos sobreviven a redeploy; descargas autorizadas; migración de referencias y manejo de fallos probado
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R04
 
-Evidencia: pendiente
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: Adaptadores iniciales autor:18 volumen pass/1 symlink omitida Windows;8 contratos SDK S3 Stubber pass. Sin DB/consumidores/proveedor real aun
+
+Evidencia: evidence/storage-volume-author.xml; evidence/storage-sdk-author.xml; evidence/storage-volume-harness-before.json
+
+Documentación: pendiente
 
 Revisión: pendiente
 
-Bloqueo: no registrado
+Bloqueo: "Metadatos/RLS posteriores a R04, consumidores y migracion por implementar; proveedor/volumen persistente, contenedor y retencion pendientes de validacion/decision"
 
 Observaciones: sin observaciones
 
@@ -247,13 +305,21 @@ Problema: Restauración y plan de continuidad
 
 Criterio original: Verificar backups nativos e independientes según riesgo; ensayo de restauración con medición RPO/RTO; una ejecución sin fuente respaldada falla
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Restore real del esquema Alembic22tablas, relaciones/secuencias/revisión/PDF/logo; cifrado+MAC. Tiempos técnicos no equivalen a RPO/RTO ni backup nativo.
 
-Revisión: pendiente
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8a6806
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: BACKUP_RESTORE.md; evidence/security-review.md; evidence/postgres-restore-independent.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/postgres-restore-release-schema-independent.json; evidence/pytest-r03-restorable-independent.xml
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; BACKUP_RESTORE.md; evidence/coordinator-r03-review.md
+
+Revisión: QA independiente y revisión seguridad/coordinador.
 
 Bloqueo: no registrado
 
@@ -267,17 +333,25 @@ Problema: Una fuente de límites, precios y características
 
 Criterio original: Tras R01; decidir Free 5 o 10 sin inferirlo de un test; API, web y Stripe reflejan el catálogo; desktop sólo si sigue soportado; importes/moneda/periodicidad claros
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R01
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
 
-Revisión: pendiente
+Commits: 166038f88b211c52f0d149ce550880795361707c, af177b1
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Seguimiento:3regresiones realesDBmoroso/expirado rojas antes;33after;QA46conlímites de periodos.
+
+Evidencia: DECISIONES.md; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/catalog-before.log; evidence/catalog-after.xml
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md
+
+Revisión: QA (revisión local de catálogo/política/FeatureGate); alcance completo pendiente.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Usuario aprobó Free10clientes,1planporcliente/día,10planestotalesgym/día; soporte desktop continúa. Fuente única y precios/periodo/mes separados. Integración/aceptación completa aún abierta.
 
 ## R10
 
@@ -287,11 +361,19 @@ Problema: Sesiones y revocación coherentes
 
 Criterio original: Access de duración corta, refresh de larga duración; desactivar usuario/miembro impide acciones; cerrar sesión invalida el acceso según política documentada
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -307,17 +389,25 @@ Problema: Equipo utilizable de extremo a extremo
 
 Criterio original: Tras R02 y correo; pantalla GET de invitación y canje POST de un uso; caducidad/revocación; navegación por permisos; dueño invita y miembro accede a su gimnasio
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R02, R16
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas.
 
 ## R12
 
@@ -331,7 +421,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: R04
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -347,13 +445,21 @@ Problema: Corregir móvil, teclado y accesibilidad
 
 Criterio original: Suscripciones/clientes sin acciones cortadas a 320/390 px y regresión 768/1440; hamburguesa no tapa títulos; controles nombrados; foco y Enter correctos; PDF accesible en historial
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -371,7 +477,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -387,13 +501,21 @@ Problema: Estados de progreso y pago veraces
 
 Criterio original: No mostrar 100% por contenido del menú; redirect no afirma pago; perfil incompleto lleva a completar datos; errores visibles y accionables
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -411,7 +533,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -427,17 +557,25 @@ Problema: Alarmas, degradación Redis y trazabilidad
 
 Criterio original: Caída Redis simulada no elimina límites de rutas sensibles; webhooks/cola/backup/correo tienen métricas y alertas; logs sin tokens o notas de salud
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.; Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios.
 
-Revisión: pendiente
+Commits: 0a0b6d4
+
+Pruebas: pendiente
+
+Evidencia: evidence/redis-dependency-before.log; evidence/redis-final-author.xml; evidence/pytest-redis-final-independent.xml; evidence/redis-final-independent-source.json; evidence/backend-policy-review.md
+
+Documentación: REDIS.md
+
+Revisión: QA y backend independientes del autor root.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: 21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.
 
 ## R18
 
@@ -447,15 +585,23 @@ Problema: Dependencias e imagen trazables
 
 Criterio original: Lock Linux coherente con Docker, SBOM y escaneo de resolución/imagen; actualizar advisories aplicables; promover el mismo digest; excepciones con vencimiento
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
+Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
-Bloqueo: no registrado
+Bloqueo: {"falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.", "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.", "responsable": "Usuario/operación", "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."}
 
 Observaciones: sin observaciones
 
@@ -471,7 +617,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: R01, R02, R12
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -487,11 +641,19 @@ Problema: Documentación vigente y límites de arquitectura
 
 Criterio original: README web, mapa actual, matriz de permisos, ADR de billing/tenant/storage, contratos y runbooks por commit; requisitos en cada PR posterior
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: ESTADO.md; TRAZABILIDAD.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -507,17 +669,25 @@ Problema: Higiene del repositorio
 
 Criterio original: Retirar entornos versionados y artefactos históricos del árbol activo con revisión; ignorar venv/.venv-test; secretos escaneados sin publicar valores; dependencias se reinstalan
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Retiro del índice de1648archivos de entornos versionados; original e historial preservados.; Scan exacto de commit697archivos/0hallazgos, BOM transcodificado sólo en snapshot,11tests independientes. WIP posterior necesita scan antes cierre final.
 
-Revisión: pendiente
+Commits: dff6fd9, cd78c47
+
+Pruebas: pendiente
+
+Evidencia: evidence/repository-comparison.json; evidence/secrets-tree-final.json; evidence/pytest-secret-encoding-independent.xml; evidence/secrets-encoding-wrapper-independent.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; HIGIENE.md
+
+Revisión: QA revisó configuración/wrapper/canarios; coordinador revisó retiro de artefactos.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.
 
 ## R22
 
@@ -531,7 +701,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -551,7 +729,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -571,7 +757,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: R14
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -591,7 +785,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: R12, R14
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -607,13 +809,21 @@ Problema: Suscripción y facturación comprensibles
 
 Criterio original: Tras R01/R09; plan actual, cuotas restantes, precio MXN, periodo y estado verificados; cancelar/renovar claros; la UI distingue licencia del gym de membresía del socio
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R01, R09
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -631,7 +841,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: R16, R26
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -651,7 +869,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -671,7 +897,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -691,7 +925,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -707,17 +949,25 @@ Problema: Privacidad y gestión del dato personal
 
 Criterio original: Iniciar en fase 1; inventario/finalidad/retención, acceso de soporte, exportar/borrar, consentimientos aplicables y revisión legal del servicio; prueba de borrado en copias/objetos según política
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
+Evidencia: evidence/security-controls.md
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.
 
 ## R32
 
@@ -731,7 +981,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: R10, R16
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -747,17 +1005,25 @@ Problema: Garantías del motor y revisión profesional
 
 Criterio original: Iniciar en fase 1; contrato estructurado de alergias/exclusiones sin depender del plan pagado; entradas límite, unidades y repetibilidad; validar con especialista; condiciones clínicas fuera de automatismo no validado
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
+Evidencia: evidence/pytest-nutrition-independent.xml; evidence/security-review.md
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.
 
 ## R34
 
@@ -771,7 +1037,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -791,7 +1065,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: R14, R34
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -807,11 +1089,19 @@ Problema: `web/routes/usuario.py:543` admite `POST /api/usuario/suscripcion` con
 
 Criterio original: un usuario no puede adquirir derechos de pago mediante un cambio de preferencias. Los derechos se actualizan desde un servicio único tras confirmar identidad del cliente, precio/moneda, estado del proveedor y período pagado. Tarjeta rechazada, autenticación pendiente o `activated=False` conservan el plan gratuito. Los escenarios deben pasar por API con proveedor de pruebas y webhooks firmados.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -831,7 +1121,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -851,13 +1149,21 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contención individual no cierra reservaB2B, concurrenciaPG/multiproceso ni compra real sandbox; nueva carrera de lectura al cambio de mes identificada, pendiente corrección backend.
 
 ## B04
 
@@ -869,13 +1175,21 @@ El código contribuye al problema: `db_bootstrap.py:56` hace create_all y, en un
 
 Criterio original: inventariar y reconciliar el esquema existente con un plan de migración probado en un clon, backup y restauración verificada. Ejecutar migraciones con un rol separado; la app usa NOSUPERUSER/NOBYPASSRLS y permisos mínimos. Una base vacía llega a head ejecutando migraciones, incluidos datos y políticas; cualquier error aborta el despliegue. No ejecutar stamp indiscriminadamente sobre producción.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+
+Documentación: evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
+
+Revisión: Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.
 
 Bloqueo: no registrado
 
@@ -893,7 +1207,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -909,11 +1231,19 @@ Problema: `web/auth.py:238` consulta ya la misma tabla usuarios que el supuesto 
 
 Criterio original: una sola función transforma el usuario persistido en identidad autenticada; conserva rol y membresía validados y distingue cuenta individual de miembro. Login, OAuth, invitación y refresh entregan los mismos permisos. Cambiar rol o quitar acceso surte efecto según una política de revocación explícita.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -929,11 +1259,19 @@ Problema: `web/routes/clientes.py:72` depende de check_daily_registration_limit,
 
 Criterio original: permisos obligatorios por ruta o caso de uso, además de cuotas. Matriz API por rol y recurso: viewer solo lee; no crea, actualiza, elimina ni elude restricciones a través de rutas individuales. Validar también la propiedad del recurso en cada caso de uso.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -949,11 +1287,19 @@ Problema: `web/auth.py:420` verifica firma, tipo y expiración sin revisar estad
 
 Criterio original: access breve también al recordar sesión, refresh rotativo revocable y una versión de sesión/estado del usuario consultada con caché de invalidación controlada. La prueba API de usuario borrado/desactivado o rol reducido debe fallar dentro de un SLA definido. No basta con vaciar localStorage del navegador que ejecutó logout.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -969,11 +1315,19 @@ Problema: `web/routes/usuario.py:34` acepta números sin rangos; update_perfil s
 
 Criterio original: los dos portales comparten validadores de dominio con rangos coherentes y rechazo de NaN/infinito. Reglas de restricciones, alergias e información clínica deben tener un contrato estructurado y verificable; la UI no debe prometer que un texto libre modifica el plan si el motor no lo consume. Validación profesional de seguridad nutricional antes de promocionar usos clínicos.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -989,13 +1343,21 @@ Problema: `scripts/backup_daily.py:44` respalda únicamente archivos SQLite; no 
 
 Criterio original: Respaldo PostgreSQL y objetos, retención cifrada, fallos alertados; restauración en entorno aislado medida contra RPO/RTO acordados. Verificar backups Railway existentes antes de concluir ausencia de respaldos del proveedor.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Restore real del esquema Alembic22tablas, relaciones/secuencias/revisión/PDF/logo; cifrado+MAC. Tiempos técnicos no equivalen a RPO/RTO ni backup nativo.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/postgres-restore-release-schema-independent.json; evidence/pytest-r03-restorable-independent.xml
+
+Documentación: BACKUP_RESTORE.md; evidence/coordinator-r03-review.md
+
+Revisión: QA independiente y revisión seguridad/coordinador.
 
 Bloqueo: no registrado
 
@@ -1013,7 +1375,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1029,17 +1399,25 @@ Problema: `web/rate_limiter_redis.py:74` permite toda solicitud ante fallo Redis
 
 Criterio original: Fallback local acotado y alertas de degradación; protección por cuenta/IP distribuida en login, refresh e invitación; pruebas con Redis caído y cuatro workers. No cerrar toda la aplicación por una falla de caché.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.; Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios.
 
-Revisión: pendiente
+Commits: 0a0b6d4
+
+Pruebas: pendiente
+
+Evidencia: evidence/redis-dependency-before.log; evidence/redis-final-author.xml; evidence/pytest-redis-final-independent.xml; evidence/redis-final-independent-source.json; evidence/backend-policy-review.md
+
+Documentación: REDIS.md
+
+Revisión: QA y backend independientes del autor root.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: 21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.
 
 ## B13
 
@@ -1049,11 +1427,19 @@ Problema: `web/routes/billing.py:484,533` responde HTTP 200 a fallos MercadoPago
 
 Criterio original: Autenticar y vincular el evento completo, validar replay, conservar inbox duradero; responder reintentable ante fallo temporal; reconciliación periódica.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1069,11 +1455,19 @@ Problema: `subscription_service.py:77` usa cadena vacía como stripe_subscriptio
 
 Criterio original: IDs ausentes como NULL, claves del proveedor separadas y constraint único apropiado; dos compras MP independientes completan sin colisión.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1089,11 +1483,19 @@ Problema: Stripe gestiona Subscription, mientras rutas individuales mantienen Us
 
 Criterio original: Estado canónico de derechos por sujeto; eventos duplicados, fuera de orden, retrasados y pagos diferidos convergen al estado actual del proveedor; no acceso de pago después de cancelación/impago fuera de la política.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1109,11 +1511,19 @@ Problema: `stripe_service.py:208` crea Customer antes de la llamada idempotente 
 
 Criterio original: Persistir intención y claves idempotentes por operación; reintentar sin duplicar Customer/cobro, conservar estados recuperables y reconciliar fallos DB posteriores al proveedor.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1129,17 +1539,25 @@ Problema: `web/routes/planes.py:53` usa locks por proceso y generación con to_t
 
 Criterio original: Reserva atómica de cuota, idempotencia por solicitud, jobs con estado/reintentos y límites CPU; prueba concurrente de último crédito y mismo cliente entre workers.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.
 
-Revisión: pendiente
+Commits: c769667
+
+Pruebas: pendiente
+
+Evidencia: evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json
+
+Documentación: CATALOGO.md
+
+Revisión: QA independiente PG y revisión de locks por coordinador/backend.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.
 
 ## B18
 
@@ -1149,13 +1567,21 @@ Problema: `repository.py:520` crea defaults de membresías al leer si la lista e
 
 Criterio original: Crear defaults en onboarding transaccional con unique(gym_id,template_key) y upsert; lecturas paralelas nunca duplican.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+
+Documentación: evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
+
+Revisión: Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.
 
 Bloqueo: no registrado
 
@@ -1169,11 +1595,19 @@ Problema: Registro exige doce caracteres (`auth.py:202`) e invitación seis (`te
 
 Criterio original: Política común, bloqueo de contraseñas comprometidas, flujos de recuperación/verificación seguros; MFA/passkeys al menos para owners; invitación probada en PostgreSQL y SQLite con tiempo UTC coherente.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1189,11 +1623,19 @@ Problema: `auth.py` usa formato HMAC propio sin versión de clave, issuer/audien
 
 Criterio original: Preferir sesiones o biblioteca de tokens revisada; rotación de claves y audiencias verificadas; eliminar endpoint de emergencia del runtime público o convertirlo en operación administrativa con identidad/MFA y auditoría. Reducir exposición de tokens y verificar XSS en todos los sinks. No se confirmó un exploit XSS en esta revisión.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1209,11 +1651,19 @@ Problema: Docker instala requirements_web.txt con rangos flotantes; lock difiere
 
 Criterio original: Lock actualizado compatible Linux/Python3.12 con hashes, build que lo usa, SBOM y scan de imagen final y dependencias; tratar exposición por alcance real. No atribuir resultados del lock a paquetes de producción sin inventario instalado.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
+Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1229,11 +1679,19 @@ Problema: ClienteUpdate difiere de Create; PerfilUpdate duplica reglas; manejo d
 
 Criterio original: DTOs comunes, errores de dominio con código público estable/request_id, detalles internos solo en logs saneados; denegar acciones no registradas a todos los roles.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; ESTADO.md; TRAZABILIDAD.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1251,11 +1709,19 @@ Existe además un riesgo de concurrencia inferido del código: `:152` solo toma 
 
 Criterio original: pasar un catálogo inmutable por solicitud/caso de uso a todos los selectores, sin modificar globals. Si las exclusiones dejan sin alternativas una categoría requerida, devolver un error de dominio claro o una sustitución explícitamente validada; nunca restaurar silenciosamente alimentos excluidos. Pruebas de exclusión total, parcial y generación simultánea con restricciones distintas deben verificar resultados independientes y ausencia de alimentos prohibidos. Vincular este criterio al trabajo de garantías del motor R33 del roadmap principal.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1275,13 +1741,21 @@ El catálogo de producción sin `alembic_version` demuestra que no se está gest
 
 Criterio original: base vacía y copia del esquema actual alcanzan la misma revisión y restricciones mediante un procedimiento reproducible; Alembic reporta un único head; el despliegue fallido por migración no recibe tráfico. Fuente: [configuración de Railway](https://docs.railway.com/config-as-code/reference) y [comando previo al despliegue](https://docs.railway.com/deployments/pre-deploy-command).
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+
+Documentación: evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
+
+Revisión: Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.
 
 Bloqueo: no registrado
 
@@ -1301,7 +1775,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1323,7 +1805,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1341,13 +1831,21 @@ Problema: **Prioridad P1. Confirmado en código; política nativa del proveedor 
 
 Criterio original: RPO de 24 horas y RTO de 4 horas como objetivos iniciales a validar con el negocio; ensayo fechado que restaure esquema, usuarios, relaciones y referencias a objetos. Estos tiempos son metas propuestas, no capacidades actuales.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Restore real del esquema Alembic22tablas, relaciones/secuencias/revisión/PDF/logo; cifrado+MAC. Tiempos técnicos no equivalen a RPO/RTO ni backup nativo.
 
-Revisión: pendiente
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8a6806
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: BACKUP_RESTORE.md; evidence/security-review.md; evidence/postgres-restore-independent.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/postgres-restore-release-schema-independent.json; evidence/pytest-r03-restorable-independent.xml
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; BACKUP_RESTORE.md; evidence/coordinator-r03-review.md
+
+Revisión: QA independiente y revisión seguridad/coordinador.
 
 Bloqueo: no registrado
 
@@ -1363,17 +1861,25 @@ Problema: **Prioridad P1. Comportamiento de código e incidente histórico obser
 
 Criterio original: pérdida de Redis simulada en staging no deja autenticación o generación sin límites; recuperación comprobada; alerta verificable y sin secretos.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.; Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios.
 
-Revisión: pendiente
+Commits: 0a0b6d4
+
+Pruebas: pendiente
+
+Evidencia: evidence/redis-dependency-before.log; evidence/redis-final-author.xml; evidence/pytest-redis-final-independent.xml; evidence/redis-final-independent-source.json; evidence/backend-policy-review.md
+
+Documentación: REDIS.md
+
+Revisión: QA y backend independientes del autor root.
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: 21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.
 
 ## OPS06
 
@@ -1389,7 +1895,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1407,15 +1921,23 @@ Problema: **Prioridad P1.** Docker instala `requirements_web.txt` con rangos abi
 
 Criterio original: un commit produce un artefacto identificable; pruebas y escaneo bloquean vulnerabilidades aplicables por encima del umbral acordado; rollback ensayado sin modificar destructivamente el esquema.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
+
+Commits: e8e0c44
+
+Pruebas: pendiente
+
+Evidencia: evidence/r05-followup-frozen-source.json; evidence/pytest-r05-frozen-candidate.xml
+
+Documentación: QA_R05.md
 
 Revisión: pendiente
 
-Bloqueo: no registrado
+Bloqueo: {"falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.", "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.", "responsable": "Usuario/operación", "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."}
 
 Observaciones: sin observaciones
 
@@ -1429,11 +1951,19 @@ CI instala el manifest desktop más pytest, pytest-cov y pytest-xdist. Resoluci�
 
 Criterio original: separar dependencias web, desktop y pruebas; job SaaS instala el mismo runtime bloqueado que Docker más dependencias de tests; runner limpio Python 3.11/3.12 recolecta toda la suite sin módulos faltantes; build valida la imagen real.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
 Revisión: pendiente
 
@@ -1451,11 +1981,19 @@ No se impone DATABASE_URL de pruebas ni schema/rollback/cleanup por caso. La fix
 
 Criterio original: rechazar URL no autorizada antes de conectar; BD PostgreSQL de tests y namespace por worker; migrar una vez y rollback/limpieza garantizados; cualquier fallo al crear fixture aborta explícitamente; ejecutar suite nunca cambia BD de desarrollo o producción.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
 Revisión: pendiente
 
@@ -1473,13 +2011,21 @@ Bootstrap crea tablas ORM, y en ausencia de alembic_version ejecuta stamp(head).
 
 Criterio original: migración desde vacío y actualización desde snapshots previos reales en PostgreSQL; fallo de DDL devuelve código no cero e impide release; comprobar schema, índices, constraints y políticas, además de número de versión. Probar restauración y rollback con datos sintéticos.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+
+Documentación: evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
+
+Revisión: Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.
 
 Bloqueo: no registrado
 
@@ -1495,13 +2041,21 @@ La migración añade role con `server_default='viewer'`; SQLEnum(UserRole) esper
 
 Criterio original: contrato de serialización único para enums, backfill de valores antiguos y mapeo correcto de propietarios; migración de snapshot con usuarios antiguos permite login y conserva permisos sin elevar privilegios.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+
+Documentación: evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
+
+Revisión: Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.
 
 Bloqueo: no registrado
 
@@ -1521,7 +2075,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1543,13 +2105,21 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: af177b1
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: CATALOGO.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Usuario aprobó Free10clientes,1planporcliente/día,10planestotalesgym/día; soporte desktop continúa. Fuente única y precios/periodo/mes separados. Integración/aceptación completa aún abierta.
 
 ## QA-07
 
@@ -1561,11 +2131,19 @@ Ruff y Bandit usan continue-on-error; ci-success no depende del job security; co
 
 Criterio original: baseline revisado de reglas relevantes y fallos de seguridad confirmados bloqueantes; gates de cobertura de código modificado y casos críticos; E2E SaaS sobre imagen candidata; exclusión explícita de venv/build/tests en métrica de producto.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
 Revisión: pendiente
 
@@ -1583,11 +2161,19 @@ Lectura y borrado dependen de pytest.created_id creado por otro test. En xdist c
 
 Criterio original: fixture por caso que crea/limpia recurso; ningún test depende de otro; usar asyncio.run o fixtures async; suite pasa serial, con orden aleatorio y con al menos dos workers sin omisiones por dependencia.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
 Revisión: pendiente
 
@@ -1605,13 +2191,21 @@ La mayor parte de integración usa api.app.create_app, mientras Railway arranca 
 
 Criterio original: flujos automatizados de propietario y cliente sobre la app/imagen que se publica: registro→onboarding→cliente→plan→PDF→portal; invitación→rol→revocación; checkout sandbox→webhook duplicado→estado; refresh/logout; accesibilidad teclado, validación visible, 390 px y desktop; estados vacíos/error/carga.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -1627,11 +2221,19 @@ Un test asume bits POSIX en Windows; 9 fallos iniciales vienen de read_text sin 
 
 Criterio original: encoding UTF-8 explícito; validación permisos acorde al SO; lock y manifests coherentes por target; reglas F821 y sintaxis bloqueantes. No convertir todos los 1976 diagnósticos Ruff en bugs de producto.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/repository-comparison.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
 Revisión: pendiente
 
@@ -1647,11 +2249,19 @@ Problema: `usuario_suscripcion.html:708-721` interpreta parámetros de URL de é
 
 Criterio original: El usuario puede ver una compra confirmada que el servidor o proveedor no han validado. La activación debe venir del estado persistido y verificable del backend. Este hallazgo se comparte con seguridad; no representa un problema puramente visual.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1667,11 +2277,19 @@ Problema: `usuario_perfil.html:102-105` promete aplicar notas de alergias, condi
 
 Criterio original: Una nota médica no constituye una regla de seguridad del generador. Eliminar inmediatamente la promesa incorrecta, distinguir preferencia y alergia estructurada, bloquear el flujo cuando no pueda respetarse una restricción de seguridad y someter el contrato a revisión profesional. No ofrecer protección de alergias como mejora de pago. Evidencia de código, sin experimento clínico.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1691,7 +2309,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1711,7 +2337,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1727,13 +2361,21 @@ Problema: Diseño móvil recorta acciones principales. `/suscripciones`: ancho d
 
 Criterio original: Capturas locales muestran precios/CTA fuera de pantalla, búsqueda casi sin espacio y PDF del historial inaccesible visualmente. Usar layouts por breakpoint, cabecera con espacio reservado, tablas con scroll accesible o tarjetas. No ocultar el desbordamiento global como sustituto.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -1751,7 +2393,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1771,7 +2421,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1787,13 +2445,21 @@ Problema: El manejador global Enter de `main.js:272-303` intercepta elementos in
 
 Criterio original: Prueba local: enfocar enlace Clientes y pulsar Enter dejó `/dashboard` y abrió el modal de cliente. Respetar la activación nativa de enlaces/botones; limitar atajos a controles concretos y evitar disparar acciones financieras o de guardado por Enter genérico.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -1807,13 +2473,21 @@ Problema: Accesibilidad: contraste insuficiente recurrente, icono de contraseña
 
 Criterio original: Corregir tokens, nombres, labels, botones semánticos, foco, Escape y avisos anunciables. Ya existe `:focus-visible` y reducción de movimiento en CSS del gimnasio (`styles.css:1983-1996`); extender una solución compartida a ambas interfaces. Los resultados automáticos no verifican por sí solos la operación con lector de pantalla.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -1831,7 +2505,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1851,7 +2533,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1871,7 +2561,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
@@ -1887,13 +2585,21 @@ Problema: Sin suscripción local, `suscripciones.html:344-353` muestra "Sin plan
 
 Criterio original: Genera incertidumbre sobre si se cobrará al usuario. Modelar sin plan/prueba/pago pendiente/activo/vencido/cancelado y mostrar proveedor, importe, fecha y acción que correspondan.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.
 
-Revisión: pendiente
+Commits: c45a71c
+
+Pruebas: pendiente
+
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md
+
+Documentación: CATALOGO.md
+
+Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
@@ -1907,13 +2613,21 @@ Problema: Una cuenta nueva mostró 10 membresías en configuración: cada uno de
 
 Criterio original: Observación reproducida en dos ejecuciones independientes de navegador. La carrera concreta es inferencia apoyada por código; seguridad/backend debe confirmarla. Inicializar de forma idempotente y limpiar duplicados con una migración revisada antes de permitir cambios de precio.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Revisión: pendiente
+Commits: e8a6806
+
+Pruebas: pendiente
+
+Evidencia: evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json
+
+Documentación: evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
+
+Revisión: Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.
 
 Bloqueo: no registrado
 
@@ -1927,11 +2641,19 @@ Problema: El perfil indica "Cambios de contraseña desde ajustes" (`usuario_perf
 
 Criterio original: Recuperación de contraseña y gestión de cuenta verificables; un contrato de validación compartido y errores por campo accesibles. Evitar que el usuario se dirija a una función inexistente.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: en_revision; validación: en_curso; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
-Evidencia: pendiente
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.
+
+Commits: 166038f88b211c52f0d149ce550880795361707c
+
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
+
+Evidencia: evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; evidence/A1-containment.xml; evidence/A1-containment-source.json
+
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md
 
 Revisión: pendiente
 
@@ -1951,7 +2673,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: af177b1
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: CATALOGO.md
 
 Revisión: pendiente
 
@@ -1971,10 +2701,74 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
 Evidencia: pendiente
+
+Documentación: pendiente
 
 Revisión: pendiente
 
 Bloqueo: no registrado
+
+Observaciones: sin observaciones
+
+## OPS08
+
+Fuente: [OPS08 - Configuración Railway posterior al 1 de diciembre de 2026](NUEVOS_HALLAZGOS.md).
+
+Problema: Config as Code obsoleto: el archivo Railway existente deja de estar soportado tras el corte anunciado.
+
+Criterio original: Inventario efectivo saneado, IaC compatible preparado y fijado, diff revisado, sintaxis y contratos validados; pre-deploy/digest/salud/secretos/volúmenes/rollback ensayados en staging autorizado antes del corte. Sin aplicar infraestructura ni contratar recursos por esta entrada.
+
+Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: pendiente
+
+Commits: pendiente
+
+Pruebas: pendiente
+
+Evidencia: pendiente
+
+Documentación: NUEVOS_HALLAZGOS.md
+
+Revisión: pendiente
+
+Bloqueo: no registrado
+
+Observaciones: Fuente primaria consultada2026-10-18; no cambia los92IDs originales ni autoriza aplicar IaC.
+
+## SEC01
+
+Fuente: [SEC01 - Licencias sin autoridad verificable](NUEVOS_HALLAZGOS.md).
+
+Problema: Activación pública deriva plan de prefijo, otorga365d y sobrescribehardware; offlineonline acepta falta de red sin licencia local demostrada.
+
+Criterio original: Ningún prefijo concede acceso; autoridad emitida y propietario verificados sin asociar por email; hardware ajeno no se sobrescribe; periodo/límites proceden de licencia emitida; revocación/caducidad/repetición seguros; caída de red no valida desconocidas; compatibilidad local existente y reconciliación con regresiones/revisión independientes.
+
+Estado: en_revision; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: pendiente
+
+Commits: 4d03300, f325fc4
+
+Pruebas: 19 fallos antes;40 aprobadas finales,7.98s; autoridad JWT persistida y Unicode rechazado
+
+Evidencia: evidence/license-security-before.xml; evidence/pytest-license-unicode-final.xml; evidence/license-independent-source.json
+
+Documentación: NUEVOS_HALLAZGOS.md; LICENCIAS.md
+
+Revisión: QA independiente
+
+Bloqueo: "Pendiente concurrencia PostgreSQL, puente remoto autenticado, autoridad HMAC y campos comerciales legacy; contencion local aceptada, sin despliegue"
 
 Observaciones: sin observaciones

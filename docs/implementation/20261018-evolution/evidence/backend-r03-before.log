@@ -1,0 +1,57 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+______________ test_bootstrap_returns_failure_when_upgrade_fails ______________
+tests\test_database_migrations.py:14: in test_bootstrap_returns_failure_when_upgrade_fails
+    assert db_bootstrap.main() == 1
+E   AssertionError: assert None == 1
+E    +  where None = <function main at 0x000001FE4C3F3060>()
+E    +    where <function main at 0x000001FE4C3F3060> = <module 'db_bootstrap' from 'F:\\MetodoBaseWeb-execution-20261018\\db_bootstrap.py'>.main
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running stamp_revision  -> 20261018_billing_integrity
+_____________ test_bootstrap_refuses_unversioned_existing_schema ______________
+tests\test_database_migrations.py:27: in test_bootstrap_refuses_unversioned_existing_schema
+    assert db_bootstrap.main() == 1
+E   AssertionError: assert None == 1
+E    +  where None = <function main at 0x000001FE4C3F3060>()
+E    +    where <function main at 0x000001FE4C3F3060> = <module 'db_bootstrap' from 'F:\\MetodoBaseWeb-execution-20261018\\db_bootstrap.py'>.main
+______________________ test_saas_factory_performs_no_ddl ______________________
+tests\test_database_migrations.py:41: in test_saas_factory_performs_no_ddl
+    ddl.assert_not_called()
+C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\unittest\mock.py:910: in assert_not_called
+    raise AssertionError(msg)
+E   AssertionError: Expected 'create_all' to not have been called. Called 1 times.
+E   Calls: [call(bind=Engine(sqlite:///C%3A/Users/Consu/AppData/Local/Temp/metodobase-test-xtv8i_en/main/suite.db))].
+---------------------------- Captured stderr call -----------------------------
+WARNI [web] [DB] create_all() issue (non-fatal if tables exist): Runtime DDL forbidden
+------------------------------ Captured log call ------------------------------
+WARNING  web:main_web.py:152 [DB] create_all() issue (non-fatal if tables exist): Runtime DDL forbidden
+_____________ test_membership_catalog_read_never_creates_defaults _____________
+tests\test_database_migrations.py:54: in test_membership_catalog_read_never_creates_defaults
+    assert listar_planes_suscripcion(db, "read-only-gym") == []
+E   AssertionError: assert [{'id': 1, 'n... 3500.0, ...}] == []
+E     
+E     Left contains 5 more items, first extra item: {'id': 1, 'nombre': '1 Semana', 'duracion_dias': 7, 'precio': 150.0, ...}
+E     Use -v to get more diff
+______________ test_onboarding_default_templates_are_idempotent _______________
+tests\test_database_migrations.py:73: in test_onboarding_default_templates_are_idempotent
+    assert db.query(PlanSuscripcion).count() == 5
+E   AssertionError: assert 10 == 5
+E    +  where 10 = count()
+E    +    where count = <sqlalchemy.orm.query.Query object at 0x000001FE505C1C10>.count
+E    +      where <sqlalchemy.orm.query.Query object at 0x000001FE505C1C10> = query(<class 'web.database.models.PlanSuscripcion'>)
+E    +        where query = <sqlalchemy.orm.session.Session object at 0x000001FE5171E930>.query
+============================== warnings summary ===============================
+tests/test_database_migrations.py::test_saas_factory_performs_no_ddl
+  F:\MetodoBaseWeb-execution-20261018\web\routes\team.py:76: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    class TeamMemberResponse(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_database_migrations.py::test_bootstrap_returns_failure_when_upgrade_fails
+FAILED tests/test_database_migrations.py::test_bootstrap_refuses_unversioned_existing_schema
+FAILED tests/test_database_migrations.py::test_saas_factory_performs_no_ddl
+FAILED tests/test_database_migrations.py::test_membership_catalog_read_never_creates_defaults
+FAILED tests/test_database_migrations.py::test_onboarding_default_templates_are_idempotent
+5 failed, 1 warning in 3.76s
