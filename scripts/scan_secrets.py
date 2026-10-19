@@ -13,7 +13,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import tempfile
 
@@ -37,6 +36,7 @@ def main() -> int:
         cwd=ROOT, check=True, capture_output=True)
     paths = sorted(set(value.decode("utf-8") for value in result.stdout.split(b"\0") if value))
     source_hashes = {}
+    encoding_transforms = {}
     with tempfile.TemporaryDirectory(prefix="metodobase-secrets-") as temporary:
         workspace = Path(temporary)
         snapshot = workspace / "snapshot"
@@ -49,8 +49,22 @@ def main() -> int:
                 raise ValueError("Deliverable contains a symlink/outside file: " + name)
             destination = snapshot / name
             destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, destination)
-            source_hashes[name] = hashlib.sha256(destination.read_bytes()).hexdigest()
+            content = source.read_bytes()
+            source_hashes[name] = hashlib.sha256(content).hexdigest()
+            # Gitleaks treats BOM UTF16 as binary and misses ASCII secrets in
+            # it. Transcode only the private snapshot; retain original hashes.
+            encoding = None
+            if content.startswith((b"\xff\xfe\x00\x00", b"\x00\x00\xfe\xff")):
+                encoding = "utf-32"
+            elif content.startswith((b"\xff\xfe", b"\xfe\xff")):
+                encoding = "utf-16"
+            elif content.startswith(b"\xef\xbb\xbf"):
+                encoding = "utf-8-sig"
+            if encoding:
+                content = content.decode(encoding).encode("utf-8")
+                encoding_transforms[name] = {"source_encoding": encoding,
+                    "scanner_encoding": "utf-8", "scanner_sha256": hashlib.sha256(content).hexdigest()}
+            destination.write_bytes(content)
         raw_report = workspace / "raw-redacted.json"
         empty_ignore = workspace / "empty.gitleaksignore"
         empty_ignore.write_text("", encoding="utf-8")
@@ -82,7 +96,7 @@ def main() -> int:
         "binary_sha256": hashlib.sha256(tool.read_bytes()).hexdigest(),
         "scope": "tracked and unignored deliverable tree; no git history or ignored files",
         "exit_code": scan.returncode, "source_stable": not changed, "changed_files": changed,
-        "files": source_hashes, "findings": findings},
+        "files": source_hashes, "encoding_transforms": encoding_transforms, "findings": findings},
         ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Gitleaks {version}: {len(source_hashes)} files, {len(findings)} findings; values withheld")
     return 2 if changed else (1 if findings else scan.returncode)

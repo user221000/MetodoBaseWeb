@@ -11,7 +11,7 @@ id = "generic-api-key"
     [[rules.allowlists]]
     description = "SHA256 file fingerprints in reviewed execution evidence, never arbitrary JSON values"
     condition = "AND"
-    paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/(?:[^/]*-source(?:-(?:before|after))?|[^/]*-hashes|secrets-tree-(?:initial|triaged|final)|ux/subscription-independent-source)\.json$''']
+    paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/(?:[^/]*-source(?:-(?:before|after))?|[^/]*-hashes|secrets-tree-(?:initial|triaged|final)|ux/(?:subscription-independent-source|frontend-freeze-source|frontend-independent-source))\.json$''']
     regexTarget = "line"
     regexes = ['''^\s*"[^"\r\n]+\.(?:py|js|html|css|txt|lock|toml|yml|ini|json)"\s*:\s*"[a-f0-9]{64}",?\s*$''']
 
