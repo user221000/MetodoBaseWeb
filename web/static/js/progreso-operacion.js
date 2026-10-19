@@ -21,7 +21,7 @@
       busy=true;status='saving';const ticket=epoch;
       try{
         emit();const result=await write(intent.key,JSON.parse(intent.serialized));assert(ticket);
-        if(!matches(result,intent.payload)){status='conflict';throw fail('progress_version_conflict');}
+        if(!matches(result,intent.payload,intent.key)){status='conflict';throw fail('progress_version_conflict');}
         record=result;status='confirmed';return result;
       }catch(error){assert(ticket);if(status!=='conflict')status='unconfirmed';throw error;}
       finally{if(!closed&&ticket===epoch){busy=false;emit();}}
@@ -32,7 +32,7 @@
       try{
         emit();const result=await read(intent.key);assert(ticket);
         if(result===null){record=null;status='missing';return null;}
-        if(!matches(result,intent.payload)){record=result;status='conflict';throw fail('progress_version_conflict');}
+        if(!matches(result,intent.payload,intent.key)){record=result;status='conflict';throw fail('progress_version_conflict');}
         record=result;status='confirmed';return result;
       }catch(error){assert(ticket);if(status!=='conflict')status='unconfirmed';throw error;}
       finally{if(!closed&&ticket===epoch){busy=false;emit();}}

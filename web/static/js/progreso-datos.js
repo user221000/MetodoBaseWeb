@@ -30,7 +30,7 @@
     if(typeof value!=='number'||!Number.isFinite(value))throw invalid('Escribe un valor finito para '+name+'.');return value;
   }
   function measurement(input,today){
-    date(today);if(typeof input.source_profile_id!=='string'||!input.source_profile_id||input.source_profile_id.length>128)throw invalid('Elige explícitamente un perfil propio.');date(input.measured_on);if(input.measured_on>today)throw invalid('La medición no puede tener una fecha futura.');
+    date(today);if(typeof input.source_profile_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(input.source_profile_id))throw invalid('Elige explícitamente un perfil propio habilitado para registrar.');date(input.measured_on);if(input.measured_on>today)throw invalid('La medición no puede tener una fecha futura.');
     const values={};for(const key of Object.keys(units)){const value=number(input.values?.[key],key);if(value===null)continue;
       if((key==='peso_kg'&&(value<20||value>300))||(key==='grasa_corporal_pct'&&(value<3||value>60))||(key==='masa_magra_kg'&&(value<=0||value>300)))throw invalid('El valor de '+key+' está fuera del rango técnico admitido.');values[key]=value;}
     if(!Object.keys(values).length)throw invalid('Indica al menos una medida explícita.');
@@ -42,7 +42,7 @@
     if(input.ongoing){if(input.through_date!==null)throw invalid('El permiso continuo no lleva una fecha final.');}
     else{date(input.through_date);if(input.through_date<input.from_date)throw invalid('La fecha final debe ser posterior o igual a la inicial.');}
     const measures=['weight','body_fat','lean_mass'].some(key=>input.categories[key]);
-    if(measures&&(typeof input.source_profile_id!=='string'||!input.source_profile_id||input.source_profile_id.length>128))throw invalid('Elige el perfil personal cuyas medidas autorizas.');
+    if(measures&&(typeof input.source_profile_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(input.source_profile_id)))throw invalid('Elige el perfil personal habilitado cuyas medidas autorizas.');
     return{source_profile_id:measures?input.source_profile_id:null,categories:{...input.categories},from_date:input.from_date,through_date:input.through_date,ongoing:input.ongoing,protocol:'progress_share_v1'};
   }
   function observed(completed,registered){

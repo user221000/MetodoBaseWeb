@@ -5,21 +5,23 @@
   const categoryLabels=Object.freeze({weight:'Peso',body_fat:'Grasa corporal',lean_mass:'Masa magra',completion:'Contadores de consumos registrados y completados'});
   function node(tag,text,className){const value=document.createElement(tag);if(text!==undefined)value.textContent=text;if(className)value.className=className;return value;}
   function civil(value){if(value===null)return'No verificada';ProgresoDatos.date(value);return value;}
-  function instant(value){if(value===null)return'No disponible';if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T.*Z$/.test(value)||!Number.isFinite(Date.parse(value)))throw new Error('La fecha de registro requiere revisión.');return value+' (UTC)';}
+  function instant(value){if(value===null)return'No disponible';if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|\+00:00)$/.test(value)||!Number.isFinite(Date.parse(value)))throw new Error('La fecha de registro requiere revisión.');ProgresoDatos.date(value.slice(0,10));return value+' (UTC)';}
   function figure(value,unit){return typeof value==='number'&&Number.isFinite(value)?String(value)+' '+unit:'No registrada';}
   function table(target,caption,headings){
     const wrap=node('div',undefined,'progress-table-wrap');wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label',caption);
     const value=node('table');value.append(node('caption',caption));const head=node('thead'),row=node('tr');for(const title of headings){const th=node('th',title);th.scope='col';row.append(th);}head.append(row);const body=node('tbody');value.append(head,body);wrap.append(value);target.replaceChildren(wrap);return body;
   }
-  function measurements(target,rows,{caption='Medidas registradas',withdraw=null}={}){
+  function measurements(target,rows,{caption='Medidas registradas',withdraw=null,edit=null,metrics:visibleMetrics=Object.keys(labels)}={}){
     if(!Array.isArray(rows))throw new Error('Las medidas requieren revisión.');
+    if(!Array.isArray(visibleMetrics)||!visibleMetrics.length||new Set(visibleMetrics).size!==visibleMetrics.length||visibleMetrics.some(key=>!Object.hasOwn(labels,key)))throw new Error('El alcance de las medidas requiere revisión.');
     if(!rows.length){target.replaceChildren(node('p','No hay medidas disponibles en este alcance.'));return;}
-    const body=table(target,caption,['Fecha de medición','Fuente','Peso (kg)','Grasa corporal (%)','Masa magra (kg)','Fecha de registro','Estado']);
+    const body=table(target,caption,['Fecha de medición','Fuente',...visibleMetrics.map(key=>labels[key]+' ('+ProgresoDatos.units[key]+')'),'Fecha de registro','Estado']);
     for(const row of rows){
       const tr=node('tr');tr.append(node('td',civil(row.measuredOn)),node('td',row.sourceKind==='self_reported'?'Declarada por la persona':'Histórica: fuente no verificada'));
-      for(const metric of Object.keys(labels))tr.append(node('td',figure(row.values?.[metric],ProgresoDatos.units[metric])));
+      for(const metric of visibleMetrics)tr.append(node('td',figure(row.values?.[metric],ProgresoDatos.units[metric])));
       tr.append(node('td',instant(row.recordedAt)));const state=node('td',row.withdrawn?'Retirada':'Registrada');
       if(withdraw&&row.canWithdraw===true&&!row.withdrawn){const button=node('button','Retirar esta medida','secondary');button.type='button';button.addEventListener('click',()=>withdraw(row));state.append(node('p'),button);}tr.append(state);body.append(tr);
+      if(edit&&row.canEdit===true&&!row.withdrawn){const button=node('button','Preparar corrección','secondary');button.type='button';button.addEventListener('click',()=>edit(row));state.append(node('p'),button);}
     }
   }
   function completion(target,rows,{caption='Marcas sobre consumos registrados'}={}){

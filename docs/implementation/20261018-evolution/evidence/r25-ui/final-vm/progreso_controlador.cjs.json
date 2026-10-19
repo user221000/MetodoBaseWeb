@@ -1,0 +1,55 @@
+{
+  "scope": "Shared context lifecycle; API is an in-memory double, not HTTP32",
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "case": "No read or render before canonical context starts",
+      "passed": true
+    },
+    {
+      "case": "Busy is set before verification awaits; duplicate action is rejected",
+      "passed": true
+    },
+    {
+      "case": "A same-document session event clears registered health state synchronously",
+      "passed": true
+    },
+    {
+      "case": "Late success cannot render in a replacement account",
+      "passed": true
+    },
+    {
+      "case": "Late transport error cannot become an error message for another account",
+      "passed": true
+    },
+    {
+      "case": "Canonical identity change is detected even without a browser event",
+      "passed": true
+    },
+    {
+      "case": "Controls that invalidate synchronously cannot start a request",
+      "passed": true
+    },
+    {
+      "case": "Invalidation while restoring controls prevents a successful stale continuation",
+      "passed": true
+    },
+    {
+      "case": "Known auth Storage events invalidate; unrelated legacy Storage is not read or erased",
+      "passed": true
+    },
+    {
+      "case": "Pagehide clears private state and cannot restart the old lifecycle",
+      "passed": true
+    },
+    {
+      "case": "A resource scope invalidates its context separately from sibling resources",
+      "passed": true
+    },
+    {
+      "case": "Mutation ambiguity is returned once without an automatic replay",
+      "passed": true
+    }
+  ]
+}

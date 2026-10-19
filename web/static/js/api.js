@@ -741,10 +741,11 @@ const Api = (() => {
     exportarDatos: (cursors = {}, context) => {
       const params = new URLSearchParams({limit:'100'});
       const integerCursors = ['profile','plan','measurement'];
-      const uuidCursors = ['purchase','generation','member_link'];
+      const uuidCursors = ['purchase','generation','member_link','progress_consent'];
       for (const name of [...integerCursors,...uuidCursors,'diary']) {
         const value = cursors[name];
         if (value == null) continue;
+        if (name === 'progress_consent' && (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value))) throw new Error('No se pudo continuar la descarga. Empieza una descarga nueva.');
         if (name === 'diary') _personalDay(value);
         else if (integerCursors.includes(name) ? !Number.isSafeInteger(value) || value < 0 : typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
           throw new Error('No se pudo continuar la descarga. Empieza una descarga nueva.');
@@ -895,6 +896,86 @@ const Api = (() => {
     return request(method, path, body, {'Cache-Control':'no-store'});
   }
 
+  function _progressInvalid() { return Object.assign(new Error('Vuelve a consultar el estado de progreso antes de continuar.'), {code:'progress_invalid_input'}); }
+  function _progressUUID(value) {
+    if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)) throw _progressInvalid();
+    return value;
+  }
+  function _progressVersion(value, initial = false) {
+    if (!Number.isSafeInteger(value) || value < (initial ? 0 : 1) || value > 2147483647) throw _progressInvalid();
+    return value;
+  }
+  function _progressRange(params, range) {
+    if (range == null) return;
+    if (!range || Object.keys(range).length !== 2 || typeof range.from !== 'string' || typeof range.through !== 'string') throw _progressInvalid();
+    _personalDay(range.from); _personalDay(range.through);
+    const days=(Date.parse(range.through+'T00:00:00Z')-Date.parse(range.from+'T00:00:00Z'))/86400000;
+    if (days < 0 || days >= 62) throw _progressInvalid();
+    params.set('from',range.from); params.set('through',range.through);
+  }
+  function _progressClient(client) {
+    if (typeof client !== 'string' || !client || client.length > 128) throw _progressInvalid();
+    return '/api/clientes/'+encodeURIComponent(client);
+  }
+  function _progressConsent(link) { return '/api/usuario/vinculos/'+_progressUUID(link)+'/progreso/consentimiento'; }
+  function _progressRequest(method,path,body,context) {
+    const pair=_assertSnapshot(context);
+    let safeBody=null;
+    if(body!==null){
+      if(!body || typeof body!=='object' || Array.isArray(body)) throw _progressInvalid();
+      const encoded=JSON.stringify(body,(_key,value)=>{
+        if((typeof value==='number' && !Number.isFinite(value)) || ['undefined','function','symbol','bigint'].includes(typeof value)) throw _progressInvalid();
+        return value;
+      });
+      if(new TextEncoder().encode(encoded).byteLength>8192) throw _progressInvalid();
+      safeBody=JSON.parse(encoded);
+    }
+    _assertPair(context,pair);
+    // Writes are one-shot and bound to the exact access; they never request an
+    // MFA grant, rotate credentials, or replay after a401/ambiguous response.
+    return request(method,path,safeBody,{},true,{snapshot:context,...(method==='GET'?{}:{pair})});
+  }
+  const progreso = {
+    contexto: () => vinculos.contexto(),
+    validarContexto: context => vinculos.validarContexto(context),
+    verificarContexto: context => vinculos.verificarContexto(context),
+    bootstrap: (context,after=null) => {
+      const params=new URLSearchParams({limit:'100'});
+      if(after!==null){if(typeof after!=='string'||!after.length||after.length>36)throw _progressInvalid();params.set('after',after);}
+      return _progressRequest('GET','/api/usuario/progreso/contexto?'+params,null,context);
+    },
+    mediciones: (profile,context,{range=null,cursor=null}={}) => {
+      const params=new URLSearchParams({source_profile_id:_progressUUID(profile),limit:'100'});_progressRange(params,range);
+      if(cursor!==null){if(typeof cursor!=='string'||!cursor.length||cursor.length>512)throw _progressInvalid();params.set('cursor',cursor);}
+      return _progressRequest('GET','/api/usuario/progreso/mediciones?'+params,null,context);
+    },
+    medicion: (key,context) => _progressRequest('GET','/api/usuario/progreso/mediciones/'+_progressUUID(key),null,context),
+    guardarMedicion: (key,body,context) => {
+      _progressVersion(body?.expected_version,true);_progressUUID(body?.source_profile_id);_personalDay(body?.measured_on);
+      return _progressRequest('PUT','/api/usuario/progreso/mediciones/'+_progressUUID(key),body,context);
+    },
+    retirarMedicion: (key,version,context) => _progressRequest('POST','/api/usuario/progreso/mediciones/'+_progressUUID(key)+'/retirar',{expected_version:_progressVersion(version)},context),
+    completados: (context,range=null) => {
+      const params=new URLSearchParams();_progressRange(params,range);
+      return _progressRequest('GET','/api/usuario/progreso/completados'+(params.size?'?'+params:''),null,context);
+    },
+    consentimientos: (context,after=null) => _progressRequest('GET','/api/usuario/progreso/consentimientos?limit=100'+(after===null?'':'&after='+_progressUUID(after)),null,context),
+    consentimiento: (link,context) => _progressRequest('GET',_progressConsent(link),null,context),
+    guardarConsentimiento: (link,body,context) => {
+      _progressVersion(body?.expected_version,true);_progressVersion(body?.expected_link_version);
+      if(body.expected_version===0 ? body.expected_consent_id!==null : !_progressUUID(body.expected_consent_id)) throw _progressInvalid();
+      return _progressRequest('PUT',_progressConsent(link),body,context);
+    },
+    retirarConsentimiento: (link,id,version,context) => _progressRequest('POST',_progressConsent(link)+'/retirar',{expected_consent_id:_progressUUID(id),expected_version:_progressVersion(version)},context),
+    profesional: (client,context,after=null) => _progressRequest('GET',_progressClient(client)+'/progreso?limit=100'+(after===null?'':'&after='+_progressVersion(after)),null,context),
+    contextoCompartido: (client,link,context) => _progressRequest('GET',_progressClient(client)+'/vinculacion/'+_progressUUID(link)+'/progreso/contexto',null,context),
+    compartido: (client,link,expected,context,{range=null,after=null}={}) => {
+      const params=new URLSearchParams({expected_consent_id:_progressUUID(expected.id),expected_version:String(_progressVersion(expected.version)),expected_link_version:String(_progressVersion(expected.linkVersion)),limit:'100'});
+      _progressRange(params,range);if(after!==null)params.set('after',_progressUUID(after));
+      return _progressRequest('GET',_progressClient(client)+'/vinculacion/'+_progressUUID(link)+'/progreso?'+params,null,context);
+    },
+  };
+
   const team = {
     list: () => request('GET', '/api/gym/team'),
     invite: (data) => mfa.perform('POST', '/api/gym/team/invite', data),
@@ -904,6 +985,6 @@ const Api = (() => {
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
     accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
   };
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, team, mfa, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, clearTokens, saveTokens };
 })();
 

@@ -2,8 +2,8 @@
 (function () {
   'use strict';
   var section=document.getElementById('personal-data-section');if(!section)return;
-  var names=['profiles','plans','measurements','purchases','generation_requests','personal_diary','member_links'];
-  var cursorNames={profiles:'profile',plans:'plan',measurements:'measurement',purchases:'purchase',generation_requests:'generation',personal_diary:'diary',member_links:'member_link'};
+  var names=['profiles','plans','measurements','purchases','generation_requests','personal_diary','member_links','progress_consents'];
+  var cursorNames={profiles:'profile',plans:'plan',measurements:'measurement',purchases:'purchase',generation_requests:'generation',personal_diary:'diary',member_links:'member_link',progress_consents:'progress_consent'};
   var contextApi=section.dataset.exportContext==='recipient' ? Api.vinculos : Api.usuario;
   var uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var status=document.getElementById('privacy-status'),errorBox=document.getElementById('privacy-error');
@@ -26,7 +26,7 @@
     catch(error){if(ticket===epoch && !invalid)invalidate(error);throw error;}
   }
   function protocol(){throw new Error('No pudimos verificar esta parte. Vuelve a intentarlo; no se preparó un archivo nuevo.');}
-  function recordId(value,name){return ['purchases','generation_requests','personal_diary','member_links'].includes(name) ? typeof value==='string' && uuid.test(value) : Number.isSafeInteger(value) && value>0;}
+  function recordId(value,name){if(name==='progress_consents')return typeof value==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value);return ['purchases','generation_requests','personal_diary','member_links'].includes(name) ? typeof value==='string' && uuid.test(value) : Number.isSafeInteger(value) && value>0;}
   function volume(value){
     var text=JSON.stringify(value),bytes=0;
     for(var character of text){var point=character.codePointAt(0);bytes+=point<128?1:point<2048?2:point<65536?3:4;}
@@ -43,6 +43,15 @@
     var parts=value.split('-').map(Number),year=parts[0],month=parts[1],day=parts[2],leap=year%4===0 && (year%100!==0 || year%400===0);
     return year>=1 && month>=1 && month<=12 && day>=1 && day<=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31][month-1];
   }
+  function progressConsentRecord(record){
+    var allowed=['id','link_id','version','event','protocol','link_version','source_profile_id','categories','from_date','through_date','ongoing','created_at'];
+    var categories=['weight','body_fat','lean_mass','completion'];
+    if(Object.keys(record).length!==allowed.length || Object.keys(record).some(function(key){return !allowed.includes(key);}) || !recordId(record.link_id,'progress_consents') || !Number.isSafeInteger(record.version) || record.version<1 || record.version>2147483647 || !Number.isSafeInteger(record.link_version) || record.link_version<1 || record.link_version>2147483647 || !['grant','withdraw'].includes(record.event) || record.protocol!=='progress_share_v1')protocol();
+    if(!record.categories || typeof record.categories!=='object' || Array.isArray(record.categories) || Object.keys(record.categories).length!==categories.length || categories.some(function(key){return typeof record.categories[key]!=='boolean';}) || !categories.some(function(key){return record.categories[key];}))protocol();
+    if(record.source_profile_id!==null && !recordId(record.source_profile_id,'progress_consents'))protocol();
+    if(categories.slice(0,3).some(function(key){return record.categories[key];}) && record.source_profile_id===null)protocol();
+    if(!diaryDate(record.from_date) || typeof record.ongoing!=='boolean' || (record.ongoing ? record.through_date!==null : !diaryDate(record.through_date) || record.through_date<record.from_date) || typeof record.created_at!=='string' || !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,9})?(?:Z|\+00:00)$/.test(record.created_at) || !diaryDate(record.created_at.slice(0,10)) || !Number.isFinite(Date.parse(record.created_at)))protocol();
+  }
   if(!section.querySelector('[data-export-count="personal_diary"]')){
     var countRow=document.createElement('div'),countLabel=document.createElement('dt'),countValue=document.createElement('dd');
     countLabel.textContent='Días de diario';countValue.dataset.exportCount='personal_diary';countValue.textContent='0';countRow.append(countLabel,countValue);document.getElementById('privacy-counts').append(countRow);
@@ -51,6 +60,11 @@
     var linkRow=document.createElement('div'),linkLabel=document.createElement('dt'),linkValue=document.createElement('dd');
     linkLabel.textContent='Vínculos activos propios';linkValue.dataset.exportCount='member_links';linkValue.textContent='0';linkRow.append(linkLabel,linkValue);document.getElementById('privacy-counts').append(linkRow);
   }
+  if(!section.querySelector('[data-export-count="progress_consents"]')){
+    var consentRow=document.createElement('div'),consentLabel=document.createElement('dt'),consentValue=document.createElement('dd');
+    consentLabel.textContent='Eventos de permisos de progreso';consentValue.dataset.exportCount='progress_consents';consentValue.textContent='0';consentRow.append(consentLabel,consentValue);document.getElementById('privacy-counts').append(consentRow);
+  }
+  var consentScope=document.createElement('p');consentScope.className='privacy-detail';consentScope.textContent='Incluye metadatos de tus propios permisos de progreso y sus retiradas. Un evento histórico no demuestra autorización vigente ni incorpora los datos de salud compartidos.';section.append(consentScope);
   if(section.dataset.exportContext!=='recipient'){
     var linkScope=document.createElement('p');linkScope.className='privacy-detail';
     linkScope.textContent='La descarga también incluye metadatos de tus vínculos activos propios. Este conjunto no incorpora los planes o PDF del gimnasio, su cartera ni relaciones revocadas.';section.append(linkScope);
@@ -76,10 +90,10 @@
     names.forEach(function(name){value.done[name]=false;value.counts[name]=0;value.pages[name]=0;value.seen[name]=[];});return value;
   }
   function verified(data,expected){
-    if(!data || data.format_version!==1 || typeof data.exported_at!=='string' || !Number.isFinite(Date.parse(data.exported_at)) || !data.account || data.account.id!==expected || !Object.prototype.hasOwnProperty.call(data,'personal_subscription') || !Object.prototype.hasOwnProperty.call(data,'canonical_subscription') || !data.scope || data.scope.consistency!=='live_keyset_pages' || data.scope.coverage!=='account_persisted_personal_space_and_active_member_link_metadata' || data.scope.member_links!=='active_recipient_metadata_only' || typeof data.scope.personal_space!=='boolean' || typeof data.scope.professional_membership!=='boolean' || !Number.isInteger(data.scope.page_size) || data.scope.page_size<1 || data.scope.page_size>200 || !Array.isArray(data.scope.excluded_categories) || !data.scope.excluded_categories.length || !data.scope.excluded_categories.every(function(value){return typeof value==='string';})){
+    if(!data || data.format_version!==1 || typeof data.exported_at!=='string' || !Number.isFinite(Date.parse(data.exported_at)) || !data.account || data.account.id!==expected || !Object.prototype.hasOwnProperty.call(data,'personal_subscription') || !Object.prototype.hasOwnProperty.call(data,'canonical_subscription') || !data.scope || data.scope.consistency!=='live_keyset_pages' || data.scope.coverage!=='account_persisted_personal_space_active_member_links_and_own_progress_consents' || data.scope.member_links!=='active_recipient_metadata_only' || data.scope.progress_consents!=='own_append_only_scope_metadata' || typeof data.scope.personal_space!=='boolean' || typeof data.scope.professional_membership!=='boolean' || !Number.isInteger(data.scope.page_size) || data.scope.page_size<1 || data.scope.page_size>200 || !Array.isArray(data.scope.excluded_categories) || !data.scope.excluded_categories.length || !data.scope.excluded_categories.every(function(value){return typeof value==='string';})){
       if(data && data.account && data.account.id!==expected)throw changed();protocol();
     }
-    if(volume(data)>933888)protocol();
+    if(volume(data)>1064960)protocol();
     var metadataOnlyOwner=section.dataset.exportContext==='recipient' && pageContext && pageContext.me.tipo==='gym' && pageContext.me.role==='owner' && !pageContext.me.team_gym_id;
     if(metadataOnlyOwner && data.scope.personal_space)protocol();
     names.forEach(function(name){
@@ -90,8 +104,9 @@
       var cursorValues=name==='personal_diary' ? collection.records.map(function(record){if(!diaryDate(record.local_date))protocol();return record.local_date;}) : ids;
       if(name==='personal_diary' && cursorValues.some(function(value,index){return index>0 && value<=cursorValues[index-1];}))protocol();
       if(!data.scope.personal_space && ['profiles','plans','measurements','personal_diary'].includes(name) && ids.length)protocol();
-      if(section.dataset.exportContext==='recipient' && (!data.scope.personal_space || metadataOnlyOwner) && name!=='member_links' && ids.length)protocol();
+      if(section.dataset.exportContext==='recipient' && (!data.scope.personal_space || metadataOnlyOwner) && !['member_links','progress_consents'].includes(name) && ids.length)protocol();
       if(name==='member_links')collection.records.forEach(memberRecord);
+      if(name==='progress_consents')collection.records.forEach(progressConsentRecord);
       var after=collection.next_after;
       if(after!==null && (!(name==='personal_diary' ? diaryDate(after) : recordId(after,name)) || !cursorValues.length || after!==cursorValues[cursorValues.length-1]))protocol();
       if(!state.done[name]){
