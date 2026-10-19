@@ -145,10 +145,18 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-postgres-rls.xml
       - name: Reviewed tenant activation, provider preparation and real onboarding under RLS
         run: python -X utf8 tests/run_isolated.py tests/integration_tenant_activation.py tests/integration_provider_subjects.py tests/integration_onboarding_postgres.py tests/integration_invitation_tenant_postgres.py -q --tb=short --junitxml=pytest-postgres-channels.xml
+      - name: Gym quota migration preserves the reviewed source and rejects drift
+        run: python -X utf8 tests/run_isolated.py tests/integration_gym_quota_migrations.py -q --tb=short --junitxml=pytest-postgres-gym-migrations.xml
+      - name: Real factory privacy export preserves personal scope and performs no writes
+        run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
+      - name: UTC typed writes preserve physical schema and historical values in both session zones
+        run: python -X utf8 tests/run_isolated.py tests/integration_utc_datetime.py tests/integration_utc_datetime_review.py -q --tb=short --junitxml=pytest-postgres-utc.xml
       - name: Two-process HTTP license activation retains hardware ownership and expiry
         run: python -X utf8 tests/run_isolated.py tests/integration_license_postgres.py -q --tb=short --junitxml=pytest-postgres-licenses.xml
       - name: Last-credit and subscription GET races across PostgreSQL processes
         run: python -X utf8 tests/run_isolated.py tests/integration_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-quota.xml
+      - name: Gym caps, replay and process-crash recovery across both real HTTP adapters
+        run: python -X utf8 tests/run_isolated.py tests/integration_gym_caps_http_postgres.py tests/integration_gym_recovery_review_postgres.py tests/integration_gym_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-gym-quota.xml
       - name: Encrypted PostgreSQL and object restoration into an empty owned database
         run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py -q --tb=short --junitxml=pytest-postgres-restore.xml
       - uses: actions/upload-artifact@v4

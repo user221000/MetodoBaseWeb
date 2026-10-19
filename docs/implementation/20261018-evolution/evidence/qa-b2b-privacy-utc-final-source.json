@@ -1,0 +1,62 @@
+{
+  "status": "Frozen QA8 followup accepted locally after independent directed gates, corrected compensation/logging and both broad candidate orders. Coordinator owns commit.",
+  "files": {
+    ".github/workflows/ci.yml": "4da03ac13c8955535b5f31535b828647453853ff0622223c24cc81dae7cc1571",
+    "tests/integration_backup_restore_postgres.py": "b8529ca20c06ec6528161b4f82b1e5b0eaa6d57ce899e8d718aa01b918fd6470",
+    "tests/integration_gym_caps_http_postgres.py": "54c98b4412d2d4cc94d8b3ea9b61c1d27b77ac3c0e8302265e465424cd008de2",
+    "tests/integration_gym_recovery_review_postgres.py": "88497225422897f8320cf104248c4e0a398cfbd5607e3266f757917ab5ba3601",
+    "tests/integration_utc_datetime_review.py": "32c418187dd15719e6d09c93d4443b94086a4a8468d7a50c7c7a88616ee72ccc",
+    "tests/integration_privacy_composition_postgres.py": "d012032485128eec3a9292ee64fa393ddc69a168db0d88e2a57470ed5b2246c8",
+    "tests/test_audit_remaining_fixes.py": "ec21c865c3c8cc8217ce89035640e81b73a7fe5ea3f516dea7a3869b9810c163",
+    "docs/implementation/20261018-evolution/QA_R05.md": "e7a63d00322467480f9e759e70e7e2d93d597bbfe63d0dc13543dc6f1e0e614d"
+  },
+  "serial": {
+    "passed": 1621,
+    "skipped": [
+      {
+        "class": "tests.test_object_storage",
+        "name": "test_symlink_cannot_redirect_a_private_document",
+        "reason": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+      }
+    ],
+    "failures": [],
+    "junit": "pytest-web-candidate-containment-final.xml"
+  },
+  "shuffle": {
+    "passed": 1621,
+    "skipped": [
+      {
+        "class": "tests.test_object_storage",
+        "name": "test_symlink_cannot_redirect_a_private_document",
+        "reason": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+      }
+    ],
+    "failures": [],
+    "junit": "pytest-web-candidate-containment-shuffle.xml"
+  },
+  "python_dependency_sources": 387,
+  "frontend_sources": 55,
+  "stable_both_orders": true,
+  "same_sources_both_orders": true,
+  "evidence": [
+    "pytest-gym-quota-independent.xml",
+    "pytest-gym-worker-nutrition-independent.xml",
+    "pytest-gym-migrations-independent.xml",
+    "pytest-gym24-restore-independent.xml",
+    "pytest-utc-helper-independent.xml",
+    "pytest-privacy-composition-independent.xml",
+    "pytest-error-compensation-final-independent.xml",
+    "web-candidate-containment-final-source.json",
+    "web-candidate-containment-shuffle-source.json",
+    "ux/privacy-export-independent-source.json",
+    "ci-b2b-privacy-utc-static-review.json"
+  ],
+  "limits": [
+    "One Windows symlink-creation permission skip in each ordinary run; mandatory Linux CI must execute this boundary.",
+    "Local Windows Python3.12 and PostgreSQL17.11 only; no remote CI, Linux image or real Redis execution claimed.",
+    "Directed gates overlap ordinary cases and are not summed as unique tests.",
+    "B2B caps8 HTTP PG cases replace only nutrition/PDF computation; actual nutrition and PDF checked separately.",
+    "UTC helper reviewed without model adoption or historical data repair; restore24 is a small synthetic technical measurement, not business RPO/RTO approval.",
+    "Privacy export excludes professional portfolio, provider identifiers/credentials, binaries and browser-local diary; axe UI scope is only new export controls."
+  ]
+}

@@ -293,10 +293,46 @@ class TestM03HardcodedConstants:
         assert "PERIODO_SEMANA_DIAS" in source
         assert "PERIODO_ANIO_DIAS" in source
 
-    def test_invitation_expiry_uses_constant(self):
-        """web/routes/team.py should use INVITATION_EXPIRY_DAYS."""
-        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "team.py").read_text(encoding="utf-8")
-        assert "INVITATION_EXPIRY_DAYS" in source
+    def test_invitation_expiry_uses_constant(self, test_gym_user, monkeypatch):
+        """An extracted service must persist the configured expiry and enforce it."""
+        from datetime import datetime, timedelta, timezone
+        from fastapi import HTTPException
+        from sqlalchemy.orm import Session
+        from web.database.engine import get_engine
+        from web.database.models import Subscription, Usuario, UserRole
+        from web.services import team_invitation_service as invitations
+
+        fixed = datetime.now(timezone.utc).replace(microsecond=123456)
+
+        class InvitationClock(datetime):
+            instant = fixed
+
+            @classmethod
+            def now(cls, tz=None):
+                return cls.instant.astimezone(tz) if tz else cls.instant.replace(tzinfo=None)
+
+        days = invitations.INVITATION_EXPIRY_DAYS + 2
+        monkeypatch.setattr(invitations, "INVITATION_EXPIRY_DAYS", days)
+        monkeypatch.setattr(invitations, "datetime", InvitationClock)
+        with Session(get_engine()) as db:
+            subscription = Subscription(gym_id=test_gym_user["id"])
+            db.add(subscription)
+            subscription.plan, subscription.status = "clinica", "active"
+            subscription.current_period_end = (fixed + timedelta(days=30)).replace(tzinfo=None)
+            db.commit()
+            issued = invitations.issue(db, actor=test_gym_user, gym_id=test_gym_user["id"],
+                email="expiry-constant-review@example.invalid", nombre="Synthetic expiry", apellido="",
+                role=UserRole.VIEWER, base_url="http://127.0.0.1:8765")
+            expected = fixed + timedelta(days=days)
+            assert issued["expires_at"] == expected
+            pending = db.get(Usuario, issued["member_id"])
+            assert pending.invitation_expires.replace(tzinfo=timezone.utc) == expected
+            InvitationClock.instant = expected
+            with pytest.raises(HTTPException) as expired:
+                invitations.consume(db, issued["invitation_token"], "SyntheticUnusedPassword123!")
+            assert expired.value.status_code == 410
+            db.rollback()
+            assert db.get(Usuario, pending.id).activo is False
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

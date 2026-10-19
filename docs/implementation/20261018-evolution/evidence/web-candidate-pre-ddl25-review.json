@@ -1,0 +1,42 @@
+{
+  "status": "Historical broad run, not final acceptance; source changes and subsequent compensation finding require a new frozen gate.",
+  "counts": {
+    "passed": 1607,
+    "failed": 1,
+    "skipped": 1
+  },
+  "failed_nodes": [
+    {
+      "classname": "tests.test_audit_remaining_fixes.TestM03HardcodedConstants",
+      "name": "test_invitation_expiry_uses_constant",
+      "time": "0.009"
+    }
+  ],
+  "skipped_nodes": [
+    {
+      "case": {
+        "classname": "tests.test_object_storage",
+        "name": "test_symlink_cannot_redirect_a_private_document",
+        "time": "0.036"
+      },
+      "reason": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+    }
+  ],
+  "changed_during_check": [
+    "tests/integration_object_store_configuration.py",
+    "tests/test_gym_generation_security_review.py",
+    "web/storage/configuration.py"
+  ],
+  "frontend_changed_during_check": [
+    "tests/e2e/privacy_export.cjs",
+    "web/static/css/privacy-export.css"
+  ],
+  "compensation_security_cases_collected": 0,
+  "disposition": {
+    "tests/test_audit_remaining_fixes.py": "Source-location assertion replaced by real configured expiry persistence and rejection at deadline;7 directed tests pass.",
+    "web/storage/configuration.py": "Coordinator reports two unmounted preparatory SDK files changed; only explicit integration imports configuration.",
+    "tests/integration_object_store_configuration.py": "Explicit integration filename, absent ordinary pytest discovery.",
+    "tests/test_gym_generation_security_review.py": "Added during run after collection; its4 regressions must run in the next gate.",
+    "Windows_symlink_skip": "Linux mandatory web CI must run this real filesystem boundary; no privilege/system setting changed."
+  }
+}
