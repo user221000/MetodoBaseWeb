@@ -84,3 +84,8 @@ Conservar separados los freezes56,440,913,087 yda343 y sus alcances. Los replays
 ## Checkpoint119
 
 HistóricoCI31 cambia justificadamente deeea8postR24(3rojosinfrafixture) a57335e5aceptadoanteriorR24, ambos auténticosypreservados; current31pruebaR24conacompañantesreales. Conservar23helpersinmutables ytodoslos16callbacks. D60aceptaciónmetadatasólo para nueva compilación. LF/CRLF RAWsepreservansinreescritura.
+
+
+## Checkpoint 120
+
+No atribuir los quince grupos Chrome c669 a la corrección UX19 posterior. No sumar los veinte replays de QA como casos nuevos. Exigir snapshot25 en el CI actual y confirmación obligatoria de rol restringido en los marcadores; la revisión CLI continúa antes de PostgreSQL.

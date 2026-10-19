@@ -107,3 +107,8 @@ MFA no está aceptado integralmente: faltan QA de integración/UI, CI31 y restau
 ## Checkpoint119
 
 PersistenCI31/regresiónactual/imagen,avisosMFA/custodia/configuraciónrealypérdidatotaldefactores. UX19tieneaceptaciónfocal, noreplay15posterior. STOPbrowsernoobservócierregrácil/claveRAMafter,limitesexplícitos. QA-12confianzaenfixtureenpeer. D60noacreditaABI/linkage/SCA/71OS. Políticas,pilotos,clínicaySLOrequierenhechos/decisionesreales.
+
+
+## Checkpoint 120
+
+CI e0 no tiene aceptación por omisión de siete casos nuevos snapshot y marcador de rol opcional. El checker CLI sigue en revisión. La compilación nativa está activa, sin prueba final de ABI/linkage ni SCA. No se infiere seguridad de producto desde un marcador incompleto del laboratorio.

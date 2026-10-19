@@ -1,0 +1,65 @@
+"""One focused SQLite/ASGI + VM replay, with independent trust-boundary tests."""
+import contextlib, hashlib, importlib.metadata, importlib.util, json, os, subprocess, sys, time
+from pathlib import Path
+ROOT=Path('F:/mb-mfa31-summary-after-qa-20261019')
+TEMP=Path(__file__).parent
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-fixture-peer-independent-20261019')
+PRIVATE=TEMP/'private';PRIVATE.mkdir(exist_ok=False)
+NODE=Path('C:/Program Files/nodejs/node.exe')
+NODE_MODULES=Path('F:/MetodoBaseWeb-execution-20261018/tests/e2e/node_modules')
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+os.chdir(ROOT);sys.path.insert(0,str(ROOT))
+for key in list(os.environ):
+    upper=key.upper()
+    if upper=='DATABASE_URL' or upper.endswith('_DATABASE_URL') or upper.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST')) or any(x in upper for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):
+        os.environ.pop(key,None)
+os.environ.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+from tests.isolation import prepare_environment,block_external_sockets
+prepare_environment(discard_inherited=True);block_external_sockets()
+git=lambda *a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()=='4a5475ccd6c7ac7525e2a1e30f7d2801bf19aaae' and not git('status','--porcelain').strip()
+names=[n for n in git('ls-files','-co','--exclude-standard','-z').decode().split('\0')if n]
+def photo():
+    return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{n:SHA((ROOT/n).read_bytes())for n in names},
+      'own_helpers':{p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')},
+      'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions()),
+      'Python_SHA':SHA(Path(sys.executable).read_bytes()),'Python_base_SHA':SHA(Path(sys._base_executable).read_bytes()),
+      'Node_SHA':SHA(NODE.read_bytes()),'Node_modules':{str(p.relative_to(NODE_MODULES)):SHA(p.read_bytes())for p in NODE_MODULES.rglob('*')if p.is_file()}}
+before=photo();assert len(before['packages'])==89 and len(before['Node_modules'])==157
+(OUT/'before.json').write_text(json.dumps(before,indent=2)+'\n')
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-before.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+import pytest
+class Origins:
+    def check(self):
+        rows={}
+        for name,module in list(sys.modules.items()):
+            if name.split('.')[0]in{'web','api','core','tests'}and getattr(module,'__file__',None):
+                p=Path(module.__file__).resolve();assert p.is_relative_to(ROOT),'Loaded source outside own WT';rows[name]=str(p.relative_to(ROOT))
+        from web.database.models import Base
+        assert Base.__module__=='web.database.models'and len(Base.metadata.tables)==32
+        (OUT/'module-origins.json').write_text(json.dumps({'application_and_maintained_tests':rows,'own_test':str(TEMP/'test_wrapper_own.py'),'explicit_maintained_conftest':str(ROOT/'conftest.py')},indent=2)+'\n')
+    def pytest_collection_modifyitems(self,session,config,items):
+        assert len(items)==24,len(items)
+        (OUT/'collected-nodeids.json').write_text(json.dumps([i.nodeid for i in items],indent=2)+'\n')
+        self.check()
+    def pytest_runtest_call(self,item):self.check()
+    def pytest_sessionfinish(self,session,exitstatus):self.check()
+spec=importlib.util.spec_from_file_location('qa_maintained_conftest',ROOT/'conftest.py');conftest=importlib.util.module_from_spec(spec);spec.loader.exec_module(conftest)
+start=time.monotonic()
+with (PRIVATE/'pytest.private.log').open('w',encoding='utf8')as stream:
+    with contextlib.redirect_stdout(stream),contextlib.redirect_stderr(stream):
+        code=pytest.main(['-q','--tb=short','--noconftest','--import-mode=importlib','--rootdir',str(ROOT),
+          '--basetemp',str(PRIVATE/'pytest-data'),'--junitxml',str(PRIVATE/'pytest.private.xml'),
+          str(ROOT/'tests/test_mfa31_contract_fixture_review.py'),str(ROOT/'tests/test_team_entitlement_review.py'),
+          str(ROOT/'tests/test_personal_diary_security_review.py')+'::test_real_membership_revocation_preserves_personal_diary_and_removes_portfolio',
+          str(TEMP/'test_wrapper_own.py')],plugins=[conftest,Origins()])
+node=subprocess.run([str(NODE),str(ROOT/'tests/e2e/member_link_consumers31.cjs')],cwd=ROOT,capture_output=True)
+(PRIVATE/'member31.stdout.raw.json').write_bytes(node.stdout);(PRIVATE/'member31.stderr.raw.log').write_bytes(node.stderr)
+node_result=json.loads(node.stdout);assert node_result['total']==16 and len(node_result['results'])==16
+check=subprocess.run([sys.executable,str(ROOT/'scripts/check_frontend_report.py'),str(PRIVATE/'member31.stdout.raw.json'),'--format','counts','--minimum','16'],capture_output=True)
+(PRIVATE/'parser.raw.log').write_bytes(check.stdout+check.stderr)
+after=photo();(OUT/'after.json').write_text(json.dumps(after,indent=2)+'\n');assert before==after
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-after.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+summary={'pytest_exit':int(code),'collected_HTTP':24,'maintained_HTTP_replay':20,'own_HTTP':4,'Node_exit':node.returncode,'Node_total':node_result['total'],'Node_passed':node_result['passed'],'shared_parser_exit':check.returncode,'wall_seconds':time.monotonic()-start,'source_files':len(names),'packages':89,'Node_files':157,'before_after_exact':True,'source_head':before['head'],'no_PG_Chrome_provider':True}
+(OUT/'execution-summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary))
+assert code==node.returncode==check.returncode==0

@@ -1,0 +1,88 @@
+"""Own four real HTTP checks for the opt-in fixture's trust boundaries."""
+from datetime import datetime, timedelta, timezone
+import pytest
+from sqlalchemy import select
+from tests.test_team_invitation_contract import team_case
+
+def watch(client, monkeypatch):
+    seen=[]
+    original=client.raw.request
+    def request(method,url,**kwargs):
+        result=original(method,url,**kwargs)
+        seen.append({'method':method.upper(),'path':str(url),'json':kwargs.get('json'),'result':result})
+        return result
+    monkeypatch.setattr(client.raw,'request',request)
+    return seen
+
+def test_exact_grant_then_original_business_response_and_body(team_case,monkeypatch):
+    client,factory,principal,captured=team_case
+    seen=watch(client,monkeypatch)
+    body={'email':'own-exact@example.invalid','nombre':'Exact persisted business','role':'nutriologo'}
+    result=client.post('/api/gym/team/invite',json=body)
+    assert result.status_code==200
+    assert [(r['method'],r['path']) for r in seen]==[('POST','/api/auth/mfa/step-up'),('POST','/api/gym/team/invite')]
+    assert seen[0]['json']['method']=='POST' and seen[0]['json']['path']=='/api/gym/team/invite'
+    assert seen[0]['json']['body']==body and seen[1]['json'] is body
+    assert result is seen[1]['result'] and result is not seen[0]['result']
+    from web.database.models import Usuario,MfaAuthorization
+    with factory() as db:
+        member=db.scalar(select(Usuario).where(Usuario.email==body['email']))
+        assert member.team_gym_id==principal['id'] and not member.activo
+        grant=db.scalars(select(MfaAuthorization).where(MfaAuthorization.purpose=='action')).one()
+        assert grant.consumed_at is not None
+    assert len(captured)==1
+
+def test_denied_issue_still_sends_actual_foreign_business_request(team_case,monkeypatch):
+    client,factory,principal,captured=team_case
+    from web.database.models import Usuario,UserRole,MfaAuthorization
+    with factory() as db:
+        db.add(Usuario(id='qa-foreign-owner',email='qa-foreign-owner@example.invalid',nombre='Other',password_hash='unused',tipo='gym',role=UserRole.OWNER,activo=True))
+        db.commit()
+        db.add(Usuario(id='qa-foreign-member',email='qa-foreign-member@example.invalid',nombre='Unchanged',password_hash='unused',tipo='usuario',role=UserRole.VIEWER,team_gym_id='qa-foreign-owner',activo=True))
+        db.commit()
+    seen=watch(client,monkeypatch)
+    result=client.delete('/api/gym/team/qa-foreign-member')
+    assert [(r['method'],r['path']) for r in seen]==[('POST','/api/auth/mfa/step-up'),('DELETE','/api/gym/team/qa-foreign-member')]
+    assert all(r['result'].status_code==403 for r in seen)
+    assert result is seen[-1]['result'] and result is not seen[0]['result']
+    assert result.json()['detail']['code']=='mfa_action_forbidden'
+    with factory() as db:
+        foreign=db.get(Usuario,'qa-foreign-member')
+        assert foreign.team_gym_id=='qa-foreign-owner' and foreign.role==UserRole.VIEWER and foreign.activo
+        assert db.scalars(select(MfaAuthorization).where(MfaAuthorization.purpose=='action')).all()==[]
+    assert captured==[]
+
+def test_stale_cached_session_is_never_refreshed_or_reenrolled(team_case,monkeypatch):
+    client,factory,principal,captured=team_case
+    from web.database.models import Usuario
+    previous=client.raw.headers['Authorization']
+    with factory() as db:
+        db.get(Usuario,principal['id']).session_version+=1
+        db.commit()
+    seen=watch(client,monkeypatch)
+    result=client.post('/api/gym/team/invite',json={'email':'qa-stale@example.invalid','nombre':'Stale','role':'viewer'})
+    assert [(r['method'],r['path']) for r in seen]==[('POST','/api/auth/mfa/step-up'),('POST','/api/gym/team/invite')]
+    assert all(r['result'].status_code==401 for r in seen)
+    assert result is seen[-1]['result']
+    assert client.raw.headers['Authorization']==previous
+    with factory() as db:
+        assert db.scalar(select(Usuario).where(Usuario.email=='qa-stale@example.invalid')) is None
+    assert captured==[]
+
+def test_explicit_grant_never_reissued_to_fit_substituted_body(team_case,monkeypatch):
+    client,factory,principal,captured=team_case
+    from web.database.models import Usuario,MfaAuthorization
+    from web.services.mfa_crypto import opaque_digest
+    body={'email':'qa-bound@example.invalid','nombre':'Bound','role':'nutriologo'}
+    issued=client.issue('POST','/api/gym/team/invite',body)
+    assert issued.status_code==200
+    grant=issued.json()['grant']
+    seen=watch(client,monkeypatch)
+    changed={**body,'email':'qa-substituted@example.invalid'}
+    result=client.post('/api/gym/team/invite',json=changed,headers={'X-MFA-Grant':grant})
+    assert [(r['method'],r['path']) for r in seen]==[('POST','/api/gym/team/invite')]
+    assert result.status_code==403 and result.json()['detail']['code']=='mfa_action_mismatch'
+    with factory() as db:
+        assert db.scalar(select(Usuario).where(Usuario.email==changed['email'])) is None
+        assert db.get(MfaAuthorization,opaque_digest('action',grant)).consumed_at is None
+    assert captured==[]

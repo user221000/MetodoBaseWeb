@@ -226,3 +226,8 @@ Seguridad: backend440 aceptado con los mismos replays6+4+5+20; PG4 pertenece só
 ## Checkpoint119
 
 QA independiente:10VM+4flujosSQLite, replayPG deesos4,15grupos mantenidosChrome/12pantallasc669,1restorepoblado4a yUX19mismo3+2propios. STOPtimeout ypreparaciónfallida preservados; no runtimekeyafter ni cierregrácil. DAB174esautor, peerpendiente. QA-12:13/16original→16causalstubs(sólocausa)→16actualcompanions nueva fixture. D60firmas/7negativos/metadatainvariante, no compilación.
+
+
+## Checkpoint 120
+
+QA peer de fixtures aceptado: 24 SQLite (20 replays y4 propios) y16 VM con módulos reales. CI e0 se conserva sin aceptación: histórico573 FULL+348; actual31/494 con snapshot25 omitido. Los173PG siguen pendientes. Composición bd348 sólo cambia33 archivos CI/tests y conserva23 helpers; la regresión amplia está activa, aún sin resultado.

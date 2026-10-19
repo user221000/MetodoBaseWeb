@@ -1,0 +1,53 @@
+{
+  "source_head": "4a5475ccd6c7ac7525e2a1e30f7d2801bf19aaae",
+  "DAB_only_test_paths": [
+    "tests/mfa31_contract_client.py",
+    "tests/test_mfa31_contract_fixture_review.py",
+    "tests/test_personal_diary_security_review.py",
+    "tests/test_team_entitlement_review.py",
+    "tests/test_team_invitation_contract.py"
+  ],
+  "criteria": [
+    {
+      "path": "tests/test_team_invitation_contract.py",
+      "old_test_functions": 24,
+      "old_Assert_nodes_AST_exact": 100,
+      "approved_404_to_403_node": 1,
+      "added_Assert_nodes": 3,
+      "before_GitLF_SHA": "9946a93a92d8a688a9c45c80a4ef8ede1299f4f120887d83c7d9bfa05869238b",
+      "current_RAW_SHA": "7c1ed0b0a1dbfa0b04d9f2ae98a94aad8ac1ae1b925db1aad1f7ede14ff9fcdc",
+      "current_GitLF_SHA": "efeb4702ab001876a83706748d97f1fb9b920a3addf346c06480fa22bb33fe40"
+    },
+    {
+      "path": "tests/test_team_entitlement_review.py",
+      "old_test_functions": 3,
+      "old_Assert_nodes_AST_exact": 9,
+      "approved_404_to_403_node": 0,
+      "added_Assert_nodes": 0,
+      "before_GitLF_SHA": "2774db17b5673123363b1596c53919db71a1d94d379b14eb19582f2e40c0685f",
+      "current_RAW_SHA": "236d7d20f696bf767956c8c7f3f564187584661de8897c549a902041c3a266ad",
+      "current_GitLF_SHA": "2bbb046d465e53c771656dd0b57f7749a4cd7a222faa71570a2daaafdb02273d"
+    },
+    {
+      "path": "tests/test_personal_diary_security_review.py",
+      "old_test_functions": 11,
+      "old_Assert_nodes_AST_exact": 66,
+      "approved_404_to_403_node": 0,
+      "added_Assert_nodes": 0,
+      "before_GitLF_SHA": "a735c521bf6fe26b15fc76de4debca824c82a3cb415a4fd3b99d68db8bf7db3f",
+      "current_RAW_SHA": "57be7b9e25087b1ab1d2b1629f9e5af40b105acd4c026e8703b68c9a55b156fc",
+      "current_GitLF_SHA": "80b342328236f1fb64a533df70fadbffdc23cbc1bb392b3775d3b3e2f6a16184"
+    }
+  ],
+  "global_conftest_exact_GitLF_vs913": true,
+  "member31_16_callback_bodies_and_Assert_bytes_exact_LF_to_legacy": true,
+  "member31_legacy_count": 16,
+  "fixture_review": {
+    "MfaContractClient": "Uses persisted account/password, actual login+reauth+enroll+confirm+recovery login; caches bearer only, no identity/MFA auth dependency override. One exact method/path/body grant then actual original mutation; rejects issue does not substitute response. No business retry or refresh.",
+    "team_case": "Only get_db overridden to isolated SQLite; persisted bearer dependency real; account seed password now valid; no permission/MFA operation monkeypatch.",
+    "entitlement": "Module-local wrapper opts into MFA; ordinary conftest unchanged.",
+    "diary": "One Web OWNER setup authenticates+grants revocation; API branch and all66 prior assertion nodes exact.",
+    "member31": "Expands genuine template include IDs and actual R24 companion scripts in template order; APIv1/minimalDOM remains declared double, not browser/API acceptance."
+  },
+  "historical_claim_correction": "Early author assert-preservation.json predates approved precedence change. Final map is100/101 invitation+9/9 entitlement,109/110; diary66/66 separately. No claim all110 remain identical."
+}

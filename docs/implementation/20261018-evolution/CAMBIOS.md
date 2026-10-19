@@ -165,3 +165,8 @@ Se sellan revisiones independientes de MFA, su composición UI aislada y el diag
 ## Checkpoint119
 
 MAIN sólo añade documentación/evidencias. Candidata aislada compone5testsDAB en2010, nuevafixturemember31 en102f ydosinserciones UI4a para retirar resumenMFAobsoleto. Unliteral deesperabrowserc669 siguecopyrevisado, sinotrosassertscambiados. SeañadenQA-12yUX-19sinrenumerar.
+
+
+## Checkpoint 120
+
+Se incorpora documentación de la aceptación focal de fixtures, y se preserva e0 como preimagen CI incompleta. MAIN no cambia producto ni esquema. La candidata bd348 incorpora el delta CI e0 para revisión; sus gates no están aceptados.
