@@ -26,6 +26,11 @@ import secrets
 # Primary authentication errors can occur before the successful response helper.
 # Match only the mounted APIs; login pages retain their existing GIS policy.
 _PRIMARY_API_PATHS = frozenset({"/api/auth/login", "/api/auth/google"})
+_RETIREMENT_PRIVATE_PATHS = frozenset({
+    "/api/auth/progress-retirement/metadata", "/api/auth/progress-retirement/metadata/",
+    "/api/auth/progress-retirement/withdraw", "/api/auth/progress-retirement/withdraw/",
+    "/retirar-consentimientos", "/retirar-consentimientos/",
+})
 # Validation/authentication/method/redirect failures precede exporter headers.
 # Exactly the mounted exporter and its slash redirect, never nearby prefixes.
 _PRIVATE_EXPORT_PATHS = frozenset({
@@ -103,7 +108,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             request.url.path == "/api/usuario/diario"
             or request.url.path.startswith("/api/usuario/diario/")
         )
-        primary_api = request.url.path in _PRIMARY_API_PATHS
+        primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS
         progress_api = is_progress_private(request.url.path)
         export_api = request.url.path in _PRIVATE_EXPORT_PATHS
         operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}
@@ -147,7 +152,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # ─── CSP (with per-request nonce) ────────────────────────────────────
         if self.csp_enabled:
-            if request.url.path in {"/auth/reset-password", "/auth/accept-client-link"} or request.url.path.startswith("/api/auth/mfa/"):
+            if request.url.path in {"/auth/reset-password", "/auth/accept-client-link"} or request.url.path.startswith("/api/auth/mfa/") or request.url.path in _RETIREMENT_PRIVATE_PATHS:
                 # Fixed first-party policy for the public recovery form. Never
                 # accept an arbitrary policy supplied by a downstream handler.
                 response.headers["Content-Security-Policy"] = (

@@ -138,3 +138,8 @@ async def professional_progress(client_id:str=Path(min_length=1,max_length=36),l
         limit:int=Query(100,ge=1,le=100),after:str|None=Query(None,pattern=UUID)):
     return await run_in_threadpool(_invoke,readers.shared_projection,principal,client_id,link_id,expected_id=expected_consent_id,
         expected_version=expected_version,expected_link=expected_link_version,start=start,end=through,limit=limit,after=after)
+
+
+# Independent fresh proof is intentional; get_usuario_actual stays unchanged.
+from web.routes.progress_retirement import router as retirement_router  # noqa: I001 -- deferred route registration
+router.include_router(retirement_router)
