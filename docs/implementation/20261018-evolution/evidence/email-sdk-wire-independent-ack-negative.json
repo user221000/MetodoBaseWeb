@@ -1,0 +1,26 @@
+{
+  "scope": "Separate R16 pre-existing negative; not a regression of sender-key patch or real provider response",
+  "total": 2,
+  "passed": 0,
+  "results": [
+    {
+      "source": "before",
+      "case": "successful_HTTP_without_provider_id",
+      "expected_confirmed": false,
+      "actual_confirmed": true,
+      "security_assertion_passed": false,
+      "operational_logs_private": true,
+      "scope": "Synthetic HTTP200 empty object, SDK has no SendResponse runtime validation. Present in exact Git baseline and current; not introduced by sender-key patch. No real provider behavior claimed."
+    },
+    {
+      "source": "after",
+      "case": "successful_HTTP_without_provider_id",
+      "expected_confirmed": false,
+      "actual_confirmed": true,
+      "security_assertion_passed": false,
+      "operational_logs_private": true,
+      "scope": "Synthetic HTTP200 empty object, SDK has no SendResponse runtime validation. Present in exact Git baseline and current; not introduced by sender-key patch. No real provider behavior claimed."
+    }
+  ],
+  "exit_code": 1
+}

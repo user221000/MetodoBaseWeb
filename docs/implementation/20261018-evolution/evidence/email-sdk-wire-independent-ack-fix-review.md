@@ -1,0 +1,13 @@
+# Confirmación de ACK: revisión independiente aditiva
+
+Se acepta acotadamente el sender RAW `972ac324358e7185fe05ecb1fdbf9ee62cb07266b4cd60183ae5f07e9c5bfe63`, el test SDK RAW `7f2e5d1af919b378637405a376bebfb29c27a75085e1ccbdbb41c258eeac5277` y la adaptación de privacidad RAW `a66d2674d743df380dea5b6b8addcfad46e9aa03a75f92e1ce75a65773bae4e5`. No se modificó producto ni ningún test de main durante esta revisión.
+
+Pasaron los mismos **22 canarios wire**, cuyo bucle de criterios es byte a byte idéntico al gate anterior, y **17 canarios ACK** nuevos sobre el SDK Resend 2.50.0, RequestsClient y PreparedRequest reales. Sólo el envío HTTP final recibió una respuesta en memoria; sockets externos bloqueados y key sintética exclusiva. Se conserva el baseline Git exacto de f34ae98 y se recompila también la foto literal anterior `9a70a3bc…`, que sigue devolviendo True ante `{}`. Los negativos anteriores no se reescriben ni se atribuyen a los bytes nuevos.
+
+Los 17 ACK cubren objeto/lista vacíos, null, bool, string, ID ausente/nulo/numérico/bool/lista/objeto/vacío/blanco, ID de 257 caracteres, ID válido, límite de 256 y respuesta válida con contenido privado adicional. Los inválidos devuelven False y no registran accepted; los válidos devuelven True y registran accepted. Ningún caso registra sent/delivered, ID de proveedor, destinatario, asunto, cuerpo, ruta ni mensaje privado. La guarda comprueba tipo, contenido no vacío tras strip y longitud acotada, sin fabricar un UUID ni afirmar entrega.
+
+La adaptación del test de privacidad conserva sus **38 aserciones AST**. Al retirar únicamente la nueva preparación `if outcome == sent: transport.Emails.send.return_value = {id: synthetic-provider-ack}`, el AST completo coincide con el del commit f34ae98. Por tanto, se configura un mock que represente ACK válido sin debilitar la comprobación de privacidad. Las fuentes SDK/aplicación/dependencias tuvieron huellas idénticas antes y después.
+
+Los artefactos de la revisión original conservan sus huellas del manifiesto `email-sdk-wire-independent-source.json`. Los archivos nuevos tienen manifiesto propio `email-sdk-wire-independent-ack-fix-source.json`; los drivers son copias históricas de los ejecutados desde Temp con rutas explícitas, no nuevas pruebas de main. La observación previa 0/2 exit1 permanece visible como evidencia del comportamiento corregido.
+
+Esta revisión confirma únicamente el contrato local de serialización y aceptación con ACK. No hubo correo real, validación del dominio ni confirmación del proveedor. Entrega efectiva, observabilidad operativa y recuperación de R16 permanecen abiertas.

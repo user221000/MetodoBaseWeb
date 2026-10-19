@@ -1,0 +1,34 @@
+{
+  "scope": "Root SDK wire/ACK fix accepted independently; no provider delivery, recovery or R16 closure",
+  "sources": {
+    "web/services/email_service.py": "972ac324358e7185fe05ecb1fdbf9ee62cb07266b4cd60183ae5f07e9c5bfe63",
+    "tests/test_email_sdk_contract.py": "7f2e5d1af919b378637405a376bebfb29c27a75085e1ccbdbb41c258eeac5277",
+    "tests/test_auth_telemetry_privacy.py": "a66d2674d743df380dea5b6b8addcfad46e9aa03a75f92e1ce75a65773bae4e5"
+  },
+  "author_final": {
+    "passed": 32,
+    "seconds": 4.62,
+    "warnings": 1
+  },
+  "wire_before": {
+    "failed": 2,
+    "passed": 2,
+    "seconds": 2.56
+  },
+  "ack_before": {
+    "failed": 9,
+    "deselected": 4
+  },
+  "first_ack_after_preserved": {
+    "passed": 31,
+    "failed": 1,
+    "reason": "Existing sent fixture returned Mock without provider id; only fixture ACK added, no assertion changed"
+  },
+  "independent": {
+    "wire": 22,
+    "ack": 17,
+    "stable_sources": 15,
+    "privacy_assertions_unchanged": 38
+  },
+  "official_reference": "https://resend.com/docs/api-reference/emails/send-email"
+}

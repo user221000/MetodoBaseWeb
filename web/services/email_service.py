@@ -39,8 +39,8 @@ def _is_configured() -> bool:
 
 def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) -> bool:
     """
-    Envía email vía Resend. Retorna True si se envió, False si no (sin error).
-    En dev sin API key, solo loguea.
+    Retorna True sólo tras aceptación con identificador; no acredita entrega.
+    Sin configuración, rechazo o confirmación válida retorna False sin datos privados.
     """
     if not _is_configured():
         logger.info("Email delivery_skipped reason=not_configured")
@@ -50,7 +50,7 @@ def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) 
     resend.api_key = get_settings().RESEND_API_KEY
 
     params: dict = {
-        "from_": _FROM_EMAIL,
+        "from": _FROM_EMAIL,
         "to": [to],
         "subject": subject,
         "html": html,
@@ -60,8 +60,12 @@ def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) 
         params["attachments"] = attachments
 
     try:
-        resend.Emails.send(params)
-        logger.info("Email delivery_sent")
+        response = resend.Emails.send(params)
+        provider_id = response.get("id") if isinstance(response, dict) else None
+        if not isinstance(provider_id, str) or not provider_id.strip() or len(provider_id) > 256:
+            logger.warning("Email delivery_unconfirmed reason=invalid_response")
+            return False
+        logger.info("Email delivery_accepted")
         return True
     except Exception as e:
         logger.error("Email transport failed class=%s", type(e).__name__)

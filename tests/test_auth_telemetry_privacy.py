@@ -262,6 +262,8 @@ def test_email_logs_omit_recipient_subject_body_and_attachments(outcome, monkeyp
 
     monkeypatch.setattr(email_service, "_is_configured", lambda: outcome != "disabled")
     transport = Mock()
+    if outcome == "sent":
+        transport.Emails.send.return_value = {"id": "synthetic-provider-ack"}
     if outcome == "failed":
         transport.Emails.send.side_effect = RuntimeError(URL)
     monkeypatch.setitem(sys.modules, "resend", transport)
