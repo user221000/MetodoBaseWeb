@@ -538,7 +538,7 @@ const Api = (() => {
     exportarDatos: (cursors = {}, context) => {
       const params = new URLSearchParams({limit:'100'});
       const integerCursors = ['profile','plan','measurement'];
-      const uuidCursors = ['purchase','generation'];
+      const uuidCursors = ['purchase','generation','member_link'];
       for (const name of [...integerCursors,...uuidCursors,'diary']) {
         const value = cursors[name];
         if (value == null) continue;
