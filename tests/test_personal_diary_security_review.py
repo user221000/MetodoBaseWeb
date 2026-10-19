@@ -213,7 +213,7 @@ def test_stream_does_not_trust_small_content_length_or_consume_following_chunks(
     assert denied.value.status_code==413 and consumed==[True]
 
 
-def test_real_membership_revocation_preserves_personal_diary_and_removes_portfolio(diary_http,request):
+def test_real_membership_revocation_preserves_personal_diary_and_removes_portfolio(diary_http,request,monkeypatch):
     from web.auth import hash_password
     from web.database.models import Usuario,UserRole,PlanGenerado
     from web.services.personal_diary_service import local_today
@@ -241,6 +241,20 @@ def test_real_membership_revocation_preserves_personal_diary_and_removes_portfol
     assert meal.status_code==200
     before=meal.json()
     if web:
+        # Current31 fixture adoption only: the OWNER authenticates/enrolls via
+        # real APIs, then obtains an exact one-use grant for this revocation.
+        import base64
+        from web.settings import get_settings
+        from tests.mfa31_contract_client import MfaContractClient
+        owner_password='SyntheticDiaryOwnerMfaOnly123!'
+        with Session(engine) as db:
+            db.get(Usuario,'diary-owner').password_hash=hash_password(owner_password)
+            db.commit()
+        monkeypatch.setattr(get_settings(),'MFA_ENCRYPTION_KEY',base64.urlsafe_b64encode(
+            b'synthetic-mfa-contract-key-32byte!'[:32]).decode())
+        client=MfaContractClient(client,{'id':'diary-owner'},lambda: Session(engine),owner_password)
+        client.authenticate()
+        tokens['diary-owner']={'Authorization':client.headers['Authorization']}
         revoked=client.delete('/api/gym/team/diary-member',headers=tokens['diary-owner'])
         assert revoked.status_code==200
         assert revoked.json()['status']=='revoked'

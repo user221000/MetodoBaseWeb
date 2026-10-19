@@ -1,0 +1,259 @@
+{
+  "label": "adopted-team-contracts",
+  "selection": [
+    "tests/test_team_invitation_contract.py",
+    "tests/test_team_entitlement_review.py"
+  ],
+  "exit": 1,
+  "cases": 44,
+  "counts": {
+    "passed": 41,
+    "failure": 3,
+    "error": 0,
+    "skipped": 0
+  },
+  "rows": [
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invite_uses_absolute_single_token_url_and_does_not_claim_delivery",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_valid_invite_accepts_once_with_persisted_professional_identity",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_expired_invitation_is_visible_and_cannot_activate_account",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_resend_rotates_token_and_returns_current_shareable_link",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_revocation_preserves_personal_profile_and_invalidates_team_sessions",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_existing_personal_email_never_becomes_a_professional_link",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_admin_cannot_rotate_an_admin_invitation",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invite_password_follows_registration_minimum",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_member_list_exposes_current_capabilities_and_invitation_expiry",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stored_digest_is_not_a_bearer_token",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_cancel_pending_invitation_never_activates_personal_account",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_unicode_password_size_error_does_not_consume_invitation",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_email_escapes_untrusted_names_and_url",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_parallel_consumers_only_one_can_claim_token",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_email_transport_failure_does_not_log_bearer_or_message",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_detaching_historical_gym_typed_member_never_changes_owner",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_mutations_never_cross_to_another_gym[role]",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_mutations_never_cross_to_another_gym[remove]",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_mutations_never_cross_to_another_gym[resend]",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_name_is_scoped_to_persisted_offer_not_input_gym",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_role_change_between_read_and_claim_cannot_restore_stale_role",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[role-role]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[role-remove]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[team-role]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[team-remove]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[session-role]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[session-remove]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_requires_effective_multi_user_right_without_creating_account[free-active-False]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_requires_effective_multi_user_right_without_creating_account[standard-active-False]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_requires_effective_multi_user_right_without_creating_account[gym_comercial-active-False]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_requires_effective_multi_user_right_without_creating_account[clinica-active-True]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_requires_effective_multi_user_right_without_creating_account[clinica-canceled-False]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_requires_effective_multi_user_right_without_creating_account[clinica-trialing-False]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_downgrade_blocks_resend_and_claim_without_consuming_offer",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_existing_members_remain_manageable_after_downgrade",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_gate_refreshes_cached_subscription_before_issuing",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_catalog_without_multi_user_rejects_new_invitation[free]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_catalog_without_multi_user_rejects_new_invitation[standard]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_catalog_without_multi_user_rejects_new_invitation[gym_comercial]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_invitation_cannot_be_consumed_after_persisted_rights_are_lost[free]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_invitation_cannot_be_consumed_after_persisted_rights_are_lost[gym_comercial]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_invitation_cannot_be_consumed_after_persisted_rights_are_lost[past_due]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_invitation_cannot_be_consumed_after_persisted_rights_are_lost[expired]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_entitlement_review",
+      "case": "test_active_clinica_can_create_and_consume_new_membership",
+      "result": "passed"
+    }
+  ],
+  "source_quiet": true,
+  "source_files": 882,
+  "packages": 89,
+  "raw_log_private_sha256": "289336d7fbe15d96a43b89910e841241e9971240d1c87769b1dfb1f1a1e3cd50",
+  "raw_xml_private_sha256": "c4cfae3e75c56490779761152221d2b01bb7c583ce892fc5c29567ac5e764790",
+  "projected_log_sha256": "289336d7fbe15d96a43b89910e841241e9971240d1c87769b1dfb1f1a1e3cd50",
+  "projected_xml_sha256": "c4cfae3e75c56490779761152221d2b01bb7c583ce892fc5c29567ac5e764790",
+  "redactions": {
+    "log": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "xml": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "scope": "Opt-in test fixture adoption. SQLite/HTTP real MFA and business routes; captured mail only. No PG/Chrome/provider."
+}
