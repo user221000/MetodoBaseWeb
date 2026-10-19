@@ -142,6 +142,23 @@ jobs:
           python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
           node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
           python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
+      - name: Follow-up facts and synchronous session expiry regressions
+        run: |
+          node tests/e2e/session_revision_events.cjs > followup-contracts-session_revision_events.raw.json
+          python tests/e2e/normalize_followup_report.py followup-contracts-session_revision_events.raw.json followup-contracts-session_revision_events.json --kind counts --minimum 11
+          python scripts/check_frontend_report.py followup-contracts-session_revision_events.json --format counts --minimum 11
+          node tests/e2e/session_expiry_fences.cjs > followup-contracts-session_expiry_fences.raw.json
+          python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_fences.raw.json followup-contracts-session_expiry_fences.json --kind counts --minimum 3
+          python scripts/check_frontend_report.py followup-contracts-session_expiry_fences.json --format counts --minimum 3
+          node tests/e2e/dashboard_followup.cjs > followup-contracts-dashboard_followup.raw.json
+          python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup.raw.json followup-contracts-dashboard_followup.json --kind counts --minimum 20
+          python scripts/check_frontend_report.py followup-contracts-dashboard_followup.json --format counts --minimum 20
+          node tests/e2e/session_expiry_security.cjs > followup-contracts-session_expiry_security.raw.json
+          python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_security.raw.json followup-contracts-session_expiry_security.json --kind counts --minimum 10
+          python scripts/check_frontend_report.py followup-contracts-session_expiry_security.json --format counts --minimum 10
+          node tests/e2e/dashboard_followup_focus.cjs > followup-contracts-dashboard_followup_focus.raw.json
+          python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup_focus.raw.json followup-contracts-dashboard_followup_focus.json --kind counts --minimum 4
+          python scripts/check_frontend_report.py followup-contracts-dashboard_followup_focus.json --format counts --minimum 4
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -153,6 +170,7 @@ jobs:
             personal-export-controls.json
             personal-history-contracts.json
             member-link-*.json
+            followup-contracts-*.json
           if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
@@ -283,9 +301,11 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_migrations.py tests/integration_personal_history_ordered_query.py -k postgresql -q --tb=short --junitxml=pytest-postgres-history-index.xml
       - name: Current revision30 populated restore preserves history index and every prior contract
         run: python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_restore.py -q --tb=short --junitxml=pytest-postgres-history-index-restore.xml
+      - name: Readonly follow-up facts under both current PostgreSQL factories
+        run: python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-postgres-followup.xml
       - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
         run: >-
-          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==28 and len(set(reports))==28, 'Expected 28 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
+          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==29 and len(set(reports))==29, 'Expected 29 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
           pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml
           pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml
           pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml
@@ -293,11 +313,13 @@ jobs:
           pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml
           pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml
           pytest-postgres-recovery-migrations.xml pytest-postgres-recovery.xml
-          pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml pytest-postgres-history-index.xml pytest-postgres-history-index-restore.xml
+          pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml pytest-postgres-history-index.xml pytest-postgres-history-index-restore.xml pytest-postgres-followup.xml
       - name: Current member link reports retain all selected PostgreSQL cases
         run: python tests/check_member_link_reports.py
       - name: Physical history reports retain every exact selected PostgreSQL case
         run: python tests/check_history_index_reports.py
+      - name: Both follow-up PostgreSQL factory identities must pass
+        run: python tests/check_followup_reports.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -486,6 +508,62 @@ jobs:
       - name: Stop isolated candidate
         if: always()
         run: docker rm --force metodobase-candidate
+      - name: Host checkout follow-up browser uses current restricted PostgreSQL fixture
+        timeout-minutes: 5
+        env:
+          METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+          METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+          METODOBASE_TEST_PG_BIN: /usr/bin
+        run: |
+          set -euo pipefail
+          private="$RUNNER_TEMP/followup-private"
+          public="$RUNNER_TEMP/followup-public"
+          mkdir "$private" "$public"
+          fixture_pid=""
+          finish_followup() {
+            status=$?
+            trap - EXIT INT TERM
+            touch "$private/stop"
+            if [ -n "$fixture_pid" ]; then
+              for attempt in $(seq 1 100); do
+                if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi
+                sleep 0.2
+              done
+              if jobs -pr | grep -qx "$fixture_pid"; then
+                echo "Owned follow-up fixture did not finalize" >&2
+                status=1
+              elif ! wait "$fixture_pid"; then
+                status=1
+              fi
+            fi
+            exit "$status"
+          }
+          trap finish_followup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          python -c 'import json,os,pathlib; keys=("METODOBASE_TEST_MIGRATOR_URL","METODOBASE_TEST_POSTGRES_URL","METODOBASE_TEST_PG_BIN"); pathlib.Path(os.environ["RUNNER_TEMP"],"followup-private","config.json").write_text(json.dumps({key:os.environ[key] for key in keys}),encoding="utf8")'
+          export FOLLOWUP_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"
+          export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+          python -X utf8 tests/e2e/followup_server.py --pg-config "$private/config.json" --report "$public/startup.json" --stop-file "$private/stop" --port 8795 >"$private/server.stdout.log" 2>"$private/server.stderr.log" &
+          fixture_pid=$!
+          ready=0
+          for attempt in $(seq 1 90); do
+            if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi
+            if python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795 2>/dev/null && curl --fail --silent http://127.0.0.1:8795/health >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          export FOLLOWUP_STARTUP_REPORT="$public/startup.json"
+          node tests/e2e/dashboard_followup_browser.cjs "$public"
+          python tests/e2e/normalize_followup_report.py "$public/report.json" "$public/normalized.json" --kind browser --minimum 8
+          python scripts/check_frontend_report.py "$public/normalized.json" --format named --minimum 8 --minimum-screens 5
+          python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: followup-host-real-browser
+          path: ${{ runner.temp }}/followup-public
+          if-no-files-found: error
   ci-success:
     runs-on: ubuntu-latest
     needs: [quality, secrets, test-web, frontend-contracts, test-desktop, postgres, redis, image]

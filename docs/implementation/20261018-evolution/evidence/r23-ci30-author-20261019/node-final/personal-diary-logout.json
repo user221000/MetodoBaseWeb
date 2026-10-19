@@ -1,0 +1,47 @@
+{
+  "scope": "Synthetic VM Storage/transport and actual base logout handler; no server or reload atomicity claim",
+  "passed": 10,
+  "total": 10,
+  "results": [
+    {
+      "case": "Normal server-confirmed logout returns a frozen empty-pair context and preserves all unidentified legacy bytes",
+      "passed": true
+    },
+    {
+      "case": "Base handler redirects only for a confirmed server close and checked empty-pair context",
+      "passed": true
+    },
+    {
+      "case": "A lost logout POST closes locally but never claims server revocation or redirects automatically",
+      "passed": true
+    },
+    {
+      "case": "Late successful A logout preserves B and the base handler does not redirect",
+      "passed": true
+    },
+    {
+      "case": "B login between helper resolution and handler continuation invalidates the close context before redirect",
+      "passed": true
+    },
+    {
+      "case": "Storage get failure at mb_token is visible, does not fallback-clear and blocks later consumers",
+      "passed": true
+    },
+    {
+      "case": "Storage remove failure at mb_token is visible, does not fallback-clear and blocks later consumers",
+      "passed": true
+    },
+    {
+      "case": "Storage get failure at mb_refresh_token is visible, does not fallback-clear and blocks later consumers",
+      "passed": true
+    },
+    {
+      "case": "Storage remove failure at mb_refresh_token is visible, does not fallback-clear and blocks later consumers",
+      "passed": true
+    },
+    {
+      "case": "Public consumer cannot use a closed context after a later explicit login",
+      "passed": true
+    }
+  ]
+}

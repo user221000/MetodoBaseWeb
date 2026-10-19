@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT = ROOT / 'tests/ci_history_index30'
 WORKFLOW_SHA = 'a763cefded20c5ac2bcc602c58538a494c5ad84eb0fe874faaac3b176e5d1f82'
 BASELINE_SHA = 'ac626b6d7c41c6e8a61240cd9cfad8a581dd936d1776f734c1353ae77b31cdc5'
-PINNED_CURRENT_GATES = {'tests/check_member_link_reports.py': 'd617301259208f8fc8da91ddd6f8bdbdc43a35a4cdfb059d94f4de60513e8e62', 'tests/run_reviewed_ci28.py': '58cf6c165d155d13120c3fe2ea50f1fac26960a3456c438418de45a2e040bbed', 'tests/e2e/member_link_postgres_server.py': '4933f0fe7427f1c01975b5eda50f0d736a847046f86a1bd68e3f101bd515d0b5', 'tests/e2e/member_link_browser.cjs': '98268178c9f9ca164f3d7cba054a535262135dba9777e971467245a365a94f41', 'tests/e2e/normalize_member_link_report.py': '944da84612141d1872ee0c65a7e3e44d2cd293235078bfffa8b7c243d14da32c', 'tests/e2e/run_member_link_browser.py': '9cd8426619e2d29496f490ed30dd11ed3d64339c3cf7e0fe2071f319be9b472d', 'tests/e2e/member_link_controls.cjs': '51f9a1bc7a3b7a90d906017920ece2c5c54f37275aa2d9ed9728ba6c4f374c1d', 'tests/e2e/member_link_export.cjs': '287488236fe8cce0fee492145abf5e1b147ad9e038b7b03ada44285c9e6bd0d4', 'tests/run_reviewed_ci29.py': 'e4da4dbde73de7d322f4f3d2a1ea9e3948068891706d789e43ea7cdd82703cf6', 'tests/verify_member_links_ci.py': '4b6cedcd508d7b2941723c1148f5cf4b6f31fa6ab58ea6d0a316d90b18a83979', 'tests/check_history_index_reports.py': '06ec3d5bb0870dec6e8c08952b983a47481bcc53f1dbe6691e6ed4b428c22544', 'web/database/alembic/history_index_contract_v1.py': '6d9dec4104c2d9c60935677337e540bdbd9585042f789b61e2a849786ae1d161'}
+PINNED_CURRENT_GATES = {'tests/check_member_link_reports.py': 'd617301259208f8fc8da91ddd6f8bdbdc43a35a4cdfb059d94f4de60513e8e62', 'tests/run_reviewed_ci28.py': '58cf6c165d155d13120c3fe2ea50f1fac26960a3456c438418de45a2e040bbed', 'tests/e2e/member_link_postgres_server.py': '4933f0fe7427f1c01975b5eda50f0d736a847046f86a1bd68e3f101bd515d0b5', 'tests/e2e/member_link_browser.cjs': '98268178c9f9ca164f3d7cba054a535262135dba9777e971467245a365a94f41', 'tests/e2e/normalize_member_link_report.py': '944da84612141d1872ee0c65a7e3e44d2cd293235078bfffa8b7c243d14da32c', 'tests/e2e/run_member_link_browser.py': '9cd8426619e2d29496f490ed30dd11ed3d64339c3cf7e0fe2071f319be9b472d', 'tests/e2e/member_link_controls.cjs': '51f9a1bc7a3b7a90d906017920ece2c5c54f37275aa2d9ed9728ba6c4f374c1d', 'tests/e2e/member_link_export.cjs': '287488236fe8cce0fee492145abf5e1b147ad9e038b7b03ada44285c9e6bd0d4', 'tests/run_reviewed_ci29.py': 'e4da4dbde73de7d322f4f3d2a1ea9e3948068891706d789e43ea7cdd82703cf6', 'tests/verify_member_links_ci.py': '4b6cedcd508d7b2941723c1148f5cf4b6f31fa6ab58ea6d0a316d90b18a83979', 'tests/check_history_index_reports.py': '06ec3d5bb0870dec6e8c08952b983a47481bcc53f1dbe6691e6ed4b428c22544', 'web/database/alembic/history_index_contract_v1.py': '6d9dec4104c2d9c60935677337e540bdbd9585042f789b61e2a849786ae1d161', 'tests/check_followup_reports.py': 'fe41c30b36e08cd2f3c48dad316feb5eda1c8a4a29fd3e81966ad0e56bb9ca53', 'scripts/check_followup_fixture.py': '43d340995c8017f1605bac6b3529c9170a77bba133b0680f37295ddc4723bf2e', 'tests/e2e/followup_server.py': '829a853fb111abe140dcc119c3f955e732ee8b61ce58f830a510857d65f0a36d', 'tests/e2e/dashboard_followup_browser.cjs': '86c9985fc71be7718978a9a0815b8318e1f57c6de3cc6e9fd40190ac89bfa148', 'tests/e2e/session_revision_events.cjs': 'ebfd669b5cbfdfd3d041dcf0aaf2652ce2ef8e450065c8526f5e0e3838e03296', 'tests/e2e/session_expiry_fences.cjs': 'd59278534dcbb05258074a7133c0bc77b6773341821d95a3ba6494a900d1ba33', 'tests/e2e/dashboard_followup.cjs': '95ccbf5a6d1dc7c003b79b1637cb9eb90f1bf9429814dfb7eb057aecd2c4ed16', 'tests/e2e/session_expiry_security.cjs': '8cede9c74cb83e474196842f20c736fc4a222a04b40e6e2728181b3517afb790', 'tests/e2e/normalize_followup_report.py': '01f8810ed18fc042feb8b798e5627216e1f2a831c1a4e58e3a67d9abce6a4479', 'tests/e2e/dashboard_followup_focus.cjs': '0357208a459c8bf81bf2200ebadbfcd79f47f003dd9b0a0aa431b82404b2ee9d'}
 EXPECTED_CURRENT_REPORTS = {
     'pytest-postgres-member-migrations.xml': (5, ('tests.integration_client_link_migrations',)),
     'pytest-postgres-member-services.xml': (16, ('tests.integration_client_link_services',)),
@@ -94,6 +94,14 @@ INDEX_STEPS = [{'name': 'Physical history index migration rollback and bounded o
 INDEX_REPORTS = ('pytest-postgres-history-index.xml', 'pytest-postgres-history-index-restore.xml')
 INDEX_CHECKER = {'name': 'Physical history reports retain every exact selected PostgreSQL case', 'run': 'python tests/check_history_index_reports.py'}
 
+FOLLOWUP_VM_MINIMA = {'session_revision_events': 11, 'session_expiry_fences': 3, 'dashboard_followup': 20, 'session_expiry_security': 10, 'dashboard_followup_focus': 4}
+FOLLOWUP_VM_STEP = {'name': 'Follow-up facts and synchronous session expiry regressions', 'run': 'node tests/e2e/session_revision_events.cjs > followup-contracts-session_revision_events.raw.json\npython tests/e2e/normalize_followup_report.py followup-contracts-session_revision_events.raw.json followup-contracts-session_revision_events.json --kind counts --minimum 11\npython scripts/check_frontend_report.py followup-contracts-session_revision_events.json --format counts --minimum 11\nnode tests/e2e/session_expiry_fences.cjs > followup-contracts-session_expiry_fences.raw.json\npython tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_fences.raw.json followup-contracts-session_expiry_fences.json --kind counts --minimum 3\npython scripts/check_frontend_report.py followup-contracts-session_expiry_fences.json --format counts --minimum 3\nnode tests/e2e/dashboard_followup.cjs > followup-contracts-dashboard_followup.raw.json\npython tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup.raw.json followup-contracts-dashboard_followup.json --kind counts --minimum 20\npython scripts/check_frontend_report.py followup-contracts-dashboard_followup.json --format counts --minimum 20\nnode tests/e2e/session_expiry_security.cjs > followup-contracts-session_expiry_security.raw.json\npython tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_security.raw.json followup-contracts-session_expiry_security.json --kind counts --minimum 10\npython scripts/check_frontend_report.py followup-contracts-session_expiry_security.json --format counts --minimum 10\nnode tests/e2e/dashboard_followup_focus.cjs > followup-contracts-dashboard_followup_focus.raw.json\npython tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup_focus.raw.json followup-contracts-dashboard_followup_focus.json --kind counts --minimum 4\npython scripts/check_frontend_report.py followup-contracts-dashboard_followup_focus.json --format counts --minimum 4\n'}
+FOLLOWUP_PG_STEP = {'name': 'Readonly follow-up facts under both current PostgreSQL factories', 'run': 'python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-postgres-followup.xml'}
+FOLLOWUP_REPORT_STEP = {'name': 'Both follow-up PostgreSQL factory identities must pass', 'run': 'python tests/check_followup_reports.py'}
+FOLLOWUP_BROWSER_STEP = {'name': 'Host checkout follow-up browser uses current restricted PostgreSQL fixture', 'timeout-minutes': 5, 'env': {'METODOBASE_TEST_MIGRATOR_URL': 'postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image', 'METODOBASE_TEST_POSTGRES_URL': 'postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image', 'METODOBASE_TEST_PG_BIN': '/usr/bin'}, 'run': 'set -euo pipefail\nprivate="$RUNNER_TEMP/followup-private"\npublic="$RUNNER_TEMP/followup-public"\nmkdir "$private" "$public"\nfixture_pid=""\nfinish_followup() {\n  status=$?\n  trap - EXIT INT TERM\n  touch "$private/stop"\n  if [ -n "$fixture_pid" ]; then\n    for attempt in $(seq 1 100); do\n      if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi\n      sleep 0.2\n    done\n    if jobs -pr | grep -qx "$fixture_pid"; then\n      echo "Owned follow-up fixture did not finalize" >&2\n      status=1\n    elif ! wait "$fixture_pid"; then\n      status=1\n    fi\n  fi\n  exit "$status"\n}\ntrap finish_followup EXIT\ntrap \'exit 130\' INT\ntrap \'exit 143\' TERM\npython -c \'import json,os,pathlib; keys=("METODOBASE_TEST_MIGRATOR_URL","METODOBASE_TEST_POSTGRES_URL","METODOBASE_TEST_PG_BIN"); pathlib.Path(os.environ["RUNNER_TEMP"],"followup-private","config.json").write_text(json.dumps({key:os.environ[key] for key in keys}),encoding="utf8")\'\nexport FOLLOWUP_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"\nexport CHROME_PATH=$(node -e "process.stdout.write(require(\'./tests/e2e/node_modules/playwright-core\').chromium.executablePath())")\npython -X utf8 tests/e2e/followup_server.py --pg-config "$private/config.json" --report "$public/startup.json" --stop-file "$private/stop" --port 8795 >"$private/server.stdout.log" 2>"$private/server.stderr.log" &\nfixture_pid=$!\nready=0\nfor attempt in $(seq 1 90); do\n  if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi\n  if python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795 2>/dev/null && curl --fail --silent http://127.0.0.1:8795/health >/dev/null; then ready=1; break; fi\n  sleep 1\ndone\ntest "$ready" = 1\nexport FOLLOWUP_STARTUP_REPORT="$public/startup.json"\nnode tests/e2e/dashboard_followup_browser.cjs "$public"\npython tests/e2e/normalize_followup_report.py "$public/report.json" "$public/normalized.json" --kind browser --minimum 8\npython scripts/check_frontend_report.py "$public/normalized.json" --format named --minimum 8 --minimum-screens 5\npython scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795\n'}
+FOLLOWUP_BROWSER_UPLOAD = {'uses': 'actions/upload-artifact@v4', 'if': 'always()', 'with': {'name': 'followup-host-real-browser', 'path': '${{ runner.temp }}/followup-public', 'if-no-files-found': 'error'}}
+FOLLOWUP_REPORT = 'pytest-postgres-followup.xml'
+
 
 def normalized(path: Path) -> bytes:
     return path.read_bytes().replace(b'\r\n', b'\n')
@@ -139,6 +147,18 @@ def expected_workflow(old: dict) -> dict:
     needle = '--tables 29 --revision ' + PREVIOUS
     assert browser['run'].count(needle) == 1
     browser['run'] = browser['run'].replace(needle, '--tables 29 --revision ' + REVISION)
+    frontend = expected['jobs']['frontend-contracts']['steps']
+    upload = next(step for step in frontend if step.get('with', {}).get('name') == 'frontend-session-contracts')
+    frontend.insert(frontend.index(upload), FOLLOWUP_VM_STEP)
+    upload['with']['path'] += 'followup-contracts-*.json\n'
+    steps.insert(steps.index(guard), FOLLOWUP_PG_STEP)
+    needle = "len(reports)==28 and len(set(reports))==28, 'Expected 28 distinct PostgreSQL reports'"
+    assert guard['run'].count(needle) == 1
+    guard['run'] = guard['run'].replace(needle,
+        "len(reports)==29 and len(set(reports))==29, 'Expected 29 distinct PostgreSQL reports'")
+    guard['run'] += ' ' + FOLLOWUP_REPORT
+    steps.insert(steps.index(INDEX_CHECKER) + 1, FOLLOWUP_REPORT_STEP)
+    expected['jobs']['image']['steps'].extend([FOLLOWUP_BROWSER_STEP, FOLLOWUP_BROWSER_UPLOAD])
     return expected
 
 
@@ -151,11 +171,11 @@ def verify_workflow(workflow: dict, old: dict) -> tuple[list[str], list[str]]:
     reports = parts[3:]
     old_guard = next(step['run'] for step in old['jobs']['postgres']['steps']
                      if step.get('name', '').startswith('Required PostgreSQL acceptance'))
-    assert reports == shlex.split(old_guard)[3:] + list(INDEX_REPORTS)
-    assert len(reports) == len(set(reports)) == 28
+    assert reports == shlex.split(old_guard)[3:] + list(INDEX_REPORTS) + [FOLLOWUP_REPORT]
+    assert len(reports) == len(set(reports)) == 29
     produced = [name for step in steps for name in re.findall(
         r'--junitxml=(pytest-postgres-[a-z-]+\.xml)', step.get('run', ''))]
-    assert len(produced) == 28 and set(produced) == set(reports)
+    assert len(produced) == 29 and set(produced) == set(reports)
     return parts, reports
 
 
@@ -206,13 +226,13 @@ def delta_cases(workflow: dict, old: dict) -> list[dict]:
         ('omit-ordered-query', 'postgres', ' tests/integration_personal_history_ordered_query.py', ''),
         ('omit-historical-report', 'postgres', ' pytest-postgres-quota.xml', ''),
         ('duplicate-new-report', 'postgres', 'pytest-postgres-history-index.xml pytest-postgres-history-index-restore.xml', 'pytest-postgres-history-index.xml pytest-postgres-history-index.xml'),
-        ('reduce-report-count', 'postgres', 'len(reports)==28', 'len(reports)==27'),
+        ('reduce-report-count', 'postgres', 'len(reports)==29', 'len(reports)==28'),
         ('restore-old29-instead30', 'postgres', 'tests/integration_personal_history_index_restore.py', 'tests/integration_client_link_restore.py'),
         ('old-fixture-head', 'image', '--revision ' + REVISION, '--revision ' + PREVIOUS),
         ('wrong-business-table-count', 'image', '--tables 29', '--tables 30'),
         ('ignore-startup-failure', 'image', '--revision ' + REVISION + ' 2>/dev/null; then ready=1; break; fi', '--revision ' + REVISION + ' 2>/dev/null; then ready=1; break; fi; ready=1'),
         ('weaken-VM-export', 'frontend-contracts', '--minimum 32', '--minimum 1'),
-        ('weaken-VM-controls', 'frontend-contracts', '--minimum 3\n', '--minimum 0\n'),
+        ('weaken-VM-controls', 'frontend-contracts', 'member-link-controls.json --format counts --minimum 3\n', 'member-link-controls.json --format counts --minimum 0\n'),
         ('weaken-browser-command', 'image', '--port 8794', '--port 8794 || true'),
         ('skip-new-checker', 'postgres', 'python tests/check_history_index_reports.py', 'echo bypass'),
         ('skip-old-checker', 'postgres', 'python tests/check_member_link_reports.py', 'echo bypass'),
@@ -231,7 +251,19 @@ def delta_cases(workflow: dict, old: dict) -> list[dict]:
         try: verify_workflow(mutant, old)
         except AssertionError: rows.append({'case': name, 'rejected': True})
         else: raise AssertionError(name)
-    assert len(rows) == 27
+    for name, action in [
+        ('missing-followup-PG', lambda w: w['jobs']['postgres']['steps'].remove(FOLLOWUP_PG_STEP)),
+        ('missing-followup-checker', lambda w: w['jobs']['postgres']['steps'].remove(FOLLOWUP_REPORT_STEP)),
+        ('missing-followup-VM', lambda w: w['jobs']['frontend-contracts']['steps'].remove(FOLLOWUP_VM_STEP)),
+        ('missing-followup-browser', lambda w: w['jobs']['image']['steps'].remove(FOLLOWUP_BROWSER_STEP)),
+        ('followup-browser-continue', lambda w: next(s for s in w['jobs']['image']['steps'] if s == FOLLOWUP_BROWSER_STEP).update({'continue-on-error': True})),
+        ('private-followup-upload', lambda w: next(s for s in w['jobs']['image']['steps'] if s == FOLLOWUP_BROWSER_UPLOAD)['with'].update({'path': '${{ runner.temp }}/followup-private'})),
+    ]:
+        mutant = copy.deepcopy(workflow); action(mutant)
+        try: verify_workflow(mutant, old)
+        except AssertionError: rows.append({'case': name, 'rejected': True})
+        else: raise AssertionError(name)
+    assert len(rows) == 33
     return rows
 
 
@@ -305,6 +337,40 @@ def index_report_canaries(out: Path) -> list[dict]:
             assert (result.returncode == 0) == (mode == 'positive'), (target, mode)
             rows.append({'report': target, 'case': mode, 'exit': result.returncode})
     assert len(rows) == 24
+    return rows
+
+
+def followup_report_canaries(out: Path) -> list[dict]:
+    authenticate_current_gates()
+    from tests.check_followup_reports import REPORT, REQUIRED
+    expected = frozenset({('tests.integration_followup_postgres',
+        'test_readonly_followup_double_owner_admin_scope_and_revocation[' + factory + '-postgresql]')
+        for factory in ('web.main_web', 'api.app')})
+    assert REPORT == FOLLOWUP_REPORT and REQUIRED == expected
+    rows = []
+    modes = ['positive', 'missing', 'malformed', 'empty', 'reduced', 'duplicate',
+             'wrong-module', 'SQLite', 'skip', 'failure', 'error', 'substituted-case']
+    for mode in modes:
+        directory = out / ('followup-report-' + mode); directory.mkdir()
+        suite = ET.Element('testsuite')
+        for module, name in sorted(expected):
+            ET.SubElement(suite, 'testcase', classname=module, name=name)
+        if mode == 'empty': suite.clear()
+        elif mode == 'reduced': suite.remove(suite[-1])
+        elif mode == 'duplicate': suite.append(copy.deepcopy(suite[0]))
+        elif mode == 'wrong-module': suite[0].set('classname', 'tests.unrelated')
+        elif mode == 'SQLite': suite[0].set('name', suite[0].get('name').replace('postgresql', 'sqlite'))
+        elif mode == 'substituted-case': suite[0].set('name', 'unrelated_case[postgresql]')
+        elif mode in ['skip', 'failure', 'error']: ET.SubElement(suite[0], 'skipped' if mode == 'skip' else mode)
+        ET.ElementTree(suite).write(directory / REPORT, encoding='utf8', xml_declaration=True)
+        if mode == 'missing': (directory / REPORT).unlink()
+        elif mode == 'malformed': (directory / REPORT).write_bytes(b'<testsuite')
+        result = subprocess.run([sys.executable, str(ROOT / 'tests/check_followup_reports.py'),
+            '--directory', str(directory)], capture_output=True, timeout=10, check=False)
+        (directory / 'stdout.log').write_bytes(result.stdout); (directory / 'stderr.log').write_bytes(result.stderr)
+        assert (result.returncode == 0) == (mode == 'positive'), mode
+        rows.append({'report': REPORT, 'case': mode, 'exit': result.returncode})
+    assert len(rows) == 12
     return rows
 
 
@@ -394,8 +460,9 @@ def main() -> None:
     report = {'scope': 'Local CI30 wiring/parsers/actual marker expressions and owned inert Bash; no Actions/browser/PG/provider execution',
         'historical_source_pin': 'fd636202045efa30b1430f4a9dd8ab287ec76357',
         'historical_exit': historical.returncode, 'reports': reports, 'retained_member_PG_minimum_cases': 60,
-        'current_index_PG_exact_cases': 9,
-        'VM_minima': VM_MODULES, 'VM_executions_in_full18': 300, 'VM_unique_criteria': 279,
+        'current_index_PG_exact_cases': 9, 'current_followup_PG_exact_cases': 2,
+        'VM_minima': VM_MODULES, 'legacy_VM_executions_in18': 300, 'legacy_VM_unique_criteria': 279,
+        'current_VM_executions_in23': 348, 'additional_checks_no_dedup_claim': 48,
         'duplicate_legacy_export_executions': 21, 'actual_markers': actual_fixture_markers(),
         'unauthorized_delta_canaries': delta_cases(workflow, old)}
     if not args.verify_only:
@@ -421,6 +488,7 @@ def main() -> None:
         try:
             report['current_report_canaries'] = report_canaries(scratch)
             report['index_report_canaries'] = index_report_canaries(scratch)
+            report['followup_report_canaries'] = followup_report_canaries(scratch)
             report['current_inert_fixture_cases'] = inert_cases(function, calls, bash, scratch)
         finally:
             with zipfile.ZipFile(out / 'canaries-raw.zip', 'w', compression=zipfile.ZIP_DEFLATED) as archive:
@@ -432,6 +500,7 @@ def main() -> None:
                       'delta_canaries': len(report['unauthorized_delta_canaries']),
                       'report_canaries': len(report.get('current_report_canaries', [])),
                       'index_report_canaries': len(report.get('index_report_canaries', [])),
+                      'followup_report_canaries': len(report.get('followup_report_canaries', [])),
                       'inert_cases': len(report.get('current_inert_fixture_cases', []))}))
 
 

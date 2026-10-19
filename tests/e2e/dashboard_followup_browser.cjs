@@ -17,6 +17,9 @@ assert.deepEqual(startup.history_order_index,{
   indoption:[0,0,1,1],method:'btree',collations:['pg_catalog.default','pg_catalog.default',null,null],
   operator_classes:['pg_catalog.text_ops','pg_catalog.text_ops','pg_catalog.timestamp_ops','pg_catalog.int4_ops']
 });
+report.executed_revision=startup.runtime_revision;
+report.model_tables=startup.model_tables;report.actual_tables=startup.actual_tables;
+report.history_order_index=startup.history_order_index;
 function snapshot(){return Object.fromEntries(Object.keys(startup.sources).map(name=>[name,require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(sourceRoot,name))).digest('hex') ]));}
 report.source_start=snapshot();
 report.startup_delta=Object.fromEntries(Object.entries(report.source_start).filter(([name,hash])=>startup.sources[name]!==hash).map(([name,hash])=>[name,{startup:startup.sources[name],browser:hash}]));

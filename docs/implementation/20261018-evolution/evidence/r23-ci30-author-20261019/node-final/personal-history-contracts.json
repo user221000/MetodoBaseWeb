@@ -1,0 +1,99 @@
+{
+  "scope": "Synthetic history controller/helper only; separate from prior162 contracts",
+  "passed": 23,
+  "total": 23,
+  "results": [
+    {
+      "case": "First page is explicit and does not follow its cursor automatically",
+      "passed": true
+    },
+    {
+      "case": "Double click cannot dispatch a second pending page",
+      "passed": true
+    },
+    {
+      "case": "Pages append with ID deduplication and exhaustion blocks further fetches",
+      "passed": true
+    },
+    {
+      "case": "Error keeps visible rows and retry uses the exact captured cursor",
+      "passed": true
+    },
+    {
+      "case": "Invalidated cursor needs an explicit fresh consultation",
+      "passed": true
+    },
+    {
+      "case": "Explicit update replaces the prior live page instead of mixing it",
+      "passed": true
+    },
+    {
+      "case": "Malformed page cannot publish rows {\"planes\":[{\"id\":1}]}",
+      "passed": true
+    },
+    {
+      "case": "Malformed page cannot publish rows {\"planes\":[{\"id\":0,\"fecha\":null,\"tiene_pdf\":false}],\"ne",
+      "passed": true
+    },
+    {
+      "case": "Malformed page cannot publish rows {\"planes\":[{\"id\":1,\"fecha\":null,\"tiene_pdf\":false},{\"id",
+      "passed": true
+    },
+    {
+      "case": "Malformed page cannot publish rows {\"planes\":[],\"next_cursor\":\"next\"}",
+      "passed": true
+    },
+    {
+      "case": "Repeating the same next cursor is an error with old rows retained",
+      "passed": true
+    },
+    {
+      "case": "A late response after account replacement never publishes old rows",
+      "passed": true
+    },
+    {
+      "case": "Account replacement after personal.read resolves is checked before DTO use",
+      "passed": true
+    },
+    {
+      "case": "Persisted role/team/version change is checked by the shared personal reader",
+      "passed": true
+    },
+    {
+      "case": "Controls invalidating synchronously prevent the request and leave no busy state",
+      "passed": true
+    },
+    {
+      "case": "Immediate storage invalidation clears rows and positions",
+      "passed": true
+    },
+    {
+      "case": "Immediate metodobase-session-changed invalidation clears rows and positions",
+      "passed": true
+    },
+    {
+      "case": "Immediate pagehide invalidation clears rows and positions",
+      "passed": true
+    },
+    {
+      "case": "Storage read failure at the next control discards existing private rows",
+      "passed": true
+    },
+    {
+      "case": "Helper defaults preserve the first-page URL and Bearer method",
+      "passed": true
+    },
+    {
+      "case": "Helper sends opaque position and limit without parsing its contents",
+      "passed": true
+    },
+    {
+      "case": "Helper rejects wrong types and limits before transport",
+      "passed": true
+    },
+    {
+      "case": "Helper does not send another account cursor with a stale context",
+      "passed": true
+    }
+  ]
+}

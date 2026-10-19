@@ -1,0 +1,111 @@
+{
+  "scope": "One API instance and synthetic Storage fault injection only; no reload durability, cross-tab atomicity, browser quota or backend claim",
+  "passed": 26,
+  "total": 26,
+  "results": [
+    {
+      "case": "Explicit save before mb_token failure blocks all consumers until complete recovery",
+      "passed": true
+    },
+    {
+      "case": "Explicit save after mb_token failure blocks all consumers until complete recovery",
+      "passed": true
+    },
+    {
+      "case": "Explicit save before mb_refresh_token failure blocks all consumers until complete recovery",
+      "passed": true
+    },
+    {
+      "case": "Explicit save after mb_refresh_token failure blocks all consumers until complete recovery",
+      "passed": true
+    },
+    {
+      "case": "Explicit clear before mb_token failure never adopts a remaining token",
+      "passed": true
+    },
+    {
+      "case": "Explicit clear after mb_token failure never adopts a remaining token",
+      "passed": true
+    },
+    {
+      "case": "Explicit clear before mb_refresh_token failure never adopts a remaining token",
+      "passed": true
+    },
+    {
+      "case": "Explicit clear after mb_refresh_token failure never adopts a remaining token",
+      "passed": true
+    },
+    {
+      "case": "Initial unreadable mb_token leaves API loaded but all credential consumers blocked",
+      "passed": true
+    },
+    {
+      "case": "Initial unreadable mb_refresh_token leaves API loaded but all credential consumers blocked",
+      "passed": true
+    },
+    {
+      "case": "Read failure for mb_token during a new authenticated request permanently fences automatic adoption",
+      "passed": true
+    },
+    {
+      "case": "Read failure for mb_refresh_token during a new authenticated request permanently fences automatic adoption",
+      "passed": true
+    },
+    {
+      "case": "Save first-readback read failure requires explicit recovery even if two values happen to match",
+      "passed": true
+    },
+    {
+      "case": "Save final-readback read failure requires explicit recovery even if two values happen to match",
+      "passed": true
+    },
+    {
+      "case": "A read error carrying the public code still marks the pair untrusted and hides raw diagnostic text",
+      "passed": true
+    },
+    {
+      "case": "Refresh rotation before mb_token failure settles its mixed queue and blocks future requests",
+      "passed": true
+    },
+    {
+      "case": "Refresh rotation after mb_token failure settles its mixed queue and blocks future requests",
+      "passed": true
+    },
+    {
+      "case": "Refresh rotation before mb_refresh_token failure settles its mixed queue and blocks future requests",
+      "passed": true
+    },
+    {
+      "case": "Refresh rotation after mb_refresh_token failure settles its mixed queue and blocks future requests",
+      "passed": true
+    },
+    {
+      "case": "Clear first-readback read failure blocks automatic use of residual credentials",
+      "passed": true
+    },
+    {
+      "case": "Clear final-readback read failure blocks automatic use of residual credentials",
+      "passed": true
+    },
+    {
+      "case": "An old refresh already in flight cannot recover a failed explicit save by installing its old account",
+      "passed": true
+    },
+    {
+      "case": "Failure does not restore or compensate over a complete externally replaced pair",
+      "passed": true
+    },
+    {
+      "case": "A complete newer explicit save wins over an older synchronous interleaved attempt",
+      "passed": true
+    },
+    {
+      "case": "Only complete explicit clear followed by a public login can recover without a direct pair save",
+      "passed": true
+    },
+    {
+      "case": "A silently ignored refresh-key write is treated as an untrusted incomplete save",
+      "passed": true
+    }
+  ]
+}

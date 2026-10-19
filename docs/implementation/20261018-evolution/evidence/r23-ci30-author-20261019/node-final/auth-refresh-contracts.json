@@ -1,0 +1,139 @@
+{
+  "scope": "Synthetic in-memory transports and token state; no browser/server/provider claim",
+  "passed": 33,
+  "total": 33,
+  "results": [
+    {
+      "case": "Normal refresh retries exactly once with the rotated pair and identical DTO",
+      "passed": true
+    },
+    {
+      "case": "Generation keeps its original Idempotency-Key and DTO across a legitimate refresh",
+      "passed": true
+    },
+    {
+      "case": "Three concurrent 401 consumers share one refresh and all settle successfully",
+      "passed": true
+    },
+    {
+      "case": "A late old 401 uses a known successful same-session rotation without another refresh",
+      "passed": true
+    },
+    {
+      "case": "Refresh failure network settles the whole queue without leaving a busy coordinator",
+      "passed": true
+    },
+    {
+      "case": "Refresh failure json settles the whole queue without leaving a busy coordinator",
+      "passed": true
+    },
+    {
+      "case": "Refresh failure 401 settles the whole queue without leaving a busy coordinator",
+      "passed": true
+    },
+    {
+      "case": "Refresh failure 500 settles the whole queue without leaving a busy coordinator",
+      "passed": true
+    },
+    {
+      "case": "Refresh failure missing settles the whole queue without leaving a busy coordinator",
+      "passed": true
+    },
+    {
+      "case": "A definitive 401 after one retry clears only its still-current pair",
+      "passed": true
+    },
+    {
+      "case": "A delayed old HTTP 200 response cannot return data, refresh or clear a new account",
+      "passed": true
+    },
+    {
+      "case": "A delayed old HTTP 401 response cannot return data, refresh or clear a new account",
+      "passed": true
+    },
+    {
+      "case": "A delayed old HTTP 500 response cannot return data, refresh or clear a new account",
+      "passed": true
+    },
+    {
+      "case": "A response body JSON parsed after account change is discarded",
+      "passed": true
+    },
+    {
+      "case": "A delayed refresh success preserves the new account and settles every waiter",
+      "passed": true
+    },
+    {
+      "case": "A delayed refresh error preserves the new account and settles every waiter",
+      "passed": true
+    },
+    {
+      "case": "A delayed refresh json preserves the new account and settles every waiter",
+      "passed": true
+    },
+    {
+      "case": "A delayed retried 401 cannot clear newer credentials",
+      "passed": true
+    },
+    {
+      "case": "Logout HTTP 200 delivered after account change does not clear the new login",
+      "passed": true
+    },
+    {
+      "case": "Logout HTTP 401 delivered after account change does not clear the new login",
+      "passed": true
+    },
+    {
+      "case": "Logout HTTP 500 delivered after account change does not clear the new login",
+      "passed": true
+    },
+    {
+      "case": "Explicit normal logout clears the current pair",
+      "passed": true
+    },
+    {
+      "case": "Public loginGym does not attach Bearer or auto-refresh a 401",
+      "passed": true
+    },
+    {
+      "case": "Public loginUsuario does not attach Bearer or auto-refresh a 401",
+      "passed": true
+    },
+    {
+      "case": "Public registro does not attach Bearer or auto-refresh a 401",
+      "passed": true
+    },
+    {
+      "case": "A valid public login replaces the current logical session, while a late one cannot replace another account",
+      "passed": true
+    },
+    {
+      "case": "PDF, logo GET and logo POST share the central safe refresh transport",
+      "passed": true
+    },
+    {
+      "case": "A delayed pdf body is discarded after account change",
+      "passed": true
+    },
+    {
+      "case": "A delayed logo body is discarded after account change",
+      "passed": true
+    },
+    {
+      "case": "A delayed upload body is discarded after account change",
+      "passed": true
+    },
+    {
+      "case": "An old refresh finalizer cannot release a newer account refresh job or strand its queue",
+      "passed": true
+    },
+    {
+      "case": "Storage notifications fence an ABA token change even when values return to the original pair",
+      "passed": true
+    },
+    {
+      "case": "A successful old body remains usable after a known same-user refresh rotation",
+      "passed": true
+    }
+  ]
+}
