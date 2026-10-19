@@ -11,7 +11,7 @@ id = "generic-api-key"
     [[rules.allowlists]]
     description = "SHA256 file fingerprints in reviewed execution evidence, never arbitrary JSON values"
     condition = "AND"
-    paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/(?:[^/]*-source(?:-(?:before|after))?|[^/]*-hashes|secrets-tree-(?:initial|triaged|final)|ux/(?:subscription-independent-source|frontend-freeze-source|frontend-independent-source|team-followup-freeze-source))\.json$''']
+    paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/(?:[^/]*-source(?:-(?:before|after))?|[^/]*-hashes|secrets-tree-(?:initial|triaged|final)|ux/(?:subscription-independent-source|frontend-freeze-source|frontend-independent-source|team-followup-freeze-source|privacy-export-ui-source|privacy-export-independent-source))\.json$''']
     regexTarget = "line"
     regexes = ['''^\s*"[^"\r\n]+\.(?:py|js|html|css|txt|lock|toml|yml|ini|json)"\s*:\s*"[a-f0-9]{64}",?\s*$''']
 
@@ -28,6 +28,16 @@ id = "generic-api-key"
     paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/(?:secrets-tree-final|secrets-checkpoint-source)\.json$''']
     regexTarget = "line"
     regexes = ['''^\s*"docs/implementation/20261018-evolution/evidence/backend-auth-review\.md"\s*:\s*"(?:23b64c78dfd83504804132d37d1a331cd4da81eddbfe3129c18a438d72b2a0e7|8773f2e2a9b4cf567bc76f138965d605cf89a21632dcd78379fcbc6f1e42a69f)",?\s*$''']
+
+    [[rules.allowlists]]
+    description = "Exact public file digests of the historical R04 token regression evidence in the prior report"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/secrets-tree-final\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"docs/implementation/20261018-evolution/evidence/pytest-r04-token-before\.log"\s*:\s*"52ad42c020d48688c078f9e1cd68a3df60830dcad175519dc8ad81cccd1cd4d0",?\s*$''',
+        '''^\s*"docs/implementation/20261018-evolution/evidence/pytest-r04-token-before\.xml"\s*:\s*"c4dd5dab5d6eb92dfc4f4cf67820b3f67a4c64894bdc5517dacaacb2488ee7f5",?\s*$''',
+    ]
 
 [[rules]]
 id = "sentry-access-token"
