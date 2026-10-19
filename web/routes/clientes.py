@@ -15,7 +15,7 @@ from web.schemas import ClienteCreate, ClienteUpdate
 from web.database.engine import get_db, get_db_readonly
 from web.database import repository as repo
 from web.auth_deps import get_usuario_actual, get_effective_gym_id
-from web.subscription_guard import check_daily_registration_limit, check_food_preferences_allowed
+from web.subscription_guard import check_daily_registration_limit
 from web.services.permissions import verify_permission
 from web.routes._utils import get_gym_id
 from web.constants import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ERR_CLIENTE_NO_ENCONTRADO
@@ -74,19 +74,9 @@ def crear_cliente(
     db: Session = Depends(get_db),
     usuario: dict = Depends(check_daily_registration_limit),
 ):
+    verify_permission(usuario, "create", "cliente")
     try:
-        # Bloquear alimentos_excluidos si el plan no soporta preferencias
-        plan_name = usuario.get("subscription", {}).get("plan", "free")
-        if not check_food_preferences_allowed(plan_name):
-            if data.alimentos_excluidos:
-                raise HTTPException(
-                    status_code=403,
-                    detail={
-                        "code": "food_preferences_not_available",
-                        "message": "Las preferencias de alimentos no están disponibles en tu plan. Actualiza a Gym Comercial o Clínica.",
-                        "upgrade_url": "/suscripciones",
-                    },
-                )
+        # Safety exclusions are validated independently of the commercial tier.
         from web.dependencies import build_cliente_from_dict
         cliente_eval = build_cliente_from_dict(data.model_dump())
         # Persist via SA repository
@@ -114,12 +104,8 @@ def crear_cliente(
     except HTTPException:
         raise
     except Exception as exc:
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Error creando cliente: %s", exc,
-            exc_info=not _gs().is_production
-        )
-        raise HTTPException(status_code=400, detail=str(exc))
+        logger.error("Error creando cliente: %s", type(exc).__name__)
+        raise HTTPException(status_code=400, detail={"code": "client_create_failed", "message": "No se pudo crear el cliente. Revisa los datos e intenta de nuevo."}) from None
 
 
 @router.put("/clientes/{id_cliente}", summary="Actualizar cliente existente")
@@ -135,20 +121,7 @@ def actualizar_cliente(
         raise HTTPException(status_code=404, detail=ERR_CLIENTE_NO_ENCONTRADO)
 
     try:
-        # Bloquear alimentos_excluidos si el plan no soporta preferencias
-        if data.alimentos_excluidos is not None and data.alimentos_excluidos:
-            from web.subscription_guard import check_food_preferences_allowed, _get_gym_plan
-            plan_name = _get_gym_plan(db, get_gym_id(usuario))
-            if not check_food_preferences_allowed(plan_name):
-                raise HTTPException(
-                    status_code=403,
-                    detail={
-                        "code": "food_preferences_not_available",
-                        "message": "Las preferencias de alimentos no están disponibles en tu plan. Actualiza a Gym Comercial o Clínica.",
-                        "upgrade_url": "/suscripciones",
-                    },
-                )
-
+        # Changing a billing feature must never disable safety exclusions.
         update_dict = {k: v for k, v in data.model_dump().items() if v is not None}
         result = repo.actualizar_cliente(db, get_gym_id(usuario), id_cliente, update_dict)
         if not result:
@@ -158,12 +131,8 @@ def actualizar_cliente(
     except HTTPException:
         raise
     except Exception as exc:
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Error actualizando: %s", exc,
-            exc_info=not _gs().is_production
-        )
-        raise HTTPException(status_code=400, detail=str(exc))
+        logger.error("Error actualizando cliente: %s", type(exc).__name__)
+        raise HTTPException(status_code=400, detail={"code": "client_update_failed", "message": "No se pudo actualizar el cliente. Revisa los datos e intenta de nuevo."}) from None
 
 
 @router.delete("/clientes/{id_cliente}", summary="Desactivar cliente (soft delete)")

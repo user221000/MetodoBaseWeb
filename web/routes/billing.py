@@ -20,7 +20,7 @@ import os
 import secrets
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Header
 from pydantic import BaseModel, Field
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -110,38 +110,15 @@ def billing_config(
             "descripcion": info.get("descripcion", ""),
             "features": info.get("features", []),
         }
-    def _clean_link(url: str) -> str:
-        clean = (url or "").strip().strip('"').strip("'").strip()
-        return clean if any(clean.startswith(p) for p in _STRIPE_PAYMENT_LINK_PREFIXES) else ""
-
-    # Lee directamente de os.getenv para evitar stale lru_cache de Settings
-    link_standard     = _clean_link(os.getenv("STRIPE_PAYMENT_LINK_STANDARD", ""))
-    link_gym_comercial = _clean_link(os.getenv("STRIPE_PAYMENT_LINK_GYM_COMERCIAL", ""))
-    link_clinica      = _clean_link(os.getenv("STRIPE_PAYMENT_LINK_CLINICA", ""))
-    # Debug: log raw env values (prefix only, for security)
-    _raw_gym = os.getenv("STRIPE_PAYMENT_LINK_GYM_COMERCIAL", "")
-    _raw_std = os.getenv("STRIPE_PAYMENT_LINK_STANDARD", "")
-    _raw_cli = os.getenv("STRIPE_PAYMENT_LINK_CLINICA", "")
-    logger.info(
-        "[billing/config] RAW env — standard=%r(%d) gym=%r(%d) clinica=%r(%d)",
-        _raw_std[:30] + "..." if len(_raw_std) > 30 else _raw_std, len(_raw_std),
-        _raw_gym[:30] + "..." if len(_raw_gym) > 30 else _raw_gym, len(_raw_gym),
-        _raw_cli[:30] + "..." if len(_raw_cli) > 30 else _raw_cli, len(_raw_cli),
-    )
-    logger.info(
-        "[billing/config] payment_links resolved — standard=%s gym_comercial=%s clinica=%s",
-        bool(link_standard), bool(link_gym_comercial), bool(link_clinica),
-    )
-
     return {
         "stripe_configured": stripe_ready,
         "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
         "mercadopago_configured": mp_ready,
         "plans": plans,
         "payment_links": {
-            "standard":      link_standard,
-            "gym_comercial": link_gym_comercial,
-            "clinica":       link_clinica,
+            "standard": "",
+            "gym_comercial": "",
+            "clinica": "",
         },
     }
 
@@ -151,6 +128,7 @@ def crear_checkout(
     data: CheckoutRequest,
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_usuario_actual),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
     _require_paid_plan(data.plan)
@@ -167,19 +145,16 @@ def crear_checkout(
             email=email,
             success_url=data.success_url,
             cancel_url=data.cancel_url,
+            request_key=idempotency_key,
         )
         return result
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "No fue posible completar la solicitud de pago") from e
     except Exception as e:
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Error checkout: %s", e,
-            exc_info=not _gs().is_production
-        )
-        raise HTTPException(502, "Error al crear sesión de pago")
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("checkout", e, "Error al crear sesión de pago")) from None
 
 
 @router.post("/billing/stripe/subscribe", summary="Crear suscripción con tarjeta (Stripe Elements)")
@@ -187,6 +162,7 @@ def stripe_subscribe(
     data: StripeSubscribeRequest,
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_usuario_actual),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
     _require_paid_plan(data.plan)
@@ -197,19 +173,16 @@ def stripe_subscribe(
             plan=data.plan,
             email=usuario["email"],
             payment_method_id=data.payment_method_id,
+            request_key=idempotency_key,
         )
         return result
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "No fue posible completar la solicitud de pago") from e
     except Exception as e:
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Stripe subscribe error: %s", e,
-            exc_info=not _gs().is_production
-        )
-        raise HTTPException(502, "Error al crear suscripción")
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("subscribe", e, "Error al crear suscripción")) from None
 
 
 @router.post("/billing/confirm-subscription", summary="Confirmar suscripción tras pago")
@@ -226,14 +199,13 @@ def confirm_subscription(
         db.commit()
         return result
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "No fue posible completar la solicitud de pago") from e
     except Exception as e:
         db.rollback()
-        from web.settings import get_settings as _gs
-        logger.error("Confirm subscription error: %s", e, exc_info=not _gs().is_production)
-        raise HTTPException(502, "Error al confirmar suscripción")
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("confirm", e, "Error al confirmar suscripción")) from None
 
 
 @router.post("/billing/portal", summary="Abrir portal Stripe")
@@ -251,9 +223,9 @@ def abrir_portal(
         )
         return result
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "No fue posible completar la solicitud de pago") from e
 
 
 @router.get("/billing/subscription", summary="Estado de suscripción")
@@ -288,7 +260,7 @@ async def stripe_webhook(request: Request):
     try:
         event = stripe_service.verify_webhook(payload, sig_header)
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except Exception:
         raise HTTPException(400, "Firma de webhook inválida")
 
@@ -305,12 +277,8 @@ async def stripe_webhook(request: Request):
         logger.info("Webhook processed: type=%s result=%s", event["type"], result)
     except Exception as exc:
         db.rollback()
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Webhook error: %s", exc,
-            exc_info=not _gs().is_production
-        )
-        raise HTTPException(500, "Error procesando webhook")
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(503, public_failure("stripe_webhook", exc, "Error procesando webhook")) from None
     finally:
         db.close()
 
@@ -352,6 +320,7 @@ def crear_preferencia_mp(
     data: MPPreferenceRequest,
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_usuario_actual),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     """Crea una preferencia de pago en MercadoPago. Requiere RBAC."""
     verify_permission(usuario, "update", "subscription")
@@ -368,166 +337,16 @@ def crear_preferencia_mp(
     if len(email) < 5:
         raise HTTPException(400, "Email inválido")
 
-    info = PLANES_LICENCIA[data.plan]
-
+    from web.services.mercadopago_service import create_preference
     try:
-        from web.services.resilience import retry_with_backoff, mercadopago_circuit
-
-        @retry_with_backoff(max_retries=2, circuit=mercadopago_circuit)
-        def _create_pref(sdk, pref_data):
-            return sdk.preference().create(pref_data)
-
-        sdk = _get_mp_sdk()
-        preference = _create_pref(sdk, {
-            "items": [{
-                "title": f"Método Base — {data.plan.title()}",
-                "quantity": 1,
-                "unit_price": info["precio_mxn"],
-                "currency_id": "MXN",
-            }],
-            "payer": {"email": email},
-            "back_urls": {
-                "success": data.success_url,
-                "failure": data.cancel_url,
-                "pending": data.cancel_url,
-            },
-            "auto_return": "approved",
-            "metadata": {
-                "plan": data.plan,
-                "gym_id": gym_id,
-            },
-        })
-
-        resp = preference["response"]
-        pref_id = resp["id"]
-
-        # Persist checkout session
-        from web.database.models import CheckoutSession
-        checkout = CheckoutSession(
-            id=secrets.token_urlsafe(32),
-            gym_id=gym_id,
-            stripe_session_id=pref_id,
-            plan=data.plan,
-            email=email,
-            status="pending",
-        )
-        db.add(checkout)
-        db.commit()
-
-        return {"session_id": pref_id, "redirect_url": resp["init_point"]}
-
-    except ImportError:
-        raise HTTPException(503, "Módulo mercadopago no instalado")
-    except Exception as e:
-        logger.error("MercadoPago error: %s", e, exc_info=settings.DEBUG)
-        raise HTTPException(502, "Error al crear preferencia de pago")
+        return create_preference(db, gym_id, data.plan, email, data.success_url, data.cancel_url, idempotency_key)
+    except Exception as error:
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("mp_preference", error, "Error al crear preferencia de pago")) from None
 
 
 @router.post("/billing/mp/webhook", include_in_schema=False)
 async def mp_webhook(request: Request):
-    """Webhook de MercadoPago. Verificación por firma, sin JWT.
-
-    Seguridad: verifica firma x-signature HMAC-SHA256 en producción.
-    Idempotencia: payment_id duplicado se ignora sin error.
-    """
-    settings = get_settings()
-    raw_body = await request.body()
-
-    # ── Verificar firma ───────────────────────────────────────────────
-    if not settings.MERCADOPAGO_WEBHOOK_SECRET:
-        logger.warning("MP webhook received but MERCADOPAGO_WEBHOOK_SECRET not set")
-        raise HTTPException(503, "MercadoPago webhooks not configured")
-
-    x_signature = request.headers.get("x-signature", "")
-    x_request_id = request.headers.get("x-request-id", "")
-    parts = dict(
-        p.split("=", 1) for p in x_signature.split(",") if "=" in p
-    )
-    ts = parts.get("ts", "")
-    v1 = parts.get("v1", "")
-
-    if ts and v1:
-        data_id = request.query_params.get(
-            "data.id", request.query_params.get("id", "")
-        )
-        manifest = f"id:{data_id};request-id:{x_request_id};ts:{ts};"
-        expected = hmac.new(
-            settings.MERCADOPAGO_WEBHOOK_SECRET.encode(),
-            manifest.encode(),
-            hashlib.sha256,
-        ).hexdigest()
-        if not hmac.compare_digest(v1, expected):
-            logger.warning("MP webhook firma inválida")
-            raise HTTPException(401, "Firma inválida")
-    else:
-        logger.warning("MP webhook sin firma")
-        raise HTTPException(401, "Firma requerida")
-
-    body = json.loads(raw_body)
-    topic = body.get("type", "")
-
-    if topic != "payment":
-        return {"status": "ignored"}
-
-    payment_id = body.get("data", {}).get("id")
-    if not payment_id:
-        return {"status": "no_payment_id"}
-
-    logger.info("MercadoPago notificación payment_id=%s", payment_id)
-
-    try:
-        sdk = _get_mp_sdk()
-        payment_response = sdk.payment().get(payment_id)
-
-        if payment_response["status"] != 200:
-            logger.error("MP: No se pudo obtener pago %s", payment_id)
-            return {"status": "error"}
-
-        payment_data = payment_response["response"]
-        status = payment_data.get("status")
-
-        if status != "approved":
-            logger.info("MP pago %s no aprobado: status=%s", payment_id, status)
-            return {"status": "not_approved"}
-
-        metadata = payment_data.get("metadata", {})
-        plan = metadata.get("plan", "standard")
-        gym_id = metadata.get("gym_id", "")
-        email = payment_data.get("payer", {}).get("email", "")
-
-        if not gym_id:
-            logger.error("MP pago %s sin gym_id en metadata", payment_id)
-            return {"status": "missing_gym_id"}
-
-        # Procesar con sesión de BD vía pool de conexiones
-        from web.database.engine import SessionLocal
-
-        db = SessionLocal()
-        try:
-            # Idempotencia
-            if is_payment_processed(db, str(payment_id)):
-                logger.info("MP webhook duplicado payment_id=%s", payment_id)
-                return {"status": "already_processed"}
-
-            # Completar checkout
-            complete_checkout(db, gym_id, plan, email, str(payment_id))
-
-            # Activar suscripción
-            activate_subscription(db, gym_id, plan, provider="mercadopago")
-
-            db.commit()
-        except Exception:
-            db.rollback()
-            raise
-        finally:
-            db.close()
-
-        logger.info("MP pago aprobado: payment_id=%s plan=%s gym=%s", payment_id, plan, gym_id)
-        return {"status": "ok"}
-
-    except ImportError:
-        logger.error("SDK de MercadoPago no instalado")
-        return {"status": "sdk_missing"}
-    except Exception as e:
-        logger.error("Error procesando webhook MP: %s", e)
-        return {"status": "error"}
+    """Delegate signature, replay, current-state reconciliation and retry status."""
+    from web.services.mercadopago_service import handle_webhook
+    return await handle_webhook(request)

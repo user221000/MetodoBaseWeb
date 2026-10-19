@@ -139,8 +139,8 @@ class CircuitBreaker:
                 self._state = CircuitState.OPEN
             elif self._failure_count >= self.config.failure_threshold:
                 logger.error(
-                    "Circuit %s opened after %d failures: %s",
-                    self.name, self._failure_count, error
+                    "Circuit %s opened after %d failures class=%s",
+                    self.name, self._failure_count, type(error).__name__
                 )
                 self._state = CircuitState.OPEN
     
@@ -233,8 +233,8 @@ def retry_with_backoff(
                     
                     if attempt == max_retries:
                         logger.error(
-                            "%s failed after %d attempts: %s",
-                            func.__name__, max_retries + 1, e
+                            "%s failed after %d attempts class=%s",
+                            func.__name__, max_retries + 1, type(e).__name__
                         )
                         raise
                     
@@ -247,8 +247,8 @@ def retry_with_backoff(
                     delay += random.uniform(-jitter_range, jitter_range)
                     
                     logger.warning(
-                        "%s attempt %d failed, retrying in %.2fs: %s",
-                        func.__name__, attempt + 1, delay, e
+                        "%s attempt %d failed, retrying in %.2fs class=%s",
+                        func.__name__, attempt + 1, delay, type(e).__name__
                     )
                     time.sleep(delay)
             

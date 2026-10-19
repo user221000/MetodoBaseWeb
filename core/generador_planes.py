@@ -1,4 +1,6 @@
 """CAPA 4: Construcción de planes nutricionales completos."""
+from core.food_catalog import FoodCatalog, FoodRestrictionError
+from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS, CATEGORIAS as _DEFAULT_CATEGORIES
 import os
 from datetime import datetime
 
@@ -27,7 +29,7 @@ from utils.logger import logger
 # REDONDEO CLÍNICO
 # ============================================================================
 
-def _aplicar_redondeo_clinico(comida_dict: dict) -> dict:
+def _aplicar_redondeo_clinico(comida_dict: dict, catalogo: FoodCatalog | None = None) -> dict:
     """
     Aplica redondeo clínico a una comida.
     
@@ -37,13 +39,17 @@ def _aplicar_redondeo_clinico(comida_dict: dict) -> dict:
     - Grasas: múltiplos de 5g
     - Vegetales: múltiplos de 10g
     """
+    # Each helper receives the same immutable request snapshot, including fallbacks.
+    catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+    alimentos_base = catalogo.alimentos
+    categorias = catalogo.categorias
     if 'alimentos' not in comida_dict:
         return comida_dict
     
-    proteinas_set = set(CATEGORIAS.get('proteina', []))
-    carbs_set     = set(CATEGORIAS.get('carbs', []))
-    grasas_set    = set(CATEGORIAS.get('grasa', []))
-    vegetales_set = set(CATEGORIAS.get('verdura', []))
+    proteinas_set = set(categorias.get('proteina', []))
+    carbs_set     = set(categorias.get('carbs', []))
+    grasas_set    = set(categorias.get('grasa', []))
+    vegetales_set = set(categorias.get('verdura', []))
     
     def redondear(valor, multiplo):
         return round(valor / multiplo) * multiplo
@@ -71,7 +77,7 @@ def _aplicar_redondeo_clinico(comida_dict: dict) -> dict:
     
     if comida_dict['alimentos']:
         kcal_real = sum(
-            g * ALIMENTOS_BASE.get(n, {}).get('kcal', 0) / 100
+            g * alimentos_base.get(n, {}).get('kcal', 0) / 100
             for n, g in comida_dict['alimentos'].items()
         )
         kcal_objetivo = comida_dict.get('kcal_objetivo', 1)
@@ -85,11 +91,14 @@ def _aplicar_redondeo_clinico(comida_dict: dict) -> dict:
 # VALIDACIÓN FINAL: Limites estrictos por alimento
 # ============================================================================
 
-def _validar_limites_estrictos_por_plan(plan: dict) -> dict:
+def _validar_limites_estrictos_por_plan(plan: dict, catalogo: FoodCatalog | None = None) -> dict:
     """
     Valida que alimentos con límites estrictos no excedan máximo en plan diario.
     FRIJOLES: Máximo 400g total por plan (máximo ~200g por comida individual).
     """
+    # Each helper receives the same immutable request snapshot, including fallbacks.
+    catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+    alimentos_base = catalogo.alimentos
     frijoles_total = 0.0
     for nombre_comida, comida_data in plan.items():
         if 'alimentos' in comida_data and 'frijoles' in comida_data['alimentos']:
@@ -109,8 +118,8 @@ def _validar_limites_estrictos_por_plan(plan: dict) -> dict:
                 
                 kcal_real = 0.0
                 for ali_nombre, gramos in comida_data['alimentos'].items():
-                    if ali_nombre in ALIMENTOS_BASE:
-                        kcal_real += gramos * (ALIMENTOS_BASE[ali_nombre]['kcal'] / 100)
+                    if ali_nombre in alimentos_base:
+                        kcal_real += gramos * (alimentos_base[ali_nombre]['kcal'] / 100)
                 
                 comida_data['kcal_real'] = kcal_real
                 comida_data['desviacion_pct'] = abs(kcal_real - comida_data['kcal_objetivo']) / max(comida_data['kcal_objetivo'], 1) * 100
@@ -155,6 +164,7 @@ class ConstructorPlanNuevo:
         plan_numero: int = 1,
         directorio_planes: str = ".",
         max_intentos: int = 3,
+        catalogo: FoodCatalog | None = None,
     ) -> dict:
         """
         Construye plan con validación robusta y reintentos.
@@ -167,6 +177,9 @@ class ConstructorPlanNuevo:
                                y MODO_ESTRICTO está activo.
         """
         # ── Una sola vez: seeds, ajuste calórico, distribución, rotación ──
+        # Each helper receives the same immutable request snapshot, including fallbacks.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        alimentos_base = catalogo.alimentos
         bloque = 1 if plan_numero <= 3 else 2
         seed_base, seed_variacion = generar_seed_bloques(cliente, gym_id="default")
         seed_inicial = seed_base if bloque == 1 else seed_variacion
@@ -234,7 +247,7 @@ class ConstructorPlanNuevo:
                         seed=seed, plan_numero=plan_numero,
                         alimentos_penalizados=penalizados_por_cat,
                         pesos_ponderados=pesos_ponderados,
-                    )
+                    catalogo=catalogo)
                     main_protein = None
                     for prot in lista_proteinas:
                         if not any(item in PROTEIN_FOODS for item in alimentos_dict):
@@ -247,7 +260,7 @@ class ConstructorPlanNuevo:
                             meal_idx,
                             penalizados=set(),
                             alimentos_usados_plan=alimentos_usados_plan,
-                        )
+                        catalogo=catalogo)
                     )
                     if not proteina_congelada:
                         logger.warning("Proteína no congelada en %s (plan #%d)",
@@ -259,7 +272,7 @@ class ConstructorPlanNuevo:
                     carbs_desde_proteina = 0.0
                     grasa_desde_proteina = 0.0
                     for ali_nombre in proteinas_asignadas:
-                        ali_data = ALIMENTOS_BASE.get(ali_nombre, {})
+                        ali_data = alimentos_base.get(ali_nombre, {})
                         gramos = proteinas_asignadas[ali_nombre]
                         carbs_desde_proteina += gramos * (ali_data.get('carbs', 0) / 100)
                         grasa_desde_proteina += gramos * (ali_data.get('grasa', 0) / 100)
@@ -270,11 +283,11 @@ class ConstructorPlanNuevo:
                         seed=seed, plan_numero=plan_numero,
                         alimentos_penalizados=penalizados_por_cat,
                         pesos_ponderados=pesos_ponderados,
-                    )
+                    catalogo=catalogo)
                     carbs_asignados, kcal_carbs = calculador_nuevo.asignar_carbs(
                         macros_comida['carbs'], carbs_desde_proteina,
                         lista_carbs, meal_idx, alimentos_usados_plan=alimentos_usados_plan,
-                    )
+                    catalogo=catalogo)
                     alimentos_dict.update(carbs_asignados)
                     alimentos_usados_plan.update(carbs_asignados.keys())
 
@@ -284,17 +297,17 @@ class ConstructorPlanNuevo:
                         seed=seed, plan_numero=plan_numero,
                         alimentos_penalizados=penalizados_por_cat,
                         pesos_ponderados=pesos_ponderados,
-                    )
+                    catalogo=catalogo)
                     grasas_asignados, kcal_grasas = calculador_nuevo.asignar_grasas(
                         macros_comida['grasa'], grasa_desde_proteina,
                         lista_grasas, alimentos_usados_plan=alimentos_usados_plan,
                         proteina_principal=proteina_principal,
-                    )
+                    catalogo=catalogo)
                     alimentos_dict.update(grasas_asignados)
                     alimentos_usados_plan.update(grasas_asignados.keys())
 
                     # FASE 4: VEGETAL BASE
-                    alimentos_dict.update(calculador_nuevo.insertar_vegetal_base(meal_idx))
+                    alimentos_dict.update(calculador_nuevo.insertar_vegetal_base(meal_idx, catalogo=catalogo, seed=seed))
 
                     # FASE 5: VALIDACIÓN ENERGÉTICA
                     alimentos_dict = calculador_nuevo.validar_energetica(
@@ -303,7 +316,7 @@ class ConstructorPlanNuevo:
                         lista_carbs=lista_carbs, lista_grasas=lista_grasas,
                         lista_proteinas=lista_proteinas, macros_comida=macros_comida,
                         meal_idx=meal_idx, alimentos_usados_plan=alimentos_usados_plan,
-                    )
+                    catalogo=catalogo)
 
                     comida_estructurada = ConstructorMealStructure.construir(
                         nombre_comida=nombre_comida,
@@ -315,20 +328,21 @@ class ConstructorPlanNuevo:
                         },
                         alimentos_dict=alimentos_dict,
                         macros_comida=macros_comida,
+                        catalogo=catalogo,
                     )
 
                     if meal_idx == 0:
-                        comida_estructurada = _aplicar_redondeo_clinico(comida_estructurada)
+                        comida_estructurada = _aplicar_redondeo_clinico(comida_estructurada, catalogo=catalogo)
 
                     if comida_estructurada.get('desviacion_pct', 0) > 5:
                         comida_estructurada = ValidadorEnergia.validar_y_ajustar(
                             comida_estructurada, macros_comida['kcal'], meal_idx=meal_idx
-                        )
+                        , catalogo=catalogo)
 
                     plan[nombre_comida] = comida_estructurada
 
                 # ── Post-processing (límites, metadatos) ──
-                plan = _validar_limites_estrictos_por_plan(plan)
+                plan = _validar_limites_estrictos_por_plan(plan, catalogo=catalogo)
 
                 plan['metadata_mes_anterior'] = {
                     'peso_base_mes': cliente.peso_kg,
@@ -347,16 +361,16 @@ class ConstructorPlanNuevo:
                     if comida_nombre not in plan or 'alimentos' not in plan[comida_nombre]:
                         continue
                     for ali_nombre, gramos in list(plan[comida_nombre]['alimentos'].items()):
-                        if ali_nombre not in ALIMENTOS_BASE:
+                        if ali_nombre not in alimentos_base:
                             continue
                         limite_maximo = LIMITES_DUROS_ALIMENTOS.get(ali_nombre, 999) * FACTOR_MAXIMO
                         if gramos > limite_maximo:
                             plan[comida_nombre]['alimentos'][ali_nombre] = limite_maximo
                     kcal_obj_c = plan[comida_nombre].get('kcal_objetivo', 1)
                     kcal_real_c = sum(
-                        g * ALIMENTOS_BASE[n]['kcal'] / 100
+                        g * alimentos_base[n]['kcal'] / 100
                         for n, g in plan[comida_nombre]['alimentos'].items()
-                        if n in ALIMENTOS_BASE
+                        if n in alimentos_base
                     )
                     plan[comida_nombre]['kcal_real'] = kcal_real_c
                     plan[comida_nombre]['desviacion_pct'] = (
@@ -376,7 +390,7 @@ class ConstructorPlanNuevo:
                         logger.warning("  Contrato: %s", err)
 
                     logger.info("[REAJUSTE AUTOMATICO] Iniciando ciclo de corrección...")
-                    plan, plan_corregido, logs_reajuste = ReajustadorPlan.reajustar_plan(plan)
+                    plan, plan_corregido, logs_reajuste = ReajustadorPlan.reajustar_plan(plan, catalogo=catalogo)
                     for log in logs_reajuste:
                         logger.debug("  %s", log)
 
@@ -387,6 +401,7 @@ class ConstructorPlanNuevo:
                         es_valido, errores_contrato = MealStructureContract.validar_plan_completo(plan)
 
                 if es_valido:
+                    catalogo.validate_plan(plan)
                     logger.info("Plan válido generado en intento %d/%d", intento, max_intentos)
                     return plan
 
@@ -410,11 +425,12 @@ class ConstructorPlanNuevo:
                         cliente_id=cliente.id_cliente,
                     )
                 logger.warning("MODO_ESTRICTO=False, retornando plan inválido")
+                catalogo.validate_plan(plan)
                 return plan
 
-            except PlanInvalidoError:
+            except (PlanInvalidoError, FoodRestrictionError):
                 raise
-            except Exception as e:  # noqa: BLE001
+            except Exception:  # noqa: BLE001
                 logger.error(
                     "Excepción en intento %d para cliente %s",
                     intento, cliente.id_cliente, exc_info=True,

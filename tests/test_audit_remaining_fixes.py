@@ -42,7 +42,7 @@ class TestH01RedisRateLimiter:
     def test_app_selects_redis_when_url_set(self):
         """When REDIS_URL is set, app.py should pick RedisRateLimitMiddleware."""
         source = Path(__file__).resolve().parents[1] / "api" / "app.py"
-        text = source.read_text()
+        text = source.read_text(encoding="utf-8")
         assert "RedisRateLimitMiddleware" in text
         assert "REDIS_URL" in text
 
@@ -62,7 +62,7 @@ class TestH02CategoriasLock:
     def test_lock_referenced_in_gen_plan(self):
         """_generar_plan_sync should acquire _categorias_lock for exclusions."""
         source = Path(__file__).resolve().parents[1] / "web" / "routes" / "planes.py"
-        text = source.read_text()
+        text = source.read_text(encoding="utf-8")
         assert "_categorias_lock.acquire()" in text
         assert "_categorias_lock.release()" in text
 
@@ -76,13 +76,13 @@ class TestH03PDFPathTraversal:
     def test_generar_factura_resolves_path(self):
         """generar_factura should resolve() the output path."""
         source = Path(__file__).resolve().parents[1] / "api" / "factura_pdf.py"
-        text = source.read_text()
+        text = source.read_text(encoding="utf-8")
         assert ".resolve()" in text
 
     def test_generar_factura_rejects_dotdot(self):
         """generar_factura should reject paths containing '..'."""
         source = Path(__file__).resolve().parents[1] / "api" / "factura_pdf.py"
-        text = source.read_text()
+        text = source.read_text(encoding="utf-8")
         assert '".."' in text or "path traversal" in text.lower()
 
 
@@ -95,7 +95,7 @@ class TestH04MPWebhookSignature:
     def test_mp_webhook_checks_signature(self):
         """mp_webhook should verify x-signature header."""
         source = Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py"
-        text = source.read_text()
+        text = source.read_text(encoding="utf-8")
         assert "x-signature" in text
         assert "hmac" in text.lower()
         assert "MERCADOPAGO_WEBHOOK_SECRET" in text
@@ -152,7 +152,7 @@ class TestH07RBACCommentsRemoved:
         """All 'C1 FIX' TODO comments should be removed from route files."""
         routes_dir = Path(__file__).resolve().parents[1] / "web" / "routes"
         for py in routes_dir.glob("*.py"):
-            text = py.read_text()
+            text = py.read_text(encoding="utf-8")
             assert "C1 FIX" not in text, f"{py.name} still has C1 FIX comment"
 
     def test_rbac_checks_still_present(self):
@@ -166,7 +166,7 @@ class TestH07RBACCommentsRemoved:
         ]
         root = Path(__file__).resolve().parents[1]
         for f in files:
-            text = (root / f).read_text()
+            text = (root / f).read_text(encoding="utf-8")
             assert "verify_permission" in text, f"{f} missing verify_permission"
 
 
@@ -179,7 +179,7 @@ class TestM02DeadCSSRemoved:
     def test_dead_classes_removed_from_styles(self):
         """Major dead CSS classes should be gone from styles.css."""
         import re
-        css = (Path(__file__).resolve().parents[1] / "web" / "static" / "css" / "styles.css").read_text()
+        css = (Path(__file__).resolve().parents[1] / "web" / "static" / "css" / "styles.css").read_text(encoding="utf-8")
         # Check for standalone dead selectors (not compound like .kpi-card.kpi-hero)
         dead_standalone = [
             r"^\.welcome-hero\s*\{", r"^\.top-bar\s*\{",
@@ -192,7 +192,7 @@ class TestM02DeadCSSRemoved:
 
     def test_demo_hint_removed_from_auth(self):
         """.demo-hint should be removed from styles-auth.css."""
-        css = (Path(__file__).resolve().parents[1] / "web" / "static" / "css" / "styles-auth.css").read_text()
+        css = (Path(__file__).resolve().parents[1] / "web" / "static" / "css" / "styles-auth.css").read_text(encoding="utf-8")
         assert ".demo-hint" not in css
 
 
@@ -229,19 +229,19 @@ class TestM03HardcodedConstants:
 
     def test_web_clientes_uses_constants(self):
         """web/routes/clientes.py should import from web.constants."""
-        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "clientes.py").read_text()
+        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "clientes.py").read_text(encoding="utf-8")
         assert "ERR_CLIENTE_NO_ENCONTRADO" in source
         assert "DEFAULT_PAGE_SIZE" in source
 
     def test_web_stats_uses_period_constants(self):
         """web/routes/stats.py should use PERIODO_ constants."""
-        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "stats.py").read_text()
+        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "stats.py").read_text(encoding="utf-8")
         assert "PERIODO_SEMANA_DIAS" in source
         assert "PERIODO_ANIO_DIAS" in source
 
     def test_invitation_expiry_uses_constant(self):
         """web/routes/team.py should use INVITATION_EXPIRY_DAYS."""
-        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "team.py").read_text()
+        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "team.py").read_text(encoding="utf-8")
         assert "INVITATION_EXPIRY_DAYS" in source
 
 
@@ -255,7 +255,7 @@ class TestM04DualDBPlan:
         """docs/DUAL_DB_CONSOLIDATION_PLAN.md must exist."""
         plan = Path(__file__).resolve().parents[1] / "docs" / "DUAL_DB_CONSOLIDATION_PLAN.md"
         assert plan.exists(), "Migration plan document missing"
-        text = plan.read_text()
+        text = plan.read_text(encoding="utf-8")
         assert "Phase 1" in text
         assert "Phase 2" in text
         assert "Phase 3" in text

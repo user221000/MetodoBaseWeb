@@ -59,7 +59,8 @@ class Settings:
         self.REFRESH_TOKEN_EXPIRE_DAYS: int = int(
             os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7")
         )
-        # Remember-me durations (access tokens are stateless/non-revocable, keep short)
+        # Legacy setting retained for configuration compatibility only. Access
+        # TTL always uses ACCESS_TOKEN_EXPIRE_MINUTES, including remember-me.
         self.REMEMBER_ME_ACCESS_DAYS: int = int(
             os.getenv("REMEMBER_ME_ACCESS_DAYS", "7")
         )

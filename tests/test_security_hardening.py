@@ -76,16 +76,15 @@ class TestH01TokenType:
         result = verificar_token(token)
         assert result is None
 
-    def test_token_with_type_accepted(self):
-        """A token with type='access' should be accepted."""
+    def test_token_with_type_accepted(self, test_gym_user):
+        """A valid access token requires its persisted active account."""
         from web.auth import init_auth, crear_access_token, verificar_token
 
         init_auth()
-        user = {"id": "test-h01", "email": "h01@test.com", "nombre": "H01", "tipo": "gym"}
-        token = crear_access_token(user)
+        token = crear_access_token(test_gym_user)
         result = verificar_token(token)
         assert result is not None
-        assert result["id"] == "test-h01"
+        assert result["id"] == test_gym_user["id"]
 
 
 # ══════════════════════════════════════════════════════════════════════════════

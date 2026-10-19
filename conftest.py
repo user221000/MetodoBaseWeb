@@ -1,112 +1,109 @@
+"""Safe test composition and committed-data cleanup for each synthetic case.
+
+SQLite metadata is for unit/API tests only; migration acceptance is separate.
 """
-conftest.py — Auto-adds the project root to sys.path so that
-`pytest tests/` works without setting PYTHONPATH explicitly.
-Also configures test environment settings.
-"""
+from pathlib import Path
 import os
+import random
 import sys
 import uuid
-from pathlib import Path
 
 import pytest
 
-# Insert project root at the front of sys.path
 sys.path.insert(0, str(Path(__file__).parent))
+from tests.isolation import block_external_sockets, prepare_environment
 
-# ── Test Environment Settings ────────────────────────────────────────────────
-# Disable rate limiting during tests to prevent 429 responses
-os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
-# Disable metrics collection during tests to reduce overhead
-os.environ.setdefault("METRICS_ENABLED", "false")
-# Disable alerting during tests to prevent spam
-os.environ.setdefault("ALERT_ENABLED", "false")
+try:
+    _TEST_ROOT = prepare_environment()
+except ValueError as exc:
+    raise pytest.UsageError(str(exc)) from None
+block_external_sockets()
 
 
-# ── Auth Fixtures for API Tests ──────────────────────────────────────────────
+def pytest_collection_modifyitems(items):
+    """Apply the same explicit order in controller and isolated xdist workers."""
+    if os.environ.get("_METODOBASE_TEST_REVERSE") == "1":
+        items.reverse()
+    seed = os.environ.get("_METODOBASE_TEST_SHUFFLE_SEED", "")
+    if seed:
+        random.Random(int(seed)).shuffle(items)
 
-@pytest.fixture(scope="module")
-def test_gym_user():
-    """
-    Creates a test gym user and returns credentials for API authentication.
-    Returns dict with: id, email, nombre, tipo, access_token, auth_headers
-    """
-    from web.auth import init_auth, crear_access_token, hash_password
-    from web.database.engine import init_db, get_engine
-    from web.database.models import Usuario
-    from sqlalchemy.orm import Session as SQLASession
-    import time
-    from datetime import datetime, timezone
-    
-    init_auth()
-    init_db()  # Initialize SQLAlchemy DB
-    
-    uid = str(uuid.uuid4())
-    email = f"test_gym_{uid[:8]}@test.com"
-    now_dt = datetime.now(timezone.utc)
-    
-    # Create user in SQLAlchemy usuarios table (auth.py now uses this directly)
+
+@pytest.fixture(scope="session", autouse=True)
+def database_schema():
+    """Prepare unit SQLite once; PostgreSQL must already be migrated."""
+    from sqlalchemy import inspect
+    from web.database.engine import get_engine
+    from web.database.models import Base
+
     engine = get_engine()
-    with SQLASession(engine) as session:
-        try:
-            existing = session.query(Usuario).filter(Usuario.id == uid).first()
-            if not existing:
-                usuario_sa = Usuario(
-                    id=uid,
-                    email=email,
-                    password_hash=hash_password("test123"),
-                    nombre="Test Gym",
-                    apellido="",
-                    tipo="gym",
-                    activo=True,
-                    fecha_registro=now_dt,
-                )
-                session.add(usuario_sa)
-                session.commit()
-        except Exception:
-            session.rollback()
-    
-    user = {
-        "id": uid,
-        "email": email,
-        "nombre": "Test Gym",
-        "tipo": "gym",
-    }
-    
-    access_token = crear_access_token(user)
-    
-    return {
-        **user,
-        "access_token": access_token,
-        "auth_headers": {"Authorization": f"Bearer {access_token}"},
-    }
+    if engine.dialect.name == "sqlite":
+        Base.metadata.create_all(engine)
+    elif "usuarios" not in inspect(engine).get_table_names():
+        pytest.fail("PostgreSQL test database is not migrated; run the migration acceptance setup")
+    yield
+    engine.dispose()
 
 
-@pytest.fixture(scope="module")
-def auth_client(test_gym_user):
+@pytest.fixture(autouse=True)
+def isolated_database(database_schema):
+    """Clean independent route commits as rollback-only fixtures cannot.
+
+    Every worker owns a separate SQLite file. Cleanup failures fail the case.
+    Tables are deleted in FK order, preserving the prepared schema.
     """
-    Returns a TestClient with pre-configured Authorization headers.
-    Use this for tests that require authentication.
-    """
+    from web.database.engine import get_engine
+    from web.database.models import Base
+
+    def clear():
+        with get_engine().begin() as connection:
+            for table in reversed(Base.metadata.sorted_tables):
+                connection.execute(table.delete())
+
+    clear()
+    yield
+    clear()
+
+
+@pytest.fixture
+def test_gym_user():
+    """Persist an explicit owner; issue its token after a successful commit."""
+    from datetime import datetime, timezone
+    from sqlalchemy.orm import Session
+    from web.auth import crear_access_token, hash_password, init_auth
+    from web.database.engine import get_engine
+    from web.database.models import Usuario, UserRole
+
+    init_auth()
+    uid = str(uuid.uuid4())
+    user = {"id": uid, "email": f"gym-{uid}@example.test", "nombre": "Synthetic Gym", "tipo": "gym", "role": "owner"}
+    with Session(get_engine()) as session:
+        session.add(Usuario(id=uid, email=user["email"], password_hash=hash_password("test123"),
+                            nombre=user["nombre"], apellido="", tipo="gym", activo=True,
+                            role=UserRole.OWNER, session_version=0,
+                            fecha_registro=datetime.now(timezone.utc)))
+        session.commit()
+        assert session.get(Usuario, uid) is not None
+    token = crear_access_token(user)
+    return {**user, "access_token": token, "auth_headers": {"Authorization": f"Bearer {token}"}}
+
+
+def _authenticated_client(app, user):
     from fastapi.testclient import TestClient
+    return TestClient(app, raise_server_exceptions=False, headers=user["auth_headers"])
+
+
+@pytest.fixture
+def auth_client(test_gym_user):
+    """Standalone API adapter with a fresh synthetic account per case."""
     from api.app import create_app
-    
-    app = create_app()
-    
-    class AuthenticatedTestClient(TestClient):
-        def __init__(self, *args, auth_headers=None, **kwargs):
-            super().__init__(*args, **kwargs)
-            self._auth_headers = auth_headers or {}
-        
-        def request(self, method, url, **kwargs):
-            headers = kwargs.get("headers") or {}
-            # Merge auth headers with any custom headers
-            merged = {**self._auth_headers, **headers}
-            kwargs["headers"] = merged
-            return super().request(method, url, **kwargs)
-    
-    with AuthenticatedTestClient(
-        app, 
-        raise_server_exceptions=False,
-        auth_headers=test_gym_user["auth_headers"],
-    ) as c:
-        yield c
+    with _authenticated_client(create_app(), test_gym_user) as client:
+        yield client
+
+
+@pytest.fixture
+def web_auth_client(test_gym_user):
+    """Real SaaS composition used by web/main_web.py."""
+    from web.main_web import create_app
+    with _authenticated_client(create_app(), test_gym_user) as client:
+        yield client

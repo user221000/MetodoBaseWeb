@@ -3,6 +3,7 @@ import logging
 
 from config.constantes import MODO_ESTRICTO, LEGUMINOSAS
 from src.alimentos_base import ALIMENTOS_BASE, CATEGORIAS
+from core.food_catalog import FoodCatalog
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +101,11 @@ class ConstructorMealStructure:
         macros_objetivo: dict,
         alimentos_dict: dict,
         macros_comida: dict = None,
+        catalogo: FoodCatalog | None = None,
     ) -> dict:
         """Construye estructura de comida completa con validación contractual."""
+        catalogo = catalogo or FoodCatalog.from_data(ALIMENTOS_BASE, CATEGORIAS)
+        catalogo.validate_plan({nombre_comida: {"alimentos": alimentos_dict}})
         assert isinstance(kcal_objetivo, (int, float)), f"kcal_objetivo debe ser número, es {type(kcal_objetivo)}"
         assert kcal_objetivo > 0, f"kcal_objetivo debe ser > 0, es {kcal_objetivo}"
         assert isinstance(alimentos_dict, dict), f"alimentos_dict debe ser dict"
@@ -121,7 +125,7 @@ class ConstructorMealStructure:
         else:
             max_carbs = 1
         
-        carbs_set = set(CATEGORIAS.get('carbs', []))
+        carbs_set = set(catalogo.categorias.get('carbs', []))
         carbs_set.update(LEGUMINOSAS)
         
         fuentes_carb = [(ali, gramos) for ali, gramos in alimentos_dict.items() if ali in carbs_set]
@@ -136,8 +140,8 @@ class ConstructorMealStructure:
         # Calcular kcal reales
         kcal_real = 0.0
         for ali_nombre, gramos in alimentos_dict.items():
-            if ali_nombre in ALIMENTOS_BASE:
-                kcal_real += gramos * (ALIMENTOS_BASE[ali_nombre]['kcal'] / 100)
+            if ali_nombre in catalogo.alimentos:
+                kcal_real += gramos * (catalogo.alimentos[ali_nombre]['kcal'] / 100)
         
         desviacion_pct = abs(kcal_real - kcal_objetivo) / max(kcal_objetivo, 1) * 100
         

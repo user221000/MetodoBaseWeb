@@ -1,8 +1,7 @@
 """
 web/subscription_guard.py — Guard de suscripción para endpoints protegidos.
 
-Verifica que el gym tiene suscripción activa y no excede límite de clientes.
-En desarrollo (sin STRIPE_SECRET_KEY), el guard es permisivo.
+Verifica derechos persistidos y límites sin depender de claves del proveedor.
 """
 import logging
 from datetime import datetime, timezone, timedelta
@@ -29,23 +28,18 @@ def require_active_subscription(
     usuario: dict = Depends(get_usuario_actual),
 ) -> dict:
     """
-    Verifica suscripción activa. En dev (sin Stripe), pasa sin restricción.
-    Si no hay suscripción activa, usa el plan 'free' (10 clientes) en lugar de bloquear.
-    Retorna el usuario enriquecido con info de suscripción.
-    C3 FIX: Usar get_effective_gym_id para soportar team members.
-    """
-    if not _is_stripe_configured():
-        # Dev mode: sin Stripe, sin restricción
-        usuario["subscription"] = {"plan": "clinica", "status": "dev", "max_clientes": 999999}
-        return usuario
+    Resolve persisted B2B rights for the authenticated gym/team context.
 
+    Missing provider configuration grants no rights, including in development.
+    Inactive, expired, unknown or individual-only plans use the Free catalog.
+    """
     # C3 FIX: Usar gym_id efectivo, no ID personal
     gym_id = get_effective_gym_id(usuario)
     sub = db.query(Subscription).filter(
         Subscription.gym_id == gym_id
     ).first()
 
-    if not sub or sub.status not in ("active", "trialing"):
+    if not _is_current_gym_subscription(sub):
         # Sin suscripción activa → plan free (limitado, pero no bloqueado)
         from web.constants import PLANES_LICENCIA
         free_cfg = PLANES_LICENCIA.get("free", {})
@@ -224,11 +218,22 @@ def check_food_preferences_allowed(plan_name: str) -> bool:
 
 
 def _get_gym_plan(db: Session, gym_id: str) -> str:
-    """Obtiene el nombre del plan activo del gym. Retorna 'free' si no tiene."""
-    if not _is_stripe_configured():
-        return "clinica"  # Dev mode: sin restricciones
+    """Read persisted B2B rights; provider configuration never grants access."""
     sub = db.query(Subscription).filter(
         Subscription.gym_id == gym_id,
         Subscription.status.in_(["active", "trialing"]),
     ).first()
-    return sub.plan if sub else "free"
+    return sub.plan if _is_current_gym_subscription(sub) else "free"
+
+
+def _is_current_gym_subscription(sub: Optional[Subscription]) -> bool:
+    """Reject expired/unknown/B2C rights while preserving mapped legacy periods."""
+    if sub is None or sub.status not in {"active", "trialing"} or sub.plan not in {"standard", "gym_comercial", "clinica"}:
+        return False
+    end = sub.trial_end if sub.status == "trialing" and sub.trial_end else sub.current_period_end
+    if end is None:
+        # Historic provider mappings without a period need explicit reconciliation;
+        # this local change does not retrospectively rewrite customer contracts.
+        return True
+    aware = end.replace(tzinfo=timezone.utc) if end.tzinfo is None else end
+    return aware > datetime.now(timezone.utc)

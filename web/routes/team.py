@@ -608,16 +608,11 @@ async def accept_invitation(
     db.refresh(user)
     
     # Generar tokens
-    from web.auth import crear_token_pair
-    
-    user_data = {
-        "id": user.id,
-        "email": user.email,
-        "nombre": user.nombre,
-        "tipo": user.tipo,
-        "role": user.role.value if user.role else UserRole.VIEWER.value,
-        "team_gym_id": user.team_gym_id,
-    }
+    from web.auth import crear_token_pair, identity_from_user
+
+    user_data = identity_from_user(user, db)
+    if not user_data:
+        raise HTTPException(403, "La membresía ya no está disponible.")
     
     tokens = crear_token_pair(user_data)
     

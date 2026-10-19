@@ -74,8 +74,14 @@ def test_crear_cliente_valido(auth_client):
     assert "id_cliente" in body
     assert body["macros"]["tmb"] > 0
     assert body["macros"]["proteina_g"] > 0
-    # Store id for subsequent tests
-    pytest.created_id = body["id_cliente"]
+
+
+@pytest.fixture
+def created_client(auth_client):
+    """Create a separate resource for each read/delete test, in any order."""
+    response = auth_client.post("/api/clientes", json=VALID_CLIENTE)
+    assert response.status_code == 201
+    return response.json()["id_cliente"]
 
 
 def test_crear_cliente_edad_invalida(auth_client):
@@ -114,13 +120,11 @@ def test_crear_cliente_sin_grasa_usa_default(auth_client):
 
 # ── /api/clientes/{id} — GET ──────────────────────────────────────────────────
 
-def test_obtener_cliente_creado(auth_client):
-    if not hasattr(pytest, "created_id"):
-        pytest.skip("Depends on test_crear_cliente_valido")
-    resp = auth_client.get(f"/api/clientes/{pytest.created_id}")
+def test_obtener_cliente_creado(auth_client, created_client):
+    resp = auth_client.get(f"/api/clientes/{created_client}")
     assert resp.status_code == 200
     body = resp.json()
-    assert body["id_cliente"] == pytest.created_id
+    assert body["id_cliente"] == created_client
 
 
 def test_obtener_cliente_no_existente(auth_client):
@@ -130,36 +134,31 @@ def test_obtener_cliente_no_existente(auth_client):
 
 # ── /api/clientes/{id} — DELETE ──────────────────────────────────────────────
 
-def test_soft_delete_cliente(auth_client):
-    if not hasattr(pytest, "created_id"):
-        pytest.skip("Depends on test_crear_cliente_valido")
-    resp = auth_client.delete(f"/api/clientes/{pytest.created_id}")
+def test_soft_delete_cliente(auth_client, created_client):
+    resp = auth_client.delete(f"/api/clientes/{created_client}")
     assert resp.status_code == 200
     assert resp.json()["success"] is True
     # Should now be hidden from default list
-    resp2 = auth_client.get(f"/api/clientes?q={pytest.created_id}")
+    resp2 = auth_client.get(f"/api/clientes?q={created_client}")
     assert resp2.json()["total"] == 0
 
 
 # ── HTML page routes (web app only — not available on the standalone API app) ──
 
-@pytest.mark.skip(reason="HTML routes live in web.main_web, not in api.app")
-def test_dashboard_page(auth_client):
-    resp = auth_client.get("/")
+def test_dashboard_page(web_auth_client):
+    resp = web_auth_client.get("/dashboard")
     assert resp.status_code == 200
     assert b"MetodoBase" in resp.content or b"dashboard" in resp.content.lower()
 
 
-@pytest.mark.skip(reason="HTML routes live in web.main_web, not in api.app")
-def test_nuevo_cliente_page(auth_client):
-    resp = auth_client.get("/nuevo-cliente")
+def test_nuevo_cliente_page(web_auth_client):
+    resp = web_auth_client.get("/clientes")
     assert resp.status_code == 200
-    assert b"nuevo-cliente" in resp.content or b"step" in resp.content.lower()
+    assert "cliente" in resp.text.lower()
 
 
-@pytest.mark.skip(reason="HTML routes live in web.main_web, not in api.app")
-def test_generar_plan_page(auth_client):
-    resp = auth_client.get("/generar-plan/TESTID")
+def test_generar_plan_page(web_auth_client):
+    resp = web_auth_client.get("/generar-plan")
     assert resp.status_code == 200
     assert b"plan" in resp.content.lower()
 

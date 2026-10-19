@@ -657,7 +657,7 @@
       var data = await Api.usuario.suscripcion();
       updateUI(data.plan, data.planes_usados, data.max_planes, data.renovacion);
     } catch(e) {
-      updateUI('starter', 0, 1, '—');
+      showToast('No pudimos consultar tu suscripción. Recarga la página para reintentar.', 'error');
     }
   }
 
@@ -707,18 +707,13 @@
   // Post-payment success redirect (from Stripe Payment Link)
   var params = new URLSearchParams(window.location.search);
   if (params.get('result') === 'success' || params.get('subscription') === 'success') {
-    // Activate Pro on backend (best-effort, webhook may also fire)
-    Api.usuario.cambiarPlan('pro').catch(function() {});
-    launchConfetti();
-    showToast('🚀 ¡Plan Pro activado correctamente!');
-    updateUI('pro', 0, 5, '—');
+    // A browser redirect is advisory. Only persisted server state grants access.
+    showToast('Estamos consultando el estado de tu pago. La activación aparecerá cuando sea confirmada.');
+    loadSubscription();
     history.replaceState({}, '', '/mi-suscripcion');
   } else if (params.get('redirect_status') === 'succeeded') {
-    // Payment Link completed — activate plan best-effort (webhook also fires)
-    Api.usuario.cambiarPlan('pro').catch(function() {});
-    launchConfetti();
-    showToast('🚀 ¡Plan Pro activado correctamente!');
-    updateUI('pro', 0, 5, '—');
+    showToast('Estamos consultando el estado de tu pago. La activación aparecerá cuando sea confirmada.');
+    loadSubscription();
     history.replaceState({}, '', '/mi-suscripcion');
   } else if (params.get('subscription') === 'canceled') {
     showToast('El pago fue cancelado. Puedes intentar de nuevo cuando quieras.');

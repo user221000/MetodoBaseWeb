@@ -142,7 +142,8 @@ class TestStripePriceIDs:
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        with patch("web.services.stripe_service._init_stripe", return_value=True), \
+        with patch("web.services.stripe_service.prepare_purchase", return_value=MagicMock(id="intent_test")), \
+             patch("web.services.stripe_service._init_stripe", return_value=True), \
              patch("stripe.checkout.Session.create") as mock_create, \
              patch.dict("web.constants.PLANES_LICENCIA", {
                  "standard": {
@@ -176,7 +177,8 @@ class TestStripePriceIDs:
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        with patch("web.services.stripe_service._init_stripe", return_value=True), \
+        with patch("web.services.stripe_service.prepare_purchase", return_value=MagicMock(id="intent_test")), \
+             patch("web.services.stripe_service._init_stripe", return_value=True), \
              patch("stripe.checkout.Session.create") as mock_create, \
              patch.dict("web.constants.PLANES_LICENCIA", {
                  "standard": {
@@ -210,32 +212,32 @@ class TestStripePriceIDs:
 class TestStripeUsesSharedService:
     """Verifica que stripe_service usa activate_subscription del servicio compartido."""
 
-    def test_on_checkout_completed_calls_activate(self):
-        """_on_checkout_completed debe usar activate_subscription."""
+    def test_paid_checkout_reconciles_provider_state(self):
+        """Paid checkout must validate current provider state before granting access.
+
+        The previous assertion accepted a checkout lacking payment_status. That
+        unsafe contract is replaced by this paid case plus persisted unpaid and
+        current-state regressions in test_billing_integrity.py.
+        """
         from web.services.stripe_service import _on_checkout_completed
 
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         session_data = {
+            "payment_status": "paid",
             "metadata": {"gym_id": "gym_test", "plan": "gym_comercial"},
             "customer": "cus_abc",
             "subscription": "sub_xyz",
             "customer_email": "test@gym.com",
         }
 
-        with patch("web.services.stripe_service.activate_subscription") as mock_activate, \
-             patch("web.services.stripe_service._notify_subscription_activated"):
-            mock_activate.return_value = MagicMock(plan="gym_comercial")
+        with patch("web.services.stripe_service.reconcile_subscription") as reconcile:
+            reconcile.return_value = {"plan": "gym_comercial", "activated": True}
 
             result = _on_checkout_completed(mock_db, session_data)
 
-            mock_activate.assert_called_once_with(
-                mock_db, "gym_test", "gym_comercial",
-                stripe_customer_id="cus_abc",
-                stripe_subscription_id="sub_xyz",
-                provider="stripe",
-            )
+            reconcile.assert_called_once_with(mock_db, "sub_xyz")
             assert "activated" in result
 
 
@@ -250,7 +252,7 @@ class TestPagosLegacyDelegation:
         """pagos.py no debe tener stripe.checkout.Session.create en handlers (solo en wrapper)."""
         import re
         from pathlib import Path
-        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text(encoding="utf-8")
         # Stripe calls must ONLY be inside protected wrapper functions (with @retry_with_backoff)
         # Check that route handlers don't call stripe directly
         lines = text.split('\n')
@@ -266,7 +268,7 @@ class TestPagosLegacyDelegation:
     def test_pagos_uses_shared_subscription_service(self):
         """pagos.py debe importar de subscription_service."""
         from pathlib import Path
-        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text(encoding="utf-8")
         assert "from web.services.subscription_service import" in text
         assert "activate_subscription" in text
         assert "complete_checkout" in text
@@ -275,7 +277,7 @@ class TestPagosLegacyDelegation:
     def test_billing_has_mp_endpoints(self):
         """billing.py debe tener endpoints de MercadoPago."""
         from pathlib import Path
-        text = (Path(__file__).resolve().parents[1] / "web" / "routes" / "billing.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "web" / "routes" / "billing.py").read_text(encoding="utf-8")
         assert "/billing/mp/preference" in text
         assert "/billing/mp/webhook" in text
         assert "activate_subscription" in text
@@ -283,7 +285,7 @@ class TestPagosLegacyDelegation:
     def test_no_duplicate_subscription_logic_in_pagos(self):
         """pagos.py no debe tener lógica inline de Subscription."""
         from pathlib import Path
-        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text(encoding="utf-8")
         # No debe importar Subscription directamente
         assert "from web.database.models import" not in text or "Subscription" not in text.split("from web.database.models import")[-1].split("\n")[0]
 
@@ -314,7 +316,7 @@ class TestPriceIDConfiguration:
     def test_production_requires_price_ids(self):
         """En producción, settings debe requerir Price IDs de Stripe."""
         from pathlib import Path
-        text = (Path(__file__).resolve().parents[1] / "config" / "settings.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "config" / "settings.py").read_text(encoding="utf-8")
         assert "STRIPE_PRICE_STANDARD" in text
         assert "STRIPE_PRICE_GYM_COMERCIAL" in text or "STRIPE_PRICE_CLINICA" in text
 
@@ -329,5 +331,5 @@ class TestCSRFExemption:
     def test_mp_webhook_exempt_from_csrf(self):
         """MP webhook debe estar exento de CSRF en main_web.py."""
         from pathlib import Path
-        text = (Path(__file__).resolve().parents[1] / "web" / "main_web.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "web" / "main_web.py").read_text(encoding="utf-8")
         assert "/api/billing/mp/webhook" in text

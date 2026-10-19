@@ -31,9 +31,6 @@ from web.constants import (
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Planes"])
 
-# Lock to serialize CATEGORIAS mutations (per-client food exclusions)
-_categorias_lock = threading.Lock()
-
 
 @router.get("/alimentos/catalogo")
 async def listar_catalogo_alimentos():
@@ -77,7 +74,13 @@ def _generar_plan_sync(
 def _do_generar_plan(
     id_cliente: str, plan_numero: int, gym_id: str, tipo_plan: str = "menu_fijo"
 ) -> dict:
-    """Internal plan generation logic."""
+    """Build and persist an authorized plan using an immutable food snapshot.
+
+    Tenant is resolved by the authenticated caller; this function checks client
+    ownership again. Restrictions are independent of paid capabilities. Domain
+    failures occur before PDF/persistence; the caller owns quota compensation.
+    The returned plan_id identifies exactly the committed JSON/PDF record.
+    """
     from web.dependencies import build_cliente_from_dict
     from web.database.engine import get_engine
     from web.database.models import Cliente, GymProfile
@@ -104,12 +107,6 @@ def _do_generar_plan(
         # Per-client food exclusions
         import json as _json
         _excluidos_raw = c.alimentos_excluidos
-
-        # Bloquear preferencias de alimentos si el plan no lo permite
-        from web.subscription_guard import check_food_preferences_allowed, _get_gym_plan as _gp
-        _current_plan = _gp(session, gym_id)
-        if not check_food_preferences_allowed(_current_plan):
-            _excluidos_raw = None  # Ignorar exclusiones en planes sin esta feature
 
         excluidos_cliente = set(_json.loads(_excluidos_raw)) if _excluidos_raw else set()
 
@@ -148,197 +145,155 @@ def _do_generar_plan(
     cliente = build_cliente_from_dict(row)
     os.makedirs(CARPETA_SALIDA, exist_ok=True)
 
-    # Apply per-client food exclusions by patching module-level CATEGORIAS refs (thread-safe)
-    _lock_held = bool(excluidos_cliente)
-    _patched_modules = {}
-    if _lock_held:
-        _categorias_lock.acquire()
-    try:
-        if excluidos_cliente:
-            import copy
-            import src.alimentos_base as _ab_mod
-            import core.generador_planes as _gp_mod
-            import core.generador_opciones as _go_mod
-            import config.catalogo_alimentos as _ca_mod  # direct ref: monkey-patch shared module
+    # Safety exclusions apply to every subscription tier. No shared references
+    # are modified, including requests without exclusions running in parallel.
+    from core.food_catalog import FoodCatalog
+    from src.alimentos_base import ALIMENTOS_BASE, CATEGORIAS
+    catalogo = FoodCatalog.from_data(ALIMENTOS_BASE, CATEGORIAS, excluidos_cliente)
 
-            original_categorias = _ab_mod.CATEGORIAS
-            categorias_local = copy.deepcopy(original_categorias)
-            for cat, items in categorias_local.items():
-                filtrados = [a for a in items if a not in excluidos_cliente]
-                if filtrados:
-                    items.clear()
-                    items.extend(filtrados)
+    comidas = ["desayuno", "almuerzo", "comida", "cena"]
 
-            # Save original refs and patch all modules that imported CATEGORIAS
-            _patched_modules = {
-                'ab': (_ab_mod, 'CATEGORIAS', _ab_mod.CATEGORIAS),
-                'gp': (_gp_mod, 'CATEGORIAS', _gp_mod.CATEGORIAS),
-                'go': (_go_mod, 'CATEGORIAS', _go_mod.CATEGORIAS),
-                'ca': (_ca_mod, 'CATEGORIAS', _ca_mod.CATEGORIAS),
-            }
-            _ab_mod.CATEGORIAS = categorias_local
-            _gp_mod.CATEGORIAS = categorias_local
-            _go_mod.CATEGORIAS = categorias_local
-            _ca_mod.CATEGORIAS = categorias_local
+    if tipo_plan == "opciones":
+        from core.generador_opciones import ConstructorPlanConOpciones
+        from core.exportador_opciones import GeneradorPDFConOpciones
 
-            # Refresh derived lists in catalogo_alimentos
-            from web.catalogo import _refrescar_lista
-            nombre_map = {"proteina": "PROTEINAS", "carbs": "CARBS", "grasa": "GRASAS", "verdura": "VERDURAS", "fruta": "FRUTAS"}
-            for cat, items in categorias_local.items():
-                if cat in nombre_map:
-                    _refrescar_lista(nombre_map[cat], items)
-
-        comidas = ["desayuno", "almuerzo", "comida", "cena"]
-
-        if tipo_plan == "opciones":
-            from core.generador_opciones import ConstructorPlanConOpciones
-            from core.exportador_opciones import GeneradorPDFConOpciones
-
-            plan = ConstructorPlanConOpciones.construir(
-                cliente, plan_numero=plan_numero, directorio_planes=CARPETA_PLANES,
-            )
-
-            nombre_pdf = (
-                f"plan_opciones_{cliente.nombre.replace(' ', '_')}"
-                f"_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-            )
-            ruta_pdf_completa = os.path.join(CARPETA_SALIDA, nombre_pdf)
-            generador = GeneradorPDFConOpciones(ruta_pdf_completa, config=gym_config if gym_config else None)
-            ruta_pdf = generador.generar(cliente, plan)
-
-            kcal_total = plan.get("metadata", {}).get("kcal_totales", 0)
-
-            # Serializar plan con opciones para el frontend
-            plan_serializado = {}
-            for comida in comidas:
-                if comida not in plan:
-                    continue
-                datos = plan[comida]
-                plan_serializado[comida] = {
-                    "kcal_objetivo": round(datos.get("kcal_objetivo", 0), 0),
-                    "tipo_plan": "opciones",
-                    "proteinas": _serializar_macro_opciones(datos.get("proteinas", {})),
-                    "carbohidratos": _serializar_macro_opciones(datos.get("carbohidratos", {})),
-                    "grasas": _serializar_macro_opciones(datos.get("grasas", {})),
-                    "vegetales": [
-                        {
-                            "alimento": v.get("alimento", ""),
-                            "gramos": round(v.get("gramos", 0)),
-                        }
-                        for v in datos.get("vegetales", [])
-                    ],
-                }
-        else:
-            from core.generador_planes import ConstructorPlanNuevo
-            from web.pdf import PDFGenerator
-
-            plan = ConstructorPlanNuevo.construir(
-                cliente, plan_numero=plan_numero, directorio_planes=CARPETA_PLANES,
-            )
-
-            nombre_pdf = (
-                f"plan_{cliente.nombre.replace(' ', '_')}"
-                f"_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-            )
-            ruta_pdf_completa = os.path.join(CARPETA_SALIDA, nombre_pdf)
-
-            # Usar PDFGenerator moderno con datos del gym
-            pdf_gen = PDFGenerator(config=gym_config if gym_config else None)
-            datos_pdf = {
-                "cliente": {
-                    "nombre": cliente.nombre,
-                    "edad": cliente.edad,
-                    "sexo": getattr(cliente, "sexo", None),
-                    "peso_kg": cliente.peso_kg,
-                    "estatura_cm": cliente.estatura_cm,
-                    "grasa_corporal_pct": cliente.grasa_corporal_pct,
-                    "nivel_actividad": cliente.nivel_actividad,
-                    "objetivo": cliente.objetivo,
-                },
-                "macros": {
-                    "tmb": getattr(cliente, "tmb", 0) or 0,
-                    "get_total": getattr(cliente, "get_total", 0) or 0,
-                    "kcal_objetivo": getattr(cliente, "kcal_objetivo", 0) or 0,
-                    "proteina_g": getattr(cliente, "proteina_g", 0) or 0,
-                    "carbs_g": getattr(cliente, "carbs_g", 0) or 0,
-                    "grasa_g": getattr(cliente, "grasa_g", 0) or 0,
-                },
-                "plan": plan,
-            }
-            from pathlib import Path as _PPath
-            ruta_pdf = pdf_gen.generar_plan(datos_pdf, _PPath(ruta_pdf_completa))
-
-            kcal_total = sum(plan.get(m, {}).get("kcal_real", 0) for m in comidas)
-
-            plan_serializado = {
-                comida: {
-                    "kcal_objetivo": round(plan[comida].get("kcal_objetivo", 0), 0),
-                    "kcal_real": round(plan[comida].get("kcal_real", 0), 0),
-                    "alimentos": {
-                        k: round(v, 0)
-                        for k, v in plan[comida].get("alimentos", {}).items()
-                        if v > 0
-                    },
-                }
-                for comida in comidas
-                if comida in plan
-            }
-
-        # Registrar plan en SA
-        desv_max = max(
-            (plan.get(m, {}).get("desviacion_pct", 0) for m in comidas if m in plan),
-            default=0,
+        plan = ConstructorPlanConOpciones.construir(
+            cliente, plan_numero=plan_numero, directorio_planes=CARPETA_PLANES, catalogo=catalogo,
         )
 
-        with SASession(engine) as session:
-            repo.registrar_plan(session, gym_id, id_cliente, {
-                "tmb": getattr(cliente, "tmb", 0),
-                "get_total": getattr(cliente, "get_total", 0),
-                "kcal_objetivo": getattr(cliente, "kcal_objetivo", 0),
-                "kcal_real": kcal_total,
-                "proteina_g": getattr(cliente, "proteina_g", 0),
-                "carbs_g": getattr(cliente, "carbs_g", 0),
-                "grasa_g": getattr(cliente, "grasa_g", 0),
-                "objetivo": cliente.objetivo,
-                "nivel_actividad": cliente.nivel_actividad,
-                "ruta_pdf": str(ruta_pdf),
-                "peso_en_momento": cliente.peso_kg,
-                "grasa_en_momento": cliente.grasa_corporal_pct,
-                "desviacion_maxima_pct": desv_max,
-                "plantilla_tipo": getattr(cliente, "plantilla_tipo", "general"),
-                "tipo_plan": tipo_plan,
-            })
-            session.commit()
+        nombre_pdf = (
+            f"plan_opciones_{cliente.nombre.replace(' ', '_')}"
+            f"_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        )
+        ruta_pdf_completa = os.path.join(CARPETA_SALIDA, nombre_pdf)
+        generador = GeneradorPDFConOpciones(ruta_pdf_completa, config=gym_config if gym_config else None)
+        ruta_pdf = generador.generar(cliente, plan)
 
-        return {
-            "success": True,
-            "tipo_plan": tipo_plan,
-            "id_cliente": cliente.id_cliente,
-            "nombre": cliente.nombre,
-            "ruta_pdf": str(ruta_pdf),
-            "macros": {
-                "tmb": round(cliente.tmb or 0, 1),
-                "get_total": round(cliente.get_total or 0, 1),
-                "kcal_objetivo": round(cliente.kcal_objetivo or 0, 0),
-                "kcal_real": round(kcal_total, 0),
-                "proteina_g": round(cliente.proteina_g or 0, 1),
-                "carbs_g": round(cliente.carbs_g or 0, 1),
-                "grasa_g": round(cliente.grasa_g or 0, 1),
+        kcal_total = plan.get("metadata", {}).get("kcal_totales", 0)
+
+        # Serializar plan con opciones para el frontend
+        plan_serializado = {}
+        for comida in comidas:
+            if comida not in plan:
+                continue
+            datos = plan[comida]
+            plan_serializado[comida] = {
+                "kcal_objetivo": round(datos.get("kcal_objetivo", 0), 0),
+                "tipo_plan": "opciones",
+                "proteinas": _serializar_macro_opciones(datos.get("proteinas", {})),
+                "carbohidratos": _serializar_macro_opciones(datos.get("carbohidratos", {})),
+                "grasas": _serializar_macro_opciones(datos.get("grasas", {})),
+                "vegetales": [
+                    {
+                        "alimento": v.get("alimento", ""),
+                        "gramos": round(v.get("gramos", 0)),
+                    }
+                    for v in datos.get("vegetales", [])
+                ],
+            }
+    else:
+        from core.generador_planes import ConstructorPlanNuevo
+        from web.pdf import PDFGenerator
+
+        plan = ConstructorPlanNuevo.construir(
+            cliente, plan_numero=plan_numero, directorio_planes=CARPETA_PLANES, catalogo=catalogo,
+        )
+
+        nombre_pdf = (
+            f"plan_{cliente.nombre.replace(' ', '_')}"
+            f"_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        )
+        ruta_pdf_completa = os.path.join(CARPETA_SALIDA, nombre_pdf)
+
+        # Usar PDFGenerator moderno con datos del gym
+        pdf_gen = PDFGenerator(config=gym_config if gym_config else None)
+        datos_pdf = {
+            "cliente": {
+                "nombre": cliente.nombre,
+                "edad": cliente.edad,
+                "sexo": getattr(cliente, "sexo", None),
+                "peso_kg": cliente.peso_kg,
+                "estatura_cm": cliente.estatura_cm,
+                "grasa_corporal_pct": cliente.grasa_corporal_pct,
+                "nivel_actividad": cliente.nivel_actividad,
+                "objetivo": cliente.objetivo,
             },
-            "plan": plan_serializado,
+            "macros": {
+                "tmb": getattr(cliente, "tmb", 0) or 0,
+                "get_total": getattr(cliente, "get_total", 0) or 0,
+                "kcal_objetivo": getattr(cliente, "kcal_objetivo", 0) or 0,
+                "proteina_g": getattr(cliente, "proteina_g", 0) or 0,
+                "carbs_g": getattr(cliente, "carbs_g", 0) or 0,
+                "grasa_g": getattr(cliente, "grasa_g", 0) or 0,
+            },
+            "plan": plan,
         }
-    finally:
-        # Restore original CATEGORIAS refs in all patched modules
-        if _patched_modules:
-            from web.catalogo import _refrescar_lista
-            for key, (mod, attr, original) in _patched_modules.items():
-                setattr(mod, attr, original)
-            nombre_map = {"proteina": "PROTEINAS", "carbs": "CARBS", "grasa": "GRASAS", "verdura": "VERDURAS", "fruta": "FRUTAS"}
-            for cat, items in _patched_modules['ab'][2].items():
-                if cat in nombre_map:
-                    _refrescar_lista(nombre_map[cat], items)
-        if _lock_held:
-            _categorias_lock.release()
+        from pathlib import Path as _PPath
+        ruta_pdf = pdf_gen.generar_plan(datos_pdf, _PPath(ruta_pdf_completa))
+
+        kcal_total = sum(plan.get(m, {}).get("kcal_real", 0) for m in comidas)
+
+        plan_serializado = {
+            comida: {
+                "kcal_objetivo": round(plan[comida].get("kcal_objetivo", 0), 0),
+                "kcal_real": round(plan[comida].get("kcal_real", 0), 0),
+                "alimentos": {
+                    k: round(v, 0)
+                    for k, v in plan[comida].get("alimentos", {}).items()
+                    if v > 0
+                },
+            }
+            for comida in comidas
+            if comida in plan
+        }
+
+    # Registrar plan en SA
+    desv_max = max(
+        (plan.get(m, {}).get("desviacion_pct", 0) for m in comidas if m in plan),
+        default=0,
+    )
+
+    with SASession(engine) as session:
+        plan_id = repo.registrar_plan(session, gym_id, id_cliente, {
+            "tmb": getattr(cliente, "tmb", 0),
+            "get_total": getattr(cliente, "get_total", 0),
+            "kcal_objetivo": getattr(cliente, "kcal_objetivo", 0),
+            "kcal_real": kcal_total,
+            "proteina_g": getattr(cliente, "proteina_g", 0),
+            "carbs_g": getattr(cliente, "carbs_g", 0),
+            "grasa_g": getattr(cliente, "grasa_g", 0),
+            "objetivo": cliente.objetivo,
+            "nivel_actividad": cliente.nivel_actividad,
+            "ruta_pdf": str(ruta_pdf),
+            "peso_en_momento": cliente.peso_kg,
+            "grasa_en_momento": cliente.grasa_corporal_pct,
+            "desviacion_maxima_pct": desv_max,
+            "plantilla_tipo": getattr(cliente, "plantilla_tipo", "general"),
+            "tipo_plan": tipo_plan,
+            "plan_json": _json.dumps(plan_serializado, ensure_ascii=False),
+        }, return_id=True)
+        if not plan_id:
+            raise ValueError("No fue posible registrar el plan autorizado")
+        session.commit()
+
+    return {
+        "success": True,
+        "plan_id": plan_id,
+        "tipo_plan": tipo_plan,
+        "id_cliente": cliente.id_cliente,
+        "nombre": cliente.nombre,
+        "ruta_pdf": str(ruta_pdf),
+        "macros": {
+            "tmb": round(cliente.tmb or 0, 1),
+            "get_total": round(cliente.get_total or 0, 1),
+            "kcal_objetivo": round(cliente.kcal_objetivo or 0, 0),
+            "kcal_real": round(kcal_total, 0),
+            "proteina_g": round(cliente.proteina_g or 0, 1),
+            "carbs_g": round(cliente.carbs_g or 0, 1),
+            "grasa_g": round(cliente.grasa_g or 0, 1),
+        },
+        "plan": plan_serializado,
+    }
 
 
 def _serializar_macro_opciones(macro_data: dict) -> dict:
@@ -397,14 +352,17 @@ async def generar_plan(
 
         return resultado
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=422, detail={
+            "code": "generation_unavailable",
+            "message": "No fue posible generar el plan con estos datos y exclusiones. Revisa el perfil.",
+        }) from exc
     except Exception as exc:
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Error generando plan: %s", exc,
-            exc_info=not _gs().is_production
-        )
-        raise HTTPException(status_code=500, detail=f"Error en generación: {exc}")
+        # Exception messages can contain SQL parameters, paths or health notes.
+        logger.error("Plan generation failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=500, detail={
+            "code": "generation_failed",
+            "message": "No fue posible generar el plan. Intenta de nuevo.",
+        }) from None
 
 
 @router.get("/descargar-pdf/{id_cliente}", summary="Descargar último PDF")

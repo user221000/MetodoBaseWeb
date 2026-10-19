@@ -189,8 +189,13 @@ def eliminar_cliente(db: Session, gym_id: str, id_cliente: str) -> bool:
 
 # ── Planes ───────────────────────────────────────────────────────────────────
 
-def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict) -> bool:
-    """Registra un plan generado y actualiza contadores del cliente."""
+def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *, return_id: bool = False) -> bool | int:
+    """Stage an owned plan, its JSON and counters in the caller's transaction.
+
+    Returns False when client/tenant does not match. Legacy callers receive a
+    boolean; return_id=True returns the flushed plan ID for quota idempotency.
+    This function flushes but does not commit or write external documents.
+    """
     c = db.query(Cliente).filter(
         Cliente.id_cliente == id_cliente,
         Cliente.gym_id == gym_id,
@@ -216,13 +221,14 @@ def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict) -
         desviacion_maxima_pct=plan_data.get("desviacion_maxima_pct"),
         plantilla_tipo=plan_data.get("plantilla_tipo", "general"),
         tipo_plan=plan_data.get("tipo_plan", "menu_fijo"),
+        plan_json=plan_data.get("plan_json"),
     )
     db.add(p)
 
     c.total_planes_generados = (c.total_planes_generados or 0) + 1
     c.ultimo_plan = datetime.now(timezone.utc)
     db.flush()
-    return True
+    return p.id if return_id else True
 
 
 def obtener_historial_planes(

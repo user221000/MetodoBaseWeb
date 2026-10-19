@@ -17,7 +17,7 @@ from typing import Optional
 
 from sqlalchemy import (
     Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text,
-    CheckConstraint, Enum as SQLEnum,
+    CheckConstraint, UniqueConstraint, Enum as SQLEnum,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -102,6 +102,8 @@ class Usuario(Base):
     )
     
     activo = Column(Boolean, nullable=False, default=True)
+    # Incremented transactionally on logout/revocation; legacy tokens use zero.
+    session_version = Column(Integer, nullable=False, default=0, server_default="0")
     fecha_registro = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # Relaciones
@@ -310,6 +312,8 @@ class Subscription(Base):
     # ── Stripe IDs ──
     stripe_customer_id = Column(String(255))
     stripe_subscription_id = Column(String(255), unique=True)
+    provider = Column(String(20), nullable=True)
+    provider_payment_id = Column(String(255), unique=True, nullable=True)
     
     # ── Periods ──
     current_period_start = Column(DateTime)
@@ -334,7 +338,7 @@ class Subscription(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "plan IN ('free', 'standard', 'gym_comercial', 'clinica')",
+            "plan IN ('free', 'standard', 'gym_comercial', 'clinica', 'pro_usuario')",
             name="ck_subscription_plan",
         ),
         CheckConstraint(
@@ -680,4 +684,51 @@ class UserSubscription(Base):
     __table_args__ = (
         CheckConstraint("plan IN ('starter', 'pro')", name="ck_user_sub_plan"),
         CheckConstraint("status IN ('active', 'canceled')", name="ck_user_sub_status"),
+    )
+
+
+class PurchaseIntent(Base):
+    """Durable purchase identity committed before contacting a payment provider.
+
+    Amounts are MXN minor units. Operation keys are reused after provider or
+    database failures; no card secrets or provider client secrets are stored.
+    """
+    __tablename__ = "purchase_intents"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    subject_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
+    provider = Column(String(20), nullable=False)
+    operation = Column(String(30), nullable=False)
+    request_key = Column(String(128), nullable=False)
+    plan = Column(String(30), nullable=False)
+    amount_cents = Column(Integer, nullable=False)
+    currency = Column(String(3), nullable=False, default="mxn")
+    status = Column(String(30), nullable=False, default="pending")
+    provider_customer_id = Column(String(255), nullable=True)
+    provider_reference_id = Column(String(255), nullable=True, index=True)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    __table_args__ = (
+        UniqueConstraint("subject_id", "provider", "operation", "request_key", name="uq_purchase_operation_key"),
+        CheckConstraint("amount_cents > 0", name="ck_purchase_positive_amount"),
+    )
+
+
+class GenerationReservation(Base):
+    """One individual generation request and its quota consumption/result."""
+    __tablename__ = "generation_reservations"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
+    request_key = Column(String(128), nullable=False)
+    period = Column(String(7), nullable=False)
+    status = Column(String(20), nullable=False, default="reserved")
+    plan_id = Column(Integer, ForeignKey("planes_generados.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "request_key", name="uq_generation_request_key"),
+        CheckConstraint("status IN ('reserved', 'completed', 'released')", name="ck_generation_reservation_status"),
     )

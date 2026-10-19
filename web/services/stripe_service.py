@@ -25,8 +25,9 @@ from sqlalchemy.orm import Session
 from web.constants import PLANES_LICENCIA
 from web.services.resilience import retry_with_backoff, stripe_circuit
 from web.settings import get_settings
-from web.database.models import Subscription, Payment, Usuario, StripeWebhookEvent, StripeCustomer
-from web.services.subscription_service import activate_subscription, record_payment
+from web.database.models import Subscription, Payment, Usuario, StripeWebhookEvent, StripeCustomer, PurchaseIntent
+from web.services.subscription_service import activate_subscription, record_payment, update_subscription_status
+from web.services.billing_integrity import prepare_purchase, price_in_cents
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,10 @@ def _init_stripe() -> bool:
     if not settings.STRIPE_SECRET_KEY:
         return False
     stripe.api_key = settings.STRIPE_SECRET_KEY
+    # The existing Elements flow uses Invoice.payment_intent/charge. Basil
+    # removed those fields; keep an explicit supported API contract until its
+    # sandbox-tested migration to Invoice Payments is delivered.
+    stripe.api_version = "2024-06-20"
     stripe.max_network_retries = 0  # Manejamos retries con circuit breaker
 
     # Configurar timeout (stripe-python usa requests internamente)
@@ -47,7 +52,7 @@ def _init_stripe() -> bool:
         )
         logger.info("Stripe configured with timeout=%ss", settings.STRIPE_TIMEOUT)
     except Exception as e:
-        logger.warning("Could not set Stripe timeout: %s", e)
+        logger.warning("Could not set Stripe timeout class=%s", type(e).__name__)
 
     return True
 
@@ -88,6 +93,7 @@ def create_checkout_session(
     email: str,
     success_url: str,
     cancel_url: str,
+    request_key: Optional[str] = None,
 ) -> dict:
     """Crea una Stripe Checkout Session para suscripción."""
     if not _init_stripe():
@@ -97,6 +103,7 @@ def create_checkout_session(
         raise ValueError(f"Plan inválido: {plan}")
 
     info = PLANES_LICENCIA[plan]
+    intent = prepare_purchase(db, gym_id, "stripe", "checkout", plan, request_key)
 
     # Reutilizar customer si ya existe
     sub = db.query(Subscription).filter(
@@ -130,7 +137,7 @@ def create_checkout_session(
     # Stripe requires absolute URLs
     settings = get_settings()
     base = settings.BASE_URL.rstrip("/")
-    abs_success = base + success_url + "?session_id={CHECKOUT_SESSION_ID}"
+    abs_success = base + success_url + ("&" if "?" in success_url else "?") + "session_id={CHECKOUT_SESSION_ID}"
     abs_cancel = base + cancel_url
 
     kwargs = {
@@ -139,8 +146,9 @@ def create_checkout_session(
         "line_items": line_items,
         "success_url": abs_success,
         "cancel_url": abs_cancel,
-        "metadata": {"plan": plan, "gym_id": gym_id},
-        "idempotency_key": f"checkout_{gym_id}_{plan}_{date.today().isoformat()}",
+        "metadata": {"plan": plan, "gym_id": gym_id, "purchase_intent_id": intent.id},
+        "subscription_data": {"metadata": {"plan": plan, "gym_id": gym_id, "purchase_intent_id": intent.id}},
+        "idempotency_key": f"purchase_{intent.id}_checkout",
     }
 
     if customer_id:
@@ -149,7 +157,10 @@ def create_checkout_session(
         kwargs["customer_email"] = email
 
     session = stripe.checkout.Session.create(**kwargs)
-    return {"session_id": session.id, "url": session.url}
+    intent.provider_reference_id = session.id
+    intent.status = "provider_created"
+    db.commit()
+    return {"session_id": session.id, "url": session.url, "purchase_intent_id": intent.id}
 
 
 # ── Customer Portal ──────────────────────────────────────────────────────────
@@ -180,6 +191,7 @@ def create_subscription_with_payment_method(
     plan: str,
     email: str,
     payment_method_id: str,
+    request_key: Optional[str] = None,
 ) -> dict:
     """Crea suscripción usando un PaymentMethod ya tokenizado (Stripe Elements)."""
     if not _init_stripe():
@@ -189,12 +201,25 @@ def create_subscription_with_payment_method(
         raise ValueError(f"Plan inválido: {plan}")
 
     info = PLANES_LICENCIA[plan]
+    intent = prepare_purchase(db, gym_id, "stripe", "elements", plan, request_key)
+
+    # A provider result is recovered using the same durable operation identity
+    # after a network retry or a database failure following provider success.
+    if intent.provider_reference_id:
+        subscription = stripe.Subscription.retrieve(intent.provider_reference_id,
+                                                     expand=["latest_invoice.payment_intent"])
+        invoice = subscription.get("latest_invoice") or {}
+        pi = invoice.get("payment_intent") or {}
+        return {"subscription_id": subscription.id, "client_secret": pi.get("client_secret", ""),
+                "status": subscription.status, "purchase_intent_id": intent.id}
 
     sub = db.query(Subscription).filter(
         Subscription.gym_id == gym_id
     ).first()
 
-    customer_id = sub.stripe_customer_id if sub else None
+    if sub and sub.status in {"active", "trialing", "past_due"}:
+        raise ValueError("Ya existe una suscripción. Usa el portal para gestionarla.")
+    customer_id = intent.provider_customer_id or (sub.stripe_customer_id if sub else None)
 
     # Also check StripeCustomer table for existing customer
     if not customer_id:
@@ -209,8 +234,11 @@ def create_subscription_with_payment_method(
             email=email,
             payment_method=payment_method_id,
             invoice_settings={"default_payment_method": payment_method_id},
+            metadata={"gym_id": gym_id},
+            idempotency_key=f"purchase_{intent.id}_customer",
         )
         customer_id = customer.id
+        intent.provider_customer_id = customer_id
 
         # Persist StripeCustomer record in DB
         stripe_cust = StripeCustomer(
@@ -221,12 +249,19 @@ def create_subscription_with_payment_method(
         )
         db.add(stripe_cust)
         db.flush()
+        db.commit()
         logger.info("StripeCustomer created: gym=%s customer=%s", gym_id, customer_id)
     else:
-        stripe.PaymentMethod.attach(payment_method_id, customer=customer_id)
+        method = stripe.PaymentMethod.retrieve(payment_method_id)
+        if method.get("customer") and method.get("customer") != customer_id:
+            raise ValueError("El método de pago pertenece a otra cuenta")
+        if not method.get("customer"):
+            stripe.PaymentMethod.attach(payment_method_id, customer=customer_id,
+                                        idempotency_key=f"purchase_{intent.id}_attach")
         stripe.Customer.modify(
             customer_id,
             invoice_settings={"default_payment_method": payment_method_id},
+            idempotency_key=f"purchase_{intent.id}_default_method",
         )
         # Update StripeCustomer record if exists
         stripe_cust = db.query(StripeCustomer).filter(
@@ -260,131 +295,162 @@ def create_subscription_with_payment_method(
             },
         }]
 
-    idempotency_key = f"sub_{gym_id}_{plan}_{payment_method_id}"
+    idempotency_key = f"purchase_{intent.id}_subscription"
 
     subscription = stripe.Subscription.create(
         customer=customer_id,
         items=items,
         payment_behavior="default_incomplete",
         expand=["latest_invoice.payment_intent"],
-        metadata={"plan": plan, "gym_id": gym_id},
+        metadata={"plan": plan, "gym_id": gym_id, "purchase_intent_id": intent.id},
         idempotency_key=idempotency_key,
     )
 
     payment_intent = subscription.latest_invoice.payment_intent
     client_secret = payment_intent.client_secret if payment_intent else ""
+    intent.provider_reference_id = subscription.id
+    intent.provider_customer_id = customer_id
+    intent.status = "provider_created"
+    db.commit()
 
     return {
         "subscription_id": subscription.id,
         "client_secret": client_secret,
         "status": subscription.status,
+        "purchase_intent_id": intent.id,
     }
 
 
 # ── Confirm Subscription (client-side fallback) ─────────────────────────────
 
-def confirm_subscription(db: Session, gym_id: str, subscription_id: str) -> dict:
-    """Verifica con Stripe que la suscripción está activa y la activa en BD.
+def _stripe_period(snapshot: dict, key: str):
+    """Resolve old and current Stripe API period shapes to aware UTC."""
+    value = snapshot.get(key)
+    if not value:
+        items = (snapshot.get("items") or {}).get("data") or []
+        value = items[0].get(key) if items else None
+    return datetime.fromtimestamp(value, tz=timezone.utc) if value else None
 
-    Fallback para cuando el webhook no llega (desarrollo sin webhook secret,
-    o retraso en la entrega del webhook).
-    
-    Also handles race condition where subscription is still "incomplete" but
-    payment intent already succeeded (confirmCardPayment returned success).
+
+def _verified_invoice_charge(invoice: dict, customer_id: str, expected_amount: int) -> bool:
+    """Require captured, current, unrefunded MXN evidence for this customer."""
+    charge = invoice.get("charge")
+    if isinstance(charge, str):
+        charge = stripe.Charge.retrieve(charge)
+    if not isinstance(charge, dict) or not isinstance(charge.get("id"), str):
+        return False
+    return (charge.get("paid") is True and charge.get("captured") is True and
+            charge.get("refunded") is False and charge.get("amount_refunded") == 0 and
+            charge.get("currency") == "mxn" and charge.get("amount", 0) >= expected_amount and
+            charge.get("customer") == customer_id)
+
+
+def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | None = None) -> dict:
+    """Fetch current provider truth and reconcile B2B/B2C in one transaction.
+
+    Ownership comes from a persisted purchase or existing provider mapping.
+    Active paid access requires expected MXN/month price, paid invoice and an
+    unrefunded charge. Fetching current state prevents old events overwriting a
+    newer provider state. Caller commits; provider errors remain retryable.
     """
+    snapshot = stripe.Subscription.retrieve(subscription_id, expand=[
+        "latest_invoice.payment_intent", "latest_invoice.charge", "items.data.price"])
+    metadata = snapshot.get("metadata") or {}
+    mapped = db.query(Subscription).filter_by(stripe_subscription_id=subscription_id).first()
+    intent_id = metadata.get("purchase_intent_id")
+    intent = db.query(PurchaseIntent).filter_by(id=intent_id, provider="stripe").first() if intent_id else None
+    owner = intent.subject_id if intent else (mapped.gym_id if mapped else None)
+    if not owner or (subject_id is not None and owner != str(subject_id)):
+        raise ValueError("Payment account mismatch")
+    db.query(Usuario).filter_by(id=owner).update({Usuario.id: Usuario.id})
+    # The account may have renewed through a different subscription while this
+    # request waited for its lock. Re-read the mapping, bypassing the identity
+    # map, before touching the current canonical row.
+    mapped = db.query(Subscription).filter_by(stripe_subscription_id=subscription_id).populate_existing().first()
+    current = db.query(Subscription).filter_by(gym_id=owner).populate_existing().first()
+    if current and current.provider not in (None, "stripe") and (
+            current.status in {"active", "trialing", "past_due"} or intent is None or intent.status == "confirmed"):
+        # A notification from a previous Stripe subscription must never modify
+        # the current MP-funded entitlement, even if the Stripe object is live.
+        return {"status": "superseded", "plan": current.plan, "activated": False}
+    if current and current.stripe_subscription_id and current.stripe_subscription_id != subscription_id:
+        newer_intent = db.query(PurchaseIntent).filter_by(provider="stripe", provider_reference_id=current.stripe_subscription_id).first()
+        incoming_time = (intent.created_at.replace(tzinfo=timezone.utc) if intent.created_at.tzinfo is None else intent.created_at) if intent else None
+        newer_time = (newer_intent.created_at.replace(tzinfo=timezone.utc) if newer_intent.created_at.tzinfo is None else newer_intent.created_at) if newer_intent else None
+        if intent is None or (newer_time and incoming_time < newer_time):
+            return {"status": "superseded", "plan": current.plan, "activated": False}
+    # Resolve the account first, then fetch again under its transaction lock.
+    # A request that waited for a refund/cancellation must observe fresh state.
+    snapshot = stripe.Subscription.retrieve(subscription_id, expand=[
+        "latest_invoice.payment_intent", "latest_invoice.charge", "items.data.price"])
+    metadata = snapshot.get("metadata") or {}
+    if snapshot.get("id") != subscription_id:
+        raise ValueError("Subscription resource mismatch")
+    if intent and metadata.get("purchase_intent_id") != intent.id:
+        raise ValueError("Purchase identity mismatch")
+    if metadata.get("gym_id") and str(metadata["gym_id"]) != str(owner):
+        raise ValueError("Subscription identity mismatch")
+    customer_id = snapshot.get("customer")
+    if intent and intent.provider_customer_id and intent.provider_customer_id != customer_id:
+        raise ValueError("Payment customer mismatch")
+    if mapped and mapped.stripe_customer_id and mapped.stripe_customer_id != customer_id:
+        raise ValueError("Payment customer mismatch")
+    plan = intent.plan if intent else mapped.plan
+    if metadata.get("plan") and metadata["plan"] != plan:
+        raise ValueError("Subscription plan mismatch")
+    status = snapshot.get("status", "incomplete")
+    if status == "active":
+        items = (snapshot.get("items") or {}).get("data") or []
+        if len(items) != 1 or items[0].get("quantity", 1) != 1:
+            raise ValueError("Invalid subscription item")
+        price = items[0].get("price") or {}
+        configured_price = PLANES_LICENCIA[plan].get("stripe_price_id")
+        if configured_price and price.get("id") != configured_price:
+            raise ValueError("Subscription price mismatch")
+        if (str(price.get("currency", "")).lower() != "mxn" or
+                price.get("unit_amount") != price_in_cents(plan) or
+                (price.get("recurring") or {}).get("interval") != "month" or
+                (price.get("recurring") or {}).get("interval_count", 1) != 1):
+            raise ValueError("Subscription amount or period mismatch")
+        invoice = snapshot.get("latest_invoice") or {}
+        if not isinstance(invoice, dict) or not (invoice.get("paid") is True or invoice.get("status") == "paid"):
+            status = "incomplete"
+        elif (str(invoice.get("currency", "")).lower() != "mxn" or
+              invoice.get("amount_paid", 0) < price_in_cents(plan)):
+            status = "incomplete"
+        elif not _verified_invoice_charge(invoice, customer_id, price_in_cents(plan)):
+            status = "unpaid"
+    if status == "active":
+        mapped = activate_subscription(db, owner, plan, stripe_customer_id=customer_id,
+            stripe_subscription_id=subscription_id, current_period_start=_stripe_period(snapshot, "current_period_start"),
+            current_period_end=_stripe_period(snapshot, "current_period_end"), provider="stripe")
+        if intent:
+            intent.status = "confirmed"
+            intent.provider_reference_id = subscription_id
+            intent.provider_customer_id = customer_id
+    elif mapped:
+        update_subscription_status(db, mapped, status)
+    if mapped:
+        mapped.cancel_at_period_end = bool(snapshot.get("cancel_at_period_end", False))
+        mapped.current_period_start = _stripe_period(snapshot, "current_period_start")
+        mapped.current_period_end = _stripe_period(snapshot, "current_period_end")
+    db.flush()
+    return {"status": status, "plan": plan, "activated": status == "active"}
+
+
+def confirm_subscription(db: Session, gym_id: str, subscription_id: str) -> dict:
+    """Confirm provider evidence; browser success alone never grants paid access."""
     if not _init_stripe():
-        raise RuntimeError("Stripe no configurado")
+        raise RuntimeError("Stripe not configured")
+    return reconcile_subscription(db, subscription_id, gym_id)
 
-    sub_stripe = stripe.Subscription.retrieve(
-        subscription_id,
-        expand=["latest_invoice.payment_intent"],
-    )
-
-    # Verify the subscription belongs to this gym
-    if sub_stripe.metadata.get("gym_id") != str(gym_id):
-        raise ValueError("La suscripción no pertenece a este gym")
-
-    # Check if subscription is active directly
-    is_active = sub_stripe.status in ("active", "trialing")
-
-    # Also accept "incomplete" if payment intent already succeeded
-    # (race condition: confirmCardPayment returned success but Stripe
-    # hasn't updated the subscription status yet)
-    if not is_active and sub_stripe.status == "incomplete":
-        pi = getattr(sub_stripe.latest_invoice, "payment_intent", None)
-        if pi and getattr(pi, "status", None) == "succeeded":
-            is_active = True
-            logger.info(
-                "Subscription %s still incomplete but payment_intent succeeded — activating",
-                subscription_id,
-            )
-
-    if not is_active:
-        return {
-            "status": sub_stripe.status,
-            "message": "La suscripción aún no está activa",
-            "activated": False,
-        }
-
-    plan = sub_stripe.metadata.get("plan", "standard")
-
-    # Extract billing period dates from Stripe
-    period_start = None
-    period_end = None
-    if sub_stripe.current_period_start:
-        period_start = datetime.fromtimestamp(
-            sub_stripe.current_period_start, tz=timezone.utc
-        )
-    if sub_stripe.current_period_end:
-        period_end = datetime.fromtimestamp(
-            sub_stripe.current_period_end, tz=timezone.utc
-        )
-
-    from web.services.subscription_service import activate_subscription
-
-    activate_subscription(
-        db,
-        gym_id=gym_id,
-        plan=plan,
-        stripe_customer_id=sub_stripe.customer,
-        stripe_subscription_id=subscription_id,
-        current_period_start=period_start,
-        current_period_end=period_end,
-        provider="stripe",
-    )
-
-    # Ensure StripeCustomer record exists
-    if sub_stripe.customer:
-        stripe_cust = db.query(StripeCustomer).filter(
-            StripeCustomer.gym_id == gym_id
-        ).first()
-        if not stripe_cust:
-            user = db.query(Usuario).filter(Usuario.id == gym_id).first()
-            stripe_cust = StripeCustomer(
-                gym_id=gym_id,
-                stripe_customer_id=sub_stripe.customer,
-                email=user.email if user else "",
-            )
-            db.add(stripe_cust)
-            db.flush()
-
-    logger.info("Subscription confirmed via client fallback: gym=%s plan=%s", gym_id, plan)
-
-    return {
-        "status": "active",
-        "plan": plan,
-        "activated": True,
-    }
-
-
-# ── Webhook Processing ───────────────────────────────────────────────────────
 
 def verify_webhook(payload: bytes, sig_header: str) -> dict:
     """Verifica firma del webhook y retorna el evento."""
     settings = get_settings()
     if not settings.STRIPE_WEBHOOK_SECRET:
         logger.warning("Stripe webhook received but STRIPE_WEBHOOK_SECRET not set")
-        return None
+        raise RuntimeError("Stripe webhooks no configurados")
 
     _init_stripe()
     return stripe.Webhook.construct_event(
@@ -435,6 +501,8 @@ def handle_webhook_event(db: Session, event: dict) -> str:
     Returns descripción de acción tomada.
     """
     event_id = event.get("id", "")
+    if not event_id:
+        raise ValueError("Webhook event identity missing")
     event_type = event["type"]
     
     # ── Idempotencia: verificar si ya fue procesado ──
@@ -443,9 +511,14 @@ def handle_webhook_event(db: Session, event: dict) -> str:
         return f"duplicate:{event_type}"
     
     data = event["data"]["object"]
+    _init_stripe()
 
     handlers = {
         "checkout.session.completed": _on_checkout_completed,
+        "checkout.session.async_payment_succeeded": _on_checkout_completed,
+        "checkout.session.async_payment_failed": _on_checkout_completed,
+        "customer.subscription.created": _on_subscription_updated,
+        "charge.refunded": _on_charge_refunded,
         "customer.subscription.updated": _on_subscription_updated,
         "customer.subscription.deleted": _on_subscription_deleted,
         "invoice.payment_succeeded": _on_invoice_paid,
@@ -476,184 +549,85 @@ def _infer_plan_from_subscription(subscription_id: str) -> str:
                         logger.info("Plan inferido desde price_id %s → %s", price_id, plan_key)
                         return plan_key
     except Exception as e:
-        logger.warning("No se pudo inferir plan desde subscription %s: %s", subscription_id, e)
+        logger.warning("Plan lookup failed subscription=%s class=%s", subscription_id, type(e).__name__)
     return ""
 
 
 def _on_checkout_completed(db: Session, session: dict) -> str:
-    """Checkout completado: crea o actualiza suscripción y StripeCustomer.
-    
-    Soporta dos flujos:
-      1. Checkout Session clásico: gym_id y plan en session.metadata
-      2. Payment Link: gym_id en client_reference_id, plan inferido desde price_id
-    """
-    meta = session.get("metadata", {}) or {}
-    gym_id = meta.get("gym_id", "")
-    plan = meta.get("plan", "")
-    customer_id = session.get("customer", "")
-    subscription_id = session.get("subscription", "")
-    customer_email = session.get("customer_email", "")
-
-    # Payment Links: gym_id viene en client_reference_id
-    if not gym_id:
-        gym_id = session.get("client_reference_id", "")
-    if not gym_id:
-        logger.warning("checkout.session.completed sin gym_id en metadata ni client_reference_id")
-        return "error:no_gym_id"
-
-    # Payment Links: inferir plan desde el price_id de la suscripción creada
-    if not plan and subscription_id:
-        plan = _infer_plan_from_subscription(subscription_id)
-    if not plan:
-        plan = "standard"
-
-    # ── Crear o actualizar StripeCustomer ──
-    if customer_id:
-        stripe_cust = db.query(StripeCustomer).filter(
-            StripeCustomer.gym_id == gym_id
-        ).first()
-        
-        if stripe_cust:
-            stripe_cust.stripe_customer_id = customer_id
-            stripe_cust.email = customer_email or stripe_cust.email
-            stripe_cust.updated_at = datetime.now(timezone.utc)
-        else:
-            stripe_cust = StripeCustomer(
-                gym_id=gym_id,
-                stripe_customer_id=customer_id,
-                email=customer_email,
-            )
-            db.add(stripe_cust)
-        db.flush()
-        logger.info("StripeCustomer created/updated: gym=%s customer=%s", gym_id, customer_id)
-
-    # ── Activar suscripción (shared service) ──
-    activate_subscription(
-        db, gym_id, plan,
-        stripe_customer_id=customer_id,
-        stripe_subscription_id=subscription_id,
-        provider="stripe",
-    )
-
-    # Notificar por email
-    _notify_subscription_activated(db, gym_id, plan)
-
-    return f"activated:{plan}"
+    """A completed checkout can still be unpaid; reconcile only paid evidence."""
+    if session.get("payment_status") != "paid":
+        return "pending:payment_not_paid"
+    subscription_id = session.get("subscription")
+    if not subscription_id:
+        raise ValueError("Checkout has no subscription")
+    result = reconcile_subscription(db, subscription_id)
+    return ("activated:" if result["activated"] else "pending:") + result["plan"]
 
 
 def _on_subscription_updated(db: Session, subscription: dict) -> str:
-    """Suscripción actualizada (cambio de plan, pausa, etc.)."""
-    stripe_sub_id = subscription.get("id", "")
-    sub = db.query(Subscription).filter(
-        Subscription.stripe_subscription_id == stripe_sub_id
-    ).first()
-    if not sub:
-        return "ignored:subscription_not_found"
-
-    sub.status = subscription.get("status", sub.status)
-    sub.cancel_at_period_end = subscription.get("cancel_at_period_end", False)
-
-    period = subscription.get("current_period_start")
-    if period:
-        sub.current_period_start = datetime.fromtimestamp(period, tz=timezone.utc)
-    period_end = subscription.get("current_period_end")
-    if period_end:
-        sub.current_period_end = datetime.fromtimestamp(period_end, tz=timezone.utc)
-
-    # Detectar cambio de plan
-    items = subscription.get("items", {}).get("data", [])
-    if items:
-        new_plan = items[0].get("price", {}).get("metadata", {}).get("plan")
-        if new_plan and new_plan in PLANES_LICENCIA:
-            sub.plan = new_plan
-            sub.max_clientes = PLANES_LICENCIA[new_plan]["max_clientes"] or 999999
-
-    sub.updated_at = datetime.now(timezone.utc)
-    db.flush()
-    return f"updated:{sub.status}"
+    """Read the current provider state instead of applying a stale event body."""
+    result = reconcile_subscription(db, subscription["id"])
+    return "updated:" + result["status"]
 
 
 def _on_subscription_deleted(db: Session, subscription: dict) -> str:
-    """Suscripción cancelada definitivamente."""
-    stripe_sub_id = subscription.get("id", "")
-    sub = db.query(Subscription).filter(
-        Subscription.stripe_subscription_id == stripe_sub_id
-    ).first()
-    if not sub:
-        return "ignored:subscription_not_found"
+    """Reconcile cancellation for canonical subscription and individual quota."""
+    result = reconcile_subscription(db, subscription["id"])
+    return "canceled" if result["status"] == "canceled" else "updated:" + result["status"]
 
-    sub.status = "canceled"
-    sub.updated_at = datetime.now(timezone.utc)
+
+def _invoice_subscription_id(db: Session, invoice: dict) -> str:
+    reference = invoice.get("subscription") or ((invoice.get("parent") or {}).get("subscription_details") or {}).get("subscription")
+    if reference:
+        return reference
+    mapped = db.query(Subscription).filter_by(stripe_customer_id=invoice.get("customer")).first()
+    return mapped.stripe_subscription_id if mapped else ""
+
+
+def _record_invoice(db: Session, invoice: dict, status: str) -> str:
+    """Reconcile provider truth and upsert one payment observation per invoice."""
+    subscription_id = _invoice_subscription_id(db, invoice)
+    if not subscription_id:
+        raise ValueError("Invoice subscription mapping unavailable")
+    reconcile_subscription(db, subscription_id)
+    sub = db.query(Subscription).filter_by(stripe_subscription_id=subscription_id).one()
+    invoice_id = invoice.get("id")
+    if not invoice_id:
+        raise ValueError("Invoice identity missing")
+    payment = db.query(Payment).filter_by(stripe_invoice_id=invoice_id).first()
+    amount = invoice.get("amount_paid" if status == "succeeded" else "amount_due", 0)
+    if payment:
+        # An older failed invoice event cannot overwrite a later succeeded one.
+        if payment.status != "succeeded":
+            payment.status = status
+            payment.amount_cents = amount
+    else:
+        record_payment(db, sub.gym_id, amount_cents=amount, currency=invoice.get("currency", "mxn"),
+                       status=status, plan=sub.plan, stripe_payment_intent_id=invoice.get("payment_intent") or None,
+                       stripe_invoice_id=invoice_id)
     db.flush()
-    logger.info("Subscription canceled: gym=%s", sub.gym_id)
-
-    # Notificar por email
-    _notify_subscription_canceled(db, sub.gym_id)
-
-    return "canceled"
+    return ("paid:" if status == "succeeded" else "failed:") + str(amount)
 
 
 def _on_invoice_paid(db: Session, invoice: dict) -> str:
-    """Factura pagada — registrar payment."""
-    customer_id = invoice.get("customer", "")
-    sub = db.query(Subscription).filter(
-        Subscription.stripe_customer_id == customer_id
-    ).first()
-    gym_id = sub.gym_id if sub else ""
-
-    if not gym_id:
-        logger.warning("No subscription found for customer %s — skipping payment record", customer_id)
-        return "skipped:no_gym_id"
-
-    payment = record_payment(
-        db, gym_id,
-        amount_cents=invoice.get("amount_paid", 0),
-        currency=invoice.get("currency", "usd"),
-        status="succeeded",
-        plan=sub.plan if sub else None,
-        stripe_payment_intent_id=invoice.get("payment_intent", ""),
-        stripe_invoice_id=invoice.get("id", ""),
-    )
-    logger.info("Payment recorded: gym=%s amount=%s", gym_id, payment.amount_cents)
-    return f"paid:{payment.amount_cents}"
+    return _record_invoice(db, invoice, "succeeded")
 
 
 def _on_invoice_failed(db: Session, invoice: dict) -> str:
-    """Pago fallido — registrar y actualizar estado."""
-    customer_id = invoice.get("customer", "")
-    sub = db.query(Subscription).filter(
-        Subscription.stripe_customer_id == customer_id
-    ).first()
-    gym_id = sub.gym_id if sub else ""
-
-    if not gym_id:
-        logger.warning("No subscription found for customer %s — skipping failed payment record", customer_id)
-        return "skipped:no_gym_id"
-
-    record_payment(
-        db, gym_id,
-        amount_cents=invoice.get("amount_due", 0),
-        currency=invoice.get("currency", "usd"),
-        status="failed",
-        plan=sub.plan if sub else None,
-        stripe_payment_intent_id=invoice.get("payment_intent", ""),
-        stripe_invoice_id=invoice.get("id", ""),
-    )
-
-    if sub:
-        sub.status = "past_due"
-        sub.updated_at = datetime.now(timezone.utc)
-
-    db.flush()
-    logger.warning("Payment failed: gym=%s", gym_id)
-
-    # Notificar por email
-    _notify_payment_failed(db, gym_id)
-
-    return f"failed:{gym_id}"
+    return _record_invoice(db, invoice, "failed")
 
 
-# ── Queries ───────────────────────────────────────────────────────────────────
+def _on_charge_refunded(db: Session, charge: dict) -> str:
+    """Reconcile a full refund without revoking unrelated newer invoice access."""
+    customer_id = charge.get("customer")
+    mapped = db.query(Subscription).filter_by(stripe_customer_id=customer_id).first()
+    if not mapped:
+        raise ValueError("Refund subscription mapping unavailable")
+    # The reconciler locks the subject before reading current payment evidence.
+    # An old refund can never overwrite a later paid renewal.
+    reconcile_subscription(db, mapped.stripe_subscription_id)
+    return "refund:reconciled"
+
 
 def _get_gym_email_and_name(db: Session, gym_id: str) -> tuple[str, str]:
     """Obtiene email y nombre del gym desde SA (Usuario)."""

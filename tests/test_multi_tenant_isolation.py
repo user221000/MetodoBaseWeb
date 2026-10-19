@@ -108,91 +108,62 @@ class TestUnauthenticatedAccess:
         assert response.status_code == 401
 
 
+@pytest.fixture
+def tenant_pair(auth_client, test_gym_user):
+    """Persist both gyms and clients; HTTP/repository authorization is real.
+
+    SQLite exercises application filtering here. PostgreSQL RLS has its own
+    mandatory acceptance module and is never inferred from these results.
+    """
+    import uuid
+    from sqlalchemy.orm import Session
+    from web.database.engine import get_engine
+    from web.database.models import Usuario, UserRole, Cliente
+    gym_a = test_gym_user["id"]
+    gym_b = str(uuid.uuid4())
+    with Session(get_engine()) as db:
+        db.add(Usuario(id=gym_b, email=f"{gym_b}@example.test", password_hash="unused-synthetic",
+                       nombre="Gym B", tipo="gym", role=UserRole.OWNER, activo=True))
+        db.commit()
+        db.add_all([Cliente(id_cliente="client-a", gym_id=gym_a, nombre="Client A"),
+                    Cliente(id_cliente="client-b", gym_id=gym_b, nombre="Client B")])
+        db.commit()
+    return auth_client, gym_a, gym_b
+
+
 class TestCrossTenantIsolation:
-    """Tests de aislamiento entre tenants."""
-    
-    def test_gym_a_no_ve_clientes_gym_b(self, client, mock_jwt_gym_a, mock_jwt_gym_b):
-        """
-        Gym A no puede ver clientes de Gym B.
-        
-        Escenario:
-        1. Gym B crea un cliente
-        2. Gym A intenta listar clientes
-        3. El cliente de Gym B no aparece en la lista de Gym A
-        """
-        with patch("web.auth.verificar_token") as mock_verify:
-            # Simular creación por Gym B (en realidad solo verificamos el filtro)
-            mock_verify.return_value = mock_jwt_gym_a
-            
-            with patch("web.database.repository.listar_clientes") as mock_repo:
-                mock_repo.return_value = ([], 0)
-                
-                response = client.get(
-                    "/api/clientes",
-                    headers={"Authorization": "Bearer fake_token_gym_a"}
-                )
-                
-                # Verificar que se llamó a listar_clientes con gym_id de A
-                call_args = mock_repo.call_args
-                assert call_args is not None
-                # El segundo argumento debe ser el gym_id
-                assert call_args[0][1] == "gym_a_id_12345"
-    
-    def test_idor_cliente_otro_gym_devuelve_404(self, client, mock_jwt_gym_a):
-        """
-        Intentar acceder a cliente de otro gym devuelve 404 (no 403).
-        
-        Esto es importante para no revelar existencia de recursos.
-        """
-        with patch("web.auth.verificar_token") as mock_verify:
-            mock_verify.return_value = mock_jwt_gym_a
-            
-            with patch("web.database.repository.obtener_cliente") as mock_repo:
-                # Simular que el cliente no existe para este gym
-                mock_repo.return_value = None
-                
-                response = client.get(
-                    "/api/clientes/cliente_de_gym_b",
-                    headers={"Authorization": "Bearer fake_token"}
-                )
-                
-                assert response.status_code == 404
-                assert "no encontrado" in response.json()["detail"].lower()
-    
-    def test_actualizar_cliente_otro_gym_devuelve_404(self, client, mock_jwt_gym_a):
-        """
-        Intentar actualizar cliente de otro gym devuelve 404.
-        """
-        with patch("web.auth.verificar_token") as mock_verify:
-            mock_verify.return_value = mock_jwt_gym_a
-            
-            with patch("web.database.repository.obtener_cliente") as mock_repo:
-                mock_repo.return_value = None
-                
-                response = client.put(
-                    "/api/clientes/cliente_de_gym_b",
-                    headers={"Authorization": "Bearer fake_token"},
-                    json={"nombre": "Hacked Name"}
-                )
-                
-                assert response.status_code == 404
-    
-    def test_eliminar_cliente_otro_gym_devuelve_404(self, client, mock_jwt_gym_a):
-        """
-        Intentar eliminar cliente de otro gym devuelve 404.
-        """
-        with patch("web.auth.verificar_token") as mock_verify:
-            mock_verify.return_value = mock_jwt_gym_a
-            
-            with patch("web.database.repository.obtener_cliente") as mock_repo:
-                mock_repo.return_value = None
-                
-                response = client.delete(
-                    "/api/clientes/cliente_de_gym_b",
-                    headers={"Authorization": "Bearer fake_token"}
-                )
-                
-                assert response.status_code == 404
+    """Two persisted tenants, no mocked identity or empty repository response."""
+
+    def test_gym_a_no_ve_clientes_gym_b(self, tenant_pair):
+        client, _, _ = tenant_pair
+        response = client.get("/api/clientes")
+        assert response.status_code == 200
+        assert [row["id_cliente"] for row in response.json()["clientes"]] == ["client-a"]
+        assert response.json()["total"] == 1
+
+    def test_idor_cliente_otro_gym_devuelve_404(self, tenant_pair):
+        client, _, _ = tenant_pair
+        assert client.get("/api/clientes/client-b").status_code == 404
+        assert client.get("/api/clientes/client-a").status_code == 200
+
+    def test_actualizar_cliente_otro_gym_devuelve_404(self, tenant_pair):
+        from sqlalchemy.orm import Session
+        from web.database.engine import get_engine
+        from web.database.models import Cliente
+        client, _, _ = tenant_pair
+        response = client.put("/api/clientes/client-b", json={"nombre": "Unauthorized"})
+        assert response.status_code == 404
+        with Session(get_engine()) as db:
+            assert db.query(Cliente).filter_by(id_cliente="client-b").one().nombre == "Client B"
+
+    def test_eliminar_cliente_otro_gym_devuelve_404(self, tenant_pair):
+        from sqlalchemy.orm import Session
+        from web.database.engine import get_engine
+        from web.database.models import Cliente
+        client, _, _ = tenant_pair
+        assert client.delete("/api/clientes/client-b").status_code == 404
+        with Session(get_engine()) as db:
+            assert db.query(Cliente).filter_by(id_cliente="client-b").one().activo is True
 
 
 class TestUserTypeRestrictions:
@@ -266,56 +237,28 @@ class TestHealthEndpointsNoAuth:
 
 
 class TestRepositoryGymIdFiltering:
-    """Tests para verificar que el repository filtra por gym_id."""
-    
-    def test_listar_clientes_usa_gym_id(self):
-        """Verifica que listar_clientes recibe y usa gym_id."""
+    """Check stored tenant identity rather than mock call presence."""
+
+    def test_listar_clientes_usa_gym_id(self, tenant_pair):
+        from sqlalchemy.orm import Session
+        from web.database.engine import get_engine
         from web.database import repository as repo
-        from unittest.mock import MagicMock
-        
-        mock_db = MagicMock()
-        mock_query = MagicMock()
-        mock_db.query.return_value = mock_query
-        mock_query.filter.return_value = mock_query
-        mock_query.order_by.return_value = mock_query
-        mock_query.limit.return_value = mock_query
-        mock_query.offset.return_value = mock_query
-        mock_query.all.return_value = []
-        mock_query.count.return_value = 0
-        
-        # Llamar función
-        result = repo.listar_clientes(mock_db, "test_gym_id", "")
-        
-        # Verificar que se hizo query con filter
-        mock_db.query.assert_called()
-    
-    def test_crear_cliente_asigna_gym_id(self):
-        """Verifica que crear_cliente asigna el gym_id correcto."""
+        _, gym_a, gym_b = tenant_pair
+        with Session(get_engine()) as db:
+            rows_a, total_a = repo.listar_clientes(db, gym_a, "")
+            rows_b, total_b = repo.listar_clientes(db, gym_b, "")
+            assert [row["id_cliente"] for row in rows_a] == ["client-a"]
+            assert [row["id_cliente"] for row in rows_b] == ["client-b"]
+            assert total_a == total_b == 1
+
+    def test_crear_cliente_asigna_gym_id(self, tenant_pair):
+        from sqlalchemy.orm import Session
+        from web.database.engine import get_engine
+        from web.database.models import Cliente
         from web.database import repository as repo
-        from unittest.mock import MagicMock, patch
-        
-        mock_db = MagicMock()
-        
-        with patch("web.database.repository.Cliente") as MockCliente:
-            mock_instance = MagicMock()
-            MockCliente.return_value = mock_instance
-            
-            # Llamar función
-            try:
-                repo.crear_cliente(mock_db, "test_gym_id", {
-                    "nombre": "Test",
-                    "telefono": "123",
-                    "edad": 30,
-                    "peso_kg": 70,
-                    "estatura_cm": 170,
-                })
-            except Exception:
-                pass  # Puede fallar por otras razones, solo verificamos el gym_id
-            
-            # Verificar que se asignó gym_id
-            if MockCliente.called:
-                call_kwargs = MockCliente.call_args[1] if MockCliente.call_args[1] else {}
-                # gym_id debería estar en los kwargs
-                assert "gym_id" in call_kwargs or any(
-                    arg == "test_gym_id" for arg in MockCliente.call_args[0]
-                )
+        _, gym_a, gym_b = tenant_pair
+        with Session(get_engine()) as db:
+            created = repo.crear_cliente(db, gym_a, {"nombre": "Synthetic created client"})
+            db.commit()
+            assert db.query(Cliente).filter_by(id_cliente=created["id_cliente"]).one().gym_id == gym_a
+            assert repo.obtener_cliente(db, gym_b, created["id_cliente"]) is None

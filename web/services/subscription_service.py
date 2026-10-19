@@ -46,7 +46,9 @@ def activate_subscription(
     Returns:
         Subscription activada/actualizada.
     """
-    info = PLANES_LICENCIA.get(plan, PLANES_LICENCIA["standard"])
+    if plan not in PLANES_LICENCIA:
+        raise ValueError("Plan de suscripción inválido")
+    info = PLANES_LICENCIA[plan]
     max_clientes = info["max_clientes"] or 999999
 
     # Use FOR UPDATE to prevent race conditions on concurrent requests
@@ -59,6 +61,14 @@ def activate_subscription(
         sub.status = "active"
         sub.max_clientes = max_clientes
         sub.updated_at = datetime.now(timezone.utc)
+        sub.provider = provider
+        # Only the provider currently funding access may change its status.
+        # StripeCustomer retains the historical customer mapping separately.
+        if provider == "mercadopago":
+            sub.stripe_customer_id = None
+            sub.stripe_subscription_id = None
+        elif provider == "stripe":
+            sub.provider_payment_id = None
         if stripe_customer_id:
             sub.stripe_customer_id = stripe_customer_id
         if stripe_subscription_id:
@@ -73,19 +83,39 @@ def activate_subscription(
             plan=plan,
             status="active",
             max_clientes=max_clientes,
-            stripe_customer_id=stripe_customer_id or "",
-            stripe_subscription_id=stripe_subscription_id or "",
+            stripe_customer_id=stripe_customer_id or None,
+            stripe_subscription_id=stripe_subscription_id or None,
+            provider=provider,
             current_period_start=current_period_start,
             current_period_end=current_period_end,
         )
         db.add(sub)
 
     db.flush()
+    from web.services.billing_integrity import sync_individual_entitlement
+    sync_individual_entitlement(db, sub)
     logger.info(
         "Subscription activated: gym=%s plan=%s provider=%s",
         gym_id, plan, provider,
     )
     return sub
+
+
+def update_subscription_status(db: Session, sub: Subscription, status: str) -> None:
+    """Update canonical/provider status and its B2C projection; caller commits.
+
+    Provider adapters must authenticate the snapshot and resolve its subject.
+    Unknown states fail closed instead of becoming an active paid entitlement.
+    """
+    accepted = {"active", "canceled", "past_due", "trialing", "unpaid", "incomplete",
+                "incomplete_expired", "paused"}
+    if status not in accepted:
+        raise ValueError("Estado de suscripción no soportado")
+    sub.status = status
+    sub.updated_at = datetime.now(timezone.utc)
+    from web.services.billing_integrity import sync_individual_entitlement
+    sync_individual_entitlement(db, sub)
+    db.flush()
 
 
 def complete_checkout(
@@ -154,17 +184,17 @@ def record_payment(
     gym_id: str,
     *,
     amount_cents: int,
-    currency: str = "usd",
+    currency: str = "mxn",
     status: str = "succeeded",
     plan: Optional[str] = None,
-    stripe_payment_intent_id: str = "",
-    stripe_invoice_id: str = "",
+    stripe_payment_intent_id: Optional[str] = None,
+    stripe_invoice_id: Optional[str] = None,
 ) -> Payment:
     """Registra un pago en la tabla Payment."""
     payment = Payment(
         gym_id=gym_id,
-        stripe_payment_intent_id=stripe_payment_intent_id,
-        stripe_invoice_id=stripe_invoice_id,
+        stripe_payment_intent_id=stripe_payment_intent_id or None,
+        stripe_invoice_id=stripe_invoice_id or None,
         amount_cents=amount_cents,
         currency=currency,
         status=status,

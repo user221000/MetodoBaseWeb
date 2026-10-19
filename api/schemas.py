@@ -5,12 +5,13 @@ from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 from utils.validadores import RANGO_EDAD, RANGO_PESO, RANGO_ESTATURA, RANGO_GRASA
+from web.profile_schemas import NutritionValidationMixin
 
 _NIVELES = {"nula", "leve", "moderada", "intensa"}
 _OBJETIVOS = {"deficit", "mantenimiento", "superavit"}
 
 
-class ClienteCreate(BaseModel):
+class ClienteCreate(NutritionValidationMixin):
     nombre: str = Field(..., min_length=2, max_length=100, description="Nombre completo")
     telefono: Optional[str] = Field(None, description="Teléfono 10 dígitos")
     email: Optional[str] = Field(None, description="Correo electrónico")
@@ -82,11 +83,12 @@ class ClienteCreate(BaseModel):
         return v
 
 
-class ClienteUpdate(BaseModel):
+class ClienteUpdate(NutritionValidationMixin):
     nombre: Optional[str] = Field(None, min_length=2, max_length=100)
     telefono: Optional[str] = None
     email: Optional[str] = None
     edad: Optional[int] = Field(None, ge=RANGO_EDAD[0], le=RANGO_EDAD[1])
+    sexo: Optional[str] = None
     peso_kg: Optional[float] = Field(None, ge=RANGO_PESO[0], le=RANGO_PESO[1])
     estatura_cm: Optional[float] = Field(None, ge=RANGO_ESTATURA[0], le=RANGO_ESTATURA[1])
     grasa_corporal_pct: Optional[float] = Field(None, ge=RANGO_GRASA[0], le=RANGO_GRASA[1])
@@ -103,7 +105,13 @@ class ClienteUpdate(BaseModel):
     def normalizar_nombre(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return v
-        return v.strip().title()
+        v = v.strip()
+        if len(v) < 2:
+            raise ValueError("El nombre debe tener al menos 2 caracteres")
+        return v.title()
+
+    validar_telefono = field_validator("telefono")(classmethod(ClienteCreate.validar_telefono.__func__))
+    validar_email = field_validator("email")(classmethod(ClienteCreate.validar_email.__func__))
 
     @field_validator("nivel_actividad")
     @classmethod

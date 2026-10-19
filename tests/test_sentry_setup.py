@@ -252,7 +252,7 @@ class TestWithSentryContext:
         
         with patch("web.auth_deps.get_usuario_actual", return_value=mock_usuario):
             with patch("web.observability.sentry_setup.set_user_context") as mock_set:
-                result = asyncio.get_event_loop().run_until_complete(
+                result = asyncio.run(
                     with_sentry_context(mock_usuario)
                 )
                 
@@ -275,7 +275,7 @@ class TestWithSentryContext:
         
         with patch("web.auth_deps.get_usuario_actual", return_value=mock_usuario):
             with patch("web.observability.sentry_setup.set_user_context") as mock_set:
-                result = asyncio.get_event_loop().run_until_complete(
+                result = asyncio.run(
                     with_sentry_context(mock_usuario)
                 )
                 

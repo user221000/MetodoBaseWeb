@@ -149,11 +149,11 @@ class TestM04RateLimiterProduction:
 class TestM06CtkReferences:
 
     def test_helpers_no_ctk(self):
-        text = (Path(__file__).resolve().parents[1] / "utils" / "helpers.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "utils" / "helpers.py").read_text(encoding="utf-8")
         assert "CTk" not in text, "utils/helpers.py should not reference CTk"
 
     def test_iconos_no_ctk(self):
-        text = (Path(__file__).resolve().parents[1] / "utils" / "iconos.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "utils" / "iconos.py").read_text(encoding="utf-8")
         assert "CTk" not in text, "utils/iconos.py should not reference CTk"
 
 
@@ -165,13 +165,13 @@ class TestM07RequestID:
 
     def test_global_error_handler_includes_request_id(self):
         """_global_error handler should add request_id to response body."""
-        source = (Path(__file__).resolve().parents[1] / "api" / "app.py").read_text()
+        source = (Path(__file__).resolve().parents[1] / "api" / "app.py").read_text(encoding="utf-8")
         assert "request_id" in source, "api/app.py should reference request_id"
         assert "X-Request-ID" in source, "api/app.py should set X-Request-ID header"
 
     def test_global_error_handler_gets_from_request_state(self):
         """Handler should read from request.state.request_id."""
-        source = (Path(__file__).resolve().parents[1] / "api" / "app.py").read_text()
+        source = (Path(__file__).resolve().parents[1] / "api" / "app.py").read_text(encoding="utf-8")
         assert "request.state" in source
 
 
@@ -183,12 +183,12 @@ class TestM08ExcInfoDebug:
 
     def test_no_exc_info_true_in_app(self):
         """api/app.py should NOT have bare exc_info=True."""
-        text = (Path(__file__).resolve().parents[1] / "api" / "app.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "api" / "app.py").read_text(encoding="utf-8")
         assert "exc_info=True" not in text
 
     def test_no_exc_info_true_in_pagos(self):
         """api/routes/pagos.py should NOT have bare exc_info=True."""
-        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text()
+        text = (Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py").read_text(encoding="utf-8")
         assert "exc_info=True" not in text
 
 
@@ -217,14 +217,14 @@ class TestM10InvitationExpiry:
 
     def test_accept_invitation_uses_tz_aware(self):
         """team.py accept_invitation uses datetime.now(timezone.utc) for expiry check."""
-        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "team.py").read_text()
+        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "team.py").read_text(encoding="utf-8")
         # Should use datetime.now(timezone.utc) not utcnow
         assert "datetime.now(timezone.utc)" in source
         assert "utcnow" not in source
 
     def test_invitation_link_uses_tz_aware(self):
         """Invitation resend also uses tz-aware datetime."""
-        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "team.py").read_text()
+        source = (Path(__file__).resolve().parents[1] / "web" / "routes" / "team.py").read_text(encoding="utf-8")
         lines = [l for l in source.splitlines() if "new_expires" in l and "datetime" in l]
         for line in lines:
             assert "timezone.utc" in line
@@ -239,13 +239,13 @@ class TestM11RenameRedondeo:
     def test_old_name_gone(self):
         source = (
             Path(__file__).resolve().parents[1] / "core" / "generador_planes.py"
-        ).read_text()
+        ).read_text(encoding="utf-8")
         assert "_aplicar_redondeo_clinico_desayuno" not in source
 
     def test_new_name_exists(self):
         source = (
             Path(__file__).resolve().parents[1] / "core" / "generador_planes.py"
-        ).read_text()
+        ).read_text(encoding="utf-8")
         assert "def _aplicar_redondeo_clinico(" in source
         # Also verify it's called
         assert "_aplicar_redondeo_clinico(comida_estructurada)" in source

@@ -10,7 +10,7 @@ import logging
 import os
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Header
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -18,7 +18,8 @@ from typing import List, Optional
 
 from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
-from web.database.models import Cliente, PlanGenerado, UserSubscription
+from web.database.models import Cliente, PlanGenerado, UserSubscription, Subscription
+from web.profile_schemas import NutritionProfileUpdate
 
 try:
     from src.alimentos_base import ALIMENTOS_BASE as _ALIMENTOS_BASE
@@ -31,16 +32,8 @@ router = APIRouter(tags=["Usuario Individual"])
 
 # ── Schemas ───────────────────────────────────────────────────────────────
 
-class PerfilUpdate(BaseModel):
-    edad: Optional[int] = None
-    peso_kg: Optional[float] = None
-    estatura_cm: Optional[float] = None
-    sexo: Optional[str] = None
-    grasa_corporal_pct: Optional[float] = None
-    objetivo: Optional[str] = None
-    nivel_actividad: Optional[str] = None
-    notas: Optional[str] = None
-    alimentos_excluidos: Optional[List[str]] = None
+class PerfilUpdate(NutritionProfileUpdate):
+    """Shared, bounded nutrition fields; no identity or billing mass assignment."""
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -119,23 +112,6 @@ async def update_perfil(
     """Updates the individual user's body data."""
     _require_usuario(usuario)
     cliente = _get_or_create_self_cliente(db, usuario)
-
-    VALID_OBJETIVOS = {"deficit", "mantenimiento", "superavit"}
-    VALID_ACTIVIDADES = {"sedentario", "leve", "moderada", "intensa"}
-    VALID_SEXOS = {"M", "F", "Otro"}
-    SEXO_MAP = {"masculino": "M", "femenino": "F", "otro": "Otro"}
-
-    # Normalize empty strings to None
-    if data.sexo is not None and not data.sexo.strip():
-        data.sexo = None
-    if data.sexo:
-        data.sexo = SEXO_MAP.get(data.sexo.lower(), data.sexo)
-    if data.objetivo and data.objetivo not in VALID_OBJETIVOS:
-        raise HTTPException(400, f"Objetivo inválido. Opciones: {', '.join(VALID_OBJETIVOS)}")
-    if data.nivel_actividad and data.nivel_actividad not in VALID_ACTIVIDADES:
-        raise HTTPException(400, f"Nivel de actividad inválido. Opciones: {', '.join(VALID_ACTIVIDADES)}")
-    if data.sexo and data.sexo not in VALID_SEXOS:
-        raise HTTPException(400, f"Sexo inválido. Opciones: {', '.join(VALID_SEXOS)}")
 
     if data.edad is not None:
         cliente.edad = data.edad
@@ -310,8 +286,14 @@ def _enrich_plan_macros(plan_data: dict) -> dict:
 async def generar_plan_usuario(
     usuario=Depends(get_usuario_actual),
     db: Session = Depends(get_db),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
-    """Generates a nutrition plan for the individual user."""
+    """Reserve quota, persist one generated plan and return its exact result.
+
+    Idempotency-Key is scoped to the authenticated individual. Completed retries
+    return the same plan; failed generation refunds its credit once. A process
+    interruption retains a reservation for explicit reconciliation.
+    """
     _require_usuario(usuario)
     user_id = usuario["id"]
 
@@ -328,6 +310,14 @@ async def generar_plan_usuario(
     if not cliente.nivel_actividad:
         cliente.nivel_actividad = "moderada"
         db.commit()
+
+    from web.services.generation_quota import reserve_generation, finish_generation
+    reservation = reserve_generation(db, user_id, idempotency_key)
+    if reservation.status == "completed":
+        record = db.query(PlanGenerado).filter_by(id=reservation.plan_id, gym_id=user_id).first()
+        if record is None:
+            raise HTTPException(409, {"code": "generation_result_unavailable", "message": "El resultado requiere revisión. No se consumió otro crédito."})
+        return _individual_plan_response(record)
 
     # Count existing plans for plan_numero
     total_planes = (
@@ -348,42 +338,23 @@ async def generar_plan_usuario(
             "opciones",
         )
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        finish_generation(db, reservation.id, user_id, None, success=False)
+        raise HTTPException(400, {"code": "generation_unavailable", "message": "No fue posible generar un plan con estos datos y exclusiones. Revisa tu perfil."}) from e
     except Exception as e:
-        logger.error("Error generando plan para usuario %s: %s", user_id, e)
+        finish_generation(db, reservation.id, user_id, None, success=False)
+        logger.error("Generation failed subject=%s class=%s", user_id, type(e).__name__)
         raise HTTPException(500, "Error interno al generar el plan. Intenta de nuevo.")
+    # Generation commits JSON and result together. If recording completion fails,
+    # keep the reservation for reconciliation instead of granting another credit.
+    finish_generation(db, reservation.id, user_id, result.get("plan_id"), success=True)
+    plan_record = db.query(PlanGenerado).filter_by(id=result["plan_id"], gym_id=user_id).one()
+    return _individual_plan_response(plan_record)
 
-    # Save plan JSON companion file AND persist to DB column
-    plan_serializado = _enrich_plan_macros(result.get("plan", {}))
-    ruta_pdf = result.get("ruta_pdf", "")
-    if ruta_pdf:
-        json_path = ruta_pdf.rsplit(".", 1)[0] + ".json"
-        try:
-            with open(json_path, "w", encoding="utf-8") as f:
-                json.dump(plan_serializado, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.warning("Could not save plan JSON file: %s", e)
 
-    # Load the just-created plan record
-    plan_record = (
-        db.query(PlanGenerado)
-        .filter(PlanGenerado.id_cliente == cliente.id_cliente, PlanGenerado.gym_id == user_id)
-        .order_by(PlanGenerado.fecha_generacion.desc())
-        .first()
-    )
-
-    # Persist plan JSON to DB so it survives container restarts
-    if plan_record and plan_serializado:
-        try:
-            plan_record.plan_json = json.dumps(plan_serializado, ensure_ascii=False)
-            db.commit()
-        except Exception as e:
-            logger.warning("Could not save plan_json to DB: %s", e)
-
-    tiene_pdf = bool(ruta_pdf and os.path.isfile(ruta_pdf))
-
+def _individual_plan_response(plan_record: PlanGenerado) -> dict:
+    """Build the existing API response from a persisted, authorized result."""
     return {
-        "plan": plan_serializado,
+        "plan": _enrich_plan_macros(_load_plan_json(plan_record)),
         "meta": {
             "kcal_objetivo": plan_record.kcal_objetivo if plan_record else 0,
             "kcal_real": plan_record.kcal_real if plan_record else 0,
@@ -394,7 +365,7 @@ async def generar_plan_usuario(
             "objetivo": plan_record.objetivo if plan_record else "",
             "fecha": plan_record.fecha_generacion.isoformat() if plan_record and plan_record.fecha_generacion else None,
         },
-        "tiene_pdf": tiene_pdf,
+        "tiene_pdf": bool(plan_record.ruta_pdf and os.path.isfile(plan_record.ruta_pdf)),
     }
 
 
@@ -495,24 +466,9 @@ PLANES_USUARIO = {
 
 
 def _get_or_create_subscription(db: Session, user_id: str) -> UserSubscription:
-    """Get or create user subscription, resetting monthly counter if needed."""
-    mes_actual = datetime.now(timezone.utc).strftime("%Y-%m")
-    sub = db.query(UserSubscription).filter(UserSubscription.user_id == user_id).first()
-    if not sub:
-        sub = UserSubscription(
-            user_id=user_id,
-            plan="starter",
-            max_planes_mes=1,
-            planes_usados_mes=0,
-            mes_actual=mes_actual,
-        )
-        db.add(sub)
-        db.commit()
-        db.refresh(sub)
-    elif sub.mes_actual != mes_actual:
-        sub.planes_usados_mes = 0
-        sub.mes_actual = mes_actual
-        db.commit()
+    """Resolve canonical B2C rights and Mexico City quota; caller owns commit."""
+    from web.services.billing_integrity import get_individual_subscription
+    sub = get_individual_subscription(db, user_id)
     return sub
 
 
@@ -526,12 +482,20 @@ async def get_suscripcion(
     """Returns the current subscription status for the individual user."""
     _require_usuario(usuario)
     sub = _get_or_create_subscription(db, usuario["id"])
+    canonical = db.query(Subscription).filter_by(gym_id=usuario["id"], plan="pro_usuario").first()
     return {
         "plan": sub.plan,
         "planes_usados": sub.planes_usados_mes,
         "max_planes": sub.max_planes_mes,
         "renovacion": sub.mes_actual,
-        "status": sub.status,
+        "status": canonical.status if canonical else sub.status,
+        "provider": canonical.provider if canonical else None,
+        "currency": "MXN",
+        "precio_mxn": PLANES_USUARIO[sub.plan]["precio_mxn"],
+        "planes_restantes": max(0, sub.max_planes_mes - sub.planes_usados_mes),
+        "period_start": canonical.current_period_start.isoformat() if canonical and canonical.current_period_start else None,
+        "period_end": canonical.current_period_end.isoformat() if canonical and canonical.current_period_end else None,
+        "cancel_at_period_end": bool(canonical.cancel_at_period_end) if canonical else False,
     }
 
 
@@ -546,30 +510,18 @@ async def cambiar_suscripcion(
     usuario=Depends(get_usuario_actual),
     db: Session = Depends(get_db),
 ):
-    """Change the user's subscription plan."""
+    """Reject preference-based upgrades; payment providers own paid rights.
+
+    Cancellation of a paid subscription must also reach the provider's portal,
+    so this compatibility endpoint never creates or cancels a recurring charge.
+    """
     _require_usuario(usuario)
 
     if body.plan not in PLANES_USUARIO:
         raise HTTPException(400, f"Plan inválido: {body.plan}")
 
-    sub = _get_or_create_subscription(db, usuario["id"])
-    plan_info = PLANES_USUARIO[body.plan]
-    sub.plan = body.plan
-    sub.max_planes_mes = plan_info["max_planes_mes"]
-    sub.status = "active"
-    db.commit()
-
-    logger.info(
-        "[SUSCRIPCION] user=%s cambió a plan=%s",
-        usuario["id"], body.plan,
-    )
-
-    return {
-        "ok": True,
-        "plan": sub.plan,
-        "max_planes": sub.max_planes_mes,
-        "planes_usados": sub.planes_usados_mes,
-    }
+    raise HTTPException(409, {"code": "payment_required" if body.plan == "pro" else "provider_management_required",
+                              "message": "Gestiona tu suscripción mediante el proveedor de pago. El regreso a esta página no confirma un pago."})
 
 
 # ── User Billing Endpoints ───────────────────────────────────────────────
@@ -606,8 +558,51 @@ async def usuario_billing_config(
         "stripe_configured": stripe_ready,
         "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY if stripe_ready else "",
         "mercadopago_configured": mp_ready,
-        "payment_link_pro": payment_link,
+        # Static Payment Links cannot bind a durable purchase to this account.
+        # Keep the compatibility key empty and initiate the supported checkout.
+        "payment_link_pro": "",
+        "checkout_supported": stripe_ready,
     }
+
+
+class UsuarioCheckoutRequest(BaseModel):
+    success_url: str = Field("/mi-suscripcion?result=success", max_length=500)
+    cancel_url: str = Field("/mi-suscripcion?result=canceled", max_length=500)
+
+
+@router.post("/usuario/checkout")
+async def usuario_checkout(data: UsuarioCheckoutRequest, usuario=Depends(get_usuario_actual),
+                           db: Session = Depends(get_db),
+                           idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key")):
+    """Start an account-bound Pro checkout; returning to the page grants no access."""
+    _require_usuario(usuario)
+    _validate_redirect_url_u(data.success_url, "success_url")
+    _validate_redirect_url_u(data.cancel_url, "cancel_url")
+    from web.services.stripe_service import create_checkout_session
+    try:
+        return create_checkout_session(db, usuario["id"], "pro_usuario", usuario["email"],
+                                       data.success_url, data.cancel_url, idempotency_key)
+    except Exception as error:
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("individual_checkout", error, "No fue posible iniciar el pago")) from None
+
+
+class UsuarioPortalRequest(BaseModel):
+    return_url: str = Field("/mi-suscripcion", max_length=500)
+
+
+@router.post("/usuario/billing-portal")
+async def usuario_billing_portal(data: UsuarioPortalRequest, usuario=Depends(get_usuario_actual),
+                                 db: Session = Depends(get_db)):
+    """Open the provider portal for this individual's own mapped subscription."""
+    _require_usuario(usuario)
+    _validate_redirect_url_u(data.return_url, "return_url")
+    from web.services.stripe_service import create_portal_session
+    try:
+        return create_portal_session(db, usuario["id"], data.return_url)
+    except Exception as error:
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("individual_portal", error, "No fue posible abrir la gestión de tu suscripción")) from None
 
 
 class UsuarioStripeSubscribeRequest(BaseModel):
@@ -620,6 +615,7 @@ async def usuario_stripe_subscribe(
     data: UsuarioStripeSubscribeRequest,
     db: Session = Depends(get_db),
     usuario=Depends(get_usuario_actual),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     """Create Stripe subscription for individual user (Pro plan)."""
     _require_usuario(usuario)
@@ -634,21 +630,16 @@ async def usuario_stripe_subscribe(
             plan="pro_usuario",
             email=usuario["email"],
             payment_method_id=data.payment_method_id,
+            request_key=idempotency_key,
         )
-        # Also activate the user subscription record
-        sub = _get_or_create_subscription(db, usuario["id"])
-        sub.plan = "pro"
-        sub.max_planes_mes = PLANES_USUARIO["pro"]["max_planes_mes"]
-        sub.status = "active"
-        db.commit()
         return result
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        raise HTTPException(503, "El servicio de pago no está disponible") from e
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "No fue posible iniciar la suscripción con los datos indicados") from e
     except Exception as e:
-        logger.error("Stripe subscribe error (usuario): %s", e, exc_info=True)
-        raise HTTPException(502, "Error al crear suscripción")
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("individual_subscribe", e, "Error al crear suscripción")) from None
 
 
 class UsuarioConfirmSubscriptionRequest(BaseModel):
@@ -666,20 +657,14 @@ async def usuario_confirm_subscription(
     from web.services import stripe_service
     try:
         result = stripe_service.confirm_subscription(db, usuario["id"], data.subscription_id)
-        # Activate user subscription
-        sub = _get_or_create_subscription(db, usuario["id"])
-        sub.plan = "pro"
-        sub.max_planes_mes = PLANES_USUARIO["pro"]["max_planes_mes"]
-        sub.status = "active"
-        db.commit()
         return result
     except RuntimeError as e:
-        raise HTTPException(503, str(e))
+        raise HTTPException(503, "El servicio de pago no está disponible") from e
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, "No fue posible confirmar la suscripción indicada") from e
     except Exception as e:
-        logger.error("Confirm subscription error (usuario): %s", e, exc_info=True)
-        raise HTTPException(502, "Error al confirmar suscripción")
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("individual_confirm", e, "Error al confirmar suscripción")) from None
 
 
 class UsuarioMPPreferenceRequest(BaseModel):
@@ -693,6 +678,7 @@ async def usuario_mp_preference(
     data: UsuarioMPPreferenceRequest,
     db: Session = Depends(get_db),
     usuario=Depends(get_usuario_actual),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     """Create MercadoPago preference for individual user Pro plan."""
     _require_usuario(usuario)
@@ -706,34 +692,10 @@ async def usuario_mp_preference(
     if not settings.MERCADOPAGO_ACCESS_TOKEN:
         raise HTTPException(503, "MercadoPago no configurado")
 
+    from web.services.mercadopago_service import create_preference
     try:
-        import mercadopago
-        sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
-        base_url = f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost:8000')}"
-        preference_data = {
-            "items": [{
-                "title": "Método Base — Plan Pro",
-                "quantity": 1,
-                "unit_price": PLANES_USUARIO["pro"]["precio_mxn"],
-                "currency_id": "MXN",
-            }],
-            "back_urls": {
-                "success": base_url + data.success_url,
-                "failure": base_url + data.cancel_url,
-                "pending": base_url + data.cancel_url,
-            },
-            "auto_return": "approved",
-            "external_reference": f"usuario_{usuario['id']}_pro",
-            "payer": {"email": usuario.get("email", "")},
-        }
-        result = sdk.preference().create(preference_data)
-        if result["status"] == 201:
-            return {"redirect_url": result["response"]["init_point"]}
-        raise HTTPException(502, "No se pudo crear la preferencia de pago")
-    except ImportError:
-        raise HTTPException(503, "SDK de MercadoPago no instalado")
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error("MP preference error (usuario): %s", e, exc_info=True)
-        raise HTTPException(502, "Error al crear preferencia de pago")
+        return create_preference(db, usuario["id"], "pro_usuario", usuario.get("email", ""),
+                                 data.success_url, data.cancel_url, idempotency_key)
+    except Exception as error:
+        from web.services.billing_integrity import public_failure
+        raise HTTPException(502, public_failure("individual_mp_preference", error, "Error al crear preferencia de pago")) from None

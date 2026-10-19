@@ -33,18 +33,7 @@ def get_usuario_actual(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Asegurar que role esté presente (legacy compatibility).
-    # Solo asignar si el token no trae role (tokens emitidos antes de RBAC).
-    # NUNCA sobreescribir un role ya presente: esto bloquearía team members
-    # con roles NUTRIOLOGO/VIEWER que tienen tipo='usuario'.
-    if "role" not in usuario or not usuario.get("role"):
-        if usuario.get("tipo") == "gym":
-            usuario["role"] = "owner"
-        elif usuario.get("tipo") == "usuario":
-            usuario["role"] = "viewer"
-        else:
-            usuario["role"] = "viewer"
-    
+    # verificar_token already resolved active identity and current membership.
     return usuario
 
 
@@ -55,10 +44,7 @@ def get_usuario_gym(usuario: dict = Depends(get_usuario_actual)) -> dict:
     Para operaciones que solo el owner del gym puede hacer.
     Team members con otros roles son rechazados.
     """
-    is_owner = (
-        usuario.get("tipo") in ("gym", "admin") or 
-        usuario.get("role") == "owner"
-    )
+    is_owner = usuario.get("role") == "owner" and not usuario.get("team_gym_id")
     if not is_owner:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -81,10 +67,6 @@ def get_usuario_with_role(
     def dependency(usuario: dict = Depends(get_usuario_actual)) -> dict:
         user_role = usuario.get("role", "viewer")
         
-        # Legacy: tipo='gym' → role='owner'
-        if user_role is None and usuario.get("tipo") == "gym":
-            user_role = "owner"
-        
         if user_role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -102,8 +84,6 @@ def get_effective_gym_id(usuario: dict) -> str:
     - Si es owner (tipo='gym' o role='owner'), retorna su propio ID
     - Si es team member, retorna team_gym_id
     """
-    if usuario.get("tipo") == "gym" or usuario.get("role") == "owner":
-        return usuario["id"]
     return usuario.get("team_gym_id") or usuario["id"]
 
 

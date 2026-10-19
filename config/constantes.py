@@ -87,68 +87,14 @@ NIVELES_ACTIVIDAD = {'nula', 'leve', 'moderada', 'intensa'}
 # PLANES DE LICENCIA (sincronizar con Stripe Products)
 # ============================================================================
 
-PLANES_LICENCIA = {
-    "free": {
-        "precio_mxn": 0,
-        "max_clientes": 10,
-        "max_sesiones": 1,
-        "max_planes_diarios": 1,
-        "max_registros_diarios": 5,
-        "max_planes_por_cliente_dia": 1,
-        "multi_usuario": False,
-        "preferencias_alimentos": True,
-        "gestion_suscripciones": False,
-        "progresion_clientes": False,
-        "stripe_price_id": None,
-        "features": ["pdf_export"],
-        "descripcion": "Para empezar",
-    },
-    "standard": {
-        "precio_mxn": 159,
-        "max_clientes": 25,
-        "max_sesiones": 2,
-        "max_planes_diarios": 1,
-        "max_registros_diarios": 25,
-        "max_planes_por_cliente_dia": 1,
-        "multi_usuario": False,
-        "preferencias_alimentos": True,
-        "gestion_suscripciones": False,
-        "progresion_clientes": False,
-        "stripe_price_id": os.environ.get("STRIPE_PRICE_STANDARD", ""),
-        "features": ["pdf_export", "excel_export", "api_access"],
-        "descripcion": "Para nutriólogos independientes",
-    },
-    "gym_comercial": {
-        "precio_mxn": 479,
-        "max_clientes": 75,
-        "max_sesiones": 4,
-        "max_planes_diarios": 3,
-        "max_registros_diarios": 0,
-        "max_planes_por_cliente_dia": 3,
-        "multi_usuario": False,
-        "preferencias_alimentos": True,
-        "gestion_suscripciones": True,
-        "progresion_clientes": False,
-        "stripe_price_id": os.environ.get("STRIPE_PRICE_GYM_COMERCIAL", ""),
-        "features": ["pdf_export", "excel_export", "api_access", "custom_branding", "templates", "food_preferences", "client_subscriptions"],
-        "descripcion": "Para gimnasios en crecimiento",
-    },
-    "clinica": {
-        "precio_mxn": 979,
-        "max_clientes": 0,  # 0 = unlimited
-        "max_sesiones": 0,  # 0 = unlimited
-        "max_planes_diarios": 0,  # 0 = unlimited
-        "max_registros_diarios": 0,  # 0 = unlimited
-        "max_planes_por_cliente_dia": 0,  # 0 = unlimited
-        "multi_usuario": True,
-        "preferencias_alimentos": True,
-        "gestion_suscripciones": True,
-        "progresion_clientes": True,
-        "stripe_price_id": os.environ.get("STRIPE_PRICE_CLINICA", ""),
-        "features": ["pdf_export", "excel_export", "api_access", "custom_branding", "templates", "multi_user", "priority_support", "food_preferences", "client_subscriptions", "client_progression"],
-        "descripcion": "Sin límites, para clínicas y equipos grandes",
-    },
-}
+from core.plan_catalog import get_plan_catalog
+
+PLANES_LICENCIA = get_plan_catalog("desktop", stripe_prices={
+    "standard": os.environ.get("STRIPE_PRICE_STANDARD", ""),
+    "gym_comercial": os.environ.get("STRIPE_PRICE_GYM_COMERCIAL", ""),
+    "clinica": os.environ.get("STRIPE_PRICE_CLINICA", ""),
+    "pro_usuario": os.environ.get("STRIPE_PRICE_PRO_USUARIO", ""),
+})
 
 # Trial configuration
 TRIAL_DAYS = int(os.getenv("TRIAL_DAYS", "14"))

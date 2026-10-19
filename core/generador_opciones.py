@@ -12,6 +12,8 @@ Diferencias vs ConstructorPlanNuevo:
 - Compatible con exportación a PDF con formato especial
 """
 
+from core.food_catalog import FoodCatalog, FoodRestrictionError
+from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS, CATEGORIAS as _DEFAULT_CATEGORIES
 import random
 from typing import List, Dict
 from datetime import datetime
@@ -49,9 +51,11 @@ class GeneradorOpcionesEquivalentes:
     }
 
     @staticmethod
-    def calcular_equivalencia(alimento: str, gramos: float) -> str:
+    def calcular_equivalencia(alimento: str, gramos: float, catalogo: FoodCatalog | None = None) -> str:
         """Calcula equivalencia comprensible (ej: '3 huevos', '1 pechuga mediana')."""
         # Primero intentar equivalencias de unidades contables
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         if alimento in GeneradorOpcionesEquivalentes.EQUIVALENCIAS:
             info = GeneradorOpcionesEquivalentes.EQUIVALENCIAS[alimento]
             cantidad = gramos / info['gramos_por_unidad']
@@ -107,12 +111,15 @@ class GeneradorOpcionesEquivalentes:
     @staticmethod
     def calcular_gramos_necesarios(
         alimento: str, macro_objetivo: float, tipo_macro: str
-    ) -> float:
+    , catalogo: FoodCatalog | None = None) -> float:
         """Calcula gramos de alimento necesarios para alcanzar objetivo de macro."""
-        if alimento not in ALIMENTOS_BASE:
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        alimentos_base = catalogo.alimentos
+        if alimento not in alimentos_base:
             return 0.0
 
-        datos_alimento = ALIMENTOS_BASE[alimento]
+        datos_alimento = alimentos_base[alimento]
         macro_por_100g = datos_alimento.get(tipo_macro, 0)
 
         if macro_por_100g <= 0:
@@ -130,12 +137,15 @@ class GeneradorOpcionesEquivalentes:
         return max(gramos_final, 10)  # Mínimo 10g
 
     @staticmethod
-    def calcular_macros_reales(alimento: str, gramos: float) -> Dict[str, float]:
+    def calcular_macros_reales(alimento: str, gramos: float, catalogo: FoodCatalog | None = None) -> Dict[str, float]:
         """Calcula macros reales aportados por cantidad de alimento."""
-        if alimento not in ALIMENTOS_BASE:
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        alimentos_base = catalogo.alimentos
+        if alimento not in alimentos_base:
             return {'proteina': 0, 'carbs': 0, 'grasa': 0, 'kcal': 0}
 
-        datos = ALIMENTOS_BASE[alimento]
+        datos = alimentos_base[alimento]
         factor = gramos / 100
 
         return {
@@ -157,15 +167,15 @@ class GeneradorOpcionesEquivalentes:
         seed: int | None,
         seed_offset: int,
         umbral_minimo: float,
+        catalogo: FoodCatalog | None = None,
     ) -> List[Dict]:
         """Método interno genérico para generar opciones de un macronutriente."""
-        disponibles = [
-            a for a in lista_alimentos
-            if a not in penalizados and a in ALIMENTOS_BASE
-        ]
-
-        if not disponibles:
-            return []
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        permitted = catalogo.require_candidates(lista_alimentos)
+        # Rotation penalties are preferences. They may be relaxed within the
+        # permitted catalog; safety exclusions cannot be relaxed.
+        disponibles = [a for a in permitted if a not in penalizados] or permitted
 
         # Ordenar: primero prioritarios, luego resto
         ordenados = []
@@ -188,14 +198,14 @@ class GeneradorOpcionesEquivalentes:
         opciones = []
         for alimento in ordenados:
             gramos = GeneradorOpcionesEquivalentes.calcular_gramos_necesarios(
-                alimento, macro_objetivo, tipo_macro
+                alimento, macro_objetivo, tipo_macro, catalogo=catalogo
             )
 
             if gramos < 5:
                 continue
 
-            macros = GeneradorOpcionesEquivalentes.calcular_macros_reales(alimento, gramos)
-            equivalencia = GeneradorOpcionesEquivalentes.calcular_equivalencia(alimento, gramos)
+            macros = GeneradorOpcionesEquivalentes.calcular_macros_reales(alimento, gramos, catalogo=catalogo)
+            equivalencia = GeneradorOpcionesEquivalentes.calcular_equivalencia(alimento, gramos, catalogo=catalogo)
 
             # Validar que aporte al menos el umbral del objetivo
             if macros[tipo_macro] >= macro_objetivo * umbral_minimo:
@@ -209,6 +219,8 @@ class GeneradorOpcionesEquivalentes:
             if len(opciones) >= num_opciones:
                 break
 
+        if not opciones:
+            raise FoodRestrictionError("No hay porciones válidas para estas restricciones y objetivos.")
         return opciones[:num_opciones]
 
     @staticmethod
@@ -218,8 +230,12 @@ class GeneradorOpcionesEquivalentes:
         num_opciones: int = 3,
         alimentos_penalizados: Dict[str, List[str]] | None = None,
         seed: int | None = None,
+        catalogo: FoodCatalog | None = None,
     ) -> List[Dict]:
         """Genera N opciones equivalentes de proteína."""
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        categorias = catalogo.categorias
         penalizados = (alimentos_penalizados or {}).get('proteina', [])
 
         prioridades = {
@@ -232,14 +248,14 @@ class GeneradorOpcionesEquivalentes:
         return GeneradorOpcionesEquivalentes._generar_opciones_macro(
             macro_objetivo=gramos_proteina_objetivo,
             tipo_macro='proteina',
-            lista_alimentos=CATEGORIAS['proteina'],
+            lista_alimentos=categorias['proteina'],
             prioridades_comida=prioridades,
             meal_idx=meal_idx,
             num_opciones=num_opciones,
             penalizados=penalizados,
             seed=seed,
             seed_offset=0,
-            umbral_minimo=0.7,
+            umbral_minimo=0.7, catalogo=catalogo,
         )
 
     @staticmethod
@@ -249,8 +265,13 @@ class GeneradorOpcionesEquivalentes:
         num_opciones: int = 3,
         alimentos_penalizados: Dict[str, List[str]] | None = None,
         seed: int | None = None,
+        catalogo: FoodCatalog | None = None,
     ) -> List[Dict]:
         """Genera N opciones equivalentes de carbohidratos."""
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        alimentos_base = catalogo.alimentos
+        categorias = catalogo.categorias
         from utils.logger import logger
         
         penalizados = (alimentos_penalizados or {}).get('carbs', [])
@@ -273,13 +294,16 @@ class GeneradorOpcionesEquivalentes:
         # FIX: Filtrar alimentos por meal_idx usando restricciones en ALIMENTOS_BASE
         from src.alimentos_base import ALIMENTOS_BASE
         candidatos_carbs = [
-            a for a in CATEGORIAS['carbs']
-            if a in ALIMENTOS_BASE and meal_idx in ALIMENTOS_BASE[a].get('meal_idx', [0, 1, 2, 3])
+            a for a in categorias['carbs']
+            if a in alimentos_base and meal_idx in alimentos_base[a].get('meal_idx', [0, 1, 2, 3])
         ]
         
         # Si candidatos queda vacío, usar fallback hardcoded
         if not candidatos_carbs:
-            candidatos_carbs = FALLBACK_CARBS_POR_COMIDA.get(meal_idx, ['papa', 'arroz_blanco'])
+            candidatos_carbs = catalogo.require_candidates([
+                name for name in FALLBACK_CARBS_POR_COMIDA.get(meal_idx, [])
+                if meal_idx in alimentos_base.get(name, {}).get('meal_idx', [0, 1, 2, 3])
+            ])
             logger.warning(
                 "[OPCIONES] meal_idx=%d: pool vacío, usando fallback: %s",
                 meal_idx, candidatos_carbs,
@@ -304,7 +328,7 @@ class GeneradorOpcionesEquivalentes:
             penalizados=penalizados,
             seed=seed,
             seed_offset=100,
-            umbral_minimo=0.4,  # FIX: bajado de 0.5 para mayor tolerancia
+            umbral_minimo=0.4, catalogo=catalogo,  # FIX: bajado de 0.5 para mayor tolerancia
         )
         
         # Debug log para facilitar debugging
@@ -322,8 +346,12 @@ class GeneradorOpcionesEquivalentes:
         num_opciones: int = 3,
         alimentos_penalizados: Dict[str, List[str]] | None = None,
         seed: int | None = None,
+        catalogo: FoodCatalog | None = None,
     ) -> List[Dict]:
         """Genera N opciones equivalentes de grasas."""
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        categorias = catalogo.categorias
         penalizados = (alimentos_penalizados or {}).get('grasa', [])
 
         prioridades = {
@@ -336,14 +364,14 @@ class GeneradorOpcionesEquivalentes:
         return GeneradorOpcionesEquivalentes._generar_opciones_macro(
             macro_objetivo=gramos_grasa_objetivo,
             tipo_macro='grasa',
-            lista_alimentos=CATEGORIAS['grasa'],
+            lista_alimentos=categorias['grasa'],
             prioridades_comida=prioridades,
             meal_idx=meal_idx,
             num_opciones=num_opciones,
             penalizados=penalizados,
             seed=seed,
             seed_offset=200,
-            umbral_minimo=0.6,
+            umbral_minimo=0.6, catalogo=catalogo,
         )
 
 
@@ -361,8 +389,13 @@ class ConstructorPlanConOpciones:
         plan_numero: int = 1,
         directorio_planes: str = ".",
         num_opciones_por_macro: int = 3,
+        catalogo: FoodCatalog | None = None,
     ) -> Dict:
         """Construye plan con opciones múltiples."""
+        # The request catalog also constrains emergency/alternative selections.
+        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        alimentos_base = catalogo.alimentos
+        categorias = catalogo.categorias
         logger.info("[OPCIONES] Generando plan con opciones para %s", cliente.nombre)
 
         # Calcular ajuste calórico (igual que ConstructorPlanNuevo)
@@ -421,7 +454,7 @@ class ConstructorPlanConOpciones:
                 meal_idx=meal_idx,
                 num_opciones=num_opciones_por_macro,
                 alimentos_penalizados=penalizados_por_cat,
-                seed=seed + meal_idx,
+                seed=seed + meal_idx, catalogo=catalogo,
             )
 
             opciones_carbs = generador.generar_opciones_carbs(
@@ -429,7 +462,7 @@ class ConstructorPlanConOpciones:
                 meal_idx=meal_idx,
                 num_opciones=num_opciones_por_macro,
                 alimentos_penalizados=penalizados_por_cat,
-                seed=seed + meal_idx,
+                seed=seed + meal_idx, catalogo=catalogo,
             )
 
             opciones_grasas = generador.generar_opciones_grasas(
@@ -437,7 +470,7 @@ class ConstructorPlanConOpciones:
                 meal_idx=meal_idx,
                 num_opciones=num_opciones_por_macro,
                 alimentos_penalizados=penalizados_por_cat,
-                seed=seed + meal_idx,
+                seed=seed + meal_idx, catalogo=catalogo,
             )
 
             # Vegetales: siempre 125g de verduras variadas bajas en calorías
@@ -448,10 +481,10 @@ class ConstructorPlanConOpciones:
             ]
             # Filtrar solo los que existen en la base de alimentos
             vegetales_disponibles = [
-                v for v in VEGETALES_POOL if v in ALIMENTOS_BASE
+                v for v in VEGETALES_POOL if v in alimentos_base
             ]
             if not vegetales_disponibles:
-                vegetales_disponibles = ['brocoli', 'espinaca', 'calabacita']
+                vegetales_disponibles = catalogo.require_candidates(categorias.get('verdura', ()))
 
             # Seleccionar 3 vegetales variados por comida (rotan por meal_idx)
             rng_veg = random.Random(seed + meal_idx + 500)
@@ -467,7 +500,7 @@ class ConstructorPlanConOpciones:
                 vegetales_lista.append({
                     'alimento': veg_nombre,
                     'gramos': g,
-                    'macros': generador.calcular_macros_reales(veg_nombre, g),
+                    'macros': generador.calcular_macros_reales(veg_nombre, g, catalogo=catalogo),
                 })
 
             plan[nombre_comida] = {
@@ -504,4 +537,5 @@ class ConstructorPlanConOpciones:
             num_opciones_por_macro,
         )
 
+        catalogo.validate_plan(plan)
         return plan

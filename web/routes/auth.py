@@ -51,90 +51,29 @@ _login_rate_limit = [Depends(rate_limit_dependency(requests_per_minute=5, window
 
 @router.post("/auth/login", dependencies=_login_rate_limit)
 async def login_universal(data: LoginRequest, request: Request):
-    """
-    Login universal: soporta owners (tipo=gym), usuarios regulares y team members.
-
-    Busca primero en auth SQLite (legacy), luego en SQLAlchemy (team members).
-    """
-    from web.auth import verificar_credenciales, crear_token_pair, verify_password
-    from web.database.engine import get_engine
-    from web.database.models import Usuario, UserRole
-    from sqlalchemy.orm import Session as SASession
-    from sqlalchemy import select
+    """Password login resolves the same persisted identity as OAuth/refresh."""
+    from web.auth import verificar_credenciales, crear_token_pair
     from web.services.auth_audit import log_auth_event_from_request, AuthEventType
 
-    _ip = request.client.host if request.client else "unknown"
-
-    # 1. Intentar login tradicional (auth SQLite)
-    usuario = verificar_credenciales(data.email, data.password, ip=_ip)
-
+    usuario = verificar_credenciales(
+        data.email, data.password,
+        ip=request.client.host if request.client else "unknown",
+    )
     if usuario:
-        _sync_user_to_sa(usuario)
         tokens = crear_token_pair(usuario, remember_me=data.remember_me)
-
         await log_auth_event_from_request(
-            AuthEventType.LOGIN_SUCCESS,
-            request,
-            gym_id=usuario.get("gym_id", usuario.get("id")),
+            AuthEventType.LOGIN_SUCCESS, request,
+            gym_id=usuario.get("team_gym_id") or usuario["id"],
             user_id=usuario["id"],
-            metadata={"tipo": usuario["tipo"], "remember_me": data.remember_me, "source": "legacy"},
+            metadata={"tipo": usuario["tipo"], "role": usuario["role"], "remember_me": data.remember_me},
         )
-
         return {
-            "token": tokens["access_token"],
-            "refresh_token": tokens["refresh_token"],
-            "tipo": usuario["tipo"],
-            "role": usuario.get("role", "owner" if usuario["tipo"] in ("gym", "usuario") else "viewer"),
+            "token": tokens["access_token"], "refresh_token": tokens["refresh_token"],
+            "tipo": usuario["tipo"], "role": usuario["role"],
+            "team_gym_id": usuario.get("team_gym_id"),
             "nombre": f"{usuario['nombre']} {usuario['apellido']}".strip(),
             "email": usuario["email"],
         }
-
-    # 2. Buscar en SQLAlchemy (team members invitados)
-    engine = get_engine()
-    with SASession(engine) as session:
-        sa_user = session.execute(
-            select(Usuario).where(
-                Usuario.email == data.email.strip().lower(),
-                Usuario.activo == True,
-                Usuario.team_gym_id.isnot(None),
-            )
-        ).scalar_one_or_none()
-
-        if sa_user:
-            if verify_password(data.password, sa_user.password_hash):
-                user_dict = {
-                    "id": sa_user.id,
-                    "email": sa_user.email,
-                    "nombre": sa_user.nombre,
-                    "apellido": sa_user.apellido,
-                    "tipo": sa_user.tipo,
-                    "role": sa_user.role.value if sa_user.role else UserRole.VIEWER.value,
-                    "team_gym_id": sa_user.team_gym_id,
-                }
-                tokens = crear_token_pair(user_dict, remember_me=data.remember_me)
-
-                await log_auth_event_from_request(
-                    AuthEventType.LOGIN_SUCCESS,
-                    request,
-                    gym_id=sa_user.team_gym_id,
-                    user_id=sa_user.id,
-                    metadata={
-                        "tipo": sa_user.tipo,
-                        "role": user_dict["role"],
-                        "remember_me": data.remember_me,
-                        "source": "team_member",
-                    },
-                )
-
-                return {
-                    "token": tokens["access_token"],
-                    "refresh_token": tokens["refresh_token"],
-                    "tipo": sa_user.tipo,
-                    "role": sa_user.role.value if sa_user.role else UserRole.VIEWER.value,
-                    "team_gym_id": sa_user.team_gym_id,
-                    "nombre": f"{sa_user.nombre} {sa_user.apellido}".strip(),
-                    "email": sa_user.email,
-                }
 
     # Log login fallido
     await log_auth_event_from_request(
@@ -158,7 +97,7 @@ async def google_login(data: GoogleLoginRequest, request: Request):
     import uuid
     from datetime import datetime, timezone
     from config.settings import Settings
-    from web.auth import crear_token_pair
+    from web.auth import crear_token_pair, identity_from_user
     from web.services.auth_audit import log_auth_event_from_request, AuthEventType
 
     settings = Settings()
@@ -196,26 +135,20 @@ async def google_login(data: GoogleLoginRequest, request: Request):
     # Buscar usuario existente via SQLAlchemy
     from web.auth import hash_password
     from web.database.engine import get_engine
-    from web.database.models import Usuario
+    from web.database.models import Usuario, UserRole
     from sqlalchemy.orm import Session as _SASession
 
     engine = get_engine()
     with _SASession(engine) as session:
         row = session.query(Usuario).filter(
             Usuario.email == email,
-            Usuario.activo == True,
         ).first()
 
         if row:
             # Usuario existe — login
-            usuario = {
-                "id": row.id,
-                "email": row.email,
-                "nombre": row.nombre,
-                "apellido": row.apellido,
-                "tipo": row.tipo,
-                "role": "owner" if row.tipo in ("gym", "usuario") else "viewer",
-            }
+            usuario = identity_from_user(row, session)
+            if not usuario:
+                raise HTTPException(401, "Cuenta no disponible para iniciar sesión.")
         else:
             # Crear usuario nuevo
             uid = str(uuid.uuid4())
@@ -225,12 +158,13 @@ async def google_login(data: GoogleLoginRequest, request: Request):
             new_user = Usuario(
                 id=uid, email=email, password_hash=random_pw_hash,
                 nombre=nombre, apellido=apellido, tipo=tipo,
+                role=UserRole.OWNER if tipo == "gym" else UserRole.VIEWER,
                 activo=True, fecha_registro=now,
             )
             session.add(new_user)
             session.commit()
 
-            usuario = {"id": uid, "email": email, "nombre": nombre, "apellido": apellido, "tipo": tipo, "role": "owner" if tipo in ("gym", "usuario") else "viewer"}
+            usuario = identity_from_user(new_user, session)
 
             # Auto-crear GymProfile si es gym
             if tipo == "gym":
@@ -254,6 +188,7 @@ async def google_login(data: GoogleLoginRequest, request: Request):
         "refresh_token": tokens["refresh_token"],
         "tipo": usuario["tipo"],
         "role": usuario.get("role", "viewer"),
+        "team_gym_id": usuario.get("team_gym_id"),
         "nombre": f"{usuario['nombre']} {usuario.get('apellido', '')}".strip(),
         "email": usuario["email"],
     }
@@ -273,8 +208,8 @@ async def registro(data: RegistroRequest):
             apellido=data.apellido,
             tipo=tipo,
         )
-    except ValueError as e:
-        raise HTTPException(400, str(e))
+    except ValueError:
+        raise HTTPException(400, {"code": "registration_invalid", "message": "No se pudo crear la cuenta. Revisa email, nombre y contraseña (mínimo 12 caracteres)."}) from None
     _sync_user_to_sa(usuario)
     tokens = crear_token_pair(usuario)
 
@@ -323,11 +258,11 @@ async def refresh_token(request: Request):
 
 @router.post("/auth/logout")
 async def logout(usuario=Depends(get_usuario_actual)):
-    """Revoca todos los refresh tokens del usuario."""
+    """Revoca todas las sesiones access/refresh mediante su versión persistida."""
     from web.auth import revocar_refresh_tokens_usuario
 
     revocar_refresh_tokens_usuario(usuario["id"])
-    return {"message": "Sesión cerrada. Todos los refresh tokens revocados."}
+    return {"message": "Sesión cerrada. Todas las sesiones revocadas."}
 
 
 @router.get("/auth/me")
@@ -363,62 +298,4 @@ async def me(
             "max_planes_por_cliente_dia": plan_cfg.get("max_planes_por_cliente_dia", 0),
             "max_clientes": plan_cfg.get("max_clientes", 0),
         },
-    }
-
-
-# ── Admin: fix user tipo ──────────────────────────────────────────────────
-
-class FixUserTipoRequest(BaseModel):
-    email: str
-    nuevo_tipo: str  # "gym" | "usuario"
-    admin_secret: str
-
-
-@router.post("/admin/fix-user-tipo")
-async def fix_user_tipo(data: FixUserTipoRequest, db: Session = Depends(get_db)):
-    """
-    Endpoint de emergencia para corregir el tipo de un usuario en la DB.
-    Requiere admin_secret == SECRET_KEY del entorno.
-    """
-    from web.settings import get_settings
-    settings = get_settings()
-
-    if data.admin_secret != settings.SECRET_KEY:
-        raise HTTPException(status_code=403, detail="No autorizado.")
-
-    if data.nuevo_tipo not in ("gym", "usuario"):
-        raise HTTPException(status_code=400, detail="nuevo_tipo debe ser 'gym' o 'usuario'.")
-
-    from web.database.models import Usuario as UsuarioModel
-    from web.auth import _get_session as _auth_session
-
-    # Update en SQLAlchemy DB
-    user_sa = db.query(UsuarioModel).filter(UsuarioModel.email == data.email.strip().lower()).first()
-    if not user_sa:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado.")
-
-    old_tipo = user_sa.tipo
-    user_sa.tipo = data.nuevo_tipo
-    db.commit()
-
-    # Update en auth DB (puede ser el mismo engine o diferente)
-    try:
-        from web.database.models import Usuario as AuthUsuario
-        auth_sess = _auth_session()
-        auth_user = auth_sess.query(AuthUsuario).filter(AuthUsuario.email == data.email.strip().lower()).first()
-        if auth_user and auth_user is not user_sa:
-            auth_user.tipo = data.nuevo_tipo
-            auth_sess.commit()
-        auth_sess.close()
-    except Exception:
-        pass  # Same DB — already updated above
-
-    logger.info("[ADMIN] fix-user-tipo: %s %s → %s", data.email, old_tipo, data.nuevo_tipo)
-
-    return {
-        "ok": True,
-        "email": data.email,
-        "tipo_anterior": old_tipo,
-        "tipo_nuevo": data.nuevo_tipo,
-        "mensaje": "Tipo actualizado. El usuario debe cerrar sesión y volver a iniciar.",
     }

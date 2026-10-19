@@ -98,11 +98,12 @@
 
   <!-- Notas -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">📝 Lo que tu plan debe respetar</h3>
-    <p class="u-card-desc" style="margin:4px 0 14px;">Alergias, condiciones especiales o preferencias. Se aplican al generar tu plan. <span style="opacity:0.55">(opcional)</span></p>
+    <h3 class="u-card-title">📝 Notas para tu profesional</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Estas notas no modifican automáticamente el plan. Para omitir alimentos, usa la selección de abajo. Si tienes alergias o una condición médica, solicita revisión profesional antes de usar el plan.</p>
     <div class="u-form-group">
-      <label class="u-form-label" for="field-notas">Condiciones especiales</label>
-      <textarea id="field-notas" class="u-form-input" rows="3" placeholder="Ej: intolerante a la lactosa, diabetes tipo 2, prefiero no comer carne roja..."></textarea>
+      <label class="u-form-label" for="field-notas">Notas opcionales</label>
+      <textarea id="field-notas" class="u-form-input" rows="3" maxlength="500" aria-describedby="notas-help" placeholder="Información que quieras comentar con tu profesional"></textarea>
+      <small id="notas-help">El generador no interpreta diagnósticos ni garantiza la ausencia de alérgenos o contaminación cruzada.</small>
     </div>
   </div>
 
@@ -197,17 +198,25 @@
       container.innerHTML = '<span class="u-excl-empty">No hay alimentos excluidos</span>';
       return;
     }
-    container.innerHTML = excluidos.map(function(a) {
-      return '<span class="u-excl-tag">' + prettyName(a) + '<button type="button" class="u-excl-tag-remove" data-food="' + a + '">&times;</button></span>';
-    }).join('');
-
-    container.querySelectorAll('.u-excl-tag-remove').forEach(function(btn) {
+    // Stored profile data is text, including legacy records from before DTO validation.
+    container.replaceChildren();
+    excluidos.forEach(function(a) {
+      var tag = document.createElement('span');
+      tag.className = 'u-excl-tag';
+      tag.append(document.createTextNode(prettyName(a)));
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'u-excl-tag-remove';
+      btn.dataset.food = a;
+      btn.textContent = '×';
+      btn.setAttribute('aria-label', 'Quitar exclusión de ' + prettyName(a));
       btn.addEventListener('click', function() {
-        var f = this.getAttribute('data-food');
-        excluidos = excluidos.filter(function(x) { return x !== f; });
+        excluidos = excluidos.filter(function(x) { return x !== a; });
         renderTags();
         syncChips();
       });
+      tag.append(btn);
+      container.append(tag);
     });
   }
 

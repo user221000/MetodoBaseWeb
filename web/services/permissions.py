@@ -144,27 +144,10 @@ def has_permission(
         team_gym_id = user.get('team_gym_id')
         tipo = user.get('tipo')
     
-    # Convert string role to enum if needed
-    if isinstance(user_role, str):
-        try:
-            user_role = UserRole(user_role)
-        except ValueError:
-            # Legacy: tipo='gym' o tipo='usuario' sin role explícito → OWNER
-            if tipo in ('gym', 'usuario'):
-                user_role = UserRole.OWNER
-            else:
-                _logger.warning(f"Unknown role: {user_role}, defaulting to VIEWER")
-                user_role = UserRole.VIEWER
-    
-    # Si no hay role definido, inferir por tipo (fallback para tokens legacy)
-    if user_role is None:
-        if tipo == 'gym':
-            user_role = UserRole.OWNER
-        elif tipo == 'usuario' and not team_gym_id:
-            # Cuenta individual (sin equipo): dueño de su propia data
-            user_role = UserRole.OWNER
-        else:
-            user_role = UserRole.VIEWER
+    try:
+        user_role = UserRole(user_role)
+    except (ValueError, TypeError):
+        return False
     
     # NOTA: NO hacer override de tipo='usuario' aquí. Un team member puede tener
     # tipo='usuario' con role VIEWER o NUTRIOLOGO. Solo si NO tienen team_gym_id
@@ -177,7 +160,7 @@ def has_permission(
     if allowed_roles is None:
         _logger.warning(f"Permission not defined: {permission_key}")
         # Por seguridad, denegar si no está definido
-        return user_role == UserRole.OWNER
+        return False
     
     # Verificar si el rol está permitido
     if user_role not in allowed_roles:
@@ -340,7 +323,7 @@ def _get_current_user_dep():
     return get_usuario_actual
 
 
-def _extract_role(user: Union["Usuario", dict]) -> UserRole:
+def _extract_role(user: Union["Usuario", dict]) -> Optional[UserRole]:
     """Extrae el role de un usuario (objeto o dict)."""
     if hasattr(user, 'role'):
         role = user.role
@@ -358,11 +341,8 @@ def _extract_role(user: Union["Usuario", dict]) -> UserRole:
     elif isinstance(role, UserRole):
         return role
     
-    # Fallback: legacy tipo='gym' → OWNER
-    if tipo == 'gym':
-        return UserRole.OWNER
-    
-    return UserRole.VIEWER
+    # Missing or unrecognized roles are denied; account type grants no role.
+    return None
 
 
 def get_user_permissions(user: Union["Usuario", dict]) -> List[tuple[str, str]]:

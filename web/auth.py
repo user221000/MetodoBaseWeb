@@ -15,6 +15,7 @@ import hashlib
 import hmac
 import json
 import logging
+import math
 import os
 import time
 import uuid
@@ -203,6 +204,7 @@ def crear_usuario(
         raise ValueError("La contraseña debe tener al menos 12 caracteres.")
 
     Usuario, _ = _get_models()
+    from web.database.models import UserRole
     session = _get_session()
     try:
         existe = session.query(Usuario).filter(Usuario.email == email).first()
@@ -218,6 +220,7 @@ def crear_usuario(
             nombre=nombre.strip(),
             apellido=apellido.strip(),
             tipo=tipo,
+            role=UserRole.OWNER if tipo == "gym" else UserRole.VIEWER,
             activo=True,
             fecha_registro=now,
         )
@@ -232,7 +235,7 @@ def crear_usuario(
     finally:
         session.close()
 
-    return {"id": uid, "email": email, "nombre": nombre.strip(), "tipo": tipo}
+    return _get_user_by_id(uid)
 
 
 def verificar_credenciales(
@@ -273,19 +276,10 @@ def verificar_credenciales(
             _logger.warning("[AUTH] Login fallido (tipo): email=%s tipo_req=%s ip=%s", email, tipo_requerido, _ip)
             return None
 
-        tipo = row.tipo
-        role = "owner" if tipo == "gym" else "viewer"
-
-        _logger.info("[AUTH] Login exitoso: email=%s tipo=%s ip=%s", email, tipo, _ip)
-
-        return {
-            "id":       row.id,
-            "email":    row.email,
-            "nombre":   row.nombre,
-            "apellido": row.apellido,
-            "tipo":     tipo,
-            "role":     role,
-        }
+        identity = identity_from_user(row, session)
+        if identity:
+            _logger.info("[AUTH] Login exitoso: user_id=%s tipo=%s role=%s", row.id, row.tipo, identity["role"])
+        return identity
     finally:
         session.close()
 
@@ -311,7 +305,7 @@ def _make_token(payload: dict) -> str:
 
 def _decode_token(token: str) -> Optional[dict]:
     """Decodifica y verifica firma. No valida expiración ni tipo."""
-    if not token:
+    if not isinstance(token, str) or not token or len(token) > 8192:
         return None
     try:
         parts = token.rsplit(".", 1)
@@ -322,19 +316,15 @@ def _decode_token(token: str) -> Optional[dict]:
         if not hmac.compare_digest(sig, expected):
             return None
         padded = payload_b64 + "=" * (4 - len(payload_b64) % 4)
-        return json.loads(base64.urlsafe_b64decode(padded))
+        payload = json.loads(base64.urlsafe_b64decode(padded))
+        return payload if isinstance(payload, dict) else None
     except Exception:
         return None
 
 
 def crear_access_token(usuario: dict, remember_me: bool = False) -> str:
-    """Genera access token. 15 min normal, 7 días si remember_me."""
-    if remember_me:
-        from web.settings import get_settings
-        _s = get_settings()
-        exp = time.time() + _s.REMEMBER_ME_ACCESS_DAYS * 86400
-    else:
-        exp = time.time() + ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    """Access breve; recordar sesión sólo prolonga el refresh revocable."""
+    exp = time.time() + ACCESS_TOKEN_EXPIRE_MINUTES * 60
     
     # Extraer role para incluir en token
     role = usuario.get("role")
@@ -352,6 +342,10 @@ def crear_access_token(usuario: dict, remember_me: bool = False) -> str:
         "tipo":   usuario["tipo"],
         "role":   role,
         "team_gym_id": usuario.get("team_gym_id"),  # Para multi-tenant
+        "sv": usuario.get("session_version", 0),
+        "iss": "metodobase",
+        "aud": "metodobase-web",
+        "v": 1,
         "exp":    exp,
         "type":   "access",
     }
@@ -383,6 +377,10 @@ def crear_refresh_token(usuario: dict, remember_me: bool = False) -> str:
         "tipo":  usuario["tipo"],
         "role":  role,
         "team_gym_id": usuario.get("team_gym_id"),
+        "sv": usuario.get("session_version", 0),
+        "iss": "metodobase",
+        "aud": "metodobase-web",
+        "v": 1,
         "exp":   exp,
         "type":  "refresh",
         "jti":   jti,
@@ -408,13 +406,41 @@ def crear_token_pair(usuario: dict, remember_me: bool = False) -> dict:
     """
     Genera par de tokens.
     
-    Normal: access 15 min + refresh 7 días.
-    Remember Me: access 30 días + refresh 90 días.
+    Access siempre breve; remember_me sólo extiende el refresh.
     """
     return {
         "access_token": crear_access_token(usuario, remember_me),
         "refresh_token": crear_refresh_token(usuario, remember_me),
     }
+
+
+def _valid_token_payload(payload: Optional[dict], token_type: str) -> bool:
+    """Accept legacy epoch zero during migration; reject malformed/new contexts."""
+    if not payload or payload.get("type") != token_type:
+        return False
+    expiry = payload.get("exp")
+    if isinstance(expiry, bool) or not isinstance(expiry, (int, float)) or not math.isfinite(expiry) or expiry <= time.time():
+        return False
+    if not isinstance(payload.get("id"), str) or not payload["id"]:
+        return False
+    if "v" in payload and payload.get("v") != 1:
+        return False
+    if payload.get("iss", "metodobase") != "metodobase" or payload.get("aud", "metodobase-web") != "metodobase-web":
+        return False
+    if "v" in payload and (payload.get("iss") != "metodobase" or payload.get("aud") != "metodobase-web"):
+        return False
+    version = payload.get("sv", 0)
+    return type(version) is int and version >= 0
+
+
+def _current_token_identity(payload: dict) -> Optional[dict]:
+    """Always resolve live permissions; a changed tenant invalidates the token."""
+    current = _get_user_by_id(payload["id"])
+    if not current or current["session_version"] != payload.get("sv", 0):
+        return None
+    if current.get("team_gym_id") != payload.get("team_gym_id"):
+        return None
+    return current
 
 
 def verificar_token(token: str) -> Optional[dict]:
@@ -425,17 +451,10 @@ def verificar_token(token: str) -> Optional[dict]:
         dict con payload (id, email, nombre, tipo, exp) o None si inválido.
     """
     payload = _decode_token(token)
-    if not payload:
+    if not _valid_token_payload(payload, "access"):
         return None
-    token_type = payload.get("type")
-    if token_type is None:
-        _logger.warning("[AUTH] Token sin type recibido sub=%s", payload.get("id", "?"))
-        return None
-    if token_type != "access":
-        return None
-    if payload.get("exp", 0) < time.time():
-        return None
-    return payload
+    current = _current_token_identity(payload)
+    return {**payload, **current} if current else None
 
 
 def verificar_refresh_token(token: str) -> Optional[dict]:
@@ -446,11 +465,7 @@ def verificar_refresh_token(token: str) -> Optional[dict]:
         dict con payload o None si inválido/revocado.
     """
     payload = _decode_token(token)
-    if not payload:
-        return None
-    if payload.get("type") != "refresh":
-        return None
-    if payload.get("exp", 0) < time.time():
+    if not _valid_token_payload(payload, "refresh") or not _current_token_identity(payload):
         return None
 
     jti = payload.get("jti")
@@ -462,7 +477,7 @@ def verificar_refresh_token(token: str) -> Optional[dict]:
     session = _get_session()
     try:
         rt = session.query(RefreshToken).filter(RefreshToken.jti == jti).first()
-        if not rt or rt.revoked:
+        if not rt or rt.revoked or rt.user_id != payload["id"] or rt.expires_at <= time.time():
             return None
     finally:
         session.close()
@@ -481,14 +496,15 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
         dict con {access_token, refresh_token} o None si inválido.
     """
     payload = _decode_token(old_token)
-    if not payload or payload.get("type") != "refresh":
-        return None
-    if payload.get("exp", 0) < time.time():
+    if not _valid_token_payload(payload, "refresh"):
         return None
 
     jti = payload.get("jti")
     user_id = payload.get("id")
     if not jti or not user_id:
+        return None
+    usuario = _current_token_identity(payload)
+    if not usuario:
         return None
 
     with_conn_session = _get_session()
@@ -497,6 +513,8 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
         # Atomic UPDATE: revoke token only if not already revoked
         result = with_conn_session.query(RefreshToken).filter(
             RefreshToken.jti == jti,
+            RefreshToken.user_id == user_id,
+            RefreshToken.expires_at > time.time(),
             RefreshToken.revoked == False,
         ).update({"revoked": True})
         with_conn_session.commit()
@@ -507,6 +525,10 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
             with_conn_session.query(RefreshToken).filter(
                 RefreshToken.user_id == user_id,
             ).update({"revoked": True})
+            Usuario, _ = _get_models()
+            with_conn_session.query(Usuario).filter(Usuario.id == user_id).update(
+                {Usuario.session_version: Usuario.session_version + 1}
+            )
             with_conn_session.commit()
             _logger.warning("REUSE DETECTION: token jti=%s user=%s — all tokens revoked", jti, user_id)
             return None
@@ -517,7 +539,7 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
         with_conn_session.close()
 
     # Obtener datos frescos del usuario desde BD
-    usuario = _get_user_by_id(user_id)
+    usuario = _current_token_identity(payload)
     if not usuario:
         return None
 
@@ -525,19 +547,46 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
 
 
 def revocar_refresh_tokens_usuario(user_id: str) -> None:
-    """Revoca todos los refresh tokens de un usuario (logout, cambio pw)."""
-    _, RefreshToken = _get_models()
+    """Revoca access y refresh en una transacción (logout/cambio de credenciales)."""
+    Usuario, RefreshToken = _get_models()
     session = _get_session()
     try:
         session.query(RefreshToken).filter(
             RefreshToken.user_id == user_id,
         ).update({"revoked": True})
+        session.query(Usuario).filter(Usuario.id == user_id).update(
+            {Usuario.session_version: Usuario.session_version + 1}
+        )
         session.commit()
     except Exception:
         session.rollback()
         raise
     finally:
         session.close()
+
+
+def identity_from_user(row, session) -> Optional[dict]:
+    """Canonical persisted identity for password, Google, invite and refresh.
+
+    Unknown roles and inactive/pending users never receive privileges. A team
+    association is valid only while its gym owner remains active.
+    """
+    from web.database.models import UserRole, Usuario
+    if not row.activo or row.invitation_token:
+        return None
+    try:
+        role = UserRole(row.role).value
+    except (ValueError, TypeError):
+        return None
+    if row.team_gym_id:
+        owner = session.query(Usuario).filter(Usuario.id == row.team_gym_id, Usuario.activo.is_(True), Usuario.tipo == "gym").first()
+        if not owner or role == "owner":
+            return None
+    return {
+        "id": row.id, "email": row.email, "nombre": row.nombre,
+        "apellido": row.apellido, "tipo": row.tipo, "role": role,
+        "team_gym_id": row.team_gym_id, "session_version": row.session_version,
+    }
 
 
 def _get_user_by_id(user_id: str) -> Optional[dict]:
@@ -553,17 +602,7 @@ def _get_user_by_id(user_id: str) -> Optional[dict]:
         if not row:
             return None
 
-        tipo = row.tipo
-        role = "owner" if tipo == "gym" else "viewer"
-
-        return {
-            "id":       row.id,
-            "email":    row.email,
-            "nombre":   row.nombre,
-            "apellido": row.apellido,
-            "tipo":     tipo,
-            "role":     role,
-        }
+        return identity_from_user(row, session)
     finally:
         session.close()
 

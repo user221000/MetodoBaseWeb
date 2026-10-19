@@ -56,6 +56,16 @@ class CrearSesionRequest(BaseModel):
     cancel_url: str = Field("/checkout/cancel", max_length=500)
 
 
+def _validate_payment_request(req: CrearSesionRequest) -> None:
+    """Keep supported paid plans and relative application redirects explicit."""
+    if req.plan not in {"standard", "gym_comercial", "clinica"}:
+        raise HTTPException(400, "Plan de pago invalido")
+    for value in (req.success_url, req.cancel_url):
+        if (not value.startswith(("/checkout/", "/dashboard", "/suscripciones", "/configuracion")) or
+                value.startswith("//") or "://" in value):
+            raise HTTPException(400, "Direccion de regreso invalida")
+
+
 class SesionResponse(BaseModel):
     session_id: str
     redirect_url: str
@@ -89,76 +99,21 @@ async def crear_sesion_stripe(
     req: CrearSesionRequest,
     usuario: dict = Depends(get_usuario_gym),
 ):
-    """
-    Crea una sesión de Stripe Checkout.
-    
-    Requiere autenticación para asociar el pago al gym del usuario.
-    """
-    from web.database.engine import get_engine
-    from web.database.models import CheckoutSession
-    from sqlalchemy.orm import Session as SQLASession
-    
-    gym_id = usuario["id"]
-    settings = get_settings()
-    
-    if req.plan not in _PLANES_VALIDOS:
-        raise HTTPException(status_code=400, detail=f"Plan inválido: {req.plan}")
-
-    if not settings.STRIPE_SECRET_KEY:
-        raise HTTPException(status_code=503, detail=ERR_PAGOS_NO_CONFIGURADOS)
-
-    info = PLANES_LICENCIA[req.plan]
-    stripe_key = settings.STRIPE_SECRET_KEY
-
+    """Keep the legacy response while using durable canonical billing."""
+    from web.services.permissions import verify_permission
+    from web.services.stripe_service import create_checkout_session
+    from web.database.engine import SessionLocal
+    verify_permission(usuario, "update", "subscription")
+    _validate_payment_request(req)
     try:
-        if info.get("stripe_price_id"):
-            line_items = [{"price": info["stripe_price_id"], "quantity": 1}]
-        else:
-            line_items = [{
-                "price_data": {
-                    "currency": "mxn",
-                    "unit_amount": int(info["precio_mxn"] * 100),
-                    "recurring": {"interval": "month"},
-                    "product_data": {
-                        "name": f"Método Base — {req.plan.title()}",
-                        "description": f"Hasta {info['max_clientes']} clientes",
-                    },
-                },
-                "quantity": 1,
-            }]
-
-        session = _stripe_create_session(
-            stripe_key,
-            payment_method_types=["card"],
-            mode="subscription",
-            customer_email=req.email,
-            line_items=line_items,
-            success_url=req.success_url + "?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=req.cancel_url,
-            metadata={"plan": req.plan},
-        )
-
-        # Persist to DB instead of in-memory dict
-        engine = get_engine()
-        with SQLASession(engine) as db:
-            checkout = CheckoutSession(
-                id=secrets.token_urlsafe(32),
-                gym_id=gym_id,
-                stripe_session_id=session["id"],
-                plan=req.plan,
-                email=req.email,
-                status="pending",
-            )
-            db.add(checkout)
-            db.commit()
-
-        return SesionResponse(session_id=session["id"], redirect_url=session["url"])
-
-    except ImportError:
-        raise HTTPException(status_code=503, detail="Módulo stripe no instalado.")
-    except Exception as e:
-        logger.error("Stripe error: %s", e, exc_info=get_settings().DEBUG)
-        raise HTTPException(status_code=502, detail="Error al crear sesión de pago.")
+        with SessionLocal() as db:
+            result = create_checkout_session(db, usuario["id"], req.plan, usuario["email"],
+                                             req.success_url, req.cancel_url)
+            return SesionResponse(session_id=result["session_id"], redirect_url=result["url"])
+    except ValueError:
+        raise HTTPException(400, "Solicitud de pago invalida") from None
+    except Exception:
+        raise HTTPException(502, "No fue posible iniciar el pago") from None
 
 
 @router.post("/pagos/stripe/webhook", include_in_schema=False)
@@ -206,170 +161,25 @@ async def crear_preferencia_mp(
     req: CrearSesionRequest,
     usuario: dict = Depends(get_usuario_gym),
 ):
-    """
-    Crea una preferencia de pago en MercadoPago.
-    
-    Requiere autenticación para asociar el pago al gym del usuario.
-    """
-    gym_id = usuario["id"]
-    
-    if req.plan not in _PLANES_VALIDOS:
-        raise HTTPException(status_code=400, detail=f"Plan inválido: {req.plan}")
-
-    info = PLANES_LICENCIA[req.plan]
-    mp_token = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
-    if not mp_token:
-        raise HTTPException(status_code=503, detail=ERR_PAGOS_NO_CONFIGURADOS)
-
+    """Legacy API adapter to the same purchase intent and MP verification."""
+    from web.services.permissions import verify_permission
+    from web.services.mercadopago_service import create_preference
+    from web.database.engine import SessionLocal
+    verify_permission(usuario, "update", "subscription")
+    _validate_payment_request(req)
     try:
-        sdk = _get_mp_sdk()
-
-        preference = _mp_create_preference(sdk, {
-            "items": [{
-                "title": f"Método Base — {req.plan.title()}",
-                "quantity": 1,
-                "unit_price": info["precio_mxn"],
-                "currency_id": "MXN",
-            }],
-            "payer": {"email": req.email},
-            "back_urls": {
-                "success": req.success_url,
-                "failure": req.cancel_url,
-                "pending": req.cancel_url,
-            },
-            "auto_return": "approved",
-            "metadata": {
-                "plan": req.plan,
-                "gym_id": gym_id,
-            },
-        })
-
-        resp = preference["response"]
-        pref_id = resp["id"]
-
-        # Persist to DB
-        from web.database.engine import get_engine
-        from web.database.models import CheckoutSession
-        from sqlalchemy.orm import Session as SQLASession
-        
-        engine = get_engine()
-        with SQLASession(engine) as db:
-            checkout = CheckoutSession(
-                id=secrets.token_urlsafe(32),
-                gym_id=gym_id,
-                stripe_session_id=pref_id,  # MP preference ID
-                plan=req.plan,
-                email=req.email,
-                status="pending",
-            )
-            db.add(checkout)
-            db.commit()
-
-        return SesionResponse(
-            session_id=pref_id,
-            redirect_url=resp["init_point"],
-        )
-
-    except ImportError:
-        raise HTTPException(status_code=503, detail="Módulo mercadopago no instalado.")
-    except Exception as e:
-        logger.error("MercadoPago error: %s", e, exc_info=get_settings().DEBUG)
-        raise HTTPException(status_code=502, detail="Error al crear preferencia de pago.")
+        with SessionLocal() as db:
+            result = create_preference(db, usuario["id"], req.plan, usuario["email"],
+                                       req.success_url, req.cancel_url)
+            return SesionResponse(session_id=result["session_id"], redirect_url=result["redirect_url"])
+    except ValueError:
+        raise HTTPException(400, "Solicitud de pago invalida") from None
+    except Exception:
+        raise HTTPException(502, "No fue posible iniciar el pago") from None
 
 
 @router.post("/pagos/mp/webhook", include_in_schema=False)
 async def mp_webhook(request: Request):
-    """Recibe notificaciones IPN de MercadoPago y activa licencia."""
-    # Verify webhook signature — REQUIRED in production
-    settings = get_settings()
-    raw_body = await request.body()
-    if not settings.MERCADOPAGO_WEBHOOK_SECRET:
-        logger.error("MP webhook received but MERCADOPAGO_WEBHOOK_SECRET not configured")
-        raise HTTPException(status_code=503, detail="Webhook signature verification not configured")
-    
-    import hmac, hashlib
-    sig_header = request.headers.get("x-signature", "")
-    # MercadoPago x-signature format: "ts=<ts>,v1=<hash>"
-    parts = dict(p.split("=", 1) for p in sig_header.split(",") if "=" in p)
-    ts = parts.get("ts", "")
-    v1 = parts.get("v1", "")
-    # Build signed payload: "id:<data.id>;request-id:<x-request-id>;ts:<ts>;"
-    request_id = request.headers.get("x-request-id", "")
-    try:
-        body_json = __import__("json").loads(raw_body)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid JSON body")
-    data_id = str(body_json.get("data", {}).get("id", ""))
-    manifest = f"id:{data_id};request-id:{request_id};ts:{ts};"
-    expected = hmac.new(
-        settings.MERCADOPAGO_WEBHOOK_SECRET.encode(),
-        manifest.encode(),
-        hashlib.sha256,
-    ).hexdigest()
-    if not ts or not v1 or not hmac.compare_digest(expected, v1):
-        logger.warning("MP webhook signature mismatch or missing")
-        raise HTTPException(status_code=401, detail="Invalid signature")
-
-    body = body_json
-    topic = body.get("type", "")
-
-    if topic != "payment":
-        return {"status": "ignored"}
-
-    payment_id = body.get("data", {}).get("id")
-    if not payment_id:
-        logger.warning("MP webhook sin payment_id")
-        return {"status": "no_payment_id"}
-
-    logger.info("MercadoPago notificación payment_id=%s", payment_id)
-
-    try:
-        sdk = _get_mp_sdk()
-        payment_response = sdk.payment().get(payment_id)
-
-        if payment_response["status"] != 200:
-            logger.error("MP: No se pudo obtener pago %s: status=%s",
-                         payment_id, payment_response["status"])
-            return {"status": "error"}
-
-        payment_data = payment_response["response"]
-        status = payment_data.get("status")
-
-        if status != "approved":
-            logger.info("MP pago %s no aprobado: status=%s", payment_id, status)
-            return {"status": "not_approved"}
-
-        # Extraer metadata del pago
-        metadata = payment_data.get("metadata", {})
-        plan = metadata.get("plan", "standard")
-        gym_id = metadata.get("gym_id", "")
-        email = payment_data.get("payer", {}).get("email", "")
-
-        if not gym_id:
-            logger.error("MP pago %s aprobado pero sin gym_id en metadata", payment_id)
-            return {"status": "missing_gym_id"}
-
-        # Idempotency: skip if already processed
-        from web.database.engine import get_engine
-        from sqlalchemy.orm import Session as SQLASession
-
-        engine = get_engine()
-        with SQLASession(engine) as db:
-            if is_payment_processed(db, str(payment_id)):
-                logger.info("MP pago %s ya procesado (idempotente)", payment_id)
-                return {"status": "already_processed"}
-
-            complete_checkout(db, gym_id, plan, email, str(payment_id))
-            activate_subscription(db, gym_id, plan, provider="mercadopago")
-            db.commit()
-
-        logger.info("MP pago activado: payment_id=%s, plan=%s, gym=%s",
-                    payment_id, plan, gym_id)
-        return {"status": "activated"}
-
-    except ImportError:
-        logger.error("SDK de MercadoPago no instalado")
-        return {"status": "sdk_missing"}
-    except Exception as e:
-        logger.error("Error procesando webhook MP: %s", e)
-        return {"status": "error"}
+    """Use the same authenticated, retryable MP webhook as the SaaS runtime."""
+    from web.services.mercadopago_service import handle_webhook
+    return await handle_webhook(request)
