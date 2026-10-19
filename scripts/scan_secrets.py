@@ -18,6 +18,82 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Gitleaks 8.30.1 can return a partial Match/Secret at its 100000-byte
+# fragment boundary. These two public build manifests were independently
+# reviewed in full. A whole-file pin (including encoding/newlines), the copied
+# bytes and the complete physical line must all agree; a truncated scanner
+# match is never sufficient to classify a finding as a source fingerprint.
+_FRAGMENT_FINGERPRINT_PINS = {
+    "docs/implementation/20261018-evolution/evidence/desktop-real-build-9f3f32e-source.json": (
+        frozenset({
+            "3fb6f8d286ca2d7623958864eee58fea36c9c4d2995e3ea70a4b4a8f462c6ca4",
+            "be8ead03dfb90d2f9c632e4d2e37956bfba03c3afaa0bb80ff46084e7eec97c1",
+        }),
+        "819d66037455156cb96888a31bd7f6377a07ddc4a3bbbce95479c040c7b24f03",
+    ),
+    "docs/implementation/20261018-evolution/evidence/desktop-real-build-9f3f32e-lf-source.json": (
+        frozenset({
+            "271d1c9e1bffc5a1e6ed1db56fdabc9673b663a37ee18ba56ffe3bed7b906b8a",
+            "47e002ad2568ed7bba35407ec44ab98313730198325a89df89d02ff8bf31b8e5",
+        }),
+        "8f40c42dc97ded7a10f3600feb2967bec38babd080cf82ff798bff35207b83ee",
+    ),
+}
+
+
+def _finding_name(value: object, snapshot: Path) -> str:
+    """Require a canonical relative finding path inside the copied tree."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("Secret scanner returned an invalid file path")
+    path = Path(value)
+    if path.is_absolute():
+        path = path.relative_to(snapshot)
+    if any(part in {"..", "."} for part in path.parts):
+        raise ValueError("Secret scanner returned a noncanonical file path")
+    name = path.as_posix()
+    if not (snapshot / path).resolve().is_relative_to(snapshot):
+        raise ValueError("Secret scanner returned an outside file path")
+    return name
+
+
+def _classify_fragment_fingerprint(
+    item: dict, name: str, snapshot: Path, source_hashes: dict[str, str],
+) -> dict | None:
+    """Classify only the two reviewed immutable manifest lines.
+
+    This does not establish a general hash allowlist. Any byte, path, rule,
+    line, encoding or snapshot change leaves the finding blocking. The caller
+    must still reject the entire run when its source/file-set stability check
+    fails. Match, Secret and Finding.Line are deliberately never consulted.
+    """
+    pin = _FRAGMENT_FINGERPRINT_PINS.get(name)
+    if pin is None or item.get("RuleID") != "generic-api-key":
+        return None
+    if (type(item.get("StartLine")) is not int
+            or type(item.get("EndLine")) is not int
+            or item["StartLine"] != 3081 or item["EndLine"] != 3081):
+        return None
+    file_hashes, line_hash = pin
+    digest = source_hashes.get(name)
+    if digest not in file_hashes:
+        return None
+    try:
+        content = (snapshot / name).read_bytes()
+        if hashlib.sha256(content).hexdigest() != digest:
+            return None
+        content.decode("utf-8", errors="strict")
+        line = content.split(b"\n")[3080]
+    except (OSError, UnicodeDecodeError, IndexError):
+        return None
+    # One terminal CR is the sole normalization, after checking the raw file.
+    if line.endswith(b"\r"):
+        line = line[:-1]
+    if hashlib.sha256(line).hexdigest() != line_hash:
+        return None
+    return {"file": name, "line": 3081, "rule": "generic-api-key",
+        "file_sha256": digest, "physical_line_sha256": line_hash,
+        "reason": "reviewed immutable public source fingerprint; gitleaks 8.30.1 fragment boundary"}
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -77,10 +153,16 @@ def main() -> int:
         if scan.returncode not in {0, 1} or not raw_report.is_file():
             raise RuntimeError(f"Secret scanner failed; exit={scan.returncode}; output withheld")
         raw = json.loads(raw_report.read_text(encoding="utf-8")) or []
+        if not isinstance(raw, list) or bool(raw) != (scan.returncode == 1):
+            raise RuntimeError("Secret scanner returned inconsistent findings; output withheld")
         findings = []
+        classified = []
         for item in raw:
-            path = Path(item["File"])
-            name = path.relative_to(snapshot).as_posix() if path.is_absolute() else path.as_posix()
+            name = _finding_name(item["File"], snapshot)
+            classification = _classify_fragment_fingerprint(item, name, snapshot, source_hashes)
+            if classification is not None:
+                classified.append(classification)
+                continue
             findings.append({"file": name, "line": item["StartLine"], "rule": item["RuleID"],
                 "fingerprint": item.get("Fingerprint"), "file_sha256": source_hashes.get(name)})
     changed = [name for name, digest in source_hashes.items()
@@ -96,10 +178,13 @@ def main() -> int:
         "binary_sha256": hashlib.sha256(tool.read_bytes()).hexdigest(),
         "scope": "tracked and unignored deliverable tree; no git history or ignored files",
         "exit_code": scan.returncode, "source_stable": not changed, "changed_files": changed,
+        "raw_finding_count": len(raw), "classified_finding_count": len(classified),
+        "remaining_finding_count": len(findings), "classified_findings": classified,
         "files": source_hashes, "encoding_transforms": encoding_transforms, "findings": findings},
         ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Gitleaks {version}: {len(source_hashes)} files, {len(findings)} findings; values withheld")
-    return 2 if changed else (1 if findings else scan.returncode)
+    print(f"Gitleaks {version}: {len(source_hashes)} files, {len(raw)} raw findings, "
+        f"{len(classified)} classified, {len(findings)} remaining; values withheld")
+    return 2 if changed else (1 if findings else 0)
 
 
 if __name__ == "__main__":

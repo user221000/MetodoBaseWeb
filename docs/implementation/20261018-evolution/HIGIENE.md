@@ -1,5 +1,9 @@
 # Higiene del candidato local
 
+## Revisión del árbol integrado27 y fragmentación del escáner
+
+El scan de `c28d718` encontró930 coincidencias en3026 archivos estables y quedó rojo. La propuesta posterior conserva las reglas anteriores y añade148 grupos finitos por regla/ruta/línea literal; siete huellas históricas carecen de preimagen y no se atribuyen a un commit verificado. Dos coincidencias residuales se deben a fragmentación de Gitleaks8.30.1 y requieren pines completos de archivo, copia y línea física. [Contrato y límites de la contención](ESCANER_FRAGMENTACION.md). El cambio se congela para revisión independiente y un nuevo scan completo; ni los canarios anteriores ni el triage constituyen un pase de ese próximo árbol.
+
 R21 en curso. `dff6fd9` retiró 1648 archivos de entornos virtuales del índice. Se reinstalaron targets web y desktop en entornos Windows nuevos mediante locks con hashes; la ejecución Linux/imagen sigue pendiente. El workspace original y el historial se conservan.
 
 Se retiraron también del índice nueve artefactos de ejecución: tres logs de migración de marzo, cinco archivos de backup/checkpoint históricos y un logo subido a web/static/uploads. Las copias físicas siguen presentes en el clon y en el original. [Inventario de rutas/tamaños/hashes](evidence/retired-runtime-artifacts.json), sin incluir contenidos. Los assets que utiliza la aplicación no se retiraron por su extensión. La auditoría histórica y su evidencia fechada permanecen versionadas.
