@@ -93,7 +93,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
         except Exception as error:
-            if request.url.path != "/api/usuario/historial":
+            if (request.url.path != "/api/usuario/historial"
+                    and not is_member_link_private(request.url.path)):
                 raise
             # Generic handlers live outside response middleware. Reuse the
             # factory's existing public error body, then apply private headers.
@@ -106,7 +107,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 if not isinstance(response, Response) or response.status_code != 500:
                     raise ValueError('Invalid generic error response')
             except Exception:
-                logging.getLogger(__name__).error("Private history failed class=%s", type(error).__name__)
+                logging.getLogger(__name__).error("Private request failed class=%s", type(error).__name__)
                 body = {"detail": "Error interno del servidor"}
                 if getattr(request.state, "request_id", None):
                     body["request_id"] = request.state.request_id
