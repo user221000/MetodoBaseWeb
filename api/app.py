@@ -118,12 +118,17 @@ def create_app() -> FastAPI:
             _rl_cls = RedisRateLimitMiddleware
         except ImportError:
             pass
-    app.add_middleware(
-        _rl_cls,
-        requests_per_minute=60,
-        burst_size=10,
-        exclude_paths=["/health", "/health/ready", "/health/circuits", "/docs", "/redoc", "/openapi.json", "/static/"],
-    )
+    if _s and _s.REDIS_URL and _rl_cls is not RateLimiterMiddleware:
+        # Redis uses the same path rules as SaaS; the local middleware's
+        # constructor options are not accepted by BaseHTTPMiddleware.
+        app.add_middleware(_rl_cls)
+    else:
+        app.add_middleware(
+            _rl_cls,
+            requests_per_minute=60,
+            burst_size=10,
+            exclude_paths=["/health", "/health/ready", "/health/circuits", "/docs", "/redoc", "/openapi.json", "/static/"],
+        )
     
     # ── Metrics ──────────────────────────────────────────────────────────────
     app.add_middleware(

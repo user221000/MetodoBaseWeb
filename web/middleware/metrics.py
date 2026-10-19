@@ -174,6 +174,7 @@ class MetricsStore:
     
     def get_summary(self) -> dict:
         """Obtiene resumen de todas las métricas."""
+        from web.rate_limiter_redis import get_rate_limit_status
         with self._lock:
             uptime = time.time() - self._start_time
             
@@ -215,6 +216,7 @@ class MetricsStore:
                 "error_rate_percent": round(self._total_errors / max(1, self._total_requests) * 100, 2),
                 "requests_per_second": round(self._total_requests / max(1, uptime), 2),
                 "global_latency_ms": global_percentiles,
+                "rate_limit_backend": get_rate_limit_status(),
                 "endpoints": {
                     path: stats.to_dict()
                     for path, stats in sorted(self._endpoints.items())

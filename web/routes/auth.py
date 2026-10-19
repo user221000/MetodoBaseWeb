@@ -44,7 +44,7 @@ from web.sync_user import sync_user_to_sa as _sync_user_to_sa  # noqa: E402
 
 from web.middleware.rate_limiter import rate_limit_dependency
 
-_login_rate_limit = [Depends(rate_limit_dependency(requests_per_minute=5, window_seconds=900))]
+_login_rate_limit = [Depends(rate_limit_dependency(requests_per_minute=5, window_seconds=900, account_field="email"))]
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────

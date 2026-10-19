@@ -29,7 +29,8 @@ Configuración via ENV:
 import os
 import time
 import logging
-from collections import defaultdict
+import hashlib
+import hmac
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 from threading import Lock
@@ -39,6 +40,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
+MAX_LOCAL_BUCKETS = 10000
 
 
 # ── Configuración ────────────────────────────────────────────────────────────
@@ -99,7 +101,7 @@ class TokenBucket:
     capacity: int
     refill_rate: float
     tokens: float = field(default=None)
-    last_refill: float = field(default_factory=time.time)
+    last_refill: float = field(default_factory=time.monotonic)
     
     def __post_init__(self):
         if self.tokens is None:
@@ -112,7 +114,7 @@ class TokenBucket:
         Returns:
             True si se pudieron consumir, False si no hay suficientes.
         """
-        now = time.time()
+        now = time.monotonic()
         
         # Refill tokens basado en tiempo transcurrido
         time_passed = now - self.last_refill
@@ -151,10 +153,12 @@ class RateLimiterStore:
     ):
         self.requests_per_minute = requests_per_minute
         self.burst_size = burst_size
+        if requests_per_minute < 1 or burst_size < 1:
+            raise ValueError("Rate and burst must be positive")
         self.refill_rate = requests_per_minute / 60.0  # tokens por segundo
-        self._buckets: dict[str, TokenBucket] = defaultdict(self._create_bucket)
+        self._buckets: dict[str, TokenBucket] = {}
         self._lock = Lock()
-        self._last_cleanup = time.time()
+        self._last_cleanup = time.monotonic()
         self._cleanup_interval = 300  # 5 minutos
     
     def _create_bucket(self) -> TokenBucket:
@@ -162,26 +166,19 @@ class RateLimiterStore:
         return TokenBucket(
             capacity=self.burst_size,
             refill_rate=self.refill_rate,
+            last_refill=time.monotonic(),
         )
     
-    def _cleanup_old_buckets(self):
-        """Elimina buckets inactivos para liberar memoria."""
-        now = time.time()
-        if now - self._last_cleanup < self._cleanup_interval:
+    def _cleanup_old_buckets(self, *, force: bool = False):
+        """Reclaim fully refillable idle buckets; caller must hold the lock."""
+        now = time.monotonic()
+        if not force and now - self._last_cleanup < self._cleanup_interval:
             return
-        
-        with self._lock:
-            self._last_cleanup = now
-            # Buckets con todos los tokens = inactivos por > 60s
-            inactive = [
-                key for key, bucket in self._buckets.items()
-                if bucket.tokens >= bucket.capacity and now - bucket.last_refill > 60
-            ]
-            for key in inactive:
-                del self._buckets[key]
-            
-            if inactive:
-                logger.debug(f"Rate limiter cleanup: {len(inactive)} buckets eliminados")
+        self._last_cleanup = now
+        inactive = [key for key, bucket in self._buckets.items()
+            if now - bucket.last_refill > max(60, bucket.capacity / bucket.refill_rate)]
+        for key in inactive:
+            del self._buckets[key]
     
     def is_allowed(self, client_id: str) -> tuple[bool, float]:
         """
@@ -190,10 +187,15 @@ class RateLimiterStore:
         Returns:
             (allowed, retry_after_seconds)
         """
-        self._cleanup_old_buckets()
-        
         with self._lock:
-            bucket = self._buckets[client_id]
+            self._cleanup_old_buckets()
+            bucket = self._buckets.get(client_id)
+            if bucket is None:
+                if len(self._buckets) >= MAX_LOCAL_BUCKETS:
+                    self._cleanup_old_buckets(force=True)
+                if len(self._buckets) >= MAX_LOCAL_BUCKETS:
+                    return False, 60
+                bucket = self._buckets[client_id] = self._create_bucket()
             if bucket.consume():
                 return True, 0
             return False, bucket.time_until_available()
@@ -218,37 +220,9 @@ def get_rate_limiter_store(
 # ── Identificación de Cliente ────────────────────────────────────────────────
 
 def get_client_identifier(request: Request) -> str:
-    """
-    Obtiene un identificador único del cliente.
-
-    Detrás de Railway/nginx, X-Forwarded-For tiene el formato:
-      <client-ip>, <proxy1-ip>, ..., <railway-ip>
-    Se usa TRUSTED_PROXY_COUNT (default 1) para seleccionar el IP
-    real del cliente (N+1 posiciones desde la derecha), previniendo
-    spoofing donde un atacante puede controlar el primer valor.
-
-    Fórmula: idx = max(0, len(parts) - proxy_count - 1)
-    Ejemplo (proxy_count=1): ['client', 'railway'] → idx=0 → 'client'
-    """
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        parts = [p.strip() for p in forwarded.split(",")]
-        try:
-            from web.settings import get_settings
-            proxy_count = get_settings().TRUSTED_PROXY_COUNT
-        except Exception:
-            proxy_count = 1
-        idx = max(0, len(parts) - proxy_count - 1)
-        return parts[idx]
-
-    real_ip = request.headers.get("X-Real-IP")
-    if real_ip:
-        return real_ip
-
-    if request.client:
-        return request.client.host
-
-    return "unknown"
+    """Use the same configured proxy contract as the global middleware."""
+    from web.rate_limiter import _get_client_ip
+    return _get_client_ip(request)
 
 
 # ── Middleware ───────────────────────────────────────────────────────────────
@@ -304,10 +278,7 @@ class RateLimiterMiddleware(BaseHTTPMiddleware):
         
         if not allowed:
             retry_seconds = int(retry_after) + 1
-            logger.warning(
-                f"Rate limit excedido: client={client_id}, path={path}, "
-                f"retry_after={retry_seconds}s"
-            )
+            logger.warning("rate_limit_exceeded backend=local")
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 content={
@@ -337,34 +308,49 @@ class RateLimiterMiddleware(BaseHTTPMiddleware):
 def rate_limit_dependency(
     requests_per_minute: int = 10,
     window_seconds: int = 60,
+    *,
+    account_field: Optional[str] = None,
 ):
+    """Limit attempts per route/IP and optionally normalized JSON account.
+
+    The historical argument name ``requests_per_minute`` is retained for
+    callers, but means maximum requests in ``window_seconds``. Redis shares
+    counters across workers; its failure returns 503 before sensitive work.
+    With no Redis configured, the bounded store is explicitly process-local.
+    Account keys use keyed HMAC; raw emails are never stored in Redis/logs.
+    This is an abuse control, not proof that the account exists.
     """
-    Dependency de FastAPI para rate limiting por ruta.
-    
-    Uso:
-        @app.get("/expensive", dependencies=[Depends(rate_limit_dependency(10, 60))])
-        async def expensive():
-            ...
-    
-    Args:
-        requests_per_minute: Máximo de requests permitidos
-        window_seconds: Ventana de tiempo en segundos
-    """
-    # Store específico para esta ruta
-    store = RateLimiterStore(
-        requests_per_minute=requests_per_minute,
-        burst_size=max(1, requests_per_minute // 10),
-    )
+    if requests_per_minute < 1 or window_seconds < 1:
+        raise ValueError("Rate limit and window must be positive")
     
     async def dependency(request: Request):
         if not RATE_LIMIT_ENABLED:
             return
         
-        client_id = get_client_identifier(request)
-        allowed, retry_after = store.is_allowed(client_id)
-        
-        if not allowed:
-            raise RateLimitExceeded(retry_after=int(retry_after) + 1)
+        from web.settings import get_settings
+        from web.rate_limiter_redis import check_rate_limit
+        settings = get_settings()
+        route = request.scope.get("route")
+        route_path = getattr(route, "path", request.url.path)
+        prefix = f"rl:dependency:{route_path}:{requests_per_minute}:{window_seconds}"
+        keys = [f"{prefix}:ip:{get_client_identifier(request)}"]
+        if account_field:
+            try:
+                body = await request.json()
+            except ValueError:
+                body = None  # The endpoint's DTO still rejects malformed JSON.
+            account = body.get(account_field) if isinstance(body, dict) else None
+            if isinstance(account, str) and account.strip():
+                normalized = account.strip().casefold()
+                digest = hmac.new(settings.SECRET_KEY.encode("utf-8"),
+                    ("rate-limit-account-v1:" + normalized).encode("utf-8"),
+                    hashlib.sha256).hexdigest()
+                keys.append(f"{prefix}:account:{digest}")
+        for key in keys:
+            allowed, info, _ = await check_rate_limit(key, requests_per_minute,
+                window_seconds, use_redis=bool(settings.REDIS_URL), sensitive=True)
+            if not allowed:
+                raise RateLimitExceeded(retry_after=info["retry_after"])
     
     return dependency
 

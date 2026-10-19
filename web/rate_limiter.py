@@ -12,6 +12,7 @@ Límites por defecto:
 """
 import time
 import threading
+from ipaddress import ip_address
 from typing import Optional
 
 from fastapi import Request, Response
@@ -29,6 +30,10 @@ RATE_RULES: list[dict] = [
     {"path_prefix": "/api/auth/logout",   "limit": 5,  "window": 60},
     {"path_prefix": "/api/auth/login",    "limit": 5,  "window": 60},
     {"path_prefix": "/api/auth/registro", "limit": 5,  "window": 60},
+    {"path_prefix": "/api/auth/accept-invite", "limit": 5, "window": 60},
+    {"path_prefix": "/api/usuario/generar-plan", "limit": 10, "window": 60},
+    {"path_prefix": "/api/usuario/checkout", "limit": 5, "window": 60},
+    {"path_prefix": "/api/billing/checkout", "limit": 5, "window": 60},
     {"path_prefix": "/api/generar-plan",  "limit": 10, "window": 60},
     {"path_prefix": "/api/",              "limit": 60, "window": 60},
 ]
@@ -40,30 +45,38 @@ _DEFAULT_RULE = {"limit": 0}  # sin límite para páginas HTML
 # ── Almacenamiento en memoria ────────────────────────────────────────────────
 
 _buckets: dict[str, list[float]] = {}
+_bucket_windows: dict[str, int] = {}
 _lock = threading.Lock()
 _CLEANUP_INTERVAL = 300  # limpiar entradas viejas cada 5 min
 _last_cleanup = time.monotonic()
+MAX_LOCAL_BUCKETS = 10000
 
 
 def _get_client_ip(request: Request) -> str:
-    """Extrae IP real considerando proxies (Railway, nginx).
-    
-    Uses TRUSTED_PROXY_COUNT to pick the correct hop from X-Forwarded-For,
-    preventing spoofing by untrusted clients.
+    """Resolve a bounded IP under the configured ingress proxy contract.
+
+    A zero proxy count ignores forwarded headers. Deployments that trust them
+    must prevent direct access around their ingress and strip incoming values.
+    Invalid/oversized forwarded input falls back to the socket peer.
     """
+    peer = request.client.host if request.client else "unknown"
+    try:
+        from web.settings import get_settings
+        proxy_count = max(0, get_settings().TRUSTED_PROXY_COUNT)
+    except Exception:
+        proxy_count = 0
     forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
+    if proxy_count and forwarded and len(forwarded) <= 4096:
         parts = [p.strip() for p in forwarded.split(",")]
-        try:
-            from web.settings import get_settings
-            proxy_count = get_settings().TRUSTED_PROXY_COUNT
-        except Exception:
-            proxy_count = 1
-        idx = max(0, len(parts) - proxy_count - 1)
-        return parts[idx]
-    if request.client:
-        return request.client.host
-    return "unknown"
+        if len(parts) >= proxy_count:
+            # The socket peer is the final trusted proxy; it is not included
+            # in XFF. One trusted hop therefore selects the last header IP.
+            idx = len(parts) - proxy_count
+            try:
+                return str(ip_address(parts[idx]))
+            except ValueError:
+                pass
+    return peer[:128]
 
 
 def _match_rule(path: str) -> dict:
@@ -74,35 +87,35 @@ def _match_rule(path: str) -> dict:
     return _DEFAULT_RULE
 
 
-def _cleanup_expired() -> None:
+def _cleanup_expired(*, force: bool = False) -> None:
     """Elimina entradas con todos los timestamps expirados.
     
     MUST be called with _lock held.
     """
     global _last_cleanup
     now = time.monotonic()
-    if now - _last_cleanup < _CLEANUP_INTERVAL:
+    if not force and now - _last_cleanup < _CLEANUP_INTERVAL:
         return
     _last_cleanup = now
 
-    max_window = max((r.get("window", 60) for r in RATE_RULES), default=60)
-    cutoff = now - max_window
-
-    # Build list of expired keys first to avoid modifying dict during iteration
-    expired_keys = [k for k, timestamps in _buckets.items()
-                    if not timestamps or timestamps[-1] < cutoff]
-    for k in expired_keys:
-        _buckets.pop(k, None)
-    
-    # Also trim old timestamps from remaining buckets to prevent memory growth
+    # Each route dependency can have a longer window than middleware rules.
+    # Applying a global 60s cutoff would silently reset 15-minute login limits.
     for k in list(_buckets.keys()):
         timestamps = _buckets.get(k)
+        cutoff = now - _bucket_windows.get(k, 60)
         if timestamps:
             trimmed = [t for t in timestamps if t > cutoff]
             if trimmed:
                 _buckets[k] = trimmed
             else:
                 _buckets.pop(k, None)
+                _bucket_windows.pop(k, None)
+        else:
+            _buckets.pop(k, None)
+            _bucket_windows.pop(k, None)
+    for k in list(_bucket_windows):
+        if k not in _buckets:
+            _bucket_windows.pop(k, None)
 
 
 def _is_allowed(key: str, limit: int, window: int) -> tuple[bool, dict]:
@@ -110,13 +123,21 @@ def _is_allowed(key: str, limit: int, window: int) -> tuple[bool, dict]:
     Verifica si la solicitud está permitida bajo el límite.
     Retorna (allowed, info) donde info tiene remaining y retry_after.
     """
+    if limit < 1 or window < 1:
+        raise ValueError("Rate limit and window must be positive")
     now = time.monotonic()
     cutoff = now - window
 
     with _lock:
         _cleanup_expired()
+        if key not in _buckets and len(_buckets) >= MAX_LOCAL_BUCKETS:
+            _cleanup_expired(force=True)
+            if len(_buckets) >= MAX_LOCAL_BUCKETS:
+                # Never turn a cache outage/IP flood into unbounded memory.
+                return False, {"remaining": 0, "retry_after": window}
 
         timestamps = _buckets.get(key, [])
+        _bucket_windows[key] = window
         # Descartar requests fuera de la ventana
         timestamps = [t for t in timestamps if t > cutoff]
 
