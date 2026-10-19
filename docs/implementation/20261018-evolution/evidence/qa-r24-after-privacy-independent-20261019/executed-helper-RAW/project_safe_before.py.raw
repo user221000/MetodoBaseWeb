@@ -1,0 +1,33 @@
+import json,hashlib,re
+from pathlib import Path
+BASE=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence');OLD=BASE/'qa-r24-independent-20261019';OUT=BASE/'qa-r24-before-private-projection-20261019';PRIVATE=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-ssr-quarantine-20261019')
+sha=lambda raw:hashlib.sha256(raw).hexdigest();manifest_raw=(OLD/'before-fix-manifest.json').read_bytes();assert sha(manifest_raw)=='f81bfac40691bae01d2b552d46521d518b80f4f72f99838b33e36b722f2fde50'
+attempt=json.loads(manifest_raw);receipt=json.loads((PRIVATE/'quarantine-receipt.json').read_text(encoding='utf-8-sig'));moves={Path(r['source']).name:r for r in receipt['moves']};assert len(moves)==4
+OUT.mkdir();(OUT/'.gitattributes').write_bytes(b'* -text\n');mapping=[]
+full_csrf=re.compile(rb'(?<![A-Za-z0-9_.-])[0-9]{9,}\.[a-f0-9]{64}\.[a-f0-9]{64}(?![a-f0-9])');suffix=re.compile(rb'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{30,}\.[a-f0-9]{64}(?![a-f0-9])')
+records=attempt['files']+[{'path':'before-fix-manifest.json','bytes':len(manifest_raw),'sha256':sha(manifest_raw)}]
+for row in records:
+    name=row['path']
+    if name in moves:
+        source=Path(moves[name]['destination']);raw=source.read_bytes();assert not(OLD/name).exists()
+        assert sha(raw)==row['sha256']==moves[name]['source_SHA256']==moves[name]['destination_SHA256']
+        count=len(full_csrf.findall(raw));public=full_csrf.sub(lambda m:('REDACTED_CSRF_SHA256_'+sha(m.group())).encode(),raw)
+        remaining=len(suffix.findall(public));public=suffix.sub(lambda m:('REDACTED_HMAC64_SHA256_'+sha(m.group())).encode(),public)
+        assert count+remaining==1 and public!=raw and not suffix.search(public)
+        target=name+'.sanitized';mapping.append({'original_path':name,'private_original':str(source),'original_RAW_sha256':sha(raw),'public_path':target,'public_sha256':sha(public),'redaction_count':1,'cause':'Actual SSR CSRF signed token; private test fixture material, not a false positive.','public_is_RAW_exact':False})
+    else:
+        raw=(OLD/name).read_bytes();assert sha(raw)==row['sha256']and len(raw)==row['bytes'];public=raw;target=name
+    dest=OUT/target;dest.parent.mkdir(parents=True,exist_ok=True)
+    if dest.exists():assert dest.read_bytes()==public
+    else:dest.write_bytes(public)
+unsafe=[]
+patterns={'HMAC64':suffix,'JWT':re.compile(rb'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}'),'HMAC43':re.compile(rb'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])')}
+for p in OUT.rglob('*'):
+    if p.is_file():
+        for kind,pattern in patterns.items():
+            if pattern.search(p.read_bytes()):unsafe.append({'path':p.relative_to(OUT).as_posix(),'kind':kind})
+assert not unsafe,unsafe
+(OUT/'refusal-receipt.json').write_text(json.dumps({'status':'Original publication attempt REFUSED before index/register/checkpoint115','original_prefix':str(OLD),'refused_original_manifest_sha256':sha(manifest_raw),'original_manifest_bytes_unchanged':True,'four_RAW_quarantined_byte_exact':receipt,'safe_projection_only':True,'sanitized_mapping':mapping,'other_files_copied_RAW_exact':len(records)-4,'no_product_test_criteria_results_change':True,'no_services_rerun':True,'scanner_coverage_correction':'Original publisher handled HMAC43 but omitted HMAC64; new projection scans both and complete JWT.','original_manifest_inside_projection_is_REFUSED_historical_not_current':True},indent=2)+'\n',encoding='utf8')
+files=[{'path':p.relative_to(OUT).as_posix(),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())}for p in sorted(OUT.rglob('*'))if p.is_file()]
+(OUT/'manifest.json').write_text(json.dumps({'files':files,'file_count':len(files),'safe_projection':True,'HMAC64_HMAC43_JWT_scan_matches':0,'RAW_safe_preservation':len(records)-4,'sanitized_CSRF_files':4,'source_product_test_results_unchanged':True},indent=2)+'\n')
+print(json.dumps({'safe_projection':str(OUT),'safe_originals_RAW':len(records)-4,'sanitized_CSRF':4,'files':len(files),'manifest_sha256':sha((OUT/'manifest.json').read_bytes()),'refusal_receipt_sha256':sha((OUT/'refusal-receipt.json').read_bytes()),'secret_scan_matches':0}))

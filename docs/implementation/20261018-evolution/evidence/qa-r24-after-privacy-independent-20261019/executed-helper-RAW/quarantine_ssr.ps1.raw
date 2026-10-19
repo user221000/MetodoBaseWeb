@@ -1,0 +1,23 @@
+$ErrorActionPreference='Stop'
+$r24SourceRoot=[System.IO.Path]::GetFullPath('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-independent-20261019')
+$r24PrivateRoot=[System.IO.Path]::GetFullPath('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-ssr-quarantine-20261019')
+if(Test-Path -LiteralPath $r24PrivateRoot){throw 'New private destination required'}
+if([System.IO.Path]::GetDirectoryName($r24PrivateRoot) -ne [System.IO.Path]::GetFullPath('C:/Users/Consu/AppData/Local/Temp')){throw 'Private root outside intended Temp'}
+New-Item -ItemType Directory -Path $r24PrivateRoot | Out-Null
+$r24Names=@('r24-sqlite-SSR--api-app-attrs-text.json','r24-sqlite-SSR--api-app.html','r24-sqlite-SSR--web-main_web-attrs-text.json','r24-sqlite-SSR--web-main_web.html')
+$r24Moves=@()
+foreach($r24Name in $r24Names){
+  $r24Source=[System.IO.Path]::GetFullPath((Join-Path $r24SourceRoot $r24Name))
+  $r24Destination=[System.IO.Path]::GetFullPath((Join-Path $r24PrivateRoot $r24Name))
+  if([System.IO.Path]::GetDirectoryName($r24Source) -ne $r24SourceRoot -or [System.IO.Path]::GetDirectoryName($r24Destination) -ne $r24PrivateRoot){throw 'Resolved move target escaped exact directories'}
+  if(-not(Test-Path -LiteralPath $r24Source -PathType Leaf) -or (Test-Path -LiteralPath $r24Destination)){throw 'Move precondition failed'}
+  $r24BeforeSHA=(Get-FileHash -Algorithm SHA256 -LiteralPath $r24Source).Hash.ToLowerInvariant()
+  $r24Bytes=(Get-Item -LiteralPath $r24Source).Length
+  Move-Item -LiteralPath $r24Source -Destination $r24Destination
+  $r24AfterSHA=(Get-FileHash -Algorithm SHA256 -LiteralPath $r24Destination).Hash.ToLowerInvariant()
+  if($r24BeforeSHA -ne $r24AfterSHA -or (Test-Path -LiteralPath $r24Source)){throw 'Exact RAW move verification failed'}
+  $r24Moves+=[pscustomobject]@{source=$r24Source;destination=$r24Destination;bytes=$r24Bytes;source_SHA256=$r24BeforeSHA;destination_SHA256=$r24AfterSHA;source_absent=$true;RAW_bytes_preserved=$true}
+}
+$r24Receipt=[pscustomobject]@{action='Exact four SSR RAW files moved to private Temp after fail-closed publication refusal';moves=$r24Moves;no_recursive_operation=$true;no_other_file_touched=$true;original_closed_manifest_untouched=$true}
+$r24Receipt | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $r24PrivateRoot 'quarantine-receipt.json') -Encoding UTF8
+[pscustomobject]@{moved=$r24Moves.Count;all_RAW_bytes_preserved=$true;old_public_copies_absent=$true;private_receipt=(Join-Path $r24PrivateRoot 'quarantine-receipt.json')} | ConvertTo-Json

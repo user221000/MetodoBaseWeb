@@ -1,0 +1,65 @@
+{
+  "original": "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-member-browser30-independent-20261019\\fresh_real_browser.py",
+  "original_sha256": "7f54cd7308ab2590466091a8c1c6ffbdc74fff07115df47e067fb442887d7728",
+  "new_sha256": "e68af9b094b8c2dd7857d8c2f2df0ae6681a88716eafc35c76acdadbf41baafa",
+  "changes": [
+    [
+      "ROOT=Path('F:/mb-member-browser30-qa-20261019')",
+      "ROOT=Path('F:/mb-r24-after-qa-20261019')"
+    ],
+    [
+      "OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-member-browser30-independent-20261019/fresh-real')",
+      "OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-after-privacy-independent-20261019/r12-fresh16')"
+    ],
+    [
+      "TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-member-browser30-independent-20261019')",
+      "TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-after-privacy-independent-20261019')"
+    ],
+    [
+      "RUN=TEMP/'fresh-real30'",
+      "RUN=TEMP/'r12-fresh16'"
+    ],
+    [
+      "assert head=='e8fc5c1817a34fd799407cf64940206b9c302ffd'",
+      "assert head=='4042d77b55b88fb200e7de1cbf41d75adc88d4f3'"
+    ],
+    [
+      "return {'sources':",
+      "return {'outer_launcher_sha256':sha(Path(__file__).read_bytes()),'sources':"
+    ],
+    [
+      "'owned_helpers':{p.name:sha(p.read_bytes()) for p in sorted(OUT.parent.glob('*.py'))}",
+      "'owned_helpers':{p.name:sha(p.read_bytes()) for p in sorted((OUT.parent/'review-tools').glob('*.py'))}"
+    ],
+    [
+      "save('foreign-chrome-before.json',fingerprint(foreign_before))",
+      "save('foreign-chrome-before.json',fingerprint(foreign_before))\ndef listener_foreign():\n    command='@(Get-NetTCPConnection -State Listen -LocalPort 8776 -ErrorAction SilentlyContinue|Select-Object -ExpandProperty OwningProcess -Unique)|ConvertTo-Json -Compress'\n    result=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,text=True,timeout=15);assert result.returncode==0\n    pids=json.loads(result.stdout)if result.stdout.strip()else[];pids=[pids]if isinstance(pids,int)else pids\n    return fingerprint(processes(' OR '.join('ProcessId='+str(n)for n in pids)))if pids else[]\nforeign_listener_before=listener_foreign();save('foreign-listener8776-before.json',foreign_listener_before)\nrejected_parent_generations=[]\ninstant=lambda value:datetime.fromisoformat(value.replace('Z','+00:00'))"
+    ],
+    [
+      "parents={manager.pid}",
+      "roots=processes('ProcessId='+str(manager.pid));assert len(roots)==1 and 'run_member_link_browser.py'in(roots[0].get('CommandLine')or'')\n    known[(manager.pid,roots[0]['Created'])]=roots[0]\n    parents={manager.pid}"
+    ],
+    [
+      "rows=processes(' OR '.join('ParentProcessId='+str(pid) for pid in sorted(parents)))",
+      "live=processes(' OR '.join('ProcessId='+str(pid)for pid in sorted(parents)))\n        active={r['ProcessId']:r for r in live if(r['ProcessId'],r['Created'])in known}\n        rows=processes(' OR '.join('ParentProcessId='+str(pid)for pid in active))if active else[]"
+    ],
+    [
+      "for row in rows:\n            key=",
+      "for row in rows:\n            parent=active.get(row['ParentProcessId'])\n            if parent is None or instant(row['Created'])<instant(parent['Created']):\n                rejected_parent_generations.append({'child':fingerprint([row]),'parent':fingerprint([parent])if parent else None});continue\n            key="
+    ],
+    [
+      "with socket.socket() as probe:assert probe.connect_ex(('127.0.0.1',8798))!=0\nclosure=",
+      "foreign_listener_after=listener_foreign();assert foreign_listener_after==foreign_listener_before;save('foreign-listener8776-after.json',foreign_listener_after)\nsave('ownership-generation-rule.json',{'rule':'Exact live parent PID+birth; child birth at/after parent generation; exact own Chrome binary and random owned profile in Temp. Never stop by ParentPID alone.','rejected_observations':rejected_parent_generations,'no_kills':True})\nwith socket.socket() as probe:assert probe.connect_ex(('127.0.0.1',8798))!=0\nclosure="
+    ],
+    [
+      "save('summary.json',summary)",
+      "summary['foreign_listener8776_preserved']=True\nsave('summary.json',summary)"
+    ],
+    [
+      "8798(all port labels/args)",
+      "8799(all port labels/args)"
+    ]
+  ],
+  "entire_launcher_inverse_exact": true,
+  "all_maintained16_criteria_unchanged": true
+}

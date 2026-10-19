@@ -95,3 +95,12 @@ create_portal_session concatena BASE_URL y return_url sin exigir ruta relativa. 
 Criterio de cierre: Validar el retorno con un helper canónico antes de emitir grants y antes del circuito/puerto Stripe: una sola barra inicial, sin autoridad/esquema, backslash, espacios o controles ASCII/DEL; preservar rutas /usuario y B2B con query/fragmento permitidos. Rechazar antes de cualquier llamada externa; una secuencia de entradas inválidas no abre el circuito ni bloquea una solicitud válida. Verificar ambas factories, contratos previos, cuerpo ligado al grant y origen/URL exactos mediante puertos sintéticos y revisión independiente, sin llamadas o cargos reales.
 
 Reproducción independiente local de preimagen:8rojos/3controles, sin DB/HTTP/red. Corrección final y revisión pendientes. [Recibo](evidence/prepared-wave114-20261019/SEC11-root-before/receipt.json).
+
+
+## SEC12: Binding de Idempotency-Key en aliases de pago del candidato MFA31
+
+Los aliases /api/pagos/stripe/session y /api/pagos/mp/preference del candidato56e810 no transmiten Idempotency-Key a step_up ni al servicio. El grant con clave exacta se rechaza y un grant sin clave acepta una cabecera nueva hasta el puerto sintético. El control de checkout canónico sí liga la clave.
+
+Criterio: Leer la misma Idempotency-Key observada por HTTP y transmitirla sin divergencia a la validación/consumo del grant y a la intención durable en ambos aliases, conservando DTO y respuesta legacy. Rechazar clave añadida, retirada o cambiada antes del puerto y sin consumo irreversible indebido; aceptar la clave exacta. Probar ambos proveedores y factories con autenticación/MFA reales y puertos sintéticos; conservar los cinco criterios independientes originales, la revisión independiente posterior y las garantías canónicas previas. No afirmar doblecargo, proveedor real ni bypass del factor.
+
+Reproducción inicial independiente:4rojos+1control en api.app. Candidato31 aislado, sin proveedor/cargo real. [Recibo](evidence/prepared-wave116-20261019/SEC12-initial-observation.json).

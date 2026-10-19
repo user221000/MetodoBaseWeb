@@ -1,0 +1,28 @@
+import json,hashlib,subprocess
+from pathlib import Path
+ROOT=Path('F:/mb-r24-after-qa-20261019');AUTHOR=Path('F:/mb-r24-invalidated-controls-20261019');BASE=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence');BEFORE=BASE/'qa-r24-independent-20261019';OUT=BASE/'qa-r24-after-privacy-independent-20261019';TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-after-privacy-independent-20261019');HEAD='4042d77b55b88fb200e7de1cbf41d75adc88d4f3'
+OUT.mkdir();(OUT/'.gitattributes').write_bytes(b'* -text\n');(OUT/'review-tools').mkdir();TEMP.mkdir()
+sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+prefix='docs/implementation/20261018-evolution/evidence/r24-private-errors-author-20261019';freeze=(AUTHOR/prefix/'source-freeze.json').read_bytes();assert sha(freeze)=='55b8aedb05303ca6a109004f3eb8591aad896ed3d591b3a0aab2bead09411fbc'
+values=json.loads(freeze);sources=[]
+for name,row in values['sources'].items():
+    raw=(AUTHOR/name).read_bytes();blob=git('show',HEAD+':'+name)
+    assert sha(raw)==row['working_sha256']and sha(blob)==row['Git_blob_sha256']and raw.replace(b'\r\n',b'\n')==blob==(ROOT/name).read_bytes().replace(b'\r\n',b'\n');sources.append({'path':name,**row})
+proof_manifest=(AUTHOR/prefix/'manifest.json').read_bytes();records=json.loads(proof_manifest)
+for name,row in records.items():assert sha((AUTHOR/prefix/name).read_bytes())==row['sha256']and len((AUTHOR/prefix/name).read_bytes())==row['bytes']
+proofs=[]
+for name in git('ls-tree','-r','--name-only',HEAD,'--',prefix).decode().splitlines():
+    raw=(AUTHOR/name).read_bytes();assert raw==git('show',HEAD+':'+name)==(ROOT/name).read_bytes();proofs.append({'path':name,'bytes':len(raw),'sha256':sha(raw)})
+delta=git('diff','--name-only','9bfa76d',HEAD,'--','web','api','core','src','config','tests/e2e','web/database/alembic').decode().splitlines();assert delta==['web/middleware/security_headers.py']
+old_manifest=json.loads((BEFORE/'before-fix-manifest.json').read_bytes())
+for row in old_manifest['files']:assert sha((BEFORE/row['path']).read_bytes())==row['sha256']
+criterion=(BEFORE/'failure-privacy-driver.raw').read_bytes();assert sha(criterion)=='999f84c84996de56b2fbbc8aa66a2ed1c585f96cc686ca8cf9724d5ba35b6a22';(TEMP/'test_r24_failure_privacy.py').write_bytes(criterion)
+oldtemp=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-independent-20261019');own=(oldtemp/'test_r24_own_http_v3.py').read_bytes();(TEMP/'test_r24_own_http_v3.py').write_bytes(own)
+for name in ['support.py','qa_r24_origin.py']:
+    raw=(BEFORE/'review-tools'/name).read_text();raw=raw.replace('F:/mb-r24-qa-20261019',str(ROOT)).replace('metodobase-r24-independent-20261019','metodobase-r24-after-privacy-independent-20261019').replace('9bfa76dee0dcda846d9d29ac79d0192289ebd2f2',HEAD);(OUT/'review-tools'/name).write_text(raw,encoding='utf8')
+browser=(oldtemp/'run_fresh_r24_browser.py').read_text().replace('qa-r24-independent-20261019','qa-r24-after-privacy-independent-20261019')
+(TEMP/'run_fresh_r24_browser.py').write_text(browser,encoding='utf8');(TEMP/'r24_physical_witness.py').write_bytes((oldtemp/'r24_physical_witness.py').read_bytes())
+(OUT/'source-authentication.json').write_text(json.dumps({'head':HEAD,'parent':'9bfa76dee0dcda846d9d29ac79d0192289ebd2f2','source_freeze_sha256':sha(freeze),'manifest_sha256':sha(proof_manifest),'sources':sources,'RAW_proofs':proofs,'all_RAW_Git_exact':True,'only_product_delta':delta,'unchanged_backend_query_models_targets_UI_and11driver':True,'immutable_causal_driver_sha256':sha(criterion),'old_before_fix_manifest_sha256':sha((BEFORE/'before-fix-manifest.json').read_bytes()),'old_all_files_still_exact':True,'own_six_corrected_catalog_driver_sha256':sha(own),'scope':'Header-only fix; priorPG3/SQLite31/Node65 remain attributable to9bfa with runtime and assertions byte unchanged.'},indent=2)+'\n')
+(OUT/'root-source-freeze.raw.json').write_bytes(freeze);(OUT/'root-manifest.raw.json').write_bytes(proof_manifest)
+print(json.dumps({'head':HEAD,'RAW_proofs':len(proofs),'only_product_delta':delta,'driver999_exact':True,'before_prefix_immutable':True}))

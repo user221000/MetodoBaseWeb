@@ -1,7 +1,7 @@
 # Entrega candidata en curso
 
-Checkpoint115:108 registros y92 IDs originales. MAIN3643c3ee361abecba4d32ae98c1b87da99fb9d77 integra esquema30, R12, R23 readonly, expiración y CI573 tras revisiones independientes. R23 sigue parcial. La amplia anterior2491+1 por modo corresponde a su fuente6d4e8b4; la amplia actual está pendiente.
+Checkpoint116:109 registros y92 IDs originales. MAINbd3c1ca02840c90490cfa2e89b2b9fd7104e83dc integra esquema30, R12, R23/expiración/CI573, SEC11 yR24 parcial tras revisiones independientes. La amplia anterior2491+1 por modo corresponde a6d4e8b4; la amplia actual está pendiente.
 
-R24 final4042, SEC11/531 y MFA31/56e810b siguen aislados en revisión/composición. ExpatM2 tiene sólo revisión estática; falta artefacto Linux reparado/arranque/SCA y siguen71 IDs OS abiertos. Desktop soportado. Free10 clientes,1 plan/cliente/día y10 totales/gimnasio/día.
+MFA31/56e810 sigue aislado en revisión ycomposiciónUI/CI; SEC12 registra el fallo de binding de clave enaliases legacy ysu reparación separada. ExpatM2 sólo tiene revisión estática; faltan imagen Linux reparada/arranque/SCA ysiguen71 IDsOS abiertos. Desktop soportado. Free10clientes,1plan/cliente/día y10totales/gimnasio/día.
 
-Sin entrega final, push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md). Evidencia anterior no acredita una fuente posterior.
+Sin entrega final, push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y[registro](TRAZABILIDAD.md). La evidencia conserva su fuente yentorno.

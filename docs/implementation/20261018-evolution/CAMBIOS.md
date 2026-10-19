@@ -145,3 +145,8 @@ Se registra SEC11:108 total,107 criterios previos exactos. Se sella aceptación 
 ## Checkpoint 115
 
 R23/expiración/CI573 integrado3643; no nuevoDDL. Estecheckpoint sólo documentación/evidencia. R24headers4042,SEC11/531 yMFA31 no se atribuyen aMAIN.
+
+
+## Checkpoint 116
+
+SEC11 integrado5949 yR24 parcialbd3 con cabeceras privadas en todoslos errores de diario. Datos propios confirmados sobreviven revocación de fuente; nuevas escrituras se rechazan. Se registraSEC12 candidatoMFA, sin31 integrado. ProyeccionesSSR publican hashesRAW yredacciones puntuales sin modificar originales.

@@ -206,3 +206,8 @@ QA CI573:87mantenidas disjuntas+35propias,23VM/348mínimos,19parsers+Node-e4lega
 ## Checkpoint 115
 
 R23 merge3643 padres/tree/108criterios/targets22–30/c4 verificados. Configlocal core.longpaths=true resuelve falsoM por ruta larga. Se conservan wrappers fallidos; comparación de sourceCRLF vs GitLF reparada comparando blobs exactos, sin normalizar RAW. SEC11root mismo11criterios verdes contra531; autor13secuencia aún requiere revisión. QA R24preimagen31SQLite+65Node+2PG+1canario y4headersrojos; fix4042 mismo4verde+94mantenidas, independiente final pendiente. SEC R24acotada25puros/18HTTP/16VM.
+
+
+## Checkpoint 116
+
+QA4042:98/98 en424.86s,21focales,freshR24_11+R12_16;5987/89/157Node/tools/config quietos y4UUID ausentes. PG9bfa2+1concurrencia y31SQLite/65Node no se reatribuyen. SEC4042 mismo27propios4/27→27/27 y4QAHTTP; SEC5315propios+11rootreplay. Integraciónselectiva bd3:25sourcesGit exactas,179RAW autenticados,21pins esquema/c4 yregistro intactos, ancestryADC excluida. Actualamplia pendiente.

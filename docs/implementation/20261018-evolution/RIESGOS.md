@@ -87,3 +87,8 @@ SEC11 retorno fuera de origen y validación dentro de breaker requieren correcci
 ## Checkpoint 115
 
 R23 sigue parcial por responsables/eventos persistidos. R24errores404 requieren no-referrer, fix4042 aislado enQA;98dirigidaspreimagen timeout no pasaron. SEC11candidato pendiente revisióncircuito/grants. Restore31 autor verde no sustituye QA/Seguridad. Políticaretención pendiente y71IDsOS abiertos.
+
+
+## Checkpoint 116
+
+SEC12:aliases31 no ligan key observada al grant/puerto,4rojos+1control; reparación/revisión pendientes, sin bypassfactor/doblecargo demostrado. R24/R23 siguen parciales. MFA31 authorrestore no sustituye QA/Seguridad/UI/CI.71 IDsOS ypolíticaR31 pendientes.

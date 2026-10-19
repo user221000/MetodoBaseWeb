@@ -1,0 +1,15 @@
+import json,re,hashlib
+from pathlib import Path
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-independent-20261019');TEMP=Path(__file__).parent
+pattern=re.compile(rb'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{30,}\.[a-f0-9]{64}(?![a-f0-9])');rows=[]
+for p in sorted(OUT.rglob('*')):
+    if not p.is_file():continue
+    raw=p.read_bytes();matches=list(pattern.finditer(raw))
+    if not matches:continue
+    metadata=[]
+    for match in matches:
+        before=raw[max(0,match.start()-90):match.start()].lower();after=raw[match.end():match.end()+40].lower()
+        metadata.append({'length':len(match.group()),'sha256':hashlib.sha256(match.group()).hexdigest(),'CSRF_context_nearby':any(word in before or word in after for word in [b'csrf',b'xsrf']),'offset':match.start()})
+    rows.append({'path':p.relative_to(OUT).as_posix(),'RAW_sha256':hashlib.sha256(raw).hexdigest(),'matches':metadata})
+(TEMP/'hmac64-refusal-classification.json').write_text(json.dumps({'matches':rows,'files':len(rows),'raw_values_not_recorded':True},indent=2)+'\n')
+print(json.dumps({'files':len(rows),'paths':[r['path']for r in rows],'CSRF_context_flags':[[m['CSRF_context_nearby']for m in r['matches']]for r in rows],'values_not_exposed':True}))

@@ -1,0 +1,11 @@
+Se acepta únicamente el delta de cabeceras R24 de4042d77 sobre9bfa. La aceptación anterior fc392 de datos/consumidor queda intacta: no cubría estas respuestas404/500 y no se retroatribuye a este commit. El defecto observado era contractual de privacidad de respuesta; no se demostró fuga de credencial o contenido.
+
+La familia exacta /api/usuario/diario y su slash-familia ahora fuerzan no-store/no-referrer incluso frente a headers downstream inseguros. El catch500 se limita a history/R12 ya existentes más diario. Reutiliza handler genérico sync/async, valida Response500 y usa fallback opaco si falta/falla/es inválido. Se conservan nonce/CSP y las políticas adyacentes; no se toca negocio, DDL, permisos, almacenamiento ni transporte.
+
+Mismos27 criterios propios de middleware: antes9bfa4verdes/23rojos; después4042,27/27. Incluyen raíz/slash/día,200/401/404/422/429/503, override de public/unsafe-url, cinco ramas de handler500 y cuatro rutas parecidas excluidas. Se comprueba que RuntimeError y parámetros del handler no se reflejen en body/log; el CSP sigue con nonce. La comprobación de path/Response es controlada en ASGI, no una ejecución browser.
+
+Se repitió el driver QA999f84 inmutable con HTTP/SQLite real: cuatro casos verdes (dos factories×revocación o ID de publicación anterior con misma versión1). Mantienen404, día vacío, no-store y no-referrer. No se reejecutaron los94 mantenidos del autor ni los18 HTTP,25 puros y16VM de mi aceptación anterior. QA comunica su propia carrera PG y browser por separado; no se cuentan como pruebas de esta revisión.
+
+El WT propio conserva5987 fuentes y89 paquetes idénticos antes/después, tracked limpio,2 fuentes de autor autenticadas con RAW/GitLF distintos para middleware. Todos los imports web/api/src/tests observados son de este WT. No PG/Chrome/VM/proveedor/correo real ni ediciones de producto/CI/fuentes históricas. R24/R33/R31 y R10 siguen con límites previos.
+
+Los27 rojos/controles before quedan intactos en RAW. Sólo copias saneadas de logs/XML se publican, con SHA raw/público diferenciados; el filtro exacto de la ola SEC11 cubre dos partes HMAC>=30, tres segmentos/CSRF, URLs, pares/semillas nombrados y datos sintéticos. Programas exactos e inventarios completos permanecen privados, accesibles por ruta/huella; no se publica ningún SSR ni CSRF del navegador.

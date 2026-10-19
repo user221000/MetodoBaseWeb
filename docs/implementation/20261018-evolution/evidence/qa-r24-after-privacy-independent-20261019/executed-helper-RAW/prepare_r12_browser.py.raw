@@ -1,0 +1,45 @@
+from pathlib import Path
+import hashlib,json
+OLD=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-member-browser30-independent-20261019/fresh_real_browser.py');TEMP=Path(__file__).parent;OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-after-privacy-independent-20261019');raw=OLD.read_bytes();text=raw.decode();changes=[]
+def replace(old,new):
+    global text
+    assert text.count(old)==1,(old[:70],text.count(old));text=text.replace(old,new);changes.append([old,new])
+replace("ROOT=Path('F:/mb-member-browser30-qa-20261019')","ROOT=Path('F:/mb-r24-after-qa-20261019')")
+replace("OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-member-browser30-independent-20261019/fresh-real')","OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-after-privacy-independent-20261019/r12-fresh16')")
+replace("TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-member-browser30-independent-20261019')","TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-after-privacy-independent-20261019')")
+replace("RUN=TEMP/'fresh-real30'","RUN=TEMP/'r12-fresh16'")
+replace("assert head=='e8fc5c1817a34fd799407cf64940206b9c302ffd'","assert head=='4042d77b55b88fb200e7de1cbf41d75adc88d4f3'")
+replace("return {'sources':","return {'outer_launcher_sha256':sha(Path(__file__).read_bytes()),'sources':")
+replace("'owned_helpers':{p.name:sha(p.read_bytes()) for p in sorted(OUT.parent.glob('*.py'))}","'owned_helpers':{p.name:sha(p.read_bytes()) for p in sorted((OUT.parent/'review-tools').glob('*.py'))}")
+replace("save('foreign-chrome-before.json',fingerprint(foreign_before))",'''save('foreign-chrome-before.json',fingerprint(foreign_before))
+def listener_foreign():
+    command='@(Get-NetTCPConnection -State Listen -LocalPort 8776 -ErrorAction SilentlyContinue|Select-Object -ExpandProperty OwningProcess -Unique)|ConvertTo-Json -Compress'
+    result=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,text=True,timeout=15);assert result.returncode==0
+    pids=json.loads(result.stdout)if result.stdout.strip()else[];pids=[pids]if isinstance(pids,int)else pids
+    return fingerprint(processes(' OR '.join('ProcessId='+str(n)for n in pids)))if pids else[]
+foreign_listener_before=listener_foreign();save('foreign-listener8776-before.json',foreign_listener_before)
+rejected_parent_generations=[]
+instant=lambda value:datetime.fromisoformat(value.replace('Z','+00:00'))''')
+replace("parents={manager.pid}",'''roots=processes('ProcessId='+str(manager.pid));assert len(roots)==1 and 'run_member_link_browser.py'in(roots[0].get('CommandLine')or'')
+    known[(manager.pid,roots[0]['Created'])]=roots[0]
+    parents={manager.pid}''')
+replace("rows=processes(' OR '.join('ParentProcessId='+str(pid) for pid in sorted(parents)))",'''live=processes(' OR '.join('ProcessId='+str(pid)for pid in sorted(parents)))
+        active={r['ProcessId']:r for r in live if(r['ProcessId'],r['Created'])in known}
+        rows=processes(' OR '.join('ParentProcessId='+str(pid)for pid in active))if active else[]''')
+replace("for row in rows:\n            key=",'''for row in rows:
+            parent=active.get(row['ParentProcessId'])
+            if parent is None or instant(row['Created'])<instant(parent['Created']):
+                rejected_parent_generations.append({'child':fingerprint([row]),'parent':fingerprint([parent])if parent else None});continue
+            key=''')
+replace("with socket.socket() as probe:assert probe.connect_ex(('127.0.0.1',8798))!=0\nclosure=",'''foreign_listener_after=listener_foreign();assert foreign_listener_after==foreign_listener_before;save('foreign-listener8776-after.json',foreign_listener_after)
+save('ownership-generation-rule.json',{'rule':'Exact live parent PID+birth; child birth at/after parent generation; exact own Chrome binary and random owned profile in Temp. Never stop by ParentPID alone.','rejected_observations':rejected_parent_generations,'no_kills':True})
+with socket.socket() as probe:assert probe.connect_ex(('127.0.0.1',8798))!=0
+closure=''')
+replace("save('summary.json',summary)","summary['foreign_listener8776_preserved']=True\nsave('summary.json',summary)")
+old_text=text;text=text.replace('8798','8799');changes.append(['8798(all port labels/args)', '8799(all port labels/args)'])
+inverse=text.replace('8799','8798')
+for old,new in reversed(changes[:-1]):inverse=inverse.replace(new,old,1)
+assert inverse.encode()==raw
+target=TEMP/'run_fresh_r12_browser.py';target.write_bytes(text.encode())
+(OUT/'r12-launcher-adaptation.json').write_text(json.dumps({'original':str(OLD),'original_sha256':hashlib.sha256(raw).hexdigest(),'new_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'changes':changes,'entire_launcher_inverse_exact':True,'all_maintained16_criteria_unchanged':True},indent=2)+'\n')
+print(json.dumps({'new_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'inverse_exact':True,'port':8799,'not_executed_yet':True}))

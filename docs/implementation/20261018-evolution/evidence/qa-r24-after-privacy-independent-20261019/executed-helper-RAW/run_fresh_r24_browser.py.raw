@@ -1,0 +1,101 @@
+"""One owned actual R24 browser11, PID generations and private channels fenced."""
+import sys,os,json,subprocess,time,socket,re,argparse,hashlib,importlib.metadata
+from pathlib import Path
+from datetime import datetime,timezone
+parser=argparse.ArgumentParser();parser.add_argument('--root',required=True,type=Path);parser.add_argument('--head',required=True);parser.add_argument('--label',required=True);parser.add_argument('--execute-after-root-ack',action='store_true');args=parser.parse_args();assert args.execute_after_root_ack
+ROOT=args.root.resolve();HEAD=args.head;assert re.fullmatch('[0-9a-f]{40}',HEAD)and re.fullmatch('[a-z0-9-]+',args.label)
+OUTBASE=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-after-privacy-independent-20261019');sys.path.insert(0,str(OUTBASE/'review-tools'));from support import environment,publish
+OUT=OUTBASE/args.label;OUT.mkdir();(OUT/'.gitattributes').write_bytes(b'* -text\n');TEMP=Path(__file__).parent;RUN=TEMP/args.label;RUN.mkdir()
+PRIVATE=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json');NODE=Path('C:/Program Files/nodejs/node.exe');CHROME=Path('C:/Program Files/Google/Chrome/Application/chrome.exe');MODULES=Path('F:/MetodoBaseWeb-execution-20261018/tests/e2e/node_modules')
+sha=lambda raw:hashlib.sha256(raw).hexdigest();save=lambda name,value:(OUT/name).write_text(json.dumps(value,indent=2,default=str)+'\n',encoding='utf8')
+git=lambda*a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+assert sha(NODE.read_bytes())=='ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32'and sha(CHROME.read_bytes())=='6aa5d599bbc3a0b3842af9f44b18fd29989eb3cc21b4b3ec7489e12f36e9962e'
+names=sorted(set(n for n in git('ls-files','-co','--exclude-standard','-z').decode().split('\0')if n));module_names=sorted(p.relative_to(MODULES).as_posix()for p in MODULES.rglob('*')if p.is_file());assert len(module_names)==157
+def photo():return {'head':HEAD,'sources':{n:sha((ROOT/n).read_bytes())for n in names},'review_tools':{p.relative_to(OUTBASE/'review-tools').as_posix():sha(p.read_bytes())for p in (OUTBASE/'review-tools').rglob('*')if p.is_file()},'launcher_sha256':sha(Path(__file__).read_bytes()),'physical_witness_helper_sha256':sha((TEMP/'r24_physical_witness.py').read_bytes()),'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions()),'node_modules':{n:sha((MODULES/n).read_bytes())for n in module_names},'binaries':{'Node':sha(NODE.read_bytes()),'Chrome':sha(CHROME.read_bytes())},'private_config_SHA256':sha(PRIVATE.read_bytes())}
+before=photo();save('before.json',before);assert len(before['packages'])==89
+for label in ['before']:
+    p=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/('pip-'+label+'.log')).write_bytes(p.stdout+p.stderr);assert p.returncode==0
+def processes(filter_value):
+    command="Get-CimInstance Win32_Process -Filter '"+filter_value+"' | Select-Object ProcessId,ParentProcessId,ExecutablePath,CommandLine,@{Name='Created';Expression={$_.CreationDate.ToUniversalTime().ToString('o')}} | ConvertTo-Json -Depth 4 -Compress"
+    r=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,text=True,encoding='utf8',errors='replace',timeout=15);assert r.returncode==0
+    value=json.loads(r.stdout)if r.stdout.strip()else[];return value if isinstance(value,list)else[value]
+fingerprint=lambda rows:sorted([r['ProcessId'],r['ParentProcessId'],r['Created'],Path(r['ExecutablePath']).name if r.get('ExecutablePath')else None]for r in rows)
+def listener8776():
+    r=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command','@(Get-NetTCPConnection -State Listen -LocalPort 8776 -ErrorAction SilentlyContinue|Select-Object -ExpandProperty OwningProcess -Unique)|ConvertTo-Json -Compress'],capture_output=True,text=True,timeout=15);assert r.returncode==0
+    pids=json.loads(r.stdout)if r.stdout.strip()else[];pids=[pids]if isinstance(pids,int)else pids
+    return fingerprint(processes(' OR '.join('ProcessId='+str(n)for n in pids)))if pids else[]
+foreign=processes('Name="chrome.exe"');foreign_keys={(r['ProcessId'],r['Created'])for r in foreign};foreign_listener=listener8776();save('foreign-Chrome-before.json',fingerprint(foreign));save('foreign-listener8776-before.json',foreign_listener)
+with socket.socket()as p:assert p.connect_ex(('127.0.0.1',8800))!=0
+env=environment(True);env.update(PYTHONPATH=str(ROOT),NODE_PATH=str(MODULES),CHROME_PATH=str(CHROME),R24_PRIVATE=str(RUN),R24_BROWSER_OUTPUT=str(RUN/'browser'))
+configuration=json.loads(PRIVATE.read_text(encoding='utf-8-sig'));config=RUN/'pg-config.private.json';config.write_bytes((json.dumps({k:configuration[k]for k in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_PG_BIN']})+'\n').encode());assert not config.read_bytes().startswith(b'\xef\xbb\xbf');config_SHA=sha(config.read_bytes())
+known={};rejected=[];fixture=None;node=None;fixture_exit=None;node_exit=None;error=None;started=datetime.now(timezone.utc).isoformat();deadline=time.monotonic()+420
+instant=lambda value:datetime.fromisoformat(value.replace('Z','+00:00'))
+def register(proc,script):
+    rows=processes('ProcessId='+str(proc.pid));assert len(rows)==1 and script in(rows[0].get('CommandLine')or'');r=rows[0];known[(r['ProcessId'],r['Created'])]=r
+def observe():
+    if not known:return
+    # Parent numeric ID is usable only while that exact birth generation is live.
+    live=processes(' OR '.join('ProcessId='+str(pid)for pid,_birth in known));active={r['ProcessId']:r for r in live if(r['ProcessId'],r['Created'])in known}
+    if not active:return
+    children=processes(' OR '.join('ParentProcessId='+str(pid)for pid in active))
+    for r in children:
+        parent=active.get(r['ParentProcessId'])
+        if parent is None or instant(r['Created'])<instant(parent['Created']):
+            rejected.append({'child':fingerprint([r]),'parent_generation':fingerprint([parent])if parent else None,'reason':'Child predates registered parent generation or parent generation not live'});continue
+        known[(r['ProcessId'],r['Created'])]=r
+    (RUN/'owned-process-observation.private.json').write_text(json.dumps(list(known.values()),indent=2)+'\n')
+try:
+    with (RUN/'fixture.stdout.raw.log').open('xb')as stdout,(RUN/'fixture.stderr.raw.log').open('xb')as stderr:
+        fixture=subprocess.Popen([sys.executable,'-X','utf8','-B','tests/e2e/daily_plan_server.py','--private',str(RUN),'--config',str(config)],cwd=ROOT,env=env,stdout=stdout,stderr=stderr);register(fixture,'daily_plan_server.py');print(json.dumps({'phase':'R24-fixture-started','port':8800,'manager_pid':fixture.pid,'head':HEAD}),flush=True)
+        while time.monotonic()<deadline:
+            observe();assert fixture.poll()is None,'Own fixture exited before startup'
+            if (RUN/'startup.json').exists():
+                startup=json.loads((RUN/'startup.json').read_bytes());assert startup['runtime_revision']=='20261019_personal_history_index'and startup['model_tables']==29
+                assert startup['origin']=='http://127.0.0.1:8800'
+                assert all(sha((ROOT/n).read_bytes())==h for n,h in startup['sources'].items())
+                actual=processes('ProcessId='+str(startup['pid']));assert len(actual)==1 and(actual[0]['ProcessId'],actual[0]['Created'])in known
+                assert str(RUN)in(actual[0].get('CommandLine')or'')and'daily_plan_server.py'in actual[0]['CommandLine']
+                witness=subprocess.run([sys.executable,'-X','utf8','-B',str(TEMP/'r24_physical_witness.py'),str(ROOT),str(RUN),str(RUN/'physical-witness.json')],env=env,cwd=ROOT,capture_output=True,timeout=30)
+                (RUN/'witness.stdout.log').write_bytes(witness.stdout);(RUN/'witness.stderr.log').write_bytes(witness.stderr);assert witness.returncode==0
+                break
+            time.sleep(.2)
+        else:raise AssertionError('Own fixture startup deadline')
+        print(json.dumps({'phase':'R24-real30-ready','schema':30,'model_tables':29,'port':8800}),flush=True)
+        with (RUN/'browser.stdout.raw.log').open('xb')as stdout,(RUN/'browser.stderr.raw.log').open('xb')as stderr:
+            node=subprocess.Popen([str(NODE),'tests/e2e/daily_plan_browser.cjs'],cwd=ROOT,env=env,stdout=stdout,stderr=stderr);register(node,'daily_plan_browser.cjs')
+            while node.poll()is None:observe();assert time.monotonic()<deadline,'Own browser deadline';time.sleep(.2)
+            node_exit=node.wait()
+except Exception as exc:error={'class':type(exc).__name__,'message':str(exc)}
+finally:
+    (RUN/'stop').write_bytes(b'Own cooperative stop\n')
+    if fixture is not None:fixture_exit=fixture.wait(timeout=45)
+    observe()
+after=photo();save('after.json',after);assert before==after and sha(config.read_bytes())==config_SHA
+p=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-after.log').write_bytes(p.stdout+p.stderr);assert p.returncode==0
+live=processes(' OR '.join('ProcessId='+str(pid)for pid,_birth in known));remaining=[r for r in live if(r['ProcessId'],r['Created'])in known]
+all_chrome=processes('Name="chrome.exe"');kept=[r for r in all_chrome if(r['ProcessId'],r['Created'])in foreign_keys];assert fingerprint(kept)==fingerprint(foreign)
+save('foreign-Chrome-after.json',fingerprint(kept));after_listener=listener8776();assert after_listener==foreign_listener;save('foreign-listener8776-after.json',after_listener)
+chrome=[r for r in known.values()if Path(r.get('ExecutablePath')or'').name.lower()=='chrome.exe'];profiles=set()
+for r in chrome:
+    assert r['ExecutablePath'].lower()==str(CHROME).replace('/','\\').lower()
+    match=re.search(r'--user-data-dir=(?:"([^"]+)"|(\S+))',r.get('CommandLine')or'')
+    if match:
+        path=Path(match.group(1)or match.group(2));assert path.is_relative_to(Path(os.environ['TEMP']))and path.name.startswith('playwright_chromiumdev_profile-');profiles.add(str(path))
+with socket.socket()as probe:listener_closed=probe.connect_ex(('127.0.0.1',8800))!=0
+resource=json.loads((RUN/'resource.json').read_bytes());assert re.fullmatch(r'metodobase_test_migrations_[0-9a-f]{12}',resource['owned_database'])
+import psycopg2
+with psycopg2.connect(configuration['METODOBASE_TEST_MIGRATOR_URL'].replace('postgresql+psycopg2://','postgresql://',1))as c,c.cursor()as cursor:
+    cursor.execute('SET TRANSACTION READ ONLY');cursor.execute('SELECT count(*)FROM pg_database WHERE datname=%s',(resource['owned_database'],));absent=cursor.fetchone()[0]==0
+closure={'head':HEAD,'started':started,'fixture_exit':fixture_exit,'browser_exit':node_exit,'error':error,'owned_UUID':resource['owned_database'],'owned_UUID_absent':absent,'own_processes':fingerprint(list(known.values())),'remaining_exact_own_processes':fingerprint(remaining),'owned_Chrome_processes':len(chrome),'owned_profiles':sorted(profiles),'owned_profiles_absent':[not Path(p).exists()for p in profiles],'listener8800_closed':listener_closed,'foreign_Chrome_and_listener8776_preserved':True,'rejected_numeric_parent_PID_observations':rejected,'ownership_rule':'Only live exact parent PID+birth generations, child born at/after parent; exact Chrome binary and owned profile path. No process kill by ParentPID.'};save('resource-closure.json',closure)
+outputs=[]
+for name in ['resource.json','startup.json','close.json','physical-witness.json']:
+    path=RUN/name
+    if path.exists():(OUT/name).write_bytes(path.read_bytes())
+for path in sorted((RUN/'browser').glob('*'))if(RUN/'browser').exists()else[]:
+    assert path.is_file();raw=path.read_bytes();assert all(configuration[k].encode()not in raw for k in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL']);(OUT/path.name).write_bytes(raw)
+for path in sorted(RUN.glob('*.log')):outputs.append(publish(path,args.label+'-'+path.name))
+report=json.loads((RUN/'browser/report.json').read_bytes())if(RUN/'browser/report.json').exists()else{}
+summary={'head':HEAD,'fixture_exit':fixture_exit,'browser_exit':node_exit,'groups':len(report.get('checks',[])),'screens':len(report.get('screens',[])),'pageErrors':report.get('pageErrors'),'source_files':len(names),'packages':89,'Node_dependency_files':157,'source_helpers_packages_tools_config_stable':True,'outputs':outputs,'scope':'One actual Chrome11 R24 group run with restricted PostgreSQL30, actual auth/worker/PDF/R12/diary/export. Only explicit no-send mail,503/held/lost response transport doubles. No Actions/Linux/SLO/provider/clinical completeness.'};save('summary.json',summary);print(json.dumps(summary),flush=True)
+assert error is None and fixture_exit==node_exit==0 and absent and remaining==[]and listener_closed and len(profiles)==1 and all(not Path(p).exists()for p in profiles)
+assert len(report['checks'])==11 and len(report['screens'])==6 and report['pageErrors']==[]and all(s['axe']==[]and s['overflow']is False for s in report['screens'])

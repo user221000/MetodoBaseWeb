@@ -1,0 +1,15 @@
+import sys,json,re,hashlib
+from pathlib import Path
+ROOT=Path(sys.argv[1]);patterns={'HMAC64':re.compile(rb'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{30,}\.[a-f0-9]{64}(?![a-f0-9])'),'HMAC43':re.compile(rb'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])'),'JWT':re.compile(rb'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}'),'PGcredential':re.compile(rb'postgres(?:ql)?(?:\+psycopg2)?://[^\s\x22\x27<>/]+:[^\s\x22\x27<>/@]+@')}
+private=json.loads(Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json').read_text(encoding='utf-8-sig'));values=[private[k].encode()for k in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL']]
+matches=[];count=0
+for path in sorted(ROOT.rglob('*')):
+    if not path.is_file():continue
+    count+=1;raw=path.read_bytes()
+    for label,pattern in patterns.items():
+        for match in pattern.finditer(raw):matches.append({'path':path.relative_to(ROOT).as_posix(),'label':label,'value_sha256':hashlib.sha256(match.group()).hexdigest()})
+    for value in values:
+        if value in raw:matches.append({'path':path.relative_to(ROOT).as_posix(),'label':'exactPrivateURL','value_sha256':hashlib.sha256(value).hexdigest()})
+report={'scanned_prefix':str(ROOT),'files':count,'matches':matches,'values_not_exposed':True,'patterns':['HMAC64','HMAC43','JWT','PGcredential','exactPrivateURL']}
+dest=Path(__file__).parent/(ROOT.name+'-scan.json');dest.write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'files':count,'matches':len(matches),'match_paths':[m['path']for m in matches],'values_not_exposed':True}));assert not matches

@@ -1,0 +1,9 @@
+import re,json,hashlib
+from pathlib import Path
+root=Path('F:/mb-r24-plan-20261019/docs/implementation/20261018-evolution/evidence/r24');rx=re.compile(rb'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{30,}\.[a-f0-9]{64}(?![a-f0-9])');rows=[]
+for p in sorted(root.rglob('*')):
+    if p.is_file():
+        matches=rx.findall(p.read_bytes())
+        if matches:rows.append({'path':p.relative_to(root).as_posix(),'count':len(matches),'RAW_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'match_digests':[hashlib.sha256(m).hexdigest()for m in matches]})
+Path(__file__).with_suffix('.json').write_text(json.dumps({'author_R24_readonly':True,'files':rows,'not_modified_or_copied':True},indent=2)+'\n')
+print(json.dumps({'count':len(rows),'paths':[r['path']for r in rows],'no_values_printed':True}))

@@ -64,3 +64,8 @@ Conservar la política de retención pendiente y separar retención de uso R30 d
 ## Checkpoint 115
 
 Se configura core.longpaths=true sólo en clon de ejecución propio para preservar rutas de prueba; workspace original no se modifica. Los RAW CRLF se autentican byte por byte y el check whitespace se limita a fuentes/documentos normalizables. No se repiten gates sin nueva preocupación ni se atribuyen a fuentes posteriores.
+
+
+## Checkpoint 116
+
+Integrar25fuentesR24 mediante patch exacto en commitnuevo, conservando commitsprivadosautor yevitando ancestry que contieneCSRFsintéticos. Proyecciónnueva sustituye sólo4valoresidentificadoscon hashesRAW/públicos; ZIPs fuente se inspeccionan porentrada. No debilitar filtro ni reescribir pruebas/manifiestos cerrados. Priorizar reparaciónSEC12 P1 antes dediagnósticoR34 P2.
