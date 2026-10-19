@@ -47,13 +47,26 @@ def _execute(command, operation):
     In particular api.app may have selected a tenant from an incidental general
     bearer. It has no authority for this purpose and must not select the actor.
     The prior context is restored even after admission/commit uncertainty.
+    If session cleanup fails before releasing its connection, invalidate only
+    this owned session before restoring that context. A cleanup failure still
+    returns the unconfirmed result, including after a confirmed commit.
     """
     from web.database.engine import SessionLocal
     from web.database.tenant_context import current_tenant
     token = current_tenant.set("")
     try:
-        with SessionLocal() as db:
+        db = SessionLocal()
+        try:
             return service.perform(db, command, operation=operation)
+        finally:
+            try:
+                db.close()
+            except Exception:  # noqa: BLE001 -- discard only this owned connection on cleanup failure
+                try:
+                    db.invalidate()
+                except Exception as cleanup_error:  # noqa: BLE001 -- preserve the original unconfirmed result
+                    logger.error("Consent retirement invalidation class=%s", type(cleanup_error).__name__)
+                raise
     except HTTPException:
         raise
     except Exception as error:  # noqa: BLE001 -- include session-close uncertainty without exposing parameters
