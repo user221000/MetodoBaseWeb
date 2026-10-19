@@ -29,3 +29,5 @@ Los cuatro diagnósticos PostgreSQL originales permanecen en el historial de `b8
 El gate dirigido posterior a la adopción reúne 42 casos verdes del helper, integración propia, modelos reales y diagnóstico convertido en regresión ([log](evidence/backend-utc-models-after.log)). El baseline nuevo tuvo cuatro fallos reales, sin errores de preparación; no se presenta el probe inicial como aceptación de la aplicación.
 
 La elección de UTC naive es compatibilidad con el esquema actual. Una futura migración a columnas con timezone necesita un plan separado y evidencia sobre el origen de cada dato; este helper no puede reparar una fila previamente desplazada ni determinar cómo se produjo.
+
+La migración posterior74d66e8 añade dos instantes nuevos de StoredObject con UTCDateTime. Son columnas nuevas del esquema25; no forman parte de las52 columnas históricas adoptadas sin DDL ni alteran la evidencia previa. Las dos fechas civiles se conservan.

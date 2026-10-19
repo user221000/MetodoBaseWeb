@@ -1,0 +1,58 @@
+{
+  "scope": "Static local CI review and exact executable skip-guard canaries. No GitHubActions/Linux/image/service execution.",
+  "source_sha256": "e06d642e36789c6087ab0216a158e20dec1cee1e8b3f70e9daaf897503722284",
+  "stable": true,
+  "yaml_parse": 0,
+  "existing_test_script_references": 39,
+  "multiline_bash_syntax": [
+    {
+      "job": "secrets",
+      "name": "Install the reviewed Gitleaks release outside the deliverable",
+      "exit_code": 0
+    },
+    {
+      "job": "postgres",
+      "name": "Matching PostgreSQL client tools from the official PGDG repository",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "name": "Exercise the same web runtime inside the candidate",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "name": "Reproducible browser tooling and Chromium",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "name": "Browser subscription contracts and accessibility against the candidate",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "name": "Real team authentication and API with an isolated Clinic fixture",
+      "exit_code": 0
+    }
+  ],
+  "shuffle_skip_guard_canaries": {
+    "passed": 0,
+    "skipped": 1,
+    "missing": 1
+  },
+  "sdk_junit_uploaded": true,
+  "shuffle_junit_uploaded": true,
+  "container_storage": {
+    "backend": "local",
+    "root": "/tmp/metodobase-image-objects",
+    "runtime_role": "restricted app",
+    "migrator_absent_from_web": true
+  },
+  "required_r07_postgres_targets_present": true,
+  "changes_by_qa": [
+    "Archive SDK JUnit",
+    "Write and archive shuffled JUnit; reject skipped/missing shuffled report"
+  ],
+  "limits": "B2B/privacy/logo dedicated browser fixtures are not yet CI-wired; coordinator is still freezing legacy inventory and logos. Final broad serial/n2 not run."
+}

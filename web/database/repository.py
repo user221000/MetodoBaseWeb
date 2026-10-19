@@ -207,6 +207,9 @@ def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *
     if not c:
         return False
 
+    if plan_data.get("pdf_object_id"):
+        from web.services.private_objects import require_ready_object
+        require_ready_object(db, gym_id, plan_data["pdf_object_id"], "plan_pdf")
     p = PlanGenerado(
         id_cliente=id_cliente,
         gym_id=gym_id,
@@ -221,6 +224,7 @@ def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *
         objetivo=plan_data.get("objetivo"),
         nivel_actividad=plan_data.get("nivel_actividad"),
         ruta_pdf=plan_data.get("ruta_pdf"),
+        pdf_object_id=plan_data.get("pdf_object_id"),
         peso_en_momento=plan_data.get("peso_en_momento"),
         grasa_en_momento=plan_data.get("grasa_en_momento"),
         desviacion_maxima_pct=plan_data.get("desviacion_maxima_pct"),
@@ -457,7 +461,8 @@ def _plan_to_dict(p: PlanGenerado) -> dict:
         "grasa_g": p.grasa_g,
         "objetivo": p.objetivo,
         "nivel_actividad": p.nivel_actividad,
-        "ruta_pdf": p.ruta_pdf,
+        "pdf_url": "/api/planes/" + str(p.id) + "/pdf",
+        "tiene_pdf": bool(p.pdf_object_id or p.ruta_pdf),
         "peso_en_momento": p.peso_en_momento,
         "grasa_en_momento": p.grasa_en_momento,
         "desviacion_maxima_pct": p.desviacion_maxima_pct,
@@ -526,7 +531,8 @@ def _gym_profile_to_dict(p: GymProfile) -> dict:
         "ciudad": p.ciudad or "",
         "estado": p.estado or "",
         "pais": p.pais or "",
-        "logo_url": p.logo_url or "",
+        "logo_url": "/api/gym/logo" if p.logo_object_id else (p.logo_url or ""),
+        "has_private_logo": bool(p.logo_object_id),
         "color_primario": p.color_primario or "#E5B800",
         "color_secundario": p.color_secundario or "#292524",
         "sitio_web": p.sitio_web or "",

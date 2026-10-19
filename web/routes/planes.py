@@ -84,12 +84,13 @@ async def generar_plan(
         logger.info("Plan generado: %s", data.id_cliente)
 
         # Email de notificación al gym (background task, no bloquea respuesta)
-        from web.services import email_service
+        from web.services.plan_notifications import notify_plan_generated
         background_tasks.add_task(
-            email_service.send_plan_generated,
+            notify_plan_generated,
             email=usuario["email"],
             nombre_cliente=resultado.get("nombre", data.id_cliente),
-            pdf_path=resultado.get("ruta_pdf"),
+            gym_id=gym_id,
+            plan_id=resultado["plan_id"],
         )
 
         return resultado
@@ -121,11 +122,7 @@ async def descargar_pdf(
     if not planes:
         raise HTTPException(404, "No hay planes generados para este cliente")
 
-    ruta = planes[0].get("ruta_pdf", "")
-    if not ruta or not os.path.isfile(ruta):
-        raise HTTPException(404, "PDF no encontrado en disco")
-
-    return FileResponse(ruta, media_type="application/pdf", filename=os.path.basename(ruta))
+    return descargar_pdf_plan(plan_id=planes[0]["id"], usuario=usuario, db=db)
 
 
 @router.get("/planes/{plan_id}/pdf", summary="Descargar PDF de un plan concreto")
@@ -213,7 +210,8 @@ def listar_planes(
             "grasa_g": round(p.grasa_g, 0) if p.grasa_g else None,
             "objetivo": p.objetivo,
             "plantilla_tipo": p.plantilla_tipo,
-            "ruta_pdf": p.ruta_pdf,
+            "pdf_url": "/api/planes/" + str(p.id) + "/pdf",
+            "tiene_pdf": bool(p.pdf_object_id or p.ruta_pdf),
         })
     
     return {

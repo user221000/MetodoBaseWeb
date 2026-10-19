@@ -1,10 +1,11 @@
 """Shared authorized nutrition generation and persistence for web/API adapters."""
-import os
 import threading
+import tempfile
 import uuid
 from functools import lru_cache
+from pathlib import Path
 
-from web.constants import CARPETA_SALIDA, CARPETA_PLANES
+from web.constants import CARPETA_PLANES
 from web.database import repository as repo
 from web.database.tenant_context import tenant_task
 
@@ -31,6 +32,13 @@ def generate_plan(id_cliente, plan_numero, gym_id, tipo_plan="menu_fijo", *, res
 def build_plan(
     id_cliente: str, plan_numero: int, gym_id: str, tipo_plan: str = "menu_fijo", *, reservation_id: str | None = None
 ) -> dict:
+    """Render in a private temporary workspace, publish, then remove scratch files."""
+    with tempfile.TemporaryDirectory(prefix="metodobase-render-") as workspace:
+        return _build_plan(id_cliente, plan_numero, gym_id, tipo_plan,
+            reservation_id=reservation_id, workspace=Path(workspace))
+
+
+def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, workspace):
     """Build and persist an authorized plan using an immutable food snapshot.
 
     Tenant is resolved by the authenticated caller; this function checks client
@@ -85,16 +93,23 @@ def build_plan(
                 "color_secundario": gp.color_secundario or "#292524",
             }
             # Resolver logo del gym: si es URL local (/static/...), convertir a path absoluto
-            if gp.logo_url:
+            if gp.logo_object_id:
+                from web.services.private_objects import read_private_object
+                content, content_type = read_private_object(session, gym_id, gp.logo_object_id, "gym_logo")
+                suffix = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}[content_type]
+                logo_file = workspace / ("branding" + suffix)
+                logo_file.write_bytes(content)
+                gym_config["gym_logo"] = str(logo_file)
+            elif gp.logo_url:
                 logo_path = gp.logo_url
-                if logo_path.startswith("/static/"):
-                    logo_path = str(_P(__file__).resolve().parent.parent / "static" / logo_path.removeprefix("/static/"))
-                if _P(logo_path).exists():
-                    gym_config["gym_logo"] = logo_path
+                legacy_root = _P(__file__).resolve().parent.parent / "static" / "uploads" / "logos"
+                if logo_path.startswith("/static/uploads/logos/"):
+                    candidate = (legacy_root / logo_path.removeprefix("/static/uploads/logos/")).resolve()
+                    if candidate.is_relative_to(legacy_root.resolve()) and candidate.is_file() and not candidate.is_symlink():
+                        gym_config["gym_logo"] = str(candidate)
         else:
             # Usuario individual: siempre usa el logo de Consultoría Hernández
-            import os as _os
-            _app_root = _P(_os.environ.get("PYTHONPATH", "").split(":")[0]) if _os.environ.get("PYTHONPATH") else _P(__file__).resolve().parent.parent.parent
+            _app_root = _P(__file__).resolve().parent.parent.parent
             _usuario_logo = _app_root / "static" / "img" / "logo_consultoria_hernandez.png"
             gym_config = {
                 "gym_nombre": "Consultoría Hernández",
@@ -102,7 +117,6 @@ def build_plan(
             }
 
     cliente = build_cliente_from_dict(row)
-    os.makedirs(CARPETA_SALIDA, exist_ok=True)
 
     # Safety exclusions apply to every subscription tier. No shared references
     # are modified, including requests without exclusions running in parallel.
@@ -121,7 +135,7 @@ def build_plan(
         )
 
         nombre_pdf = "plan_opciones_" + uuid.uuid4().hex + ".pdf"
-        ruta_pdf_completa = os.path.join(CARPETA_SALIDA, nombre_pdf)
+        ruta_pdf_completa = str(workspace / nombre_pdf)
         generador = GeneradorPDFConOpciones(ruta_pdf_completa, config=gym_config if gym_config else None)
         ruta_pdf = generador.generar(cliente, plan)
 
@@ -156,7 +170,7 @@ def build_plan(
         )
 
         nombre_pdf = "plan_" + uuid.uuid4().hex + ".pdf"
-        ruta_pdf_completa = os.path.join(CARPETA_SALIDA, nombre_pdf)
+        ruta_pdf_completa = str(workspace / nombre_pdf)
 
         # Usar PDFGenerator moderno con datos del gym
         pdf_gen = PDFGenerator(config=gym_config if gym_config else None)
@@ -206,7 +220,15 @@ def build_plan(
         default=0,
     )
 
+    from web.services.private_objects import publish_pending_object, mark_object_ready
+    from web.storage.objects import MAX_OBJECT_BYTES, ObjectUnavailable
+    with Path(ruta_pdf).open("rb") as source:
+        pdf_bytes = source.read(MAX_OBJECT_BYTES + 1)
+    if not pdf_bytes.startswith(b"%PDF-") or not 0 < len(pdf_bytes) <= MAX_OBJECT_BYTES:
+        raise ObjectUnavailable("Generated PDF unavailable")
+    descriptor = publish_pending_object(gym_id, "plan_pdf", pdf_bytes, "application/pdf")
     with SASession(engine) as session:
+        object_id = mark_object_ready(session, gym_id, descriptor, "plan_pdf")
         plan_id = repo.registrar_plan(session, gym_id, id_cliente, {
             "tmb": getattr(cliente, "tmb", 0),
             "get_total": getattr(cliente, "get_total", 0),
@@ -217,7 +239,7 @@ def build_plan(
             "grasa_g": getattr(cliente, "grasa_g", 0),
             "objetivo": cliente.objetivo,
             "nivel_actividad": cliente.nivel_actividad,
-            "ruta_pdf": str(ruta_pdf),
+            "pdf_object_id": object_id,
             "peso_en_momento": cliente.peso_kg,
             "grasa_en_momento": cliente.grasa_corporal_pct,
             "desviacion_maxima_pct": desv_max,
@@ -235,7 +257,7 @@ def build_plan(
         "tipo_plan": tipo_plan,
         "id_cliente": cliente.id_cliente,
         "nombre": cliente.nombre,
-        "ruta_pdf": str(ruta_pdf),
+        "pdf_url": "/api/planes/" + str(plan_id) + "/pdf",
         "macros": {
             "tmb": round(cliente.tmb or 0, 1),
             "get_total": round(cliente.get_total or 0, 1),

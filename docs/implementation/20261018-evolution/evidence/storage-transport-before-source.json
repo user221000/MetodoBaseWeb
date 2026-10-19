@@ -1,0 +1,23 @@
+{
+  "scope": "Pinned real SDK effective TLS trust/proxy configuration without network;4positive web/API local/S3 compositions",
+  "before_product_source": {
+    "web/storage/configuration.py": "e07ecb0af3b50694851212218e820d6cd840473caf2194ac528d6120deacb3bd"
+  },
+  "before_source_verification": "Previous independent source freeze verified against HEAD Git blob/CRLF; coordinator applied followup before separate evidence metadata was written. Not a contemporary before/after stability claim.",
+  "test_source": {
+    "tests/test_object_storage_composition_review.py": "627dc3fa1342296483c68eb3e251a34098ac10de862481de3bca40b89db8ee63"
+  },
+  "before": {
+    "failed": 3,
+    "passed": 5,
+    "seconds": 5.79
+  },
+  "findings": [
+    "AWS_CA_BUNDLE replaces effective TLS trust with inherited file",
+    "HTTPS_PROXY selects inherited transport proxy",
+    "HTTP_PROXY selects inherited transport proxy for development endpoint"
+  ],
+  "all_proxy_behavior": "Not selected by this pinned SDK transport",
+  "change_by_coordinator": "Explicit client verify=True and botocore Config proxies={}",
+  "product_edited_by_qa": false
+}

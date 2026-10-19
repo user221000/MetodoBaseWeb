@@ -1,9 +1,9 @@
-"""Authorized plan-specific legacy PDF reads, pending private-object cutover.
+"""Authorized plan-specific private object reads and bounded legacy transition.
 
 The caller supplies the authenticated effective gym, never a query parameter.
 Both the plan and its client must belong to that gym. Legacy files are read
-only below the configured private output root, with a bounded payload. R07 will
-resolve persisted object metadata through this same ownership boundary.
+only below the configured private output root, with a bounded payload. New
+references require ready metadata, owner, kind, size and SHA256 verification.
 """
 from pathlib import Path
 
@@ -13,6 +13,8 @@ from sqlalchemy import and_, select
 from web.constants import CARPETA_PLANES
 from web.database.models import Cliente, PlanGenerado
 from web.storage.objects import MAX_OBJECT_BYTES
+from web.storage.objects import ObjectUnavailable
+from web.services.private_objects import read_private_object
 
 
 def read_plan_pdf(db, gym_id: str, plan_id: int) -> bytes:
@@ -28,7 +30,19 @@ def read_plan_pdf(db, gym_id: str, plan_id: int) -> bytes:
         Cliente.id_cliente == PlanGenerado.id_cliente, Cliente.gym_id == PlanGenerado.gym_id,
     )).where(PlanGenerado.id == plan_id, PlanGenerado.gym_id == gym_id,
         PlanGenerado.deleted_at.is_(None), Cliente.deleted_at.is_(None))).scalar_one_or_none()
-    if plan is None or not plan.ruta_pdf:
+    if plan is None:
+        raise unavailable
+    if plan.pdf_object_id:
+        try:
+            content, content_type = read_private_object(db, gym_id, plan.pdf_object_id, "plan_pdf")
+            if content_type != "application/pdf" or not content.startswith(b"%PDF-"):
+                raise unavailable
+            return content
+        except ObjectUnavailable:
+            # A private reference is authoritative: never substitute legacy
+            # bytes or a different plan when its object cannot be verified.
+            raise unavailable from None
+    if not plan.ruta_pdf:
         raise unavailable
     try:
         root = Path(CARPETA_PLANES).resolve(strict=True)

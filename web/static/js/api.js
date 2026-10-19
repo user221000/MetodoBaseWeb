@@ -343,14 +343,20 @@ const Api = (() => {
 
     updateProfile: (data) => request('PUT', '/api/gym/profile', data),
 
-    uploadLogo: async (file) => {
+    getLogoBlob: () => gym._logoRequest('GET'),
+
+    uploadLogo: (file) => gym._logoRequest('POST', file),
+
+    _logoRequest: async (method, file = null) => {
       const token = getToken();
-      const formData = new FormData();
-      formData.append('file', file);
+      const formData = file ? new FormData() : null;
+      if (file) formData.append('file', file);
       const opts = {
-        method: 'POST',
+        method,
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-        body: formData,
+        ...(formData ? { body: formData } : {}),
+        cache: 'no-store',
+        referrerPolicy: 'no-referrer',
       };
       let res = await fetch(API_BASE + '/api/gym/logo', opts);
       if (res.status === 401) {
@@ -365,8 +371,23 @@ const Api = (() => {
           throw new Error('Sesión expirada.');
         }
       }
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
+      if (res.ok && method === 'GET') {
+        const mime = (res.headers.get('Content-Type') || '').split(';')[0].trim().toLowerCase();
+        if (!['image/png', 'image/jpeg', 'image/webp'].includes(mime)) throw new Error('El servidor no devolvió una imagen válida.');
+        const blob = await res.blob();
+        if (!blob.size || blob.size > 2 * 1024 * 1024) throw new Error('El logo guardado no tiene un tamaño válido.');
+        return blob;
+      }
+      let data;
+      try { data = await res.json(); }
+      catch { throw new Error('El servidor no confirmó la carga del logo.'); }
+      if (!res.ok) {
+        const detail = data && data.detail;
+        const error = new Error(typeof detail === 'string' ? detail : detail && typeof detail.message === 'string' ? detail.message : 'No se pudo acceder al logo.');
+        error.status = res.status;
+        if (detail && typeof detail.code === 'string') error.code = detail.code;
+        throw error;
+      }
       return data;
     },
 

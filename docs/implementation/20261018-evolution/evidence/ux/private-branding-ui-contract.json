@@ -1,0 +1,23 @@
+{
+  "identity": "Canonical me id/team/role/session_version before and after requests/decode; profile.gym_id must equal persisted team or own id; session invalidation clears previews/fields/plan-price rows and disables old-context actions",
+  "private_read": "GET /api/gym/logo with Bearer, no query tokens, no-store/no-referrer; MIME/png/jpeg/webp, 1..2MB, decoded <=16MP then actual img.decode before success",
+  "private_flag": "has_private_logo=true always uses fixed private API; never fallback to legacy even when missing/404",
+  "legacy": "Only current origin and /static/uploads/logos/<simple basename>.(png|jpg|jpeg|webp), no query/hash, credentials, subdirectories or external provider URLs. Legacy transport bytes are browser doubles in this author gate, not an automatic migration/import/deletion",
+  "upload": "Explicit POST multipart once per user file selection; no network-error auto retry. A confirmed save followed by preview failure is described as saved with unavailable preview; ambiguous response directs a separate read-only reload",
+  "memory": "No branding payload/file/blob/data URI saved to browser storage or analytics; old Blob URL revoked on replacement/pagehide/identity change",
+  "profile": "Reloading the logo preserves unsaved profile inputs. Explicit save is identity-fenced. Read-only team members cannot edit and backend RBAC remains authority",
+  "pdf_cutover": "History availability uses tiene_pdf with legacy metadata fallback only when field is absent; generation and both changed rows download exact plan id via Bearer. Raw PDF filesystem paths are not rendered or used as download destinations",
+  "real_browser": [
+    "Authenticated logo POST/read/private local object persistence",
+    "Real invalid image rejection and 401/404/read-vs-update RBAC",
+    "Real saved upload/read responses held across different-account changes",
+    "Two actual worker-generated private PDFs using saved logo, current DTOs and exact old-row download bytes"
+  ],
+  "transport_doubles": [
+    "Legacy profile URLs and allowed legacy image response",
+    "Incoming logo HTML/oversize/invalid-image/private404",
+    "Mismatched profile tenant metadata"
+  ],
+  "csp_dependency": "Root allowed blob only in img-src; middleware regression is separately owned by root. New preview code awaits decoding so CSP/render errors become visible instead of a false success",
+  "author_evidence": "private-branding-author-csp-fixed-20261019/report.json"
+}

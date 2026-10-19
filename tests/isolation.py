@@ -82,6 +82,7 @@ def prepare_environment(*, discard_inherited: bool = False) -> Path:
         normalized = key.upper()
         if (normalized.startswith("PG") or normalized.endswith("_DATABASE_URL")
                 or normalized == "BACKUP_ENCRYPTION_KEY"
+                or normalized.startswith(("AWS_", "S3_", "OBJECT_STORAGE_"))
                 or any(part in normalized for part in ("STRIPE", "MERCADOPAGO", "RESEND", "SMTP", "SENTRY", "RAILWAY", "REDIS", "GOOGLE_CLIENT", "OPENAI_API"))):
             os.environ[key] = ""
     os.environ.update({
@@ -93,6 +94,9 @@ def prepare_environment(*, discard_inherited: bool = False) -> Path:
         "METODOBASE_TEST_DATABASE_URL": postgres_url,
         "METODOBASE_TEST_REDIS_URL": redis_url,
         "DB_PATH": str(worker_root / "legacy.db"),
+        "OBJECT_STORAGE_BACKEND": "local",
+        "OBJECT_STORAGE_LOCAL_ROOT": str(worker_root / "private_objects"),
+        "AWS_EC2_METADATA_DISABLED": "true",
         "WEB_SECRET_KEY": "local-tests-only-signing-key-at-least-thirty-two-characters",
         "METODO_BASE_SALT": "local-tests-only-salt", "METODO_BASE_MASTER_KEY": "",
         "BASE_URL": "http://127.0.0.1:8765", "CORS_ORIGINS": "http://127.0.0.1:8765,http://testserver",

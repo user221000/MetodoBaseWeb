@@ -1,0 +1,35 @@
+{
+  "scope": "QA independent DDL25 and encrypted populated restore; no consumer/factory cutover acceptance",
+  "files": {
+    "tests/integration_backup_restore_postgres.py": "b7ac324b020e8cb85a071937da874a1adbd99337589f1703a5eb553085ee291b",
+    "docs/implementation/20261018-evolution/QA_R05.md": "e4eb55a9fb3afbd7cb4dd599f6dbd881593b8c9619c37ea59a3481c016e9de13"
+  },
+  "evidence": [
+    "pytest-storage25-ddl-independent.xml",
+    "storage25-ddl-independent-source.json",
+    "pytest-storage25-restore-independent.xml",
+    "storage25-restore-independent-source.json",
+    "storage25-populated-independent/postgres-restore-storage25-independent.json"
+  ],
+  "results": {
+    "ddl_cases_passed": 18,
+    "ddl_pytest_seconds": 96.71,
+    "restore_scenarios_passed": 1,
+    "restore_pytest_seconds": 8.78,
+    "observed_sources_stable": 37,
+    "tables": 25,
+    "force_rls_families": 19,
+    "private_objects": 4,
+    "pending_without_reference": 1,
+    "legacy_files": 2
+  },
+  "quality": {
+    "ruff_F821": 0
+  },
+  "limits": [
+    "Only own local PostgreSQL17.11 UUID databases and local object roots",
+    "No production data, live provider or external operations",
+    "Recovery measures this small technical dataset only; deployed durability/business RPO/RTO remain open"
+  ],
+  "committed_by_qa": false
+}

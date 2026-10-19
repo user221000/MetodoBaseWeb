@@ -1,7 +1,6 @@
 """Real nutrition/PDF/publication and exact replay through both HTTP adapters."""
 import importlib
 import json
-from pathlib import Path
 import uuid
 
 from fastapi.testclient import TestClient
@@ -13,7 +12,7 @@ from sqlalchemy.orm import Session
 @pytest.mark.parametrize('plan_type', ['menu_fijo', 'opciones'])
 def test_shared_worker_publishes_one_owned_pdf_and_replays_exact_response(test_gym_user, factory, plan_type):
     from web.database.engine import get_engine
-    from web.database.models import Cliente, GymGenerationReservation, PlanGenerado
+    from web.database.models import Cliente, GymGenerationReservation, PlanGenerado, StoredObject
     client_id = str(uuid.uuid4())
     with Session(get_engine()) as db:
         db.add(Cliente(id_cliente=client_id, gym_id=test_gym_user['id'], nombre='Synthetic Nutrition',
@@ -27,7 +26,8 @@ def test_shared_worker_publishes_one_owned_pdf_and_replays_exact_response(test_g
         assert generated.status_code == 200, generated.text
         result = generated.json()
         assert result['tipo_plan'] == plan_type and result['id_cliente'] == client_id
-        assert Path(result['ruta_pdf']).is_file()
+        assert result['pdf_url'] == '/api/planes/' + str(result['plan_id']) + '/pdf'
+        assert 'ruta_pdf' not in result
         repeated = client.post('/api/generar-plan', json=body, headers=headers)
         assert repeated.status_code == 200 and repeated.json() == result
         conflict = client.post('/api/generar-plan', json={**body,'plan_numero':2}, headers=headers)
@@ -40,6 +40,9 @@ def test_shared_worker_publishes_one_owned_pdf_and_replays_exact_response(test_g
         assert reservation.status == 'completed' and reservation.plan_id == plan.id == result['plan_id']
         assert reservation.persisted_at is not None and json.loads(reservation.result_json) == result
         assert json.loads(plan.plan_json) == result['plan']
+        obj = db.get(StoredObject, plan.pdf_object_id)
+        assert obj.status == 'ready' and obj.gym_id == test_gym_user['id'] and obj.kind == 'plan_pdf'
+        assert not plan.ruta_pdf
         assert db.query(Cliente).filter_by(id_cliente=client_id).one().total_planes_generados == 1
 
 
@@ -67,15 +70,16 @@ def test_same_display_name_and_second_cannot_overwrite_another_gym_pdf(test_gym_
                 edad=30,sexo='M',peso_kg=75 + index*10,estatura_cm=175,grasa_corporal_pct=20,
                 nivel_actividad='moderada',objetivo='mantenimiento'))
         db.commit()
-    paths = []
+    urls = []
     first_pdf = None
     with TestClient(create_app(), raise_server_exceptions=False) as client:
         for index, owner in enumerate((test_gym_user, other)):
             response = client.post('/api/generar-plan', json={'id_cliente':'same-name-client-' + str(index)},
                 headers={'Authorization':'Bearer ' + crear_access_token(owner),'Idempotency-Key':'same-name-' + str(index)})
             assert response.status_code == 200, response.text
-            paths.append(Path(response.json()['ruta_pdf']))
+            urls.append(response.json()['pdf_url'])
             if index == 0:
-                first_pdf = paths[0].read_bytes()
-    assert paths[0] != paths[1]
-    assert paths[0].read_bytes() == first_pdf
+                first_pdf = client.get(urls[0], headers=test_gym_user['auth_headers']).content
+        assert urls[0] != urls[1]
+        assert client.get(urls[0], headers=test_gym_user['auth_headers']).content == first_pdf
+        assert client.get(urls[1], headers=test_gym_user['auth_headers']).status_code == 404

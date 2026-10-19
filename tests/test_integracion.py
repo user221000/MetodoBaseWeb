@@ -12,7 +12,6 @@ NOTE: Tests now require authentication. Uses auth_client fixture from conftest.p
 from __future__ import annotations
 
 import time
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -78,7 +77,7 @@ class TestFlujoCompleto:
 
     def test_flujo_completo_deficit(self, auth_client):
         """
-        Flujo: POST /clientes → POST /generar-plan → verifica ruta_pdf en disco
+        Flujo: POST /clientes → POST /generar-plan → descarga privada autorizada
         """
         # 1. Crear cliente
         id_c = crear_cliente(auth_client, CLIENTE_DEFICIT)
@@ -96,17 +95,15 @@ class TestFlujoCompleto:
         assert body["id_cliente"] == id_c
         assert "macros" in body
         assert "plan" in body
-        assert "ruta_pdf" in body
+        assert "pdf_url" in body and "ruta_pdf" not in body
 
         # 4. Verificar que el PDF existe en disco
-        ruta_pdf = Path(body["ruta_pdf"])
-        assert ruta_pdf.exists(), f"PDF no encontrado en disco: {ruta_pdf}"
-        assert ruta_pdf.stat().st_size > 1024, "PDF demasiado pequeño (< 1 KB)"
+        pdf = auth_client.get(body["pdf_url"])
+        assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF-")
+        assert len(pdf.content) > 1024, "PDF demasiado pequeño (< 1 KB)"
 
         # 5. Cleanup
         auth_client.delete(f"/api/clientes/{id_c}")
-        if ruta_pdf.exists():
-            ruta_pdf.unlink(missing_ok=True)
 
     def test_flujo_completo_superavit(self, auth_client):
         id_c = crear_cliente(auth_client, CLIENTE_SUPERAVIT)
@@ -119,10 +116,8 @@ class TestFlujoCompleto:
         assert macros["kcal_objetivo"] >= macros["get_total"] * 0.95, (
             "Superávit: kcal_objetivo debería ser cercana o mayor que GET"
         )
-        ruta = Path(body["ruta_pdf"])
+        assert auth_client.get(body["pdf_url"]).status_code == 200
         auth_client.delete(f"/api/clientes/{id_c}")
-        if ruta.exists():
-            ruta.unlink(missing_ok=True)
 
     def test_flujo_completo_sin_grasa(self, auth_client):
         """Sin % grasa corporal, el sistema usa 20% por defecto."""
@@ -131,10 +126,8 @@ class TestFlujoCompleto:
         assert resp.status_code == 200
         body = resp.json()
         assert body["macros"]["tmb"] > 0
-        ruta = Path(body["ruta_pdf"])
+        assert auth_client.get(body["pdf_url"]).status_code == 200
         auth_client.delete(f"/api/clientes/{id_c}")
-        if ruta.exists():
-            ruta.unlink(missing_ok=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -149,10 +142,8 @@ class TestCalculoMacrosPorObjetivo:
         id_c = crear_cliente(auth_client, datos)
         resp = auth_client.post("/api/generar-plan", json={"id_cliente": id_c, "plan_numero": 1})
         macros = resp.json()["macros"]
-        ruta = Path(resp.json().get("ruta_pdf", ""))
+        assert auth_client.get(resp.json()["pdf_url"]).status_code == 200
         auth_client.delete(f"/api/clientes/{id_c}")
-        if ruta.exists():
-            ruta.unlink(missing_ok=True)
         return macros
 
     def test_deficit_reduce_calorias(self, auth_client):

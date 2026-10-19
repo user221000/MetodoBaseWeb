@@ -252,10 +252,8 @@ def test_actualizar_cliente_nivel_actividad(auth_client):
 def test_descargar_pdf_despues_de_generar(auth_client):
     """
     Flujo: crear cliente → generar plan → descargar PDF.
-    Cubre la rama de FileResponse en routes/planes.py.
+    Verifica lectura autorizada desde el almacenamiento privado.
     """
-    from pathlib import Path
-
     # Crear cliente
     resp_c = auth_client.post("/api/clientes", json={
         "nombre": "Cliente Descarga PDF",
@@ -274,7 +272,7 @@ def test_descargar_pdf_despues_de_generar(auth_client):
         "id_cliente": id_c, "plan_numero": 1
     })
     assert resp_plan.status_code == 200
-    ruta_pdf = Path(resp_plan.json()["ruta_pdf"])
+    assert "ruta_pdf" not in resp_plan.json()
 
     # Descargar PDF
     resp_dl = auth_client.get(f"/api/descargar-pdf/{id_c}")
@@ -284,14 +282,11 @@ def test_descargar_pdf_despues_de_generar(auth_client):
 
     # Cleanup
     auth_client.delete(f"/api/clientes/{id_c}")
-    if ruta_pdf.exists():
-        ruta_pdf.unlink(missing_ok=True)
 
 
 def test_descargar_pdf_ruta_no_existente(auth_client):
     """
-    Si el registro BD apunta a un PDF borrado, debe retornar 404.
-    Cubre la rama `not os.path.exists(ruta_pdf)` en planes.py.
+    Si los bytes del objeto privado desaparecen, la descarga retorna 404.
     """
 
     # Crear cliente y generar plan
@@ -308,12 +303,14 @@ def test_descargar_pdf_ruta_no_existente(auth_client):
 
     resp_plan = auth_client.post("/api/generar-plan", json={"id_cliente": id_c, "plan_numero": 1})
     assert resp_plan.status_code == 200
-    from pathlib import Path
-    ruta_pdf = Path(resp_plan.json()["ruta_pdf"])
-
-    # Borrar el PDF físico
-    if ruta_pdf.exists():
-        ruta_pdf.unlink()
+    from sqlalchemy.orm import Session
+    from web.database.engine import get_engine
+    from web.database.models import PlanGenerado, StoredObject
+    from web.storage.runtime import get_object_store
+    with Session(get_engine()) as db:
+        plan = db.get(PlanGenerado, resp_plan.json()["plan_id"])
+        obj = db.get(StoredObject, plan.pdf_object_id)
+        (get_object_store().root / obj.key).unlink()
 
     # Intentar descargar → 404
     resp_dl = auth_client.get(f"/api/descargar-pdf/{id_c}")

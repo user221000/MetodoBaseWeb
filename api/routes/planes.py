@@ -15,10 +15,12 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from api.schemas import PlanRequest
-from web.database.engine import get_db
+from web.database.engine import get_db, get_db_readonly
 from web.database.tenant_context import tenant_task
-from web.auth_deps import get_usuario_gym
+from web.auth_deps import get_usuario_actual
 from web.database import repository as repo
+from web.routes._utils import get_gym_id
+from web.services.permissions import verify_permission
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Planes"])
@@ -46,7 +48,7 @@ def _generar_plan_sync(gym_id: str, id_cliente: str, plan_numero: int,
 @router.post("/generar-plan", summary="Generar plan nutricional + PDF")
 async def generar_plan(
     data: PlanRequest,
-    usuario: dict = Depends(get_usuario_gym),
+    usuario: dict = Depends(get_usuario_actual),
     db: Session = Depends(get_db),
     request_key: str | None = Header(default=None, alias="Idempotency-Key"),
 ):
@@ -54,7 +56,8 @@ async def generar_plan(
     Genera un plan nutricional diario para un cliente del gym autenticado.
     La generación es CPU-bound (~5–15 seg); se ejecuta en un thread executor.
     """
-    gym_id = usuario["id"]
+    verify_permission(usuario, "create", "plan")
+    gym_id = get_gym_id(usuario)
     from web.services.gym_generation_quota import reserve_gym_generation, complete_gym_generation, compensate_generation_failure
     reservation = reserve_gym_generation(db, gym_id, data.model_dump(), request_key)
     if reservation.status == "completed":
@@ -82,11 +85,12 @@ async def generar_plan(
 @router.get("/descargar-pdf/{id_cliente}", summary="Descargar último PDF del cliente")
 async def descargar_pdf(
     id_cliente: str,
-    db: Session = Depends(get_db),
-    usuario: dict = Depends(get_usuario_gym),
+    db: Session = Depends(get_db_readonly),
+    usuario: dict = Depends(get_usuario_actual),
 ):
     """Descarga el PDF del plan más reciente del cliente (verificando pertenencia al gym)."""
-    gym_id = usuario["id"]
+    verify_permission(usuario, "read", "plan")
+    gym_id = get_gym_id(usuario)
     
     # Verificar que el cliente pertenece al gym
     cliente = repo.obtener_cliente(db, gym_id, id_cliente)
@@ -100,14 +104,5 @@ async def descargar_pdf(
             status_code=404, detail="No hay planes generados para este cliente"
         )
 
-    ruta_pdf = historial[0].get("ruta_pdf")
-    if not ruta_pdf or not os.path.exists(ruta_pdf):
-        raise HTTPException(status_code=404, detail="Archivo PDF no encontrado en disco")
-
-    filename = os.path.basename(ruta_pdf)
-    return FileResponse(
-        path=ruta_pdf,
-        media_type="application/pdf",
-        filename=filename,
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
+    from web.routes.planes import descargar_pdf_plan
+    return descargar_pdf_plan(plan_id=historial[0]["id"], usuario=usuario, db=db)

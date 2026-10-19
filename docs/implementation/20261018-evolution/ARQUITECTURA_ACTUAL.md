@@ -19,7 +19,7 @@ flowchart LR
     App --> Redis[(Redis: limitación distribuida)]
     App --> Pay[Stripe / MercadoPago]
     App --> Email[Transporte de correo]
-    App -. Integración R07 pendiente .-> Objects[Puerto de objetos privados]
+    App --> Objects[Puerto de objetos privados: candidato local]
     Objects --> Local[Adaptador volumen privado]
     Objects --> S3[Adaptador S3 compatible]
     Migrator[CLI db_bootstrap: rol migrador] --> PG
@@ -36,14 +36,14 @@ El navegador sigue usando bearer persistido en almacenamiento local: R10/R31 con
 | Catálogo y estados comerciales | `core/plan_catalog.py`, `core/subscription_policy.py` | Reglas sin FastAPI/SQLAlchemy; consumidores no conceden Pro |
 | Nutrición y restricciones | `core/`, `src/`, `core/food_catalog.py` | Snapshot inmutable por solicitud; resultado verificado antes del PDF |
 | Identidad/RBAC | `web/auth.py`, `auth_deps.py`, `services/permissions.py` | Rol/team/versión se recargan del principal persistido; permiso desconocido denegado |
-| Aislamiento | `database/tenant_context.py`, `tenant_policy.py`, middleware tenant | Contexto transaccional, SET LOCAL y tareas con tenant explícito;17 familias R04 |
+| Aislamiento | `database/tenant_context.py`, `tenant_policy.py`, middleware tenant | Contexto transaccional, SET LOCAL y tareas con tenant explícito;17 familias R04 más ledger/objetos hasta19 |
 | Dinero | `services/billing_integrity.py`, `subscription_service.py`, routers billing/webhooks | Intención previa al proveedor; estado firmado/verificado e idempotencia |
 | Cuota individual | `services/generation_quota.py` | Reserva persistida y publicación exacta del plan |
 | Cuota profesional, en revisión | `services/gym_generation_quota.py`, `quota_calendar.py` | Lock de cuenta antes de decisión; ledger24 y publicación CAS |
 | Worker compartido, en revisión | `services/plan_generation.py` | Web/API conservan wrappers; motor/PDF/JSON/persistencia tienen un recorrido común |
 | Privacidad, en revisión | `services/privacy_export.py`, router y UI de descarga | Identidad personal; GET readonly y presupuesto de bytes; cartera profesional excluida |
 | Persistencia | SQLAlchemy `database/models.py`, `repository.py` | Consultas con propietario explícito además de RLS; migración fuera del tráfico |
-| Objetos | `web/storage/objects.py`, `local.py`, `s3.py`, `configuration.py` | Puerto/adaptadores y factory revisados; falta conectar metadatos/consumidores |
+| Objetos | `web/storage`, `services/private_objects.py`, `plan_documents.py`, `gym_logos.py` | Intención antes de PUT; ready/referencia transaccionales, kind/owner/backend/SHA; destino real y migración histórica pendientes |
 | Operación | CLI Alembic, backup/restore, Redis y handlers de errores | Fallos bloqueantes; logs automáticos saneados en el seguimiento actual |
 
 Esta separación es incremental. Los servicios de aplicación todavía contienen DTO/errores FastAPI y SQLAlchemy; no se declara una arquitectura de dominio completamente desacoplada. Los constructores nutricionales permanecen compartidos con desktop. No se cambió de framework ni se añadieron microservicios.
@@ -61,6 +61,9 @@ erDiagram
     CLIENTES ||--o{ CLIENT_PROGRESS : id_cliente
     USUARIOS ||--o{ GENERATION_RESERVATIONS : user_id
     USUARIOS ||--o{ GYM_GENERATION_RESERVATIONS : gym_id
+    USUARIOS ||--o{ STORED_OBJECTS : gym_id_RESTRICT
+    STORED_OBJECTS o|--o{ PLANES_GENERADOS : owner_and_pdf_object_id
+    STORED_OBJECTS o|--o{ GYM_PROFILES : owner_and_logo_object_id
     PLANES_GENERADOS o|--o| GYM_GENERATION_RESERVATIONS : plan_id
     USUARIOS ||--o{ GYM_LICENSES : gym_id
     GYM_LICENSES o|--o{ LICENSE_ACTIVATIONS : issued_license_id

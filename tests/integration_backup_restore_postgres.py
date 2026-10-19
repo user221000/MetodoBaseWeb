@@ -107,15 +107,20 @@ def test_encrypted_pg_restore_preserves_rows_constraints_and_private_objects(own
 def test_release_schema_restore_preserves_migrations_rows_relationships_and_objects(owned_databases, tmp_path, monkeypatch):
     """Restore the actual Alembic candidate, separate from the tiny tool probe."""
     import hashlib
-    from sqlalchemy import MetaData, create_engine, select
+    from sqlalchemy import MetaData, create_engine, func, select
     from sqlalchemy.orm import Session
     from scripts.backup_restore import create_backup, restore_backup
     from web.database.alembic.schema_contract_v1 import schema_signature
     from web.database.models import (Cliente, GymProfile, PlanGenerado, Usuario, UserRole,
                                      GymLicense, LicenseActivation, ProviderSubjectAssociation,
-                                     GymGenerationReservation)
+                                     GymGenerationReservation, StoredObject)
     from web.database.repository import _crear_planes_default
     from web.database.schema_control import verify_runtime_schema
+    from web.database.tenant_context import tenant_scope
+    from web.database.tenant_policy import TENANT_COLUMNS
+    from web.storage.local import LocalObjectStore
+    from web.storage.objects import ObjectAccessDenied, ObjectDescriptor, describe
+    from tests.integration_provider_subjects import application_engine
 
     (source_name, source_url), (target_name, target_url) = owned_databases
     root = Path(__file__).resolve().parents[1]
@@ -124,7 +129,23 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
         env=environment, capture_output=True, text=True, encoding="utf-8", timeout=90)
     assert migrated.returncode == 0, migrated.stdout + migrated.stderr
     source, target = create_engine(source_url), create_engine(target_url)
+    restricted_target = None
     pg_bin = Path(os.environ["METODOBASE_TEST_PG_BIN"]) if os.environ.get("METODOBASE_TEST_PG_BIN") else None
+    objects = tmp_path / "objects"
+    original_store = LocalObjectStore(objects)
+    logo_bytes = base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+yF9sAAAAASUVORK5CYII=")
+    object_contents = {
+        "pdf": ("restore-release-gym", "plan_pdf", b"%PDF-1.4\nSynthetic private restore\n%%EOF", "application/pdf"),
+        "logo": ("restore-release-gym", "gym_logo", logo_bytes, "image/png"),
+        "pending": ("restore-release-gym", "plan_pdf", b"%PDF-1.4\nSynthetic uncertain PUT orphan\n%%EOF", "application/pdf"),
+        "foreign": ("restore-foreign-gym", "plan_pdf", b"%PDF-1.4\nSynthetic other owner\n%%EOF", "application/pdf"),
+    }
+    descriptors = {}
+    for label, (owner, kind, content, content_type) in object_contents.items():
+        descriptor = describe(owner, kind, content, content_type)
+        original_store.put(descriptor, content, owner_id=owner)
+        descriptors[label] = descriptor
 
     def snapshot(engine):
         metadata = MetaData()
@@ -139,16 +160,27 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             db.add(Usuario(id="restore-release-gym", email="restore-release@example.invalid",
                 password_hash="synthetic-not-an-authentication-secret", nombre="Synthetic restore",
                 tipo="gym", role=UserRole.OWNER, session_version=0, activo=True))
+            db.add(Usuario(id="restore-foreign-gym", email="restore-foreign@example.invalid",
+                password_hash="synthetic", nombre="Synthetic other owner", tipo="gym", role=UserRole.OWNER))
             db.commit()
             db.add(Cliente(id_cliente="restore-release-client", gym_id="restore-release-gym",
                 nombre="Synthetic client", edad=30, peso_kg=70, estatura_cm=170))
             db.commit()
+            for label, descriptor in descriptors.items():
+                db.add(StoredObject(id=descriptor.id, gym_id=descriptor.owner_id,
+                    kind=descriptor.kind, key=descriptor.key, content_type=descriptor.content_type,
+                    byte_size=descriptor.byte_size, sha256=descriptor.sha256,
+                    storage_backend="local", status="pending" if label == "pending" else "ready"))
+            db.flush()
             db.add(GymProfile(gym_id="restore-release-gym", nombre_negocio="Synthetic restore",
-                logo_url="restore-release-gym/logo.png"))
+                logo_url="restore-release-gym/logo.png", logo_object_id=descriptors["logo"].id))
             plan = PlanGenerado(gym_id="restore-release-gym", id_cliente="restore-release-client",
                 ruta_pdf="restore-release-gym/release-plan.pdf", plan_json='{"synthetic": true}',
-                kcal_objetivo=2000, kcal_real=1995)
+                kcal_objetivo=2000, kcal_real=1995, pdf_object_id=descriptors["pdf"].id)
             db.add(plan)
+            db.add(PlanGenerado(gym_id="restore-release-gym", id_cliente="restore-release-client",
+                ruta_pdf="restore-release-gym/release-plan.pdf", plan_json='{"legacy":true}',
+                pdf_object_id=None))
             db.flush()
             captured = datetime(2026, 10, 18, 18, tzinfo=timezone.utc)
             result = {"success": True, "plan_id": plan.id, "label": "synthetic durable result"}
@@ -183,12 +215,15 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             policy_state = connection.exec_driver_sql(
                 "SELECT relname,relrowsecurity,relforcerowsecurity FROM pg_class "
                 "WHERE relnamespace='public'::regnamespace AND relkind='r' ORDER BY relname").all()
+        assert len(original_signature["tables"]) == 25
+        assert original_rows["alembic_version"][0]["version_num"] == "20261018_stored_objects"
+        assert len(TENANT_COLUMNS) == 19
+        assert {name for name, enabled, forced in policy_state if enabled or forced} == set(TENANT_COLUMNS)
+        assert all(enabled and forced for name, enabled, forced in policy_state if name in TENANT_COLUMNS)
         committed_at = datetime.now(timezone.utc)
-        objects = tmp_path / "objects"
         (objects / "restore-release-gym").mkdir(parents=True)
         (objects / "restore-release-gym/release-plan.pdf").write_bytes(b"%PDF-1.4\nSynthetic release restore\n%%EOF")
-        (objects / "restore-release-gym/logo.png").write_bytes(base64.b64decode(
-            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+yF9sAAAAASUVORK5CYII="))
+        (objects / "restore-release-gym/logo.png").write_bytes(logo_bytes)
         monkeypatch.setenv("BACKUP_ENCRYPTION_KEY", base64.b64encode(os.urandom(32)).decode())
         start = time.monotonic()
         manifest_path = create_backup(tmp_path / "release-backup", database_url=source_url,
@@ -233,6 +268,39 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             assert restored_policies == policy_state
         for relative in ("restore-release-gym/release-plan.pdf", "restore-release-gym/logo.png"):
             assert (restored_objects / relative).read_bytes() == (objects / relative).read_bytes()
+        # Reconstruct both the restricted database connection and the adapter;
+        # no original store instance, descriptor object or byte cache is reused.
+        restored_store = LocalObjectStore(restored_objects)
+        restricted_target = application_engine(target_url, target)
+        with Session(restricted_target) as db:
+            assert db.scalars(select(StoredObject)).all() == []
+        with tenant_scope("restore-release-gym"), Session(restricted_target) as db:
+            restored_metadata = {row.id: row for row in db.scalars(select(StoredObject))}
+            assert set(restored_metadata) == {descriptors[label].id for label in ("pdf", "logo", "pending")}
+            for label in ("pdf", "logo", "pending"):
+                row = restored_metadata[descriptors[label].id]
+                descriptor = ObjectDescriptor(row.id, row.gym_id, row.kind, row.key,
+                    row.content_type, row.byte_size, row.sha256)
+                assert row.status == ("pending" if label == "pending" else "ready")
+                content = restored_store.read(descriptor, owner_id="restore-release-gym")
+                assert content == object_contents[label][2]
+                assert len(content) == row.byte_size and hashlib.sha256(content).hexdigest() == row.sha256
+            assert db.get(PlanGenerado, result["plan_id"]).pdf_object_id == descriptors["pdf"].id
+            assert db.query(GymProfile).one().logo_object_id == descriptors["logo"].id
+            pending_id = descriptors["pending"].id
+            assert db.scalar(select(func.count()).select_from(PlanGenerado).where(PlanGenerado.pdf_object_id == pending_id)) == 0
+            assert db.scalar(select(func.count()).select_from(GymProfile).where(GymProfile.logo_object_id == pending_id)) == 0
+            assert db.scalar(select(func.count()).select_from(PlanGenerado).where(PlanGenerado.pdf_object_id.is_(None))) == 1
+            assert db.get(StoredObject, descriptors["foreign"].id) is None
+        with tenant_scope("restore-foreign-gym"), Session(restricted_target) as db:
+            row = db.query(StoredObject).one()
+            foreign_descriptor = ObjectDescriptor(row.id, row.gym_id, row.kind, row.key,
+                row.content_type, row.byte_size, row.sha256)
+            assert restored_store.read(foreign_descriptor, owner_id="restore-foreign-gym") == object_contents["foreign"][2]
+        with pytest.raises(ObjectAccessDenied):
+            restored_store.read(foreign_descriptor, owner_id="restore-release-gym")
+        with Session(restricted_target) as db:
+            assert db.scalars(select(StoredObject)).all() == []
         with Session(target) as db:
             new_profile = GymProfile(gym_id="restore-release-gym", nombre_negocio="Sequence check")
             # Exercise the restored sequence without violating the gym's 1:1 key.
@@ -246,8 +314,10 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             assert new_profile.id > original_rows["gym_profiles"][0]["id"]
             db.rollback()
         signature_hash = hashlib.sha256(json.dumps(original_signature, sort_keys=True).encode()).hexdigest()
-        measurement = {"environment": "synthetic PostgreSQL Alembic release schema, gym/client/plan/FK and two private objects",
+        measurement = {"environment": "synthetic PostgreSQL Alembic25, ready PDF/logo, pending orphan, foreign owner and two legacy files",
             "tables": len(original_signature["tables"]), "schema_signature_sha256": signature_hash,
+            "rls_families_force": len(TENANT_COLUMNS), "private_objects": len(descriptors),
+            "pending_objects": 1, "legacy_files": 2,
             "alembic_revision": original_rows["alembic_version"][0]["version_num"],
             "rows_by_table": {name: len(rows) for name, rows in original_rows.items()},
             "backup_seconds": backup_seconds, "restore_seconds": restore_seconds,
@@ -255,8 +325,10 @@ def test_release_schema_restore_preserves_migrations_rows_relationships_and_obje
             "scope": "Actual local candidate schema recovery; technical timings do not approve business RPO/RTO or production recovery."}
         output = Path(os.environ.get("METODOBASE_TEST_EVIDENCE_DIR", str(tmp_path)))
         output.mkdir(parents=True, exist_ok=True)
-        (output / "postgres-restore-release-schema-independent.json").write_text(
+        (output / "postgres-restore-storage25-independent.json").write_text(
             json.dumps(measurement, indent=2) + "\n", encoding="utf-8")
     finally:
+        if restricted_target is not None:
+            restricted_target.dispose()
         source.dispose()
         target.dispose()

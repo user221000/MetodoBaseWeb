@@ -55,7 +55,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "script-src": "'self' https://cdn.jsdelivr.net https://js.stripe.com https://accounts.google.com/gsi/client",
             "style-src": "'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style",
             "font-src": "'self' https://fonts.gstatic.com data:",
-            "img-src": "'self' data: https:",
+            "img-src": "'self' data: https: blob:",
             "connect-src": "'self' https://api.stripe.com https://m.stripe.network https://r.stripe.com https://accounts.google.com https://oauth2.googleapis.com",
             "frame-src": "'self' https://js.stripe.com https://hooks.stripe.com https://accounts.google.com",
             "frame-ancestors": self.frame_ancestors,

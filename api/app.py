@@ -41,14 +41,12 @@ _WEB_STATIC_DIR = _BASE_DIR / "web" / "static"
 
 def create_app() -> FastAPI:
     # Docs deshabilitados en producción salvo override explícito
-    try:
-        from config.settings import get_settings
-        _s = get_settings()
-        _docs = "/docs" if _s.DOCS_ENABLED else None
-        _redoc = "/redoc" if _s.DOCS_ENABLED else None
-    except Exception:
-        _docs, _redoc = "/docs", "/redoc"
-        _s = None
+    from config.settings import get_settings
+    _s = get_settings()
+    _docs = "/docs" if _s.DOCS_ENABLED else None
+    _redoc = "/redoc" if _s.DOCS_ENABLED else None
+    from web.storage.runtime import get_object_store
+    private_store = get_object_store()
 
     # ── Sentry: inicializar antes de crear la app ────────────────────────────
     if _s:
@@ -80,6 +78,7 @@ def create_app() -> FastAPI:
         docs_url=_docs,
         redoc_url=_redoc,
     )
+    app.state.private_object_store = private_store
 
     # ── CORS ─────────────────────────────────────────────────────────────────
     try:

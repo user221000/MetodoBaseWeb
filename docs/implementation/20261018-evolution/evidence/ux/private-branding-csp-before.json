@@ -1,0 +1,16 @@
+{
+  "scope": "Real current 25-table auth/private logo read and browser CSP; local temporary fixture only",
+  "observed": {
+    "image_natural_width": 0,
+    "image_natural_height": 0,
+    "image_complete": true,
+    "source_scheme": "blob",
+    "request_failure": "csp",
+    "previous_status": "Vista previa del logo guardado."
+  },
+  "source": "web\\middleware\\security_headers.py",
+  "sha256": "0324f549b82c5016e959aa542542bb3a85a82a4bba51f496025a2e68d2e9c1d9",
+  "stage": "First 10-group report validated API/RBAC/worker contracts but missed actual image rendering; superseded for preview acceptance",
+  "fix": "UI awaits image.decode plus nonzero dimensions; root must allow blob only for img-src before fresh current-runtime gate",
+  "source_origin": "Observed running server startup manifest; not a potentially later working-copy source"
+}

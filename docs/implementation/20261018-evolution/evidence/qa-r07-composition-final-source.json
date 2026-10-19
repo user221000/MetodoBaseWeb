@@ -1,0 +1,87 @@
+{
+  "scope": "QA R07 integration followup: CI evidence/skip guards, explicit SDK/factory composition, API persisted team scope and private-logo browser. Separate local acceptance; no release approval.",
+  "files": {
+    ".github/workflows/ci.yml": "e06d642e36789c6087ab0216a158e20dec1cee1e8b3f70e9daaf897503722284",
+    "tests/test_object_storage_composition_review.py": "627dc3fa1342296483c68eb3e251a34098ac10de862481de3bca40b89db8ee63",
+    "tests/test_api_team_plan_storage_review.py": "e1ae76674357176d27f3bbc04bb007b0876a19524d4cf632919f310850d02680"
+  },
+  "reviewed_product_followups": {
+    "api/routes/planes.py": "ddfa13b81ee2a1411cb7ae03af5bbfc9818b1a036bb2486bb283fa3c856b9b66",
+    "web/storage/configuration.py": "1a0aa2e0c20c04f4549d186126ed2c19c35d1d6fab21a32477cfcb5f0ddaeca9",
+    "web/middleware/security_headers.py": "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4"
+  },
+  "new_tests": [
+    "tests/test_object_storage_composition_review.py",
+    "tests/test_api_team_plan_storage_review.py"
+  ],
+  "results": {
+    "sdk_before": {
+      "failed": 3,
+      "passed": 5,
+      "seconds": 5.79
+    },
+    "sdk_after": {
+      "passed": 48,
+      "seconds": 7.8
+    },
+    "api_before": {
+      "failed": 3,
+      "seconds": 4.81
+    },
+    "api_after": {
+      "passed": 3,
+      "seconds": 4.71
+    },
+    "browser": {
+      "groups": 10,
+      "screens": 6,
+      "seconds": 13.64,
+      "scoped_axe": 0,
+      "overflow": 0,
+      "page_errors": 0,
+      "runtime_tables": 25,
+      "observed_stable_sources": 44
+    },
+    "ci_static": {
+      "yaml": 0,
+      "script_references": 39,
+      "bash_blocks": 6,
+      "shuffle_guard": {
+        "passed": 0,
+        "skipped": 1,
+        "missing": 1
+      }
+    }
+  },
+  "evidence": [
+    "pytest-storage-transport-before.log",
+    "pytest-storage-transport-before.xml",
+    "storage-transport-before-source.json",
+    "pytest-storage-transport-final-independent.log",
+    "pytest-storage-transport-final-independent.xml",
+    "storage-transport-final-independent-source.json",
+    "pytest-api-team-storage-before.log",
+    "pytest-api-team-storage-before.xml",
+    "api-team-storage-before-source.json",
+    "pytest-api-team-storage-final-independent.log",
+    "pytest-api-team-storage-final-independent.xml",
+    "api-team-storage-final-independent-source.json",
+    "ci-r07-independent-review.json",
+    "ux/private-branding-independent-server.log",
+    "ux/private-branding-independent-browser.log",
+    "ux/private-branding-independent-source.json",
+    "ux/private-branding-independent-20261019-qa/report.json"
+  ],
+  "limits": [
+    "SDK uses real pinned boto3/botocore and Stubber/effective transport inspection without provider requests",
+    "API role tests use real HTTP/auth/tenant/reservation/objects/transactions with CPU renderer substituted on synthetic SQLite; no new PG claim",
+    "Browser uses current runtime25 and own temporary local objects; no S3/durable mounted-volume/provider claim",
+    "CI checked locally by parse/Bashsyntax/executable canaries; Linux/image/GitHubActions not executed",
+    "401 refresh account-switch race and individual-credit compensation remain release-blocking open followups",
+    "Final broad serial/n2 not run while inventory and containment are in progress",
+    "No numerical new-storage coverage percentage asserted; behavior/failure matrix and separate existing PG/core-PDF gates provide the scoped evidence"
+  ],
+  "restore_separate_manifest": "qa-storage25-restore-final-source.json",
+  "product_edited_by_qa": false,
+  "committed_by_qa": false
+}

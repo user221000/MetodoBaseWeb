@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="4.805" timestamp="2026-10-18T22:43:02.439508-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_api_team_plan_storage_review" name="test_api_nutritionist_generation_uses_parent_clinic_and_transactional_owner_ledger" time="2.734"><failure message="AssertionError: {&quot;detail&quot;:&quot;Acceso permitido solo para Socios Comerciales (Propietarios).&quot;}&#10;assert 403 == 200&#10; +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code">tests\test_api_team_plan_storage_review.py:85: in test_api_nutritionist_generation_uses_parent_clinic_and_transactional_owner_ledger
+    assert response.status_code == 200, response.text
+E   AssertionError: {"detail":"Acceso permitido solo para Socios Comerciales (Propietarios)."}
+E   assert 403 == 200
+E    +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code</failure></testcase><testcase classname="tests.test_api_team_plan_storage_review" name="test_api_team_exact_and_legacy_downloads_preserve_owner_scope[nutri]" time="0.371"><failure message="assert (403 == 200)&#10; +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code">tests\test_api_team_plan_storage_review.py:107: in test_api_team_exact_and_legacy_downloads_preserve_owner_scope
+    assert legacy.status_code == 200 and legacy.content == PDF
+E   assert (403 == 200)
+E    +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code</failure></testcase><testcase classname="tests.test_api_team_plan_storage_review" name="test_api_team_exact_and_legacy_downloads_preserve_owner_scope[viewer]" time="0.362"><failure message="assert (403 == 200)&#10; +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code">tests\test_api_team_plan_storage_review.py:107: in test_api_team_exact_and_legacy_downloads_preserve_owner_scope
+    assert legacy.status_code == 200 and legacy.content == PDF
+E   assert (403 == 200)
+E    +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code</failure></testcase></testsuite></testsuites>

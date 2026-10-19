@@ -44,6 +44,8 @@ Sirve el candidato en `127.0.0.1:8765` con esquema SQLite efímero preparado por
 
 Copiar `.env.example` a configuración local fuera de control de versiones y completar sólo los valores necesarios. `DATABASE_URL` debe ser explícita para migrar. En desarrollo se puede usar SQLite en un directorio local ya creado; producción requiere PostgreSQL. Primero ejecutar `python db_bootstrap.py`; después `python -m uvicorn web.main_web:create_app --factory --host 127.0.0.1 --port 8000`. Las fábricas validan esquema existente y no lo crean ni reparan al recibir tráfico.
 
+Web/API también requieren un destino privado explícito: `OBJECT_STORAGE_BACKEND=local` con `OBJECT_STORAGE_LOCAL_ROOT` absoluto fuera de rutas públicas, o configuración S3 completa de un bucket existente. No hay fallback ni descubrimiento de credenciales, endpoints, CA o proxies heredados. Las fixtures lo configuran automáticamente en su raíz temporal; el arranque normal necesita [configuración de documentos](docs/implementation/20261018-evolution/ALMACENAMIENTO.md). Un directorio local sólo es durable en producción cuando montaje, backup y reemplazo han sido verificados.
+
 Una base existente sin Alembic se rechaza. `--adopt-verified-legacy` sólo admite el snapshot estructural exacto revisado; asigna una revisión histórica conocida y ejecuta las migraciones reales. Un drift necesita reconciliación expresa. Nunca usar `stamp head` o `create_all` como atajo de despliegue. Consulte [ADR de migraciones](docs/implementation/20261018-evolution/evidence/backend-r03-design.md) y [backup/restore](docs/implementation/20261018-evolution/BACKUP_RESTORE.md).
 
 Railway existente ejecuta `preDeployCommand`; Docker independiente migra mediante entrypoint con fallo bloqueante. La imagen base y el lock están fijados. La imagen Linux final aún necesita build/SBOM/escaneo/aceptación por digest. La [transición de Railway a IaC](docs/implementation/20261018-evolution/NUEVOS_HALLAZGOS.md) es un requisito añadido; no aplicar infraestructura ni desplegar desde este procedimiento local.
@@ -56,7 +58,7 @@ Railway existente ejecuta `preDeployCommand`; Docker independiente migra mediant
 - [Redis y degradación](docs/implementation/20261018-evolution/REDIS.md): acciones sensibles cerradas ante fallo y fallback de lecturas acotado.
 - [Continuidad](docs/implementation/20261018-evolution/BACKUP_RESTORE.md): fuentes explícitas, cifrado/MAC y restauración a destino vacío.
 - [Arquitectura actual y transitoria](docs/implementation/20261018-evolution/ARQUITECTURA_ACTUAL.md): composición SaaS, módulos compartidos y relaciones de autoridad, con pendientes explícitos.
-- [Aislamiento y migrador](docs/implementation/20261018-evolution/AISLAMIENTO.md):17 familias R04 y seis grupos de control; rol app distinto del propietario/migrador.
+- [Aislamiento y migrador](docs/implementation/20261018-evolution/AISLAMIENTO.md):17 familias iniciales R04, más ledger y objetos hasta19 en esquema25; seis grupos de control, rol app distinto del propietario/migrador.
 - [Equipo](docs/implementation/20261018-evolution/EQUIPO.md), [licencias](docs/implementation/20261018-evolution/LICENCIAS.md) y [objetos privados](docs/implementation/20261018-evolution/ALMACENAMIENTO.md): compatibilidad y alcance revisado de cada consumidor.
 
 Los catálogos nutricionales nuevos son inmutables por solicitud; exclusiones estructuradas llegan a todos los selectores y se verifican en el resultado. Las notas libres no garantizan protección clínica. La revisión nutricional profesional permanece separada de las pruebas del motor.

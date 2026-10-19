@@ -1,0 +1,116 @@
+{
+  "base": "31ad545e0dabb2b71c57259d77487c8b3c5c3b15",
+  "locks": {
+    "requirements_web.lock": {
+      "sha256": "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",
+      "packages": 54,
+      "added": {
+        "boto3": "1.43.114",
+        "botocore": "1.43.114",
+        "jmespath": "1.1.0",
+        "python-dateutil": "2.9.0.post0",
+        "s3transfer": "0.19.2",
+        "six": "1.17.0"
+      },
+      "changed_or_removed": {}
+    },
+    "requirements_web-windows.lock": {
+      "sha256": "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",
+      "packages": 53,
+      "added": {
+        "boto3": "1.43.114",
+        "botocore": "1.43.114",
+        "jmespath": "1.1.0",
+        "python-dateutil": "2.9.0.post0",
+        "s3transfer": "0.19.2",
+        "six": "1.17.0"
+      },
+      "changed_or_removed": {}
+    },
+    "requirements-test.lock": {
+      "sha256": "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",
+      "packages": 65,
+      "added": {
+        "boto3": "1.43.114",
+        "botocore": "1.43.114",
+        "jmespath": "1.1.0",
+        "python-dateutil": "2.9.0.post0",
+        "s3transfer": "0.19.2",
+        "six": "1.17.0"
+      },
+      "changed_or_removed": {}
+    },
+    "requirements-test-windows.lock": {
+      "sha256": "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358",
+      "packages": 65,
+      "added": {
+        "boto3": "1.43.114",
+        "botocore": "1.43.114",
+        "jmespath": "1.1.0",
+        "python-dateutil": "2.9.0.post0",
+        "s3transfer": "0.19.2",
+        "six": "1.17.0"
+      },
+      "changed_or_removed": {}
+    }
+  },
+  "installed_windows_mismatches": {},
+  "audits": {
+    "linux": {
+      "command": [
+        "uvx",
+        "pip-audit",
+        "-r",
+        "requirements_web.lock",
+        "--no-deps",
+        "--disable-pip",
+        "--cache-dir",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-sca-cache-42c464df",
+        "--format",
+        "cyclonedx-json",
+        "--output",
+        "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\sbom-private-runtime-linux-final.json"
+      ],
+      "exit_code": 0,
+      "log": "sca-private-runtime-linux-final.log",
+      "components": 54,
+      "vulnerabilities": 0,
+      "artifact": "sbom-private-runtime-linux-final.json",
+      "sha256": "846f842503c837b021c7da9e1efca395258427825e532d39e12b109e36702544"
+    },
+    "windows": {
+      "command": [
+        "uvx",
+        "pip-audit",
+        "-r",
+        "requirements_web-windows.lock",
+        "--no-deps",
+        "--disable-pip",
+        "--cache-dir",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-sca-cache-ks7hpfm5",
+        "--format",
+        "cyclonedx-json",
+        "--output",
+        "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\sbom-private-runtime-windows-final.json"
+      ],
+      "exit_code": 0,
+      "log": "sca-private-runtime-windows-final.log",
+      "components": 53,
+      "vulnerabilities": 0,
+      "artifact": "sbom-private-runtime-windows-final.json",
+      "sha256": "1b62126058fbdad117f3e3a886a8101d72b6cdffddd15920ae473797db777f8b"
+    }
+  },
+  "locks_stable": true,
+  "tools": {
+    "uv": "0.11.26",
+    "pip-audit": "2.10.1",
+    "candidate_python": "3.12.13"
+  },
+  "linux_python3113_resolution": {
+    "packages": 54,
+    "versions_match_linux312": true,
+    "sha256": "b60f31069d83faa99347bda762a6c7945b603c5c3df1d1e63a4fba1bafff2cfa",
+    "scope": "Resolver compatibility only; Python3.11.0-3.11.2 additionally require async-timeout per redis marker; candidate runtime is3.12.13"
+  }
+}

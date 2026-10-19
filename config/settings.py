@@ -99,6 +99,17 @@ class Settings:
         self.DB_PATH: str | None = os.getenv("DB_PATH", None)
         self.DATA_DIR: str | None = os.getenv("METODOBASE_DATA_DIR", None)
 
+        # Private documents use one explicit destination. No ambient AWS
+        # credential/provider discovery and no fallback from S3 to local disk.
+        self.OBJECT_STORAGE_BACKEND = os.getenv("OBJECT_STORAGE_BACKEND", "")
+        self.OBJECT_STORAGE_LOCAL_ROOT = os.getenv("OBJECT_STORAGE_LOCAL_ROOT", "")
+        self.OBJECT_STORAGE_S3_BUCKET = os.getenv("OBJECT_STORAGE_S3_BUCKET", "")
+        self.OBJECT_STORAGE_S3_REGION = os.getenv("OBJECT_STORAGE_S3_REGION", "")
+        self.OBJECT_STORAGE_S3_ENDPOINT = os.getenv("OBJECT_STORAGE_S3_ENDPOINT", "")
+        self.OBJECT_STORAGE_S3_ACCESS_KEY = os.getenv("OBJECT_STORAGE_S3_ACCESS_KEY", "")
+        self.OBJECT_STORAGE_S3_SECRET_KEY = os.getenv("OBJECT_STORAGE_S3_SECRET_KEY", "")
+        self.OBJECT_STORAGE_S3_SESSION_TOKEN = os.getenv("OBJECT_STORAGE_S3_SESSION_TOKEN", "")
+
         # ── Stripe ────────────────────────────────────────────────────────
         self.STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")
         self.STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")

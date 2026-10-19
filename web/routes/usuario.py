@@ -10,8 +10,8 @@ import logging
 import os
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Depends, Header
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, HTTPException, Depends, Header, Query
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -183,7 +183,7 @@ async def get_mi_plan(
     plan_data = _load_plan_json(plan_record)
     plan_data = _enrich_plan_macros(plan_data)  # back-fill macros for pre-fix plans
 
-    tiene_pdf = bool(plan_record.ruta_pdf and os.path.isfile(plan_record.ruta_pdf))
+    tiene_pdf = bool(plan_record.pdf_object_id or (plan_record.ruta_pdf and os.path.isfile(plan_record.ruta_pdf)))
 
     return {
         "plan": plan_data,
@@ -365,7 +365,7 @@ def _individual_plan_response(plan_record: PlanGenerado) -> dict:
             "objetivo": plan_record.objetivo if plan_record else "",
             "fecha": plan_record.fecha_generacion.isoformat() if plan_record and plan_record.fecha_generacion else None,
         },
-        "tiene_pdf": bool(plan_record.ruta_pdf and os.path.isfile(plan_record.ruta_pdf)),
+        "tiene_pdf": bool(plan_record.pdf_object_id or (plan_record.ruta_pdf and os.path.isfile(plan_record.ruta_pdf))),
     }
 
 
@@ -373,7 +373,7 @@ def _individual_plan_response(plan_record: PlanGenerado) -> dict:
 
 @router.get("/usuario/descargar-pdf")
 async def descargar_pdf_usuario(
-    plan_id: Optional[int] = None,
+    plan_id: Optional[int] = Query(default=None, gt=0, le=2147483647),
     usuario=Depends(get_usuario_actual),
     db: Session = Depends(get_db),
 ):
@@ -390,29 +390,18 @@ async def descargar_pdf_usuario(
         PlanGenerado.gym_id == user_id,
     )
 
-    if plan_id:
+    if plan_id is not None:
         plan_record = query.filter(PlanGenerado.id == plan_id).first()
     else:
         plan_record = query.order_by(PlanGenerado.fecha_generacion.desc()).first()
 
-    if not plan_record or not plan_record.ruta_pdf:
+    if not plan_record:
         raise HTTPException(404, "No hay PDF disponible.")
-
-    if not os.path.isfile(plan_record.ruta_pdf):
-        raise HTTPException(404, "El archivo PDF no se encontró.")
-
-    # Validate path is within expected output directory
-    from web.constants import CARPETA_SALIDA
-    real_path = os.path.realpath(plan_record.ruta_pdf)
-    allowed_dir = os.path.realpath(CARPETA_SALIDA)
-    if not real_path.startswith(allowed_dir + os.sep):
-        raise HTTPException(403, "Acceso denegado.")
-
-    return FileResponse(
-        plan_record.ruta_pdf,
-        media_type="application/pdf",
-        filename="mi_plan_nutricional.pdf",
-    )
+    from web.services.plan_documents import read_plan_pdf
+    return Response(read_plan_pdf(db, user_id, plan_record.id), media_type="application/pdf", headers={
+        "Content-Disposition": 'attachment; filename="mi_plan_nutricional.pdf"',
+        "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff",
+    })
 
 
 # ── GET /usuario/historial ──────────────────────────────────────────────
@@ -450,7 +439,7 @@ async def historial_planes(
                 "carbs_g": p.carbs_g,
                 "grasa_g": p.grasa_g,
                 "tipo_plan": p.tipo_plan,
-                "tiene_pdf": bool(p.ruta_pdf and os.path.isfile(p.ruta_pdf)),
+                "tiene_pdf": bool(p.pdf_object_id or (p.ruta_pdf and os.path.isfile(p.ruta_pdf))),
             }
             for p in planes
         ]

@@ -98,9 +98,10 @@ def build_object_store(configuration: ObjectStoreConfiguration):
         session = Session(aws_access_key_id=configuration.access_key,
             aws_secret_access_key=configuration.secret_key,
             aws_session_token=configuration.session_token, region_name=configuration.region)
-        client = session.client("s3", endpoint_url=configuration.endpoint,
+        client = session.client("s3", endpoint_url=configuration.endpoint, verify=True,
             config=Config(region_name=configuration.region, signature_version="s3v4",
                 connect_timeout=3, read_timeout=10,
+                proxies={},
                 retries={"mode": "standard", "total_max_attempts": 2},
                 s3={"addressing_style": "path"}, ignore_configured_endpoint_urls=True))
     except Exception:

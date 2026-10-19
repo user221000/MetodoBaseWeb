@@ -64,16 +64,24 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
       - name: Required SaaS cases cannot silently become skips
         run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web.xml').findall('.//skipped'), 'Required SaaS cases were skipped'"
+      - name: Private storage SDK parameters and explicit configuration without a provider
+        run: python -X utf8 tests/run_isolated.py tests/integration_object_store_configuration.py tests/integration_object_store_configuration_review.py tests/integration_object_storage_sdk.py -q --tb=short --junitxml=pytest-storage-sdk.xml
+      - name: Required private storage SDK cases cannot silently become skips
+        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-storage-sdk.xml').findall('.//skipped'), 'Required storage SDK cases were skipped'"
       - name: New nutrition contracts meet reviewed risk coverage
         run: python tests/check_coverage.py coverage.json
       - name: Full SaaS suite in shuffled order and two isolated workers
-        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --shuffle-seed=20261018 -q -n 2 --tb=short
+        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --shuffle-seed=20261018 -q -n 2 --tb=short --junitxml=pytest-web-shuffle.xml
+      - name: Required shuffled SaaS cases cannot silently become skips
+        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web-shuffle.xml').findall('.//skipped'), 'Required shuffled SaaS cases were skipped'"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: web-tests-${{ matrix.python }}
           path: |
             pytest-web.xml
+            pytest-web-shuffle.xml
+            pytest-storage-sdk.xml
             coverage.xml
             coverage.json
   test-desktop:
@@ -147,6 +155,10 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_tenant_activation.py tests/integration_provider_subjects.py tests/integration_onboarding_postgres.py tests/integration_invitation_tenant_postgres.py -q --tb=short --junitxml=pytest-postgres-channels.xml
       - name: Gym quota migration preserves the reviewed source and rejects drift
         run: python -X utf8 tests/run_isolated.py tests/integration_gym_quota_migrations.py -q --tb=short --junitxml=pytest-postgres-gym-migrations.xml
+      - name: Private metadata migration preserves quota history, owner references and RLS
+        run: python -X utf8 tests/run_isolated.py tests/integration_stored_objects_migrations.py -q --tb=short --junitxml=pytest-postgres-object-migrations.xml
+      - name: Private publication survives uncertain PUT and transaction failures under restricted role
+        run: python -X utf8 tests/run_isolated.py tests/integration_private_objects_review_postgres.py -q --tb=short --junitxml=pytest-postgres-objects.xml
       - name: Real factory privacy export preserves personal scope and performs no writes
         run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
       - name: Exact historical plan PDF respects viewer scope, revocation and pool reuse
@@ -223,7 +235,7 @@ jobs:
           --command "CREATE ROLE metodobase_test_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD 'synthetic-app-only'; GRANT USAGE ON SCHEMA public TO metodobase_test_app; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO metodobase_test_app; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO metodobase_test_app;"
       - name: Exercise the same web runtime inside the candidate
         run: |
-          docker run --detach --name metodobase-candidate --network host --entrypoint python -e METODOBASE_ENV=testing -e WEB_SECRET_KEY=synthetic-ci-only-secret-at-least-32-characters -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image -e METODOBASE_DATA_DIR=/data -e METODOBASE_SEED_DEMO=0 -e PORT=8765 metodobase-candidate:${{ github.sha }} -m uvicorn web.main_web:create_app --factory --host 127.0.0.1 --port 8765
+          docker run --detach --name metodobase-candidate --network host --entrypoint python -e METODOBASE_ENV=testing -e WEB_SECRET_KEY=synthetic-ci-only-secret-at-least-32-characters -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image -e METODOBASE_DATA_DIR=/data -e OBJECT_STORAGE_BACKEND=local -e OBJECT_STORAGE_LOCAL_ROOT=/tmp/metodobase-image-objects -e METODOBASE_SEED_DEMO=0 -e PORT=8765 metodobase-candidate:${{ github.sha }} -m uvicorn web.main_web:create_app --factory --host 127.0.0.1 --port 8765
           for attempt in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8765/health/ready; then exit 0; fi
             sleep 1

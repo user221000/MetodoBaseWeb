@@ -1,4 +1,53 @@
-# R07: puerto privado y adaptadores iniciales
+# R07: documentos privados y transición histórica
+
+## Integración local posterior
+
+El candidato conecta generación, lectura y branding con `web/storage`. El destino operativo todavía debe seleccionarse y verificarse. No hay bucket aprovisionado, prueba de reemplazo de contenedor ni publicación en producción. La UI de logos y el inventario histórico se revisan como sublotes separados; este documento no cierra todo R07.
+
+`20261018_stored_objects`, integrado en74d66e8, añade la tabla25 y familia19 con ENABLE/FORCE RLS. Conserva targets/fixtures anteriores. `StoredObject` guarda UUID hex32, propietario, kind, key única, tipo, tamaño, SHA256, backend, pending/ready y dos instantes UTC. Plan y perfil tienen referencias nullable con FK compuesta de propietario y RESTRICT. Ninguna ruta histórica se convierte automáticamente ni se eliminan bytes mediante CASCADE.
+
+`publish_pending_object` confirma la intención antes de PUT y cierra esa sesión antes del I/O. Después, el consumidor confirma ready y referencia de plan/perfil en una misma transacción. Un fallo de PUT puede haber publicado bytes: queda pending, sin asumir ausencia, borrar ni seleccionar otro destino. Fallar después de PUT y antes del commit revierte ready/referencia/plan/marcador de cuota; los bytes quedan para reconciliación. Una publicación confirmada no se reembolsa por perder respuesta. Reintentos/retención corresponden a R28/R31.
+
+La aplicación autoriza con identidad persistida y doble propiedad plan/cliente; exige metadatos del mismo dueño, kind esperado, ready y backend seleccionado. El adaptador comprueba tamaño/SHA256. Conocer ID/key no concede acceso. Una referencia privada es autoritativa: si falla, nunca se sustituye por bytes legacy ni por otro plan.
+
+### Configuración obligatoria
+
+Ambos factories fallan antes de usar la base si la configuración no es válida. [.env.example](../../../.env.example) deja la elección vacía. No mezclar valores S3 con local ni configurar raíz de fallback para S3. Pruebas borran variables AWS/S3/OBJECT heredadas y usan raíz temporal privada por worker.
+
+| Variable | Uso |
+|---|---|
+| `OBJECT_STORAGE_BACKEND` | `local` o `s3`, obligatorio |
+| `OBJECT_STORAGE_LOCAL_ROOT` | Raíz absoluta privada; sólo local |
+| `OBJECT_STORAGE_S3_BUCKET` / `OBJECT_STORAGE_S3_REGION` | Bucket existente y región; sólo S3 |
+| `OBJECT_STORAGE_S3_ENDPOINT` | Opcional HTTPS sin credenciales/path/query; HTTP sólo loopback de desarrollo |
+| `OBJECT_STORAGE_S3_ACCESS_KEY` / `OBJECT_STORAGE_S3_SECRET_KEY` | Credenciales explícitas, fuera de logs/repr |
+| `OBJECT_STORAGE_S3_SESSION_TOKEN` | Credencial temporal opcional |
+
+No se consultan perfiles/credential_process ni credenciales/endpoints heredados. S3 fija firma S3v4, conexión3s/lectura10s, dos intentos totales y endpoint overrides desactivados. No descubre/crea buckets. Local necesita montaje/permisos, backup y ensayo de sustitución para producción; reabrir adaptador en el mismo host sólo prueba reconstrucción de proceso. El contenedor de CI recibe destino local explícito para su ensayo, sin acreditar un volumen productivo.
+
+### Consumidores y recuperación
+
+La revisión posterior reprodujo tres herencias no autorizadas del SDK: AWS_CA_BUNDLE y proxies HTTP/HTTPS. Ahora el cliente fija verify=True y proxies vacíos.48 casos independientes (ocho composición/transporte y40 SDK/config previos) comprueban también factories web/API con local/S3 construido sin I/O remoto. No se añade soporte implícito de proxy ni CA personalizada.
+
+El worker común renderiza PDF/logo privado en workspace temporal; publica PDF y guarda JSON/cuota/referencia en una transacción, retirando scratch. Respuestas nuevas llevan plan_id/pdf_url, sin paths físicos. Historial usa tiene_pdf/pdf_url; el flag indica referencia y no es una sonda remota de integridad. Los resultados idempotentes históricos se conservan sin reescribir el ledger. Descargas por ID y compatibilidad de último PDF comparten el límite autorizado. La ruta personal rechaza ID explícito cero/negativo/fuera de entero32; sólo omitirlo elige último.
+
+GET `/api/gym/logo` requiere Bearer. Upload limita lectura/resultado a2MiB, decodifica PNG/JPEG/WebP, rechaza animación/superficies mayores de16MP y re-encodea sin EXIF/metadata fuente. Confirma ready y referencia antes de responder; sustitución incierta conserva logo previo y pending nuevo. No borra versiones/legacy. La UI privada requiere Blob autenticado, limpieza por cuenta/página y ningún fallback si hay referencia privada; su gate está separado.
+
+La notificación existente lee PDF bajo tenant explícito y entrega bytes al helper de correo, sin reabrir rutas del DTO. Bytes válidos preceden al argumento legacy y usan nombre constante; inválidos no envían ni hacen fallback. Sigue best-effort, sin outbox durable, entrega real ni validación del límite efectivo del proveedor.
+
+El lector legacy conserva raíz privada/límites/cabecera/rechazo de symlink. No acredita SHA histórico ni procedencia: los nombres antiguos pudieron colisionar. Una fila y un archivo no reconstruyen su contenido original. El inventario readonly en preparación detecta duplicados/mezclas/cambios/ausencias y exige revisión, sin escoger ganador ni migrar/borrar por intuición. El cálculo nutricional que consulta JSON histórico se mantiene separado y requiere R33.
+
+Backup local toma primero snapshot DB y después archivos. Los bytes de referencias nuevas ready ya existían al confirmar DB y son inmutables; conservarlos sin GC forma parte del contrato. Restore25 verifica25 tablas,19 familias FORCE, cuatro metadatos (PDF/logo ready, pending huérfano y dueño ajeno), dos archivos legacy, relaciones, secuencias y SHA/tamaños. Reconstruye rol app/adaptador y aislamiento. No acredita bucket/versiones remotos, carga concurrente, RPO/RTO comercial ni retención.
+
+Evidencia: DDL25 tiene18 QA más28 del coordinador en dos gates (12 migración,10 startup,6 contrato24), con fuentes/contratos estables. Consumidores tienen120 autor,16 worker/cuota y14 independientes de backend, incluidos cinco PG con rol restringido/pool1/core/PDF reales y un caso personal de ID. No sumar como suite final única. Véanse `storage25-root-review.json`, `storage25-ddl-independent-source.json` y `backend-r07-consumers-review-source.json` en evidence.
+
+Los locks web/test Linux/Windows añaden seis dependencias SDK sin cambiar versiones previas. Instalación candidata con hashes y SDK/config probados; SBOM/SCA de resolución54 Linux/53 Windows sin vulnerabilidades conocidas al corte en `evidence/private-runtime-dependency-review.json`. No son SBOM/SCA ni ejecución de imagen. Quedan UI/CI/candidato final, migración histórica con procedencia/CAS, reconciliación y destino real/IAM/backup/sustitución de contenedor. No se compraron recursos ni subieron archivos reales.
+
+Seguimiento independiente final del lote: tres casos API de equipo corrigieron una dependencia owner-only que impedía llegar a RBAC; nutriólogo usa cliente/cuota del owner, VIEWER no genera y ambos descargan su PDF autorizado. Browser25 pasó10 grupos/6 pantallas con44 fuentes estables, imágenes Blob realmente decodificadas y dos PDFs reales con logo privado; descarga histórica exacta y descarte tras cambio de sesión. CSP sólo permite blob en img-src. Sigue abierta una carrera distinta de refresh401 encontrada después de esos flujos; no se presenta este hito como aprobación de release.
+
+## Antecedentes aceptados hasta9b97068
+
+Los párrafos siguientes conservan el alcance de la preparación inicial, anterior al cutover descrito arriba. Sus referencias a consumidores/metadatos pendientes corresponden a aquel hito.
 
 `web/storage/objects.py` define descriptor inmutable y puerto; los adaptadores de volumen local y S3 compatible exigen propietario explícito. Las claves opacas se generan en servidor, contienen un namespace derivado del dueño y no aceptan paths. Tipo, tamaño, asociación y SHA256 se validan antes de acceso; leer devuelve bytes acotados e íntegros. La aplicación aún debe autorizar la fila de metadatos con el principal persistido antes de invocar el puerto. Una clave conocida no es credencial.
 

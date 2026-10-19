@@ -76,6 +76,14 @@ class TestSecurityHeadersMiddleware:
         hsts = resp.headers["Strict-Transport-Security"]
         assert "max-age=" in hsts
         assert "includeSubDomains" in hsts
+
+    def test_private_blob_preview_is_allowed_only_as_an_image(self, app_with_security):
+        with TestClient(app_with_security) as client:
+            value = client.get("/test").headers["Content-Security-Policy"]
+        directives = {parts[0]: parts[1:] for part in value.split(";") if (parts := part.split())}
+        assert "blob:" in directives["img-src"]
+        assert all("blob:" not in sources for name, sources in directives.items() if name != "img-src")
+        assert directives["object-src"] == ["'none'"]
     
     def test_csp_header_present(self, app_with_security):
         """CSP header debe estar presente con directivas básicas."""

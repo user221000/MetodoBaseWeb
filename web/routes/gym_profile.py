@@ -7,17 +7,17 @@ Endpoints:
     POST /api/gym/logo          — Subir logo del gym (imagen)
 """
 import logging
-import os
-import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import Response
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from typing import Optional
 
 from web.auth_deps import get_usuario_actual, get_effective_gym_id
-from web.database.engine import get_db
+from web.database.engine import get_db, get_db_readonly
 from web.database import repository as repo
 from web.services.permissions import verify_permission
 from web.routes._utils import get_gym_id
@@ -26,8 +26,6 @@ from web.constants import UPLOAD_ALLOWED_IMAGE_EXTENSIONS, UPLOAD_MAX_LOGO_SIZE_
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/gym", tags=["GymProfile"])
 
-# Directorio para logos subidos
-_UPLOAD_DIR = Path(__file__).resolve().parent.parent / "static" / "uploads" / "logos"
 _ALLOWED_EXTENSIONS = UPLOAD_ALLOWED_IMAGE_EXTENSIONS
 _MAX_LOGO_SIZE = UPLOAD_MAX_LOGO_SIZE_BYTES
 
@@ -91,50 +89,51 @@ async def subir_logo(
     if ext not in _ALLOWED_EXTENSIONS:
         raise HTTPException(400, f"Formato no permitido. Use: {', '.join(_ALLOWED_EXTENSIONS)}")
 
-    # Leer y validar tamaño
-    content = await file.read()
-    if len(content) > _MAX_LOGO_SIZE:
-        raise HTTPException(400, "El logo no debe exceder 2 MB")
+    content = await file.read(_MAX_LOGO_SIZE + 1)
+    from web.services.gym_logos import normalize_logo
+    from web.services.private_objects import publish_pending_object, mark_object_ready
+    from web.storage.objects import ObjectUnavailable
+    from web.database.models import GymProfile
+    try:
+        normalized, content_type = await run_in_threadpool(normalize_logo, content, ext)
+    except ValueError as error:
+        raise HTTPException(400, str(error)) from None
+    try:
+        descriptor = await run_in_threadpool(publish_pending_object, gym_id, "gym_logo", normalized, content_type)
+        object_id = mark_object_ready(db, gym_id, descriptor, "gym_logo")
+        profile = db.query(GymProfile).filter_by(gym_id=gym_id).with_for_update().first()
+        if profile is None:
+            profile = GymProfile(gym_id=gym_id)
+            db.add(profile)
+        profile.logo_object_id = object_id
+        db.flush()
+        # Confirm the reference before reporting success. Old objects and legacy
+        # files remain available for explicit migration/retention reconciliation.
+        db.commit()
+    except ObjectUnavailable:
+        raise HTTPException(503, {"code": "logo_storage_unavailable",
+            "message": "No fue posible guardar el logo. Vuelve a consultar la configuración."}) from None
+    return {"success": True, "logo_url": "/api/gym/logo", "has_private_logo": True}
 
-    # Validate file content matches extension (prevent disguised uploads)
-    _MAGIC_BYTES = {
-        b'\x89PNG': {".png"},
-        b'\xff\xd8\xff': {".jpg", ".jpeg"},
-        b'RIFF': {".webp"},  # WebP starts with RIFF
-    }
-    ext_valid = False
-    for magic, valid_exts in _MAGIC_BYTES.items():
-        if content[:len(magic)] == magic and ext in valid_exts:
-            ext_valid = True
-            break
-    if not ext_valid:
-        raise HTTPException(400, "El contenido del archivo no coincide con la extensión")
 
-    # Guardar archivo con nombre único
-    _UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    filename = f"{gym_id}_{uuid.uuid4().hex[:8]}{ext}"
-    filepath = _UPLOAD_DIR / filename
-    filepath.write_bytes(content)
-
-    # Eliminar logo anterior si existe
-    profile = repo.obtener_gym_profile(db, gym_id)
-    if profile and profile.get("logo_url"):
-        old_relative = profile["logo_url"].removeprefix("/static/")
-        old_path = Path(__file__).resolve().parent.parent / "static" / old_relative
-        # Prevent path traversal: ensure old_path is within _UPLOAD_DIR
-        try:
-            old_path = old_path.resolve()
-            if old_path.is_relative_to(_UPLOAD_DIR.resolve()) and old_path.exists() and old_path != filepath.resolve():
-                old_path.unlink()
-        except (OSError, ValueError):
-            pass
-
-    # Actualizar URL en DB
-    logo_url = f"/static/uploads/logos/{filename}"
-    repo.actualizar_gym_profile(db, gym_id, {"logo_url": logo_url})
-
-    logger.info("Logo subido para gym %s: %s", gym_id, logo_url)
-    return {"success": True, "logo_url": logo_url}
+@router.get("/logo", summary="Leer logo privado del gym")
+def obtener_logo(db: Session = Depends(get_db_readonly), usuario: dict = Depends(get_usuario_actual)):
+    verify_permission(usuario, "read", "gym_profile")
+    from web.database.models import GymProfile
+    from web.services.private_objects import read_private_object
+    from web.storage.objects import ObjectUnavailable
+    gym_id = get_gym_id(usuario)
+    profile = db.query(GymProfile).filter_by(gym_id=gym_id).first()
+    if profile is None or not profile.logo_object_id:
+        raise HTTPException(404, "Logo no disponible")
+    try:
+        content, content_type = read_private_object(db, gym_id, profile.logo_object_id, "gym_logo")
+    except ObjectUnavailable:
+        raise HTTPException(404, "Logo no disponible") from None
+    return Response(content, media_type=content_type, headers={
+        "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff",
+        "Content-Disposition": "inline",
+    })
 
 
 # ── Planes de suscripción (precios configurables) ────────────────────────────

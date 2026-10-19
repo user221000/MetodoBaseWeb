@@ -73,10 +73,10 @@ def create_app() -> FastAPI:
     from web.settings import get_settings
     from web.constants import ensure_data_dirs
     
-    # Crear directorios de datos (lazy, no en import)
-    ensure_data_dirs()
-    
     settings = get_settings()
+    from web.storage.runtime import get_object_store
+    private_store = get_object_store()
+    ensure_data_dirs()
     logger.info(
         "[BOOT] BUILD_VERSION=%s | TemplateResponse signature=%s",
         "2026-04-01-v7-TEMPLATECOMPAT",
@@ -141,6 +141,7 @@ def create_app() -> FastAPI:
         redoc_url=None,
         lifespan=lifespan,
     )
+    app.state.private_object_store = private_store
 
     app.add_middleware(
         CORSMiddleware,

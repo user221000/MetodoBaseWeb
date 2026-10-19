@@ -14,12 +14,12 @@
 <div class="context-bar">
   <span class="context-bar-item">⚙️ Los cambios se reflejan en los PDFs generados</span>
   <span class="context-bar-item">🖼️ Sube tu logo para una imagen profesional</span>
-  <span class="context-bar-item">💾 Guardado seguro y encriptado</span>
+  <span class="context-bar-item">💾 Perfil y logo del negocio</span>
 </div>
 
 <!-- Mensajes -->
 <div id="successMsg" role="status" class="mb-4" style="display:none;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:12px 16px;color:#34D399;font-size:.88rem;"></div>
-<div id="errorMsg" role="alert" class="mb-4" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 16px;color:#F87171;font-size:.88rem;"></div>
+<div id="errorMsg" role="alert" tabindex="-1" class="mb-4" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:12px 16px;color:#F87171;font-size:.88rem;"></div>
 
 <div class="settings-grid">
 
@@ -76,13 +76,13 @@
   <!-- ═══ Columna derecha: Logo + Redes ═══ -->
   <div>
     <!-- Logo -->
-    <div class="chart-container mb-4" style="padding:28px;">
+    <div id="gym-logo-section" class="chart-container mb-4" style="padding:28px;" aria-labelledby="gym-logo-heading">
       <div class="flex items-center gap-3 mb-4">
         <div style="width:40px;height:40px;border-radius:10px;background:rgba(45,212,191,.08);display:flex;align-items:center;justify-content:center;">
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--accent-purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         </div>
         <div>
-          <h3 class="chart-title" style="margin:0;">Logo del Negocio</h3>
+          <h3 id="gym-logo-heading" class="chart-title" style="margin:0;">Logo del Negocio</h3>
           <p style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">Aparece en la esquina superior derecha de los PDFs</p>
         </div>
       </div>
@@ -91,17 +91,19 @@
         <div id="logo-placeholder" style="width:120px;height:80px;border-radius:12px;border:2px dashed rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;margin:0 auto;color:var(--text-muted);font-size:.85rem;">
           Sin logo
         </div>
-        <img id="logo-img" src="" alt="Logo" style="display:none;max-width:180px;max-height:100px;border-radius:12px;border:1px solid rgba(255,255,255,.08);margin:0 auto;" />
+        <img id="logo-img" alt="Vista previa del logo del negocio" hidden style="max-width:180px;max-height:100px;border-radius:12px;border:1px solid rgba(255,255,255,.08);margin:0 auto;" />
       </div>
 
       <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
-        <button type="button" id="logo-picker" class="btn btn-outline" style="cursor:pointer;font-size:.85rem;">
+        <button type="button" id="logo-picker" class="btn btn-outline" data-permission="update:gym_profile" aria-describedby="logo-help" style="cursor:pointer;font-size:.85rem;" disabled>
           📁 Subir logo
         </button>
         <input type="file" id="logo-input" accept=".png,.jpg,.jpeg,.webp" aria-label="Archivo del logo" hidden />
-        <span class="text-xs text-muted">PNG, JPG o WebP · Máx 2 MB</span>
+        <button type="button" id="logo-reload" class="btn btn-secondary" disabled>Consultar logo guardado</button>
+        <span id="logo-help" class="text-xs text-muted">PNG, JPG o WebP · Máx 2 MB y 16 megapíxeles · Sin animación</span>
       </div>
-      <div id="logo-upload-status" class="text-xs mt-2" style="display:none;"></div>
+      <p id="logo-upload-status" role="status" class="text-sm mt-2">Consultando el logo guardado...</p>
+      <p id="logo-error" role="alert" tabindex="-1" class="mt-2" style="overflow-wrap:anywhere" hidden></p>
     </div>
 
     <!-- Redes sociales -->
@@ -146,7 +148,7 @@
 
 <!-- Botón Guardar -->
 <div style="margin-top:24px;display:flex;justify-content:flex-end;">
-  <button class="btn btn-primary" id="btn-guardar" style="min-width:200px;font-size:.95rem;">
+  <button class="btn btn-primary" id="btn-guardar" data-permission="update:gym_profile" style="min-width:200px;font-size:.95rem;" disabled>
     💾 Guardar Configuración
   </button>
 </div>
@@ -179,108 +181,20 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+#gym-logo-section img { object-fit:contain; }
+#gym-logo-section [hidden] { display:none !important; }
+#gym-logo-section .btn { white-space:normal; }
+#logo-upload-status, #logo-error { overflow-wrap:anywhere; }
+#logo-error:focus, #errorMsg:focus { outline:2px solid var(--accent-primary);outline-offset:4px; }
+.settings-grid > *, .settings-grid .grid-2 > * { min-width:0; }
+</style>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/gym-branding.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 /* ══════════════════════════════════════════════════════════════
    configuracion.js — Gym Profile Management
 ═════════════════════════════════════════════════════════════ */
 
-const FIELDS = {
-  'cfg-nombre':    'nombre_negocio',
-  'cfg-direccion': 'direccion',
-  'cfg-ciudad':    'ciudad',
-  'cfg-estado':    'estado',
-  'cfg-telefono':  'telefono',
-  'cfg-web':       'sitio_web',
-  'cfg-rfc':       'rfc',
-  'cfg-instagram': 'instagram',
-  'cfg-facebook':  'facebook',
-  'cfg-tiktok':    'tiktok',
-};
-
-// ── Cargar perfil existente ──────────────────────────────────
-(async () => {
-  try {
-    const profile = await Api.gym.getProfile();
-    // Poblar campos
-    for (const [inputId, key] of Object.entries(FIELDS)) {
-      const el = document.getElementById(inputId);
-      if (el && profile[key]) el.value = profile[key];
-    }
-    // Logo
-    if (profile.logo_url) {
-      document.getElementById('logo-img').src = profile.logo_url;
-      document.getElementById('logo-img').style.display = 'block';
-      document.getElementById('logo-placeholder').style.display = 'none';
-    }
-  } catch (e) {
-    console.error('Error cargando perfil:', e);
-  }
-})();
-
-// ── Guardar perfil ──────────────────────────────────────────
-document.getElementById('btn-guardar').addEventListener('click', async () => {
-  const btn = document.getElementById('btn-guardar');
-  const successMsg = document.getElementById('successMsg');
-  const errorMsg = document.getElementById('errorMsg');
-  successMsg.style.display = 'none';
-  errorMsg.style.display = 'none';
-
-  const payload = {};
-  for (const [inputId, key] of Object.entries(FIELDS)) {
-    const val = document.getElementById(inputId).value.trim();
-    payload[key] = val;
-  }
-
-  if (!Object.keys(payload).length) {
-    errorMsg.textContent = 'No hay cambios para guardar.';
-    errorMsg.style.display = 'block';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Guardando...';
-
-  try {
-    await Api.gym.updateProfile(payload);
-    successMsg.textContent = '✅ Perfil actualizado correctamente. Los datos aparecerán en los PDFs generados.';
-    successMsg.style.display = 'block';
-    Toast.success('Perfil guardado');
-  } catch (e) {
-    errorMsg.textContent = 'Error: ' + e.message;
-    errorMsg.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '💾 Guardar Configuración';
-  }
-});
-
-// ── Upload logo ─────────────────────────────────────────────
-document.getElementById('logo-picker').addEventListener('click', () => document.getElementById('logo-input').click());
-document.getElementById('logo-input').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const status = document.getElementById('logo-upload-status');
-  status.style.display = 'block';
-  status.style.color = 'var(--text-muted)';
-  status.textContent = 'Subiendo logo...';
-
-  try {
-    const result = await Api.gym.uploadLogo(file);
-    // Mostrar preview
-    document.getElementById('logo-img').src = result.logo_url;
-    document.getElementById('logo-img').style.display = 'block';
-    document.getElementById('logo-placeholder').style.display = 'none';
-    status.style.color = '#34D399';
-    status.textContent = '✅ Logo subido correctamente';
-    Toast.success('Logo actualizado');
-  } catch (err) {
-    status.style.color = '#F87171';
-    status.textContent = '❌ ' + err.message;
-  }
-});
-
-// ── Planes de suscripción ───────────────────────────────────
 const DURACION_ICONS = {
   7: '📅',
   30: '🗓️',
@@ -293,7 +207,9 @@ let _planes = [];
 
 (async () => {
   try {
+    await GymBranding.verifyAccount();
     const res = await Api.gym.listarPlanes();
+    await GymBranding.verifyAccount();
     _planes = res.planes || [];
     renderPlanes(_planes);
   } catch (e) {
@@ -331,10 +247,11 @@ function renderPlanes(planes) {
           style="text-align:center;font-size:1.1rem;font-weight:700;"
         />
       </div>
-      <button class="btn btn-primary btn-sm btn-guardar-plan" data-plan-id="${plan.id}" style="width:100%;font-size:.8rem;">
+      <button class="btn btn-primary btn-sm btn-guardar-plan" data-permission="update:gym_profile" data-plan-id="${plan.id}" style="width:100%;font-size:.8rem;">
         Guardar
       </button>
     `;
+    card.querySelector('.plan-precio-input').disabled = !GymBranding.canUpdate();
 
     // Event listener for save button
     card.querySelector('.btn-guardar-plan').addEventListener('click', async (e) => {
@@ -349,13 +266,15 @@ function renderPlanes(planes) {
       btn.disabled = true;
       btn.textContent = '...';
       try {
+        await GymBranding.verifyAccount();
         await Api.gym.actualizarPlan(planId, { precio });
+        await GymBranding.verifyAccount();
         Toast.success(`Precio de "${plan.nombre}" actualizado a $${precio.toFixed(2)}`);
         const msg = document.getElementById('planes-saved-msg');
         msg.style.display = 'block';
         setTimeout(() => msg.style.display = 'none', 3000);
       } catch (err) {
-        Toast.error('Error: ' + err.message);
+        if (GymBranding.isActive()) Toast.error('Error: ' + err.message);
       } finally {
         btn.disabled = false;
         btn.textContent = 'Guardar';
