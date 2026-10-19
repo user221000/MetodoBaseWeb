@@ -136,3 +136,7 @@ Integrar código local revisado con estado en revisión sin exigir despliegue o 
 ## Checkpoint129
 
 Componer fuentes33 antes deQA integrada yconservar el ancestry real de506 paraCI histórica. Aceptar R05v1 sólo en su alcance focal; el gate global sigue abierto. ParaR23 se aprueban dos tablas,permiso dedicado deNutri asignado yningún step-up nuevo para tareas ordinarias; loginMFA ygrants deequipo/cobro permanecen. El hash por causa excluye now/as_of. Un responsable no elegible no provoca lookup decontacto privado deotro contexto. La historiaRESTRICT no define retención legal ni cierra purgaR31. La imagen final espera fuente estable.
+
+## Checkpoint130
+
+QA-17 es clasificación de conflicto concurrente, sin adopción de cuenta ni credenciales al perdedor. Ampliar el catch a toda la escritura; no convertir rollback incierto en409 ni añadir reintentos. El triageR05 nuevo requiere peer antes de instalarv2.

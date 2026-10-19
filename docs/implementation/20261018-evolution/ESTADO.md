@@ -1,57 +1,49 @@
 # Estado de implementación
 
-Checkpoint129 local: MAIN integra Google33, su UI y el clasificador finito R05
-desde3587b3b. Se conservan126 requisitos (92 originales+34 nuevos) y sus126
-criterios exactos. Free:10 clientes activos,1 plan por cliente al día y10 planes
-totales por gimnasio al día. Desktop sigue soportado. El workspace de referencia
-permanece intacto. Sin push,PR,despliegue,cargos ni comunicaciones reales.
+Checkpoint130 local: esquema33 y127 requisitos (92 originales+35 añadidos).
+Se conservan íntegros los126 criterios previos. Free:10 clientes activos,
+1 plan por cliente al día y10 planes totales por gimnasio al día. Desktop sigue
+soportado. El workspace de referencia permanece intacto. Sin push,PR,despliegue,
+cargos ni comunicaciones reales.
 
-La composición importó58 fuentes:37 del backend,17 del frontend y4 deR05.
-57 coinciden conGit de sus autores; un test sólo pierde una línea vacía final
-(AST e inversa exactos). MAIN coincide58/58 conCOMMON3587. La composición conservó
-12.343 entradas ajenas,59 rutas Alembic previas,cleanup227 yDockerfile. Este
-checkpoint añade evidencia yactualiza los archivos de control. Los locks cambian
-por tres dependencias Google. de506 ylas ramas productoras son ancestros reales:
-la unión de parentesco posterior conservó el árbol compuesto byte a byte.
-[Equivalencia](evidence/prepared-wave129-20261019/source-equivalence.json).
+Google33 ysu UI están integrados desde3587. La corrección8a5e deQA-17 amplía el
+manejo de colisiones a los flush previos al commit. Rollback confirmado409;
+incierto503. No añade retry ni adopta cuentas. Autor:4casos verdes tras2FAIL y
+2PASS iniciales,58regresiones verdes. Peer sobre la fuente exacta:12SQLite y
+11PostgreSQL PASS,0errores/skips. Los mismos dos canarios HTTP entre procesos
+devuelven200+409; cuenta,binding,perfil ycinco plantillas únicos. Tres UUID
+temporales cerrados y ausentes. Evidencia original RED yreplay preservados.
+[Corrección](evidence/root-google33-conflict-author-20261019/review.md),
+[peer](evidence/security-google33-conflict-independent-20261019/review.md).
 
-Google33 asocia issuer/sub,crea cuentas nuevas vacías yofrece enlace/desenlace
-explícitos. VerificaJWT conJWKS fijo yauth_time real; exige prueba local yfactor
-existente al vincular. El autor validó35 tablasORM/36 físicas/26FORCE,26 funciones
-y12 triggers; cerró31 UUID propias. La UI pasó49 casosVM nuevos,8SSR y148
-regresiones del autor. SEC yQA revisan3587:8 criterios de asociación verdes;
-2 rojos de framingSSR200 conservados. PG,HTTP/browser integrado,broad eimagen33
-no tienen aceptación completa. Google-only histórico desconocido,pérdida total
-de factores yconfiguración real delclaim siguen pendientes.
-[Backend](evidence/backend-google-subject33-20261019/review.md),
-[UI](evidence/google-link-ui/source.json).
+La revisión33 anterior retiene sus fases ylimitaciones, sin sumar replays
+solapados. El esquema tiene35tablasORM/36físicas/26familiasFORCE,26funciones y
+12triggers. Su UI tiene evidencia de autor49VM,8SSR y148regresiones. QA actual
+prepara PG/CI yframing frontend:708comprobacionesoffline verdes; los primeros
+fallos Node siguen conservados. Broad actual,browser integrado eimagen final
+siguen pendientes. No se reatribuye el broad31 o el artefacto31 aesta versión.
+Google-only histórico sin sub conocido,pérdida total de factores,claim real,
+alertas ycustodia siguen abiertos.
+[Revisión33](evidence/security-google33-independent-20261019/review.md).
 
-R05v1 pasó110 pruebas del autor y171 del peer,10 escaneos reales y2 rechazos
-previos. El registro fija31.394 ubicaciones/reglas únicas en534 archivos de un
-informe anterior con31.564 ocurrencias revisadas. No añade excepciones genéricas.
-El último escaneo completo (17c9,12.367 archivos) quedó estable yrojo:42.830
-hallazgos brutos,28.273 clasificados y14.557 bloqueantes. El nuevo triage propone
-14.479 checksums ydeja78 ubicaciones sin clasificar; exige revisión independiente
-antes de ampliar el registro. El árbol33 actual necesita otro escaneo completo.
-Las tres preimágenesWIP ausentes conservan su limitación de procedencia.
-[Autor](evidence/root-r05-finite-reviewed-author-20261019/source.json),
-[peer](evidence/security-r05-registry-independent-20261019/source.json),
-[candidatos](evidence/prepared-wave129-20261019/current-r05-candidate-summary.json).
+R05v1 instalado permanece intacto:31.394pins/534archivos;110pruebas del autor,
+171delpeer. El último escaneo completo17c9 sigue RED:42.830hallazgos brutos,
+28.273clasificados y14.557bloqueantes. Su triage nuevo tiene14.557ocurrencias
+candidatas/14.516pins/155archivos,0ubicaciones pendientes de análisis. Esto
+requiere revisión independiente antes de ampliar el registro. No es un escaneo
+nuevo ni PASS global. Las derivaciones CRLF no son ejecuciónRAW reconstruida;
+los digests de configuración prueban productor yrecibos sin revelar valores.
+[Candidatos](evidence/root-r05-new-locations-candidate-20261019/review.md).
 
-CI33 tiene un borrador inactivo5993 con205 canarios históricos y26 guardias propias
-verdes. QA evoluciona la suite actual sobreCOMMON yentorno92,con criterios y
-fixtures históricos conservados. Los broads31 de506 (3056PASS+1skipWindows por
-modo,cobertura crítica100%) son históricos. VM yRedis6388 siguen apagados.
-PG55483 está reservado aSEC33 con UUID propias; no se alteran procesos ajenos.
+R23backend34 se desarrolla aislado conTask/Event durables,CAS,idempotencia,
+responsables autorizados,historia ydeclaraciones de revisión. El wirev1 fijo
+tiene ACK técnico de coordinación. Mecanismos,HTTP ylímite SQLite avanzan;
+PG34,consumidor UI34 e integración siguen pendientes. No se infieren cobros,
+contactos automáticos,renovaciones ni retención clínica. R27,R31,R33 ylos demás
+criterios técnicos continúan. Retención/países,volumen/SLO,entrevistas yrevisión
+profesional requieren datos oparticipación real.
 
-R23 tiene diseños de tareas/eventos durables aprobados. Backend34 se implementa
-enWT desde3587; la UI espera elwirev1 fijo. Se registrarán responsable actual del
-mismo gym,CAS,idempotencia,historia ydeclaraciones de revisión. No se crean tareas
-ni contactos automáticamente,ni se infieren cobros o retención. No hay código o
-tablas34 integrados. R27,R31,R33 ylos demás criterios técnicos continúan.
-
-Siguiente: cerrar revisiónSEC/QA33,CI actual yQAHTTP/browser; conectarwire34 yUI;
-revisar el nuevo triageR05 ycontinuar el resto del alcance. El artefacto se
-generará desde la fuente estable posterior. No reejecutar la imagen31 ni tratar
-33 como versión final antes de completar el trabajo restante.
+VM yRedis6388 propios siguen apagados. PostgreSQL55483 quedó transferido de
+seguridad aQA para validación actual con bases propias ycierres comprobados.
+La imagen ydesktop final se prepararán desde la fuente estable posterior.
 [Registro](TRAZABILIDAD.md),[validación](VALIDACION.md).

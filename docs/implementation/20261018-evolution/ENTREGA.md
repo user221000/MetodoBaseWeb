@@ -1,11 +1,9 @@
 # Entrega candidata en curso
 
-Checkpoint129 integra Google33,suUI yR05v1 sobre3587,con126 criterios exactos
-conservados. SEC/QA yCI33 siguen en curso. El último escaneo completo17c9 dejó
-14.557 bloqueantes; los14.479 candidatos nuevos y78 pendientes no amplían el
-registro. Falta escanear el árbol33 actual.
-
-R23backend34 se desarrolla aislado; suUI espera elwire fijo. Broad31 ycobertura
-siguen siendo históricos. Imagen,desktop vigente yotros criterios técnicos
-quedan pendientes. Free10clientes/1plancliente/día/10totalgym/día;desktop soportado.
-Sin publicación ni despliegue. [Estado](ESTADO.md),[registro](TRAZABILIDAD.md).
+Checkpoint130 integra la correcciónGoogle8a5e ysu peer12SQLite/11PG verde.
+127requisitos;126criterios previos exactos. CI/broad/browser actual siguen en
+curso. R05 tiene14.557candidatos revisándose, sin ampliarv1 ni PASS global.
+R23backend34 avanza aislado; faltan UI34,PG34 eintegración. Imagen ydesktop final,
+R27,R31,R33 yotros criterios siguen pendientes. Free10clientes/1plancliente/día/
+10totalgym/día;desktop soportado. Sin publicación ni despliegue.
+[Estado](ESTADO.md),[registro](TRAZABILIDAD.md).

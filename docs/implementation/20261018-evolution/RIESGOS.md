@@ -157,3 +157,7 @@ MAIN es candidata local32, todavía sin regresión/CI/artefacto común vigente. 
 ## Checkpoint129
 
 Implementación33 yUI integradas localmente en3587. Los8 criterios originales del primer peer pasan con transporteJWT/JWKS normalizado yasserts AST exactos. PeerPG,ataques,QAHTTP/browser yCI siguen en curso; no se declara cierre global. Las pruebas e intentos de la nueva UI Google se mantienen enRAM. Esto no resuelve la exposición legacy global deStorage,retención,borrado o acceso de soporte. El clasificador finito no acepta secretos nuevos. La historia de tareas prevista exige inventario ypurga bajoR31; no se inventa una política legal de conservación. El gate globalR05 sigue abierto yel árbol33 no tiene un escaneo completo nuevo. Las cifras de tablas34 son previsión,no observación. Países/retención,volumen/SLO,entrevistas yvalidación profesional requieren datos oparticipación real.
+
+## Checkpoint130
+
+Candidato8012 cubre14.557 ocurrencias/14.516pins únicos/155archivos del informe17c9, ahora sin ubicaciones pendientes de triage. Registrov1 instalado intacto; revisión independiente nueva en curso. No es escaneo nuevo ni PASS global. Los nueve digests de configuración prueban productor puro y recibos, sin reconstruir valores privados. Revisión completa de fuente3587 conservada, incluidos dos framingSSR rojos y carreraQA-17. El fix8a5e tiene replay propio independiente verde. Los canarios de adopción previos se preservan. Aceptación global33 y continuidad legacy aún abiertas.

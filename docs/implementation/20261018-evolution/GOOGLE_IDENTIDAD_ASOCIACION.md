@@ -115,3 +115,7 @@ Fuentes primarias: [Google ID token verification](https://developers.google.com/
 [GIS JS reference](https://developers.google.com/identity/gsi/web/reference/js-reference#essential_claims),
 [OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect),
 [google-auth ID token API](https://google-auth.readthedocs.io/en/latest/reference/google.oauth2.id_token.html).
+
+## Checkpoint130
+
+Google33: corrección8a5e integra QA-17 con peer12SQLite+11PG PASS. La carrera HTTP original mantiene200+409 y cuenta única. No cierra continuidad Google-only histórica ni recuperación total. Cubre además confirm conautoflush=True. Servicio entero recuperable por inversa exacta; no cambiaDDL oDTO. Fuente8a5e,peerb792cb.
