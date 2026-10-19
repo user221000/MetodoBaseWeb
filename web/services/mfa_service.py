@@ -330,8 +330,8 @@ def reauthenticate(db, expected, access, *, password=None, google_identity=None,
     valid = bool(password and verify_password(password, user.password_hash))
     expires = now + PROOF_TTL
     if google_identity is not None:
-        from web.services.google_identity import VerifiedGooglePrimary
-        valid = (isinstance(google_identity, VerifiedGooglePrimary) and google_identity.email == user.email
+        from web.services.google_identity import primary_matches
+        valid = (primary_matches(db, user.id, google_identity)
             and 0 <= (now - google_identity.authenticated_at).total_seconds() < PROOF_TTL.total_seconds())
         if valid:
             expires = min(expires, google_identity.authenticated_at + PROOF_TTL)

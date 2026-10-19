@@ -22,6 +22,7 @@ SCHEMA_CONTRACTS = {
     "20261019_personal_history_index": "20261019_personal_history_index",
     "20261019_mfa": "20261019_mfa",
     "20261019_personal_progress": "20261019_personal_progress",
+    "20261019_google_subjects": "20261019_google_subjects",
 }
 
 
@@ -86,6 +87,10 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
                 from web.database.progress_policy import signature as progress_signature
                 if progress_signature(connection) != contract["progress_security"]:
                     raise RuntimeError("Database progress authority differs from the reviewed contract")
+            if "google_identity_security" in contract:
+                from web.database.google_identity_policy import signature as google_signature
+                if google_signature(connection) != contract["google_identity_security"]:
+                    raise RuntimeError("Database Google authentication binding differs from the reviewed contract")
             if expected_revision is not None:
                 # Explicit historical migration acceptance uses that revision's
                 # frozen model, not the current application's newer metadata.
