@@ -635,6 +635,11 @@ function renderTabla(clientes) {
     accountLink.className = 'btn btn-sm btn-secondary';
     accountLink.textContent = 'Vínculo de cuenta';
     tr.querySelector('td:last-child').appendChild(accountLink);
+    const progressLink = document.createElement('a');
+    progressLink.href = '/clientes/' + encodeURIComponent(c.id_cliente) + '/progreso';
+    progressLink.className = 'btn btn-sm btn-secondary';
+    progressLink.textContent = 'Consultar progreso';
+    tr.querySelector('td:last-child').appendChild(progressLink);
     tbody.appendChild(tr);
   });
 }

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>Progreso del cliente — Método Base</title><link rel="stylesheet" href="/static/css/progreso.css">
+  <script src="/static/js/api.js" defer></script><script src="/static/js/vinculos-contexto.js" defer></script>
+  <script src="/static/js/progreso-datos.js" defer></script><script src="/static/js/progreso-vista.js" defer></script>
+  <script src="/static/js/progreso-controlador.js" defer></script><script src="/static/js/cliente-progreso.js" defer></script>
+</head>
+<body><main class="progress-page" id="professional-progress-page" data-client-id="{{ client_id }}">
+  <nav aria-label="Clientes"><a href="/clientes">Volver a clientes</a><a href="/clientes/{{ client_id | urlencode }}/vinculacion">Vínculo del cliente</a></nav>
+  <h1>Progreso del cliente</h1>
+  <p>Consulta de sólo lectura. El servidor verifica tu identidad profesional, el cliente y el derecho vigente de consulta.</p>
+  <p id="progress-status" role="status" aria-live="polite">Verificando acceso…</p>
+  <div id="progress-error" class="progress-error" role="alert" tabindex="-1" hidden></div>
+  <div class="progress-actions"><button id="progress-refresh" type="button">Consultar estado</button></div>
+  <p id="progress-date-source"></p>
+  <section class="progress-section" id="professional-native" aria-labelledby="native-title" hidden>
+    <h2 id="native-title">Medidas de esta ficha profesional</h2>
+    <p>Estas cifras pertenecen a esta ficha del gimnasio. No equivalen al historial personal del destinatario.</p>
+    <div id="professional-native-table"></div><button id="professional-native-more" type="button" hidden>Cargar medidas anteriores de esta ficha</button>
+  </section>
+  <section class="progress-section" id="professional-shared" aria-labelledby="shared-title" hidden>
+    <h2 id="shared-title">Progreso compartido por la cuenta destinataria</h2>
+    <label for="professional-link">Vínculo con permiso explícito</label><select id="professional-link"><option value="">Elige un vínculo</option></select>
+    <button id="professional-links-more" class="secondary" type="button" hidden>Cargar más vínculos</button>
+    <div id="professional-scope"></div>
+    <form id="professional-query" novalidate hidden><fieldset><legend>Consultar dentro del alcance autorizado</legend><div class="progress-grid">
+      <div><label for="professional-from">Desde</label><input id="professional-from" type="date" required></div><div><label for="professional-through">Hasta</label><input id="professional-through" type="date" required></div>
+    </div><button type="submit">Consultar progreso compartido</button></fieldset></form>
+    <p id="professional-shared-status" role="status" aria-live="polite"></p><div id="professional-shared-measurements"></div><button id="professional-shared-more" type="button" hidden>Cargar más medidas compartidas</button><div id="professional-shared-completion"></div>
+  </section>
+  <aside class="progress-note"><h2>Alcance limitado</h2><p>No se muestran alimentos, agua, notas, contactos ni el plan personal. El permiso puede retirarse. No se deducen diagnósticos, datos faltantes ni adherencia clínica de estos registros.</p></aside>
+</main></body></html>
