@@ -1,0 +1,32 @@
+{
+  "timestamp_utc": "2026-10-19T03:04:56.314464+00:00",
+  "scope": "Independent read-only review of the new R07 object adapters; sources were not edited by frontend_finish",
+  "source_sha256": {
+    "web/storage/objects.py": "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",
+    "web/storage/local.py": "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",
+    "web/storage/s3.py": "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",
+    "tests/test_object_storage.py": "7cdd7e15cae40dad8574857ed8d59a8250a1001fae09c09ef08f4306a8ece7c7",
+    "tests/integration_object_storage_sdk.py": "611e8239201ea9035ff656e5cdca2d58bb9098bbc5cddf5904666cb15f3af9fc"
+  },
+  "validation": "33 passed, 1 symlink privilege skip on Windows in 1.51 seconds",
+  "command": "python -X utf8 tests/run_isolated.py --noconftest tests/test_object_storage.py tests/integration_object_storage_sdk.py -q --tb=short",
+  "environment": "Dedicated SDK environment; boto3/botocore and Stubber, loopback-only network guard. --noconftest deliberately avoids unrelated global DB fixtures requiring SQLAlchemy absent in this SDK-only environment.",
+  "reviewed": [
+    "Owner/key/content type/size/hash validation precedes access or SDK request",
+    "Read returns only bounded hash-verified bytes; corrupted object is unavailable",
+    "Local immutable publication and identical retry do not overwrite an object",
+    "S3 uses conditional put and verifies existing bytes on retry; SDK errors are sanitized with no local fallback",
+    "Malformed descriptor metadata types now raise ObjectAccessDenied before regex/dict operations",
+    "A cleanup failure after publication can leave a published object and temporary orphan; caller retains descriptor and retries/reconciles explicitly"
+  ],
+  "limits": [
+    "No DB metadata or product consumer integration",
+    "No real provider, bucket configuration, container replacement, crash durability or deployment proof",
+    "Local storage root must be private to trusted processes; static symlink rejection does not establish adversarial concurrent filesystem isolation"
+  ],
+  "evidence": [
+    "r07-storage-frontend-fix-independent.log",
+    "r07-storage-frontend-fix-independent.xml"
+  ],
+  "initial_observations": "Reported malformed metadata TypeError and ambiguous post-publication cleanup outcome. Author added typed denial, documented partial-publication contract and tests; final regression above covers both."
+}
