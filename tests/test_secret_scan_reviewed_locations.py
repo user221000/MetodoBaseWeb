@@ -227,4 +227,3 @@ def test_wrapper_preserves_raw_exit_and_reports_effective_exit(tmp_path, monkeyp
     assert result["classified_finding_count"] == (1 if expected == 0 else 0)
     assert result["remaining_finding_count"] == expected
     assert "UNTRUSTED_VALUE" not in report.read_text(encoding="utf-8")
-

@@ -159,4 +159,3 @@ def load_reviewed_locations(snapshot: Path, source_hashes: dict[str, str],
     except (OSError, UnicodeError, ValueError, KeyError, TypeError, RuntimeError,
             zipfile.BadZipFile, zlib.error, EOFError):
         _invalid()
-
