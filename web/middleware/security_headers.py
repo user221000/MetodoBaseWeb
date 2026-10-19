@@ -26,6 +26,11 @@ import secrets
 # Primary authentication errors can occur before the successful response helper.
 # Match only the mounted APIs; login pages retain their existing GIS policy.
 _PRIMARY_API_PATHS = frozenset({"/api/auth/login", "/api/auth/google"})
+# Validation/authentication/method/redirect failures precede exporter headers.
+# Exactly the mounted exporter and its slash redirect, never nearby prefixes.
+_PRIVATE_EXPORT_PATHS = frozenset({
+    "/api/usuario/privacidad/exportar", "/api/usuario/privacidad/exportar/",
+})
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """
@@ -100,6 +105,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         )
         primary_api = request.url.path in _PRIMARY_API_PATHS
         progress_api = is_progress_private(request.url.path)
+        export_api = request.url.path in _PRIVATE_EXPORT_PATHS
         operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}
         
         try:
@@ -111,6 +117,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                     and not request.url.path.startswith("/api/auth/mfa/")
                     and not primary_api
                     and not progress_api
+                    and not export_api
                     and not operations):
                 raise
             # Generic handlers live outside response middleware. Reuse the
@@ -166,6 +173,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 or diary_api
                 or primary_api
                 or progress_api
+                or export_api
                 or operations
                 or request.url.path.startswith("/api/auth/mfa/")
                 or request.url.path == "/api/usuario/historial"
@@ -178,7 +186,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if operations or primary_api or progress_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
+        if operations or primary_api or progress_api or export_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
             response.headers["Cache-Control"] = "no-store"
         
         if operations:

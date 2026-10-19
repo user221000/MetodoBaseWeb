@@ -1,0 +1,15 @@
+Focal R25 export privacy headers ? author handoff
+
+Base b7f8e129251dfd5216f811ba77d0b6183ca76735. Own worktree F:/mb-r25-privacy-headers-20261019. The composed source and original bd0501 remain untouched. This is an isolated candidate pending independent replay, without deployment/provider or data-leak claims.
+
+QA's exact frozen eighth-export-cursor canary reproduces2/2 failures in the real Web/API factories: uppercase after_progress_consent still returns422/no-store, but Referrer-Policy was strict-origin-when-cross-origin. The same byte-identical driver now passes2/2. Cursor syntax, response/body, authentication, consent/data authorization and persistence are unchanged. The defect is incomplete response privacy coverage, not demonstrated disclosure.
+
+Only SecurityHeadersMiddleware product code changes. A fixed set contains exactly /api/usuario/privacidad/exportar and /api/usuario/privacidad/exportar/. All methods/statuses for those paths now join the existing private exception/header boundary: no-store/no-referrer and the existing opaque generic500 handling. Nearby prefixes, extra segments, case variants and a double slash remain outside this new set. The slash route still redirects; no route or method was added. Existing normal CSP construction remains in force and overrides hostile downstream CSP; no login page, GIS policy or arbitrary downstream CSP is adopted.
+
+Own before14:12 header failures and2 adjacent-path controls. Own after25:the exact same14 plus11 unchanged diary middleware regression cases. The real factories cover401/405/307 and an unhandled500; standalone middleware units additionally cover401/405/422/500 with unsafe downstream Referrer/Cache/CSP values. Unit routes are explicitly policy probes, not claimed product routes. No auth dependency bypass, token mint or provider send is used for actual-factory acceptance.
+
+Removing only the fixed set, its local membership and four dispatch additions recreates the ENTIRE original middleware byte-for-byte after explicit CRLF?LF normalization; full-file AST is equal too. Thus all MFA/diary/R12/primary/progress/operational boundaries and CSP builders are preserved outside the declared export addition. No router, schema, model, DDL, catalog, UI, CI, auth or MFA source changes. Root's separate bootstrap logging fix and the pending lease-exclusive-write correction are not included.
+
+Each run captured1293 tracked Python/lock/manifest files before/after and89 installed distribution name/version pairs; both snapshots remain equal. The new own test and external frozen QA driver have separate hashes in the manifest. Raw logs/photos stay in owned Temp with published hashes; projected XML/source snapshots are scanned. No PostgreSQL, external server, Chrome, QEMU, remote provider or real mail. The SQLite progress fixtures migrate the actual32 schema and use real registration/login in both factories.
+
+Proof bytes use * -text from creation; their Git blobs must equal RAW. Product/test source has explicit RAW and GitLF hashes. Existing QA files, criteria, before artifacts and all original31/32 freezes remain unchanged.

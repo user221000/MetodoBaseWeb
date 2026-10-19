@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="14" time="21.701" timestamp="2026-10-19T14:31:33.825922-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_progress32_export_privacy_headers" name="test_real_export_methods_auth_and_slash_redirect_keep_exact_private_boundary[web.main_web]" time="9.535"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:35: in test_real_export_methods_auth_and_slash_redirect_keep_exact_private_boundary
+    private(response)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_real_export_methods_auth_and_slash_redirect_keep_exact_private_boundary[api.app]" time="1.852"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:35: in test_real_export_methods_auth_and_slash_redirect_keep_exact_private_boundary
+    private(response)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_real_export_unhandled_failure_is_private_and_opaque[web.main_web]" time="2.039"><failure message="KeyError: 'referrer-policy'">tests\test_progress32_export_privacy_headers.py:47: in test_real_export_unhandled_failure_is_private_and_opaque
+    private(response)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\httpx\_models.py:302: in __getitem__
+    raise KeyError(key)
+E   KeyError: 'referrer-policy'</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_real_export_unhandled_failure_is_private_and_opaque[api.app]" time="2.173"><failure message="KeyError: 'referrer-policy'">tests\test_progress32_export_privacy_headers.py:47: in test_real_export_unhandled_failure_is_private_and_opaque
+    private(response)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\httpx\_models.py:302: in __getitem__
+    raise KeyError(key)
+E   KeyError: 'referrer-policy'</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_real_adjacent_routes_do_not_inherit_export_privacy_or_become_exporters[web.main_web]" time="2.007" /><testcase classname="tests.test_progress32_export_privacy_headers" name="test_real_adjacent_routes_do_not_inherit_export_privacy_or_become_exporters[api.app]" time="2.097" /><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[401-/api/usuario/privacidad/exportar]" time="0.021"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[401-/api/usuario/privacidad/exportar/]" time="0.023"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[405-/api/usuario/privacidad/exportar]" time="0.020"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[405-/api/usuario/privacidad/exportar/]" time="0.018"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[422-/api/usuario/privacidad/exportar]" time="0.018"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[422-/api/usuario/privacidad/exportar/]" time="0.018"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[500-/api/usuario/privacidad/exportar]" time="0.017"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase><testcase classname="tests.test_progress32_export_privacy_headers" name="test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths[500-/api/usuario/privacidad/exportar/]" time="0.034"><failure message="AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'&#10;  &#10;  - no-referrer&#10;  + strict-origin-when-cross-origin">tests\test_progress32_export_privacy_headers.py:70: in test_middleware_overrides_hostile_downstream_headers_for_exact_export_paths
+    private(result)
+tests\test_progress32_export_privacy_headers.py:20: in private
+    assert response.headers['referrer-policy']=='no-referrer'
+E   AssertionError: assert 'strict-origi...-cross-origin' == 'no-referrer'
+E     
+E     - no-referrer
+E     + strict-origin-when-cross-origin</failure></testcase></testsuite></testsuites>
