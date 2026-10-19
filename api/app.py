@@ -61,12 +61,13 @@ def create_app() -> FastAPI:
         )
 
     # ── Auth: inicializar antes de cualquier endpoint que use tokens ────────
+    from web.database.engine import get_engine
+    from web.database.schema_control import verify_runtime_schema
+    verify_runtime_schema(get_engine(), require_revision=not (_s and _s.ENV == "testing"))
     from web.auth import init_auth
     init_auth()
 
     # ── DB: inicializar engine + session factory ──────────────────────────────
-    from web.database.engine import init_db
-    init_db()
 
     from config.constantes import VERSION
 

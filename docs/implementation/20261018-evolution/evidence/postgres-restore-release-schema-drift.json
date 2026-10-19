@@ -1,0 +1,39 @@
+{
+  "structural_differences": [
+    {
+      "field": "schema.tables.clientes.checks[0].sql",
+      "expected": "(sexo::text = ANY (ARRAY['M'::character varying, 'F'::character varying, 'Otro'::character varying]::text[])) OR sexo IS NULL",
+      "restored": "(sexo::text = ANY (ARRAY['M'::character varying::text, 'F'::character varying::text, 'Otro'::character varying::text])) OR sexo IS NULL"
+    },
+    {
+      "field": "schema.tables.generation_reservations.checks[0].sql",
+      "expected": "status::text = ANY (ARRAY['reserved'::character varying, 'completed'::character varying, 'released'::character varying]::text[])",
+      "restored": "status::text = ANY (ARRAY['reserved'::character varying::text, 'completed'::character varying::text, 'released'::character varying::text])"
+    },
+    {
+      "field": "schema.tables.subscriptions.checks[0].sql",
+      "expected": "plan::text = ANY (ARRAY['free'::character varying, 'standard'::character varying, 'gym_comercial'::character varying, 'clinica'::character varying, 'pro_usuario'::character varying]::text[])",
+      "restored": "plan::text = ANY (ARRAY['free'::character varying::text, 'standard'::character varying::text, 'gym_comercial'::character varying::text, 'clinica'::character varying::text, 'pro_usuario'::character varying::text])"
+    },
+    {
+      "field": "schema.tables.subscriptions.checks[1].sql",
+      "expected": "status::text = ANY (ARRAY['active'::character varying, 'canceled'::character varying, 'past_due'::character varying, 'trialing'::character varying, 'unpaid'::character varying, 'incomplete'::character varying, 'incomplete_expired'::character varying, 'paused'::character varying]::text[])",
+      "restored": "status::text = ANY (ARRAY['active'::character varying::text, 'canceled'::character varying::text, 'past_due'::character varying::text, 'trialing'::character varying::text, 'unpaid'::character varying::text, 'incomplete'::character varying::text, 'incomplete_expired'::character varying::text, 'paused'::character varying::text])"
+    },
+    {
+      "field": "schema.tables.user_subscriptions.checks[0].sql",
+      "expected": "plan::text = ANY (ARRAY['starter'::character varying, 'pro'::character varying]::text[])",
+      "restored": "plan::text = ANY (ARRAY['starter'::character varying::text, 'pro'::character varying::text])"
+    },
+    {
+      "field": "schema.tables.user_subscriptions.checks[1].sql",
+      "expected": "status::text = ANY (ARRAY['active'::character varying, 'canceled'::character varying]::text[])",
+      "restored": "status::text = ANY (ARRAY['active'::character varying::text, 'canceled'::character varying::text])"
+    },
+    {
+      "field": "schema.tables.usuarios.checks[0].sql",
+      "expected": "tipo::text = ANY (ARRAY['gym'::character varying, 'usuario'::character varying, 'admin'::character varying]::text[])",
+      "restored": "tipo::text = ANY (ARRAY['gym'::character varying::text, 'usuario'::character varying::text, 'admin'::character varying::text])"
+    }
+  ]
+}

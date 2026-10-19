@@ -9,12 +9,12 @@ echo "  DATABASE_URL: ${DATABASE_URL:+'(configured)'}"
 echo "  WEB_SECRET_KEY: ${WEB_SECRET_KEY:+'(configured)'}"
 echo "  SENTRY_DSN: ${SENTRY_DSN:+'(configured)'}"
 
-# Railway usa releaseCommand para migraciones; solo ejecutar aquí si no es Railway
+# Railway runs the blocking pre-deploy command before new workers start.
 if [ -z "$RAILWAY_ENVIRONMENT" ]; then
     echo "=== MetodoBase: Ejecutando migraciones Alembic ==="
-    alembic upgrade head || echo "WARNING: Alembic migrations failed (may be non-fatal)"
+    python db_bootstrap.py
 else
-    echo "=== MetodoBase: Migraciones gestionadas por Railway releaseCommand ==="
+    echo "=== MetodoBase: Migraciones gestionadas por Railway preDeployCommand ==="
 fi
 
 echo "=== MetodoBase: Iniciando servidor (BUILD v7-TEMPLATECOMPAT) en 0.0.0.0:${PORT:-8000} ==="

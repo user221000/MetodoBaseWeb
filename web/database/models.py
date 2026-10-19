@@ -17,7 +17,7 @@ from typing import Optional
 
 from sqlalchemy import (
     Boolean, Column, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text,
-    CheckConstraint, UniqueConstraint, Enum as SQLEnum,
+    CheckConstraint, UniqueConstraint, Enum as SQLEnum, text,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -104,6 +104,7 @@ class Usuario(Base):
     activo = Column(Boolean, nullable=False, default=True)
     # Incremented transactionally on logout/revocation; legacy tokens use zero.
     session_version = Column(Integer, nullable=False, default=0, server_default="0")
+    deleted_at = Column(DateTime, nullable=True)
     fecha_registro = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     # Relaciones
@@ -120,6 +121,7 @@ class Usuario(Base):
 
     __table_args__ = (
         CheckConstraint("tipo IN ('gym', 'usuario', 'admin')", name="ck_usuario_tipo"),
+        Index("ix_usuarios_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
         # NOTE: team_gym_id already has index=True on the column definition
         # NOTE: invitation_token already has unique=True which creates an index
     )
@@ -184,6 +186,7 @@ class Cliente(Base):
     ultimo_plan = Column(DateTime)
     total_planes_generados = Column(Integer, default=0)
     activo = Column(Boolean, default=True)
+    deleted_at = Column(DateTime, nullable=True)
     notas = Column(Text)
     plantilla_tipo = Column(String(30), default="general")
     alimentos_excluidos = Column(Text, nullable=True)  # JSON list of excluded foods
@@ -208,6 +211,7 @@ class Cliente(Base):
     __table_args__ = (
         Index("ix_clientes_gym_activo", "gym_id", "activo"),
         Index("ix_clientes_gym_nombre", "gym_id", "nombre"),
+        Index("ix_clientes_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
         CheckConstraint("sexo IN ('M', 'F', 'Otro') OR sexo IS NULL", name="ck_cliente_sexo"),
     )
 
@@ -233,6 +237,7 @@ class PlanGenerado(Base):
     nivel_actividad = Column(String(30))
     ruta_pdf = Column(String(500))
     plan_json = Column(Text, nullable=True)  # serialized plan JSON (persists across container restarts)
+    deleted_at = Column(DateTime, nullable=True)
     peso_en_momento = Column(Float)
     grasa_en_momento = Column(Float)
     desviacion_maxima_pct = Column(Float)
@@ -244,6 +249,7 @@ class PlanGenerado(Base):
 
     __table_args__ = (
         Index("ix_planes_gym_fecha", "gym_id", "fecha_generacion"),
+        Index("ix_planes_generados_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
     )
 
 
@@ -479,6 +485,7 @@ class PlanSuscripcion(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"),
                     nullable=False, index=True)
+    template_key = Column(String(40), nullable=True)
 
     nombre = Column(String(100), nullable=False)        # "1 Semana", "1 Mes", etc.
     duracion_dias = Column(Integer, nullable=False)      # 7, 30, 90, 180, 365
@@ -493,6 +500,7 @@ class PlanSuscripcion(Base):
 
     __table_args__ = (
         Index("ix_planes_sub_gym", "gym_id", "activo"),
+        UniqueConstraint("gym_id", "template_key", name="uq_membership_gym_template"),
     )
 
 
@@ -608,7 +616,7 @@ class AuthAuditLog(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True, index=True)
-    user_id = Column(String(36), nullable=True, index=True)
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True, index=True)
     event_type = Column(String(50), nullable=False, index=True)
     ip_address = Column(String(45), nullable=True)
     user_agent = Column(Text, nullable=True)
@@ -618,6 +626,9 @@ class AuthAuditLog(Base):
 
     __table_args__ = (
         Index("ix_auth_audit_gym_event", "gym_id", "event_type"),
+        Index("ix_auth_audit_gym", "gym_id", "created_at"),
+        Index("ix_auth_audit_user", "user_id", "created_at"),
+        Index("ix_auth_audit_type", "event_type", "created_at"),
     )
 
 
@@ -628,6 +639,7 @@ class GymSettings(Base):
     __tablename__ = "gym_settings"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    legacy_id = Column(String(36), nullable=True, unique=True)
     gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
     trial_days = Column(Integer, default=14)
     trial_max_clients = Column(Integer, default=50)
@@ -645,15 +657,16 @@ class GymLicense(Base):
     __tablename__ = "gym_licenses"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    legacy_id = Column(String(36), nullable=True, unique=True)
     gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
-    license_key = Column(String(30), nullable=False, unique=True)
+    license_key = Column(String(255), nullable=False, unique=True)
     plan_tier = Column(String(30), nullable=False)
     max_clients = Column(Integer, nullable=False, default=50)
     is_active = Column(Boolean, default=True)
     expires_at = Column(DateTime, nullable=True)
     revoked_at = Column(DateTime, nullable=True)
     payment_provider = Column(String(30), nullable=True)
-    payment_reference = Column(String(120), nullable=True)
+    payment_reference = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

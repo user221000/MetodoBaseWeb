@@ -457,14 +457,23 @@ def obtener_gym_profile(db: Session, gym_id: str) -> Optional[dict]:
     return _gym_profile_to_dict(p) if p else None
 
 
-def crear_gym_profile(db: Session, gym_id: str, data: Optional[dict] = None) -> dict:
-    """Crea perfil de gym (upsert: si ya existe, retorna el existente)."""
+def crear_gym_profile(db: Session, gym_id: str, data: Optional[dict] = None,
+                     *, initialize_memberships: bool = False) -> dict:
+    """Stage a gym profile; only explicit onboarding initializes membership templates.
+
+    Caller owns the transaction. Read compatibility paths can create an empty
+    profile but never seed commercial defaults as a side effect of listing.
+    """
     existing = db.query(GymProfile).filter(GymProfile.gym_id == gym_id).first()
     if existing:
+        if initialize_memberships:
+            _crear_planes_default(db, gym_id)
         return _gym_profile_to_dict(existing)
     profile = GymProfile(gym_id=gym_id, **(data or {}))
     db.add(profile)
     db.flush()
+    if initialize_memberships:
+        _crear_planes_default(db, gym_id)
     logger.info("[DB] GymProfile creado para gym: %s", gym_id)
     return _gym_profile_to_dict(profile)
 
@@ -524,13 +533,10 @@ _PLANES_DEFAULT = [
 
 
 def listar_planes_suscripcion(db: Session, gym_id: str) -> list[dict]:
-    """Lista los planes de suscripción del gym. Crea defaults si no existen."""
+    """Read the gym's membership catalog without creating commercial records."""
     planes = db.query(PlanSuscripcion).filter(
         PlanSuscripcion.gym_id == gym_id,
     ).order_by(PlanSuscripcion.duracion_dias.asc()).all()
-
-    if not planes:
-        planes = _crear_planes_default(db, gym_id)
 
     return [_plan_sub_to_dict(p) for p in planes]
 
@@ -564,15 +570,22 @@ def actualizar_plan_suscripcion(
 
 
 def _crear_planes_default(db: Session, gym_id: str) -> list[PlanSuscripcion]:
-    """Crea los 5 planes de suscripción por defecto para un gym."""
-    planes = []
+    """Idempotently stage the five existing onboarding templates; caller commits.
+
+    PostgreSQL/SQLite upsert and unique(gym_id, template_key) serialize retries
+    and simultaneous onboarding without duplicating or replacing custom prices.
+    """
+    if db.bind.dialect.name == "postgresql":
+        from sqlalchemy.dialects.postgresql import insert
+    elif db.bind.dialect.name == "sqlite":
+        from sqlalchemy.dialects.sqlite import insert
+    else:
+        raise RuntimeError("Unsupported membership initialization dialect")
     for d in _PLANES_DEFAULT:
-        p = PlanSuscripcion(gym_id=gym_id, **d)
-        db.add(p)
-        planes.append(p)
+        statement = insert(PlanSuscripcion).values(gym_id=gym_id, template_key="duration_" + str(d["duracion_dias"]), **d)
+        db.execute(statement.on_conflict_do_nothing(index_elements=["gym_id", "template_key"]))
     db.flush()
-    logger.info("[DB] Planes de suscripción default creados para gym: %s", gym_id)
-    return planes
+    return db.query(PlanSuscripcion).filter_by(gym_id=gym_id).order_by(PlanSuscripcion.duracion_dias).all()
 
 
 def _plan_sub_to_dict(p: PlanSuscripcion) -> dict:

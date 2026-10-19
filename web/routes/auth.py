@@ -169,7 +169,7 @@ async def google_login(data: GoogleLoginRequest, request: Request):
             # Auto-crear GymProfile si es gym
             if tipo == "gym":
                 from web.database import repository as _repo
-                _repo.crear_gym_profile(session, uid, {"nombre_negocio": nombre})
+                _repo.crear_gym_profile(session, uid, {"nombre_negocio": nombre}, initialize_memberships=True)
                 session.commit()
 
     _sync_user_to_sa(usuario)
@@ -220,7 +220,7 @@ async def registro(data: RegistroRequest):
         from web.database import repository as _repo
 
         with _SASession(_ge()) as _s:
-            _repo.crear_gym_profile(_s, usuario["id"], {"nombre_negocio": usuario["nombre"]})
+            _repo.crear_gym_profile(_s, usuario["id"], {"nombre_negocio": usuario["nombre"]}, initialize_memberships=True)
             _s.commit()
 
     # Email de bienvenida (background, no bloquea respuesta)

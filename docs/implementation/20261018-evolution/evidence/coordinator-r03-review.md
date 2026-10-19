@@ -1,0 +1,13 @@
+# Revisión independiente R03 y restore del candidato
+
+Coordinador/revisor distinto del autor backend. Se revisaron bootstrap, ambas fábricas, engine/env Alembic, firma, cuatro reparaciones históricas, reconciliación nueva, cambios ORM/repositorio/defaults, fixtures y ADR. Se acepta integrar esta preparación **local**; R03 completo conserva validación staging/operación abierta.
+
+Los problemas iniciales fueron reproducidos: historia vacía no ejecutable, fallo ocultado y stamp ciego, DDL en fábrica/defaults al leer. El autor sustituyó esos mecanismos por upgrade bloqueante y adopción de una revisión histórica sólo ante firma conocida. Inspección/adopción/upgrades se serializan en transacción; SQLite verifica FKs antes de commit y PostgreSQL usa advisory lock. Los IDs VARCHAR convertidos sobreviven en legacy_id; precios personalizados no se sustituyen.
+
+Observaciones de esta revisión corregidas: la firma basada sólo en str(type) omitía timezone y otros atributos físicos; la API desktop no verificaba esquema antes de auth. QA detectó además que pg_dump/restore reubica casts en siete CHECK. La normalización final reconoce únicamente la forma completa de ANY/ARRAY de literales varchar/text; conserva columna, valores y condición NULL. Pruebas PG de valores distintos, ORtrue y timezone continúan rechazando drift. No hay una aceptación general de expresiones desconocidas.
+
+Evidencia: autor31 casos en backend-r03-paths-restorable.xml; QA15 casos acotados en pytest-r03-restorable-independent.xml y huellas estables en r03-restorable-independent-source.json, además de las rutas vacío/legacy conservadas en gates previos. El restore real del esquema de22 tablas reproduce filas/relaciones, revisión, flagsRLS, secuencia y PDF/logo; tiempos pequeños son mediciones técnicas y no RPO/RTO de negocio.
+
+Shell: Git Bash acepta CRLF en Windows, aunque Linux no puede resolver un shebang con CR. Se normalizó entrypoint a LF y se añadió .gitattributes. shell-portability-before.xml falla por ese contrato; shell-portability-after.xml verifica formato/sintaxis y que código73 de bootstrap impide iniciar servidor. No equivale a ejecutar una imagen Linux; esa validación sigue pendiente.
+
+Límites materiales: R04 debe reconciliar helper/políticas/privilegios y demostrar contexto tras commit/pool/job/webhook con rol real restringido. R03 conserva flags previamente activas; las instalaciones nuevas no activan RLS anticipadamente. El esquema de producción no se adoptó ni migró. Backups nativos, inventario real, carga, corte compatible y ejecución Railway están abiertos. Downgrade destructivo se rechaza; el rollback exige restore verificado. El nuevo requisito OPS08 registra la transición de configuración Railway sin aplicar infraestructura.

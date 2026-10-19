@@ -22,6 +22,19 @@ _engine = None
 _SessionLocal = None
 
 
+def normalize_database_url(url: str) -> str:
+    """Select the installed synchronous PostgreSQL driver explicitly.
+
+    SQLAlchemy 2.1 changed the bare postgresql:// default to psycopg3; this
+    runtime resolves psycopg2-binary. Preserve explicit driver selections and
+    never render or log connection credentials while normalizing the scheme.
+    """
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg2://" + url[len(prefix):]
+    return url
+
+
 def _get_database_url() -> str:
     """Resuelve la URL de la base de datos desde settings."""
     from web.settings import get_settings
@@ -31,16 +44,10 @@ def _get_database_url() -> str:
     import os
     url = os.getenv("DATABASE_URL", "")
     if url:
-        # Railway usa postgres:// pero SQLAlchemy requiere postgresql://
-        if url.startswith("postgres://"):
-            url = url.replace("postgres://", "postgresql://", 1)
-        return url
+        return normalize_database_url(url)
 
     # En producción, PostgreSQL es obligatorio — no permitir fallback a SQLite
     if settings.is_production:
-        # Allow DB_PATH as last resort (validated in config.settings)
-        if settings.DB_PATH:
-            return settings.DB_PATH
         raise RuntimeError(
             "FATAL: DATABASE_URL no está configurada o está vacía. "
             "PostgreSQL es obligatorio en producción. "
@@ -74,8 +81,7 @@ def init_db() -> None:
 
     url = _get_database_url()
     # Railway uses postgres:// but SQLAlchemy needs postgresql://
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
+    url = normalize_database_url(url)
     is_sqlite = url.startswith("sqlite")
 
     kwargs = {}

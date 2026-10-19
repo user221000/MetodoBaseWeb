@@ -66,53 +66,6 @@ from web.sync_user import sync_all_auth_users_to_sa as _sync_all_auth_users_to_s
 
 # ── App factory ──────────────────────────────────────────────────────────────
 
-def _migrate_subscription_constraints(engine) -> None:
-    """Recreate subscriptions table if CHECK constraint uses old plan names (SQLite only)."""
-    import sqlalchemy
-    # Only applies to SQLite — Postgres uses Alembic migrations
-    if "sqlite" not in str(engine.url):
-        return
-    with engine.connect() as conn:
-        row = conn.execute(sqlalchemy.text(
-            "SELECT sql FROM sqlite_master WHERE type='table' AND name='subscriptions'"
-        )).scalar()
-        if not row or "'starter'" not in row:
-            return  # already up-to-date or table doesn't exist
-        logger.warning("[MIGRATION] Updating subscriptions CHECK constraint (old plan names)")
-        conn.execute(sqlalchemy.text("""
-            CREATE TABLE IF NOT EXISTS subscriptions_new (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                gym_id VARCHAR(36) NOT NULL,
-                "plan" VARCHAR(30) NOT NULL,
-                status VARCHAR(30) NOT NULL DEFAULT 'active',
-                stripe_customer_id VARCHAR(255),
-                stripe_subscription_id VARCHAR(255) UNIQUE,
-                current_period_start DATETIME,
-                current_period_end DATETIME,
-                cancel_at_period_end BOOLEAN DEFAULT 0,
-                max_clientes INTEGER NOT NULL DEFAULT 10,
-                created_at DATETIME,
-                updated_at DATETIME,
-                trial_start DATETIME,
-                trial_end DATETIME,
-                canceled_at DATETIME,
-                stripe_price_id VARCHAR(255),
-                ended_at DATETIME,
-                CONSTRAINT ck_subscription_plan CHECK (plan IN ('free', 'standard', 'gym_comercial', 'clinica')),
-                CONSTRAINT ck_subscription_status CHECK (status IN ('active', 'canceled', 'past_due', 'trialing', 'unpaid', 'incomplete', 'incomplete_expired', 'paused')),
-                FOREIGN KEY(gym_id) REFERENCES usuarios (id) ON DELETE CASCADE,
-                UNIQUE (gym_id)
-            )
-        """))
-        conn.execute(sqlalchemy.text("INSERT INTO subscriptions_new SELECT * FROM subscriptions"))
-        conn.execute(sqlalchemy.text("DROP TABLE subscriptions"))
-        conn.execute(sqlalchemy.text("ALTER TABLE subscriptions_new RENAME TO subscriptions"))
-        conn.execute(sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_subscriptions_gym_id ON subscriptions (gym_id)"))
-        conn.execute(sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS ix_subscriptions_stripe_sub ON subscriptions (stripe_subscription_id)"))
-        conn.commit()
-        logger.info("[MIGRATION] subscriptions CHECK constraint updated successfully")
-
-
 def create_app() -> FastAPI:
     from contextlib import asynccontextmanager
     import asyncio
@@ -139,73 +92,26 @@ def create_app() -> FastAPI:
         profiles_rate=settings.SENTRY_PROFILES_SAMPLE_RATE,
     )
 
-    # Inicializar base de datos SA BEFORE auth (auth needs tables to exist)
-    # NOTE: create_all() is handled by db_bootstrap.py (Railway releaseCommand)
-    # Running it here too as safety net for non-Railway environments
-    from web.database.engine import init_db, get_engine
-    from web.database.models import Base
-    init_db()
+    # Schema is prepared by the blocking migration command, never by workers.
+    from web.database.engine import get_engine
+    from web.database.schema_control import verify_runtime_schema
     _sa_engine = get_engine()
-    try:
-        Base.metadata.create_all(bind=_sa_engine)
-    except Exception as exc:
-        logger.warning("[DB] create_all() issue (non-fatal if tables exist): %s", exc)
-
-    # Safety: ensure any columns that may have been stamp-skipped exist.
-    # ADD COLUMN IF NOT EXISTS is fully idempotent.
-    _SAFETY_COLUMNS = [
-        "ALTER TABLE planes_generados ADD COLUMN IF NOT EXISTS plan_json TEXT",
-    ]
-    if "postgresql" in str(_sa_engine.url):
-        try:
-            with _sa_engine.begin() as _conn:
-                from sqlalchemy import text as _sqlt
-                for _ddl in _SAFETY_COLUMNS:
-                    try:
-                        _conn.execute(_sqlt(_ddl))
-                    except Exception as _e:
-                        logger.debug("[DB] Safety column guard skipped: %s", _e)
-        except Exception as _e:
-            logger.warning("[DB] Safety column guards failed (non-fatal): %s", _e)
+    verify_runtime_schema(_sa_engine, require_revision=settings.ENV != "testing")
 
     init_auth()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        # Check alembic migration version in production
-        if settings.ENV == "production" and not settings.SKIP_MIGRATION_CHECK:
-            try:
-                from alembic.config import Config as AlembicConfig
-                from alembic.script import ScriptDirectory
-                from web.database.engine import get_engine
-                from sqlalchemy import text, inspect as sa_inspect
-                engine = get_engine()
-                with engine.connect() as conn:
-                    inspector = sa_inspect(engine)
-                    if "alembic_version" in inspector.get_table_names():
-                        row = conn.execute(text("SELECT version_num FROM alembic_version")).fetchone()
-                        current = row[0] if row else None
-                        alembic_cfg = AlembicConfig("alembic.ini")
-                        script_dir = ScriptDirectory.from_config(alembic_cfg)
-                        head = script_dir.get_current_head()
-                        if current != head:
-                            logger.warning(
-                                "[MIGRATION] DB version %s != head %s — run alembic upgrade",
-                                current, head,
-                            )
-                        else:
-                            logger.info("[MIGRATION] DB is at head: %s", head)
-                    else:
-                        logger.warning("[MIGRATION] alembic_version table not found")
-            except Exception as exc:
-                logger.warning("[MIGRATION] Could not verify alembic version: %s", exc)
+        # PostgreSQL always requires head, including synthetic/staging runtime.
+        # Unit SQLite fixtures explicitly prepare their schema through R05.
+        verify_runtime_schema(get_engine(), require_revision=settings.ENV != "testing")
 
         # Startup: initial token cleanup (graceful if tables don't exist yet)
         try:
             cleaned = cleanup_expired_tokens()
             logger.info("[AUTH] Cleaned %d expired tokens on startup", cleaned)
         except Exception as exc:
-            logger.warning("[AUTH] Token cleanup skipped at startup: %s", exc)
+            logger.warning("[AUTH] Token cleanup skipped class=%s", type(exc).__name__)
         
         # Periodic cleanup every 6 hours
         async def periodic_cleanup():
@@ -216,7 +122,7 @@ def create_app() -> FastAPI:
                     if count > 0:
                         logger.info("[AUTH] Periodic cleanup: %d tokens removed", count)
                 except Exception:
-                    logger.exception("[AUTH] Cleanup failed")
+                    logger.error("[AUTH] Cleanup failed")
         
         task = asyncio.create_task(periodic_cleanup())
         yield
@@ -311,9 +217,6 @@ def create_app() -> FastAPI:
     from web.routes import usuario as web_usuario_router
     from web.routes.team import router as web_team_router, auth_router as web_team_auth_router
     from web.exceptions import MetodoBaseException
-
-    # Migrate subscriptions CHECK constraint if DB has old plan names
-    _migrate_subscription_constraints(get_engine())
 
     # Sync existing auth users to SA database (fixes FK constraint issue)
     _sync_all_auth_users_to_sa()
@@ -414,7 +317,7 @@ def create_app() -> FastAPI:
                 conn.execute(text("SELECT 1"))
             db_ok = True
         except Exception as e:
-            logger.warning("[HEALTH] Database check failed: %s", e)
+            logger.warning("[HEALTH] Database check failed class=%s", type(e).__name__)
             db_ok = False
 
         status = "healthy" if db_ok else "degraded"
@@ -438,8 +341,8 @@ def create_app() -> FastAPI:
                 conn.execute(text("SELECT 1"))
             return JSONResponse(status_code=200, content={"ready": True})
         except Exception as e:
-            logger.warning("[HEALTH] Readiness check failed: %s", e)
-            return JSONResponse(status_code=503, content={"ready": False, "error": str(e)})
+            logger.warning("[HEALTH] Readiness check failed class=%s", type(e).__name__)
+            return JSONResponse(status_code=503, content={"ready": False, "error": "database_unavailable"})
 
     # ── Rutas HTML (páginas) — now served by web/routes/pages.py ────────────
 

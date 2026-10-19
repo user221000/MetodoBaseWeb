@@ -1,0 +1,13 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________ test_migration_failure_is_fatal_before_server_start _____________
+tests\test_container_startup.py:22: in test_migration_failure_is_fatal_before_server_start
+    assert entrypoint.read_bytes().startswith(b"#!/bin/bash\n")
+E   assert False
+E    +  where False = <built-in method startswith of bytes object at 0x00000246A2BE7C50>(b'#!/bin/bash\n')
+E    +    where <built-in method startswith of bytes object at 0x00000246A2BE7C50> = b'#!/bin/bash\r\nset -e\r\n\r\necho "=== MetodoBase: Container starting (BUILD v7-TEMPLATECOMPAT) ==="\r\necho "  RAIL...iando servidor (BUILD v7-TEMPLATECOMPAT) en 0.0.0.0:${PORT:-8000} ==="\r\nexec python web/main_web.py --no-browser\r\n'.startswith
+E    +      where b'#!/bin/bash\r\nset -e\r\n\r\necho "=== MetodoBase: Container starting (BUILD v7-TEMPLATECOMPAT) ==="\r\necho "  RAIL...iando servidor (BUILD v7-TEMPLATECOMPAT) en 0.0.0.0:${PORT:-8000} ==="\r\nexec python web/main_web.py --no-browser\r\n' = read_bytes()
+E    +        where read_bytes = WindowsPath('F:/MetodoBaseWeb-execution-20261018/entrypoint.sh').read_bytes
+=========================== short test summary info ===========================
+FAILED tests/test_container_startup.py::test_migration_failure_is_fatal_before_server_start
+1 failed in 1.02s

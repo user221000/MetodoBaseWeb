@@ -20,46 +20,57 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def _table_exists(table_name: str) -> bool:
-    """Check if a table exists in the database."""
-    conn = op.get_bind()
-    result = conn.execute(sa.text(
-        "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = :t)"
-    ), {"t": table_name})
-    return result.scalar()
+    """Inspect the active dialect instead of querying PostgreSQL-only catalogs."""
+    return sa.inspect(op.get_bind()).has_table(table_name)
 
 
 def _column_exists(table_name: str, column_name: str) -> bool:
-    """Check if a column exists in a table."""
-    conn = op.get_bind()
-    result = conn.execute(sa.text(
-        "SELECT EXISTS (SELECT FROM information_schema.columns "
-        "WHERE table_name = :t AND column_name = :c)"
-    ), {"t": table_name, "c": column_name})
-    return result.scalar()
+    return any(item["name"] == column_name for item in sa.inspect(op.get_bind()).get_columns(table_name))
+
+
+def _add_column(table: str, column) -> None:
+    """Rebuild SQLite constraints explicitly when adding legacy foreign keys."""
+    if op.get_bind().dialect.name == "sqlite":
+        foreign_keys = list(column.foreign_keys)
+        unique = column.unique
+        plain_column = sa.Column(column.name, column.type, nullable=column.nullable,
+                                 server_default=column.server_default)
+        with op.batch_alter_table(table, naming_convention={
+            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+            "uq": "uq_%(table_name)s_%(column_0_name)s"}) as batch:
+            batch.add_column(plain_column)
+            for foreign_key in foreign_keys:
+                referenced_table, referenced_column = foreign_key.target_fullname.rsplit(".", 1)
+                batch.create_foreign_key("fk_" + table + "_" + column.name + "_" + referenced_table,
+                    referenced_table, [column.name], [referenced_column], ondelete=foreign_key.ondelete)
+            if unique:
+                batch.create_unique_constraint("uq_" + table + "_" + column.name, [column.name])
+    else:
+        op.add_column(table, column)
 
 
 def upgrade() -> None:
     # ── Missing columns on 'usuarios' (RBAC) ─────────────────────────────
     if not _column_exists('usuarios', 'role'):
-        op.add_column('usuarios', sa.Column('role', sa.String(20), nullable=False, server_default='viewer'))
+        _add_column('usuarios', sa.Column('role', sa.String(20), nullable=False, server_default='VIEWER'))
     if not _column_exists('usuarios', 'team_gym_id'):
-        op.add_column('usuarios', sa.Column('team_gym_id', sa.String(36), sa.ForeignKey('usuarios.id', ondelete='CASCADE'), nullable=True))
+        _add_column('usuarios', sa.Column('team_gym_id', sa.String(36), sa.ForeignKey('usuarios.id', ondelete='CASCADE'), nullable=True))
     if not _column_exists('usuarios', 'invited_by'):
-        op.add_column('usuarios', sa.Column('invited_by', sa.String(36), sa.ForeignKey('usuarios.id', ondelete='SET NULL'), nullable=True))
+        _add_column('usuarios', sa.Column('invited_by', sa.String(36), sa.ForeignKey('usuarios.id', ondelete='SET NULL'), nullable=True))
     if not _column_exists('usuarios', 'invitation_token'):
-        op.add_column('usuarios', sa.Column('invitation_token', sa.String(64), nullable=True, unique=True))
+        _add_column('usuarios', sa.Column('invitation_token', sa.String(64), nullable=True, unique=True))
     if not _column_exists('usuarios', 'invitation_expires'):
-        op.add_column('usuarios', sa.Column('invitation_expires', sa.DateTime, nullable=True))
+        _add_column('usuarios', sa.Column('invitation_expires', sa.DateTime, nullable=True))
     if not _column_exists('usuarios', 'invitation_role'):
-        op.add_column('usuarios', sa.Column('invitation_role', sa.String(20), nullable=True))
+        _add_column('usuarios', sa.Column('invitation_role', sa.String(20), nullable=True))
 
     # ── Missing columns on 'clientes' ────────────────────────────────────
     if not _column_exists('clientes', 'fecha_suscripcion'):
-        op.add_column('clientes', sa.Column('fecha_suscripcion', sa.DateTime, nullable=True))
+        _add_column('clientes', sa.Column('fecha_suscripcion', sa.DateTime, nullable=True))
     if not _column_exists('clientes', 'fecha_fin_suscripcion'):
-        op.add_column('clientes', sa.Column('fecha_fin_suscripcion', sa.DateTime, nullable=True))
+        _add_column('clientes', sa.Column('fecha_fin_suscripcion', sa.DateTime, nullable=True))
     if not _column_exists('clientes', 'alimentos_excluidos'):
-        op.add_column('clientes', sa.Column('alimentos_excluidos', sa.Text, nullable=True))
+        _add_column('clientes', sa.Column('alimentos_excluidos', sa.Text, nullable=True))
 
     # ── refresh_tokens (was only in SQLite web_usuarios.db, never in Alembic) ─
     if not _table_exists('refresh_tokens'):

@@ -20,6 +20,21 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
+    # Historic repair: subsequent DDL references this table before f8 creates
+    # it. Freeze the prerequisite shape here; existing tables are preserved.
+    if not sa.inspect(op.get_bind()).has_table("gym_profiles"):
+        op.create_table("gym_profiles",
+            sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
+            sa.Column("gym_id", sa.String(36), sa.ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, unique=True),
+            sa.Column("nombre_negocio", sa.String(255)), sa.Column("telefono", sa.String(50)),
+            sa.Column("direccion", sa.Text()), sa.Column("ciudad", sa.String(150)),
+            sa.Column("estado", sa.String(100)), sa.Column("pais", sa.String(100)),
+            sa.Column("logo_url", sa.String(500)), sa.Column("color_primario", sa.String(7)),
+            sa.Column("color_secundario", sa.String(7)), sa.Column("sitio_web", sa.String(500)),
+            sa.Column("rfc", sa.String(20)), sa.Column("instagram", sa.String(255)),
+            sa.Column("facebook", sa.String(255)), sa.Column("tiktok", sa.String(255)),
+            sa.Column("created_at", sa.DateTime()), sa.Column("updated_at", sa.DateTime()))
+        op.create_index("ix_gym_profiles_gym_id", "gym_profiles", ["gym_id"])
     # H-02: license_activations table
     op.create_table('license_activations',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
