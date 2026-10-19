@@ -1,0 +1,18 @@
+.FF                                                                      [100%]
+================================== FAILURES ===================================
+__ test_subscription_get_cannot_erase_or_collide_with_reserved_credit[True] ___
+tests\integration_quota_postgres.py:189: in test_subscription_get_cannot_erase_or_collide_with_reserved_credit
+    assert projection.planes_usados_mes == 1
+E   assert 0 == 1
+E    +  where 0 = <web.database.models.UserSubscription object at 0x000002818928D340>.planes_usados_mes
+__ test_subscription_get_cannot_erase_or_collide_with_reserved_credit[False] __
+tests\integration_quota_postgres.py:185: in test_subscription_get_cannot_erase_or_collide_with_reserved_credit
+    assert outcomes == ["accepted", "read"]
+E   AssertionError: assert ['accepted', 'error'] == ['accepted', 'read']
+E     
+E     At index 1 diff: 'error' != 'read'
+E     Use -v to get more diff
+=========================== short test summary info ===========================
+FAILED tests/integration_quota_postgres.py::test_subscription_get_cannot_erase_or_collide_with_reserved_credit[True]
+FAILED tests/integration_quota_postgres.py::test_subscription_get_cannot_erase_or_collide_with_reserved_credit[False]
+2 failed, 1 passed in 32.01s

@@ -1,0 +1,156 @@
+..............................FF.........................                [100%]
+================================== FAILURES ===================================
+____________________ test_descargar_pdf_despues_de_generar ____________________
+tests\test_api.py:276: in test_descargar_pdf_despues_de_generar
+    assert resp_plan.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <Response [500 Internal Server Error]>.status_code
+---------------------------- Captured stderr call -----------------------------
+[2026-10-18 19:19:28] [ERROR] [generador_planes.py:432] Excepción en intento 1 para cliente 2f684934-364d-4429-a58c-522c4dd251cd
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+[2026-10-18 19:19:28] [ERROR] [generador_planes.py:432] Excepción en intento 2 para cliente 2f684934-364d-4429-a58c-522c4dd251cd
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+[2026-10-18 19:19:28] [ERROR] [generador_planes.py:432] Excepción en intento 3 para cliente 2f684934-364d-4429-a58c-522c4dd251cd
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+------------------------------ Captured log call ------------------------------
+INFO     metodo_base:generador_planes.py:206 [AJUSTE] Kcal base 2354 -> final 2354 (sin ajuste)
+INFO     metodo_base:generador_comidas.py:54 [DISTRIBUIDOR] carbs por comida — desayuno: 58.7g, almuerzo: 73.3g, comida: 88.0g, cena: 73.3g
+INFO     metodo_base:gestor_rotacion.py:213 [INIT] Primer historial para este cliente
+INFO     metodo_base:generador_planes.py:229 [ROTACION] 0 alimentos con penalización ponderada
+INFO     metodo_base:generador_planes.py:234 Intento 1/3 de generación de plan
+ERROR    metodo_base:generador_planes.py:432 Excepción en intento 1 para cliente 2f684934-364d-4429-a58c-522c4dd251cd
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+INFO     metodo_base:generador_planes.py:234 Intento 2/3 de generación de plan
+ERROR    metodo_base:generador_planes.py:432 Excepción en intento 2 para cliente 2f684934-364d-4429-a58c-522c4dd251cd
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+INFO     metodo_base:generador_planes.py:234 Intento 3/3 de generación de plan
+ERROR    metodo_base:generador_planes.py:432 Excepción en intento 3 para cliente 2f684934-364d-4429-a58c-522c4dd251cd
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+ERROR    api.routes.planes:planes.py:167 Error generando plan para 2f684934-364d-4429-a58c-522c4dd251cd: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\api\routes\planes.py", line 159, in generar_plan
+    resultado = await asyncio.to_thread(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\MetodoBaseWeb-execution-20261018\api\routes\planes.py", line 79, in _generar_plan_sync
+    plan = ConstructorPlanNuevo.construir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+____________________ test_descargar_pdf_ruta_no_existente _____________________
+tests\test_api.py:310: in test_descargar_pdf_ruta_no_existente
+    assert resp_plan.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <Response [500 Internal Server Error]>.status_code
+---------------------------- Captured stderr call -----------------------------
+[2026-10-18 19:19:29] [ERROR] [generador_planes.py:432] Excepción en intento 1 para cliente ba534cd5-2332-4df3-8be9-9605445797b7
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+[2026-10-18 19:19:29] [ERROR] [generador_planes.py:432] Excepción en intento 2 para cliente ba534cd5-2332-4df3-8be9-9605445797b7
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+[2026-10-18 19:19:29] [ERROR] [generador_planes.py:432] Excepción en intento 3 para cliente ba534cd5-2332-4df3-8be9-9605445797b7
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+------------------------------ Captured log call ------------------------------
+INFO     metodo_base:generador_planes.py:206 [AJUSTE] Kcal base 2124 -> final 2124 (sin ajuste)
+INFO     metodo_base:generador_comidas.py:54 [DISTRIBUIDOR] carbs por comida — desayuno: 57.3g, almuerzo: 71.6g, comida: 85.9g, cena: 71.6g
+INFO     metodo_base:gestor_rotacion.py:213 [INIT] Primer historial para este cliente
+INFO     metodo_base:generador_planes.py:229 [ROTACION] 0 alimentos con penalización ponderada
+INFO     metodo_base:generador_planes.py:234 Intento 1/3 de generación de plan
+ERROR    metodo_base:generador_planes.py:432 Excepción en intento 1 para cliente ba534cd5-2332-4df3-8be9-9605445797b7
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+INFO     metodo_base:generador_planes.py:234 Intento 2/3 de generación de plan
+ERROR    metodo_base:generador_planes.py:432 Excepción en intento 2 para cliente ba534cd5-2332-4df3-8be9-9605445797b7
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+INFO     metodo_base:generador_planes.py:234 Intento 3/3 de generación de plan
+ERROR    metodo_base:generador_planes.py:432 Excepción en intento 3 para cliente ba534cd5-2332-4df3-8be9-9605445797b7
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+ERROR    api.routes.planes:planes.py:167 Error generando plan para ba534cd5-2332-4df3-8be9-9605445797b7: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+Traceback (most recent call last):
+  File "F:\MetodoBaseWeb-execution-20261018\api\routes\planes.py", line 159, in generar_plan
+    resultado = await asyncio.to_thread(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\MetodoBaseWeb-execution-20261018\api\routes\planes.py", line 79, in _generar_plan_sync
+    plan = ConstructorPlanNuevo.construir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\MetodoBaseWeb-execution-20261018\core\generador_planes.py", line 246, in construir
+    lista_proteinas = selector.seleccionar_lista(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SelectorAlimentos.seleccionar_lista() got an unexpected keyword argument 'catalogo'
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+web\routes\team.py:76
+  F:\MetodoBaseWeb-execution-20261018\web\routes\team.py:76: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    class TeamMemberResponse(BaseModel):
+
+core\services\cliente_service.py:13
+  F:\MetodoBaseWeb-execution-20261018\core\services\cliente_service.py:13: DeprecationWarning: src.gestor_bd está deprecado. Usar src.repositories.cliente_repository o web.database.
+    from src.gestor_bd import GestorBDClientes
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_api.py::test_descargar_pdf_despues_de_generar - assert 500 ...
+FAILED tests/test_api.py::test_descargar_pdf_ruta_no_existente - assert 500 =...
+2 failed, 55 passed, 3 warnings in 11.28s

@@ -1,0 +1,77 @@
+..................F..................................................... [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 18%]
+........................................................................ [ 24%]
+........................................................................ [ 30%]
+........................................................................ [ 36%]
+........................................................................ [ 42%]
+........................................................................ [ 48%]
+...............................sss...................................... [ 55%]
+.........................................................F.............. [ 61%]
+..FF.................................................................... [ 67%]
+................................................................. [ 72%]
+........................................................................ [ 78%]
+........................................................................ [ 85%]
+........................................................................ [ 91%]
+.............FF......................................................... [ 97%]
+................................                                         [100%]
+================================== FAILURES ===================================
+____________________ test_key_file_permissions_best_effort ____________________
+tests\services\test_key_manager.py:26: in test_key_file_permissions_best_effort
+    assert mode in {0o600, 0o644, 0o660}
+E   assert 438 in {384, 420, 432}
+___________________ TestPlanFeatures.test_free_plan_limits ____________________
+tests\test_feature_gate.py:62: in test_free_plan_limits
+    assert free.max_clientes == 10
+E   AssertionError: assert 5 == 10
+E    +  where 5 = PlanFeatures(plan_name='Free', max_clientes=5, max_planes_por_mes=20, max_registros_diarios=5, max_planes_por_cliente_...ess=False, can_webhooks=False, support_level='community', can_food_preferences=True, price_mxn=0, stripe_price_id=None).max_clientes
+___ TestFeatureGateChecks.test_check_can_create_client_at_limit_raises_402 ____
+tests\test_feature_gate.py:277: in test_check_can_create_client_at_limit_raises_402
+    assert exc_info.value.detail["limit"] == 10
+E   assert 5 == 10
+------------------------------ Captured log call ------------------------------
+WARNING  web.services.feature_gate:feature_gate.py:260 Plan limit exceeded: gym=gym_123, plan=free, current=10, limit=5
+____ TestFeatureGateChecks.test_check_can_create_client_below_limit_passes ____
+tests\test_feature_gate.py:302: in test_check_can_create_client_below_limit_passes
+    gate.check_can_create_client()
+web\services\feature_gate.py:264: in check_can_create_client
+    raise HTTPException(
+E   fastapi.exceptions.HTTPException: 402: {'error': 'plan_limit_exceeded', 'message': 'Tu plan Free permite máximo 5 clientes', 'current': 5, 'limit': 5, 'upgrade_url': '/suscripciones'}
+------------------------------ Captured log call ------------------------------
+WARNING  web.services.feature_gate:feature_gate.py:260 Plan limit exceeded: gym=gym_123, plan=free, current=5, limit=5
+_ TestWithSentryContext.test_with_sentry_context_sets_user_and_returns_usuario _
+tests\test_sentry_setup.py:255: in test_with_sentry_context_sets_user_and_returns_usuario
+    result = asyncio.get_event_loop().run_until_complete(
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:702: in get_event_loop
+    raise RuntimeError('There is no current event loop in thread %r.'
+E   RuntimeError: There is no current event loop in thread 'MainThread'.
+_ TestWithSentryContext.test_with_sentry_context_uses_id_when_no_team_gym_id __
+tests\test_sentry_setup.py:278: in test_with_sentry_context_uses_id_when_no_team_gym_id
+    result = asyncio.get_event_loop().run_until_complete(
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:702: in get_event_loop
+    raise RuntimeError('There is no current event loop in thread %r.'
+E   RuntimeError: There is no current event loop in thread 'MainThread'.
+============================== warnings summary ===============================
+core\services\cliente_service.py:13
+  C:\Users\Consu\AppData\Local\Temp\metodobase-baseline-20261018-zagiiq31\core\services\cliente_service.py:13: DeprecationWarning: src.gestor_bd está deprecado. Usar src.repositories.cliente_repository o web.database.
+    from src.gestor_bd import GestorBDClientes
+
+..\metodobase-qa-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+web\routes\team.py:76
+  C:\Users\Consu\AppData\Local\Temp\metodobase-baseline-20261018-zagiiq31\web\routes\team.py:76: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    class TeamMemberResponse(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/services/test_key_manager.py::test_key_file_permissions_best_effort
+FAILED tests/test_feature_gate.py::TestPlanFeatures::test_free_plan_limits - ...
+FAILED tests/test_feature_gate.py::TestFeatureGateChecks::test_check_can_create_client_at_limit_raises_402
+FAILED tests/test_feature_gate.py::TestFeatureGateChecks::test_check_can_create_client_below_limit_passes
+FAILED tests/test_sentry_setup.py::TestWithSentryContext::test_with_sentry_context_sets_user_and_returns_usuario
+FAILED tests/test_sentry_setup.py::TestWithSentryContext::test_with_sentry_context_uses_id_when_no_team_gym_id
+6 failed, 1168 passed, 3 skipped, 3 warnings, 7 subtests passed in 88.14s (0:01:28)

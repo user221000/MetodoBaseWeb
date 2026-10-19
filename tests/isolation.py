@@ -30,6 +30,25 @@ def validate_postgres_test_url(url: str) -> str:
     return url
 
 
+def validate_redis_test_url(url: str) -> str:
+    """Allow only the explicit dedicated Redis integration endpoint.
+
+    Ordinary REDIS_URL is always cleared. Query parameters can override the
+    parsed database/connection options in redis-py, so none are accepted.
+    """
+    message = "Redis tests require redis loopback port 56379 database 15 without overrides"
+    try:
+        parsed = urlsplit(url)
+        valid = (parsed.scheme == "redis" and parsed.hostname in _LOOPBACK
+                 and parsed.port == 56379 and parsed.path == "/15"
+                 and not parsed.query and not parsed.fragment)
+    except ValueError:
+        raise ValueError(message) from None
+    if not valid:
+        raise ValueError(message)
+    return url
+
+
 def prepare_environment(*, discard_inherited: bool = False) -> Path:
     """Install configuration before app imports; return this worker's root.
 
@@ -52,6 +71,9 @@ def prepare_environment(*, discard_inherited: bool = False) -> Path:
     for dirname in ("home", "appdata", "localappdata", "config", "registros", "output", "planes"):
         (worker_root / dirname).mkdir(parents=True, exist_ok=True)
     postgres_url = os.environ.get("METODOBASE_TEST_DATABASE_URL", "")
+    redis_url = os.environ.get("METODOBASE_TEST_REDIS_URL", "")
+    if redis_url:
+        validate_redis_test_url(redis_url)
     if postgres_url:
         validate_postgres_test_url(postgres_url)
         if worker != "main":
@@ -69,6 +91,7 @@ def prepare_environment(*, discard_inherited: bool = False) -> Path:
         "USERPROFILE": str(worker_root / "home"), "XDG_DATA_HOME": str(worker_root / "home"),
         "DATABASE_URL": postgres_url or "sqlite:///" + (worker_root / "suite.db").as_posix(),
         "METODOBASE_TEST_DATABASE_URL": postgres_url,
+        "METODOBASE_TEST_REDIS_URL": redis_url,
         "DB_PATH": str(worker_root / "legacy.db"),
         "WEB_SECRET_KEY": "local-tests-only-signing-key-at-least-thirty-two-characters",
         "METODO_BASE_SALT": "local-tests-only-salt", "METODO_BASE_MASTER_KEY": "",

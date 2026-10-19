@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="32.009" timestamp="2026-10-18T19:46:04.910913-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_quota_postgres" name="test_last_credit_accepts_only_one_of_three_processes" time="8.680" /><testcase classname="tests.integration_quota_postgres" name="test_subscription_get_cannot_erase_or_collide_with_reserved_credit[True]" time="11.364"><failure message="assert 0 == 1&#10; +  where 0 = &lt;web.database.models.UserSubscription object at 0x000002818928D340&gt;.planes_usados_mes">tests\integration_quota_postgres.py:189: in test_subscription_get_cannot_erase_or_collide_with_reserved_credit
+    assert projection.planes_usados_mes == 1
+E   assert 0 == 1
+E    +  where 0 = &lt;web.database.models.UserSubscription object at 0x000002818928D340&gt;.planes_usados_mes</failure></testcase><testcase classname="tests.integration_quota_postgres" name="test_subscription_get_cannot_erase_or_collide_with_reserved_credit[False]" time="11.689"><failure message="AssertionError: assert ['accepted', 'error'] == ['accepted', 'read']&#10;  &#10;  At index 1 diff: 'error' != 'read'&#10;  Use -v to get more diff">tests\integration_quota_postgres.py:185: in test_subscription_get_cannot_erase_or_collide_with_reserved_credit
+    assert outcomes == ["accepted", "read"]
+E   AssertionError: assert ['accepted', 'error'] == ['accepted', 'read']
+E     
+E     At index 1 diff: 'error' != 'read'
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>

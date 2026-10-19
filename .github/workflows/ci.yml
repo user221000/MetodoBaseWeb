@@ -1,188 +1,245 @@
-# ══════════════════════════════════════════════════════════════════════════════
-# MetodoBase — CI Pipeline
-# ══════════════════════════════════════════════════════════════════════════════
-# Ejecuta tests automáticamente en cada push y PR.
-# 
-# Características:
-# - Tests en Python 3.11 y 3.12
-# - Cache de dependencias para velocidad
-# - Reporte de cobertura
-# - Validación de sintaxis
-# ══════════════════════════════════════════════════════════════════════════════
-
 name: CI
-
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
-
+permissions:
+  contents: read
 env:
-  PYTHON_VERSION_PRIMARY: "3.12"
-
+  PYTHONUTF8: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  QT_QPA_PLATFORM: offscreen
 jobs:
-  # ── Lint y Validación de Sintaxis ──────────────────────────────────────────
-  lint:
-    name: Lint & Syntax Check
+  quality:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
-      
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-lint-
-      
-      - name: Instalar herramientas de lint
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff pyright
-      
-      - name: Verificar sintaxis Python
-        run: |
-          python -m py_compile main.py
-          find . -name "*.py" -path "./src/*" -exec python -m py_compile {} \;
-          find . -name "*.py" -path "./api/*" -exec python -m py_compile {} \;
-          find . -name "*.py" -path "./core/*" -exec python -m py_compile {} \;
-          find . -name "*.py" -path "./web/*" -exec python -m py_compile {} \;
-      
-      - name: Ruff (linter rápido)
-        run: ruff check --output-format=github .
-        continue-on-error: true  # No bloquear por ahora
-
-  # ── Tests ──────────────────────────────────────────────────────────────────
-  test:
-    name: Tests (Python ${{ matrix.python-version }})
+          python-version: "3.12"
+      - run: python -m pip install -r requirements-test-quality.txt
+      - name: Undefined names block integration
+        run: ruff check api core web src utils config ui_desktop design_system --select F821
+      - name: Parse every maintained Python source
+        run: python tests/check_quality.py syntax
+      - name: Reviewed Bandit baseline; new findings block integration
+        run: python tests/check_quality.py security
+  secrets:
     runs-on: ubuntu-latest
-    needs: lint
-    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the reviewed Gitleaks release outside the deliverable
+        run: |
+          mkdir -p "$RUNNER_TEMP/metodobase-gitleaks"
+          curl --fail --silent --show-error --location https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz --output "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" -C "$RUNNER_TEMP/metodobase-gitleaks"
+      - name: Scan the frozen deliverable tree with values withheld
+        run: python -X utf8 scripts/scan_secrets.py --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: secret-scan-metadata
+          path: ${{ runner.temp }}/metodobase-secrets-sanitized.json
+  test-web:
+    runs-on: ubuntu-latest
+    needs: quality
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12"]
-    
+        python: ["3.11", "3.12"]
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-      
-      - name: Cache pip
-        uses: actions/cache@v4
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --require-hashes -r requirements-test.lock
+      - name: SaaS regression suite in fresh isolated data
+        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
+      - name: Required SaaS cases cannot silently become skips
+        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web.xml').findall('.//skipped'), 'Required SaaS cases were skipped'"
+      - name: New nutrition contracts meet reviewed risk coverage
+        run: python tests/check_coverage.py coverage.json
+      - name: Full SaaS suite in shuffled order and two isolated workers
+        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --shuffle-seed=20261018 -q -n 2 --tb=short
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-${{ matrix.python-version }}-
-      
-      - name: Instalar dependencias
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov pytest-xdist
-      
-      - name: Configurar entorno
-        run: |
-          echo "METODOBASE_ENV=testing" >> $GITHUB_ENV
-          echo "WEB_SECRET_KEY=test-secret-key-for-ci-only" >> $GITHUB_ENV
-          echo "RATE_LIMIT_ENABLED=false" >> $GITHUB_ENV
-      
-      - name: Ejecutar tests
-        run: |
-          python -m pytest tests/ \
-            -v \
-            --tb=short \
-            -W ignore::DeprecationWarning \
-            --cov=. \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            -n auto
-      
-      - name: Upload cobertura a Codecov
-        if: matrix.python-version == '3.12'
-        uses: codecov/codecov-action@v4
+          name: web-tests-${{ matrix.python }}
+          path: |
+            pytest-web.xml
+            coverage.xml
+            coverage.json
+  test-desktop:
+    runs-on: ${{ matrix.os }}
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            requirements: requirements-test-desktop.lock
+          - os: windows-latest
+            requirements: requirements-test-desktop-windows.lock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          files: ./coverage.xml
-          fail_ci_if_error: false
-          verbose: true
-        continue-on-error: true
-
-  # ── Build Check ────────────────────────────────────────────────────────────
-  build:
-    name: Build Check
+          python-version: "3.12"
+      - run: python -m pip install --require-hashes -r ${{ matrix.requirements }}
+      - name: GUI bindings must really load in the supported target
+        run: python -c "from PySide6.QtWidgets import QApplication; app=QApplication([]); assert app.platformName()=='offscreen'"
+      - name: Supported desktop target
+        run: python -X utf8 tests/run_isolated.py tests/test_login_desktop.py tests/services -q --tb=short --junitxml=pytest-desktop.xml
+      - name: Required desktop cases cannot silently become skips
+        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-desktop.xml').findall('.//skipped'), 'Required desktop cases were skipped'"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-tests-${{ matrix.os }}
+          path: pytest-desktop.xml
+  postgres:
     runs-on: ubuntu-latest
-    needs: test
-    
+    needs: quality
+    services:
+      postgres:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_integration
+        ports: ["55482:5432"]
+        options: >-
+          --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_integration"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
-      
-      - name: Instalar dependencias
+          python-version: "3.12"
+      - run: python -m pip install --require-hashes -r requirements-test.lock
+      - name: Matching PostgreSQL client tools from the official PGDG repository
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      
-      - name: Verificar imports principales
-        run: |
-          python -c "from api.app import create_app; app = create_app(); print('✓ API app OK')"
-          python -c "from config.feature_flags import get_migration_flags; print(f'✓ Feature flags: {get_migration_flags().current_phase()}')"
-          python -c "from web.database.engine import init_db; init_db(); print('✓ Database init OK')"
-
-  # ── Security Scan ──────────────────────────────────────────────────────────
-  security:
-    name: Security Scan
+          . /etc/os-release
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client-17
+      - name: Empty, legacy and drift migration paths preserve synthetic rows
+        run: python -X utf8 tests/run_isolated.py tests/integration_schema_migrations.py -q --tb=short
+      - name: Real empty-database migrations and restricted-role setup
+        run: python -X utf8 tests/prepare_postgres.py
+      - name: PostgreSQL two-tenant and transaction checks
+        run: python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short
+      - name: Last-credit and subscription GET races across PostgreSQL processes
+        run: python -X utf8 tests/run_isolated.py tests/integration_quota_postgres.py -q --tb=short
+      - name: Encrypted PostgreSQL and object restoration into an empty owned database
+        run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py -q --tb=short
+  redis:
     runs-on: ubuntu-latest
-    needs: lint
-    
+    needs: quality
+    services:
+      redis:
+        image: redis:7.4.11-bookworm
+        ports: ["56379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      METODOBASE_TEST_REDIS_URL: redis://127.0.0.1:56379/15
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION_PRIMARY }}
-      
-      - name: Instalar bandit
-        run: pip install bandit[toml]
-      
-      - name: Escanear vulnerabilidades
-        run: bandit -r api/ core/ web/ src/ -ll --skip B101
-        continue-on-error: true  # No bloquear por ahora, solo reportar
-
-  # ── Resumen ────────────────────────────────────────────────────────────────
+          python-version: "3.12"
+      - run: python -m pip install --require-hashes -r requirements-test.lock
+      - name: Atomic Lua, fixed TTL, four real workers and distributed login account limit
+        run: python -X utf8 tests/run_isolated.py tests/integration_redis.py -q --tb=short --junitxml=pytest-redis.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: redis-integration
+          path: pytest-redis.xml
+  image:
+    runs-on: ubuntu-latest
+    needs: [test-web, postgres]
+    services:
+      postgres-image:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_image
+        ports: ["55483:5432"]
+        options: >-
+          --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_image"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the production Dockerfile
+        run: docker build --tag metodobase-candidate:${{ github.sha }} .
+      - name: Migrate the synthetic database using the candidate itself
+        run: docker run --rm --network host --entrypoint python -e METODOBASE_ENV=testing -e DATABASE_URL=postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image metodobase-candidate:${{ github.sha }} /app/db_bootstrap.py
+      - name: Grant a separate restricted runtime role
+        run: >-
+          docker exec ${{ job.services.postgres-image.id }} psql --username=metodobase_test_admin --dbname=metodobase_test_image --set=ON_ERROR_STOP=1
+          --command "CREATE ROLE metodobase_test_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD 'synthetic-app-only'; GRANT USAGE ON SCHEMA public TO metodobase_test_app; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO metodobase_test_app; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO metodobase_test_app;"
+      - name: Exercise the same web runtime inside the candidate
+        run: |
+          docker run --detach --name metodobase-candidate --network host --entrypoint python -e METODOBASE_ENV=testing -e WEB_SECRET_KEY=synthetic-ci-only-secret-at-least-32-characters -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image -e METODOBASE_DATA_DIR=/data -e METODOBASE_SEED_DEMO=0 -e PORT=8765 metodobase-candidate:${{ github.sha }} -m uvicorn web.main_web:create_app --factory --host 127.0.0.1 --port 8765
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8765/health/ready; then exit 0; fi
+            sleep 1
+          done
+          docker logs metodobase-candidate
+          exit 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: tests/e2e/package-lock.json
+      - name: Reproducible browser tooling and Chromium
+        run: |
+          npm ci --prefix tests/e2e --ignore-scripts
+          node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
+      - name: Browser subscription contracts and accessibility against the candidate
+        env:
+          METODOBASE_E2E_URL: http://127.0.0.1:8765
+        run: |
+          export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+          node tests/e2e/subscription.cjs
+          node tests/e2e/subscription_contract_review.cjs
+          node tests/e2e/gym_subscription.cjs
+          node tests/e2e/responsive_accessibility.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-browser-evidence
+          path: docs/implementation/20261018-evolution/evidence/ux
+      - name: Record candidate identity
+        run: docker image inspect metodobase-candidate:${{ github.sha }} --format '{{.Id}}' > candidate-image-id.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidate-identity
+          path: candidate-image-id.txt
+      - name: Stop isolated candidate
+        if: always()
+        run: docker rm --force metodobase-candidate
   ci-success:
-    name: CI Success
     runs-on: ubuntu-latest
-    needs: [lint, test, build]
+    needs: [quality, secrets, test-web, test-desktop, postgres, redis, image]
     if: always()
-    
     steps:
-      - name: Verificar resultados
-        run: |
-          if [[ "${{ needs.lint.result }}" == "failure" ]] || \
-             [[ "${{ needs.test.result }}" == "failure" ]] || \
-             [[ "${{ needs.build.result }}" == "failure" ]]; then
-            echo "❌ CI falló"
-            exit 1
-          fi
-          echo "✅ CI completado exitosamente"
+      - name: Every required gate must succeed
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: python -c "import json,os; results=json.loads(os.environ['RESULTS']); assert all(item['result']=='success' for item in results.values()), results"

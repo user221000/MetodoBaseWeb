@@ -1,0 +1,55 @@
+{
+  "adopted": "2026-10-18",
+  "source": "docs/audit/2026-10-18/qa/INFORME_QA.md#interpretaci?n-de-bandit",
+  "scope": "Exact source fingerprints only; manual application-security findings remain blocking independently.",
+  "exceptions": [
+    {
+      "fingerprint": "core/licencia.py:B310:fe5ee056fc2297f0c9d6b83f38e76bae5d09690f93c8a758c900c97412175e07",
+      "path": "core/licencia.py",
+      "rule": "B310",
+      "reason": "License requests use the fixed HTTPS API base; URL input is not accepted from the request.",
+      "review": "QA source review; historical audit independently contextualizes this finding",
+      "expires": "2027-01-18"
+    },
+    {
+      "fingerprint": "core/licencia.py:B310:fe5ee056fc2297f0c9d6b83f38e76bae5d09690f93c8a758c900c97412175e07",
+      "path": "core/licencia.py",
+      "rule": "B310",
+      "reason": "License requests use the fixed HTTPS API base; URL input is not accepted from the request.",
+      "review": "QA source review; historical audit independently contextualizes this finding",
+      "expires": "2027-01-18"
+    },
+    {
+      "fingerprint": "src/alimentos_sqlite.py:B608:55e7adb76a15b14479cc9fc291d1e9a8d25f8c26215d81e175e0587becdf5801",
+      "path": "src/alimentos_sqlite.py",
+      "rule": "B608",
+      "reason": "The SQL identifier is selected from a fixed allowlist/constant tuple, not user input.",
+      "review": "QA source review; historical audit independently contextualizes this finding",
+      "expires": "2027-01-18"
+    },
+    {
+      "fingerprint": "src/migrar_catalogo_sqlite.py:B608:393f7db3a4fc8317005e726cb9aa9236cc6dbfed71e5a11379335143388a06ad",
+      "path": "src/migrar_catalogo_sqlite.py",
+      "rule": "B608",
+      "reason": "The SQL identifier is selected from a fixed allowlist/constant tuple, not user input.",
+      "review": "QA source review; historical audit independently contextualizes this finding",
+      "expires": "2027-01-18"
+    },
+    {
+      "fingerprint": "web/main_web.py:B324:6a3630fbfe01c7e5594bfc39ad6ceed9a089da8a2677f9c65f7ffa42b270632e",
+      "path": "web/main_web.py",
+      "rule": "B324",
+      "reason": "MD5 computes static asset cache versions; it is not used to authenticate or protect data.",
+      "review": "QA source review; historical audit independently contextualizes this finding",
+      "expires": "2027-01-18"
+    },
+    {
+      "fingerprint": "web/main_web.py:B104:f57a3e67acc791e85b5c3856741b2f353a0dacc7ee7bdc9471b98903d0711fa0",
+      "path": "web/main_web.py",
+      "rule": "B104",
+      "reason": "The container web runtime must listen on all container interfaces.",
+      "review": "QA source review; historical audit independently contextualizes this finding",
+      "expires": "2027-01-18"
+    }
+  ]
+}

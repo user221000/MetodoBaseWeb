@@ -8,7 +8,7 @@ import sys
 
 import pytest
 
-from tests.isolation import validate_postgres_test_url
+from tests.isolation import validate_postgres_test_url, validate_redis_test_url
 
 
 @pytest.mark.parametrize("url", [
@@ -66,3 +66,35 @@ def test_backup_sources_keys_and_libpq_inheritance_are_disabled():
     result = subprocess.run([sys.executable, "-X", "utf8", "-c", code], env=env,
                             capture_output=True, text=True, encoding="utf-8", check=True)
     assert all(value == "" for value in json.loads(result.stdout).values())
+
+
+@pytest.mark.parametrize("url", [
+    "redis://outside.invalid:56379/15",
+    "redis://127.0.0.1:6379/15",
+    "redis://127.0.0.1:56379/0",
+    "redis://127.0.0.1:56379/15?db=0",
+    "redis://127.0.0.1:56379/15#override",
+    "redis://127.0.0.1:not-a-port/15",
+    "redis://[unclosed:56379/15",
+    "unix:///tmp/redis.sock?db=15",
+])
+def test_unapproved_redis_targets_are_rejected(url):
+    with pytest.raises(ValueError, match="Redis tests require"):
+        validate_redis_test_url(url)
+
+
+@pytest.mark.parametrize("host", ["127.0.0.1", "localhost", "[::1]"])
+def test_explicit_dedicated_redis_endpoint_is_accepted(host):
+    url = f"redis://{host}:56379/15"
+    assert validate_redis_test_url(url) == url
+
+
+def test_redis_opt_in_survives_without_inheriting_application_endpoint():
+    env = dict(os.environ, REDIS_URL="redis://fake:do-not-log@outside.invalid/0",
+               METODOBASE_TEST_REDIS_URL="redis://127.0.0.1:56379/15")
+    code = "import os,json; from tests.isolation import prepare_environment; prepare_environment(); print(json.dumps({name:os.environ.get(name) for name in ('REDIS_URL','METODOBASE_TEST_REDIS_URL')}))"
+    result = subprocess.run([sys.executable, "-X", "utf8", "-c", code], env=env,
+                            capture_output=True, text=True, encoding="utf-8", check=True)
+    assert json.loads(result.stdout) == {
+        "REDIS_URL": "", "METODOBASE_TEST_REDIS_URL": "redis://127.0.0.1:56379/15"}
+    assert "do-not-log" not in result.stdout + result.stderr

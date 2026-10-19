@@ -27,6 +27,14 @@ def main() -> int:
     block_external_sockets()
     if options.serve_web:
         import uvicorn
+        from web.database.engine import get_engine
+        from web.database.models import Base
+
+        # The browser fixture prepares SQLite explicitly; the product factory
+        # verifies existing schema and never performs implicit startup DDL.
+        engine = get_engine()
+        if engine.dialect.name == "sqlite":
+            Base.metadata.create_all(engine)
         from web.main_web import create_app
         uvicorn.run(create_app(), host="127.0.0.1", port=8765, log_level="warning")
         return 0

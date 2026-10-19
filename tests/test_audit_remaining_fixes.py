@@ -6,6 +6,7 @@ import importlib
 import inspect
 import os
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -51,20 +52,48 @@ class TestH01RedisRateLimiter:
 # H-02 — CATEGORIAS race condition protection
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class TestH02CategoriasLock:
+class TestH02ConcurrentExclusions:
 
-    def test_categorias_lock_exists(self):
-        """web.routes.planes must have _categorias_lock."""
-        mod = importlib.import_module("web.routes.planes")
-        assert hasattr(mod, "_categorias_lock")
-        assert isinstance(mod._categorias_lock, type(threading.Lock()))
+    def test_request_catalog_cannot_mutate_nested_foods_or_categories(self):
+        """R06 replaces the historical global lock with immutable snapshots."""
+        from core.food_catalog import FoodCatalog
+        from src.alimentos_base import ALIMENTOS_BASE, CATEGORIAS
 
-    def test_lock_referenced_in_gen_plan(self):
-        """_generar_plan_sync should acquire _categorias_lock for exclusions."""
-        source = Path(__file__).resolve().parents[1] / "web" / "routes" / "planes.py"
-        text = source.read_text(encoding="utf-8")
-        assert "_categorias_lock.acquire()" in text
-        assert "_categorias_lock.release()" in text
+        catalog = FoodCatalog.from_data(ALIMENTOS_BASE, CATEGORIAS, ["huevo"])
+        food = next(iter(catalog.alimentos))
+        nutrient = next(iter(catalog.alimentos[food]))
+        with pytest.raises(TypeError):
+            catalog.alimentos[food][nutrient] = -1
+        with pytest.raises(TypeError):
+            catalog.categorias["proteina"] = ("huevo",)
+        assert isinstance(catalog.categorias["proteina"], tuple)
+        assert "huevo" not in catalog.alimentos
+
+    def test_concurrent_selectors_preserve_each_requests_exclusions_and_global_catalog(self):
+        """Concurrent requests must never publish another request's foods."""
+        import copy
+        from core.food_catalog import FoodCatalog
+        from core.selector_alimentos import SelectorAlimentos
+        from src.alimentos_base import ALIMENTOS_BASE, CATEGORIAS
+
+        original = copy.deepcopy((ALIMENTOS_BASE, CATEGORIAS))
+        barrier = threading.Barrier(8)
+
+        def select(index):
+            excluded = (("huevo", "avena"), ("arroz_blanco", "nueces"))[index % 2]
+            catalog = FoodCatalog.from_data(ALIMENTOS_BASE, CATEGORIAS, excluded)
+            barrier.wait(timeout=10)
+            for iteration in range(20):
+                for meal in range(4):
+                    for category in ("proteina", "carbs", "grasa"):
+                        selected = SelectorAlimentos.seleccionar_lista(category, meal,
+                            seed=iteration + 1, catalogo=catalog)
+                        assert selected and set(selected).isdisjoint(excluded)
+                        assert set(selected).issubset(catalog.alimentos)
+
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            list(pool.map(select, range(8)))
+        assert (ALIMENTOS_BASE, CATEGORIAS) == original
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -92,13 +121,38 @@ class TestH03PDFPathTraversal:
 
 class TestH04MPWebhookSignature:
 
-    def test_mp_webhook_checks_signature(self):
-        """mp_webhook should verify x-signature header."""
-        source = Path(__file__).resolve().parents[1] / "api" / "routes" / "pagos.py"
-        text = source.read_text(encoding="utf-8")
-        assert "x-signature" in text
-        assert "hmac" in text.lower()
-        assert "MERCADOPAGO_WEBHOOK_SECRET" in text
+    @pytest.mark.parametrize("change", [None, "signature", "processed_id", "expired"])
+    def test_mp_webhook_checks_signature(self, monkeypatch, change):
+        """Shared adapter authenticates the resource actually processed."""
+        import hashlib
+        import hmac
+        import json
+        from types import SimpleNamespace
+        from fastapi import HTTPException, Request
+        from web.services import mercadopago_service as service
+
+        secret = "synthetic-webhook-secret"
+        monkeypatch.setattr(service, "get_settings", lambda: SimpleNamespace(
+            MERCADOPAGO_WEBHOOK_SECRET=secret))
+        stamp = "1800000000"
+        manifest = f"id:payment-123;request-id:request-123;ts:{stamp};"
+        signature = hmac.new(secret.encode(), manifest.encode(), hashlib.sha256).hexdigest()
+        if change == "signature":
+            signature = "0" * 64
+        request = Request({"type": "http", "method": "POST", "path": "/webhook",
+            "query_string": b"data.id=payment-123",
+            "headers": [(b"x-request-id", b"request-123"),
+                        (b"x-signature", f"ts={stamp},v1={signature}".encode())]})
+        body = {"id": "event-123", "type": "payment", "data": {
+            "id": "other-payment" if change == "processed_id" else "payment-123"}}
+        now = int(stamp) + (301 if change == "expired" else 0)
+        if change:
+            with pytest.raises(HTTPException) as rejected:
+                service.verify_notification(request, json.dumps(body).encode(), now=now)
+            assert rejected.value.status_code == 401
+        else:
+            verified, event_id = service.verify_notification(request, json.dumps(body).encode(), now=now)
+            assert verified == body and event_id.startswith("mp:")
 
     def test_settings_has_mp_webhook_secret(self):
         """Settings must have MERCADOPAGO_WEBHOOK_SECRET."""

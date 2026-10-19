@@ -242,13 +242,19 @@ class TestM11RenameRedondeo:
         ).read_text(encoding="utf-8")
         assert "_aplicar_redondeo_clinico_desayuno" not in source
 
-    def test_new_name_exists(self):
-        source = (
-            Path(__file__).resolve().parents[1] / "core" / "generador_planes.py"
-        ).read_text(encoding="utf-8")
-        assert "def _aplicar_redondeo_clinico(" in source
-        # Also verify it's called
-        assert "_aplicar_redondeo_clinico(comida_estructurada)" in source
+    def test_rounding_uses_request_catalog_and_recomputes_energy(self):
+        from core.food_catalog import FoodCatalog
+        from core.generador_planes import _aplicar_redondeo_clinico
+
+        catalog = FoodCatalog.from_data(
+            {"p": {"kcal": 100}, "c": {"kcal": 200},
+             "g": {"kcal": 300}, "v": {"kcal": 50}},
+            {"proteina": ["p"], "carbs": ["c"], "grasa": ["g"], "verdura": ["v"]})
+        meal = {"alimentos": {"p": 27, "c": 34, "g": 7, "v": 26}, "kcal_objetivo": 100}
+        result = _aplicar_redondeo_clinico(meal, catalogo=catalog)
+        assert result["alimentos"] == {"p": 25, "c": 30, "g": 5, "v": 30}
+        assert result["kcal_real"] == pytest.approx(115)
+        assert result["desviacion_pct"] == pytest.approx(15)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
