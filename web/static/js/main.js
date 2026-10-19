@@ -31,10 +31,8 @@ async function initDashboard() {
     renderTopClientes(stats.top_clientes || []);
     updateOnboarding(stats);
 
-    // Render AI insights if available
-    if (window.Insights && typeof Insights.render === 'function') {
-      Insights.render(stats);
-    }
+    // The follow-up component uses authorized persisted facts instead of
+    // interpreting plan activity as loyalty, payment or an automatic action.
 
     // Update sidebar badge
     setText('sb-total-clientes', stats.total_clientes || '');
@@ -47,9 +45,9 @@ async function initDashboard() {
       if (_total === 0) {
         ctxDynamic.textContent = '👋 Registra tu primer cliente para empezar';
       } else if (_inactivos > 0) {
-        ctxDynamic.textContent = `🔔 ${_inactivos} cliente${_inactivos > 1 ? 's' : ''} sin plan reciente — genéra${_inactivos > 1 ? 'les' : 'le'} uno hoy`;
+        ctxDynamic.textContent = 'Consulta el seguimiento para revisar la actividad y sus fuentes';
       } else {
-        ctxDynamic.textContent = '🏆 Todos tus clientes tienen plan activo';
+        ctxDynamic.textContent = 'Consulta los planes guardados y las fechas administrativas por separado';
       }
     }
   } catch (err) {

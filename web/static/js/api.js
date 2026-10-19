@@ -10,6 +10,16 @@ const Api = (() => {
 
   let _refreshJob = null;
   const _storageErrors = new WeakSet();
+  let _notifyingSession = false;
+  function _notifySessionChanged() {
+    // Event contains no values. State is consolidated before dispatch; a
+    // listener may inspect/recover it, but must not cause recursive dispatch.
+    if (_notifyingSession || typeof window.dispatchEvent !== 'function' || typeof Event !== 'function') return;
+    _notifyingSession = true;
+    try { window.dispatchEvent(new Event('metodobase-session-changed')); }
+    catch { /* Notification infrastructure must not alter authenticated I/O. */ }
+    finally { _notifyingSession = false; }
+  }
 
   function getToken() {
     return localStorage.getItem('mb_token') || '';
@@ -39,6 +49,7 @@ const Api = (() => {
   }
   function _failStorage(cause) {
     _credentials = { ..._credentials, revision: _credentials.revision + 1, trusted: false };
+    _notifySessionChanged();
     if (_storageErrors.has(cause)) return cause;
     return _storageError(cause);
   }
@@ -49,6 +60,7 @@ const Api = (() => {
     const pair = _readPair();
     if (!_samePair(pair, _credentials.pair)) {
       _credentials = { pair, revision: _credentials.revision + 1, trusted: _credentials.trusted };
+      _notifySessionChanged();
     }
     return _credentials;
   }
@@ -100,6 +112,7 @@ const Api = (() => {
       else localStorage.setItem('mb_refresh_token', next.refresh);
       if (_credentials !== attempt || !_samePair(_readPair(), next)) throw _sessionChanged();
       _credentials = { pair: next, revision: attempt.revision, trusted: true };
+      if (!rotation) _notifySessionChanged();
     } catch (error) {
       // A newer explicit complete recovery wins; no rollback or compensating writes.
       if (_credentials !== attempt && _credentials.trusted) throw _sessionChanged();
@@ -111,6 +124,7 @@ const Api = (() => {
       if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) {
         try {
           _credentials = { pair: _readPair(), revision: _credentials.revision + 1, trusted: _credentials.trusted };
+          _notifySessionChanged();
         } catch { /* Read failure already made the credential state untrusted. */ }
       }
     });
@@ -149,7 +163,15 @@ const Api = (() => {
   function _expire(snapshot, pair) {
     _assertPair(snapshot, pair);
     clearTokens();
-    window.location.href = getLoginUrl();
+    // The synchronous notification can explicitly recover another session.
+    // Only the exact complete empty revision produced by this clear may
+    // continue to the login page; never redirect a listener's replacement.
+    const cleared = { revision: snapshot.revision + 1 };
+    const empty = { token: '', refresh: '' };
+    _assertPair(cleared, empty);
+    const loginUrl = getLoginUrl();
+    _assertPair(cleared, empty);
+    window.location.href = loginUrl;
     const error = new Error('Sesión expirada.');
     error.code = 'session_expired';
     throw error;
@@ -359,6 +381,26 @@ const Api = (() => {
   // ── Estadísticas ──────────────────────────────────────────────────────────
 
   const stats = {
+    contexto: async () => {
+      const snapshot = _snapshot();
+      const me = await auth.me();
+      _assertSnapshot(snapshot);
+      if (!me || typeof me.id !== 'string' || !me.id || !me.role) throw _sessionChanged();
+      return Object.freeze({revision: snapshot.revision,
+        subject: JSON.stringify([me.id, me.team_gym_id || null, me.role, me.session_version])});
+    },
+    validarContexto: (context) => { _assertSnapshot(context); },
+    verificarContexto: async (context) => {
+      _assertSnapshot(context);
+      const current = await stats.contexto();
+      _assertSnapshot(context);
+      if (current.subject !== context.subject) throw _sessionChanged();
+    },
+    seguimiento: (context, limit = 50) => {
+      _assertSnapshot(context);
+      if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error('Elige entre 1 y 100 clientes.');
+      return request('GET', '/api/estadisticas/seguimiento?limit=' + limit);
+    },
     obtener: (periodo) => {
       const params = periodo ? `?periodo=${periodo}` : '';
       return request('GET', `/api/estadisticas${params}`);

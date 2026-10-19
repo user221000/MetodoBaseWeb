@@ -1,0 +1,50 @@
+{
+  "total": 11,
+  "passed": 11,
+  "results": [
+    {
+      "case": "saveTokens B clears already visible data synchronously without await or interaction",
+      "passed": true
+    },
+    {
+      "case": "clearTokens clears visible data after the complete empty pair",
+      "passed": true
+    },
+    {
+      "case": "Successful save notifies only after both values are stored",
+      "passed": true
+    },
+    {
+      "case": "Partial write failure invalidates immediately and cannot become a trusted refresh source",
+      "passed": true
+    },
+    {
+      "case": "Storage read failure invalidates immediately before any network await",
+      "passed": true
+    },
+    {
+      "case": "Detected external pair mutation emits synchronously at the next snapshot",
+      "passed": true
+    },
+    {
+      "case": "Native Storage event invalidates while unrelated keys do not",
+      "passed": true
+    },
+    {
+      "case": "A successful same-revision refresh does not invalidate visible current-session data",
+      "passed": true
+    },
+    {
+      "case": "Reentrant listener read observes consolidated state and does not recurse",
+      "passed": true
+    },
+    {
+      "case": "Explicit reentrant complete recovery wins without recursive notification or clobber",
+      "passed": true
+    },
+    {
+      "case": "Notifier dispatch failure cannot turn a completed save into a transport error",
+      "passed": true
+    }
+  ]
+}

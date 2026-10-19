@@ -1,0 +1,50 @@
+{
+  "scope": "Offline native EventTarget/VM, actual history controller with synthetic data; no browser or real account",
+  "total": 10,
+  "passed": 7,
+  "results": [
+    {
+      "name": "Event has no detail credential fields or synthetic token in serialized own data",
+      "passed": true
+    },
+    {
+      "name": "Actual PersonalHistory consumer clears loaded rows cursor and visible text before saveTokens returns",
+      "passed": true
+    },
+    {
+      "name": "Native listener exception leaves committed state and remaining listeners usable",
+      "passed": true
+    },
+    {
+      "name": "Reentrant full recovery during partial Storage failure preserves C and blocks the failed old operation",
+      "passed": true
+    },
+    {
+      "name": "Reentrant read failure cannot dispatch an authenticated DTO from an untrusted pair",
+      "passed": true
+    },
+    {
+      "name": "Logout listener recovery leaves B active and reports session_changed instead of closed_local",
+      "passed": true
+    },
+    {
+      "name": "Refresh failure emits exactly one invalidation when no listener replaces the expired session",
+      "passed": true
+    },
+    {
+      "name": "Expired A must not redirect B recovered synchronously by listener: no refresh credential",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: stale expiry redirected a newer recovered session\n+ actual - expected\n\n+ '/login-gym'\n- '/protected-synthetic'\n\n    at Object.body (C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-session-event-independent-20261019\\session_event_review.cjs:88:12)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:541:9)\n    at async C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-session-event-independent-20261019\\session_event_review.cjs:94:55"
+    },
+    {
+      "name": "Expired A must not redirect B recovered synchronously by listener: refresh rejected",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: stale expiry redirected a newer recovered session\n+ actual - expected\n\n+ '/login-gym'\n- '/protected-synthetic'\n\n    at Object.body (C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-session-event-independent-20261019\\session_event_review.cjs:88:12)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:541:9)\n    at async C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-session-event-independent-20261019\\session_event_review.cjs:94:55"
+    },
+    {
+      "name": "Expired A must not redirect B recovered synchronously by listener: rotated access still rejected",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: stale expiry redirected a newer recovered session\n+ actual - expected\n\n+ '/login-gym'\n- '/protected-synthetic'\n\n    at Object.body (C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-session-event-independent-20261019\\session_event_review.cjs:88:12)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:541:9)\n    at async C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-session-event-independent-20261019\\session_event_review.cjs:94:55"
+    }
+  ]
+}
