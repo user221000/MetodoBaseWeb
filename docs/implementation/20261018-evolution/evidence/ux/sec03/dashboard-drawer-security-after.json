@@ -1,0 +1,95 @@
+{
+  "scope": "SEC03 scoped browser regression, real auth/CRUD except explicitly marked renderer doubles",
+  "results": [
+    {
+      "case": "Persisted markup remains accepted and preserved by real CRUD",
+      "passed": true
+    },
+    {
+      "case": "Anonymous and other-account access stay denied",
+      "passed": true,
+      "anonymous": 401,
+      "other_account": 404
+    },
+    {
+      "case": "Actual script CSP still requires a nonce",
+      "passed": true,
+      "nonce_present": true,
+      "unsafe_inline": false
+    },
+    {
+      "case": "Persisted names render as literal text without span/SVG nodes",
+      "passed": true
+    },
+    {
+      "case": "ID dataset, initials and metadata remain literal at renderer boundary",
+      "passed": true
+    },
+    {
+      "case": "Delegated click preserves the exact opaque ID",
+      "passed": true
+    },
+    {
+      "case": "Normal labels, badges and empty state remain usable",
+      "passed": true
+    },
+    {
+      "case": "Error boundary displays literal text without markup",
+      "passed": true
+    },
+    {
+      "case": "No JavaScript page errors",
+      "passed": true
+    }
+  ],
+  "payloads": [
+    {
+      "input_name": "Synthetic <span data-sec03-name=1>Marker</span>",
+      "stored_name": "Synthetic <Span Data-Sec03-Name=1>Marker</Span>",
+      "created_status": 201,
+      "reload_status": 200,
+      "generated_uuid": true
+    },
+    {
+      "input_name": "Synthetic <svg onload=&#116;&#111;&#112;[8417]=1></svg>",
+      "stored_name": "Synthetic <Svg Onload=&#116;&#111;&#112;[8417]=1></Svg>",
+      "created_status": 201,
+      "reload_status": 200,
+      "generated_uuid": true
+    }
+  ],
+  "pageErrors": [],
+  "externalRequestsBlocked": 1,
+  "persistedRenderer": {
+    "marker_elements": 0,
+    "names": [
+      "Synthetic <Span Data-Sec03-Name=1>Marker</Span>",
+      "Synthetic <Svg Onload=&#116;&#111;&#112;[8417]=1></Svg>"
+    ],
+    "ids": [
+      "c384a37c-4d41-4aa2-9525-806e832cf768",
+      "42fc29bc-65c2-4cc7-864c-580c7c5d8f00"
+    ],
+    "main_feed_markup": 0,
+    "javascript_marker": false
+  },
+  "rendererBoundary": {
+    "id": "id\" data-sec03-id=\"1\"><svg data-sec03-id=1></svg>",
+    "actual_id": "id\" data-sec03-id=\"1\"><svg data-sec03-id=1></svg>",
+    "clicked": "id\" data-sec03-id=\"1\"><svg data-sec03-id=1></svg>",
+    "marker_elements": 0,
+    "name": "< <",
+    "avatar": "<<",
+    "meta": "<span data-sec03-meta=1>Value</span> años · <span data-sec03-meta=1>Value</span> kg · <span data-sec03-meta=1>Value</span>",
+    "badge_active": true,
+    "scope": "Renderer double only: no claim HTTP accepts arbitrary IDs or nonnumeric age/weight"
+  },
+  "errorBoundary": {
+    "elements": 0,
+    "text": "Error: <span data-sec03-error=1>Synthetic error marker</span>",
+    "backend_attacker_control_not_established": true
+  },
+  "total": 9,
+  "passed": 9,
+  "completed": true
+}

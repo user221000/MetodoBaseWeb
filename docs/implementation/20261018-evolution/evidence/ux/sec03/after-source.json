@@ -1,0 +1,80 @@
+{
+  "scope": "SEC03 author freeze; no main product mutation; independent QA still required before integration",
+  "base_commit": "2f8b7f9617503240432e5f6b981f2730c0c9c30e",
+  "branch": "fix/sec03-drawer-text",
+  "source_stable": true,
+  "sources": {
+    "web/templates/dashboard.html": "5b9d6aa10538c7fe84573f8fb0619cc62eedea854a8c38ff67ff5438efd4c205",
+    "web/static/js/main.js": "75189ada5c9b816de6695486880dc101e9145379c6e56ded402a1d5654988d98",
+    "web/static/js/api.js": "347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",
+    "web/static/js/components.js": "db6214feedc188062a2d80fa2e99c6695e9874607044c144248f9f30f0e3f38f",
+    "web/static/js/auth-guard.js": "67cc573ac93913229cbac9d6897321d7ec31897227b34a5b39dd257c2aae790a",
+    "web/routes/clientes.py": "2174d322fb2635eba4bb1ab98e792cadcc6d55096978396511762ed8134d716b",
+    "web/schemas.py": "2e8632653f14a6c290ca039278ba0952dcbee74c2947cbb4b3253c6d0952cd86",
+    "api/schemas.py": "e9f6dafa73edb1b5026970a5e7fdc496f0205e8c373ffbb2a9b0b4c874bb0753",
+    "web/profile_schemas.py": "061b20a6831452f6addce4e5cb9f8f0bd4618abb0cf52045983f9cbbb9c4e2e0",
+    "web/database/repository.py": "3df201768380382ac1c7af6e84f2682a7e6c9a566ba5df478dd5df409c633112",
+    "web/database/models.py": "52ad5486064d5914e2da2acccaa6fb861483f27ac1ec477bff80433e80065fc1",
+    "web/auth.py": "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",
+    "web/auth_deps.py": "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",
+    "web/main_web.py": "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",
+    "web/middleware/security_headers.py": "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4",
+    "web/routes/stats.py": "f63f18eb3e94b201029fe22cdb0aab8cf15ad70d12c2224f5bb4c4af0a80e22d",
+    "api/routes/stats.py": "d29890f937c42c893b05bd37f58808e7a7c070ac9a0f2020825870099fa4984c",
+    "tests/isolation.py": "b5381802b30c26c734721062b5d0c4d91cbc5be0c82fca2644b9e3438783cae3",
+    "requirements_web-windows.lock": "fa1b2dd0288f05ffd04c5e678c41704f08f464077e53c4833e1ed789d3fde477",
+    "requirements-test-windows.lock": "24f2e26fe0d97c62927bc94662d1dc95e0de7047401d771d078f739218f02627",
+    "tests/e2e/dashboard_drawer_security_server.py": "584e6b18686a57552c5847fb3ba2d1aa60b271c69d35e33ae8927745a7ddd8ad",
+    "tests/e2e/dashboard_drawer_security.cjs": "34627be2a76593e945f6e609230793759301df9d2dd31d3596c57a489d1933b4"
+  },
+  "only_product_delta": [
+    "web/templates/dashboard.html"
+  ],
+  "evidence": {
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/before-source.json": "70b9678dcafafb07976a56f027266c747508e962b5e5c2178bcac94361417f30",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-drawer-error-after.png": "38054a28e06c8f7b4c5d0db0b5a2c4e17fc58d373c6519f753f503ebae3d59c3",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-drawer-error-before.png": "6df3c1143336ea4345fddbcaa47f3593dc83a0fa7f0df2a4a69bbc7541868734",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-drawer-html-before.png": "6759c8c5b6266cff5174708fa9b521baa9e307747a6e37038107558b133e4629",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-drawer-security-after.json": "7d83b1b55b53fed47985269d53ca8a48142245b6be22f3360eeb85464ab0e1d4",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-drawer-startup-after-source.json": "33258f78327eaf307b91c59a1dfc808bdcaa9d84719e116f5a64004a3f8cb5ec",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-drawer-text-after.png": "40ce987905e93c23cdae3e88f8b71a8908882ac3f80cda0ade4daad9b078f429",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-xss-before.json": "c81dd47e5aea73960915e8884c78764527cf67c50ee19a9d516bc94834afab05",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-xss-csp-timing-stage.json": "10c5226cf44221a62d06404bc4efda78df068dff745ad59632108ffe742ca85d",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-xss-setup-before.json": "e8f19f572f7ba6c8658fd404184789b04095a99aeafbf75f7a6a7cbab27c9526",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard-xss-startup-source.json": "b1219567a7e8afcec9dfd4bce3b59ebde2598516bbbc633161adcec699733af9",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard_xss_before.cjs": "53cb54b690991cd3224ca9966b0fca47234a4c26a884693ed106077cf48bce40",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/dashboard_xss_before_server.py": "a68f6372e9c0ffd3ef2a50cdc8ed7a7046d81cc733ad6e425fe9a4d1dc32963b",
+    "docs/implementation/20261018-evolution/evidence/ux/sec03/review.md": "1780f092256900c427c781f581ecccd3d61ae92dd1fac9f6c4684f2f79f682d9"
+  },
+  "author_gate": {
+    "total": 9,
+    "passed": 9,
+    "exit": 0,
+    "node": "v24.21.0",
+    "chrome": "155.0.8059.84"
+  },
+  "fixture": {
+    "host": "127.0.0.1",
+    "port": 8774,
+    "pid_at_author_capture": 29280,
+    "runtime_tables": 25,
+    "database": "own temporary SQLite and private objects",
+    "external_network": "blocked server sockets and browser requests"
+  },
+  "limits": [
+    "Persisted HTML injection demonstrated before, no active XSS under actual CSP.",
+    "Error/ID/metadata adversaries beyond real CRUD are explicitly renderer doubles.",
+    "Other renderers and R23 are not closed.",
+    "No main stats WIP or migration/PG gates attributed to this change."
+  ],
+  "before_preserved": {
+    "dashboard-drawer-error-before.png": "6df3c1143336ea4345fddbcaa47f3593dc83a0fa7f0df2a4a69bbc7541868734",
+    "dashboard-drawer-html-before.png": "6759c8c5b6266cff5174708fa9b521baa9e307747a6e37038107558b133e4629",
+    "dashboard-xss-before.json": "c81dd47e5aea73960915e8884c78764527cf67c50ee19a9d516bc94834afab05",
+    "dashboard-xss-csp-timing-stage.json": "10c5226cf44221a62d06404bc4efda78df068dff745ad59632108ffe742ca85d",
+    "dashboard-xss-setup-before.json": "e8f19f572f7ba6c8658fd404184789b04095a99aeafbf75f7a6a7cbab27c9526",
+    "dashboard-xss-startup-source.json": "b1219567a7e8afcec9dfd4bce3b59ebde2598516bbbc633161adcec699733af9",
+    "dashboard_xss_before.cjs": "53cb54b690991cd3224ca9966b0fca47234a4c26a884693ed106077cf48bce40",
+    "dashboard_xss_before_server.py": "a68f6372e9c0ffd3ef2a50cdc8ed7a7046d81cc733ad6e425fe9a4d1dc32963b"
+  }
+}

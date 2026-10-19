@@ -1,0 +1,99 @@
+{
+  "scope": "Immutable before capture: own real-auth SQLite application; main stats work excluded. Error interpolation reproduced only with explicit renderer-boundary Error double.",
+  "source_commit": "2f8b7f9617503240432e5f6b981f2730c0c9c30e",
+  "sources_stable": true,
+  "sources": [
+    {
+      "path": "web/templates/dashboard.html",
+      "sha256": "0eff2cfd7c3a83043ecdf4087ab331d92cc65b8d034b68a7829521a8ebb966b8"
+    },
+    {
+      "path": "web/static/js/main.js",
+      "sha256": "75189ada5c9b816de6695486880dc101e9145379c6e56ded402a1d5654988d98"
+    },
+    {
+      "path": "web/static/js/api.js",
+      "sha256": "347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3"
+    },
+    {
+      "path": "web/static/js/components.js",
+      "sha256": "db6214feedc188062a2d80fa2e99c6695e9874607044c144248f9f30f0e3f38f"
+    },
+    {
+      "path": "web/static/js/auth-guard.js",
+      "sha256": "67cc573ac93913229cbac9d6897321d7ec31897227b34a5b39dd257c2aae790a"
+    },
+    {
+      "path": "web/routes/clientes.py",
+      "sha256": "2174d322fb2635eba4bb1ab98e792cadcc6d55096978396511762ed8134d716b"
+    },
+    {
+      "path": "web/schemas.py",
+      "sha256": "2e8632653f14a6c290ca039278ba0952dcbee74c2947cbb4b3253c6d0952cd86"
+    },
+    {
+      "path": "api/schemas.py",
+      "sha256": "e9f6dafa73edb1b5026970a5e7fdc496f0205e8c373ffbb2a9b0b4c874bb0753"
+    },
+    {
+      "path": "web/profile_schemas.py",
+      "sha256": "061b20a6831452f6addce4e5cb9f8f0bd4618abb0cf52045983f9cbbb9c4e2e0"
+    },
+    {
+      "path": "web/database/repository.py",
+      "sha256": "3df201768380382ac1c7af6e84f2682a7e6c9a566ba5df478dd5df409c633112"
+    },
+    {
+      "path": "web/database/models.py",
+      "sha256": "52ad5486064d5914e2da2acccaa6fb861483f27ac1ec477bff80433e80065fc1"
+    },
+    {
+      "path": "web/auth.py",
+      "sha256": "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622"
+    },
+    {
+      "path": "web/auth_deps.py",
+      "sha256": "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64"
+    },
+    {
+      "path": "web/main_web.py",
+      "sha256": "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8"
+    },
+    {
+      "path": "web/middleware/security_headers.py",
+      "sha256": "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4"
+    },
+    {
+      "path": "web/routes/stats.py",
+      "sha256": "f63f18eb3e94b201029fe22cdb0aab8cf15ad70d12c2224f5bb4c4af0a80e22d"
+    },
+    {
+      "path": "api/routes/stats.py",
+      "sha256": "d29890f937c42c893b05bd37f58808e7a7c070ac9a0f2020825870099fa4984c"
+    },
+    {
+      "path": "tests/isolation.py",
+      "sha256": "b5381802b30c26c734721062b5d0c4d91cbc5be0c82fca2644b9e3438783cae3"
+    },
+    {
+      "path": "requirements_web-windows.lock",
+      "sha256": "fa1b2dd0288f05ffd04c5e678c41704f08f464077e53c4833e1ed789d3fde477"
+    },
+    {
+      "path": "requirements-test-windows.lock",
+      "sha256": "24f2e26fe0d97c62927bc94662d1dc95e0de7047401d771d078f739218f02627"
+    }
+  ],
+  "evidence": {
+    "dashboard-drawer-error-before.png": "6df3c1143336ea4345fddbcaa47f3593dc83a0fa7f0df2a4a69bbc7541868734",
+    "dashboard-drawer-html-before.png": "6759c8c5b6266cff5174708fa9b521baa9e307747a6e37038107558b133e4629",
+    "dashboard-xss-before.json": "c81dd47e5aea73960915e8884c78764527cf67c50ee19a9d516bc94834afab05",
+    "dashboard-xss-csp-timing-stage.json": "10c5226cf44221a62d06404bc4efda78df068dff745ad59632108ffe742ca85d",
+    "dashboard-xss-setup-before.json": "e8f19f572f7ba6c8658fd404184789b04095a99aeafbf75f7a6a7cbab27c9526",
+    "dashboard-xss-startup-source.json": "b1219567a7e8afcec9dfd4bce3b59ebde2598516bbbc633161adcec699733af9",
+    "dashboard_xss_before.cjs": "53cb54b690991cd3224ca9966b0fca47234a4c26a884693ed106077cf48bce40",
+    "dashboard_xss_before_server.py": "a68f6372e9c0ffd3ef2a50cdc8ed7a7046d81cc733ad6e425fe9a4d1dc32963b"
+  },
+  "classification": "SEC03: persisted HTML injection; active script execution not demonstrated under actual CSP. Two preparation failures retained without treating them as product failures.",
+  "no_secrets": "No JWT, real account, CSP nonce, browser storage or raw server logs published."
+}

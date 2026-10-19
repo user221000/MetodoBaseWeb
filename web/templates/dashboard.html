@@ -1125,23 +1125,38 @@
       return;
     }
     const initials = n => (n || '?').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-    body.innerHTML = clientes.map(c => {
+    const cards = document.createDocumentFragment();
+    clientes.forEach(c => {
       const sub = _fmtSubStatus(c);
       const meta = [
         c.edad ? c.edad + ' años' : null,
         c.peso_kg ? c.peso_kg + ' kg' : null,
         c.objetivo ? c.objetivo.charAt(0).toUpperCase() + c.objetivo.slice(1) : null,
       ].filter(Boolean).join(' · ');
-      return `
-        <button type="button" data-cliente-id="${c.id_cliente}" class="drawer-client-card" style="text-align:left;">
-          <div class="drawer-avatar">${initials(c.nombre)}</div>
-          <div class="drawer-client-info">
-            <div class="drawer-client-name">${c.nombre}</div>
-            <div class="drawer-client-meta">${meta || '—'}</div>
-          </div>
-          <span class="drawer-sub-badge ${sub.cls}">${sub.label}</span>
-        </button>`;
-    }).join('');
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.dataset.clienteId = c.id_cliente;
+      card.className = 'drawer-client-card';
+      card.style.textAlign = 'left';
+      const avatar = document.createElement('div');
+      avatar.className = 'drawer-avatar';
+      avatar.textContent = initials(c.nombre);
+      const info = document.createElement('div');
+      info.className = 'drawer-client-info';
+      const name = document.createElement('div');
+      name.className = 'drawer-client-name';
+      name.textContent = c.nombre;
+      const details = document.createElement('div');
+      details.className = 'drawer-client-meta';
+      details.textContent = meta || '—';
+      info.append(name, details);
+      const badge = document.createElement('span');
+      badge.className = 'drawer-sub-badge ' + sub.cls;
+      badge.textContent = sub.label;
+      card.append(avatar, info, badge);
+      cards.appendChild(card);
+    });
+    body.replaceChildren(cards);
   }
 
   async function abrirDrawer(filtro) {
@@ -1155,7 +1170,10 @@
       const res = await Api.clientes.listar('', 200, filtro);
       _renderDrawerClients(res.clientes || []);
     } catch(e) {
-      document.getElementById('drawer-body').innerHTML = `<div class="drawer-empty">Error: ${e.message}</div>`;
+      const message = document.createElement('div');
+      message.className = 'drawer-empty';
+      message.textContent = 'Error: ' + e.message;
+      document.getElementById('drawer-body').replaceChildren(message);
     }
   }
 

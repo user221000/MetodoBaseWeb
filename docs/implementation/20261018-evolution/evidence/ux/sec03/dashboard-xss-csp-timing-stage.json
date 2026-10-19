@@ -1,0 +1,45 @@
+{
+  "scope": "Own detached 2f8b7f9 application, real signed auth + CRUD + SQLite + browser/CSP; error renderer uses explicitly injected Error boundary only; no external network",
+  "checks": [
+    {
+      "case": "Real auth/CRUD scope controls",
+      "passed": true,
+      "anonymous_status": 401,
+      "other_account_status": 404
+    }
+  ],
+  "payloads": [
+    {
+      "input_name": "Synthetic <span data-sec03-name=1>Marker</span>",
+      "stored_name": "Synthetic <Span Data-Sec03-Name=1>Marker</Span>",
+      "created_status": 201,
+      "reload_status": 200,
+      "generated_id_is_uuid": true,
+      "contains_markup_after_roundtrip": true
+    },
+    {
+      "input_name": "Synthetic <svg onload=&#116;&#111;&#112;[8417]=1></svg>",
+      "stored_name": "Synthetic <Svg Onload=&#116;&#111;&#112;[8417]=1></Svg>",
+      "created_status": 201,
+      "reload_status": 200,
+      "generated_id_is_uuid": true,
+      "contains_markup_after_roundtrip": true
+    }
+  ],
+  "externalRequestsBlocked": 1,
+  "pageErrors": [],
+  "cspInlineBlocks": 0,
+  "csp": {
+    "present": true,
+    "script_has_nonce": true,
+    "script_allows_unsafe_inline": false
+  },
+  "storedHtml": {
+    "marker_element_count": 1,
+    "svg_element_count": 1,
+    "javascript_marker": false,
+    "main_feed_marker_count": 0
+  },
+  "completed": false,
+  "failure": "Real CSP should block this inline SVG handler"
+}
