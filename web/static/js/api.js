@@ -334,6 +334,20 @@ const Api = (() => {
   // ── Usuario Individual ────────────────────────────────────────────────────
 
   const usuario = {
+    exportarDatos: (cursors = {}) => {
+      const params = new URLSearchParams({limit:'100'});
+      const integerCursors = ['profile','plan','measurement'];
+      const uuidCursors = ['purchase','generation'];
+      for (const name of [...integerCursors,...uuidCursors]) {
+        const value = cursors[name];
+        if (value == null) continue;
+        if (integerCursors.includes(name) ? !Number.isSafeInteger(value) || value < 0 : typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
+          throw new Error('No se pudo continuar la descarga. Empieza una descarga nueva.');
+        }
+        params.set('after_'+name,String(value));
+      }
+      return request('GET','/api/usuario/privacidad/exportar?'+params, null, {'Cache-Control':'no-store'});
+    },
     perfil:         () => request('GET', '/api/usuario/perfil'),
     guardarPerfil:  (data) => request('PUT', '/api/usuario/perfil', data),
     miPlan:         () => request('GET', '/api/usuario/mi-plan'),

@@ -14,7 +14,7 @@ Uso:
     alerter.add_channel(AlertChannel.SLACK, webhook_url="https://hooks.slack.com/...")
     
     # En error handler
-    alerter.send_alert("Error crítico", severity="critical", context={"error": str(e)})
+    alerter.track_error(e, extra_context={"method": "POST"})
 
 Configuración via ENV:
     ALERT_ENABLED=true
@@ -28,7 +28,6 @@ import os
 import json
 import time
 import logging
-import traceback
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -411,8 +410,8 @@ class ErrorAlerter:
         
         Args:
             error: Excepción ocurrida
-            request_path: Ruta de la request
-            extra_context: Contexto adicional
+            request_path: Argumento legacy aceptado, no retenido (puede contener identidad)
+            extra_context: Solo se conserva method si es un verbo HTTP conocido
         """
         with self._lock:
             self._error_timestamps.append(time.time())
@@ -423,11 +422,11 @@ class ErrorAlerter:
         
         context = {
             "error_type": type(error).__name__,
-            "error_message": str(error)[:200],
-            "request_path": request_path,
             "recent_errors_1min": recent_errors,
-            **(extra_context or {})
         }
+        method = extra_context.get("method") if isinstance(extra_context, dict) else None
+        if isinstance(method, str) and method in {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE", "CONNECT"}:
+            context["method"] = method
         
         if recent_errors > 10:
             self.send_alert(
@@ -486,7 +485,7 @@ def send_alert(
     Función de conveniencia para enviar alertas.
     
     Ejemplo:
-        send_alert("Error de base de datos", severity="critical", context={"query": sql})
+        send_alert("Error de base de datos", severity="critical", context={"failure_count": 1})
     """
     return get_error_alerter().send_alert(title, message, severity, context, source)
 
@@ -499,7 +498,7 @@ def track_error(error: Exception, request_path: str = "", extra_context: Optiona
         try:
             ...
         except Exception as e:
-            track_error(e, request.url.path)
+            track_error(e, extra_context={"method": request.method})
             raise
     """
     get_error_alerter().track_error(error, request_path, extra_context)

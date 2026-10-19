@@ -1,0 +1,58 @@
+{
+  "requirement": "R31 personal export UI",
+  "transport": "Same-origin GET /api/usuario/privacidad/exportar using the existing authenticated Api request/refresh flow. Fixed page size 100, cursor whitelist only; UUID strings are validated without case normalization.",
+  "pagination": "One user action prepares one downloadable part. The backend always returns five collections; the client omits previously finished collections from later files and omits their request cursors. Account and subscription snapshots appear only in part 1.",
+  "download_format": {
+    "format": "metodobase_personal_export_part",
+    "format_version": 1,
+    "manifest": [
+      "export_id",
+      "part",
+      "started_at",
+      "queried_at",
+      "consistency",
+      "coverage",
+      "all_available_pages_prepared",
+      "parts_total",
+      "requires_parts_from",
+      "requires_parts_through",
+      "account_and_subscriptions",
+      "collections",
+      "plans_requiring_content_review",
+      "note"
+    ],
+    "collections": "Only collections still pending before this request; each contains records. Manifest records each collection page, completion state, per-part count and cumulative count. No technical continuation cursor is rendered or copied into the manifest.",
+    "scope": "Backend scope is retained in every part, including excluded categories, legacy content caveats and live-keyset consistency."
+  },
+  "truthful_states": [
+    "Preparing without a percentage while the total number of parts is unknown",
+    "Part prepared only after Blob URL and anchor click execute; this is not confirmation that a user saved the file",
+    "Explicit next part and restart controls; final status only after every included collection reaches null next_after",
+    "End of pages remains separate from legacy plan bodies requiring authorized review",
+    "Errors preserve prior successful counts and continuation; no new part is counted or downloaded",
+    "Real identity revalidated before each part and re-download; mismatched or stale in-flight responses are discarded after account/session changes"
+  ],
+  "memory_and_cleanup": "No export payload or cursor in localStorage/sessionStorage. Retain only one last-part Blob, cumulative counts and bounded cursor history; never concatenate all exported records. Object URLs are revoked after 2 seconds, and immediately on pagehide. Restart/account changes clear export state; pending URLs finish their short cleanup margin.",
+  "accessibility": "Native buttons, aria-busy/progress, live status, focused error region and responsive actions. Scoped axe AA covers the new section at four widths plus error; whole-page horizontal overflow was checked. This does not claim a full legacy profile accessibility audit or a screen-reader test.",
+  "validation": {
+    "checks": 8,
+    "screens": 5,
+    "page_errors": [],
+    "flow": "Real synthetic historical professional exports 3 parts with 1 personal profile, 205 unique plans, 2 measurements, 102 purchases and 101 generation requests. One legacy plan requires content review. UUID continuation preserves uppercase characters. Finished collections and first-part metadata are omitted correctly.",
+    "negatives": [
+      "Unauthenticated 401 and revoked-session redirect without download",
+      "Gym owner receives account-only scope",
+      "503, 200 HTML and incomplete JSON do not prepare files",
+      "Non-progressing continuation is rejected without losing confirmed counts",
+      "Mismatched response account and real account switch reset continuation/file",
+      "Old authenticated response arriving after a cross-tab session change is discarded"
+    ],
+    "test_doubles": "Only negative export responses and a response-delivery delay are intercepted; authentication, account identity, scope and normal export requests are real. Export JSON is read only from temporary browser download files and is not copied into evidence."
+  },
+  "environment": "Dedicated loopback server 8768, own temporary SQLite, provider keys removed and external sockets blocked before product imports; browser aborts non-local requests. No production data, email delivery, provider or deployment.",
+  "remaining": [
+    "Independent QA and source acceptance",
+    "General R31 retention/erasure/legal policies are not created by this export UI",
+    "R14 persistence and browser-local diary remain separate; binary files and professional portfolio are excluded by the reviewed backend contract"
+  ]
+}

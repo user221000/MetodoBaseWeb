@@ -234,6 +234,9 @@ def create_app() -> FastAPI:
     # Usuario individual routes
     app.include_router(web_usuario_router.router, prefix="/api", dependencies=_api_auth)
 
+    from web.routes.privacy import router as privacy_router
+    app.include_router(privacy_router, prefix="/api")
+
     # Team management (RBAC) - auth manejada internamente por permissions.py
     app.include_router(web_team_router, prefix="/api")
     app.include_router(web_team_auth_router, prefix="/api")  # /api/auth/accept-invite
@@ -295,12 +298,8 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def _generic(request: Request, exc: Exception):
-        # E3: exc_info solo en non-production para evitar stack traces en logs de producción
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Unhandled: %s", exc,
-            exc_info=not _gs().is_production
-        )
+        # SQL exception strings/tracebacks can contain parameters and health data.
+        logger.error("Unhandled class=%s", type(exc).__name__)
         if _wants_html(request):
             return _render_error(request, 500, "Error interno",
                 "Algo salió mal en el servidor. Si el problema persiste, contáctanos.")

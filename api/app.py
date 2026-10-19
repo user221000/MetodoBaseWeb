@@ -160,13 +160,10 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def _global_error(request: Request, exc: Exception):
-        from config.settings import get_settings
-        logging.getLogger("api").error("Unhandled: %s", exc, exc_info=get_settings().DEBUG)
+        logging.getLogger("api").error("Unhandled class=%s", type(exc).__name__)
         # Track error for alerting
-        track_error(exc, request_path=str(request.url.path), extra_context={
-            "method": request.method,
-            "client": request.client.host if request.client else "unknown",
-        })
+        # Raw paths can contain subject IDs; automatic alerts need no client IP.
+        track_error(exc, extra_context={"method": request.method})
         request_id = getattr(request.state, "request_id", None)
         headers = {"X-Request-ID": request_id} if request_id else {}
         body: dict = {"detail": "Error interno del servidor"}
@@ -294,6 +291,9 @@ def create_app() -> FastAPI:
     # ── Auth routes (login, registro, refresh, logout, me) ────────────────────
     from web.routes.auth import router as web_auth_router
     app.include_router(web_auth_router, prefix="/api")
+
+    from web.routes.privacy import router as privacy_router
+    app.include_router(privacy_router, prefix="/api")
 
     # ── Planes history routes (web) ───────────────────────────────────────────
     from web.routes import planes as web_planes_routes

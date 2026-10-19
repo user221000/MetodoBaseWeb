@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="8" time="4.272" timestamp="2026-10-18T21:39:55.609292-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_error_privacy_review" name="test_global_handler_logs_class_without_sql_parameters_or_traceback[web.main_web]" time="2.620"><failure message="assert 'synthetic-private' not in &quot;ERROR    we...subject'}]\n&quot;&#10;  &#10;  'synthetic-private' is contained here:&#10;    'value': 'synthetic-private-health-note', 'subject': 'synthetic-private-subject'}]&#10;  ?           +++++++++++++++++&#10;      + Exception Group Traceback (most recent call last):&#10;      |   File &quot;C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\starlette\_utils.py&quot;, line 104, in create_collapsing_task_group&#10;      |     async with anyio.create_task_group() as tg:...&#10;  &#10;  ...Full output truncated (207 lines hidden), use '-vv' to show">tests\test_error_privacy_review.py:30: in test_global_handler_logs_class_without_sql_parameters_or_traceback
+    assert "synthetic-private" not in caplog.text
+E   assert 'synthetic-private' not in "ERROR    we...subject'}]\n"
+E     
+E     'synthetic-private' is contained here:
+E       'value': 'synthetic-private-health-note', 'subject': 'synthetic-private-subject'}]
+E     ?           +++++++++++++++++
+E         + Exception Group Traceback (most recent call last):
+E         |   File "C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\starlette\_utils.py", line 104, in create_collapsing_task_group
+E         |     async with anyio.create_task_group() as tg:...
+E     
+E     ...Full output truncated (207 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_error_privacy_review" name="test_global_handler_logs_class_without_sql_parameters_or_traceback[api.app]" time="0.102"><failure message="assert 'synthetic-private' not in &quot;ERROR    ap...subject'}]\n&quot;&#10;  &#10;  'synthetic-private' is contained here:&#10;    'value': 'synthetic-private-health-note', 'subject': 'synthetic-private-subject'}]&#10;  ?           +++++++++++++++++&#10;      + Exception Group Traceback (most recent call last):&#10;      |   File &quot;C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\starlette\_utils.py&quot;, line 104, in create_collapsing_task_group&#10;      |     async with anyio.create_task_group() as tg:...&#10;  &#10;  ...Full output truncated (227 lines hidden), use '-vv' to show">tests\test_error_privacy_review.py:30: in test_global_handler_logs_class_without_sql_parameters_or_traceback
+    assert "synthetic-private" not in caplog.text
+E   assert 'synthetic-private' not in "ERROR    ap...subject'}]\n"
+E     
+E     'synthetic-private' is contained here:
+E       'value': 'synthetic-private-health-note', 'subject': 'synthetic-private-subject'}]
+E     ?           +++++++++++++++++
+E         + Exception Group Traceback (most recent call last):
+E         |   File "C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\starlette\_utils.py", line 104, in create_collapsing_task_group
+E         |     async with anyio.create_task_group() as tg:...
+E     
+E     ...Full output truncated (227 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_error_privacy_review" name="test_api_global_error_omits_subject_path_and_arbitrary_client_context" time="0.056"><failure message="assert ('synthetic-private' not in '{&quot;request_p...estclient&quot;}}'&#10;  &#10;  'synthetic-private' is contained here:&#10;    {&quot;request_path&quot;: &quot;/security-review/synthetic-private-path&quot;, &quot;extra_context&quot;: {&quot;method&quot;: &quot;GET&quot;, &quot;client&quot;: &quot;testclient&quot;}}&#10;  ?                                    +++++++++++++++++)">tests\test_error_privacy_review.py:50: in test_api_global_error_omits_subject_path_and_arbitrary_client_context
+    assert "synthetic-private" not in payload and "client" not in payload
+E   assert ('synthetic-private' not in '{"request_p...estclient"}}'
+E     
+E     'synthetic-private' is contained here:
+E       {"request_path": "/security-review/synthetic-private-path", "extra_context": {"method": "GET", "client": "testclient"}}
+E     ?                                    +++++++++++++++++)</failure></testcase><testcase classname="tests.test_error_privacy_review" name="test_automatic_error_alert_history_only_contains_closed_context" time="0.043"><failure message="assert 'synthetic-private' not in '[{&quot;id&quot;: &quot;al...ed&quot;: false}]'&#10;  &#10;  'synthetic-private' is contained here:&#10;  ?           ^^^^^^^^^^^^^^&#10;    'value': 'synthetic-private-health-note', 'subject': 'synthetic-private-subject'}]&quot;, &quot;request_path&quot;: &quot;/accounts/synthetic-private-path&quot;, &quot;recent_errors_1min&quot;: 6, &quot;method&quot;: &quot;POST&quot;, &quot;client&quot;: &quot;synthetic-private-ip&quot;, &quot;authorization&quot;: &quot;synthetic-private-bearer&quot;, &quot;health&quot;: {&quot;notes&quot;: &quot;synthetic-private-note&quot;}}, &quot;source&quot;: &quot;error_tracker&quot;, &quot;acknowledged&quot;: false}, {&quot;id&quot;: &quot;alert_1792381199_2&quot;, &quot;timestamp&quot;: &quot;2026-10-19T03:39:59.684908+00:00&quot;, &quot;severity&quot;: &quot;warning&quot;, &quot;title&quot;: &quot;Incremento de errores&quot;, &quot;message&quot;: &quot;7 errores en e...&#10;  &#10;  ...Full output truncated (2 lines hidden), use '-vv' to show">tests\test_error_privacy_review.py:72: in test_automatic_error_alert_history_only_contains_closed_context
+    assert "synthetic-private" not in json.dumps(history)
+E   assert 'synthetic-private' not in '[{"id": "al...ed": false}]'
+E     
+E     'synthetic-private' is contained here:
+E     ?           ^^^^^^^^^^^^^^
+E       'value': 'synthetic-private-health-note', 'subject': 'synthetic-private-subject'}]", "request_path": "/accounts/synthetic-private-path", "recent_errors_1min": 6, "method": "POST", "client": "synthetic-private-ip", "authorization": "synthetic-private-bearer", "health": {"notes": "synthetic-private-note"}}, "source": "error_tracker", "acknowledged": false}, {"id": "alert_1792381199_2", "timestamp": "2026-10-19T03:39:59.684908+00:00", "severity": "warning", "title": "Incremento de errores", "message": "7 errores en e...
+E     
+E     ...Full output truncated (2 lines hidden), use '-vv' to show</failure></testcase><testcase classname="tests.test_error_privacy_review" name="test_alert_context_rejects_unrecognized_method_values[synthetic-private-method]" time="0.007"><failure message="AssertionError: assert 'method' not in {'error_type': 'RuntimeError', 'error_message': 'synthetic-private-error', 'request_path': '', 'recent_errors_1min': 6, ...}">tests\test_error_privacy_review.py:85: in test_alert_context_rejects_unrecognized_method_values
+    assert "method" not in alerter.get_alert_history()[0]["context"]
+E   AssertionError: assert 'method' not in {'error_type': 'RuntimeError', 'error_message': 'synthetic-private-error', 'request_path': '', 'recent_errors_1min': 6, ...}</failure></testcase><testcase classname="tests.test_error_privacy_review" name="test_alert_context_rejects_unrecognized_method_values[method1]" time="0.008"><failure message="AssertionError: assert 'method' not in {'error_type': 'RuntimeError', 'error_message': 'synthetic-private-error', 'request_path': '', 'recent_errors_1min': 6, ...}">tests\test_error_privacy_review.py:85: in test_alert_context_rejects_unrecognized_method_values
+    assert "method" not in alerter.get_alert_history()[0]["context"]
+E   AssertionError: assert 'method' not in {'error_type': 'RuntimeError', 'error_message': 'synthetic-private-error', 'request_path': '', 'recent_errors_1min': 6, ...}</failure></testcase><testcase classname="tests.test_error_privacy_review" name="test_alert_context_rejects_unrecognized_method_values[None]" time="0.009"><failure message="AssertionError: assert 'method' not in {'error_type': 'RuntimeError', 'error_message': 'synthetic-private-error', 'request_path': '', 'recent_errors_1min': 6, ...}">tests\test_error_privacy_review.py:85: in test_alert_context_rejects_unrecognized_method_values
+    assert "method" not in alerter.get_alert_history()[0]["context"]
+E   AssertionError: assert 'method' not in {'error_type': 'RuntimeError', 'error_message': 'synthetic-private-error', 'request_path': '', 'recent_errors_1min': 6, ...}</failure></testcase><testcase classname="tests.test_error_privacy_review" name="test_tracker_never_calls_exception_string_or_representation" time="0.015"><failure message="AssertionError: Exception string must not be inspected">tests\test_error_privacy_review.py:96: in test_tracker_never_calls_exception_string_or_representation
+    alerter.track_error(PrivateError())
+web\middleware\alerting.py:426: in track_error
+    "error_message": str(error)[:200],
+                     ^^^^^^^^^^
+tests\test_error_privacy_review.py:91: in __str__
+    raise AssertionError("Exception string must not be inspected")
+E   AssertionError: Exception string must not be inspected</failure></testcase></testsuite></testsuites>

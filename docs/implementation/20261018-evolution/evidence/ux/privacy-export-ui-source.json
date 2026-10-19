@@ -1,0 +1,47 @@
+{
+  "timestamp_utc": "2026-10-19T03:41:28.133962+00:00",
+  "base_commit": "822de09bcc298e8e4b4b1e68430b53d987f836fa",
+  "state": "R31 UI author freeze for independent QA; no author commit or deployment",
+  "files": {
+    "web/templates/usuario_perfil.html": "2948a8d73472b679ce32e4122987941e7fe837b112165d48027b7ca699bf4a66",
+    "web/static/js/api.js": "934cbfb9891363e6ec8bcd661fa8f83acf8fd77fcdb8c287d84ea6ba9709a938",
+    "web/static/js/usuario-privacidad.js": "ec7d9c5dc3a2947069814ff05b8868eea3f0ae97878c6a1e3c8ea8a1a523a757",
+    "web/static/css/privacy-export.css": "a6dc88bcb9165ec3fc0e814876448d209d00274f236625b86437d1ac5894ac0f",
+    "tests/e2e/privacy_export.cjs": "074ac6422f2e6f5ca63600290cd11e5b3bcb6e6b70ea91f9f35349d9038c7626",
+    "tests/e2e/privacy_export_server.py": "eceb07847bc5f5b2f18139e4b08613b9470a3d61109c07052b6e3974de1489a0"
+  },
+  "backend_and_shared_dependencies_read_only": {
+    "web/routes/privacy.py": "8ae852cf64593defccb49b56a8bad7fed1571fad384a2f61611904a8c857e5e8",
+    "web/services/privacy_export.py": "30675aeffda53aca1c01a4f6697d3068f4df116752266e25fac363fd0f96c579",
+    "web/main_web.py": "ca7cdff85652b450143dc178d6ec9457561792ad93122ae5bc3d2b68af2b9a89",
+    "api/app.py": "ea4ba1af1ad5d9ac2bb34dab20541c36b7163afe5a451ee5ae7ad6b2fb6c489c",
+    "web/templates/base_usuario.html": "7062ae9ce72f4e6ceb5ac4617431e72b3fdd07cc76c9f68b62d24a981f518c95",
+    "web/static/js/auth-guard.js": "26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a"
+  },
+  "author_validation": "8 browser contract groups and 5 screens; zero scoped axe AA violations, horizontal overflow or page errors. Real normal auth/scope/export plus explicitly intercepted error responses. node --check and git diff --check passed.",
+  "commands": [
+    "python -X utf8 tests/e2e/privacy_export_server.py",
+    "node tests/e2e/privacy_export.cjs"
+  ],
+  "server": {
+    "url": "http://127.0.0.1:8768",
+    "session": "35341",
+    "fixture": "tests/e2e/privacy_export_server.py",
+    "log": "synthetic-server-privacy-export.log"
+  },
+  "evidence": {
+    "contract": "privacy-export-ui-contract.json",
+    "browser": "privacy-export-browser.json",
+    "browser_sha256": "3288db9caf16b5e36b8c1bef413ddd5413e60be32616d8612a025049df01a01a",
+    "final_log": "privacy-export-browser-final-author.log",
+    "screenshots": [
+      "privacy-export-complete-320.png",
+      "privacy-export-complete-390.png",
+      "privacy-export-complete-768.png",
+      "privacy-export-complete-1440.png",
+      "privacy-export-error-390.png"
+    ],
+    "initial_layout": "privacy-export-layout-before.json"
+  },
+  "scope_note": "Backend privacy sources were read and left unchanged. Factory mounting is root-owned and present. No model, migration, diary, email or external provider changes."
+}

@@ -1,5 +1,6 @@
 {% extends "base_usuario.html" %}
 {% block title %}Optimiza tu plan{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/privacy-export.css?v={{ static_version }}">{% endblock %}
 
 {% block content %}
 
@@ -127,6 +128,29 @@
     <a href="/mi-plan" class="u-btn u-btn-outline">← Ver mi plan</a>
   </div>
 </form>
+
+<section id="personal-data-section" class="u-card privacy-card u-form-max" aria-labelledby="personal-data-title" aria-busy="false">
+  <h2 id="personal-data-title">Tus datos personales</h2>
+  <p>Descarga una copia JSON de tu cuenta y los datos guardados en tu espacio personal. Si hay más registros, podrás descargar la siguiente parte.</p>
+  <p class="privacy-detail">Cada parte refleja los datos disponibles al consultarla. El manifiesto de cada archivo explica su alcance. La cartera profesional, los archivos PDF y el diario local de este navegador quedan fuera de esta descarga.</p>
+  <p id="privacy-status" role="status" aria-live="polite" aria-atomic="true">Verificando tu sesión…</p>
+  <progress id="privacy-progress" aria-label="Preparando la siguiente parte" hidden></progress>
+  <p id="privacy-error" class="privacy-error" role="alert" tabindex="-1" hidden></p>
+  <p id="privacy-content-warning" class="privacy-warning" hidden>Algunos planes requieren una revisión autorizada para obtener todo su contenido. El archivo identifica cuáles; terminar las páginas no resuelve esa revisión.</p>
+  <dl id="privacy-counts" class="privacy-counts" aria-label="Registros incluidos en las partes preparadas" hidden>
+    <div><dt>Perfiles</dt><dd data-export-count="profiles">0</dd></div>
+    <div><dt>Planes</dt><dd data-export-count="plans">0</dd></div>
+    <div><dt>Mediciones</dt><dd data-export-count="measurements">0</dd></div>
+    <div><dt>Compras</dt><dd data-export-count="purchases">0</dd></div>
+    <div><dt>Solicitudes de generación</dt><dd data-export-count="generation_requests">0</dd></div>
+  </dl>
+  <div class="privacy-actions">
+    <button type="button" class="u-btn u-btn-primary" id="privacy-start" disabled>Descargar mis datos</button>
+    <button type="button" class="u-btn u-btn-primary" id="privacy-next" hidden>Descargar siguiente parte</button>
+    <button type="button" class="u-btn u-btn-outline" id="privacy-again" hidden>Volver a descargar la última parte</button>
+    <button type="button" class="u-btn u-btn-outline" id="privacy-restart" hidden>Reiniciar descarga</button>
+  </div>
+</section>
 
 {% endblock %}
 
@@ -357,4 +381,5 @@
 
 })();
 </script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-privacidad.js?v={{ static_version }}"></script>
 {% endblock %}

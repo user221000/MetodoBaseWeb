@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="3.601" timestamp="2026-10-18T21:18:39.020667-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_privacy_export_review" name="test_owner_authority_excludes_portfolio_even_with_individual_persisted_type" time="1.989"><failure message="assert True is False">tests\test_privacy_export_review.py:20: in test_owner_authority_excludes_portfolio_even_with_individual_persisted_type
+    assert response.json()["scope"]["personal_space"] is False
+E   assert True is False</failure></testcase><testcase classname="tests.test_privacy_export_review" name="test_valid_uppercase_uuid_cursors_do_not_omit_persisted_records[purchases-after_purchase]" time="0.063"><failure message="AssertionError: assert ['AAAAAAAA-AA...AAAAAAAAAAAA'] == ['AAAAAAAA-AA...CCCCCCCCCCCC']&#10;  &#10;  Right contains 2 more items, first extra item: 'BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB'&#10;  Use -v to get more diff">tests\test_privacy_export_review.py:58: in test_valid_uppercase_uuid_cursors_do_not_omit_persisted_records
+    assert seen == expected
+E   AssertionError: assert ['AAAAAAAA-AA...AAAAAAAAAAAA'] == ['AAAAAAAA-AA...CCCCCCCCCCCC']
+E     
+E     Right contains 2 more items, first extra item: 'BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.test_privacy_export_review" name="test_valid_uppercase_uuid_cursors_do_not_omit_persisted_records[generation_requests-after_generation]" time="0.068"><failure message="AssertionError: assert ['AAAAAAAA-AA...AAAAAAAAAAAA'] == ['AAAAAAAA-AA...CCCCCCCCCCCC']&#10;  &#10;  Right contains 2 more items, first extra item: 'BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB'&#10;  Use -v to get more diff">tests\test_privacy_export_review.py:58: in test_valid_uppercase_uuid_cursors_do_not_omit_persisted_records
+    assert seen == expected
+E   AssertionError: assert ['AAAAAAAA-AA...AAAAAAAAAAAA'] == ['AAAAAAAA-AA...CCCCCCCCCCCC']
+E     
+E     Right contains 2 more items, first extra item: 'BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB'
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>
