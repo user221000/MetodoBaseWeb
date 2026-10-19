@@ -152,7 +152,6 @@ def create_app() -> FastAPI:
     )
 
     # ── Security Headers + Compression ───────────────────────────────────────
-    app.add_middleware(RequestIDMiddleware)
     app.add_middleware(GZipMiddleware, minimum_size=500)
 
     # ── CSRF Protection ──────────────────────────────────────────────────────
@@ -359,6 +358,8 @@ def create_app() -> FastAPI:
     # Include early rate/CSRF/tenant responses in the same security policy and
     # assign the nonce before any inner middleware or template can use it.
     app.add_middleware(SecurityHeadersMiddleware)
+    # Keep correlation around responses created by the private error boundary.
+    app.add_middleware(RequestIDMiddleware)
     return app
 
 

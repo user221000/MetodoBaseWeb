@@ -96,7 +96,6 @@ def create_app() -> FastAPI:
     )
 
     # ── Security Headers ─────────────────────────────────────────────────────
-    app.add_middleware(RequestIDMiddleware)
     app.add_middleware(GZipMiddleware, minimum_size=500)
     
     # ── CSRF Protection ────────────────────────────────────────────────────
@@ -314,4 +313,5 @@ def create_app() -> FastAPI:
 
     # Wrap early middleware responses as well as routes, with one nonce/policy.
     app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(RequestIDMiddleware)
     return app
