@@ -4,6 +4,7 @@ Admission commits before provider I/O; no lock/transaction spans the await.
 Only one confirmed transaction publishes the binding, intent consumption and
 session revocation. No token, contact update, account creation or email merge.
 """
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import hmac
 import logging
@@ -53,6 +54,20 @@ def rollback(db):
     except Exception as error:
         logger.error("Google link rollback unconfirmed class=%s",type(error).__name__)
         fail(503,"google_link_unconfirmed")
+
+
+@contextmanager
+def _write_conflicts(db):
+    """Classify constraint races across every flush in an owned write.
+
+    Rollback must succeed before publishing a conflict. Rollback uncertainty
+    remains 503; this boundary never retries, re-queries or adopts a winner.
+    """
+    try:
+        yield
+    except IntegrityError:
+        rollback(db)
+        fail(409,"google_link_conflict")
 
 
 def close_owned_session(db):
@@ -145,18 +160,19 @@ def confirm(db, expected, access, token, *, now=None):
     existing=_binding(db,intent.issuer,intent.subject)
     if existing is not None and (existing.user_id!=user.id or existing.revoked_at is None or existing.version>=mfa.MAX_SV):
         fail(409,"google_link_conflict")
-    if existing is None:
-        linked=AuthExternalIdentity(id=str(uuid.uuid4()),user_id=user.id,
-            issuer=intent.issuer,subject=intent.subject,created_at=now,version=1)
-        db.add(linked)
-    else:
-        existing.revoked_at=None;existing.version+=1
-        linked=existing
-    intent.consumed_at=now
-    mfa._revoke_sessions(db,user)
-    mfa.audit(db,user,"google_identity_linked",now,identity_id=linked.id,version=linked.version)
-    result={"success":True,"provider":"google","linked":True,"reauthenticate":True}
-    commit(db)
+    with _write_conflicts(db):
+        if existing is None:
+            linked=AuthExternalIdentity(id=str(uuid.uuid4()),user_id=user.id,
+                issuer=intent.issuer,subject=intent.subject,created_at=now,version=1)
+            db.add(linked)
+        else:
+            existing.revoked_at=None;existing.version+=1
+            linked=existing
+        intent.consumed_at=now
+        mfa._revoke_sessions(db,user)
+        mfa.audit(db,user,"google_identity_linked",now,identity_id=linked.id,version=linked.version)
+        result={"success":True,"provider":"google","linked":True,"reauthenticate":True}
+        commit(db)
     return result
 
 
@@ -215,18 +231,15 @@ def resolve_or_register(db,info,tipo,*,now=None):
     row=Usuario(id=str(uuid.uuid4()),email=info["email"],password_hash=hash_password(secrets.token_urlsafe(48)),
         nombre=(given or "Usuario")[:150],apellido=family[:150],tipo=kind,
         role=UserRole.OWNER if kind=="gym" else UserRole.VIEWER,activo=True,session_version=0,fecha_registro=now)
-    db.add(row)
-    try:
+    with _write_conflicts(db):
+        db.add(row)
         db.flush()
-    except IntegrityError:
-        rollback(db)
-        fail(409,"google_link_conflict")
-    db.add(AuthExternalIdentity(id=str(uuid.uuid4()),user_id=row.id,issuer=info["iss"],subject=info["sub"],created_at=now,version=1))
-    if kind=="gym":
-        from web.database.repository import crear_gym_profile
-        bind_verified_subject(db,row.id)
-        crear_gym_profile(db,row.id,{"nombre_negocio":row.nombre},initialize_memberships=True)
-    identity=mfa.current_identity(db,row)
-    mfa.audit(db,row,"google_identity_registered",now)
-    commit(db)
+        db.add(AuthExternalIdentity(id=str(uuid.uuid4()),user_id=row.id,issuer=info["iss"],subject=info["sub"],created_at=now,version=1))
+        if kind=="gym":
+            from web.database.repository import crear_gym_profile
+            bind_verified_subject(db,row.id)
+            crear_gym_profile(db,row.id,{"nombre_negocio":row.nombre},initialize_memberships=True)
+        identity=mfa.current_identity(db,row)
+        mfa.audit(db,row,"google_identity_registered",now)
+        commit(db)
     return identity
