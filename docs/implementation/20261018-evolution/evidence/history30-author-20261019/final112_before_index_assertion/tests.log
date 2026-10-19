@@ -1,0 +1,89 @@
+........................................................FF.............. [ 64%]
+........................................                                 [100%]
+================================== FAILURES ===================================
+_ test_query_is_readonly_limit_plus_one_without_count_or_plan_json[web.main_web] _
+
+history_http = (<starlette.testclient.TestClient object at 0x0000023033885250>, Engine(sqlite:///C%3A/Users/Consu/AppData/Local/Temp/...AiOjE3OTI0MTMwMDAuNzM2ODUyNCwidHlwZSI6ImFjY2VzcyJ9.9b56a7fb3eb21ee85ae74576ed45bfb5de99279f8683502368da78152f07b213'}})
+
+    def test_query_is_readonly_limit_plus_one_without_count_or_plan_json(history_http):
+        statements, writes = [], []
+        plans(history_http[1], 1000)
+        def observed(connection, cursor, statement, parameters, context, executemany):
+            if statement.lstrip().upper().startswith(('INSERT','UPDATE','DELETE','CREATE','ALTER')):
+                writes.append(statement)
+            if 'FROM planes_generados JOIN clientes' in statement:
+                statements.append((statement, parameters))
+        event.listen(history_http[1], 'before_cursor_execute', observed)
+        try:
+            response = get(history_http)
+        finally:
+            event.remove(history_http[1], 'before_cursor_execute', observed)
+        assert response.status_code == 200 and len(response.json()['planes']) == 50
+        assert response.headers['cache-control'] == 'no-store'
+        assert response.headers['referrer-policy'] == 'no-referrer'
+        assert writes == [] and len(statements) == 1
+        statement, parameters = statements[0]
+        assert 'LIMIT' in statement and 51 in parameters
+        assert 'COUNT(' not in statement.upper() and 'plan_json' not in statement
+        with history_http[1].connect() as connection:
+            explain = [list(row) for row in connection.exec_driver_sql('EXPLAIN QUERY PLAN '+statement, parameters)]
+>       assert any('ix_planes_gym_fecha' in str(row) for row in explain), explain
+E       AssertionError: [[10, 0, 46, 'SEARCH clientes USING INDEX sqlite_autoindex_clientes_1 (gym_id=? AND id_cliente=?)'], [21, 0, 61, 'SEARCH planes_generados USING INDEX ix_planes_gym_cliente_history (gym_id=? AND id_cliente=?)']]
+E       assert False
+E        +  where False = any(<generator object test_query_is_readonly_limit_plus_one_without_count_or_plan_json.<locals>.<genexpr> at 0x0000023033A82DC0>)
+
+tests\test_personal_history_pagination.py:210: AssertionError
+__ test_query_is_readonly_limit_plus_one_without_count_or_plan_json[api.app] __
+
+history_http = (<starlette.testclient.TestClient object at 0x000002303386D010>, Engine(sqlite:///C%3A/Users/Consu/AppData/Local/Temp/...HAiOjE3OTI0MTMwMDEuNDI1NTg4LCJ0eXBlIjoiYWNjZXNzIn0.e878b14a9cc55856da0ea2a21bb62b0a8d1e1a510812fe04d6f010618228fbd7'}})
+
+    def test_query_is_readonly_limit_plus_one_without_count_or_plan_json(history_http):
+        statements, writes = [], []
+        plans(history_http[1], 1000)
+        def observed(connection, cursor, statement, parameters, context, executemany):
+            if statement.lstrip().upper().startswith(('INSERT','UPDATE','DELETE','CREATE','ALTER')):
+                writes.append(statement)
+            if 'FROM planes_generados JOIN clientes' in statement:
+                statements.append((statement, parameters))
+        event.listen(history_http[1], 'before_cursor_execute', observed)
+        try:
+            response = get(history_http)
+        finally:
+            event.remove(history_http[1], 'before_cursor_execute', observed)
+        assert response.status_code == 200 and len(response.json()['planes']) == 50
+        assert response.headers['cache-control'] == 'no-store'
+        assert response.headers['referrer-policy'] == 'no-referrer'
+        assert writes == [] and len(statements) == 1
+        statement, parameters = statements[0]
+        assert 'LIMIT' in statement and 51 in parameters
+        assert 'COUNT(' not in statement.upper() and 'plan_json' not in statement
+        with history_http[1].connect() as connection:
+            explain = [list(row) for row in connection.exec_driver_sql('EXPLAIN QUERY PLAN '+statement, parameters)]
+>       assert any('ix_planes_gym_fecha' in str(row) for row in explain), explain
+E       AssertionError: [[10, 0, 46, 'SEARCH clientes USING INDEX sqlite_autoindex_clientes_1 (gym_id=? AND id_cliente=?)'], [21, 0, 61, 'SEARCH planes_generados USING INDEX ix_planes_gym_cliente_history (gym_id=? AND id_cliente=?)']]
+E       assert False
+E        +  where False = any(<generator object test_query_is_readonly_limit_plus_one_without_count_or_plan_json.<locals>.<genexpr> at 0x0000023033C0C740>)
+
+tests\test_personal_history_pagination.py:210: AssertionError
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_personal_history_pagination.py::test_each_factory_has_one_history_get_operation_and_no_added_personal_mutations[api.app]
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\openapi\utils.py:303: UserWarning: Duplicate Operation ID listar_catalogo_alimentos_api_alimentos_catalogo_get for function listar_catalogo_alimentos at F:\mb-hidx-20261019\web\routes\planes.py
+    warnings.warn(message, stacklevel=1)
+
+tests/test_personal_history_pagination.py::test_each_factory_has_one_history_get_operation_and_no_added_personal_mutations[api.app]
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\openapi\utils.py:303: UserWarning: Duplicate Operation ID generar_plan_api_generar_plan_post for function generar_plan at F:\mb-hidx-20261019\web\routes\planes.py
+    warnings.warn(message, stacklevel=1)
+
+tests/test_personal_history_pagination.py::test_each_factory_has_one_history_get_operation_and_no_added_personal_mutations[api.app]
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\openapi\utils.py:303: UserWarning: Duplicate Operation ID descargar_pdf_api_descargar_pdf__id_cliente__get for function descargar_pdf at F:\mb-hidx-20261019\web\routes\planes.py
+    warnings.warn(message, stacklevel=1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_personal_history_pagination.py::test_query_is_readonly_limit_plus_one_without_count_or_plan_json[web.main_web]
+FAILED tests/test_personal_history_pagination.py::test_query_is_readonly_limit_plus_one_without_count_or_plan_json[api.app]
+2 failed, 110 passed, 4 warnings in 140.61s (0:02:20)

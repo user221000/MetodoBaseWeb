@@ -19,6 +19,7 @@ SCHEMA_CONTRACTS = {
     "20261019_personal_diary": "20261019_personal_diary",
     "20261019_account_recovery": "20261019_account_recovery",
     "20261019_client_account_links": "20261019_client_account_links",
+    "20261019_personal_history_index": "20261019_personal_history_index",
 }
 
 
@@ -75,6 +76,10 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
                 from web.database.alembic.member_link_security_v1 import member_link_security_signature
                 if member_link_security_signature(connection) != contract["member_link_security"]:
                     raise RuntimeError("Database member link guards differ from the reviewed application boundary")
+            if "history_order_index" in contract:
+                from web.database.alembic.history_index_contract_v1 import history_index_signature
+                if history_index_signature(connection) != contract["history_order_index"]:
+                    raise RuntimeError("Database history ordering differs from the reviewed index")
             if expected_revision is not None:
                 # Explicit historical migration acceptance uses that revision's
                 # frozen model, not the current application's newer metadata.

@@ -262,6 +262,13 @@ class PlanGenerado(Base):
                              name="fk_plan_pdf_object_owner", ondelete="RESTRICT"),
         Index("ix_planes_gym_fecha", "gym_id", "fecha_generacion"),
         Index("ix_planes_generados_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
+        # One physical name, with the reviewed NULL ordering for each dialect.
+        Index("ix_planes_gym_cliente_history", "gym_id", "id_cliente",
+              fecha_generacion.desc().nulls_last(), id.desc().nulls_last(),
+              postgresql_where=deleted_at.is_(None)).ddl_if(dialect="postgresql"),
+        Index("ix_planes_gym_cliente_history", "gym_id", "id_cliente",
+              fecha_generacion.desc(), id.desc(),
+              sqlite_where=deleted_at.is_(None)).ddl_if(dialect="sqlite"),
     )
 
 

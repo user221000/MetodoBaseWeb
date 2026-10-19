@@ -1,0 +1,196 @@
+{
+  "state": "AUTHOR_CANDIDATE_READY_FOR_INDEPENDENT_QA; not integrated",
+  "base_commit": "aa9c3b84a9489f2ed845827c37ccaa77cc3ceb06",
+  "predecessor_core": "1aacbcb5e9d0a1ba0b2a08d5c3650e4bd9ff7ce6",
+  "restore_stable_predicates_commit": "6ec3f04fab18d21f28c63bb864a9398f23e5dcce",
+  "source_files": {
+    "docs/implementation/20261018-evolution/HISTORIAL_ORDENADO.md": {
+      "bytes": 4152,
+      "sha256": "5e90948b0cf968dcd846cbfb55e947bf6aeecdde30165232fba2a0cebcd49f29"
+    },
+    "tests/history_index_fixtures.py": {
+      "bytes": 1658,
+      "sha256": "1199f94a5ade78faa09f6ae24c5551d299f2bd8b605cc04c5fb81f721b5e43fe"
+    },
+    "tests/integration_personal_history_index_migrations.py": {
+      "bytes": 6377,
+      "sha256": "5a92443e3b04383798aa214d161cd46cef5c40798954a89375535096399538f5"
+    },
+    "tests/integration_personal_history_ordered_query.py": {
+      "bytes": 8478,
+      "sha256": "ffd1986b36c0d70c17703df98edca8b28805199901b394acc0a9f2e0aec4c7af"
+    },
+    "tests/test_personal_history_pagination.py": {
+      "bytes": 12646,
+      "sha256": "aca79496eadbeae19873ecfeeaa8b0ab0addbde3d0195be2e064bfa9cf722fc0"
+    },
+    "web/database/alembic/history_index_contract_v1.py": {
+      "bytes": 5971,
+      "sha256": "6d9dec4104c2d9c60935677337e540bdbd9585042f789b61e2a849786ae1d161"
+    },
+    "web/database/alembic/schema_targets/20261019_personal_history_index_postgresql.json": {
+      "bytes": 178240,
+      "sha256": "26f6000d3c360578d4c017ac93c9adbc4bdecaedb288ee7003d6a4ff24959bcd"
+    },
+    "web/database/alembic/schema_targets/20261019_personal_history_index_sqlite.json": {
+      "bytes": 143652,
+      "sha256": "cca952a81654858d278331c080cf76bbd388af41708150559f72e0ae1e300743"
+    },
+    "web/database/alembic/versions/20261019_personal_history_index.py": {
+      "bytes": 2200,
+      "sha256": "15bd92a2f1bf74d96c63e14ca7ab8f3f6a64b54aaa6f78c97fcc04c0c68c8b91"
+    },
+    "web/database/models.py": {
+      "bytes": 52949,
+      "sha256": "8705ae628ed38ea4ab66abc91c28202a93e67205f5d6d8c50229d3785547fdf2"
+    },
+    "web/database/schema_control.py": {
+      "bytes": 5419,
+      "sha256": "947c127a2f0aa6e8b304a13e2d5c5ba9d27f8685e82cb47434ca45c505068475"
+    },
+    "web/routes/usuario.py": {
+      "bytes": 29704,
+      "sha256": "99bbe79b136d97d8235a53670ef8175e6df9e1afd22fb96ea4daa58314049971"
+    },
+    "web/services/personal_history_query.py": {
+      "bytes": 2789,
+      "sha256": "e3f1bc6fd635538e6b34c60ef415def1c143a423202b84a9e4d7107b47a4e8ec"
+    }
+  },
+  "author_current_criteria": 112,
+  "one_all_green_112_run": false,
+  "composition": "Same final product:110green in112run plus two old-index-assertion cases retargeted and replayed green; the only changed source is that maintained test. No test dropped/filtered from final count. Independent full112 replay requested.",
+  "run_summaries": {
+    "before14": {
+      "source_head": "aa9c3b84a9489f2ed845827c37ccaa77cc3ceb06",
+      "predecessor_cast_commit": "6ec3f04fab18d21f28c63bb864a9398f23e5dcce",
+      "exit_code": 1,
+      "runner_seconds": 123.59399999998277,
+      "cases": 14,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "sources_including_new_files": 761,
+      "sources_stable": true,
+      "effective_packages": 89,
+      "packages_stable": true,
+      "pip_checks_zero": true,
+      "proof": "Actual SQLite and owned synthetic PostgreSQL with real restricted role for history SQL. No latency/SLO, API29 acceptance or MAIN integration claim."
+    },
+    "diagnostic1": {
+      "source_head": "aa9c3b84a9489f2ed845827c37ccaa77cc3ceb06",
+      "predecessor_cast_commit": "6ec3f04fab18d21f28c63bb864a9398f23e5dcce",
+      "exit_code": 1,
+      "runner_seconds": 10.936999999976251,
+      "cases": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "sources_including_new_files": 761,
+      "sources_stable": true,
+      "effective_packages": 89,
+      "packages_stable": true,
+      "pip_checks_zero": true,
+      "proof": "Actual SQLite and owned synthetic PostgreSQL with real restricted role for history SQL. No latency/SLO, API29 acceptance or MAIN integration claim."
+    },
+    "after_query1": {
+      "source_head": "aa9c3b84a9489f2ed845827c37ccaa77cc3ceb06",
+      "predecessor_cast_commit": "6ec3f04fab18d21f28c63bb864a9398f23e5dcce",
+      "exit_code": 0,
+      "runner_seconds": 13.64000000001397,
+      "cases": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sources_including_new_files": 761,
+      "sources_stable": true,
+      "effective_packages": 89,
+      "packages_stable": true,
+      "pip_checks_zero": true,
+      "proof": "Actual SQLite and owned synthetic PostgreSQL with real restricted role for history SQL. No latency/SLO, API29 acceptance or MAIN integration claim."
+    },
+    "final112_before_index_assertion": {
+      "source_head": "aa9c3b84a9489f2ed845827c37ccaa77cc3ceb06",
+      "predecessor_cast_commit": "6ec3f04fab18d21f28c63bb864a9398f23e5dcce",
+      "exit_code": 1,
+      "runner_seconds": 142.2970000000205,
+      "cases": 112,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "sources_including_new_files": 761,
+      "sources_stable": true,
+      "effective_packages": 89,
+      "packages_stable": true,
+      "pip_checks_zero": true,
+      "proof": "Actual SQLite and owned synthetic PostgreSQL with real restricted role for history SQL. No latency/SLO, API29 acceptance or MAIN integration claim."
+    },
+    "index_assertion_after2": {
+      "source_head": "aa9c3b84a9489f2ed845827c37ccaa77cc3ceb06",
+      "predecessor_cast_commit": "6ec3f04fab18d21f28c63bb864a9398f23e5dcce",
+      "exit_code": 0,
+      "runner_seconds": 8.15600000001723,
+      "cases": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sources_including_new_files": 761,
+      "sources_stable": true,
+      "effective_packages": 89,
+      "packages_stable": true,
+      "pip_checks_zero": true,
+      "proof": "Actual SQLite and owned synthetic PostgreSQL with real restricted role for history SQL. No latency/SLO, API29 acceptance or MAIN integration claim."
+    }
+  },
+  "only_source_changed_between112_and2": [
+    "tests/test_personal_history_pagination.py"
+  ],
+  "actual_final_owned_pg_databases_removed_and_absence_checked": 8,
+  "query_work_observations": [
+    {
+      "case": "first",
+      "plan_rows_visited": 51,
+      "budget": 51
+    },
+    {
+      "case": "tie",
+      "plan_rows_visited": 52,
+      "budget": 102
+    },
+    {
+      "case": "late_dated",
+      "plan_rows_visited": 51,
+      "budget": 102
+    },
+    {
+      "case": "date_to_null",
+      "plan_rows_visited": 51,
+      "budget": 102
+    },
+    {
+      "case": "null_cursor",
+      "plan_rows_visited": 51,
+      "budget": 51
+    }
+  ],
+  "true_before_defect": "Undated branch used backward primary key, visited107plan rows>102budget in mixed tied corpus. Same criterion after explicit id DESC NULLS LAST and full branch ordering passed; no planner knobs/statistics-cost adjustments.",
+  "quality": {
+    "lint": 0,
+    "syntax": 0,
+    "parsed_Python": 486,
+    "security": 0,
+    "historical_Bandit_findings": 6,
+    "new_Bandit_findings": 0
+  },
+  "native_SQLite_and_PG_migration30_rollback_drift": true,
+  "exact_public_RAW_copies": 71,
+  "explicit_redacted_derivatives": [],
+  "private_exact_RAW_zip": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-history30-all-author-raw-20261019.zip",
+  "private_exact_RAW_zip_sha256": "eff96e68d8c103c3f59430debb2d306ac610cd205dbbf81f9ae346ea2e407b02",
+  "limits": [
+    "No API29/restore29/UI acceptance",
+    "No HTTP p95/SLO or universal planner work bound",
+    "No MAIN merge/production operation",
+    "Code passed under photographed working bytes; staging receipt discloses any EOL-only differences"
+  ]
+}

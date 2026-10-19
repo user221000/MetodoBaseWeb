@@ -207,7 +207,8 @@ def test_query_is_readonly_limit_plus_one_without_count_or_plan_json(history_htt
     assert 'COUNT(' not in statement.upper() and 'plan_json' not in statement
     with history_http[1].connect() as connection:
         explain = [list(row) for row in connection.exec_driver_sql('EXPLAIN QUERY PLAN '+statement, parameters)]
-    assert any('ix_planes_gym_fecha' in str(row) for row in explain), explain
+    assert any('ix_planes_gym_cliente_history' in str(row) for row in explain), explain
+    assert not any('USE TEMP B-TREE FOR ORDER BY' in str(row) for row in explain), explain
     _write_explain_if_requested(history_http[0].app.title, {
         'scope':'SQLite read-only EXPLAIN of 51 summary candidates from 1000 rows; no PostgreSQL performance claim',
         'sql':statement,'parameters':list(parameters),'plan':explain})

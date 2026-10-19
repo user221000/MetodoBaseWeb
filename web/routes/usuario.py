@@ -410,9 +410,8 @@ async def historial_planes(
     db: Session = Depends(get_db),
 ):
     """Bounded, live keyset pages for the same authorized personal profile."""
-    from sqlalchemy import and_, or_
-    from web.services.generation_quota import individual_plan_results_query
     from web.services.personal_history_cursor import decode_position, encode_position
+    from web.services.personal_history_query import history_summary_rows
     from web.settings import get_settings
 
     _require_usuario(usuario)
@@ -434,18 +433,7 @@ async def historial_planes(
     if not cliente:
         return {"planes": [], "next_cursor": None}
 
-    query = individual_plan_results_query(db, user_id).filter(PlanGenerado.id_cliente == cliente.id_cliente)
-    if position is not None:
-        stamp, identity = position
-        query = query.filter(and_(PlanGenerado.fecha_generacion.is_(None), PlanGenerado.id < identity)
-            if stamp is None else or_(PlanGenerado.fecha_generacion < stamp,
-                and_(PlanGenerado.fecha_generacion == stamp, PlanGenerado.id < identity),
-                PlanGenerado.fecha_generacion.is_(None)))
-    # Fetch summary columns only; private plan JSON and paths are never loaded for every row.
-    rows = query.with_entities(PlanGenerado.id, PlanGenerado.fecha_generacion,
-        PlanGenerado.kcal_objetivo, PlanGenerado.proteina_g, PlanGenerado.carbs_g,
-        PlanGenerado.grasa_g, PlanGenerado.tipo_plan, PlanGenerado.pdf_object_id, PlanGenerado.ruta_pdf
-    ).order_by(PlanGenerado.fecha_generacion.desc().nulls_last(), PlanGenerado.id.desc()).limit(limit + 1).all()
+    rows = history_summary_rows(db, user_id, cliente.id_cliente, limit, position)
     planes = rows[:limit]
     next_cursor = encode_position(planes[-1].fecha_generacion, planes[-1].id,
         secret=get_settings().SECRET_KEY, subject=user_id, profile=cliente.id_cliente) if len(rows) > limit else None
