@@ -266,7 +266,7 @@ async def logout(usuario=Depends(get_usuario_actual)):
     from web.auth import revocar_refresh_tokens_usuario
 
     revocar_refresh_tokens_usuario(usuario["id"])
-    return {"message": "Sesión cerrada. Todas las sesiones revocadas."}
+    return {"success": True, "message": "Sesión cerrada. Todas las sesiones revocadas."}
 
 
 @router.get("/auth/me")
