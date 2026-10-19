@@ -1,0 +1,16 @@
+{
+  "created_utc": "2026-10-19T08:21:42.882661+00:00",
+  "status": "Initial listing-parser pass is partial and not accepted. No extraction performed in that pass.",
+  "initial_script_sha256": "02896dd8b1ce0bef8558c01c2bc8fab8e9f2e018dc43ef8e57684e2905904f70",
+  "initial_failed_checks": [
+    "installer_list_all_app_paths_exact_unique_safe",
+    "unexpected_error"
+  ],
+  "initial_commands": [
+    "list"
+  ],
+  "reason": "innounp -s -h still emits two fixed archive/schema headers and exactly two syntax spaces before every member. Closed parser originally expected bare member names.",
+  "change": "Recognize exact headers and require exactly the two known syntax spaces; remove those two syntax spaces only. Preserve filename bytes, reject all extra lines, duplicate/casefold aliases, Windows ambiguities and unexpected paths.",
+  "safety": "All pin/continuity/reparse guards already applied before first access. Initial parser failure prevented integrity-test and extraction.",
+  "final_status": "27 checks passed, full app payload byte for byte equal to bundle; all original artifacts and frozen checkout remained stable."
+}

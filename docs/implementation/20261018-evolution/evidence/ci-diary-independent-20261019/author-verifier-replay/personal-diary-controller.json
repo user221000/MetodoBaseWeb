@@ -1,0 +1,79 @@
+{
+  "scope": "Synthetic diary controller/CAS model only; no browser/auth/backend claim",
+  "passed": 18,
+  "total": 18,
+  "results": [
+    {
+      "case": "Bootstrap uses only the server Today and does not create a day",
+      "passed": true
+    },
+    {
+      "case": "Water patch preserves other snapshots and completion",
+      "passed": true
+    },
+    {
+      "case": "Meal replacement affects only its own snapshot and resets only its completion",
+      "passed": true
+    },
+    {
+      "case": "Completion of a registered meal changes no foods or totals",
+      "passed": true
+    },
+    {
+      "case": "Completion without a snapshot never claims confirmed",
+      "passed": true
+    },
+    {
+      "case": "Two contexts conflict, reconsult, then explicitly retry only the pending field",
+      "passed": true
+    },
+    {
+      "case": "A lost reply after commit requires readback and does not automatically repeat the write",
+      "passed": true
+    },
+    {
+      "case": "Duplicate save while pending does not dispatch another operation",
+      "passed": true
+    },
+    {
+      "case": "Changing day discards a draft without writing or importing anything",
+      "passed": true
+    },
+    {
+      "case": "Late day response cannot replace or invalidate a newer selected day",
+      "passed": true
+    },
+    {
+      "case": "Late saved snapshot after session_changed exposes no old data",
+      "passed": true
+    },
+    {
+      "case": "Late saved snapshot after session_storage_error exposes no old data",
+      "passed": true
+    },
+    {
+      "case": "OWNER ambiguity disables only diary and never adopts any source",
+      "passed": true
+    },
+    {
+      "case": "Source error retains draft, exposes error, and never completes or rewrites a different meal",
+      "passed": true
+    },
+    {
+      "case": "Server midnight changes Today only through a new server bootstrap",
+      "passed": true
+    },
+    {
+      "case": "Calendar ranges use pure Gregorian month arithmetic, not a client clock",
+      "passed": true
+    },
+    {
+      "case": "Malformed diary totals cannot be shown as persisted consumption",
+      "passed": true
+    },
+    {
+      "case": "Exhausted version cannot be retried as an ordinary conflict",
+      "passed": true
+    }
+  ]
+}

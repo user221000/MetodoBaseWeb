@@ -1,3 +1,7 @@
+# Estado vigente del empaquetado desktop
+
+19oct:receta integrada y artefacto exacto7bde30b construido. Operación51controlesbundle/ZIP/Qt y27payloadInno verdes,2595fuentes iguales a blobs,1215archivos/217PE/34recursos/90módulos propios. OPS10ausente,original conservado. [Revisión actual](evidence/desktop-artifact27-independent-review.md),[Inno](INNO_COMPILACION.md). Setup sólo compilado/extraído,sin ejecutar ni instalar; firma/upgrade/desinstalación/flujos completos/nativeLinux/macOS/OSnetwork pendientes. La descripción que sigue conserva las etapas históricas de preparación y sus resultados; sus pendientes se resuelven sólo en el alcance del estado vigente.
+
 # Reparación aislada de empaquetado desktop
 
 Rama `implementation/desktop-packaging-20261019`, worktree separado `F:/MetodoBaseWeb-desktop-20261019`, base `0e8cd42`. Se prepararon receta y pruebas; no se construyó ni lanzó un ejecutable real. El artefacto usará después el commit integrado y congelado que indique coordinación. No se modificaron el original ni el WIP de ejecución, runtime del producto, migraciones, locks web o CI.

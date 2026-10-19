@@ -1,0 +1,8 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=process.env.QA_CI_REPO,file=path.join(root,'tests/e2e/personal_export_context_browser.cjs');
+const prefix=fs.readFileSync(file,'utf8').split('const report=')[0];
+const allowed=[undefined,'http://127.0.0.1:8776','http://127.0.0.1:8777'];
+const rejected=['http://127.0.0.1:08776','http://127.0.0.1:08777','HTTP://127.0.0.1:8776','http://127.000.000.001:8777','http://2130706433:8776','http://0x7f000001:8777','http://[::1]:8776','http://127.0.0.1.:8777','http://127.0.0.1:8776@outside.invalid','http://127.0.0.1:8777/../','http://127.0.0.1:8776\\outside.invalid','http://127.0.0.1:8777\n',' http://127.0.0.1:8776','http://127.0.0.1:8777 ','http://127.0.0.1:8776#','http://127.0.0.1:8777?','http://127.0.0.1:8776\u0000','http://127.0.0.1:8789'];
+const results=[];
+for(const [value,ok] of [...allowed.map(v=>[v,true]),...rejected.map(v=>[v,false])]){let writes=0,launches=0,error=null;const context=vm.createContext({require:name=>name==='playwright-core'?{chromium:{launch(){launches++;throw Error('QA forbids browser launch');}}}:name==='node:fs'?{mkdirSync(){writes++;}}:require(name),process:{env:value===undefined?{}:{METODOBASE_E2E_URL:value}},__dirname:path.dirname(file),Date});try{vm.runInContext(prefix,context);}catch(e){error=e.message;}assert.equal(error===null,ok);assert.equal(writes,ok?1:0);assert.equal(launches,0);results.push({value:value===undefined?'default8777':value,accepted:ok,passed:true});}
+console.log(JSON.stringify({scope:'Exact frozen selector prelude only, with filesystem/browser boundaries replaced; no network or browser execution',passed:results.length,total:results.length,results},null,2));

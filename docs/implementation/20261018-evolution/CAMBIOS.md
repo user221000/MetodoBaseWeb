@@ -71,3 +71,11 @@ Build Windows real9f3f32e terminó0/343.82s,78 pruebas+7subtests/44.46s,1688fuen
 Checkpoint99: backend diario27 integrado423296f tras QA/restore y seguridad; OPS10 integrado bca89bb tras97 casos+3CLI; SDK169241a aceptado22+17. UI606 retenida por cuatro negativos; se registra SEC04 sin alterar los92 criterios originales. Documentacion y pruebas independientes de27 se conservan por lote; nuevo ZIP y gates amplios siguen pendientes.
 
 CI27 aceptado:19 reportesPG obligatorios, restore27 explícito preservando fixture26, OPS10 en ambos targetsdesktop. QA15 canarios guard,60Bash,73 referencias/81 fuentes estables; Windows97real20.99s, colecciónLinux95local. Sin Actions/Linux/PG nuevos. Quality27:429 fuentes parseadas,F8210,Bandit6base/0nuevos.
+
+## Aceptación integrada27, UI y métricas
+
+e0f74da/06d291b/6abe08c conectan el diario persistente y corrigen las continuaciones de exportación: contexto canónico y revisión antes/después de cada frontera, invalidación síncrona de parte/URLs/acciones y guards tras controles que pueden invalidar.0c55b16 confirma logout sólo después del commit con success=true. Los negativos previos permanecen en evidencia; no se toca legado localStorage sin dueño verificable.
+
+7bde30b elimina direcciones/rutas concretas de memoria y errores de métricas; usa rutas declaradas y fallback fijo. Seguridad independiente aceptó15propios+63replay; el mismo driver conserva12rojos/3controles antes.5c9e097 conserva esos15 en suite mediante copia de funciones/aserciones AST idénticas, gate focal15/15.
+
+El gate amplio7bde30b pasó2064/1skip en serial y n2; no se suman15posteriores ni gates de otros entornos. Desktop7bde30b reemplaza el ensayo9f:51controlesbundle/ZIP/Qt y27payloadInno exacto; OPS10 ausente. Setup compilado sin ejecutar, instalar o firmar. db368a8 añade caracterización local1400HTTP sin cambiar producto; revela historial ilimitado pendiente de paginar. R16/schema28 sigue aislado y no integrado.

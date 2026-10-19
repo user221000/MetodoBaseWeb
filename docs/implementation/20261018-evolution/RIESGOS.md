@@ -26,6 +26,8 @@
 
 OPS10: artefacto Windows9f contiene material de referencia no usado con nombres/correos sin procedencia acreditada. No se afirma identidad real. Integridad y Qt están aceptados39/39; distribución retenida mientras se excluye ese recurso, se revisa el delta y se construye/verifica el nuevoSHA. Original y primer ZIP se conservan. No confundir este hallazgo con la procedencia de fuentes OPS09 ya verificada.
 
-SEC04: consumidor de exportacion UI606 acepta DTO de A tras cambio a B y conserva parte preparada ante evento Storage; negativos VM independientes preservados. No afirma incidente real. La interfaz sigue retenida hasta cercar identidad/revision en consumidor e invalidar cache/URLs/acciones y superar revision independiente. Backend27 y los21 grupos browser parciales no cierran este hallazgo.
+SEC04 mitigado localmente: consumidor cercado e invalidación síncrona,guardspreclic corregidos; seguridad25VM yQA25grupos/12pantallas verdes. Cuatro rojos606 y dos guard87 preservados. UI integrada; reload/cross-tab/escritores directos permanecen abiertos bajo R10/R31.
 
-SEC05: metadata de solicitudes privadas permanece en memoria/errores recientes del middleware API. Correccion aislada usa ruta declarada, metodo cerrado y elimina direccion/encabezados;3rojos/63verdes autor, pendiente revision antes de integrar. No se afirma incidente externo ni nueva politica de retencion.
+SEC05 mitigado localmente e integrado7bde30b: ruta declarada/fallback fijo,métodos cerrados,sin identidad;15propios+63replay independientes,12rojos/3controles previos. R17distribuido,otros sinks y revisión legal siguen abiertos. No afirma incidente externo ni política nueva.
+
+Actualización OPS10:51controlesbundle/ZIP y27payloadInno verifican ausencia casefold de referencia en7bde30b,original intacto. Criterio local cerrado; aún sin distribución,instalación/upgrade/desinstalación o firma. El extractor tercero fijado no está firmado. R16/schema28 aislado: seguridad/QA/restore pendientes;202 significa solicitud recibida,cola no durable,ningún envío real ejecutado. R34 caracteriza carga cerrada; historial ilimitado confirmado requiere paginación y no justifica ampliar pools.
