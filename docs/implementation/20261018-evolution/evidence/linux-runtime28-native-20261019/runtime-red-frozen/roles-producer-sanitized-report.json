@@ -1,0 +1,133 @@
+{
+  "nonce": "a781deb39fd74441baa6a37c1a0cab40",
+  "database": "metodobase_test_runtime28_a781deb39fd74441baa6a37c1a0cab40",
+  "migrator_role": "mb28_m_a781deb39fd74441baa6a37c1a0cab40",
+  "application_role": "mb28_a_a781deb39fd74441baa6a37c1a0cab40",
+  "created_roles": [
+    "mb28_m_a781deb39fd74441baa6a37c1a0cab40",
+    "mb28_a_a781deb39fd74441baa6a37c1a0cab40"
+  ],
+  "created_database": true,
+  "passwords_or_dsns_emitted": false,
+  "provider_values": "Synthetic structurally valid QA values; no provider authentication or traffic",
+  "private_location": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-runtime28-roles-private-lwdcn5wd",
+  "classified_wrong_bootstrap_password": {
+    "category": "password_authentication_failed",
+    "method": "private_constant_match",
+    "sqlstate": null
+  },
+  "bootstrap_known_positive_after_negative": true,
+  "admin_target_verified": {
+    "port": 55484,
+    "database": "postgres",
+    "role": "mb28_root_81f03803bc7748c683a4dac4f297b9c3"
+  },
+  "role_flags": [
+    [
+      "mb28_a_a781deb39fd74441baa6a37c1a0cab40",
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      "mb28_m_a781deb39fd74441baa6a37c1a0cab40",
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  ],
+  "scram_verifiers": [
+    [
+      "mb28_a_a781deb39fd74441baa6a37c1a0cab40",
+      true
+    ],
+    [
+      "mb28_m_a781deb39fd74441baa6a37c1a0cab40",
+      true
+    ]
+  ],
+  "application_other_database_connect_privileges": {
+    "postgres": false,
+    "template0": false,
+    "template1": false
+  },
+  "matching_loopback_hba": [
+    {
+      "role": "mb28_m_a781deb39fd74441baa6a37c1a0cab40",
+      "line": 115,
+      "type": "host",
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "mb28_a_a781deb39fd74441baa6a37c1a0cab40",
+      "line": 115,
+      "type": "host",
+      "method": "scram-sha-256"
+    }
+  ],
+  "application_nonowner_and_denied_create_temp_membership": [
+    "mb28_a_a781deb39fd74441baa6a37c1a0cab40",
+    "mb28_m_a781deb39fd74441baa6a37c1a0cab40",
+    false,
+    false,
+    false,
+    false
+  ],
+  "actual_permission_denials": [
+    {
+      "operation": "set_role_owner",
+      "sqlstate": "42501"
+    },
+    {
+      "operation": "create_role",
+      "sqlstate": "42501"
+    },
+    {
+      "operation": "create_public_table",
+      "sqlstate": "42501"
+    },
+    {
+      "operation": "create_temp_table",
+      "sqlstate": "42501"
+    }
+  ],
+  "actual_other_database_denials": [
+    {
+      "database": "postgres",
+      "actual_tcp_connection_denied": true,
+      "classification": {
+        "category": "database_permission_denied",
+        "method": "private_constant_match",
+        "sqlstate": null
+      },
+      "known_positive_after_negative": true
+    },
+    {
+      "database": "template1",
+      "actual_tcp_connection_denied": true,
+      "classification": {
+        "category": "database_permission_denied",
+        "method": "private_constant_match",
+        "sqlstate": null
+      },
+      "known_positive_after_negative": true
+    }
+  ],
+  "wrong_password_rejected": {
+    "category": "password_authentication_failed",
+    "method": "private_constant_match",
+    "sqlstate": null
+  },
+  "application_known_positive_after_wrong_password": true,
+  "private_admin_input_unchanged": true,
+  "real_tcp_scram_logins_verified": true,
+  "product_migration_or_startup": false
+}

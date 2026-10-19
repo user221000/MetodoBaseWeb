@@ -1,0 +1,113 @@
+{
+  "container_id": "45aff2c82f54829e4ac7b2b6f3650654c7fc56e9f970bb0725e1a00d42617937",
+  "image_id": "sha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c",
+  "command": [
+    "docker",
+    "create",
+    "-i",
+    "--name",
+    "metodobase-network28-canary-v2",
+    "--label",
+    "metodobase.lab.scope=runtime28-native-20261019",
+    "--network",
+    "metodobase-runtime28-internal",
+    "--ip",
+    "172.30.28.2",
+    "--dns",
+    "127.0.0.1",
+    "--dns-opt",
+    "timeout:1",
+    "--dns-opt",
+    "attempts:1",
+    "--sysctl",
+    "net.ipv6.conf.all.disable_ipv6=1",
+    "--sysctl",
+    "net.ipv6.conf.default.disable_ipv6=1",
+    "--tmpfs",
+    "/tmp:rw,noexec,nosuid,size=4m,uid=999,gid=999",
+    "--read-only",
+    "--user",
+    "999:999",
+    "--cap-drop",
+    "ALL",
+    "--security-opt",
+    "no-new-privileges",
+    "--no-healthcheck",
+    "--pids-limit",
+    "64",
+    "--memory",
+    "256m",
+    "--entrypoint",
+    "python",
+    "sha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c",
+    "-B",
+    "-c",
+    "from pathlib import Path;import sys,time\nwhile not Path('/tmp/network28-ready').exists():time.sleep(0.05)\ndata=sys.stdin.buffer.read(2552)\nassert len(data)==2552\nexec(compile(data,'network-canary-original','exec'))"
+  ],
+  "secret_consumption": false,
+  "product_started": false,
+  "gate_passed": true,
+  "finished_utc": "2026-10-19T12:29:14.254307+00:00",
+  "namespace_default_route_removed": true,
+  "actual_canary": {
+    "allowed_postgres_ssl_request": "N",
+    "allowed_redis_ping": true,
+    "forbidden_destinations_denied": [
+      {
+        "host": "172.30.28.1",
+        "port": 22,
+        "error_type": "OSError",
+        "errno": 113
+      },
+      {
+        "host": "172.30.28.1",
+        "port": 6379,
+        "error_type": "OSError",
+        "errno": 113
+      },
+      {
+        "host": "172.30.28.1",
+        "port": 55483,
+        "error_type": "OSError",
+        "errno": 113
+      },
+      {
+        "host": "172.30.28.1",
+        "port": 2375,
+        "error_type": "OSError",
+        "errno": 113
+      },
+      {
+        "host": "10.0.2.2",
+        "port": 55483,
+        "error_type": "OSError",
+        "errno": 101
+      },
+      {
+        "host": "192.0.2.1",
+        "port": 443,
+        "error_type": "OSError",
+        "errno": 101
+      }
+    ],
+    "dns": {
+      "query": "unresolvable.runtime28.invalid",
+      "failed": true,
+      "errno": -3
+    },
+    "ipv6": {
+      "failed": true,
+      "error_type": "OSError",
+      "errno": 99
+    },
+    "route": "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       \neth0\t001C1EAC\t00000000\t0001\t0\t0\t0\tF0FFFFFF\t0\t0\t0                                                                               \n",
+    "resolv_conf": "nameserver 127.0.0.11\noptions timeout:1 attempts:1 ndots:0\n",
+    "status": "Name:\tpython\nUmask:\t0022\nState:\tR (running)\nTgid:\t1\nNgid:\t0\nPid:\t1\nPPid:\t0\nTracerPid:\t0\nUid:\t999\t999\t999\t999\nGid:\t999\t999\t999\t999\nFDSize:\t64\nGroups:\t999 \nNStgid:\t1\nNSpid:\t1\nNSpgid:\t1\nNSsid:\t1\nVmPeak:\t   17012 kB\nVmSize:\t   16948 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t   12336 kB\nVmRSS:\t   12336 kB\nRssAnon:\t    5832 kB\nRssFile:\t    6504 kB\nRssShmem:\t       0 kB\nVmData:\t    6808 kB\nVmStk:\t     132 kB\nVmExe:\t       4 kB\nVmLib:\t    4432 kB\nVmPTE:\t      72 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nThreads:\t1\nSigQ:\t0/7819\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000000000\nSigIgn:\t0000000001001000\nSigCgt:\t0000000000000002\nCapInh:\t0000000000000000\nCapPrm:\t0000000000000000\nCapEff:\t0000000000000000\nCapBnd:\t0000000000000000\nCapAmb:\t0000000000000000\nNoNewPrivs:\t1\nSeccomp:\t2\nSeccomp_filters:\t1\nSpeculation_Store_Bypass:\tvulnerable\nSpeculationIndirectBranch:\talways enabled\nCpus_allowed:\t3\nCpus_allowed_list:\t0-1\nMems_allowed:\t00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t199\nnonvoluntary_ctxt_switches:\t129\n",
+    "uid": 999,
+    "docker_socket_present": false,
+    "scope": "Protocol and OS network boundary probes without passwords, SQL or product startup."
+  },
+  "original_red_evidence_preserved": true,
+  "restrictive_gates_and_proxies_left_active": true,
+  "container_removed": true
+}

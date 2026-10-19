@@ -1,0 +1,15 @@
+diff --git a/api/app.py b/api/app.py
+index e2f6bd1..f36f7e1 100644
+--- a/api/app.py
++++ b/api/app.py
+@@ -302,6 +302,10 @@ def create_app() -> FastAPI:
+     from web.routes.client_links import router as client_links_router
+     app.include_router(client_links_router, prefix="/api")
+ 
++    # Share only the reviewed personal history GET and its canonical dependencies.
++    from web.routes.usuario import historial_planes
++    app.add_api_route("/api/usuario/historial", historial_planes, methods=["GET"], tags=["Usuario Individual"])
++
+     # ── Planes history routes (web) ───────────────────────────────────────────
+     from web.routes import planes as web_planes_routes
+     app.include_router(web_planes_routes.router, prefix="/api")

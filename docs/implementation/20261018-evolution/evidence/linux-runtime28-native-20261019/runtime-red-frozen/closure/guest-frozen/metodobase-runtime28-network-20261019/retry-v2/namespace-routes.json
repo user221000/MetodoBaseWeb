@@ -1,0 +1,61 @@
+{
+  "identity": {
+    "pid": 2647,
+    "started_at": "2026-10-19T12:28:59.342203526Z",
+    "proc_starttime": "149743",
+    "cgroups": "0::/system.slice/docker-45aff2c82f54829e4ac7b2b6f3650654c7fc56e9f970bb0725e1a00d42617937.scope\n",
+    "netns": "net:[4026532246]",
+    "networks": {
+      "metodobase-runtime28-internal": {
+        "IPAMConfig": {
+          "IPv4Address": "172.30.28.2"
+        },
+        "Links": null,
+        "Aliases": [
+          "45aff2c82f54"
+        ],
+        "NetworkID": "595405ad0e9a06b4418296eedb57f8457863e5a4240e4c3fb61beaff7d2fa5e2",
+        "EndpointID": "d411219f6a61dc0355670d6b44a07500a61c177646aeabd4674a23d66b1f1905",
+        "Gateway": "172.30.28.1",
+        "IPAddress": "172.30.28.2",
+        "IPPrefixLen": 28,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "MacAddress": "02:42:ac:1e:1c:02",
+        "DriverOpts": null
+      }
+    }
+  },
+  "ipv4_before": [
+    {
+      "dst": "default",
+      "gateway": "172.30.28.1",
+      "dev": "eth0",
+      "flags": []
+    },
+    {
+      "dst": "172.30.28.0/28",
+      "dev": "eth0",
+      "protocol": "kernel",
+      "scope": "link",
+      "prefsrc": "172.30.28.2",
+      "flags": []
+    }
+  ],
+  "ipv4_after": [
+    {
+      "dst": "172.30.28.0/28",
+      "dev": "eth0",
+      "protocol": "kernel",
+      "scope": "link",
+      "prefsrc": "172.30.28.2",
+      "flags": []
+    }
+  ],
+  "ipv6_before": [],
+  "ipv6_after": [],
+  "default_route_removed_by_owned_guest_root": true,
+  "no_host_namespace_mutation": true,
+  "note": "Docker20.10 Internal=true still supplied this default route; this additional LAB step is required again for the future runtime container before private stdin."
+}

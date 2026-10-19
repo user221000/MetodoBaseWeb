@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "state": "PREPARED_FOR_ROOT_REVIEW; not applied; product not started",
+  "image_id": "sha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c",
+  "source_commit": "bc365c13b9af9e24129a56b4068059a67bb3afa0",
+  "network": {
+    "name": "metodobase-runtime28-internal",
+    "label": "metodobase.lab.scope=runtime28-native-20261019",
+    "bridge": "mb28int",
+    "internal": true,
+    "ipv6": false,
+    "subnet": "172.30.28.0/28",
+    "gateway": "172.30.28.1",
+    "application_ip": "172.30.28.2",
+    "additional_networks": [],
+    "published_ports": []
+  },
+  "ssh_reverse_forward": {
+    "guest_bind": "127.0.0.1:55483",
+    "fixed_windows_destination": "127.0.0.1:55483",
+    "ssh_endpoint": "127.0.0.1:53105",
+    "strict_owned_known_hosts": true,
+    "exit_on_forward_failure": true,
+    "dynamic_socks_or_general_forwarding": false
+  },
+  "fixed_guest_proxies": {
+    "pg": {"bind_host": "172.30.28.1", "bind_port": 15483, "destination_host": "127.0.0.1", "destination_port": 55483},
+    "redis": {"bind_host": "172.30.28.1", "bind_port": 16379, "destination_host": "127.0.0.1", "destination_port": 6379}
+  },
+  "proxy_allowed_client_ip": "172.30.28.2",
+  "firewall": {
+    "scope": "Temporary owned guest only. Exact custom chains and jump rules; no Windows rules, global policy changes, global flush or persisted configuration.",
+    "input_from_mb28int": "Allow only application_ip to gateway TCP 15483/16379; reject every other packet from this bridge.",
+    "forward_from_or_to_mb28int": "Reject all in DOCKER-USER before Docker forwarding rules.",
+    "guest_ipv4_output": "Allow loopback, ESTABLISHED/RELATED and output to mb28int; reject all other new output during the exclusive runtime window.",
+    "guest_ipv6_output": "Allow loopback and ESTABLISHED/RELATED; reject all other new output.",
+    "precondition": "No pre-existing external established connection except owned SSH, no other running container/writer, no name/subnet/port/chain collision.",
+    "rollback": "Remove only recorded exact jumps/chains, proxies, SSH forwarding PID, owned container/network and own UUID database/roles after attribution checks. Preserve artifacts and other databases."
+  },
+  "dns": {"container_dns": "127.0.0.1", "attempts": 1, "timeout_seconds": 1, "service_destinations_are_literal_ip": true},
+  "container_lab_flags": {
+    "user": "999:999", "read_only": true, "cap_drop": ["ALL"], "no_new_privileges": true,
+    "no_docker_socket": true, "network_count": 1, "ipv6_enabled": false,
+    "tmpfs": ["/tmp:rw,noexec,nosuid,size=64m,uid=999,gid=999", "/data:rw,noexec,nosuid,size=128m,uid=999,gid=999"],
+    "qa_artifact_mount": "Only the exact nonsecret owned launcher/attestation directory, read-only; no broad host or guest root share.",
+    "credentials_in_docker_config_env": false,
+    "scope": "These are explicit LAB restrictions, not Dockerfile defaults."
+  },
+  "credentials": {
+    "transport": "Private 0600 input consumed through child stdin; never CLI, stdout, Docker Config.Env or evidence.",
+    "bootstrap": "Container starts a small stdin bootstrap, sets environment only in-process, then execs the unchanged /app/entrypoint.sh.",
+    "database": "New attributable UUID database plus separate UUID migrator owner and non-owner application role; no reused unattributed database.",
+    "production_settings": "Keep METODOBASE_ENV=production and unmodified Settings/validators. Use QA-only non-provider-authentic synthetic values accepted structurally by those validators; disclose this limit. Do not load real provider secrets or claim provider validity.",
+    "logs": "Capture raw logs privately 0600, replace every consumed secret before publishing, inspect only selected non-env Docker fields."
+  },
+  "phase_order": [
+    "Prove fixed proxies and fail-closed IPv4/IPv6/gateway egress gates without credentials or product startup",
+    "Root/DB owner creates attributable UUID database, UUID migration owner and UUID non-owner app role through a private child",
+    "One-shot image command executes private_stdin_entrypoint.py migrate and proves real head/marker28",
+    "Migration owner grants app CONNECT, schema USAGE, required existing table/sequence DML and corresponding default privileges; app remains non-owner",
+    "Fresh container executes private_stdin_entrypoint.py web, which validates real production Settings and execs unchanged entrypoint; entrypoint repeats migration idempotently then unsets MIGRATOR_DATABASE_URL and execs real web/main_web.py",
+    "Attest actual process environment names, UUID DB role/ownership and readiness before functional scenarios"
+  ],
+  "runtime_assertions_before_acceptance": [
+    "Actual production Settings instantiates without monkeypatch or validator bypass",
+    "Image ID, source label and entrypoint source hashes match the frozen image evidence",
+    "Network is internal, one interface/network only, no published ports or default route",
+    "Allowed PG and Redis protocol probes succeed through the two fixed proxies",
+    "Bridge gateway other-port canary fails and increments the owned INPUT rejection counter",
+    "Documentation-address TCP and DNS probes fail; new external guest output is denied and counted before any provider packet",
+    "IPv6 external connectivity fails; chain and route snapshots preserved",
+    "Unmodified entrypoint runs db_bootstrap, proves marker28 and hands off to web/main_web.py --no-browser",
+    "Actual web parent/workers have MIGRATOR_DATABASE_URL absent, recorded as booleans only",
+    "Actual application DB role is not the database owner; migrations use the distinct owner role",
+    "Readiness/liveness and Redis-backed behavior run only after all network gates pass",
+    "No performance acceptance under TCG"
+  ],
+  "pending_before_mutation": [
+    "Root review of this concrete contract, proxy and firewall rule artifact",
+    "Read-only inventory confirms exact guest ports/subnet/chains and owned QA host PostgreSQL identity",
+    "Root supplies an approved private credential producer or file path, never values in messages",
+    "Apply and prove firewall/egress gates with synthetic protocol probes before product startup"
+  ],
+  "primary_docs": [
+    "https://docs.docker.com/reference/cli/docker/network/create/#network-internal-mode---internal",
+    "https://docs.docker.com/engine/network/firewall-iptables/"
+  ]
+}

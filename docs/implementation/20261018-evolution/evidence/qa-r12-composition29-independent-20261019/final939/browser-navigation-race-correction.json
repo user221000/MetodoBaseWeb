@@ -1,0 +1,9 @@
+{
+  "before_driver_sha256": "b7f36c88ba902a92ff27d7f48da7dd0fb55267dc8cae4b605b7f4538568b4102",
+  "after_driver_sha256": "f3c245edc55132679ecaf14144dea4016d3f23d7d464e04c91d080db361adefd",
+  "inverse_driver_byte_exact": true,
+  "assertions_changed": false,
+  "before": "First login returned200 and started genuine page navigation; harness evaluated localStorage in the destroyed old execution context before waiting for destination. Browser case1red; cases2-16 not reached.",
+  "correction": "Wait for the actual destination page, then inspect its existing login token storage. Same real form,login response200 and storage assertions; no API/product changes.",
+  "before_fixture_close": "server0, own launcher+actualPID/listener absent, DB UUID absent, foreign8776 unchanged; source4933/package89/dependencies146 quiet."
+}

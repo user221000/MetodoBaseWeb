@@ -1,0 +1,114 @@
+{
+  "container_id": "a6ba63c2fc893a2ca0ca7b0a44b82338e4eac84a6799afb19fb8488c09b28427",
+  "mode": "migrate",
+  "image_id": "sha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c",
+  "command": [
+    "docker",
+    "create",
+    "-i",
+    "--name",
+    "metodobase-runtime28-migrate",
+    "--label",
+    "metodobase.lab.scope=runtime28-native-20261019",
+    "--label",
+    "metodobase.lab.uuid=a781deb39fd74441baa6a37c1a0cab40",
+    "--network",
+    "metodobase-runtime28-internal",
+    "--ip",
+    "172.30.28.2",
+    "--dns",
+    "127.0.0.1",
+    "--dns-opt",
+    "timeout:1",
+    "--dns-opt",
+    "attempts:1",
+    "--sysctl",
+    "net.ipv6.conf.all.disable_ipv6=1",
+    "--sysctl",
+    "net.ipv6.conf.default.disable_ipv6=1",
+    "--read-only",
+    "--user",
+    "999:999",
+    "--cap-drop",
+    "ALL",
+    "--security-opt",
+    "no-new-privileges",
+    "--tmpfs",
+    "/tmp:rw,noexec,nosuid,size=64m,uid=999,gid=999",
+    "--tmpfs",
+    "/data:rw,noexec,nosuid,size=128m,uid=999,gid=999",
+    "--mount",
+    "type=bind,src=/home/lab/metodobase-runtime28-product-a781deb39fd74441baa6a37c1a0cab40/helpers,dst=/qa,readonly",
+    "--no-healthcheck",
+    "--pids-limit",
+    "256",
+    "--memory",
+    "768m",
+    "--cpus",
+    "2",
+    "--entrypoint",
+    "python",
+    "sha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c",
+    "-B",
+    "-c",
+    "from pathlib import Path;import runpy,sys,time\nwhile not Path('/tmp/runtime28-ready').exists():time.sleep(.05)\nsys.argv=['/qa/private_stdin_entrypoint_v2.py','migrate']\nrunpy.run_path('/qa/private_stdin_entrypoint_v2.py',run_name='__main__')"
+  ],
+  "private_stdin_sent": false,
+  "container_removed": true,
+  "prepared": true,
+  "identity": {
+    "pid": 3491,
+    "started_at": "2026-10-19T12:45:17.811600621Z",
+    "proc_starttime": "247590",
+    "cgroups": "0::/system.slice/docker-a6ba63c2fc893a2ca0ca7b0a44b82338e4eac84a6799afb19fb8488c09b28427.scope\n",
+    "netns": "net:[4026532246]",
+    "networks": {
+      "metodobase-runtime28-internal": {
+        "IPAMConfig": {
+          "IPv4Address": "172.30.28.2"
+        },
+        "Links": null,
+        "Aliases": [
+          "a6ba63c2fc89"
+        ],
+        "NetworkID": "595405ad0e9a06b4418296eedb57f8457863e5a4240e4c3fb61beaff7d2fa5e2",
+        "EndpointID": "b6ee648782c5df0b7dae759974314c46bc2dfd7d39ccac3be68c16b4d2dc3b5e",
+        "Gateway": "172.30.28.1",
+        "IPAddress": "172.30.28.2",
+        "IPPrefixLen": 28,
+        "IPv6Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "MacAddress": "02:42:ac:1e:1c:02",
+        "DriverOpts": null
+      }
+    }
+  },
+  "network_gate_before_stdin": true,
+  "flags": {
+    "NetworkMode": "metodobase-runtime28-internal",
+    "ReadonlyRootfs": true,
+    "CapDrop": [
+      "ALL"
+    ],
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Binds": null,
+    "Memory": 805306368,
+    "PidsLimit": 256
+  },
+  "final_state": {
+    "Status": "exited",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 1,
+    "Error": "",
+    "StartedAt": "2026-10-19T12:45:17.811600621Z",
+    "FinishedAt": "2026-10-19T12:46:22.334387501Z"
+  }
+}

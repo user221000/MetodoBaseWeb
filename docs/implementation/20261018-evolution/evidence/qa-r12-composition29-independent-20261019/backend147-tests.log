@@ -1,0 +1,59 @@
+........................................................................ [ 48%]
+...................................................................s.sF. [ 97%]
+...                                                                      [100%]
+================================== FAILURES ===================================
+_ test_two_processes_consume_one_proof_once_under_restricted_role[postgresql] _
+tests\integration_client_link_service_races.py:45: in test_two_processes_consume_one_proof_once_under_restricted_role
+    assert [ready.get(timeout=25) for _ in processes]==[True,True]
+            ^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\queues.py:114: in get
+    raise Empty
+E   _queue.Empty
+---------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 131, in _main
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 131, in _main
+    prepare(preparation_data)
+    prepare(preparation_data)
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 246, in prepare
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 246, in prepare
+    _fixup_main_from_path(data['init_main_from_path'])
+    _fixup_main_from_path(data['init_main_from_path'])
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 297, in _fixup_main_from_path
+  File "C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\multiprocessing\spawn.py", line 297, in _fixup_main_from_path
+    main_content = runpy.run_path(main_path,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 287, in run_path
+    main_content = runpy.run_path(main_path,
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\MetodoBaseWeb-execution-20261018\docs\implementation\20261018-evolution\evidence\qa-r12-composition29-independent-20261019\launch.py", line 23, in <module>
+  File "<frozen runpy>", line 287, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "F:\MetodoBaseWeb-execution-20261018\docs\implementation\20261018-evolution\evidence\qa-r12-composition29-independent-20261019\launch.py", line 23, in <module>
+    else:raise ValueError('Unknown frozen bounded phase')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Unknown frozen bounded phase
+    else:raise ValueError('Unknown frozen bounded phase')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Unknown frozen bounded phase
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration_client_link_service_races.py::test_two_processes_consume_one_proof_once_under_restricted_role[postgresql]
+1 failed, 144 passed, 2 skipped, 1 warning in 134.80s (0:02:14)

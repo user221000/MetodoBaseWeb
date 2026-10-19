@@ -52,3 +52,8 @@ Checkpoint107: selladas la revisión independiente desktop66 (93 controles verde
 ## Checkpoint 108
 
 SEC09/P1, operación y seguridad: OpenSSL3.5.8 depsycopg2-binary coincide con13 rangosCNA; Debianpatch no lo cubre. Impacto condicionado por API/protocolo/arquitectura/compilación, explotación no demostrada. Mitigación en curso: componente mantenido con procedencia y reconstrucción/SCA/regresión independiente; no excepción. R03/OPS01:bootstrap histórico exigeCREATEROLE pese a contrato migradorrestringido; reproducciónLinux42501 y rollback completo. Se corrige código, sin elevar permisos. R18 ya dispone LinuxQEMU operativo: se elimina el bloqueo obsoleto de falta dehost; quedan componentes/startup y gateOS abiertos.
+
+
+## Checkpoint 109
+
+UX-18/P1 bloquea exportaciónUI en flujoR12 por interferencia deestado disabled;mitigaciónownedControls yreplay16independiente en curso. R34pool1:waiterGETauthme checkout,holderdesconocido;no atribuir causa ni cerrarlo conpool20. C4fix nativoaceptado, Linuxcorregidopendiente;ACLheredados sepreservan ynosepurgaunrolglobal sin alcanceaplicable. SEC09/71OSsiguenabiertos. 55484apagado y recursos propioscerradosconidentidadverificada.

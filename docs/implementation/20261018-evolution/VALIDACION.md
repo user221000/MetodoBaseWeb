@@ -171,3 +171,8 @@ Checkpoint107: selladas la revisión independiente desktop66 (93 controles verde
 ## Checkpoint 108
 
 Checkpoint108 autentica QA30:120/120 verdes,14UUID cerrados,4580fuentes+7helpers/89paquetes estables. SeguridadR12:41 controlesAPI propios y26 finales,4933fuentes finales estables,UUID cerrado; los rojos de cabeceras y correlación permanecen. No agrega esos resultados como una ejecución única ni acredita restore/UI. InventarioLinux811ELF,13CNA primarios y symlink1/1 se guardan por fase; runtime42501 sigue fallido. El empaquetado verifica cada manifiesto y cada blobRAW contra Git; los informes públicos saneados conservan esa clasificación original.
+
+
+## Checkpoint 109
+
+Se autentican173 archivosLinuxoriginales,204filesfaseQA939rechazada y revisión migrador13verdes(11originales+2propios). NativePGno acreditaLinuxcorregido. Backend147 se describe144pass/1harnesserror/2skips+replay1, no ejecuciónúnicaverde. Restore29poblado1/UI10/HTTP28/Node297ejecuciones276únicos separados. Browser939:7pass,1fail,8noalcanzados;fixec029autor3+16verdes,sintaxis6,fuentecerrada. TodoslosRAW/derivados mantienen suclasificación;manifiestos yGitblobs verificados byteabyte.

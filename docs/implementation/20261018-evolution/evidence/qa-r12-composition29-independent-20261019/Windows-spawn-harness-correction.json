@@ -1,0 +1,17 @@
+{
+  "original_failed_phase": "backend147",
+  "original_failure_nodeid": "tests/integration_client_link_service_races.py::test_two_processes_consume_one_proof_once_under_restricted_role[postgresql]",
+  "raw_outputs_preserved": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-r12-composition29-independent-20261019\\backend147",
+  "original_counts": {
+    "passed": 144,
+    "failed": 1,
+    "skipped": 2
+  },
+  "root_cause": "Both multiprocessing.spawn children reexecuted unguarded launch.py, interpreted pytest argv as a phase and raised Unknown frozen bounded phase before reaching the product worker readiness point.",
+  "original_launch_sha256": "331a32b92d60a8296a7a3e5d301a3a851732315f0896e168e3e309186ca7c961",
+  "guarded_launch_sha256": "1e38cac6e6f835d9e93db7c03e8cc2419d9108ccdc049da993d3b725c93d26df",
+  "correction": "Wrap actual launcher execution in launch_main guarded by __name__==__main__; module import is inert for Windows spawn. Exact original failed PG node runs alone; no assertion/product changes.",
+  "original_147_not_relabelled_as_one_green_run": true,
+  "source_and_package_photos_for_original_stable": true,
+  "original_four_UUID_absent": true
+}

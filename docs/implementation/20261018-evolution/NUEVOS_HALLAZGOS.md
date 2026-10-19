@@ -71,3 +71,9 @@ Aceptación añadida: inventariar cada artefacto soportado, preservar anteriores
 La imagen `99c846bd28b0` carga OpenSSL 3.5.8 del wheel psycopg2-binary, separado de `_ssl` Debian con backports y de cryptography 4.0.3. Trece [registros primarios CNA](evidence/linux-runtime28-native-20261019/native-openssl-sec09/evidence-manifest.json) incluyen 3.5.8 en su rango afectado. El [inventario ELF](evidence/linux-runtime28-native-20261019/native/native.json) identifica rutas, hashes y enlaces efectivos. No se ha demostrado explotación; condiciones de API, protocolo, arquitectura y compilación requieren evaluación por aviso. Los 71 IDs OS y el resultado OSV de 55 distribuciones PyPI mantienen su alcance separado.
 
 Cierre: corregir el componente efectivo con procedencia fijada; reconstruir, inventariar y revisar SBOM/SCA, PostgreSQL y arranque con rol restringido, con aceptación independiente. No hay excepción de riesgo ni imagen corregida aceptada. Responsable: operación y seguridad. Estado: en curso; ver registro SEC09.
+
+## UX-18 — Interferencia de controles entre vínculos y exportación
+
+En939, VinculosUI guarda/restaura disabled de todos los controles del documento. La exportación, dentro del mismo main, se inicializa concurrentemente y su botón puede volver a quedar deshabilitado. QAChrome/PGreal pasó siete criterios y falló el octavo por ese botón;9–16 no se alcanzaron. Se conservan fuentes, capturas y [fase rechazada](evidence/qa-r12-composition29-independent-20261019/phase939-blocked-summary.json).
+
+El fixec029 aislado exige una colección ownedControls por consumidor para operación e invalidación; evita interferir con exportación. Los mismos tres canarios dan2rojos/1control antes y3verdes después en el ensayo del autor;16 regresiones existentes pasan sin alterar aserciones. Falta aceptación independiente y replay real16. [Contrato y límites](R12_CONTROLES_INDEPENDIENTES.md). PrioridadP1, responsable frontend/QA, registroUX-18.

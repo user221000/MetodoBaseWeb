@@ -1,0 +1,22 @@
+{
+  "scope": "Only actual VinculosUI controls against independent nested-controller DOM, no browser/HTTP/API/security acceptance.",
+  "source_sha256": "b582e61feaa9753e6460e077d6387d4207a8cf33efea49dbb92ea720d23f7653",
+  "results": [
+    {
+      "case": "Concurrent privacy initialization remains enabled after unrelated member operation",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "case": "Member-only invalidation does not write independent privacy/public controls",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "case": "Owned member controls are blocked during operation and restored afterwards",
+      "passed": true
+    }
+  ],
+  "passed": 1,
+  "total": 3
+}

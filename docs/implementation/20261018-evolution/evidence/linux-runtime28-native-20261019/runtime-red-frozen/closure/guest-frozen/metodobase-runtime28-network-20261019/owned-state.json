@@ -1,0 +1,79 @@
+{
+  "created_utc": "2026-10-19T12:21:51.880465+00:00",
+  "network_id": "595405ad0e9a06b4418296eedb57f8457863e5a4240e4c3fb61beaff7d2fa5e2",
+  "created_chains": [
+    [
+      "iptables",
+      "MB28_IN"
+    ],
+    [
+      "iptables",
+      "MB28_FWD"
+    ],
+    [
+      "iptables",
+      "MB28_OUT"
+    ],
+    [
+      "ip6tables",
+      "MB28_OUT6"
+    ]
+  ],
+  "inserted_jumps": [
+    [
+      "iptables",
+      [
+        "INPUT",
+        "-i",
+        "mb28int",
+        "-j",
+        "MB28_IN"
+      ]
+    ],
+    [
+      "iptables",
+      [
+        "DOCKER-USER",
+        "-i",
+        "mb28int",
+        "-j",
+        "MB28_FWD"
+      ]
+    ],
+    [
+      "iptables",
+      [
+        "DOCKER-USER",
+        "-o",
+        "mb28int",
+        "-j",
+        "MB28_FWD"
+      ]
+    ],
+    [
+      "iptables",
+      [
+        "OUTPUT",
+        "-j",
+        "MB28_OUT"
+      ]
+    ],
+    [
+      "ip6tables",
+      [
+        "OUTPUT",
+        "-j",
+        "MB28_OUT6"
+      ]
+    ]
+  ],
+  "proxy_pids": {
+    "pg": 2256,
+    "redis": 2257
+  },
+  "canary_container": null,
+  "product_started": false,
+  "secret_consumption": false,
+  "failure_type": "AssertionError",
+  "failure": "Network canary failed; preserve logs and gates"
+}

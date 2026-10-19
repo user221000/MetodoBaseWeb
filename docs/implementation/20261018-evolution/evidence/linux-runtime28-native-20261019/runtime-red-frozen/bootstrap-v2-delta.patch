@@ -1,0 +1,33 @@
+--- reviewed-original.py
++++ private_stdin_entrypoint_v2.py
+@@ -1,5 +1,5 @@
+ """Prepared launcher: consumes private stdin once, then execs unchanged product CLI."""
+-import argparse, json, os, re, sys
++import argparse, json, os, re, struct, sys
+ from urllib.parse import urlsplit
+ 
+ parser = argparse.ArgumentParser(description=__doc__)
+@@ -8,8 +8,12 @@
+ required = {'WEB_SECRET_KEY', 'METODO_BASE_SALT', 'DATABASE_URL', 'MIGRATOR_DATABASE_URL',
+             'STRIPE_SECRET_KEY', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_WEBHOOK_SECRET',
+             'STRIPE_PRICE_STANDARD', 'STRIPE_PRICE_GYM_COMERCIAL', 'STRIPE_PRICE_CLINICA', 'STRIPE_PRICE_PRO_USUARIO'}
+-raw = sys.stdin.buffer.read(65537)
+-assert len(raw) <= 65536, 'Private bootstrap frame too large'
++header = sys.stdin.buffer.read(4)
++assert len(header) == 4, 'Private frame header incomplete'
++size = struct.unpack('!I', header)[0]
++assert 1 <= size <= 65536, 'Private bootstrap frame too large'
++raw = sys.stdin.buffer.read(size)
++assert len(raw) == size, 'Private frame incomplete'
+ values = json.loads(raw)
+ assert isinstance(values, dict) and set(values) == required, 'Unexpected private bootstrap fields'
+ assert all(isinstance(v, str) and v and not any(c in v for c in ['\0', '\n', '\r']) for v in values.values()), 'Invalid private field encoding'
+@@ -29,7 +33,7 @@
+ assert values['STRIPE_WEBHOOK_SECRET'].startswith('whsec_lab28_')
+ assert all(values[key].startswith('price_lab28_') for key in required if key.startswith('STRIPE_PRICE_'))
+ environment = {key: os.environ[key] for key in ['PATH', 'PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'PYTHONUNBUFFERED'] if key in os.environ}
+-environment.update(METODOBASE_ENV='production', METODOBASE_DATA_DIR='/data', PORT='8000',
++environment.update(METODOBASE_ENV='production', METODOBASE_DATA_DIR='/data', PORT='8000', WEB_WORKERS='2',
+                    BASE_URL='https://metodobase-runtime28.example.test',
+                    CORS_ORIGINS='https://metodobase-runtime28.example.test',
+                    REDIS_URL='redis://172.30.28.1:16379/15',

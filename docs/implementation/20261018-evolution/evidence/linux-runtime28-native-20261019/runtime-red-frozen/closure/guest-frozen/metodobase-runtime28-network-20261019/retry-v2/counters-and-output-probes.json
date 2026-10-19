@@ -1,0 +1,25 @@
+{
+  "input_counters": "Chain MB28_IN (1 references)\n    pkts      bytes target     prot opt in     out     source               destination         \n      24     1324 ACCEPT     6    --  *      *       172.30.28.2          172.30.28.1          multiport dports 15483,16379\n      14      840 REJECT     0    --  *      *       0.0.0.0/0            0.0.0.0/0            reject-with icmp-admin-prohibited\n",
+  "output_counters": "Chain MB28_OUT (1 references)\n    pkts      bytes target     prot opt in     out     source               destination         \n      42     2344 ACCEPT     0    --  *      lo      0.0.0.0/0            0.0.0.0/0           \n     419    78552 ACCEPT     0    --  *      *       0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED\n      14      680 ACCEPT     0    --  *      mb28int  0.0.0.0/0            0.0.0.0/0           \n       1       60 REJECT     0    --  *      *       0.0.0.0/0            0.0.0.0/0            reject-with icmp-admin-prohibited\n",
+  "ipv6_output_counters": "Chain MB28_OUT6 (1 references)\n    pkts      bytes target     prot opt in     out     source               destination         \n       2      256 ACCEPT     0    --  *      lo      ::/0                 ::/0                \n       0        0 ACCEPT     0    --  *      *       ::/0                 ::/0                 ctstate RELATED,ESTABLISHED\n      41     3308 REJECT     0    --  *      *       ::/0                 ::/0                 reject-with icmp6-adm-prohibited\n",
+  "guest_output_probes": [
+    {
+      "family": 2,
+      "address": [
+        "192.0.2.1",
+        443
+      ],
+      "errno": 113,
+      "error_type": "OSError"
+    },
+    {
+      "family": 10,
+      "address": [
+        "2001:db8::1",
+        443
+      ],
+      "errno": 13,
+      "error_type": "PermissionError"
+    }
+  ]
+}

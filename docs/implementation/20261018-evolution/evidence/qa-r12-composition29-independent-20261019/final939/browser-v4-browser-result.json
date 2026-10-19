@@ -1,0 +1,47 @@
+{
+  "scope": "Actual Chrome/HTTP/restricted-PostgreSQL29 integration; mail filesystem double only. Source plan/PDF are labelled synthetic seeds, not worker/provider generation.",
+  "head": "93975691e02daac966b871e218db76e4a3dd0114",
+  "report": [
+    {
+      "case": "Actual form login establishes both professional sessions",
+      "passed": false,
+      "error_class": "TimeoutError",
+      "message": "page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:8793/login-gym\", waiting until \"domcontentloaded\"\u001b[22m\n"
+    }
+  ],
+  "passed": 0,
+  "total": 1,
+  "expected_total": 16,
+  "network": {
+    "first_party_origin": "http://127.0.0.1:8793",
+    "API_doubles": false,
+    "blocked_external": [
+      {
+        "host": "fonts.googleapis.com",
+        "kind": "stylesheet"
+      },
+      {
+        "host": "fonts.googleapis.com",
+        "kind": "stylesheet"
+      },
+      {
+        "host": "fonts.googleapis.com",
+        "kind": "stylesheet"
+      }
+    ],
+    "requests": [
+      {
+        "method": "POST",
+        "path": "/api/auth/login",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/api/clientes",
+        "status": 200
+      }
+    ]
+  },
+  "page_errors": [],
+  "seconds": 32.973
+}

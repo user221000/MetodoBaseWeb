@@ -29,3 +29,8 @@ Checkpoint107: selladas la revisión independiente desktop66 (93 controles verde
 ## Checkpoint 108
 
 Checkpoint108 mantiene esquema28MAIN hasta cerrar composición29 y después30. Se acepta30 sólo en alcance índice/lector/migración120, sin SLO. Se acepta seguridadAPI939 sólo en alcance41+26; no sustituyeQA deUI/restore. SEC09 exige evaluar/corregir el ELF efectivo, separado deOS/PyPI. El falloCREATEROLE se corregirá en producto; no se precreará rol ni ampliará el migrador para ocultarlo. Se preserva soporte desktop y decisiones comercialesFree ya respondidas.
+
+
+## Checkpoint 109
+
+Se integra únicamenteelc4aceptado13, sin ampliar privilegios ni precrearrolglobal. Se rechaza aceptaciónR12completa peseaAPI/restoreverdes porfalloUIrealcriterio8. Fixec029debe superar mismos16+3 yrevisiónSEC;scopeexplicito decontroles, no main. Elhistórico28enCI correconfuenteGit66fijada, sin editaraserciones/modelofalso. Node297son ejecuciones y276criteriosúnicos,21exportrepetidas.

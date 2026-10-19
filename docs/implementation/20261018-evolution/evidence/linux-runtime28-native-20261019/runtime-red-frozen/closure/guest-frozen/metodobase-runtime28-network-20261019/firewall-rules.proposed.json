@@ -1,0 +1,32 @@
+{
+  "state": "PROPOSED; not executed",
+  "notes": ["Use iptables/ip6tables --wait 5, preserving before/after iptables-save snapshots.", "Create every chain before inserting its jump. Reject collisions. Do not flush unrelated chains.", "Apply only inside the owned guest and after validating there is no other writer or external established connection."],
+  "ipv4_chain_rules": {
+    "MB28_IN": [
+      ["-s", "172.30.28.2/32", "-d", "172.30.28.1/32", "-p", "tcp", "-m", "multiport", "--dports", "15483,16379", "-j", "ACCEPT"],
+      ["-j", "REJECT", "--reject-with", "icmp-admin-prohibited"]
+    ],
+    "MB28_FWD": [["-j", "REJECT", "--reject-with", "icmp-admin-prohibited"]],
+    "MB28_OUT": [
+      ["-o", "lo", "-j", "ACCEPT"],
+      ["-m", "conntrack", "--ctstate", "ESTABLISHED,RELATED", "-j", "ACCEPT"],
+      ["-o", "mb28int", "-j", "ACCEPT"],
+      ["-j", "REJECT", "--reject-with", "icmp-admin-prohibited"]
+    ]
+  },
+  "ipv4_jumps_insert_first": [
+    ["INPUT", "-i", "mb28int", "-j", "MB28_IN"],
+    ["DOCKER-USER", "-i", "mb28int", "-j", "MB28_FWD"],
+    ["DOCKER-USER", "-o", "mb28int", "-j", "MB28_FWD"],
+    ["OUTPUT", "-j", "MB28_OUT"]
+  ],
+  "ipv6_chain_rules": {
+    "MB28_OUT6": [
+      ["-o", "lo", "-j", "ACCEPT"],
+      ["-m", "conntrack", "--ctstate", "ESTABLISHED,RELATED", "-j", "ACCEPT"],
+      ["-j", "REJECT", "--reject-with", "icmp6-adm-prohibited"]
+    ]
+  },
+  "ipv6_jumps_insert_first": [["OUTPUT", "-j", "MB28_OUT6"]],
+  "rollback": "Delete only exact recorded jump arrays in reverse order, then flush/delete only created MB28_* chains after ownership checks. Do not alter original INPUT/FORWARD/OUTPUT policies or any Docker chain."
+}

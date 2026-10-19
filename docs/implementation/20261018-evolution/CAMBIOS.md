@@ -110,3 +110,8 @@ Checkpoint107: selladas la revisión independiente desktop66 (93 controles verde
 ## Checkpoint 108
 
 Checkpoint108 sólo incorpora evidencia/documentación: aceptación independiente del índice30 aún aislado; revisión API29 y reparaciones de cabeceras/correlación en939 aún aisladas; inventario nativo y gate symlink de imagen99c. Nuevo SEC09 sobreOpenSSL vendorizado. No cambia producto enMAIN. Se registra el fallo real debootstrapCREATEROLE sin reinterpretar los ensayos anteriores con administrador.
+
+
+## Checkpoint 109
+
+Integrado5d0e668:c4 elimina únicamenteCREATEROLE/GRANTglobales para permitir dueño de esquemaNOCREATEROLE;políticas/función/revisiones/targets yACLprevios sin cambio. Repairhistórico justificado porque una revisión posterior no puede superar el fallo previo. FixUIec029 permanece separado deMAIN yse registraUX-18. No27/29/30retargeting para ocultar históricos.

@@ -1,0 +1,40 @@
+2026-10-19 06:32:02.330 CST [1216] LOG:  starting PostgreSQL 17.11 on x86_64-windows, compiled by msvc-19.44.35228, 64-bit
+2026-10-19 06:32:02.331 CST [1216] LOG:  listening on IPv4 address "127.0.0.1", port 55484
+2026-10-19 06:32:02.490 CST [25388] LOG:  database system was shut down at 2026-10-19 06:31:56 CST
+2026-10-19 06:32:02.542 CST [1216] LOG:  database system is ready to accept connections
+2026-10-19 06:34:08.189 CST [5852] FATAL:  password authentication failed for user "mb28_root_81f03803bc7748c683a4dac4f297b9c3"
+2026-10-19 06:34:08.189 CST [5852] DETAIL:  Connection matched file "C:/Users/Consu/AppData/Local/Temp/metodobase-runtime28-pg55484-ejeps7zn/data/pg_hba.conf" line 115: "host    all             all             127.0.0.1/32            scram-sha-256"
+2026-10-19 06:36:35.119 CST [12716] FATAL:  password authentication failed for user "mb28_root_81f03803bc7748c683a4dac4f297b9c3"
+2026-10-19 06:36:35.119 CST [12716] DETAIL:  Connection matched file "C:/Users/Consu/AppData/Local/Temp/metodobase-runtime28-pg55484-ejeps7zn/data/pg_hba.conf" line 115: "host    all             all             127.0.0.1/32            scram-sha-256"
+2026-10-19 06:36:35.554 CST [11080] ERROR:  permission denied to set role "mb28_m_a781deb39fd74441baa6a37c1a0cab40"
+2026-10-19 06:36:35.554 CST [11080] STATEMENT:  SET ROLE "mb28_m_a781deb39fd74441baa6a37c1a0cab40"
+2026-10-19 06:36:35.554 CST [11080] ERROR:  permission denied to create role
+2026-10-19 06:36:35.554 CST [11080] DETAIL:  Only roles with the CREATEROLE attribute may create roles.
+2026-10-19 06:36:35.554 CST [11080] STATEMENT:  CREATE ROLE "mb28_denied_a781deb39fd74441baa6a37c1a0cab40"
+2026-10-19 06:36:35.554 CST [11080] ERROR:  permission denied for schema public at character 14
+2026-10-19 06:36:35.554 CST [11080] STATEMENT:  CREATE TABLE public."mb28_denied_a781deb39fd74441baa6a37c1a0cab40"(id integer)
+2026-10-19 06:36:35.555 CST [11080] ERROR:  permission denied to create temporary tables in database "metodobase_test_runtime28_a781deb39fd74441baa6a37c1a0cab40" at character 19
+2026-10-19 06:36:35.555 CST [11080] STATEMENT:  CREATE TEMP TABLE "mb28_denied_a781deb39fd74441baa6a37c1a0cab40"(id integer)
+2026-10-19 06:36:35.581 CST [27564] FATAL:  permission denied for database "postgres"
+2026-10-19 06:36:35.581 CST [27564] DETAIL:  User does not have CONNECT privilege.
+2026-10-19 06:36:35.755 CST [12532] FATAL:  permission denied for database "template1"
+2026-10-19 06:36:35.755 CST [12532] DETAIL:  User does not have CONNECT privilege.
+2026-10-19 06:36:35.811 CST [24032] FATAL:  password authentication failed for user "mb28_a_a781deb39fd74441baa6a37c1a0cab40"
+2026-10-19 06:36:35.811 CST [24032] DETAIL:  Connection matched file "C:/Users/Consu/AppData/Local/Temp/metodobase-runtime28-pg55484-ejeps7zn/data/pg_hba.conf" line 115: "host    all             all             127.0.0.1/32            scram-sha-256"
+2026-10-19 06:37:02.387 CST [25200] LOG:  checkpoint starting: time
+2026-10-19 06:38:52.853 CST [25200] LOG:  checkpoint complete: wrote 1017 buffers (24.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=109.956 s, sync=0.495 s, total=110.467 s; sync files=317, longest=0.026 s, average=0.002 s; distance=4832 kB, estimate=4832 kB; lsn=0/1A22FF0, redo lsn=0/1A22F60
+2026-10-19 06:46:21.175 CST [26400] ERROR:  permission denied to create role
+2026-10-19 06:46:21.175 CST [26400] DETAIL:  Only roles with the CREATEROLE attribute may create roles.
+2026-10-19 06:46:21.175 CST [26400] CONTEXT:  SQL statement "CREATE ROLE metodobase_app"
+	PL/pgSQL function inline_code_block line 4 at SQL statement
+2026-10-19 06:46:21.175 CST [26400] STATEMENT:  
+	        DO $$
+	        BEGIN
+	            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'metodobase_app') THEN
+	                CREATE ROLE metodobase_app;
+	            END IF;
+	        END
+	        $$
+	    
+2026-10-19 06:47:02.883 CST [25200] LOG:  checkpoint starting: time
+2026-10-19 06:47:13.622 CST [25200] LOG:  checkpoint complete: wrote 98 buffers (2.4%); 0 WAL file(s) added, 0 removed, 0 recycled; write=10.561 s, sync=0.131 s, total=10.740 s; sync files=95, longest=0.003 s, average=0.002 s; distance=450 kB, estimate=4393 kB; lsn=0/1A95098, redo lsn=0/1A93950
