@@ -1,0 +1,15 @@
+{
+  "scope": "Real browser, own temporary SQLite/local storage, real auth/refresh/client/worker/PDF/logo/export APIs; invalid access simulates an expired access challenge but temporal expiry is not claimed. Held deliveries retain real HTTP responses; only the specifically named first PDF401 is fabricated.",
+  "checks": [
+    "A real invalid-access PUT401 triggers one real signed refresh rotation and a successful same-owner replay",
+    "Three simultaneous real HTTP401 reads share one real refresh and all finish under the original account",
+    "An actual old PUT401 delivered after another real login cannot start refresh, resend its DTO, or mutate the persisted previous-account client",
+    "A real successful old refresh response held across account replacement cannot overwrite the new token pair or retry the old read",
+    "A real rejected refresh401 delivered after account replacement preserves the new credentials and resolves the old operation",
+    "A real successful old-scope JSON response is discarded after account replacement",
+    "Logo GET and multipart POST both survive actual HTTP401 through the same real refresh coordinator and retain valid private-object behavior",
+    "A specifically fabricated first PDF401 triggers real refresh and an exact authorized PDF download from the real newly published plan",
+    "Personal-export helper remains authenticated and returns the current account after a real access401/refresh cycle"
+  ],
+  "pageErrors": []
+}

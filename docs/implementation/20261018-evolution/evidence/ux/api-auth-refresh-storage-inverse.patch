@@ -1,0 +1,131 @@
+--- api-final-347242a6.js
++++ api-auth-refresh-pre-storage-275506e8.js
+@@ -9,7 +9,6 @@
+ const Api = (() => {
+ 
+   let _refreshJob = null;
+-  const _storageErrors = new WeakSet();
+ 
+   function getToken() {
+     return localStorage.getItem('mb_token') || '';
+@@ -20,40 +19,20 @@
+   }
+ 
+   function _readPair() {
+-    try { return { token: getToken(), refresh: getRefreshToken() }; }
+-    catch (error) { throw _failStorage(error); }
++    return { token: getToken(), refresh: getRefreshToken() };
+   }
+   function _samePair(left, right) {
+     return left.token === right.token && left.refresh === right.refresh;
+   }
+-  let _credentials = { pair: { token: '', refresh: '' }, revision: 0, trusted: false };
+-  try { _credentials.pair = _readPair(); _credentials.trusted = true; }
+-  catch { /* The API remains available for explicit recovery; authenticated I/O stays blocked. */ }
+-  function _storageError(cause) {
+-    const error = new Error('No se pudo verificar el almacenamiento de la sesión. Vuelve a iniciar sesión.', cause ? { cause } : undefined);
+-    error.code = 'session_storage_error';
+-    // Preserve standard Storage error names for callers; never expose its message or values.
+-    if (cause && ['QuotaExceededError', 'SecurityError', 'InvalidStateError'].includes(cause.name)) error.name = cause.name;
+-    _storageErrors.add(error);
+-    return error;
+-  }
+-  function _failStorage(cause) {
+-    _credentials = { ..._credentials, revision: _credentials.revision + 1, trusted: false };
+-    if (_storageErrors.has(cause)) return cause;
+-    return _storageError(cause);
+-  }
+-  function _requireTrusted() {
+-    if (!_credentials.trusted) throw _storageError();
+-  }
++  let _credentials = { pair: _readPair(), revision: 0 };
+   function _currentCredentials() {
+     const pair = _readPair();
+     if (!_samePair(pair, _credentials.pair)) {
+-      _credentials = { pair, revision: _credentials.revision + 1, trusted: _credentials.trusted };
++      _credentials = { pair, revision: _credentials.revision + 1 };
+     }
+     return _credentials;
+   }
+   function _snapshot() {
+-    _requireTrusted();
+     return { revision: _currentCredentials().revision };
+   }
+   function _sessionChanged() {
+@@ -62,7 +41,6 @@
+     return error;
+   }
+   function _assertSnapshot(snapshot) {
+-    _requireTrusted();
+     const current = _currentCredentials();
+     if (current.revision !== snapshot.revision) throw _sessionChanged();
+     return current.pair;
+@@ -78,40 +56,21 @@
+   }
+   function saveTokens(data) {
+     const pair = _tokenPair(data);
+-    _persistPair(pair, _currentCredentials());
++    const revision = _currentCredentials().revision + 1;
++    localStorage.setItem('mb_token', pair.token);
++    localStorage.setItem('mb_refresh_token', pair.refresh);
++    _credentials = { pair, revision };
+   }
+   function clearTokens() {
+-    _persistPair({ token: '', refresh: '' }, _currentCredentials(), true);
+-  }
+-  function _persistPair(next, source, remove = false, rotation = false) {
+-    const observed = _readPair();
+-    if (_credentials !== source || !_samePair(observed, source.pair)) {
+-      _currentCredentials(); throw _sessionChanged();
+-    }
+-    const attempt = { pair: source.pair, revision: source.revision + (rotation ? 0 : 1), trusted: false };
+-    _credentials = attempt;
+-    try {
+-      if (remove) localStorage.removeItem('mb_token');
+-      else localStorage.setItem('mb_token', next.token);
+-      if (_credentials !== attempt || !_samePair(_readPair(), { token: next.token, refresh: source.pair.refresh })) {
+-        throw _sessionChanged();
+-      }
+-      if (remove) localStorage.removeItem('mb_refresh_token');
+-      else localStorage.setItem('mb_refresh_token', next.refresh);
+-      if (_credentials !== attempt || !_samePair(_readPair(), next)) throw _sessionChanged();
+-      _credentials = { pair: next, revision: attempt.revision, trusted: true };
+-    } catch (error) {
+-      // A newer explicit complete recovery wins; no rollback or compensating writes.
+-      if (_credentials !== attempt && _credentials.trusted) throw _sessionChanged();
+-      throw _failStorage(error);
+-    }
++    const revision = _currentCredentials().revision + 1;
++    localStorage.removeItem('mb_token');
++    localStorage.removeItem('mb_refresh_token');
++    _credentials = { pair: _readPair(), revision };
+   }
+   if (typeof window.addEventListener === 'function') {
+     window.addEventListener('storage', event => {
+       if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) {
+-        try {
+-          _credentials = { pair: _readPair(), revision: _credentials.revision + 1, trusted: _credentials.trusted };
+-        } catch { /* Read failure already made the credential state untrusted. */ }
++        _credentials = { pair: _readPair(), revision: _credentials.revision + 1 };
+       }
+     });
+   }
+@@ -137,10 +96,16 @@
+       _assertPair(snapshot, source);
+       const next = _tokenPair(data);
+       // Only this confirmed rotation may preserve the logical session revision.
+-      _persistPair(next, _credentials, false, true);
++      localStorage.setItem('mb_token', next.token);
++      if (!_samePair(_readPair(), { token: next.token, refresh: source.refresh })) {
++        _currentCredentials(); throw _sessionChanged();
++      }
++      localStorage.setItem('mb_refresh_token', next.refresh);
++      if (!_samePair(_readPair(), next)) { _currentCredentials(); throw _sessionChanged(); }
++      _credentials = { pair: next, revision: snapshot.revision };
+       return true;
+     } catch (error) {
+-      if (error.code === 'session_changed' || error.code === 'session_storage_error') throw error;
++      if (error.code === 'session_changed') throw error;
+       _assertPair(snapshot, source);
+       return false;
+     }

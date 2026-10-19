@@ -8,8 +8,8 @@ const API_BASE = '';  // mismo origen
 
 const Api = (() => {
 
-  let _isRefreshing = false;
-  let _refreshQueue = [];
+  let _refreshJob = null;
+  const _storageErrors = new WeakSet();
 
   function getToken() {
     return localStorage.getItem('mb_token') || '';
@@ -19,14 +19,101 @@ const Api = (() => {
     return localStorage.getItem('mb_refresh_token') || '';
   }
 
-  function saveTokens(data) {
-    if (data.token) localStorage.setItem('mb_token', data.token);
-    if (data.refresh_token) localStorage.setItem('mb_refresh_token', data.refresh_token);
+  function _readPair() {
+    try { return { token: getToken(), refresh: getRefreshToken() }; }
+    catch (error) { throw _failStorage(error); }
   }
-
+  function _samePair(left, right) {
+    return left.token === right.token && left.refresh === right.refresh;
+  }
+  let _credentials = { pair: { token: '', refresh: '' }, revision: 0, trusted: false };
+  try { _credentials.pair = _readPair(); _credentials.trusted = true; }
+  catch { /* The API remains available for explicit recovery; authenticated I/O stays blocked. */ }
+  function _storageError(cause) {
+    const error = new Error('No se pudo verificar el almacenamiento de la sesión. Vuelve a iniciar sesión.', cause ? { cause } : undefined);
+    error.code = 'session_storage_error';
+    // Preserve standard Storage error names for callers; never expose its message or values.
+    if (cause && ['QuotaExceededError', 'SecurityError', 'InvalidStateError'].includes(cause.name)) error.name = cause.name;
+    _storageErrors.add(error);
+    return error;
+  }
+  function _failStorage(cause) {
+    _credentials = { ..._credentials, revision: _credentials.revision + 1, trusted: false };
+    if (_storageErrors.has(cause)) return cause;
+    return _storageError(cause);
+  }
+  function _requireTrusted() {
+    if (!_credentials.trusted) throw _storageError();
+  }
+  function _currentCredentials() {
+    const pair = _readPair();
+    if (!_samePair(pair, _credentials.pair)) {
+      _credentials = { pair, revision: _credentials.revision + 1, trusted: _credentials.trusted };
+    }
+    return _credentials;
+  }
+  function _snapshot() {
+    _requireTrusted();
+    return { revision: _currentCredentials().revision };
+  }
+  function _sessionChanged() {
+    const error = new Error('La sesión cambió. Vuelve a abrir esta página desde tu cuenta.');
+    error.code = 'session_changed';
+    return error;
+  }
+  function _assertSnapshot(snapshot) {
+    _requireTrusted();
+    const current = _currentCredentials();
+    if (current.revision !== snapshot.revision) throw _sessionChanged();
+    return current.pair;
+  }
+  function _assertPair(snapshot, pair) {
+    if (!_samePair(_assertSnapshot(snapshot), pair)) throw _sessionChanged();
+  }
+  function _tokenPair(data) {
+    if (!data || typeof data.token !== 'string' || !data.token || typeof data.refresh_token !== 'string' || !data.refresh_token) {
+      throw new Error('El servidor no confirmó las credenciales de la sesión.');
+    }
+    return { token: data.token, refresh: data.refresh_token };
+  }
+  function saveTokens(data) {
+    const pair = _tokenPair(data);
+    _persistPair(pair, _currentCredentials());
+  }
   function clearTokens() {
-    localStorage.removeItem('mb_token');
-    localStorage.removeItem('mb_refresh_token');
+    _persistPair({ token: '', refresh: '' }, _currentCredentials(), true);
+  }
+  function _persistPair(next, source, remove = false, rotation = false) {
+    const observed = _readPair();
+    if (_credentials !== source || !_samePair(observed, source.pair)) {
+      _currentCredentials(); throw _sessionChanged();
+    }
+    const attempt = { pair: source.pair, revision: source.revision + (rotation ? 0 : 1), trusted: false };
+    _credentials = attempt;
+    try {
+      if (remove) localStorage.removeItem('mb_token');
+      else localStorage.setItem('mb_token', next.token);
+      if (_credentials !== attempt || !_samePair(_readPair(), { token: next.token, refresh: source.pair.refresh })) {
+        throw _sessionChanged();
+      }
+      if (remove) localStorage.removeItem('mb_refresh_token');
+      else localStorage.setItem('mb_refresh_token', next.refresh);
+      if (_credentials !== attempt || !_samePair(_readPair(), next)) throw _sessionChanged();
+      _credentials = { pair: next, revision: attempt.revision, trusted: true };
+    } catch (error) {
+      // A newer explicit complete recovery wins; no rollback or compensating writes.
+      if (_credentials !== attempt && _credentials.trusted) throw _sessionChanged();
+      throw _failStorage(error);
+    }
+  }
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('storage', event => {
+      if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) {
+        try {
+          _credentials = { pair: _readPair(), revision: _credentials.revision + 1, trusted: _credentials.trusted };
+        } catch { /* Read failure already made the credential state untrusted. */ }
+      }
+    });
   }
 
   function getLoginUrl() {
@@ -34,95 +121,113 @@ const Api = (() => {
     return tipo === 'usuario' ? '/login-usuario' : '/login-gym';
   }
 
-  async function _doRefresh() {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) return false;
-
+  async function _doRefresh(snapshot, source) {
+    _assertPair(snapshot, source);
+    if (!source.refresh) return false;
     try {
       const res = await fetch(API_BASE + '/api/auth/refresh', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refreshToken }),
+        body: JSON.stringify({ refresh_token: source.refresh }),
+        cache: 'no-store',
       });
-
+      _assertPair(snapshot, source);
       if (!res.ok) return false;
-
       const data = await res.json();
-      saveTokens(data);
+      _assertPair(snapshot, source);
+      const next = _tokenPair(data);
+      // Only this confirmed rotation may preserve the logical session revision.
+      _persistPair(next, _credentials, false, true);
       return true;
-    } catch {
+    } catch (error) {
+      if (error.code === 'session_changed' || error.code === 'session_storage_error') throw error;
+      _assertPair(snapshot, source);
       return false;
     }
   }
 
-  async function _handleRefresh() {
-    if (_isRefreshing) {
-      // Esperar a que termine el refresh en curso
-      return new Promise((resolve) => {
-        _refreshQueue.push(resolve);
+  function _expire(snapshot, pair) {
+    _assertPair(snapshot, pair);
+    clearTokens();
+    window.location.href = getLoginUrl();
+    const error = new Error('Sesión expirada.');
+    error.code = 'session_expired';
+    throw error;
+  }
+
+  async function _handleRefresh(snapshot, sentPair) {
+    const current = _assertSnapshot(snapshot);
+    // A concurrent request may already have rotated this same session.
+    if (!_samePair(current, sentPair)) return current;
+    let job = _refreshJob;
+    if (!job || job.revision !== snapshot.revision || !_samePair(job.source, current)) {
+      job = { revision: snapshot.revision, source: current };
+      _refreshJob = job;
+      job.promise = _doRefresh(snapshot, current).finally(() => {
+        if (_refreshJob === job) _refreshJob = null;
       });
     }
+    const success = await job.promise;
+    _assertSnapshot(snapshot);
+    if (!success) _expire(snapshot, job.source);
+    return _assertSnapshot(snapshot);
+  }
 
-    _isRefreshing = true;
-    const success = await _doRefresh();
-    _isRefreshing = false;
-
-    // Resolver todas las peticiones que estaban esperando
-    _refreshQueue.forEach(resolve => resolve(success));
-    _refreshQueue = [];
-
-    return success;
+  async function _authenticatedFetch(path, options, snapshot) {
+    async function send(pair) {
+      _assertPair(snapshot, pair);
+      const headers = { ...options.headers };
+      if (pair.token) headers.Authorization = `Bearer ${pair.token}`;
+      else delete headers.Authorization;
+      let response;
+      try { response = await fetch(API_BASE + path, { ...options, headers }); }
+      catch {
+        _assertSnapshot(snapshot);
+        throw new Error('Error de red: no se pudo conectar al servidor.');
+      }
+      _assertSnapshot(snapshot);
+      return response;
+    }
+    let sentPair = _assertSnapshot(snapshot);
+    let response = await send(sentPair);
+    if (response.status === 401) {
+      await _handleRefresh(snapshot, sentPair);
+      sentPair = _assertSnapshot(snapshot);
+      response = await send(sentPair);
+      if (response.status === 401) _expire(snapshot, sentPair);
+    }
+    return response;
   }
 
   async function request(method, path, body = null, extraHeaders = {}, authenticated = true) {
-    const token = authenticated ? getToken() : '';
+    const snapshot = authenticated ? _snapshot() : null;
     const opts = {
       method,
       headers: {
         'Content-Type': 'application/json',
         ...extraHeaders,
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       },
     };
     if (body !== null) opts.body = JSON.stringify(body);
 
     let res;
     try {
-      res = await fetch(API_BASE + path, opts);
+      res = authenticated ? await _authenticatedFetch(path, opts, snapshot) : await fetch(API_BASE + path, opts);
     } catch (networkErr) {
+      if (networkErr.code === 'session_expired') throw networkErr;
+      if (authenticated) _assertSnapshot(snapshot);
+      if (networkErr.code === 'session_changed') throw networkErr;
       throw new Error('Error de red: no se pudo conectar al servidor.');
-    }
-
-    // 401 → intentar refresh antes de redirigir
-    if (res.status === 401 && authenticated) {
-      const refreshed = await _handleRefresh();
-      if (refreshed) {
-        // Reintentar la petición original con el nuevo token
-        const newToken = getToken();
-        opts.headers['Authorization'] = `Bearer ${newToken}`;
-        try {
-          res = await fetch(API_BASE + path, opts);
-        } catch (networkErr) {
-          throw new Error('Error de red: no se pudo conectar al servidor.');
-        }
-        if (res.status === 401) {
-          clearTokens();
-          window.location.href = getLoginUrl();
-          throw new Error('Sesión expirada.');
-        }
-      } else {
-        clearTokens();
-        window.location.href = getLoginUrl();
-        throw new Error('Sesión expirada.');
-      }
     }
 
     let data;
     try { data = await res.json(); }
     catch {
+      if (authenticated) _assertSnapshot(snapshot);
       if (res.ok && res.status !== 204) throw new Error('El servidor devolvió una respuesta no válida. Intenta consultar de nuevo.');
       data = {};
     }
+    if (authenticated) _assertSnapshot(snapshot);
 
     if (!res.ok) {
       let msg;
@@ -205,7 +310,9 @@ const Api = (() => {
       `/api/descargar-pdf/${encodeURIComponent(id_cliente)}`, 'ultimo_plan.pdf'),
 
     _descargar: async (path, filename) => {
+      const snapshot = _snapshot();
       const context = await planes.contexto();
+      _assertSnapshot(snapshot);
       let invalidated = false;
       const invalidate = (event) => {
         if (event.type === 'pagehide' || event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) invalidated = true;
@@ -213,40 +320,25 @@ const Api = (() => {
       window.addEventListener('storage', invalidate);
       window.addEventListener('pagehide', invalidate);
       try {
-      async function _fetchPdf(tkn) {
-        return fetch(path, {
-          headers: tkn ? { 'Authorization': `Bearer ${tkn}` } : {},
-          cache: 'no-store',
-        });
-      }
-
-      let res = await _fetchPdf(getToken());
-
-      // 401 → intentar refresh y reintentar
-      if (res.status === 401) {
-        const refreshed = await _handleRefresh();
-        if (refreshed) {
-          res = await _fetchPdf(getToken());
-        }
-        if (!refreshed || res.status === 401) {
-          clearTokens();
-          window.location.href = getLoginUrl();
-          throw new Error('Sesión expirada.');
-        }
-      }
+      const res = await _authenticatedFetch(path, { cache: 'no-store' }, snapshot);
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
+        _assertSnapshot(snapshot);
         throw new Error(typeof err.detail === 'string' ? err.detail : 'No se pudo descargar este plan.');
       }
       const blob = await res.blob();
+      _assertSnapshot(snapshot);
+      const signature = await blob.slice(0, 5).text();
+      _assertSnapshot(snapshot);
       if (!res.headers.get('Content-Type')?.toLowerCase().startsWith('application/pdf') ||
-          blob.size === 0 || await blob.slice(0, 5).text() !== '%PDF-') {
+          blob.size === 0 || signature !== '%PDF-') {
         throw new Error('El servidor no devolvió un PDF válido.');
       }
       if (invalidated || await planes.contexto() !== context || invalidated) {
         throw new Error('La sesión cambió. Vuelve a abrir el plan desde tu cuenta.');
       }
+      _assertSnapshot(snapshot);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -280,26 +372,33 @@ const Api = (() => {
 
   const auth = {
     loginGym: async (email, password) => {
-      const data = await request('POST', '/api/auth/login', { email, password });
+      const snapshot = _snapshot();
+      const data = await request('POST', '/api/auth/login', { email, password }, {}, false);
+      _assertSnapshot(snapshot);
       saveTokens(data);
       return data;
     },
     loginUsuario: async (email, password) => {
-      const data = await request('POST', '/api/auth/login', { email, password });
+      const snapshot = _snapshot();
+      const data = await request('POST', '/api/auth/login', { email, password }, {}, false);
+      _assertSnapshot(snapshot);
       saveTokens(data);
       return data;
     },
     registro: async (payload) => {
-      const data = await request('POST', '/api/auth/registro', payload);
+      const snapshot = _snapshot();
+      const data = await request('POST', '/api/auth/registro', payload, {}, false);
+      _assertSnapshot(snapshot);
       saveTokens(data);
       return data;
     },
     me:     () => request('GET',  '/api/auth/me'),
     logout: async () => {
+      const snapshot = _snapshot();
       try {
         await request('POST', '/api/auth/logout');
-      } catch { /* ignore — clear tokens anyway */ }
-      clearTokens();
+      } catch { /* Local logout never clears credentials of a newer session. */ }
+      if (_currentCredentials().revision === snapshot.revision) clearTokens();
     },
   };
 
@@ -348,39 +447,28 @@ const Api = (() => {
     uploadLogo: (file) => gym._logoRequest('POST', file),
 
     _logoRequest: async (method, file = null) => {
-      const token = getToken();
+      const snapshot = _snapshot();
       const formData = file ? new FormData() : null;
       if (file) formData.append('file', file);
       const opts = {
         method,
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         ...(formData ? { body: formData } : {}),
         cache: 'no-store',
         referrerPolicy: 'no-referrer',
       };
-      let res = await fetch(API_BASE + '/api/gym/logo', opts);
-      if (res.status === 401) {
-        const refreshed = await _handleRefresh();
-        if (refreshed) {
-          opts.headers['Authorization'] = `Bearer ${getToken()}`;
-          res = await fetch(API_BASE + '/api/gym/logo', opts);
-        }
-        if (!refreshed || res.status === 401) {
-          clearTokens();
-          window.location.href = getLoginUrl();
-          throw new Error('Sesión expirada.');
-        }
-      }
+      const res = await _authenticatedFetch('/api/gym/logo', opts, snapshot);
       if (res.ok && method === 'GET') {
         const mime = (res.headers.get('Content-Type') || '').split(';')[0].trim().toLowerCase();
         if (!['image/png', 'image/jpeg', 'image/webp'].includes(mime)) throw new Error('El servidor no devolvió una imagen válida.');
         const blob = await res.blob();
+        _assertSnapshot(snapshot);
         if (!blob.size || blob.size > 2 * 1024 * 1024) throw new Error('El logo guardado no tiene un tamaño válido.');
         return blob;
       }
       let data;
       try { data = await res.json(); }
-      catch { throw new Error('El servidor no confirmó la carga del logo.'); }
+      catch { _assertSnapshot(snapshot); throw new Error('El servidor no confirmó la carga del logo.'); }
+      _assertSnapshot(snapshot);
       if (!res.ok) {
         const detail = data && data.detail;
         const error = new Error(typeof detail === 'string' ? detail : detail && typeof detail.message === 'string' ? detail.message : 'No se pudo acceder al logo.');

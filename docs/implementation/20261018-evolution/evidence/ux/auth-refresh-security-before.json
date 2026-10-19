@@ -1,0 +1,61 @@
+{
+  "scope": "Independent in-memory SEC02 probes; no browser, backend, signature, provider or cross-tab atomicity claim",
+  "source_sha256": "275506e8e8e769b37ddd1b679cd56b8d045dfb5e27bf555156587f23779a91df",
+  "passed": 12,
+  "total": 13,
+  "results": [
+    {
+      "case": "Only token changes: a delayed mutation cannot refresh or replay",
+      "passed": true
+    },
+    {
+      "case": "Only refresh changes: a delayed mutation cannot refresh or replay",
+      "passed": true
+    },
+    {
+      "case": "Helper ABA clear/save of the identical pair invalidates its older request",
+      "passed": true
+    },
+    {
+      "case": "A mixed JSON/upload/export queue cannot retry any A payload under B credentials",
+      "passed": true
+    },
+    {
+      "case": "A very late A401 after two valid rotations retries once with A2 and the original operation",
+      "passed": true
+    },
+    {
+      "case": "A retry401 arriving after a second valid rotation cannot expire A2",
+      "passed": true
+    },
+    {
+      "case": "Public invitation info never sends Bearer or refreshes an unauthorized response",
+      "passed": true
+    },
+    {
+      "case": "Public invitation accept never sends Bearer or refreshes an unauthorized response",
+      "passed": true
+    },
+    {
+      "case": "Multipart retry reuses the original bytes without adding JSON Content-Type",
+      "passed": true
+    },
+    {
+      "case": "Late network failure of A is classified as session_changed and preserves B",
+      "passed": true
+    },
+    {
+      "case": "Logout waiting on A refresh cannot clear B or send its logout with B credentials",
+      "passed": true
+    },
+    {
+      "case": "Invalid refresh credentials settle a mixed queue and a fresh explicit B login restores transport",
+      "passed": true
+    },
+    {
+      "case": "A partial explicit token save must not later replay a B mutation using the old A refresh authority",
+      "passed": false,
+      "reason": "A failed two-key save cannot be accepted as a new rotation source and replay B data under A\n\n1 !== 0\n"
+    }
+  ]
+}

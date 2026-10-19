@@ -1,0 +1,17 @@
+# Transporte autenticado y cambio de sesión
+
+Contención local SEC02, sin despliegue. `web/static/js/api.js` liga una petición a una revisión lógica y al par access/refresh observados al empezar. Cada envío, renovación, reintento y lectura JSON/Blob vuelve a comprobar esa revisión antes de exponer datos o descargar un PDF. Un cambio de cuenta aborta la operación anterior con `session_changed`, sin reenviar su DTO ni borrar/reemplazar las credenciales nuevas. Los datos permanecen en memoria; la revisión no confiere autoridad a claims leídos en cliente.
+
+Un refresh compartido está ligado a revisión y par fuente. Sus consumidores esperan una misma promesa y todos se resuelven o rechazan; el finalizador sólo libera su propio trabajo. Una rotación propia confirmada conserva la revisión lógica, por lo que un401 tardío de esa misma sesión puede usar el par ya rotado sin otro refresh. Login/registro son públicos sin Bearer ni auto-refresh; logout no limpia una sesión que apareció después de iniciarse. Request, PDF y logos comparten el transporte.
+
+La primera revisión corrigió dos rojos independientes: reenvío de DTO previo con autoridad nueva y sobrescritura del par nuevo por refresh tardío. Seguridad encontró después un tercer caso: al fallar la escritura de refreshB, accessB podía quedar unido a refreshA; otro401 refrescabaA y reenviaba DTO deB con autoridadA. Ese candidato275 no se aceptó.
+
+Antes de modificar credenciales, el API final347 marca su par como no confiable. Un fallo de lectura, escritura, borrado o comprobación posterior mantiene ese bloqueo y rechaza I/O autenticado antes de fetch/refresh. No intenta restaurar el par anterior ni repara escribiendo sobre otra sesión. Releer valores o recibir storage events no restaura confianza. Sólo save explícito completo verificado, o clear explícito con ambas claves ausentes verificadas, puede recuperarla. Tras clear completo, un login público real puede establecer la sesión de nuevo. El error público tiene código `session_storage_error` y mensaje acotado; el diagnóstico original queda sólo como cause.
+
+## Evidencia y límites
+
+Seguridad independiente:74 casos VM verdes (13 propios,33 regresiones autor,26 fallos Storage autor y2 reproducciones root), cinco fuentes estables. Conserva los negativos intactos. [Fuentes finales](evidence/ux/auth-refresh-storage-independent-source.json), [rojo Storage](evidence/ux/auth-refresh-security-before-source.json), [rojos iniciales](evidence/ux/auth-refresh-race-before-source.json).
+
+El cuerpo275 usado por el rojo Storage nunca estuvo en un commit. Se recuperó invirtiendo tres parches propios en una copia, con SHA exacto275506e8…, sin tocar el final347 ni inventar historia Git. Contra esa copia, la prueba congelada vuelve a12/13; contra el final,13/13. [Método y huellas](evidence/ux/api-auth-refresh-pre-storage-reconstruction.json). La copia JS bajo evidence es fuente histórica para reproducción; ninguna ruta del producto la carga.
+
+La contención de confianza es por instancia API. Dos claves legacy de localStorage siguen existiendo y otros templates/buttons escriben directamente. No prueba atomicidad entre pestañas, persistencia del bloqueo tras recarga, eliminación de tokens persistentes ni cierre integral R10/R31. El navegador actual y un fallo Storage nombrado en navegador están en revisión; el gate VM no se presenta como cuota nativa agotada ni como prueba de servidor. La UI individual todavía tiene transportes directos que se integrarán en su propio lote.

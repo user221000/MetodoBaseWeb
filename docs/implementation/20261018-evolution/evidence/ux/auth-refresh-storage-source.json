@@ -1,0 +1,55 @@
+{
+  "created_at": "2026-10-19T05:13:33.953853+00:00",
+  "git_head": "0e8cd42b44bab0e843dbdd72f1a482bb3fb8f868",
+  "scope": "Two-source follow-up freeze; no global/backend freeze. Pure in-memory tests only.",
+  "sources": {
+    "web/static/js/api.js": "347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",
+    "tests/e2e/auth_refresh_storage.cjs": "c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625"
+  },
+  "read_only_test_dependencies": {
+    "tests/e2e/auth_refresh.cjs": "91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",
+    "tests/e2e/auth_refresh_security_review.cjs": "29088ad7e9d6112e5f1e69cfe0fc4352bb782d44aab3c55bafd021753c006eb9",
+    "tests/e2e/auth_refresh_race_review.cjs": "a1ffc4ce32e8e31bddd3e782a558736dbe6f829ffedcb65672da8762e5dc7f42",
+    "tests/e2e/auth_refresh_browser.cjs": "a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",
+    "tests/e2e/auth_refresh_server.py": "b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c"
+  },
+  "contract": {
+    "path": "docs/implementation/20261018-evolution/evidence/ux/auth-refresh-storage-contract.json",
+    "sha256": "409d6abc363d3001da316072e4c43bac8dc66c53c36d7ed178402a68ffd8b616"
+  },
+  "validation": [
+    {
+      "label": "author-storage",
+      "report": "docs/implementation/20261018-evolution/evidence/ux/auth-refresh-storage-author-final.log",
+      "sha256": "4269aba7b8a03d658afee95157d2ac2e9bfa0631f8ef8517e77e80785803f0f3",
+      "passed": 26,
+      "total": 26
+    },
+    {
+      "label": "author-regression",
+      "report": "docs/implementation/20261018-evolution/evidence/ux/auth-refresh-storage-regression-final.log",
+      "sha256": "6a6dda3d624b8827ce836c6dbbc8017dafb236a9d62dc99bdb6fdfcc7a59fff1",
+      "passed": 33,
+      "total": 33
+    },
+    {
+      "label": "independent-security-rerun-by-author",
+      "report": "docs/implementation/20261018-evolution/evidence/ux/auth-refresh-storage-security-final.log",
+      "sha256": "abc7da440b02e86f2749b3f47d380f82e1be1a231b78c6ea60619adc59bf708e",
+      "passed": 13,
+      "total": 13
+    },
+    {
+      "label": "root-reproduction-rerun-by-author",
+      "report": "docs/implementation/20261018-evolution/evidence/ux/auth-refresh-storage-root-final.log",
+      "sha256": "9734e7caeb7e79c77da63a18c58de912744a01f4e8a11ea8a5242dcaf83d896b",
+      "passed": 2,
+      "total": 2
+    }
+  ],
+  "supersedes_for_product_source": "auth-refresh-source.json",
+  "unchanged_security_review_sha256_asserted": true,
+  "unchanged_root_reproduction_sha256_asserted": true,
+  "runtime_snapshot": null,
+  "browser_validation": "Not run; intentionally awaiting backend26 freeze and independent acceptance."
+}

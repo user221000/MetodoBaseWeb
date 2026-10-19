@@ -1,0 +1,25 @@
+{
+  "created_at": "2026-10-19T05:13:33.953853+00:00",
+  "scope": "Storage failure containment in one loaded API instance. Pure VM and synthetic Storage/transport only.",
+  "behavior": [
+    "Mark the credential pair untrusted before any save, rotation or clear mutation; any getItem/setItem/removeItem failure or mismatched readback leaves it blocked.",
+    "Authenticated JSON, PDF, logo, export, logout and refresh reject with stable code session_storage_error while untrusted. Mixed refresh queues settle and cannot install an old pair after a partial explicit save.",
+    "A complete explicit saveTokens or clearTokens with verified readback recovers trust. Re-reading a pair, a storage event, or an old refresh cannot recover trust.",
+    "No rollback or compensating credential writes. A newer complete explicit recovery wins over an older synchronous attempt.",
+    "Messages are localized and do not include stored values or the original Storage diagnostic. The exception may remain as cause; standard Storage exception names are preserved."
+  ],
+  "limits": [
+    "The pair remains in two legacy localStorage keys, including direct writers outside Api. No total atomicity, durable trust after reload, or interleaved cross-tab writer guarantee is claimed.",
+    "No real browser quota exhaustion, JWT/backend/RBAC acceptance, runtime26 or HTTP/browser validation is represented by this lot. R10 remains open.",
+    "No app/server restart, browser run, backend/model/CI modification, external provider, email or network was performed for this follow-up."
+  ],
+  "pending": "Independent security review, then restart the dedicated fixture only after backend runtime26 is frozen; browser and affected B2B/branding/export regression follow separately.",
+  "commands": [
+    "node --check web/static/js/api.js",
+    "node --check tests/e2e/auth_refresh_storage.cjs",
+    "node tests/e2e/auth_refresh_storage.cjs",
+    "node tests/e2e/auth_refresh.cjs",
+    "node tests/e2e/auth_refresh_security_review.cjs",
+    "node tests/e2e/auth_refresh_race_review.cjs"
+  ]
+}

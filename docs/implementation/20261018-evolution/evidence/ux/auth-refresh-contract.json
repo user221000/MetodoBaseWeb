@@ -1,0 +1,24 @@
+{
+  "snapshot": "Capture the logical credential revision and sent access/refresh pair. Re-reading unexpected external credentials or a token storage event changes the revision. Own confirmed refresh rotation alone preserves it. No JWT claim grants client authority.",
+  "refresh": "One promise bound to source revision+pair; all consumers await the same success/rejection; finally clears only its own job. Old-job finalization cannot release a newer account job.",
+  "boundaries": [
+    "Before fetch/refresh/retry/token save/credential clear",
+    "After fetch and refresh JSON",
+    "After JSON/Blob body and PDF signature reads",
+    "Before exposing a response or creating a PDF download"
+  ],
+  "late_old_401": "Abort with session_changed before starting any refresh or resend under a new account.",
+  "late_old_refresh": "Preserve newer credentials and reject all old waiters before saving its response.",
+  "known_same_session_rotation": "A late401 from an older request retries the currently known own-rotated pair without a second refresh. Its original payload and idempotency key remain unchanged.",
+  "definitive_failure": "The existing expired-session flow may clear and redirect only while the exact failed pair/revision remains current; changed credentials are preserved.",
+  "public_auth": "loginGym/loginUsuario/registro send neither Bearer nor automatic refresh on401; a successful delayed login cannot replace a changed logical session. Explicit saveTokens marks a new revision. Logout never clears a newer revision.",
+  "blob_transports": "PDF and private logo use the same authenticated fetch path as JSON. Their existing validation and URL cleanup remain in effect.",
+  "storage_limit": "Two legacy keys and direct writers mean snapshot checks are not a full cross-tab atomic transaction. This follow-up does not close R10 or all session races.",
+  "validation": {
+    "pure": 33,
+    "root_reproductions": 2,
+    "real_browser_groups": 9,
+    "runtime_tables": 25,
+    "browser_report": "auth-refresh-browser-20261019045741102/report.json"
+  }
+}

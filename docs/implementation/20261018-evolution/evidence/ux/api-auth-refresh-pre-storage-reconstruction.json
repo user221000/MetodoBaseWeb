@@ -1,0 +1,63 @@
+{
+  "created_at": "2026-10-19T05:17:09.042617+00:00",
+  "method": "Reconstruction in a separate copy by reversing the three recorded Storage-only api.js patches, newest first. Final product source and frozen tests were never written. This is not a historical Git commit or a recovered Temp backup.",
+  "input": {
+    "path": "web/static/js/api.js",
+    "sha256": "347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3"
+  },
+  "recorded_own_tool_patches": [
+    {
+      "timestamp": "2026-10-19T05:07:28.571Z",
+      "session_record_line": 3444
+    },
+    {
+      "timestamp": "2026-10-19T05:09:36.967Z",
+      "session_record_line": 3466
+    },
+    {
+      "timestamp": "2026-10-19T05:10:36.564Z",
+      "session_record_line": 3489
+    }
+  ],
+  "transformation": "Decode UTF-8, normalize CRLF to LF for exact hunk matching, reverse each api.js hunk with exactly one match, then serialize UTF-8 without BOM using CRLF. No header/comment is added to the historical JS body.",
+  "historical_body": {
+    "path": "docs/implementation/20261018-evolution/evidence/ux/api-auth-refresh-pre-storage-275506e8.js",
+    "sha256": "275506e8e8e769b37ddd1b679cd56b8d045dfb5e27bf555156587f23779a91df",
+    "bytes": 21559,
+    "encoding": "UTF-8 without BOM",
+    "line_endings": "CRLF"
+  },
+  "inverse_diff": {
+    "path": "docs/implementation/20261018-evolution/evidence/ux/api-auth-refresh-storage-inverse.patch",
+    "sha256": "6afaad29ee32264b6ab7818560018d65b37dec604a9cd55e77e1ebdfaa74542f",
+    "line_endings": "LF",
+    "application": "Apply to the LF-normalized input, then serialize the result with CRLF to reproduce the historical-body SHA."
+  },
+  "prior_independent_reference": "auth-refresh-security-before-source.json and auth-refresh-security-before.json already recorded this historical body SHA before reconstruction.",
+  "limitations": "Source-code evidence only; no invented Git ancestry, browser/backend execution, production credentials, or new claim of runtime25/current26 acceptance.",
+  "reproduction": {
+    "frozen_test": {
+      "path": "tests/e2e/auth_refresh_security_review.cjs",
+      "sha256": "29088ad7e9d6112e5f1e69cfe0fc4352bb782d44aab3c55bafd021753c006eb9"
+    },
+    "commands": [
+      "node tests/e2e/auth_refresh_security_review.cjs docs/implementation/20261018-evolution/evidence/ux/api-auth-refresh-pre-storage-275506e8.js",
+      "node tests/e2e/auth_refresh_security_review.cjs"
+    ],
+    "before": {
+      "passed": 12,
+      "total": 13,
+      "expected_exit": 1,
+      "report": "auth-refresh-historical-reconstructed-before.log",
+      "sha256": "ccd924086cab439688d748f459d1feb238c2a5c23887565081c6c48aecd1b19b"
+    },
+    "after": {
+      "passed": 13,
+      "total": 13,
+      "expected_exit": 0,
+      "report": "auth-refresh-historical-current-after.log",
+      "sha256": "abc7da440b02e86f2749b3f47d380f82e1be1a231b78c6ea60619adc59bf708e"
+    },
+    "scope": "VM and in-memory transport only; no browser, app import, HTTP server or provider."
+  }
+}
