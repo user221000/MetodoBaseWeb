@@ -1,0 +1,301 @@
+{
+  "node_sha256": "ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32",
+  "node_version": "v24.21.0",
+  "sources": {
+    "tests/e2e/google_link_state.cjs": "ed9adfafd04d6743e4a6f81bf34ac14dccda8e539e32fbc5df17bda1e393d76d",
+    "tests/e2e/google_link_api.cjs": "9c3ca95ae3941007f24f626151208837228ff2302fa73139b3fc35bf4599ee3a",
+    "tests/e2e/google_link_dom.cjs": "07c8636a13866d91a96d952e89acfc28682e48de233873cf6ff7431f2063ced3",
+    "tests/e2e/google_link_login_review.cjs": "cd5ce6d042edd3e8e226c80a93edf9ced3608886c527c13d0b562bad04bc1406",
+    "web/static/js/google-vinculo.js": "6f06c27360dea0f4bbd16d394f4beae2c87ec80b16cbbb4611e876084ea6a1d9",
+    "web/static/js/google-vinculo-pagina.js": "bdc99da786186eb01fdfc9012b847bd397d42b5e2e3e60ed602ca5f0aa40f695",
+    "web/static/js/api.js": "0b8045f25db3e75b6936b91dbf76808f4a996bee4fcbc930699edb4380c2ce89",
+    "web/templates/cuenta_google.html": "03f1b49222c009033a4877026efb337e83621dda2514e4c9fa72f33f5e32b28b"
+  },
+  "source_and_binary_quiet": true,
+  "artifacts": [
+    {
+      "source": "tests/e2e/google_link_state.cjs",
+      "exit": 0,
+      "report": {
+        "scope": "Closure lifecycle and fixed synthetic API doubles only; no accepted API33/issuer/HTTP/browser/PG",
+        "passed": 28,
+        "total": 28,
+        "results": [
+          {
+            "name": "initial view contains no proof and makes no request",
+            "passed": true
+          },
+          {
+            "name": "status and paging preserve exact emitted cursor without collecting history",
+            "passed": true
+          },
+          {
+            "name": "Google choice is inert until an explicit primary submission",
+            "passed": true
+          },
+          {
+            "name": "start sends independent primary and factor once and keeps intent out of public view",
+            "passed": true
+          },
+          {
+            "name": "confirmation is explicit and one request then guarded local close",
+            "passed": true
+          },
+          {
+            "name": "double confirm while awaiting cannot replay the intent",
+            "passed": true
+          },
+          {
+            "name": "unverified ACK cannot close session {}",
+            "passed": true
+          },
+          {
+            "name": "unverified ACK cannot close session {\"success\":false,\"provider\":\"google\",\"linked\":true,\"reauthenticate\":true}",
+            "passed": true
+          },
+          {
+            "name": "unverified ACK cannot close session {\"success\":true,\"provider\":\"google\",\"linked\":false,\"reauthenticate\":true}",
+            "passed": true
+          },
+          {
+            "name": "unlink requires visual confirmation and no selected ID can be substituted",
+            "passed": true
+          },
+          {
+            "name": "unlink rejects ACK for another ID/version before closing",
+            "passed": true
+          },
+          {
+            "name": "uncertain/conflict 409 never retries or reads back automatically",
+            "passed": true
+          },
+          {
+            "name": "uncertain/conflict 503 never retries or reads back automatically",
+            "passed": true
+          },
+          {
+            "name": "cancel prevents a late provider response",
+            "passed": true
+          },
+          {
+            "name": "intent expiry discards all cached contact and never confirms",
+            "passed": true
+          },
+          {
+            "name": "Google credential RAM lifetime is bounded and cannot start late",
+            "passed": true
+          },
+          {
+            "name": "missing auth_time refusal is visible and never falls back to another proof",
+            "passed": true
+          },
+          {
+            "name": "token rotation invalidates the old intent before send",
+            "passed": true
+          },
+          {
+            "name": "late start response after invalidation cannot reveal contact or intent",
+            "passed": true
+          },
+          {
+            "name": "invalidating a visible confirmation clears synchronously",
+            "passed": true
+          },
+          {
+            "name": "same clear notification during successful central close preserves only valid ACK view",
+            "passed": true
+          },
+          {
+            "name": "Storage failure during close causes no second cleanup or automatic network",
+            "passed": true
+          },
+          {
+            "name": "render reentrancy discards data before another operation",
+            "passed": true
+          },
+          {
+            "name": "clear callback reentrancy is bounded and prevents private DTO reuse",
+            "passed": true
+          },
+          {
+            "name": "unknown fields, subject/contact disclosure and malformed cursors fail whole",
+            "passed": true
+          },
+          {
+            "name": "server can_link false prevents Google preparation without role heuristics",
+            "passed": true
+          },
+          {
+            "name": "account replacement during cleared closing render cannot close the new session",
+            "passed": true
+          },
+          {
+            "name": "closing render clears all metadata before guarded cleanup",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "source": "tests/e2e/google_link_api.cjs",
+      "exit": 0,
+      "report": {
+        "scope": "Actual Api.js helper over synthetic RAM transport only",
+        "passed": 10,
+        "total": 10,
+        "results": [
+          {
+            "name": "fixed status path and exact observed cursor, no public generic endpoint",
+            "passed": true
+          },
+          {
+            "name": "closed start preserves exact path/body/access",
+            "passed": true
+          },
+          {
+            "name": "closed confirm preserves exact path/body/access",
+            "passed": true
+          },
+          {
+            "name": "closed unlink preserves exact path/body/access",
+            "passed": true
+          },
+          {
+            "name": "extra authority, mixed factors and coerced proof types never issue requests",
+            "passed": true
+          },
+          {
+            "name": "link401 never refreshes, replays or clears another session",
+            "passed": true
+          },
+          {
+            "name": "account replacement rejects old intent before network",
+            "passed": true
+          },
+          {
+            "name": "late successful start is discarded after account replacement",
+            "passed": true
+          },
+          {
+            "name": "legitimate refresh of same account invalidates the exact link access",
+            "passed": true
+          },
+          {
+            "name": "close uses existing guarded cleanup and preserves reentrant new session",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "source": "tests/e2e/google_link_dom.cjs",
+      "exit": 0,
+      "report": {
+        "scope": "Mounted minimal VM DOM and fixed GIS/API doubles only; not browser/provider/API33 acceptance",
+        "passed": 8,
+        "total": 8,
+        "results": [
+          {
+            "name": "mount uses the real lexical Api global without requiring window.Api",
+            "passed": true
+          },
+          {
+            "name": "GIS loads only explicitly and requests auth_time with popup without auto selection",
+            "passed": true
+          },
+          {
+            "name": "provider callback requires a clicked matching state and never starts link automatically",
+            "passed": true
+          },
+          {
+            "name": "local proof is cleared before start completes and intent never reaches DOM",
+            "passed": true
+          },
+          {
+            "name": "cancel invalidates a pending provider callback",
+            "passed": true
+          },
+          {
+            "name": "same-document account change immediately clears contact and inputs",
+            "passed": true
+          },
+          {
+            "name": "pagehide and auth Storage events discard without reading values",
+            "passed": true
+          },
+          {
+            "name": "private DOM is already empty before central session close emits notifications",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "source": "tests/e2e/google_link_login_review.cjs",
+      "exit": 0,
+      "report": {
+        "scope": "Google-only error formatter VM, no login/MFA/provider execution",
+        "passed": 3,
+        "total": 3,
+        "results": [
+          {
+            "code": "google_link_required",
+            "passed": true
+          },
+          {
+            "code": "google_link_conflict",
+            "passed": true
+          },
+          {
+            "code": "google_identity_invalid",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "source": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-sec-google33-peer-ui-20261019.cjs",
+      "exit": 0,
+      "report": {
+        "scope": "Actual controller source over independent synthetic RAM transport; no browser, live provider or HTTP proof",
+        "cases": 8,
+        "passed": 8,
+        "results": [
+          {
+            "name": "proofs never serialize into any exposed view across success",
+            "passed": true
+          },
+          {
+            "name": "cancel discards a prepared intent without sending it",
+            "passed": true
+          },
+          {
+            "name": "late start cannot repaint after invalidation",
+            "passed": true
+          },
+          {
+            "name": "uncertain confirmation has no retry readback or close",
+            "passed": true
+          },
+          {
+            "name": "replacement before confirm cannot use or close old context",
+            "passed": true
+          },
+          {
+            "name": "credential deadline does not allow a stale request",
+            "passed": true
+          },
+          {
+            "name": "unrecognized start authority is rejected whole",
+            "passed": true
+          },
+          {
+            "name": "reentrant closing render cannot close replacement session",
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "scope": "Synthetic Node VM controller/API/DOM doubles, not Chromium or live Google acceptance."
+}
