@@ -1,0 +1,32 @@
+{
+  "base_commit": "71e2481ce37d64a244ae1fba3754ebfeba1d0a0d",
+  "scope": "Two focal R34 fixes only; independent review and integration pending",
+  "header_fix": {
+    "path": "/api/usuario/historial",
+    "match": "Exact request path for every method; no prefix match",
+    "behavior": "SecurityHeadersMiddleware now applies no-referrer to successful, validation, auth and method-error responses on this exact path. Existing stricter explicit policies elsewhere remain preserved.",
+    "unchanged": ["CSP", "Global exception handlers", "Auth transport", "Personal history query and DTO", "R16 recovery paths from another branch"],
+    "root_before": "Original immutable eight-case root driver: five failures and three passes on71e. The source photo was after-only with clean frozen HEAD; no earlier source photo is invented. No credential leak was demonstrated.",
+    "root_after": "Same original driver path, SHA, assertions and parameterized names: eight passed"
+  },
+  "explain_harness_fix": {
+    "default": "No file or directory write; SQL, EXPLAIN and all seven original assertions still execute",
+    "optional_environment": "METODOBASE_HISTORY_EXPLAIN_OUTPUT",
+    "explicit_output": "Absolute isolated subdirectory beneath the OS Temp directory; rejects relative historical paths and shared Temp root. Creates new output files exclusively and refuses to overwrite existing files.",
+    "validation": "Both factory EXPLAIN cases ran once without output and again with explicit newly created Temp output. All44 historical proof files retained their raw SHA256 across both modes; two actual output JSON files were copied to this followup evidence."
+  },
+  "validation": {
+    "root_immutable_driver": 8,
+    "focal_combination": {"new_header_and_writer_cases":19,"existing_security_middleware":22,"original_explain_default":2,"passed":43},
+    "explicit_output_reexecution": 2,
+    "counting": "Explicit-output runs are repeats of the same two EXPLAIN cases, not additional unique tests",
+    "quality": "Lint passed. Diff check passes except five trailing-space lines4/9/14/19/24 in the original root-before.xml proof, retained byte-for-byte; no source whitespace exceptions.",
+    "artifacts": "evidence/history-headers-followup"
+  },
+  "reproduce": {
+    "root": "python -X utf8 tests/run_isolated.py -p conftest --noconftest C:/Users/Consu/AppData/Local/Temp/metodobase-history-headers-root-20261019/test_history_headers.py -q --tb=short",
+    "focused": "python -X utf8 tests/run_isolated.py tests/test_history_headers_followup.py tests/test_security_middleware.py tests/test_personal_history_pagination.py::test_query_is_readonly_limit_plus_one_without_count_or_plan_json -q --tb=short",
+    "explicit_output": "Set METODOBASE_HISTORY_EXPLAIN_OUTPUT to a new caller-owned absolute Temp subdirectory, then run the two original EXPLAIN cases"
+  },
+  "limits": ["No broad74/162/browser rerun", "No PostgreSQL or new load benchmark", "No R16 composition or main changes", "Original before files and historical evidence remain unchanged"]
+}

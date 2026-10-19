@@ -119,7 +119,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "/api/auth/password-reset/request", "/api/auth/password-reset/confirm",
         }
         response.headers["Referrer-Policy"] = (
-            "no-referrer" if recovery_api or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
+            "no-referrer" if (
+                recovery_api
+                or request.url.path == "/api/usuario/historial"
+                or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
+            )
             else "strict-origin-when-cross-origin"
         )
         response.headers["Permissions-Policy"] = (

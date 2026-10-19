@@ -186,8 +186,6 @@ def test_auth_and_revoked_member_never_adopt_the_professional_portfolio(history_
 
 
 def test_query_is_readonly_limit_plus_one_without_count_or_plan_json(history_http):
-    import json
-    from pathlib import Path
     statements, writes = [], []
     plans(history_http[1], 1000)
     def observed(connection, cursor, statement, parameters, context, executemany):
@@ -210,11 +208,28 @@ def test_query_is_readonly_limit_plus_one_without_count_or_plan_json(history_htt
     with history_http[1].connect() as connection:
         explain = [list(row) for row in connection.exec_driver_sql('EXPLAIN QUERY PLAN '+statement, parameters)]
     assert any('ix_planes_gym_fecha' in str(row) for row in explain), explain
-    evidence = Path('docs/implementation/20261018-evolution/evidence/history-pagination')
-    if evidence.exists():
-        (evidence/('explain-'+history_http[0].app.title.replace(' ','_')+'.json')).write_text(json.dumps({
-            'scope':'SQLite read-only EXPLAIN of 51 summary candidates from 1000 rows; no PostgreSQL performance claim',
-            'sql':statement,'parameters':list(parameters),'plan':explain},indent=2)+'\n',encoding='utf8')
+    _write_explain_if_requested(history_http[0].app.title, {
+        'scope':'SQLite read-only EXPLAIN of 51 summary candidates from 1000 rows; no PostgreSQL performance claim',
+        'sql':statement,'parameters':list(parameters),'plan':explain})
+
+
+def _write_explain_if_requested(title, data):
+    """No default writes. Explicit new outputs must stay in a caller-owned Temp directory."""
+    import json
+    import os
+    from pathlib import Path
+    import tempfile
+    configured = os.environ.get('METODOBASE_HISTORY_EXPLAIN_OUTPUT')
+    if not configured:
+        return
+    directory = Path(configured)
+    temporary = Path(tempfile.gettempdir()).resolve()
+    resolved = directory.resolve()
+    if not directory.is_absolute() or resolved == temporary or not resolved.is_relative_to(temporary):
+        raise ValueError('EXPLAIN output requires an explicit isolated Temp subdirectory')
+    resolved.mkdir(parents=True, exist_ok=True)
+    with (resolved/('explain-'+title.replace(' ','_')+'.json')).open('x', encoding='utf8') as output:
+        output.write(json.dumps(data,indent=2)+'\n')
 
 
 def test_each_factory_has_one_history_get_operation_and_no_added_personal_mutations(history_http):
