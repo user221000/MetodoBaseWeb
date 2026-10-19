@@ -1,0 +1,48 @@
+{
+  "created_at": "2026-10-19T05:18:23.712627+00:00",
+  "status": "Proposal only. No product/test implementation, server restart or browser run authorized or performed in this lot.",
+  "proposed_frontend_ownership": {
+    "web/templates/usuario_mi_plan.html": "Connect operation/status controls; route profile/latest/generate/exclusions network calls through Api; guard callbacks, loading/finally and sensitive plan/profile DOM by canonical personal identity and page epoch.",
+    "web/templates/usuario_historial.html": "Use the same canonical identity invalidation and centralized authorized exact-ID PDF download; discard old history/calendar responses and in-flight downloads.",
+    "web/static/js/usuario-plan-operacion.js (new)": "Memory-only operation UUID/state controller: ready, submitting, completed, unconfirmed, in_progress, failed, reconciliation, session_changed. No keys, health data, response bodies or operation history persisted to Storage or analytics.",
+    "web/static/js/api.js (usuario helpers only, after current freeze release)": "generarPlan(operationKey) requires/sends Idempotency-Key; descargarPlan(planId) validates int32 ID and delegates to the existing fenced PDF transport with the personal endpoint path.",
+    "tests/e2e/personal_generation.cjs and dedicated fixture (new)": "Own tests on the frozen current runtime; independent reviewer retains accepted suites untouched."
+  },
+  "observed_contract": {
+    "POST /api/usuario/generar-plan": "Authenticated, no request body; Idempotency-Key scopes the persisted reservation to personal user.id. Same key completed replay returns persisted plan. Current response lacks plan_id.",
+    "GET /api/usuario/mi-plan": "Latest plan plus meta/tiene_pdf; currently lacks plan_id. Reading latest is acceptable for display but cannot identify a previous displayed result for PDF download.",
+    "GET /api/usuario/historial": "Rows already carry exact id and tiene_pdf.",
+    "GET /api/usuario/descargar-pdf?plan_id={id}": "Already accepts positive int32 ID and checks personal owner/client. Use this path for individual and legacy professional-member personal scope; no fallback to the professional parent gym or latest plan.",
+    "error_codes": "Observed generation_in_progress, generation_failed, generation_result_unavailable, generation_reconciliation_required, monthly_plan_limit, invalid_idempotency_key and profile validation errors. Confirm final replay-legacy behavior after backend freeze."
+  },
+  "requested_backend_delta": [
+    "Return persisted plan_id in both _individual_plan_response (fresh/completed replay) and get_mi_plan. A known no-plan result must use plan_id:null or omit it consistently. No schema/DDL needed for this DTO delta.",
+    "Keep existing personal exact-ID PDF endpoint, no-store attachment and owner checks. Do not synthesize an ID from response time, list position or latest after an ambiguous POST.",
+    "Confirm the final failure/replay contract and any terminal credit/refund statement; frontend must not infer refunded credit from an HTTP failure."
+  ],
+  "operation_behavior": [
+    "Create one in-memory UUID for an explicit generation action and disable duplicate submissions. A transport timeout/unknown outcome retains that key; same-operation retry reuses it. Never regenerate automatically on GET/history refresh.",
+    "Unconfirmed/pending/reconciliation states offer consult history and retry the same operation where permitted. A new key requires an explicit new-operation action and cost warning; profile edits must not silently replace a pending key.",
+    "A completed response is rendered only after validating plan_id/shape and unchanged personal subject/session. Keep that exact ID for download even if a newer plan is generated later.",
+    "Refresh rotation under the same accepted session is allowed by the central transport; account/scope/SV change, storage failure or page invalidation discards old responses, keys and personal DOM, closes dialogs and revokes Blob URLs. Old finally handlers cannot reactivate controls for a new epoch.",
+    "Use visible status/error regions, focusable recovery actions and keyboard/320px checks. Do not promise a saved file, finished generation, refunded credit or available quota without backend confirmation."
+  ],
+  "acceptance_plan": [
+    "Real login, profile, generation replay and exact historical PDF from current frozen backend, including professional-member personal scope and foreign-plan denial.",
+    "Auth/refresh failure, held generation/profile/history/PDF success and error across account changes, same key/unchanged payload on retry, duplicate click, no new key after unknown outcome.",
+    "Clearly labeled transport doubles for timeout/pending/reconciliation states, plus stale-account/Blob cleanup, accessibility and overflow checks. No providers or email."
+  ],
+  "separate_open_work": [
+    "R10 reload/cross-tab atomicity of legacy keys remains open.",
+    "R14 diary persistence, Mexico City dates and legacy local activity keys require their separate contract; no automatic migration/deletion is proposed here.",
+    "No broad base/nav/auth writer change is included in this proposal."
+  ],
+  "read_only_sources_observed": {
+    "web/templates/usuario_mi_plan.html": "f26baf369e832cbcb291831421d8533f0cd0c897e4cd83a7509edd8a5bc06e0f",
+    "web/templates/usuario_historial.html": "0807c43b664426304c4b7d5ffd023d6244995d719f3b1d92f3552eab49cd26b6",
+    "web/routes/usuario.py": "bd83b5bdfe22fae984da6c7da887936ec2b73a60036b877c424809b36d885e40",
+    "web/services/generation_quota.py": "611f28ade64a9d5a8d34cbe49cfff1dfe9960f37c575ba41deb3f5db4f55eb91",
+    "web/static/js/api.js": "347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3"
+  },
+  "snapshot_limit": "Backend files are being finalized concurrently; observed hashes are an inspection record, not a backend/runtime freeze."
+}

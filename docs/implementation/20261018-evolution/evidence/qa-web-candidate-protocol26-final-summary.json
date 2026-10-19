@@ -1,0 +1,77 @@
+{
+  "scope": "Current clean web candidate on Windows Python 3.12.13, complete tests directory excluding desktop login, serial and independent shuffled two-worker run. Explicit PG/Node/browser gates have separate evidence.",
+  "git_head_observed_after": "6d33b9e5259e8adf7468eff648b1530a4fb0c572",
+  "runs": [
+    {
+      "name": "serial",
+      "passed": 1813,
+      "skipped": 1,
+      "warning_occurrences": 3,
+      "pytest_seconds": 232.55,
+      "wrapper_seconds": 235.97,
+      "log": "pytest-web-candidate-protocol26-serial-independent.log",
+      "junit": "pytest-web-candidate-protocol26-serial-independent.xml",
+      "source_before_after": "web-candidate-protocol26-serial-independent-source.json"
+    },
+    {
+      "name": "shuffle n2 seed 20261018",
+      "passed": 1813,
+      "skipped": 1,
+      "warning_occurrences": 5,
+      "pytest_seconds": 133.73,
+      "wrapper_seconds": 136.11,
+      "log": "pytest-web-candidate-protocol26-shuffle-independent.log",
+      "junit": "pytest-web-candidate-protocol26-shuffle-independent.xml",
+      "source_before_after": "web-candidate-protocol26-shuffle-independent-source.json"
+    }
+  ],
+  "source_files": 519,
+  "maintained_python_files": 403,
+  "all_four_source_photos_identical": true,
+  "source_map_sha256": "787cc0dcaf9a17d3dac8f507d866a1d3dedd746485bcf36e8904cc534ed28b78",
+  "package_count": 89,
+  "all_four_package_lists_identical": true,
+  "package_list_sha256": "a2a50b81ba9d69f27c3d49b5b06ef59f9c25dd32b831419c2d08d26ae48f0574",
+  "pip_check": {
+    "before": "No broken requirements found (exit 0)",
+    "after_exit_code": 0,
+    "after_log": "pip-check-web-candidate-protocol26-final-independent.log"
+  },
+  "skipped_cases": [
+    {
+      "classname": "tests.test_object_storage",
+      "name": "test_symlink_cannot_redirect_a_private_document",
+      "message": "Host does not grant symlink creation; Linux CI must exercise this boundary",
+      "reason": "F:\\MetodoBaseWeb-execution-20261018\\tests\\test_object_storage.py:131: Host does not grant symlink creation; Linux CI must exercise this boundary"
+    }
+  ],
+  "skip_interpretation": "The one Windows host cannot create symlinks. This private-document symlink boundary was not executed locally; Linux CI must execute it with zero required skips. It is not counted as passed.",
+  "warnings": [
+    {
+      "category": "DeprecationWarning",
+      "origin": "core/services/cliente_service.py imports src.gestor_bd",
+      "interpretation": "Legacy compatibility API deprecation; no failing assertion. Two imports are reported across the two workers."
+    },
+    {
+      "category": "StarletteDeprecationWarning",
+      "origin": "FastAPI/Starlette TestClient uses httpx",
+      "interpretation": "Test transport API migration notice. Two imports are reported across the two workers."
+    },
+    {
+      "category": "DeprecationWarning",
+      "origin": "sentry_sdk tracing_utils propagate_traces",
+      "interpretation": "SDK option migration notice during the telemetry privacy regression. Current assertions passed; no dependency or setting was changed during this gate."
+    }
+  ],
+  "warning_counts": "Three distinct categories in both runs: serial 3 occurrences, n2 5 because two import notices occur once per worker.",
+  "api_sha256": "347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",
+  "workflow_sha256": "b3574782f62ebe19066fa3958c9728584704b6ae77963f7fffa366105d917146",
+  "source_scope_exclusions": "All docs/evidence are outside the 519-source snapshot. The root .gitleaks.toml was not in that set; the coordinator explicitly kept it unchanged while these gates ran.",
+  "limits": [
+    "No local Linux/image/GitHub Actions execution",
+    "Desktop login intentionally excluded and handled in a separate worktree/target",
+    "No production or live provider execution",
+    "Results do not approve deployment or complete commercial/clinical/operational acceptance"
+  ],
+  "repeat_policy": "No further broad rerun unless code/dependencies change or new unresolved concern appears."
+}

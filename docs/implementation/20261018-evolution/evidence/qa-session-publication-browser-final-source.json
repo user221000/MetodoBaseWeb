@@ -1,0 +1,70 @@
+{
+  "scope": "Frozen independent QA follow-up: controlled individual process death and named browser Storage failure, plus current four browser regressions and local CI guard review",
+  "sources": {
+    "tests/integration_individual_process_recovery_review.py": "7c51e31b918b303f02413c168759b56c2c787db3f72d99398c29edcfb86c06bf",
+    "tests/e2e/auth_refresh_storage_browser_review.cjs": "942029ba85082a5d7123a59045270fe6730436c64ffcc5584d08a1b64c516eeb"
+  },
+  "reader_followup": {
+    "sqlite_security_cases": 3,
+    "postgres_cases": 5,
+    "postgres_seconds": 41.99,
+    "author_digest": "246ff3f117f7518cb06b02811ce3c9a2952dd16b0b9d5a261bb145ebb03de621",
+    "evidence": [
+      "individual-reader-final-independent-source.json",
+      "individual-reader-postgres-after-restart-independent-source.json"
+    ],
+    "infrastructure": "First five PG fixture setups could not connect. Existing QA cluster alone was recovered; failed result is preserved and successful retry has a new name."
+  },
+  "process_death": {
+    "passed": 1,
+    "seconds": 16.95,
+    "child_exit_code": 23,
+    "real_worker": true,
+    "pdf_bytes": 3605606,
+    "observed": "Fresh application/engine replays without CPU; one credit remains consumed after Plan FK SET NULL and repeated compensation; missing result 409 and new key 403.",
+    "evidence": "individual-process-recovery-independent-source.json",
+    "detail": "individual-process-recovery-independent/individual-real-process-death-review.json",
+    "limit": "Controlled child process death, not container death."
+  },
+  "four_browsers": {
+    "groups": {
+      "generation": 9,
+      "branding": 10,
+      "export": 8,
+      "refresh": 9
+    },
+    "screens": 19,
+    "page_errors": 0,
+    "observed_sources": 224,
+    "stable_sources": true,
+    "evidence": "ux/runtime26-browser-independent-source.json",
+    "runtime": "Four newly started current protocol26 Python/model fixtures; explicit temporary SQLite/local objects. No PostgreSQL migration/RLS or provider claim for these browser fixtures."
+  },
+  "storage_browser": {
+    "groups": 3,
+    "blocked_consumers": 5,
+    "blocked_fetch_calls": 0,
+    "blocked_wire_requests": 0,
+    "page_errors": 0,
+    "observed_sources": 225,
+    "stable_sources": true,
+    "real_login_recovery": true,
+    "evidence": "ux/auth-refresh-storage-browser-independent-source.json",
+    "limit": "Only explicit DOMException in refresh-key setItem after native access-key write; no native quota exhaustion, reload durability or cross-tab atomicity claim."
+  },
+  "ci": {
+    "canaries": 58,
+    "all_matched": true,
+    "bash_blocks": 8,
+    "initial_references": 56,
+    "evidence": "ci-session-publication-independent-review.json",
+    "subsequent_changes": "Coordinator adds only process-test route, isolated Storage-browser route and distinct server logs; same report guards. Final workflow SHA256 b3574782f62ebe19066fa3958c9728584704b6ae77963f7fffa366105d917146.",
+    "limit": "Local static/executable guard review; GitHub Actions/Linux/image remain unexecuted locally."
+  },
+  "checks": [
+    "Ruff F821 zero on the new Python test",
+    "Node syntax check zero on the new browser driver",
+    "Candidate pip check: no broken requirements"
+  ],
+  "full_candidate_gate": "Serial/n2 currently running with separate new logs, JUnit and before/after source/package fingerprints; its results are not asserted by this manifest."
+}

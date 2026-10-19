@@ -52,6 +52,12 @@ Contención revisable para el siguiente lote: identidad de reserva individual ex
 
 Aceptación mínima: fallo real después del commit Plan y antes de `finish_generation`, muerte de proceso en esa ventana, error de commit cuyo resultado sea incierto, dos procesos en último crédito y compensación repetida tras cambio de mes/eliminación de Plan. En todos: un Plan publicado conserva exactamente un consumo; un fallo confirmado sin publicación se devuelve una vez; incertidumbre queda visible y no concede trabajo adicional.
 
+### Seguimiento independiente posterior
+
+QA confirmó la brecha individual sobre PostgreSQL25 con rol restringido y worker/core/PDF reales: dos fallos y un control. Tras una excepción RuntimeError o ValueError posterior al commit, el Plan y su PDF ready permanecen pero el consumo vuelve de1 a0 y la reserva queda released sin vínculo. Un fallo de finalización fuera de ese except conserva el crédito, como control. [Fuentes y erratas del fixture](evidence/qa-individual-recovery-before-source.json). Esta evidencia posterior no convierte la evaluación estática anterior en una ejecución.
+
+Backend implementa contención con DDL26 y referencia/marcador de publicación individual en la misma transacción del Plan; las reservas legacy ambiguas no se liberan por ausencia de marcador nuevo. No es un job/outbox ni una política nueva de recuperación. La aceptación depende de regresión, concurrencia, commit incierto y restore independientes.
+
 ## Contrato mínimo para un job durable
 
 Propuesta de contrato, sin esquema o código implementados:

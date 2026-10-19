@@ -47,3 +47,13 @@ Compatibilidad prevista: parámetros opcionales del catálogo para consumidores 
 ddaf71a integra UI B2B idempotente, modal y descarte de respuesta al cambiar sesión sobre evidencia snapshot24.74d66e8 integra esquema25 con StoredObject y dos referencias nullable;0459b0f integra publicación/lectura privada, branding, configuración explícita en ambas factories y dependencias fijadas. El PDF exacto y el adjunto por bytes conservan sus lotes previos. Los objetos históricos mantienen referencia nula sin backfill, y un error de proveedor no elige otro backend. Restore25 y recorridos navegador tienen gates independientes. Ninguna infraestructura externa fue creada.
 
 Hallazgos abiertos: SEC02 confirmado con dos casos rojos de refresh en memoria; riesgo individual postcommit deducido, en reproducción. Inventario histórico readonly y corrección cleanup en curso. No se ejecutó una suite completa del head nuevo ni scan posterior a b20e071.
+
+## Checkpoint integrado26 / sesiones / CI
+
+`bd6b067` integra inventario histórico readonly sin apply ni atribución de procedencia; `0e8cd42` compara expiración Float por epoch, conserva UTC de auditoría y hace visibles errores de cleanup mediante exit1 sin parámetros sensibles. Parámetros30/90 existentes, sin scheduler o política legal nueva.
+
+`34d8fb1` publica Plan/objeto ready/consumo individual y marcador en una transacción; conserva consumo tras respuesta perdida o FKNULL. Captura periodo de suscripción bajo lock y filtra Plan/Cliente por mismo dueño y soft-delete. Legacy ambiguo no se reembolsa ni se enlaza por tiempo. El protocolo nuevo requiere drenar workers antiguos al migrar; no se aplicó live.
+
+`754d56d` vincula refresh/reintentos/lecturas al contexto de sesión inicial y comparte una promesa que siempre resuelve sus consumidores. Fallos parciales de Storage bloquean I/O hasta guardar o limpiar completamente el par.74 VM independientes y navegador actual aceptan esta contención por instancia; reload/cross-tab y otros escritores siguen abiertos. El candidato histórico275 se preservó por SHA exacto en copia, sin inventar commit.
+
+`6d33b9e` exige reportes Node tipados/no vacíos,17 JUnit PG y cinco fixtures navegador con logs diferenciados. QA actual36 grupos/19 pantallas más3 Storage; serial1813/1skip Windows, n2shuffle1813/1skip en133.73s,519 fuentes y89 paquetes estables. No se ejecutó Actions, imagen Linux ni Redis real. Desktop41ad55f y UI individual se desarrollan en worktrees separados y aún no integrados.
