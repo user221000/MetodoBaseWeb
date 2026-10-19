@@ -61,6 +61,8 @@
 </div>
 
 <!-- ── Tabla de planes ────────────────────────────────────────── -->
+<p id="planes-feedback" role="status" style="margin:12px 0;overflow-wrap:anywhere"></p>
+<button id="planes-retry" type="button" class="btn btn-secondary hidden" style="margin-bottom:16px">Volver a consultar el historial</button>
 <div class="chart-container overflow-hidden">
   <div style="overflow-x:auto;">
     <table class="data-table" id="tabla-planes">
@@ -102,21 +104,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentPage = 0;
   const limit = 50;
   let currentPeriodo = '';
+  let accountContext = null;
+  let requestEpoch = 0;
+  let sessionChanged = false;
+  const feedback = document.getElementById('planes-feedback');
+  const retry = document.getElementById('planes-retry');
+  function invalidateSession() {
+    sessionChanged = true;
+    requestEpoch++;
+    document.getElementById('planes-tbody').replaceChildren();
+    document.getElementById('pagination').replaceChildren();
+    ['kpi-planes-semana', 'kpi-planes-mes-detail', 'kpi-planes-total', 'total-planes'].forEach(id => document.getElementById(id).textContent = '—');
+    feedback.textContent = 'La sesión cambió. Vuelve a abrir el historial desde tu cuenta.';
+    retry.classList.add('hidden');
+  }
+  window.addEventListener('storage', (event) => {
+    if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) invalidateSession();
+  });
+  window.addEventListener('pagehide', invalidateSession);
+  async function verifyAccount() {
+    if (sessionChanged) throw new Error('La sesión cambió.');
+    const context = await Api.planes.contexto();
+    if (sessionChanged) throw new Error('La sesión cambió.');
+    if (accountContext && accountContext !== context) { invalidateSession(); throw new Error('La sesión cambió.'); }
+    accountContext = context;
+  }
 
   // ── Cargar resumen ──────────────────────────────────────────
   async function loadResumen() {
     try {
       const data = await Api.planes.resumen();
+      await verifyAccount();
+      if (!data || !['planes_semana', 'planes_mes', 'planes_total'].every(key => Number.isSafeInteger(data[key]) && data[key] >= 0)) return;
       document.getElementById('kpi-planes-semana').textContent = data.planes_semana || 0;
       document.getElementById('kpi-planes-mes-detail').textContent = data.planes_mes || 0;
       document.getElementById('kpi-planes-total').textContent = data.planes_total || 0;
     } catch (e) {
-      console.error('Error cargando resumen:', e);
+      // Sin permiso de estadísticas, los indicadores permanecen sin valor.
     }
   }
 
   // ── Cargar planes ──────────────────────────────────────────
   async function loadPlanes(page = 0) {
+    if (sessionChanged) return;
+    const epoch = ++requestEpoch;
+    currentPage = page;
+    retry.classList.add('hidden');
+    feedback.textContent = 'Consultando historial...';
     const tbody = document.getElementById('planes-tbody');
     tbody.innerHTML = `
       <tr>
@@ -130,8 +164,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
 
     try {
+      await verifyAccount();
       const data = await Api.planes.listar(limit, page * limit, currentPeriodo);
-      document.getElementById('total-planes').textContent = data.total || 0;
+      await verifyAccount();
+      if (epoch !== requestEpoch) return;
+      if (!data || !Array.isArray(data.planes) || !Number.isSafeInteger(data.total) || data.total < 0 ||
+          !data.planes.every(plan => Number.isSafeInteger(plan.id) && plan.id > 0 && typeof plan.id_cliente === 'string')) {
+        throw new Error('El servidor no devolvió un historial válido.');
+      }
+      document.getElementById('total-planes').textContent = data.total;
+      feedback.textContent = 'Historial consultado. Cada PDF corresponde al plan de su fila.';
+      document.getElementById('pagination').replaceChildren();
 
       if (!data.planes || data.planes.length === 0) {
         tbody.innerHTML = `
@@ -167,23 +210,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
           </td>
           <td style="font-size:.85rem;color:var(--text-secondary)">${fecha}</td>
-          <td style="font-weight:600;color:var(--accent-primary)">${p.kcal_objetivo || '—'}</td>
-          <td>${p.proteina_g || '—'}g</td>
-          <td>${p.carbs_g || '—'}g</td>
-          <td>${p.grasa_g || '—'}g</td>
+          <td style="font-weight:600;color:var(--accent-primary)">${esc(p.kcal_objetivo ?? '—')}</td>
+          <td>${esc(p.proteina_g ?? '—')}g</td>
+          <td>${esc(p.carbs_g ?? '—')}g</td>
+          <td>${esc(p.grasa_g ?? '—')}g</td>
           <td>${objBadge}</td>
           <td style="text-align:right">
             ${p.ruta_pdf 
-              ? `<a href="/api/descargar-pdf/${esc(p.id_cliente)}" class="btn btn-sm btn-secondary" target="_blank">
+              ? `<button type="button" class="btn btn-sm btn-secondary" aria-label="Descargar PDF de este plan">
                   <svg style="width:14px;height:14px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                   </svg>
                   PDF
-                </a>`
+                </button>`
               : '—'
             }
           </td>
         `;
+        tr.querySelector('button')?.addEventListener('click', async (event) => {
+          const button = event.currentTarget;
+          button.disabled = true;
+          feedback.textContent = 'Preparando el PDF de este plan...';
+          try {
+            await verifyAccount();
+            await Api.planes.descargarPorPlan(p.id);
+            if (!sessionChanged) feedback.textContent = 'PDF de este plan preparado para descargar.';
+          } catch (error) {
+            try { await verifyAccount(); } catch { /* La comprobación descarta el contexto anterior. */ }
+            if (!sessionChanged) feedback.textContent = error.message || 'No se pudo descargar este plan.';
+          } finally { button.disabled = false; }
+        });
         tbody.appendChild(tr);
       });
 
@@ -191,7 +247,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderPagination(data.total, page, limit);
 
     } catch (e) {
-      console.error('Error:', e);
+      if (epoch !== requestEpoch || sessionChanged) return;
+      feedback.textContent = e.message || 'No se pudo consultar el historial.';
+      retry.classList.remove('hidden');
+      document.getElementById('pagination').replaceChildren();
       tbody.innerHTML = `
         <tr>
           <td colspan="8">
@@ -244,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Helpers ────────────────────────────────────────────────
   function esc(str) {
-    if (!str) return '';
+    if (str === null || str === undefined) return '';
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
@@ -262,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       superavit: { bg: 'rgba(0,255,136,.12)', color: 'var(--accent-green)', label: 'Superávit' },
     };
     const o = colors[obj] || { bg: 'rgba(139,139,158,.12)', color: 'var(--text-secondary)', label: obj || '—' };
-    return `<span style="background:${o.bg};color:${o.color};padding:3px 10px;border-radius:99px;font-size:.75rem;font-weight:600;">${o.label}</span>`;
+    return `<span style="background:${o.bg};color:${o.color};padding:3px 10px;border-radius:99px;font-size:.75rem;font-weight:600;">${esc(o.label)}</span>`;
   }
 
   // ── Filtros de período ─────────────────────────────────────
@@ -277,8 +336,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ── Init ───────────────────────────────────────────────────
-  await loadResumen();
-  await loadPlanes(0);
+  retry.addEventListener('click', () => loadPlanes(currentPage));
+  try {
+    await verifyAccount();
+    await Promise.all([loadResumen(), loadPlanes(0)]);
+  } catch (error) { if (!sessionChanged) { feedback.textContent = error.message; retry.classList.remove('hidden'); } }
 });
 </script>
 {% endblock %}

@@ -179,13 +179,44 @@ const Api = (() => {
 
     resumen: () => request('GET', '/api/planes/resumen'),
 
-    generar: (id_cliente, plan_numero = 1, tipo_plan = 'menu_fijo') =>
-      request('POST', '/api/generar-plan', { id_cliente, plan_numero, tipo_plan }),
+    generar: (id_cliente, plan_numero = 1, tipo_plan = 'menu_fijo', operationKey) => {
+      if (typeof operationKey !== 'string' || !operationKey.trim()) {
+        throw new Error('Falta identificar la solicitud. Vuelve a preparar el plan.');
+      }
+      return request('POST', '/api/generar-plan', { id_cliente, plan_numero, tipo_plan },
+        { 'Idempotency-Key': operationKey });
+    },
 
-    descargar: async (id_cliente) => {
+    contexto: async () => {
+      const me = await request('GET', '/api/auth/me');
+      if (!me || typeof me.id !== 'string' || !me.id || !me.role) {
+        throw new Error('No se pudo verificar la cuenta actual.');
+      }
+      return JSON.stringify([me.id, me.team_gym_id || null, me.role, me.session_version]);
+    },
+
+    descargarPorPlan: (planId) => {
+      if (!Number.isSafeInteger(planId) || planId < 1 || planId > 2147483647) throw new Error('El plan no es válido.');
+      return planes._descargar(`/api/planes/${planId}/pdf`, `plan_${planId}.pdf`);
+    },
+
+    // Compatibilidad para vistas que solicitan explícitamente el último plan.
+    descargar: (id_cliente) => planes._descargar(
+      `/api/descargar-pdf/${encodeURIComponent(id_cliente)}`, 'ultimo_plan.pdf'),
+
+    _descargar: async (path, filename) => {
+      const context = await planes.contexto();
+      let invalidated = false;
+      const invalidate = (event) => {
+        if (event.type === 'pagehide' || event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) invalidated = true;
+      };
+      window.addEventListener('storage', invalidate);
+      window.addEventListener('pagehide', invalidate);
+      try {
       async function _fetchPdf(tkn) {
-        return fetch(`/api/descargar-pdf/${id_cliente}`, {
+        return fetch(path, {
           headers: tkn ? { 'Authorization': `Bearer ${tkn}` } : {},
+          cache: 'no-store',
         });
       }
 
@@ -206,17 +237,30 @@ const Api = (() => {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || `Error ${res.status}`);
+        throw new Error(typeof err.detail === 'string' ? err.detail : 'No se pudo descargar este plan.');
       }
       const blob = await res.blob();
+      if (!res.headers.get('Content-Type')?.toLowerCase().startsWith('application/pdf') ||
+          blob.size === 0 || await blob.slice(0, 5).text() !== '%PDF-') {
+        throw new Error('El servidor no devolvió un PDF válido.');
+      }
+      if (invalidated || await planes.contexto() !== context || invalidated) {
+        throw new Error('La sesión cambió. Vuelve a abrir el plan desde tu cuenta.');
+      }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `plan_${id_cliente}.pdf`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(url);
+      const cleanup = () => { URL.revokeObjectURL(url); window.removeEventListener('pagehide', cleanup); };
+      window.addEventListener('pagehide', cleanup, { once: true });
+      setTimeout(cleanup, 2000);
+      } finally {
+        window.removeEventListener('storage', invalidate);
+        window.removeEventListener('pagehide', invalidate);
+      }
     },
   };
 

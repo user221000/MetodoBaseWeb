@@ -1,0 +1,49 @@
+{
+  "scope": "QA independent B2B UI acceptance on frozen immutable Git24 runtime, including template followup; no DDL25 or storage cutover acceptance",
+  "files": {
+    "tests/e2e/gym_generation_session_review.cjs": "58ae28b33a9bd63ae003e837cd4258f05573778b6c25996bdfe515a8b538d378",
+    "tests/e2e/gym_generation_pdf_review.cjs": "163e0f89868b002ee52c61c3cb09c94bac3e258a0f8a08f99caceb330861d994",
+    "tests/e2e/gym_generation_pdf_review_server.py": "2a15db6c0f3fd21c585ba905eb2a81f1b4058f485dddd928a7558f35164ad87e",
+    "docs/implementation/20261018-evolution/QA_R05.md": "cd851e60de14d1e38c62a0c018d1e556c299cd9ff8919dc1d4dce1eeccbb6176"
+  },
+  "reviewed_frontend_sources": {
+    "web/templates/generar-plan.html": "58aa6acc3873d3045e75c76fb68be9fffa16218b3dbeaa15e29d827b1871ad62",
+    "web/templates/planes.html": "8c62fdcc6de98174df990f52c2e944644ddbe82f8ea60b9f73fb8a07b5484156",
+    "web/static/js/api.js": "add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",
+    "tests/e2e/gym_generation.cjs": "0a706b863b38df19fdf865106f7ab95750c8d960ca06879e486c85313e1923c1",
+    "tests/e2e/gym_generation_server.py": "c7b2a32e1ef38e36c147763eb339d8fcfed540ea4120d04a0ef7514e4d3bf5f0"
+  },
+  "independent_results": {
+    "main_groups": 9,
+    "main_screens": 8,
+    "supplemental_pdf_groups": 2,
+    "supplemental_identity_modal_groups": 2,
+    "main_plus_modal_seconds": 39.27,
+    "scoped_axe_violations": 0,
+    "horizontal_overflow": 0,
+    "page_errors": 0
+  },
+  "evidence": [
+    "ux/b2b-generation-independent-snapshot.json",
+    "ux/b2b-generation-independent-source.json",
+    "ux/b2b-generation-independent-20261019-qa/report.json",
+    "ux/b2b-generation-modal-pointer-before.log",
+    "ux/b2b-generation-session-review-before.json",
+    "ux/b2b-generation-pdf-old-new-independent.json",
+    "ux/b2b-generation-pdf-independent-source.json",
+    "ux/b2b-generation-followup-independent-source.json",
+    "ux/b2b-generation-independent-followup-20261019-qa/report.json",
+    "ux/b2b-generation-session-review-after.json"
+  ],
+  "checks": {
+    "node_check_two_review_drivers": 0,
+    "ruff_F821_review_server": 0
+  },
+  "limits": [
+    "Windows Chrome/local synthetic SQLite only; no browser PostgreSQL claim",
+    "APIRequestContext bypasses browser routing but all its URLs are fixed validated loopback8769; Python fixture blocks external sockets",
+    "PDF header/private exact-ID guarantee here does not certify legacy provenance or object cutover",
+    "Only8769 was restarted;8765/8767/8768 untouched"
+  ],
+  "committed_by_qa": false
+}

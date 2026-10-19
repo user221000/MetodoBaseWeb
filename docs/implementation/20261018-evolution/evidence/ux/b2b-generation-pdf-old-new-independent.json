@@ -1,0 +1,20 @@
+{
+  "scope": "Own persisted Clinic seed; real auth/API/quota/worker/PDF for two plans of the same client; no transport/auth mocks",
+  "checks": [
+    "Two actual same-client plans are persisted by real workers; the compatibility latest route returns the second PDF",
+    "At320px Enter on the older history row downloads the first PDF by exact plan ID and Bearer, with no latest fallback"
+  ],
+  "pageErrors": [],
+  "old_plan_id": 1,
+  "new_plan_id": 2,
+  "old_pdf_sha256": "4937544989a8e60567f3376d99092d7850502fbf9a16a53b3411ab8f9633e764",
+  "new_pdf_sha256": "cb82f8df05475c551941ca650fe814523126b89de195a25824ba05c0424cabfd",
+  "downloaded_pdf_sha256": "4937544989a8e60567f3376d99092d7850502fbf9a16a53b3411ab8f9633e764",
+  "download_requests": [
+    {
+      "path": "/api/planes/1/pdf",
+      "authorized": true
+    }
+  ],
+  "history_total": 2
+}

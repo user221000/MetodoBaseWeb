@@ -1,0 +1,32 @@
+{
+  "scope": "Real synthetic auth, persisted client create/read and current temporary SQLite; only response delivery and named failures are doubled; no generation or providers",
+  "checks": [
+    "Native pointer registration works; modal labels/focus trap and 320/390 scoped axe/responsive checks pass; success closes and clears the form",
+    "A held real creation disables duplicate submissions; repeat clicks issue no second POST",
+    "Lost response after real creation locks resubmission across modal close/reopen, with a read-only client-list link; persisted client remains reachable",
+    "A 404 transport double after a real successful creation never falls back to old form data or enables another creation POST",
+    "Explicit 422 transport rejection leaves editable inputs and an actionable error without claiming successful creation",
+    "Account switch during a real held POST discards its response before any client GET, clears all sensitive inputs, and closes the modal",
+    "A held real client GET after creation also verifies canonical identity; a same-tab account switch without a storage event cannot select previous-account data",
+    "Late real client-search results are discarded after canonical account change, with search text/list cleared and no stale select buttons"
+  ],
+  "screens": [
+    {
+      "label": "modal-320",
+      "dimensions": {
+        "width": 320,
+        "scrollWidth": 320
+      },
+      "violations": []
+    },
+    {
+      "label": "modal-390",
+      "dimensions": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "violations": []
+    }
+  ],
+  "pageErrors": []
+}

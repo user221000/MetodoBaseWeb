@@ -1,0 +1,51 @@
+{
+  "operation": {
+    "storage": "Current operation only, in memory; discarded on pagehide/session or canonical account/team/role/session_version change",
+    "request": [
+      "id_cliente",
+      "plan_numero",
+      "tipo_plan"
+    ],
+    "key": "crypto.randomUUID created once before profile preparation; explicit preparation of another operation creates a new UUID",
+    "retry": "Original key and frozen DTO retained. Successful profile PUT is not repeated. No automatic new request after ambiguous response",
+    "profile_failure": "Generation POST is not sent unless profile PUT confirms success",
+    "unknown_result": "History opens another tab without losing the current operation; native retry uses the same key",
+    "intentional_new_request": "Explicit review/preparation first refreshes the client count and warns that another request may consume another available plan",
+    "timeout": "60 seconds without confirmation shows recovery; it does not cancel or refund the server reservation",
+    "finished_response": "Requires success=true, matching client and plan type, positive plan id, finite macro totals and nonempty meal objects. No partial success after render failure"
+  },
+  "pdf": {
+    "route": "GET /api/planes/{plan_id}/pdf",
+    "identity": "Bearer and canonical account checks before/after; no latest-plan fallback",
+    "validation": "application/pdf, nonempty Blob, %PDF- signature",
+    "download": "Anchor click then prepared message; no claim that the user saved the file",
+    "cleanup": "Blob URL revoked after 2 seconds or pagehide; response after session change discarded",
+    "legacy_helper": "Api.planes.descargar remains an explicitly latest-client-plan compatibility helper; both changed templates use descargarPorPlan"
+  },
+  "evidence": {
+    "real": [
+      "login and canonical /auth/me",
+      "profile PUT",
+      "generation worker and reservation/quota",
+      "response loss after successful publication",
+      "same-key exact JSON replay and one plan history",
+      "changed-payload same-key 409",
+      "explicit new DTO key and real Free quota denial",
+      "exact owned PDF and real 401/404 boundaries"
+    ],
+    "transport_doubles": [
+      "pending and published-result states",
+      "failed/missing/conflict/reconciliation responses",
+      "HTTP 200 HTML and empty/broken JSON",
+      "unsafe meal quantity/equivalent markup",
+      "held result/PDF during account change"
+    ],
+    "accessibility": "Scoped axe AA only: parameters, results/recovery and history; keyboard Enter retry; responsive 320/390/768/1440 for results",
+    "not_claimed": [
+      "Production/PostgreSQL deployment validation from this browser fixture",
+      "Provider/email/WhatsApp delivery",
+      "A saved local file confirmed by the user",
+      "R26 effective entitlement UI or a grace/quota policy"
+    ]
+  }
+}

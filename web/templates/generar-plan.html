@@ -75,18 +75,19 @@
     <button class="btn btn-icon btn-secondary ml-auto" id="s2-cambiar" title="Cambiar cliente">✏️</button>
   </div>
 
-  <h3 class="chart-title mb-4">Ajustar parámetros del plan</h3>
+  <h3 class="chart-title mb-4" id="s2-heading" tabindex="-1">Ajustar parámetros del plan</h3>
+  <p id="s2-operation-note" role="status" class="mb-4"></p>
 
   <div class="grid-2">
     <div class="input-group">
-      <label class="input-label">Peso actual (kg)</label>
+      <label class="input-label" for="s2-peso">Peso actual (kg)</label>
       <div class="input-wrap">
         <span class="input-icon">⚖️</span>
         <input id="s2-peso" class="input has-icon" type="number" step="0.1" min="40" max="200" />
       </div>
     </div>
     <div class="input-group">
-      <label class="input-label">% Grasa corporal</label>
+      <label class="input-label" for="s2-grasa">% Grasa corporal</label>
       <div class="input-wrap">
         <span class="input-icon">💧</span>
         <input id="s2-grasa" class="input has-icon" type="number" step="0.1" min="5" max="60" placeholder="Opcional" />
@@ -95,7 +96,7 @@
   </div>
   <div class="grid-2">
     <div class="input-group">
-      <label class="input-label">Nivel de actividad</label>
+      <label class="input-label" for="s2-nivel">Nivel de actividad</label>
       <select id="s2-nivel" class="input">
         <option value="nula">Sedentario (nula)</option>
         <option value="leve">Actividad leve</option>
@@ -104,7 +105,7 @@
       </select>
     </div>
     <div class="input-group">
-      <label class="input-label">Objetivo nutricional</label>
+      <label class="input-label" for="s2-objetivo">Objetivo nutricional</label>
       <select id="s2-objetivo" class="input">
         <option value="deficit">Déficit (bajar grasa)</option>
         <option value="mantenimiento">Mantenimiento</option>
@@ -114,7 +115,7 @@
   </div>
   <div class="grid-2" style="align-items:start;">
     <div class="input-group" style="max-width:280px;">
-        <label class="input-label">Variedad de alimentos</label>
+        <label class="input-label" for="s2-variacion">Variedad de alimentos</label>
       <div class="flex gap-2 items-center">
         <input id="s2-variacion" class="input" type="range" min="1" max="5" step="1" value="1" style="flex:1;accent-color:var(--accent-purple)" />
         <span id="s2-variacion-val" class="font-bold" style="color:var(--accent-purple);min-width:2ch;">1</span>
@@ -174,10 +175,22 @@
       STEP 3 — Resultado
 ══════════════════════════════════════════════════════════════ -->
 <div class="plan-step chart-container" id="step-3">
-  <div id="s3-skeleton" class="flex flex-col items-center py-12 gap-4">
+  <div id="s3-skeleton" class="flex flex-col items-center py-12 gap-4" role="status">
     <div class="spinner" style="width:48px;height:48px;border-width:4px;"></div>
-    <p style="color:var(--text-muted)">Calculando plan nutricional...</p>
+    <p id="s3-progress" tabindex="-1">Preparando la solicitud...</p>
   </div>
+
+  <div id="s3-recovery" class="hidden" aria-labelledby="s3-recovery-title">
+    <h2 id="s3-recovery-title" class="chart-title" tabindex="-1">Revisar solicitud</h2>
+    <p id="s3-recovery-message" role="status" style="margin:16px 0;overflow-wrap:anywhere"></p>
+    <div class="generation-actions">
+      <button id="s3-retry" class="btn btn-primary" type="button">Reintentar la misma solicitud</button>
+      <a href="/planes" target="_blank" rel="noopener" class="btn btn-secondary">Consultar historial (otra pestaña)</a>
+      <button id="s3-review" class="btn btn-outline" type="button">Revisar datos para otra solicitud</button>
+    </div>
+    <p style="margin-top:16px">Otra solicitud puede consumir otro plan disponible. Consultar el historial no genera planes ni modifica tu cupo.</p>
+  </div>
+  <p id="s3-download-status" role="status" style="overflow-wrap:anywhere"></p>
 
   <div id="s3-resultado" class="hidden">
     <!-- Success celebration banner -->
@@ -186,7 +199,7 @@
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#34D399" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
       </div>
       <div>
-        <p style="font-weight:700;color:#34D399;font-size:.95rem;margin:0;">¡Plan generado con éxito!</p>
+        <p id="s3-success-title" tabindex="-1" style="font-weight:700;color:#34D399;font-size:.95rem;margin:0;">Plan disponible</p>
         <p style="font-size:.82rem;color:var(--text-muted);margin:2px 0 0;">Descarga el PDF o envíalo directamente a tu cliente</p>
       </div>
     </div>
@@ -200,7 +213,7 @@
         </p>
       </div>
       <div class="ml-auto" style="display:flex;gap:12px;flex-wrap:wrap;">
-        <button class="btn btn-outline" id="s3-nueva-generacion">🔄 Regenerar</button>
+        <button class="btn btn-outline" id="s3-nueva-generacion">Preparar otro plan</button>
         <button class="btn btn-primary" id="s3-descargar-pdf">
           ⬇️ Descargar PDF
         </button>
@@ -257,7 +270,7 @@
 ══════════════════════════════════════════════════════════════ -->
 <div id="modal-nuevo-cliente" class="modal">
   <div class="modal-backdrop"></div>
-  <div class="modal-container" style="max-width:700px;">
+  <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="new-client-title" style="max-width:700px;">
     <div class="modal-header">
       <div style="display:flex;align-items:center;gap:12px;">
         <div style="width:40px;height:40px;border-radius:11px;background:var(--accent-primary-glow);display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -266,11 +279,11 @@
           </svg>
         </div>
         <div>
-          <h3 class="modal-title">Registrar nuevo cliente</h3>
+          <h3 class="modal-title" id="new-client-title">Registrar nuevo cliente</h3>
           <p style="margin:2px 0 0;font-size:0.8rem;color:var(--text-secondary);">Completa los datos básicos para generar su plan</p>
         </div>
       </div>
-      <button class="modal-close" id="modal-nuevo-close">×</button>
+      <button class="modal-close" id="modal-nuevo-close" type="button" aria-label="Cerrar registro de cliente">×</button>
     </div>
     <div class="modal-body">
       <!-- Datos personales -->
@@ -280,25 +293,25 @@
 
       <div class="grid-2" style="margin-bottom:16px;">
         <div class="input-group">
-          <label class="input-label required">Nombre completo</label>
+          <label class="input-label required" for="n-nombre">Nombre completo</label>
           <input id="n-nombre" class="input" type="text" placeholder="Juan Pérez" required autocomplete="name" />
         </div>
         <div class="input-group">
-          <label class="input-label">Teléfono</label>
+          <label class="input-label" for="n-telefono">Teléfono</label>
           <input id="n-telefono" class="input" type="tel" placeholder="3312345678" autocomplete="tel" />
         </div>
       </div>
 
       <div class="grid-2" style="margin-bottom:16px;">
         <div class="input-group">
-          <label class="input-label required">Edad</label>
+          <label class="input-label required" for="n-edad">Edad</label>
           <div class="input-wrap">
             <span class="input-icon">🎂</span>
             <input id="n-edad" class="input has-icon" type="number" min="15" max="80" placeholder="28" required />
           </div>
         </div>
         <div class="input-group">
-          <label class="input-label">Sexo</label>
+          <label class="input-label" for="n-sexo">Sexo</label>
           <select id="n-sexo" class="input">
             <option value="">Sin especificar</option>
             <option value="M">Masculino</option>
@@ -309,7 +322,7 @@
       </div>
 
       <div class="input-group" style="margin-bottom:16px;">
-        <label class="input-label required">Objetivo</label>
+        <label class="input-label required" for="n-objetivo">Objetivo</label>
         <select id="n-objetivo" class="input" required>
           <option value="">Seleccionar...</option>
           <option value="deficit">Déficit (bajar grasa)</option>
@@ -325,21 +338,21 @@
 
       <div class="grid-3" style="margin-bottom:16px;">
         <div class="input-group">
-          <label class="input-label required">Peso (kg)</label>
+          <label class="input-label required" for="n-peso">Peso (kg)</label>
           <div class="input-wrap">
             <span class="input-icon">⚖️</span>
             <input id="n-peso" class="input has-icon" type="number" step="0.1" min="40" max="200" placeholder="75.0" required />
           </div>
         </div>
         <div class="input-group">
-          <label class="input-label required">Estatura (cm)</label>
+          <label class="input-label required" for="n-estatura">Estatura (cm)</label>
           <div class="input-wrap">
             <span class="input-icon">📏</span>
             <input id="n-estatura" class="input has-icon" type="number" step="0.1" min="140" max="220" placeholder="175" required />
           </div>
         </div>
         <div class="input-group">
-          <label class="input-label">% Grasa</label>
+          <label class="input-label" for="n-grasa">% Grasa</label>
           <div class="input-wrap">
             <span class="input-icon">💧</span>
             <input id="n-grasa" class="input has-icon" type="number" step="0.1" min="5" max="60" placeholder="20.0" />
@@ -348,7 +361,7 @@
       </div>
 
       <div class="input-group">
-        <label class="input-label required">Nivel actividad</label>
+        <label class="input-label required" for="n-nivel">Nivel actividad</label>
         <select id="n-nivel" class="input" required>
           <option value="">Seleccionar...</option>
           <option value="nula">Sedentario (nula)</option>
@@ -357,6 +370,8 @@
           <option value="intensa">Actividad intensa</option>
         </select>
       </div>
+      <p id="new-client-status" role="status" tabindex="-1" style="margin-top:16px;overflow-wrap:anywhere"></p>
+      <a id="new-client-history" class="btn btn-secondary hidden" href="/clientes" target="_blank" rel="noopener">Consultar clientes (otra pestaña)</a>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" id="s1-cancelar-nuevo">Cancelar</button>
@@ -374,6 +389,27 @@
 
 {% block scripts %}
 <style>
+#modal-nuevo-cliente > .modal-backdrop { z-index:0; }
+#modal-nuevo-cliente > .modal-container { z-index:1;min-width:0; }
+#modal-nuevo-cliente .modal-footer { flex-wrap:wrap; }
+#modal-nuevo-cliente .modal-footer .btn { white-space:normal; }
+#modal-nuevo-cliente .modal-body { min-height:0; }
+#modal-nuevo-cliente .grid-2 > *, #modal-nuevo-cliente .grid-3 > * { min-width:0; }
+#new-client-status:focus { outline:2px solid var(--accent-primary);outline-offset:4px; }
+@media (max-width:480px) {
+  #modal-nuevo-cliente { padding:12px; }
+  #modal-nuevo-cliente .modal-header, #modal-nuevo-cliente .modal-body, #modal-nuevo-cliente .modal-footer { padding:16px; }
+  #modal-nuevo-cliente .grid-3 { grid-template-columns:1fr; }
+}
+.generation-actions, #step-2 > .flex, #s3-resultado > .flex { flex-wrap: wrap; }
+.generation-actions { display:flex;gap:12px; }
+.generation-actions .btn { white-space:normal;text-align:center; }
+#step-2 .grid-2 > *, #s2-cliente-card > div, #s3-resultado > .flex > * { min-width:0; }
+#s2-cliente-card { flex-wrap:wrap; }
+#s2-nombre, #s3-cliente-nombre { overflow-wrap:anywhere; }
+#step-2 .plan-type-option { padding:12px !important;min-width:0; }
+#step-2 .input-group > .flex:has(.plan-type-option) { flex-wrap:wrap; }
+#step-3 [tabindex="-1"]:focus, #s2-heading:focus { outline:2px solid var(--accent-primary);outline-offset:4px; }
 /* ── Fix: .modal inside .modal-backdrop is a content container, not overlay ── */
 #s2-panel-exclusiones > .modal {
   display: block !important;
@@ -454,16 +490,71 @@
 let _wizard_step = 1;
 let _cliente_sel = null;   // objeto cliente completo
 let _plan_result = null;   // resultado de generación
-let _last_pdf_path = null; // ruta del último PDF generado
+let _operation = null; // Sólo memoria: clave, DTO y preparación de esta operación.
+let _generationBusy = false;
+let _generationEpoch = 0;
+let _accountContext = null;
+let _generationSessionDiscarded = false;
+let _clientCreationBusy = false;
+let _clientCreationState = 'idle';
+
+function discardGenerationSession() {
+  _generationEpoch++;
+  _generationSessionDiscarded = true;
+  _operation = null;
+  _plan_result = null;
+  _cliente_sel = null;
+  _accountContext = null;
+  _generationBusy = false;
+  ['s3-comidas-container', 's3-macros-grid', 's1-resultados', 's2-excl-tags', 's2-avatar', 's2-food-list', 's2-food-panel-tags'].forEach(id => document.getElementById(id).replaceChildren());
+  ['s2-nombre', 's2-meta', 's3-cliente-nombre', 's3-download-status'].forEach(id => document.getElementById(id).textContent = '');
+  ['s2-peso', 's2-grasa', 's1-search', 's2-food-search'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('modal-nuevo-cliente').classList.remove('active');
+  document.querySelector('#modal-nuevo-cliente [role="dialog"]').removeAttribute('aria-busy');
+  document.getElementById('s2-panel-exclusiones').classList.add('hidden');
+  document.querySelectorAll('#modal-nuevo-cliente input, #modal-nuevo-cliente select').forEach(field => { field.value = ''; field.disabled = true; });
+  document.getElementById('new-client-status').textContent = '';
+  _clientCreationState = 'discarded';
+  _clientCreationBusy = false;
+  document.getElementById('s1-registrar').disabled = true;
+  _s2Excluidos.clear();
+  document.getElementById('s3-resultado').classList.add('hidden');
+  document.getElementById('s3-skeleton').classList.add('hidden');
+  document.getElementById('s3-recovery').classList.remove('hidden');
+  document.getElementById('s3-recovery-message').textContent = 'La sesión cambió. Abre de nuevo esta página desde tu cuenta y consulta el historial antes de preparar otra solicitud.';
+  document.getElementById('s3-retry').disabled = true;
+  document.getElementById('s3-review').disabled = true;
+  irAStep(3);
+}
+window.addEventListener('storage', (event) => {
+  if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) discardGenerationSession();
+});
+window.addEventListener('pagehide', () => { _generationEpoch++; _operation = null; _plan_result = null; _cliente_sel = null; });
+window.addEventListener('pageshow', (event) => { if (event.persisted) discardGenerationSession(); });
+
+async function verifyGenerationAccount(epoch) {
+  if (_generationSessionDiscarded || epoch !== _generationEpoch) throw new Error('La sesión cambió.');
+  const context = await Api.planes.contexto();
+  if (_generationSessionDiscarded || epoch !== _generationEpoch) throw new Error('La sesión cambió.');
+  if (_accountContext && _accountContext !== context) {
+    discardGenerationSession();
+    throw new Error('La sesión cambió.');
+  }
+  _accountContext = context;
+}
 
 // ── Inicialización ───────────────────────────────────────────
 (async () => {
+  const epoch = _generationEpoch;
+  try { await verifyGenerationAccount(epoch); }
+  catch { discardGenerationSession(); return; }
   // Si llegó con ?id=xxx cargar cliente directo
   const params = new URLSearchParams(location.search);
   const idParam = params.get('id');
   if (idParam) {
     try {
       const c = await Api.clientes.obtener(idParam);
+      await verifyGenerationAccount(epoch);
       seleccionarCliente(c);
     } catch(e) { /* ignorar */ }
   } else {
@@ -497,10 +588,14 @@ document.getElementById('s1-search').addEventListener('input', debounce(async (e
 }, 600));
 
 async function buscarClientes(q) {
+  if (_generationSessionDiscarded) return;
+  const epoch = _generationEpoch;
   const cont = document.getElementById('s1-resultados');
   cont.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><p>Buscando...</p></div>';
   try {
+    await verifyGenerationAccount(epoch);
     const res = await Api.clientes.listar(q, q ? 100 : 50);
+    await verifyGenerationAccount(epoch);
     const lista = res.clientes || [];
     if (!lista.length) {
       cont.innerHTML = q
@@ -523,15 +618,20 @@ async function buscarClientes(q) {
         </div>
       `;
       div.querySelector('.av-placeholder').replaceWith(buildAvatar(c.nombre));
-      div.querySelector('button').addEventListener('click', () => seleccionarCliente(c));
+      div.querySelector('button').addEventListener('click', async () => {
+        try { await verifyGenerationAccount(epoch); seleccionarCliente(c); }
+        catch { /* La comprobación descarta la identidad anterior. */ }
+      });
       cont.appendChild(div);
     });
   } catch(e) {
-    Toast.error('Error buscando: ' + e.message);
+    if (epoch === _generationEpoch) Toast.error('Error buscando: ' + e.message);
   }
 }
 
 function seleccionarCliente(c) {
+  if (_generationBusy || _generationSessionDiscarded) return;
+  if (_operation && _operation.request.id_cliente !== c.id_cliente) return;
   _cliente_sel = c;
 
   // Poblar step-2
@@ -554,37 +654,48 @@ avContainer.appendChild(buildAvatar(c.nombre, 'lg'));
 
 // Botón "nuevo cliente" — abrir modal
 const modalNuevo = document.getElementById('modal-nuevo-cliente');
-document.getElementById('s1-btn-nuevo').addEventListener('click', () => {
+document.getElementById('s1-btn-nuevo').addEventListener('click', async () => {
+  if (_generationSessionDiscarded || _clientCreationBusy) return;
+  const epoch = _generationEpoch;
+  try { await verifyGenerationAccount(epoch); } catch { return; }
   modalNuevo.classList.add('active');
-  // Limpiar campos
-  document.getElementById('n-nombre').value = '';
-  document.getElementById('n-telefono').value = '';
-  document.getElementById('n-edad').value = '';
-  document.getElementById('n-sexo').value = '';
-  document.getElementById('n-objetivo').value = '';
-  document.getElementById('n-peso').value = '';
-  document.getElementById('n-estatura').value = '';
-  document.getElementById('n-grasa').value = '';
-  document.getElementById('n-nivel').value = '';
-  // Focus en nombre
-  setTimeout(() => document.getElementById('n-nombre').focus(), 100);
+  const locked = ['uncertain', 'created'].includes(_clientCreationState);
+  modalNuevo.querySelectorAll('input, select').forEach(field => { field.value = ''; field.disabled = locked; });
+  document.getElementById('s1-registrar').disabled = locked;
+  if (!locked) {
+    document.getElementById('new-client-status').textContent = '';
+    document.getElementById('new-client-history').classList.add('hidden');
+    document.getElementById('n-nombre').focus();
+  } else document.getElementById('new-client-status').focus();
 });
 
 // Cerrar modal
-function cerrarModalNuevo() {
+function cerrarModalNuevo(force = false) {
+  if (_clientCreationBusy && force !== true) return;
   modalNuevo.classList.remove('active');
+  modalNuevo.querySelectorAll('input, select').forEach(field => { field.value = ''; });
+  if (!_generationSessionDiscarded) document.getElementById('s1-btn-nuevo').focus();
 }
-document.getElementById('s1-cancelar-nuevo').addEventListener('click', cerrarModalNuevo);
-document.getElementById('modal-nuevo-close').addEventListener('click', cerrarModalNuevo);
-document.querySelector('#modal-nuevo-cliente .modal-backdrop').addEventListener('click', cerrarModalNuevo);
+document.getElementById('s1-cancelar-nuevo').addEventListener('click', () => cerrarModalNuevo());
+document.getElementById('modal-nuevo-close').addEventListener('click', () => cerrarModalNuevo());
+document.querySelector('#modal-nuevo-cliente .modal-backdrop').addEventListener('click', () => cerrarModalNuevo());
 
 // Cerrar con ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && modalNuevo.classList.contains('active')) {
     cerrarModalNuevo();
   }
+  if (e.key === 'Tab' && modalNuevo.classList.contains('active')) {
+    const focusable = [...modalNuevo.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href]')].filter(element => element.getClientRects().length);
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !focusable.includes(document.activeElement))) { e.preventDefault(); first.focus(); }
+  }
 });
 document.getElementById('s1-registrar').addEventListener('click', async () => {
+  if (_clientCreationBusy || _generationSessionDiscarded || _clientCreationState !== 'idle') return;
+  for (const field of modalNuevo.querySelectorAll('input, select')) { if (!field.reportValidity()) return; }
   const nombre  = document.getElementById('n-nombre').value.trim();
   const peso    = parseFloat(document.getElementById('n-peso').value);
   const estatura= parseFloat(document.getElementById('n-estatura').value);
@@ -606,70 +717,204 @@ document.getElementById('s1-registrar').addEventListener('click', async () => {
     telefono: document.getElementById('n-telefono').value.trim()   || null,
     grasa_corporal_pct: parseFloat(document.getElementById('n-grasa').value) || null,
   };
+  const epoch = _generationEpoch;
+  const status = document.getElementById('new-client-status');
+  _clientCreationBusy = true;
+  modalNuevo.querySelector('[role="dialog"]').setAttribute('aria-busy', 'true');
+  ['s1-cancelar-nuevo', 'modal-nuevo-close'].forEach(id => document.getElementById(id).disabled = true);
+  document.getElementById('s1-registrar').disabled = true;
+  modalNuevo.querySelectorAll('input, select').forEach(field => { field.disabled = true; });
+  status.textContent = 'Registrando cliente. Esta acción se enviará una sola vez...';
+  status.focus();
+  let attempted = false;
+  let timer;
   try {
-    const created = await Api.clientes.crear(payload);
-    Toast.success('¡Cliente registrado!');
-    // Fetch full client to get all computed fields
-    let fullClient;
-    try {
-      fullClient = await Api.clientes.obtener(created.id_cliente);
-    } catch(_e) {
-      fullClient = { ...payload, id_cliente: created.id_cliente };
-    }
+    await verifyGenerationAccount(epoch);
+    attempted = true;
+    const created = await Promise.race([
+      Api.clientes.crear(payload),
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Sin confirmación del alta.')), 60000); }),
+    ]);
+    await verifyGenerationAccount(epoch);
+    if (!created || created.success !== true || typeof created.id_cliente !== 'string' || !created.id_cliente) throw new Error('El servidor no confirmó el alta.');
+    _clientCreationState = 'created';
+    status.textContent = 'Cliente registrado. Cargando sus datos...';
+    const fullClient = await Api.clientes.obtener(created.id_cliente);
+    await verifyGenerationAccount(epoch);
+    if (!fullClient || fullClient.id_cliente !== created.id_cliente || typeof fullClient.nombre !== 'string') throw new Error('No se pudieron cargar los datos del cliente.');
+    _clientCreationState = 'idle';
+    cerrarModalNuevo(true);
     seleccionarCliente(fullClient);
+    document.getElementById('s2-heading').focus();
   } catch(e) {
-    Toast.error('Error: ' + e.message);
+    try { await verifyGenerationAccount(epoch); } catch { /* Nunca rehidratar datos de la identidad anterior. */ }
+    if (epoch !== _generationEpoch || _generationSessionDiscarded) return;
+    if (_clientCreationState === 'created') {
+      status.textContent = 'El cliente fue registrado, pero no se pudieron cargar sus datos. Consulta la lista de clientes; no vuelvas a registrar la misma persona.';
+    } else if (attempted && (!e.status || e.status >= 500)) {
+      _clientCreationState = 'uncertain';
+      status.textContent = 'No se pudo confirmar el alta. El cliente podría haberse registrado. Consulta la lista antes de preparar otra alta; esta solicitud no se enviará de nuevo.';
+    } else {
+      status.textContent = e.message || 'No se pudo registrar el cliente.';
+    }
+    document.getElementById('new-client-history').classList.toggle('hidden', _clientCreationState === 'idle');
+    status.focus();
+  } finally {
+    clearTimeout(timer);
+    if (epoch === _generationEpoch && !_generationSessionDiscarded) {
+      _clientCreationBusy = false;
+      modalNuevo.querySelector('[role="dialog"]').removeAttribute('aria-busy');
+      ['s1-cancelar-nuevo', 'modal-nuevo-close'].forEach(id => document.getElementById(id).disabled = false);
+      const locked = _clientCreationState !== 'idle';
+      document.getElementById('s1-registrar').disabled = locked;
+      modalNuevo.querySelectorAll('input, select').forEach(field => { field.disabled = locked; });
+    }
   }
 });
 
 // Cambiar cliente desde step-2
-document.getElementById('s2-cambiar').addEventListener('click', () => irAStep(1));
-document.getElementById('s2-back').addEventListener('click', () => irAStep(1));
+document.getElementById('s2-cambiar').addEventListener('click', () => { if (!_generationBusy) irAStep(1); });
+document.getElementById('s2-back').addEventListener('click', () => { if (!_generationBusy) irAStep(1); });
 
 // ── STEP 2 → 3: Generar plan ──────────────────────────────────
 document.getElementById('s2-generar').addEventListener('click', async () => {
-  if (!_cliente_sel) { Toast.error('Selecciona un cliente primero'); return; }
-
-  const btnGenerar = document.getElementById('s2-generar');
-  if (btnGenerar.disabled) return;
-  btnGenerar.disabled = true;
-  btnGenerar.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Generando...';
-
-  // Actualizar datos del cliente antes de generar
-  try {
-    await Api.clientes.actualizar(_cliente_sel.id_cliente, {
-      peso_kg:           parseFloat(document.getElementById('s2-peso').value) || _cliente_sel.peso_kg,
-      grasa_corporal_pct: parseFloat(document.getElementById('s2-grasa').value) || null,
-      nivel_actividad:   document.getElementById('s2-nivel').value,
-      objetivo:          document.getElementById('s2-objetivo').value,
-      alimentos_excluidos: _s2Excluidos.size > 0 ? [..._s2Excluidos] : null,
-    });
-  } catch(e) { /* continuar aunque falle la actualización */ }
-
-  irAStep(3);
-  document.getElementById('s3-skeleton').classList.remove('hidden');
-  document.getElementById('s3-resultado').classList.add('hidden');
-
-  // Auto-increment plan_numero based on client's plan count for proper food rotation
-  const planNumero = (_cliente_sel.total_planes_generados || _cliente_sel.total_planes || 0) + 1;
-  const tipoPlan = document.querySelector('input[name="tipo_plan"]:checked').value;
-
-  try {
-    const plan = await Api.planes.generar(_cliente_sel.id_cliente, planNumero, tipoPlan);
-    _plan_result = plan;
-    _last_pdf_path = plan.ruta_pdf || null;
-    // Update local plan count so further regenerations increment properly
-    _cliente_sel.total_planes_generados = (_cliente_sel.total_planes_generados || 0) + 1;
-    _cliente_sel.total_planes = _cliente_sel.total_planes_generados;
-    renderResultado(plan);
-  } catch(e) {
-    Toast.error('Error generando plan: ' + e.message);
-    irAStep(2);
-  } finally {
-    btnGenerar.disabled = false;
-    btnGenerar.innerHTML = '<span>Generar plan</span><svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 9l3 3-3 3m-5-3h8"/></svg>';
+  if (!_cliente_sel || _generationBusy) return;
+  for (const field of document.querySelectorAll('#step-2 input, #step-2 select')) {
+    if (!field.reportValidity()) return;
   }
+  if (!_operation) {
+    _operation = {
+      key: crypto.randomUUID(),
+      request: Object.freeze({
+        id_cliente: _cliente_sel.id_cliente,
+        plan_numero: (_cliente_sel.total_planes_generados || _cliente_sel.total_planes || 0) + 1,
+        tipo_plan: document.querySelector('input[name="tipo_plan"]:checked').value,
+      }),
+      profile: {
+        peso_kg: parseFloat(document.getElementById('s2-peso').value) || _cliente_sel.peso_kg,
+        grasa_corporal_pct: parseFloat(document.getElementById('s2-grasa').value) || null,
+        nivel_actividad: document.getElementById('s2-nivel').value,
+        objetivo: document.getElementById('s2-objetivo').value,
+        alimentos_excluidos: _s2Excluidos.size ? [..._s2Excluidos].sort() : null,
+      },
+      prepared: false, counted: false,
+    };
+  }
+  await runGenerationOperation();
 });
+
+function generationProblem(error) {
+  const messages = {
+    generation_in_progress: 'Esta solicitud sigue en proceso. Consulta el historial o reintenta la misma solicitud para consultar su estado.',
+    generation_result_pending: 'El plan puede estar publicado y su respuesta sigue pendiente. Consulta el historial; el reintento conserva la misma solicitud.',
+    generation_failed: 'Esta solicitud no pudo completarse. Su clave no ejecutará otra generación. Consulta el historial antes de preparar otra solicitud.',
+    generation_result_unavailable: 'El resultado de esta solicitud ya no está disponible. Consulta el historial antes de preparar otra solicitud.',
+    generation_reconciliation_required: 'No se pudo confirmar el estado de esta solicitud ni su cupo. Consulta el historial y conserva esta solicitud para volver a consultar.',
+    idempotency_conflict: 'El servidor detectó datos distintos para esta solicitud. No se generará otra automáticamente. Revisa el historial antes de continuar.',
+    generation_unavailable: 'No se pudo preparar el plan con estos datos. Revisa los datos antes de preparar otra solicitud.',
+  };
+  return messages[error.code] || (error.status && error.status < 500
+    ? error.message
+    : 'No se pudo confirmar el resultado. El plan podría haberse generado. Consulta el historial o reintenta la misma solicitud; no se creará otra clave.');
+}
+
+async function runGenerationOperation() {
+  if (!_operation || _generationBusy || _generationSessionDiscarded) return;
+  const operation = _operation;
+  const epoch = _generationEpoch;
+  _generationBusy = true;
+  document.getElementById('s2-generar').disabled = true;
+  document.getElementById('s3-retry').disabled = true;
+  document.getElementById('s3-review').disabled = true;
+  document.getElementById('s3-recovery').classList.add('hidden');
+  document.getElementById('s3-resultado').classList.add('hidden');
+  document.getElementById('s3-skeleton').classList.remove('hidden');
+  document.getElementById('s3-download-status').textContent = '';
+  irAStep(3);
+  document.getElementById('s3-progress').focus();
+  let timer;
+  try {
+    await verifyGenerationAccount(epoch);
+    if (!operation.prepared) {
+      document.getElementById('s3-progress').textContent = 'Guardando los datos del cliente...';
+      const updated = await Api.clientes.actualizar(operation.request.id_cliente, operation.profile);
+      if (epoch !== _generationEpoch) return;
+      if (!updated || updated.success !== true) throw new Error('El servidor no confirmó la actualización del cliente.');
+      operation.prepared = true;
+      Object.assign(_cliente_sel, operation.profile);
+    }
+    await verifyGenerationAccount(epoch);
+    document.getElementById('s3-progress').textContent = 'Calculando el plan. Esta solicitud se conserva para cualquier reintento...';
+    const plan = await Promise.race([
+      Api.planes.generar(operation.request.id_cliente, operation.request.plan_numero, operation.request.tipo_plan, operation.key),
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Sin confirmación del servidor.')), 60000); }),
+    ]);
+    await verifyGenerationAccount(epoch);
+    if (epoch !== _generationEpoch || operation !== _operation) return;
+    if (!plan || plan.success !== true || !Number.isSafeInteger(plan.plan_id) || plan.plan_id < 1 ||
+        plan.id_cliente !== operation.request.id_cliente || plan.tipo_plan !== operation.request.tipo_plan ||
+        !plan.plan || typeof plan.plan !== 'object' || Array.isArray(plan.plan) || !Object.keys(plan.plan).length ||
+        !Object.values(plan.plan).every(meal => meal && typeof meal === 'object' && !Array.isArray(meal)) || !plan.macros ||
+        !['kcal_objetivo', 'proteina_g', 'carbs_g', 'grasa_g'].every(key => typeof plan.macros[key] === 'number' && Number.isFinite(plan.macros[key]))) {
+      throw new Error('Respuesta de generación no válida.');
+    }
+    _plan_result = plan;
+    operation.completed = true;
+    if (!operation.counted) {
+      _cliente_sel.total_planes_generados = operation.request.plan_numero;
+      _cliente_sel.total_planes = operation.request.plan_numero;
+      operation.counted = true;
+    }
+    renderResultado(plan);
+    document.getElementById('s3-success-title').focus();
+  } catch (error) {
+    if (epoch !== _generationEpoch || operation !== _operation) return;
+    document.getElementById('s3-skeleton').classList.add('hidden');
+    document.getElementById('s3-resultado').classList.add('hidden');
+    document.getElementById('s3-recovery').classList.remove('hidden');
+    document.getElementById('s3-recovery-message').textContent = operation.prepared
+      ? generationProblem(error)
+      : 'No se pudo confirmar la actualización del cliente. No se envió la generación. Puedes reintentar esta preparación o revisar los datos. ' + error.message;
+    document.getElementById('s3-retry').hidden = ['generation_failed', 'generation_result_unavailable', 'idempotency_conflict', 'generation_unavailable'].includes(error.code);
+    document.getElementById('s3-recovery-title').focus();
+  } finally {
+    clearTimeout(timer);
+    if (epoch === _generationEpoch) {
+      _generationBusy = false;
+      document.getElementById('s2-generar').disabled = false;
+      document.getElementById('s3-retry').disabled = false;
+      document.getElementById('s3-review').disabled = false;
+    }
+  }
+}
+document.getElementById('s3-retry').addEventListener('click', runGenerationOperation);
+
+async function prepareAnotherOperation(otherClient = false) {
+  if (_generationBusy || _generationSessionDiscarded) return;
+  _generationBusy = true;
+  document.getElementById('s2-generar').disabled = true;
+  const epoch = _generationEpoch;
+  try {
+    await verifyGenerationAccount(epoch);
+    if (!otherClient && _cliente_sel) {
+      const current = await Api.clientes.obtener(_cliente_sel.id_cliente);
+      await verifyGenerationAccount(epoch);
+      _generationBusy = false;
+      seleccionarCliente(current);
+    }
+    _operation = null;
+    _plan_result = null;
+    document.getElementById('s3-retry').hidden = false;
+    document.getElementById('s2-operation-note').textContent = 'Prepararás otra solicitud. Si la anterior no estaba confirmada, revisa primero el historial. La nueva solicitud puede consumir otro plan disponible.';
+    if (otherClient) { _cliente_sel = null; irAStep(1); await buscarClientes(''); }
+    else { irAStep(2); document.getElementById('s2-heading').focus(); }
+  } catch (error) {
+    if (epoch === _generationEpoch) document.getElementById('s3-download-status').textContent = error.message;
+  } finally {
+    if (epoch === _generationEpoch) { _generationBusy = false; document.getElementById('s2-generar').disabled = false; }
+  }
+}
+document.getElementById('s3-review').addEventListener('click', () => prepareAnotherOperation());
 
 function renderResultado(plan) {
   document.getElementById('s3-skeleton').classList.add('hidden');
@@ -733,11 +978,11 @@ function renderComidasMenuFijo(plan, cc) {
           <div class="meal-header">
             <span class="meal-number">${idx + 1}</span>
             <span class="font-semibold">${esc(nombre_comida)}</span>
-            <span class="ml-auto text-xs text-muted">${com.kcal ?? ''} kcal</span>
+            <span class="ml-auto text-xs text-muted">${esc(String(com.kcal ?? ''))} kcal</span>
           </div>
           ${alimentos.length ? `
           <ul class="meal-foods">
-            ${alimentos.map(a => `<li>${esc(formatFoodName(a.nombre ?? a))} <span class="text-muted">${a.cantidad_g ?? a.gramos ?? ''}g</span></li>`).join('')}
+            ${alimentos.map(a => `<li>${esc(formatFoodName(a.nombre ?? a))} <span class="text-muted">${esc(String(a.cantidad_g ?? a.gramos ?? ''))}g</span></li>`).join('')}
           </ul>` : ''}
         </div>
       `;
@@ -794,7 +1039,7 @@ function renderComidasOpciones(plan, cc) {
               <span class="option-badge" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:${meta.color};color:#fff;font-size:.75rem;font-weight:700;flex-shrink:0;">${opIdx + 1}</span>
               <div style="flex:1;min-width:0;">
                 <span class="font-semibold text-sm">${esc(nombreAlimento)}</span>
-                <span class="text-xs text-muted" style="margin-left:8px;">${op.gramos}g${equivalencia}</span>
+                <span class="text-xs text-muted" style="margin-left:8px;">${esc(String(op.gramos ?? ''))}g${esc(equivalencia)}</span>
               </div>
             </div>`;
       });
@@ -818,7 +1063,7 @@ function renderComidasOpciones(plan, cc) {
         mealHtml += `
           <div style="padding:8px 14px;border-radius:10px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.12);">
             <span class="text-sm">${esc(nombreVeg)}</span>
-            <span class="text-xs text-muted" style="margin-left:8px;">${v.gramos}g</span>
+            <span class="text-xs text-muted" style="margin-left:8px;">${esc(String(v.gramos ?? ''))}g</span>
           </div>`;
       });
       mealHtml += `</div>`;
@@ -831,12 +1076,18 @@ function renderComidasOpciones(plan, cc) {
 
 // ── PDF ──────────────────────────────────────────────────────
 document.getElementById('s3-descargar-pdf').addEventListener('click', async () => {
-  if (!_cliente_sel) return;
+  if (!_plan_result) return;
+  const button = document.getElementById('s3-descargar-pdf');
+  const epoch = _generationEpoch;
+  button.disabled = true;
   try {
-    await Api.planes.descargar(_cliente_sel.id_cliente);
-    Toast.success('PDF descargado');
-  } catch (e) {    // If the latest plan download fails, provide a clear message    Toast.error(e.message || 'Error al descargar PDF');
-  }
+    await verifyGenerationAccount(epoch);
+    await Api.planes.descargarPorPlan(_plan_result.plan_id);
+    if (epoch === _generationEpoch) document.getElementById('s3-download-status').textContent = 'PDF de este plan preparado para descargar.';
+  } catch (error) {
+    try { await verifyGenerationAccount(epoch); } catch { /* Descarta datos de la sesión anterior. */ }
+    if (epoch === _generationEpoch) document.getElementById('s3-download-status').textContent = error.message || 'No se pudo descargar este plan.';
+  } finally { button.disabled = false; }
 });
 
 // ── WhatsApp share ──────────────────────────────────────────
@@ -876,22 +1127,10 @@ document.getElementById('s3-whatsapp').addEventListener('click', () => {
 });
 
 // Regenerar / volver
-document.getElementById('s3-nueva-generacion').addEventListener('click', () => irAStep(2));
-document.getElementById('s3-nuevo-plan').addEventListener('click', () => {
-  _cliente_sel = null;
-  _plan_result = null;
-  _last_pdf_path = null;
-  document.getElementById('s1-search').value = '';
-  document.getElementById('s1-resultados').innerHTML = `<div class="empty-state"><div class="empty-state-icon"><img src="/static/img/users-alt.png" style="width:32px;height:32px"></div><p>Escribe un nombre para buscar clientes</p></div>`;
-  irAStep(1);
-  buscarClientes('');
-});
+document.getElementById('s3-nueva-generacion').addEventListener('click', () => prepareAnotherOperation());
+document.getElementById('s3-nuevo-plan').addEventListener('click', () => prepareAnotherOperation(true));
 // New plan for the same client (skip step 1)
-document.getElementById('s3-nuevo-plan-mismo').addEventListener('click', () => {
-  _plan_result = null;
-  _last_pdf_path = null;
-  irAStep(2);
-});
+document.getElementById('s3-nuevo-plan-mismo').addEventListener('click', () => prepareAnotherOperation());
 
 // ── Utils ────────────────────────────────────────────────────
 // Plan type radio highlight
@@ -937,15 +1176,19 @@ function s2Humanize(name) {
 }
 
 async function s2LoadCatalog() {
+  if (_generationSessionDiscarded) return;
+  const epoch = _generationEpoch;
   try {
+    await verifyGenerationAccount(epoch);
     const res = await fetch('/api/alimentos/catalogo', {
       headers: {'Authorization': 'Bearer ' + (localStorage.getItem('mb_token') || '')}
     });
     if (res.ok) {
       const data = await res.json();
+      await verifyGenerationAccount(epoch);
       _s2CatalogoAlimentos = data.categorias || {};
     }
-  } catch(e) { console.warn('Catálogo no disponible:', e.message); }
+  } catch { /* El catálogo no habilita acciones cuando la identidad deja de ser válida. */ }
 }
 
 // Load client's existing exclusions when selected
