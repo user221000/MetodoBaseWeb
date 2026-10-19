@@ -1,0 +1,280 @@
+"""MFA31 on owned migrated PG, restricted app roles, real locks and commits."""
+import base64
+from datetime import datetime, timedelta, timezone
+import importlib
+import multiprocessing
+import uuid
+
+from fastapi import HTTPException
+from fastapi.testclient import TestClient
+import pytest
+from sqlalchemy import create_engine, event, select, text, update
+from sqlalchemy.orm import Session, sessionmaker
+
+from tests.mfa31_fixtures import mfa_database as migration_database
+from tests.integration_schema_migrations import run_migration
+from tests.integration_provider_subjects import application_engine
+from tests.mfa31_fixtures import REVISION
+from web.database.models import Usuario, UserRole, MfaCredential, MfaAuthorization, MfaRecoveryCode, RefreshToken
+from web.database.tenant_context import configure_tenant_engine
+from web.services import mfa_service as mfa
+from web.services.mfa_crypto import totp
+
+pytestmark = pytest.mark.parametrize("migration_database", ["postgresql"], indirect=True)
+PASSWORD = "SyntheticMfaPassword123"
+
+
+@pytest.fixture
+def mfa_pg(migration_database, monkeypatch):
+    from web import auth
+    from web.database import engine as database
+    from web.settings import get_settings
+    url, admin = migration_database
+    run_migration(url, "db_bootstrap.py", "--revision", REVISION)
+    ids = [str(uuid.uuid4()) for _ in range(4)]
+    with Session(admin) as db:
+        for index, identity in enumerate(ids):
+            db.add(Usuario(id=identity, email=identity + "@example.invalid", password_hash=auth.hash_password(PASSWORD),
+                nombre="Synthetic", apellido="", tipo="gym" if index < 2 else "usuario",
+                role=UserRole.OWNER if index < 2 else (UserRole.ADMIN if index == 2 else UserRole.VIEWER),
+                team_gym_id=ids[0] if index == 2 else None, activo=True, session_version=0))
+            db.flush()
+        db.commit()
+    app = application_engine(url, admin)
+    @event.listens_for(app, "connect")
+    def timeout(connection, record):
+        with connection.cursor() as cursor:
+            cursor.execute("SET statement_timeout='12000ms'")
+        connection.commit()
+    monkeypatch.setattr(database, "_engine", app)
+    monkeypatch.setattr(database, "_SessionLocal", sessionmaker(bind=app, autoflush=False, expire_on_commit=False))
+    monkeypatch.setattr(get_settings(), "MFA_ENCRYPTION_KEY", base64.urlsafe_b64encode(b"mfa31-synthetic-isolated-key-00000"[:32]).decode())
+    auth.init_auth()
+    try:
+        yield admin, app, ids
+    finally:
+        app.dispose()
+
+
+def identity(engine, actor):
+    from web.auth import identity_from_user
+    with Session(engine) as db:
+        return identity_from_user(db.get(Usuario, actor), db)
+
+
+def enrolled(app, actor, now, *, access=None):
+    from web.auth import crear_access_token
+    current = identity(app, actor)
+    access = access or crear_access_token(current)
+    with Session(app) as db:
+        proof = mfa.reauthenticate(db, current, access, password=PASSWORD, now=now)["reauthentication_token"]
+    with Session(app) as db:
+        started = mfa.enroll(db, current, access, proof, now=now)
+    seed = base64.b32decode(started["secret"])
+    with Session(app) as db:
+        enabled = mfa.confirm_enrollment(db, current, started["enrollment_id"], totp(seed, int(now.timestamp()) // 30), now=now)
+    return seed, enabled["recovery_codes"], identity(app, actor)
+
+
+def challenge(app, current, now):
+    with Session(app) as db:
+        return mfa.login(db, current, now=now)["challenge"]
+
+
+def logged_in(app, actor, now):
+    seed, codes, current = enrolled(app, actor, now)
+    token = challenge(app, current, now)
+    with Session(app) as db:
+        pair = mfa.verify_login(db, token, recovery_code=codes[0], now=now)
+    return pair, current, seed, codes
+
+
+def test_restricted_actor_only_force_rls_context_commit_rollback_and_pool(mfa_pg):
+    from web.database.mfa_policy import bind_mfa_actor
+    admin, app, ids = mfa_pg
+    now = datetime.now(timezone.utc)
+    for actor in ids[:2]:
+        enrolled(app, actor, now)
+    enrolled(app, ids[2], now)  # An admin owns a factor independent of its gym.
+    with app.connect() as db:
+        flags = db.execute(text("SELECT rolsuper,rolbypassrls,pg_has_role(current_user,(SELECT relowner FROM pg_class WHERE oid='mfa_credentials'::regclass),'MEMBER') FROM pg_roles WHERE rolname=current_user")).one()
+        assert tuple(flags) == (False, False, False)
+        assert db.scalar(text("SELECT count(*) FROM mfa_credentials")) == 0
+    with Session(app) as db:
+        bind_mfa_actor(db, ids[2])
+        assert db.scalars(select(MfaCredential.user_id)).all() == [ids[2]]
+        assert len(db.scalars(select(MfaRecoveryCode.id).where(MfaRecoveryCode.user_id == ids[2])).all()) == 8
+        assert db.get(MfaCredential, ids[0]) is None
+        db.commit()
+        assert db.scalar(text("SELECT current_setting('app.mfa_actor',true)")) == ""
+        assert db.scalar(text("SELECT count(*) FROM mfa_credentials")) == 0
+        bind_mfa_actor(db, ids[0])
+        db.rollback()
+        assert db.scalar(text("SELECT count(*) FROM mfa_credentials")) == 0
+    with app.connect() as db:
+        # A persistent setting is shadowed at the next BEGIN as well.
+        db.execute(text("SELECT set_config('app.mfa_actor',:id,false)"), {"id": ids[0]})
+        db.commit()
+        assert db.scalar(text("SELECT current_setting('app.mfa_actor',true)")) == ""
+    with Session(app) as db:
+        bind_mfa_actor(db, ids[0])
+        with pytest.raises(Exception) as caught:
+            db.execute(text("UPDATE mfa_credentials SET user_id=:other WHERE user_id=:own"), {"own":ids[0], "other":ids[1]})
+        assert getattr(caught.value.orig, "pgcode", None) == "42501"
+
+
+def _race(url, proof, evidence, start, ready, output, operation, actor=None, access=None, body=None, test_now=None):
+    from tests.isolation import block_external_sockets, validate_postgres_test_url
+    from web import auth
+    from web.database import engine as database
+    from web.settings import get_settings
+    from web.services import team_invitation_service as invitations
+    block_external_sockets()
+    validate_postgres_test_url(url)
+    app = configure_tenant_engine(create_engine(url, pool_size=1, max_overflow=0))
+    database._engine = app
+    database._SessionLocal = sessionmaker(bind=app, autoflush=False, expire_on_commit=False)
+    get_settings().MFA_ENCRYPTION_KEY = base64.urlsafe_b64encode(b"mfa31-synthetic-isolated-key-00000"[:32]).decode()
+    auth.init_auth()
+    clock = datetime.fromisoformat(test_now) if test_now else None
+    try:
+        ready.put(True)
+        if not start.wait(20):
+            output.put({"error":"barrier"})
+            return
+        with Session(app) as db:
+            if operation == "otp":
+                mfa.verify_login(db, proof, code=evidence, now=clock)
+            elif operation == "recovery":
+                mfa.verify_login(db, proof, recovery_code=evidence, now=clock)
+            else:
+                current = mfa.consume_step_up(db, actor, access, proof, "PATCH", body["path"], body["body"], now=clock)
+                target = db.get(Usuario, body["target"], populate_existing=True)
+                invitations.change_role(db, current, target, UserRole.VIEWER)
+        output.put({"status":200})
+    except HTTPException as error:
+        output.put({"status":error.status_code,"code":error.detail.get("code")})
+    except Exception as error:
+        output.put({"error":type(error).__name__})
+    finally:
+        app.dispose()
+
+
+@pytest.mark.parametrize("operation", ["otp", "recovery", "action"])
+def test_two_processes_cannot_replay_otp_recovery_or_exact_action(mfa_pg, operation):
+    admin, app, ids = mfa_pg
+    now = datetime.now(timezone.utc)
+    seed, codes, current = enrolled(app, ids[0], now - timedelta(seconds=31))
+    proofs = [challenge(app, current, now) for _ in range(2)]
+    evidence = totp(seed, int(now.timestamp()) // 30) if operation == "otp" else codes[0]
+    access = body = None
+    if operation == "action":
+        with Session(app) as db:
+            pair = mfa.verify_login(db, proofs[0], recovery_code=codes[1], now=now)
+        access = pair["token"]
+        body = {"path":"/api/gym/team/" + ids[2] + "/role", "body":{"role":"viewer"}, "target":ids[2]}
+        with Session(app) as db:
+            grant = mfa.issue_step_up(db, current, access, "PATCH", body["path"], body["body"], now=now)
+        proofs = [grant["grant"]] * 2
+    if operation == "otp":
+        proofs = [proofs[0]] * 2
+    context = multiprocessing.get_context("spawn")
+    start, ready, output = context.Event(), context.Queue(), context.Queue()
+    workers = [context.Process(target=_race, args=(app.url.render_as_string(hide_password=False), proofs[index], evidence,
+        start, ready, output, operation, current, access, body, now.isoformat())) for index in range(2)]
+    for worker in workers: worker.start()
+    try:
+        assert ready.get(timeout=25) and ready.get(timeout=25)
+        start.set()
+        results = [output.get(timeout=30), output.get(timeout=30)]
+        assert sum(item.get("status") == 200 for item in results) == 1, results
+        assert all(item.get("status") in {200,400,409} for item in results), results
+        for worker in workers:
+            worker.join(15)
+            assert worker.exitcode == 0
+    finally:
+        for worker in workers:
+            if worker.is_alive():
+                worker.terminate(); worker.join(10)
+    with Session(admin) as db:
+        if operation == "action":
+            member = db.get(Usuario, ids[2])
+            assert (member.role, member.session_version) == (UserRole.VIEWER, 1)
+        else:
+            assert db.query(RefreshToken).filter_by(user_id=ids[0], revoked=False).count() == 1
+            if operation == "recovery":
+                assert db.query(MfaRecoveryCode).filter(MfaRecoveryCode.user_id == ids[0], MfaRecoveryCode.used_at.is_not(None)).count() == 1
+
+
+@pytest.mark.parametrize("change", ["role", "expulsion", "deactivate", "logout"])
+def test_stepup_revalidates_role_membership_activity_and_session(mfa_pg, change):
+    from web import auth
+    admin, app, ids = mfa_pg
+    now = datetime.now(timezone.utc)
+    pair, current, _, _ = logged_in(app, ids[2], now)
+    path, body = "/api/gym/team/invite", {"email":"new@example.invalid","nombre":"Synthetic","role":"viewer"}
+    with Session(app) as db:
+        grant = mfa.issue_step_up(db, current, pair["token"], "POST", path, body, now=now)["grant"]
+    if change == "logout":
+        auth.revocar_refresh_tokens_usuario(ids[2])
+    else:
+        with Session(admin) as db:
+            user = db.get(Usuario, ids[2])
+            if change == "role": user.role = UserRole.VIEWER
+            if change == "expulsion": user.team_gym_id = None; user.session_version += 1
+            if change == "deactivate": user.activo = False
+            db.commit()
+    with Session(app) as db, pytest.raises(HTTPException) as caught:
+        mfa.consume_step_up(db, current, pair["token"], grant, "POST", path, body, now=now)
+    assert caught.value.status_code in {401,403}
+    with Session(admin) as db:
+        assert db.get(MfaAuthorization, mfa.opaque_digest("action", grant)).consumed_at is None
+
+
+@pytest.mark.parametrize("after_real_commit", [False, True])
+def test_login_commit_failure_never_returns_unconfirmed_tokens(mfa_pg, after_real_commit, caplog):
+    admin, app, ids = mfa_pg
+    now = datetime.now(timezone.utc)
+    seed, codes, current = enrolled(app, ids[0], now)
+    proof = challenge(app, current, now)
+    class FaultSession(Session):
+        def commit(self):
+            if after_real_commit: super().commit()
+            raise RuntimeError("synthetic-secret-that-must-not-be-logged")
+    with FaultSession(app) as db, pytest.raises(HTTPException) as caught:
+        mfa.verify_login(db, proof, recovery_code=codes[0], now=now)
+    assert caught.value.status_code == 503
+    assert "synthetic-secret-that-must-not-be-logged" not in caplog.text
+    assert codes[0] not in caplog.text and proof not in caplog.text
+    with Session(admin) as db:
+        item = db.get(MfaAuthorization, mfa.opaque_digest("login", proof))
+        assert (item.consumed_at is not None) is after_real_commit
+        assert db.query(RefreshToken).filter_by(user_id=ids[0], revoked=False).count() == int(after_real_commit)
+    if not after_real_commit:
+        with Session(app) as db:
+            assert "token" in mfa.verify_login(db, proof, recovery_code=codes[0], now=now)
+
+
+@pytest.mark.parametrize("factory", ["api.app", "web.main_web"])
+def test_real_restricted_http_login_and_stepup_in_both_factories(mfa_pg, factory, monkeypatch):
+    from web.services import stripe_service
+    admin, app, ids = mfa_pg
+    now = datetime.now(timezone.utc)
+    _, codes, _ = enrolled(app, ids[0], now)
+    calls = []
+    monkeypatch.setattr(stripe_service, "create_portal_session", lambda **kw: calls.append(kw) or {"url":"https://provider.example.invalid/portal"})
+    application = importlib.import_module(factory).create_app()
+    with TestClient(application, raise_server_exceptions=False) as client:
+        primary = client.post("/api/auth/login", json={"email":ids[0]+"@example.invalid","password":PASSWORD})
+        assert primary.status_code == 202, primary.text
+        pair = client.post("/api/auth/mfa/login/verify", json={"challenge":primary.json()["challenge"],"recovery_code":codes[0]})
+        assert pair.status_code == 200, pair.text
+        client.headers["Authorization"] = "Bearer " + pair.json()["token"]
+        grant = client.post("/api/auth/mfa/step-up", json={"method":"POST","path":"/api/billing/portal","body":{"return_url":"/dashboard"}})
+        assert grant.status_code == 200, grant.text
+        portal = client.post("/api/billing/portal", json={"return_url":"/dashboard"}, headers={"X-MFA-Grant":grant.json()["grant"]})
+        assert portal.status_code == 200 and len(calls) == 1
+        assert client.post("/api/billing/portal", json={"return_url":"/dashboard"}, headers={"X-MFA-Grant":grant.json()["grant"]}).status_code == 400
+    with app.connect() as db:
+        assert db.scalar(text("SELECT current_setting('app.mfa_actor',true)")) == ""
+        assert db.scalar(text("SELECT current_setting('app.current_tenant',true)")) == ""

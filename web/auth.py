@@ -321,7 +321,7 @@ def _decode_token(token: str) -> Optional[dict]:
         return None
 
 
-def crear_access_token(usuario: dict, remember_me: bool = False) -> str:
+def crear_access_token(usuario: dict, remember_me: bool = False, *, mfa_claims: Optional[dict] = None) -> str:
     """Access breve; recordar sesión sólo prolonga el refresh revocable."""
     exp = time.time() + ACCESS_TOKEN_EXPIRE_MINUTES * 60
     
@@ -348,10 +348,11 @@ def crear_access_token(usuario: dict, remember_me: bool = False) -> str:
         "exp":    exp,
         "type":   "access",
     }
+    payload.update(_assurance_claims(mfa_claims))
     return _make_token(payload)
 
 
-def crear_refresh_token(usuario: dict, remember_me: bool = False) -> str:
+def crear_refresh_token(usuario: dict, remember_me: bool = False, *, db=None, mfa_claims: Optional[dict] = None) -> str:
     """Genera refresh token. 7 días normal, 30 días si remember_me."""
     jti = str(uuid.uuid4())
     if remember_me:
@@ -385,31 +386,46 @@ def crear_refresh_token(usuario: dict, remember_me: bool = False) -> str:
         "jti":   jti,
     }
 
-    # Guardar en BD para poder revocar
+    payload.update(_assurance_claims(mfa_claims))
+    # Caller-owned MFA transactions persist challenge use and refresh together.
     _, RefreshToken = _get_models()
-    session = _get_session()
+    session = db if db is not None else _get_session()
     try:
         rt = RefreshToken(jti=jti, user_id=usuario["id"], expires_at=exp, created_at=now)
         session.add(rt)
-        session.commit()
+        if db is None:
+            session.commit()
     except Exception:
-        session.rollback()
+        if db is None:
+            session.rollback()
         raise
     finally:
-        session.close()
+        if db is None:
+            session.close()
 
     return _make_token(payload)
 
 
-def crear_token_pair(usuario: dict, remember_me: bool = False) -> dict:
+def _assurance_claims(claims) -> dict:
+    """Only server-verified MFA evidence; arbitrary payload keys are not merged."""
+    if claims is None:
+        return {}
+    if (not isinstance(claims, dict) or claims.get("amr") not in (["pwd", "otp"], ["google", "otp"], ["pwd", "recovery"], ["google", "recovery"])
+            or type(claims.get("mfa_generation")) is not int or claims["mfa_generation"] < 1
+            or type(claims.get("mfa_at")) not in (int, float) or not math.isfinite(claims["mfa_at"])):
+        raise ValueError("Invalid MFA evidence")
+    return {key: claims[key] for key in ("amr", "mfa_generation", "mfa_at")}
+
+
+def crear_token_pair(usuario: dict, remember_me: bool = False, *, db=None, mfa_claims: Optional[dict] = None) -> dict:
     """
     Genera par de tokens.
     
     Access siempre breve; remember_me sólo extiende el refresh.
     """
     return {
-        "access_token": crear_access_token(usuario, remember_me),
-        "refresh_token": crear_refresh_token(usuario, remember_me),
+        "access_token": crear_access_token(usuario, remember_me, mfa_claims=mfa_claims),
+        "refresh_token": crear_refresh_token(usuario, remember_me, db=db, mfa_claims=mfa_claims),
     }
 
 
@@ -429,6 +445,11 @@ def _valid_token_payload(payload: Optional[dict], token_type: str) -> bool:
     if "v" in payload and (payload.get("iss") != "metodobase" or payload.get("aud") != "metodobase-web"):
         return False
     version = payload.get("sv", 0)
+    if any(key in payload for key in ("amr", "mfa_generation", "mfa_at")):
+        try:
+            _assurance_claims(payload)
+        except ValueError:
+            return False
     return type(version) is int and version >= 0
 
 
@@ -544,7 +565,8 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
     if not usuario:
         return None
 
-    return crear_token_pair(usuario)
+    evidence = {key: payload[key] for key in ("amr", "mfa_generation", "mfa_at")} if "amr" in payload else None
+    return crear_token_pair(usuario, mfa_claims=evidence)
 
 
 def revocar_refresh_tokens_usuario(user_id: str) -> None:

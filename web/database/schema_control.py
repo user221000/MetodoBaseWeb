@@ -20,6 +20,7 @@ SCHEMA_CONTRACTS = {
     "20261019_account_recovery": "20261019_account_recovery",
     "20261019_client_account_links": "20261019_client_account_links",
     "20261019_personal_history_index": "20261019_personal_history_index",
+    "20261019_mfa": "20261019_mfa",
 }
 
 

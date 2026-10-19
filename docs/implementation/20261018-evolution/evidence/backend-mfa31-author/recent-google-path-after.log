@@ -1,0 +1,22 @@
+...........................................FF..................          [100%]
+================================== FAILURES ===================================
+_______ test_primary_only_owner_cannot_open_billing_portal[auth_client] _______
+tests\test_mfa31_http.py:65: in test_primary_only_owner_cannot_open_billing_portal
+    assert response.status_code == 403
+E   assert 503 == 403
+E    +  where 503 = <Response [503 Service Unavailable]>.status_code
+_____ test_primary_only_owner_cannot_open_billing_portal[web_auth_client] _____
+tests\test_mfa31_http.py:65: in test_primary_only_owner_cannot_open_billing_portal
+    assert response.status_code == 403
+E   assert 503 == 403
+E    +  where 503 = <Response [503 Service Unavailable]>.status_code
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_mfa31_http.py::test_primary_only_owner_cannot_open_billing_portal[auth_client]
+FAILED tests/test_mfa31_http.py::test_primary_only_owner_cannot_open_billing_portal[web_auth_client]
+2 failed, 61 passed, 1 warning in 47.78s

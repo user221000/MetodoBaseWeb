@@ -67,6 +67,15 @@ class Settings:
         self.REMEMBER_ME_REFRESH_DAYS: int = int(
             os.getenv("REMEMBER_ME_REFRESH_DAYS", "30")
         )
+        # Separate, operator-provided key. Never derive factor encryption from
+        # the signing key or generate a process-local development fallback.
+        self.MFA_ENCRYPTION_KEY: str = os.getenv("MFA_ENCRYPTION_KEY", "")
+        if self.is_production:
+            from web.services.mfa_crypto import key_bytes
+            try:
+                key_bytes(self.MFA_ENCRYPTION_KEY)
+            except ValueError:
+                raise RuntimeError("MFA_ENCRYPTION_KEY must be an explicit 256-bit key") from None
 
         # ── CORS ──────────────────────────────────────────────────────────
         import logging as _logging

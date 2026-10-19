@@ -1,0 +1,11 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts _
+tests\integration_mfa31_restore.py:265: in test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+    verify_runtime_schema(target, expected_revision="20261019_mfa")
+web\database\schema_control.py:71: in verify_runtime_schema
+    raise RuntimeError("Database structure differs from the reviewed application schema")
+E   RuntimeError: Database structure differs from the reviewed application schema
+=========================== short test summary info ===========================
+FAILED tests/integration_mfa31_restore.py::test_revision31_restore_preserves_mfa_and_all_revision26_27_28_29_30_contracts
+1 failed in 24.96s

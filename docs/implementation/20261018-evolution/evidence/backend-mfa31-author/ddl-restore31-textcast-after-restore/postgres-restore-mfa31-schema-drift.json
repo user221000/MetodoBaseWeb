@@ -1,0 +1,9 @@
+{
+  "structural_differences": [
+    {
+      "field": "schema.tables.mfa_authorizations.checks[2].sql",
+      "expected": "(purpose::text = ANY (ARRAY['login'::text::character varying, 'reauth'::text::character varying, 'action'::text::character varying]::text[])) AND (primary_method::text = ANY (ARRAY['password'::text::character varying, 'google'::text::character varying]::text[]))",
+      "restored": "(purpose::text = ANY (ARRAY['login'::text::character varying::text, 'reauth'::text::character varying::text, 'action'::text::character varying::text])) AND (primary_method::text = ANY (ARRAY['password'::text::character varying::text, 'google'::text::character varying::text]))"
+    }
+  ]
+}

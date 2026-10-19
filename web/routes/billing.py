@@ -31,6 +31,7 @@ from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
 from web.services import stripe_service
 from web.services.permissions import verify_permission
+from web.services.mfa_business import step_up as _step_up, business_session
 from web.services.subscription_service import (
     activate_subscription,
     complete_checkout,
@@ -126,11 +127,13 @@ def billing_config(
 @router.post("/billing/checkout", summary="Crear sesión de Stripe Checkout")
 def crear_checkout(
     data: CheckoutRequest,
-    db: Session = Depends(get_db),
+    request: Request,
+    db: Session = Depends(business_session),
     usuario: dict = Depends(get_usuario_actual),
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
+    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
     _require_paid_plan(data.plan)
     _validate_redirect_url(data.success_url, "success_url")
     _validate_redirect_url(data.cancel_url, "cancel_url")
@@ -148,6 +151,8 @@ def crear_checkout(
             request_key=idempotency_key,
         )
         return result
+    except HTTPException:
+        raise
     except RuntimeError as e:
         raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except ValueError as e:
@@ -160,11 +165,13 @@ def crear_checkout(
 @router.post("/billing/stripe/subscribe", summary="Crear suscripción con tarjeta (Stripe Elements)")
 def stripe_subscribe(
     data: StripeSubscribeRequest,
-    db: Session = Depends(get_db),
+    request: Request,
+    db: Session = Depends(business_session),
     usuario: dict = Depends(get_usuario_actual),
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
+    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
     _require_paid_plan(data.plan)
     try:
         result = stripe_service.create_subscription_with_payment_method(
@@ -176,6 +183,8 @@ def stripe_subscribe(
             request_key=idempotency_key,
         )
         return result
+    except HTTPException:
+        raise
     except RuntimeError as e:
         raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except ValueError as e:
@@ -188,16 +197,20 @@ def stripe_subscribe(
 @router.post("/billing/confirm-subscription", summary="Confirmar suscripción tras pago")
 def confirm_subscription(
     data: ConfirmSubscriptionRequest,
-    db: Session = Depends(get_db),
+    request: Request,
+    db: Session = Depends(business_session),
     usuario: dict = Depends(get_usuario_actual),
 ):
     """Verifica con Stripe que el pago se completó y activa la suscripción.
     Llamado por el frontend tras confirmCardPayment exitoso."""
     verify_permission(usuario, "update", "subscription")
+    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"))
     try:
         result = stripe_service.confirm_subscription(db, usuario["id"], data.subscription_id)
         db.commit()
         return result
+    except HTTPException:
+        raise
     except RuntimeError as e:
         raise HTTPException(503, "El servicio de pago no esta disponible") from e
     except ValueError as e:
@@ -211,10 +224,14 @@ def confirm_subscription(
 @router.post("/billing/portal", summary="Abrir portal Stripe")
 def abrir_portal(
     data: PortalRequest,
-    db: Session = Depends(get_db),
+    request: Request,
+    db: Session = Depends(business_session),
     usuario: dict = Depends(get_usuario_actual),
 ):
     verify_permission(usuario, "update", "subscription")
+    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"))
+    from web.services.mfa_service import commit as _commit_mfa_grant
+    _commit_mfa_grant(db)  # Portal is an external capability; consume before its port.
     try:
         result = stripe_service.create_portal_session(
             db=db,
@@ -318,12 +335,14 @@ def _get_mp_sdk():
 @router.post("/billing/mp/preference", summary="Crear preferencia de pago MercadoPago")
 def crear_preferencia_mp(
     data: MPPreferenceRequest,
-    db: Session = Depends(get_db),
+    request: Request,
+    db: Session = Depends(business_session),
     usuario: dict = Depends(get_usuario_actual),
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     """Crea una preferencia de pago en MercadoPago. Requiere RBAC."""
     verify_permission(usuario, "update", "subscription")
+    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
     _require_paid_plan(data.plan)
     _validate_redirect_url(data.success_url, "success_url")
     _validate_redirect_url(data.cancel_url, "cancel_url")
@@ -340,6 +359,8 @@ def crear_preferencia_mp(
     from web.services.mercadopago_service import create_preference
     try:
         return create_preference(db, gym_id, data.plan, email, data.success_url, data.cancel_url, idempotency_key)
+    except HTTPException:
+        raise
     except Exception as error:
         from web.services.billing_integrity import public_failure
         raise HTTPException(502, public_failure("mp_preference", error, "Error al crear preferencia de pago")) from None

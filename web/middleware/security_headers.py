@@ -94,7 +94,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
         except Exception as error:
             if (request.url.path != "/api/usuario/historial"
-                    and not is_member_link_private(request.url.path)):
+                    and not is_member_link_private(request.url.path)
+                    and not request.url.path.startswith("/api/auth/mfa/")):
                 raise
             # Generic handlers live outside response middleware. Reuse the
             # factory's existing public error body, then apply private headers.
@@ -123,7 +124,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # ─── CSP (with per-request nonce) ────────────────────────────────────
         if self.csp_enabled:
-            if request.url.path in {"/auth/reset-password", "/auth/accept-client-link"}:
+            if request.url.path in {"/auth/reset-password", "/auth/accept-client-link"} or request.url.path.startswith("/api/auth/mfa/"):
                 # Fixed first-party policy for the public recovery form. Never
                 # accept an arbitrary policy supplied by a downstream handler.
                 response.headers["Content-Security-Policy"] = (
@@ -146,6 +147,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = (
             "no-referrer" if (
                 recovery_api
+                or request.url.path.startswith("/api/auth/mfa/")
                 or request.url.path == "/api/usuario/historial"
                 or is_member_link_private(request.url.path)
                 or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
@@ -156,7 +158,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if is_member_link_private(request.url.path):
+        if is_member_link_private(request.url.path) or request.url.path.startswith("/api/auth/mfa/"):
             response.headers["Cache-Control"] = "no-store"
         
         # ─── Cache control para APIs ────────────────────────────────────────
