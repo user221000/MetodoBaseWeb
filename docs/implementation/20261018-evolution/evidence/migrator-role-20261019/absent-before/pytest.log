@@ -1,0 +1,18 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_empty_production_cli_with_restricted_migrator_reaches_exact28_without_global_role _
+tests\integration_restricted_migrator.py:196: in test_empty_production_cli_with_restricted_migrator_reaches_exact28_without_global_role
+    assert result.returncode==0,result.stderr
+E   AssertionError: [PAYMENTS] MERCADOPAGO_ACCESS_TOKEN no configurada — MP desactivado
+E     [AUTH] GOOGLE_CLIENT_ID no configurada — Login con Google desactivado en producción
+E     INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+E     INFO  [alembic.runtime.migration] Will assume transactional DDL.
+E     INFO  [alembic.runtime.migration] Running upgrade  -> 01f435f74091, initial schema multi-tenant
+E     INFO  [alembic.runtime.migration] Running upgrade 01f435f74091 -> 936af15af980, add subscriptions and payments tables
+E     INFO  [alembic.runtime.migration] Running upgrade 936af15af980 -> c4f8e9d2a3b1, enable_rls_policies_multi_tenant
+E     
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-qa-20261018\\Scripts\\python.exe', '-X', 'u...s\nINFO  [alembic.runtime.migration] Running upgrade 936af15af980 -> c4f8e9d2a3b1, enable_rls_policies_multi_tenant\n').returncode
+=========================== short test summary info ===========================
+FAILED tests/integration_restricted_migrator.py::test_empty_production_cli_with_restricted_migrator_reaches_exact28_without_global_role
+1 failed, 4 deselected in 4.76s

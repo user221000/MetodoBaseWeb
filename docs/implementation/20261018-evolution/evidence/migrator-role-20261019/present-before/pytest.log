@@ -1,0 +1,12 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_empty_production_cli_with_restricted_migrator_reaches_exact28_without_global_role _
+tests\integration_restricted_migrator.py:201: in test_empty_production_cli_with_restricted_migrator_reaches_exact28_without_global_role
+    assert db.scalar(text("SELECT count(*) FROM pg_class c CROSS JOIN LATERAL aclexplode(c.relacl) a WHERE c.relnamespace='public'::regnamespace AND a.grantee=(SELECT oid FROM pg_roles WHERE rolname=:role)"),{'role':LEGACY})==0
+E   assert 16 == 0
+E    +  where 16 = scalar(<sqlalchemy.sql.elements.TextClause object at 0x0000024F1F617AA0>, {'role': 'metodobase_app'})
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x0000024F1F6800E0>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x0000024F1F617AA0> = text("SELECT count(*) FROM pg_class c CROSS JOIN LATERAL aclexplode(c.relacl) a WHERE c.relnamespace='public'::regnamespace AND a.grantee=(SELECT oid FROM pg_roles WHERE rolname=:role)")
+=========================== short test summary info ===========================
+FAILED tests/integration_restricted_migrator.py::test_empty_production_cli_with_restricted_migrator_reaches_exact28_without_global_role
+1 failed, 4 deselected in 7.47s
