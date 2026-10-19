@@ -1,0 +1,13 @@
+diff --git a/Dockerfile b/Dockerfile
+index f4cca1c..74ceb43 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -174,7 +174,7 @@ COPY db_bootstrap.py /app/db_bootstrap.py
+ # in build stages for hash verification and SCA, and remove their bundled wheels too.
+ # Expected runtime inventory: 54 application distributions; the previous 55 included pip.
+ RUN set -eu; \
+-    python -c "from pathlib import Path; import importlib.metadata as m,sysconfig; root=Path('/usr/local/lib/python3.12'); site=root/'site-packages'; assert Path(sysconfig.get_path('stdlib'))==root and Path(sysconfig.get_path('purelib'))==site; assert root.resolve()==root and site.resolve()==site; assert m.version('pip')=='26.2.1'; assert all(p.is_dir() and not p.is_symlink() for p in (site/'pip',site/'pip-26.2.1.dist-info',root/'ensurepip')); assert (root/'ensurepip'/'_bundled').is_dir()"; \
++    python -c "from pathlib import Path; import importlib.metadata as m,sysconfig; root=Path('/usr/local/lib/python3.12'); site=root/'site-packages'; scripts=Path('/usr/local/bin'); assert Path(sysconfig.get_path('stdlib'))==root and Path(sysconfig.get_path('purelib'))==site and Path(sysconfig.get_path('scripts'))==scripts; assert root.resolve()==root and site.resolve()==site; assert scripts.is_dir() and not scripts.is_symlink() and scripts.resolve()==scripts; assert m.version('pip')=='26.2.1'; assert all(p.is_dir() and not p.is_symlink() for p in (site/'pip',site/'pip-26.2.1.dist-info',root/'ensurepip')); assert (root/'ensurepip'/'_bundled').is_dir()"; \
+     rm -rf -- /usr/local/lib/python3.12/site-packages/pip \
+         /usr/local/lib/python3.12/site-packages/pip-26.2.1.dist-info \
+         /usr/local/lib/python3.12/ensurepip; \

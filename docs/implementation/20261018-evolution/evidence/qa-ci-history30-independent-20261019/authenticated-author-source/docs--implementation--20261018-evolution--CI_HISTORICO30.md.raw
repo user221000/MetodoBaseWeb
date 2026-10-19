@@ -1,0 +1,9 @@
+# CI30 y aceptación histórica
+
+Composición local aislada; no ejecución de Actions ni aceptación independiente por este informe. CI30 conserva los26 informes de29 y añade dos informes: ocho casos PostgreSQL de migración/consulta ordenada y el restore poblado30. El parser nuevo exige los nueve IDs exactos, sin duplicados, omisiones, sustituciones, skips o fallos. El checker anterior de cinco informes permanece idéntico.
+
+El restore29 inmutable se ejecuta con tests/run_reviewed_ci29.py desde el commit real fd636202045efa30b1430f4a9dd8ab287ec76357. Su guard ejecuta a su vez el histórico28 desde66d9dec0e15dd873038bd248d3883daeeb27d4ca. Se autentica árbol/blobs/modos y se rechaza replace-ref/atributos/links/rutas no canónicas. No se cambia una assertion29 para que acepte30. Los cuatro métodos de extracción coinciden por AST con el runner endurecido28.
+
+Evidencia autor: ocho PG de índice, un restore30 y un restore29 reales.74 unit focales antes del ajuste de imports/check=False; después pasan10 trust afectados y verify-only27 mutaciones con histórico real. El full anterior pasó55 canarios del checker29,24 del nuevo,27 mutaciones de workflow y27 probes Bash inertes. Cada alcance conserva su fuente; no se atribuye el full anterior a una repetición posterior. Ruff final verde. Cuatro UUID ausentes por consulta exacta independiente. [Detalles y errores preservados](evidence/ci-history-index30-author-20261019/review.json).
+
+Se mantienen18 módulos Node/300 ejecuciones/279 criterios; CI30 no añade aserciones al recorrido16 de R12. El fixture actual usa30 real,29 tablas de negocio y30 físicas con alembic_version. Sus markers y witness de índice deben coincidir antes de readiness. Fuente/prosa Git LF y evidencia RAW con atributos -text se autentican por separado. Navegador real independiente y CI30 independiente siguen siendo gates de integración separados.

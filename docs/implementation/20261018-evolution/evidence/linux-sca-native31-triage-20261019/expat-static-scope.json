@@ -1,0 +1,120 @@
+{
+  "checks": [
+    {
+      "name": "CPython embedded Expat declares 2.8.5",
+      "pass": true,
+      "detail": "Measured pyexpat version and pinned source header agree."
+    },
+    {
+      "name": "ParseBuffer capacity guard absent in pinned source",
+      "pass": true,
+      "detail": "Upstream fix 13c5f63 adds this check; wrapper bounds do not repair native implementation."
+    },
+    {
+      "name": "pyexpat Parse chunk bound",
+      "pass": true,
+      "detail": "Both full chunks and final remainder pass bounded lengths to XML_Parse."
+    },
+    {
+      "name": "ParseFile requests fresh fixed buffer",
+      "pass": true,
+      "detail": "Each iteration allocates buffer before XML_ParseBuffer."
+    },
+    {
+      "name": "ParseFile read size guarded",
+      "pass": true,
+      "detail": "readinst rejects oversized bytes/bytearray before copy; no huge buffers executed."
+    },
+    {
+      "name": "ElementTree calls XML_Parse API",
+      "pass": true,
+      "detail": "C API pointer resolves to XML_Parse, not direct XML_ParseBuffer."
+    },
+    {
+      "name": "ElementTree has signed-int bounds",
+      "pass": true,
+      "detail": "feed unicode, buffer and parse_whole bytes paths check length before cast."
+    },
+    {
+      "name": "All observed ELF files 64-bit",
+      "pass": true,
+      "detail": "CVE-2026-102633 CNA requires 32-bit; architecture excludes that stated condition in this image only."
+    },
+    {
+      "name": "ParseFile length model 0",
+      "pass": true,
+      "detail": {
+        "supplied_length": 0,
+        "accepted_by_source_guard": true
+      }
+    },
+    {
+      "name": "ParseFile length model 1",
+      "pass": true,
+      "detail": {
+        "supplied_length": 1,
+        "accepted_by_source_guard": true
+      }
+    },
+    {
+      "name": "ParseFile length model 2047",
+      "pass": true,
+      "detail": {
+        "supplied_length": 2047,
+        "accepted_by_source_guard": true
+      }
+    },
+    {
+      "name": "ParseFile length model 2048",
+      "pass": true,
+      "detail": {
+        "supplied_length": 2048,
+        "accepted_by_source_guard": true
+      }
+    },
+    {
+      "name": "ParseFile length model 2049",
+      "pass": true,
+      "detail": {
+        "supplied_length": 2049,
+        "accepted_by_source_guard": false
+      }
+    },
+    {
+      "name": "ParseFile length model 2147483647",
+      "pass": true,
+      "detail": {
+        "supplied_length": 2147483647,
+        "accepted_by_source_guard": false
+      }
+    },
+    {
+      "name": "ParseFile length model 2147483648",
+      "pass": true,
+      "detail": {
+        "supplied_length": 2147483648,
+        "accepted_by_source_guard": false
+      }
+    },
+    {
+      "name": "ParseFile length model 9223372036854775807",
+      "pass": true,
+      "detail": {
+        "supplied_length": 9223372036854775807,
+        "accepted_by_source_guard": false
+      }
+    }
+  ],
+  "cve_77214": {
+    "version_match": true,
+    "native_capacity_fix_present_in_exact_source": false,
+    "standard_binding_paths": "Parse uses XML_Parse; ParseFile fresh GetBuffer(2048) plus read-size guard; ElementTree XML_Parse with INT_MAX guard. These checks constrain the caller length for inspected paths.",
+    "unproven": "External C API consumers, ctypes/direct exports and application reachability not exhausted. No exploit, huge allocation or crash attempted.",
+    "candidate_remedy": "Verified CPython base with Expat 2.9.0 or capacity backport; apt libexpat does not replace embedded source."
+  },
+  "cve_102633": {
+    "version_match": true,
+    "required_32bit_condition": false,
+    "observed_elf_bits": 64
+  }
+}

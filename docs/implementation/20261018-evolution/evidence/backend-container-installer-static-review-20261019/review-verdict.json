@@ -1,0 +1,19 @@
+{
+  "head": "af548f71a8a763ba523853e85903a9ab8cf2b0a7",
+  "verdict": "reject_scripts_parent_path_guard_only",
+  "severity": "P2 build-path hardening; no observed alias in actual image and no removal executed",
+  "reproducer": "test_runtime_installer_paths.py",
+  "effective_cases": 3,
+  "passed": 1,
+  "failed": 2,
+  "errors": 0,
+  "skipped": 0,
+  "failed_nodes": [
+    "test_cleanup_rejects_aliased_scripts_parent",
+    "test_cleanup_rejects_unexpected_sysconfig_scripts"
+  ],
+  "source_and_packages_after_focus_identical": true,
+  "fix": "Validate sysconfig scripts=/usr/local/bin plus directory, no symlink and resolve==self before deletion.",
+  "scope": "Static source / original guard AST under controlled offline bindings and owned Temp paths. No Docker/QEMU/RUN/removal/ELF/SCA/image/PG/browser claim.",
+  "main_staged_or_committed_by_reviewer": false
+}

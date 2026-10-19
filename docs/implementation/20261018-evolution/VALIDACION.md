@@ -186,3 +186,8 @@ QA ec029 completa16/16 Chrome/HTTP/PostgreSQL29 con pool real20/10,3/3 mismos ca
 ## Checkpoint 111
 
 MAIN29 e250:2464pass+1skip Windows conocido en serial/cobertura(686.25s) y n2/shuffle(284.328s);6087 fuentes/89 paquetes estables,pip0. Gate tres módulos100% líneas/ramas. CI29 QA final268 archivos autenticados, aceptación acotada local. Restore30 QA1+8 propios+1 SQLite; no Chrome/Actions/SLO por esos resultados.
+
+
+## Checkpoint 112
+
+QA navegador30:50unit+22propios+16freshreal/fixture0,5496fuentes/5helpers/89paquetes/157Node estables,UUID/Chrome/8798 cerrados. QA CI30:74unit+19propios/full28reports/27workflow/55+24parser/27inert/76Bash/107refs,5706fuentes estables. Merge MAIN30 conserva106criterios y18targets; amplia30 pendiente. Dockerc02 sólo estático3+6;SEC SCA6/6 y16CNA primarias, errata inicial preservada.

@@ -1,0 +1,38 @@
+.FF                                                                      [100%]
+================================== FAILURES ===================================
+_________________ test_cleanup_rejects_aliased_scripts_parent _________________
+
+tmp_path = WindowsPath('C:/Users/Consu/AppData/Local/Temp/metodobase-runtime-installer-path-fix32-20261019-_vbx1r_3/cases/test_cleanup_rejects_aliased_s0')
+
+    def test_cleanup_rejects_aliased_scripts_parent(tmp_path):
+        environment,mapped=bindings(tmp_path)
+        scripts=mapped('/usr/local/bin')
+        alias=tmp_path/'other-owned-directory'
+        alias.mkdir()
+        original_resolve=Path.resolve
+        def resolved(path,*args,**kwargs):
+            return alias if path==scripts else original_resolve(path,*args,**kwargs)
+        with patch.object(Path,'resolve',resolved):
+            assert scripts.resolve()!=scripts
+>           with pytest.raises(AssertionError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE AssertionError
+
+test_runtime_installer_paths.py:53: Failed
+______________ test_cleanup_rejects_unexpected_sysconfig_scripts ______________
+
+tmp_path = WindowsPath('C:/Users/Consu/AppData/Local/Temp/metodobase-runtime-installer-path-fix32-20261019-_vbx1r_3/cases/test_cleanup_rejects_unexpecte0')
+
+    def test_cleanup_rejects_unexpected_sysconfig_scripts(tmp_path):
+        environment,_mapped=bindings(tmp_path,scripts='/different/scripts')
+>       with pytest.raises(AssertionError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+test_runtime_installer_paths.py:59: Failed
+=========================== short test summary info ===========================
+FAILED test_runtime_installer_paths.py::test_cleanup_rejects_aliased_scripts_parent
+FAILED test_runtime_installer_paths.py::test_cleanup_rejects_unexpected_sysconfig_scripts
+2 failed, 1 passed in 0.30s
+
+STDERR

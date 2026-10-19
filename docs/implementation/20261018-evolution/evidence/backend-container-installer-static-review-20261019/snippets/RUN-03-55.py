@@ -1,0 +1,1 @@
+from pathlib import Path; rows=lambda p:dict(line.split('\t') for line in Path(p).read_text().splitlines()); before=rows('/tmp/native-before.tsv'); after=rows('/wheelhouse/builder-dpkg.tsv'); assert all(after.get(k)==v for k,v in before.items()), 'Existing native runtime packages changed';

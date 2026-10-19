@@ -1,0 +1,278 @@
+{
+  "captured_utc": "2026-10-19T14:38:24.944899+00:00",
+  "base_head": "d038f1c3860296f42ba41ce9ee64a8a4e6300ebc",
+  "worktree": "F:\\mb-container-runtime-tools-20261019",
+  "checks": [
+    {
+      "name": "runtime cleanup after dependency copy",
+      "pass": true
+    },
+    {
+      "name": "pip module removed",
+      "pass": true
+    },
+    {
+      "name": "pip metadata exact version removed",
+      "pass": true
+    },
+    {
+      "name": "ensurepip entire subtree removed",
+      "pass": true
+    },
+    {
+      "name": "all pip entry scripts removed",
+      "pass": true
+    },
+    {
+      "name": "stdlib and purelib path guards",
+      "pass": true
+    },
+    {
+      "name": "resolved roots guards",
+      "pass": true
+    },
+    {
+      "name": "cleanup targets guarded against symlinks",
+      "pass": true
+    },
+    {
+      "name": "installed pip expected before removal",
+      "pass": true
+    },
+    {
+      "name": "pip and ensurepip import postconditions",
+      "pass": true
+    },
+    {
+      "name": "remaining wheels forbidden",
+      "pass": true
+    },
+    {
+      "name": "pip metadata remnants forbidden",
+      "pass": true
+    },
+    {
+      "name": "entry symlink remnants forbidden",
+      "pass": true
+    },
+    {
+      "name": "expected 54 only application distributions",
+      "pass": true
+    },
+    {
+      "name": "installer metadata absent",
+      "pass": true
+    },
+    {
+      "name": "provenance inventory emitted",
+      "pass": true
+    },
+    {
+      "name": "build venv retained for SCA",
+      "pass": true
+    },
+    {
+      "name": "dependency-stage pip check retained",
+      "pass": true
+    },
+    {
+      "name": "cleanup before unprivileged runtime",
+      "pass": true
+    }
+  ],
+  "mutants": [
+    {
+      "name": "ensurepip removal omitted",
+      "rejected_by": [
+        "ensurepip entire subtree removed"
+      ]
+    },
+    {
+      "name": "wheel postcondition omitted",
+      "rejected_by": [
+        "remaining wheels forbidden"
+      ]
+    },
+    {
+      "name": "old runtime count",
+      "rejected_by": [
+        "expected 54 only application distributions"
+      ]
+    },
+    {
+      "name": "build venv silently omitted",
+      "rejected_by": [
+        "build venv retained for SCA"
+      ]
+    },
+    {
+      "name": "pip import postcondition omitted",
+      "rejected_by": [
+        "pip and ensurepip import postconditions"
+      ]
+    },
+    {
+      "name": "path resolve guard omitted",
+      "rejected_by": [
+        "resolved roots guards"
+      ]
+    }
+  ],
+  "bash_syntax": [
+    {
+      "file": "RUN-00.sh",
+      "sha256": "738d1936d5e124dccd392f242dc45d556c23daf89aee3575f557a5221a284070",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-01.sh",
+      "sha256": "9a6a3890286107dab3d28855d5835483e74b777fe1fb89266b199fabca617a2c",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-02.sh",
+      "sha256": "67e3fa2bfaa90981d22dbef712d8146fe4682a67ed8e3db9eb5c80781752705a",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-03.sh",
+      "sha256": "3b0960c492a60e1c336f3876e776918a17966f58f130677dcc7d292638978fa6",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-04.sh",
+      "sha256": "4529be5885ff67f9d9718a327d4757004136740bad39f41a150fd7844778b213",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-05.sh",
+      "sha256": "0eeba8491206d00b2ac5388b6be24dba1e7e31e0810ad02701b1216f08c66a9f",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-06.sh",
+      "sha256": "11c2f54f99c0483c62782e63e2a56b0c1731de86256bb7d741dc67aee866f558",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-07.sh",
+      "sha256": "16669effd4a6790d9ffcfa834d087b492e73b2cd7d4cb9394b1a7c13afcd7ee4",
+      "syntax_exit": 0
+    },
+    {
+      "file": "RUN-08.sh",
+      "sha256": "6a39aee4e376c58d065af39dbbe1636f741f9fae9a9792d72b5b696780cd1664",
+      "syntax_exit": 0
+    }
+  ],
+  "python_compiled_not_executed": [
+    {
+      "run": 2,
+      "code_sha256": "14226352d724cf9346c241c82ed351b7ae367cf4d550d2fb7a13e8cba08dfc2c",
+      "bytes": 301,
+      "compiled_only": true
+    },
+    {
+      "run": 3,
+      "code_sha256": "623f780b9db374e0a3cbda843918053ee70e6583fff41b371df91f77d2f14f22",
+      "bytes": 290,
+      "compiled_only": true
+    },
+    {
+      "run": 3,
+      "code_sha256": "b05f09bf70fb476f0c89594e3d558638045b06f1649f93b3521e3195bca8eb09",
+      "bytes": 443,
+      "compiled_only": true
+    },
+    {
+      "run": 3,
+      "code_sha256": "2b20311c0724d598a00bdad432d7c77237ed21614b14d02bef4309e4541ccb04",
+      "bytes": 491,
+      "compiled_only": true
+    },
+    {
+      "run": 8,
+      "code_sha256": "475dcfbbcf12062363b46b9304bb40b9f5b58224a469c19f3fc2ac65f29a30a7",
+      "bytes": 479,
+      "compiled_only": true
+    },
+    {
+      "run": 8,
+      "code_sha256": "3ba53c64c6e1b905cdb91c12d56194e34e8235a3336a8821eafc2c5fe9f64ce8",
+      "bytes": 706,
+      "compiled_only": true
+    }
+  ],
+  "locks_unchanged": [
+    {
+      "path": "requirements-container-apt-metadata.lock",
+      "git_blob": "ec86576b91155b6938dd49270e3c683deac3f211",
+      "checkout_sha256": "5fb6834ef3af47c46e8c19b1937c3b2d803e807737fe95a716a06d86639dc048"
+    },
+    {
+      "path": "requirements-container-bootstrap.lock",
+      "git_blob": "7fdaeecd5c2df604efe6c5227e590a5bffeb8267",
+      "checkout_sha256": "61fee9dee8d68c2ac5a03d07fb5fbe015836e64c7ef543c732a0f0461d397377"
+    },
+    {
+      "path": "requirements-container-build.lock",
+      "git_blob": "378ed67a8a2ed00d3c6d67b70ec7fd6a60817eaf",
+      "checkout_sha256": "395a0ed4ce75c7e0505688112f1a129282e4fd99916587d63db713d53f3a77f7"
+    },
+    {
+      "path": "requirements-container-psycopg.lock",
+      "git_blob": "d3776016a2f7350ed4a03750e22589ad1413929e",
+      "checkout_sha256": "9dc0b64cde265ced7912ade98b03e9d0b7aa67612dac8ae195e76f43298ab318"
+    },
+    {
+      "path": "requirements-container.lock",
+      "git_blob": "669ff637a013831e9aaca580fe46befe35a200cb",
+      "checkout_sha256": "afbe50c23b24171f3b256545ca3ce9fc7cfd0515719897eedeced8c83087bbb2"
+    },
+    {
+      "path": "requirements-test-desktop-windows.lock",
+      "git_blob": "23e466df3e0110a9ddd3afaa87c9b5da7be8bc94",
+      "checkout_sha256": "185dff994a74d026a0add28fd7103fc53d4403bb57be4bb66fbf83b63eb0dbc1"
+    },
+    {
+      "path": "requirements-test-desktop.lock",
+      "git_blob": "1b43425bd363a5b488d7124cd2d0f4fb153237bd",
+      "checkout_sha256": "943c9955e48e7736e6fe785dc3df734873b6df353cf1fdae34cea6e2bbf0cdba"
+    },
+    {
+      "path": "requirements-test-windows.lock",
+      "git_blob": "24e1ba2df087aa8c8a734cf7f97c3a15b21a9fb1",
+      "checkout_sha256": "24f2e26fe0d97c62927bc94662d1dc95e0de7047401d771d078f739218f02627"
+    },
+    {
+      "path": "requirements-test.lock",
+      "git_blob": "0b77e94d206c3b12e7687a117c118e8d228163ff",
+      "checkout_sha256": "dd834d68d669093d2661d3759909727329ff2b6755d43dc0494a310105a07da5"
+    },
+    {
+      "path": "requirements_build.lock",
+      "git_blob": "d0477ee30078a16da4f5193304c7ba29dd2f262e",
+      "checkout_sha256": "6985e371935e0de89e1b0017d2155089017dc81d138ec9c2421dcaf7c57540d3"
+    },
+    {
+      "path": "requirements_web-windows.lock",
+      "git_blob": "60603ecc17cd8b045f3312d277c55aed6a4f862a",
+      "checkout_sha256": "fa1b2dd0288f05ffd04c5e678c41704f08f464077e53c4833e1ed789d3fde477"
+    },
+    {
+      "path": "requirements_web.lock",
+      "git_blob": "47fa0620fe89d0192f1eebab8ab94f8d073b5b20",
+      "checkout_sha256": "e3bad8b2002361d5d4719423576dc6f6af040f3414c36e5372ce6d41d50110e9"
+    }
+  ],
+  "changed_files": [
+    "Dockerfile"
+  ],
+  "dockerfile_lf_sha256": "c923b779d7e6c97c5ac180c68a7373a2b3fc2f2854453c0bff6f4ce07e6a2ea1",
+  "dockerfile_checkout_sha256": "db43c2d09fced0c0b52d012beaf736ef8583b332c7728fd50e88d344d9c8ad21",
+  "diff_sha256": "136abb726213ff7ea36839489316dabcad0462ead16e565762ff3c09ce1899fe",
+  "gates_pending": [
+    "Linux build; actual 54-distribution inventory and import/linkage/tests; actual filesystem absence of pip/ensurepip/wheels; runtime and build-stage SCA including vendors; full OS rescan; no SEC09/OS71 closure."
+  ],
+  "scope": "Static validation only. No Docker/QEMU, RUN-body execution or host cleanup performed."
+}

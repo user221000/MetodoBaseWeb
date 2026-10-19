@@ -1,0 +1,13 @@
+# Independent focal acceptance: scripts-parent guard c02
+
+Accepted in static path-guard scope: `c02e3a1e1c10e0c6102d9a240697013f7246cfa5`, parent `af548f71a8a763ba523853e85903a9ab8cf2b0a7`. The previously reported missing scripts-parent validation is closed by the reviewed source change. No source, control document, staging area or MAIN commit was modified by this reviewer.
+
+The exact frozen driver SHA256 `67388a1948844492550986f63fb9eab776c8b86a92a94ccf5be26adc81e630f4` was copied byte-for-byte into an owned Temp directory and executed without assertion or criterion changes. Its original positive and both original negatives now pass: **3/3**, compared with **1 passed/2 failed** on af548. The negatives cover a scripts-parent resolve alias and unexpected `sysconfig('scripts')`; the positive ensures the expected normal paths remain accepted.
+
+Six additional controls passed: missing scripts directory, a regular file in its place, a controlled scripts-symlink witness, both existing canonical-prefix guards and the expected pip version guard. Only test-owned Temp files/directories were constructed; alias/symlink answers and import metadata were controlled bindings for the original guard AST. No actual Linux symlink behavior or removal is claimed. The original Docker RUN and `rm` commands were not executed.
+
+The sole source delta binds fixed `/usr/local/bin`, requires the scripts sysconfig path to match, and checks directory/no-symlink/resolve identity before any removal. Reversing exactly those three added fragments reproduces the complete previous Dockerfile text. Recursive/file targets, command ordering, postconditions, application distribution count and all prior stages remain unchanged. The changed shell RUN parses with Bash `-n`, and its Python precondition compiles. All twelve tracked locks remain Git-blob identical to the parent.
+
+Before/after photos confirm4758 reviewed files and89 host packages remained byte/version-identical; the candidate worktree stayed clean. Captured pytest stdout/stderr and XML are original subprocess bytes. Every artifact has local `* -text` from creation, with RAW hashes and a read-only Git-filter identity check in `freeze.json`. Both earlier af548 evidence and its frozen negative driver remain intact.
+
+This acceptance does not establish a built image, actual54-distribution inventory or exact versions, native/ELF linkage, startup functionality, runtime/build-vendor SCA, OS fixes, SEC09 or image readiness. No Docker, QEMU, PG, Chrome, external network or installer ran. Those previously identified build/security gates remain separate.

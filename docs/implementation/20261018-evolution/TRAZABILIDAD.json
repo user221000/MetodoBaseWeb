@@ -382,7 +382,8 @@
         "evidence/history-landing-ci-independent-20261019/final-summary.json",
         "evidence/history-landing-main-ci-review-20261019/summary.json",
         "evidence/main29-regression-20261019/summary.json",
-        "evidence/qa-ci29-phase1-independent-20261019/final-summary.json"
+        "evidence/qa-ci29-phase1-independent-20261019/final-summary.json",
+        "evidence/qa-ci-history30-independent-20261019/final-summary.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -398,7 +399,8 @@
         "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
         "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados.",
         "CI local integrado; sin ejecuciónGitHubActions/Linux por esta revisión. CierreQA KeyError de clave screenshot corregido en helper separado con originales intactos;sin replay ni cambios decriterio.",
-        "Checkpoint111: MAIN29 actual:2464pass+1skip Windows en cada modo serial/cobertura y n2 shuffle. Los55 canarios de reports,27 probes inertes y26 reports de CI29 son evidencia local separada, no servicios reales."
+        "Checkpoint111: MAIN29 actual:2464pass+1skip Windows en cada modo serial/cobertura y n2 shuffle. Los55 canarios de reports,27 probes inertes y26 reports de CI29 son evidencia local separada, no servicios reales.",
+        "Checkpoint112: Esquema30/CI30 integrado,5706fuentes en la revisiónCI y5496 en navegador, cada scope exacto conservado; no relabelar regresión29 como30. Nuevo gate amplio30 preparado."
       ]
     },
     {
@@ -808,7 +810,9 @@
         "evidence/security-r12-controls-independent-20261019/source.json",
         "evidence/main29-merge-20261019/manifest.json",
         "evidence/main29-regression-20261019/summary.json",
-        "evidence/qa-ci29-phase1-independent-20261019/final-summary.json"
+        "evidence/qa-ci29-phase1-independent-20261019/final-summary.json",
+        "evidence/qa-member-browser30-independent-20261019/final-summary.json",
+        "evidence/qa-ci-history30-independent-20261019/final-summary.json"
       ],
       "documentacion": [],
       "revisor": null,
@@ -822,7 +826,8 @@
         "Checkpoint108: API72 y composición939 aceptados por seguridad sólo en el alcance API/errores:40 HTTP propios (20SQLite/20PG restringido),1 guard de origen y26 controles finales. Se conservan500,429/503 y correlación rojos previos. Raíz148/148 focal verde; QA independiente de restore/HTTP/UI29 sigue en curso; no integración29.",
         "Checkpoint109: FaseQA939 rechazada:HTTP28/28,restore29poblado1,UI10,Node297ejecuciones/276criteriosúnicos. Backend147:144verdes+2skipsSQLitePG-only+1errorlauncherspawn;replaydelcasoverdeaparte. NavegadorrealPG/defaultpool20/10:7verdes,criterio8exportdisabledrojo,9–16noalcanzados. Fixec029 aisladoycongelado,3canariosafter/16regresionesautorverdes;QA/SECafterpendientes.",
         "Checkpoint110: La composición ec029 fue aceptada por QA: los 16 criterios originales de Chrome/HTTP/PostgreSQL29 pasan con pool real20/10 y API sin dobles; tres canarios de interferencia también pasan. Seguridad acepta31/31 controles. El cambio sigue aislado hasta cerrar CI29; no se relabelan los rojos939 ni los errores de harness como verdes.",
-        "Checkpoint111: R12/ec029 y CI29/fd63620 integrados en e250. QA independiente acepta recorrido16/16, controles y CI completo sin los bypass anteriores; regresión actual29:2464 verdes+1 omisión Windows en serie/cobertura y n2/orden aleatorio.30 aún aislado."
+        "Checkpoint111: R12/ec029 y CI29/fd63620 integrados en e250. QA independiente acepta recorrido16/16, controles y CI completo sin los bypass anteriores; regresión actual29:2464 verdes+1 omisión Windows en serie/cobertura y n2/orden aleatorio.30 aún aislado.",
+        "Checkpoint112: Navegador current30 aceptado independientemente:50 mantenidas+22 propias+16freshreal/fixture0. CI30 aceptado74+19/full y ahora integrado en da0357; regresión amplia30 pendiente."
       ]
     },
     {
@@ -1202,7 +1207,9 @@
         "evidence/linux-runtime28-native-20261019/runtime-red-frozen/evidence-manifest.json",
         "evidence/security-migrator-role-independent-20261019/source.json",
         "evidence/linux-container-libpq-sec09-prepared-20261019/evidence-manifest.json",
-        "evidence/sec09-container-static-independent-20261019/source.json"
+        "evidence/sec09-container-static-independent-20261019/source.json",
+        "evidence/security-native31-sca-independent-20261019/source.json",
+        "evidence/backend-container-installer-scripts-fix-review-20261019/freeze.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -1227,7 +1234,8 @@
         "Checkpoint107: Desktop66 con Python3.12.15: QA independiente93 controles verdes (51 bundle,27 payload Inno,15 propios). ZIP4966896c y Setup5651f418,1215 archivos idénticos,4433 fuentes y83 paquetes estables. Sin instalación/upgrade/uninstall/firma o evaluación exhaustiva de DLL nativas. Linux mantiene71 IDs OS abiertos.",
         "Checkpoint108: Inventario real de imagen99c:811ELF/87paquetesOS; psycopg2-binary carga OpenSSL3.5.8 vendorizado. Trece registros CNA primarios incluyen esa versión en rango afectado:SEC09 abierto, alcanzabilidad pendiente. No sumar con71IDsOS ni atribuirlos a PyPI55/OSV0. Linuxsí disponible medianteQEMU; falta corregir componentes y validar startup/regresión.",
         "Checkpoint109: Runtime99c fallóantesdeweb;scopeLinuxnetwork/nsSCRM/productionSettingspreservado173archivos. Noarranque/readiness/unsetMIGRATORdemostrados. C4corregidonativo13;sourcebuildpsycopg2contraDebianparcheadoenpreparación,SEC09/71OSsiguenabiertos.",
-        "Checkpoint110: d038f1c sustituye psycopg2-binary por build de la misma versión contra libpq/OpenSSL Debian. Autor29 controles estáticos y Seguridad27/27; sólo delta de cinco fuentes aceptado para composición. No hay build/linkage/arranque ni SCA nuevo;71IDs OS y13 coincidencias CNA permanecen abiertos."
+        "Checkpoint110: d038f1c sustituye psycopg2-binary por build de la misma versión contra libpq/OpenSSL Debian. Autor29 controles estáticos y Seguridad27/27; sólo delta de cinco fuentes aceptado para composición. No hay build/linkage/arranque ni SCA nuevo;71IDs OS y13 coincidencias CNA permanecen abiertos.",
+        "Checkpoint112: Triage por componente confirmado:13 CNA OpenSSL por copia, nuevoSEC10 Expat;71 IDs OS permanecen abiertos. Rechazada exclusiónSQLite50812 por faltarv3; fix compartido/sourceDebianu2 conservan riesgo pendiente. Dockerc02 retirada installers aceptada sólo estática tras dos negativoscripts fallidosaf548 y3+6 verdes posteriores."
       ]
     },
     {
@@ -2025,7 +2033,8 @@
         "evidence/history-index30-independent-20261019/final-summary.json",
         "evidence/qa-r12-composition29-independent-20261019/phase939-blocked-summary.json",
         "evidence/qa-r12-composition29-independent-20261019/final-summary.json",
-        "evidence/qa-history30-restore-independent-20261019/final-summary.json"
+        "evidence/qa-history30-restore-independent-20261019/final-summary.json",
+        "evidence/main30-merge-20261019/receipt.json"
       ],
       "documentacion": [
         "JOBS_EVALUACION.md",
@@ -2042,7 +2051,8 @@
         "Checkpoint108: QA independiente acepta30/6ea:112 regresiones en una ejecución verde más8 propias,120/120 sin omisiones. Verifica índices físicos, drift, rollback con filasR12 y lectura mixta con NULL. Observaciones de trabajo51/52/51/51/51 limitadas al corpus1000, sin mejora HTTP/p95/SLO demostrada. Sigue aislado hasta29/CI.",
         "Checkpoint109: QAobservótimeoutbajopool1 enGETauthme→subscriptionguard._get_gym_plan(db)→checkout;dueñodelaprimeraconexióndesconocido,noinstrumentado. Replaypool20/10sóloE2E,nocierraadquisiciónanidada/deadlock/capacidad. Índice30aceptado120sigueaislado.",
         "Checkpoint110: El pool20/10 permitió E2E; no demuestra ausencia de deadlock bajo pool1. Waiter observado auth/me→subscription_guard._get_gym_plan→checkout, holder desconocido y aún sin instrumentar. Índice30/120 sigue aislado.",
-        "Checkpoint111: Índice30 sigue aislado; restore30 aceptado por QA:1 nodo,8 controles propios y1 focal SQLite. R34 pool1 mantiene holder desconocido. No SLO por los resultados funcionales."
+        "Checkpoint111: Índice30 sigue aislado; restore30 aceptado por QA:1 nodo,8 controles propios y1 focal SQLite. R34 pool1 mantiene holder desconocido. No SLO por los resultados funcionales.",
+        "Checkpoint112: Índice30+restore30+navegador30+CI30 integrados en da0357 tras revisiones;51/52/51/51/51 filas del corpus1000 no son SLO/p95/cota universal. Pool1 holder sigue desconocido."
       ]
     },
     {
@@ -5529,7 +5539,9 @@
         "evidence/linux-runtime28-native-20261019/native/native.json",
         "evidence/linux-runtime28-native-20261019/native-openssl-sec09/comparison.json",
         "evidence/linux-runtime28-native-20261019/native-openssl-sec09/evidence-manifest.json",
-        "evidence/sec09-container-static-independent-20261019/source.json"
+        "evidence/sec09-container-static-independent-20261019/source.json",
+        "evidence/backend-container-installer-scripts-fix-review-20261019/freeze.json",
+        "evidence/security-native31-sca-independent-20261019/source.json"
       ],
       "documentacion": [
         "NUEVOS_HALLAZGOS.md",
@@ -5540,7 +5552,8 @@
       "bloqueo": null,
       "observaciones": [
         "No equivale a13 rutas explotables ni se suma aritméticamente a71identificadoresOS. PyPI55/OSV0 conserva su alcance propio.",
-        "Checkpoint110: Preparado sourcebuild d038f1c con locks exclusivos del contenedor y pins APT; fuentes Windows/web intactas.27/27 controles independientes estáticos. Faltan firmaAPT durante build, imagen, linkage y SCA de runtime y entorno build; no se cierra vulnerabilidad por la revisión estática."
+        "Checkpoint110: Preparado sourcebuild d038f1c con locks exclusivos del contenedor y pins APT; fuentes Windows/web intactas.27/27 controles independientes estáticos. Faltan firmaAPT durante build, imagen, linkage y SCA de runtime y entorno build; no se cierra vulnerabilidad por la revisión estática.",
+        "Checkpoint112: Sourcebuildd038+runtimecleanupc02 preparados y aceptados sólo estáticos. pip/ensurepip podrían retirarse en imagen nueva, no se acredita eliminación real aún. No build/linkage/SCA nuevo ni cierre71IDs."
       ]
     },
     {
@@ -5592,6 +5605,53 @@
         "Corrección no integrada enMAIN, que permaneceesquema28. Noaceptación delrecorrido29 completo.",
         "Checkpoint110: Los mismos tres canarios pasan tras ec029; QA completa16/16 con PostgreSQL real y Seguridad31/31. Interferencia corregida en candidato aislado, pendiente de integrar junto con CI29. El consumidor privacy permanece dueño de sus controles.",
         "Checkpoint111: Corrección de propiedad de controles ec029 integrada;16/16 recorrido,3/3 canarios y31/31 Seguridad preservados."
+      ]
+    },
+    {
+      "id": "SEC10",
+      "identificador_original": "SEC10",
+      "fuente": "docs/implementation/20261018-evolution/NUEVOS_HALLAZGOS.md",
+      "seccion": "Expat embebido de CPython3.12.15 y CVE-2026-77214",
+      "problema": "La imagen99c mide pyexpat2.8.5 embebido en CPython3.12.15; el CNA primario incluye<=2.8.5 y el source exacto conserva XML_ParseBuffer sin el fix de capacidad13c5f63. Las guardas observadas de wrappers no acreditan reparar el componente ni descartar todos sus callers.",
+      "criterio_exacto": "Conservar cadena de procedencia PSF/tag/commit/blobs y ELF por artefacto; verificar rango/fix y alcanzabilidad real sin afirmar explotación sólo por versión; aplicar una reparación mantenida y fijada al componente realmente cargado, reconstruir el artefacto, comprobar versión/parche efectivo, SBOM/SCA y regresiones de parsers/runtime con revisión independiente. No sustituir Expat embebido instalando sólo libexpat Debian ni ignorar el aviso; mantener abierto el alcance no ejecutado.",
+      "prioridad": "P1",
+      "responsable": "Operación y seguridad",
+      "tareas": [
+        "R18",
+        "R31",
+        "R21"
+      ],
+      "dependencias": [
+        "R18"
+      ],
+      "estado": "en_curso",
+      "implementacion": "pendiente",
+      "validacion": "en_curso",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [
+        "Hallazgo de componente confirmado independientemente; corrección e imagen nueva pendientes."
+      ],
+      "commits": [
+        "da0357df229e534c819d8b694fe0fb6c155c31ad"
+      ],
+      "pruebas": [
+        "6 controles estáticos propios de Seguridad;16 CNA primarios actualizados autenticados. Sin PoC, crash, VM o alcance remoto de app probado."
+      ],
+      "evidencia": [
+        "evidence/linux-sca-native31-triage-20261019/manifest.json",
+        "evidence/security-native31-sca-independent-20261019/source.json"
+      ],
+      "documentacion": [
+        "NUEVOS_HALLAZGOS.md",
+        "SCA_COMPONENTES.md",
+        "ESTADO.md",
+        "RIESGOS.md"
+      ],
+      "revisor": "Seguridad independiente confirma componente/procedencia y acota wrappers; no acepta explotación global ni reparación.",
+      "bloqueo": null,
+      "observaciones": [
+        "Checkpoint112: primer registroSEC10, sin renumerar los106 previos. La corrección necesita nuevo artefacto real; no se concede excepción de riesgo."
       ]
     }
   ]

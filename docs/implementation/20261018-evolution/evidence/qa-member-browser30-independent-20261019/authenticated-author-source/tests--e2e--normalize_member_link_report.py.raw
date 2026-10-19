@@ -1,0 +1,26 @@
+"""Canonical report field adapter. Validates retained output, executes no tests."""
+import argparse,json
+from pathlib import Path
+from urllib.parse import urlsplit
+
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--input',required=True);parser.add_argument('--output',required=True)
+    parser.add_argument('--expected-head',required=True);parser.add_argument('--expected-origin',required=True)
+    parser.add_argument('--expected-revision',required=True,choices=['20261019_personal_history_index'])
+    args=parser.parse_args();data=json.loads(Path(args.input).read_bytes())
+    origin=urlsplit(args.expected_origin)
+    assert origin.scheme=='http' and origin.hostname=='127.0.0.1' and origin.port and not origin.path and not origin.query and not origin.fragment
+    assert data['head']==args.expected_head
+    assert data['executed_revision']==args.expected_revision
+    assert all(type(data[key]) is int and data[key]==16 for key in ['passed','total','expected_total'])
+    cases=data['report'];assert isinstance(cases,list) and len(cases)==16
+    assert all(type(case) is dict and set(case)=={'case','passed'} and type(case['case']) is str and case['case'] and case['passed'] is True for case in cases)
+    assert len({case['case'] for case in cases})==16
+    assert data['page_errors']==[] and data['network']['API_doubles'] is False
+    assert data['network']['first_party_origin']==args.expected_origin
+    canonical={'scope':data['scope'],'executed_revision':data['executed_revision'],'passed':16,'total':16,'results':cases}
+    with Path(args.output).open('x',encoding='utf8',newline='\n') as stream:json.dump(canonical,stream,indent=2);stream.write('\n')
+    print(json.dumps({'normalized_case_count':16,'tests_rerun':0}))
+
+if __name__=='__main__':main()

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="0.258" timestamp="2026-10-19T08:58:32.086677-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="test_runtime_installer_paths" name="test_expected_owned_paths_pass_the_precondition" time="0.011" /><testcase classname="test_runtime_installer_paths" name="test_cleanup_rejects_aliased_scripts_parent" time="0.012"><failure message="Failed: DID NOT RAISE AssertionError">tmp_path = WindowsPath('C:/Users/Consu/AppData/Local/Temp/metodobase-runtime-installer-path-fix32-20261019-_vbx1r_3/cases/test_cleanup_rejects_aliased_s0')
+
+    def test_cleanup_rejects_aliased_scripts_parent(tmp_path):
+        environment,mapped=bindings(tmp_path)
+        scripts=mapped('/usr/local/bin')
+        alias=tmp_path/'other-owned-directory'
+        alias.mkdir()
+        original_resolve=Path.resolve
+        def resolved(path,*args,**kwargs):
+            return alias if path==scripts else original_resolve(path,*args,**kwargs)
+        with patch.object(Path,'resolve',resolved):
+            assert scripts.resolve()!=scripts
+&gt;           with pytest.raises(AssertionError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE AssertionError
+
+test_runtime_installer_paths.py:53: Failed</failure></testcase><testcase classname="test_runtime_installer_paths" name="test_cleanup_rejects_unexpected_sysconfig_scripts" time="0.009"><failure message="Failed: DID NOT RAISE AssertionError">tmp_path = WindowsPath('C:/Users/Consu/AppData/Local/Temp/metodobase-runtime-installer-path-fix32-20261019-_vbx1r_3/cases/test_cleanup_rejects_unexpecte0')
+
+    def test_cleanup_rejects_unexpected_sysconfig_scripts(tmp_path):
+        environment,_mapped=bindings(tmp_path,scripts='/different/scripts')
+&gt;       with pytest.raises(AssertionError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+test_runtime_installer_paths.py:59: Failed</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,22 @@
+{
+  "command_count": 5,
+  "recursive_targets": [
+    "/usr/local/lib/python3.12/site-packages/pip",
+    "/usr/local/lib/python3.12/site-packages/pip-26.2.1.dist-info",
+    "/usr/local/lib/python3.12/ensurepip"
+  ],
+  "script_targets": [
+    "/usr/local/bin/pip",
+    "/usr/local/bin/pip3",
+    "/usr/local/bin/pip3.12"
+  ],
+  "guard_before_all_deletions": true,
+  "after_all_copies": true,
+  "before_unprivileged_user": true,
+  "strict_command_mutants_rejected": [
+    "remove_fail_closed_shell",
+    "broaden_recursive_target",
+    "recursive_bin_cleanup",
+    "append_unreviewed_command"
+  ]
+}

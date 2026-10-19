@@ -1,0 +1,44 @@
+{
+  "wheel_sha256": "71138adf1f4ca900cdb7d289c21b7494329f2332b6d85f0e1c42108c0384ed3e",
+  "actual_version_metadata": "pip 26.2.1 measured in image99c; matching pinned wheel inventoried without importing it. Actual runtime vendor file bytes still require image postcondition.",
+  "bounded_exact_body_mocks": [
+    {
+      "cve": "CVE-2026-97689",
+      "function": "HTTPResponse._update_chunk_length",
+      "line": 1332,
+      "small_mock_result": "readline called with no length bound; mock returned only 3 bytes",
+      "calls": [
+        []
+      ],
+      "source_fix_present": false,
+      "reachability": "pip HTTP download/stream path can use vendored requests/urllib3; no real remote response or memory exhaustion executed."
+    },
+    {
+      "cve": "CVE-2026-97688",
+      "function": "DeflateDecoder.has_unconsumed_tail",
+      "line": 110,
+      "small_mock_result": "EOF=true with 1-byte unconsumed tail is reported as additional decodable input; fixed upstream includes not eof",
+      "source_fix_present": false,
+      "reachability": "Requires chunked deflate streaming, trailing bytes and finite decoded chunk. No loop or network executed."
+    },
+    {
+      "cve": "CVE-2026-97687",
+      "function": "HTTPSConnection._connect_tls_proxy",
+      "line": 861,
+      "small_mock_result": "Target CERT_NONE is passed with distinct proxy context to TLS helper; fixed upstream isolates proxy verification policy",
+      "source_fix_present": false,
+      "reachability": "Requires configured HTTPS proxy and differing target policy. No sockets, credentials or TLS handshake used."
+    }
+  ],
+  "component_absence_in_wheel": {
+    "msgpack_compiled_files": [],
+    "setuptools_package_index": [],
+    "setuptools_manifest_matching_files": []
+  },
+  "version_matches_without_affected_files": {
+    "CVE-2026-57585": "Upstream fix touches msgpack Cython Unpacker and unpack_template.h; wheel only contains pure Python fallback, no native Unpacker.",
+    "CVE-2025-47273": "setuptools/package_index.py absent; only pkg_resources subset vendored.",
+    "CVE-2026-59890": "setuptools command/egg_info.py and _distutils/filelist.py absent; only pkg_resources subset vendored."
+  },
+  "limits": "No broad vulnerability-free assertion; no exploit or runtime web startup. Build-stage tools remain separately audited even if omitted from final image."
+}

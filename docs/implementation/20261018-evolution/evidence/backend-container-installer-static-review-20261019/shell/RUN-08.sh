@@ -1,0 +1,7 @@
+set -eu; \
+    python -c "from pathlib import Path; import importlib.metadata as m,sysconfig; root=Path('/usr/local/lib/python3.12'); site=root/'site-packages'; assert Path(sysconfig.get_path('stdlib'))==root and Path(sysconfig.get_path('purelib'))==site; assert root.resolve()==root and site.resolve()==site; assert m.version('pip')=='26.2.1'; assert all(p.is_dir() and not p.is_symlink() for p in (site/'pip',site/'pip-26.2.1.dist-info',root/'ensurepip')); assert (root/'ensurepip'/'_bundled').is_dir()"; \
+    rm -rf -- /usr/local/lib/python3.12/site-packages/pip \
+        /usr/local/lib/python3.12/site-packages/pip-26.2.1.dist-info \
+        /usr/local/lib/python3.12/ensurepip; \
+    rm -f -- /usr/local/bin/pip /usr/local/bin/pip3 /usr/local/bin/pip3.12; \
+    python -c "from pathlib import Path; import importlib.util as u,importlib.metadata as m,json; root=Path('/usr/local'); assert all(u.find_spec(n) is None for n in ('pip','ensurepip')); assert not any(root.rglob('*.whl')); assert not any(p.name.lower().startswith(('pip-','pip.')) for p in (root/'lib/python3.12/site-packages').iterdir()); assert not any(p.exists() or p.is_symlink() for p in (root/'bin/pip',root/'bin/pip3',root/'bin/pip3.12')); rows=sorted((d.metadata['Name'],d.version) for d in m.distributions()); assert len(rows)==54 and all(n.lower() not in ('pip','setuptools','wheel') for n,v in rows); Path('/usr/local/share/metodobase/runtime-python-metadata.json').write_text(json.dumps(rows,indent=2)+'\n')"

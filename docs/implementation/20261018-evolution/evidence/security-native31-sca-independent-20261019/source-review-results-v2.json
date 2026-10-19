@@ -1,0 +1,244 @@
+{
+  "scope": "Static source/hash/ELF metadata and tiny arithmetic/boolean models only; no application/C execution/build/VM/install/PoC",
+  "checks": [
+    {
+      "name": "PSF tar and annotated tag/commit/four Git blobs match exact source; official recipe agrees",
+      "passed": true
+    },
+    {
+      "name": "Expat inclusive affected boundary and missing capacity fix in correct function corroborate measured embedded version",
+      "passed": true
+    },
+    {
+      "name": "Inspected Python wrappers acquire capacity before parse and reject oversized file reads before copy",
+      "passed": true
+    },
+    {
+      "name": "zlib85091 published range excludes measured1.3.1 and introduced nonblocking implementation absent; exact deb ELF agrees",
+      "passed": true
+    },
+    {
+      "name": "SQLite v3 absence cannot exclude shared v2 pre-fix logic; exact Debian orig/patches and measured ELF confirm counterevidence",
+      "passed": true
+    },
+    {
+      "name": "All13 fresh OpenSSL CNA branches preserve fixed4.0.3 boundary and affected3.5.8; exact Debian u3 backport supported",
+      "passed": true
+    }
+  ],
+  "passed": 6,
+  "total": 6,
+  "claims": {
+    "cpython_source_equivalence": {
+      "tag": "f9e83c56c657be0a74ede2b5c523de4f9191d117",
+      "commit": "e848e4b09ca4bc67c0041c9ce7526dae471d4c36",
+      "tar_sha256": "c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a",
+      "files": [
+        {
+          "path": "Modules/pyexpat.c",
+          "bytes": 77456,
+          "sha256": "f13b169a8cb0b3e697c97b7d567c813038e3edb2a8d37fd72e8aea0e4693a9db",
+          "git_blob": "646cd1a6382557069e58e96687e32c21958597b7"
+        },
+        {
+          "path": "Modules/_elementtree.c",
+          "bytes": 126636,
+          "sha256": "63cd614f8edb692aecbb3322c632bfbe3fd9587d3e7dab0aa7c5f8ddef24a7c9",
+          "git_blob": "941376613b0c4d497716fb80e4176ef84cabbd3e"
+        },
+        {
+          "path": "Modules/expat/xmlparse.c",
+          "bytes": 318918,
+          "sha256": "9a4969bb0ac497803866705f3fa233cc4b487e7685800d9222bd0ab38d1b8a20",
+          "git_blob": "9fb4f9d480a2e3a2da1731e87a8ae8eff224b452"
+        },
+        {
+          "path": "Modules/expat/expat.h",
+          "bytes": 45522,
+          "sha256": "17cd1fc3b4c61d00de96091ceed0a3721d5bac9755c6d04e89d9f8a79d037c12",
+          "git_blob": "4c3851d50a5fdf3c86854d5805d54ab429a124a1"
+        }
+      ],
+      "no_local_gpg_or_binary_rebuild": true
+    },
+    "expat": {
+      "decision": "ACCEPT component finding; no global application reachability/exploit claim",
+      "source_function_start_line": 2414,
+      "measured_pyexpat": "/usr/local/lib/python3.12/lib-dynload/pyexpat.cpython-312-x86_64-linux-gnu.so",
+      "measured_elf_sha256": "11eb83c00b747bb59c11ae229d437eee4a4757892cf41b2cee9cace7f87443f4",
+      "version": "expat_2.8.5",
+      "fix_absent_in_exact_expected_source": true,
+      "embedded_linkage_supported_by_needed": [
+        "libc.so.6"
+      ]
+    },
+    "wrapper_scope": {
+      "readinst_start_line": 874,
+      "length_models": [
+        {
+          "length": 0,
+          "accepted_by_readinst_size_guard": true
+        },
+        {
+          "length": 1,
+          "accepted_by_readinst_size_guard": true
+        },
+        {
+          "length": 2047,
+          "accepted_by_readinst_size_guard": true
+        },
+        {
+          "length": 2048,
+          "accepted_by_readinst_size_guard": true
+        },
+        {
+          "length": 2049,
+          "accepted_by_readinst_size_guard": false
+        },
+        {
+          "length": 2147483647,
+          "accepted_by_readinst_size_guard": false
+        },
+        {
+          "length": 2147483648,
+          "accepted_by_readinst_size_guard": false
+        }
+      ],
+      "decision": "ACCEPT bounded inspected standard callers only; REJECT global unreachability or native fix inference",
+      "model_is_not_C_execution": true
+    },
+    "zlib85091": {
+      "decision": "ACCEPT specific published range/source mismatch; not an exception or all-zlib safety claim",
+      "runtime": "1.3.1",
+      "published_range": [
+        "1.3.1.2",
+        "1.3.2"
+      ],
+      "gz_vacate_and_again_absent_in_exact_orig": true,
+      "debian_patch_series_empty": true,
+      "observed_elf": "/usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+      "deb_member": "./usr/lib/x86_64-linux-gnu/libz.so.1.3.1",
+      "elf_sha256": "85590dd58edf5445e18bc7193e5ebc01ac5841f1ae187e97705a662e90c6421e",
+      "CVE-2026-27171": "REMAINS OPEN; independent vulnerability and no blind upgrade to1.3.2"
+    },
+    "sqlite50812": {
+      "decision": "REJECT exclusion/no-applicability inferred from missing apply_v3; keep under investigation/open",
+      "measured": "3.46.1",
+      "v3_absent": true,
+      "v2_exported": true,
+      "shared_pre_fix_condition_present_in_debian_orig": true,
+      "sessionApplyOneOp_line": 4859,
+      "sessionBindValue_line": 4552,
+      "upstream_fix_regression_calls_v2": true,
+      "exact_debian_patchset_has_no_identified_fix": true,
+      "debian_source_gpg_verified": false,
+      "debian_build_enables_session": true,
+      "deb_member": "./usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6",
+      "observed_elf": "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6",
+      "elf_sha256": "317d80bf5d592f98a71e14d2330591d6a339f631f37c5977835af748a1f26715",
+      "limits": "No malformed changeset, segfault, memory PoC or application reachability demonstrated"
+    },
+    "openssl13": {
+      "decision": "ACCEPT per-component boundaries/backport only; no generic native safety claim",
+      "boundary_assertions": 52,
+      "rows": [
+        {
+          "id": "CVE-2026-35189",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-35191",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-42772",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-54872",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-54873",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-54875",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-72897",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-75804",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-75805",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-75806",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-77696",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-84782",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        },
+        {
+          "id": "CVE-2026-84784",
+          "4.0.2": true,
+          "4.0.3": false,
+          "3.5.8": true,
+          "3.5.9": false
+        }
+      ],
+      "custom_1x_branches": "preserved in raw CNA; not coerced into numeric semver",
+      "debian_backport": "DSA6531 + installed changelog + exact3.5.7-1~deb13u3",
+      "dsa_sha256": "7e4f42d72f86e2c7fec15d702375cd4c68890becb19b9fb2a8463dc535a8fe60",
+      "psycopg_3.5.8": "13 CNA range matches remain SEC09 open",
+      "cryptography_4.0.3": "exact fixed boundary outside these13 numeric ranges"
+    }
+  }
+}
