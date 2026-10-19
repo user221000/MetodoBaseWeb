@@ -35,14 +35,14 @@
         check(ticket);
         const data=await (kind==='google'?api.primaryGoogle(payload,context):api.primaryPassword(payload,context));check(ticket);
         options.onClear?.();check(ticket);
-        if(data.mfa_required===true){challenge=data.challenge;expiry=data.expires_at;method='totp';phase='factor';busy=false;view('La primaria fue válida. Confirma un factor para iniciar sesión.');return true;}
+        if(data.mfa_required===true){challenge=data.challenge;expiry=data.expires_at;method='totp';phase='factor';busy=false;view('Ahora confirma tu código para iniciar sesión.');return true;}
         await finish(data,ticket);busy=false;return true;
       }catch(error){failure(error,ticket);return false;}
     }
     async function primary(kind,payload){
       if(dead||busy||phase!=='primary')return false;
       const ticket=++epoch;
-      try{context=api.capture();check(ticket);busy=true;view('Comprobando la autenticación primaria…');check(ticket);return await consumePrimary(kind,payload,ticket);}
+      try{context=api.capture();check(ticket);busy=true;view('Comprobando tus datos de acceso…');check(ticket);return await consumePrimary(kind,payload,ticket);}
       catch(error){failure(error,ticket);return false;}
     }
     async function verify(value){
@@ -62,7 +62,7 @@
         try{check(ticket);view('Acceso confirmado. Consultando el destino de esta cuenta…');check(ticket);await options.onAuthenticated?.(context);check(ticket);phase='confirmed';busy=false;return true;}
         catch(error){failure(error,ticket);return false;}},
       beginGoogle(){if(dead||busy||phase!=='primary')return null;const ticket=++epoch;try{context=api.capture();check(ticket);phase='google';view('Esperando la autenticación de Google. Todavía no se inició sesión; puedes descartarla.');check(ticket);return ticket;}catch(error){failure(error,ticket);return null;}},
-      async completeGoogle(payload,ticket){if(dead||busy||phase!=='google'||ticket!==epoch)return false;try{check(ticket);busy=true;view('Comprobando la primaria de Google…');check(ticket);return await consumePrimary('google',payload,ticket);}catch(error){failure(error,ticket);return false;}},
+      async completeGoogle(payload,ticket){if(dead||busy||phase!=='google'||ticket!==epoch)return false;try{check(ticket);busy=true;view('Comprobando tu cuenta de Google…');check(ticket);return await consumePrimary('google',payload,ticket);}catch(error){failure(error,ticket);return false;}},
       selectMethod(value){if(!dead&&!busy&&phase==='factor'&&methods.has(value)){method=value;options.onClear?.();view('Usa una prueba de '+(value==='totp'?'tu autenticador.':'recuperación que no hayas usado.'));}},
       expire(){if(!dead&&phase==='factor'&&Date.now()>=Date.parse(expiry)){cancel();view('La verificación venció. Inicia un acceso nuevo.');}},
       get active(){return!dead;},get phase(){return phase;}};

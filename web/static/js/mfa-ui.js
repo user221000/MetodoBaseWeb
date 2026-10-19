@@ -5,7 +5,7 @@
   const expires=value=>typeof value==='string'&&Number.isFinite(Date.parse(value));
   const bad=()=>Object.assign(new Error('No se pudo confirmar la respuesta de verificación.'),{code:'mfa_invalid_response'});
   const cancelled=()=>Object.assign(new Error('Verificación cancelada. No se solicitó la operación.'),{code:'mfa_cancelled'});
-  const notice=error=>({mfa_fresh_verification_required:'Necesitas una prueba vigente para esta operación.',mfa_enrollment_required:'Activa un factor en la seguridad de tu cuenta antes de continuar.',mfa_primary_reauthentication_required:'Se necesita una primaria reciente verificable. Usa tu contraseña o autentícate otra vez con Google; emitir un token nuevo no basta.',mfa_verification_failed:'No se confirmó el código. Revisa el método y usa una prueba vigente.',mfa_proof_unavailable:'La prueba venció o ya se usó. Inicia una verificación nueva.',mfa_throttled:'Hay un límite temporal de intentos. Espera antes de volver a verificar.',mfa_unconfirmed:'La respuesta es incierta. Puede haberse confirmado el cambio. Inicia sesión de nuevo y consulta el estado; no repitas la operación a ciegas.',mfa_service_unavailable:'La verificación no está disponible. No se confirmó el cambio.',mfa_busy:'Hay una verificación en curso. Espera o descártala.',session_changed:'La sesión cambió. Se descartaron los secretos anteriores.',session_storage_error:'No se pudo confirmar el almacenamiento de la sesión. No se muestra ningún secreto ni éxito.'}[error.code]||(error.status===429?'Hay un límite temporal. Respeta el tiempo de espera del servidor.':error.status===503?'La confirmación es incierta. Consulta el estado antes de otra operación.':'No se pudo confirmar la operación. Vuelve a consultar el estado.'));
+  const notice=error=>({mfa_fresh_verification_required:'Necesitas una prueba vigente para esta operación.',mfa_enrollment_required:'Activa un factor en la seguridad de tu cuenta antes de continuar.',mfa_primary_reauthentication_required:'Vuelve a verificar tu identidad con tu contraseña o con Google para continuar.',mfa_verification_failed:'No se confirmó el código. Revisa el método y usa una prueba vigente.',mfa_proof_unavailable:'La prueba venció o ya se usó. Inicia una verificación nueva.',mfa_throttled:'Hay un límite temporal de intentos. Espera antes de volver a verificar.',mfa_unconfirmed:'La respuesta es incierta. Puede haberse confirmado el cambio. Inicia sesión de nuevo y consulta el estado; no repitas la operación a ciegas.',mfa_service_unavailable:'La verificación no está disponible. No se confirmó el cambio.',mfa_busy:'Hay una verificación en curso. Espera o descártala.',session_changed:'La sesión cambió. Se cerró la verificación anterior.',session_storage_error:'No se pudo guardar la sesión de forma segura. Vuelve a iniciar sesión.'}[error.code]||(error.status===429?'Hay un límite temporal. Respeta el tiempo de espera del servidor.':error.status===503?'La confirmación es incierta. Consulta el estado antes de otra operación.':'No se pudo confirmar la operación. Vuelve a consultar el estado.'));
   function factor(method,value){
     if(method==='totp'&&/^\d{6}$/.test(value))return{code:value};
     if(method==='recovery_code'&&/^[A-Za-z0-9_-]{22}$/.test(value))return{recovery_code:value};
@@ -41,10 +41,10 @@
       try{if(!context){const value=await api.context();if(dead||ticket!==epoch)return;context=value.handle;}check(ticket);
         const value=await api.status(context);check(ticket);
         if(!value||typeof value.enabled!=='boolean'||typeof value.pending!=='boolean'||!Number.isInteger(value.recovery_codes_remaining)||value.recovery_codes_remaining<0||value.recovery_codes_remaining>8||typeof value.required_for_privileged_actions!=='boolean'||value.totp_period_seconds!==30||value.challenge_lifetime_seconds!==300)throw bad();
-        status=value;busy=false;emit('ready','Estado consultado. Cambiar el factor requiere una primaria reciente y tu confirmación.');
+        status=value;busy=false;emit('ready','Estado actualizado. Confirma tu identidad para hacer cambios.');
       }catch(error){if(!context&&!dead){busy=false;emit('error',notice(error));}else failure(error,ticket);}}
     async function mutate(action,primary,proof){
-      if(dead||busy||!status)return false;check();const ticket=epoch;busy=true;clear();if(dead||ticket!==epoch)return false;emit('saving','Verificando la primaria; el cambio aún no está confirmado…');if(dead||ticket!==epoch)return false;
+      if(dead||busy||!status)return false;check();const ticket=epoch;busy=true;clear();if(dead||ticket!==epoch)return false;emit('saving','Verificando tu identidad; el cambio aún no está confirmado…');if(dead||ticket!==epoch)return false;
       try{
         check(ticket);const reauth=await api.reauth(primary,context);primary=null;check(ticket);
         if(!reauth||!bearer(reauth.reauthentication_token)||!expires(reauth.expires_at))throw bad();
@@ -74,7 +74,7 @@
     async function confirm(code){
       if(dead||busy||!enrollment)return false;
       if(!/^\d{6}$/.test(code)){emit('enrolling','Escribe seis cifras de tu autenticador.');return false;}
-      if(Date.now()>=Date.parse(enrollment.expiry)){clear();emit('error','La semilla pendiente venció. Inicia otra verificación primaria.');return false;}
+      if(Date.now()>=Date.parse(enrollment.expiry)){clear();emit('error','La clave de configuración venció. Vuelve a verificar tu identidad.');return false;}
       check();const ticket=epoch,body={enrollment_id:enrollment.id,code};busy=true;options.onInputsClear?.();if(dead||ticket!==epoch)return false;emit('saving','Confirmando el factor; todavía no hay un cambio confirmado…');if(dead||ticket!==epoch)return false;
       try{const reply=await api.confirm(body,context);check(ticket);if(reply?.enabled!==true)throw bad();return finishKit(reply,ticket);}
       catch(error){failure(error,ticket);return false;}}
@@ -129,12 +129,12 @@
       form.hidden=true;confirmation.hidden=true;get('mfa-account-google').hidden=true;get('mfa-account-refresh').hidden=true;state.textContent='Cambio confirmado. Sesión anterior cerrada; guarda el kit antes de salir.';
       recoveryView=kit(kitRoot,codes,closed,options.loginUrl);Api.mfa.check(closed);
     },onClosed(closed){
-      Api.mfa.check(closed);form.hidden=true;confirmation.hidden=true;get('mfa-account-google').hidden=true;state.textContent='Factor revocado y sesión cerrada en este navegador. Las acciones protegidas volverán a requerir enrolamiento.';
+      Api.mfa.check(closed);form.hidden=true;confirmation.hidden=true;get('mfa-account-google').hidden=true;state.textContent='Autenticación en dos pasos desactivada y sesión cerrada. Para hacer cambios protegidos tendrás que activarla de nuevo.';
       const link=node('a','Iniciar sesión de nuevo',kitRoot);link.href=options.loginUrl;Api.mfa.check(closed);
     },onClosedError(text){clear();form.hidden=true;get('mfa-account-google').hidden=true;state.textContent=text;state.focus();}});
     function currentProof(){return controller.enabled?factor(get('mfa-account-method').value,get('mfa-account-factor').value.trim()):{};}
     form.addEventListener('submit',async event=>{event.preventDefault();try{controller.check();const proof=currentProof(),action=get('mfa-account-action').value,password=get('mfa-account-password').value;
-      if(!password){state.textContent='Escribe tu contraseña o usa el botón de Google para una primaria reciente.';state.focus();return;}
+      if(!password){state.textContent='Escribe tu contraseña o verifica tu cuenta con el botón de Google.';state.focus();return;}
       await controller.mutate(action,{password},proof);
     }catch(error){if(controller.active){state.textContent=notice(error);state.focus();}}});
     confirmation.addEventListener('submit',async event=>{event.preventDefault();const code=get('mfa-account-new-code').value.trim();await controller.confirm(code);});
@@ -142,18 +142,18 @@
     get('mfa-account-method').addEventListener('change',()=>{const input=get('mfa-account-factor');input.value='';input.maxLength=get('mfa-account-method').value==='totp'?6:22;input.autocomplete=get('mfa-account-method').value==='totp'?'one-time-code':'off';input.inputMode=get('mfa-account-method').value==='totp'?'numeric':'text';});
     if(options.googleClientId){
       const target=get('mfa-account-google'),script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;script.nonce=options.nonce;
-      script.onerror=()=>{get('mfa-account-google-status').textContent='Google no se pudo cargar. Puedes usar tu contraseña; la reautenticación real del proveedor debe estar configurada.';};
+      script.onerror=()=>{get('mfa-account-google-status').textContent='No se pudo cargar Google. Usa tu contraseña o vuelve a intentarlo.';};
       script.onload=()=>{if(!controller.active)return;google.accounts.id.initialize({client_id:options.googleClientId,auto_select:false,ux_mode:'popup',essential_claims:'auth_time, amr',callback:async reply=>{
         const attempt=providerAttempt;if(!attempt||attempt.epoch!==providerEpoch||reply.state!==attempt.state||!controller.active)return;providerAttempt=null;target.inert=false;get('mfa-account-google-cancel').hidden=true;
         try{controller.check();Api.mfa.check(attempt.context);await controller.mutate(attempt.action,{google_credential:reply.credential},attempt.proof);}catch(error){if(controller.active){state.textContent=notice(error);state.focus();}}
       }});renderGoogle=()=>{target.replaceChildren();const buttonState='mfa-account-'+(++providerRender);google.accounts.id.renderButton(target,{type:'standard',theme:'filled_black',size:'large',text:'continue_with',locale:'es',width:Math.min(400,target.offsetWidth||300),state:buttonState,click_listener:()=>{
         if(providerAttempt)return;
-        try{controller.check();providerAttempt={epoch:++providerEpoch,state:buttonState,context:Api.mfa.capture(),action:get('mfa-account-action').value,proof:currentProof()};target.inert=true;get('mfa-account-google-cancel').hidden=false;get('mfa-account-google-status').textContent='Esperando una primaria reciente del proveedor. No se confirmó ningún cambio.';}
+        try{controller.check();providerAttempt={epoch:++providerEpoch,state:buttonState,context:Api.mfa.capture(),action:get('mfa-account-action').value,proof:currentProof()};target.inert=true;get('mfa-account-google-cancel').hidden=false;get('mfa-account-google-status').textContent='Confirma tu cuenta de Google para continuar.';}
         catch(error){providerAttempt=null;state.textContent=notice(error);state.focus();}
       }});};renderGoogle();};document.head.appendChild(script);
       for(const id of ['mfa-account-action','mfa-account-method','mfa-account-factor','mfa-account-password'])get(id).addEventListener('input',()=>{providerAttempt=null;providerEpoch++;target.inert=false;get('mfa-account-google-cancel').hidden=true;if(renderGoogle)renderGoogle();});
       get('mfa-account-google-cancel').addEventListener('click',()=>{providerAttempt=null;providerEpoch++;target.inert=false;get('mfa-account-google-cancel').hidden=true;if(renderGoogle)renderGoogle();get('mfa-account-google-status').textContent='Autenticación del proveedor descartada. No se solicitó el cambio.';});
-    }else get('mfa-account-google-status').textContent='Google no está configurado para una primaria reciente. Puedes usar tu contraseña; no se fabricará metadata del proveedor.';
+    }else get('mfa-account-google-status').textContent='La verificación con Google no está disponible. Usa tu contraseña.';
     window.addEventListener('pagehide',()=>recoveryView?.clear());controller.load();return controller;
   }
   window.MfaUI=Object.freeze({authorize,createAccount,mountAccount,kit,factor,notice,node});

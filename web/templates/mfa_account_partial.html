@@ -1,19 +1,19 @@
 <section id="mfa-account" class="mfa-view" aria-labelledby="mfa-account-title">
   <h2 id="mfa-account-title">Seguridad de mi cuenta</h2>
-  <p>El factor protege tu cuenta. No concede roles, acceso a otra cartera ni permisos adicionales.</p>
+  <p>Protege tu cuenta con una aplicación de autenticación y guarda tus códigos de recuperación.</p>
   <p id="mfa-account-summary">Estado por consultar.</p>
   <p id="mfa-account-status" role="status" aria-live="polite" tabindex="-1">Consultando…</p>
   <button type="button" id="mfa-account-refresh">Consultar estado</button>
   <form id="mfa-account-primary">
     <label for="mfa-account-action">Cambio que deseas confirmar</label>
     <select id="mfa-account-action"><option value="enroll">Configurar o reemplazar autenticador</option><option value="regenerate">Reemplazar kit de recuperación</option><option value="revoke">Revocar el factor</option></select>
-    <p>Para reemplazar un factor activo necesitas una primaria reciente y el factor vigente. Un token renovado no sustituye esa primaria.</p>
+    <p>Para cambiar el autenticador, verifica tu contraseña o tu cuenta de Google y confirma un código del método actual.</p>
     <label for="mfa-account-password">Contraseña actual<input id="mfa-account-password" type="password" autocomplete="current-password"></label>
-    <fieldset id="mfa-account-existing-factor" hidden><legend>Factor vigente</legend>
+    <fieldset id="mfa-account-existing-factor" hidden><legend>Método actual</legend>
       <label for="mfa-account-method">Método</label><select id="mfa-account-method"><option value="totp">Aplicación autenticadora</option><option value="recovery_code">Código de recuperación</option></select>
-      <label for="mfa-account-factor">Prueba del método elegido<input id="mfa-account-factor" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false" autocapitalize="none"></label>
+      <label for="mfa-account-factor">Código del método elegido<input id="mfa-account-factor" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false" autocapitalize="none"></label>
     </fieldset>
-    <button id="mfa-account-submit" type="submit" disabled>Verificar primaria y solicitar este cambio</button>
+    <button id="mfa-account-submit" type="submit" disabled>Verificar mi identidad y solicitar el cambio</button>
   </form>
   <div id="mfa-account-google"></div><button type="button" id="mfa-account-google-cancel" hidden>Descartar autenticación de Google</button><p id="mfa-account-google-status"></p>
   <div id="mfa-account-seed"></div>
@@ -22,5 +22,5 @@
     <button type="submit">Confirmar activación y cerrar sesiones</button><button type="button" id="mfa-account-discard">Descartar semilla de esta vista</button>
   </form>
   <div id="mfa-account-kit"></div>
-  <p>Sin todos los factores o códigos no hay un bypass por correo ni un operador simulado. No se promete recuperación externa disponible.</p>
+  <p>Guarda tus códigos en un lugar seguro. Si pierdes el autenticador y todos los códigos, actualmente no hay un método alternativo para recuperar el acceso.</p>
 </section>
