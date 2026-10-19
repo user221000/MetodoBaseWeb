@@ -98,6 +98,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             or request.url.path.startswith("/api/usuario/diario/")
         )
         primary_api = request.url.path in _PRIMARY_API_PATHS
+        operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}
         
         try:
             response = await call_next(request)
@@ -106,7 +107,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                     and not is_member_link_private(request.url.path)
                     and not diary_api
                     and not request.url.path.startswith("/api/auth/mfa/")
-                    and not primary_api):
+                    and not primary_api
+                    and not operations):
                 raise
             # Generic handlers live outside response middleware. Reuse the
             # factory's existing public error body, then apply private headers.
@@ -160,6 +162,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 recovery_api
                 or diary_api
                 or primary_api
+                or operations
                 or request.url.path.startswith("/api/auth/mfa/")
                 or request.url.path == "/api/usuario/historial"
                 or is_member_link_private(request.url.path)
@@ -171,9 +174,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if primary_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
+        if operations or primary_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
             response.headers["Cache-Control"] = "no-store"
         
+        if operations:
+            response.headers["Pragma"] = "no-cache"
+
         # ─── Cache control para APIs ────────────────────────────────────────
         if request.url.path.startswith("/api/"):
             # APIs no deben cachearse por defecto

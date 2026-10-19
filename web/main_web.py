@@ -364,6 +364,8 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     # Keep correlation around responses created by the private error boundary.
     app.add_middleware(RequestIDMiddleware)
+    from web.observability.routes import configure_observability
+    configure_observability(app)
     return app
 
 
