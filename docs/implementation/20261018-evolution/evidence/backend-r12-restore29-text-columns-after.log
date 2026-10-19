@@ -1,0 +1,11 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_revision29_restore_preserves_member_links_and_all_revision26_27_28_contracts _
+tests\integration_client_link_restore.py:231: in test_revision29_restore_preserves_member_links_and_all_revision26_27_28_contracts
+    verify_runtime_schema(target, expected_revision="20261019_client_account_links")
+web\database\schema_control.py:73: in verify_runtime_schema
+    raise RuntimeError("Database tenant policies differ from the reviewed application boundary")
+E   RuntimeError: Database tenant policies differ from the reviewed application boundary
+=========================== short test summary info ===========================
+FAILED tests/integration_client_link_restore.py::test_revision29_restore_preserves_member_links_and_all_revision26_27_28_contracts
+1 failed in 14.38s

@@ -72,13 +72,13 @@ CREATE POLICY r12_link_select ON public.client_account_links FOR SELECT USING(pu
 CREATE POLICY r12_link_insert ON public.client_account_links FOR INSERT WITH CHECK(public.r12_gym_scope(gym_id) AND status='pending' AND user_id IS NULL);
 CREATE POLICY r12_link_update ON public.client_account_links FOR UPDATE USING(public.r12_gym_scope(gym_id)
  OR (user_id=NULLIF(current_setting('app.current_tenant',true),'') AND public.r12_actor_valid()) OR public.r12_pending_proof(client_account_links))
- WITH CHECK((public.r12_gym_scope(gym_id) AND status IN ('pending','revoked'))
+ WITH CHECK((public.r12_gym_scope(gym_id) AND status::text IN ('pending'::text,'revoked'::text))
  OR (status='active' AND public.r12_consumed_proof(client_account_links))
  OR (status='revoked' AND user_id=NULLIF(current_setting('app.current_tenant',true),'') AND public.r12_actor_valid()));
 CREATE POLICY r12_invitation_select ON public.client_link_invitations FOR SELECT USING(public.r12_gym_scope(gym_id) OR public.r12_proof(client_link_invitations));
 CREATE POLICY r12_invitation_insert ON public.client_link_invitations FOR INSERT WITH CHECK(public.r12_gym_scope(gym_id) AND status='pending' AND consumed_by IS NULL AND consumed_at IS NULL);
 CREATE POLICY r12_invitation_update ON public.client_link_invitations FOR UPDATE USING(public.r12_gym_scope(gym_id) OR public.r12_proof(client_link_invitations))
- WITH CHECK((public.r12_gym_scope(gym_id) AND status IN ('pending','revoked') AND consumed_by IS NULL AND consumed_at IS NULL)
+ WITH CHECK((public.r12_gym_scope(gym_id) AND status::text IN ('pending'::text,'revoked'::text) AND consumed_by IS NULL AND consumed_at IS NULL)
  OR (public.r12_proof(client_link_invitations) AND status='consumed' AND consumed_by=NULLIF(current_setting('app.current_tenant',true),'') AND consumed_at<expires_at));
 CREATE POLICY r12_publication_select ON public.client_plan_publications FOR SELECT USING(public.r12_gym_scope(gym_id) OR public.r12_recipient(client_plan_publications));
 CREATE POLICY r12_publication_insert ON public.client_plan_publications FOR INSERT WITH CHECK(public.r12_gym_scope(gym_id));

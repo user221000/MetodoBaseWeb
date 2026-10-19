@@ -29,7 +29,7 @@ CREATE INDEX ix_client_account_links_gym_id ON client_account_links (gym_id);
 -- R12 statement
 CREATE INDEX ix_client_account_links_user_id ON client_account_links (user_id);
 -- R12 statement
-CREATE UNIQUE INDEX uq_client_link_current ON client_account_links (gym_id, client_id) WHERE status IN ('pending','active');
+CREATE UNIQUE INDEX uq_client_link_current ON client_account_links (gym_id, client_id) WHERE status::text IN ('pending'::text,'active'::text);
 -- R12 statement
 CREATE UNIQUE INDEX uq_client_link_recipient ON client_account_links (gym_id, user_id) WHERE status='active';
 -- R12 statement
@@ -100,7 +100,7 @@ CREATE TABLE client_plan_publications (
 	CONSTRAINT ck_client_publication_status CHECK (status IN ('published','withdrawn')), 
 	CONSTRAINT ck_client_publication_state CHECK ((status='published' AND withdrawn_at IS NULL) OR (status='withdrawn' AND withdrawn_at IS NOT NULL)), 
 	CONSTRAINT ck_client_publication_content CHECK (length(plan_json) BETWEEN 2 AND 262144 AND length(plan_sha256) = 64), 
-	CONSTRAINT ck_client_publication_pdf CHECK ((source_object_id IS NULL AND object_key IS NULL AND content_type IS NULL AND byte_size IS NULL AND sha256 IS NULL AND storage_backend IS NULL) OR (source_object_id IS NOT NULL AND length(source_object_id)=32 AND object_key IS NOT NULL AND length(object_key) BETWEEN 1 AND 512 AND content_type IS NOT NULL AND content_type='application/pdf' AND byte_size IS NOT NULL AND byte_size BETWEEN 1 AND 67108864 AND sha256 IS NOT NULL AND length(sha256)=64 AND storage_backend IS NOT NULL AND storage_backend IN ('local','s3'))), 
+	CONSTRAINT ck_client_publication_pdf CHECK ((source_object_id IS NULL AND object_key IS NULL AND content_type IS NULL AND byte_size IS NULL AND sha256 IS NULL AND storage_backend IS NULL) OR (source_object_id IS NOT NULL AND length(source_object_id)=32 AND object_key IS NOT NULL AND length(object_key) BETWEEN 1 AND 512 AND content_type IS NOT NULL AND content_type='application/pdf' AND byte_size IS NOT NULL AND byte_size BETWEEN 1 AND 67108864 AND sha256 IS NOT NULL AND length(sha256)=64 AND storage_backend IS NOT NULL AND storage_backend::text IN ('local'::text,'s3'::text))), 
 	FOREIGN KEY(published_by) REFERENCES usuarios (id) ON DELETE RESTRICT
 );
 -- R12 statement
