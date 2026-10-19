@@ -14,6 +14,22 @@
 # CPython 3.12.15 includes the September 2026 security fixes for the container target.
 FROM python:3.12.15-slim@sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe AS base
 
+# Debian's liblzma security backport fixes GHSA-5qpq-xqfv-j9pg in both stages.
+# Resolve only signed stable/security metadata and upgrade the exact binary version.
+RUN printf '%s\n' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main' \
+        > /tmp/metodobase-security.list \
+    && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list \
+        -o Dir::Etc::sourceparts=- -o APT::Update::Error-Mode=any \
+        -o Acquire::AllowInsecureRepositories=false update \
+    && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list \
+        -o Dir::Etc::sourceparts=- -o APT::Get::AllowUnauthenticated=false \
+        install -y --only-upgrade --no-install-recommends liblzma5=5.8.1-1+deb13u2 \
+    && rm -f /tmp/metodobase-security.list \
+    && rm -rf /var/lib/apt/lists/*
+
 # Both dependency and runtime stages inherit the verified installer upgrade.
 # Pin its wheel independently; application locks and Windows environments stay separate.
 COPY requirements-container-bootstrap.lock /usr/local/share/metodobase/requirements-container-bootstrap.lock
