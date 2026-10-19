@@ -27,6 +27,7 @@ import yaml
 ROOT=Path(__file__).resolve().parents[1]
 SNAPSHOT=ROOT/'docs/implementation/20261018-evolution/evidence/backend-recovery-ci28'
 BASELINE_SHA='3f513336461e525fb42df810ca52fa9a6409d4ba1d61ac0eda14c50c31750e5e'
+BASELINE_METADATA_SHA='ec3b455cef7a4a3bdb5a21640aa94e2edc8854909c54e79074629018e118f47e'
 REVISION='20261019_account_recovery'
 PREVIOUS='20261019_personal_diary'
 NEW_REPORTS=('pytest-postgres-recovery-migrations.xml','pytest-postgres-recovery.xml')
@@ -49,6 +50,12 @@ def baseline():
     raw=normalized(SNAPSHOT/'ci27-baseline.yml')
     assert hashlib.sha256(raw).hexdigest()==BASELINE_SHA,'Historical CI27 snapshot changed'
     return yaml.safe_load(raw)
+
+
+def baseline_metadata():
+    raw=normalized(SNAPSHOT/'baseline.json')
+    assert hashlib.sha256(raw).hexdigest()==BASELINE_METADATA_SHA,'Reviewed baseline metadata changed'
+    return json.loads(raw)
 
 
 def expected_workflow(old):
@@ -88,10 +95,13 @@ def verify_workflow(workflow,old):
 
 
 def verify_fixture(path):
-    old=ast.parse(normalized(SNAPSHOT/'diary27-fixture-before.py'))
+    raw=normalized(SNAPSHOT/'diary27-fixture-before.py')
+    assert hashlib.sha256(raw).hexdigest()==baseline_metadata()['diary_fixture27_sha256'],'Historical diary fixture changed'
+    old=ast.parse(raw)
     current=ast.parse(Path(path).read_text(encoding='utf8'))
     restored=copy.deepcopy(current)
-    assert isinstance(restored.body[0],ast.Expr)
+    assert (isinstance(restored.body[0],ast.Expr) and isinstance(restored.body[0].value,ast.Constant)
+        and isinstance(restored.body[0].value.value,str)),'Fixture must start with a literal docstring'
     restored.body[0]=copy.deepcopy(old.body[0])  # Only its current-head docstring changes.
     imports=0
     class Restore27(ast.NodeTransformer):
@@ -242,7 +252,7 @@ def main():
     out=args.output.resolve();out.mkdir(parents=True,exist_ok=False)
     old=baseline();workflow=yaml.safe_load(args.workflow.read_text(encoding='utf8'))
     parts,reports=verify_workflow(workflow,old)
-    metadata=json.loads((SNAPSHOT/'baseline.json').read_text())
+    metadata=baseline_metadata()
     for name,value in metadata['unchanged_files'].items():
         assert hashlib.sha256(normalized(ROOT/name)).hexdigest()==value,name
     marker=verify_fixture(args.fixture)

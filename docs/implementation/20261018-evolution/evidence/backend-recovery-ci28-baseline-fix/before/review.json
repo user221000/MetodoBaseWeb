@@ -1,0 +1,60 @@
+{
+  "scope": "Exact baseline-input trust mutations, full CLI verify-only in owned Temp shadows; no server/schema/PG/browser",
+  "cases": [
+    {
+      "case": "untouched-shadow",
+      "exit": 0,
+      "expected": "pass",
+      "matched_contract": true
+    },
+    {
+      "case": "fixture-baseline-pair-tampered",
+      "exit": 0,
+      "expected": "reject",
+      "matched_contract": false
+    },
+    {
+      "case": "historical-file-and-metadata-tampered",
+      "exit": 0,
+      "expected": "reject",
+      "matched_contract": false
+    }
+  ],
+  "sources_before": {
+    "tests/verify_recovery_ci.py": "bbfd1de02777f924585e9546074a416b352aabf99dd6ae79ffefeb56f2f7fee8",
+    ".github/workflows/ci.yml": "286ac35409d8afbd6e2a07ca902798737feea7c47c5bce1a6b3a6d6b87eaaf5f",
+    "tests/e2e/personal_diary_server.py": "dfac9e2158144eed091a309e5fb610e5c986014b139793b7baab07cb664e4af8",
+    "docs\\implementation\\20261018-evolution\\evidence\\backend-recovery-ci28\\ci27-baseline.yml": "3f513336461e525fb42df810ca52fa9a6409d4ba1d61ac0eda14c50c31750e5e",
+    "docs\\implementation\\20261018-evolution\\evidence\\backend-recovery-ci28\\diary27-fixture-before.py": "941848a93f9bc748eea14f53872e6b3d6d45f881ef743010d5c8d905fb13c413",
+    "docs\\implementation\\20261018-evolution\\evidence\\backend-recovery-ci28\\baseline.json": "559edc786b19e6d41dee266cbfe8bc09856bca925059bd3366f5716446c2fcb2",
+    "tests/verify_diary_ci.py": "c530e0ac3d527726cca1f09c6a94faa705a153d92c32409de1d477ff8bb88942",
+    "scripts/check_browser_fixture_startup.py": "e6e3240359be273a9d3de3be9361a8790f1209be0087471dd5b267002e217bd5",
+    "scripts/check_frontend_report.py": "c963d7a1edc2ec9e917a5dd1553ef1aeecd4432e3a520a782bbe5b9f534be03f",
+    "tests/test_frontend_report_guard.py": "c071ae6d3aa7405b6555f0b64b2f6bf19ee48377adbb152242f5b8e475957dca",
+    "tests/e2e/personal_diary.cjs": "0243264dc3dafc7073322dff7db5f232fa8e1b79b70d0a73f27c0c0ac78e801c",
+    "tests/e2e/personal_export_context_browser.cjs": "9d6af8e6d389122ce63bef0ee7cf553ed7fb60c29e7629500d0698a0327e9bd7",
+    "tests/integration_diary_restore_review.py": "f826305e8ddc74b23a546a8f57a23debdf4213018532a7f319d3e99886fd22e8",
+    "tests/integration_recovery28_restore_review.py": "0e7b13f716af888ce61e2356a2dcbf775550c4e814b704fdd75e564ddc3c04de",
+    "tests/recovery28_restore_helpers.py": "bdb1059b092428514e10f64b464342e049a44f9cfeb9e0bc3d503a324eb7c9a9"
+  },
+  "sources_after": {
+    "tests/verify_recovery_ci.py": "bbfd1de02777f924585e9546074a416b352aabf99dd6ae79ffefeb56f2f7fee8",
+    ".github/workflows/ci.yml": "286ac35409d8afbd6e2a07ca902798737feea7c47c5bce1a6b3a6d6b87eaaf5f",
+    "tests/e2e/personal_diary_server.py": "dfac9e2158144eed091a309e5fb610e5c986014b139793b7baab07cb664e4af8",
+    "docs\\implementation\\20261018-evolution\\evidence\\backend-recovery-ci28\\ci27-baseline.yml": "3f513336461e525fb42df810ca52fa9a6409d4ba1d61ac0eda14c50c31750e5e",
+    "docs\\implementation\\20261018-evolution\\evidence\\backend-recovery-ci28\\diary27-fixture-before.py": "941848a93f9bc748eea14f53872e6b3d6d45f881ef743010d5c8d905fb13c413",
+    "docs\\implementation\\20261018-evolution\\evidence\\backend-recovery-ci28\\baseline.json": "559edc786b19e6d41dee266cbfe8bc09856bca925059bd3366f5716446c2fcb2",
+    "tests/verify_diary_ci.py": "c530e0ac3d527726cca1f09c6a94faa705a153d92c32409de1d477ff8bb88942",
+    "scripts/check_browser_fixture_startup.py": "e6e3240359be273a9d3de3be9361a8790f1209be0087471dd5b267002e217bd5",
+    "scripts/check_frontend_report.py": "c963d7a1edc2ec9e917a5dd1553ef1aeecd4432e3a520a782bbe5b9f534be03f",
+    "tests/test_frontend_report_guard.py": "c071ae6d3aa7405b6555f0b64b2f6bf19ee48377adbb152242f5b8e475957dca",
+    "tests/e2e/personal_diary.cjs": "0243264dc3dafc7073322dff7db5f232fa8e1b79b70d0a73f27c0c0ac78e801c",
+    "tests/e2e/personal_export_context_browser.cjs": "9d6af8e6d389122ce63bef0ee7cf553ed7fb60c29e7629500d0698a0327e9bd7",
+    "tests/integration_diary_restore_review.py": "f826305e8ddc74b23a546a8f57a23debdf4213018532a7f319d3e99886fd22e8",
+    "tests/integration_recovery28_restore_review.py": "0e7b13f716af888ce61e2356a2dcbf775550c4e814b704fdd75e564ddc3c04de",
+    "tests/recovery28_restore_helpers.py": "bdb1059b092428514e10f64b464342e049a44f9cfeb9e0bc3d503a324eb7c9a9"
+  },
+  "changedDuringCheck": false,
+  "raw_archive_sha256": "e5afc21b7ff27eeffc61379ed17eea8856595f6af8c21e0eea251a3a4f176320",
+  "violations": 2
+}

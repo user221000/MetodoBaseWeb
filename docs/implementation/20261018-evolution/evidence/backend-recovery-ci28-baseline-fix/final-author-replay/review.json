@@ -1,0 +1,281 @@
+{
+  "scope": "Local CI28 wiring/report-parser canaries and inert Git Bash processes; no Actions/Linux image/browser/PG/backend execution",
+  "baseline27_verifier": "preserved unchanged, intentionally not executed against28",
+  "prior162_VM_and91_generic_canaries": "preserved unchanged, not repeated",
+  "reports": [
+    "pytest-postgres-migrations.xml",
+    "pytest-postgres-rls.xml",
+    "pytest-postgres-channels.xml",
+    "pytest-postgres-gym-migrations.xml",
+    "pytest-postgres-object-migrations.xml",
+    "pytest-postgres-objects.xml",
+    "pytest-postgres-legacy-inventory.xml",
+    "pytest-postgres-cleanup.xml",
+    "pytest-postgres-privacy.xml",
+    "pytest-postgres-plan-documents.xml",
+    "pytest-postgres-utc.xml",
+    "pytest-postgres-licenses.xml",
+    "pytest-postgres-quota.xml",
+    "pytest-postgres-individual-migrations.xml",
+    "pytest-postgres-individual-publication.xml",
+    "pytest-postgres-gym-quota.xml",
+    "pytest-postgres-diary-migrations.xml",
+    "pytest-postgres-diary.xml",
+    "pytest-postgres-restore.xml",
+    "pytest-postgres-recovery-migrations.xml",
+    "pytest-postgres-recovery.xml"
+  ],
+  "actual_fixture_marker": {
+    "fixture": "personal-diary-ui",
+    "model_target_revision": "20261019_account_recovery",
+    "tables": 26
+  },
+  "authorized_delta_only": true,
+  "unchanged_files": {
+    "tests/verify_diary_ci.py": "72efb54f63038d5718a7f27bf9ba024fac40bd9188f2b6fc27009e7c2ea18c35",
+    "scripts/check_browser_fixture_startup.py": "f6d9e3f4941eafb835c773ed40e320769c4521a84ae27e74ec740cb2aaa70321",
+    "scripts/check_frontend_report.py": "08618abb3094219eb4fa386cfc05ff0bf22935ee566c59ee4a4b461a4862addb",
+    "tests/test_frontend_report_guard.py": "91e4c69ee681a6b80f096c3a3c38fe4acd4fc2dcc45f3d53b3746b401b9aa01d",
+    "tests/e2e/personal_diary.cjs": "9d7696d1a2f17adef169869c49958fe966091000a166a5d5313724740e6e8218",
+    "tests/e2e/personal_export_context_browser.cjs": "1448c5372a935ca9a40b9003a6c8c4dab0c6d67335cf8229255d8e109e210155",
+    "tests/integration_diary_restore_review.py": "f0ca1a2e2290d4617eff35b25fbf9a54be8d155299de52a969f77dcee7b4069b",
+    "tests/integration_recovery28_restore_review.py": "7237332b0826c14024bdd3ddda5f142ba57e457f8a53ed7a8de7aff7bb4768f8",
+    "tests/recovery28_restore_helpers.py": "b4fefdcc44043153fd4a1c132359b9cdabb9dc4e409b6e3962cde1a3cc6a9b44"
+  },
+  "bash_blocks": 63,
+  "references": [
+    "scripts/check_browser_fixture_startup.py",
+    "scripts/check_frontend_report.py",
+    "scripts/scan_secrets.py",
+    "tests/check_coverage.py",
+    "tests/check_quality.py",
+    "tests/e2e/auth_refresh.cjs",
+    "tests/e2e/auth_refresh_browser.cjs",
+    "tests/e2e/auth_refresh_race_review.cjs",
+    "tests/e2e/auth_refresh_security_review.cjs",
+    "tests/e2e/auth_refresh_server.py",
+    "tests/e2e/auth_refresh_storage.cjs",
+    "tests/e2e/auth_refresh_storage_browser_review.cjs",
+    "tests/e2e/gym_branding.cjs",
+    "tests/e2e/gym_branding_server.py",
+    "tests/e2e/gym_generation.cjs",
+    "tests/e2e/gym_generation_server.py",
+    "tests/e2e/gym_subscription.cjs",
+    "tests/e2e/personal_diary.cjs",
+    "tests/e2e/personal_diary_api.cjs",
+    "tests/e2e/personal_diary_controller.cjs",
+    "tests/e2e/personal_diary_server.py",
+    "tests/e2e/personal_export_context_browser.cjs",
+    "tests/e2e/personal_export_controls.cjs",
+    "tests/e2e/personal_generation.cjs",
+    "tests/e2e/personal_generation_server.py",
+    "tests/e2e/personal_logout.cjs",
+    "tests/e2e/personal_logout_ack.cjs",
+    "tests/e2e/personal_operation.cjs",
+    "tests/e2e/personal_operation_ambiguity_review.cjs",
+    "tests/e2e/privacy_export.cjs",
+    "tests/e2e/privacy_export_server.py",
+    "tests/e2e/responsive_accessibility.cjs",
+    "tests/e2e/subscription.cjs",
+    "tests/e2e/subscription_contract_review.cjs",
+    "tests/e2e/team.cjs",
+    "tests/e2e/team_fullstack.cjs",
+    "tests/e2e/team_fullstack_server.py",
+    "tests/integration_account_recovery_migrations.py",
+    "tests/integration_backup_restore_postgres.py",
+    "tests/integration_cleanup_tokens_postgres.py",
+    "tests/integration_gym_caps_http_postgres.py",
+    "tests/integration_gym_quota_migrations.py",
+    "tests/integration_gym_quota_postgres.py",
+    "tests/integration_gym_recovery_review_postgres.py",
+    "tests/integration_individual_generation_recovery_review.py",
+    "tests/integration_individual_process_recovery_review.py",
+    "tests/integration_individual_publication_edges_review.py",
+    "tests/integration_individual_publication_migrations.py",
+    "tests/integration_individual_publication_postgres.py",
+    "tests/integration_invitation_tenant_postgres.py",
+    "tests/integration_legacy_inventory_postgres.py",
+    "tests/integration_license_postgres.py",
+    "tests/integration_model_utc_postgres.py",
+    "tests/integration_object_storage_sdk.py",
+    "tests/integration_object_store_configuration.py",
+    "tests/integration_object_store_configuration_review.py",
+    "tests/integration_onboarding_postgres.py",
+    "tests/integration_password_recovery_postgres.py",
+    "tests/integration_personal_diary_migrations.py",
+    "tests/integration_personal_diary_postgres.py",
+    "tests/integration_personal_diary_security_review.py",
+    "tests/integration_plan_documents_postgres.py",
+    "tests/integration_postgres.py",
+    "tests/integration_privacy_composition_postgres.py",
+    "tests/integration_private_objects_review_postgres.py",
+    "tests/integration_provider_subjects.py",
+    "tests/integration_quota_postgres.py",
+    "tests/integration_recovery28_restore_review.py",
+    "tests/integration_redis.py",
+    "tests/integration_schema_migrations.py",
+    "tests/integration_stored_objects_migrations.py",
+    "tests/integration_tenant_activation.py",
+    "tests/integration_timestamp_observation.py",
+    "tests/integration_utc_datetime.py",
+    "tests/integration_utc_datetime_review.py",
+    "tests/prepare_postgres.py",
+    "tests/run_isolated.py",
+    "tests/test_desktop_entrypoints.py",
+    "tests/test_desktop_packaging.py",
+    "tests/test_desktop_packaging_ops10.py",
+    "tests/test_desktop_packaging_review.py",
+    "tests/test_desktop_provenance.py",
+    "tests/test_login_desktop.py",
+    "tests/verify_quality_guards.py"
+  ],
+  "unauthorized_delta_canaries": [
+    {
+      "case": "missing-new-step",
+      "rejected": true
+    },
+    {
+      "case": "missing-old-report",
+      "rejected": true
+    },
+    {
+      "case": "weakened-xml-guard",
+      "rejected": true
+    },
+    {
+      "case": "includes-sqlite",
+      "rejected": true
+    },
+    {
+      "case": "old-restore27",
+      "rejected": true
+    },
+    {
+      "case": "old-browser-marker27",
+      "rejected": true
+    },
+    {
+      "case": "unrelated-job",
+      "rejected": true
+    },
+    {
+      "case": "changed-browser-minimum",
+      "rejected": true
+    }
+  ],
+  "new_report_canaries": [
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "positive",
+      "exit": 0
+    },
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "missing",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "empty",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "malformed",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "zero",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "skip",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "failure",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery-migrations.xml",
+      "case": "error",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "positive",
+      "exit": 0
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "missing",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "empty",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "malformed",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "zero",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "skip",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "failure",
+      "exit": 1
+    },
+    {
+      "report": "pytest-postgres-recovery.xml",
+      "case": "error",
+      "exit": 1
+    },
+    {
+      "report": "all21",
+      "case": "omitted",
+      "exit": 1
+    },
+    {
+      "report": "all21",
+      "case": "duplicate",
+      "exit": 1
+    }
+  ],
+  "inert_fixture_cases": [
+    {
+      "case": "head28",
+      "exit": 0,
+      "events": [
+        "start 1741",
+        "driver 1741",
+        "driver 1741",
+        "cleanup 1741"
+      ],
+      "owned_process_cleanup": true
+    },
+    {
+      "case": "head27-rejected",
+      "exit": 1,
+      "events": [
+        "start 1954",
+        "cleanup 1954"
+      ],
+      "owned_process_cleanup": true
+    }
+  ],
+  "raw_archive_sha256": "ac23ac455f1401315d307bdcb36a04a43ec48a91ebe88ffb1f252a387fca9a18"
+}
