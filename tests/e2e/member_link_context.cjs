@@ -104,7 +104,7 @@ test('pending resource result is discarded and all private scopes clear on accou
 for(const [name,event] of [
   ['storage',{key:'mb_token'}],['storage',{key:null}],
   ['metodobase-session-changed',{detail:{code:'session_storage_error'}}],['pagehide',{}],
-]) test(name+' synchronously clears resource scopes',async()=>{
+]) test(name+(name==='storage'?' key='+String(event.key):'')+' synchronously clears resource scopes',async()=>{
   const env=environment();let cleared=false;const ctx=env.context();await ctx.start();ctx.scope(()=>{cleared=true;});
   env.emit(name,event);assert.equal(cleared,true);assert.equal(ctx.active,false);
 });
@@ -142,7 +142,7 @@ test('one failing cleanup callback cannot leave sibling scopes active',async()=>
 
 (async()=>{
   const results=[];
-  for(const [name,fn] of cases){try{await fn();results.push({name,passed:true});}catch(error){results.push({name,passed:false,error:error.stack});}}
+  for(const [name,fn] of cases){try{await fn();results.push({case:name,passed:true});}catch(error){results.push({case:name,passed:false,error:error.stack});}}
   console.log(JSON.stringify({scope:'Offline VM with actual Api and new lifecycle; all transports/Storage synthetic',passed:results.filter(x=>x.passed).length,total:results.length,results},null,2));
   if(results.some(x=>!x.passed))process.exitCode=1;
 })();

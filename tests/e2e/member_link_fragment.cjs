@@ -50,7 +50,7 @@ test('login and registration links carry no token or return destination and cann
   assert(!bootstrap.includes('aceptar'));assert(!bootstrap.includes('fetch('));
 });
 (async()=>{
-  const results=[];for(const [name,fn]of cases){try{await fn();results.push({name,passed:true});}catch(error){results.push({name,passed:false,error:error.stack});}}
+  const results=[];for(const [name,fn]of cases){try{await fn();results.push({case:name,passed:true});}catch(error){results.push({case:name,passed:false,error:error.stack});}}
   console.log(JSON.stringify({scope:'Exact template bootstrap in offline VM, no API/browser claim',passed:results.filter(x=>x.passed).length,total:results.length,results},null,2));
   if(results.some(x=>!x.passed))process.exitCode=1;
 })();
