@@ -1,0 +1,36 @@
+diff --git a/web/services/mfa_actions.py b/web/services/mfa_actions.py
+index 69d0505..8c43e93 100644
+--- a/web/services/mfa_actions.py
++++ b/web/services/mfa_actions.py
+@@ -80,7 +80,7 @@ def authorize(db, identity, action, target_id):
+         fail(403, "mfa_action_forbidden")
+     owner = db.get(Usuario, gym_id, populate_existing=True)
+     if (not owner or not owner.activo or owner.deleted_at is not None or owner.team_gym_id
+-            or owner.tipo != "gym" or owner.role != UserRole.OWNER):
++            or owner.tipo != "gym" or owner.role != UserRole.OWNER or owner.invitation_token is not None):
+         fail(403, "mfa_action_forbidden")
+     if action.startswith("billing."):
+         verify_permission(identity, "update", "subscription", gym_id)
+diff --git a/web/services/mfa_service.py b/web/services/mfa_service.py
+index 140ae21..d7299b9 100644
+--- a/web/services/mfa_service.py
++++ b/web/services/mfa_service.py
+@@ -86,7 +86,7 @@ def commit(db):
+ 
+ def current_identity(db, user):
+     from web.auth import identity_from_user
+-    if (user is None or not user.activo or user.deleted_at is not None or user.invitation_token
++    if (user is None or not user.activo or user.deleted_at is not None or user.invitation_token is not None
+             or type(user.session_version) is not int or not 0 <= user.session_version < MAX_SV):
+         fail(401, "mfa_identity_unavailable")
+     identity = identity_from_user(user, db)
+@@ -95,7 +95,8 @@ def current_identity(db, user):
+     if user.team_gym_id:
+         parent = db.get(Usuario, user.team_gym_id, populate_existing=True)
+         if (not parent or not parent.activo or parent.deleted_at is not None
+-                or parent.tipo != "gym" or parent.role != UserRole.OWNER or parent.team_gym_id):
++                or parent.tipo != "gym" or parent.role != UserRole.OWNER or parent.team_gym_id
++                or parent.invitation_token is not None):
+             fail(401, "mfa_identity_unavailable")
+     return identity
+ 

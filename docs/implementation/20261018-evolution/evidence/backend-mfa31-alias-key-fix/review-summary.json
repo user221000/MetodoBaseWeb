@@ -1,0 +1,113 @@
+{
+  "base": "56e810b3a0518231ba013cab29d68ee0aba0bacd",
+  "scope": "SEC12 financial aliases Idempotency-Key binding; product delta only api/routes/pagos.py",
+  "immutable_security_driver_sha256": "59f9284b5bda012c9e502ca87b3f598832a115356e6e666c16149a67841c6566",
+  "runner_change": "ROOT coordinate only; byte comparison verified",
+  "assertions": [
+    {
+      "original_function": "test_alias_exact_observed_idempotency_key_can_be_consumed",
+      "maintained_function": "test_deployed_payment_route_exact_observed_key_can_be_consumed",
+      "original_asserts_preserved": 3
+    },
+    {
+      "original_function": "test_alias_rejects_an_added_key_absent_from_observed_grant",
+      "maintained_function": "test_deployed_payment_route_rejects_added_key_absent_from_observed_grant",
+      "original_asserts_preserved": 3
+    },
+    {
+      "original_function": "test_canonical_checkout_preserves_exact_key_and_rejects_a_changed_key",
+      "maintained_function": "test_canonical_checkout_preserves_exact_key_and_rejects_a_changed_key",
+      "original_asserts_preserved": 3
+    }
+  ],
+  "current_sources": {
+    "api/routes/pagos.py": {
+      "raw_sha256": "0a3c683b9607bd2a5f041b270e8ef7c68ae13a421aa5f2677494d0dc956d1b5c",
+      "git_lf_sha256": "980b57aac14b1835bfbdd34297f4fdfd9e98be210680e7f570f9ad6e36720d33",
+      "raw_bytes": 8710
+    },
+    "tests/test_mfa31_payment_alias_keys.py": {
+      "raw_sha256": "06267c79eadf390cb49b9bc5f139f483d771bf1168db6081f1c8d49dee73b5e0",
+      "git_lf_sha256": "06267c79eadf390cb49b9bc5f139f483d771bf1168db6081f1c8d49dee73b5e0",
+      "raw_bytes": 6847
+    }
+  },
+  "immutable_replay": {
+    "before": {
+      "label": "before",
+      "exit": 1,
+      "cases": 5,
+      "failures": 4,
+      "errors": 0,
+      "skips": 0,
+      "driver_sha256": "59f9284b5bda012c9e502ca87b3f598832a115356e6e666c16149a67841c6566",
+      "source_files": 845,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "8c947be353f95c7c114e4aa9ce09bd1b96c381fcc833e1ab8f3585a205d99d3a",
+      "xml_sha256": "b850a3d3e1e1216882c4fce16c434c2e260c928ad8e873fe90d9587874d4a574",
+      "scope": "Real local auth/MFA/rate/SQLite transactions; synthetic billing port, no PG/Chrome/provider network"
+    },
+    "after": {
+      "label": "after",
+      "exit": 0,
+      "cases": 5,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "driver_sha256": "59f9284b5bda012c9e502ca87b3f598832a115356e6e666c16149a67841c6566",
+      "source_files": 845,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "b3f33e64d455bcd2f4ce20b75ab6efe39b76e6c05189f3bebe2aad62312e18a8",
+      "xml_sha256": "723bf728c0ad9b01c8d459158e0ad2614ff1812536245144c0c3cea5c54942b7",
+      "scope": "Real local auth/MFA/rate/SQLite transactions; synthetic billing port, no PG/Chrome/provider network"
+    }
+  },
+  "maintained_current": {
+    "label": "maintained-route-inventory-after",
+    "exit": 0,
+    "cases": 12,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "driver_sha256": "59f9284b5bda012c9e502ca87b3f598832a115356e6e666c16149a67841c6566",
+    "source_files": 845,
+    "sources_quiet": true,
+    "packages": 89,
+    "packages_quiet": true,
+    "stdout_sha256": "513df80cbed91144b3fa365cf3f06ffcfbf071db4128cc85b8c3d7e050016473",
+    "xml_sha256": "cc3ad716a491cbb13ed635ced52255d8fa539d2225d88953710b380b3399e44f",
+    "scope": "Real local auth/MFA/rate/SQLite transactions; synthetic billing port, no PG/Chrome/provider network"
+  },
+  "maintained_failed_preconditions": {
+    "maintained-after": "Four Web alias 404 responses: aliases are not mounted in Web; test route precondition incorrect, not product regression.",
+    "maintained-mounted-after": "Ten harness AttributeError exceptions: current FastAPI _IncludedRouter lacks path; fixed inventory to public application.openapi paths, criteria unchanged."
+  },
+  "coverage": {
+    "api.app": [
+      "real Stripe legacy alias",
+      "real MP legacy alias",
+      "canonical Stripe control"
+    ],
+    "web.main_web": [
+      "real canonical Stripe checkout",
+      "real canonical MP preference",
+      "canonical Stripe control",
+      "unmounted aliases 404 and no business port"
+    ]
+  },
+  "counting": "Immutable 5 and maintained 12 overlap; they are not 17 unique requirements.",
+  "durability": "Grant consumed_at read from a separate real SQLite Session; mismatch retains unused grant; exact request commits and replay does not reach the synthetic port.",
+  "isolation": "Real factories/auth/MFA/rate/SQLite; external sockets blocked. Billing ports alone synthetic. No PostgreSQL, Chrome, provider/mail calls, model/DDL/target/wire changes.",
+  "source_stability": "845 non-doc sources and 89 package versions were identical before/after each run; module origins point at this worktree.",
+  "frozen_author_worktree": {
+    "path": "F:\\mb-mfa31-20261019",
+    "head": "56e810b3a0518231ba013cab29d68ee0aba0bacd",
+    "porcelain": ""
+  },
+  "independent_final_replay": "Pending coordinator/security review of this candidate; author replay is not independent acceptance.",
+  "encoding": "RAW evidence directory has * -text. Product/test are normal Git text; both RAW and Git LF hashes recorded. All previous failed logs/XML and immutable source remain unmodified."
+}

@@ -22,6 +22,10 @@ import inspect
 import logging
 import secrets
 
+# Primary authentication errors can occur before the successful response helper.
+# Match only the mounted APIs; login pages retain their existing GIS policy.
+_PRIMARY_API_PATHS = frozenset({"/api/auth/login", "/api/auth/google"})
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """
     Middleware que agrega headers de seguridad a todas las respuestas.
@@ -93,6 +97,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             request.url.path == "/api/usuario/diario"
             or request.url.path.startswith("/api/usuario/diario/")
         )
+        primary_api = request.url.path in _PRIMARY_API_PATHS
         
         try:
             response = await call_next(request)
@@ -100,7 +105,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             if (request.url.path != "/api/usuario/historial"
                     and not is_member_link_private(request.url.path)
                     and not diary_api
-                    and not request.url.path.startswith("/api/auth/mfa/")):
+                    and not request.url.path.startswith("/api/auth/mfa/")
+                    and not primary_api):
                 raise
             # Generic handlers live outside response middleware. Reuse the
             # factory's existing public error body, then apply private headers.
@@ -153,6 +159,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "no-referrer" if (
                 recovery_api
                 or diary_api
+                or primary_api
                 or request.url.path.startswith("/api/auth/mfa/")
                 or request.url.path == "/api/usuario/historial"
                 or is_member_link_private(request.url.path)
@@ -164,7 +171,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
+        if primary_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
             response.headers["Cache-Control"] = "no-store"
         
         # ─── Cache control para APIs ────────────────────────────────────────

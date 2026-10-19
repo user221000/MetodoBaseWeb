@@ -1,0 +1,124 @@
+{
+  "base": "8b64e86c8c377770a295df6e8cbbcdd4464b7d3a",
+  "scope": "SEC13 strict NULL eligibility only: actor current_identity and its canonical gym parent; authorize rechecks source owner.",
+  "semantics": "invitation_token must be SQL NULL. Empty non-NULL strings are ambiguous synthetic historical states, not invitations issued by a legitimate API.",
+  "original_driver_sha256": "4d0d35179c3ef1bc10f2023a4a6ac67d6310f09d597ddbc6adfaa4a154ed385f",
+  "inverse_ast": {
+    "web/services/mfa_actions.py": true,
+    "web/services/mfa_service.py": true
+  },
+  "inverse_meaning": "Removing parent/owner strict-NULL checks and restoring the former actor truthiness condition reproduces ancestor ASTs exactly; locks/order/binding/commit/protocols unchanged.",
+  "replays": {
+    "before": {
+      "label": "before",
+      "exit": 1,
+      "cases": 6,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 846,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "e6c27bce3303d469bf88ba64e96db3a2cb253243a9839ef320ce3119c144bd15",
+      "xml_sha256": "c2f843d3cc9b6beb756aaed759d08d6ec72a74ba3deefb416dffef53123718a8"
+    },
+    "after": {
+      "label": "after",
+      "exit": 0,
+      "cases": 6,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 847,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "10fafa8b95e4b749c19f074b4044fe60eda2274ff6c859e1a8d81956bc9b3d14",
+      "xml_sha256": "c1ae804440550dc039c0d1121d962c5c10e6801070d44f312f3a463e517e468d"
+    },
+    "maintained-after": {
+      "label": "maintained-after",
+      "exit": 1,
+      "cases": 10,
+      "failures": 2,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 847,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "de2e509f5fd08b5462b23b874e15128d39006f8bcabbc965ffeb6bb0e68eeb6a",
+      "xml_sha256": "e6a13afc72649882496b61ca2f8e52d0a3a5e625a303c9126d3b30713c29e753"
+    },
+    "actor-before": {
+      "label": "actor-before",
+      "exit": 1,
+      "cases": 4,
+      "failures": 4,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 847,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "78811904196bb0f0a8d92de29d135aa6825bf639363aa9f5ebc108b17f07cb39",
+      "xml_sha256": "9733db995ec053cbc9340639ca1d65b26b08a206fd8fe6c1fa1a6a361ffe2fdf"
+    },
+    "maintained-final": {
+      "label": "maintained-final",
+      "exit": 0,
+      "cases": 12,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 847,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "4ffc38e56c49f616b7f0ef7d0384b5e18d66ba3a601e04e4ac3e1a98c21cc1e4",
+      "xml_sha256": "e2bba96dd10f49d2b729c6c5d92e7e8250f4baad77d6b31767ce841681e97fcf"
+    },
+    "security-final": {
+      "label": "security-final",
+      "exit": 0,
+      "cases": 6,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "source_files": 847,
+      "sources_quiet": true,
+      "packages": 89,
+      "packages_quiet": true,
+      "stdout_sha256": "358832c7ca37d2ded7a056fb0966788f6fa9be9ae31641d8fdda36f9e47e5cc0",
+      "xml_sha256": "229a5ea1a8799922053702a7a105aabb345826d7d6e35b36772853dc35791f8f"
+    }
+  },
+  "actor_empty_before": "4 real HTTP negatives on parent-only preimage: OWNER could still read MFAstatus200 (grant already denied by owner check), ADMIN could issue team.invite grant200; same4 assert nodes pass within final12, identical maintained source hash.",
+  "parent_consumption": "Web real team route: preissued grant cannot be consumed when parent token becomes empty or64chars; independent SQLite Session confirms unused grant and unchanged account count, synthetic invitation port not called.",
+  "direct_authorizer": "OWNER/ADMIN identity snapshots + canonical parent with NULL/empty/full token; real persisted rows and SQLite write lock, no fake Session.",
+  "preserved_harness_failure": "maintained-after2 failures were API team invite404: route not mounted there. Preserved10-case log/preimage; consumer follows real Web-only route with OpenAPI assertion. Step-up issue is exercised by SEC6 and own actor4 on both real factories. No artificial routes installed.",
+  "runner_adaptation": "Same original run_full preparation used by native run_parent_scope; own expanded runner selects test_parent_scope.py and ROOT coordinate. Output artefact names remain full.xml/origins.json rather than native parent-scope.xml/parent-origins.json; criteria/imports unchanged. Both native scripts and selected expansion preserved RAW.",
+  "stability": "Each run source847(or846 before maintained test) and89 installed package photographs identical before/after. Original driver byte exact. Module origins are this worktree.",
+  "isolation": "SQLite/ASGI only; external sockets blocked; no PostgreSQL, Chrome, mail, real provider, authglobal, DDL, targets, roles, ledger, CI or UI changes.",
+  "eligibility_not_revocation": "This delta rejects invalid actor/parent at current issue/consumption; it does not invent a role migration, account merge, permanent invitation revocation or new recovery authority.",
+  "independent_final_replay": "Pending SEC6 and its additional strict-NULL negatives on this candidate.",
+  "encoding": "Prefix * -text before first RAW write. RAW blobs preserved; source uses normal GitLF and both hashes are recorded.",
+  "source_hashes": {
+    "web/services/mfa_actions.py": {
+      "raw_sha256": "f54e65f64130781021a4e73a5e1dab62a40e675d411e7f4343d5ffc5d502b2d8",
+      "git_lf_sha256": "b8ef8d08c38f393796ee1631ef4226732f26e8d3242424685d3cc87b311a68be",
+      "raw_bytes": 4897
+    },
+    "web/services/mfa_service.py": {
+      "raw_sha256": "548f828f831ea3d5ba205d0ecd2c5c2088c2bc7843ca763a08e267c57a00934a",
+      "git_lf_sha256": "3dd7d3e95f8054217d5d231ae7164b18d6e6791906a331f352086aa2faaa86cd",
+      "raw_bytes": 25193
+    },
+    "tests/test_mfa31_parent_canonical.py": {
+      "raw_sha256": "75d54a8593aebf50fd78fee2219d121292bc28e8a543ec44c6daa22b5271acb1",
+      "git_lf_sha256": "75d54a8593aebf50fd78fee2219d121292bc28e8a543ec44c6daa22b5271acb1",
+      "raw_bytes": 6919
+    }
+  }
+}
