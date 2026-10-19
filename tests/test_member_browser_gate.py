@@ -11,10 +11,13 @@ PORT = 8794
 
 
 def marker():
-    return {'fixture': 'r12-real-postgres29', 'head': HEAD, 'pid': 123,
+    from web.database.alembic.history_index_contract_v1 import expected_history_index
+    return {'fixture': 'r12-real-postgres30', 'head': HEAD, 'pid': 123,
             'port': PORT, 'database_kind': 'postgresql',
-            'executed_revision': '20261019_client_account_links',
-            'model_target_revision': '20261019_client_account_links',
+            'executed_revision': '20261019_personal_history_index',
+            'model_target_revision': '20261019_personal_history_index',
+            'business_contract_revision': '20261019_client_account_links',
+            'history_order_index': expected_history_index('postgresql'),
             'model_tables': 29, 'actual_tables': 30,
             'application_role_restricted_nonowner': True,
             'runtime_pool_size': 20, 'runtime_max_overflow': 10,
@@ -99,3 +102,94 @@ def test_incomplete_or_sensitive_artifacts_publish_nothing(tmp_path, bad):
     with pytest.raises(AssertionError):
         publish(phase, output)
     assert list(output.iterdir()) == []
+
+
+@pytest.mark.parametrize('key,value', [
+    ('fixture', 'r12-real-postgres29'),
+    ('executed_revision', '20261019_client_account_links'),
+    ('model_target_revision', '20261019_client_account_links'),
+    ('business_contract_revision', '20261019_personal_history_index'),
+])
+def test_previous_runtime_or_relabelled_business_contract_is_rejected(key, value):
+    data = marker()
+    data[key] = value
+    with pytest.raises(AssertionError):
+        validate_startup(data, HEAD, PORT)
+
+
+@pytest.mark.parametrize('key,value', [
+    ('indoption', [0, 0, 0, 1]),
+    ('indoption', [False, 0, 1, 1]),
+    ('key_columns', 4.0), ('valid', 1), ('ready', False),
+    ('predicate', 'deleted_at IS NOT NULL'), ('method', 'hash'),
+    ('collations', [None] * 4), ('operator_classes', ['pg_catalog.text_ops'] * 4),
+    ('unexpected', 'not-in-the-reviewed-index'),
+])
+def test_changed_or_type_coerced_physical_index_witness_is_rejected(key, value):
+    data = marker()
+    data['history_order_index'][key] = copy.deepcopy(value)
+    with pytest.raises(AssertionError):
+        validate_startup(data, HEAD, PORT)
+
+
+def test_missing_physical_index_witness_is_rejected():
+    data = marker()
+    del data['history_order_index']
+    with pytest.raises(KeyError):
+        validate_startup(data, HEAD, PORT)
+
+
+def normalize_report(tmp_path, data, *, expected_revision='20261019_personal_history_index'):
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    source, target = tmp_path / 'input.json', tmp_path / 'normalized.json'
+    source.write_text(json.dumps(data), encoding='utf8')
+    result = subprocess.run([sys.executable, '-X', 'utf8', '-B',
+        str(root / 'tests/e2e/normalize_member_link_report.py'),
+        '--input', str(source), '--output', str(target), '--expected-head', HEAD,
+        '--expected-origin', 'http://127.0.0.1:8794', '--expected-revision', expected_revision],
+        cwd=root, capture_output=True, timeout=10)
+    return result, target
+
+
+def browser_report():
+    return {'head': HEAD, 'scope': 'Synthetic report-adapter test; no browser execution',
+            'executed_revision': '20261019_personal_history_index',
+            'passed': 16, 'total': 16, 'expected_total': 16,
+            'report': [{'case': 'criterion-' + str(index), 'passed': True} for index in range(16)],
+            'page_errors': [], 'network': {'API_doubles': False,
+                                         'first_party_origin': 'http://127.0.0.1:8794'}}
+
+
+def test_normalizer_preserves_explicit_current_revision_without_rerunning_cases(tmp_path):
+    data = browser_report()
+    result, target = normalize_report(tmp_path, data)
+    assert result.returncode == 0
+    normalized = json.loads(target.read_bytes())
+    assert normalized['executed_revision'] == '20261019_personal_history_index'
+    assert normalized['results'] == data['report']
+    assert normalized['passed'] == normalized['total'] == 16
+
+
+@pytest.mark.parametrize('change', ['previous-revision', 'missing-revision', 'wrong-type',
+                                  'previous-expected-revision', 'incomplete-cases'])
+def test_normalizer_rejects_missing_previous_or_incomplete_runtime_reports(tmp_path, change):
+    data = browser_report()
+    expected = '20261019_personal_history_index'
+    if change == 'previous-revision':
+        data['executed_revision'] = '20261019_client_account_links'
+    elif change == 'missing-revision':
+        del data['executed_revision']
+    elif change == 'wrong-type':
+        data['executed_revision'] = 30
+    elif change == 'previous-expected-revision':
+        expected = '20261019_client_account_links'
+        data['executed_revision'] = expected
+    else:
+        data['report'].pop()
+    result, target = normalize_report(tmp_path, data, expected_revision=expected)
+    assert result.returncode != 0
+    assert not target.exists()

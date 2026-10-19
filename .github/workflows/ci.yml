@@ -62,8 +62,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install --require-hashes -r requirements-test.lock
-      - name: Member link CI29 preserves reviewed historical gates and requires current contracts
-        run: python -X utf8 tests/verify_member_links_ci.py --output "$RUNNER_TEMP/member-links-ci"
+      - name: Physical history CI30 retains exact CI29 and requires current index contracts
+        run: python -X utf8 tests/verify_history_index_ci.py --output "$RUNNER_TEMP/history-index-ci"
       - name: SaaS regression suite in fresh isolated data
         run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
       - name: Required SaaS cases cannot silently become skips
@@ -278,10 +278,14 @@ jobs:
       - name: Member proof races and exact publication identity CAS
         run: python -X utf8 tests/run_isolated.py tests/integration_client_link_service_races.py tests/integration_client_link_publication_cas.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-races.xml
       - name: Current revision29 populated restore preserves all prior contracts and member links
-        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_restore.py -q --tb=short --junitxml=pytest-postgres-member-restore.xml
+        run: python -X utf8 tests/run_reviewed_ci29.py --output "$RUNNER_TEMP/reviewed-ci29-restore" --junitxml=pytest-postgres-member-restore.xml
+      - name: Physical history index migration rollback and bounded ordered PostgreSQL query
+        run: python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_migrations.py tests/integration_personal_history_ordered_query.py -k postgresql -q --tb=short --junitxml=pytest-postgres-history-index.xml
+      - name: Current revision30 populated restore preserves history index and every prior contract
+        run: python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_restore.py -q --tb=short --junitxml=pytest-postgres-history-index-restore.xml
       - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
         run: >-
-          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==26 and len(set(reports))==26, 'Expected 26 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
+          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==28 and len(set(reports))==28, 'Expected 28 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
           pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml
           pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml
           pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml
@@ -289,9 +293,11 @@ jobs:
           pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml
           pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml
           pytest-postgres-recovery-migrations.xml pytest-postgres-recovery.xml
-          pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml
+          pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml pytest-postgres-history-index.xml pytest-postgres-history-index-restore.xml
       - name: Current member link reports retain all selected PostgreSQL cases
         run: python tests/check_member_link_reports.py
+      - name: Physical history reports retain every exact selected PostgreSQL case
+        run: python tests/check_history_index_reports.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -421,7 +427,7 @@ jobs:
             for attempt in $(seq 1 30); do
               if ! kill -0 "$browser_fixture_pid" 2>/dev/null; then cat "$fixture_log"; return 1; fi
               if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then
-                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 29 --revision 20261019_client_account_links 2>/dev/null; then ready=1; break; fi
+                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 29 --revision 20261019_personal_history_index 2>/dev/null; then ready=1; break; fi
               fi
               sleep 1
             done

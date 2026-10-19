@@ -1,0 +1,65 @@
+{
+  "database_name": "metodobase_test_migrations_84ab84a41da2",
+  "login_status": 200,
+  "profile_status": 200,
+  "repeat_profile_status": 200,
+  "before_profile_count": 0,
+  "after_profile_count": 1,
+  "repeat_profile_count": 1,
+  "same_active_viewer_subject": {
+    "id": "9c9a093c-d1ae-44ba-85b7-61951f58855c",
+    "tipo": "usuario",
+    "role": "viewer",
+    "team_gym_id": null,
+    "session_version": 0
+  },
+  "before": {
+    "user": {
+      "id": "9c9a093c-d1ae-44ba-85b7-61951f58855c",
+      "tipo": "usuario",
+      "role": "viewer",
+      "team_gym_id": null,
+      "session_version": 0
+    },
+    "profiles": [],
+    "professional_clients": [
+      [
+        "2eb786d7-ec61-4768-be42-bfb6a004097f",
+        "8c8a911b-e0a9-4fa6-a206-ed3f175a7237"
+      ],
+      [
+        "e8e4c728-7e58-4c63-b7b5-07bd8344b388",
+        "4b452f3d-5e72-41b2-96c7-d14c4953cdae"
+      ]
+    ]
+  },
+  "after": {
+    "user": {
+      "id": "9c9a093c-d1ae-44ba-85b7-61951f58855c",
+      "tipo": "usuario",
+      "role": "viewer",
+      "team_gym_id": null,
+      "session_version": 0
+    },
+    "profiles": [
+      {
+        "id": "ae9dee26-1ac6-4d29-a30e-18e36e029fb2",
+        "gym_id": "9c9a093c-d1ae-44ba-85b7-61951f58855c"
+      }
+    ],
+    "professional_clients": [
+      [
+        "2eb786d7-ec61-4768-be42-bfb6a004097f",
+        "8c8a911b-e0a9-4fa6-a206-ed3f175a7237"
+      ],
+      [
+        "e8e4c728-7e58-4c63-b7b5-07bd8344b388",
+        "4b452f3d-5e72-41b2-96c7-d14c4953cdae"
+      ]
+    ]
+  },
+  "professional_clients_unchanged": true,
+  "account_role_team_sv_unchanged": true,
+  "cause": "Login alone does not create a profile. Subsequent ordinary GET /api/usuario/perfil creates its own missing profile once; it never adopts a professional client.",
+  "scope": "One new owned real PostgreSQL30 UUID, actual web factory/auth/route and app RLS role; no browser, API mock or production source edit."
+}

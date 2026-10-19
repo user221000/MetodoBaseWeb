@@ -1,0 +1,84 @@
+{
+  "head": "5d8e2bcf35c367e73632418f9364fb4f6410d129",
+  "results": [
+    {
+      "mode": "index",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/run_isolated.py",
+        "tests/integration_personal_history_index_migrations.py",
+        "tests/integration_personal_history_ordered_query.py",
+        "-k",
+        "postgresql",
+        "-q",
+        "--tb=short",
+        "--junitxml=C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci30-current-pg-first-20261019\\pytest-postgres-history-index.xml"
+      ],
+      "exit": 0,
+      "seconds": 85.5
+    },
+    {
+      "mode": "restore",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/run_isolated.py",
+        "tests/integration_personal_history_index_restore.py",
+        "-q",
+        "--tb=short",
+        "--junitxml=C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci30-current-pg-first-20261019\\pytest-postgres-history-index-restore.xml"
+      ],
+      "exit": 0,
+      "seconds": 30.59399999998277
+    },
+    {
+      "mode": "units",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/run_isolated.py",
+        "tests/test_member_ci_trust.py",
+        "tests/test_member_browser_gate.py",
+        "tests/test_reviewed_ci28_archive.py",
+        "tests/test_history_index_ci_trust.py",
+        "-q",
+        "--tb=short",
+        "--junitxml=C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci30-current-pg-first-20261019\\units.xml"
+      ],
+      "exit": 0,
+      "seconds": 10.25
+    },
+    {
+      "mode": "reports",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/check_history_index_reports.py",
+        "--directory",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci30-current-pg-first-20261019"
+      ],
+      "exit": 0,
+      "seconds": 0.23399999999674037
+    }
+  ],
+  "sources_packages_stable": true,
+  "source_files": 5586,
+  "packages": 89,
+  "cases": {
+    "pytest-postgres-history-index.xml": 8,
+    "pytest-postgres-history-index-restore.xml": 1,
+    "units.xml": 74
+  },
+  "pip_exit": 0,
+  "owned_restore_closure": [],
+  "scope": "Actual newly selected physical30 PostgreSQL cases and maintained populated30 restore, isolated UUIDs. No browser/image/Actions/SLO."
+}

@@ -1,0 +1,60 @@
+.............F                                                           [100%]
+================================== FAILURES ===================================
+_ test_mixed_history_order_ownership_complete_pages_and_pg_work_budget[postgresql] _
+
+migration_database = ('postgresql+psycopg2://metodobase_test_admin@127.0.0.1:55483/metodobase_test_migrations_d561920d813f', Engine(postgresql+psycopg2://metodobase_test_admin@127.0.0.1:55483/metodobase_test_migrations_d561920d813f))
+
+    def test_mixed_history_order_ownership_complete_pages_and_pg_work_budget(migration_database):
+        url, admin = migration_database
+        run_migration(url, 'db_bootstrap.py', '--revision', '20261019_personal_history_index')
+        seed(admin)
+        app = application_engine(url, admin)
+        observations = []
+        try:
+            with tenant_scope(SUBJECT), Session(app) as db:
+                if app.dialect.name == 'postgresql':
+                    assert tuple(db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()) == (False, False, False, False)
+                    assert not db.scalar(text("SELECT EXISTS(SELECT 1 FROM pg_class WHERE relnamespace='public'::regnamespace AND pg_has_role(current_user,relowner,'MEMBER'))"))
+                oracle = individual_plan_results_query(db, SUBJECT).filter(PlanGenerado.id_cliente == PROFILE).with_entities(
+                    PlanGenerado.id, PlanGenerado.fecha_generacion, PlanGenerado.kcal_objetivo,
+                ).order_by(PlanGenerado.fecha_generacion.desc().nulls_last(), PlanGenerado.id.desc()).all()
+                assert len(oracle) == 1000
+                assert [row.id for row in oracle[:20]] == list(range(20, 0, -1))
+                assert sum(row.fecha_generacion is None for row in oracle) == 300
+                assert all(row.kcal_objetivo != 99999 for row in oracle)
+    
+                cases = [('first', None, 0), ('tie', oracle[9], 10),
+                         ('late_dated', oracle[649], 650), ('date_to_null', oracle[689], 690),
+                         ('null_cursor', oracle[749], 750)]
+                for label, anchor, offset in cases:
+                    captured = []
+    
+                    def capture(connection, cursor, statement, parameters, context, many):
+                        if 'planes_generados' in statement:
+                            captured.append((statement, parameters))
+    
+                    event.listen(app, 'before_cursor_execute', capture)
+                    try:
+                        position = None if anchor is None else (anchor.fecha_generacion, anchor.id)
+                        rows = history_summary_rows(db, SUBJECT, PROFILE, 50, position)
+                    finally:
+                        event.remove(app, 'before_cursor_execute', capture)
+                    assert [(r.id, r.fecha_generacion, r.kcal_objetivo) for r in rows] == [tuple(r) for r in oracle[offset:offset+51]]
+                    assert len(captured) == 1
+                    statement, parameters = captured[0]
+                    assert 'count(' not in statement.lower() and 'plan_json' not in statement
+                    observation = {'case': label, 'returned_candidates': len(rows)}
+                    if app.dialect.name == 'postgresql':
+                        plan = db.connection().exec_driver_sql('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) '+statement, parameters).scalar_one()
+                        nodes = list(walk(plan[0]['Plan']))
+                        scans = [n for n in nodes if n.get('Relation Name') == 'planes_generados']
+                        work = sum((n.get('Actual Rows', 0)+n.get('Rows Removed by Filter', 0)+n.get('Rows Removed by Index Recheck', 0))*n.get('Actual Loops', 1) for n in scans)
+                        budget = 102 if position and position[0] is not None else 51
+>                       assert work <= budget, (label, work, budget, plan)
+E                       AssertionError: ('tie', 107, 102, [{'Plan': {'Node Type': 'Limit', 'Parallel Aware': False, 'Async Capable': False, 'Startup Cost': 18...locks': 0, 'Shared Dirtied Blocks': 0, 'Shared Written Blocks': 0, ...}, 'Planning Time': 0.782, 'Triggers': [], ...}])
+E                       assert 107 <= 102
+
+tests\integration_personal_history_ordered_query.py:110: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/integration_personal_history_ordered_query.py::test_mixed_history_order_ownership_complete_pages_and_pg_work_budget[postgresql]
+1 failed, 13 passed in 122.15s (0:02:02)

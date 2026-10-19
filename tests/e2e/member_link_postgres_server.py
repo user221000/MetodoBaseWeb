@@ -1,4 +1,4 @@
-"""Actual migrated29/restricted-PG/browser fixture. Only mail transport is doubled.
+"""Actual migrated30/restricted-PG/browser fixture; R12 business contract29.
 
 No fixture HTTP endpoints, API doubles or invitation proofs in public output.
 The filesystem control channel is private to this process and the local driver.
@@ -37,6 +37,7 @@ def main():
     from web.database import engine as database
     from web.database.models import Base,Cliente,ClientAccountLink,ClientLinkInvitation,Usuario
     from web.database.schema_control import expected_head,verify_runtime_schema
+    from web.database.alembic.history_index_contract_v1 import expected_history_index,history_index_signature
     from web.database.tenant_context import current_tenant
     from web import auth
     from web.services import email_service
@@ -58,6 +59,14 @@ def main():
     write_lock=threading.Lock()
     try:
         admin,app=next(generator)
+        # Preserve the historical29 fixture, then upgrade its SAME owned UUID.
+        # No runtime engine, app startup or business seed precedes this upgrade.
+        migrations.run_migration(admin.url.render_as_string(hide_password=False),
+            'db_bootstrap.py','--revision','20261019_personal_history_index')
+        verify_runtime_schema(admin,expected_revision='20261019_personal_history_index')
+        with admin.connect() as connection:
+            source_history_index=history_index_signature(connection)
+        assert source_history_index==expected_history_index('postgresql')
         # Shared functional fixture pool1 cannot serve dashboard's concurrent reads.
         # Use actual runtime construction with exactly the same restricted URL.
         os.environ['DATABASE_URL']=app.url.render_as_string(hide_password=False)
@@ -71,19 +80,22 @@ def main():
         settings=get_settings();settings.BASE_URL=origin;settings.RESEND_API_KEY='synthetic-local-transport-only'
         settings.CORS_ORIGINS=[origin]
         verify_runtime_schema(app,require_revision=True)
-        assert expected_head()=='20261019_client_account_links'
+        assert expected_head()=='20261019_personal_history_index'
         with app.connect() as connection:
             flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
             assert tuple(flags)==(False,False,False,False)
             assert connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
             actual_revision=connection.execute(text('SELECT version_num FROM alembic_version')).scalar_one()
+            runtime_history_index=history_index_signature(connection)
         assert actual_revision==expected_head()
+        assert runtime_history_index==source_history_index==expected_history_index('postgresql')
         case=shared.case.__wrapped__((admin,app));password='Synthetic browser password 42!'
         personal=str(uuid.uuid4())
         with Session(admin) as db:
             for key,label in [('gym','Synthetic owner A'),('othergym','Synthetic owner B'),('person','Synthetic recipient'),('other','Synthetic other account')]:
                 row=db.get(Usuario,case[key]);row.password_hash=auth.hash_password(password);row.nombre=label
             db.add(Cliente(id_cliente=personal,gym_id=case['person'],nombre='Preserved personal profile',notas='PRIVATE_PERSONAL_PROFILE'))
+            db.add(Cliente(id_cliente=str(uuid.uuid4()),gym_id=case['other'],nombre='Preserved other personal profile'))
             db.commit()
         plan_a,descriptor_a,content_a=shared.source(case,marker='SYNTHETIC_BROWSER_A')
         external=dict(case,gym=case['othergym'],client=case['otherclient'])
@@ -97,6 +109,8 @@ def main():
         metadata={'origin':origin,'head':args.head,'ids':{key:case[key] for key in ['gym','othergym','person','other','client','otherclient']},
                   'emails':{key:(case['email'] if key=='person' else case[key]+'@example.invalid') for key in ['gym','othergym','person','other']},
                   'password':password,'plans':{'gym':plan_a,'othergym':plan_b},'private_personal_profile_id':personal,
+                  'executed_revision':actual_revision,'business_contract_revision':'20261019_client_account_links',
+                  'history_order_index':runtime_history_index,
                   'pdfs':{'gym':{'sha256':hashlib.sha256(content_a).hexdigest(),'bytes':len(content_a)},
                           'othergym':{'sha256':hashlib.sha256(content_b).hexdigest(),'bytes':len(content_b)}},'baseline':baseline}
         (out/'metadata.private.json').write_text(json.dumps(metadata,indent=2)+'\n',encoding='utf8')
@@ -157,8 +171,9 @@ def main():
                 temporary.write_text(json.dumps({'id':value['id'],'identities':state,'links':links})+'\n',encoding='utf8')
                 temporary.replace(out/'control-ack.private.json')
         control=threading.Thread(target=controller,daemon=True);control.start()
-        marker={'fixture':'r12-real-postgres29','head':args.head,'pid':os.getpid(),'port':args.port,
+        marker={'fixture':'r12-real-postgres30','head':args.head,'pid':os.getpid(),'port':args.port,
                 'database_kind':'postgresql','executed_revision':actual_revision,'model_target_revision':expected_head(),
+                'business_contract_revision':'20261019_client_account_links','history_order_index':runtime_history_index,
                 'model_tables':len(Base.metadata.tables),'actual_tables':len(inspect(admin).get_table_names()),
                 'application_role_restricted_nonowner':True,'runtime_pool_size':app.pool.size(),'runtime_max_overflow':app.pool._max_overflow,'mail_transport':'private-filesystem-after-commit-witness',
                 'R12_API_doubles':False,'source_plan_pdf':'Synthetic four-meal JSON and labelled local bytes; not a generation/provider demonstration',

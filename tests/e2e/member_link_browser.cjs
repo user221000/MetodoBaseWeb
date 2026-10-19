@@ -1,4 +1,4 @@
-/* Actual browser -> actual29 API/PG. No page.route fulfilments or API doubles. */
+/* Actual browser -> actual30 schema/PG, unchanged business29. No API doubles. */
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const {chromium}=require(process.env.QA_NODE_MODULES?path.join(process.env.QA_NODE_MODULES,'playwright-core'):'playwright-core');
@@ -74,7 +74,7 @@ async function screenshot(page,name){assert(!new URL(page.url()).hash);await pag
  }catch(error){fs.writeFileSync(path.join(phase,'browser-error.private.log'),String(error.stack));}
  finally{
   if(browser)await browser.close();
-  const value={scope:'Actual Chrome/HTTP/restricted-PostgreSQL29 integration; mail filesystem double only. Source plan/PDF are labelled synthetic seeds, not worker/provider generation.',head:meta.head,report,passed:report.filter(r=>r.passed).length,total:report.length,expected_total:16,network:{first_party_origin:origin,API_doubles:false,blocked_external:blocked,requests:traffic},page_errors:errors,seconds:(Date.now()-started)/1000};
+  const value={scope:'Actual Chrome/HTTP/restricted-PostgreSQL30 integration of unchanged R12 business29; mail filesystem double only. Source plan/PDF are labelled synthetic seeds, not worker/provider generation.',head:meta.head,executed_revision:meta.executed_revision,report,passed:report.filter(r=>r.passed).length,total:report.length,expected_total:16,network:{first_party_origin:origin,API_doubles:false,blocked_external:blocked,requests:traffic},page_errors:errors,seconds:(Date.now()-started)/1000};
   fs.writeFileSync(path.join(phase,'browser-result.json'),JSON.stringify(value,null,2)+'\n');
   console.log(JSON.stringify({head:meta.head,total:value.total,passed:value.passed,expected_total:16,external_blocked:blocked.length,page_errors:errors.length}));
   if(value.total!==16||value.passed!==16||errors.length)process.exitCode=1;

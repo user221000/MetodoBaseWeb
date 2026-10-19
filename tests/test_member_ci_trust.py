@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from tests import verify_member_links_ci as guard
+from tests import verify_history_index_ci as guard
 
 
 def test_reviewed_executable_helpers_match_independent_anchors():

@@ -1,0 +1,69 @@
+{
+  "base": "ea66afbfe323cd5ac86e24705e2534b54c7bbe13",
+  "original_sha256_raw": "1d661490b8f3fbd0aa21d05a168a39e93808a9a0b4d7262930eda314510dacc7",
+  "original_sha256_git_lf": "469b26391c4bc3aa19dbc2c2cf5ae4453214ef98c8c247c2d56f4d6a4ea21e11",
+  "new_sha256_raw": "48f2ec2a62f8859c81e189e789246661914f1e1867bbba40e56cd89866b47fc0",
+  "historical_assertions": 48,
+  "new_assertions": 61,
+  "inverse_text_exact_after_only_explicit_doc_name_revision_and_addition_reversal": true,
+  "inverse_ast_exact_including_every_historical_assertion": true,
+  "revision_literal_replacements": 3,
+  "replacements": [
+    [
+      "\"\"\"Explicit29 restore derived separately; accepted26/27/28 fixtures stay immutable.\n\nPreserves the complete27 test body/assertions and reuses its unchanged diary\nservice/HTTP helpers; recovery additions are isolated in a separate helper.\n\"\"\"",
+      "\"\"\"Explicit30 restore; accepted26/27/28/29 fixtures and assertions stay immutable.\n\nCopies the complete revision29 populated restore and its unchanged helpers.\nAdds exact physical index preservation and a post-restore ASC-only drift canary.\nNo business RPO/RTO, production recovery or query latency is accepted here.\n\"\"\""
+    ],
+    [
+      "test_revision29_restore_preserves_member_links_and_all_revision26_27_28_contracts",
+      "test_revision30_restore_preserves_history_index_and_all_revision26_27_28_29_contracts"
+    ],
+    [
+      "\"\"\"Explicit29; preserve26/27/28 criteria and add populated recipient capabilities.\"\"\"",
+      "\"\"\"Explicit30; preserve all26/27/28/29 criteria and physical index ordering.\"\"\""
+    ],
+    [
+      "client-link29",
+      "history-index30"
+    ],
+    [
+      "20261019_client_account_links",
+      "20261019_personal_history_index"
+    ],
+    [
+      "synthetic PostgreSQL explicit revision29; preserved26/27/28 and explicit member relationships/publications",
+      "synthetic PostgreSQL explicit revision30; preserved26/27/28/29 and physical history index"
+    ]
+  ],
+  "insertions": [
+    {
+      "anchor": "    from web.database.alembic.member_link_security_v1 import member_link_security_signature\n",
+      "block": "    # BEGIN HISTORY30 INDEX IMPORTS\n    from web.database.alembic.history_index_contract_v1 import (\n        INDEX_NAME, create_history_index, expected_history_index, history_index_signature,\n    )\n    # END HISTORY30 INDEX IMPORTS\n"
+    },
+    {
+      "anchor": "            original_member_security = member_link_security_signature(connection)\n",
+      "block": "            # BEGIN HISTORY30 SOURCE INDEX\n            original_history_index = history_index_signature(connection)\n            assert original_history_index == expected_history_index(\"postgresql\")\n            # END HISTORY30 SOURCE INDEX\n"
+    },
+    {
+      "anchor": "            restored_member_security = member_link_security_signature(connection)\n",
+      "block": "            # BEGIN HISTORY30 RESTORED INDEX\n            restored_history_index = history_index_signature(connection)\n            assert restored_history_index == expected_history_index(\"postgresql\")\n            assert restored_history_index == original_history_index\n            # END HISTORY30 RESTORED INDEX\n"
+    },
+    {
+      "anchor": "        verify_runtime_schema(target, expected_revision=\"20261019_personal_history_index\")\n",
+      "block": "        # BEGIN HISTORY30 ASC-ONLY RESTORED DRIFT\n        # Change only the timestamp sort direction; v1 deliberately omits it.\n        restored_revision = original_rows[\"alembic_version\"][0][\"version_num\"]\n        with target.begin() as connection:\n            connection.exec_driver_sql(\"DROP INDEX \" + INDEX_NAME)\n            connection.exec_driver_sql(\n                \"CREATE INDEX ix_planes_gym_cliente_history ON planes_generados \"\n                \"(gym_id, id_cliente, fecha_generacion ASC NULLS LAST, id DESC NULLS LAST) \"\n                \"WHERE deleted_at IS NULL\"\n            )\n            wrong_history_index = history_index_signature(connection)\n            assert wrong_history_index == {**original_history_index, \"indoption\": [0, 0, 0, 1]}\n            assert schema_signature(connection) == restored_signature == original_signature\n            assert tenant_security_signature(connection) == original_security\n            assert member_link_security_signature(connection) == original_member_security\n        assert snapshot(target) == original_rows\n        with pytest.raises(RuntimeError, match=\"history ordering\"):\n            verify_runtime_schema(target, expected_revision=restored_revision)\n        with target.begin() as connection:\n            connection.exec_driver_sql(\"DROP INDEX \" + INDEX_NAME)\n            create_history_index(connection)\n            assert history_index_signature(connection) == restored_history_index == original_history_index\n            assert schema_signature(connection) == restored_signature == original_signature\n            assert tenant_security_signature(connection) == original_security\n            assert member_link_security_signature(connection) == original_member_security\n        verify_runtime_schema(target, expected_revision=restored_revision)\n        assert snapshot(target) == original_rows\n        # END HISTORY30 ASC-ONLY RESTORED DRIFT\n"
+    },
+    {
+      "anchor": "            \"restored_member_links\": links_proof,\n",
+      "block": "            # BEGIN HISTORY30 MEASUREMENT\n            \"source_history_index\": original_history_index,\n            \"restored_history_index\": restored_history_index,\n            \"wrong_asc_history_index\": wrong_history_index,\n            \"asc_only_drift_rejected_with_unchanged_v1_schema_and_rows\": True,\n            \"correct_index_recreated_and_runtime_rows_security_reverified\": True,\n            # END HISTORY30 MEASUREMENT\n"
+    }
+  ],
+  "historical_files_sha256_raw": {
+    "tests/integration_client_link_restore.py": "1d661490b8f3fbd0aa21d05a168a39e93808a9a0b4d7262930eda314510dacc7",
+    "tests/client_link_restore_helpers.py": "e18b6b00bdf9ff841c1a1b9b9056bf60c70edc40fb9c6642e992b13d508277a3",
+    "tests/integration_backup_restore_postgres.py": "2783932a2c7b273eda71e95a808a803e9487eaaee83ee3b8c0c1219ca34ab165",
+    "tests/integration_diary_restore_review.py": "f826305e8ddc74b23a546a8f57a23debdf4213018532a7f319d3e99886fd22e8",
+    "tests/recovery28_restore_helpers.py": "bdb1059b092428514e10f64b464342e049a44f9cfeb9e0bc3d503a324eb7c9a9",
+    "scripts/backup_restore.py": "1d03d1fc7993dbcc7b369fe77a63e43425cdafe387012ac02a58f95283dbf330",
+    "web/database/alembic/history_index_contract_v1.py": "c13c351ec62f25e4ddae031d16a0cbc899ba1f5c843a254f0100c0701f8cbe14",
+    "web/database/schema_control.py": "947c127a2f0aa6e8b304a13e2d5c5ba9d27f8685e82cb47434ca45c505068475"
+  }
+}
