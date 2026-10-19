@@ -1,7 +1,7 @@
 # Entrega candidata en curso
 
-Checkpoint116:109 registros y92 IDs originales. MAINbd3c1ca02840c90490cfa2e89b2b9fd7104e83dc integra esquema30, R12, R23/expiración/CI573, SEC11 yR24 parcial tras revisiones independientes. La amplia anterior2491+1 por modo corresponde a6d4e8b4; la amplia actual está pendiente.
+Checkpoint117:110 registros y92 IDs originales. MAINeea8f773fba9b7f92241958139fcefa23b9ee1d4 integra esquema30,R12,R23/expiración/CI573,SEC11 yR24 parcial. Amplia actual2597aprobadas+1omisión Windows por modo serial/cobertura y n2/shuffle;9542fuentes/89paquetes quietos,pip0,cobertura0,2492casosprevios íntegros.
 
-MFA31/56e810 sigue aislado en revisión ycomposiciónUI/CI; SEC12 registra el fallo de binding de clave enaliases legacy ysu reparación separada. ExpatM2 sólo tiene revisión estática; faltan imagen Linux reparada/arranque/SCA ysiguen71 IDsOS abiertos. Desktop soportado. Free10clientes,1plan/cliente/día y10totales/gimnasio/día.
+MFA31 sigueaislado conrefinamientos dekey/privacidad yparentcanónicoSEC13 en revisión;UI/QA/Seguridad/CI31 pendientes. LinuxExpatM2 sólorevisiónestática,faltaartefacto/arranque/SCA ysiguen71IDsOS abiertos. Desktopsoportado. Free10clientes,1plan/cliente/día y10totales/gimnasio/día.
 
-Sin entrega final, push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y[registro](TRAZABILIDAD.md). La evidencia conserva su fuente yentorno.
+Sin entrega final,push,PR,despliegue,cargos ni comunicaciones reales. [Estado](ESTADO.md),[validación](VALIDACION.md),[riesgos](RIESGOS.md)y[registro](TRAZABILIDAD.md). Cada evidencia conserva fuente/entorno.

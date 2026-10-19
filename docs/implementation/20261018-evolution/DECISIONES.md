@@ -69,3 +69,8 @@ Se configura core.longpaths=true sólo en clon de ejecución propio para preserv
 ## Checkpoint 116
 
 Integrar25fuentesR24 mediante patch exacto en commitnuevo, conservando commitsprivadosautor yevitando ancestry que contieneCSRFsintéticos. Proyecciónnueva sustituye sólo4valoresidentificadoscon hashesRAW/públicos; ZIPs fuente se inspeccionan porentrada. No debilitar filtro ni reescribir pruebas/manifiestos cerrados. Priorizar reparaciónSEC12 P1 antes dediagnósticoR34 P2.
+
+
+## Checkpoint 117
+
+CongelarMAINduranteamplia dio9542fuentes/89paquetes exactos. Registrar109criterios previos sincambio ynuevoSEC13. Preservar todoslos intentos deprobeheaders; corregirfixtures contraelcontratoreal deambospadres sin tocar producto ni10aserciones. CI31 usará fuente30 auténtica, no marcadores viejos fabricados desde modelos31.

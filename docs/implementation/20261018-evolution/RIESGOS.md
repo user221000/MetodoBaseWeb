@@ -92,3 +92,8 @@ R23 sigue parcial por responsables/eventos persistidos. R24errores404 requieren 
 ## Checkpoint 116
 
 SEC12:aliases31 no ligan key observada al grant/puerto,4rojos+1control; reparación/revisión pendientes, sin bypassfactor/doblecargo demostrado. R24/R23 siguen parciales. MFA31 authorrestore no sustituye QA/Seguridad/UI/CI.71 IDsOS ypolíticaR31 pendientes.
+
+
+## Checkpoint 117
+
+SEC13 parent/actor canónicos de31 requieren invitation_token estrictamenteNULL bajo locks al emitir/consumir.2rojos/4controles, sinacciónexternareal. SEC12fix yprivacidadprimary enrevisión; no aceptarMFA por corregir sólo5o20. Linux71OS,políticaR31,pilotos yconfiguraciónproveedores siguenpendientes.

@@ -1,0 +1,18 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_composed_private_families_preserve_parent_policies[False-/api/usuario/historial] _
+C:\Users\Consu\AppData\Local\Temp\test_metodobase_mfa_diary_composed_headers.py:25: in test_composed_private_families_preserve_parent_policies
+    assert response.headers['cache-control'] == 'no-store'
+E   AssertionError: assert 'public, max-age=300' == 'no-store'
+E     
+E     - no-store
+E     + public, max-age=300
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED ::test_composed_private_families_preserve_parent_policies[False-/api/usuario/historial]
+1 failed, 1 warning in 4.39s

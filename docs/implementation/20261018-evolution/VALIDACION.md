@@ -211,3 +211,8 @@ R23 merge3643 padres/tree/108criterios/targets22–30/c4 verificados. Configloca
 ## Checkpoint 116
 
 QA4042:98/98 en424.86s,21focales,freshR24_11+R12_16;5987/89/157Node/tools/config quietos y4UUID ausentes. PG9bfa2+1concurrencia y31SQLite/65Node no se reatribuyen. SEC4042 mismo27propios4/27→27/27 y4QAHTTP; SEC5315propios+11rootreplay. Integraciónselectiva bd3:25sourcesGit exactas,179RAW autenticados,21pins esquema/c4 yregistro intactos, ancestryADC excluida. Actualamplia pendiente.
+
+
+## Checkpoint 117
+
+Ampliaeea8:serial2597pass+1skipWindows777.079s,shuffle2597pass+1skip384.438s;9542fuentes/89paquetes estables,pip0,cobertura0,2492caseIDs previos exactos más106nuevos cada modo.3módulos100%líneas/ramas. No PG/Redis/Linux/Actions/imagen/SLO. Composición46dc94mantenidas+8propias porfases;1+1rojos de fixture cache preservados y10assertsAST intactos en refinamiento final, sincambioproducto.

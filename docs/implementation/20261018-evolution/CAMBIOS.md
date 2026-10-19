@@ -150,3 +150,8 @@ R23/expiración/CI573 integrado3643; no nuevoDDL. Estecheckpoint sólo documenta
 ## Checkpoint 116
 
 SEC11 integrado5949 yR24 parcialbd3 con cabeceras privadas en todoslos errores de diario. Datos propios confirmados sobreviven revocación de fuente; nuevas escrituras se rechazan. Se registraSEC12 candidatoMFA, sin31 integrado. ProyeccionesSSR publican hashesRAW yredacciones puntuales sin modificar originales.
+
+
+## Checkpoint 117
+
+Se sella gate actualR23/R24/SEC11 yse registraSEC13 de fuente31aislada.78d27key y8b64privacidad están fueraMAIN ypendientes de revisión posterior. No nuevo producto encheckpoint.

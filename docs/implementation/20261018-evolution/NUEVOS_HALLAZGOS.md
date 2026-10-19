@@ -104,3 +104,12 @@ Los aliases /api/pagos/stripe/session y /api/pagos/mp/preference del candidato56
 Criterio: Leer la misma Idempotency-Key observada por HTTP y transmitirla sin divergencia a la validación/consumo del grant y a la intención durable en ambos aliases, conservando DTO y respuesta legacy. Rechazar clave añadida, retirada o cambiada antes del puerto y sin consumo irreversible indebido; aceptar la clave exacta. Probar ambos proveedores y factories con autenticación/MFA reales y puertos sintéticos; conservar los cinco criterios independientes originales, la revisión independiente posterior y las garantías canónicas previas. No afirmar doblecargo, proveedor real ni bypass del factor.
 
 Reproducción inicial independiente:4rojos+1control en api.app. Candidato31 aislado, sin proveedor/cargo real. [Recibo](evidence/prepared-wave116-20261019/SEC12-initial-observation.json).
+
+
+## SEC13: Elegibilidad canónica de actor y propietario al emitir y consumir MFA
+
+MFA31 omite invitation_token del propietario en current_identity y mfa_actions.authorize. Con administrador previamente enrolado/autenticado, un OWNER activo pero con invitación noNULL permite emitir grant aunque canonical_gym de R12 es falso. Los checks truthy tampoco equivalen a IS NULL ante cadenas vacías históricas/ambiguas.
+
+Criterio: Revalidar bajo los mismos locks de cuentas la elegibilidad persistida de actor y propietario canónico al emitir y consumir autorizaciones: activo, sin borrado, invitación estrictamenteNULL y propietario gym/OWNER sin asociación de equipo. Rechazar estados noNULL incluso vacíos sin emitir ni consumir indebidamente grants y preservar el caso legítimo; no ampliar roles o suplir propiedad. Conservar los seis criterios independientes iniciales en ambas factories, cubrir emisión/consumo y estados ambiguos con pruebas propias, revisión independiente posterior y PostgreSQL restringido cuando corresponda. No afirmar que una API legítima crea esos estados ni que se ejecutó una invitación o cargo.
+
+Reproducción inicial:4controles+2rojos enambasfactories conestados sintéticos explícitos. [Recibo](evidence/prepared-wave117-20261019/SEC13-initial-observation.json).
