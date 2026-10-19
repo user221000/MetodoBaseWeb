@@ -1,0 +1,24 @@
+{
+  "scope": "Author coordinator directed tests; unavailable stats503/class-only logs in both routers. Independent HTTP/UI review pending.",
+  "parent_commit": "2f8b7f9617503240432e5f6b981f2730c0c9c30e",
+  "sources": {
+    "web/routes/stats.py": "281c7304f452aff7655ea78e6bc846b82098f62dfa2936533a782acd8db2aec1",
+    "api/routes/stats.py": "74f4c0396fe0e69be38659e33efe07275d754f115fe3454e7906b4425c1ed97d",
+    "tests/test_statistics_availability.py": "71d2746364d8f8fde19bdb8cc5694ec36f32e21a6c2385a5d5784f54bfd0627f"
+  },
+  "test_source_unchanged": true,
+  "result": {
+    "passed": 48,
+    "failed": 0,
+    "warnings": 1,
+    "seconds": 19.42
+  },
+  "command": "python -X utf8 tests/run_isolated.py tests/test_statistics_availability.py tests/test_api.py tests/test_multi_tenant_isolation.py -q --tb=short",
+  "junit": "pytest-statistics-availability-author-after.xml",
+  "prior_red": "statistics-availability-before-source.json",
+  "limits": [
+    "Direct route cases use synthetic repository failures; broader API suite uses isolated fixtures.",
+    "No UI/PG/provider/live acceptance.",
+    "1813 serial/n2 gates predate these two router changes and new tests."
+  ]
+}

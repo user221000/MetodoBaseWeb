@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from web.database.engine import get_db
@@ -56,19 +56,6 @@ def obtener_estadisticas(
 
         return stats
     except Exception as exc:
-        logger.error("Error obteniendo estadísticas (gym: %s): %s", gym_id, exc, exc_info=True)
-        return {
-            "total_clientes": 0,
-            "clientes_nuevos": 0,
-            "planes_periodo": 0,
-            "promedio_kcal": 0,
-            "clientes_activos": 0,
-            "renovaciones": 0,
-            "tasa_retencion": 0.0,
-            "top_clientes": [],
-            "objetivos": {},
-            "planes_por_tipo": {},
-            "sin_plan": 0,
-            "planes_por_dia": [0, 0, 0, 0, 0, 0, 0],
-            "planes_labels": ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-        }
+        logger.error("Statistics unavailable class=%s", type(exc).__name__)
+        raise HTTPException(503, {"code": "statistics_unavailable",
+            "message": "No fue posible consultar las estadísticas. Vuelve a intentar."}) from None

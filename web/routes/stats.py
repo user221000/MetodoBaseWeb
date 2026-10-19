@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from web.auth_deps import get_usuario_actual, get_effective_gym_id
@@ -46,19 +46,9 @@ def obtener_estadisticas(
 
         return stats
     except Exception as exc:
-        from web.settings import get_settings as _gs
-        logger.error(
-            "Error estadísticas: %s", exc,
-            exc_info=not _gs().is_production
-        )
-        return {
-            "total_clientes": 0, "clientes_nuevos": 0,
-            "planes_periodo": 0, "promedio_kcal": 0,
-            "clientes_activos": 0, "tasa_retencion": 0.0,
-            "top_clientes": [], "objetivos": {},
-            "planes_por_dia": [0]*7,
-            "planes_labels": ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-        }
+        logger.error("Statistics unavailable class=%s", type(exc).__name__)
+        raise HTTPException(503, {"code": "statistics_unavailable",
+            "message": "No fue posible consultar las estadísticas. Vuelve a intentar."}) from None
 
 
 @router.get("/estadisticas/objetivos", summary="Distribución de objetivos")
