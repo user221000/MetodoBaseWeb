@@ -2,14 +2,23 @@
 (function () {
   'use strict';
   var section=document.getElementById('personal-data-section');if(!section)return;
-  var names=['profiles','plans','measurements','purchases','generation_requests'];
-  var cursorNames={profiles:'profile',plans:'plan',measurements:'measurement',purchases:'purchase',generation_requests:'generation'};
+  var names=['profiles','plans','measurements','purchases','generation_requests','personal_diary'];
+  var cursorNames={profiles:'profile',plans:'plan',measurements:'measurement',purchases:'purchase',generation_requests:'generation',personal_diary:'diary'};
   var uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var status=document.getElementById('privacy-status'),errorBox=document.getElementById('privacy-error');
   var start=document.getElementById('privacy-start'),next=document.getElementById('privacy-next'),again=document.getElementById('privacy-again'),restart=document.getElementById('privacy-restart');
   var state=null,lastFile=null,busy=false,failed=false,urls=new Map();
   function protocol(){throw new Error('No pudimos verificar esta parte. Vuelve a intentarlo; no se preparó un archivo nuevo.');}
-  function recordId(value,name){return name==='purchases' || name==='generation_requests' ? typeof value==='string' && uuid.test(value) : Number.isSafeInteger(value) && value>0;}
+  function recordId(value,name){return ['purchases','generation_requests','personal_diary'].includes(name) ? typeof value==='string' && uuid.test(value) : Number.isSafeInteger(value) && value>0;}
+  function diaryDate(value){
+    if(typeof value!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+    var parts=value.split('-').map(Number),year=parts[0],month=parts[1],day=parts[2],leap=year%4===0 && (year%100!==0 || year%400===0);
+    return year>=1 && month>=1 && month<=12 && day>=1 && day<=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31][month-1];
+  }
+  if(!section.querySelector('[data-export-count="personal_diary"]')){
+    var countRow=document.createElement('div'),countLabel=document.createElement('dt'),countValue=document.createElement('dd');
+    countLabel.textContent='Días de diario';countValue.dataset.exportCount='personal_diary';countValue.textContent='0';countRow.append(countLabel,countValue);document.getElementById('privacy-counts').append(countRow);
+  }
   function controls(){
     var received=state && state.part>0;
     start.hidden=!!received && !state.complete;start.textContent=received ? 'Empezar otra descarga' : failed ? 'Volver a intentar descarga' : 'Descargar mis datos';
@@ -42,11 +51,14 @@
       if(!collection || !Array.isArray(collection.records) || collection.records.length>data.scope.page_size || !Object.prototype.hasOwnProperty.call(collection,'next_after'))protocol();
       var ids=collection.records.map(function(record){if(!record || !recordId(record.id,name))protocol();return record.id;});
       if(new Set(ids).size!==ids.length)protocol();
+      var cursorValues=name==='personal_diary' ? collection.records.map(function(record){if(!diaryDate(record.local_date))protocol();return record.local_date;}) : ids;
+      if(name==='personal_diary' && cursorValues.some(function(value,index){return index>0 && value<=cursorValues[index-1];}))protocol();
+      if(!data.scope.personal_space && ['profiles','plans','measurements','personal_diary'].includes(name) && ids.length)protocol();
       var after=collection.next_after;
-      if(after!==null && (!recordId(after,name) || !ids.length || after!==ids[ids.length-1]))protocol();
+      if(after!==null && (!(name==='personal_diary' ? diaryDate(after) : recordId(after,name)) || !cursorValues.length || after!==cursorValues[cursorValues.length-1]))protocol();
       if(!state.done[name]){
         var previous=state.cursors[cursorNames[name]];
-        if(previous!=null && (ids.includes(previous) || (typeof previous==='number' && ids.some(function(value){return value<=previous;}))))protocol();
+        if(previous!=null && (cursorValues.includes(previous) || ((typeof previous==='number' || name==='personal_diary') && cursorValues.some(function(value){return value<=previous;}))))protocol();
         if(after!==null && (after===previous || state.seen[name].includes(after)))protocol();
       }
       if(name==='plans' && collection.records.some(function(record){return !['structured_copy','unavailable_legacy_content','oversized_legacy_content','content_requires_authorized_review'].includes(record.content_status);}))protocol();

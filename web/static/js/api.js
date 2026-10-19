@@ -395,10 +395,20 @@ const Api = (() => {
     me:     () => request('GET',  '/api/auth/me'),
     logout: async () => {
       const snapshot = _snapshot();
+      let serverConfirmed = false;
       try {
         await request('POST', '/api/auth/logout');
-      } catch { /* Local logout never clears credentials of a newer session. */ }
-      if (_currentCredentials().revision === snapshot.revision) clearTokens();
+        serverConfirmed = true;
+      } catch (error) {
+        if (error.code === 'session_storage_error') throw error;
+        // A failed POST is not proof of server revocation. A newer session wins.
+      }
+      if (_currentCredentials().revision !== snapshot.revision) return {state:'session_changed',server_confirmed:false};
+      clearTokens();
+      _requireTrusted();
+      const closed = _currentCredentials();
+      if (closed.pair.token || closed.pair.refresh) return {state:'session_changed',server_confirmed:false};
+      return {state:'closed_local',server_confirmed:serverConfirmed,context:Object.freeze({revision:closed.revision})};
     },
   };
 
@@ -490,6 +500,13 @@ const Api = (() => {
     if (context) _assertSnapshot(context);
     return request(method, path, body, headers);
   }
+  function _personalDay(value) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error('Elige una fecha válida.');
+    const [year,month,day] = value.split('-').map(Number);
+    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    if (year < 1 || month < 1 || month > 12 || day < 1 || day > [31,leap?29:28,31,30,31,30,31,31,30,31,30,31][month-1]) throw new Error('Elige una fecha válida.');
+    return value;
+  }
   const usuario = {
     contexto: async () => {
       const snapshot = _snapshot();
@@ -508,14 +525,25 @@ const Api = (() => {
       if (current.subject !== context.subject) throw _sessionChanged();
       return current.me;
     },
+    diarioHoy: (context) => _personalRequest('GET', '/api/usuario/diario', null, {}, context),
+    diarioDia: (day, context) => _personalRequest('GET', '/api/usuario/diario/' + _personalDay(day), null, {}, context),
+    diarioCalendario: (start, end, context) => {
+      _personalDay(start); _personalDay(end);
+      const days = (Date.parse(end+'T00:00:00Z') - Date.parse(start+'T00:00:00Z')) / 86400000;
+      if (days < 0 || days >= 62) throw new Error('Consulta un periodo de hasta 62 días.');
+      const params = new URLSearchParams({start,end});
+      return _personalRequest('GET', '/api/usuario/diario?' + params, null, {}, context);
+    },
+    guardarDiario: (day, operation, context) => _personalRequest('PATCH', '/api/usuario/diario/' + _personalDay(day), operation, {}, context),
     exportarDatos: (cursors = {}) => {
       const params = new URLSearchParams({limit:'100'});
       const integerCursors = ['profile','plan','measurement'];
       const uuidCursors = ['purchase','generation'];
-      for (const name of [...integerCursors,...uuidCursors]) {
+      for (const name of [...integerCursors,...uuidCursors,'diary']) {
         const value = cursors[name];
         if (value == null) continue;
-        if (integerCursors.includes(name) ? !Number.isSafeInteger(value) || value < 0 : typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
+        if (name === 'diary') _personalDay(value);
+        else if (integerCursors.includes(name) ? !Number.isSafeInteger(value) || value < 0 : typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) {
           throw new Error('No se pudo continuar la descarga. Empieza una descarga nueva.');
         }
         params.set('after_'+name,String(value));

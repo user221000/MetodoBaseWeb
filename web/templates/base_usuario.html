@@ -174,11 +174,37 @@
   // Logout
   var logoutBtn = document.getElementById('btn-logout');
   if (logoutBtn) logoutBtn.addEventListener('click', async function() {
+    if (logoutBtn.disabled) return;
+    var notice = document.getElementById('logout-status');
+    if (!notice) {
+      notice = document.createElement('p'); notice.id = 'logout-status'; notice.setAttribute('role','status');
+      notice.setAttribute('aria-live','polite'); notice.tabIndex = -1; notice.style.color = '#FFFFFF'; notice.style.whiteSpace = 'normal'; logoutBtn.after(notice);
+    }
+    function changed(message,code) {
+      window.dispatchEvent(new CustomEvent('metodobase-session-changed',{detail:{message:message,code:code}}));
+    }
+    logoutBtn.disabled = true; notice.textContent = 'Cerrando sesión…';
     try {
-      if (window.Api && Api.auth) await Api.auth.logout();
-    } catch(e) {}
-    localStorage.clear();
-    window.location.replace('/login-usuario');
+      if (typeof Api === 'undefined' || !Api.auth || typeof Api.auth.logout !== 'function') throw new Error('El cierre de sesión no está disponible. Vuelve a abrir esta página.');
+      var result = await Api.auth.logout();
+      if (!result || result.state !== 'closed_local') {
+        notice.textContent = 'La sesión cambió. Se conserva la cuenta actual.'; changed(notice.textContent,'session_changed'); notice.focus(); return;
+      }
+      Api.usuario.validarContexto(result.context);
+      if (result.server_confirmed) {
+        notice.textContent = 'Sesión cerrada en este navegador.';
+        Api.usuario.validarContexto(result.context);
+        window.location.replace('/login-usuario');
+      } else {
+        notice.textContent = 'La sesión se cerró en este navegador. No pudimos confirmar la revocación en el servidor.';
+        changed(notice.textContent,'session_changed'); notice.focus();
+        var login = document.createElement('a'); login.href = '/login-usuario'; login.textContent = 'Volver a iniciar sesión'; login.style.color = '#FFFFFF'; login.style.textDecoration = 'underline'; notice.append(document.createTextNode(' '),login);
+      }
+    } catch(error) {
+      notice.textContent = error.message || 'No se pudo confirmar el cierre de sesión.';
+      if (['session_changed','session_storage_error'].includes(error.code)) changed(notice.textContent,error.code);
+      notice.focus();
+    } finally { logoutBtn.disabled = false; }
   });
 })();
 </script>

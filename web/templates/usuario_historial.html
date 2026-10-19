@@ -1,12 +1,26 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mi Historial{% endblock %}
+{% block head %}
+<style nonce="{{ request.state.csp_nonce }}">
+#panel-progreso .u-btn-secondary { color:var(--u-text);background:var(--u-bg-card);border:1px solid var(--u-border); }
+#panel-progreso button:focus-visible { outline:3px solid var(--u-accent);outline-offset:2px; }
+#panel-progreso .u-cal-day-kcal { color:var(--u-text); }
+#panel-progreso [aria-pressed="true"] { border-color:var(--u-accent);box-shadow:inset 0 0 0 1px var(--u-accent); }
+</style>
+{% endblock %}
 
 {% block content %}
 
 <div class="u-hero">
-  <h1 class="u-hero-title">Progreso</h1>
-  <p class="u-hero-subtitle">Todos tus planes nutricionales generados</p>
+  <h1 class="u-hero-title">Historial personal</h1>
+  <p class="u-hero-subtitle">Tus planes y los registros de tu diario personal</p>
 </div>
+<section class="u-card" aria-labelledby="history-diary-title">
+  <h2 id="history-diary-title">Mi diario</h2>
+  <p>Consulta tus registros por fecha de Ciudad de México. El calendario pertenece a tu cuenta y no se asigna a un plan por su fecha.</p>
+  <p>Los datos locales de versiones anteriores no están sincronizados. No se importan ni se borran automáticamente.</p>
+  <button type="button" id="history-diary-open" class="u-btn u-btn-primary" disabled>Consultar calendario personal</button>
+</section>
 
 <div id="loading">
   <div class="u-loading">
@@ -49,19 +63,23 @@
       <tbody id="tbody-planes"></tbody>
     </table>
   </div>
-  <p class="u-historial-hint">Abre la fecha de un plan para consultar el calendario. Desplaza la tabla para descargar su PDF.</p>
+  <p class="u-historial-hint">Descarga el PDF de cada plan. El diario se consulta desde su calendario personal.</p>
 </div>
 
 <!-- ── PROGRESS CALENDAR PANEL ────────────────────────────── -->
 <div class="u-panel-overlay" id="panel-progreso-overlay" role="dialog" aria-modal="true" aria-labelledby="progress-title" tabindex="-1" style="display:none;">
   <div class="u-panel u-panel-lg" id="panel-progreso">
     <div class="u-panel-header">
-      <h2 class="u-panel-title" id="progress-title">📅 Progreso Diario</h2>
+      <h2 class="u-panel-title" id="progress-title">Diario personal</h2>
       <button class="u-panel-close" id="panel-progreso-close" aria-label="Cerrar calendario">&times;</button>
     </div>
     <div class="u-panel-body">
       <!-- Plan info -->
-      <div class="u-prog-plan-info" id="prog-plan-info"></div>
+      <p id="diary-calendar-status" role="status" aria-live="polite" tabindex="-1">Consultando diario…</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;">
+        <button type="button" id="history-diary-today" class="u-btn u-btn-secondary">Consultar hoy</button>
+        <button type="button" id="history-diary-reload" class="u-btn u-btn-secondary">Volver a consultar este mes</button>
+      </div>
       <!-- Calendar nav -->
       <div class="u-cal-nav">
         <button class="u-cal-nav-btn" id="cal-prev" aria-label="Mes anterior">‹</button>
@@ -80,7 +98,7 @@
       <!-- Warning message -->
       <div class="u-prog-warning" id="prog-warning">
         <span class="u-prog-warning-icon">⚠️</span>
-        <p>Para obtener un progreso más específico día a día, recuerda registrar tus <strong>alimentos seleccionados</strong> y <strong>litros de agua</strong> desde el Dashboard cada día.</p>
+        <p>El calendario muestra sólo registros del servidor. Registrar una selección y marcarla completada son acciones distintas. Un plan nuevo no modifica el consumo anterior.</p>
       </div>
     </div>
   </div>
@@ -91,6 +109,7 @@
 {% block scripts %}
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-diario.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 
@@ -111,10 +130,11 @@
   }
 
   var allPlanes = [];
+  var diario = null;
   var personal = PersonalPlanOperation.create({onInvalidated: function(error) {
-    allPlanes = []; currentPlan = null;
+    allPlanes = [];
+    if (diario) diario.invalidate();
     document.getElementById('tbody-planes').replaceChildren();
-    document.getElementById('prog-plan-info').replaceChildren();
     document.getElementById('day-detail').replaceChildren();
     document.getElementById('cal-days').replaceChildren();
     document.getElementById('panel-progreso-overlay').style.display = 'none';
@@ -130,23 +150,23 @@
 
   try {
     await personal.start();
+    diario = PersonalDiary.mountHistory({personal:personal});
+    await diario.bootstrap();
+    if (!personal.active) return;
     var data = await personal.read(function(context) { return Api.usuario.historial(context); });
     document.getElementById('loading').style.display = 'none';
     if (!data || !Array.isArray(data.planes)) throw new Error('El servidor devolvió un historial incompleto.');
     if (data.planes.length === 0) {
       document.getElementById('empty-state').style.display = 'block';
-      return;
     }
     allPlanes = data.planes;
     var tbody = document.getElementById('tbody-planes');
     data.planes.forEach(function(p, i) {
-      var fecha = p.fecha ? new Date(p.fecha).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+      var fecha = p.fecha ? new Date(p.fecha).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric', timeZone:'America/Mexico_City' }) : '—';
       var tr = document.createElement('tr');
-      tr.className = 'u-clickable-row';
-      tr.dataset.planIdx = i;
       tr.innerHTML =
         '<td>' + (data.planes.length - i) + '</td>' +
-        '<td><button type="button" class="u-history-open" aria-label="Abrir calendario del plan del ' + esc(fecha) + '">' + esc(fecha) + '</button></td>' +
+        '<td>' + esc(fecha) + '</td>' +
         '<td>' + Math.round(p.kcal_objetivo || 0) + ' kcal</td>' +
         '<td>' + Math.round(p.proteina_g || 0) + 'g</td>' +
         '<td>' + Math.round(p.carbs_g || 0) + 'g</td>' +
@@ -155,7 +175,7 @@
         '<td>' + (p.tiene_pdf ? '<button class="u-pdf-btn" data-plan-id="' + parseInt(p.id) + '" aria-label="Descargar PDF del plan del ' + esc(fecha) + '">📥</button>' : '—') + '</td>';
       tbody.appendChild(tr);
     });
-    document.getElementById('historial-list').style.display = 'block';
+    document.getElementById('historial-list').style.display = data.planes.length ? 'block' : 'none';
 
     // Delegated event listener for PDF buttons and row clicks
     tbody.addEventListener('click', function(e) {
@@ -167,11 +187,7 @@
         if (planId) descargarPDF(Number(planId), btn);
         return;
       }
-      var row = e.target.closest('.u-clickable-row');
-      if (row) {
-        var idx = parseInt(row.dataset.planIdx, 10);
-        openProgressPanel(allPlanes[idx]);
-      }
+
     });
 
   } catch(e) {
@@ -192,192 +208,6 @@
     } finally { if (personal.active) button.disabled = false; }
   }
 
-  /* ══════════════════════════════════════════════════════════
-     PROGRESS CALENDAR PANEL
-     ══════════════════════════════════════════════════════════ */
-  var progresoOverlay = document.getElementById('panel-progreso-overlay');
-  var calDays = document.getElementById('cal-days');
-  var calMonthLabel = document.getElementById('cal-month-label');
-  var dayDetail = document.getElementById('day-detail');
-  var currentPlan = null;
-  var calYear, calMonth; // 0-indexed month
-
-  var MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-  function closeProgressPanel() {
-    progresoOverlay.style.display = 'none';
-    DialogFocus.close(progresoOverlay);
-  }
-  document.getElementById('panel-progreso-close').addEventListener('click', closeProgressPanel);
-  progresoOverlay.addEventListener('click', function(e) {
-    if (e.target === progresoOverlay) closeProgressPanel();
-  });
-  document.getElementById('cal-prev').addEventListener('click', function() {
-    calMonth--;
-    if (calMonth < 0) { calMonth = 11; calYear--; }
-    renderCalendar();
-  });
-  document.getElementById('cal-next').addEventListener('click', function() {
-    calMonth++;
-    if (calMonth > 11) { calMonth = 0; calYear++; }
-    renderCalendar();
-  });
-
-  function getDailyData(dateStr) {
-    try {
-      var raw = localStorage.getItem('mb_daily_' + dateStr);
-      if (raw) return JSON.parse(raw);
-    } catch(e) {}
-    return null;
-  }
-
-  function openProgressPanel(plan) {
-    try { personal.check(); } catch { return; }
-    currentPlan = plan;
-    var planDate = plan.fecha ? new Date(plan.fecha) : new Date();
-
-    // Show plan info
-    var fecha = planDate.toLocaleDateString('es-MX', { day:'2-digit', month:'long', year:'numeric' });
-    document.getElementById('prog-plan-info').innerHTML =
-      '<div class="u-prog-plan-badge">Plan generado: ' + esc(fecha) + '</div>' +
-      '<div class="u-prog-plan-macros">' +
-        '<span>🔥 ' + Math.round(plan.kcal_objetivo || 0) + ' kcal</span>' +
-        '<span>🥩 ' + Math.round(plan.proteina_g || 0) + 'g P</span>' +
-        '<span>🍞 ' + Math.round(plan.carbs_g || 0) + 'g C</span>' +
-        '<span>🥑 ' + Math.round(plan.grasa_g || 0) + 'g G</span>' +
-      '</div>';
-
-    // Always open on today's month so the user sees their current progress
-    var now = new Date();
-    calYear = now.getFullYear();
-    calMonth = now.getMonth();
-
-    dayDetail.style.display = 'none';
-    renderCalendar();
-    progresoOverlay.style.display = 'flex';
-    DialogFocus.open(progresoOverlay, closeProgressPanel, document.getElementById('panel-progreso-close'));
-
-    // Auto-select and show today
-    var todayStr = now.toISOString().slice(0, 10);
-    var todayCell = calDays.querySelector('[data-date="' + todayStr + '"]');
-    if (todayCell) {
-      todayCell.classList.add('u-cal-active');
-      showDayDetail(todayStr);
-      todayCell.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }
-
-  function renderCalendar() {
-    try { personal.check(); } catch { return; }
-    calMonthLabel.textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
-
-    var firstDay = new Date(calYear, calMonth, 1);
-    var lastDay = new Date(calYear, calMonth + 1, 0);
-    var startDow = (firstDay.getDay() + 6) % 7; // Monday=0
-    var daysInMonth = lastDay.getDate();
-    var today = new Date().toISOString().slice(0, 10);
-
-    var html = '';
-    // Empty cells before first day
-    for (var e = 0; e < startDow; e++) {
-      html += '<div class="u-cal-day u-cal-empty"></div>';
-    }
-
-    for (var d = 1; d <= daysInMonth; d++) {
-      var dateStr = calYear + '-' + String(calMonth + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-      var daily = getDailyData(dateStr);
-      var isToday = dateStr === today;
-      var hasData = daily && (daily.kcal > 0 || daily.water > 0);
-
-      var cls = 'u-cal-day';
-      if (isToday) cls += ' u-cal-today';
-      if (hasData) cls += ' u-cal-has-data';
-
-      var preview = '';
-      if (hasData) {
-        preview = '<span class="u-cal-day-kcal">' + daily.kcal + '</span>';
-      }
-
-      html += '<button type="button" class="' + cls + '" data-date="' + dateStr + '" aria-label="Consultar ' + dateStr + '">' +
-        '<span class="u-cal-day-num">' + d + '</span>' +
-        preview +
-      '</button>';
-    }
-
-    calDays.innerHTML = html;
-
-    // Bind clicks
-    var dayCells = calDays.querySelectorAll('.u-cal-day:not(.u-cal-empty)');
-    for (var i = 0; i < dayCells.length; i++) {
-      dayCells[i].addEventListener('click', function() {
-        // Remove active from all
-        var all = calDays.querySelectorAll('.u-cal-day');
-        for (var a = 0; a < all.length; a++) all[a].classList.remove('u-cal-active');
-        this.classList.add('u-cal-active');
-        showDayDetail(this.dataset.date);
-      });
-    }
-  }
-
-  function showDayDetail(dateStr) {
-    try { personal.check(); } catch { return; }
-    var daily = getDailyData(dateStr);
-    var dateObj = new Date(dateStr + 'T12:00:00');
-    var fechaLabel = dateObj.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long' });
-    fechaLabel = fechaLabel.charAt(0).toUpperCase() + fechaLabel.slice(1);
-
-    var html = '<h4 class="u-day-detail-title">📅 ' + esc(fechaLabel) + '</h4>';
-
-    if (!daily || (daily.kcal === 0 && daily.water === 0)) {
-      html += '<div class="u-day-empty">' +
-        '<div class="u-day-macros-row">' +
-          '<div class="u-day-macro"><span class="u-day-macro-val u-day-zero">0</span><span class="u-day-macro-lbl">kcal</span></div>' +
-          '<div class="u-day-macro"><span class="u-day-macro-val u-day-zero">0g</span><span class="u-day-macro-lbl">Proteína</span></div>' +
-          '<div class="u-day-macro"><span class="u-day-macro-val u-day-zero">0g</span><span class="u-day-macro-lbl">Carbos</span></div>' +
-          '<div class="u-day-macro"><span class="u-day-macro-val u-day-zero">0g</span><span class="u-day-macro-lbl">Grasas</span></div>' +
-          '<div class="u-day-macro"><span class="u-day-macro-val u-day-zero">0L</span><span class="u-day-macro-lbl">Agua</span></div>' +
-        '</div>' +
-        '<p class="u-day-no-data">Sin datos registrados este día</p>' +
-      '</div>';
-    } else {
-      html += '<div class="u-day-macros-row">' +
-        '<div class="u-day-macro"><span class="u-day-macro-val u-day-kcal">' + (daily.kcal || 0) + '</span><span class="u-day-macro-lbl">kcal</span></div>' +
-        '<div class="u-day-macro"><span class="u-day-macro-val">' + (daily.prot || 0) + 'g</span><span class="u-day-macro-lbl">Proteína</span></div>' +
-        '<div class="u-day-macro"><span class="u-day-macro-val">' + (daily.carb || 0) + 'g</span><span class="u-day-macro-lbl">Carbos</span></div>' +
-        '<div class="u-day-macro"><span class="u-day-macro-val">' + (daily.fat || 0) + 'g</span><span class="u-day-macro-lbl">Grasas</span></div>' +
-        '<div class="u-day-macro"><span class="u-day-macro-val u-day-water">' + (daily.water || 0).toFixed(1) + 'L</span><span class="u-day-macro-lbl">Agua</span></div>' +
-      '</div>';
-    }
-
-    // Show saved food selections if available
-    if (daily && daily.selections && Object.keys(daily.selections).length > 0) {
-      var MEAL_NAMES_H = { desayuno: '🌅 Desayuno', almuerzo: '🥗 Almuerzo', comida: '🍖 Comida', cena: '🌙 Cena' };
-      var MACRO_ICONS_H = { proteinas: '🥩', carbohidratos: '🍞', grasas: '🥑' };
-      var selHtml = '<div class="u-day-selections"><h5 class="u-day-sel-title">🍽️ Alimentos registrados</h5>';
-      var mealOrder = ['desayuno', 'almuerzo', 'comida', 'cena'];
-      var macroOrder = ['proteinas', 'carbohidratos', 'grasas'];
-      var hasAnyMeal = false;
-      for (var mi = 0; mi < mealOrder.length; mi++) {
-        var mealKey = mealOrder[mi];
-        var mSel = daily.selections[mealKey];
-        if (!mSel || !Object.keys(mSel).length) continue;
-        hasAnyMeal = true;
-        selHtml += '<div class="u-day-meal"><span class="u-day-meal-name">' + (MEAL_NAMES_H[mealKey] || mealKey) + '</span><ul class="u-day-meal-items">';
-        for (var mj = 0; mj < macroOrder.length; mj++) {
-          var mk = macroOrder[mj];
-          if (mSel[mk]) {
-            selHtml += '<li>' + (MACRO_ICONS_H[mk] || '') + ' ' + esc(mSel[mk]) + '</li>';
-          }
-        }
-        selHtml += '</ul></div>';
-      }
-      selHtml += '</div>';
-      if (hasAnyMeal) html += selHtml;
-    }
-
-    dayDetail.innerHTML = html;
-    dayDetail.style.display = 'block';
-  }
 
 })();
 </script>

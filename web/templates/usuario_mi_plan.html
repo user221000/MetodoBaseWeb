@@ -1,7 +1,17 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mi Plan{% endblock %}
 {% block head %}
-<style nonce="{{ request.state.csp_nonce }}">.u-veg-chip { color: var(--u-green); }</style>
+<style nonce="{{ request.state.csp_nonce }}">
+.u-veg-chip { color: var(--u-green); }
+#diary-section .u-btn-secondary { color:var(--u-text);background:var(--u-bg-card);border:1px solid var(--u-border); }
+.u-meal-check-input { display:inline-block;width:18px;height:18px;accent-color:var(--u-accent); }
+.u-meal-check-label { display:inline-flex;align-items:center;gap:4px; }
+#meal-tabs .u-meal-tab { color:var(--u-text); }
+#meal-selector-content fieldset { min-width:0; }
+#meal-selector-content .u-sel-option input[type="radio"] { position:static;opacity:1;pointer-events:auto;flex-shrink:0;width:18px;height:18px;accent-color:var(--u-accent); }
+#meal-selector-content .u-sel-option span { min-width:0;overflow-wrap:anywhere; }
+#diary-section input:focus-visible,#diary-section button:focus-visible,#panel-agua input:focus-visible,#panel-comidas input:focus-visible,#panel-comidas button:focus-visible,.u-meal-check-input:focus-visible + .u-meal-check-pill { outline:3px solid var(--u-accent);outline-offset:3px; }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -12,6 +22,26 @@
   <p class="u-hero-subtitle">Tu nutrición, ajustada a tu cuerpo y tus metas.</p>
 </div>
 
+<section class="u-card" id="diary-section" aria-labelledby="diary-title">
+  <h2 id="diary-title">Mi diario personal</h2>
+  <p>Fecha del servidor en Ciudad de México. Registrar consumo y marcar una comida completada son acciones distintas.</p>
+  <p id="diary-legacy-notice">Los datos locales de versiones anteriores no están sincronizados. No se importan ni se borran automáticamente.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+    <label for="diary-date">Día del registro</label>
+    <input type="date" id="diary-date" class="u-input" disabled />
+    <button type="button" id="diary-today" class="u-btn u-btn-secondary" disabled>Consultar hoy</button>
+    <button type="button" id="diary-reload" class="u-btn u-btn-secondary">Volver a consultar</button>
+  </div>
+  <p id="diary-status" role="status" aria-live="polite" tabindex="-1">Consultando diario…</p>
+  <p id="diary-draft-summary"></p>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;">
+    <button type="button" id="diary-retry" class="u-btn u-btn-primary" hidden>Registrar mi borrador sobre estos datos</button>
+    <button type="button" id="diary-discard" class="u-btn u-btn-secondary" hidden>Descartar borrador</button>
+  </div>
+  <p id="diary-water-current"></p>
+  <div id="diary-snapshots"></div>
+</section>
+
 <!-- ── 2. TWO-COLUMN LAYOUT ───────────────────────────────── -->
 <div class="u-grid-2-1" id="macros-section" style="display:none;">
 
@@ -19,14 +49,15 @@
   <div class="u-card">
     <div class="u-goal-card">
       <div class="u-goal-card-left">
-        <div class="u-goal-card-badge">⚡ Meta diaria</div>
-        <div class="u-goal-card-pct" id="goal-pct-label">Vas al 0% de tu meta diaria</div>
+        <div class="u-goal-card-badge">Consumo registrado</div>
+        <div class="u-goal-card-pct" id="goal-pct-label">Sin consultar</div>
         <div class="u-goal-progress">
           <div class="u-goal-progress-bar" id="goal-progress-bar" style="width:0%;"></div>
         </div>
         <div class="u-goal-card-numbers">
-          <span id="goal-current">0</span> / <span id="goal-target">0</span> kcal
+          <span id="goal-current">—</span> kcal registradas
         </div>
+        <p>Marca una comida como completada después de registrar su selección.</p>
         <div class="u-meal-checks">
           <label class="u-meal-check-label" for="chk-des">
             <input type="checkbox" class="u-meal-check-input" id="chk-des">
@@ -52,8 +83,8 @@
           <circle class="u-ring-fg" id="goal-ring" cx="60" cy="60" r="52" stroke-width="10" fill="none"
                   stroke-dasharray="326.73" stroke-dashoffset="326.73"
                   stroke-linecap="round" transform="rotate(-90 60 60)"/>
-          <text x="60" y="56" text-anchor="middle" class="u-ring-pct" id="goal-ring-pct">0%</text>
-          <text x="60" y="72" text-anchor="middle" class="u-ring-label">kcal</text>
+          <text x="60" y="56" text-anchor="middle" class="u-ring-pct" id="goal-ring-pct">—</text>
+          <text x="60" y="72" text-anchor="middle" class="u-ring-label">completadas</text>
         </svg>
       </div>
     </div>
@@ -115,7 +146,7 @@
     <span class="u-quick-btn-icon">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3zM12 8v8m-4-4h8"/></svg>
     </span>
-    <span class="u-quick-btn-label">Comidas</span>
+    <span class="u-quick-btn-label">Registrar comida</span>
   </button>
   <button class="u-quick-btn" id="btn-agua" title="Hidratación">
     <span class="u-quick-btn-icon">
@@ -165,7 +196,7 @@
 
 <!-- ── 5. CONTEXT BAR ─────────────────────────────────────── -->
 <div class="u-context-bar" id="context-bar" style="display:none;">
-  <span class="u-context-tag">🔥 Plan activo para ti</span>
+  <span class="u-context-tag">Plan mostrado</span>
   <span class="u-context-tag">🎯 Meta: <strong id="lbl-objetivo">—</strong></span>
   <span class="u-context-tag">📅 Actualizado: <strong id="lbl-fecha-plan">—</strong></span>
 </div>
@@ -173,7 +204,7 @@
 <!-- ── 6. SUMMARY SECTION ─────────────────────────────────── -->
 <div id="summary-section" style="display:none;">
   <div class="u-section-header">
-    <h2 class="u-section-title">📊 Tu meta de hoy</h2>
+    <h2 class="u-section-title">📊 Referencia del plan mostrado</h2>
   </div>
   <div class="u-grid-4">
     <div class="u-kpi-card">
@@ -206,7 +237,7 @@
 <!-- ── 7. MEALS SECTION (opciones) ─────────────────────────── -->
 <div id="plan-comidas" style="display:none;">
   <div class="u-section-header">
-    <h2 class="u-section-title">🍽️ Tu menú para hoy</h2>
+    <h2 class="u-section-title">🍽️ Opciones del plan mostrado</h2>
     <p class="u-section-subtitle">Elige <strong>una opción</strong> de cada grupo por comida</p>
   </div>
   <div id="meals-container" style="display:grid; gap:20px;"></div>
@@ -278,68 +309,40 @@
 </div>
 
 <!-- ── WATER TRACKING PANEL ────────────────────────────────── -->
-<div class="u-panel-overlay" id="panel-agua-overlay" style="display:none;">
+<div class="u-panel-overlay" id="panel-agua-overlay" role="dialog" aria-modal="true" aria-labelledby="water-title" tabindex="-1" style="display:none;">
   <div class="u-panel" id="panel-agua">
     <div class="u-panel-header">
-      <h3 class="u-panel-title">💧 Registro de Agua</h3>
-      <button class="u-panel-close" id="panel-agua-close">&times;</button>
+      <h2 class="u-panel-title" id="water-title">Registrar agua</h2>
+      <button class="u-panel-close" id="panel-agua-close" aria-label="Cerrar registro de agua">&times;</button>
     </div>
     <div class="u-panel-body">
-      <p class="u-panel-question">¿Cuántos litros de agua llevas hoy?</p>
+      <label for="water-input" class="u-panel-question">Total de agua para el día seleccionado (mL)</label>
       <div class="u-water-input-row">
-        <input type="number" id="water-input" class="u-water-input" min="0" max="20" step="0.1" placeholder="0.0" />
-        <span class="u-water-unit">litros</span>
+        <input type="number" id="water-input" class="u-water-input" min="0" max="20000" step="1" placeholder="0" aria-describedby="water-status" />
+        <span class="u-water-unit">mL</span>
       </div>
-      <div class="u-water-visual" id="water-visual">
-        <div class="u-water-bar-track">
-          <div class="u-water-bar-fill" id="water-bar-fill" style="width:0%"></div>
-        </div>
-        <div class="u-water-bar-labels">
-          <span>0 L</span>
-          <span>Meta: 3 L</span>
-        </div>
-      </div>
-      <div class="u-water-status" id="water-status"></div>
-      <button class="u-btn u-btn-primary" id="btn-water-save" style="width:100%;margin-top:16px;">Guardar 💧</button>
+      <p id="water-saved-value"></p>
+      <p class="u-water-status" id="water-status" data-diary-feedback role="status" aria-live="polite" tabindex="-1"></p>
+      <button class="u-btn u-btn-primary" id="btn-water-save" style="width:100%;margin-top:16px;">Registrar agua</button>
     </div>
   </div>
 </div>
 
 <!-- ── MEAL SELECTOR PANEL ─────────────────────────────────── -->
-<div class="u-panel-overlay" id="panel-comidas-overlay" style="display:none;">
+<div class="u-panel-overlay" id="panel-comidas-overlay" role="dialog" aria-modal="true" aria-labelledby="meal-registration-title" tabindex="-1" style="display:none;">
   <div class="u-panel u-panel-lg" id="panel-comidas">
     <div class="u-panel-header">
-      <h3 class="u-panel-title">🍽️ Arma tu Comida</h3>
-      <button class="u-panel-close" id="panel-comidas-close">&times;</button>
+      <h2 class="u-panel-title" id="meal-registration-title">Registrar una comida</h2>
+      <button class="u-panel-close" id="panel-comidas-close" aria-label="Cerrar selección de comida">&times;</button>
     </div>
     <div class="u-panel-body">
-      <!-- Meal tabs -->
+      <p id="diary-source-label"></p>
+      <p>Las opciones son un borrador. Registrar sustituye sólo la comida elegida y desmarca su completado.</p>
       <div class="u-meal-tabs" id="meal-tabs"></div>
       <!-- Options selector per macro -->
       <div id="meal-selector-content"></div>
-      <!-- Selection summary -->
-      <div class="u-selection-summary" id="selection-summary" style="display:none;">
-        <h4 class="u-summary-title">📊 Calorías totales de esta selección</h4>
-        <div class="u-summary-grid">
-          <div class="u-summary-item u-summary-kcal">
-            <span class="u-summary-value" id="sel-kcal">0</span>
-            <span class="u-summary-label">kcal</span>
-          </div>
-          <div class="u-summary-item">
-            <span class="u-summary-value" id="sel-prot">0g</span>
-            <span class="u-summary-label">Proteína</span>
-          </div>
-          <div class="u-summary-item">
-            <span class="u-summary-value" id="sel-carb">0g</span>
-            <span class="u-summary-label">Carbohidratos</span>
-          </div>
-          <div class="u-summary-item">
-            <span class="u-summary-value" id="sel-fat">0g</span>
-            <span class="u-summary-label">Grasas</span>
-          </div>
-        </div>
-      </div>
-      <button class="u-btn u-btn-primary" id="btn-comidas-save" style="width:100%;margin-top:16px;">Guardar selección del día ✅</button>
+      <p id="diary-meal-status" data-diary-feedback role="status" aria-live="polite" tabindex="-1"></p>
+      <button class="u-btn u-btn-primary" id="btn-comidas-save" style="width:100%;margin-top:16px;">Registrar esta comida</button>
     </div>
   </div>
 </div>
@@ -387,7 +390,9 @@
 {% endblock %}
 
 {% block scripts %}
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-diario.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 
@@ -438,16 +443,7 @@
     el.setAttribute('stroke-dashoffset', (circumference * (1 - clamped / 100)).toFixed(2));
   }
 
-  /* ── Meal selections (initialized early so renderPlan can safely call computeDailyTotals) ── */
-  var TODAY_KEY = new Date().toISOString().slice(0, 10);
-  var MEALS_STORAGE_KEY = 'mb_meals_' + TODAY_KEY;
-  var MEAL_DONE_KEY    = 'mb_meals_done_' + TODAY_KEY;
-  var MEAL_DONE_IDS    = ['chk-des', 'chk-alm', 'chk-com', 'chk-cen'];
-  var mealSelections = {};
-  try {
-    var _savedMeals = JSON.parse(localStorage.getItem(MEALS_STORAGE_KEY) || '{}');
-    if (_savedMeals && typeof _savedMeals === 'object') mealSelections = _savedMeals;
-  } catch(e) {}
+  var diario = null;
 
   /* ── Load profile ── */
   var perfil = null;
@@ -457,7 +453,8 @@
   }, onInvalidated: clearPersonalView});
 
   function clearPersonalView() {
-    perfil = null; ultimoPlan = null; mealSelections = {};
+    perfil = null; ultimoPlan = null;
+    if (diario) diario.invalidate();
     excluirExcluidos = []; excluirCatalogoLoaded = false;
     ['macros-section','quick-actions','context-bar','summary-section','plan-comidas','recomendaciones-section','empty-plan','onboarding-card'].forEach(function(id) {
       var element = document.getElementById(id); if (element) element.style.display = 'none';
@@ -509,6 +506,9 @@
     var res = await personal.start();
     document.getElementById('saludo').textContent = '\u00a1Hola, ' + (res.nombre ? res.nombre.split(' ')[0] : 'bienvenido') + '!';
     perfil = res;
+    diario = PersonalDiary.mountPlan({personal:personal,getPlan:function() { return ultimoPlan; }});
+    await diario.bootstrap();
+    if (!personal.active) return;
   } catch(e) {
     return;
   }
@@ -570,26 +570,9 @@
     document.getElementById('kpi-carbs').textContent = carbG + 'g';
     document.getElementById('kpi-grasa').textContent = fatG + 'g';
     document.getElementById('lbl-objetivo').textContent = OBJETIVOS[perfil.objetivo] || perfil.objetivo || '\u2014';
-    document.getElementById('lbl-fecha-plan').textContent = meta.fecha ? new Date(meta.fecha).toLocaleDateString('es-MX') : 'Hoy';
+    document.getElementById('lbl-fecha-plan').textContent = meta.fecha ? new Date(meta.fecha).toLocaleDateString('es-MX',{timeZone:'America/Mexico_City'}) : 'Hoy';
 
-    /* Calculate actual kcal from meals */
-    var totalKcalReal = 0;
     var comidas = ['desayuno', 'almuerzo', 'comida', 'cena'];
-    for (var i = 0; i < comidas.length; i++) {
-      var c = comidas[i];
-      if (plan[c]) totalKcalReal += Math.round(plan[c].kcal_real || plan[c].kcal_objetivo || 0);
-    }
-    /* Use meta kcal_real if available (more accurate for options plans) */
-    if (meta.kcal_real && meta.kcal_real > 0) totalKcalReal = Math.round(meta.kcal_real);
-
-    /* Goal card progress */
-    var pct = kcalTarget > 0 ? Math.min(Math.round((totalKcalReal / kcalTarget) * 100), 100) : 0;
-    document.getElementById('goal-pct-label').textContent = 'Vas al ' + pct + '% de tu meta diaria';
-    document.getElementById('goal-progress-bar').style.width = pct + '%';
-    document.getElementById('goal-current').textContent = totalKcalReal.toLocaleString();
-    document.getElementById('goal-target').textContent = kcalTarget.toLocaleString();
-    document.getElementById('goal-ring-pct').textContent = pct + '%';
-    updateRing('goal-ring', pct);
 
     /* Tip card macro rings */
     var totalMacroG = protG + carbG + fatG;
@@ -698,28 +681,7 @@
     document.getElementById('recomendaciones-section').style.display = 'block';
     document.getElementById('empty-plan').style.display = 'none';
 
-    /* Update goal card from today's saved selections */
-    updateGoalFromSelections(kcalTarget);
-    /* Apply meal completion checkboxes (overrides ring/bar if any checked) */
-    loadMealChecks();
-  }
-
-  /* ── Update goal card with real selected macros ── */
-  function updateGoalFromSelections(kcalTarget) {
-    if (!ultimoPlan || !ultimoPlan.plan) return;
-    if (!kcalTarget) {
-      kcalTarget = ultimoPlan.meta ? (ultimoPlan.meta.kcal_objetivo || 0) : 0;
-    }
-    var totals = computeDailyTotals();
-    if (totals.kcal <= 0) return; // no selections yet
-
-    var pct = kcalTarget > 0 ? Math.min(Math.round((totals.kcal / kcalTarget) * 100), 150) : 0;
-    document.getElementById('goal-pct-label').textContent = 'Vas al ' + Math.min(pct, 100) + '% de tu meta diaria';
-    document.getElementById('goal-progress-bar').style.width = Math.min(pct, 100) + '%';
-    document.getElementById('goal-current').textContent = totals.kcal.toLocaleString();
-    document.getElementById('goal-target').textContent = kcalTarget.toLocaleString();
-    document.getElementById('goal-ring-pct').textContent = Math.min(pct, 100) + '%';
-    updateRing('goal-ring', Math.min(pct, 100));
+    if (diario) diario.syncPlan();
   }
 
   /* ── Generate plan ── */
@@ -742,354 +704,6 @@
     } catch (error) {
       if (personal.active) showToast(error.message, 'error');
     } finally { if (personal.active) button.disabled = false; }
-  });
-
-  /* ══════════════════════════════════════════════════════════
-     WATER TRACKING PANEL
-     ══════════════════════════════════════════════════════════ */
-  var WATER_KEY = 'mb_water_' + TODAY_KEY;
-  var waterOverlay = document.getElementById('panel-agua-overlay');
-  var waterInput = document.getElementById('water-input');
-  var waterBarFill = document.getElementById('water-bar-fill');
-  var waterStatus = document.getElementById('water-status');
-  var WATER_GOAL = 3;
-
-  // Load saved water
-  var savedWater = parseFloat(localStorage.getItem(WATER_KEY) || '0');
-  if (savedWater > 0 && waterInput) waterInput.value = savedWater;
-  updateWaterVisual(savedWater);
-
-  function updateWaterVisual(liters) {
-    var pct = Math.min(Math.round((liters / WATER_GOAL) * 100), 100);
-    waterBarFill.style.width = pct + '%';
-    if (liters <= 0) {
-      waterStatus.textContent = '';
-    } else if (liters < 1) {
-      waterStatus.innerHTML = '😐 Llevas <strong>' + liters.toFixed(1) + 'L</strong> — ¡necesitas más agua!';
-    } else if (liters < 2) {
-      waterStatus.innerHTML = '🙂 Llevas <strong>' + liters.toFixed(1) + 'L</strong> — ¡vas bien, sigue así!';
-    } else if (liters < WATER_GOAL) {
-      waterStatus.innerHTML = '😊 Llevas <strong>' + liters.toFixed(1) + 'L</strong> — ¡casi llegas a tu meta!';
-    } else {
-      waterStatus.innerHTML = '🎉 ¡<strong>' + liters.toFixed(1) + 'L</strong>! ¡Meta cumplida! Excelente hidratación.';
-    }
-  }
-
-  document.getElementById('btn-agua').addEventListener('click', function() {
-    waterOverlay.style.display = 'flex';
-    waterInput.focus();
-  });
-
-  document.getElementById('panel-agua-close').addEventListener('click', function() {
-    waterOverlay.style.display = 'none';
-  });
-
-  waterOverlay.addEventListener('click', function(e) {
-    if (e.target === waterOverlay) waterOverlay.style.display = 'none';
-  });
-
-  waterInput.addEventListener('input', function() {
-    var val = parseFloat(waterInput.value);
-    if (isNaN(val) || val < 0) val = 0;
-    if (val > 20) { val = 20; waterInput.value = 20; }
-    updateWaterVisual(val);
-  });
-
-  document.getElementById('btn-water-save').addEventListener('click', function() {
-    var val = parseFloat(waterInput.value);
-    if (isNaN(val) || val < 0) val = 0;
-    localStorage.setItem(WATER_KEY, val.toString());
-    updateWaterVisual(val);
-    // Also update daily summary with water
-    var existing = {};
-    try { existing = JSON.parse(localStorage.getItem('mb_daily_' + TODAY_KEY) || '{}'); } catch(e) {}
-    existing.water = val;
-    localStorage.setItem('mb_daily_' + TODAY_KEY, JSON.stringify(existing));
-    waterOverlay.style.display = 'none';
-    showToast('💧 Registro de agua guardado: ' + val.toFixed(1) + 'L');
-  });
-
-  /* ══════════════════════════════════════════════════════════
-     MEAL SELECTOR PANEL
-     ══════════════════════════════════════════════════════════ */
-  var comidasOverlay = document.getElementById('panel-comidas-overlay');
-  var mealTabsContainer = document.getElementById('meal-tabs');
-  var mealSelectorContent = document.getElementById('meal-selector-content');
-  var selectionSummary = document.getElementById('selection-summary');
-  var activeMeal = null;
-  // mealSelections already initialized at top of IIFE before renderPlan() is called
-
-  document.getElementById('btn-comidas').addEventListener('click', function() {
-    if (!ultimoPlan || !ultimoPlan.plan) {
-      showToast('❌ Primero genera un plan para usar esta función', 'error');
-      return;
-    }
-    buildMealTabs();
-    comidasOverlay.style.display = 'flex';
-  });
-
-  document.getElementById('panel-comidas-close').addEventListener('click', function() {
-    comidasOverlay.style.display = 'none';
-  });
-
-  comidasOverlay.addEventListener('click', function(e) {
-    if (e.target === comidasOverlay) comidasOverlay.style.display = 'none';
-  });
-
-  function buildMealTabs() {
-    var plan = ultimoPlan.plan;
-    var comidas = ['desayuno', 'almuerzo', 'comida', 'cena'];
-    mealTabsContainer.innerHTML = '';
-    var first = null;
-
-    for (var i = 0; i < comidas.length; i++) {
-      var c = comidas[i];
-      if (!plan[c]) continue;
-      if (!first) first = c;
-      var btn = document.createElement('button');
-      btn.className = 'u-meal-tab' + (c === first ? ' active' : '');
-      btn.textContent = (MEAL_ICONS[c] || '') + ' ' + (MEAL_LABELS[c] || c);
-      btn.dataset.meal = c;
-      btn.addEventListener('click', function() {
-        var allTabs = mealTabsContainer.querySelectorAll('.u-meal-tab');
-        for (var t = 0; t < allTabs.length; t++) allTabs[t].classList.remove('active');
-        this.classList.add('active');
-        renderMealSelector(this.dataset.meal);
-      });
-      mealTabsContainer.appendChild(btn);
-    }
-
-    if (first) renderMealSelector(first);
-  }
-
-  function renderMealSelector(mealKey) {
-    activeMeal = mealKey;
-    var mealData = ultimoPlan.plan[mealKey];
-    if (!mealData) { mealSelectorContent.innerHTML = ''; return; }
-
-    var isOpciones = mealData.tipo_plan === 'opciones' || mealData.proteinas;
-
-    if (!isOpciones) {
-      mealSelectorContent.innerHTML = '<p style="color:var(--u-text-muted);padding:20px;">Este plan no tiene opciones seleccionables.</p>';
-      selectionSummary.style.display = 'none';
-      return;
-    }
-
-    if (!mealSelections[mealKey]) {
-      mealSelections[mealKey] = { proteinas: -1, carbohidratos: -1, grasas: -1 };
-    }
-
-    var MACRO_LABELS_SEL = { proteinas: '🥩 Proteína', carbohidratos: '🍞 Carbohidratos', grasas: '🥑 Grasas' };
-    var MACRO_COLORS = { proteinas: 'var(--u-accent)', carbohidratos: 'var(--u-green)', grasas: 'var(--u-blue)' };
-    var macros = ['proteinas', 'carbohidratos', 'grasas'];
-    var html = '';
-
-    for (var m = 0; m < macros.length; m++) {
-      var macroKey = macros[m];
-      var macroData = mealData[macroKey];
-      if (!macroData || !macroData.opciones || !macroData.opciones.length) continue;
-
-      var cantObj = Math.round(macroData.cantidad_objetivo || 0);
-      html += '<div class="u-sel-macro-group">';
-      html += '<div class="u-sel-macro-header">' +
-        '<span class="u-sel-macro-label">' + MACRO_LABELS_SEL[macroKey] + '</span>' +
-        '<span class="u-sel-macro-target">' + cantObj + 'g objetivo</span>' +
-      '</div>';
-
-      for (var o = 0; o < macroData.opciones.length; o++) {
-        var op = macroData.opciones[o];
-        var nombre = (op.alimento || '').replace(/_/g, ' ');
-        nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
-        var equiv = op.equivalencia ? ' · ' + esc(op.equivalencia) : '';
-        var isSelected = mealSelections[mealKey][macroKey] === o;
-
-        html += '<label class="u-sel-option' + (isSelected ? ' selected' : '') + '">' +
-          '<input type="radio" name="sel-' + mealKey + '-' + macroKey + '" value="' + o + '"' +
-            (isSelected ? ' checked' : '') +
-            ' data-meal="' + mealKey + '" data-macro="' + macroKey + '" />' +
-          '<span class="u-sel-radio" style="border-color:' + MACRO_COLORS[macroKey] + '"></span>' +
-          '<span class="u-sel-option-body">' +
-            '<span class="u-sel-option-name">' + esc(nombre) + equiv + '</span>' +
-            '<span class="u-sel-option-grams">' + Math.round(op.gramos || 0) + 'g</span>' +
-          '</span>' +
-        '</label>';
-      }
-      html += '</div>';
-    }
-
-    /* Vegetables (info only) */
-    var vegs = mealData.vegetales || [];
-    if (vegs.length) {
-      html += '<div class="u-sel-macro-group">';
-      html += '<div class="u-sel-macro-header">' +
-        '<span class="u-sel-macro-label">🥬 Vegetales (incluidos)</span>' +
-        '<span class="u-sel-macro-target">125g</span>' +
-      '</div>';
-      html += '<div class="u-veg-list" style="padding:0 4px 4px;">';
-      for (var v = 0; v < vegs.length; v++) {
-        var vn = (vegs[v].alimento || '').replace(/_/g, ' ');
-        vn = vn.charAt(0).toUpperCase() + vn.slice(1);
-        html += '<span class="u-veg-chip">' + esc(vn) + ' · ' + Math.round(vegs[v].gramos || 0) + 'g</span>';
-      }
-      html += '</div></div>';
-    }
-
-    mealSelectorContent.innerHTML = html;
-
-    // Bind radio change events
-    var radios = mealSelectorContent.querySelectorAll('input[type="radio"]');
-    for (var r = 0; r < radios.length; r++) {
-      radios[r].addEventListener('change', handleOptionSelect);
-    }
-
-    updateSelectionSummary();
-  }
-
-  function handleOptionSelect(e) {
-    var meal = e.target.dataset.meal;
-    var macro = e.target.dataset.macro;
-    var idx = parseInt(e.target.value, 10);
-    if (!mealSelections[meal]) mealSelections[meal] = { proteinas: -1, carbohidratos: -1, grasas: -1 };
-    mealSelections[meal][macro] = idx;
-
-    // Update visual selected state
-    var groupRadios = mealSelectorContent.querySelectorAll('input[name="' + e.target.name + '"]');
-    for (var i = 0; i < groupRadios.length; i++) {
-      groupRadios[i].closest('.u-sel-option').classList.toggle('selected', groupRadios[i].checked);
-    }
-
-    updateSelectionSummary();
-  }
-
-  function updateSelectionSummary() {
-    if (!activeMeal || !ultimoPlan) return;
-    var sel = mealSelections[activeMeal];
-    if (!sel) return;
-
-    var mealData = ultimoPlan.plan[activeMeal];
-    if (!mealData) return;
-
-    var totalKcal = 0, totalProt = 0, totalCarb = 0, totalFat = 0;
-    var hasAny = false;
-    var macros = ['proteinas', 'carbohidratos', 'grasas'];
-
-    for (var m = 0; m < macros.length; m++) {
-      var macroKey = macros[m];
-      var idx = sel[macroKey];
-      if (idx < 0) continue;
-      hasAny = true;
-      var macroData = mealData[macroKey];
-      if (!macroData || !macroData.opciones || !macroData.opciones[idx]) continue;
-      var op = macroData.opciones[idx];
-      var rm = op.macros || {};
-      totalKcal += rm.kcal || 0;
-      totalProt += rm.proteina || 0;
-      totalCarb += rm.carbs || 0;
-      totalFat += rm.grasa || 0;
-    }
-
-    /* Add vegetable macros (always included) */
-    var vegs = mealData.vegetales || [];
-    for (var v = 0; v < vegs.length; v++) {
-      var vm = vegs[v].macros || {};
-      totalKcal += vm.kcal || 0;
-      totalProt += vm.proteina || 0;
-      totalCarb += vm.carbs || 0;
-      totalFat += vm.grasa || 0;
-    }
-
-    if (hasAny) {
-      selectionSummary.style.display = 'block';
-      document.getElementById('sel-kcal').textContent = Math.round(totalKcal);
-      document.getElementById('sel-prot').textContent = Math.round(totalProt) + 'g';
-      document.getElementById('sel-carb').textContent = Math.round(totalCarb) + 'g';
-      document.getElementById('sel-fat').textContent = Math.round(totalFat) + 'g';
-    } else {
-      selectionSummary.style.display = 'none';
-    }
-  }
-
-  /* ── Save daily meal selections ── */
-  function computeDailyTotals() {
-    if (!ultimoPlan || !ultimoPlan.plan) return { kcal: 0, prot: 0, carb: 0, fat: 0 };
-    var comidas = ['desayuno', 'almuerzo', 'comida', 'cena'];
-    var macros = ['proteinas', 'carbohidratos', 'grasas'];
-    var totKcal = 0, totProt = 0, totCarb = 0, totFat = 0;
-
-    for (var i = 0; i < comidas.length; i++) {
-      var c = comidas[i];
-      var sel = mealSelections[c];
-      var mealData = ultimoPlan.plan[c];
-      if (!sel || !mealData) continue;
-
-      for (var m = 0; m < macros.length; m++) {
-        var macroKey = macros[m];
-        var idx = sel[macroKey];
-        if (idx < 0 || idx === undefined) continue;
-        var macroData = mealData[macroKey];
-        if (!macroData || !macroData.opciones || !macroData.opciones[idx]) continue;
-        var rm = macroData.opciones[idx].macros || {};
-        totKcal += rm.kcal || 0;
-        totProt += rm.proteina || 0;
-        totCarb += rm.carbs || 0;
-        totFat += rm.grasa || 0;
-      }
-
-      /* Add vegetable macros for this meal */
-      var vegs = mealData.vegetales || [];
-      for (var v = 0; v < vegs.length; v++) {
-        var vm = vegs[v].macros || {};
-        totKcal += vm.kcal || 0;
-        totProt += vm.proteina || 0;
-        totCarb += vm.carbs || 0;
-        totFat += vm.grasa || 0;
-      }
-    }
-    return { kcal: Math.round(totKcal), prot: Math.round(totProt), carb: Math.round(totCarb), fat: Math.round(totFat) };
-  }
-
-  document.getElementById('btn-comidas-save').addEventListener('click', function() {
-    // Save raw index selections
-    localStorage.setItem(MEALS_STORAGE_KEY, JSON.stringify(mealSelections));
-    // Build resolved food names for historial display
-    var resolvedSelections = {};
-    var _comidas = ['desayuno', 'almuerzo', 'comida', 'cena'];
-    var _macros = ['proteinas', 'carbohidratos', 'grasas'];
-    for (var _i = 0; _i < _comidas.length; _i++) {
-      var _c = _comidas[_i];
-      var _sel = mealSelections[_c];
-      var _mealData = ultimoPlan && ultimoPlan.plan ? ultimoPlan.plan[_c] : null;
-      if (!_sel || !_mealData) continue;
-      var _resolved = {};
-      for (var _m = 0; _m < _macros.length; _m++) {
-        var _mk = _macros[_m];
-        var _idx = _sel[_mk];
-        if (_idx < 0 || _idx === undefined) continue;
-        var _md = _mealData[_mk];
-        if (_md && _md.opciones && _md.opciones[_idx]) {
-          var _op = _md.opciones[_idx];
-          var _n = (_op.alimento || '').replace(/_/g, ' ');
-          _n = _n.charAt(0).toUpperCase() + _n.slice(1);
-          _resolved[_mk] = _n + (_op.equivalencia ? ' · ' + _op.equivalencia : '') + ' (' + Math.round(_op.gramos || 0) + 'g)';
-        }
-      }
-      if (Object.keys(_resolved).length) resolvedSelections[_c] = _resolved;
-    }
-    // Save daily totals summary with resolved selections
-    var totals = computeDailyTotals();
-    var waterVal = parseFloat(localStorage.getItem(WATER_KEY) || '0');
-    var dailySummary = {
-      kcal: totals.kcal,
-      prot: totals.prot,
-      carb: totals.carb,
-      fat: totals.fat,
-      water: waterVal,
-      selections: resolvedSelections,
-    };
-    localStorage.setItem('mb_daily_' + TODAY_KEY, JSON.stringify(dailySummary));
-    comidasOverlay.style.display = 'none';
-    updateGoalFromSelections(0);
-    showToast('✅ ¡Selección guardada! Sigue sumando a tu meta diaria.');
   });
 
   /* ══════════════════════════════════════════════════════════
@@ -1211,50 +825,6 @@
     } finally {
       if (personal.active) { btn.disabled = false; btn.textContent = 'Guardar Exclusiones ✅'; }
     }
-  });
-
-  /* ── Meal completion checkboxes (25% each) ────────────────────────────── */
-  function getMealDoneCount() {
-    return MEAL_DONE_IDS.filter(function(id) {
-      var el = document.getElementById(id);
-      return el && el.checked;
-    }).length;
-  }
-
-  function updateMealCheckProgress() {
-    var count = getMealDoneCount();
-    var pct = count * 25;
-    document.getElementById('goal-pct-label').textContent = 'Vas al ' + pct + '% de tu meta diaria';
-    document.getElementById('goal-progress-bar').style.width = pct + '%';
-    document.getElementById('goal-ring-pct').textContent = pct + '%';
-    updateRing('goal-ring', pct);
-  }
-
-  function loadMealChecks() {
-    try {
-      var saved = JSON.parse(localStorage.getItem(MEAL_DONE_KEY) || '[]');
-      MEAL_DONE_IDS.forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) el.checked = saved.indexOf(id) !== -1;
-      });
-    } catch(e) {}
-    if (getMealDoneCount() > 0) updateMealCheckProgress();
-  }
-
-  function saveMealChecks() {
-    var checked = MEAL_DONE_IDS.filter(function(id) {
-      var el = document.getElementById(id);
-      return el && el.checked;
-    });
-    localStorage.setItem(MEAL_DONE_KEY, JSON.stringify(checked));
-  }
-
-  MEAL_DONE_IDS.forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('change', function() {
-      saveMealChecks();
-      updateMealCheckProgress();
-    });
   });
 
   /* ── Rotating tips carousel ─────────────────────────────────────────── */

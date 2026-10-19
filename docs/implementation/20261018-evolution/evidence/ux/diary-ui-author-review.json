@@ -1,0 +1,109 @@
+{
+  "status": "Author implementation complete and frozen for independent review",
+  "behavior": [
+    "Diary dates and Today come from the server in America/Mexico_City; a month is bounded to31 days and the helper rejects more than62 inclusive days.",
+    "Only explicit water/meal/completion actions PATCH the selected day with expected_version. Merely showing a plan, selecting foods, opening a dialog or changing dates writes nothing.",
+    "Consumption totals and foods use recorded server snapshots. Completion is a separate mark. Replacing a meal resets only that mark and preserves other meals and water.",
+    "Conflict and ambiguous delivery keep the draft in memory, require readback, show current persisted values, and require another explicit registration. No automatic replay or overwriting.",
+    "The selection freezes the displayed persisted plan_id. A later generated plan does not change that source or its exact PDF.",
+    "Context revision and canonical subject checks fence API results and rendered state. A role/session-version revocation discards old session data while a fresh personal login keeps its diary. Ambiguous usuario/OWNER never adopts a professional portfolio.",
+    "Six-collection export adds personal_diary and exclusive ISO date after_diary, with bounded explicit parts, complete records, filtered finished collections and truthful manifests. No export persistence or third-party request.",
+    "The logout handler no longer clears all browser storage. The additive auth.logout result distinguishes verified empty local credentials from server confirmation, preserves a newer login and surfaces Storage errors without fallback deletion."
+  ],
+  "legacy_policy": "No reads, import, attribution or deletion of unidentified mb_daily_/mb_water_/mb_meals_/mb_meals_done_ values. Synthetic unreadable-value canaries remained byte-identical across diary/calendar/export/logout/login, including faults. The notice says old local records are not synchronized.",
+  "author_validation": {
+    "vm": [
+      {
+        "test": "auth_refresh",
+        "passed": 33,
+        "total": 33
+      },
+      {
+        "test": "auth_refresh_storage",
+        "passed": 26,
+        "total": 26
+      },
+      {
+        "test": "auth_refresh_security_review",
+        "passed": 13,
+        "total": 13
+      },
+      {
+        "test": "auth_refresh_race_review",
+        "passed": 2,
+        "total": 2
+      },
+      {
+        "test": "personal_logout",
+        "passed": 10,
+        "total": 10
+      },
+      {
+        "test": "personal_diary_controller",
+        "passed": 18,
+        "total": 18
+      },
+      {
+        "test": "personal_diary_api",
+        "passed": 7,
+        "total": 7
+      },
+      {
+        "test": "personal_operation",
+        "passed": 18,
+        "total": 18
+      },
+      {
+        "test": "personal_operation_ambiguity_review",
+        "passed": 2,
+        "total": 2
+      }
+    ],
+    "vm_total": 129,
+    "python": {
+      "passed": 141,
+      "failed": 0,
+      "junit": "diary-ui-python.xml"
+    },
+    "browser": {
+      "passed": true,
+      "groups": 17,
+      "screens": 8,
+      "errors": [],
+      "report": "diary-ui-browser-freeze-20261019-author/report.json"
+    }
+  },
+  "doubles": [
+    "Welcome delivery is a no-send fixture boundary; outbound sockets are blocked before product imports.",
+    "The client clock/timezone is deliberately set to2042/Auckland while actual server dates are used.",
+    "Named browser routes hold or lose real committed responses; export requests explicitly reduce the real API limit to1 and one negative response replaces only after_diary with an invalid UUID.",
+    "VM tests use synthetic Storage and transport, not browser/backend proof."
+  ],
+  "limits": [
+    "This is isolated author evidence. Independent QA/security and integration remain pending; no production/provider/deployment claim.",
+    "SQLite metadata preparation does not demonstrate Alembic or PostgreSQL RLS. Backend migration/PG reviews are separate.",
+    "The old plan-history list remains unpaginated in the pre-existing backend contract. Only diary calendar queries are bounded here.",
+    "Two legacy authentication keys remain non-atomic across reload, direct external writers and tabs. The additive logout result does not close R10 or durable/cross-tab atomicity.",
+    "Axe assertions cover the eight stable rendered states after finite animations settle, plus keyboard interaction; they are not an all-state compliance certification.",
+    "Download evidence verifies Blob/anchor execution and bytes received by the browser, not that a human saved a file.",
+    "No old local diary values were migrated or assigned. No purchases/progress/new domains, quota policy or backend/model changes were added by this UI commit."
+  ],
+  "reproduction": {
+    "python": "C:/Users/Consu/AppData/Local/Temp/metodobase-candidate-web-20261018/Scripts/python.exe",
+    "fixture": "python -X utf8 tests/e2e/personal_diary_server.py; wait for its startup JSON after real registration before browser; own free port8776 only",
+    "browser": "NODE_PATH=F:/MetodoBaseWeb-execution-20261018/tests/e2e/node_modules; METODOBASE_EVIDENCE_BATCH=<new unique batch>; node tests/e2e/personal_diary.cjs",
+    "vm": [
+      "node tests/e2e/auth_refresh.cjs",
+      "node tests/e2e/auth_refresh_storage.cjs",
+      "node tests/e2e/auth_refresh_security_review.cjs",
+      "node tests/e2e/auth_refresh_race_review.cjs",
+      "node tests/e2e/personal_logout.cjs",
+      "node tests/e2e/personal_diary_controller.cjs",
+      "node tests/e2e/personal_diary_api.cjs",
+      "node tests/e2e/personal_operation.cjs",
+      "node tests/e2e/personal_operation_ambiguity_review.cjs"
+    ],
+    "python_tests": "python -X utf8 tests/run_isolated.py tests/test_personal_diary_values.py tests/test_personal_diary_values_review.py tests/test_personal_diary_persistence.py tests/test_personal_diary_boundaries.py tests/test_individual_result_reader.py tests/test_personal_plan_ui_contract.py tests/test_individual_publication.py tests/test_individual_publication_review.py tests/test_individual_publication_security_review.py -q --tb=short"
+  },
+  "history": "Earlier author attempts and their errors are preserved under uniquely named diary-ui logs/directories. The final source is identified only by diary-ui-source.json and the exclusive UI commit."
+}

@@ -1,0 +1,97 @@
+{
+  "created_at": "2026-10-19T06:14:57.186990+00:00",
+  "base_commit": "40fd2af0bb73326181093e59e9d3f3e6f5fbd441",
+  "worktree": "F:\\MetodoBaseWeb-diary-ui-20261019",
+  "status": "UX approved by root before coupled editing; actual backend freeze still required before real browser.",
+  "identity": "New diary capability only for persisted active unambiguous personal identity or a valid member retaining own personal scope. An ambiguous usuario/OWNER receives review-required in diary only; no professional portfolio adoption and no change to generation/PDF contracts.",
+  "ux": [
+    "Server date bootstrap, explicit selected-day input and Today action with America/Mexico_City label; all API calendar ranges <=62 and displayed months <=31 days.",
+    "Registered-consumption totals use only saved server snapshots. Completion marks are separate; a meal replacement resets only its own completion.",
+    "Draft selection and water input stay in memory; explicit per-meal/water/completion action sends expected_version. Opening a plan, switching a day, or choosing options never persists.",
+    "Saving is pending until a confirmed response. A lost reply offers readback, not automatic mutation replay. CAS conflict keeps the pending draft only in memory, displays server data after explicit reconsultation, and requires another explicit registration to apply against a new version.",
+    "Day/account changes discard drafts. Context guards protect every awaited API/body and rendered state; generation/PDF operation and exact plan IDs remain intact.",
+    "History presents the current authenticated personal calendar rather than attaching activity to a plan/date by heuristics. Empty, error, conflict and unavailable-source states are explicit.",
+    "Always show: local records from previous versions are not synchronized. Do not read, import, assign or delete legacy keys."
+  ],
+  "confirmed_day_fields": [
+    "local_date",
+    "timezone",
+    "today",
+    "version",
+    "water_ml",
+    "meals",
+    "created_at",
+    "updated_at"
+  ],
+  "confirmed_meal_fields": [
+    "source_plan_id",
+    "meal",
+    "selections",
+    "foods",
+    "totals",
+    "recorded_at",
+    "completed"
+  ],
+  "approved_additions": [
+    "Bootstrap GET /api/usuario/diario with neither start nor end uses server Today; exactly one bound is422.",
+    "day.totals sums registered snapshots independently of completed; empty day totals0."
+  ],
+  "pending_exact_backend_examples": [
+    "Bootstrap/calendar wrapper fields and error code examples",
+    "PATCH version semantics and CAS/overflow errors",
+    "Export personal_diary collection and after_diary date cursor"
+  ],
+  "legacy_code_inventory": {
+    "web/templates/usuario_mi_plan.html": [
+      {
+        "line": 442,
+        "code_reference": "var TODAY_KEY = new Date().toISOString().slice(0, 10);"
+      },
+      {
+        "line": 443,
+        "code_reference": "var MEALS_STORAGE_KEY = 'mb_meals_' + TODAY_KEY;"
+      },
+      {
+        "line": 444,
+        "code_reference": "var MEAL_DONE_KEY    = 'mb_meals_done_' + TODAY_KEY;"
+      },
+      {
+        "line": 750,
+        "code_reference": "var WATER_KEY = 'mb_water_' + TODAY_KEY;"
+      },
+      {
+        "line": 805,
+        "code_reference": "try { existing = JSON.parse(localStorage.getItem('mb_daily_' + TODAY_KEY) || '{}'); } catch(e) {}"
+      },
+      {
+        "line": 807,
+        "code_reference": "localStorage.setItem('mb_daily_' + TODAY_KEY, JSON.stringify(existing));"
+      },
+      {
+        "line": 1089,
+        "code_reference": "localStorage.setItem('mb_daily_' + TODAY_KEY, JSON.stringify(dailySummary));"
+      }
+    ],
+    "web/templates/usuario_historial.html": [
+      {
+        "line": 228,
+        "code_reference": "var raw = localStorage.getItem('mb_daily_' + dateStr);"
+      },
+      {
+        "line": 261,
+        "code_reference": "var todayStr = now.toISOString().slice(0, 10);"
+      },
+      {
+        "line": 278,
+        "code_reference": "var today = new Date().toISOString().slice(0, 10);"
+      }
+    ]
+  },
+  "base_source_sha256": {
+    "web/templates/usuario_mi_plan.html": "9b6c21a57edcaafcb907fe620cdaadb4576bb5bd611bbec0907de1cfaab7d9e2",
+    "web/templates/usuario_historial.html": "dd57165748131bf3b624922304ea3a7229999507ada07898e98ecb73191217b9",
+    "web/static/js/api.js": "d3aa00f0ecd906505c4ebf9fef833a37aaeebda2f67dcc4515d14f703ae1b03e",
+    "web/static/js/usuario-privacidad.js": "ffa3779cefce1a6181915502ad8627d9b8b771dee71e37b7b77935d3dd6c09e7"
+  },
+  "scope": "Only the two personal templates, new usuario-diario.js, usuario helpers, approved export controller adaptation and own browser/VM tests. No backend, models, migration, global auth transport or CI change."
+}
