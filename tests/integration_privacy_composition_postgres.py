@@ -77,6 +77,7 @@ def _composition_worker(url, factory_module, output):
                 assert "professional-portfolio-marker" not in response.text
                 assert "private-object-path-marker" not in response.text
                 assert response.headers["cache-control"] == "no-store"
+                assert response.headers["referrer-policy"] == "no-referrer"
                 assert response.headers["content-disposition"] == 'attachment; filename="metodobase-datos-personales.json"'
                 assert commits == []
                 assert not set(statements).intersection({"INSERT", "UPDATE", "DELETE", "ALTER", "CREATE", "DROP"})

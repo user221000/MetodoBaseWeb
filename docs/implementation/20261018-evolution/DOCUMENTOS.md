@@ -1,0 +1,15 @@
+# Descarga del PDF de un plan concreto
+
+`GET /api/planes/{plan_id}/pdf` está montado mediante el router compartido en web y API. Requiere bearer vigente y permiso de lectura de planes. El gimnasio se obtiene del principal persistido; el ID de la ruta sólo selecciona un plan dentro de ese ámbito. El ID respeta el entero positivo PostgreSQL32 bits.
+
+La consulta exige simultáneamente propietario del plan y propietario del cliente relacionado, con ambos registros sin `deleted_at`. Un cliente inactivo conserva su historial. El resultado corresponde al ID pedido aunque exista un plan posterior; no hay fallback a la última generación. Un VIEWER del equipo puede leer su cartera autorizada y pierde ese acceso al revocarse su asociación/sesión. Su espacio personal es un contexto separado.
+
+La respuesta tiene `application/pdf`, nombre constante `plan.pdf`, `Cache-Control:no-store`, `Referrer-Policy:no-referrer` y `nosniff`. El middleware conserva únicamente esa política de referrer más estricta; no permite que una respuesta lo debilite con `unsafe-url` u `origin`. El cliente debe hacer fetch autenticado y descargar bytes/Blob; abrir un enlace sin bearer no añade autorización.
+
+En esta transición se usa el archivo legacy referenciado por el plan, con raíz privada `CARPETA_PLANES`, tamaño acotado64MiB y cabecera PDF. Se rechazan rutas fuera de la raíz, symlinks estáticos, archivo ausente, contenido incompatible y exceso de tamaño. Las respuestas404 comparten código `plan_pdf_unavailable`, sin paths, nombres internos ni bytes ajenos. GET no escribe ni confirma transacciones.
+
+Este lector no tiene todavía SHA256 persistido ni prueba de procedencia de archivos históricos. La custodia por propietario/descriptor, metadatos25 y migración R07 son el siguiente paso. El inventario de migración deberá identificar referencias ambiguas o archivos que pudieron compartir nombre; no se declara que las filas históricas permitan reconstruir su contenido original. La raíz local tampoco acredita persistencia después de reemplazar contenedor.
+
+QA independiente aceptó49 pruebas:24 en ambos factories,21 de middleware y4 composiciones PostgreSQL restringido para PDF/exportación. Comprueba VIEWER/equipo, ámbito personal, mezcla cliente/gym, JWT revocado, pool sin tenant, cero DML/commits y política de headers recibida. Dos casos PG y uno de middleware fallaron antes por sobrescribir `no-referrer`; la corrección conserva los controles negativos frente a políticas más débiles. Evidencia en `evidence/plan-documents-final-independent-source.json`.
+
+Las rutas antiguas de último PDF se conservan por compatibilidad. La UI de historial/generación está en revisión para utilizar el ID exacto y descartar respuestas recibidas después de cambiar de cuenta. No se presenta como migración de todo el almacenamiento ni como cierre de R07/R13/R31.

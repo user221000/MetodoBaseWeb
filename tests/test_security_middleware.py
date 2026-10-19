@@ -109,6 +109,23 @@ class TestSecurityHeadersMiddleware:
         
         assert "Referrer-Policy" in resp.headers
         assert "strict-origin" in resp.headers["Referrer-Policy"]
+
+    @pytest.mark.parametrize("explicit,expected", [
+        ("no-referrer", "no-referrer"),
+        ("unsafe-url", "strict-origin-when-cross-origin"),
+        ("origin", "strict-origin-when-cross-origin"),
+        ("strict-origin-when-cross-origin", "strict-origin-when-cross-origin"),
+    ])
+    def test_private_policy_is_preserved_without_accepting_weaker_policy(self, explicit, expected):
+        app = FastAPI()
+        app.add_middleware(SecurityHeadersMiddleware)
+
+        @app.get("/private-document")
+        def private_document():
+            return JSONResponse({"synthetic": True}, headers={"Referrer-Policy": explicit})
+
+        with TestClient(app) as client:
+            assert client.get("/private-document").headers["referrer-policy"] == expected
     
     def test_permissions_policy(self, app_with_security):
         """Permissions-Policy debe restringir APIs sensibles."""

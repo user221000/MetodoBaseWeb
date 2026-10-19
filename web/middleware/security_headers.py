@@ -103,7 +103,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # ─── Otros headers de seguridad ─────────────────────────────────────
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "SAMEORIGIN"
-        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        # Private downloads/invitations may require the stricter policy. Do not
+        # weaken it globally, or preserve arbitrary policies such as unsafe-url.
+        response.headers["Referrer-Policy"] = (
+            "no-referrer" if response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
+            else "strict-origin-when-cross-origin"
+        )
         response.headers["Permissions-Policy"] = (
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"

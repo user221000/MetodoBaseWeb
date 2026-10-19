@@ -149,6 +149,8 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_gym_quota_migrations.py -q --tb=short --junitxml=pytest-postgres-gym-migrations.xml
       - name: Real factory privacy export preserves personal scope and performs no writes
         run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
+      - name: Exact historical plan PDF respects viewer scope, revocation and pool reuse
+        run: python -X utf8 tests/run_isolated.py tests/integration_plan_documents_postgres.py -q --tb=short --junitxml=pytest-postgres-plan-documents.xml
       - name: UTC typed writes preserve physical schema and historical values in both session zones
         run: python -X utf8 tests/run_isolated.py tests/integration_utc_datetime.py tests/integration_utc_datetime_review.py tests/integration_model_utc_postgres.py tests/integration_timestamp_observation.py -q --tb=short --junitxml=pytest-postgres-utc.xml
       - name: Two-process HTTP license activation retains hardware ownership and expiry

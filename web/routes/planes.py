@@ -1,17 +1,17 @@
 """
 web/routes/planes.py — Generación de planes con multi-tenant.
 
-La generación de planes sigue usando core/ y GestorBDClientes internamente
-(CPU-bound, ejecutado en thread pool). El registro del plan en la BD SA
-se hace post-generación.
+La generación usa el servicio compartido y el motor core/ en un thread pool.
+La cuota se reserva antes de CPU y la publicación vincula plan/consumo en una
+transacción. Las descargas requieren el principal vigente y propiedad del plan.
 """
 import asyncio
 import json
 import logging
 import os
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Header
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Header, Path as PathParam
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 
 from web.schemas import PlanRequest
@@ -126,6 +126,23 @@ async def descargar_pdf(
         raise HTTPException(404, "PDF no encontrado en disco")
 
     return FileResponse(ruta, media_type="application/pdf", filename=os.path.basename(ruta))
+
+
+@router.get("/planes/{plan_id}/pdf", summary="Descargar PDF de un plan concreto")
+def descargar_pdf_plan(
+    plan_id: int = PathParam(..., gt=0, le=2147483647),
+    usuario: dict = Depends(get_usuario_actual),
+    db: Session = Depends(get_db_readonly),
+):
+    """Authorize the exact plan/client and return a private bounded PDF read."""
+    verify_permission(usuario, "read", "plan")
+    from web.services.plan_documents import read_plan_pdf
+    content = read_plan_pdf(db, get_gym_id(usuario), plan_id)
+    return Response(content, media_type="application/pdf", headers={
+        "Content-Disposition": 'attachment; filename="plan.pdf"',
+        "Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+    })
 
 
 # ── Listado e historial de planes ───────────────────────────────────────────
