@@ -1,0 +1,86 @@
+{
+  "scope": "Native EventTarget in offline VM; no browser/layout claim",
+  "passed": 2,
+  "total": 11,
+  "results": [
+    {
+      "name": "saveTokens B clears already visible data synchronously without await or interaction",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'Private prior-account row'\n- ''\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:20:10)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71\n    at Object.<anonymous> (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:69:229)\n    at Module._compile (node:internal/modules/cjs/loader:1929:14)\n    at Object..js (node:internal/modules/cjs/loader:2060:10)\n    at Module.load (node:internal/modules/cjs/loader:1651:32)\n    at Module._load (node:internal/modules/cjs/loader:1443:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47"
+    },
+    {
+      "name": "clearTokens clears visible data after the complete empty pair",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'Private prior-account row'\n- ''\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:24:30)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71\n    at Object.<anonymous> (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:69:229)\n    at Module._compile (node:internal/modules/cjs/loader:1929:14)\n    at Object..js (node:internal/modules/cjs/loader:2060:10)\n    at Module.load (node:internal/modules/cjs/loader:1651:32)\n    at Module._load (node:internal/modules/cjs/loader:1443:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47"
+    },
+    {
+      "name": "Successful save notifies only after both values are stored",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:29:82)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71\n    at Object.<anonymous> (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:69:229)\n    at Module._compile (node:internal/modules/cjs/loader:1929:14)\n    at Object..js (node:internal/modules/cjs/loader:2060:10)\n    at Module.load (node:internal/modules/cjs/loader:1651:32)\n    at Module._load (node:internal/modules/cjs/loader:1443:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47"
+    },
+    {
+      "name": "Partial write failure invalidates immediately and cannot become a trusted refresh source",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'Private prior-account row'\n- ''\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:34:10)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71\n    at Object.<anonymous> (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:69:229)\n    at Module._compile (node:internal/modules/cjs/loader:1929:14)\n    at Object..js (node:internal/modules/cjs/loader:2060:10)\n    at Module.load (node:internal/modules/cjs/loader:1651:32)\n    at Module._load (node:internal/modules/cjs/loader:1443:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47"
+    },
+    {
+      "name": "Storage read failure invalidates immediately before any network await",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'Private prior-account row'\n- ''\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:38:78)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71"
+    },
+    {
+      "name": "Detected external pair mutation emits synchronously at the next snapshot",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'Private prior-account row'\n- ''\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:43:40)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71"
+    },
+    {
+      "name": "Native Storage event invalidates while unrelated keys do not",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'Private prior-account row'\n- ''\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:47:133)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71"
+    },
+    {
+      "name": "A successful same-revision refresh does not invalidate visible current-session data",
+      "passed": true
+    },
+    {
+      "name": "Reentrant listener read observes consolidated state and does not recurse",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:57:107)\n    at async F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:59"
+    },
+    {
+      "name": "Explicit reentrant complete recovery wins without recursive notification or clobber",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n\n    at Object.body (F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:61:79)\n    at F:\\mb-r23-dashboard-20261019\\tests\\e2e\\session_revision_events.cjs:68:71"
+    },
+    {
+      "name": "Notifier dispatch failure cannot turn a completed save into a transport error",
+      "passed": true
+    }
+  ]
+}
+evalmachine.<anonymous>:33
+    const error = new Error('No se pudo verificar el almacenamiento de la sesión. Vuelve a iniciar sesión.', cause ? { cause } : undefined);
+                  ^
+
+Error [SecurityError]: No se pudo verificar el almacenamiento de la sesión. Vuelve a iniciar sesión.
+    at _storageError (evalmachine.<anonymous>:33:19)
+    at _failStorage (evalmachine.<anonymous>:43:12)
+    at _readPair (evalmachine.<anonymous>:24:27)
+    at _currentCredentials (evalmachine.<anonymous>:49:18)
+    ... 4 lines matching cause stack trace ...
+    at F:\mb-r23-dashboard-20261019\tests\e2e\session_revision_events.cjs:68:71 {
+  code: 'session_storage_error',
+  [cause]: DOMException [SecurityError]: synthetic
+      at new DOMException (node:internal/per_context/domexception:76:18)
+      at Object.getItem (F:\mb-r23-dashboard-20261019\tests\e2e\session_revision_events.cjs:11:51)
+      at getToken (evalmachine.<anonymous>:15:25)
+      at _readPair (evalmachine.<anonymous>:23:27)
+      at _currentCredentials (evalmachine.<anonymous>:49:18)
+      at _snapshot (evalmachine.<anonymous>:57:24)
+      at request (evalmachine.<anonymous>:203:38)
+      at Object.me (evalmachine.<anonymous>:395:19)
+      at Object.body (F:\mb-r23-dashboard-20261019\tests\e2e\session_revision_events.cjs:38:66)
+      at F:\mb-r23-dashboard-20261019\tests\e2e\session_revision_events.cjs:68:71
+}
+
+Node.js v24.21.0

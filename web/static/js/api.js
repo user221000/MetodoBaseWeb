@@ -10,6 +10,16 @@ const Api = (() => {
 
   let _refreshJob = null;
   const _storageErrors = new WeakSet();
+  let _notifyingSession = false;
+  function _notifySessionChanged() {
+    // Event contains no values. State is consolidated before dispatch; a
+    // listener may inspect/recover it, but must not cause recursive dispatch.
+    if (_notifyingSession || typeof window.dispatchEvent !== 'function' || typeof Event !== 'function') return;
+    _notifyingSession = true;
+    try { window.dispatchEvent(new Event('metodobase-session-changed')); }
+    catch { /* Notification infrastructure must not alter authenticated I/O. */ }
+    finally { _notifyingSession = false; }
+  }
 
   function getToken() {
     return localStorage.getItem('mb_token') || '';
@@ -39,6 +49,7 @@ const Api = (() => {
   }
   function _failStorage(cause) {
     _credentials = { ..._credentials, revision: _credentials.revision + 1, trusted: false };
+    _notifySessionChanged();
     if (_storageErrors.has(cause)) return cause;
     return _storageError(cause);
   }
@@ -49,6 +60,7 @@ const Api = (() => {
     const pair = _readPair();
     if (!_samePair(pair, _credentials.pair)) {
       _credentials = { pair, revision: _credentials.revision + 1, trusted: _credentials.trusted };
+      _notifySessionChanged();
     }
     return _credentials;
   }
@@ -100,6 +112,7 @@ const Api = (() => {
       else localStorage.setItem('mb_refresh_token', next.refresh);
       if (_credentials !== attempt || !_samePair(_readPair(), next)) throw _sessionChanged();
       _credentials = { pair: next, revision: attempt.revision, trusted: true };
+      if (!rotation) _notifySessionChanged();
     } catch (error) {
       // A newer explicit complete recovery wins; no rollback or compensating writes.
       if (_credentials !== attempt && _credentials.trusted) throw _sessionChanged();
@@ -111,6 +124,7 @@ const Api = (() => {
       if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) {
         try {
           _credentials = { pair: _readPair(), revision: _credentials.revision + 1, trusted: _credentials.trusted };
+          _notifySessionChanged();
         } catch { /* Read failure already made the credential state untrusted. */ }
       }
     });

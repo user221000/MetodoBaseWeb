@@ -1,0 +1,11 @@
+El emisor de revisión de sesión es un cambio separado del dashboard R23. Después de consolidar un cambio de revisión, `Api` emite un `Event` nativo `metodobase-session-changed` sin `detail`, valores ni credenciales. Notifica guardado explícito, limpieza completa, fallo de Storage con confianza retirada y cambio detectado de par/revisión. Una rotación de refresh confirmada conserva revisión y no emite el evento.
+
+La notificación es síncrona y evita recursión. El listener observa el estado consolidado; una recuperación explícita completa dentro del listener prevalece, sin sobrescritura posterior por el emisor. Un fallo de la infraestructura de notificación no cambia el resultado del transporte. No hay notificación intermedia durante una escritura todavía en curso.
+
+Prueba nueva `node tests/e2e/session_revision_events.cjs`: once casos con EventTarget/Event nativos en VM offline. El mismo driver, sin cambiar assertions, contra el cuerpo base fb19 da 2/11: nueve rojos. El candidato da 11/11. El campo de texto ya visible se limpia en la misma llamada a saveTokens/clearTokens o al fallo detectado, sin esperar promesas ni interacción de controles. Es un canario VM de consumidor visible simulado; no se presenta como Chrome ni validación de layout. Las dos ejecuciones iniciales tenían un error de sintaxis del nuevo harness; están conservadas como `initial-syntax.log` y no cuentan como reproducción conductual.
+
+Regresión inmutable: 13 seguridad + 33 transporte + 26 Storage + 2 reproducción raíz = 74 casos verdes. No se cambian drivers ni expectativas anteriores. Se congelan el cuerpo anterior legible, el cuerpo candidato dentro del ZIP y las huellas del driver y dependencias.
+
+Límites conservados: las dos claves legacy no constituyen persistencia atómica entre pestañas ni al recargar; escritores externos que no producen eventos sólo se detectan al consultar el par. Cambios de rol/team/version persistidos requieren la verificación canónica existente. Este emisor no cierra R10 ni R23. No cambia cuotas, solicitudes, refresh, CAS, recuperación ni reglas de autorización.
+
+Excepción acotada de whitespace: `before-api.js` conserva la línea vacía final del blob Git anterior. No se recorta la prueba histórica para satisfacer diff --check. Los archivos de producto y el nuevo driver pasan su comprobación de whitespace.
