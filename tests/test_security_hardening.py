@@ -250,7 +250,8 @@ class TestH07AuditLogging:
             result = verificar_credenciales(email, "pass12345678", ip="127.0.0.1")
 
         assert result is not None
-        assert any("[AUTH] Login exitoso" in r.message for r in caplog.records)
+        assert any("[AUTH] login_success" in r.message for r in caplog.records)
+        assert email not in caplog.text and "127.0.0.1" not in caplog.text
 
     def test_login_failure_logs(self, caplog):
         """Failed login should produce structured log."""
@@ -263,7 +264,8 @@ class TestH07AuditLogging:
             result = verificar_credenciales("nonexistent@test.com", "bad", ip="10.0.0.1")
 
         assert result is None
-        assert any("[AUTH] Login fallido" in r.message for r in caplog.records)
+        assert any("[AUTH] login_failed" in r.message for r in caplog.records)
+        assert "nonexistent@test.com" not in caplog.text and "10.0.0.1" not in caplog.text
 
 
 # ══════════════════════════════════════════════════════════════════════════════

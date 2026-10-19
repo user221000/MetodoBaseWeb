@@ -1,0 +1,54 @@
+FFFFFFFF.                                                                [100%]
+================================== FAILURES ===================================
+_____ test_authorized_pdf_bytes_precede_legacy_path_and_never_open_files ______
+tests\test_email_plan_bytes.py:17: in test_authorized_pdf_bytes_precede_legacy_path_and_never_open_files
+    assert email_service.send_plan_generated("synthetic@example.invalid", "Synthetic Client",
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+____ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[] ____
+tests\test_email_plan_bytes.py:32: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    assert email_service.send_plan_generated("synthetic@example.invalid", "Synthetic Client",
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[not a PDF] _
+tests\test_email_plan_bytes.py:32: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    assert email_service.send_plan_generated("synthetic@example.invalid", "Synthetic Client",
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-string] _
+tests\test_email_plan_bytes.py:32: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    assert email_service.send_plan_generated("synthetic@example.invalid", "Synthetic Client",
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[payload3] _
+tests\test_email_plan_bytes.py:32: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    assert email_service.send_plan_generated("synthetic@example.invalid", "Synthetic Client",
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF] _
+tests\test_email_plan_bytes.py:32: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    assert email_service.send_plan_generated("synthetic@example.invalid", "Synthetic Client",
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+___ test_plan_name_is_html_escaped_and_subject_cannot_inject_headers[bytes] ___
+tests\test_email_plan_bytes.py:46: in test_plan_name_is_html_escaped_and_subject_cannot_inject_headers
+    assert email_service.send_plan_generated("synthetic@example.invalid", name, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+__ test_plan_name_is_html_escaped_and_subject_cannot_inject_headers[legacy] ___
+tests\test_email_plan_bytes.py:48: in test_plan_name_is_html_escaped_and_subject_cannot_inject_headers
+    assert "<img" not in html and "&lt;img" in html
+E   assert ('<img' not in '<!DOCTYPE h...dy>\n</html>'
+E     
+E     '<img' is contained here:
+E       a <strong><img src=x onerror="synthetic()">
+E     ?           ++++
+E       Bcc: synthetic@example.invalid</strong>.</p>
+E       <p>Puedes consultarlo directamente en tu dashboard o descargarlo en PDF.</p>
+E       <p style="margin-top:24px;">...
+E     
+E     ...Full output truncated (18 lines hidden), use '-vv' to show)
+=========================== short test summary info ===========================
+FAILED tests/test_email_plan_bytes.py::test_authorized_pdf_bytes_precede_legacy_path_and_never_open_files
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[not a PDF]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-string]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[payload3]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF]
+FAILED tests/test_email_plan_bytes.py::test_plan_name_is_html_escaped_and_subject_cannot_inject_headers[bytes]
+FAILED tests/test_email_plan_bytes.py::test_plan_name_is_html_escaped_and_subject_cannot_inject_headers[legacy]
+8 failed, 1 passed in 1.53s

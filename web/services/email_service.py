@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Optional
 
 from web.settings import get_settings
+from web.storage.objects import MAX_OBJECT_BYTES
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) 
     En dev sin API key, solo loguea.
     """
     if not _is_configured():
-        logger.info("Email omitido (sin RESEND_API_KEY): to=%s subject=%s", to, subject)
+        logger.info("Email delivery_skipped reason=not_configured")
         return False
 
     import resend
@@ -60,7 +61,7 @@ def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) 
 
     try:
         resend.Emails.send(params)
-        logger.info("Email enviado: to=%s subject=%s", to, subject)
+        logger.info("Email delivery_sent")
         return True
     except Exception as e:
         logger.error("Email transport failed class=%s", type(e).__name__)
@@ -128,11 +129,19 @@ def send_welcome(email: str, nombre: str) -> bool:
     return _send(email, "¡Bienvenido a Método Base! ⚡", _base_layout(content))
 
 
-def send_plan_generated(email: str, nombre_cliente: str, pdf_path: Optional[str] = None) -> bool:
-    """Notificación de plan generado, opcionalmente con PDF adjunto."""
+def send_plan_generated(
+    email: str, nombre_cliente: str, pdf_path: Optional[str] = None, *, pdf_content: bytes | None = None,
+) -> bool:
+    """Notify with authorized private-object bytes, or the legacy desktop path.
+
+    The caller must authorize bytes for the recipient/tenant before passing
+    them. A supplied byte payload never falls back to a filename on error.
+    """
+    subject_name = str(nombre_cliente).replace("\r", " ").replace("\n", " ")
+    safe_name = escape(str(nombre_cliente), quote=True)
     content = f"""\
 <h2 style="margin:0 0 16px;color:{_BRAND_COLOR};">Plan nutricional listo 🎯</h2>
-<p>Se ha generado un nuevo plan nutricional para <strong>{nombre_cliente}</strong>.</p>
+<p>Se ha generado un nuevo plan nutricional para <strong>{safe_name}</strong>.</p>
 <p>Puedes consultarlo directamente en tu dashboard o descargarlo en PDF.</p>
 <p style="margin-top:24px;">
   <a href="https://app.metodobase.app/dashboard"
@@ -143,11 +152,16 @@ def send_plan_generated(email: str, nombre_cliente: str, pdf_path: Optional[str]
 </p>"""
 
     attachments = None
-    if pdf_path:
+    if pdf_content is not None:
+        if (not isinstance(pdf_content, bytes) or not 0 < len(pdf_content) <= MAX_OBJECT_BYTES
+                or not pdf_content.startswith(b"%PDF-")):
+            logger.warning("Email delivery_skipped reason=invalid_plan_attachment")
+            return False
+        attachments = [{"filename": "plan.pdf", "content": list(pdf_content)}]
+    elif pdf_path:
         p = Path(pdf_path)
         if p.exists():
             data = p.read_bytes()
-            import base64
             attachments = [{
                 "filename": p.name,
                 "content": list(data),
@@ -155,7 +169,7 @@ def send_plan_generated(email: str, nombre_cliente: str, pdf_path: Optional[str]
 
     return _send(
         email,
-        f"Plan nutricional generado — {nombre_cliente}",
+        f"Plan nutricional generado — {subject_name}",
         _base_layout(content),
         attachments=attachments,
     )

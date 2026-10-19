@@ -39,7 +39,8 @@ class TestInitSentry:
             assert call_kwargs["dsn"] == "https://test@sentry.io/123"
             assert call_kwargs["environment"] == "test"
             assert call_kwargs["traces_sample_rate"] == 0.5
-            assert call_kwargs["profiles_sample_rate"] == 0.2
+            # Profiles bypass the reviewed event projection and remain disabled.
+            assert call_kwargs["profiles_sample_rate"] == 0.0
 
 
 class TestFilterEvents:
@@ -115,7 +116,8 @@ class TestFilterEvents:
             }
         }
         result = _filter_events(event, {})
-        assert result == event
+        assert result["exception"]["values"][0] == {"type": "RuntimeError", "value": "Application error"}
+        assert "something broke" not in repr(result)
 
     def test_pass_through_event_without_exception(self):
         """Eventos sin excepción deben pasar."""
@@ -123,7 +125,7 @@ class TestFilterEvents:
         
         event = {"message": "info log", "level": "info"}
         result = _filter_events(event, {})
-        assert result == event
+        assert result == {"platform": "python", "message": "Application event", "level": "info"}
 
 
 class TestFilterTransactions:
@@ -167,7 +169,7 @@ class TestFilterTransactions:
         
         event = {"transaction": "/api/clientes"}
         result = _filter_transactions(event, {})
-        assert result == event
+        assert result["type"] == "transaction" and result["transaction"] == "http.server"
 
     def test_pass_through_web_endpoints(self):
         """Endpoints web deben pasar."""
@@ -175,7 +177,7 @@ class TestFilterTransactions:
         
         event = {"transaction": "/dashboard"}
         result = _filter_transactions(event, {})
-        assert result == event
+        assert result["type"] == "transaction" and result["transaction"] == "http.server"
 
 
 class TestSetUserContext:
@@ -189,11 +191,7 @@ class TestSetUserContext:
             # No debe lanzar excepción
             set_user_context(user_id="123", gym_id="456", role="owner")
             
-            mock_set.assert_called_once_with({
-                "id": "123",
-                "gym_id": "456",
-                "role": "owner",
-            })
+            mock_set.assert_called_once_with(None)
 
     def test_set_user_context_with_empty_values(self):
         """set_user_context no debe crashear con valores vacíos."""
@@ -214,7 +212,7 @@ class TestCaptureBusinessError:
         with patch("web.observability.sentry_setup.sentry_sdk.capture_message") as mock_capture:
             with patch("web.observability.sentry_setup.sentry_sdk.push_scope"):
                 capture_business_error("Plan generation failed")
-                mock_capture.assert_called_once_with("Plan generation failed", level="error")
+                mock_capture.assert_called_once_with("Business operation failed", level="error")
 
     def test_capture_business_error_with_extra_context(self):
         """capture_business_error debe setear contexto extra."""
@@ -232,8 +230,8 @@ class TestCaptureBusinessError:
                     extra={"cliente_id": "abc", "gym_id": "xyz"}
                 )
                 
-                # Verificar que se setearon los extras
-                assert mock_scope.set_extra.call_count == 2
+                # Legacy free text and identifiers are not an approved sink.
+                mock_scope.set_extra.assert_not_called()
 
 
 class TestWithSentryContext:

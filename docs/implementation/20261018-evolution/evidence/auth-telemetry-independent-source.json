@@ -1,0 +1,44 @@
+{
+  "utc": "2026-10-19T04:27:34.139967+00:00",
+  "head": "31ad545e0dabb2b71c57259d77487c8b3c5c3b15",
+  "scope": "Independent root source/SDK review and106 tests, including real SDK default integrations, incoming private baggage, actual envelope headers, attachment suppression, audit reader session ownership.",
+  "result": {
+    "passed": 106,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 15.3
+  },
+  "author_sources_unchanged_since_freeze": true,
+  "sources": {
+    "web/auth.py": "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",
+    "web/services/auth_audit.py": "cf44a155e443c9414b4a853983b339edb139e4e91343fa07b0760627cb17a807",
+    "web/services/email_service.py": "7572642152b530f29873e3a41779f40da2b9e24443a78783483bb3067b121e7e",
+    "web/observability/sentry_setup.py": "80fe4367e6524022e46d77d8506934b5b47daa56693d940b2afb227cbb5d824c",
+    "tests/test_auth_telemetry_privacy.py": "208cb0c9a950180801b012ad2cba8b8e4691a9212bd74e6cc21a134aedd072ee",
+    "tests/test_email_plan_bytes.py": "01b0cb597b623a48044f0ca45685eb4df53c7755566d43c9dd9ceb96318ef85c",
+    "tests/test_sentry_setup.py": "8b3fdda7408fc7bd621588cdb01670025af9cd102948123018ad4438d1fcf43f",
+    "tests/test_security_hardening.py": "dc8ec7b376f1e777410be9fb72c35ea35a22c2c18fd98d88ea48aeb2301808f0",
+    "tests/test_auth_audit.py": "0f454ac427398ebf5fadc3c78f7a2a45616ef994b74b8802f8214f444685f911",
+    "tests/test_error_privacy_review.py": "f59c9c8fb68a087bade9c00cf5bc0369b22ea2f2c7cd3978e5fbf20d80a588e6",
+    "conftest.py": "b73ed9d5f8563266ebb9636e87097f187c64d865fab12d2d7ce01e574bfd098c",
+    "tests/isolation.py": "0fbcec45b9cb4920e6d5c4b4c4c124b119d0e4645f5e225e00e0f50b21a42640",
+    "web/database/models.py": "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",
+    "config/settings.py": "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",
+    "web/main_web.py": "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",
+    "api/app.py": "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",
+    "web/middleware/alerting.py": "ca4250611005f4b24420f3d2c4476310a22b541009b15549ab991d6d471fef2c",
+    "requirements_web.txt": "63d3b9e4fc4815ba25dcc250e9108c546ebc7369acebdbfaad40a2d6b8be47b8",
+    "requirements_web.lock": "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",
+    "requirements_web-windows.lock": "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",
+    "requirements-test.lock": "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",
+    "requirements-test-windows.lock": "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358",
+    "tests/test_auth_telemetry_review.py": "422890b2c49a369cec636eba891c148a4fc57021965e96c8f43a029a632afa0b"
+  },
+  "junit": "pytest-auth-telemetry-independent.xml",
+  "limitations": [
+    "Only in-memory SDK transport; no provider or mail deliveries.",
+    "Logs outside these reviewed boundaries, browser token storage, retention and deletion remain separate work.",
+    "Support sources include current uncommitted storage25; this is a local source review, not an image or deployment result."
+  ]
+}

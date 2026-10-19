@@ -177,7 +177,7 @@ def init_auth() -> None:
         _cleanup_expired_refresh_tokens()
     except Exception as e:
         # Tables might not exist yet on first deploy (before Alembic runs)
-        _logger.warning("[AUTH] Skipping seed/cleanup at startup: %s", e)
+        _logger.warning("[AUTH] startup_cleanup_failed class=%s", type(e).__name__)
 
 
 def crear_usuario(
@@ -255,7 +255,6 @@ def verificar_credenciales(
         dict con datos del usuario, o None si las credenciales son inválidas.
     """
     email = email.strip().lower()
-    _ip = ip or "unknown"
     Usuario, _ = _get_models()
     session = _get_session()
     try:
@@ -265,20 +264,20 @@ def verificar_credenciales(
         ).first()
 
         if not row:
-            _logger.warning("[AUTH] Login fallido (no existe): email=%s ip=%s", email, _ip)
+            _logger.warning("[AUTH] login_failed reason=account_unavailable")
             return None
 
         if not verify_password(password, row.password_hash):
-            _logger.warning("[AUTH] Login fallido (password): email=%s ip=%s", email, _ip)
+            _logger.warning("[AUTH] login_failed reason=invalid_credentials")
             return None
 
         if tipo_requerido and row.tipo not in (tipo_requerido, "admin"):
-            _logger.warning("[AUTH] Login fallido (tipo): email=%s tipo_req=%s ip=%s", email, tipo_requerido, _ip)
+            _logger.warning("[AUTH] login_failed reason=account_type")
             return None
 
         identity = identity_from_user(row, session)
         if identity:
-            _logger.info("[AUTH] Login exitoso: user_id=%s tipo=%s role=%s", row.id, row.tipo, identity["role"])
+            _logger.info("[AUTH] login_success")
         return identity
     finally:
         session.close()
@@ -530,7 +529,7 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
                 {Usuario.session_version: Usuario.session_version + 1}
             )
             with_conn_session.commit()
-            _logger.warning("REUSE DETECTION: token jti=%s user=%s — all tokens revoked", jti, user_id)
+            _logger.warning("[AUTH] refresh_reuse action=sessions_revoked")
             return None
     except Exception:
         with_conn_session.rollback()

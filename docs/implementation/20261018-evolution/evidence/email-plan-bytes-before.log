@@ -1,0 +1,40 @@
+FFFFFFF.                                                                 [100%]
+================================== FAILURES ===================================
+_____ test_authorized_pdf_bytes_precede_legacy_path_and_never_open_files ______
+tests\test_email_plan_bytes.py:17: in test_authorized_pdf_bytes_precede_legacy_path_and_never_open_files
+    assert email_service.send_plan_generated("synthetic@example.invalid", "Synthetic Client",
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+____ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[] ____
+tests\test_email_plan_bytes.py:31: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    monkeypatch.setattr(email_service, "MAX_OBJECT_BYTES", len(PDF))
+E   AttributeError: <module 'web.services.email_service' from 'F:\\MetodoBaseWeb-execution-20261018\\web\\services\\email_service.py'> has no attribute 'MAX_OBJECT_BYTES'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[not a PDF] _
+tests\test_email_plan_bytes.py:31: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    monkeypatch.setattr(email_service, "MAX_OBJECT_BYTES", len(PDF))
+E   AttributeError: <module 'web.services.email_service' from 'F:\\MetodoBaseWeb-execution-20261018\\web\\services\\email_service.py'> has no attribute 'MAX_OBJECT_BYTES'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-string] _
+tests\test_email_plan_bytes.py:31: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    monkeypatch.setattr(email_service, "MAX_OBJECT_BYTES", len(PDF))
+E   AttributeError: <module 'web.services.email_service' from 'F:\\MetodoBaseWeb-execution-20261018\\web\\services\\email_service.py'> has no attribute 'MAX_OBJECT_BYTES'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[payload3] _
+tests\test_email_plan_bytes.py:31: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    monkeypatch.setattr(email_service, "MAX_OBJECT_BYTES", len(PDF))
+E   AttributeError: <module 'web.services.email_service' from 'F:\\MetodoBaseWeb-execution-20261018\\web\\services\\email_service.py'> has no attribute 'MAX_OBJECT_BYTES'
+_ test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF] _
+tests\test_email_plan_bytes.py:31: in test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back
+    monkeypatch.setattr(email_service, "MAX_OBJECT_BYTES", len(PDF))
+E   AttributeError: <module 'web.services.email_service' from 'F:\\MetodoBaseWeb-execution-20261018\\web\\services\\email_service.py'> has no attribute 'MAX_OBJECT_BYTES'
+______ test_plan_name_is_html_escaped_and_subject_cannot_inject_headers _______
+tests\test_email_plan_bytes.py:44: in test_plan_name_is_html_escaped_and_subject_cannot_inject_headers
+    assert email_service.send_plan_generated("synthetic@example.invalid", name, pdf_content=PDF)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: send_plan_generated() got an unexpected keyword argument 'pdf_content'
+=========================== short test summary info ===========================
+FAILED tests/test_email_plan_bytes.py::test_authorized_pdf_bytes_precede_legacy_path_and_never_open_files
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[not a PDF]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-string]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[payload3]
+FAILED tests/test_email_plan_bytes.py::test_invalid_or_oversized_byte_attachment_never_sends_or_falls_back[%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF%PDF-1.7\nsynthetic-authorized-plan\n%%EOF]
+FAILED tests/test_email_plan_bytes.py::test_plan_name_is_html_escaped_and_subject_cannot_inject_headers
+7 failed, 1 passed in 1.69s

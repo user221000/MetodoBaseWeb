@@ -1,0 +1,55 @@
+......................................FFFF.....                          [100%]
+================================== FAILURES ===================================
+______________ TestGetRecentLoginAttempts.test_filters_by_email _______________
+tests\test_auth_audit.py:109: in test_filters_by_email
+    attempts = get_recent_login_attempts(email=email, since_minutes=60)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\auth_audit.py:176: in get_recent_login_attempts
+    db = next(get_db())
+              ^^^^^^
+E   NameError: name 'get_db' is not defined
+___________ TestGetRecentLoginAttempts.test_filters_by_time_window ____________
+tests\test_auth_audit.py:142: in test_filters_by_time_window
+    attempts = get_recent_login_attempts(email=email, since_minutes=15)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\auth_audit.py:176: in get_recent_login_attempts
+    db = next(get_db())
+              ^^^^^^
+E   NameError: name 'get_db' is not defined
+_________ TestGetLoginStats.test_computes_success_and_failure_counts __________
+tests\test_auth_audit.py:180: in test_computes_success_and_failure_counts
+    stats = get_login_stats_for_gym(gym_id=gym_id, since_days=1)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\auth_audit.py:232: in get_login_stats_for_gym
+    db = next(get_db())
+              ^^^^^^
+E   NameError: name 'get_db' is not defined
+__________________ TestGetLoginStats.test_counts_unique_ips ___________________
+tests\test_auth_audit.py:204: in test_counts_unique_ips
+    stats = get_login_stats_for_gym(gym_id=gym_id, since_days=1)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+web\services\auth_audit.py:232: in get_login_stats_for_gym
+    db = next(get_db())
+              ^^^^^^
+E   NameError: name 'get_db' is not defined
+============================== warnings summary ===============================
+tests/test_auth_telemetry_privacy.py::test_real_sentry_sdk_memory_envelopes_exclude_free_text_and_nonreviewed_channels
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sentry_sdk\client.py:546: DeprecationWarning: The send_default_pii option is deprecated. Use data_collection instead. See https://docs.sentry.io/platforms/python/data-management/data-collected/
+    super(_Client, self).__init__(options=get_options(*args, **kwargs))
+
+tests/test_auth_telemetry_privacy.py::test_real_sentry_sdk_memory_envelopes_exclude_free_text_and_nonreviewed_channels
+tests/test_auth_telemetry_privacy.py::test_real_sentry_sdk_memory_envelopes_exclude_free_text_and_nonreviewed_channels
+  F:\MetodoBaseWeb-execution-20261018\tests\test_auth_telemetry_privacy.py:186: DeprecationWarning: Using the return value of sentry_sdk.init as a context manager and manually calling the __enter__ and __exit__ methods on the return value are deprecated. We are no longer maintaining this functionality, and we will remove it in the next major release.
+    with sentry_sdk.init(**options), sentry_sdk.isolation_scope() as scope:
+
+tests/test_auth_audit.py::TestAuditIntegration::test_login_creates_audit_log
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_auth_audit.py::TestGetRecentLoginAttempts::test_filters_by_email
+FAILED tests/test_auth_audit.py::TestGetRecentLoginAttempts::test_filters_by_time_window
+FAILED tests/test_auth_audit.py::TestGetLoginStats::test_computes_success_and_failure_counts
+FAILED tests/test_auth_audit.py::TestGetLoginStats::test_counts_unique_ips - ...
+4 failed, 43 passed, 4 warnings in 11.29s

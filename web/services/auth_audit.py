@@ -35,7 +35,7 @@ from typing import Optional, Dict, Any
 
 from sqlalchemy.orm import Session
 
-from web.database.engine import get_db
+from web.database.engine import SessionLocal
 from web.database.models import AuthAuditLog
 
 logger = logging.getLogger(__name__)
@@ -114,12 +114,11 @@ def log_auth_event(
             metadata={"email": "test@example.com", "reason": "invalid_password"}
         )
     """
+    should_close = db is None
     try:
         # Crear o usar sesión existente
-        should_close = False
         if db is None:
-            db = next(get_db())
-            should_close = True
+            db = SessionLocal()
         
         # Crear registro de auditoría
         audit_log = AuthAuditLog(
@@ -136,31 +135,22 @@ def log_auth_event(
         db.add(audit_log)
         db.commit()
         
-        logger.info(
-            f"Auth audit logged: {event_type.value} | gym={gym_id} | user={user_id} | ip={ip_address}",
-            extra={
-                "event_type": event_type.value,
-                "gym_id": gym_id,
-                "user_id": user_id,
-                "ip_address": ip_address,
-                "request_id": request_id,
-            }
-        )
-        
-        if should_close:
-            db.close()
+        logger.info("Auth audit persisted event=%s", event_type.value)
     
     except Exception as e:
-        logger.error(
-            f"Failed to log auth event: {e!r}",
-            extra={
-                "event_type": event_type.value,
-                "gym_id": gym_id,
-                "user_id": user_id,
-            },
-            exc_info=True,
-        )
+        logger.error("Auth audit failed class=%s", type(e).__name__)
         # No propagar el error - el logging de auditoría no debe romper el flujo
+        if should_close and db is not None:
+            try:
+                db.rollback()
+            except Exception as rollback_error:
+                logger.error("Auth audit rollback_failed class=%s", type(rollback_error).__name__)
+    finally:
+        if should_close and db is not None:
+            try:
+                db.close()
+            except Exception as close_error:
+                logger.error("Auth audit close_failed class=%s", type(close_error).__name__)
 
 
 def get_recent_login_attempts(
@@ -183,7 +173,7 @@ def get_recent_login_attempts(
     """
     should_close = False
     if db is None:
-        db = next(get_db())
+        db = SessionLocal()
         should_close = True
     
     try:
@@ -239,7 +229,7 @@ def get_login_stats_for_gym(
     """
     should_close = False
     if db is None:
-        db = next(get_db())
+        db = SessionLocal()
         should_close = True
     
     try:
