@@ -21,7 +21,7 @@ from urllib.request import urlopen
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
-REVISION = '20261019_client_account_links'
+REVISION = '20261019_personal_history_index'
 PUBLIC_FILES = (
     'startup.json', 'browser-result.json', 'database-closure.json',
     'http-trace.jsonl', 'final-identities.json', 'report.json',
@@ -32,17 +32,35 @@ TOKEN = re.compile(rb'[A-Za-z0-9_-]{30,}\.[a-f0-9]{64}(?![a-f0-9])')
 
 
 def validate_startup(marker: dict, head: str, port: int) -> None:
-    assert marker['fixture'] == 'r12-real-postgres29'
+    assert marker['fixture'] == 'r12-real-postgres30'
     assert marker['head'] == head and type(marker['pid']) is int and marker['pid'] > 0
     assert type(marker['port']) is int and marker['port'] == port
     assert marker['database_kind'] == 'postgresql'
     assert marker['executed_revision'] == marker['model_target_revision'] == REVISION
+    assert marker['business_contract_revision'] == '20261019_client_account_links'
+    from web.database.alembic.history_index_contract_v1 import expected_history_index
+    validate_history_index(marker['history_order_index'], expected_history_index('postgresql'))
     assert type(marker['model_tables']) is int and marker['model_tables'] == 29
     assert type(marker['actual_tables']) is int and marker['actual_tables'] == 30
     assert marker['application_role_restricted_nonowner'] is True
     assert marker['runtime_pool_size'] == 20 and marker['runtime_max_overflow'] == 10
     assert marker['R12_API_doubles'] is False
     assert marker['first_party_origin'] == 'http://127.0.0.1:' + str(port)
+
+
+def validate_history_index(actual, expected) -> None:
+    """Require the complete closed JSON witness, including exact scalar types."""
+    assert type(actual) is type(expected)
+    if type(expected) is dict:
+        assert set(actual) == set(expected)
+        for key in expected:
+            validate_history_index(actual[key], expected[key])
+    elif type(expected) is list:
+        assert len(actual) == len(expected)
+        for left, right in zip(actual, expected):
+            validate_history_index(left, right)
+    else:
+        assert actual == expected
 
 
 def listener_closed(port: int) -> bool:
@@ -106,7 +124,7 @@ def run(output: Path, port: int) -> None:
         configuration_path.chmod(0o600)
     origin = 'http://127.0.0.1:' + str(port)
     receipt = {'scope': 'Host checkout / actual HTTP / owned migrated PostgreSQL; separate from candidate image',
-               'head': head, 'origin': origin, 'completed': False, 'public_files': [],
+               'head': head, 'origin': origin, 'executed_revision': REVISION, 'completed': False, 'public_files': [],
                'private_files_uploaded': False, 'API_doubles': False}
     process = None
     failure = None
@@ -144,7 +162,7 @@ def run(output: Path, port: int) -> None:
         normalize = subprocess.run([sys.executable, '-X', 'utf8', '-B',
             str(ROOT / 'tests/e2e/normalize_member_link_report.py'),
             '--input', str(phase / 'browser-result.json'), '--output', str(phase / 'report.json'),
-            '--expected-head', head, '--expected-origin', origin], capture_output=True, cwd=ROOT, timeout=10)
+            '--expected-head', head, '--expected-origin', origin, '--expected-revision', REVISION], capture_output=True, cwd=ROOT, timeout=10)
         (phase / 'normalizer.private.log').write_bytes(normalize.stdout + normalize.stderr)
         assert normalize.returncode == 0, 'Real browser report was incomplete or inconsistent'
         checked = subprocess.run([sys.executable, str(ROOT / 'scripts/check_frontend_report.py'),
@@ -194,7 +212,7 @@ def run(output: Path, port: int) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path)
-    parser.add_argument('--port', type=int, default=8794)
+    parser.add_argument('--port', type=int, default=8796)
     args = parser.parse_args()
     run(args.output, args.port)
 
