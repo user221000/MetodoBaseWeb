@@ -19,7 +19,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [R11](#r11) | P1 | Backend y datos | R11 | en_revision | parcial | local |
 | [R12](#r12) | P1 | Backend y datos | R12 | pendiente | pendiente | local |
 | [R13](#r13) | P1 | Frontend y UX/UI | R13 | en_revision | en_curso | local |
-| [R14](#r14) | P1 | Backend y datos | R14 | pendiente | pendiente | local |
+| [R14](#r14) | P1 | Backend y datos | R14 | en_curso | parcial | local |
 | [R15](#r15) | P1 | Frontend y UX/UI | R15 | en_revision | en_curso | local |
 | [R16](#r16) | P1 | Backend y datos | R16 | pendiente | pendiente | local |
 | [R17](#r17) | P1 | Operación y documentación | R17 | en_revision | en_curso | local |
@@ -98,7 +98,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [UX-15](#ux-15) | P2 | Backend y datos | R06, R16 | en_curso | en_curso | local |
 | [UX-16](#ux-16) | P2 | Coordinación y arquitectura | R09, R29 | pendiente | pendiente | local |
 | [UX-17](#ux-17) | P2 | Frontend y UX/UI | R15, R22, R24, R30 | pendiente | pendiente | local |
-| [OPS08](#ops08) | P1 | Coordinación y operación | R03, R18, R20 | pendiente | pendiente | local |
+| [OPS08](#ops08) | P1 | Coordinación y operación | R03, R18, R20 | en_revision | parcial | local |
 | [SEC01](#sec01) | P0 | Root - seguridad y licencias; backend - campos/preparaciónR04 | R01, R04, R09, R31 | en_revision | parcial | local |
 
 ## R01
@@ -115,11 +115,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; Carrera GET/proyección vs reserva corregida e integrada;3casos PG con tres procesos. B2B diario/mes, sandbox y R04 posteriores siguen abiertos.; Reserva B2B atomica antesCPU: cliente activo/cupo10, diario10gym/1cliente, mensual20Free; calendario local, hash idempotente y publicacion persistida sin reembolso tras crash/FKNULL.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, c769667, b81cfc1, e3039c2
+Commits: 166038f88b211c52f0d149ce550880795361707c, c769667, b81cfc1, e3039c2, 5bb5395
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; 18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows.
 
-Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json; evidence/model-utc-independent-source.json; evidence/pytest-model-utc-auth-billing-license-independent.xml
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md; B2B_CUOTAS.md
 
@@ -127,7 +127,7 @@ Revisión: QA y seguridad independientes; coordinador integra, alcance local sin
 
 Bloqueo: no registrado
 
-Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.
+Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.; UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.
 
 ## R02
 
@@ -171,11 +171,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: Preparación local sin DDL en fábricas;31 casos autor y15 independientes, vacío/legado/drift/restore22tablas. Staging, privilegios y R04 siguen abiertos.
 
-Commits: e8a6806, b81cfc1
+Commits: e8a6806, b81cfc1, 5bb5395
 
 Pruebas: pendiente
 
-Evidencia: evidence/alembic-empty-psycopg2-before.log; evidence/backend-r03-before.log; evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json; evidence/gym-migrations-independent-source.json; evidence/pytest-gym24-restore-independent.xml; evidence/gym24-restore-independent-source.json
+Evidencia: evidence/alembic-empty-psycopg2-before.log; evidence/backend-r03-before.log; evidence/backend-r03-paths-restorable.xml; evidence/pytest-r03-restorable-independent.xml; evidence/r03-restorable-independent-source.json; evidence/gym-migrations-independent-source.json; evidence/pytest-gym24-restore-independent.xml; evidence/gym24-restore-independent-source.json; evidence/model-utc-independent-source.json; evidence/pytest-model-utc-auth-billing-license-independent.xml
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/backend-r03-design.md; evidence/coordinator-r03-review.md
 
@@ -183,7 +183,7 @@ Revisión: Coordinador y QA independientes del autor backend; alcance local R03/
 
 Bloqueo: no registrado
 
-Observaciones: Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.; Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.
+Observaciones: Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.; Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.; UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.
 
 ## R04
 
@@ -199,11 +199,11 @@ Dependencias: R02, R03
 
 Cambios: pendiente
 
-Commits: f325fc4, 501ceaa, b81cfc1
+Commits: f325fc4, 501ceaa, b81cfc1, 5bb5395
 
 Pruebas: Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas
 
-Evidencia: evidence/coordinator-r04-preparation-review.md; evidence/r04-preparation-root.xml; evidence/r04-preparation-root-source.json; evidence/r04-followup-independent-source.json; evidence/pytest-r04-followup-independent.xml; evidence/r04-activation-root-final.xml; evidence/gym-migrations-independent-source.json; evidence/pytest-gym24-restore-independent.xml; evidence/gym24-restore-independent-source.json
+Evidencia: evidence/coordinator-r04-preparation-review.md; evidence/r04-preparation-root.xml; evidence/r04-preparation-root-source.json; evidence/r04-followup-independent-source.json; evidence/pytest-r04-followup-independent.xml; evidence/r04-activation-root-final.xml; evidence/gym-migrations-independent-source.json; evidence/pytest-gym24-restore-independent.xml; evidence/gym24-restore-independent-source.json; evidence/model-utc-independent-source.json; evidence/pytest-model-utc-auth-billing-license-independent.xml
 
 Documentación: AISLAMIENTO.md
 
@@ -211,7 +211,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes.; Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.
+Observaciones: Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes.; Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.; UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.
 
 ## R05
 
@@ -395,11 +395,11 @@ Dependencias: R02, R16
 
 Cambios: pendiente
 
-Commits: b03e20a
+Commits: b03e20a, 5bb5395
 
 Pruebas: pendiente
 
-Evidencia: evidence/ux/team-followup-independent-review.json; evidence/pytest-r11-followup-independent.xml
+Evidencia: evidence/ux/team-followup-independent-review.json; evidence/pytest-r11-followup-independent.xml; evidence/model-utc-independent-source.json; evidence/pytest-model-utc-auth-billing-license-independent.xml
 
 Documentación: EQUIPO.md
 
@@ -407,7 +407,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas.; 128independientes y11UI/7flujosreales; CAS/entitlement/perfillegacy verificados local. Entrega real y vinculacion consentida de cuentas previas pendientes.
+Observaciones: La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas.; 128independientes y11UI/7flujosreales; CAS/entitlement/perfillegacy verificados local. Entrega real y vinculacion consentida de cuentas previas pendientes.; UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.
 
 ## R12
 
@@ -473,21 +473,21 @@ Problema: Persistir seguimiento del usuario y del socio
 
 Criterio original: Empezar con usuario individual y fecha local sin esperar R12; integrar pertenencia al gym después; mismo estado en dos dispositivos; logout no borra historial; nunca mezcla cuentas
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
 Cambios: pendiente
 
-Commits: pendiente
+Commits: 4e22852
 
-Pruebas: pendiente
+Pruebas: Preparacion pura35independientes tras1regresionRecursionError; NO API/DB/UI servidor implementados aun.
 
-Evidencia: pendiente
+Evidencia: evidence/personal-diary-values-independent-source.json; evidence/pytest-personal-diary-values-independent.xml
 
-Documentación: pendiente
+Documentación: DIARIO.md
 
-Revisión: pendiente
+Revisión: QA independiente de DTO/helpers, sin cierre de persistencia R14
 
 Bloqueo: no registrado
 
@@ -673,13 +673,13 @@ Estado: en_revision; implementación: en_curso; validación: en_curso; despliegu
 
 Dependencias: sin dependencia declarada
 
-Cambios: Retiro del índice de1648archivos de entornos versionados; original e historial preservados.; Scan exacto de19298e7:887 archivos/0hallazgos, estable. Wrapper BOM y excepciones de hashes publicos por ruta/clave/digest exactos; WIP posterior requiere scan final.
+Cambios: Retiro del índice de1648archivos de entornos versionados; original e historial preservados.; Scan exacto b20e071:1006 archivos/0hallazgos, estable; canarioindependiente valida excepcionesSHApublicas. Commits/WIP posteriores exigen escaneo final.
 
-Commits: dff6fd9, cd78c47, 19298e7
+Commits: dff6fd9, cd78c47, 19298e7, b20e071
 
 Pruebas: pendiente
 
-Evidencia: evidence/repository-comparison.json; evidence/secrets-tree-final.json; evidence/pytest-secret-encoding-independent.xml; evidence/secrets-encoding-wrapper-independent.json; evidence/secrets-commit-binding.json; evidence/secrets-self-report-triage.json
+Evidencia: evidence/repository-comparison.json; evidence/secrets-tree-final.json; evidence/pytest-secret-encoding-independent.xml; evidence/secrets-encoding-wrapper-independent.json; evidence/secrets-commit-binding.json; evidence/secrets-self-report-triage.json; evidence/secrets-09243-triage.json; evidence/secrets-b20-limited-independent.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; HIGIENE.md
 
@@ -687,7 +687,7 @@ Revisión: QA revisó configuración/wrapper/canarios; coordinador revisó retir
 
 Bloqueo: no registrado
 
-Observaciones: Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.; Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion.
+Observaciones: Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.; Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion.; No generalizar scan1006b20 alheadUTC/IaC/diario/PDF/UI posterior.
 
 ## R22
 
@@ -2725,23 +2725,23 @@ Problema: Config as Code obsoleto: el archivo Railway existente deja de estar so
 
 Criterio original: Inventario efectivo saneado, IaC compatible preparado y fijado, diff revisado, sintaxis y contratos validados; pre-deploy/digest/salud/secretos/volúmenes/rollback ensayados en staging autorizado antes del corte. Sin aplicar infraestructura ni contratar recursos por esta entrada.
 
-Estado: pendiente; implementación: pendiente; validación: pendiente; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: sin dependencia declarada
 
 Cambios: pendiente
 
-Commits: pendiente
+Commits: bc6804c
 
-Pruebas: pendiente
+Pruebas: 23Node ytsc independientes,12fuentesestables; SDK npm audit0conocidas/6deps; sinplanCLI/apply/loader/staging.
 
-Evidencia: pendiente
+Evidencia: evidence/ops08-independent-source.json; evidence/ops08-node-local.xml; evidence/ops08-readonly-inventory.json
 
-Documentación: NUEVOS_HALLAZGOS.md
+Documentación: NUEVOS_HALLAZGOS.md; RAILWAY_IAC.md
 
-Revisión: pendiente
+Revisión: QA independiente de Node/tsc y coordinador de contrato/limites
 
-Bloqueo: no registrado
+Bloqueo: "Adopcionlegacy, importcompleto,privilegios,digestfinal/entornoaislado/costes ypinningloaderCLI necesitan paquete final yautorizacion; definicionpreparatoria bloqueaapply."
 
 Observaciones: Fuente primaria consultada2026-10-18; no cambia los92IDs originales ni autoriza aplicar IaC.
 
@@ -2759,11 +2759,11 @@ Dependencias: sin dependencia declarada
 
 Cambios: pendiente
 
-Commits: 4d03300, f325fc4, 501ceaa
+Commits: 4d03300, f325fc4, 501ceaa, 5bb5395
 
 Pruebas: 19 fallos antes;40 aprobadas finales,7.98s; autoridad JWT persistida y Unicode rechazado
 
-Evidencia: evidence/license-security-before.xml; evidence/pytest-license-unicode-final.xml; evidence/license-independent-source.json; evidence/license-timezone-independent-source.json; evidence/pytest-license-timezones-final.xml
+Evidencia: evidence/license-security-before.xml; evidence/pytest-license-unicode-final.xml; evidence/license-independent-source.json; evidence/license-timezone-independent-source.json; evidence/pytest-license-timezones-final.xml; evidence/model-utc-independent-source.json; evidence/pytest-model-utc-auth-billing-license-independent.xml
 
 Documentación: NUEVOS_HALLAZGOS.md; LICENCIAS.md
 
@@ -2771,4 +2771,4 @@ Revisión: QA independiente
 
 Bloqueo: "Puente remoto autenticado, autoridad HMAC y campos comerciales legacy pendientes; contencion local y concurrencia PostgreSQL aceptadas, sin despliegue"
 
-Observaciones: 43finales incl3PG procesosUTC/Mexico; normalizacionUTCnaive evita recorte6h. Puente remoto/HMAClegacy pendientes.
+Observaciones: 43finales incl3PG procesosUTC/Mexico; normalizacionUTCnaive evita recorte6h. Puente remoto/HMAClegacy pendientes.; UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.

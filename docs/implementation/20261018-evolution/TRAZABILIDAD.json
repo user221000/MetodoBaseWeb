@@ -29,7 +29,8 @@
         "166038f88b211c52f0d149ce550880795361707c",
         "c769667",
         "b81cfc1",
-        "e3039c2"
+        "e3039c2",
+        "5bb5395"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -46,7 +47,9 @@
         "evidence/quota-a1-snapshot.json",
         "evidence/gym-quota-independent-source.json",
         "evidence/pytest-gym-quota-independent.xml",
-        "evidence/error-compensation-final-independent-source.json"
+        "evidence/error-compensation-final-independent-source.json",
+        "evidence/model-utc-independent-source.json",
+        "evidence/pytest-model-utc-auth-billing-license-independent.xml"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -59,7 +62,8 @@
       "bloqueo": null,
       "observaciones": [
         "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.",
-        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion."
+        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.",
+        "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia."
       ]
     },
     {
@@ -127,7 +131,8 @@
       ],
       "commits": [
         "e8a6806",
-        "b81cfc1"
+        "b81cfc1",
+        "5bb5395"
       ],
       "pruebas": [],
       "evidencia": [
@@ -138,7 +143,9 @@
         "evidence/r03-restorable-independent-source.json",
         "evidence/gym-migrations-independent-source.json",
         "evidence/pytest-gym24-restore-independent.xml",
-        "evidence/gym24-restore-independent-source.json"
+        "evidence/gym24-restore-independent-source.json",
+        "evidence/model-utc-independent-source.json",
+        "evidence/pytest-model-utc-auth-billing-license-independent.xml"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -151,7 +158,8 @@
       "bloqueo": null,
       "observaciones": [
         "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.",
-        "Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes."
+        "Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.",
+        "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia."
       ]
     },
     {
@@ -179,7 +187,8 @@
       "commits": [
         "f325fc4",
         "501ceaa",
-        "b81cfc1"
+        "b81cfc1",
+        "5bb5395"
       ],
       "pruebas": [
         "Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas"
@@ -193,7 +202,9 @@
         "evidence/r04-activation-root-final.xml",
         "evidence/gym-migrations-independent-source.json",
         "evidence/pytest-gym24-restore-independent.xml",
-        "evidence/gym24-restore-independent-source.json"
+        "evidence/gym24-restore-independent-source.json",
+        "evidence/model-utc-independent-source.json",
+        "evidence/pytest-model-utc-auth-billing-license-independent.xml"
       ],
       "documentacion": [
         "AISLAMIENTO.md"
@@ -202,7 +213,8 @@
       "bloqueo": null,
       "observaciones": [
         "Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes.",
-        "Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes."
+        "Head24 anade ledgerB2B y politica18 sin reescribir contratos22/23.6 casos migracion y restore24 completo independientes; staging y operacion real pendientes.",
+        "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia."
       ]
     },
     {
@@ -539,12 +551,15 @@
       "entorno": "local",
       "cambios": [],
       "commits": [
-        "b03e20a"
+        "b03e20a",
+        "5bb5395"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/ux/team-followup-independent-review.json",
-        "evidence/pytest-r11-followup-independent.xml"
+        "evidence/pytest-r11-followup-independent.xml",
+        "evidence/model-utc-independent-source.json",
+        "evidence/pytest-model-utc-auth-billing-license-independent.xml"
       ],
       "documentacion": [
         "EQUIPO.md"
@@ -553,7 +568,8 @@
       "bloqueo": null,
       "observaciones": [
         "La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas.",
-        "128independientes y11UI/7flujosreales; CAS/entitlement/perfillegacy verificados local. Entrega real y vinculacion consentida de cuentas previas pendientes."
+        "128independientes y11UI/7flujosreales; CAS/entitlement/perfillegacy verificados local. Entrega real y vinculacion consentida de cuentas previas pendientes.",
+        "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia."
       ]
     },
     {
@@ -637,17 +653,26 @@
         "R14"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "commits": [
+        "4e22852"
+      ],
+      "pruebas": [
+        "Preparacion pura35independientes tras1regresionRecursionError; NO API/DB/UI servidor implementados aun."
+      ],
+      "evidencia": [
+        "evidence/personal-diary-values-independent-source.json",
+        "evidence/pytest-personal-diary-values-independent.xml"
+      ],
+      "documentacion": [
+        "DIARIO.md"
+      ],
+      "revisor": "QA independiente de DTO/helpers, sin cierre de persistencia R14",
       "bloqueo": null,
       "observaciones": []
     },
@@ -920,12 +945,13 @@
       "entorno": "local",
       "cambios": [
         "Retiro del índice de1648archivos de entornos versionados; original e historial preservados.",
-        "Scan exacto de19298e7:887 archivos/0hallazgos, estable. Wrapper BOM y excepciones de hashes publicos por ruta/clave/digest exactos; WIP posterior requiere scan final."
+        "Scan exacto b20e071:1006 archivos/0hallazgos, estable; canarioindependiente valida excepcionesSHApublicas. Commits/WIP posteriores exigen escaneo final."
       ],
       "commits": [
         "dff6fd9",
         "cd78c47",
-        "19298e7"
+        "19298e7",
+        "b20e071"
       ],
       "pruebas": [],
       "evidencia": [
@@ -934,7 +960,9 @@
         "evidence/pytest-secret-encoding-independent.xml",
         "evidence/secrets-encoding-wrapper-independent.json",
         "evidence/secrets-commit-binding.json",
-        "evidence/secrets-self-report-triage.json"
+        "evidence/secrets-self-report-triage.json",
+        "evidence/secrets-09243-triage.json",
+        "evidence/secrets-b20-limited-independent.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -946,7 +974,8 @@
       "bloqueo": null,
       "observaciones": [
         "Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.",
-        "Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion."
+        "Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion.",
+        "No generalizar scan1006b20 alheadUTC/IaC/diario/PDF/UI posterior."
       ]
     },
     {
@@ -3632,20 +3661,29 @@
         "R20"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [
-        "NUEVOS_HALLAZGOS.md"
+      "commits": [
+        "bc6804c"
       ],
-      "revisor": null,
-      "bloqueo": null,
+      "pruebas": [
+        "23Node ytsc independientes,12fuentesestables; SDK npm audit0conocidas/6deps; sinplanCLI/apply/loader/staging."
+      ],
+      "evidencia": [
+        "evidence/ops08-independent-source.json",
+        "evidence/ops08-node-local.xml",
+        "evidence/ops08-readonly-inventory.json"
+      ],
+      "documentacion": [
+        "NUEVOS_HALLAZGOS.md",
+        "RAILWAY_IAC.md"
+      ],
+      "revisor": "QA independiente de Node/tsc y coordinador de contrato/limites",
+      "bloqueo": "Adopcionlegacy, importcompleto,privilegios,digestfinal/entornoaislado/costes ypinningloaderCLI necesitan paquete final yautorizacion; definicionpreparatoria bloqueaapply.",
       "observaciones": [
         "Fuente primaria consultada2026-10-18; no cambia los92IDs originales ni autoriza aplicar IaC."
       ]
@@ -3675,7 +3713,8 @@
       "commits": [
         "4d03300",
         "f325fc4",
-        "501ceaa"
+        "501ceaa",
+        "5bb5395"
       ],
       "pruebas": [
         "19 fallos antes;40 aprobadas finales,7.98s; autoridad JWT persistida y Unicode rechazado"
@@ -3685,7 +3724,9 @@
         "evidence/pytest-license-unicode-final.xml",
         "evidence/license-independent-source.json",
         "evidence/license-timezone-independent-source.json",
-        "evidence/pytest-license-timezones-final.xml"
+        "evidence/pytest-license-timezones-final.xml",
+        "evidence/model-utc-independent-source.json",
+        "evidence/pytest-model-utc-auth-billing-license-independent.xml"
       ],
       "documentacion": [
         "NUEVOS_HALLAZGOS.md",
@@ -3694,7 +3735,8 @@
       "revisor": "QA independiente",
       "bloqueo": "Puente remoto autenticado, autoridad HMAC y campos comerciales legacy pendientes; contencion local y concurrencia PostgreSQL aceptadas, sin despliegue",
       "observaciones": [
-        "43finales incl3PG procesosUTC/Mexico; normalizacionUTCnaive evita recorte6h. Puente remoto/HMAClegacy pendientes."
+        "43finales incl3PG procesosUTC/Mexico; normalizacionUTCnaive evita recorte6h. Puente remoto/HMAClegacy pendientes.",
+        "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia."
       ]
     }
   ]
