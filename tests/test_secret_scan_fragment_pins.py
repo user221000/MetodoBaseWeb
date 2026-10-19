@@ -143,3 +143,24 @@ def test_wrapper_classification_counts_and_failure_status(tmp_path, monkeypatch,
     assert result["remaining_finding_count"] == (1 if case in {"snapshot_changed", "other_finding"} else 0)
     assert result["source_stable"] == (case != "source_changed")
     assert "must never be emitted" not in report.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("payload", [{}, False, 0, "", None, "unexpected", {"unexpected": True}, 1])
+def test_malformed_scanner_json_cannot_become_a_successful_empty_list(tmp_path, monkeypatch, payload):
+    from tests.test_secret_scan_safety import _scenario
+
+    boundary, report, _ = _scenario(tmp_path, monkeypatch)
+    original_run = boundary.subprocess.run
+
+    def run(command, **options):
+        result = original_run(command, **options)
+        if len(command) > 1 and command[1] == "dir":
+            raw = Path(command[command.index("--report-path") + 1])
+            raw.write_text(json.dumps(payload), encoding="utf-8")
+            return subprocess.CompletedProcess(command, 0)
+        return result
+
+    monkeypatch.setattr(boundary.subprocess, "run", run)
+    with pytest.raises(RuntimeError, match="inconsistent findings; output withheld"):
+        boundary.main()
+    assert not report.exists()

@@ -152,7 +152,7 @@ def main() -> int:
             capture_output=True, cwd=workspace, env=environment, timeout=135)
         if scan.returncode not in {0, 1} or not raw_report.is_file():
             raise RuntimeError(f"Secret scanner failed; exit={scan.returncode}; output withheld")
-        raw = json.loads(raw_report.read_text(encoding="utf-8")) or []
+        raw = json.loads(raw_report.read_text(encoding="utf-8"))
         if not isinstance(raw, list) or bool(raw) != (scan.returncode == 1):
             raise RuntimeError("Secret scanner returned inconsistent findings; output withheld")
         findings = []
