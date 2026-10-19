@@ -9,14 +9,14 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [R01](#r01) | P0 | Backend y datos | R01 | en_revision | en_curso | local |
 | [R02](#r02) | P0 | Backend y datos | R02 | en_curso | en_curso | local |
 | [R03](#r03) | P0 | Backend y datos | R03 | en_revision | en_curso | local |
-| [R04](#r04) | P0 | Backend y datos | R04 | en_curso | parcial | local |
+| [R04](#r04) | P0 | Backend y datos | R04 | en_revision | parcial | local |
 | [R05](#r05) | P0 | QA y automatización | R05 | en_revision | en_curso | local |
 | [R06](#r06) | P0 | Backend y datos | R06 | en_curso | en_curso | local |
-| [R07](#r07) | P1 | Operación y documentación | R07 | en_curso | parcial | local |
+| [R07](#r07) | P1 | Operación y documentación | R07 | en_revision | parcial | local |
 | [R08](#r08) | P1 | Operación y documentación | R08 | en_revision | en_curso | local |
 | [R09](#r09) | P1 | Coordinación y arquitectura | R09 | en_curso | en_curso | local |
 | [R10](#r10) | P1 | Seguridad y privacidad | R10 | en_curso | en_curso | local |
-| [R11](#r11) | P1 | Backend y datos | R11 | en_curso | parcial | local |
+| [R11](#r11) | P1 | Backend y datos | R11 | en_revision | parcial | local |
 | [R12](#r12) | P1 | Backend y datos | R12 | pendiente | pendiente | local |
 | [R13](#r13) | P1 | Frontend y UX/UI | R13 | en_revision | en_curso | local |
 | [R14](#r14) | P1 | Backend y datos | R14 | pendiente | pendiente | local |
@@ -127,7 +127,7 @@ Revisión: QA independiente PG y revisión de locks por coordinador/backend.
 
 Bloqueo: no registrado
 
-Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.
+Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.
 
 ## R02
 
@@ -183,7 +183,7 @@ Revisión: Coordinador y QA independientes del autor backend; alcance local R03/
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.
 
 ## R04
 
@@ -193,25 +193,25 @@ Problema: Implantar privilegios mínimos y aislamiento PostgreSQL
 
 Criterio original: Tras R02/R03; rol app sin superusuario/BYPASSRLS; tenant por transacción y por job; pruebas negativas con dos gimnasios y rol real restringido
 
-Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R02, R03
 
 Cambios: pendiente
 
-Commits: f325fc4
+Commits: f325fc4, 501ceaa
 
 Pruebas: Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas
 
-Evidencia: evidence/coordinator-r04-preparation-review.md; evidence/r04-preparation-root.xml; evidence/r04-preparation-root-source.json
+Evidencia: evidence/coordinator-r04-preparation-review.md; evidence/r04-preparation-root.xml; evidence/r04-preparation-root-source.json; evidence/r04-followup-independent-source.json; evidence/pytest-r04-followup-independent.xml; evidence/r04-activation-root-final.xml
 
-Documentación: pendiente
+Documentación: AISLAMIENTO.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes.
 
 ## R05
 
@@ -277,25 +277,25 @@ Problema: Almacenamiento persistente de documentos y logos
 
 Criterio original: Tras definición de tenant; archivos sobreviven a redeploy; descargas autorizadas; migración de referencias y manejo de fallos probado
 
-Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R04
 
 Cambios: pendiente
 
-Commits: pendiente
+Commits: abc896f
 
-Pruebas: Adaptadores iniciales autor:18 volumen pass/1 symlink omitida Windows;8 contratos SDK S3 Stubber pass. Sin DB/consumidores/proveedor real aun
+Pruebas: 33 pruebas independientes aprobadas y1 symlink omitida Windows; volumen privado y SDK S3 Stubber. Sin DB/consumidores/proveedor real.
 
-Evidencia: evidence/storage-volume-author.xml; evidence/storage-sdk-author.xml; evidence/storage-volume-harness-before.json
+Evidencia: evidence/storage-volume-author.xml; evidence/storage-sdk-author.xml; evidence/storage-volume-harness-before.json; evidence/r07-storage-frontend-independent-source.json; evidence/r07-storage-frontend-fix-independent.xml
 
-Documentación: pendiente
+Documentación: ALMACENAMIENTO.md
 
-Revisión: pendiente
+Revisión: Frontend independiente y coordinador; adaptadores solamente
 
 Bloqueo: "Metadatos/RLS posteriores a R04, consumidores y migracion por implementar; proveedor/volumen persistente, contenedor y retencion pendientes de validacion/decision"
 
-Observaciones: sin observaciones
+Observaciones: 33independientes/1symlinkomitidaWindows; adapters solamente, sin DB/consumidores/proveedorreal.
 
 ## R08
 
@@ -389,25 +389,25 @@ Problema: Equipo utilizable de extremo a extremo
 
 Criterio original: Tras R02 y correo; pantalla GET de invitación y canje POST de un uso; caducidad/revocación; navegación por permisos; dueño invita y miembro accede a su gimnasio
 
-Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
+Estado: en_revision; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R02, R16
 
 Cambios: pendiente
 
-Commits: pendiente
+Commits: b03e20a
 
 Pruebas: pendiente
 
-Evidencia: pendiente
+Evidencia: evidence/ux/team-followup-independent-review.json; evidence/pytest-r11-followup-independent.xml
 
-Documentación: pendiente
+Documentación: EQUIPO.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas.
+Observaciones: La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas.; 128independientes y11UI/7flujosreales; CAS/entitlement/perfillegacy verificados local. Entrega real y vinculacion consentida de cuentas previas pendientes.
 
 ## R12
 
@@ -673,13 +673,13 @@ Estado: en_revision; implementación: en_curso; validación: en_curso; despliegu
 
 Dependencias: sin dependencia declarada
 
-Cambios: Retiro del índice de1648archivos de entornos versionados; original e historial preservados.; Scan exacto de commit697archivos/0hallazgos, BOM transcodificado sólo en snapshot,11tests independientes. WIP posterior necesita scan antes cierre final.
+Cambios: Retiro del índice de1648archivos de entornos versionados; original e historial preservados.; Scan exacto de19298e7:887 archivos/0hallazgos, estable. Wrapper BOM y excepciones de hashes publicos por ruta/clave/digest exactos; WIP posterior requiere scan final.
 
-Commits: dff6fd9, cd78c47
+Commits: dff6fd9, cd78c47, 19298e7
 
 Pruebas: pendiente
 
-Evidencia: evidence/repository-comparison.json; evidence/secrets-tree-final.json; evidence/pytest-secret-encoding-independent.xml; evidence/secrets-encoding-wrapper-independent.json
+Evidencia: evidence/repository-comparison.json; evidence/secrets-tree-final.json; evidence/pytest-secret-encoding-independent.xml; evidence/secrets-encoding-wrapper-independent.json; evidence/secrets-commit-binding.json; evidence/secrets-self-report-triage.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; HIGIENE.md
 
@@ -687,7 +687,7 @@ Revisión: QA revisó configuración/wrapper/canarios; coordinador revisó retir
 
 Bloqueo: no registrado
 
-Observaciones: Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.
+Observaciones: Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.; Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion.
 
 ## R22
 
@@ -967,7 +967,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.
+Observaciones: Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.; Exportacion preparatoria:41 pruebas independientes aceptadas; presupuesto de bytes, identidad persistida, UUID con caso original y cero commits. Router montado despues en ambas fabricas; integracion PG y UI pendientes. Inventario preparado sin inventar retencion/borrado.
 
 ## R32
 
@@ -2759,16 +2759,16 @@ Dependencias: sin dependencia declarada
 
 Cambios: pendiente
 
-Commits: 4d03300, f325fc4
+Commits: 4d03300, f325fc4, 501ceaa
 
 Pruebas: 19 fallos antes;40 aprobadas finales,7.98s; autoridad JWT persistida y Unicode rechazado
 
-Evidencia: evidence/license-security-before.xml; evidence/pytest-license-unicode-final.xml; evidence/license-independent-source.json
+Evidencia: evidence/license-security-before.xml; evidence/pytest-license-unicode-final.xml; evidence/license-independent-source.json; evidence/license-timezone-independent-source.json; evidence/pytest-license-timezones-final.xml
 
 Documentación: NUEVOS_HALLAZGOS.md; LICENCIAS.md
 
 Revisión: QA independiente
 
-Bloqueo: "Pendiente concurrencia PostgreSQL, puente remoto autenticado, autoridad HMAC y campos comerciales legacy; contencion local aceptada, sin despliegue"
+Bloqueo: "Puente remoto autenticado, autoridad HMAC y campos comerciales legacy pendientes; contencion local y concurrencia PostgreSQL aceptadas, sin despliegue"
 
-Observaciones: sin observaciones
+Observaciones: 43finales incl3PG procesosUTC/Mexico; normalizacionUTCnaive evita recorte6h. Puente remoto/HMAClegacy pendientes.

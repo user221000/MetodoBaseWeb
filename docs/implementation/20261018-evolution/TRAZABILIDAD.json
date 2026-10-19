@@ -50,7 +50,8 @@
       "revisor": "QA independiente PG y revisión de locks por coordinador/backend.",
       "bloqueo": null,
       "observaciones": [
-        "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas."
+        "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.",
+        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion."
       ]
     },
     {
@@ -136,7 +137,9 @@
       ],
       "revisor": "Coordinador y QA independientes del autor backend; alcance local R03/R08, no aceptación productiva.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTCnuevo en preparacion, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion."
+      ]
     },
     {
       "id": "R04",
@@ -154,14 +157,15 @@
         "R02",
         "R03"
       ],
-      "estado": "en_curso",
+      "estado": "en_revision",
       "implementacion": "parcial",
       "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
       "commits": [
-        "f325fc4"
+        "f325fc4",
+        "501ceaa"
       ],
       "pruebas": [
         "Coordinador independiente:19 aprobadas,63.30s; preparacion23 SQLite/PostgreSQL sin activar politicas"
@@ -169,12 +173,19 @@
       "evidencia": [
         "evidence/coordinator-r04-preparation-review.md",
         "evidence/r04-preparation-root.xml",
-        "evidence/r04-preparation-root-source.json"
+        "evidence/r04-preparation-root-source.json",
+        "evidence/r04-followup-independent-source.json",
+        "evidence/pytest-r04-followup-independent.xml",
+        "evidence/r04-activation-root-final.xml"
       ],
-      "documentacion": [],
+      "documentacion": [
+        "AISLAMIENTO.md"
+      ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Aceptacion local:17familias FORCE/ENABLE,6controlplane explicitas;64matriz y37seguimiento+restore23. Staging/produccion pendientes."
+      ]
     },
     {
       "id": "R05",
@@ -287,25 +298,33 @@
       "dependencias": [
         "R04"
       ],
-      "estado": "en_curso",
+      "estado": "en_revision",
       "implementacion": "parcial",
       "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
+      "commits": [
+        "abc896f"
+      ],
       "pruebas": [
-        "Adaptadores iniciales autor:18 volumen pass/1 symlink omitida Windows;8 contratos SDK S3 Stubber pass. Sin DB/consumidores/proveedor real aun"
+        "33 pruebas independientes aprobadas y1 symlink omitida Windows; volumen privado y SDK S3 Stubber. Sin DB/consumidores/proveedor real."
       ],
       "evidencia": [
         "evidence/storage-volume-author.xml",
         "evidence/storage-sdk-author.xml",
-        "evidence/storage-volume-harness-before.json"
+        "evidence/storage-volume-harness-before.json",
+        "evidence/r07-storage-frontend-independent-source.json",
+        "evidence/r07-storage-frontend-fix-independent.xml"
       ],
-      "documentacion": [],
-      "revisor": null,
+      "documentacion": [
+        "ALMACENAMIENTO.md"
+      ],
+      "revisor": "Frontend independiente y coordinador; adaptadores solamente",
       "bloqueo": "Metadatos/RLS posteriores a R04, consumidores y migracion por implementar; proveedor/volumen persistente, contenedor y retencion pendientes de validacion/decision",
-      "observaciones": []
+      "observaciones": [
+        "33independientes/1symlinkomitidaWindows; adapters solamente, sin DB/consumidores/proveedorreal."
+      ]
     },
     {
       "id": "R08",
@@ -464,20 +483,28 @@
         "R02",
         "R16"
       ],
-      "estado": "en_curso",
+      "estado": "en_revision",
       "implementacion": "parcial",
       "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
+      "commits": [
+        "b03e20a"
+      ],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "evidencia": [
+        "evidence/ux/team-followup-independent-review.json",
+        "evidence/pytest-r11-followup-independent.xml"
+      ],
+      "documentacion": [
+        "EQUIPO.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": [
-        "La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas."
+        "La etapa102 pruebas no acepta el cierre: QA/backend encontraron carreras de cambios de rol/revocacion y nuevas invitaciones sin derecho comercial. Correcciones CAS/comerciales/legacy en revision con nuevas huellas.",
+        "128independientes y11UI/7flujosreales; CAS/entitlement/perfillegacy verificados local. Entrega real y vinculacion consentida de cuentas previas pendientes."
       ]
     },
     {
@@ -815,18 +842,21 @@
       "entorno": "local",
       "cambios": [
         "Retiro del índice de1648archivos de entornos versionados; original e historial preservados.",
-        "Scan exacto de commit697archivos/0hallazgos, BOM transcodificado sólo en snapshot,11tests independientes. WIP posterior necesita scan antes cierre final."
+        "Scan exacto de19298e7:887 archivos/0hallazgos, estable. Wrapper BOM y excepciones de hashes publicos por ruta/clave/digest exactos; WIP posterior requiere scan final."
       ],
       "commits": [
         "dff6fd9",
-        "cd78c47"
+        "cd78c47",
+        "19298e7"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/repository-comparison.json",
         "evidence/secrets-tree-final.json",
         "evidence/pytest-secret-encoding-independent.xml",
-        "evidence/secrets-encoding-wrapper-independent.json"
+        "evidence/secrets-encoding-wrapper-independent.json",
+        "evidence/secrets-commit-binding.json",
+        "evidence/secrets-self-report-triage.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -837,7 +867,8 @@
       "revisor": "QA revisó configuración/wrapper/canarios; coordinador revisó retiro de artefactos.",
       "bloqueo": null,
       "observaciones": [
-        "Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito."
+        "Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.",
+        "Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion."
       ]
     },
     {
@@ -1135,7 +1166,8 @@
       "revisor": null,
       "bloqueo": null,
       "observaciones": [
-        "Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta."
+        "Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.",
+        "Exportacion preparatoria:41 pruebas independientes aceptadas; presupuesto de bytes, identidad persistida, UUID con caso original y cero commits. Router montado despues en ambas fabricas; integracion PG y UI pendientes. Inventario preparado sin inventar retencion/borrado."
       ]
     },
     {
@@ -3490,7 +3522,8 @@
       "cambios": [],
       "commits": [
         "4d03300",
-        "f325fc4"
+        "f325fc4",
+        "501ceaa"
       ],
       "pruebas": [
         "19 fallos antes;40 aprobadas finales,7.98s; autoridad JWT persistida y Unicode rechazado"
@@ -3498,15 +3531,19 @@
       "evidencia": [
         "evidence/license-security-before.xml",
         "evidence/pytest-license-unicode-final.xml",
-        "evidence/license-independent-source.json"
+        "evidence/license-independent-source.json",
+        "evidence/license-timezone-independent-source.json",
+        "evidence/pytest-license-timezones-final.xml"
       ],
       "documentacion": [
         "NUEVOS_HALLAZGOS.md",
         "LICENCIAS.md"
       ],
       "revisor": "QA independiente",
-      "bloqueo": "Pendiente concurrencia PostgreSQL, puente remoto autenticado, autoridad HMAC y campos comerciales legacy; contencion local aceptada, sin despliegue",
-      "observaciones": []
+      "bloqueo": "Puente remoto autenticado, autoridad HMAC y campos comerciales legacy pendientes; contencion local y concurrencia PostgreSQL aceptadas, sin despliegue",
+      "observaciones": [
+        "43finales incl3PG procesosUTC/Mexico; normalizacionUTCnaive evita recorte6h. Puente remoto/HMAClegacy pendientes."
+      ]
     }
   ]
 }
