@@ -1,6 +1,6 @@
 # Entrega candidata
 
-Implementación local en curso; todavía sin release final, imagen probada ni despliegue. Rama `implementation/20261018-execution`, base daa25efbf51d154710bad625025b345fa9ec9252; código integrado hasta6d33b9e. [Estado](ESTADO.md), [historia](CAMBIOS.md), [registro95](TRAZABILIDAD.md).
+Implementación local en curso; todavía sin release final, imagen probada ni despliegue. Rama `implementation/20261018-execution`, base daa25efbf51d154710bad625025b345fa9ec9252; código integrado hasta6d33b9e. [Estado](ESTADO.md), [historia](CAMBIOS.md), [registro96](TRAZABILIDAD.md).
 
 | Hito | Evidencia local | Pendiente material |
 | --- | --- | --- |
@@ -14,4 +14,4 @@ Implementación local en curso; todavía sin release final, imagen probada ni de
 
 Antes de solicitar una operación externa faltan artefacto exacto/digest, variables sin secretos, migraciones en orden, backup/restore de ese candidato, transición de workers, rollback y observación. Migración26 exige drenar workers antiguos antes de reabrir generación: el startup nuevo no protege procesos viejos aún vivos. No se ejecutó ese cambio live.
 
-El scan limpio más reciente cubre b20e071, no6d33b9e. Docker está bloqueado por virtualización deshabilitada. Los ensayos históricos, SBOM/SCA de resolución y checks estáticos conservan sus alcances; no prueban una imagen final inexistente. Diario persistente, recuperación/cuenta, progreso, MFA, contrato nutricional y restantes criterios95 siguen abiertos. No se publicaron commits/PRs ni se alteró Railway.
+El scan limpio más reciente cubre b20e071, no6d33b9e. Docker está bloqueado por virtualización deshabilitada. Los ensayos históricos, SBOM/SCA de resolución y checks estáticos conservan sus alcances; no prueban una imagen final inexistente. Diario persistente, recuperación/cuenta, progreso, MFA, contrato nutricional y restantes criterios96 siguen abiertos. No se publicaron commits/PRs ni se alteró Railway.

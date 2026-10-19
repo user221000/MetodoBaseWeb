@@ -1,0 +1,9 @@
+# Revisión independiente de respuesta400 personal
+
+Coordinación escribió `metodobase-personal-ambiguity-review-20261019.cjs` sin reutilizar pruebas del autor. Los cuatro casos VM representan400 sin código y400 `generation_unavailable`, cada uno con posterior replay publicado y control de replay `generation_failed` que confirma reserva liberada. Exigen conservar clave/no enviar nueva intención ante respuesta ambigua; retry utiliza la misma; sólo después de confirmación definitiva o resultado completado puede una acción explícita crear otra.
+
+El primer probe llegó después del fix y dio4/4 sobre controlador fb69489ad1941ecb7d199c48bc57656781a68118283728850f92636162282d76. Su archivo se renombró `current-first` para no presentarlo como before; el nombre del body guardado aún contiene `before-independent` por la invocación inicial, pero SHA y contenido pertenecen explícitamente al candidato corregido. Ese primer éxito se conserva como etapa, sin atribuirle reproducción roja.
+
+Después se ejecutó la misma prueba inmutable sobre la copia exacta previa suministrada por frontend: controlador2f67ee81f93a99ee5ebf5c1b6f9c58b3c59bfd8c7f74bd12f54946f1933ec760 dio0/4; falló la prohibición de enviar nueva intención tras400. El cuerpo actual fb69489a dio4/4. Archivos `historical-before-independent` y `after-independent` conservan resultados y copias exactas de los cuerpos. Es una reproducción de un candidato WIP, no un commit inventado ni una modificación de fuentes para producir el rojo.
+
+Alcance: controlador en Node VM y API sintética; no prueba worker, PostgreSQL, PDF o navegador. El hallazgo está fundamentado además en el contrato26: una excepción ValueError posterior al commit puede responder400/generation_unavailable manteniendo Plan/ready/consumo. La prueba real de ese backend tiene su evidencia anterior separada. La nueva UI, extracción de query y recorrido browser aún requieren aceptación independiente antes de integrar.

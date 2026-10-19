@@ -1,0 +1,48 @@
+{
+  "utc": "2026-10-19T05:42:51.238573+00:00",
+  "source_commit": "2f8b7f9",
+  "scope": "Exact two synthetic identifiers in two historical test artifacts, approved by coordinator; first single-line action retained as a separate historical step. No historical manifest rewritten, no snapshot mutation.",
+  "redactions": [
+    {
+      "file": "docs/implementation/20261018-evolution/evidence/auth-telemetry-privacy-before.log",
+      "line": 68,
+      "original_file_sha256": "bb8be135ee376200acb7507aa22418904330f7efe579913285eac39330c53d2b",
+      "current_file_sha256": "ea2a32bf2638c2e70a706e4b5974fb6ce9f23b03846a03f8386e03a2ad277984",
+      "synthetic_identifier_slots_redacted": 2,
+      "placeholders": [
+        "[SYNTHETIC_SESSION_ID_REDACTED]",
+        "[SYNTHETIC_USER_ID_REDACTED]"
+      ],
+      "provenance": "tests/test_auth_telemetry_privacy.py::test_refresh_reuse_keeps_revocation_signal_without_token_identifier; account fixture and refresh token generated only in isolated test",
+      "reason": "Historical logger printed synthetic refresh-session and account UUIDs. Preserve the before failure and classification without delivering the identifier values. No UUID-pattern or log-path allowlist.",
+      "historical_bytes": "Original bytes remain in Git at source_commit and immutable scanner snapshot; existing manifests continue to describe those historical bytes. Current delivery bytes intentionally differ."
+    },
+    {
+      "utc": "2026-10-19T05:47:35.246889+00:00",
+      "file": "docs/implementation/20261018-evolution/evidence/auth-telemetry-privacy-before.log",
+      "previous_file_sha256": "ea2a32bf2638c2e70a706e4b5974fb6ce9f23b03846a03f8386e03a2ad277984",
+      "current_file_sha256": "61df3bb2e2dab5bc34a062942141526805a14982b789d05c254ae6237a7e76d7",
+      "session_id_occurrences_redacted": 2,
+      "user_id_occurrences_redacted": 1,
+      "placeholders": [
+        "[SYNTHETIC_SESSION_ID_REDACTED]",
+        "[SYNTHETIC_USER_ID_REDACTED]"
+      ],
+      "provenance": "Exactly the same two generated identifiers from the isolated refresh-reuse before case; no general UUID redaction or allowlist. Existing source manifests continue to describe historical bytes."
+    },
+    {
+      "utc": "2026-10-19T05:47:35.261847+00:00",
+      "file": "docs/implementation/20261018-evolution/evidence/auth-telemetry-privacy-before.xml",
+      "previous_file_sha256": "aab2c3fe4cddce002b48cdeb82d798589ae329e0ec36ad8e7488888e265fac80",
+      "current_file_sha256": "41bbf856c34d3b4f322e5d696225fbc4139c0a3c8e65e31d9d09f7416586dc09",
+      "session_id_occurrences_redacted": 4,
+      "user_id_occurrences_redacted": 2,
+      "placeholders": [
+        "[SYNTHETIC_SESSION_ID_REDACTED]",
+        "[SYNTHETIC_USER_ID_REDACTED]"
+      ],
+      "provenance": "Exactly the same two generated identifiers from the isolated refresh-reuse before case; no general UUID redaction or allowlist. Existing source manifests continue to describe historical bytes."
+    }
+  ],
+  "same_two_identifiers_remaining_in_current_artifacts": false
+}

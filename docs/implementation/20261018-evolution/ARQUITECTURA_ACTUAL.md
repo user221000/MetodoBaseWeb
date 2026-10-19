@@ -38,10 +38,11 @@ El navegador sigue usando bearer persistido en almacenamiento local: R10/R31 con
 | Identidad/RBAC | `web/auth.py`, `auth_deps.py`, `services/permissions.py` | Rol/team/versión se recargan del principal persistido; permiso desconocido denegado |
 | Aislamiento | `database/tenant_context.py`, `tenant_policy.py`, middleware tenant | Contexto transaccional, SET LOCAL y tareas con tenant explícito;17 familias R04 más ledger/objetos hasta19 |
 | Dinero | `services/billing_integrity.py`, `subscription_service.py`, routers billing/webhooks | Intención previa al proveedor; estado firmado/verificado e idempotencia |
-| Cuota individual | `services/generation_quota.py` | Reserva persistida y publicación exacta del plan |
-| Cuota profesional, en revisión | `services/gym_generation_quota.py`, `quota_calendar.py` | Lock de cuenta antes de decisión; ledger24 y publicación CAS |
-| Worker compartido, en revisión | `services/plan_generation.py` | Web/API conservan wrappers; motor/PDF/JSON/persistencia tienen un recorrido común |
-| Privacidad, en revisión | `services/privacy_export.py`, router y UI de descarga | Identidad personal; GET readonly y presupuesto de bytes; cartera profesional excluida |
+| Cuota individual | `services/generation_quota.py` | Esquema26: protocolo1, periodo capturado y marcador de publicación en la transacción Plan/ready; lector exige Plan/Cliente del mismo dueño |
+| Cuota profesional | `services/gym_generation_quota.py`, `quota_calendar.py` | Lock de cuenta antes de decisión; ledger24 y publicación CAS, sin reembolso de resultados publicados |
+| Worker compartido | `services/plan_generation.py` | Web/API conservan wrappers; motor/PDF/JSON/persistencia tienen un recorrido común; intenciones individual/profesional explícitas y excluyentes |
+| Exportación personal | `services/privacy_export.py`, router y UI de descarga | Identidad personal; GET readonly y presupuesto de bytes; cartera profesional excluida; borrado/retención abiertos |
+| Transporte de sesión | `web/static/js/api.js` | Revisión lógica y promesa compartida por instancia; error Storage bloquea I/O hasta save/clear completo; reload/cross-tab/escritores externos pendientes |
 | Persistencia | SQLAlchemy `database/models.py`, `repository.py` | Consultas con propietario explícito además de RLS; migración fuera del tráfico |
 | Objetos | `web/storage`, `services/private_objects.py`, `plan_documents.py`, `gym_logos.py` | Intención antes de PUT; ready/referencia transaccionales, kind/owner/backend/SHA; destino real y migración histórica pendientes |
 | Operación | CLI Alembic, backup/restore, Redis y handlers de errores | Fallos bloqueantes; logs automáticos saneados en el seguimiento actual |
@@ -65,18 +66,20 @@ erDiagram
     STORED_OBJECTS o|--o{ PLANES_GENERADOS : owner_and_pdf_object_id
     STORED_OBJECTS o|--o{ GYM_PROFILES : owner_and_logo_object_id
     PLANES_GENERADOS o|--o| GYM_GENERATION_RESERVATIONS : plan_id
+    PLANES_GENERADOS o|--o{ GENERATION_RESERVATIONS : plan_id_nullable_marker_retained
     USUARIOS ||--o{ GYM_LICENSES : gym_id
     GYM_LICENSES o|--o{ LICENSE_ACTIVATIONS : issued_license_id
     USUARIOS ||--o{ PROVIDER_SUBJECT_ASSOCIATIONS : subject_id
 ```
 
-El ERD es una selección de relaciones de autoridad, no una reproducción de todas las columnas. La relación de socio no se infiere por correo y todavía requiere modelo/consentimiento R12. Equipo profesional, cliente del gimnasio, licencia SaaS y suscripción individual siguen siendo conceptos diferentes. Las tablas R04 y sus seis grupos de control tienen matriz explícita en AISLAMIENTO.md; la tabla24 amplía la protección en su propia migración, sin reescribir la historia23.
+El ERD es una selección de relaciones de autoridad, no una reproducción de todas las columnas. La relación de socio no se infiere por correo y todavía requiere modelo/consentimiento R12. Equipo profesional, cliente del gimnasio, licencia SaaS y suscripción individual siguen siendo conceptos diferentes. Las tablas R04 y sus seis grupos de control tienen matriz explícita en AISLAMIENTO.md; ledger24 y objetos25 amplían las familias protegidas. La revisión26 añade columnas a la reserva individual sin tabla nueva: siguen25 tablas y19 familias FORCE. Ninguna migración histórica se reescribe.
 
 ## Decisiones y contratos enlazados
 
 - [Decisiones de ejecución](DECISIONES.md): autorización y límites comerciales, calendario, fechas históricas y conservación.
 - [Identidad/tenant y migrador](AISLAMIENTO.md), [equipo e invitaciones](EQUIPO.md), [licencias](LICENCIAS.md).
 - [Dinero e idempotencia](evidence/backend-money-contract.md), [catálogo](CATALOGO.md), [reservas B2B](B2B_CUOTAS.md).
+- [Publicación individual](CUOTA_INDIVIDUAL.md), [sesiones HTTP por instancia](SESIONES_HTTP.md), [cleanup](CLEANUP.md).
 - [Objetos](ALMACENAMIENTO.md), [backup/restore](BACKUP_RESTORE.md), [Redis](REDIS.md), [UTC](UTC_DATETIME.md).
 - [Inventario de privacidad](PRIVACIDAD.md), [contención de logs automáticos](evidence/security-error-privacy.md).
 

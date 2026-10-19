@@ -1,0 +1,65 @@
+{
+  "scope": "Independent controller VM: ambiguous 400 must retain identity until same-key replay establishes released. Synthetic API; separate real worker/browser evidence required.",
+  "source_sha256": "fb69489ad1941ecb7d199c48bc57656781a68118283728850f92636162282d76",
+  "saved_source": "metodobase-personal-ambiguity-after-independent-20261019-controller-fb69489ad194.js",
+  "total": 4,
+  "passed": 4,
+  "cases": [
+    {
+      "name": "untyped_400_published_replay",
+      "passed": true,
+      "calls": 2,
+      "keys": 1,
+      "states": [
+        "idle",
+        "submitting",
+        "unconfirmed",
+        "submitting",
+        "completed"
+      ]
+    },
+    {
+      "name": "untyped_400_confirmed_release_control",
+      "passed": true,
+      "calls": 3,
+      "keys": 2,
+      "states": [
+        "idle",
+        "submitting",
+        "unconfirmed",
+        "submitting",
+        "failed",
+        "submitting",
+        "completed"
+      ]
+    },
+    {
+      "name": "generation_unavailable_published_replay",
+      "passed": true,
+      "calls": 2,
+      "keys": 1,
+      "states": [
+        "idle",
+        "submitting",
+        "unconfirmed",
+        "submitting",
+        "completed"
+      ]
+    },
+    {
+      "name": "generation_unavailable_confirmed_release_control",
+      "passed": true,
+      "calls": 3,
+      "keys": 2,
+      "states": [
+        "idle",
+        "submitting",
+        "unconfirmed",
+        "submitting",
+        "failed",
+        "submitting",
+        "completed"
+      ]
+    }
+  ]
+}

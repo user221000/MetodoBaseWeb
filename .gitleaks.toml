@@ -39,6 +39,495 @@ id = "generic-api-key"
         '''^\s*"docs/implementation/20261018-evolution/evidence/pytest-r04-token-before\.xml"\s*:\s*"c4dd5dab5d6eb92dfc4f4cf67820b3f67a4c64894bdc5517dacaacb2488ee7f5",?\s*$''',
     ]
 
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/qa\-web\-candidate\-protocol26\-final\-summary\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"api_sha256"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-browser\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "a803b8e3a3ba0574843d10862a47e727baaddfffcf700c609c0a69ea68af69a6",\ "web/routes/planes\.py":\ "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "1a0aa2e0c20c04f4549d186126ed2c19c35d1d6fab21a32477cfcb5f0ddaeca9",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-memory\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"275506e8e8e769b37ddd1b679cd56b8d045dfb5e27bf555156587f23779a91df",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-race\-before\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"api_git_blob_sha256"\s*:\s*"5182ee3c813ff95407ff6b0173a7f6b13706bfb1af10fd5adaf0e800aee53f54",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-security\-before\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"275506e8e8e769b37ddd1b679cd56b8d045dfb5e27bf555156587f23779a91df",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"275506e8e8e769b37ddd1b679cd56b8d045dfb5e27bf555156587f23779a91df",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-storage\-browser\-independent\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "fbf0ac578550711c124df57213fdf172217979860537afb1c77d4c13c960e048",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "3df201768380382ac1c7af6e84f2682a7e6c9a566ba5df478dd5df409c633112",\ "web/routes/planes\.py":\ "5107dc2cd127dc9550d0582da76c5168d821d7380569fd906f5e8c3d8cdb011a",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "0bd0bd1f4bc718d88f6a0e2d9b2897562e284328d269dce8847ca609386091c8",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "1a0aa2e0c20c04f4549d186126ed2c19c35d1d6fab21a32477cfcb5f0ddaeca9",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-storage\-browser\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"core/services/auth_service\.py"\s*:\s*"368c00d82653d626338c1b98455707063b985f5b3455237e4c5fb0cd1e0f65b2",?\s*$''',
+        '''^\s*"core/services/key_manager\.py"\s*:\s*"acb887b8c44035f4a5cbbff98793983cee35824584d08d6fe3dbc14f0fd483e0",?\s*$''',
+        '''^\s*"core/services/password_hasher\.py"\s*:\s*"27b3d35ed14b0f4cf1e2db3e36635d5236c7cdfe63b3860ff4107dc4b3dffb17",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/database/alembic/versions/20260326_1101_add_auth_audit_log_table\.py"\s*:\s*"6b8d47b7f1d65cc02166bddbe501b2db6b8770112d5af49843535e167ac02b9d",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/services/auth_audit\.py"\s*:\s*"cf44a155e443c9414b4a853983b339edb139e4e91343fa07b0760627cb17a807",?\s*$''',
+        '''^\s*"web/static/css/styles\-auth\.css"\s*:\s*"ee14648c4f845faeef97728e8efc4d05b9c0cff5bf42285e2c24c373d5a69d68",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-storage\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_storage\.cjs"\s*:\s*"c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-storage\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_storage\.cjs"\s*:\s*"c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-followup\-independent\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "isolated\-b2b\-generation",\ "tables":\ 24,\ "sources":\ \{"web/main_web\.py":\ "66b5ae356a721ed0ae4a73f9a9a6ce166ea43277d6691a510c4d759947830f0b",\ "web/database/models\.py":\ "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",\ "web/database/engine\.py":\ "db011919eeb38c96224417f094d822eac01d593dd71a4254af6cacd57fc7ebe0",\ "web/routes/planes\.py":\ "e40b67730e2beb5553f187bb1df80f1ba186a456e7ae2a9b68b0c20eeca27b76",\ "web/routes/auth\.py":\ "54fb0dbed493bd711d614b780875dba7f81b24b0e676d8ac42beeb3017e4ef42",\ "web/auth\.py":\ "4d9ba1e401adf719db811dc136f9ded4367d1e0c6dcba234ce5b3fda80f0bdd4",\ "web/services/plan_documents\.py":\ "02fc310dbef95a98034616bfb3c65d77272ccaa949010aa793740bad9a75fb94",\ "web/services/plan_generation\.py":\ "891ca5649cc3f074dbb9bcfe4d6a60b8f8b24f94266d4f156a4fae23e9b8baff",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/services/quota_calendar\.py":\ "7c4d6c76f709a6b90f2200f5d1b5db53f391b1520b17e7d14e1f38964ff42308",\ "web/middleware/security_headers\.py":\ "88871240a71e064b36cc9af97cd475e8bc48cc10c43c63bcb595ee75b9b78c3c"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-followup\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/auth\.py"\s*:\s*"4d9ba1e401adf719db811dc136f9ded4367d1e0c6dcba234ce5b3fda80f0bdd4",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"e3df7dd3c41c9e9c80082aba76894ee1c748bf8de4fc1c981311bc6c8771ac5e",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"54fb0dbed493bd711d614b780875dba7f81b24b0e676d8ac42beeb3017e4ef42",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-independent\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "isolated\-b2b\-generation",\ "tables":\ 24,\ "sources":\ \{"web/main_web\.py":\ "66b5ae356a721ed0ae4a73f9a9a6ce166ea43277d6691a510c4d759947830f0b",\ "web/database/models\.py":\ "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",\ "web/database/engine\.py":\ "db011919eeb38c96224417f094d822eac01d593dd71a4254af6cacd57fc7ebe0",\ "web/routes/planes\.py":\ "e40b67730e2beb5553f187bb1df80f1ba186a456e7ae2a9b68b0c20eeca27b76",\ "web/routes/auth\.py":\ "54fb0dbed493bd711d614b780875dba7f81b24b0e676d8ac42beeb3017e4ef42",\ "web/auth\.py":\ "4d9ba1e401adf719db811dc136f9ded4367d1e0c6dcba234ce5b3fda80f0bdd4",\ "web/services/plan_documents\.py":\ "02fc310dbef95a98034616bfb3c65d77272ccaa949010aa793740bad9a75fb94",\ "web/services/plan_generation\.py":\ "891ca5649cc3f074dbb9bcfe4d6a60b8f8b24f94266d4f156a4fae23e9b8baff",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/services/quota_calendar\.py":\ "7c4d6c76f709a6b90f2200f5d1b5db53f391b1520b17e7d14e1f38964ff42308",\ "web/middleware/security_headers\.py":\ "88871240a71e064b36cc9af97cd475e8bc48cc10c43c63bcb595ee75b9b78c3c"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-independent\-snapshot\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/static/js/api\.js"\s*:\s*"add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/auth\.py"\s*:\s*"4d9ba1e401adf719db811dc136f9ded4367d1e0c6dcba234ce5b3fda80f0bdd4",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"e3df7dd3c41c9e9c80082aba76894ee1c748bf8de4fc1c981311bc6c8771ac5e",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"54fb0dbed493bd711d614b780875dba7f81b24b0e676d8ac42beeb3017e4ef42",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-modal\-server\-first\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "isolated\-b2b\-generation",\ "tables":\ 25,\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "web/database/models\.py":\ "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/routes/planes\.py":\ "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/services/quota_calendar\.py":\ "7c4d6c76f709a6b90f2200f5d1b5db53f391b1520b17e7d14e1f38964ff42308",\ "web/middleware/security_headers\.py":\ "0324f549b82c5016e959aa542542bb3a85a82a4bba51f496025a2e68d2e9c1d9"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-modal\-server\-second\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "isolated\-b2b\-generation",\ "tables":\ 25,\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "web/database/models\.py":\ "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/routes/planes\.py":\ "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/services/quota_calendar\.py":\ "7c4d6c76f709a6b90f2200f5d1b5db53f391b1520b17e7d14e1f38964ff42308",\ "web/middleware/security_headers\.py":\ "0324f549b82c5016e959aa542542bb3a85a82a4bba51f496025a2e68d2e9c1d9"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-modal\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-pdf\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/auth\.py"\s*:\s*"4d9ba1e401adf719db811dc136f9ded4367d1e0c6dcba234ce5b3fda80f0bdd4",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"e3df7dd3c41c9e9c80082aba76894ee1c748bf8de4fc1c981311bc6c8771ac5e",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"54fb0dbed493bd711d614b780875dba7f81b24b0e676d8ac42beeb3017e4ef42",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-pdf\-review\-server\-final\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "independent\-old\-new\-pdf",\ "tables":\ 24,\ "temporary_root":\ "C:\\\\Users\\\\Consu\\\\AppData\\\\Local\\\\Temp\\\\metodobase\-test\-5gndgq_z\\\\main",\ "catalog_seed":\ "persisted\ active\ Clinic,\ no\ provider\ IDs",\ "sources":\ \{"web/database/models\.py":\ "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",\ "web/routes/planes\.py":\ "e40b67730e2beb5553f187bb1df80f1ba186a456e7ae2a9b68b0c20eeca27b76",\ "web/templates/planes\.html":\ "8c62fdcc6de98174df990f52c2e944644ddbe82f8ea60b9f73fb8a07b5484156",\ "web/static/js/api\.js":\ "add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",\ "tests/e2e/gym_generation_pdf_review_server\.py":\ "2a15db6c0f3fd21c585ba905eb2a81f1b4058f485dddd928a7558f35164ad87e"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-pdf\-review\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "independent\-old\-new\-pdf",\ "tables":\ 24,\ "temporary_root":\ "C:\\\\Users\\\\Consu\\\\AppData\\\\Local\\\\Temp\\\\metodobase\-test\-1ymoht1h\\\\main",\ "catalog_seed":\ "persisted\ active\ Clinic,\ no\ provider\ IDs",\ "sources":\ \{"web/database/models\.py":\ "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",\ "web/routes/planes\.py":\ "e40b67730e2beb5553f187bb1df80f1ba186a456e7ae2a9b68b0c20eeca27b76",\ "web/templates/planes\.html":\ "8c62fdcc6de98174df990f52c2e944644ddbe82f8ea60b9f73fb8a07b5484156",\ "web/static/js/api\.js":\ "add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",\ "tests/e2e/gym_generation_pdf_review_server\.py":\ "2a15db6c0f3fd21c585ba905eb2a81f1b4058f485dddd928a7558f35164ad87e"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-synthetic\-server\-final\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "isolated\-b2b\-generation",\ "tables":\ 24,\ "sources":\ \{"web/main_web\.py":\ "ca7cdff85652b450143dc178d6ec9457561792ad93122ae5bc3d2b68af2b9a89",\ "web/database/models\.py":\ "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/routes/planes\.py":\ "05ebddcbdf875045a035b1a5388e0a3d95362b1c834f071ab14585054c71ef3a",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "c1c52e66c0819ed28c412e63359c3796e32c4c9dd659331eb0ad538313dac1df",\ "web/services/plan_documents\.py":\ "02fc310dbef95a98034616bfb3c65d77272ccaa949010aa793740bad9a75fb94",\ "web/services/plan_generation\.py":\ "b3c20700128c8142fc10e9a448b9b3a24b7a13f3e4a9c0cc5cc3eba6fb7cca7a",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/services/quota_calendar\.py":\ "7c4d6c76f709a6b90f2200f5d1b5db53f391b1520b17e7d14e1f38964ff42308",\ "web/middleware/security_headers\.py":\ "0324f549b82c5016e959aa542542bb3a85a82a4bba51f496025a2e68d2e9c1d9"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-synthetic\-server\-freeze\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "isolated\-b2b\-generation",\ "tables":\ 24,\ "sources":\ \{"web/main_web\.py":\ "ca7cdff85652b450143dc178d6ec9457561792ad93122ae5bc3d2b68af2b9a89",\ "web/database/models\.py":\ "d408f8bc50e53cd38fc6f6e2152b1217aefd9493b0d3e0622be3774c7be4a43b",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/routes/planes\.py":\ "05ebddcbdf875045a035b1a5388e0a3d95362b1c834f071ab14585054c71ef3a",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "c1c52e66c0819ed28c412e63359c3796e32c4c9dd659331eb0ad538313dac1df",\ "web/services/plan_documents\.py":\ "02fc310dbef95a98034616bfb3c65d77272ccaa949010aa793740bad9a75fb94",\ "web/services/plan_generation\.py":\ "b3c20700128c8142fc10e9a448b9b3a24b7a13f3e4a9c0cc5cc3eba6fb7cca7a",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/services/quota_calendar\.py":\ "7c4d6c76f709a6b90f2200f5d1b5db53f391b1520b17e7d14e1f38964ff42308",\ "web/middleware/security_headers\.py":\ "0324f549b82c5016e959aa542542bb3a85a82a4bba51f496025a2e68d2e9c1d9"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/b2b\-generation\-ui\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/auth\.py"\s*:\s*"c1c52e66c0819ed28c412e63359c3796e32c4c9dd659331eb0ad538313dac1df",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"add09693cf9bb4683a2284a090c784482fb8aa4af43ae17fb760ddf84435b3fb",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/branding\-runtime26\-independent\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "fbf0ac578550711c124df57213fdf172217979860537afb1c77d4c13c960e048",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "3df201768380382ac1c7af6e84f2682a7e6c9a566ba5df478dd5df409c633112",\ "web/routes/planes\.py":\ "5107dc2cd127dc9550d0582da76c5168d821d7380569fd906f5e8c3d8cdb011a",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "0bd0bd1f4bc718d88f6a0e2d9b2897562e284328d269dce8847ca609386091c8",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "1a0aa2e0c20c04f4549d186126ed2c19c35d1d6fab21a32477cfcb5f0ddaeca9",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/generation\-runtime26\-independent\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "isolated\-b2b\-generation",\ "tables":\ 25,\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "web/database/models\.py":\ "fbf0ac578550711c124df57213fdf172217979860537afb1c77d4c13c960e048",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/routes/planes\.py":\ "5107dc2cd127dc9550d0582da76c5168d821d7380569fd906f5e8c3d8cdb011a",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "0bd0bd1f4bc718d88f6a0e2d9b2897562e284328d269dce8847ca609386091c8",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/services/quota_calendar\.py":\ "7c4d6c76f709a6b90f2200f5d1b5db53f391b1520b17e7d14e1f38964ff42308",\ "web/middleware/security_headers\.py":\ "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/personal\-plan\-ui\-proposal\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/static/js/api\.js"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/private\-branding\-independent\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "a803b8e3a3ba0574843d10862a47e727baaddfffcf700c609c0a69ea68af69a6",\ "web/routes/planes\.py":\ "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "1a0aa2e0c20c04f4549d186126ed2c19c35d1d6fab21a32477cfcb5f0ddaeca9",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/private\-branding\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"d5f51178f3c4d0869005878f2e5a4f7c32cdbcc6d8608be11ea2977643c7774c",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/private\-branding\-server\-csp\-fixed\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "a803b8e3a3ba0574843d10862a47e727baaddfffcf700c609c0a69ea68af69a6",\ "web/routes/planes\.py":\ "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "e07ecb0af3b50694851212218e820d6cd840473caf2194ac528d6120deacb3bd",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/private\-branding\-server\-final\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "a803b8e3a3ba0574843d10862a47e727baaddfffcf700c609c0a69ea68af69a6",\ "web/routes/planes\.py":\ "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "e07ecb0af3b50694851212218e820d6cd840473caf2194ac528d6120deacb3bd",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0324f549b82c5016e959aa542542bb3a85a82a4bba51f496025a2e68d2e9c1d9",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/private\-branding\-server\-first\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "a803b8e3a3ba0574843d10862a47e727baaddfffcf700c609c0a69ea68af69a6",\ "web/routes/planes\.py":\ "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "e07ecb0af3b50694851212218e820d6cd840473caf2194ac528d6120deacb3bd",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0324f549b82c5016e959aa542542bb3a85a82a4bba51f496025a2e68d2e9c1d9",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/private\-branding\-ui\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"d5f51178f3c4d0869005878f2e5a4f7c32cdbcc6d8608be11ea2977643c7774c",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/refresh\-runtime26\-independent\-server\.log$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\{"fixture":\ "current\-private\-branding",\ "tables":\ 25,\ "storage":\ "own\-temporary\-local",\ "sources":\ \{"web/main_web\.py":\ "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",\ "api/app\.py":\ "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",\ "web/database/models\.py":\ "fbf0ac578550711c124df57213fdf172217979860537afb1c77d4c13c960e048",\ "web/database/engine\.py":\ "7c6394394e2b36c2806990ff36964e09f77c956dee7efbc4bb2f5d0be56861a1",\ "web/database/repository\.py":\ "3df201768380382ac1c7af6e84f2682a7e6c9a566ba5df478dd5df409c633112",\ "web/routes/planes\.py":\ "5107dc2cd127dc9550d0582da76c5168d821d7380569fd906f5e8c3d8cdb011a",\ "web/routes/gym_profile\.py":\ "b60e19ea25b7e56b5738ea3eec0ba3cef1e5e1ee0341205b692f8d669efda501",\ "web/routes/auth\.py":\ "fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",\ "web/auth\.py":\ "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",\ "web/auth_deps\.py":\ "83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",\ "web/services/plan_documents\.py":\ "e3ab16c4f06b923916eb091483f14f6536feafc1e7423110f9eaec1dcdd10dca",\ "web/services/plan_generation\.py":\ "0bd0bd1f4bc718d88f6a0e2d9b2897562e284328d269dce8847ca609386091c8",\ "web/services/private_objects\.py":\ "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",\ "web/services/gym_logos\.py":\ "278d221267b3e0d7f3a457d529889da64b7509fa321bcb1cfce384d49617e7c5",\ "web/services/gym_generation_quota\.py":\ "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",\ "web/storage/configuration\.py":\ "1a0aa2e0c20c04f4549d186126ed2c19c35d1d6fab21a32477cfcb5f0ddaeca9",\ "web/storage/runtime\.py":\ "8c73c8deaee5ae7734511033e084410965e67bea596b0da2b754aebd8c673622",\ "web/storage/objects\.py":\ "a9fe20f4072c62af6a95ac18d81160168d8360790a4d5daffaa384f6455a9ada",\ "web/storage/local\.py":\ "c8437bc588313c73f1eb64fda1065be6828a871895c31f1deae08da87dade80c",\ "web/storage/s3\.py":\ "f15b759de1d002081502b2b03621bc90f84586e3292de1d33e5a5978dea5d40a",\ "web/settings\.py":\ "bdd4a56bfdd560b69799da6cb4ef948038e7def7489236f312053d0843dcd8b0",\ "config/settings\.py":\ "c3c3360d0c456dbb1bee1e69f9a336850c0a78a69eded0b5fcc386f4a6febdef",\ "web/constants\.py":\ "65c2f1821e497f122b1d0577c835fd142a847609ae16f751d7dc765973c7a895",\ "web/middleware/security_headers\.py":\ "0e8e1ad59b89d89cc277fab1d050d147ad07343cd68e36b6124a5e29f6548ef4",\ "requirements_web\.lock":\ "8126a7099258f4740da233d3b909231bb3814105b4b98a0be3f09ba44d827571",\ "requirements_web\-windows\.lock":\ "c73890db4b6a2208af8fc8454141d5eab373e689f2bea4c722f27f10a3e31ac1",\ "requirements\-test\.lock":\ "769105569db38bac800328b475fb60c0185d5aa922265084dbb18750c19d859f",\ "requirements\-test\-windows\.lock":\ "a521dce96671eb17f9edf97be4c1293e1069a8b3e5378220f8038a844284f358"\}\}$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/runtime26\-browser\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"core/services/auth_service\.py"\s*:\s*"368c00d82653d626338c1b98455707063b985f5b3455237e4c5fb0cd1e0f65b2",?\s*$''',
+        '''^\s*"core/services/key_manager\.py"\s*:\s*"acb887b8c44035f4a5cbbff98793983cee35824584d08d6fe3dbc14f0fd483e0",?\s*$''',
+        '''^\s*"core/services/password_hasher\.py"\s*:\s*"27b3d35ed14b0f4cf1e2db3e36635d5236c7cdfe63b3860ff4107dc4b3dffb17",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/database/alembic/versions/20260326_1101_add_auth_audit_log_table\.py"\s*:\s*"6b8d47b7f1d65cc02166bddbe501b2db6b8770112d5af49843535e167ac02b9d",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/services/auth_audit\.py"\s*:\s*"cf44a155e443c9414b4a853983b339edb139e4e91343fa07b0760627cb17a807",?\s*$''',
+        '''^\s*"web/static/css/styles\-auth\.css"\s*:\s*"ee14648c4f845faeef97728e8efc4d05b9c0cff5bf42285e2c24c373d5a69d68",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/web\-candidate\-protocol26\-serial\-independent\-before\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"api_server\.py"\s*:\s*"b6e9bf62438ded601bd31b08829ed060a126386f079efa6313492b83f80fe062",?\s*$''',
+        '''^\s*"core/services/auth_service\.py"\s*:\s*"368c00d82653d626338c1b98455707063b985f5b3455237e4c5fb0cd1e0f65b2",?\s*$''',
+        '''^\s*"core/services/key_manager\.py"\s*:\s*"acb887b8c44035f4a5cbbff98793983cee35824584d08d6fe3dbc14f0fd483e0",?\s*$''',
+        '''^\s*"core/services/password_hasher\.py"\s*:\s*"27b3d35ed14b0f4cf1e2db3e36635d5236c7cdfe63b3860ff4107dc4b3dffb17",?\s*$''',
+        '''^\s*"design_system/tokens\.py"\s*:\s*"ca09777415ffc805b040b1800e4fb70923b444fdce03f9f9457e1ad9072301e7",?\s*$''',
+        '''^\s*"requirements_api\.txt"\s*:\s*"72a0615c2f4351ba3024741b6587e448fbeff20b6e92784ae640aa061073d7a3",?\s*$''',
+        '''^\s*"scripts/cleanup_expired_tokens\.py"\s*:\s*"c36140f36909e74bd0af2c3c8129d911aa0a08e1d09031ea1acdd986c99d2bbb",?\s*$''',
+        '''^\s*"scripts/scan_secrets\.py"\s*:\s*"3e630c67dfe928608682c32e0bc044687cb6e80ec0dc3a945f78845ebdccfcf2",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_storage\.cjs"\s*:\s*"c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",?\s*$''',
+        '''^\s*"tests/integration_cleanup_tokens_postgres\.py"\s*:\s*"9188b6c792b310258479f92f490983f9f772b03d4c949e6739f996ee7bac6e3f",?\s*$''',
+        '''^\s*"tests/services/test_auth_service\.py"\s*:\s*"0156fa66c1ed41227317bebe3218b0cfe30a443cbc50d281fd77a17068f30d7e",?\s*$''',
+        '''^\s*"tests/services/test_key_manager\.py"\s*:\s*"c7bcc230cabbe040ffafb39dfe96ccecafa0381a5a75a8c5f8088680f4117ae1",?\s*$''',
+        '''^\s*"tests/services/test_password_hasher\.py"\s*:\s*"ea1279f4c9522c17f877c9973a2438e6fddfcfdcf6f4d7f2caa13768ee94285e",?\s*$''',
+        '''^\s*"tests/test_api\.py"\s*:\s*"78365092841d2a60d1a4ffba08652ebb9d6b76986d9dd17ded264deabff1571f",?\s*$''',
+        '''^\s*"tests/test_auth_audit\.py"\s*:\s*"0f454ac427398ebf5fadc3c78f7a2a45616ef994b74b8802f8214f444685f911",?\s*$''',
+        '''^\s*"tests/test_auth_security\.py"\s*:\s*"07e8582ca900b9549c34381fa73bdf7ad710d9bb96617ef9b6e56dc1d91430f5",?\s*$''',
+        '''^\s*"tests/test_auth_telemetry_review\.py"\s*:\s*"422890b2c49a369cec636eba891c148a4fc57021965e96c8f43a029a632afa0b",?\s*$''',
+        '''^\s*"tests/test_cleanup_tokens\.py"\s*:\s*"a7271cdd8442b8f399abc03003e26ac2a992a5937db215d415a17383b6270e1e",?\s*$''',
+        '''^\s*"tests/test_cleanup_tokens_review\.py"\s*:\s*"2209ad6f208f73e7cfa1309896254b443986bdd5d7048f64a91500044b568cf5",?\s*$''',
+        '''^\s*"tests/test_secret_scan_safety\.py"\s*:\s*"7e7a274c33e7c305e6b2324e90c34358bbf775f465548693d6d7dd806873e474",?\s*$''',
+        '''^\s*"ui_desktop/pyside/ventana_auth\.py"\s*:\s*"a2cf02420ab905322aece15801fcd0c515733f27c25bab01de8dca7ba8cefeba",?\s*$''',
+        '''^\s*"ui_desktop/pyside/widgets/secure_password_input\.py"\s*:\s*"133df01e397e4668fd93931e46adf221a301ee05d51124e8b2fac7e9f2718683",?\s*$''',
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/database/alembic/versions/20260326_1101_add_auth_audit_log_table\.py"\s*:\s*"6b8d47b7f1d65cc02166bddbe501b2db6b8770112d5af49843535e167ac02b9d",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/services/auth_audit\.py"\s*:\s*"cf44a155e443c9414b4a853983b339edb139e4e91343fa07b0760627cb17a807",?\s*$''',
+        '''^\s*"web/static/css/styles\-auth\.css"\s*:\s*"ee14648c4f845faeef97728e8efc4d05b9c0cff5bf42285e2c24c373d5a69d68",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/web\-candidate\-protocol26\-serial\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_storage\.cjs"\s*:\s*"c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/web\-candidate\-protocol26\-shuffle\-independent\-before\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"api_server\.py"\s*:\s*"b6e9bf62438ded601bd31b08829ed060a126386f079efa6313492b83f80fe062",?\s*$''',
+        '''^\s*"core/services/auth_service\.py"\s*:\s*"368c00d82653d626338c1b98455707063b985f5b3455237e4c5fb0cd1e0f65b2",?\s*$''',
+        '''^\s*"core/services/key_manager\.py"\s*:\s*"acb887b8c44035f4a5cbbff98793983cee35824584d08d6fe3dbc14f0fd483e0",?\s*$''',
+        '''^\s*"core/services/password_hasher\.py"\s*:\s*"27b3d35ed14b0f4cf1e2db3e36635d5236c7cdfe63b3860ff4107dc4b3dffb17",?\s*$''',
+        '''^\s*"design_system/tokens\.py"\s*:\s*"ca09777415ffc805b040b1800e4fb70923b444fdce03f9f9457e1ad9072301e7",?\s*$''',
+        '''^\s*"requirements_api\.txt"\s*:\s*"72a0615c2f4351ba3024741b6587e448fbeff20b6e92784ae640aa061073d7a3",?\s*$''',
+        '''^\s*"scripts/cleanup_expired_tokens\.py"\s*:\s*"c36140f36909e74bd0af2c3c8129d911aa0a08e1d09031ea1acdd986c99d2bbb",?\s*$''',
+        '''^\s*"scripts/scan_secrets\.py"\s*:\s*"3e630c67dfe928608682c32e0bc044687cb6e80ec0dc3a945f78845ebdccfcf2",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_server\.py"\s*:\s*"b873056dbc17891f5daa4d63083fec0dbe35bd702d130e5d3332200c473eda1c",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_storage\.cjs"\s*:\s*"c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",?\s*$''',
+        '''^\s*"tests/integration_cleanup_tokens_postgres\.py"\s*:\s*"9188b6c792b310258479f92f490983f9f772b03d4c949e6739f996ee7bac6e3f",?\s*$''',
+        '''^\s*"tests/services/test_auth_service\.py"\s*:\s*"0156fa66c1ed41227317bebe3218b0cfe30a443cbc50d281fd77a17068f30d7e",?\s*$''',
+        '''^\s*"tests/services/test_key_manager\.py"\s*:\s*"c7bcc230cabbe040ffafb39dfe96ccecafa0381a5a75a8c5f8088680f4117ae1",?\s*$''',
+        '''^\s*"tests/services/test_password_hasher\.py"\s*:\s*"ea1279f4c9522c17f877c9973a2438e6fddfcfdcf6f4d7f2caa13768ee94285e",?\s*$''',
+        '''^\s*"tests/test_api\.py"\s*:\s*"78365092841d2a60d1a4ffba08652ebb9d6b76986d9dd17ded264deabff1571f",?\s*$''',
+        '''^\s*"tests/test_auth_audit\.py"\s*:\s*"0f454ac427398ebf5fadc3c78f7a2a45616ef994b74b8802f8214f444685f911",?\s*$''',
+        '''^\s*"tests/test_auth_security\.py"\s*:\s*"07e8582ca900b9549c34381fa73bdf7ad710d9bb96617ef9b6e56dc1d91430f5",?\s*$''',
+        '''^\s*"tests/test_auth_telemetry_review\.py"\s*:\s*"422890b2c49a369cec636eba891c148a4fc57021965e96c8f43a029a632afa0b",?\s*$''',
+        '''^\s*"tests/test_cleanup_tokens\.py"\s*:\s*"a7271cdd8442b8f399abc03003e26ac2a992a5937db215d415a17383b6270e1e",?\s*$''',
+        '''^\s*"tests/test_cleanup_tokens_review\.py"\s*:\s*"2209ad6f208f73e7cfa1309896254b443986bdd5d7048f64a91500044b568cf5",?\s*$''',
+        '''^\s*"tests/test_secret_scan_safety\.py"\s*:\s*"7e7a274c33e7c305e6b2324e90c34358bbf775f465548693d6d7dd806873e474",?\s*$''',
+        '''^\s*"ui_desktop/pyside/ventana_auth\.py"\s*:\s*"a2cf02420ab905322aece15801fcd0c515733f27c25bab01de8dca7ba8cefeba",?\s*$''',
+        '''^\s*"ui_desktop/pyside/widgets/secure_password_input\.py"\s*:\s*"133df01e397e4668fd93931e46adf221a301ee05d51124e8b2fac7e9f2718683",?\s*$''',
+        '''^\s*"web/auth\.py"\s*:\s*"9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",?\s*$''',
+        '''^\s*"web/auth_deps\.py"\s*:\s*"83cd78be64eecdd0724428ef0cb5388f8bf6bf6252c57e5b4bc3966e5c8d8b64",?\s*$''',
+        '''^\s*"web/database/alembic/versions/20260326_1101_add_auth_audit_log_table\.py"\s*:\s*"6b8d47b7f1d65cc02166bddbe501b2db6b8770112d5af49843535e167ac02b9d",?\s*$''',
+        '''^\s*"web/routes/auth\.py"\s*:\s*"fb5d3bcc785dc8490f245e469e435cc6b845b52a0627e8dd6a5d7ce80cf3e6cc",?\s*$''',
+        '''^\s*"web/services/auth_audit\.py"\s*:\s*"cf44a155e443c9414b4a853983b339edb139e4e91343fa07b0760627cb17a807",?\s*$''',
+        '''^\s*"web/static/css/styles\-auth\.css"\s*:\s*"ee14648c4f845faeef97728e8efc4d05b9c0cff5bf42285e2c24c373d5a69d68",?\s*$''',
+        '''^\s*"web/static/js/api\.js"\s*:\s*"347242a6319c5672df08e4393f4c31351f436ee3b20f12653c444020925950a3",?\s*$''',
+        '''^\s*"web/static/js/auth\-guard\.js"\s*:\s*"26b972f2ae1dd3a75730332177da3526afa26cc7c461beff0c86b9af92a7fd3a",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/web\-candidate\-protocol26\-shuffle\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/e2e/auth_refresh\.cjs"\s*:\s*"91b6a4b20771c4292b73d77975c861e2c80bf93f7eafad56b4fb7ce8e5926226",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_browser\.cjs"\s*:\s*"a3c33f2f5d4d32255e47f74f5b78543039df645e115b42c8157ad46f7cca79cd",?\s*$''',
+        '''^\s*"tests/e2e/auth_refresh_storage\.cjs"\s*:\s*"c8d0fa467331e72943b0aed42756298e2837a611e26777adce18629587991625",?\s*$''',
+    ]
+
 [[rules]]
 id = "sentry-access-token"
     [[rules.allowlists]]
@@ -54,3 +543,45 @@ id = "sentry-access-token"
     paths = ['''(?:^|/)docs/implementation/20261018-evolution/evidence/(?:secrets-tree-final|secrets-checkpoint-source)\.json$''']
     regexTarget = "line"
     regexes = ['''^\s*"docs/audit/2026-10-18/qa/pytest-sentry-isolated\.log"\s*:\s*"7fc244c5d3e786c4655655556dafc26602b4a45f1829bc7c31f6825d461cfb68",?\s*$''']
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/auth\-refresh\-storage\-browser\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/middleware/sentry_context\.py"\s*:\s*"a3aa350a100a14cdd1fcce62e238a46b17c927213380e2c704ebf2278cb60d24",?\s*$''',
+        '''^\s*"web/observability/sentry_setup\.py"\s*:\s*"80fe4367e6524022e46d77d8506934b5b47daa56693d940b2afb227cbb5d824c",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/ux/runtime26\-browser\-independent\-source\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"web/middleware/sentry_context\.py"\s*:\s*"a3aa350a100a14cdd1fcce62e238a46b17c927213380e2c704ebf2278cb60d24",?\s*$''',
+        '''^\s*"web/observability/sentry_setup\.py"\s*:\s*"80fe4367e6524022e46d77d8506934b5b47daa56693d940b2afb227cbb5d824c",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/web\-candidate\-protocol26\-serial\-independent\-before\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/test_sentry_setup\.py"\s*:\s*"8b3fdda7408fc7bd621588cdb01670025af9cd102948123018ad4438d1fcf43f",?\s*$''',
+        '''^\s*"web/middleware/sentry_context\.py"\s*:\s*"a3aa350a100a14cdd1fcce62e238a46b17c927213380e2c704ebf2278cb60d24",?\s*$''',
+        '''^\s*"web/observability/sentry_setup\.py"\s*:\s*"80fe4367e6524022e46d77d8506934b5b47daa56693d940b2afb227cbb5d824c",?\s*$''',
+    ]
+
+    [[rules.allowlists]]
+    description = "Exact public Git file fingerprints, independently verified for protocol26 evidence"
+    condition = "AND"
+    paths = ['''(?:^|/)docs/implementation/20261018\-evolution/evidence/web\-candidate\-protocol26\-shuffle\-independent\-before\.json$''']
+    regexTarget = "line"
+    regexes = [
+        '''^\s*"tests/test_sentry_setup\.py"\s*:\s*"8b3fdda7408fc7bd621588cdb01670025af9cd102948123018ad4438d1fcf43f",?\s*$''',
+        '''^\s*"web/middleware/sentry_context\.py"\s*:\s*"a3aa350a100a14cdd1fcce62e238a46b17c927213380e2c704ebf2278cb60d24",?\s*$''',
+        '''^\s*"web/observability/sentry_setup\.py"\s*:\s*"80fe4367e6524022e46d77d8506934b5b47daa56693d940b2afb227cbb5d824c",?\s*$''',
+    ]

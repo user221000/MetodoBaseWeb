@@ -101,6 +101,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [OPS08](#ops08) | P1 | Coordinación y operación | R03, R18, R20 | en_revision | parcial | local |
 | [SEC01](#sec01) | P0 | Root - seguridad y licencias; backend - campos/preparaciónR04 | R01, R04, R09, R31 | en_revision | parcial | local |
 | [SEC02](#sec02) | P0 | Frontend y seguridad; coordinación integra | R10, R19, R31 | en_revision | parcial | local |
+| [OPS09](#ops09) | P1 | Operación y documentación técnica | R18, R21 | en_curso | reproducido | local |
 
 ## R01
 
@@ -120,7 +121,7 @@ Commits: 166038f88b211c52f0d149ce550880795361707c, c769667, b81cfc1, e3039c2, 5b
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; 18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows.
 
-Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json; evidence/model-utc-independent-source.json; evidence/pytest-model-utc-auth-billing-license-independent.xml; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/qa-individual-recovery-before-source.json; evidence/individual-generation-recovery-actual-before-source.json; evidence/backend-individual-reader-source.json; evidence/qa-individual-publication26-final-source.json; evidence/individual-publication-security-after-source.json; evidence/individual-period-review-source.json; evidence/individual-publication-security-before-source.json; evidence/individual-reader-postgres-after-restart-independent-source.json; evidence/individual-process-recovery-independent-source.json
+Evidencia: evidence/backend-before.log; evidence/backend-money-contract.md; evidence/security-money-source.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json; evidence/model-utc-independent-source.json; evidence/pytest-model-utc-auth-billing-license-independent.xml; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/qa-individual-recovery-before-source.json; evidence/individual-generation-recovery-actual-before-source.json; evidence/backend-individual-reader-source.json; evidence/qa-individual-publication26-final-source.json; evidence/individual-publication-security-after-source.json; evidence/individual-period-review-source.json; evidence/individual-publication-security-before-source.json; evidence/individual-reader-postgres-after-restart-independent-source.json; evidence/individual-process-recovery-independent-source.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md; B2B_CUOTAS.md; CUOTA_INDIVIDUAL.md
 
@@ -128,7 +129,7 @@ Revisión: QA y seguridad independientes; coordinador integra, alcance local sin
 
 Bloqueo: no registrado
 
-Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.; UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; QA confirma postcommit individual sobrePG25: dos fallos reales y un control; Plan/PDFready persistidos pero consumo1 vuelve0 por excepcion RuntimeError/ValueError posterior. Contencion atomica individual y DDL26 en curso; diario persistido se desplaza.; Contención individual26 congelada246ff3f1: protocolo nuevo1/legacy0, Plan/ready+completed/marcador atómicos, sin reembolso publicado/FKNULL ni legacy ambiguo. Periodo capturado de suscripción bajo lock; lector con doble dueño/soft-delete. QA7 afectados y13 migración/restore anteriores; seguridad13 verdes tras último lector. Repetición PG del último lector y muerte real de proceso en curso; primer intento final tuvo5 errores de infraestructura55482, no cuerpos PG ejecutados. Sin DDL/modelos adicionales ni despliegue.; Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.
+Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.; UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; QA confirma postcommit individual sobrePG25: dos fallos reales y un control; Plan/PDFready persistidos pero consumo1 vuelve0 por excepcion RuntimeError/ValueError posterior. Contencion atomica individual y DDL26 en curso; diario persistido se desplaza.; Contención individual26 congelada246ff3f1: protocolo nuevo1/legacy0, Plan/ready+completed/marcador atómicos, sin reembolso publicado/FKNULL ni legacy ambiguo. Periodo capturado de suscripción bajo lock; lector con doble dueño/soft-delete. QA7 afectados y13 migración/restore anteriores; seguridad13 verdes tras último lector. Repetición PG del último lector y muerte real de proceso en curso; primer intento final tuvo5 errores de infraestructura55482, no cuerpos PG ejecutados. Sin DDL/modelos adicionales ni despliegue.; Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## R02
 
@@ -486,13 +487,13 @@ Pruebas: Preparacion pura35independientes tras1regresionRecursionError; NO API/D
 
 Evidencia: evidence/personal-diary-values-independent-source.json; evidence/pytest-personal-diary-values-independent.xml
 
-Documentación: DIARIO.md
+Documentación: DIARIO.md; DIARIO_PERSISTENCIA_PROPUESTA.md
 
 Revisión: QA independiente de DTO/helpers, sin cierre de persistencia R14
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contrato de siguiente oleada27 preparado: dueño personal persistido, RLS, CAS diario, snapshots de plan propio, exportación y UI sincronizada; aún sin implementación.26 ya pertenece a publicación individual; no renumerar migraciones históricas.
 
 ## R15
 
@@ -512,15 +513,15 @@ Commits: c45a71c, ddaf71a
 
 Pruebas: pendiente
 
-Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/ux/personal-plan-ui-proposal.json
+Evidencia: evidence/ux/frontend-independent-source.json; evidence/ux/frontend-independent-review.md; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/ux/personal-plan-ui-proposal.json; evidence/statistics-availability-before-source.json; evidence/statistics-availability-author-source.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; CATALOGO.md; ESTADISTICAS_DISPONIBILIDAD.md
 
 Revisión: QA independiente; root revisó contratos/sinks/destinos B2B.
 
 Bloqueo: no registrado
 
-Observaciones: QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.
+Observaciones: QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.; Contención estadísticas en revisión independiente: ambos routers respondían200 ceros y logueaban texto/traceback al fallar consulta; ahora503 statistics_unavailable y sólo clase sin identidad. Root autor reprodujo4 rojos/3 controles;48 dirigidas verdes tras fix. Fuentes WIP posteriores al serial/n2 de6d33b9e; no se afirma gate amplio actual ni dashboard R23 completo.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## R16
 
@@ -568,15 +569,15 @@ Commits: 0a0b6d4, dbb6af5, 93a9e1d
 
 Pruebas: 106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables.
 
-Evidencia: evidence/redis-dependency-before.log; evidence/redis-final-author.xml; evidence/pytest-redis-final-independent.xml; evidence/redis-final-independent-source.json; evidence/backend-policy-review.md; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml; evidence/auth-telemetry-independent-source.json; evidence/pytest-auth-telemetry-independent.xml
+Evidencia: evidence/redis-dependency-before.log; evidence/redis-final-author.xml; evidence/pytest-redis-final-independent.xml; evidence/redis-final-independent-source.json; evidence/backend-policy-review.md; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml; evidence/auth-telemetry-independent-source.json; evidence/pytest-auth-telemetry-independent.xml; evidence/statistics-availability-before-source.json; evidence/statistics-availability-author-source.json
 
-Documentación: REDIS.md; evidence/security-error-privacy.md; evidence/auth-telemetry-privacy.md
+Documentación: REDIS.md; evidence/security-error-privacy.md; evidence/auth-telemetry-privacy.md; ESTADISTICAS_DISPONIBILIDAD.md
 
 Revisión: QA y backend independientes del autor root.
 
 Bloqueo: no registrado
 
-Observaciones: 21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.; Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.
+Observaciones: 21 pruebas autor aprobadas. Redis real y alertas externas pendientes; no equivale a cierre completo R17.; Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.; Contención estadísticas en revisión independiente: ambos routers respondían200 ceros y logueaban texto/traceback al fallar consulta; ahora503 statistics_unavailable y sólo clase sin identidad. Root autor reprodujo4 rojos/3 controles;48 dirigidas verdes tras fix. Fuentes WIP posteriores al serial/n2 de6d33b9e; no se afirma gate amplio actual ni dashboard R23 completo.
 
 ## R18
 
@@ -596,7 +597,7 @@ Commits: 822de09, 0459b0f, 6d33b9e
 
 Pruebas: Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.; Cierre independiente candidato26: serial1813/1skip/232.55s y n2shuffle seed20261018 1813/1skip/133.73s; cuatro fotos519fuentes/403Python y89paquetes idénticos; pipcheck0. Único skip symlink Windows, Linux pendiente. No fallos; tres categorías de deprecación conocidas.
 
-Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/backend-runtime-static-review.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json
+Evidencia: evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/backend-runtime-static-review.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; DESKTOP_PUBLICACION.md
 
@@ -604,7 +605,7 @@ Revisión: pendiente
 
 Bloqueo: {"falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.", "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.", "responsable": "Usuario/operación", "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."}
 
-Observaciones: 32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime.; WIP posterior93a9e1d: DDL25(18+10 autor),consumidores privados120 autor,SDK/config candidato,locks y SBOM/SCA54Linux/53Windows sin vulnerabilidades conocidas. Revision independiente/restore25/UIlogos/migracion historica aun en curso; no aceptacion ni imagen/proveedor real.; Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.
+Observaciones: 32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime.; WIP posterior93a9e1d: DDL25(18+10 autor),consumidores privados120 autor,SDK/config candidato,locks y SBOM/SCA54Linux/53Windows sin vulnerabilidades conocidas. Revision independiente/restore25/UIlogos/migracion historica aun en curso; no aceptacion ni imagen/proveedor real.; Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.; Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado.
 
 ## R19
 
@@ -624,7 +625,7 @@ Commits: e3039c2, 31ad545, ddaf71a, 0459b0f, 34d8fb1, 754d56d, 6d33b9e
 
 Pruebas: 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.; 49 independientes:24 PDF+21 middleware+4 composiciones PostgreSQL reales de PDF/privacidad; quince fuentes estables. No prueba hash/procedencia historica legacy.; Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.; Cierre independiente candidato26: serial1813/1skip/232.55s y n2shuffle seed20261018 1813/1skip/133.73s; cuatro fotos519fuentes/403Python y89paquetes idénticos; pipcheck0. Único skip symlink Windows, Linux pendiente. No fallos; tres categorías de deprecación conocidas.
 
-Evidencia: evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json; evidence/qa-plan-documents-final-source.json; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/qa-r07-composition-final-source.json; evidence/qa-individual-recovery-before-source.json; evidence/individual-generation-recovery-actual-before-source.json; evidence/backend-individual-reader-source.json; evidence/qa-individual-publication26-final-source.json; evidence/individual-publication-security-after-source.json; evidence/individual-period-review-source.json; evidence/ux/auth-refresh-storage-independent-source.json; evidence/ux/auth-refresh-security-before-source.json; evidence/ux/auth-refresh-storage-source.json; evidence/ux/api-auth-refresh-pre-storage-reconstruction.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/individual-reader-postgres-after-restart-independent-source.json; evidence/individual-process-recovery-independent-source.json; evidence/ux/runtime26-browser-independent-source.json; evidence/ux/auth-refresh-storage-browser-independent-source.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json
+Evidencia: evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json; evidence/qa-plan-documents-final-source.json; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/qa-r07-composition-final-source.json; evidence/qa-individual-recovery-before-source.json; evidence/individual-generation-recovery-actual-before-source.json; evidence/backend-individual-reader-source.json; evidence/qa-individual-publication26-final-source.json; evidence/individual-publication-security-after-source.json; evidence/individual-period-review-source.json; evidence/ux/auth-refresh-storage-independent-source.json; evidence/ux/auth-refresh-security-before-source.json; evidence/ux/auth-refresh-storage-source.json; evidence/ux/api-auth-refresh-pre-storage-reconstruction.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/individual-reader-postgres-after-restart-independent-source.json; evidence/individual-process-recovery-independent-source.json; evidence/ux/runtime26-browser-independent-source.json; evidence/ux/auth-refresh-storage-browser-independent-source.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
 Documentación: DOCUMENTOS.md; CUOTA_INDIVIDUAL.md
 
@@ -632,7 +633,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer.; SEC02 confirmado en memoria:401 tardío puede reenviar la operación con identidad nueva y refresh tardío puede sobrescribirla. Corrección central en elaboración; no cerrado por las pruebas UI de respuestas200.; QA confirma postcommit individual sobrePG25: dos fallos reales y un control; Plan/PDFready persistidos pero consumo1 vuelve0 por excepcion RuntimeError/ValueError posterior. Contencion atomica individual y DDL26 en curso; diario persistido se desplaza.; Contención individual26 congelada246ff3f1: protocolo nuevo1/legacy0, Plan/ready+completed/marcador atómicos, sin reembolso publicado/FKNULL ni legacy ambiguo. Periodo capturado de suscripción bajo lock; lector con doble dueño/soft-delete. QA7 afectados y13 migración/restore anteriores; seguridad13 verdes tras último lector. Repetición PG del último lector y muerte real de proceso en curso; primer intento final tuvo5 errores de infraestructura55482, no cuerpos PG ejecutados. Sin DDL/modelos adicionales ni despliegue.; Transporte final347242a6:74 casos VM independientes (13 seguridad+33 regresión+26 Storage+2 root), fuentes estables. La revisión encontró par parcial accessB/refreshA; confianza pegajosa bloquea I/O hasta save/clear completo. Browser actualizado pendiente. Atomicidad entre pestañas, recarga y escritores directos/tokensLS quedan fuera y R10 no se cierra.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.; API347 integrada754d56d; QA independiente actual ejecutó36 grupos/19 pantallas en cuatro fixtures runtime26 y3 grupos Storage adicionales, cero pageErrors y fuentes estables. Storage inyecta DOMException tras primera escritura, restaura setter antes de cinco consumidores y demuestra bloqueo antes de fetch hasta clear/login completo. Alcance por instancia; no demuestra quota nativa, reload, escritores directos ni atomicidad entre pestañas. R10/R31 integrales abiertos.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.
+Observaciones: QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer.; SEC02 confirmado en memoria:401 tardío puede reenviar la operación con identidad nueva y refresh tardío puede sobrescribirla. Corrección central en elaboración; no cerrado por las pruebas UI de respuestas200.; QA confirma postcommit individual sobrePG25: dos fallos reales y un control; Plan/PDFready persistidos pero consumo1 vuelve0 por excepcion RuntimeError/ValueError posterior. Contencion atomica individual y DDL26 en curso; diario persistido se desplaza.; Contención individual26 congelada246ff3f1: protocolo nuevo1/legacy0, Plan/ready+completed/marcador atómicos, sin reembolso publicado/FKNULL ni legacy ambiguo. Periodo capturado de suscripción bajo lock; lector con doble dueño/soft-delete. QA7 afectados y13 migración/restore anteriores; seguridad13 verdes tras último lector. Repetición PG del último lector y muerte real de proceso en curso; primer intento final tuvo5 errores de infraestructura55482, no cuerpos PG ejecutados. Sin DDL/modelos adicionales ni despliegue.; Transporte final347242a6:74 casos VM independientes (13 seguridad+33 regresión+26 Storage+2 root), fuentes estables. La revisión encontró par parcial accessB/refreshA; confianza pegajosa bloquea I/O hasta save/clear completo. Browser actualizado pendiente. Atomicidad entre pestañas, recarga y escritores directos/tokensLS quedan fuera y R10 no se cierra.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.; API347 integrada754d56d; QA independiente actual ejecutó36 grupos/19 pantallas en cuatro fixtures runtime26 y3 grupos Storage adicionales, cero pageErrors y fuentes estables. Storage inyecta DOMException tras primera escritura, restaura setter antes de cinco consumidores y demuestra bloqueo antes de fetch hasta clear/login completo. Alcance por instancia; no demuestra quota nativa, reload, escritores directos ni atomicidad entre pestañas. R10/R31 integrales abiertos.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## R20
 
@@ -680,7 +681,7 @@ Commits: dff6fd9, cd78c47, 19298e7, b20e071
 
 Pruebas: pendiente
 
-Evidencia: evidence/repository-comparison.json; evidence/secrets-tree-final.json; evidence/pytest-secret-encoding-independent.xml; evidence/secrets-encoding-wrapper-independent.json; evidence/secrets-commit-binding.json; evidence/secrets-self-report-triage.json; evidence/secrets-09243-triage.json; evidence/secrets-b20-limited-independent.json; evidence/desktop-publication-readonly-source.json
+Evidencia: evidence/repository-comparison.json; evidence/secrets-tree-final.json; evidence/pytest-secret-encoding-independent.xml; evidence/secrets-encoding-wrapper-independent.json; evidence/secrets-commit-binding.json; evidence/secrets-self-report-triage.json; evidence/secrets-09243-triage.json; evidence/secrets-b20-limited-independent.json; evidence/desktop-publication-readonly-source.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/secrets-protocol26-initial.json; evidence/secrets-protocol26-triage-independent.json; evidence/secrets-protocol26-allowlist-proposal.json; evidence/secrets-protocol26-canaries-independent.json; evidence/secrets-protocol26-canaries-stage1-independent.json; evidence/protocol26-redactions.json; evidence/pytest-secret-wrapper-protocol26.xml
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; HIGIENE.md; DESKTOP_PUBLICACION.md
 
@@ -688,7 +689,7 @@ Revisión: QA revisó configuración/wrapper/canarios; coordinador revisó retir
 
 Bloqueo: no registrado
 
-Observaciones: Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.; Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion.; No generalizar scan1006b20 alheadUTC/IaC/diario/PDF/UI posterior.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.
+Observaciones: Pendiente cierre de higiene completa/portabilidad/escaneo; commit por sí solo no cierra requisito.; Scan exactcommit887files,0findings,estable; no WIP/historia/imagen/produccion.; No generalizar scan1006b20 alheadUTC/IaC/diario/PDF/UI posterior.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.; Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado.; R21 checkpoint2f8b7f9:1490 archivos estables/294 coincidencias, scan fallido conservado.293 huellas públicas verificadas; dos UUID sintéticos repetidos en un log/XML saneados con constancia sin alterar manifests históricos.43 grupos path AND whole-line exactos,187regex;1445 canarios independientes verdes y11 wrapper. Próximo scan completo de commit exacto pendiente, no usar b20e071 como pase actual.
 
 ## R22
 
@@ -736,15 +737,15 @@ Commits: pendiente
 
 Pruebas: pendiente
 
-Evidencia: pendiente
+Evidencia: evidence/statistics-availability-before-source.json; evidence/statistics-availability-author-source.json
 
-Documentación: pendiente
+Documentación: ESTADISTICAS_DISPONIBILIDAD.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contención estadísticas en revisión independiente: ambos routers respondían200 ceros y logueaban texto/traceback al fallar consulta; ahora503 statistics_unavailable y sólo clase sin identidad. Root autor reprodujo4 rojos/3 controles;48 dirigidas verdes tras fix. Fuentes WIP posteriores al serial/n2 de6d33b9e; no se afirma gate amplio actual ni dashboard R23 completo.
 
 ## R24
 
@@ -764,7 +765,7 @@ Commits: pendiente
 
 Pruebas: pendiente
 
-Evidencia: evidence/ux/personal-plan-ui-proposal.json
+Evidencia: evidence/ux/personal-plan-ui-proposal.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
 Documentación: pendiente
 
@@ -772,7 +773,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.
+Observaciones: UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## R25
 
@@ -1550,7 +1551,7 @@ Commits: c769667, b81cfc1, e3039c2, ddaf71a, 34d8fb1
 
 Pruebas: 18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows.
 
-Evidencia: evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/jobs-static-evaluation-source.json; evidence/qa-individual-recovery-before-source.json; evidence/individual-generation-recovery-actual-before-source.json; evidence/backend-individual-reader-source.json; evidence/qa-individual-publication26-final-source.json; evidence/individual-publication-security-after-source.json; evidence/individual-period-review-source.json; evidence/individual-publication-security-before-source.json; evidence/individual-reader-postgres-after-restart-independent-source.json; evidence/individual-process-recovery-independent-source.json
+Evidencia: evidence/pytest-quota-postgres-before.xml; evidence/pytest-quota-postgres-after.xml; evidence/quota-a1-snapshot.json; evidence/gym-quota-independent-source.json; evidence/pytest-gym-quota-independent.xml; evidence/error-compensation-final-independent-source.json; evidence/ux/b2b-generation-followup-independent-source.json; evidence/ux/b2b-generation-pdf-independent-source.json; evidence/jobs-static-evaluation-source.json; evidence/qa-individual-recovery-before-source.json; evidence/individual-generation-recovery-actual-before-source.json; evidence/backend-individual-reader-source.json; evidence/qa-individual-publication26-final-source.json; evidence/individual-publication-security-after-source.json; evidence/individual-period-review-source.json; evidence/individual-publication-security-before-source.json; evidence/individual-reader-postgres-after-restart-independent-source.json; evidence/individual-process-recovery-independent-source.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
 Documentación: CATALOGO.md; B2B_CUOTAS.md; JOBS_EVALUACION.md; CUOTA_INDIVIDUAL.md
 
@@ -1558,7 +1559,7 @@ Revisión: QA y seguridad independientes; coordinador integra, alcance local sin
 
 Bloqueo: no registrado
 
-Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía.; QA confirma postcommit individual sobrePG25: dos fallos reales y un control; Plan/PDFready persistidos pero consumo1 vuelve0 por excepcion RuntimeError/ValueError posterior. Contencion atomica individual y DDL26 en curso; diario persistido se desplaza.; Contención individual26 congelada246ff3f1: protocolo nuevo1/legacy0, Plan/ready+completed/marcador atómicos, sin reembolso publicado/FKNULL ni legacy ambiguo. Periodo capturado de suscripción bajo lock; lector con doble dueño/soft-delete. QA7 afectados y13 migración/restore anteriores; seguridad13 verdes tras último lector. Repetición PG del último lector y muerte real de proceso en curso; primer intento final tuvo5 errores de infraestructura55482, no cuerpos PG ejecutados. Sin DDL/modelos adicionales ni despliegue.; Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.
+Observaciones: Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.; UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.; Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía.; QA confirma postcommit individual sobrePG25: dos fallos reales y un control; Plan/PDFready persistidos pero consumo1 vuelve0 por excepcion RuntimeError/ValueError posterior. Contencion atomica individual y DDL26 en curso; diario persistido se desplaza.; Contención individual26 congelada246ff3f1: protocolo nuevo1/legacy0, Plan/ready+completed/marcador atómicos, sin reembolso publicado/FKNULL ni legacy ambiguo. Periodo capturado de suscripción bajo lock; lector con doble dueño/soft-delete. QA7 afectados y13 migración/restore anteriores; seguridad13 verdes tras último lector. Repetición PG del último lector y muerte real de proceso en curso; primer intento final tuvo5 errores de infraestructura55482, no cuerpos PG ejecutados. Sin DDL/modelos adicionales ni despliegue.; Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## B18
 
@@ -1690,15 +1691,15 @@ Commits: 166038f88b211c52f0d149ce550880795361707c, dbb6af5, 0459b0f
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.
 
-Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; ESTADO.md; TRAZABILIDAD.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml; evidence/qa-r07-composition-final-source.json
+Evidencia: evidence/backend-auth-review.md; evidence/security-controls.md; evidence/security-review.md; evidence/pytest-nutrition-independent.xml; evidence/coverage-nutrition-focused.json; ESTADO.md; TRAZABILIDAD.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/security-error-privacy-source.json; evidence/security-error-privacy-after.xml; evidence/qa-r07-composition-final-source.json; evidence/statistics-availability-before-source.json; evidence/statistics-availability-author-source.json
 
-Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/security-error-privacy.md
+Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; evidence/security-error-privacy.md; ESTADISTICAS_DISPONIBILIDAD.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.; API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer.
+Observaciones: Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.; API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer.; Contención estadísticas en revisión independiente: ambos routers respondían200 ceros y logueaban texto/traceback al fallar consulta; ahora503 statistics_unavailable y sólo clase sin identidad. Root autor reprodujo4 rojos/3 controles;48 dirigidas verdes tras fix. Fuentes WIP posteriores al serial/n2 de6d33b9e; no se afirma gate amplio actual ni dashboard R23 completo.
 
 ## B23
 
@@ -1932,7 +1933,7 @@ Commits: e8e0c44, 0459b0f, 6d33b9e
 
 Pruebas: Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.; Cierre independiente candidato26: serial1813/1skip/232.55s y n2shuffle seed20261018 1813/1skip/133.73s; cuatro fotos519fuentes/403Python y89paquetes idénticos; pipcheck0. Único skip symlink Windows, Linux pendiente. No fallos; tres categorías de deprecación conocidas.
 
-Evidencia: evidence/r05-followup-frozen-source.json; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json
+Evidencia: evidence/r05-followup-frozen-source.json; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/secrets-protocol26-initial.json; evidence/secrets-protocol26-triage-independent.json; evidence/secrets-protocol26-allowlist-proposal.json; evidence/secrets-protocol26-canaries-independent.json; evidence/secrets-protocol26-canaries-stage1-independent.json; evidence/protocol26-redactions.json; evidence/pytest-secret-wrapper-protocol26.xml
 
 Documentación: QA_R05.md; DESKTOP_PUBLICACION.md
 
@@ -1940,7 +1941,7 @@ Revisión: pendiente
 
 Bloqueo: {"falta": "Host Linux/Docker operativo para construir y escanear imagen/digest exacto.", "obtener": "Habilitar virtualización del host mediante decisión del usuario o usar runner Linux autorizado existente.", "responsable": "Usuario/operación", "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."}
 
-Observaciones: Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.
+Observaciones: Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.; Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado.; R21 checkpoint2f8b7f9:1490 archivos estables/294 coincidencias, scan fallido conservado.293 huellas públicas verificadas; dos UUID sintéticos repetidos en un log/XML saneados con constancia sin alterar manifests históricos.43 grupos path AND whole-line exactos,187regex;1445 canarios independientes verdes y11 wrapper. Próximo scan completo de commit exacto pendiente, no usar b20e071 como pase actual.
 
 ## QA-01
 
@@ -2232,7 +2233,7 @@ Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, 0459b0f, 6d33b9e
 
 Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.; Cierre independiente candidato26: serial1813/1skip/232.55s y n2shuffle seed20261018 1813/1skip/133.73s; cuatro fotos519fuentes/403Python y89paquetes idénticos; pipcheck0. Único skip symlink Windows, Linux pendiente. No fallos; tres categorías de deprecación conocidas.
 
-Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/repository-comparison.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/sbom-linux-runtime.json; evidence/sca-linux-runtime-final.log; evidence/repository-comparison.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/desktop-publication-readonly-source.json; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/secrets-protocol26-initial.json; evidence/secrets-protocol26-triage-independent.json; evidence/secrets-protocol26-allowlist-proposal.json; evidence/secrets-protocol26-canaries-independent.json; evidence/secrets-protocol26-canaries-stage1-independent.json; evidence/protocol26-redactions.json; evidence/pytest-secret-wrapper-protocol26.xml
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md; DESKTOP_PUBLICACION.md
 
@@ -2240,7 +2241,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.
+Observaciones: Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.; CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.; CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.; Desktop inventariado con31 hashes estables; reparación41ad55f en worktree aislado tiene58 pruebas de receta/manifiesto/ZIP, sin build ni GUI. Revisión independiente backend en curso; setup.py/build_config.py/build_all.bat/ISS todavía sin cubrir. El smoke Python/PySide previo no valida artefacto empaquetado.; Revisión backend de41ad55f:19 archivos estables/58 pruebas verdes, pero dos negativos reproducen procedencia falsa por flags de índice. OPS09 añadido; artefacto bloqueado hasta fix/verificación. Wrapper/ISS legado no se considera validado.; R21 checkpoint2f8b7f9:1490 archivos estables/294 coincidencias, scan fallido conservado.293 huellas públicas verificadas; dos UUID sintéticos repetidos en un log/XML saneados con constancia sin alterar manifests históricos.43 grupos path AND whole-line exactos,187regex;1445 canarios independientes verdes y11 wrapper. Próximo scan completo de commit exacto pendiente, no usar b20e071 como pase actual.
 
 ## UX-01
 
@@ -2318,13 +2319,13 @@ Pruebas: pendiente
 
 Evidencia: pendiente
 
-Documentación: pendiente
+Documentación: DIARIO_PERSISTENCIA_PROPUESTA.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contrato de siguiente oleada27 preparado: dueño personal persistido, RLS, CAS diario, snapshots de plan propio, exportación y UI sincronizada; aún sin implementación.26 ya pertenece a publicación individual; no renumerar migraciones históricas.
 
 ## UX-04
 
@@ -2346,13 +2347,13 @@ Pruebas: pendiente
 
 Evidencia: pendiente
 
-Documentación: pendiente
+Documentación: DIARIO_PERSISTENCIA_PROPUESTA.md
 
 Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: sin observaciones
+Observaciones: Contrato de siguiente oleada27 preparado: dueño personal persistido, RLS, CAS diario, snapshots de plan propio, exportación y UI sincronizada; aún sin implementación.26 ya pertenece a publicación individual; no renumerar migraciones históricas.
 
 ## UX-05
 
@@ -2512,7 +2513,7 @@ Commits: pendiente
 
 Pruebas: pendiente
 
-Evidencia: evidence/ux/personal-plan-ui-proposal.json
+Evidencia: evidence/ux/personal-plan-ui-proposal.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
 Documentación: pendiente
 
@@ -2520,7 +2521,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.
+Observaciones: UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## UX-11
 
@@ -2568,7 +2569,7 @@ Commits: pendiente
 
 Pruebas: pendiente
 
-Evidencia: evidence/ux/personal-plan-ui-proposal.json
+Evidencia: evidence/ux/personal-plan-ui-proposal.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
 Documentación: pendiente
 
@@ -2576,7 +2577,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.
+Observaciones: UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## UX-13
 
@@ -2708,7 +2709,7 @@ Commits: pendiente
 
 Pruebas: pendiente
 
-Evidencia: evidence/ux/personal-plan-ui-proposal.json
+Evidencia: evidence/ux/personal-plan-ui-proposal.json; evidence/ux/personal-ambiguity-root-review/REVIEW.md
 
 Documentación: pendiente
 
@@ -2716,7 +2717,7 @@ Revisión: pendiente
 
 Bloqueo: no registrado
 
-Observaciones: QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.; UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.
+Observaciones: QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.; UI individual en rama aislada personal-plan-ui-20261019 desde6d33b9e: contrato aprobado para clave en memoria, retry seguro, PDF exacto y descarte de sesión. Aún sin integración ni aceptación; diario local se conserva sin importación heurística.; UI individual40fd2af0 en rama limpia separada,11 fuentes/36 dependencias congeladas:107Python/94VM/15grupos8pantallas de autor. Root independiente reprodujo4 rojos sobre copia2f67ee81 y4 verdes fb69489a:400 sin código/generation_unavailable no prueban fallo definitivo y conservanUUID hasta replay. Revisión backend/query y QA navegador independientes pendientes; historia .all sin paginación permanece abierta.
 
 ## OPS08
 
@@ -2801,3 +2802,31 @@ Revisión: Seguridad independiente74 VM; QA39 grupos de navegador actuales de al
 Bloqueo: "Contención por instancia aceptada localmente. Faltan cierre integral de sesiones/almacenamiento, escritores directos, recarga y coordinación entre pestañas; no hay despliegue."
 
 Observaciones: Transporte final347242a6:74 casos VM independientes (13 seguridad+33 regresión+26 Storage+2 root), fuentes estables. La revisión encontró par parcial accessB/refreshA; confianza pegajosa bloquea I/O hasta save/clear completo. Browser actualizado pendiente. Atomicidad entre pestañas, recarga y escritores directos/tokensLS quedan fuera y R10 no se cierra.; API347 integrada754d56d; QA independiente actual ejecutó36 grupos/19 pantallas en cuatro fixtures runtime26 y3 grupos Storage adicionales, cero pageErrors y fuentes estables. Storage inyecta DOMException tras primera escritura, restaura setter antes de cinco consumidores y demuestra bloqueo antes de fetch hasta clear/login completo. Alcance por instancia; no demuestra quota nativa, reload, escritores directos ni atomicidad entre pestañas. R10/R31 integrales abiertos.
+
+## OPS09
+
+Fuente: [Blocking finding: source provenance](evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md).
+
+Problema: El empaquetador puede atribuir a un commit código distinto oculto por flags del índice Git.
+
+Criterio original: La procedencia del artefacto exige comprobar fuentes contra el commit exacto bajo normalización/filtros de checkout revisados; modificaciones ocultas por assume-unchanged o skip-worktree deben rechazarse sin mutar el índice del operador.
+
+Estado: en_curso; implementación: en_curso; validación: reproducido; despliegue: no_desplegado; entorno: local.
+
+Dependencias: R18
+
+Cambios: Hallazgo independiente sobre41ad55f: dos repositorios Temp reales registran status limpio/HEAD correcto y snapshot acepta main.py modificado. No se ejecutó build ni incidente live.
+
+Commits: pendiente
+
+Pruebas: Dos variantes rojas independientes: assume-unchanged y skip-worktree;58 pruebas de receta verdes no cubrían esta atribución.19 archivos fuente antes/después sin cambios.
+
+Evidencia: evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.provenance.py; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.provenance.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.before.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.after.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.tests.xml
+
+Documentación: DESKTOP_PUBLICACION.md; ESTADO.md; RIESGOS.md
+
+Revisión: Backend independiente; coordinación integra; QA debe repetir tras corrección del autor
+
+Bloqueo: "No fabricar/aceptar artefacto atribuido a41ad55f hasta corregir procedencia y repetir negativos. Operación corrige en worktree aislado; wrappers legacy/ISS siguen siendo trabajo separado."
+
+Observaciones: Nuevo hallazgo añadido sin renumerar92 originales ni OPS08/SEC01/SEC02; total96 registros. Los probes no ejecutan código sintético ni modifican el checkout revisado.

@@ -1,6 +1,6 @@
 # Estado de ejecución 20261018-evolution
 
-Objetivo: resolver verificablemente los92 identificadores originales y OPS08/SEC01/SEC02 añadidos,95 registros. [Registro canónico](TRAZABILIDAD.json), [auditoría histórica](../../audit/2026-10-18/INFORME_INTEGRAL.md). Un módulo integrado no cierra todos los criterios del ID.
+Objetivo: resolver verificablemente los92 identificadores originales y OPS08/OPS09/SEC01/SEC02 añadidos,96 registros. [Registro canónico](TRAZABILIDAD.json), [auditoría histórica](../../audit/2026-10-18/INFORME_INTEGRAL.md). Un módulo integrado no cierra todos los criterios del ID.
 
 Base `daa25efbf51d154710bad625025b345fa9ec9252`; rama `implementation/20261018-execution`; checkout `F:\MetodoBaseWeb-execution-20261018`. El original `F:\MetodoBaseWeb-main`, sin Git, permanece intacto. La comparación inicial encontró443 archivos propios iguales normalizando CRLF;1648 archivos de entornos se excluyeron del entregable, conservando historial/original. [Comparación](evidence/repository-comparison.json).
 
@@ -21,3 +21,7 @@ Infraestructura local: Windows10/Python3.12.13/Node24.21, venv candidato web ins
 R21: último scan limpio b20e071,1006 archivos, anterior a los últimos lotes. El próximo scan usará worktree detached exacto y reporte sin valores; no atribuir el resultado anterior al head actual. [Higiene](HIGIENE.md).
 
 Producción observada sólo en lectura: despliegue SUCCESS `28cc3eab-e9bd-4742-ab4d-c75ff954db6f`, fuente base daa25efb; [metadatos mínimos](evidence/deployed-version.json). No se autorizaron mutaciones live, cargos, envíos/contactos ni recursos pagos. Sandbox/entrega real de correo de prueba, destino durable, dictámenes clínico/legal y piloto requieren evidencia propia y siguen pendientes. No impiden el trabajo técnico local autorizado.
+
+OPS09: backend encontró dos variantes de atribución falsa de fuentes mediante flags Git en41ad55f. Los19 archivos revisados permanecieron estables y58 pruebas de receta pasaron; eso no invalida los dos negativos nuevos. Operación corrige procedencia y entrypoints legacy en su worktree; todavía sin build. [Revisión](evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md).
+
+Fuentes nuevas posteriores al gate amplio: coordinación contiene errores de estadísticas en ambos routers (503/clase saneada en lugar de200/ceros ficticios). Cuatro rojos previos y48 autor verdes; revisión independiente pendiente. Los1813 serial/n2 continúan vinculados a6d33b9e y no validan anticipadamente estos cambios. [Alcance](ESTADISTICAS_DISPONIBILIDAD.md). Diario27 tiene contrato preparado en DIARIO_PERSISTENCIA_PROPUESTA.md y worktree propio desde2f8b7f9, todavía sin implementación.

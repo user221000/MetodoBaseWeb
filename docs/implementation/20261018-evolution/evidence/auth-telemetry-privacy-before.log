@@ -59,13 +59,13 @@ tests\test_auth_telemetry_privacy.py:21: in assert_operational_records_are_minim
     assert secret not in text
 E   assert 'a57726c9-71...f02bcda19181' not in '[{"name": "...s revoked"}]'
 E     
-E     'a57726c9-71d8-40c9-8497-f02bcda19181' is contained here:
+E     '[SYNTHETIC_SESSION_ID_REDACTED]' is contained here:
 E     ?           -----------------------  ^^^^^^^^^
-E       "args": ["a57726c9-71d8-40c9-8497-f02bcda19181", "cbde93b9-0d40-4e82-a58d-7aacb05940f9"], "levelname": "WARNING", "levelno": 30, "pathname": "F:\\MetodoBaseWeb-execution-20261018\\web\\auth.py", "filename": "auth.py", "module": "auth", "exc_info": null, "exc_text": null, "stack_info": null, "lineno": 533, "funcName": "rotar_refresh_token", "created": 1792383371.4862936, "msecs": 486.0, "relativeCreated": 3746.340036392212, "thread": 30432, "threadName": "MainThread",...
+E       "args": ["[SYNTHETIC_SESSION_ID_REDACTED]", "[SYNTHETIC_USER_ID_REDACTED]"], "levelname": "WARNING", "levelno": 30, "pathname": "F:\\MetodoBaseWeb-execution-20261018\\web\\auth.py", "filename": "auth.py", "module": "auth", "exc_info": null, "exc_text": null, "stack_info": null, "lineno": 533, "funcName": "rotar_refresh_token", "created": 1792383371.4862936, "msecs": 486.0, "relativeCreated": 3746.340036392212, "thread": 30432, "threadName": "MainThread",...
 E     
 E     ...Full output truncated (2 lines hidden), use '-vv' to show
 ------------------------------ Captured log call ------------------------------
-WARNING  web.auth:auth.py:533 REUSE DETECTION: token jti=a57726c9-71d8-40c9-8497-f02bcda19181 user=cbde93b9-0d40-4e82-a58d-7aacb05940f9 — all tokens revoked
+WARNING  web.auth:auth.py:533 REUSE DETECTION: token jti=[SYNTHETIC_SESSION_ID_REDACTED] user=[SYNTHETIC_USER_ID_REDACTED] — all tokens revoked
 _ test_audit_persists_authorized_security_fields_but_operational_log_omits_them _
 tests\test_auth_telemetry_privacy.py:76: in test_audit_persists_authorized_security_fields_but_operational_log_omits_them
     assert_operational_records_are_minimal(records, test_gym_user["id"])

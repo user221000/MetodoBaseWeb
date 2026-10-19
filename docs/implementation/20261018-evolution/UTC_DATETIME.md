@@ -31,3 +31,7 @@ El gate dirigido posterior a la adopción reúne 42 casos verdes del helper, int
 La elección de UTC naive es compatibilidad con el esquema actual. Una futura migración a columnas con timezone necesita un plan separado y evidencia sobre el origen de cada dato; este helper no puede reparar una fila previamente desplazada ni determinar cómo se produjo.
 
 La migración posterior74d66e8 añade dos instantes nuevos de StoredObject con UTCDateTime. Son columnas nuevas del esquema25; no forman parte de las52 columnas históricas adoptadas sin DDL ni alteran la evidencia previa. Las dos fechas civiles se conservan.
+
+La revisión26 integrada34d8fb1 añade `GenerationReservation.persisted_at`, un instante UTC nullable nuevo con el mismo tipo físico sin zona. No se infiere un instante para filas legacy: protocolo0 y marcador NULL se conservan. Los ensayos de publicación/restore verifican que el marcador se conserva cuando la FK del plan queda NULL. Esta columna nueva tampoco forma parte de las52 históricas de la adopción inicial.
+
+El cleanup legado fue corregido en0e8cd42: compara `refresh_tokens.expires` Float con `cutoff.timestamp()`, y la auditoría usa la columna ORM UTC tipada.25 casos únicos independientes incluyen PostgreSQL bajo UTC/México, errores de transacción y exit0/1. Conserva los parámetros30/90 existentes; no crea scheduler ni política de retención. [Contrato](CLEANUP.md).
