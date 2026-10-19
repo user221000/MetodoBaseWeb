@@ -16,49 +16,50 @@ CREATE FUNCTION public.r12_actor_valid() RETURNS boolean LANGUAGE sql STABLE SEC
    AND ((u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL)
      OR (u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)
        AND (u.team_gym_id IS NULL OR EXISTS(SELECT 1 FROM public.usuarios parent WHERE parent.id=u.team_gym_id
-         AND parent.tipo='gym' AND parent.role='OWNER' AND parent.activo AND parent.deleted_at IS NULL)))))
+         AND parent.tipo='gym' AND parent.role='OWNER' AND parent.team_gym_id IS NULL
+         AND parent.activo AND parent.deleted_at IS NULL AND parent.invitation_token IS NULL)))))
  $$;
 CREATE FUNCTION public.r12_gym_scope(identity text) RETURNS boolean LANGUAGE sql STABLE SECURITY INVOKER
  SET search_path=pg_catalog AS $$
- SELECT identity=NULLIF(current_setting('app.current_tenant',true),'')
+ SELECT COALESCE(identity=NULLIF(current_setting('app.current_tenant',true),''),false)
  $$;
 CREATE FUNCTION public.r12_canonical_gym(identity text) RETURNS boolean LANGUAGE sql STABLE SECURITY INVOKER
  SET search_path=pg_catalog AS $$
  SELECT EXISTS(SELECT 1 FROM public.usuarios u
-  WHERE u.id=identity AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL AND u.activo AND u.deleted_at IS NULL)
+  WHERE u.id=identity AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL
+    AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL)
  $$;
 CREATE FUNCTION public.r12_lock_canonical_gym(identity text) RETURNS boolean LANGUAGE plpgsql VOLATILE SECURITY INVOKER
  SET search_path=pg_catalog AS $$
  BEGIN
   PERFORM 1 FROM public.usuarios u WHERE u.id=identity AND u.tipo='gym' AND u.role='OWNER'
-    AND u.team_gym_id IS NULL AND u.activo AND u.deleted_at IS NULL FOR SHARE NOWAIT;
+    AND u.team_gym_id IS NULL AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL FOR SHARE NOWAIT;
   RETURN FOUND;
  END $$;
 CREATE FUNCTION public.r12_proof(i public.client_link_invitations) RETURNS boolean LANGUAGE sql STABLE SECURITY INVOKER
  SET search_path=pg_catalog AS $$
- SELECT public.r12_actor_valid() AND i.token_hash=NULLIF(current_setting('app.client_invitation_digest',true),'')
+ SELECT COALESCE(public.r12_actor_valid() AND i.token_hash=NULLIF(current_setting('app.client_invitation_digest',true),'')
  AND EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NULLIF(current_setting('app.current_tenant',true),'')
    AND u.email=i.recipient_email AND u.email=lower(btrim(u.email)))
- AND (i.status<>'consumed' OR i.consumed_by=NULLIF(current_setting('app.current_tenant',true),''))
+ AND (i.status<>'consumed' OR i.consumed_by=NULLIF(current_setting('app.current_tenant',true),'')),false)
  $$;
 CREATE FUNCTION public.r12_pending_proof(l public.client_account_links) RETURNS boolean LANGUAGE sql STABLE SECURITY INVOKER
  SET search_path=pg_catalog AS $$
- SELECT l.status='pending' AND EXISTS(SELECT 1 FROM public.client_link_invitations i WHERE i.link_id=l.id
-  AND i.gym_id=l.gym_id AND i.client_id=l.client_id AND i.status IN ('pending','consumed') AND public.r12_proof(i))
+ SELECT COALESCE(l.status='pending' AND EXISTS(SELECT 1 FROM public.client_link_invitations i WHERE i.link_id=l.id
+  AND i.gym_id=l.gym_id AND i.client_id=l.client_id AND i.status IN ('pending','consumed') AND public.r12_proof(i)),false)
  $$;
 CREATE FUNCTION public.r12_consumed_proof(l public.client_account_links) RETURNS boolean LANGUAGE sql STABLE SECURITY INVOKER
  SET search_path=pg_catalog AS $$
- SELECT l.user_id=NULLIF(current_setting('app.current_tenant',true),'') AND EXISTS(
+ SELECT COALESCE(l.user_id=NULLIF(current_setting('app.current_tenant',true),'') AND EXISTS(
  SELECT 1 FROM public.client_link_invitations i WHERE i.link_id=l.id AND i.gym_id=l.gym_id AND i.client_id=l.client_id
- AND i.status='consumed' AND i.consumed_by=l.user_id AND i.consumed_at=l.accepted_at AND public.r12_proof(i))
+ AND i.status='consumed' AND i.consumed_by=l.user_id AND i.consumed_at=l.accepted_at AND public.r12_proof(i)),false)
  $$;
 CREATE FUNCTION public.r12_recipient(p public.client_plan_publications) RETURNS boolean LANGUAGE sql STABLE SECURITY INVOKER
  SET search_path=pg_catalog AS $$
- SELECT p.status='published' AND public.r12_actor_valid() AND EXISTS(
+ SELECT COALESCE(p.status='published' AND public.r12_actor_valid() AND EXISTS(
  SELECT 1 FROM public.client_account_links l WHERE l.id=p.link_id AND l.gym_id=p.gym_id AND l.client_id=p.client_id
   AND l.user_id=NULLIF(current_setting('app.current_tenant',true),'') AND l.status='active'
-  AND EXISTS(SELECT 1 FROM public.usuarios g WHERE g.id=l.gym_id AND g.tipo='gym' AND g.role='OWNER'
-    AND g.activo AND g.deleted_at IS NULL))
+  AND public.r12_canonical_gym(l.gym_id)),false)
  $$;
 ALTER TABLE public.client_account_links ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.client_account_links FORCE ROW LEVEL SECURITY;
@@ -85,12 +86,12 @@ CREATE POLICY r12_publication_gym_update ON public.client_plan_publications FOR 
 CREATE POLICY r12_publication_reader_lock ON public.client_plan_publications FOR UPDATE USING(public.r12_recipient(client_plan_publications)) WITH CHECK(false);
 
 CREATE FUNCTION public.r12_require_rc() RETURNS void LANGUAGE plpgsql VOLATILE SECURITY INVOKER SET search_path=pg_catalog AS $$
- BEGIN IF current_setting('transaction_isolation')<>'read committed' THEN RAISE EXCEPTION USING ERRCODE='25000',MESSAGE='R12 requires READ COMMITTED'; END IF; END $$;
+ BEGIN IF current_setting('transaction_isolation') IS DISTINCT FROM 'read committed' THEN RAISE EXCEPTION USING ERRCODE='25000',MESSAGE='R12 requires READ COMMITTED'; END IF; END $$;
 CREATE FUNCTION public.r12_guard_link() RETURNS trigger LANGUAGE plpgsql VOLATILE SECURITY INVOKER SET search_path=pg_catalog AS $$
  BEGIN
   PERFORM public.r12_require_rc();
   IF TG_OP='INSERT' THEN
-   IF NEW.status<>'pending' OR NEW.user_id IS NOT NULL OR NEW.version<>1 OR NOT public.r12_gym_scope(NEW.gym_id) OR NOT public.r12_lock_canonical_gym(NEW.gym_id) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 link denied'; END IF;
+   IF NEW.status<>'pending' OR NEW.user_id IS NOT NULL OR NEW.version<>1 OR public.r12_gym_scope(NEW.gym_id) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 link denied'; END IF;
    PERFORM 1 FROM public.clientes WHERE gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND activo AND deleted_at IS NULL FOR SHARE;
    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 client unavailable'; END IF;
    NEW.created_at=clock_timestamp() AT TIME ZONE 'UTC';
@@ -100,7 +101,7 @@ CREATE FUNCTION public.r12_guard_link() RETURNS trigger LANGUAGE plpgsql VOLATIL
   ELSE
    IF (NEW.id,NEW.gym_id,NEW.client_id,NEW.gym_name,NEW.client_display_name,NEW.created_at) IS DISTINCT FROM (OLD.id,OLD.gym_id,OLD.client_id,OLD.gym_name,OLD.client_display_name,OLD.created_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable link'; END IF;
    IF OLD.status='pending' AND NEW.status='active' THEN
-    IF NOT public.r12_consumed_proof(NEW) OR NOT public.r12_lock_canonical_gym(NEW.gym_id) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 consumption proof required'; END IF;
+    IF public.r12_consumed_proof(NEW) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 consumption proof required'; END IF;
    ELSIF OLD.status IN ('pending','active') AND NEW.status='revoked' THEN
     IF (NEW.user_id,NEW.accepted_at) IS DISTINCT FROM (OLD.user_id,OLD.accepted_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable recipient'; END IF;
     NEW.revoked_at=clock_timestamp() AT TIME ZONE 'UTC';
@@ -116,7 +117,7 @@ CREATE FUNCTION public.r12_guard_invitation() RETURNS trigger LANGUAGE plpgsql V
  BEGIN
   PERFORM public.r12_require_rc();
   IF TG_OP='INSERT' THEN
-   IF NEW.status<>'pending' OR NEW.consumed_by IS NOT NULL OR NEW.version<>1 OR NOT public.r12_lock_canonical_gym(NEW.gym_id) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 invitation denied'; END IF;
+   IF NEW.status<>'pending' OR NEW.consumed_by IS NOT NULL OR NEW.version<>1 OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 invitation denied'; END IF;
    NEW.created_at=clock_timestamp() AT TIME ZONE 'UTC';
    NEW.updated_at=NEW.created_at;
    NEW.consumed_at=NULL;
@@ -128,12 +129,12 @@ CREATE FUNCTION public.r12_guard_invitation() RETURNS trigger LANGUAGE plpgsql V
    OR NEW.version<>OLD.version+1 OR OLD.status<>'pending' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable invitation'; END IF;
   IF NEW.status='consumed' THEN
    decision=clock_timestamp() AT TIME ZONE 'UTC';
-   IF NOT public.r12_proof(OLD) OR NOT public.r12_lock_canonical_gym(NEW.gym_id) OR NEW.consumed_by IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'')
+   IF public.r12_proof(OLD) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE OR NEW.consumed_by IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'')
     OR NEW.token_hash IS DISTINCT FROM OLD.token_hash OR NEW.expires_at IS DISTINCT FROM OLD.expires_at OR decision>=OLD.expires_at
     THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 consumption denied'; END IF;
    NEW.consumed_at=decision;
-  ELSIF NOT public.r12_gym_scope(NEW.gym_id) OR NEW.status NOT IN ('pending','revoked')
-   OR (NEW.status='pending' AND NOT public.r12_lock_canonical_gym(NEW.gym_id)) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 invitation transition denied'; END IF;
+  ELSIF public.r12_gym_scope(NEW.gym_id) IS NOT TRUE OR NEW.status NOT IN ('pending','revoked')
+   OR (NEW.status='pending' AND public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 invitation transition denied'; END IF;
   IF NEW.status='revoked' THEN
    IF (NEW.token_hash,NEW.expires_at) IS DISTINCT FROM (OLD.token_hash,OLD.expires_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable invitation'; END IF;
    NEW.revoked_at=clock_timestamp() AT TIME ZONE 'UTC';
@@ -156,7 +157,7 @@ CREATE FUNCTION public.r12_check_pair() RETURNS trigger LANGUAGE plpgsql VOLATIL
    target=NEW.id;
   END IF;
   SELECT * INTO invitation FROM public.client_link_invitations WHERE link_id=target;
-  IF NOT FOUND OR invitation.status<>'consumed' OR NOT public.r12_proof(invitation) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 commit proof unavailable'; END IF;
+  IF NOT FOUND OR invitation.status<>'consumed' OR public.r12_proof(invitation) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 commit proof unavailable'; END IF;
   SELECT * INTO linked FROM public.client_account_links WHERE id=target;
   IF NOT FOUND OR linked.status NOT IN ('active','revoked') OR linked.user_id IS DISTINCT FROM invitation.consumed_by OR linked.accepted_at IS DISTINCT FROM invitation.consumed_at
    THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 acceptance incomplete'; END IF;
@@ -178,7 +179,7 @@ CREATE FUNCTION public.r12_guard_publication() RETURNS trigger LANGUAGE plpgsql 
    NEW.withdrawn_at=clock_timestamp() AT TIME ZONE 'UTC';
    RETURN NEW;
   END IF;
-  IF NEW.status<>'published' OR NEW.publication_version<>1 OR NEW.schema_version<>1 OR NOT public.r12_lock_canonical_gym(NEW.gym_id) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 publication owner unavailable'; END IF;
+  IF NEW.status<>'published' OR NEW.publication_version<>1 OR NEW.schema_version<>1 OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 publication owner unavailable'; END IF;
   IF NEW.plan_json IS NULL OR octet_length(NEW.plan_json)>262144 THEN
    RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection volume unavailable'; END IF;
   PERFORM 1 FROM public.clientes WHERE gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND activo AND deleted_at IS NULL FOR SHARE;
@@ -195,7 +196,7 @@ CREATE FUNCTION public.r12_guard_publication() RETURNS trigger LANGUAGE plpgsql 
     THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication object unavailable'; END IF;
   END IF;
   projected=public.r12_project_plan(source);
-  IF NOT public.r12_unique_json(NEW.plan_json::json) OR NEW.plan_json::jsonb IS DISTINCT FROM projected
+  IF public.r12_unique_json(NEW.plan_json::json) IS NOT TRUE OR NEW.plan_json::jsonb IS DISTINCT FROM projected
     OR NEW.plan_sha256 IS DISTINCT FROM encode(sha256(convert_to(NEW.plan_json,'UTF8')),'hex') THEN
    RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection source mismatch'; END IF;
   NEW.plan_json=projected::text;

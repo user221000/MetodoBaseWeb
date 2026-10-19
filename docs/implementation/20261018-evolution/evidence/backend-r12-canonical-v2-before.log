@@ -1,0 +1,115 @@
+FFF..F....FFFFFF                                                         [100%]
+================================== FAILURES ===================================
+_____ test_noncanonical_parent_cuts_current_recipient_grant[source_owner] _____
+tests\integration_client_link_canonical_v2_review.py:24: in test_noncanonical_parent_cuts_current_recipient_grant
+    assert db.scalar(text('SELECT count(*) FROM client_plan_publications WHERE id=:id'),{'id':identity})==0
+E   AssertionError: assert 1 == 0
+E    +  where 1 = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5D580>, {'id': 'b6f1dfde-467c-4188-9c69-43384ecc1165'})
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1E5D400>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5D580> = text('SELECT count(*) FROM client_plan_publications WHERE id=:id')
+_____ test_noncanonical_parent_cuts_current_recipient_grant[actor_parent] _____
+tests\integration_client_link_canonical_v2_review.py:24: in test_noncanonical_parent_cuts_current_recipient_grant
+    assert db.scalar(text('SELECT count(*) FROM client_plan_publications WHERE id=:id'),{'id':identity})==0
+E   AssertionError: assert 1 == 0
+E    +  where 1 = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8D1C0>, {'id': '2144b479-5139-4ae1-adc2-743ae85f697f'})
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1D8E120>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8D1C0> = text('SELECT count(*) FROM client_plan_publications WHERE id=:id')
+____ test_owner_own_acceptance_requires_proof_until_deferred_commit[empty] ____
+tests\integration_client_link_canonical_v2_review.py:38: in test_owner_own_acceptance_requires_proof_until_deferred_commit
+    with pytest.raises(DBAPIError):db.commit()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE DBAPIError
+___ test_boolean_helpers_are_total_and_fail_closed_on_sql_null[scope-null] ____
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert None is False
+E    +  where None = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5F8C0>)
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1E5EF90>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5F8C0> = text(('SELECT ' + 'public.r12_gym_scope(NULL)'))
+____ test_boolean_helpers_are_total_and_fail_closed_on_sql_null[json-null] ____
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert True is False
+E    +  where True = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC08F0>)
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1EC0800>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC08F0> = text(('SELECT ' + 'public.r12_unique_json(NULL::json)'))
+___ test_boolean_helpers_are_total_and_fail_closed_on_sql_null[depth-null] ____
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert True is False
+E    +  where True = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC10A0>)
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1EC0FB0>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC10A0> = text(('SELECT ' + "public.r12_unique_json('{}'::json,NULL)"))
+__ test_boolean_helpers_are_total_and_fail_closed_on_sql_null[allowed-null] ___
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert True is False
+E    +  where True = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC17F0>)
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1EC15B0>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC17F0> = text(('SELECT ' + "public.r12_keys('{}'::jsonb,NULL,ARRAY[]::text[])"))
+__ test_boolean_helpers_are_total_and_fail_closed_on_sql_null[required-null] __
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert None is False
+E    +  where None = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1CFE510>)
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1EC22A0>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1CFE510> = text(('SELECT ' + "public.r12_keys('{}'::jsonb,ARRAY[]::text[],NULL)"))
+__ test_boolean_helpers_are_total_and_fail_closed_on_sql_null[positive-null] __
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert None is False
+E    +  where None = scalar(<sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8DBB0>)
+E    +    where scalar = <sqlalchemy.engine.base.Connection object at 0x000001F4D1D8F080>.scalar
+E    +    and   <sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8DBB0> = text(('SELECT ' + "public.r12_number('0'::jsonb,NULL)"))
+_ test_boolean_helpers_are_total_and_fail_closed_on_sql_null[food-flag-null] __
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1801: in _execute_context
+    context = constructor(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1662: in _init_compiled
+    compiled.construct_params(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\compiler.py:2074: in construct_params
+    raise exc.InvalidRequestError(
+E   sqlalchemy.exc.InvalidRequestError: A value is required for bind parameter '1' (Background on this error at: https://sqlalche.me/e/21/cd3x)
+
+The above exception was the direct cause of the following exception:
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1347: in scalar
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:551: in _execute_on_scalar
+    return self._execute_on_connection(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1807: in _execute_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1801: in _execute_context
+    context = constructor(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1662: in _init_compiled
+    compiled.construct_params(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\compiler.py:2074: in construct_params
+    raise exc.InvalidRequestError(
+E   sqlalchemy.exc.StatementError: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter '1'
+E   [SQL: SELECT public.r12_food('{"alimento":"synthetic","gramos"%(1)s}'::jsonb,NULL)]
+E   (Background on this error at: https://sqlalche.me/e/21/cd3x)
+=========================== short test summary info ===========================
+FAILED tests/integration_client_link_canonical_v2_review.py::test_noncanonical_parent_cuts_current_recipient_grant[source_owner]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_noncanonical_parent_cuts_current_recipient_grant[actor_parent]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_owner_own_acceptance_requires_proof_until_deferred_commit[empty]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_boolean_helpers_are_total_and_fail_closed_on_sql_null[scope-null]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_boolean_helpers_are_total_and_fail_closed_on_sql_null[json-null]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_boolean_helpers_are_total_and_fail_closed_on_sql_null[depth-null]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_boolean_helpers_are_total_and_fail_closed_on_sql_null[allowed-null]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_boolean_helpers_are_total_and_fail_closed_on_sql_null[required-null]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_boolean_helpers_are_total_and_fail_closed_on_sql_null[positive-null]
+FAILED tests/integration_client_link_canonical_v2_review.py::test_boolean_helpers_are_total_and_fail_closed_on_sql_null[food-flag-null]
+10 failed, 6 passed in 9.51s
