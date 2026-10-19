@@ -1,0 +1,11 @@
+"""Current33 fixture binding; imported original function objects retain every assertion."""
+
+import pytest
+
+from tests.ci_google33.owned import migration_database
+
+from tests.integration_followup_postgres import (
+    test_readonly_followup_double_owner_admin_scope_and_revocation,
+)
+
+pytestmark=pytest.mark.parametrize('migration_database',['postgresql'],indirect=True)

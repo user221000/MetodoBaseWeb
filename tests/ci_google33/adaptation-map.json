@@ -1,0 +1,189 @@
+{
+  "tests/integration_current33_member_services.py": {
+    "source": "tests/integration_current31_member_services.py",
+    "source_normalized_sha256": "f1ffdf7799eec3da0f3ca8562a0bb4c426994e4973e33eadce5287fa78fa22f5",
+    "current_normalized_sha256": "35a207c62f81c980c8c0a36ada263ca6f8fbd48d0817f27a6768b08d197996a1",
+    "full_inverse_exact": true,
+    "business_functions_exact": [],
+    "framing_pairs": [
+      [
+        "Current31",
+        "Current33"
+      ],
+      [
+        "tests.ci_mfa31.current_link_fixtures",
+        "tests.ci_google33.current_link_fixtures"
+      ]
+    ],
+    "addition": null
+  },
+  "tests/integration_current33_member_http.py": {
+    "source": "tests/integration_current31_member_http.py",
+    "source_normalized_sha256": "ff93518f5ef9943d19c80b69964b6e2ace2e2ad689141615cc15812426606805",
+    "current_normalized_sha256": "7fa7916425eb7705d5d77f0d5d507076ecc5866cc6c0774b0e4d479517433264",
+    "full_inverse_exact": true,
+    "business_functions_exact": [],
+    "framing_pairs": [
+      [
+        "Current31",
+        "Current33"
+      ],
+      [
+        "tests.ci_mfa31.current_link_fixtures",
+        "tests.ci_google33.current_link_fixtures"
+      ]
+    ],
+    "addition": null
+  },
+  "tests/integration_current33_member_races.py": {
+    "source": "tests/integration_current31_member_races.py",
+    "source_normalized_sha256": "3ea6c1a8dfd9663759c0a0b593c4ea3732fb9d0753e3daa2cc412aa698be3b34",
+    "current_normalized_sha256": "682bb19c231e7fa70f3080127eb965f100d62769473ab6671bbad42ff0a115ee",
+    "full_inverse_exact": true,
+    "business_functions_exact": [],
+    "framing_pairs": [
+      [
+        "Current31",
+        "Current33"
+      ],
+      [
+        "tests.ci_mfa31.current_link_fixtures",
+        "tests.ci_google33.current_link_fixtures"
+      ]
+    ],
+    "addition": null
+  },
+  "tests/integration_current33_r24_publication.py": {
+    "source": "tests/integration_current31_r24_publication.py",
+    "source_normalized_sha256": "b0de3d5fdc0dbfb901e1477512cbea6fa254449f436fd750dcba1ad021c50c9f",
+    "current_normalized_sha256": "ddd83f3f9cdf1cfa869b69ec8ab843415a3c6146183145cd88d994fcfbbc3ce5",
+    "full_inverse_exact": true,
+    "business_functions_exact": [],
+    "framing_pairs": [
+      [
+        "Current31",
+        "Current33"
+      ],
+      [
+        "tests.ci_mfa31.current_link_fixtures",
+        "tests.ci_google33.current_link_fixtures"
+      ]
+    ],
+    "addition": null
+  },
+  "tests/integration_current33_r24_race.py": {
+    "source": "tests/integration_current31_r24_race.py",
+    "source_normalized_sha256": "8275f4f082a9d4c5a3233cde85c7c04c62d84130cdae8daa971c2427ff6194ff",
+    "current_normalized_sha256": "d25b5eca2cea8dd333a9df107e980b78a5bad095ea274d5a462acecc5a5ebb12",
+    "full_inverse_exact": true,
+    "business_functions_exact": [
+      "test_account_NOWAIT_and_real_publication_wait_then_revocation_never_write_after_revoke"
+    ],
+    "framing_pairs": [
+      [
+        "current31",
+        "current33"
+      ],
+      [
+        "schema31",
+        "schema33"
+      ],
+      [
+        "tests.ci_mfa31.current_link_fixtures",
+        "tests.ci_google33.current_link_fixtures"
+      ]
+    ],
+    "addition": null
+  },
+  "tests/ci_google33/current_link_fixtures.py": {
+    "source": "tests/ci_mfa31/current_link_fixtures.py",
+    "source_normalized_sha256": "85d72effd2cb31a85d8a51c3431641d4a6eb10b5b7e2b78d296a7fdb3d2d0a47",
+    "current_normalized_sha256": "3f1a29d558ea25eb597a338f53eb8620da81f8ac6ae0fa583f4e444de74443cd",
+    "full_inverse_exact": true,
+    "business_functions_exact": [],
+    "framing_pairs": [
+      [
+        "Current31",
+        "Current33"
+      ],
+      [
+        "current31",
+        "current33"
+      ],
+      [
+        "'20261019_mfa'",
+        "'20261019_google_subjects'"
+      ],
+      [
+        "len(Base.metadata.tables) == 32",
+        "len(Base.metadata.tables) == 35"
+      ],
+      [
+        "get_table_names()) == 33",
+        "get_table_names()) == 36"
+      ],
+      [
+        "from tests.integration_schema_migrations import migration_database, run_migration",
+        "from tests.integration_schema_migrations import run_migration\nfrom tests.ci_google33.owned import migration_database"
+      ]
+    ],
+    "addition": [
+      "        app = application_engine(url, admin)\n",
+      "        app = application_engine(url, admin)\n        from tests.ci_google33.physical import physical_contract\n        physical_contract(app)\n"
+    ]
+  },
+  "tests/current_google33_publication_fixtures.py": {
+    "source": "tests/current_mfa31_publication_fixtures.py",
+    "source_normalized_sha256": "75d7717f5f820f29ff543163a3c0aa00d2c831f0127d4c8da73b1f58fa4190e6",
+    "current_normalized_sha256": "19b14730043c5a74c77c9713722fce2627e949f0fd28e52e12258dd39d7ae8a0",
+    "full_inverse_exact": true,
+    "business_functions_exact": [],
+    "framing_pairs": [
+      [
+        "current31",
+        "current33"
+      ],
+      [
+        "database to31",
+        "database to33"
+      ],
+      [
+        "tests.ci_mfa31.current_link_fixtures",
+        "tests.ci_google33.current_link_fixtures"
+      ],
+      [
+        "20261019_mfa",
+        "20261019_google_subjects"
+      ],
+      [
+        "get_table_names()) == 33",
+        "get_table_names()) == 36"
+      ]
+    ],
+    "addition": null
+  },
+  "tests/test_publication_diary_consumption.py": {
+    "source_commit": "6f822ff50d93e01bb10249556a9bfc4e1a3b246b",
+    "source": "tests/test_publication_diary_consumption.py",
+    "source_normalized_sha256": "1fce8e84ed916422b5ec4743b7c691db94acb9db9e1e158815aafa834bd19906",
+    "current_normalized_sha256": "f525cf54fbecdb4b6c15810464dda0581805da1117d66f437e9914f299e352a4",
+    "only_fixture_import_transition": true,
+    "all_function_AST_exact": true
+  },
+  "tests/test_current_publication_fixture_review.py": {
+    "source_commit": "6f822ff50d93e01bb10249556a9bfc4e1a3b246b",
+    "source": "tests/test_current_publication_fixture_review.py",
+    "source_normalized_sha256": "3568ad338163f2706c3fcb9dc7f743080a2bc3c93f29c720164b83aa687c7309",
+    "current_normalized_sha256": "bb8505e04e6fed5dfe7914120064f7f3dca5c66c4d8c54b628fa5a19ade8395c",
+    "only_fixture_import_transition": true,
+    "all_function_AST_exact": true
+  },
+  "tests/test_current_mfa31_fixture_clock.py": {
+    "source_commit": "6f822ff50d93e01bb10249556a9bfc4e1a3b246b",
+    "source": "tests/test_current_mfa31_fixture_clock.py",
+    "source_normalized_sha256": "898c1bde416890e5bbf4a7f19ff6c489c95a597ff0c4b44b50f920a899dae3ae",
+    "current_normalized_sha256": "3be72916544c7e4cf4a26f192bfbec65f2b71c79a80218a2e582064243d62c0f",
+    "only_fixture_import_transition": true,
+    "all_function_AST_exact": true
+  }
+}

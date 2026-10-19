@@ -1,0 +1,8 @@
+"""Replay the same26 own guards after comparator-scope fix;205 old tests already passed."""
+from pathlib import Path
+source=Path(__file__).with_name('metodobase-ci33-offline-prepare-run-20261019.py').read_text(encoding='utf8')
+assert source.count('metodobase-ci33-offline-checks-20261019')==1
+source=source.replace('metodobase-ci33-offline-checks-20261019','metodobase-ci33-offline-checks-v2-20261019')
+assert source.count(",'tests/test_mfa31_ci_trust.py'")==1
+source=source.replace(",'tests/test_mfa31_ci_trust.py'",'')
+exec(compile(source,'same-own26-after-comparator-scope-fix','exec'))

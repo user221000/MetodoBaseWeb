@@ -1,0 +1,13 @@
+/* Current33 eight-dataset controls fixture; original21 callbacks/asserts stay exact. */
+const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
+let source=fs.readFileSync(path.join(__dirname,'personal_export_controls.cjs'),'utf8');
+const before="path.join(__dirname,'personal_export_context.cjs')",after="path.join(__dirname,'current33_export_context.cjs')";
+if(source.split(before).length!==2)throw Error('Historical controls import drift');
+// The17 runner's wrapper delegates original code; inject the exact4 controls
+// callbacks into original17, after applying the same two fixture-only literals.
+let original=fs.readFileSync(path.join(__dirname,'personal_export_context.cjs'),'utf8');
+const pairs=[["'personal_diary','member_links'];","'personal_diary','member_links','progress_consents'];"],["coverage:'account_persisted_personal_space_and_active_member_link_metadata'","progress_consents:'own_append_only_scope_metadata',coverage:'account_persisted_personal_space_active_member_links_and_own_progress_consents'"]];
+for(const[a,b]of pairs){if(original.split(a).length!==2)throw Error('Historical fixture drift');original=original.replace(a,b);}
+const match=source.match(/const additions=String.raw`([\s\S]*?)`;/);if(!match)throw Error('Historical4 controls absent');
+const marker='(async()=>{const results=[];';if(original.split(marker).length!==2)throw Error('Historical runner drift');
+const testModule=new Module(__filename,module);testModule.filename=__filename;testModule.paths=module.paths;testModule._compile(original.replace(marker,match[1]+'\n'+marker),__filename);

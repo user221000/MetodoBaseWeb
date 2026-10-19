@@ -1,0 +1,111 @@
+"""Authenticated version31/32 source materialization, independent of current33.
+
+The selected31 freeze is an explicitly reviewed branch, not necessarily a Git
+ancestor. Its exact commit/tree/blobs are pinned; checkout filters never supply
+historical bytes. No old materializer or its23 immutable helpers is modified.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+from pathlib import Path, PurePosixPath
+import re
+import subprocess
+import sys
+
+ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT))
+from tests.run_reviewed_ci30 import (canonical_name,git,git_environment,new_directory,
+                                   read_exact,regular_directory,require,trusted_baseline)
+
+# Set only by the reviewed source-spec generation, not by command-line input.
+SPECS_SHA256='2be6cb886b85f10e031a97db3efa0d863832874c29b1615590f76c8424021af6'
+
+
+def specifications():
+    raw=(ROOT/'tests/ci_google33/historical-sources.json').read_bytes()
+    require(hashlib.sha256(raw).hexdigest()==SPECS_SHA256,'Versioned historical source metadata differs')
+    value=json.loads(raw)
+    require(set(value)=={'31','32'},'Both historical31 and32 are mandatory')
+    require(value['31']['commit']=='de506b6077ba055587f02e7d839387e7f5c56f84','Historical31 oracle differs')
+    require(value['32']['commit']=='6f822ff50d93e01bb10249556a9bfc4e1a3b246b','Historical32 oracle differs')
+    trusted_baseline()
+    return value
+
+
+def specification(repository,spec):
+    revision=spec['commit']
+    require(git(repository,'rev-parse','--verify',revision+'^{commit}').decode().strip()==revision,'Historical commit absent')
+    require(git(repository,'rev-parse',revision+'^{tree}').decode().strip()==spec['tree'],'Historical tree differs')
+    listing=git(repository,'ls-tree','-r','-z','--long',revision)
+    require(listing.endswith(b'\0'),'Truncated historical Git listing')
+    result={};names=set();directories={}
+    for record in listing[:-1].split(b'\0'):
+        metadata,separator,raw=record.partition(b'\t')
+        match=re.fullmatch(rb'(100644|100755) blob ([0-9a-f]{40}) +([0-9]+)',metadata)
+        require(bool(separator and match),'Unsupported historical Git object')
+        name=canonical_name(raw.decode('utf8'));key=name.casefold()
+        require(key not in names,'Historical casefolded file collision');names.add(key)
+        for parent in PurePosixPath(name).parents:
+            if parent!=PurePosixPath('.'):
+                spelling=parent.as_posix()
+                require(directories.get(spelling.casefold(),spelling)==spelling,'Historical directory alias')
+                directories[spelling.casefold()]=spelling
+        result[name]=(int(match[1],8)&0o777,match[2].decode('ascii'),int(match[3]))
+    require(not names.intersection(directories),'Historical file-directory collision')
+    require(len(result)==spec['files'] and sum(v[2] for v in result.values())==spec['regular_bytes'],'Historical scope differs')
+    return result
+
+
+def materialize(repository,destination,manifest,schema):
+    spec=specifications()[str(schema)];expected=specification(repository,spec)
+    require(not destination.absolute().is_relative_to(repository.resolve()),'Historical destination inside current source')
+    require(not destination.exists(),'Historical source destination already exists')
+    # Register only metadata. --no-checkout never supplies working-file bytes;
+    # all authored files below still come from authenticated cat-file blobs.
+    subprocess.run(['git','--no-replace-objects','worktree','add','--detach','--no-checkout',str(destination),spec['commit']],
+        cwd=repository,env=git_environment(),check=True,capture_output=True)
+    subprocess.run(['git','--no-replace-objects','read-tree',spec['commit']],cwd=destination,
+        env=git_environment(),check=True,capture_output=True)
+    regular_directory(destination);records=[]
+    process=subprocess.Popen(['git','--no-replace-objects','cat-file','--batch'],cwd=repository,
+        env=git_environment(),stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    try:
+        for name,(mode,oid,size) in expected.items():
+            process.stdin.write((oid+'\n').encode('ascii'));process.stdin.flush()
+            require(process.stdout.readline(200)==f'{oid} blob {size}\n'.encode('ascii'),'Historical object header differs')
+            target=destination.joinpath(*PurePosixPath(name).parts);target.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+            for parent in (target.parent,*target.parent.parents):
+                if parent==destination.parent:break
+                regular_directory(parent)
+            blob=hashlib.sha1(b'blob '+str(size).encode()+b'\0',usedforsecurity=False);sha=hashlib.sha256();remaining=size
+            with target.open('xb') as output:
+                while remaining:
+                    chunk=read_exact(process.stdout,min(remaining,1024*1024));output.write(chunk)
+                    blob.update(chunk);sha.update(chunk);remaining-=len(chunk)
+            require(read_exact(process.stdout,1)==b'\n' and blob.hexdigest()==oid and target.stat().st_size==size,'Historical blob differs')
+            target.chmod(mode);records.append({'path':name,'mode':oct(mode),'git_blob':oid,'bytes':size,'sha256':sha.hexdigest()})
+        process.stdin.close();require(process.wait(timeout=30)==0 and not process.stdout.read(1),'Historical batch failed')
+        require(not process.stderr.read(),'Historical Git diagnostic')
+    finally:
+        if process.poll() is None:process.kill();process.wait(timeout=10)
+    raw=(json.dumps(records,indent=2)+'\n').encode()
+    with manifest.open('xb') as stream:stream.write(raw)
+    return {'schema':str(schema),**spec,'manifest_sha256':hashlib.sha256(raw).hexdigest(),
+            'raw_Git_blobs_only':True,'registered_detached_Git_context_without_checkout':True,
+            'historical_runs_counted_as_current33':False}
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--schema',choices=['31','32'],required=True)
+    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--history-repository',type=Path,default=ROOT)
+    args=parser.parse_args();out=new_directory(args.output)
+    receipt=materialize(args.history_repository,out/'source',out/'blobs.json',args.schema)
+    (out/'source.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8')
+    print(json.dumps(receipt));return 0
+
+
+if __name__=='__main__':raise SystemExit(main())

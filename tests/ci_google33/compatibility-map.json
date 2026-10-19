@@ -1,0 +1,155 @@
+{
+  "tests/integration_current33_mfa_postgres.py": {
+    "source": "tests/integration_mfa31_postgres.py",
+    "source_normalized_sha256": "5afa8ab6ba1d3c4fc47285ff419271d3f962db72d256aba86dbb79b4117d0ca6",
+    "current_normalized_sha256": "7aef49e434ed1576aa607ce54df74efcb4c11baf2087d53149d6888613eec263",
+    "full_inverse_exact": true,
+    "framing_pairs": [
+      [
+        "from tests.mfa31_fixtures import mfa_database as migration_database",
+        "from tests.ci_google33.owned import migration_database"
+      ],
+      [
+        "from tests.mfa31_fixtures import REVISION",
+        "from tests.google33_fixtures import REVISION"
+      ]
+    ],
+    "business_functions_exact": [
+      "test_login_commit_failure_never_returns_unconfirmed_tokens",
+      "test_real_restricted_http_login_and_stepup_in_both_factories",
+      "test_restricted_actor_only_force_rls_context_commit_rollback_and_pool",
+      "test_stepup_revalidates_role_membership_activity_and_session",
+      "test_two_processes_cannot_replay_otp_recovery_or_exact_action"
+    ]
+  },
+  "tests/integration_current33_progress_postgres.py": {
+    "source": "tests/integration_progress32_postgres.py",
+    "source_normalized_sha256": "04ce2a79175b79c7b8cd3aa7a3ec4e872dd589c4bd1ba75e3e4ebddef4fcca78",
+    "current_normalized_sha256": "ea8e7c4e43c8b1f869b4ff010fde5acdd8af090a1c5f53fac662affb8c34a86f",
+    "full_inverse_exact": true,
+    "framing_pairs": [
+      [
+        "from tests.progress32_fixtures import owned_database, REVISION",
+        "from tests.google33_fixtures import owned_database, REVISION"
+      ]
+    ],
+    "business_functions_exact": [
+      "test_aborted_source_statement_restores_context_before_visible_failure_and_reuse",
+      "test_same_connection_pool1_projects_only_selected_scalars_and_cannot_use_a_fake_actor_guc",
+      "test_withdraw_after_inactive_source_is_durable_and_cannot_be_read_with_stale_scope"
+    ]
+  },
+  "tests/integration_current33_progress_retirement.py": {
+    "source": "tests/integration_progress_retirement.py",
+    "source_normalized_sha256": "9ce8003af7591a5e30e9b84e98262a5a7f435e3dedd253f82ae27b5d881925c0",
+    "current_normalized_sha256": "6cc364aef66c7ccb77a0fdb09b9f7405356f1df9fe1192c8bb469017a9487e4d",
+    "full_inverse_exact": true,
+    "framing_pairs": [
+      [
+        "from tests.retirement32_owned import owned_database",
+        "from tests.google33_owned import owned_database"
+      ],
+      [
+        "\"20261019_personal_progress\"",
+        "\"20261019_google_subjects\""
+      ]
+    ],
+    "business_functions_exact": [
+      "test_aborted_sql_restores_pool_and_factor_but_admission_is_durable",
+      "test_account_lock_prevents_parallel_factor_replay_and_state_changes",
+      "test_incidental_bearer_context_is_ignored_on_new_session_and_pool_is_clean",
+      "test_pool1_exhaustion_fails_closed_without_consuming_factor_or_erasing_budget",
+      "test_real_http_pool1_two_subjects_and_factor_context_reuse",
+      "test_revalidation_after_durable_admission_never_uses_stale_primary_context"
+    ]
+  },
+  "tests/integration_current33_followup.py": {
+    "same_original_function_objects": true,
+    "sources": {
+      "tests/integration_followup_postgres.py": {
+        "normalized_sha256": "554a980c1a765224bef03f655972372a36e3d44e310de1308ed0730372896ee7",
+        "functions": [
+          "test_readonly_followup_double_owner_admin_scope_and_revocation"
+        ]
+      }
+    },
+    "current_normalized_sha256": "a32a336f877abda8874fc1cd306930280d5e24964bc1fa119ddfc70b83846cb7"
+  },
+  "tests/integration_current33_diary.py": {
+    "same_original_function_objects": true,
+    "sources": {
+      "tests/integration_personal_diary_postgres.py": {
+        "normalized_sha256": "5f29429019f8b14a7c8ab57c1c1411c0d505f2578202777fb8c4cde739b0df47",
+        "functions": [
+          "test_force_rls_own_dml_foreign_absent_and_pool_reuse",
+          "test_http_member_personal_scope_export_and_foreign_source_under_force_rls",
+          "test_mexico_midnight_and_typed_utc_are_independent_of_session_timezone",
+          "test_rollback_and_real_commit_ack_uncertainty_are_visible_and_recoverable",
+          "test_two_processes_have_one_winner_for_absent_and_existing_day"
+        ]
+      },
+      "tests/integration_personal_diary_security_review.py": {
+        "normalized_sha256": "bd7189567cd4282ce84a062cb1d56f82109dc90f4aacb8a940ca1e0dad0a8182",
+        "functions": [
+          "test_committed_session_cannot_change_subject_for_diary_or_export",
+          "test_identity_is_revalidated_after_account_lock_is_acquired"
+        ]
+      }
+    },
+    "current_normalized_sha256": "16e7761eada36d5b2d6e3f47212c3f466a413b33e3ad5b7b25dd24b9c2cbf7fd"
+  },
+  "tests/integration_current33_rls.py": {
+    "same_original_function_objects": true,
+    "sources": {
+      "tests/integration_postgres.py": {
+        "normalized_sha256": "c1a8250b44e4880fd9679c58558363dacb162412a6071e31ee3d28c3b9fb0f1d",
+        "functions": [
+          "test_all_protected_tables_filter_real_rows_for_direct_sessions",
+          "test_application_reinstalls_tenant_after_internal_commit",
+          "test_background_worker_carries_scope_and_resets_context",
+          "test_context_install_failure_blocks_business_queries",
+          "test_direct_connection_and_session_reinstall_context_after_commit_and_rollback",
+          "test_empty_context_overrides_stale_session_setting",
+          "test_missing_tenant_cannot_read_any_protected_family_including_null_legacy_rows",
+          "test_pool_one_connection_serves_two_tenants_then_denies_anonymous",
+          "test_protected_tables_allow_own_writes_but_hide_foreign_update_delete",
+          "test_protected_tables_reject_moving_own_row_to_foreign_tenant",
+          "test_real_app_role_cannot_bypass_rls",
+          "test_real_member_token_uses_team_scope_for_professional_and_own_scope_for_personal",
+          "test_rls_denies_missing_tenant_and_pool_does_not_leak_it",
+          "test_unscoped_or_foreign_tenant_insert_is_rejected_by_postgres",
+          "test_verified_callback_subject_survives_commits_and_cannot_switch_account"
+        ]
+      }
+    },
+    "current_normalized_sha256": "dbf9dccdc0592ee66827b7926f3fce99eb1736d12f530fafa22e9d02a7a6b714"
+  },
+  "tests/integration_current33_privacy.py": {
+    "same_original_function_objects": true,
+    "sources": {
+      "tests/integration_privacy_composition_postgres.py": {
+        "normalized_sha256": "57cdc6d5f4168b6d883c9003af8791dc491dfa8c1aa9def6f0040b82b6353efb",
+        "functions": [
+          "test_mounted_privacy_route_preserves_personal_boundary_without_overrides"
+        ]
+      }
+    },
+    "current_normalized_sha256": "f90b1102ab5732c06d13ccbfa05076f7d0725c051881f94193708dd335ac9277"
+  },
+  "tests/integration_current33_progress_adversarial.py": {
+    "same_original_function_objects": true,
+    "sources": {
+      "tests/integration_progress32_reader_adversarial.py": {
+        "normalized_sha256": "34b628777f9ea47e62da7979fe2c6b8ca004b84454f7b77e7b45e1d4cfd7fe8e",
+        "functions": [
+          "test_consent_withdrawal_and_measurement_write_contend_with_authorized_read_without_partial_retry",
+          "test_context_restores_existing_capabilities_on_success_and_invalidates_uncertain_scope",
+          "test_live_entitlement_and_source_identity_are_revalidated_after_each_read",
+          "test_same_connection_needs_no_second_checkout_and_rejects_nested_or_changed_python_scope",
+          "test_scope_dates_categories_other_recipient_and_replacement_cas_are_not_cacheable"
+        ]
+      }
+    },
+    "current_normalized_sha256": "cec37d31422b17e5718af15695a1bead11adc7aeba14722ff228db4d330619ab"
+  }
+}

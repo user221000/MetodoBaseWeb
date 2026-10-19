@@ -1,0 +1,66 @@
+"""Explicit browser/image framing copies; no browser, Docker or WIP execution."""
+from pathlib import Path
+import ast,hashlib,json
+ROOT=Path(r'F:\mb-qa-ci33-20261019');records={}
+names=['tests/ci_mfa31/run_current_browser.py','tests/ci_mfa31/image_inventory.py','tests/ci_mfa31/image_roles.py',
+ 'tests/e2e/run_member_link31_browser.py','tests/e2e/member_link31_postgres_server.py','tests/e2e/followup31_server.py',
+ 'tests/e2e/daily_plan31_server.py','tests/e2e/mfa_ui_server.py','tests/e2e/dashboard_followup31_browser.cjs','tests/e2e/daily_plan31_browser.cjs']
+framing=[('tests/ci_mfa31/','tests/ci_google33/'),('tests.ci_mfa31.','tests.ci_google33.'),
+ ('current31','current33'),('Current31','Current33'),('CI31','CI33'),('ci31','ci33'),
+ ('member_link31','member_link33'),('followup31','followup33'),('daily_plan31','daily_plan33'),
+ ('mfa_ui_server.py','mfa33_ui_server.py'),('mfa-ui31','mfa-ui33'),('r12-real-postgres31','r12-real-postgres33'),
+ ('20261019_mfa','20261019_google_subjects'),('== 32','== 35'),('==32','==35'),('== 33','== 36'),('==33','==36'),
+ ("'model_tables': 32","'model_tables': 35"),("'actual_tables': 33","'actual_tables': 36")]
+for source in names:
+    target=source.replace('ci_mfa31/','ci_google33/').replace('member_link31','member_link33').replace('followup31','followup33').replace('daily_plan31','daily_plan33').replace('mfa_ui_server.py','mfa33_ui_server.py')
+    old=(ROOT/source).read_bytes().replace(b'\r\n',b'\n').decode();changed=old;pairs=[]
+    for left,right in framing:
+        if left in changed:pairs.append([left,right]);changed=changed.replace(left,right)
+    inverse=changed
+    for left,right in reversed(pairs):inverse=inverse.replace(right,left)
+    assert inverse==old,(source,'inverse')
+    if target.endswith('.py'):ast.parse(changed)
+    assert not (ROOT/target).exists();(ROOT/target).write_text(changed,encoding='utf8')
+    records[target]={'source':source,'source_normalized_sha256':hashlib.sha256(old.encode()).hexdigest(),
+        'current_normalized_sha256':hashlib.sha256(changed.encode()).hexdigest(),'full_inverse_exact':True,'framing_pairs':pairs,
+        'scope':'Browser/image framing only. Execution requires coordinated Linux window; no static runtime acceptance.'}
+
+# Reuse original17 and21 callbacks without changing their source/assertions.
+for kind,source in [('context','tests/e2e/personal_export_context.cjs'),('controls','tests/e2e/personal_export_controls.cjs')]:
+    target=ROOT/('tests/e2e/current33_export_'+kind+'.cjs')
+    if kind=='context':
+        source_code="""/* Current33 eight-dataset fixture; original17 callbacks/asserts stay exact. */
+const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
+let source=fs.readFileSync(path.join(__dirname,'personal_export_context.cjs'),'utf8');
+const pairs=[[
+ "'personal_diary','member_links'];", "'personal_diary','member_links','progress_consents'];"
+],[
+ "coverage:'account_persisted_personal_space_and_active_member_link_metadata'",
+ "progress_consents:'own_append_only_scope_metadata',coverage:'account_persisted_personal_space_active_member_links_and_own_progress_consents'"
+]];
+for(const [before,after]of pairs){if(source.split(before).length!==2)throw Error('Historical fixture framing drift');source=source.replace(before,after);}
+const transformed=source;
+for(const [before,after]of [...pairs].reverse())source=source.replace(after,before);
+if(source!==fs.readFileSync(path.join(__dirname,'personal_export_context.cjs'),'utf8'))throw Error('Full fixture inverse drift');
+const testModule=new Module(__filename,module);testModule.filename=__filename;testModule.paths=module.paths;testModule._compile(transformed,__filename);
+"""
+    else:
+        source_code="""/* Current33 eight-dataset controls fixture; original21 callbacks/asserts stay exact. */
+const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
+let source=fs.readFileSync(path.join(__dirname,'personal_export_controls.cjs'),'utf8');
+const before="path.join(__dirname,'personal_export_context.cjs')",after="path.join(__dirname,'current33_export_context.cjs')";
+if(source.split(before).length!==2)throw Error('Historical controls import drift');
+// The17 runner's wrapper delegates original code; inject the exact4 controls
+// callbacks into original17, after applying the same two fixture-only literals.
+let original=fs.readFileSync(path.join(__dirname,'personal_export_context.cjs'),'utf8');
+const pairs=[["'personal_diary','member_links'];","'personal_diary','member_links','progress_consents'];"],["coverage:'account_persisted_personal_space_and_active_member_link_metadata'","progress_consents:'own_append_only_scope_metadata',coverage:'account_persisted_personal_space_active_member_links_and_own_progress_consents'"]];
+for(const[a,b]of pairs){if(original.split(a).length!==2)throw Error('Historical fixture drift');original=original.replace(a,b);}
+const match=source.match(/const additions=String.raw`([\\s\\S]*?)`;/);if(!match)throw Error('Historical4 controls absent');
+const marker='(async()=>{const results=[];';if(original.split(marker).length!==2)throw Error('Historical runner drift');
+const testModule=new Module(__filename,module);testModule.filename=__filename;testModule.paths=module.paths;testModule._compile(original.replace(marker,match[1]+'\\n'+marker),__filename);
+"""
+    assert not target.exists();target.write_text(source_code,encoding='utf8')
+    records[str(target.relative_to(ROOT)).replace('\\','/')]={'source':source,'source_normalized_sha256':hashlib.sha256((ROOT/source).read_bytes().replace(b'\r\n',b'\n')).hexdigest(),
+        'current_normalized_sha256':hashlib.sha256(source_code.encode()).hexdigest(),'original_callbacks_and_assertions_imported_exact':True,'fixture_only':'names/scope7→8; original controls additions retained verbatim'}
+(ROOT/'tests/ci_google33/browser-frame-map.json').write_text(json.dumps(records,indent=2)+'\n',encoding='utf8')
+print(json.dumps({'framed_sources':len(records),'no_browser_or_product33_execution':True}))

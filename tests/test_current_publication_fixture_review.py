@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from tests.current_mfa31_publication_fixtures import case, http, link_db  # noqa: F401
+from tests.current_google33_publication_fixtures import case, http, link_db  # noqa: F401
 
 
 @pytest.mark.parametrize("link_db", ["sqlite"], indirect=True)

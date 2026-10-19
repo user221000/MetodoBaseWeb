@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from tests import current_mfa31_publication_fixtures as fixture_contract
+from tests import current_google33_publication_fixtures as fixture_contract
 
 case = fixture_contract.case
 http = fixture_contract.http

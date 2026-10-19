@@ -1,0 +1,13 @@
+"""Current33 fixture binding; imported original function objects retain every assertion."""
+
+import pytest
+
+from tests.integration_current33_progress_postgres import progress_db, progress_http
+
+from tests.integration_progress32_reader_adversarial import (
+    test_consent_withdrawal_and_measurement_write_contend_with_authorized_read_without_partial_retry,
+    test_context_restores_existing_capabilities_on_success_and_invalidates_uncertain_scope,
+    test_live_entitlement_and_source_identity_are_revalidated_after_each_read,
+    test_same_connection_needs_no_second_checkout_and_rejects_nested_or_changed_python_scope,
+    test_scope_dates_categories_other_recipient_and_replacement_cas_are_not_cacheable,
+)

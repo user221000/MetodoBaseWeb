@@ -1,0 +1,30 @@
+"""Freeze preparation-only checks against6f822ff; never import product33 WIP."""
+from pathlib import Path
+import ast,csv,hashlib,importlib.metadata,io,json,os,subprocess,sys,xml.etree.ElementTree as ET
+ROOT=Path(r'F:\mb-qa-ci33-20261019')
+OUT=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-ci33-offline-checks-20261019');OUT.mkdir(exist_ok=False)
+PRIVATE=OUT/'private';PRIVATE.mkdir()
+sid=next(csv.reader(io.StringIO(subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True))))[1]
+subprocess.run(['icacls',str(PRIVATE),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+def meta(path):
+    raw=path.read_bytes();return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def write(path,value):
+    with path.open('x',encoding='utf8') as out:json.dump(value,out,indent=2);out.write('\n')
+names=sorted({str(p.relative_to(ROOT)).replace('\\','/') for folder in ['tests','web','api','src','core','config','scripts','utils','.github'] for p in (ROOT/folder).rglob('*') if p.is_file() and p.suffix in {'.py','.json','.yml','.cjs','.js'}})
+node=Path(subprocess.check_output(['where.exe','node'],text=True).splitlines()[0])
+def photo():return {'sources':{n:meta(ROOT/n) for n in names},'packages':sorted([d.metadata['Name'],d.version] for d in importlib.metadata.distributions()),'Python_shim':meta(Path(sys.executable)),'Python_backing':meta(Path(sys._base_executable)),'Node':meta(node)}
+before=photo();write(OUT/'before.json',before)
+for folder in ['tests/ci_google33']:
+    for p in (ROOT/folder).rglob('*.py'):ast.parse(p.read_text(encoding='utf8'))
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True,check=False);(OUT/'pip-before.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+env=dict(os.environ,PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1')
+for key in list(env):
+    if key.upper().startswith(('PG','GOOGLE33_PRIVATE','CI33_','METODOBASE_TEST_','RESTORE_QA_')) or key.upper()=='DATABASE_URL':env.pop(key,None)
+args=[sys.executable,'-X','utf8','-B','tests/run_isolated.py','tests/test_ci33_offline_preparation.py','tests/test_mfa31_ci_trust.py','-q','--tb=short','--basetemp='+str(PRIVATE/'pytest'),'--junitxml='+str(PRIVATE/'results.xml')]
+result=subprocess.run(args,cwd=ROOT,env=env,capture_output=True,check=False,timeout=240)
+(PRIVATE/'stdout.raw.log').write_bytes(result.stdout);(PRIVATE/'stderr.raw.log').write_bytes(result.stderr)
+after=photo();write(OUT/'after.json',after);assert before==after
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True,check=False);(OUT/'pip-after.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+cases=list(ET.parse(PRIVATE/'results.xml').getroot().iter('testcase'))
+summary={'scope':'Preparation only on frozen schema32 source6f822ff plus own CI draft. No current33 product, PG, browser, VM, Actions, image, issuer or provider execution.','exit':result.returncode,'cases':len(cases),'failures':sum(bool(c.findall('failure')) for c in cases),'errors':sum(bool(c.findall('error')) for c in cases),'skips':sum(bool(c.findall('skipped')) for c in cases),'source_count':len(names),'packages':len(before['packages']),'source_package_binary_quiet':True,'pip':[0,0],'actual33_accepted':False,'active_workflow_replaced':False}
+write(OUT/'summary.json',summary);print(json.dumps(summary));raise SystemExit(result.returncode)
