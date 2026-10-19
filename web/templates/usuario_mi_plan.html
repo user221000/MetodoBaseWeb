@@ -1,5 +1,8 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mi Plan{% endblock %}
+{% block head %}
+<style nonce="{{ request.state.csp_nonce }}">.u-veg-chip { color: var(--u-green); }</style>
+{% endblock %}
 
 {% block content %}
 
@@ -141,6 +144,16 @@
 </div>
 
 <!-- ── 4. ONBOARDING CARD ─────────────────────────────────── -->
+<section id="personal-operation" class="u-card" aria-label="Estado de la generación" hidden>
+  <p id="personal-operation-message" role="status" aria-live="polite" tabindex="-1"></p>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;">
+    <button type="button" id="personal-operation-retry" class="u-btn u-btn-primary" hidden>Reintentar la misma solicitud</button>
+    <button type="button" id="personal-operation-new" class="u-btn u-btn-secondary" hidden>Iniciar otra generación</button>
+    <a href="/mi-historial" target="_blank" rel="noopener noreferrer" class="u-btn u-btn-secondary">Consultar historial en otra pestaña</a>
+    <a href="/mi-plan" id="personal-session-reopen" class="u-btn u-btn-secondary" hidden>Volver a abrir mi plan</a>
+  </div>
+  <p id="personal-operation-cost" hidden>Una nueva solicitud puede utilizar otro plan de tu suscripción.</p>
+</section>
 <div id="onboarding-card" class="u-onboarding" style="display:none;">
   <div class="u-onboarding-icon">🎯</div>
   <div class="u-onboarding-body">
@@ -374,6 +387,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 
@@ -438,24 +452,74 @@
   /* ── Load profile ── */
   var perfil = null;
   var ultimoPlan = null;
+  var personal = PersonalPlanOperation.create({onState: operationState, onResult: function(data) {
+    ultimoPlan = data; renderPlan(data);
+  }, onInvalidated: clearPersonalView});
+
+  function clearPersonalView() {
+    perfil = null; ultimoPlan = null; mealSelections = {};
+    excluirExcluidos = []; excluirCatalogoLoaded = false;
+    ['macros-section','quick-actions','context-bar','summary-section','plan-comidas','recomendaciones-section','empty-plan','onboarding-card'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.style.display = 'none';
+    });
+    ['meals-container','excluir-tags','excluir-catalogo','meal-tabs','meal-selector-content'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.replaceChildren();
+    });
+    ['kpi-kcal','kpi-proteina','kpi-carbs','kpi-grasa','lbl-objetivo','lbl-fecha-plan','goal-current','goal-target','goal-ring-pct','goal-pct-label','sel-kcal','sel-prot','sel-carb','sel-fat','water-status'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.textContent = '';
+    });
+    ['goal-progress-bar','water-bar-fill'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.style.width = '0%';
+    });
+    document.querySelectorAll('.u-panel-overlay').forEach(function(panel) { panel.style.display = 'none'; });
+    document.querySelectorAll('main input').forEach(function(input) { input.value = ''; input.checked = false; });
+    ['saludo','sb-nombre','sb-avatar'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.textContent = id === 'saludo' ? 'Mi plan' : '';
+    });
+    document.getElementById('loading-plan').style.display = 'none';
+  }
+  function operationState(update) {
+    var active = update.state === 'idle';
+    ['btn-generar','btn-generar-empty'].forEach(function(id) {
+      var button = document.getElementById(id); if (button) button.disabled = !active;
+    });
+    var panel = document.getElementById('personal-operation');
+    panel.hidden = update.state === 'idle';
+    document.getElementById('personal-operation-message').textContent = update.message;
+    document.getElementById('personal-operation-retry').hidden = !['unconfirmed','pending','reconciliation'].includes(update.state);
+    var canStart = ['completed','failed'].includes(update.state);
+    document.getElementById('personal-operation-new').hidden = !canStart;
+    document.getElementById('personal-operation-cost').hidden = !canStart;
+    document.getElementById('personal-session-reopen').hidden = update.state !== 'invalidated';
+    if (update.state !== 'idle' && !(ultimoPlan && ultimoPlan.plan && Object.keys(ultimoPlan.plan).length)) {
+      document.getElementById('empty-plan').style.display = 'none';
+    }
+    if (update.state !== 'idle' && update.state !== 'submitting') document.getElementById('personal-operation-message').focus();
+  }
+  document.getElementById('personal-operation-retry').addEventListener('click', function() { personal.generate(); });
+  document.getElementById('personal-operation-new').addEventListener('click', function() { personal.generate(true); });
+  ['click','input','change'].forEach(function(name) {
+    document.querySelector('main').addEventListener(name, function(event) {
+      if (event.target.closest('a')) return;
+      try { personal.check(); } catch { event.preventDefault(); event.stopImmediatePropagation(); }
+    }, true);
+  });
 
   try {
-    var res = await Api.auth.me();
+    var res = await personal.start();
     document.getElementById('saludo').textContent = '\u00a1Hola, ' + (res.nombre ? res.nombre.split(' ')[0] : 'bienvenido') + '!';
     perfil = res;
   } catch(e) {
-    window.location.href = '/login-usuario';
     return;
   }
 
   try {
-    var data = await fetch('/api/usuario/perfil', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-    });
-    if (data.ok) {
-      perfil = Object.assign({}, perfil, await data.json());
-    }
-  } catch(e) {}
+    var data = await personal.read(function(context) { return Api.usuario.perfil(context); });
+    perfil = Object.assign({}, perfil, data);
+  } catch(e) {
+    if (!personal.active) return;
+    personal.invalidate(new Error('No se pudo consultar tu perfil. Vuelve a abrir esta página para intentarlo.')); return;
+  }
 
   var perfilCompleto = perfil.peso_kg && perfil.estatura_cm && perfil.edad && perfil.objetivo;
 
@@ -469,19 +533,15 @@
 
   /* ── Load latest plan ── */
   try {
-    var res2 = await fetch('/api/usuario/mi-plan', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-    });
-    if (res2.ok) {
-      ultimoPlan = await res2.json();
-    }
-  } catch(e) {}
+    ultimoPlan = await personal.read(function(context) { return Api.usuario.miPlan(context); });
+  } catch(e) {
+    if (!personal.active) return;
+    personal.invalidate(new Error('No se pudo consultar tu plan. Revisa tu historial o vuelve a abrir esta página.')); return;
+  }
 
   document.getElementById('loading-plan').style.display = 'none';
   document.getElementById('macros-section').style.display = '';
   document.getElementById('quick-actions').style.display = '';
-  document.getElementById('context-bar').style.display = '';
-  document.getElementById('summary-section').style.display = '';
 
   var _planKeys = ultimoPlan && ultimoPlan.plan ? Object.keys(ultimoPlan.plan) : [];
   if (ultimoPlan && ultimoPlan.plan && _planKeys.length > 0) {
@@ -493,6 +553,9 @@
 
   /* ── Render plan ── */
   function renderPlan(data) {
+    personal.check();
+    document.getElementById('context-bar').style.display = '';
+    document.getElementById('summary-section').style.display = '';
     var plan = data.plan;
     var meta = data.meta || {};
 
@@ -537,9 +600,8 @@
     }
 
     /* PDF button */
-    if (data.tiene_pdf) {
-      document.getElementById('btn-descargar-pdf').style.display = '';
-    }
+    document.getElementById('btn-descargar-pdf').style.display = data.tiene_pdf && personal.validPlanId(data.plan_id) ? '' : 'none';
+    document.getElementById('empty-plan').style.display = 'none';
 
     /* Render meals */
     var container = document.getElementById('meals-container');
@@ -662,44 +724,7 @@
 
   /* ── Generate plan ── */
   async function generarPlan() {
-    var btn = document.getElementById('btn-generar');
-    var btnE = document.getElementById('btn-generar-empty');
-    [btn, btnE].forEach(function(b) {
-      if (b) { b.disabled = true; b.style.opacity = '0.6'; }
-    });
-    if (btn) {
-      var lbl = btn.querySelector('.u-quick-btn-label');
-      if (lbl) lbl.textContent = 'Generando\u2026';
-    }
-    if (btnE) { btnE.textContent = 'Generando...'; }
-
-    try {
-      var res = await fetch('/api/usuario/generar-plan', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('mb_token'),
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!res.ok) {
-        var err = await res.json().catch(function() { return {}; });
-        throw new Error(err.detail || 'Error generando el plan');
-      }
-      var data = await res.json();
-      ultimoPlan = data;
-      renderPlan(data);
-      showToast('✅ ¡Tu plan está listo!');
-    } catch (e) {
-      showToast('❌ ' + e.message, 'error');
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.style.opacity = '';
-        var lbl2 = btn.querySelector('.u-quick-btn-label');
-        if (lbl2) lbl2.textContent = 'Generar';
-      }
-      if (btnE) { btnE.disabled = false; btnE.textContent = 'Ver mi primer plan →'; }
-    }
+    await personal.generate();
   }
 
   document.getElementById('btn-generar').addEventListener('click', generarPlan);
@@ -708,18 +733,15 @@
 
   /* ── Download PDF ── */
   document.getElementById('btn-descargar-pdf').addEventListener('click', async function() {
-    var tkn = localStorage.getItem('mb_token');
-    var res = await fetch('/api/usuario/descargar-pdf', {
-      headers: tkn ? { 'Authorization': 'Bearer ' + tkn } : {},
-    });
-    if (!res.ok) { showToast('❌ No hay PDF disponible', 'error'); return; }
-    var blob = await res.blob();
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'mi_plan_nutricional.pdf';
-    a.click();
-    URL.revokeObjectURL(url);
+    var button = this, planId = ultimoPlan && ultimoPlan.plan_id;
+    if (!personal.validPlanId(planId)) return;
+    button.disabled = true;
+    try {
+      await personal.read(function(context) { return Api.usuario.descargarPlan(planId, context); });
+      showToast('PDF preparado para descargar.');
+    } catch (error) {
+      if (personal.active) showToast(error.message, 'error');
+    } finally { if (personal.active) button.disabled = false; }
   });
 
   /* ══════════════════════════════════════════════════════════
@@ -1118,11 +1140,7 @@
   async function exLoadCatalogo() {
     if (excluirCatalogoLoaded) { exSyncChips(); return; }
     try {
-      var res = await fetch('/api/usuario/catalogo-alimentos', {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-      });
-      if (!res.ok) throw new Error();
-      var catalogo = await res.json();
+      var catalogo = await personal.read(function(context) { return Api.usuario.catalogo(context); });
       var container = document.getElementById('excluir-catalogo');
       var html = '';
       var order = ['proteina', 'carbs', 'grasa', 'verdura', 'fruta'];
@@ -1151,6 +1169,7 @@
         });
       });
     } catch(err) {
+      if (!personal.active) return;
       var container = document.getElementById('excluir-catalogo');
       if (container) container.innerHTML = '<p style="color:var(--u-text-muted);padding:12px 0;">No se pudo cargar el catálogo.</p>';
     }
@@ -1159,17 +1178,14 @@
   document.getElementById('btn-excluir').addEventListener('click', async function() {
     if (!excluirCatalogoLoaded) {
       try {
-        var r = await fetch('/api/usuario/perfil', {
-          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-        });
-        if (r.ok) {
-          var pp = await r.json();
-          excluirExcluidos = Array.isArray(pp.alimentos_excluidos) ? pp.alimentos_excluidos : [];
-        }
-      } catch(e) {}
+        var pp = await personal.read(function(context) { return Api.usuario.perfil(context); });
+        excluirExcluidos = Array.isArray(pp.alimentos_excluidos) ? pp.alimentos_excluidos : [];
+      } catch(e) { if (!personal.active) return; showToast(e.message, 'error'); return; }
     }
     exRenderTags();
     await exLoadCatalogo();
+    if (!personal.active) return;
+    personal.check();
     excluirOverlay.style.display = 'flex';
   });
 
@@ -1186,22 +1202,14 @@
     btn.disabled = true;
     btn.textContent = 'Guardando...';
     try {
-      var res = await fetch('/api/usuario/perfil', {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('mb_token'),
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ alimentos_excluidos: excluirExcluidos }),
-      });
-      if (!res.ok) throw new Error('Error al guardar');
+      var exclusions = excluirExcluidos.slice();
+      await personal.read(function(context) { return Api.usuario.guardarPerfil({ alimentos_excluidos: exclusions }, context); });
       excluirOverlay.style.display = 'none';
       showToast('✅ Exclusiones guardadas. Las usaremos en tu próxima generación.');
     } catch(e) {
-      showToast('❌ Error guardando exclusiones', 'error');
+      if (personal.active) showToast(e.message, 'error');
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'Guardar Exclusiones ✅';
+      if (personal.active) { btn.disabled = false; btn.textContent = 'Guardar Exclusiones ✅'; }
     }
   });
 

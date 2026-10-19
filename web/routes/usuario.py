@@ -164,41 +164,19 @@ async def get_mi_plan(
 
     cliente = db.query(Cliente).filter(Cliente.gym_id == user_id).first()
     if not cliente:
-        return {"plan": None, "meta": {}, "tiene_pdf": False}
+        return {"plan": None, "meta": {}, "tiene_pdf": False, "plan_id": None, "pdf_url": None}
 
+    from web.services.generation_quota import individual_plan_results_query
     plan_record = (
-        db.query(PlanGenerado)
-        .filter(
-            PlanGenerado.id_cliente == cliente.id_cliente,
-            PlanGenerado.gym_id == user_id,
-        )
-        .order_by(PlanGenerado.fecha_generacion.desc())
+        individual_plan_results_query(db, user_id)
+        .filter(PlanGenerado.id_cliente == cliente.id_cliente)
+        .order_by(PlanGenerado.fecha_generacion.desc(), PlanGenerado.id.desc())
         .first()
     )
 
     if not plan_record:
-        return {"plan": None, "meta": {}, "tiene_pdf": False}
-
-    # Load serialized plan from PDF directory companion JSON
-    plan_data = _load_plan_json(plan_record)
-    plan_data = _enrich_plan_macros(plan_data)  # back-fill macros for pre-fix plans
-
-    tiene_pdf = bool(plan_record.pdf_object_id or (plan_record.ruta_pdf and os.path.isfile(plan_record.ruta_pdf)))
-
-    return {
-        "plan": plan_data,
-        "meta": {
-            "kcal_objetivo": plan_record.kcal_objetivo,
-            "kcal_real": plan_record.kcal_real,
-            "proteina_g": plan_record.proteina_g,
-            "carbs_g": plan_record.carbs_g,
-            "grasa_g": plan_record.grasa_g,
-            "tmb": plan_record.tmb,
-            "objetivo": plan_record.objetivo,
-            "fecha": plan_record.fecha_generacion.isoformat() if plan_record.fecha_generacion else None,
-        },
-        "tiene_pdf": tiene_pdf,
-    }
+        return {"plan": None, "meta": {}, "tiene_pdf": False, "plan_id": None, "pdf_url": None}
+    return _individual_plan_response(plan_record)
 
 
 def _load_plan_json(plan_record: "PlanGenerado") -> dict:
@@ -369,6 +347,8 @@ async def generar_plan_usuario(
 def _individual_plan_response(plan_record: PlanGenerado) -> dict:
     """Build the existing API response from a persisted, authorized result."""
     return {
+        "plan_id": plan_record.id,
+        "pdf_url": "/api/usuario/descargar-pdf?plan_id=" + str(plan_record.id),
         "plan": _enrich_plan_macros(_load_plan_json(plan_record)),
         "meta": {
             "kcal_objetivo": plan_record.kcal_objetivo if plan_record else 0,
@@ -434,13 +414,11 @@ async def historial_planes(
     if not cliente:
         return {"planes": []}
 
+    from web.services.generation_quota import individual_plan_results_query
     planes = (
-        db.query(PlanGenerado)
-        .filter(
-            PlanGenerado.id_cliente == cliente.id_cliente,
-            PlanGenerado.gym_id == user_id,
-        )
-        .order_by(PlanGenerado.fecha_generacion.desc())
+        individual_plan_results_query(db, user_id)
+        .filter(PlanGenerado.id_cliente == cliente.id_cliente)
+        .order_by(PlanGenerado.fecha_generacion.desc(), PlanGenerado.id.desc())
         .all()
     )
 

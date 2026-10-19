@@ -486,7 +486,28 @@ const Api = (() => {
 
   // ── Usuario Individual ────────────────────────────────────────────────────
 
+  function _personalRequest(method, path, body, headers, context) {
+    if (context) _assertSnapshot(context);
+    return request(method, path, body, headers);
+  }
   const usuario = {
+    contexto: async () => {
+      const snapshot = _snapshot();
+      const me = await auth.me();
+      _assertSnapshot(snapshot);
+      if (!me || typeof me.id !== 'string' || !me.id || !me.role ||
+          (me.tipo !== 'usuario' && !me.team_gym_id)) throw _sessionChanged();
+      return Object.freeze({ revision: snapshot.revision,
+        subject: JSON.stringify([me.id, me.team_gym_id || null, me.role, me.session_version]), me });
+    },
+    validarContexto: (context) => { _assertSnapshot(context); },
+    verificarContexto: async (context) => {
+      _assertSnapshot(context);
+      const current = await usuario.contexto();
+      _assertSnapshot(context);
+      if (current.subject !== context.subject) throw _sessionChanged();
+      return current.me;
+    },
     exportarDatos: (cursors = {}) => {
       const params = new URLSearchParams({limit:'100'});
       const integerCursors = ['profile','plan','measurement'];
@@ -501,11 +522,22 @@ const Api = (() => {
       }
       return request('GET','/api/usuario/privacidad/exportar?'+params, null, {'Cache-Control':'no-store'});
     },
-    perfil:         () => request('GET', '/api/usuario/perfil'),
-    guardarPerfil:  (data) => request('PUT', '/api/usuario/perfil', data),
-    miPlan:         () => request('GET', '/api/usuario/mi-plan'),
-    generarPlan:    () => request('POST', '/api/usuario/generar-plan'),
-    historial:      () => request('GET', '/api/usuario/historial'),
+    perfil:         (context) => _personalRequest('GET', '/api/usuario/perfil', null, {}, context),
+    guardarPerfil:  (data, context) => _personalRequest('PUT', '/api/usuario/perfil', data, {}, context),
+    miPlan:         (context) => _personalRequest('GET', '/api/usuario/mi-plan', null, {}, context),
+    catalogo:       (context) => _personalRequest('GET', '/api/usuario/catalogo-alimentos', null, {}, context),
+    generarPlan:    (key, context) => {
+      if (typeof key !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key)) {
+        throw new Error('No se pudo identificar la solicitud. Vuelve a abrir tu plan.');
+      }
+      return _personalRequest('POST', '/api/usuario/generar-plan', null, { 'Idempotency-Key': key }, context);
+    },
+    historial:      (context) => _personalRequest('GET', '/api/usuario/historial', null, {}, context),
+    descargarPlan: (planId, context) => {
+      if (!Number.isSafeInteger(planId) || planId < 1 || planId > 2147483647) throw new Error('El plan no es válido.');
+      if (context) _assertSnapshot(context);
+      return planes._descargar(`/api/usuario/descargar-pdf?plan_id=${planId}`, `mi_plan_${planId}.pdf`);
+    },
     suscripcion:    () => request('GET', '/api/usuario/suscripcion'),
     cambiarPlan:    (plan) => request('POST', '/api/usuario/suscripcion', { plan }),
     billingConfig:  () => request('GET', '/api/usuario/billing-config'),

@@ -15,16 +15,20 @@ def reconciliation_required() -> HTTPException:
         "message": "No fue posible confirmar la generacion. Consulta el historial antes de reintentar."})
 
 
-def read_individual_plan_result(db: Session, user_id: str, plan_id: int | None) -> PlanGenerado | None:
-    """Read only a live Plan and client owned by the same personal subject.
+def individual_plan_results_query(db: Session, user_id: str):
+    """Query live Plans and clients owned by the same personal subject.
 
     Historical single-column FKs do not establish tenant consistency. Inactive
     clients retain readable history; soft-deleted or mixed associations do not.
     """
     return db.query(PlanGenerado).join(Cliente, Cliente.id_cliente == PlanGenerado.id_cliente).filter(
-        PlanGenerado.id == plan_id, PlanGenerado.gym_id == user_id,
+        PlanGenerado.gym_id == user_id,
         Cliente.gym_id == user_id, PlanGenerado.deleted_at.is_(None), Cliente.deleted_at.is_(None),
-    ).populate_existing().first()
+    ).populate_existing()
+
+
+def read_individual_plan_result(db: Session, user_id: str, plan_id: int | None) -> PlanGenerado | None:
+    return individual_plan_results_query(db, user_id).filter(PlanGenerado.id == plan_id).first()
 
 
 def _lock_account(db: Session, user_id: str) -> None:

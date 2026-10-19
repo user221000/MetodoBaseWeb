@@ -90,6 +90,7 @@
 
 {% block scripts %}
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 
@@ -110,10 +111,26 @@
   }
 
   var allPlanes = [];
+  var personal = PersonalPlanOperation.create({onInvalidated: function(error) {
+    allPlanes = []; currentPlan = null;
+    document.getElementById('tbody-planes').replaceChildren();
+    document.getElementById('prog-plan-info').replaceChildren();
+    document.getElementById('day-detail').replaceChildren();
+    document.getElementById('cal-days').replaceChildren();
+    document.getElementById('panel-progreso-overlay').style.display = 'none';
+    document.getElementById('historial-list').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('history-error').hidden = false;
+    document.getElementById('history-error-message').textContent = error.message || 'Vuelve a abrir el historial desde tu cuenta.';
+    document.getElementById('history-retry').focus();
+    ['sb-nombre','sb-avatar'].forEach(function(id) { var element = document.getElementById(id); if (element) element.textContent = ''; });
+  }});
   document.getElementById('history-retry').addEventListener('click', function() { location.reload(); });
 
   try {
-    var data = await Api.usuario.historial();
+    await personal.start();
+    var data = await personal.read(function(context) { return Api.usuario.historial(context); });
     document.getElementById('loading').style.display = 'none';
     if (!data || !Array.isArray(data.planes)) throw new Error('El servidor devolvió un historial incompleto.');
     if (data.planes.length === 0) {
@@ -142,11 +159,12 @@
 
     // Delegated event listener for PDF buttons and row clicks
     tbody.addEventListener('click', function(e) {
+      try { personal.check(); } catch { return; }
       var btn = e.target.closest('.u-pdf-btn');
       if (btn) {
         e.stopPropagation();
         var planId = btn.getAttribute('data-plan-id');
-        if (planId) descargarPDF(planId);
+        if (planId) descargarPDF(Number(planId), btn);
         return;
       }
       var row = e.target.closest('.u-clickable-row');
@@ -157,27 +175,21 @@
     });
 
   } catch(e) {
+    if (!personal.active) return;
     document.getElementById('loading').style.display = 'none';
     document.getElementById('history-error').hidden = false;
     document.getElementById('history-error-message').textContent = 'No se pudo consultar tu historial. ' + e.message;
   }
 
-  async function descargarPDF(planId) {
+  async function descargarPDF(planId, button) {
+    if (!personal.validPlanId(planId) || button.disabled) return;
+    button.disabled = true;
     try {
-      var res = await fetch('/api/usuario/descargar-pdf?plan_id=' + encodeURIComponent(planId), {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-      });
-      if (!res.ok) throw new Error('Error');
-      var blob = await res.blob();
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = 'plan_nutricional_' + planId + '.pdf';
-      a.click();
-      URL.revokeObjectURL(url);
+      await personal.read(function(context) { return Api.usuario.descargarPlan(planId, context); });
+      showToast('PDF preparado para descargar.');
     } catch(e) {
-      showToast('❌ Error descargando PDF', 'error');
-    }
+      if (personal.active) showToast(e.message, 'error');
+    } finally { if (personal.active) button.disabled = false; }
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -220,6 +232,7 @@
   }
 
   function openProgressPanel(plan) {
+    try { personal.check(); } catch { return; }
     currentPlan = plan;
     var planDate = plan.fecha ? new Date(plan.fecha) : new Date();
 
@@ -255,6 +268,7 @@
   }
 
   function renderCalendar() {
+    try { personal.check(); } catch { return; }
     calMonthLabel.textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
 
     var firstDay = new Date(calYear, calMonth, 1);
@@ -306,6 +320,7 @@
   }
 
   function showDayDetail(dateStr) {
+    try { personal.check(); } catch { return; }
     var daily = getDailyData(dateStr);
     var dateObj = new Date(dateStr + 'T12:00:00');
     var fechaLabel = dateObj.toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long' });

@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-10-19T05:50:10.037513+00:00",
+  "scope": "Personal generation operation and exact personal PDF in isolated worktree; no main-candidate edits.",
+  "contracts": {
+    "operation": "A UUIDv4 exists only in page memory. Duplicate clicks cannot create a second request. Retry preserves the UUID across delivery loss, timeout, ambiguous400/500, pending and reconciliation responses. An explicit next completed intent or a replay-confirmed generation_failed permits a fresh UUID.",
+    "ambiguous400": "HTTP400 and generation_unavailable are not proof of non-publication. A failed worker can first present as ambiguous; replay may confirm released generation_failed before the user explicitly starts another request. No frontend refund claim.",
+    "identity": "Personal context binds the accepted transport revision and canonical auth/me id/team/role/session_version. Guards before dispatch and after waits discard old profile, plan, history and PDF. New account credentials are preserved, old health DOM and operation state cleared. Own accepted refresh rotation remains valid.",
+    "pdf": "get_mi_plan and fresh/completed generation responses return persisted plan_id and personal pdf_url. New UI always downloads /api/usuario/descargar-pdf?plan_id={id}; never latest or the professional parent route. Existing shared PDF validation/Blob cleanup is reused.",
+    "read_boundary": "individual_plan_results_query extracts existing reader predicates. Current/history use this SQL query plus existing personal id_cliente, ordered in SQL. Deleted current profile is not replaced with another profile; inactive history remains readable.",
+    "storage": "No operation UUID, response, health DTO or PDF is written to Storage/analytics. Existing legacy diary/water code remains separate; no migration/import/deletion. Auth tokens still use the legacy accepted transport and retain its R10 limitations."
+  },
+  "validation": {
+    "python_cases": 107,
+    "vm_cases": 94,
+    "browser_groups": 15,
+    "browser_screens": 8,
+    "browser_pageerrors": 0,
+    "axe": "Zero WCAG2A/AA/2.1AA violations in the 8 scanned full-page states; no claim for all states.",
+    "browser_report": "personal-plan-ui-browser-author-freeze/report.json",
+    "browser_doubles": "Lost/held real HTTP deliveries; specifically fabricated400 after real durable publication and named pending409/reconciliation503 responses. First invalid access is synthetic with a real signed refresh; temporal JWT expiry is not claimed."
+  },
+  "limits": [
+    "QA browser/backend query review still pending before integration.",
+    "History retains existing .all() contract and has no pagination or bound; pagination remains pending, not presented as bounded.",
+    "R14 persistent diary/Mexico City dates and legacy activity keys remain separate.",
+    "R10 durable cross-tab/reload atomicity and direct legacy auth writers remain open.",
+    "Fixture prepares metadata in its own SQLite; PostgreSQL/RLS/migration deployment and external providers are not represented by this browser gate."
+  ],
+  "commands": [
+    "& 'C:/Users/Consu/AppData/Local/Temp/metodobase-candidate-web-20261018/Scripts/python.exe' -X utf8 tests/run_isolated.py tests/test_personal_plan_ui_contract.py tests/test_individual_result_reader.py tests/test_individual_publication.py tests/test_individual_publication_review.py tests/test_billing_integrity.py -q --tb=short",
+    "& 'C:/Users/Consu/AppData/Local/Temp/metodobase-candidate-web-20261018/Scripts/python.exe' -X utf8 tests/run_isolated.py tests/test_plan_documents.py tests/test_personal_pdf_identifier_review.py tests/test_personal_member_scope.py -q --tb=short",
+    "node tests/e2e/personal_operation.cjs",
+    "node tests/e2e/personal_operation_ambiguity_review.cjs",
+    "node tests/e2e/personal_operation_ambiguity_review.cjs docs/implementation/20261018-evolution/evidence/ux/personal-operation-before-ambiguous400.js # expected exit1, 0/2",
+    "node tests/e2e/auth_refresh.cjs",
+    "node tests/e2e/auth_refresh_storage.cjs",
+    "node tests/e2e/auth_refresh_security_review.cjs",
+    "node tests/e2e/auth_refresh_race_review.cjs",
+    "& 'C:/Users/Consu/AppData/Local/Temp/metodobase-candidate-web-20261018/Scripts/python.exe' -X utf8 tests/e2e/personal_generation_server.py # own fresh fixture8773",
+    "$env:NODE_PATH='F:/MetodoBaseWeb-execution-20261018/tests/e2e/node_modules'; $env:METODOBASE_EVIDENCE_BATCH='independent'; node tests/e2e/personal_generation.cjs"
+  ],
+  "fixture": "8773 is this worktree own fixture, PID7524 at author close; verify command line before a dedicated restart. Do not stop other servers. Browser requires fresh fixture data.",
+  "dependencies": "Node dependencies were read from the existing tests/e2e node_modules in execution via NODE_PATH, with the same committed package lock; no installer/CI/provider modification.",
+  "authoring_history": "Earlier logs/screens remain preserved. First run failed test axe injection under CSP (harness fixed with real nonce), second started before readiness (harness now polls), third found legacy vegetable contrast (scoped template fix). No prior evidence overwritten."
+}
