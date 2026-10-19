@@ -40,7 +40,13 @@
   </div>
 </div>
 
-<div id="history-error" class="u-inline-notice u-inline-error" role="alert" hidden>
+<section id="history-controls" aria-label="Consulta de planes anteriores">
+  <p id="history-status" role="status" aria-live="polite" tabindex="-1">Consultando tus planes…</p>
+  <p>Los planes se consultan por partes. Actualiza el historial para ver los más recientes.</p>
+  <button type="button" class="u-btn u-btn-secondary" id="history-refresh" disabled>Actualizar historial</button>
+  <button type="button" class="u-btn u-btn-primary" id="history-more" hidden disabled>Cargar anteriores</button>
+</section>
+<div id="history-error" class="u-inline-notice u-inline-error" role="alert" tabindex="-1" hidden>
   <p id="history-error-message"></p>
   <button type="button" class="u-btn u-btn-secondary" id="history-retry">Volver a consultar</button>
 </div>
@@ -110,6 +116,7 @@
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-diario.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-historial.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 
@@ -129,10 +136,9 @@
     setTimeout(function() { t.remove(); }, 4000);
   }
 
-  var allPlanes = [];
-  var diario = null;
+  var diario = null, history = null;
   var personal = PersonalPlanOperation.create({onInvalidated: function(error) {
-    allPlanes = [];
+    if (history) history.invalidate(error);
     if (diario) diario.invalidate();
     document.getElementById('tbody-planes').replaceChildren();
     document.getElementById('day-detail').replaceChildren();
@@ -141,60 +147,69 @@
     document.getElementById('historial-list').style.display = 'none';
     document.getElementById('empty-state').style.display = 'none';
     document.getElementById('loading').style.display = 'none';
+    document.getElementById('history-controls').hidden = true;
+    document.getElementById('history-status').textContent = '';
     document.getElementById('history-error').hidden = false;
     document.getElementById('history-error-message').textContent = error.message || 'Vuelve a abrir el historial desde tu cuenta.';
-    document.getElementById('history-retry').focus();
+    document.getElementById('history-retry').hidden = true;
+    document.getElementById('history-error').focus();
     ['sb-nombre','sb-avatar'].forEach(function(id) { var element = document.getElementById(id); if (element) element.textContent = ''; });
   }});
-  document.getElementById('history-retry').addEventListener('click', function() { location.reload(); });
-
-  try {
-    await personal.start();
-    diario = PersonalDiary.mountHistory({personal:personal});
-    await diario.bootstrap();
-    if (!personal.active) return;
-    var data = await personal.read(function(context) { return Api.usuario.historial(context); });
-    document.getElementById('loading').style.display = 'none';
-    if (!data || !Array.isArray(data.planes)) throw new Error('El servidor devolvió un historial incompleto.');
-    if (data.planes.length === 0) {
-      document.getElementById('empty-state').style.display = 'block';
-    }
-    allPlanes = data.planes;
-    var tbody = document.getElementById('tbody-planes');
-    data.planes.forEach(function(p, i) {
-      var fecha = p.fecha ? new Date(p.fecha).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric', timeZone:'America/Mexico_City' }) : '—';
+  function renderHistory(view) {
+    personal.check();
+    var tbody = document.getElementById('tbody-planes'), fragment = document.createDocumentFragment();
+    view.rows.forEach(function(p, index) {
+      personal.check();
+      var fecha = p.fecha ? new Date(p.fecha).toLocaleDateString('es-MX', {day:'2-digit', month:'short', year:'numeric', timeZone:'America/Mexico_City'}) : 'Fecha no disponible';
       var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>' + (data.planes.length - i) + '</td>' +
-        '<td>' + esc(fecha) + '</td>' +
-        '<td>' + Math.round(p.kcal_objetivo || 0) + ' kcal</td>' +
-        '<td>' + Math.round(p.proteina_g || 0) + 'g</td>' +
-        '<td>' + Math.round(p.carbs_g || 0) + 'g</td>' +
-        '<td>' + Math.round(p.grasa_g || 0) + 'g</td>' +
-        '<td><span class="u-badge">' + esc(p.tipo_plan || 'menú fijo') + '</span></td>' +
-        '<td>' + (p.tiene_pdf ? '<button class="u-pdf-btn" data-plan-id="' + parseInt(p.id) + '" aria-label="Descargar PDF del plan del ' + esc(fecha) + '">📥</button>' : '—') + '</td>';
-      tbody.appendChild(tr);
+      [String(index+1), fecha, Math.round(p.kcal_objetivo || 0)+' kcal', Math.round(p.proteina_g || 0)+'g',
+        Math.round(p.carbs_g || 0)+'g', Math.round(p.grasa_g || 0)+'g', p.tipo_plan || 'menú fijo'].forEach(function(text) {
+        var td = document.createElement('td'); td.textContent = text; tr.appendChild(td);
+      });
+      var pdf = document.createElement('td');
+      if (p.tiene_pdf) {
+        var button = document.createElement('button'); button.type = 'button'; button.className = 'u-pdf-btn';
+        button.dataset.planId = String(p.id); button.textContent = 'PDF';
+        button.setAttribute('aria-label', 'Descargar PDF del plan del '+fecha); pdf.appendChild(button);
+      } else pdf.textContent = 'No disponible';
+      tr.appendChild(pdf); fragment.appendChild(tr);
     });
-    document.getElementById('historial-list').style.display = data.planes.length ? 'block' : 'none';
-
-    // Delegated event listener for PDF buttons and row clicks
-    tbody.addEventListener('click', function(e) {
-      try { personal.check(); } catch { return; }
-      var btn = e.target.closest('.u-pdf-btn');
-      if (btn) {
-        e.stopPropagation();
-        var planId = btn.getAttribute('data-plan-id');
-        if (planId) descargarPDF(Number(planId), btn);
-        return;
-      }
-
-    });
-
-  } catch(e) {
+    personal.check(); tbody.replaceChildren(fragment); personal.check();
+    document.getElementById('loading').style.display = view.busy && !view.loaded ? 'block' : 'none';
+    document.getElementById('historial-list').style.display = view.rows.length ? 'block' : 'none';
+    document.getElementById('empty-state').style.display = view.loaded && !view.rows.length ? 'block' : 'none';
+    var more = document.getElementById('history-more');
+    more.hidden = !view.hasMore; more.disabled = view.busy || view.restartRequired;
+    more.textContent = view.busy ? 'Consultando anteriores…' : 'Cargar anteriores';
+    document.getElementById('history-refresh').disabled = view.busy;
+    document.getElementById('history-retry').hidden = !view.error || view.restartRequired;
+    document.getElementById('history-retry').disabled = view.busy;
+    document.getElementById('history-error').hidden = !view.error;
+    document.getElementById('history-error-message').textContent = view.error;
+    document.getElementById('history-status').textContent = view.busy ? 'Consultando planes…' : view.loaded ?
+      view.rows.length+' planes consultados. '+(view.hasMore ? 'Hay planes anteriores por consultar.' : 'No hay más planes anteriores en esta consulta.') : '';
+    personal.check();
+  }
+  history = PersonalHistory.create({personal:personal, onChange:renderHistory});
+  document.getElementById('history-retry').addEventListener('click', function() { history.load(); });
+  document.getElementById('history-more').addEventListener('click', function() { history.load(); });
+  document.getElementById('history-refresh').addEventListener('click', function() { history.restart(); });
+  document.getElementById('tbody-planes').addEventListener('click', function(event) {
+    try { history.check(); } catch { return; }
+    var button = event.target.closest('.u-pdf-btn');
+    if (button) descargarPDF(Number(button.dataset.planId), button);
+  });
+  try {
+    await personal.start(); personal.check();
+    diario = PersonalDiary.mountHistory({personal:personal});
+    await diario.bootstrap(); personal.check();
+    await history.load();
+  } catch(error) {
     if (!personal.active) return;
+    try { personal.check(); } catch { return; }
     document.getElementById('loading').style.display = 'none';
     document.getElementById('history-error').hidden = false;
-    document.getElementById('history-error-message').textContent = 'No se pudo consultar tu historial. ' + e.message;
+    document.getElementById('history-error-message').textContent = 'No se pudo consultar tu historial. Vuelve a abrir la página.';
   }
 
   async function descargarPDF(planId, button) {
@@ -202,7 +217,7 @@
     button.disabled = true;
     try {
       await personal.read(function(context) { return Api.usuario.descargarPlan(planId, context); });
-      showToast('PDF preparado para descargar.');
+      personal.check(); showToast('PDF preparado para descargar.');
     } catch(e) {
       if (personal.active) showToast(e.message, 'error');
     } finally { if (personal.active) button.disabled = false; }

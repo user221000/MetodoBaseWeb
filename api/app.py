@@ -300,6 +300,10 @@ def create_app() -> FastAPI:
     from web.routes.password_recovery import router as password_recovery_router
     app.include_router(password_recovery_router, prefix="/api")
 
+    # Share only the reviewed personal history GET and its canonical dependencies.
+    from web.routes.usuario import historial_planes
+    app.add_api_route("/api/usuario/historial", historial_planes, methods=["GET"], tags=["Usuario Individual"])
+
     # ── Planes history routes (web) ───────────────────────────────────────────
     from web.routes import planes as web_planes_routes
     app.include_router(web_planes_routes.router, prefix="/api")

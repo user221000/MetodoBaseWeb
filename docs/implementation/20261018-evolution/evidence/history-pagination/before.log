@@ -1,0 +1,23 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_default_history_is_bounded_to_50_from_1000_persisted_results[web.main_web] _
+tests\test_personal_history_pagination.py:55: in test_default_history_is_bounded_to_50_from_1000_persisted_results
+    assert len(response.json()['planes']) == 50
+E   AssertionError: assert 1000 == 50
+E    +  where 1000 = len([{'id': 1000, 'fecha': '2026-01-02T03:04:05', 'kcal_objetivo': 1999.0, 'proteina_g': None, ...}, {'id': 999, 'fecha': ...ina_g': None, ...}, {'id': 995, 'fecha': '2026-01-02T03:04:05', 'kcal_objetivo': 1994.0, 'proteina_g': None, ...}, ...])
+_ test_default_history_is_bounded_to_50_from_1000_persisted_results[api.app] __
+tests\test_personal_history_pagination.py:54: in test_default_history_is_bounded_to_50_from_1000_persisted_results
+    assert response.status_code == 200, response.text
+E   AssertionError: {"detail":"Not Found"}
+E   assert 404 == 200
+E    +  where 404 = <Response [404 Not Found]>.status_code
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_personal_history_pagination.py::test_default_history_is_bounded_to_50_from_1000_persisted_results[web.main_web]
+FAILED tests/test_personal_history_pagination.py::test_default_history_is_bounded_to_50_from_1000_persisted_results[api.app]
+2 failed, 1 warning in 6.00s

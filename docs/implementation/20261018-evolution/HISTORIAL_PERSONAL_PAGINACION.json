@@ -1,0 +1,62 @@
+{
+  "base_commit": "5c9e09723a2de2e40a4de7488c7af918fd51422f",
+  "scope": "R34/R15: bounded personal history, unchanged authorization and exact personal PDF reader; no quota, schema, migration, diary, logout or auth transport changes",
+  "http": {
+    "method": "GET",
+    "path": "/api/usuario/historial",
+    "factories": ["web.main_web", "api.app"],
+    "default_limit": 50,
+    "maximum_limit": 200,
+    "query": {"limit": "integer 1..200", "cursor": "optional opaque signed position; at most180 characters"},
+    "response": {"planes": "Existing summary fields retained; at most limit rows", "next_cursor": "Opaque string if more matching rows exist, otherwise null"},
+    "order": "fecha_generacion DESC NULLS LAST, id DESC; undated rows remain readable in the final segment",
+    "continuation_filters": {"dated_position":"fecha < last_fecha OR (fecha = last_fecha AND id < last_id) OR fecha IS NULL", "undated_position":"fecha IS NULL AND id < last_id"},
+    "headers": ["Cache-Control: no-store", "Referrer-Policy: no-referrer"],
+    "invalid_cursor": "422 history_cursor_invalid, generic message without echoing cursor, account, profile or parser details",
+    "invalid_limit": "422 normal query validation",
+    "authorization": "Canonical persisted auth plus existing personal-context check. The same shared reader enforces Plan.gym_id and Cliente.gym_id equal to subject, both soft-delete predicates, and the existing personal profile ID. Inactive profiles retain readable history. No profile is assigned by email or another heuristic.",
+    "composition": "Only GET history is added to api.app, using exactly the web handler and dependencies. The entire personal router is not mounted. Before api.app returned404; that is recorded separately from the web unbounded-history failure."
+  },
+  "cursor": {
+    "encoding": "Canonical version1 JSON [version, stored UTC-naive timestamp or null, positive int32 plan ID], Base64URL without padding plus HMAC-SHA256 signature",
+    "binding": "Existing SECRET_KEY; domain-separated namespace and persisted subject/profile IDs enter the signature input only. Neither ID enters the payload.",
+    "validation": "Length checked before base64/JSON; canonical base64 and JSON; exact types (booleans rejected), valid fixed-precision timestamp, int32 bounds, constant-time signature comparison; no fallback key and no new TTL policy",
+    "authority": "A cursor is only a position. Authorization and owner/soft-delete predicates run again on every request. Key rotation invalidates old positions.",
+    "dates": "NULL and literal stored timestamps are preserved; no historical timestamp migration or timezone inference occurs."
+  },
+  "live_page_semantics": [
+    "Pages are live read-only queries, not a transaction-spanning snapshot and not a frozen total.",
+    "A deleted cursor row does not break continuation; its signed position remains usable. Deleted unseen rows disappear.",
+    "A newer insert above the last position appears after an explicit fresh consultation. An older insert below the position may appear on a later page.",
+    "No COUNT, OFFSET traversal, automatic full-history fetching, generation or refund occurs. The default query reads51 summary candidates to return50 plus a continuation flag."
+  ],
+  "ui": [
+    "Cargar anteriores fetches one page per explicit action; double click while pending sends one request.",
+    "Rows append with ID deduplication. An ordinary error retains visible rows and the exact failed position for retry.",
+    "An invalidated cursor retains rows and requires Actualizar historial, which explicitly clears the old query and restarts.",
+    "Shared personal.read and context checks fence awaits, DTO use, rendering, controls and authorized PDF download. Storage/session events synchronously invalidate rows, counters, positions and calendar; pending old-session results are discarded.",
+    "Same-tab changes without an event are detected at the next context check/await/control; this does not add atomic cross-tab credentials or a new auth transport guarantee.",
+    "No history, cursor, health DTO or new operation key is persisted in browser storage. Unidentified legacy diary bytes remain untouched.",
+    "The existing personal diary calendar, exact plan-ID PDF reader and machine-ACK logout remain in use."
+  ],
+  "evidence": {
+    "directory": "evidence/history-pagination",
+    "before": "before.log/xml: web returns1000 instead of50; standalone API returns404 because history was not mounted",
+    "python": "72 directed SQLite HTTP/cursor/shared-reader cases plus2 empty/missing-profile cases passed, including both factories, ties/NULL, deletes/inserts, malformed/type/bounds/signature cases, two accounts, revoked member and no DML",
+    "query_plan": "SQLite EXPLAIN of the51-summary query over1000 rows uses existing ix_planes_gym_fecha; no new index or migration proposed. This is not a PostgreSQL performance result.",
+    "node": "Prior162 unique transport/operation/diary/logout/export contracts plus23 new history controller/helper cases passed; counts remain separate",
+    "browser": "Own fresh loopback8780 fixture:10 history groups and4 screenshots with zero scoped axe AA findings, overflow and pageerrors; auth, two real worker plans, exact private PDF and history APIs are real. Named503/422 and late-response holds are delivery doubles.",
+    "diary_regression": "Original17 assertions/8 screenshots replayed against the same fresh fixture with only two origin literals adapted in memory to8780; executed body and both hashes preserved. Original driver and fixture remain unchanged.",
+    "composition": "SQLite ORM metadata preparation targeting personal_diary revision27,26 tables; not evidence of executing an Alembic migration",
+    "known_preexisting_warnings": "Starlette TestClient deprecation and three existing standalone-API professional operation-ID warnings; one history GET operation is verified. No unrelated routing cleanup is included."
+  },
+  "reproduce": {
+    "python": "python -X utf8 tests/run_isolated.py tests/test_personal_history_pagination.py tests/test_personal_history_cursor.py tests/test_personal_plan_ui_contract.py -q --tb=short",
+    "history_vm": "node tests/e2e/personal_history.cjs",
+    "fixture": "python -X utf8 tests/e2e/personal_history_server.py",
+    "browser": "node tests/e2e/personal_history_browser.cjs",
+    "diary_browser": "node tests/e2e/personal_history_diary_regression.cjs",
+    "dependencies": "Existing pinned tests/e2e/package-lock.json and reviewed candidate Python environment; browser requires Chrome and Playwright/axe. Author used read-only NODE_PATH to execution/tests/e2e/node_modules."
+  },
+  "limits": ["No new load benchmark; the earlier1400-request unbounded-history baseline is unchanged", "No PostgreSQL rerun; independent C1/C5 history-only probes on1000 rows with limit50 remain separate and imply no SLO", "No broad backend suite", "No provider or real delivery", "Independent QA/security and integration remain pending"]
+}

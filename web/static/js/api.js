@@ -560,7 +560,17 @@ const Api = (() => {
       }
       return _personalRequest('POST', '/api/usuario/generar-plan', null, { 'Idempotency-Key': key }, context);
     },
-    historial:      (context) => _personalRequest('GET', '/api/usuario/historial', null, {}, context),
+    historial: (context, options = {}) => {
+      const limit = options.limit ?? 50, cursor = options.cursor ?? null;
+      if (!Number.isSafeInteger(limit) || limit < 1 || limit > 200 ||
+          (cursor !== null && (typeof cursor !== 'string' || cursor.length < 1 || cursor.length > 180))) {
+        throw new Error('No se pudo continuar el historial. Vuelve a consultar desde el inicio.');
+      }
+      const params = new URLSearchParams();
+      if (limit !== 50) params.set('limit', String(limit));
+      if (cursor !== null) params.set('cursor', cursor);
+      return _personalRequest('GET', '/api/usuario/historial' + (params.size ? '?' + params : ''), null, {}, context);
+    },
     descargarPlan: (planId, context) => {
       if (!Number.isSafeInteger(planId) || planId < 1 || planId > 2147483647) throw new Error('El plan no es válido.');
       if (context) _assertSnapshot(context);
