@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Consulta planes y límites de Método Base para negocios y para tu espacio personal. Generación de planes, PDF e historial en la aplicación web.">
+  <title>Método Base · Planes nutricionales y gestión de clientes</title>
+  <link rel="stylesheet" href="/static/css/landing.css?v={{ landing_style_version }}">
+</head>
+<body class="landing-page">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="wrap topbar">
+    <a class="brand" href="/" aria-label="Método Base, inicio">Método <span>Base</span></a>
+    <nav class="quick-links" aria-label="Ya tengo cuenta">
+      <a href="/login-gym">Ingresar al panel de negocio</a>
+      <a href="/login-usuario">Ingresar a mi espacio personal</a>
+    </nav>
+  </header>
+  <main id="contenido" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">Organiza tus planes de alimentación</p>
+        <h1 id="hero-title">Un espacio para tu negocio.<br>Otro para tu plan personal.</h1>
+        <p class="lead">Gestiona clientes y sus planes desde el panel de negocio, o genera y consulta tus propios planes en tu espacio personal.</p>
+        <div class="actions" aria-label="Crear una cuenta según tu uso">
+          <a class="button" href="/registro?tipo=gym" data-audience="gym">Crear cuenta de negocio</a>
+          <a class="button secondary" href="/registro?tipo=usuario" data-audience="individual">Crear cuenta personal</a>
+        </div>
+        <p class="small"><a href="#planes-negocio">Ver planes para negocios</a> · <a href="#planes-personales">Ver planes personales</a></p>
+      </div>
+      <aside class="example" aria-labelledby="example-title" data-example="worker_demo_excerpt_v1">
+        <span class="tag">Ejemplo con datos de demostración</span>
+        <h2 id="example-title">Un vistazo al desayuno</h2>
+        <p class="small">Extracto de un plan generado localmente: una opción de cada grupo.</p>
+        <ul>
+          {% for group in example.groups %}
+          <li><span>{{ group.option.alimento | replace('_', ' ') | capitalize }}</span><strong>{{ group.option.gramos }} g</strong></li>
+          {% endfor %}
+        </ul>
+        <p class="small">El resultado de tu cuenta puede ser distinto. Este ejemplo no es una recomendación de alimentación ni una evaluación clínica.</p>
+      </aside>
+    </section>
+    <section class="section" aria-labelledby="how-title">
+      <h2 id="how-title">Del perfil al plan que puedes consultar</h2>
+      <ol class="steps">
+        <li><h3>Elige tu espacio</h3><p>Una cuenta de negocio administra clientes. La cuenta personal mantiene su propio perfil e historial.</p></li>
+        <li><h3>Genera con tu cupo disponible</h3><p>Completa el perfil y solicita un plan. Los límites diarios y mensuales dependen de la modalidad elegida.</p></li>
+        <li><h3>Vuelve al resultado</h3><p>Consulta el historial y descarga el PDF de un plan cuando esté disponible. En el espacio personal puedes registrar tu diario por fecha.</p></li>
+      </ol>
+    </section>
+    <section class="section" id="planes-negocio" aria-labelledby="business-title" data-commercial-catalog="gym">
+      <p class="eyebrow">Aplicación web para negocios</p>
+      <h2 id="business-title">Clientes, planes y límites a la vista</h2>
+      <p class="section-intro">Empieza con Free. Los planes de pago se consultan y contratan dentro de tu cuenta; crearla no activa una suscripción de pago.</p>
+      {% set labels = {'free':'Free','standard':'Standard','gym_comercial':'Gym','clinica':'Clínica'} %}
+      <div class="plans">
+        {% for key, plan in business_plans.items() %}
+        <article class="plan" data-plan="{{ key }}">
+          <h3>{{ labels.get(key, key) }}</h3>
+          <p class="price" data-price-centavos="{{ plan.precio_centavos }}" data-currency="{{ plan.moneda }}" data-period="{{ plan.periodo }}">${{ '%.2f' | format(plan.precio_centavos / 100) }}<span class="unit">{{ plan.moneda }} / {{ 'mes' if plan.periodo == 'month' else plan.periodo }}</span></p>
+          <dl>
+            <div><dt>Clientes activos</dt><dd data-limit-field="max_clientes" data-value="{{ plan.max_clientes }}">{% if plan.max_clientes %}Hasta {{ plan.max_clientes }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Altas de clientes al día</dt><dd data-limit-field="max_registros_diarios" data-value="{{ plan.max_registros_diarios }}">{% if plan.max_registros_diarios %}{{ plan.max_registros_diarios }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Planes por cliente al día</dt><dd data-limit-field="max_planes_por_cliente_dia" data-value="{{ plan.max_planes_por_cliente_dia }}">{% if plan.max_planes_por_cliente_dia %}{{ plan.max_planes_por_cliente_dia }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Planes al día entre todos tus clientes</dt><dd data-limit-field="max_planes_diarios" data-value="{{ plan.max_planes_diarios }}">{% if plan.max_planes_diarios %}{{ plan.max_planes_diarios }}{% else %}Sin tope en el catálogo{% endif %}</dd></div>
+            <div><dt>Planes al mes</dt><dd data-limit-field="max_planes_mes" data-value="{{ plan.max_planes_mes }}">{% if plan.max_planes_mes %}{{ plan.max_planes_mes }}{% else %}Sin tope mensual en el catálogo{% endif %}</dd></div>
+            <div><dt>Invitaciones a equipo</dt><dd>{% if plan.multi_usuario %}Incluidas en este plan{% else %}No incluidas en este plan{% endif %}</dd></div>
+          </dl>
+          <a class="button secondary" href="/registro?tipo=gym">Empezar con una cuenta de negocio</a>
+        </article>
+        {% endfor %}
+      </div>
+      <p class="catalog-note">Los topes por cliente, por día y por mes se aplican en conjunto. “Sin tope” describe sólo esa dimensión del catálogo; no garantiza capacidad ni tiempos de generación. “Clínica” es el nombre de un plan comercial y no acredita adecuación clínica.</p>
+    </section>
+    <section class="section" id="planes-personales" aria-labelledby="personal-title" data-commercial-catalog="individual">
+      <p class="eyebrow">Tu espacio personal</p>
+      <h2 id="personal-title">Tu perfil, tus planes y tu diario</h2>
+      <p class="section-intro">Estos cupos pertenecen a tu cuenta personal y se mantienen separados de la cartera de un negocio.</p>
+      <div class="plans personal-plans">
+        {% for key, plan in individual_plans.items() %}
+        <article class="plan" data-personal-plan="{{ key }}">
+          <h3>{{ 'Starter' if key == 'starter' else 'Pro' }}</h3>
+          <p class="price" data-price-centavos="{{ plan.precio_centavos }}" data-currency="{{ plan.moneda }}" data-period="{{ plan.periodo }}">${{ '%.2f' | format(plan.precio_centavos / 100) }}<span class="unit">{{ plan.moneda }} / {{ 'mes' if plan.periodo == 'month' else plan.periodo }}</span></p>
+          <dl><div><dt>Planes personales al mes</dt><dd data-limit-field="max_planes_mes" data-value="{{ plan.max_planes_mes }}">{{ plan.max_planes_mes }}</dd></div></dl>
+          <a class="button secondary" href="/registro?tipo=usuario">Empezar con una cuenta personal</a>
+        </article>
+        {% endfor %}
+      </div>
+      <p class="catalog-note">Precios de referencia del catálogo vigente en {{ individual_plans.starter.moneda }}, con periodo mensual. Revisa el importe y las condiciones mostradas antes de confirmar una compra en tu cuenta.</p>
+    </section>
+    <section class="section" aria-labelledby="faq-title">
+      <h2 id="faq-title">Antes de elegir</h2>
+      <div class="faq">
+        <details><summary>¿Qué cuenta necesito?</summary><p>Elige negocio si vas a administrar clientes. Elige personal para tu propio perfil y planes. Una pertenencia a un equipo profesional y un perfil personal son espacios separados.</p></details>
+        <details><summary>¿Crear una cuenta activa un plan de pago?</summary><p>No. El alta y la contratación son pasos distintos. Puedes consultar la oferta y el estado de tu suscripción dentro de la cuenta correspondiente.</p></details>
+        <details><summary>¿Puedo usarlo para una condición médica?</summary><p>La aplicación organiza perfiles y genera planes a partir de sus datos. No ofrece diagnóstico ni garantiza que un plan sea adecuado para una condición médica. El nombre de una modalidad comercial no sustituye una revisión profesional.</p></details>
+        <details><summary>¿También existe la versión de escritorio?</summary><p>La versión de escritorio sigue soportada. Los botones de esta página abren la aplicación web; no descargan un instalador ni trasladan una suscripción entre versiones.</p></details>
+      </div>
+      <div id="datos-personales" class="data-note" aria-labelledby="data-title">
+        <h3 id="data-title">Tus datos en tu cuenta</h3>
+        <p>El perfil y los planes se consultan con una sesión autenticada. En el perfil personal puedes descargar tus datos por partes y consultar el alcance de cada archivo.</p>
+        <p><a href="/login-usuario">Ingresar para consultar mis datos personales</a></p>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap"><p>Método Base · <a href="/login-gym">Acceso al negocio</a> · <a href="/login-usuario">Acceso personal</a> · <a href="#datos-personales">Datos personales</a></p></footer>
+</body>
+</html>

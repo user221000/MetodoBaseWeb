@@ -1,0 +1,38 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_changed_billing_period_is_consistent_in_cards_and_catalog_note[web.main_web] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-landing-own-composition-20261019-og33jcyj\test_landing_dynamic_review.py:22: in test_changed_billing_period_is_consistent_in_cards_and_catalog_note
+    assert 'con periodo mensual' not in response.text
+E   assert 'con periodo mensual' not in '<!DOCTYPE h...dy>\n</html>'
+E     
+E     'con periodo mensual' is contained here:
+E       e en TST, con periodo mensual. Revisa el importe y las condiciones mostradas antes de confirmar una compra en tu cuenta.</p>
+E     ?           +++++++++++++++++++
+E           </section>
+E           <section class="section" aria-labelledby="faq-title">
+E             <h2 id="faq-title">Antes de elegir</h2>...
+E     
+E     ...Full output truncated (16 lines hidden), use '-vv' to show
+_ test_changed_billing_period_is_consistent_in_cards_and_catalog_note[api.app] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-landing-own-composition-20261019-og33jcyj\test_landing_dynamic_review.py:22: in test_changed_billing_period_is_consistent_in_cards_and_catalog_note
+    assert 'con periodo mensual' not in response.text
+E   assert 'con periodo mensual' not in '<!DOCTYPE h...dy>\n</html>'
+E     
+E     'con periodo mensual' is contained here:
+E       e en TST, con periodo mensual. Revisa el importe y las condiciones mostradas antes de confirmar una compra en tu cuenta.</p>
+E     ?           +++++++++++++++++++
+E           </section>
+E           <section class="section" aria-labelledby="faq-title">
+E             <h2 id="faq-title">Antes de elegir</h2>...
+E     
+E     ...Full output truncated (16 lines hidden), use '-vv' to show
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED ::test_changed_billing_period_is_consistent_in_cards_and_catalog_note[web.main_web]
+FAILED ::test_changed_billing_period_is_consistent_in_cards_and_catalog_note[api.app]
+2 failed, 1 warning in 7.17s

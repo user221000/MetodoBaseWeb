@@ -1,0 +1,44 @@
+{
+  "base_commit": "ad541ae6b8a7de18719c08b6584b5fdb47018e6c",
+  "scope": "One global note in the commercial landing; no change to offer cards, catalogue, routes, registration, API, CSS or JS.",
+  "problem": "The note hardcoded a monthly period even when runtime cards correctly rendered a different catalogue period/currency. Current production catalogue was monthly; this is removal of an unsupported template assumption, not a new annual offering.",
+  "result": "The global note directs readers to the amount, currency and period printed in each runtime catalogue card.",
+  "proof": {
+    "driver_sha256": "6ba4559a2b4b5cd506fa6d8951e080211ed64ec9f66820e37ef502ba9aaa104f",
+    "assertions_unchanged": true,
+    "QA_before_failed": 2,
+    "author_after_passed": 2,
+    "factories": [
+      "web.main_web",
+      "api.app"
+    ],
+    "prior_12_author_HTTP": "Not repeated for one sentence; unchanged source checks verify related dependencies.",
+    "browser": "Independent QA will run eight groups on the final source; no listener started by this follow-up."
+  },
+  "preservation": "Original ad541 commit, prior source-freeze, worker output and all earlier evidence remain unchanged. New before proof copies retain the original QA bytes.",
+  "diff_check": {
+    "exception_reason": "Original QA red log/JUnit whitespace is preserved byte-for-byte; every other changed file passes. Exact raw originals are included in the ZIP to avoid Git EOL normalization.",
+    "exceptions": [
+      {
+        "path": "docs/implementation/20261018-evolution/evidence/landing-period-note/qa-before-result.log",
+        "sha256": "3a5ab27e6f3fbf1cab4e99bd5740e2d5422c6ca64f9deae5934ac2740b683560",
+        "lines": [
+          7,
+          14,
+          20,
+          27
+        ]
+      },
+      {
+        "path": "docs/implementation/20261018-evolution/evidence/landing-period-note/qa-before-result.xml",
+        "sha256": "28319aeadd6e5e4d7de0fca6241481556d87e5f00f8d6c58c84fcc0b861f6c3d",
+        "lines": [
+          4,
+          11,
+          15,
+          22
+        ]
+      }
+    ]
+  }
+}
