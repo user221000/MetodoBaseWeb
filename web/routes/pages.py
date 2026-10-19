@@ -170,3 +170,13 @@ async def member_links_page(request: Request):
 @router.get("/auth/accept-client-link", response_class=HTMLResponse)
 async def accept_client_link_page(request: Request):
     return _client_link_page(request, "accept_client_link.html")
+
+
+@router.get("/mi-progreso", response_class=HTMLResponse)
+async def personal_progress_page(request: Request):
+    return _client_link_page(request, "usuario_progreso.html")
+
+
+@router.get("/clientes/{client_id}/progreso", response_class=HTMLResponse)
+async def professional_progress_page(request: Request, client_id: str):
+    return _client_link_page(request, "cliente_progreso.html", client_id=client_id)

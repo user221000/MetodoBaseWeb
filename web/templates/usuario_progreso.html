@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>Mi progreso — Método Base</title>
+  <link rel="stylesheet" href="/static/css/progreso.css">
+  <script src="/static/js/api.js" defer></script><script src="/static/js/vinculos-contexto.js" defer></script>
+  <script src="/static/js/progreso-datos.js" defer></script><script src="/static/js/progreso-vista.js" defer></script>
+  <script src="/static/js/progreso-operacion.js" defer></script>
+  <script src="/static/js/progreso-respuestas.js" defer></script><script src="/static/js/progreso-controlador.js" defer></script>
+  <script src="/static/js/progreso-personal-medidas.js" defer></script><script src="/static/js/progreso-consentimientos.js" defer></script><script src="/static/js/usuario-progreso.js" defer></script>
+</head>
+<body><main class="progress-page" id="personal-progress-page">
+  <nav aria-label="Mi espacio"><a href="/mi-perfil">Mi perfil</a><a href="/mi-plan">Mi plan</a><a href="/mis-vinculos">Mis vínculos</a></nav>
+  <h1>Mi progreso</h1>
+  <p>Consulta y registra medidas propias. Las cifras no generan diagnósticos ni recomendaciones automáticas.</p>
+  <p id="progress-status" role="status" aria-live="polite">Verificando tu cuenta…</p>
+  <div id="progress-error" class="progress-error" role="alert" tabindex="-1" hidden></div>
+  <div class="progress-actions"><button id="progress-refresh" type="button">Consultar estado</button></div>
+  <p id="progress-date-source"></p>
+  <section class="progress-section" aria-labelledby="measurement-title" id="progress-measurements" hidden>
+    <h2 id="measurement-title">Mis medidas</h2>
+    <p>Elige un perfil propio. La fecha de medición es declarada por ti y se muestra separada de la fecha de registro.</p>
+    <label for="progress-profile">Perfil personal</label><select id="progress-profile"><option value="">Elige un perfil</option></select>
+    <button id="progress-profiles-more" class="secondary" type="button" hidden>Cargar más perfiles propios</button>
+    <form id="measurement-form" novalidate>
+      <fieldset id="measurement-fields"><legend id="measurement-legend">Registrar una medida declarada</legend>
+        <label for="measurement-date">Fecha de medición</label><input id="measurement-date" type="date" required>
+        <div class="progress-grid">
+          <div><label for="measurement-weight">Peso (kg)</label><input id="measurement-weight" type="text" inputmode="decimal" aria-describedby="measurement-optional"></div>
+          <div><label for="measurement-fat">Grasa corporal (%)</label><input id="measurement-fat" type="text" inputmode="decimal" aria-describedby="measurement-optional"></div>
+          <div><label for="measurement-lean">Masa magra (kg)</label><input id="measurement-lean" type="text" inputmode="decimal" aria-describedby="measurement-optional"></div>
+        </div>
+        <p id="measurement-optional">Indica al menos una medida. Deja en blanco las que no conozcas; no se calculan a partir de otras cifras. Usa punto decimal.</p>
+        <div class="progress-actions"><button id="measurement-save" type="submit">Confirmar registro</button><button id="measurement-cancel" type="button" class="secondary" hidden>Descartar borrador</button></div>
+      </fieldset>
+    </form>
+    <p id="measurement-status" role="status" aria-live="polite"></p>
+    <div class="progress-actions"><button id="measurement-readback" type="button" hidden>Consultar el resultado de este registro</button><button id="measurement-retry" type="button" hidden>Confirmar otra vez la misma intención y clave</button><button id="measurement-new" type="button" class="secondary" hidden>Preparar un nuevo registro</button></div>
+    <div id="measurement-reconciliation"></div><button id="measurement-review" type="button" class="secondary" hidden>Revisar el registro actual para corregirlo</button>
+    <form id="measurement-query" novalidate><fieldset><legend>Periodo de consulta</legend><div class="progress-grid">
+      <div><label for="measurement-from">Desde</label><input id="measurement-from" type="date"></div><div><label for="measurement-through">Hasta</label><input id="measurement-through" type="date"></div>
+    </div><button type="submit">Consultar medidas</button></fieldset></form>
+    <p id="measurement-query-status" role="status" aria-live="polite"></p>
+    <p id="measurement-empty" hidden>No hay medidas para este perfil y periodo.</p>
+    <div id="measurement-table"></div><button id="measurement-more" type="button" hidden>Cargar medidas anteriores</button>
+    <label for="measurement-metric">Medida para la tendencia</label><select id="measurement-metric"><option value="peso_kg">Peso (kg)</option><option value="grasa_corporal_pct">Grasa corporal (%)</option><option value="masa_magra_kg">Masa magra (kg)</option></select>
+    <div id="measurement-trend"></div>
+    <p class="progress-note">Los datos históricos sin fuente o fecha de medición verificada se identifican como tales. Su fecha de registro no se convierte en fecha de medición. No se completan días faltantes con ceros.</p>
+  </section>
+  <section class="progress-section" id="progress-completion" aria-labelledby="completion-title" hidden>
+    <h2 id="completion-title">Marcas de consumos registrados</h2>
+    <p>Una marca de completado pertenece a un consumo que registraste. Abrir un menú o elegir alimentos no demuestra consumo ni adherencia clínica.</p>
+    <form id="completion-query" novalidate><fieldset><legend>Consultar un periodo de hasta 62 días</legend><div class="progress-grid">
+      <div><label for="completion-from">Desde</label><input id="completion-from" type="date" required></div><div><label for="completion-through">Hasta</label><input id="completion-through" type="date" required></div>
+    </div><button type="submit">Consultar marcas</button></fieldset></form>
+    <p id="completion-status" role="status" aria-live="polite"></p><div id="completion-table"></div>
+    <p>No se suponen cuatro comidas ni un porcentaje para días sin registros. Agua sin un consumo registrado no añade una comida a esta base.</p>
+  </section>
+  <section class="progress-section" aria-labelledby="consent-title" id="progress-consents" hidden>
+    <h2 id="consent-title">Permisos para compartir progreso</h2>
+    <p>Compartir es opcional y se limita a un vínculo, categorías y fechas concretas. No comparte alimentos, agua, notas, contactos ni planes personales. Retirar el permiso no requiere MFA ni un plan de pago.</p>
+    <p id="consent-status" role="status" aria-live="polite"></p><button id="consent-readback" type="button" hidden>Consultar el estado del permiso pendiente</button><div id="consent-list"></div><button id="consent-more" type="button" hidden>Cargar más permisos propios</button>
+    <div id="consent-create" hidden>
+    <h3>Preparar un permiso</h3>
+    <label for="consent-link">Vínculo destinatario</label><select id="consent-link"><option value="">Elige un vínculo activo</option></select>
+    <button id="consent-links-more" type="button" class="secondary" hidden>Cargar más vínculos</button>
+    <div id="consent-current"></div>
+    <form id="consent-form" novalidate hidden><fieldset id="consent-fields"><legend>Alcance que autorizas</legend>
+      <p id="consent-recipient"></p>
+      <div class="progress-check"><input id="consent-weight" type="checkbox"><label for="consent-weight">Peso</label></div>
+      <div class="progress-check"><input id="consent-fat" type="checkbox"><label for="consent-fat">Grasa corporal</label></div>
+      <div class="progress-check"><input id="consent-lean" type="checkbox"><label for="consent-lean">Masa magra</label></div>
+      <div class="progress-check"><input id="consent-completion" type="checkbox"><label for="consent-completion">Contadores de consumos registrados y marcas de completado</label></div>
+      <label for="consent-profile">Perfil personal de las medidas</label><select id="consent-profile"><option value="">Elige un perfil para compartir medidas</option></select>
+      <p>El perfil es necesario al compartir medidas. Compartir sólo contadores no selecciona ni crea un perfil.</p>
+      <div class="progress-grid"><div><label for="consent-from">Fecha inicial autorizada</label><input id="consent-from" type="date" required></div><div><label for="consent-through">Fecha final autorizada</label><input id="consent-through" type="date" required></div></div>
+      <div class="progress-check"><input id="consent-ongoing" type="checkbox"><label for="consent-ongoing">Autorizar sin fecha final hasta que retire o cambie el permiso</label></div>
+      <p>Las fechas autorizadas pueden ser futuras; autorizar no crea datos ni permite registrar medidas futuras.</p>
+      <div class="progress-check"><input id="consent-confirm" type="checkbox"><label for="consent-confirm">Revisé el vínculo, las categorías, el perfil y las fechas. Autorizo compartir este alcance.</label></div>
+      <button id="consent-save" type="submit">Confirmar este permiso</button>
+    </fieldset></form>
+    </div>
+  </section>
+</main></body></html>

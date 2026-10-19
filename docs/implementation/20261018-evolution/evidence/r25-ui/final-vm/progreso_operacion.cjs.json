@@ -1,0 +1,47 @@
+{
+  "scope": "RAM measurement intent with explicit callback doubles; no HTTP32 or database claim",
+  "passed": 10,
+  "total": 10,
+  "results": [
+    {
+      "case": "Double confirmation sends one write and retains one key",
+      "passed": true
+    },
+    {
+      "case": "Lost ACK is reconciled by reading the same key without a replay",
+      "passed": true
+    },
+    {
+      "case": "Ambiguous failure blocks both a fresh key and blind retry",
+      "passed": true
+    },
+    {
+      "case": "Missing readback permits only an explicit retry with the same payload and key",
+      "passed": true
+    },
+    {
+      "case": "Changing a payload after an uncertain result does not allocate another key",
+      "passed": true
+    },
+    {
+      "case": "A confirmed operation requires an explicit new-intent action for another key",
+      "passed": true
+    },
+    {
+      "case": "Readback of different persisted values is a visible conflict, not an overwrite",
+      "passed": true
+    },
+    {
+      "case": "Session change during a write discards its late result and operation intent",
+      "passed": true
+    },
+    {
+      "case": "Invalidating controls synchronously prevents the write from being sent",
+      "passed": true
+    },
+    {
+      "case": "Failure of the readback retains uncertainty instead of replacing a saved fact with empty state",
+      "passed": true
+    }
+  ]
+}
