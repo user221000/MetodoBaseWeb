@@ -1,0 +1,1819 @@
+diff --git a/tests/e2e/daily_plan_browser.cjs b/tests/e2e/daily_plan_browser.cjs
+new file mode 100644
+index 0000000..cedb2d8
+--- /dev/null
++++ b/tests/e2e/daily_plan_browser.cjs
+@@ -0,0 +1,80 @@
++/* Actual owned migrated30 PostgreSQL/auth/worker/publication/diary. Named delivery faults only. */
++const {chromium}=require('playwright-core'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
++const privateRoot=path.resolve(process.env.R24_PRIVATE||'');
++if(!process.env.R24_PRIVATE||!privateRoot.startsWith(path.resolve(process.env.TEMP)+path.sep))throw Error('Private Temp channel required');
++const meta=JSON.parse(fs.readFileSync(path.join(privateRoot,'fixture.private.json'),'utf8')),base=meta.origin;
++if(base!=='http://127.0.0.1:8800')throw Error('Own origin8800 only');
++const out=path.resolve(process.env.R24_BROWSER_OUTPUT||path.join(__dirname,'../../docs/implementation/20261018-evolution/evidence/r24/browser-first'));
++if(fs.existsSync(out))throw Error('New evidence directory required');fs.mkdirSync(out,{recursive:true});
++const report={scope:'Actual PostgreSQL migration30/restricted runtime role; HTTP auth/quota/worker/private PDFs/R12 accepted publication and diary. Mail transport synthetic/no-send. Holds, lost replies and one named503 are transport-only doubles; no provider.',checks:[],screens:[],pageErrors:[]},contexts=[];
++const check=(name,data={})=>{report.checks.push({name,...data});console.log(name);};
++const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
++const delay=ms=>new Promise(done=>setTimeout(done,ms));
++const deferred=()=>{let resolve;const promise=new Promise(done=>resolve=done);return{promise,resolve};};
++const legacy={'mb_daily_2026-01-01':'UNIDENTIFIED DAILY {raw','mb_water_2026-01-01':'UNIDENTIFIED WATER {raw','mb_meals_2026-01-01':'UNIDENTIFIED FOODS {raw','mb_meals_done_2026-01-01':'UNIDENTIFIED DONE {raw'};
++(async()=>{
++ let browser;
++ async function make(){const context=await browser.newContext({viewport:{width:390,height:844},timezoneId:'Pacific/Auckland',acceptDownloads:true});contexts.push(context);await context.route('**/*',route=>new URL(route.request().url()).origin===base?route.continue():route.abort());
++  context.on('page',page=>{page.on('pageerror',error=>report.pageErrors.push({name:error.name,message:error.message}));page.on('dialog',dialog=>dialog.accept());});
++  await context.addInitScript(()=>{const get=Storage.prototype.getItem;window.__r24NativeGet=key=>get.call(localStorage,key);Storage.prototype.getItem=function(key){if(/^(mb_daily_|mb_water_|mb_meals_|mb_meals_done_)/.test(key))throw Error('Unidentified legacy read');return get.call(this,key);};});return context;}
++ async function login(page,name){await page.goto(base+(name==='gym'?'/login-gym':'/login-usuario'));await page.locator('#loginForm input[name=email]').fill('r24-'+name+'@example.invalid');await page.locator('#loginForm input[name=password]').fill(meta.password);await page.locator('#loginForm button[type=submit]').click();await page.waitForURL(name==='gym'?'**/dashboard':'**/mi-plan');}
++ async function api(context,name,url,method='GET',data){const response=await context.request.fetch(base+url,{method,data,headers:{Authorization:'Bearer '+meta.pairs[name].token}});return{response,status:response.status(),data:await response.json()};}
++ async function day(context,name,date){const result=await api(context,name,'/api/usuario/diario/'+date);assert.equal(result.status,200);return result.data;}
++ async function ready(page){await page.locator('#loading-plan').waitFor({state:'hidden'});await page.waitForFunction(()=>document.querySelector('#diary-status').textContent.includes('Datos consultados'));}
++ async function confirmed(page,id='diary-status'){await page.waitForFunction(id=>document.getElementById(id).textContent==='Cambio confirmado por el servidor.',id);}
++ async function scan(page,name,width,selector='#plan-shopping'){
++  await page.setViewportSize({width,height:900});await page.locator(selector).scrollIntoViewIfNeeded();await page.evaluate(fs.readFileSync(require.resolve('axe-core/axe.min.js'),'utf8'));
++  const result=await page.evaluate(async selector=>({overflow:document.documentElement.scrollWidth>innerWidth,axe:(await axe.run(document.querySelector(selector),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}})).violations.map(row=>({id:row.id,nodes:row.nodes.map(node=>({target:node.target,summary:node.failureSummary}))}))}),selector);
++  const dom=await page.locator(selector).evaluate(element=>({html:element.outerHTML,attrs:Array.from(element.querySelectorAll('*')).map(node=>({tag:node.tagName,attributes:Object.fromEntries(Array.from(node.attributes).map(item=>[item.name,item.value])),text:node.children.length?null:node.textContent}))}));
++  fs.writeFileSync(path.join(out,name+'-attrs-text.json'),JSON.stringify(dom,null,2));fs.writeFileSync(path.join(out,name+'-axe.json'),JSON.stringify(result,null,2));await page.screenshot({path:path.join(out,name+'.png'),fullPage:true});report.screens.push({name,width,...result});assert.deepEqual(result.axe,[],name+' scoped axe');assert.equal(result.overflow,false,name+' overflow');
++ }
++ try{
++  browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--disable-background-networking','--disable-sync','--no-first-run']});
++  report.browser=browser.version();const context=await make(),page=await context.newPage();await login(page,'person');await ready(page);
++  await page.evaluate(legacy=>{for(const[key,value]of Object.entries(legacy))localStorage.setItem(key,value);},legacy);
++  const bootstrap=await api(context,'person','/api/usuario/diario'),today=bootstrap.data.today;report.serverToday=today;
++  assert.equal(await page.locator('#diary-date').inputValue(),today);assert.equal(bootstrap.data.days[0].version,0);assert.equal(await page.locator('#shopping-build').isEnabled(),false);
++  await page.locator('#btn-generar').click();await page.waitForFunction(()=>document.getElementById('personal-operation-message').textContent.startsWith('Tu plan está listo.'));
++  const individual=await api(context,'person','/api/usuario/mi-plan');assert.equal(individual.status,200);assert.ok(individual.data.plan_id>0);assert.equal((await day(context,'person',today)).version,0);
++  assert.equal(await page.locator('#meals-container h3').count(),4);assert.equal(await page.locator('#shopping-meals input:checked').count(),0);assert.match(await page.locator('#plan-source-label').textContent(),new RegExp(String(individual.data.plan_id)));
++  const protein=page.locator('#shopping-meals input[data-meal="desayuno"][data-group="proteinas"]').first();await protein.focus();await page.keyboard.press('Space');assert.equal(await protein.isChecked(),true);
++  await page.locator('#shopping-start').fill(today);await page.locator('#shopping-end').fill(today);await page.locator('#shopping-build').focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>document.getElementById('shopping-status').textContent.startsWith('Borrador de compra'));
++  const grams=individual.data.plan.desayuno.proteinas.opciones[0].gramos;assert.match(await page.locator('#shopping-items').textContent(),new RegExp(new Intl.NumberFormat('es-MX',{maximumSignificantDigits:15}).format(grams).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
++  assert.equal((await day(context,'person',today)).version,0);check('Actual personal VIEWER registers and real worker creates four meals/PDF; explicit keyboard shopping uses real grams without consumption or automatic choices');
++  let failRead=true;await page.route('**/api/usuario/mi-plan',route=>{if(failRead){failRead=false;return route.fulfill({status:503,json:{detail:{code:'synthetic_source_read_unavailable',message:'No se pudo revalidar la fuente. Vuelve a consultar.'}}});}return route.continue();});
++  await page.locator('#shopping-build').click();await page.waitForFunction(()=>document.getElementById('shopping-status').textContent.includes('No se pudo revalidar'));assert.equal((await day(context,'person',today)).version,0);assert.equal(await protein.isChecked(),true);await page.locator('#shopping-build').click();await page.waitForFunction(()=>document.getElementById('shopping-status').textContent.startsWith('Borrador de compra'));await page.unroute('**/api/usuario/mi-plan');check('Explicit503 source-read double is visible; retry revalidates the same chosen portions without recording consumption');
++  for(const width of [320,390,768,1440])await scan(page,'personal-shopping-'+width,width);
++  await page.locator('#btn-comidas').click();await page.locator('[data-diary-group="proteinas"]').first().check();await page.locator('#btn-comidas-save').click();await confirmed(page);const first=await day(context,'person',today);assert.equal(first.meals.desayuno.source_plan_id,individual.data.plan_id);assert.equal(first.meals.desayuno.foods[0].grams,grams);assert.equal(first.meals.desayuno.completed,false);
++  await page.locator('#shopping-read-recorded').click();await page.waitForFunction(()=>document.getElementById('shopping-recorded-status').textContent.includes('1 comidas registradas'));assert.ok((await page.locator('#shopping-recorded-items').textContent()).includes(' g'));check('Explicit personal consumption persists an immutable server snapshot and registered shopping reads only that snapshot');
++  const pdf=await context.request.get(base+'/api/usuario/descargar-pdf?plan_id='+individual.data.plan_id,{headers:{Authorization:'Bearer '+meta.pairs.person.token}});assert.equal(pdf.status(),200);const bytes=await pdf.body();assert.equal(bytes.subarray(0,5).toString(),'%PDF-');report.personalPdf={bytes:bytes.length,sha256:hash(bytes)};
++  const otherContext=await make(),other=await otherContext.newPage();await login(other,'other');await ready(other);assert.equal((await day(otherContext,'other',today)).version,0);check('A second authenticated account cannot read the first diary; exact private individual PDF remains authorized');
++  const secondContext=await make(),second=await secondContext.newPage();await login(second,'person');await ready(second);
++  await page.locator('#btn-agua').click();await page.locator('#water-input').fill('750');await page.locator('#btn-water-save').click();await confirmed(page);
++  await second.locator('#chk-des').click();await second.waitForFunction(()=>document.getElementById('diary-status').textContent.includes('otro dispositivo'));assert.equal(await second.locator('#diary-retry').isEnabled(),false);await second.locator('#diary-reload').click();await second.waitForFunction(()=>document.getElementById('diary-status').textContent.includes('datos actuales'));await second.locator('#diary-discard').click();assert.equal((await day(context,'person',today)).water_ml,750);check('Two independent contexts conflict by day CAS; readback preserves water and discard never automatically replays a meal');
++  await page.reload();await ready(page);let lost=true;await page.route('**/api/usuario/diario/*',async route=>{if(lost&&route.request().method()==='PATCH'){lost=false;const response=await route.fetch();assert.equal(response.status(),200);return route.abort('failed');}return route.continue();});await page.locator('#btn-agua').click();await page.locator('#water-input').fill('900');await page.locator('#btn-water-save').click();await page.waitForFunction(()=>document.getElementById('diary-status').textContent.includes('Puede haberse guardado'));assert.equal((await day(context,'person',today)).water_ml,900);await page.keyboard.press('Escape');await page.locator('#diary-reload').click();await page.waitForFunction(()=>document.getElementById('diary-status').textContent.includes('datos actuales'));await page.locator('#diary-discard').click();await page.unroute('**/api/usuario/diario/*');check('Lost HTTP ACK after real commit requires readback; no duplicate patch and own snapshot survives');
++  // Real invitation/accept/publication, mail transport alone is doubled.
++  const gymContext=await make(),gym=await gymContext.newPage();await login(gym,'gym');const issued=await api(gymContext,'gym','/api/clientes/'+meta.client_id+'/vinculacion/invitaciones','POST',{recipient_email:'r24-person@example.invalid',request_key:crypto.randomUUID()});assert.equal(issued.status,202);
++  for(let n=0;n<100&&!fs.existsSync(path.join(privateRoot,'mail.private.json'));n++)await delay(50);const mail=JSON.parse(fs.readFileSync(path.join(privateRoot,'mail.private.json'),'utf8')).at(-1);assert(mail.committed_pending&&mail.empty_tenant);await page.goto(mail.url);await page.locator('#invitation-inspect').click();await page.locator('#invitation-accept').waitFor({state:'visible'});await page.locator('#invitation-accept').click();await page.waitForFunction(()=>document.getElementById('invitation-status').textContent.includes('aceptado'));
++  const publication=await api(gymContext,'gym','/api/clientes/'+meta.client_id+'/vinculacion/'+issued.data.link_id+'/publicaciones','POST',{plan_id:meta.professional_plan_id,expected_link_version:2,expected_publication_version:0,expected_publication_id:null});assert.equal(publication.status,200);
++  await page.goto(base+'/mis-vinculos');await page.getByRole('button',{name:'Consultar plan de este vínculo',exact:true}).first().click();await page.locator('#member-publication').waitFor({state:'visible'});await page.waitForFunction(()=>document.getElementById('publication-diary-status').textContent.includes('Datos consultados'));
++  assert.equal(await page.locator('#member-publication-meals h3').count(),4);await page.locator('#shopping-meals input[data-meal="cena"][data-group="proteinas"]').first().check();await page.locator('#publication-diary-meal').selectOption('cena');
++  const sourceEntered=deferred(),sourceRelease=deferred();let sourceReads=0,publicationPatches=0;
++  const countPublication=request=>{if(request.method()==='PATCH'&&request.url().includes('/diario/'))publicationPatches++;};page.on('request',countPublication);
++  await page.route('**/api/usuario/vinculos/*/plan',async route=>{sourceReads++;const response=await route.fetch();sourceEntered.resolve();await sourceRelease.promise;return route.fulfill({response});});
++  await page.locator('#publication-diary-save').click();await sourceEntered.promise;assert.equal(await page.locator('#publication-diary-save').isEnabled(),false);await page.evaluate(()=>document.getElementById('publication-diary-save').click());sourceRelease.resolve();await confirmed(page,'publication-diary-status');
++  assert.equal(sourceReads,1);assert.equal(publicationPatches,1);page.off('request',countPublication);await page.unroute('**/api/usuario/vinculos/*/plan');const publishedDay=await day(context,'person',today),consumed=publishedDay.meals.cena;
++  assert.equal(consumed.source_context.publication_id,publication.data.publication_id);assert.equal(consumed.source_plan_id,meta.professional_plan_id);assert.equal(consumed.completed,false);assert.equal(publishedDay.water_ml,900);assert.deepEqual(publishedDay.meals.desayuno,first.meals.desayuno);check('Actual accepted R12 source records only explicit chosen foods in the recipient personal diary with exact link/publication proof; personal profile and prior snapshots remain separate');
++  await scan(page,'published-consumption-390',390);await scan(page,'published-consumption-768',768);
++  const exportData=await api(context,'person','/api/usuario/privacidad/exportar?limit=200');assert.equal(exportData.status,200);const ownRecord=exportData.data.personal_diary.records.find(record=>record.local_date===today);assert.deepEqual(ownRecord.meals.cena.source_context,consumed.source_context);assert.equal((await api(otherContext,'other','/api/usuario/privacidad/exportar?limit=200')).data.personal_diary.records.length,0);
++  const revoke=await api(context,'person','/api/usuario/vinculos/'+issued.data.link_id,'DELETE',{expected_version:2});assert.equal(revoke.status,200);assert.deepEqual((await day(context,'person',today)).meals.cena,consumed);await page.locator('#publication-diary-save').click();await page.waitForFunction(()=>document.getElementById('member-publication').hidden);assert.equal((await day(context,'person',today)).version,publishedDay.version);check('Withdrawal blocks fresh source access/write and clears publication UI, while own confirmed consumption and export metadata remain personal facts');
++  await page.goto(base+'/mi-plan');await ready(page);await page.locator('[data-diary-meal="cena"] button[data-remove-consumed]').click();await confirmed(page);assert.equal((await day(context,'person',today)).meals.cena,undefined);assert.equal((await day(context,'person',today)).water_ml,900);check('Recipient may explicitly remove their own consumed snapshot after source revocation without modifying professional data');
++  // A late source response and synchronous account replacement must clear all private drafts.
++  const entered=deferred(),release=deferred();await page.route('**/api/usuario/mi-plan',async route=>{const response=await route.fetch();entered.resolve();await release.promise;return route.fulfill({response});});const pending=page.locator('#shopping-build').click();await entered.promise;await page.evaluate(pair=>Api.saveTokens(pair),meta.pairs.other);release.resolve();await pending;await page.waitForFunction(()=>document.getElementById('shopping-meals').childElementCount===0);assert.equal(await page.locator('#shopping-items').textContent(),'');assert.equal(await page.locator('#shopping-recorded-items').textContent(),'');await page.unroute('**/api/usuario/mi-plan');check('Same-document account replacement synchronously clears source/shopping and rejects a retained old-account source response');
++  await login(page,'person');await ready(page);await page.evaluate(legacy=>{for(const[key,value]of Object.entries(legacy))localStorage.setItem(key,value);},legacy);
++  if(await page.locator('#btn-hamburger').isVisible()&&await page.locator('#btn-hamburger').getAttribute('aria-expanded')==='false')await page.locator('#btn-hamburger').click();
++  await page.locator('#btn-logout').click();await page.waitForURL('**/login-usuario');assert.deepEqual(await page.evaluate(keys=>Object.fromEntries(keys.map(key=>[key,window.__r24NativeGet(key)])),Object.keys(legacy)),legacy);
++  await login(page,'person');await ready(page);assert.match(await page.locator('#diary-water-current').textContent(),/900/);assert.equal(await page.locator('[data-diary-meal="desayuno"]').count(),1);check('Actual logout/revocation and real login preserve own consumption and exact unidentified legacy bytes without reading/importing them');
++  assert.deepEqual(report.pageErrors,[]);
++ }finally{for(const context of contexts)await context.close();if(browser)await browser.close();fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));}
++ console.log(JSON.stringify({checks:report.checks.length,screens:report.screens.length,pageErrors:report.pageErrors.length,out}));
++})().catch(error=>{console.error(String(error.stack||error).replace(/#token=[A-Za-z0-9_-]+/g,'#token=[PRIVATE]').replace(/Bearer\s+[A-Za-z0-9_.-]+/g,'Bearer [PRIVATE]'));process.exitCode=1;});
+diff --git a/tests/e2e/daily_plan_controls.cjs b/tests/e2e/daily_plan_controls.cjs
+new file mode 100644
+index 0000000..5af71e2
+--- /dev/null
++++ b/tests/e2e/daily_plan_controls.cjs
+@@ -0,0 +1,66 @@
++/* Mounted R24 consumer with a minimal DOM and in-memory transport. Not HTTP/browser evidence. */
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const base=path.resolve(__dirname,'../..'),clone=value=>JSON.parse(JSON.stringify(value));
++const flush=async()=>{for(let n=0;n<20;n++)await Promise.resolve();};
++const deferred=()=>{let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return{promise,resolve,reject};};
++class Element{
++ constructor(tag='div',id=''){Object.assign(this,{tagName:tag.toUpperCase(),id,children:[],listeners:{},dataset:{},attributes:{},value:'',disabled:false,hidden:false,checked:false,_text:''});}
++ set textContent(value){this._text=String(value);this.children=[];}get textContent(){return this._text+this.children.map(child=>child.textContent).join(' ');}
++ append(child){this.children.push(child);}replaceChildren(...children){this.children=children;this._text='';}
++ setAttribute(name,value){this.attributes[name]=value;}focus(){this.focused=true;}
++ addEventListener(name,callback){(this.listeners[name]||=[]).push(callback);}
++ all(){return this.children.flatMap(child=>[child,...child.all()]);}
++ querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
++ querySelectorAll(selector){
++  const parts=selector.split(' ');if(parts.length>1){const root=this.querySelector(parts[0]);return root?root.querySelectorAll(parts.slice(1).join(' ')):[];}
++  return this.all().filter(item=>selector.split(',').some(part=>part[0]==='#'?item.id===part.slice(1):part==='[data-remove-consumed]'?item.dataset.removeConsumed!==undefined:item.tagName.toLowerCase()===part));
++ }
++ async fire(name){if(this.disabled)return;for(const callback of this.listeners[name]||[])await callback({target:this});}
++}
++function fixture(options={}){
++ const root=new Element('section','plan-shopping'),map={},events={};
++ const controls={'shopping-start':'input','shopping-end':'input','shopping-build':'button','shopping-read-recorded':'button','publication-diary-day':'input','publication-diary-meal':'select','publication-diary-save':'button','publication-diary-reload':'button','publication-diary-retry':'button','publication-diary-discard':'button'};
++ const publication=new Element('section','publication-consumption');root.append(publication);map[publication.id]=publication;
++ for(const id of ['shopping-status','shopping-items','shopping-recorded-items','shopping-recorded-status','shopping-meals','plan-source-label','shopping-recorded-section',...Object.keys(controls),'publication-diary-status','publication-diary-records']){
++  const item=new Element(controls[id]||'div',id);map[id]=item;(id.startsWith('publication-')?publication:root).append(item);
++ }
++ map['publication-diary-meal'].value='desayuno';
++ const calls=[],zero={kcal:0,protein_g:0,carbs_g:0,fat_g:0};let valid=true,checks=0,readSource=async()=>clone(source),readRecorded=async()=>({days:[]});
++ const day={local_date:'2026-10-19',today:'2026-10-19',timezone:'America/Mexico_City',version:0,water_ml:0,meals:{},totals:zero};
++ const source={key:'publication:one',label:'Synthetic exact source',link_id:'00000000-0000-0000-0000-000000000001',publication_id:'00000000-0000-0000-0000-000000000002',link_version:2,publication_version:1,
++  plan:Object.fromEntries(['desayuno','almuerzo','comida','cena'].map(name=>[name,{alimentos:{huevo:25.5}}]))};
++ const failure=()=>Object.assign(new Error('Context replaced'),{code:'session_changed'});
++ const context={check(){checks++;options.onCheck?.(checks,()=>{valid=false;});if(!valid)throw failure();},async read(task){this.check();const value=await task();this.check();return value;}};
++ const Api={usuario:{validarContexto:()=>context.check(),contexto:async()=>{calls.push('context');return{revision:1};},verificarContexto:async()=>{context.check();return{};},
++  diarioHoy:async()=>{calls.push('bootstrap');return{today:day.today,timezone:day.timezone,days:[clone(day)]};},diarioDia:async()=>{calls.push('day');return clone(day);},guardarDiario:async(_date,body)=>{calls.push(clone(body));return{...clone(day),version:body.expected_version+1};}}};
++ const window={addEventListener:(name,callback)=>(events[name]||=[]).push(callback)};
++ const sandbox=vm.createContext({window,Api,Intl,Date,setTimeout,clearTimeout,document:{createElement:tag=>new Element(tag)}});
++ for(const file of ['plan-diario-datos.js','plan-diario-ui.js','usuario-diario.js','plan-publicacion-consumo.js']){
++  vm.runInContext(fs.readFileSync(path.join(base,'web/static/js',file),'utf8'),sandbox);for(const name of ['PlanDayData','PlanDayUI','PersonalDiary','PublicationConsumption'])if(window[name])sandbox[name]=window[name];
++ }
++ let unavailable=0;const shopping=window.PlanDayUI.mount({root,context,readSource:()=>readSource(),readRecorded:()=>readRecorded(),onSourceUnavailable:()=>unavailable++});shopping.setSource(clone(source),day.today);
++ return{root,map,shopping,source,context,Api,calls,sandbox,day,
++  change(){valid=false;for(const handler of events['metodobase-session-changed']||[])handler({});},
++  setReader(fn){readSource=fn;},setRecorded(fn){readRecorded=fn;},get unavailable(){return unavailable;},
++  widget(canRecord=true){return window.PublicationConsumption.mount({root,scope:context,shopping,canRecord});},
++  choose(meal='desayuno'){return map['shopping-meals'].querySelectorAll('input').find(input=>input.dataset.meal===meal);}};
++}
++const tests=[];const test=(name,body)=>tests.push({name,body});
++test('Opening the source selects nothing, creates no consumption, and retains real decimal grams',()=>{const e=fixture();assert.equal(e.choose().checked,false);assert.match(e.map['shopping-meals'].textContent,/25\.5 g/);assert.equal(e.calls.length,0);});
++test('An explicit selection and period prepare only a shopping draft',async()=>{const e=fixture();e.choose().checked=true;await e.choose().fire('change');e.map['shopping-end'].value='2026-10-21';await e.map['shopping-build'].fire('click');assert.match(e.map['shopping-items'].textContent,/76\.5 g/);assert.match(e.map['shopping-status'].textContent,/3 días/);assert.equal(e.calls.length,0);});
++test('Canonical catalog confirmation merges only equal identities, preserving selections',async()=>{const e=fixture();for(const name of ['desayuno','cena']){e.choose(name).checked=true;await e.choose(name).fire('change');}e.shopping.setCatalog(['huevo']);await e.map['shopping-build'].fire('click');assert.equal(e.map['shopping-items'].children.length,1);assert.match(e.map['shopping-items'].textContent,/51 g/);assert.equal(e.choose().checked,true);});
++test('Equal unverified labels stay separate lines',async()=>{const e=fixture();for(const name of ['desayuno','cena']){e.choose(name).checked=true;await e.choose(name).fire('change');}await e.map['shopping-build'].fire('click');assert.equal(e.map['shopping-items'].children.length,2);});
++test('Replacement during a retained source response clears selectors and does not render a draft',async()=>{const e=fixture(),gate=deferred();e.setReader(()=>gate.promise);const pending=e.map['shopping-build'].fire('click');e.change();gate.resolve(clone(e.source));await pending;assert.equal(e.map['shopping-items'].textContent,'');assert.equal(e.map['shopping-meals'].textContent,'');assert.equal(e.shopping.source,null);});
++test('Withdrawal is visible and clears cached source rather than using an old DTO',async()=>{const e=fixture();e.setReader(async()=>{throw Object.assign(new Error('Unavailable'),{status:404});});await e.map['shopping-build'].fire('click');assert.equal(e.shopping.source,null);assert.equal(e.unavailable,1);assert.equal(e.map['shopping-items'].textContent,'');});
++test('Publication replacement requires a new explicit selection',async()=>{const e=fixture();e.setReader(async()=>({...clone(e.source),key:'different-publication'}));await e.map['shopping-build'].fire('click');assert.equal(e.shopping.source,null);assert.equal(e.unavailable,1);assert.equal(e.map['shopping-meals'].textContent,'');});
++test('Recorded totals use snapshots and never the displayed menu',async()=>{const e=fixture();e.setRecorded(async()=>({days:[{local_date:'2026-10-19',meals:{cena:{foods:[{food_id:'arroz',grams:17.25}],completed:false}}}]}));await e.map['shopping-read-recorded'].fire('click');assert.match(e.map['shopping-recorded-items'].textContent,/arroz.*17\.25 g/);assert.equal(e.map['shopping-items'].textContent,'');assert.equal(e.calls.length,0);});
++test('A failed recorded query exposes an error instead of an empty successful list',async()=>{const e=fixture();e.setRecorded(async()=>{throw Error('Offline');});await e.map['shopping-read-recorded'].fire('click');assert.match(e.map['shopping-recorded-status'].textContent,/No se pudo consultar/);assert.equal(e.map['shopping-recorded-items'].textContent,'');});
++test('A context failure inside controls cannot overwrite invalidated status or dispatch',async()=>{let armed=false;const e=fixture({onCheck(_n,invalidate){if(armed)invalidate();}});armed=true;await e.map['shopping-build'].fire('click');assert.equal(e.shopping.source,null);assert.match(e.map['shopping-status'].textContent,/cambió/);assert.equal(e.calls.length,0);});
++test('Reader-only OWNER capability never requests or adopts a personal diary',async()=>{const e=fixture();e.widget(false);await flush();assert.equal(e.calls.length,0);assert.equal(e.map['publication-diary-save'].disabled,true);assert.match(e.map['publication-diary-status'].textContent,/no crea un espacio personal/);});
++test('Personal context bootstrap failure leaves all diary actions disabled',async()=>{const e=fixture();e.Api.usuario.contexto=async()=>{throw Error('Unavailable');};e.widget();await flush();assert.equal(e.map['publication-diary-reload'].disabled,true);assert.equal(e.map['publication-diary-save'].disabled,true);assert.equal(e.map['publication-diary-meal'].disabled,true);assert.equal(e.calls.length,0);});
++test('Publication consumption uses current exact IDs and diary CAS only after an explicit click',async()=>{const e=fixture();e.widget();await flush();assert.deepEqual(e.calls,['context','bootstrap']);e.choose().checked=true;await e.choose().fire('change');await e.map['publication-diary-save'].fire('click');const body=e.calls.find(value=>typeof value==='object');assert.equal(body.operation,'publication_meal');assert.equal(body.link_id,e.source.link_id);assert.equal(body.publication_id,e.source.publication_id);assert.equal(body.expected_link_version,2);assert.equal(body.expected_publication_version,1);assert.equal(body.expected_version,0);assert.equal(body.selections.include_fixed_menu,true);});
++test('A late personal context response cannot expose old personal snapshots',async()=>{const e=fixture(),gate=deferred();e.Api.usuario.contexto=()=>gate.promise;e.widget();e.change();gate.resolve({revision:1});await flush();assert.equal(e.map['publication-diary-records'].textContent,'');assert.equal(e.calls.includes('bootstrap'),false);});
++test('Two rapid publication-save actions during source validation cannot register twice',async()=>{const e=fixture(),first=deferred(),second=deferred();e.widget();await flush();e.choose().checked=true;await e.choose().fire('change');let reads=0;e.setReader(()=>++reads===1?first.promise:second.promise);const one=e.map['publication-diary-save'].fire('click'),two=e.map['publication-diary-save'].fire('click');first.resolve(clone(e.source));await one;second.resolve(clone(e.source));await two;assert.equal(e.calls.filter(value=>typeof value==='object').length,1);});
++test('Publication source validation captures the clicked selection and disables day changes',async()=>{const e=fixture(),gate=deferred();e.widget();await flush();e.choose().checked=true;await e.choose().fire('change');e.setReader(()=>gate.promise);const pending=e.map['publication-diary-save'].fire('click');assert.equal(e.map['publication-diary-day'].disabled,true);e.choose().checked=false;await e.choose().fire('change');gate.resolve(clone(e.source));await pending;assert.equal(e.calls.find(value=>typeof value==='object').selections.include_fixed_menu,true);assert.equal(e.map['publication-diary-day'].disabled,false);});
++test('An empty publication date restores the observed date with visible error and no write',async()=>{const e=fixture();e.widget();await flush();e.map['publication-diary-day'].value='';await e.map['publication-diary-day'].fire('change');assert.equal(e.map['publication-diary-day'].value,e.day.today);assert.match(e.map['publication-diary-status'].textContent,/No se cambió el día/);assert.equal(e.calls.filter(value=>typeof value==='object').length,0);});
++(async()=>{const results=[];for(const entry of tests){try{await entry.body();results.push({case:entry.name,passed:true});}catch(error){results.push({case:entry.name,passed:false,error:error.stack});}}console.log(JSON.stringify({scope:'Minimal DOM and memory transport only; no HTTP claim',passed:results.filter(value=>value.passed).length,total:results.length,results},null,2));if(results.some(value=>!value.passed))process.exitCode=1;})();
+diff --git a/tests/e2e/daily_plan_data.cjs b/tests/e2e/daily_plan_data.cjs
+new file mode 100644
+index 0000000..a747669
+--- /dev/null
++++ b/tests/e2e/daily_plan_data.cjs
+@@ -0,0 +1,51 @@
++/* Pure R24 quantities and source selections. No browser/network/clinical claims. */
++const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
++const source=path.resolve(__dirname,'../../web/static/js/plan-diario-datos.js'),context={window:{}};
++vm.createContext(context);if(fs.existsSync(source))vm.runInContext(fs.readFileSync(source,'utf8'),context);
++const model=context.window.PlanDayData,tests=[];const test=(name,body)=>tests.push({name,body});
++const option=(id,grams)=>({alimento:id,gramos:grams,equivalencia:'2 cucharadas (texto que no se convierte)'});
++const meal=()=>({tipo_plan:'opciones',proteinas:{opciones:[option('pollo',.25),option('pescado',75)]},carbohidratos:{opciones:[option('arroz',30)]},grasas:{opciones:[]},vegetales:[option('brocoli',12.5)]});
++const plan=()=>Object.fromEntries(['desayuno','almuerzo','comida','cena'].map(name=>[name,meal()]));
++test('Four real meals preserve decimal grams and equivalence labels',()=>{
++  const result=model.menu(plan(),['pollo','arroz','brocoli']);assert.equal(result.length,4);
++  assert.equal(result[0].groups.proteinas[0].grams,.25);assert.equal(result[0].groups.proteinas[0].unit,'g');assert.match(result[0].groups.proteinas[0].equivalence,/cucharadas/);
++});
++test('Opening a menu never selects or records anything',()=>assert.equal(model.select(model.menu(plan(),['pollo']),{}).length,0));
++test('Only explicitly selected options and vegetables enter a draft',()=>{
++  const rows=model.select(model.menu(plan(),['pollo','arroz','brocoli']),{desayuno:{proteinas:0,include_vegetables:true}});
++  assert.equal(rows.length,2);assert.equal(rows[0].food_id,'pollo');assert.equal(rows[1].food_id,'brocoli');
++});
++test('Repetition is an explicit inclusive date period, using quantity not equivalence text',()=>{
++  const rows=model.select(model.menu(plan(),['pollo']),{desayuno:{proteinas:0}}),result=model.shopping(rows,'2026-10-19','2026-10-21');
++  assert.equal(result.days,3);assert.equal(result.items[0].grams,.75);assert.equal(result.items[0].unit,'g');assert.equal(result.start,'2026-10-19');
++});
++test('Equal canonical IDs merge across meals; different IDs do not',()=>{
++  const rows=model.select(model.menu(plan(),['pollo','arroz']),{desayuno:{proteinas:0},cena:{proteinas:0,carbohidratos:0}}),r=model.shopping(rows,'2026-10-19','2026-10-19');
++  assert.equal(r.items.length,2);assert.equal(r.items.find(row=>row.food_id==='pollo').grams,.5);
++});
++test('Unverified labels remain separate lines even when equal',()=>{
++  const rows=model.select(model.menu(plan()),{desayuno:{proteinas:0},cena:{proteinas:0}}),r=model.shopping(rows,'2026-10-19','2026-10-19');
++  assert.equal(r.items.length,2);assert.equal(r.items[0].food_id,null);
++});
++for(const value of ['30 g',NaN,Infinity,-1,0,null,true])test('Ambiguous or invalid grams never become a zero portion: '+String(value),()=>{
++  const p=plan();p.desayuno.proteinas.opciones[0].gramos=value;const r=model.menu(p,['pollo']);assert.equal(r[0].available,false);
++  assert.throws(()=>model.select(r,{desayuno:{proteinas:0}}));
++});
++test('Fixed canonical numeric menu needs an explicit complete-menu choice',()=>{
++  const p=plan();p.desayuno={alimentos:{pollo:25.5,arroz:50}};const menu=model.menu(p,['pollo','arroz']);
++  assert.equal(model.select(menu,{}).length,0);const rows=model.select(menu,{desayuno:{include_fixed_menu:true}});assert.equal(rows.length,2);assert.equal(rows[0].grams,25.5);
++  assert.throws(()=>model.select(menu,{desayuno:{include_fixed_menu:true,proteinas:0}}));
++});
++test('Free-form legacy recipes are unavailable instead of parsed into food quantities',()=>{
++  const p=plan();p.cena={alimentos:{'Plato a gusto':'una porción'}};assert.equal(model.menu(p)[3].available,false);
++});
++for(const pair of [['2026-02-30','2026-03-01'],['2026-10-21','2026-10-19'],['2026-01-01','2026-03-04'],['today','today']])test('Date range rejected: '+pair.join('/'),()=>assert.throws(()=>model.shopping([],pair[0],pair[1])));
++test('Existing 62-day calendar transfer bound is accepted, without a commercial limit',()=>assert.equal(model.shopping([],'2026-01-01','2026-03-03').days,62));
++test('Recorded list sums consumed snapshots only, regardless of completed checkbox',()=>{
++  const value={days:[{local_date:'2026-10-19',meals:{desayuno:{completed:false,source_plan_id:1,foods:[{food_id:'pollo',grams:5}]}}},{local_date:'2026-10-20',meals:{cena:{completed:true,source_plan_id:2,foods:[{food_id:'pollo',grams:7}]}}}]};
++  const result=model.recorded(value);assert.equal(result.items[0].grams,12);assert.equal(result.items[0].unit,'g');assert.equal(result.recordedMeals,2);
++});
++test('Missing meals are visible as absent data, never fake empty successes',()=>{const p=plan();delete p.comida;assert.equal(model.menu(p)[2].available,false);});
++test('Out-of-range selected index never silently substitutes another option',()=>assert.throws(()=>model.select(model.menu(plan()),{desayuno:{proteinas:99}})));
++(async()=>{const results=[];for(const entry of tests){try{await entry.body();results.push({name:entry.name,passed:true});}catch(error){results.push({name:entry.name,passed:false,error:error.message});}}
++console.log(JSON.stringify({scope:'Pure quantities/selections only, no substitutions or clinical authority',passed:results.filter(r=>r.passed).length,total:results.length,results},null,2));if(results.some(r=>!r.passed))process.exitCode=1;})();
+diff --git a/tests/e2e/daily_plan_remove_review.cjs b/tests/e2e/daily_plan_remove_review.cjs
+new file mode 100644
+index 0000000..3154a8d
+--- /dev/null
++++ b/tests/e2e/daily_plan_remove_review.cjs
+@@ -0,0 +1,13 @@
++/* Focused real mounted removal canary, using only the own R24 fixture. */
++const {chromium}=require('playwright-core'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const privateRoot=process.env.R24_PRIVATE,meta=JSON.parse(fs.readFileSync(path.join(privateRoot,'fixture.private.json'),'utf8'));
++if(meta.origin!=='http://127.0.0.1:8800')throw Error('Own origin only');
++const output=process.env.R24_REMOVE_OUTPUT;if(!output||fs.existsSync(output))throw Error('New output file required');
++(async()=>{let browser;const proof={scope:'Own real auth/HTTP/diary and mounted personal removal; existing consumed publication row required',passed:false};try{
++ browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});const context=await browser.newContext();await context.route('**/*',route=>new URL(route.request().url()).origin===meta.origin?route.continue():route.abort());const page=await context.newPage();page.on('dialog',dialog=>dialog.accept());
++ await page.goto(meta.origin+'/login-usuario');await page.locator('#loginForm input[name=email]').fill('r24-person@example.invalid');await page.locator('#loginForm input[name=password]').fill(meta.password);await page.locator('#loginForm button[type=submit]').click();await page.waitForURL('**/mi-plan');await page.locator('#loading-plan').waitFor({state:'hidden'});await page.waitForFunction(()=>document.getElementById('diary-status').textContent.includes('Datos consultados'));
++ let writes=0;page.on('request',request=>{if(request.method()==='PATCH'&&request.url().includes('/diario/'))writes++;});
++ const row=page.locator('[data-diary-meal="cena"]');assert.equal(await row.count(),1);await row.locator('button[data-remove-consumed]').click();await page.waitForTimeout(250);
++ proof.after=await page.evaluate(()=>({status:document.getElementById('diary-status').textContent,busy:document.getElementById('diary-section').getAttribute('aria-busy'),rowStillPresent:!!document.querySelector('[data-diary-meal="cena"]')}));proof.patchRequests=writes;
++ assert.equal(writes,1,'Explicit own removal must dispatch one PATCH');await page.waitForFunction(()=>document.getElementById('diary-status').textContent==='Cambio confirmado por el servidor.');assert.equal(await row.count(),0);proof.passed=true;
++ }catch(error){proof.error=error.message;process.exitCode=1;}finally{if(browser)await browser.close();fs.writeFileSync(output,JSON.stringify(proof,null,2));}console.log(JSON.stringify({passed:proof.passed,patchRequests:proof.patchRequests}));})();
+diff --git a/tests/e2e/daily_plan_server.py b/tests/e2e/daily_plan_server.py
+new file mode 100644
+index 0000000..c5de5e9
+--- /dev/null
++++ b/tests/e2e/daily_plan_server.py
+@@ -0,0 +1,135 @@
++"""Own R24 loopback runtime30; actual auth, worker, objects, publication and diary.
++
++Migrates only a newly allocated PostgreSQL UUID. No privileged HTTP test
++endpoint. Invitation delivery has a no-send boundary double with a committed
++database witness; its fragment is written only to a private Temp channel.
++"""
++import sys
++sys.dont_write_bytecode=True
++import argparse,atexit,hashlib,json,os,re,threading,time,uuid
++from datetime import datetime,timedelta,timezone
++from html import unescape
++from pathlib import Path
++from urllib.request import build_opener,ProxyHandler,Request
++
++ROOT=Path(__file__).resolve().parents[2]
++sys.path.insert(0,str(ROOT))
++
++
++def main():
++    parser=argparse.ArgumentParser();parser.add_argument('--private',required=True);parser.add_argument('--config',required=True);args=parser.parse_args()
++    import tempfile
++    private=Path(args.private).resolve()
++    assert private.is_dir() and private.is_relative_to(Path(tempfile.gettempdir()).resolve())
++    from tests.isolation import prepare_environment,block_external_sockets
++    for key in ('_METODOBASE_TEST_ROOT','METODOBASE_TEST_DATABASE_URL','METODOBASE_TEST_REDIS_URL','PYTEST_XDIST_WORKER'):
++        os.environ.pop(key,None)
++    own=prepare_environment(discard_inherited=True).resolve();block_external_sockets()
++    origin='http://127.0.0.1:8800';os.environ.update(BASE_URL=origin,CORS_ORIGINS=origin)
++    configuration=json.loads(Path(args.config).read_text(encoding='utf-8-sig'))
++    from tests.isolation import validate_postgres_test_url
++    for name in ('METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_PG_BIN'):os.environ[name]=configuration[name]
++    for name in ('METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL'):validate_postgres_test_url(os.environ[name])
++    from tests.integration_schema_migrations import run_migration,migration_database
++    from tests.integration_provider_subjects import application_engine
++    from types import SimpleNamespace
++    generator=migration_database.__wrapped__(SimpleNamespace(param='postgresql'),own)
++    url,admin=next(generator);restricted=None;server=None;thread=None;closed=False
++    resource={'owned_database':admin.url.database,'port':8800,'pid':os.getpid()}
++    (private/'resource.json').write_text(json.dumps(resource,indent=2),encoding='utf8')
++    def cleanup():
++        nonlocal closed
++        if closed:return
++        if server is not None:server.should_exit=True
++        if thread is not None:thread.join(10)
++        if restricted is not None:restricted.dispose()
++        generator.close();closed=True
++        import psycopg2
++        with psycopg2.connect(os.environ['METODOBASE_TEST_MIGRATOR_URL'].replace('postgresql+psycopg2://','postgresql://',1)) as control,control.cursor() as cursor:
++            cursor.execute('SELECT count(*) FROM pg_database WHERE datname=%s',(resource['owned_database'],));assert cursor.fetchone()[0]==0
++        resource['owned_database_absent_after']=True
++        (private/'resource.json').write_text(json.dumps(resource,indent=2),encoding='utf8')
++    atexit.register(cleanup)
++    run_migration(url,'db_bootstrap.py','--revision','20261019_personal_history_index')
++    bootstrap=application_engine(url,admin);restricted_url=bootstrap.url.render_as_string(hide_password=False);bootstrap.dispose()
++    os.environ['DATABASE_URL']=restricted_url
++    from sqlalchemy import select,text
++    from sqlalchemy.orm import Session
++    from web.database import engine as database
++    database._engine=None;database._SessionLocal=None
++    from web.database.models import Base,Usuario,UserRole,Subscription,ClientLinkInvitation
++    from web.database.schema_control import verify_runtime_schema,expected_head
++    from web.database.tenant_context import current_tenant
++    from web.services import email_service
++    from web.settings import get_settings
++    engine=database.get_engine();restricted=engine
++    assert engine.dialect.name=='postgresql' and engine.url.database==resource['owned_database']
++    verify_runtime_schema(engine,require_revision=True)
++    with engine.connect() as connection:
++        revision=connection.execute(text('SELECT version_num FROM alembic_version')).scalar_one()
++        assert tuple(connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one())==(False,False,False,False)
++        assert connection.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
++        assert connection.execute(text("SELECT count(*) FROM pg_class WHERE relname IN ('personal_diary_days','client_account_links','client_plan_publications') AND relrowsecurity AND relforcerowsecurity")).scalar_one()==3
++    resource.update(role_super=False,role_bypass=False,app_database_owner=False,force_rls_families=3,runtime_revision=revision)
++    assert revision==expected_head()=='20261019_personal_history_index'
++    settings=get_settings();settings.RESEND_API_KEY='synthetic-no-send';mail=[];mail_lock=threading.Lock()
++    def no_send(recipient,subject,html,**_kwargs):
++        if '/auth/accept-client-link#token=' not in html:return True
++        assert current_tenant.get()==''
++        found=re.search(re.escape(origin)+r'/auth/accept-client-link#token=([A-Za-z0-9_-]{43})',unescape(html));assert found
++        with Session(admin) as db:
++            invitation=db.scalar(select(ClientLinkInvitation).where(ClientLinkInvitation.recipient_email==recipient,ClientLinkInvitation.status=='pending').order_by(ClientLinkInvitation.created_at.desc()))
++            assert invitation is not None;link_id=invitation.link_id
++        with mail_lock:
++            mail.append({'recipient':recipient,'url':found.group(0),'link_id':link_id,'committed_pending':True,'empty_tenant':True})
++            (private/'mail.private.json').write_text(json.dumps(mail),encoding='utf8')
++        return True
++    email_service._send=no_send
++    from web.main_web import create_app
++    import uvicorn
++    server=uvicorn.Server(uvicorn.Config(create_app(),host='127.0.0.1',port=8800,log_level='warning'))
++    thread=threading.Thread(target=server.run,daemon=True);thread.start()
++    for _ in range(200):
++        if server.started:break
++        if not thread.is_alive():raise RuntimeError('Own R24 server failed')
++        time.sleep(.05)
++    assert server.started
++    opener=build_opener(ProxyHandler({}));password='Synthetic-R24-Password-2026!';pairs={}
++    def call(path,payload=None,token=None,method='POST',key=None):
++        headers={'Content-Type':'application/json'}
++        if token:headers['Authorization']='Bearer '+token
++        if key:headers['Idempotency-Key']=key
++        request=Request(origin+path,data=None if payload is None else json.dumps(payload).encode(),headers=headers,method=method)
++        with opener.open(request,timeout=120) as response:
++            assert response.status in (200,201,202);return json.load(response)
++    profile={'edad':30,'peso_kg':75,'estatura_cm':175,'sexo':'M','objetivo':'mantenimiento','nivel_actividad':'moderada'}
++    identities={}
++    for name in ('person','other','gym'):
++        pairs[name]=call('/api/auth/registro',{'email':'r24-'+name+'@example.invalid','password':password,'nombre':'Synthetic R24 '+name,'tipo':'gym' if name=='gym' else 'usuario'})
++        me=call('/api/auth/me',token=pairs[name]['token'],method='GET');identities[name]={'id':me['id'],'role':me['role'],'tipo':me['tipo'],'team_gym_id':me.get('team_gym_id')}
++        if name!='gym':
++            assert me['role']=='viewer' and me['tipo']=='usuario'
++            call('/api/usuario/perfil',profile,pairs[name]['token'],'PUT')
++        with Session(admin) as db:
++            db.add(Subscription(gym_id=me['id'],plan='clinica' if name=='gym' else 'pro_usuario',status='active',current_period_end=datetime.now(timezone.utc)+timedelta(days=30)));db.commit()
++    client=call('/api/clientes',{'nombre':'Synthetic published source',**profile},pairs['gym']['token'])
++    client_id=client.get('id_cliente') or client.get('cliente',{}).get('id_cliente');assert client_id
++    plan=call('/api/generar-plan',{'id_cliente':client_id,'plan_numero':1,'tipo_plan':'opciones'},pairs['gym']['token'],key=str(uuid.uuid4()))
++    assert isinstance(plan['plan_id'],int)
++    (private/'fixture.private.json').write_text(json.dumps({'origin':origin,'password':password,'pairs':pairs,'identities':identities,'client_id':client_id,'professional_plan_id':plan['plan_id']}),encoding='utf8')
++    names=sorted({str(p.relative_to(ROOT)).replace('\\','/') for folder in ('web','api','core','src','config') for p in (ROOT/folder).rglob('*') if p.is_file() and p.suffix in ('.py','.js','.html','.css') and '__pycache__' not in p.parts})
++    names+=['requirements_web.lock','requirements_web-windows.lock','requirements-test.lock','requirements-test-windows.lock','tests/e2e/daily_plan_server.py']
++    hashes=lambda:{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in names}
++    before=hashes();startup={'fixture':'r24-daily-plan','pid':os.getpid(),'origin':origin,'runtime_revision':revision,'model_tables':len(Base.metadata.tables),
++        'preparation':'actual Alembic30 on own UUID PostgreSQL restricted runtime role, real HTTP registrations/worker, synthetic persisted subscriptions only, no-send email boundary',
++        'external_sockets':'blocked before product imports; not an OS sandbox','sources':before}
++    (private/'startup.json').write_text(json.dumps(startup,indent=2),encoding='utf8');print(json.dumps({'fixture':startup['fixture'],'pid':os.getpid(),'origin':origin,'runtime_revision':revision,'source_count':len(before)}),flush=True)
++    try:
++        while thread.is_alive() and not (private/'stop').exists():time.sleep(.2)
++    finally:
++        server.should_exit=True;thread.join(10);assert not thread.is_alive()
++        after=hashes();(private/'close.json').write_text(json.dumps({'pid':os.getpid(),'server_thread_closed':True,'source_before':before,'source_after':after,'sources_stable':before==after},indent=2),encoding='utf8')
++        cleanup()
++
++
++if __name__=='__main__':main()
+diff --git a/tests/e2e/daily_plan_snapshot.cjs b/tests/e2e/daily_plan_snapshot.cjs
+new file mode 100644
+index 0000000..d7fb60f
+--- /dev/null
++++ b/tests/e2e/daily_plan_snapshot.cjs
+@@ -0,0 +1,10 @@
++/* New publication provenance parser cases; reuse immutable18 diary controller criteria. */
++const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
++const source=fs.readFileSync(path.join(__dirname,'personal_diary_controller.cjs'),'utf8'),marker='(async()=>{const results=[];';
++if(source.split(marker).length!==2)throw Error('Unexpected controller fixture runner');
++const additions=String.raw`
++const provenance=()=>({kind:'publication',link_id:'00000000-0000-0000-0000-000000000001',publication_id:'00000000-0000-0000-0000-000000000002',link_version:2,publication_version:1,published_at:'2026-10-19T18:00:00+00:00'});
++test('Exact optional publication provenance is retained only inside the own snapshot',async()=>{const e=fixture(),value=empty();value.version=1;value.meals.desayuno={...meal(),source_context:provenance()};value.totals=value.meals.desayuno.totals;e.shared.days.set(value.local_date,value);await e.diary.bootstrap();assert.equal(e.diary.state,'ready');assert.deepEqual(clone(e.diary.day.meals.desayuno.source_context),provenance());assert.equal(e.shared.calls.length,0);});
++for(const [label,change]of [['foreign profile field',{gym_id:'must-not-export'}],['uppercase ID',{link_id:'AAAAAAAA-0000-0000-0000-000000000001'}],['boolean version',{link_version:true}],['missing zone',{published_at:'2026-10-19T18:00:00'}],['invalid date',{published_at:'2026-02-30T18:00:00Z'}],['different kind',{kind:'professional_profile'}]])test('Unverified source context rejects whole snapshot: '+label,async()=>{const e=fixture(),value=empty();value.version=1;value.meals.desayuno={...meal(),source_context:{...provenance(),...change}};value.totals=value.meals.desayuno.totals;e.shared.days.set(value.local_date,value);await e.diary.bootstrap();assert.equal(e.diary.state,'error');assert.equal(e.diary.day,null);assert.equal(e.views.length,0);});
++`;
++const candidate=new Module(__filename,module);candidate.filename=__filename;candidate.paths=module.paths;candidate._compile(source.replace(marker,additions+'\n'+marker),__filename);
+diff --git a/tests/integration_daily_plan_publication.py b/tests/integration_daily_plan_publication.py
+new file mode 100644
+index 0000000..9c1ad7f
+--- /dev/null
++++ b/tests/integration_daily_plan_publication.py
+@@ -0,0 +1,71 @@
++"""One owned migrated head30 UUID, restricted app role, real diary/publication HTTP."""
++import hashlib
++import json
++import os
++from pathlib import Path
++from types import SimpleNamespace
++
++from sqlalchemy import event,text
++from sqlalchemy.orm import Session
++import pytest
++
++from tests.integration_schema_migrations import migration_database,run_migration
++from tests.integration_provider_subjects import application_engine
++from tests.integration_client_link_services import case
++from tests.integration_client_link_http import http
++from tests.test_publication_diary_consumption import prepare_publication
++
++
++@pytest.fixture(scope='module')
++def link_db(tmp_path_factory):
++    generator=migration_database.__wrapped__(SimpleNamespace(param='postgresql'),tmp_path_factory.mktemp('r24-pg'))
++    url,admin=next(generator);app=None
++    root=Path(os.environ['R24_PG_OUTPUT']);root.mkdir(parents=True,exist_ok=True)
++    names=['web/personal_diary_schemas.py','web/routes/personal_diary.py','web/services/personal_diary_service.py',
++        'web/services/personal_diary_persistence.py','web/services/client_link_plans.py','web/services/client_link_context.py',
++        'web/services/client_link_projection.py','web/database/models.py','web/database/tenant_context.py','web/database/tenant_policy.py',
++        'tests/integration_daily_plan_publication.py','tests/test_publication_diary_consumption.py']
++    project=Path(__file__).resolve().parents[1]
++    snapshot=lambda:{name:hashlib.sha256((project/name).read_bytes()).hexdigest() for name in names}
++    start=snapshot();resource={'owned_database':admin.url.database,'source_before':start}
++    try:
++        run_migration(url,'db_bootstrap.py','--revision','head')
++        app=application_engine(url,admin)
++        with app.connect() as db:
++            role=db.execute(text('SELECT rolsuper,rolbypassrls FROM pg_roles WHERE rolname=current_user')).one()
++            assert role==(False,False)
++            assert db.execute(text("SELECT count(*) FROM pg_class WHERE relname IN ('personal_diary_days','client_account_links','client_plan_publications') AND relrowsecurity AND relforcerowsecurity")).scalar_one()==3
++            assert db.execute(text("SELECT count(*) FROM pg_class WHERE relname='personal_diary_days' AND relowner=(SELECT oid FROM pg_roles WHERE rolname=current_user)")).scalar_one()==0
++            resource.update(role_super=False,role_bypass=False,app_owns_diary=False,force_rls_families=3,
++                runtime_revision=db.execute(text('SELECT version_num FROM alembic_version')).scalar_one())
++        yield admin,app
++    finally:
++        if app is not None:app.dispose()
++        generator.close();resource['source_after']=snapshot();assert resource['source_after']==start
++        import psycopg2
++        with psycopg2.connect(os.environ['METODOBASE_TEST_MIGRATOR_URL'].replace('postgresql+psycopg2://','postgresql://',1)) as control,control.cursor() as cursor:
++            cursor.execute('SELECT count(*) FROM pg_database WHERE datname=%s',(resource['owned_database'],));assert cursor.fetchone()[0]==0
++        resource['owned_database_absent_after']=True
++        (root/'resource-and-source.json').write_bytes((json.dumps(resource,indent=2)+'\n').encode())
++
++
++def test_published_source_commit_is_personal_only_double_owner_scoped_and_revocation_blocks_new_reads(http):
++    from web.database.models import PersonalDiaryDay
++    from web.database.tenant_context import tenant_scope
++    client=http['client_http'];day,body=prepare_publication(http);statements=[]
++    def observe(conn,cursor,statement,parameters,context,many):statements.append(statement)
++    event.listen(http['app'],'before_cursor_execute',observe)
++    try:
++        saved=client.patch(day,headers=http['headers']['person'],json=body);assert saved.status_code==200,saved.text
++    finally:event.remove(http['app'],'before_cursor_execute',observe)
++    assert saved.json()['meals']['desayuno']['source_context']['publication_id']==body['publication_id']
++    assert not [s for s in statements if s.lstrip().upper().startswith(('INSERT INTO CLIENTES','UPDATE CLIENTES','INSERT INTO PLANES_GENERADOS','UPDATE PLANES_GENERADOS'))]
++    assert client.patch(day,headers=http['headers']['other'],json=body).status_code==404
++    with Session(http['app']) as db:assert db.query(PersonalDiaryDay).count()==0
++    with tenant_scope(http['other']),Session(http['app']) as db:assert db.query(PersonalDiaryDay).count()==0
++    with tenant_scope(http['person']),Session(http['app']) as db:assert db.query(PersonalDiaryDay).filter_by(user_id=http['person']).count()==1
++    revoked=client.request('DELETE','/api/usuario/vinculos/'+body['link_id'],headers=http['headers']['person'],json={'expected_version':2});assert revoked.status_code==200
++    assert client.patch(day,headers=http['headers']['person'],json={**body,'expected_version':1}).status_code==404
++    assert client.get(day,headers=http['headers']['person']).json()['meals']==saved.json()['meals']
++    removed=client.patch(day,headers=http['headers']['person'],json={'operation':'remove_meal','expected_version':1,'meal':'desayuno'})
++    assert removed.status_code==200 and removed.json()['meals']=={}
+diff --git a/tests/test_daily_plan_ui_contract.py b/tests/test_daily_plan_ui_contract.py
+new file mode 100644
+index 0000000..d235d50
+--- /dev/null
++++ b/tests/test_daily_plan_ui_contract.py
+@@ -0,0 +1,36 @@
++"""R24 shells through real factories; raw response/attribute proof is opt-in own output."""
++import hashlib
++from html.parser import HTMLParser
++import importlib
++import json
++import os
++from pathlib import Path
++
++import pytest
++from fastapi.testclient import TestClient
++
++
++class Attributes(HTMLParser):
++    def __init__(self):
++        super().__init__();self.nodes=[];self.text=[]
++    def handle_starttag(self,tag,attrs):
++        self.nodes.append({'tag':tag,'attrs':attrs})
++    def handle_data(self,value):
++        if value.strip():self.text.append(value)
++
++
++@pytest.mark.parametrize('factory',['web.main_web','api.app'])
++def test_personal_plan_exposes_explicit_source_shopping_and_unavailable_substitutions(factory):
++    with TestClient(importlib.import_module(factory).create_app(),raise_server_exceptions=False) as client:
++        response=client.get('/mi-plan')
++    assert response.status_code==200
++    output=os.environ.get('R24_RAW_OUTPUT')
++    if output:
++        root=Path(output);root.mkdir(parents=True,exist_ok=True)
++        filename=factory.replace('.','-')
++        raw=response.content;parser=Attributes();parser.feed(response.text)
++        (root/(filename+'.html')).write_bytes(raw)
++        (root/(filename+'-attrs-text.json')).write_bytes((json.dumps({'method':'TestClient SSR raw HTML, not executed browser DOM',
++            'sha256':hashlib.sha256(raw).hexdigest(),'nodes':parser.nodes,'text':parser.text},ensure_ascii=False,indent=2)+'\n').encode())
++    assert 'id="plan-shopping"' in response.text
++    assert 'id="plan-substitutions-state"' in response.text
+diff --git a/tests/test_diary_private_headers.py b/tests/test_diary_private_headers.py
+new file mode 100644
+index 0000000..27c7020
+--- /dev/null
++++ b/tests/test_diary_private_headers.py
+@@ -0,0 +1,64 @@
++"""Diary privacy applies to failures and cannot be relaxed by endpoint headers."""
++import pytest
++from fastapi import FastAPI
++from fastapi.responses import JSONResponse
++from fastapi.testclient import TestClient
++
++from web.middleware.security_headers import SecurityHeadersMiddleware
++
++
++@pytest.mark.parametrize('path', ['/api/usuario/diario', '/api/usuario/diario/2026-10-19'])
++@pytest.mark.parametrize('status', [401, 404, 503])
++def test_diary_errors_override_unsafe_downstream_headers(path, status):
++    app = FastAPI()
++    app.add_middleware(SecurityHeadersMiddleware)
++
++    @app.patch(path)
++    async def endpoint():
++        return JSONResponse({'detail': 'synthetic'}, status_code=status, headers={
++            'Referrer-Policy': 'unsafe-url', 'Cache-Control': 'public, max-age=300'})
++
++    with TestClient(app) as client:
++        response = client.patch(path)
++    assert response.status_code == status
++    assert response.headers['referrer-policy'] == 'no-referrer'
++    assert response.headers['cache-control'] == 'no-store'
++
++
++@pytest.mark.parametrize('registered_handler', [False, True])
++def test_unhandled_diary_error_remains_private_and_opaque(registered_handler):
++    app = FastAPI()
++    app.add_middleware(SecurityHeadersMiddleware)
++    if registered_handler:
++        @app.exception_handler(Exception)
++        async def public_error(request, error):
++            return JSONResponse({'detail': 'factory generic error'}, status_code=500)
++
++    @app.patch('/api/usuario/diario/2026-10-19')
++    async def endpoint():
++        raise RuntimeError('synthetic-private-diary-value')
++
++    with TestClient(app) as client:
++        response = client.patch('/api/usuario/diario/2026-10-19')
++    assert response.status_code == 500
++    assert response.headers['referrer-policy'] == 'no-referrer'
++    assert response.headers['cache-control'] == 'no-store'
++    assert 'synthetic-private-diary-value' not in response.text
++    assert response.json()['detail'] == (
++        'factory generic error' if registered_handler else 'Error interno del servidor')
++
++
++@pytest.mark.parametrize('path', ['/api/usuario/diarios', '/api/usuario/diario-export',
++                                  '/api/usuario/DIARIO/2026-10-19'])
++def test_adjacent_paths_keep_existing_policy(path):
++    app = FastAPI()
++    app.add_middleware(SecurityHeadersMiddleware)
++
++    @app.get(path)
++    async def endpoint():
++        return JSONResponse({}, status_code=404)
++
++    with TestClient(app) as client:
++        response = client.get(path)
++    assert response.status_code == 404
++    assert response.headers['referrer-policy'] == 'strict-origin-when-cross-origin'
+diff --git a/tests/test_publication_diary_consumption.py b/tests/test_publication_diary_consumption.py
+new file mode 100644
+index 0000000..3d8b987
+--- /dev/null
++++ b/tests/test_publication_diary_consumption.py
+@@ -0,0 +1,131 @@
++"""R24 additive consumption from an accepted, exact published source; offline mail only."""
++from datetime import datetime, timezone
++import json
++from types import SimpleNamespace
++
++import pytest
++
++from tests.integration_client_link_http import http, issued
++from tests.integration_client_link_services import link_db,case,source
++
++
++def test_explicit_fixed_source_resolves_real_grams_instead_of_empty_consumption():
++    from web.personal_diary_schemas import MealSelection
++    from web.services.personal_diary_service import resolve_consumed_meal
++    plan=SimpleNamespace(id=41,gym_id='person',deleted_at=None,plan_json=json.dumps({'desayuno':{'alimentos':{'huevo':50}}}))
++    result=resolve_consumed_meal(plan,'person','desayuno',MealSelection(include_fixed_menu=True),now=datetime.now(timezone.utc))
++    assert result['foods'][0]['food_id']=='huevo' and result['foods'][0]['grams']==50
++    assert result['totals']['kcal']>0
++
++
++@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
++def test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access(http):
++    from web.services.personal_diary_service import local_today
++    client=http['client_http'];issue,token=issued(http)
++    accepted=client.post('/api/usuario/vinculaciones/aceptar',headers=http['headers']['person'],
++        json={'token':token,'expected_version':1,'confirm':True})
++    assert accepted.status_code==200,accepted.text
++    plan,_,_=source(http,marker='huevo')
++    published=client.post('/api/clientes/'+http['client']+'/vinculacion/'+issue['link_id']+'/publicaciones',headers=http['headers']['gym'],
++        json={'plan_id':plan,'expected_link_version':2,'expected_publication_version':0,'expected_publication_id':None})
++    assert published.status_code==200,published.text
++    reader=client.get('/api/usuario/vinculos/'+issue['link_id']+'/plan',headers=http['headers']['person']).json()
++    publication=reader['publication']
++    body={'operation':'publication_meal','source_kind':'publication','expected_version':0,'link_id':issue['link_id'],
++        'publication_id':publication['id'],'expected_link_version':2,'expected_publication_version':publication['version'],
++        'meal':'desayuno','selections':{'include_fixed_menu':True}}
++    day='/api/usuario/diario/'+local_today().isoformat()
++    saved=client.patch(day,headers=http['headers']['person'],json=body)
++    assert saved.status_code==200,saved.text
++    snapshot=saved.json()['meals']['desayuno']
++    assert snapshot['foods'][0]['food_id']=='huevo' and snapshot['foods'][0]['grams']==50
++    assert snapshot['source_context']['publication_id']==publication['id']
++    assert snapshot['completed'] is False
++    assert client.get(day,headers=http['headers']['other']).json()['meals']=={}
++    withdrawn=client.request('DELETE','/api/usuario/vinculos/'+issue['link_id'],headers=http['headers']['person'],json={'expected_version':2})
++    assert withdrawn.status_code==200,withdrawn.text
++    assert client.get('/api/usuario/vinculos/'+issue['link_id']+'/plan',headers=http['headers']['person']).status_code==404
++    unchanged=client.get(day,headers=http['headers']['person']).json()
++    assert unchanged['meals']['desayuno']==snapshot
++    again=client.patch(day,headers=http['headers']['person'],json={**body,'expected_version':1})
++    assert again.status_code==404,again.text
++    removed=client.patch(day,headers=http['headers']['person'],json={'operation':'remove_meal','expected_version':1,'meal':'desayuno'})
++    assert removed.status_code==200,removed.text
++    assert removed.json()['meals']=={} and removed.json()['version']==2
++
++
++def prepare_publication(http,marker='huevo'):
++    from web.services.personal_diary_service import local_today
++    client=http['client_http'];receipt,token=issued(http)
++    accepted=client.post('/api/usuario/vinculaciones/aceptar',headers=http['headers']['person'],json={'token':token,'expected_version':1,'confirm':True})
++    assert accepted.status_code==200,accepted.text
++    plan,_,_=source(http,marker=marker,pdf=False)
++    result=client.post('/api/clientes/'+http['client']+'/vinculacion/'+receipt['link_id']+'/publicaciones',headers=http['headers']['gym'],
++        json={'plan_id':plan,'expected_link_version':2,'expected_publication_version':0,'expected_publication_id':None})
++    assert result.status_code==200,result.text
++    publication=client.get('/api/usuario/vinculos/'+receipt['link_id']+'/plan',headers=http['headers']['person']).json()['publication']
++    return '/api/usuario/diario/'+local_today().isoformat(),{
++        'operation':'publication_meal','source_kind':'publication','expected_version':0,'link_id':receipt['link_id'],
++        'publication_id':publication['id'],'expected_link_version':2,'expected_publication_version':publication['version'],
++        'meal':'desayuno','selections':{'include_fixed_menu':True}}
++
++
++@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
++@pytest.mark.parametrize('change,status',[
++    ({'publication_id':'00000000-0000-0000-0000-000000000001'},404),
++    ({'link_id':'00000000-0000-0000-0000-000000000001'},404),
++    ({'expected_link_version':1},409),({'expected_publication_version':2},409),
++    ({'source_plan_id':1},422),({'user_id':'not-the-actor'},422),({'foods':[]},422),
++    ({'expected_link_version':True},422),({'source_kind':'personal'},422),({'selections':{}},422),
++    ({'selections':{'include_fixed_menu':True,'proteinas':0}},422),
++])
++def test_untrusted_fields_stale_proofs_and_unconfirmed_fixed_selection_never_write(http,change,status):
++    day,body=prepare_publication(http)
++    response=http['client_http'].patch(day,headers=http['headers']['person'],json={**body,**change})
++    assert response.status_code==status,response.text
++    current=http['client_http'].get(day,headers=http['headers']['person']).json()
++    assert current['version']==0 and current['meals']=={}
++
++
++@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
++def test_foreign_actor_unknown_fixed_food_and_owner_barrier_do_not_create_consumption(http):
++    from sqlalchemy.orm import Session
++    from web.auth import crear_access_token,identity_from_user
++    from web.database.models import Usuario,UserRole
++    day,body=prepare_publication(http,marker='unknown-food-not-a-catalog-id')
++    client=http['client_http']
++    assert client.patch(day,headers=http['headers']['other'],json=body).status_code==404
++    assert client.patch(day,headers=http['headers']['person'],json=body).status_code==409
++    with Session(http['admin']) as db:
++        actor=db.get(Usuario,http['person']);actor.tipo='gym';actor.role=UserRole.OWNER;actor.session_version+=1;db.commit()
++        bearer={'Authorization':'Bearer '+crear_access_token(identity_from_user(actor,db))}
++    reader=client.get('/api/usuario/vinculos/'+body['link_id']+'/plan',headers=bearer)
++    assert reader.status_code==200 and reader.json()['capabilities']['record_personal_consumption'] is False
++    denied=client.patch(day,headers=bearer,json=body)
++    assert denied.status_code==403  # Existing professional OWNER has no personal endpoint grant.
++    with Session(http['admin']) as db:
++        actor=db.get(Usuario,http['person']);actor.tipo='usuario';actor.session_version+=1;db.commit()
++        ambiguous={'Authorization':'Bearer '+crear_access_token(identity_from_user(actor,db))}
++    denied=client.patch(day,headers=ambiguous,json=body)
++    assert denied.status_code==409 and denied.json()['detail']['code']=='diary_context_requires_review'
++
++
++@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
++def test_postcommit_lost_ack_is_uncertain_and_requery_does_not_repeat_consumption(http,monkeypatch):
++    from sqlalchemy.orm import Session
++    from web.database.models import PersonalDiaryDay
++    day,body=prepare_publication(http);actual=Session.commit;once=True
++    def lose_ack(db):
++        nonlocal once
++        # The service intentionally flushes before commit, so this row is no
++        # longer in Session.new/dirty. Retain the actual post-flush commit seam.
++        eligible=once and any(isinstance(item,PersonalDiaryDay) and item.user_id==http['person'] for item in db.identity_map.values())
++        actual(db)
++        if eligible:once=False;raise RuntimeError('synthetic lost commit ACK')
++    monkeypatch.setattr(Session,'commit',lose_ack)
++    response=http['client_http'].patch(day,headers=http['headers']['person'],json=body)
++    assert response.status_code==503 and response.json()['detail']['code']=='diary_save_unconfirmed'
++    confirmed=http['client_http'].get(day,headers=http['headers']['person']).json()
++    assert confirmed['version']==1 and len(confirmed['meals']['desayuno']['foods'])==1
++    assert http['client_http'].patch(day,headers=http['headers']['person'],json=body).status_code==409
++    assert http['client_http'].get(day,headers=http['headers']['person']).json()==confirmed
+diff --git a/web/middleware/security_headers.py b/web/middleware/security_headers.py
+index 7f3f8a2..b19b1be 100644
+--- a/web/middleware/security_headers.py
++++ b/web/middleware/security_headers.py
+@@ -89,12 +89,17 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+         # Generate unique nonce per request for CSP
+         nonce = secrets.token_urlsafe(16)
+         request.state.csp_nonce = nonce
++        diary_api = (
++            request.url.path == "/api/usuario/diario"
++            or request.url.path.startswith("/api/usuario/diario/")
++        )
+         
+         try:
+             response = await call_next(request)
+         except Exception as error:
+             if (request.url.path != "/api/usuario/historial"
+-                    and not is_member_link_private(request.url.path)):
++                    and not is_member_link_private(request.url.path)
++                    and not diary_api):
+                 raise
+             # Generic handlers live outside response middleware. Reuse the
+             # factory's existing public error body, then apply private headers.
+@@ -146,6 +151,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+         response.headers["Referrer-Policy"] = (
+             "no-referrer" if (
+                 recovery_api
++                or diary_api
+                 or request.url.path == "/api/usuario/historial"
+                 or is_member_link_private(request.url.path)
+                 or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
+@@ -156,7 +162,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
+             "magnetometer=(), microphone=(), usb=()"
+         )
+-        if is_member_link_private(request.url.path):
++        if is_member_link_private(request.url.path) or diary_api:
+             response.headers["Cache-Control"] = "no-store"
+         
+         # ─── Cache control para APIs ────────────────────────────────────────
+diff --git a/web/personal_diary_schemas.py b/web/personal_diary_schemas.py
+index 222935a..a5e16fd 100644
+--- a/web/personal_diary_schemas.py
++++ b/web/personal_diary_schemas.py
+@@ -1,7 +1,8 @@
+ """Personal diary input values; identity and nutritional totals are server-owned.
+ 
+-R14 preparation: these DTOs are not wired to a route or persistence model yet.
+-Every mutation replaces one stated value and carries its observed day version.
++Mounted diary DTOs for explicit personal mutations, including verified R12
++publication consumption. Each change carries its observed personal day version;
++source identity, authority and nutritional values are resolved by the service.
+ """
+ from typing import Annotated, Literal
+ 
+@@ -17,6 +18,7 @@ class MealSelection(BaseModel):
+     carbohidratos: OptionIndex | None = None
+     grasas: OptionIndex | None = None
+     include_vegetables: StrictBool = False
++    include_fixed_menu: StrictBool = False
+ 
+ 
+ class DiaryOperation(BaseModel):
+@@ -42,7 +44,23 @@ class CompletionOperation(DiaryOperation):
+     completed: StrictBool
+ 
+ 
++class PublicationMealOperation(DiaryOperation):
++    operation: Literal['publication_meal']
++    source_kind: Literal['publication']
++    link_id: str = Field(min_length=36,max_length=36,pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
++    publication_id: str = Field(min_length=36,max_length=36,pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
++    expected_link_version: int = Field(strict=True,ge=1,le=2147483647)
++    expected_publication_version: int = Field(strict=True,ge=1,le=2147483647)
++    meal: MealName
++    selections: MealSelection
++
++
++class RemoveMealOperation(DiaryOperation):
++    operation: Literal['remove_meal']
++    meal: MealName
++
++
+ DiaryPatch = Annotated[
+-    WaterOperation | MealOperation | CompletionOperation,
++    WaterOperation | MealOperation | CompletionOperation | PublicationMealOperation | RemoveMealOperation,
+     Field(discriminator='operation'),
+ ]
+diff --git a/web/routes/personal_diary.py b/web/routes/personal_diary.py
+index 68da634..cafc2f7 100644
+--- a/web/routes/personal_diary.py
++++ b/web/routes/personal_diary.py
+@@ -82,4 +82,4 @@ def calendar_day(day: str, usuario=Depends(get_usuario_actual), db=Depends(diary
+ @router.patch('/usuario/diario/{day}', openapi_extra={'requestBody':{'required':True,
+     'content':{'application/json':{'schema':_operation_schema()}}}})
+ def patch_day(day: str, usuario=Depends(get_usuario_actual), db=Depends(diary_session), operation=Depends(operation_body)):
+-    return JSONResponse(patch_diary_day(db, usuario['id'], calendar_date(day), operation), headers=_HEADERS)
++    return JSONResponse(patch_diary_day(db, usuario['id'], calendar_date(day), operation, principal=usuario), headers=_HEADERS)
+diff --git a/web/services/client_link_plans.py b/web/services/client_link_plans.py
+index ac1a55b..0b49c9c 100644
+--- a/web/services/client_link_plans.py
++++ b/web/services/client_link_plans.py
+@@ -59,8 +59,10 @@ def _context_dto(link):
+         'client_display_name':link.client_display_name}
+ 
+ 
+-def _capabilities(publication=None):
++def _capabilities(publication=None,actor=None):
++    from web.services.personal_diary_persistence import personal_space_supported
+     return {'read_published_plan':True,'download_published_pdf':bool(publication and publication.source_object_id),
++        'record_personal_consumption':bool(publication and actor and personal_space_supported(actor)),
+         'share_personal_diary':False,'read_shared_progress':False,'manage_clients':False,'manage_team':False}
+ 
+ 
+@@ -83,7 +85,7 @@ def list_member_links(db,principal,*,limit=100,after=None):
+ 
+ def read_member_plan(db,principal,link_id):
+     with operation(db):
+-        _,link=_read_context(db,principal,link_id)
++        actor,link=_read_context(db,principal,link_id)
+         publication=_publication(db,link)
+         dto=None
+         if publication is not None:
+@@ -95,7 +97,27 @@ def read_member_plan(db,principal,link_id):
+                 'pdf_url':('/api/usuario/vinculos/'+link.id+'/publicaciones/'+publication.id+'/pdf') if publication.source_object_id else None}
+             if publication.source_object_id is None:dto['pdf_unavailable_reason']='legacy_requires_review'
+         return bounded({'context':_context_dto(link),'link':{'status':link.status,'version':link.version},
+-            'capabilities':_capabilities(publication),'publication':dto})
++            'capabilities':_capabilities(publication,actor),'publication':dto})
++
++
++def consumption_source(db,principal,data):
++    """Lock exactly the accepted current recipient/publication for a diary write.
++
++    The diary service owns the fresh transaction and COMMIT. Account locks use
++    the same total order as R12 before link/publication locks. No professional
++    profile or raw Plan is read/written: the triple source FKs and validated
++    immutable projection are the publication authority, not a guessed owner.
++    """
++    _,link=_read_context(db,principal,data.link_id,write=True)
++    version(link.version,data.expected_link_version)
++    publication=_publication(db,link,data.publication_id,read=False)
++    if publication is None:unavailable('publication')
++    version(publication.publication_version,data.expected_publication_version)
++    try:content=read_projection(publication.plan_json,publication.plan_sha256)
++    except ProjectionUnavailable:fail(409,'member_publication_requires_review','La publicacion requiere una revision autorizada.')
++    return {'source_plan_id':publication.source_plan_id,'plan':content['plan'],
++        'source_context':{'kind':'publication','link_id':link.id,'publication_id':publication.id,
++            'link_version':link.version,'publication_version':publication.publication_version,'published_at':utc(publication.published_at)}}
+ 
+ 
+ def read_member_pdf(db,principal,link_id,publication_id):
+diff --git a/web/services/personal_diary_persistence.py b/web/services/personal_diary_persistence.py
+index ffe6b8e..d284fc0 100644
+--- a/web/services/personal_diary_persistence.py
++++ b/web/services/personal_diary_persistence.py
+@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta, timezone
+ import json
+ import logging
+ import math
++import re
+ from types import SimpleNamespace
+ 
+ from fastapi import HTTPException
+@@ -11,10 +12,11 @@ from sqlalchemy.orm import Session
+ 
+ from web.database.models import PersonalDiaryDay, Usuario, UserRole
+ from web.database.tenant_context import bind_verified_subject
+-from web.personal_diary_schemas import CompletionOperation, MealOperation, MealSelection, WaterOperation
++from web.personal_diary_schemas import (CompletionOperation, MealOperation, MealSelection, WaterOperation,
++    PublicationMealOperation, RemoveMealOperation)
+ from web.services.personal_diary_service import (
+     DIARY_TIMEZONE, MACRO_FIELDS, MAX_MEAL_FOODS, MEALS, _clock, local_today,
+-    require_calendar_range, require_writable_day, resolve_consumed_meal,
++    require_calendar_range, require_writable_day, resolve_consumed_meal, resolve_verified_meal,
+ )
+ 
+ MAX_DAY_JSON_BYTES = 64 * 1024
+@@ -84,8 +86,19 @@ def decode_meals(raw: str) -> dict:
+             _state_error()
+         for name, snapshot in meals.items():
+             required = {'source_plan_id','meal','selections','foods','totals','recorded_at','completed'}
+-            if not isinstance(snapshot, dict) or set(snapshot) != required or snapshot['meal'] != name:
++            if (not isinstance(snapshot, dict) or set(snapshot) not in (required,required|{'source_context'})
++                    or snapshot['meal'] != name):
+                 _state_error()
++            if 'source_context' in snapshot:
++                source=snapshot['source_context']
++                keys={'kind','link_id','publication_id','link_version','publication_version','published_at'}
++                if not isinstance(source,dict) or set(source)!=keys or source['kind']!='publication':_state_error()
++                for identity in ('link_id','publication_id'):
++                    if not isinstance(source[identity],str) or not re.fullmatch(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',source[identity]):_state_error()
++                for number in ('link_version','publication_version'):
++                    if type(source[number]) is not int or not 1<=source[number]<=MAX_VERSION:_state_error()
++                published=datetime.fromisoformat(source['published_at'])
++                if published.tzinfo is None or published.utcoffset() is None:_state_error()
+             if (type(snapshot['source_plan_id']) is not int or not 0 < snapshot['source_plan_id'] <= MAX_VERSION
+                     or type(snapshot['completed']) is not bool):
+                 _state_error()
+@@ -184,12 +197,23 @@ def _rollback(db):
+         _fail(503, 'diary_save_unconfirmed', 'No fue posible confirmar el guardado. Recarga el dia antes de reintentar.')
+ 
+ 
+-def patch_diary_day(db: Session, subject_id: str, day: date, operation, *, now=None):
++def patch_diary_day(db: Session, subject_id: str, day: date, operation, *, now=None, principal=None):
+     """Exactly one service-owned COMMIT; the route dependency never autocommits."""
+     try:
+         instant = _clock(now)
+         require_writable_day(day, now=instant)
+-        require_personal_subject(db, subject_id, lock=True)
++        publication_source=None
++        if isinstance(operation,PublicationMealOperation):
++            if not isinstance(principal,dict) or principal.get('id')!=subject_id:
++                _fail(401,'diary_identity_unavailable','Inicia sesion nuevamente.')
++            require_personal_subject(db,subject_id)
++            from web.services.client_link_plans import consumption_source
++            # R12 locks all account IDs in total order before link/publication.
++            # Do not acquire a self-only write lock first and reverse that order.
++            publication_source=consumption_source(db,principal,operation)
++            require_personal_subject(db,subject_id)
++        else:
++            require_personal_subject(db, subject_id, lock=True)
+         row = db.execute(select(PersonalDiaryDay).where(PersonalDiaryDay.user_id == subject_id,
+             PersonalDiaryDay.local_date == day).execution_options(populate_existing=True)).scalar_one_or_none()
+         version = row.version if row is not None else 0
+@@ -210,6 +234,15 @@ def patch_diary_day(db: Session, subject_id: str, day: date, operation, *, now=N
+                 _fail(404, 'diary_plan_unavailable', 'No se encontro ese plan personal.')
+             meals[operation.meal] = {**resolve_consumed_meal(plan, subject_id, operation.meal, operation.selections, now=instant),
+                 'completed':False}
++        elif isinstance(operation,PublicationMealOperation):
++            content=publication_source['plan'].get(operation.meal)
++            meals[operation.meal]={**resolve_verified_meal(publication_source['source_plan_id'],content,
++                operation.meal,operation.selections,now=instant),'completed':False,
++                'source_context':publication_source['source_context']}
++        elif isinstance(operation,RemoveMealOperation):
++            if operation.meal not in meals:
++                _fail(409,'diary_meal_required','No hay consumo registrado de esa comida para eliminar.')
++            del meals[operation.meal]
+         elif isinstance(operation, CompletionOperation):
+             if operation.meal not in meals:
+                 _fail(409, 'diary_meal_required', 'Registra los alimentos de esa comida antes de completarla.')
+diff --git a/web/services/personal_diary_service.py b/web/services/personal_diary_service.py
+index 15ea443..3ad7c85 100644
+--- a/web/services/personal_diary_service.py
++++ b/web/services/personal_diary_service.py
+@@ -99,7 +99,7 @@ def resolve_consumed_meal(plan_record, user_id: str, meal: MealName,
+                           selections: MealSelection, *, now: datetime | None = None) -> dict:
+     """Resolve one explicit consumption against an already-loaded own plan.
+ 
+-    The future route fetches the record using persisted authenticated ownership.
++    The mounted diary service fetches this record using persisted ownership.
+     This repeated check rejects accidental cross-account or deleted sources;
+     a request body never supplies user_id, gym_id, macros or food labels.
+     """
+@@ -112,8 +112,6 @@ def resolve_consumed_meal(plan_record, user_id: str, meal: MealName,
+     source_id = getattr(plan_record, 'id', None)
+     if type(source_id) is not int or source_id <= 0:
+         _unsupported()
+-    chosen = selections.model_dump(exclude_none=True, exclude={'include_vegetables'})
+-    foods = []
+     raw = getattr(plan_record, 'plan_json', None)
+     if (not isinstance(raw, str) or len(raw) > MAX_SOURCE_PLAN_BYTES
+             or len(raw.encode('utf-8')) > MAX_SOURCE_PLAN_BYTES):
+@@ -124,9 +122,32 @@ def resolve_consumed_meal(plan_record, user_id: str, meal: MealName,
+         _unsupported()
+     if not isinstance(source, dict) or not isinstance(source.get(meal), dict):
+         _unsupported()
+-    meal_data = source[meal]
++    return resolve_verified_meal(source_id, source[meal], meal, selections, now=now)
++
++
++def resolve_verified_meal(source_id: int, meal_data: dict, meal: MealName,
++                          selections: MealSelection, *, now=None) -> dict:
++    """Pure value extraction after the caller proves personal/publication authority.
++
++    This helper grants no source access. It accepts no request-provided foods,
++    grams or totals, and never manufactures a model with a different owner.
++    """
++    if type(source_id) is not int or source_id<=0 or meal not in MEALS or not isinstance(meal_data,dict):
++        _unsupported()
++    chosen = selections.model_dump(exclude_none=True, exclude={'include_vegetables','include_fixed_menu'})
++    foods = []
++    if selections.include_fixed_menu:
++        if chosen or selections.include_vegetables or meal_data.get('tipo_plan')=='opciones' or 'proteinas' in meal_data:
++            _fail(422,'invalid_diary_selection','Selecciona el menu fijo completo o las opciones, sin mezclarlos.')
++        fixed=meal_data.get('alimentos')
++        if not isinstance(fixed,dict) or len(fixed)>MAX_MEAL_FOODS:_unsupported()
++        foods=[_food({'alimento':name,'gramos':grams}) for name,grams in fixed.items()]
++        chosen={'include_fixed_menu':True}
++    elif isinstance(meal_data.get('alimentos'),dict) and 'proteinas' not in meal_data:
++        _fail(422,'invalid_diary_selection','Confirma explicitamente el menu fijo completo para registrarlo.')
+     if chosen or selections.include_vegetables:
+         for group,index in chosen.items():
++            if group=='include_fixed_menu':continue
+             group_data = meal_data.get(group)
+             options = group_data.get('opciones') if isinstance(group_data, dict) else None
+             if not isinstance(options, list) or len(options) > MAX_GROUP_OPTIONS:
+diff --git a/web/static/css/plan-diario.css b/web/static/css/plan-diario.css
+new file mode 100644
+index 0000000..203c88c
+--- /dev/null
++++ b/web/static/css/plan-diario.css
+@@ -0,0 +1,16 @@
++.plan-day {margin:1.5rem 0;padding:1rem;border:1px solid currentColor;border-radius:.75rem;min-width:0;overflow-wrap:anywhere;}
++.plan-day p {line-height:1.6;}
++.plan-day fieldset {min-width:0;margin:1rem 0;padding:.75rem;border:1px solid currentColor;}
++.plan-day legend {font-weight:700;padding:0 .3rem;}
++.plan-day label {display:block;margin:.6rem 0;line-height:1.5;}
++.plan-day input[type="radio"],.plan-day input[type="checkbox"] {width:1.2rem;height:1.2rem;flex-shrink:0;accent-color:currentColor;}
++.plan-day .plan-option {display:flex;gap:.6rem;align-items:flex-start;}
++.plan-day button,.plan-day select,.plan-day input[type="date"] {font:inherit;min-height:44px;max-width:100%;padding:.65rem;border:1px solid currentColor;border-radius:.4rem;background:transparent;color:inherit;}
++.plan-day button {cursor:pointer;white-space:normal;}
++.plan-day button:disabled {cursor:default;opacity:.65;}
++.plan-day-actions {display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;}
++.plan-day :is(button,input,select):focus-visible {outline:3px solid currentColor;outline-offset:3px;}
++.plan-day ul {padding-left:1.25rem;line-height:1.7;}
++.plan-menu-meal {padding:1rem;border:1px solid currentColor;border-radius:.6rem;margin:.75rem 0;overflow-wrap:anywhere;}
++.plan-menu-meal h3 {font-size:1.1rem;}
++@media(max-width:480px) { .plan-day {padding:.75rem;} .plan-day-actions > button {width:100%;} }
+diff --git a/web/static/js/plan-diario-datos.js b/web/static/js/plan-diario-datos.js
+new file mode 100644
+index 0000000..cce647d
+--- /dev/null
++++ b/web/static/js/plan-diario-datos.js
+@@ -0,0 +1,96 @@
++/* Source quantities only: no text parsing, nutritional substitutions or persistence. */
++(() => {
++  'use strict';
++  const names=['desayuno','almuerzo','comida','cena'];
++  const groups=['proteinas','carbohidratos','grasas'];
++  const invalid=()=>new Error('No se pudieron verificar las porciones de esta fuente.');
++  function food(raw,known,origin) {
++    if(!raw || typeof raw.alimento!=='string' || !raw.alimento || raw.alimento.length>200 ||
++        typeof raw.gramos!=='number' || !Number.isFinite(raw.gramos) || raw.gramos<=0 ||
++        (raw.equivalencia!=null && (typeof raw.equivalencia!=='string' || raw.equivalencia.length>500)))throw invalid();
++    return {food_id:known.has(raw.alimento)?raw.alimento:null,label:raw.alimento,grams:raw.gramos,unit:'g',
++      equivalence:raw.equivalencia??null,origin};
++  }
++  function menu(plan,knownIds=[]) {
++    const known=new Set(knownIds);
++    return names.map(name=>{
++      try {
++        const raw=plan?.[name];if(!raw || typeof raw!=='object' || Array.isArray(raw))throw invalid();
++        const options=raw.tipo_plan==='opciones' || !!raw.proteinas;
++        if(options){
++          const result={name,available:true,kind:'options',groups:{},vegetables:[]};
++          for(const group of groups){
++            const rows=raw[group]?.opciones;if(!Array.isArray(rows) || rows.length>256)throw invalid();
++            result.groups[group]=rows.map((row,index)=>food(row,known,{meal:name,group,index}));
++          }
++          if(!Array.isArray(raw.vegetales) || raw.vegetales.length>32)throw invalid();
++          result.vegetables=raw.vegetales.map((row,index)=>food(row,known,{meal:name,group:'vegetales',index}));
++          return result;
++        }
++        if(!raw.alimentos || typeof raw.alimentos!=='object' || Array.isArray(raw.alimentos))throw invalid();
++        const rows=Object.entries(raw.alimentos);if(rows.length>32)throw invalid();
++        return {name,available:true,kind:'fixed',foods:rows.map(([alimento,gramos],index)=>food({alimento,gramos},known,{meal:name,group:'fixed',index}))};
++      }catch{return{name,available:false,reason:'No hay porciones estructuradas verificables para esta comida.'};}
++    });
++  }
++  function select(meals,selections) {
++    const result=[];
++    for(const entry of meals){
++      const chosen=selections[entry.name];if(!chosen)continue;if(!entry.available)throw invalid();
++      if(entry.kind==='fixed'){
++        if(Object.keys(chosen).some(key=>!['include_fixed_menu'].includes(key)))throw invalid();
++        if(chosen.include_fixed_menu===true)result.push(...entry.foods);
++        else if(chosen.include_fixed_menu!==false)throw invalid();
++      }else{
++        for(const group of groups){
++          const index=chosen[group];if(index==null)continue;
++          if(!Number.isSafeInteger(index) || index<0 || !entry.groups[group][index])throw invalid();
++          result.push(entry.groups[group][index]);
++        }
++        if(chosen.include_vegetables===true)result.push(...entry.vegetables);
++        else if(chosen.include_vegetables!=null && chosen.include_vegetables!==false)throw invalid();
++        if(Object.keys(chosen).some(key=>!groups.includes(key) && key!=='include_vegetables'))throw invalid();
++      }
++    }
++    if(Object.keys(selections).some(name=>!names.includes(name)))throw invalid();
++    return result.map(row=>({...row,origin:{...row.origin}}));
++  }
++  function ordinal(value){
++    if(typeof value!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(value))throw invalid();
++    const [y,m,d]=value.split('-').map(Number),leap=y%4===0&&(y%100!==0||y%400===0);
++    if(y<1 || m<1 || m>12 || d<1 || d>[31,leap?29:28,31,30,31,30,31,31,30,31,30,31][m-1])throw invalid();
++    const date=new Date(0);date.setUTCFullYear(y,m-1,d);date.setUTCHours(0,0,0,0);return date.getTime()/86400000;
++  }
++  function sum(rows,multiplier=1){
++    const items=[],known=new Map();
++    for(const row of rows){
++      if(row.unit!=='g' || typeof row.grams!=='number' || !Number.isFinite(row.grams) || row.grams<=0)throw invalid();
++      const quantity=row.grams*multiplier;if(!Number.isFinite(quantity))throw invalid();
++      const key=row.food_id?row.food_id+'\u0000g':null;
++      const target=key?known.get(key):null;
++      if(target){target.grams+=quantity;if(!Number.isFinite(target.grams))throw invalid();}
++      else{const item={food_id:row.food_id??null,label:row.label,grams:quantity,unit:'g'};items.push(item);if(key)known.set(key,item);}
++    }
++    return items;
++  }
++  function shopping(rows,start,end){
++    const days=ordinal(end)-ordinal(start)+1;
++    // Technical transfer/iteration bound reused from the existing diary calendar.
++    if(days<1 || days>62)throw new Error('Elige un periodo de hasta 62 días.');
++    return{start,end,days,items:sum(rows,days),kind:'unregistered_shopping_draft'};
++  }
++  function recorded(calendar){
++    if(!calendar || !Array.isArray(calendar.days) || calendar.days.length>62)throw invalid();
++    const rows=[];let recordedMeals=0,previous='';
++    for(const day of calendar.days){
++      ordinal(day.local_date);if(day.local_date<=previous || !day.meals || typeof day.meals!=='object')throw invalid();previous=day.local_date;
++      for(const [name,meal]of Object.entries(day.meals)){
++        if(!names.includes(name) || !Array.isArray(meal.foods) || meal.foods.length>32)throw invalid();recordedMeals++;
++        for(const row of meal.foods){if(typeof row.food_id!=='string' || !row.food_id || row.food_id.length>200)throw invalid();
++          rows.push({food_id:row.food_id,label:row.food_id,grams:row.grams,unit:'g'});}
++      }
++    }
++    return{items:sum(rows),recordedMeals,kind:'recorded_consumption'};
++  }
++  window.PlanDayData=Object.freeze({menu,select,shopping,recorded,ordinal,names:Object.freeze(names)});
++})();
+diff --git a/web/static/js/plan-diario-ui.js b/web/static/js/plan-diario-ui.js
+new file mode 100644
+index 0000000..8e21d77
+--- /dev/null
++++ b/web/static/js/plan-diario-ui.js
+@@ -0,0 +1,100 @@
++/* Bounded source draft. Existing transports own authentication; no direct fetch/Storage. */
++(() => {
++  'use strict';
++  const names={desayuno:'Desayuno',almuerzo:'Almuerzo',comida:'Comida',cena:'Cena'};
++  const groups={proteinas:'Proteínas',carbohidratos:'Carbohidratos',grasas:'Grasas'};
++  const number=value=>new Intl.NumberFormat('es-MX',{maximumSignificantDigits:15}).format(value);
++  const node=(tag,value,parent)=>{const el=document.createElement(tag);if(value!==undefined)el.textContent=value;if(parent)parent.append(el);return el;};
++  const foodText=food=>food.label.replace(/_/g,' ')+' · '+number(food.grams)+' g'+(food.equivalence?' · '+food.equivalence:'');
++  function renderMenu(root,source,check){
++    check();root.replaceChildren();
++    for(const meal of PlanDayData.menu(source.plan)){
++      check();const section=node('section',undefined,root);section.className='plan-menu-meal';node('h3',names[meal.name],section);
++      if(!meal.available){node('p',meal.reason,section);continue;}
++      if(meal.kind==='fixed'){const list=node('ul',undefined,section);for(const food of meal.foods)node('li',foodText(food),list);}
++      else{node('p','Opciones incluidas en la fuente. Consultarlas no registra consumo ni selecciona una combinación.',section);
++        for(const [group,label]of Object.entries(groups)){node('h4',label,section);const list=node('ul',undefined,section);
++          for(const food of meal.groups[group])node('li',foodText(food),list);if(!meal.groups[group].length)node('li','Sin opciones registradas en este grupo.',list);}
++        if(meal.vegetables.length){node('h4','Vegetales incluidos',section);const list=node('ul',undefined,section);for(const food of meal.vegetables)node('li',foodText(food),list);}
++      }
++    }check();
++  }
++  function mount(options){
++    const root=options.root,find=id=>root.querySelector('#'+id),context=options.context;
++    let source=null,menu=[],chosen={},known=[],epoch=0,invalid=false,busy=false;
++    const status=find('shopping-status'),items=find('shopping-items'),build=find('shopping-build');
++    const recorded=find('shopping-recorded-items'),recordedStatus=find('shopping-recorded-status');
++    function check(ticket=epoch){if(invalid||ticket!==epoch)throw new Error('El contexto cambió. Vuelve a consultar la fuente.');context.check();}
++    function controls(){
++      if(!invalid){try{check();}catch{invalidate();return;}}
++      build.disabled=invalid||busy||!source;find('shopping-start').disabled=invalid||busy;find('shopping-end').disabled=invalid||busy;
++      root.setAttribute('aria-busy',String(busy));
++      for(const el of root.querySelectorAll('#shopping-meals input'))el.disabled=invalid||busy;
++    }
++    function invalidate(){const first=!invalid;invalid=true;if(first)epoch++;source=null;chosen={};menu=[];busy=false;
++      for(const id of ['shopping-meals','shopping-items','shopping-recorded-items'])find(id).replaceChildren();
++      for(const id of ['shopping-start','shopping-end'])find(id).value='';
++      find('plan-source-label').textContent='Fuente descartada por cambio de contexto.';recordedStatus.textContent='';status.textContent='La sesión o la fuente cambió. Vuelve a abrir esta página.';controls();if(first)options.onInvalidated?.();}
++    function discard(){check();items.replaceChildren();status.textContent='Borrador sin preparar. Tus cambios no registran consumo.';}
++    function selectors(){
++      check();const target=find('shopping-meals');target.replaceChildren();
++      for(const meal of menu){
++        check();
++        const box=node('fieldset',undefined,target);node('legend',names[meal.name],box);
++        if(!meal.available){node('p',meal.reason,box);continue;}
++        const select=(food,group,index,fixed=false)=>{
++          const label=node('label',undefined,box);label.className='plan-option';const input=node('input',undefined,label);
++          input.type=fixed||group==='vegetales'?'checkbox':'radio';input.name='shopping-'+meal.name+'-'+group;
++          input.dataset.meal=meal.name;input.dataset.group=group;input.value=String(index);
++          input.checked=fixed?chosen[meal.name]?.include_fixed_menu===true:group==='vegetales'?chosen[meal.name]?.include_vegetables===true:chosen[meal.name]?.[group]===index;
++          node('span',fixed?'Elegir el menú fijo completo: '+meal.foods.map(foodText).join(' · '):group==='vegetales'?'Incluir los vegetales mostrados: '+meal.vegetables.map(foodText).join(' · '):foodText(food),label);
++          input.addEventListener('change',()=>{try{check();const selection=chosen[meal.name]||={};
++            if(fixed)selection.include_fixed_menu=input.checked;else if(group==='vegetales')selection.include_vegetables=input.checked;else selection[group]=index;
++            discard();}catch{invalidate();}});
++        };
++        if(meal.kind==='fixed'){select(null,'fixed',0,true);continue;}
++        for(const [group,label]of Object.entries(groups)){node('p',label,box);meal.groups[group].forEach((food,index)=>select(food,group,index));}
++        if(meal.vegetables.length)select(null,'vegetales',0);
++      }check();
++    }
++    function setSource(value,today){
++      if(invalid)return;check();source=value;chosen={};items.replaceChildren();recorded.replaceChildren();menu=PlanDayData.menu(value.plan,known);
++      find('plan-source-label').textContent=value.label;selectors();
++      if(today){find('shopping-start').value=today;find('shopping-end').value=today;}
++      status.textContent='Fuente consultada. Elige explícitamente las porciones y el periodo; nada está registrado.';controls();
++    }
++    async function current(){
++      const ticket=epoch;check(ticket);let latest;
++      try{latest=await options.readSource();check(ticket);}catch(error){
++        if([403,404].includes(error.status)){invalidate();options.onSourceUnavailable?.(error);}throw error;
++      }
++      if(!latest||!source||latest.key!==source.key){chosen={};items.replaceChildren();find('shopping-meals').replaceChildren();source=null;menu=[];controls();options.onSourceUnavailable?.();throw new Error('La fuente cambió o ya no está disponible. Vuelve a consultar el plan; el borrador se descartó.');}
++      return ticket;
++    }
++    function drawList(target,rows){target.replaceChildren();for(const row of rows)node('li',row.label.replace(/_/g,' ')+' · '+number(row.grams)+' '+row.unit,target);if(!rows.length)node('li','No hay cantidades seleccionadas o registradas para sumar.',target);}
++    build.addEventListener('click',async()=>{
++      if(busy||invalid)return;busy=true;controls();const ticket=epoch;if(invalid)return;
++      try{await current();check(ticket);const result=PlanDayData.shopping(PlanDayData.select(menu,chosen),find('shopping-start').value,find('shopping-end').value);
++        check(ticket);drawList(items,result.items);status.textContent='Borrador de compra, '+result.start+' al '+result.end+': '+result.days+' días repitiendo sólo esta selección. No se registró consumo.';check(ticket);
++      }catch(error){if(ticket===epoch&&!invalid){try{check(ticket);}catch{invalidate();return;}status.textContent=error.message;status.focus();}}
++      finally{if(ticket===epoch&&!invalid){busy=false;controls();}}
++    });
++    for(const id of ['shopping-start','shopping-end'])find(id).addEventListener('change',()=>{try{discard();recorded.replaceChildren();recordedStatus.textContent='';}catch{invalidate();}});
++    find('shopping-recorded-section').hidden=!options.readRecorded;
++    find('shopping-read-recorded').addEventListener('click',async()=>{
++      if(busy||invalid||!options.readRecorded)return;const ticket=epoch;busy=true;controls();if(invalid)return;
++      try{const start=find('shopping-start').value,end=find('shopping-end').value;PlanDayData.shopping([],start,end);
++        const calendar=await options.readRecorded(start,end);check(ticket);if(!calendar)throw new Error('No se pudo consultar el consumo registrado.');
++        const value=PlanDayData.recorded(calendar);check(ticket);drawList(recorded,value.items);recordedStatus.textContent=value.recordedMeals+' comidas registradas en '+start+' al '+end+'. El completado no cambia sus cantidades.';
++      }catch(error){if(ticket===epoch&&!invalid){try{check(ticket);}catch{invalidate();return;}recordedStatus.textContent='No se pudo consultar. No se presenta una lista vacía como éxito.';}}
++      finally{if(ticket===epoch&&!invalid){busy=false;controls();}}
++    });
++    window.addEventListener('metodobase-session-changed',()=>invalidate());window.addEventListener('pagehide',()=>invalidate());
++    window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token'].includes(event.key))invalidate();});
++    return{setSource,invalidate,check,current,
++      setCatalog(ids){check();known=ids;if(source){menu=PlanDayData.menu(source.plan,known);if(items.children.length){items.replaceChildren();status.textContent='Catálogo confirmado. Vuelve a preparar el borrador con tus porciones elegidas.';}}},
++      selection(meal){check();return JSON.parse(JSON.stringify(chosen[meal]||{}));},
++      get source(){return source;},get active(){return !invalid;}};
++  }
++  window.PlanDayUI=Object.freeze({renderMenu,mount,number,node});
++})();
+diff --git a/web/static/js/plan-publicacion-consumo.js b/web/static/js/plan-publicacion-consumo.js
+new file mode 100644
+index 0000000..f3ffe6a
+--- /dev/null
++++ b/web/static/js/plan-publicacion-consumo.js
+@@ -0,0 +1,81 @@
++/* Recipient snapshot to its existing personal diary; never a professional profile adoption. */
++(() => {
++  'use strict';
++  function mount(options){
++    const root=options.root,el=id=>root.querySelector('#'+id),scope=options.scope,shopping=options.shopping;
++    const message=el('publication-diary-status'),save=el('publication-diary-save'),date=el('publication-diary-day');
++    const records=el('publication-diary-records'),retry=el('publication-diary-retry'),discard=el('publication-diary-discard');
++    let active=true,context=null,controller=null,epoch=0,operationBusy=false,lastState=null;
++    const changed=()=>Object.assign(new Error('El contexto cambió. Vuelve a consultar la publicación.'),{code:'session_changed'});
++    function scopeCheck(ticket=epoch){if(!active||ticket!==epoch)throw changed();scope.check();}
++    function check(ticket=epoch){scopeCheck(ticket);if(!context)throw changed();Api.usuario.validarContexto(context);}
++    function invalidate(){if(!active)return;active=false;epoch++;context=null;date.value='';records.replaceChildren();message.textContent='El registro se descartó por cambio de contexto.';
++      for(const control of root.querySelectorAll('input,button,select'))control.disabled=true;controller?.invalidate(changed());}
++    const personal={check,invalidate,
++      async read(task){const ticket=epoch;check(ticket);const value=await scope.read(()=>task(context));check(ticket);
++        await scope.read(()=>Api.usuario.verificarContexto(context));check(ticket);return value;},
++      async verify(){const ticket=epoch;check(ticket);await scope.read(()=>Api.usuario.verificarContexto(context));check(ticket);}};
++    function text(tag,value,parent){return PlanDayUI.node(tag,value,parent);}
++    function render(day){
++      check();records.replaceChildren();
++      text('p','Consumo personal del '+day.local_date+': '+PlanDayUI.number(day.totals.kcal)+' kcal registradas. El completado es una marca distinta.',records);
++      if(!Object.keys(day.meals).length)text('p','Sin comidas registradas para esta fecha.',records);
++      for(const [name,meal]of Object.entries(day.meals)){
++        const section=text('section',undefined,records);text('h4',name+(meal.completed?' · completada':' · registrada'),section);
++        text('p','Fuente: '+(meal.source_context?'publicación del '+meal.source_context.published_at:'plan personal #'+meal.source_plan_id)+' · registro '+meal.recorded_at,section);
++        const list=text('ul',undefined,section);for(const food of meal.foods)text('li',food.food_id.replace(/_/g,' ')+' · '+PlanDayUI.number(food.grams)+' g',list);
++        const remove=text('button','Eliminar este consumo personal',section);remove.type='button';remove.disabled=!controller.writable;remove.dataset.removeConsumed='true';
++        remove.addEventListener('click',async()=>{try{check();if(controller.writable&&window.confirm('¿Eliminar únicamente este consumo personal de '+name+'?'))await controller.save({operation:'remove_meal',meal:name});}catch{invalidate();}});
++      }
++    }
++    function controls(update){
++      date.disabled=!active||operationBusy||update.busy||['loading','review','invalidated'].includes(update.state);
++      save.disabled=!active||operationBusy||!controller?.writable;
++      el('publication-diary-meal').disabled=!active||operationBusy||update.busy||['loading','review','invalidated'].includes(update.state);
++      for(const button of records.querySelectorAll('[data-remove-consumed]'))button.disabled=!active||!controller?.writable;
++      el('publication-diary-reload').disabled=!active||operationBusy||update.busy||update.state==='loading';
++      retry.hidden=!update.hasDraft;retry.disabled=!update.canRetry;discard.hidden=!update.hasDraft;discard.disabled=!active||update.busy;
++    }
++    function state(update){
++      lastState=update;message.textContent=update.message;date.value=update.selected||'';if(update.today)date.max=update.today;controls(update);
++      if(['error','conflict','unconfirmed','review','invalidated'].includes(update.state))message.focus();
++    }
++    controller=PersonalDiary.create({personal,onView:render,onClear:()=>records.replaceChildren(),onState:state});
++    el('publication-consumption').hidden=false;
++    if(options.canRecord!==true){
++      message.textContent='Este vínculo permite leer el plan, pero no crea un espacio personal de diario. El registro requiere un contexto personal confirmado por el servidor.';
++      for(const control of el('publication-consumption').querySelectorAll('input,button,select'))control.disabled=true;
++      return{invalidate};
++    }
++    async function sourceCheck(){const ticket=epoch;check(ticket);await shopping.current();check(ticket);shopping.check();}
++    save.addEventListener('click',async()=>{
++      if(!active||operationBusy||!controller.writable)return;
++      operationBusy=true;if(lastState)controls(lastState);
++      try{
++        check();const selectedDay=controller.selected,selectedVersion=controller.day.version,meal=el('publication-diary-meal').value,selections=shopping.selection(meal);
++        await sourceCheck();check();const source=shopping.source;
++        if(controller.selected!==selectedDay||controller.day?.version!==selectedVersion)throw new Error('El día cambió. Revisa el diario antes de registrar esta selección.');
++        message.textContent='Solicitando el registro explícito de esta selección; aún no está confirmado.';
++        await controller.save({operation:'publication_meal',source_kind:'publication',link_id:source.link_id,
++          publication_id:source.publication_id,expected_link_version:source.link_version,
++          expected_publication_version:source.publication_version,meal,selections});
++      }catch(error){if(active){try{check();}catch{invalidate();return;}message.textContent=error.message;message.focus();}}
++      finally{operationBusy=false;if(active){try{check();if(lastState)controls(lastState);}catch{invalidate();}}}
++    });
++    date.addEventListener('change',async()=>{
++      try{check();}catch{invalidate();return;}
++      try{PersonalDiary.dateParts(date.value);}catch{date.value=controller.selected||'';message.textContent='Elige una fecha válida. No se cambió el día ni se registró consumo.';message.focus();return;}
++      await controller.select(date.value);
++    });
++    el('publication-diary-reload').addEventListener('click',()=>{try{check();return controller.reconsult();}catch{invalidate();}});
++    discard.addEventListener('click',()=>{try{check();controller.discard();}catch{invalidate();}});
++    retry.addEventListener('click',async()=>{try{await sourceCheck();check();await controller.retry();}catch(error){if(active){message.textContent=error.message;message.focus();}}});
++    for(const control of el('publication-consumption').querySelectorAll('input,button,select'))control.disabled=true;
++    (async()=>{const ticket=epoch;try{
++      const value=await scope.read(()=>Api.usuario.contexto());scopeCheck(ticket);context=value;check(ticket);await controller.bootstrap();check(ticket);
++    }catch(error){if(active){try{scopeCheck(ticket);}catch{invalidate();return;}message.textContent='No se pudo confirmar el diario personal. Vuelve a consultar la publicación; no se registró consumo.';
++      for(const control of el('publication-consumption').querySelectorAll('input,button,select'))control.disabled=true;}}})();
++    return{invalidate};
++  }
++  window.PublicationConsumption=Object.freeze({mount});
++})();
+diff --git a/web/static/js/usuario-diario.js b/web/static/js/usuario-diario.js
+index ee3b30c..4d8a8de 100644
+--- a/web/static/js/usuario-diario.js
++++ b/web/static/js/usuario-diario.js
+@@ -17,6 +17,16 @@
+   function totals(value) {
+     if (!value || macroNames.some(name => typeof value[name] !== 'number' || !Number.isFinite(value[name]) || value[name] < 0)) throw protocol();
+   }
++  function sourceContext(value) {
++    const fields=['kind','link_id','publication_id','link_version','publication_version','published_at'];
++    const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
++    if(!value || typeof value!=='object' || Array.isArray(value) || Object.keys(value).length!==fields.length ||
++       fields.some(key=>!Object.prototype.hasOwnProperty.call(value,key)) || value.kind!=='publication' ||
++       !uuid.test(value.link_id) || !uuid.test(value.publication_id) ||
++       ['link_version','publication_version'].some(key=>!Number.isSafeInteger(value[key]) || value[key]<1 || value[key]>2147483647) ||
++       typeof value.published_at!=='string' || !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,6})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(value.published_at)) throw protocol();
++    dateParts(value.published_at.slice(0,10));
++  }
+   function parseDay(value, expected) {
+     if (!value || value.timezone !== timezone) throw protocol();
+     dateParts(value.local_date); dateParts(value.today);
+@@ -29,6 +39,7 @@
+       if (!mealNames.includes(name) || !meal || meal.meal !== name || !Number.isSafeInteger(meal.source_plan_id) || meal.source_plan_id < 1 ||
+           typeof meal.completed !== 'boolean' || !Array.isArray(meal.foods) || meal.foods.length > 32 || !meal.selections || typeof meal.recorded_at !== 'string') throw protocol();
+       totals(meal.totals);
++      if(Object.prototype.hasOwnProperty.call(meal,'source_context')) sourceContext(meal.source_context);
+       for (const food of meal.foods) {
+         if (!food || typeof food.food_id !== 'string' || !food.food_id || typeof food.grams !== 'number' || !Number.isFinite(food.grams) || food.grams <= 0) throw protocol();
+         totals(food.macros);
+@@ -238,7 +249,11 @@
+         const list = document.createElement('ul');
+         for (const food of saved.foods) { const item = document.createElement('li'); item.textContent = foodName(food.food_id)+' · '+number(food.grams)+' g'+(food.equivalence ? ' · '+food.equivalence : ''); list.append(item); }
+         if (!saved.foods.length) { const item = document.createElement('li'); item.textContent = 'Se registró una selección vacía.'; list.append(item); }
+-        article.append(title,text,list); root.append(article);
++        const provenance = document.createElement('p');
++        provenance.textContent = saved.source_context?.kind === 'publication' ? 'Fuente: publicación registrada el '+saved.source_context.published_at+' · consumo '+saved.recorded_at+'.' : 'Fuente: plan personal #'+saved.source_plan_id+' · consumo '+saved.recorded_at+'.';
++        const remove = document.createElement('button');remove.type='button';remove.className='u-btn u-btn-secondary';remove.textContent='Eliminar este consumo registrado';remove.dataset.removeConsumed='true';
++        remove.addEventListener('click',async()=>{try{personal.check();if(controller.writable && window.confirm('¿Eliminar únicamente el consumo registrado de '+labels[name]+' en '+day.local_date+'?'))await controller.save({operation:'remove_meal',meal:name});}catch{/* The shared context invalidates the view. */}});
++        article.append(title,text,provenance,list,remove); root.append(article);
+       }
+     }
+     function draftDescription() {
+@@ -246,8 +261,9 @@
+       const operation = pending.operation;
+       if (operation.operation === 'water') return 'Borrador sin confirmar para '+pending.day+': '+number(operation.water_ml)+' mL de agua.';
+       if (operation.operation === 'completion') return 'Borrador sin confirmar: '+labels[operation.meal]+(operation.completed ? ' completada.' : ' sin completar.');
++      if (operation.operation === 'remove_meal') return 'Borrador sin confirmar: eliminar el consumo de '+labels[operation.meal]+' para '+pending.day+'.';
+       const names = [];
+-      if (source?.plan_id === operation.source_plan_id) {
++      if (operation.operation === 'meal' && source?.plan_id === operation.source_plan_id) {
+         for (const [group,index] of Object.entries(operation.selections)) {
+           if (group === 'include_vegetables') continue;
+           const food = source.plan[operation.meal]?.[group]?.opciones?.[index];
+@@ -274,6 +290,7 @@
+       element('btn-comidas').disabled = !editable || !options.getPlan()?.plan_id;
+       for (const input of element('meal-selector-content').querySelectorAll('input')) input.disabled = !editable;
+       for (const [name,id] of Object.entries(checks)) element(id).disabled = !editable || !controller.day?.meals[name];
++      for(const button of element('diary-snapshots').querySelectorAll('[data-remove-consumed]'))button.disabled=!editable;
+       if (['error','conflict','unconfirmed','review','exhausted','invalidated'].includes(update.state)) {
+         const modal = ['panel-agua-overlay','panel-comidas-overlay'].map(element).find(panel => panel.style.display === 'flex');
+         (modal?.querySelector('[data-diary-feedback]') || element('diary-status')).focus();
+@@ -311,6 +328,12 @@
+       for (const button of element('meal-tabs').querySelectorAll('[data-meal]')) button.setAttribute('aria-pressed',String(button.dataset.meal === name));
+       if (!meal) return;
+       const selected = chosen[name] ||= {include_vegetables:false};
++      if(meal.alimentos && !meal.proteinas && meal.tipo_plan!=='opciones') {
++        const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.checked=selected.include_fixed_menu===true;input.dataset.diaryFixed='true';
++        label.append(input,document.createTextNode('Registrar explícitamente el menú fijo completo de esta comida. El servidor verificará sus alimentos y cantidades.'));root.append(label);
++        input.addEventListener('change',()=>{try{personal.check();chosen[name]={include_fixed_menu:input.checked};element('diary-meal-status').textContent='Borrador de menú fijo sin registrar.';}catch{/* Context already cleared. */}});
++        element('diary-meal-status').textContent='Confirma el menú fijo completo antes de registrar. Abrir esta selección no guarda nada.';return;
++      }
+       for (const [group,label] of [['proteinas','Proteína'],['carbohidratos','Carbohidratos'],['grasas','Grasas']]) {
+         const foods = meal[group]?.opciones; if (!Array.isArray(foods)) continue;
+         const fieldset = document.createElement('fieldset'); fieldset.className = 'u-sel-macro-group';
+diff --git a/web/static/js/vinculos-lectura.js b/web/static/js/vinculos-lectura.js
+index fe9d260..626a88a 100644
+--- a/web/static/js/vinculos-lectura.js
++++ b/web/static/js/vinculos-lectura.js
+@@ -6,7 +6,8 @@
+   const pdf = document.getElementById('member-publication-pdf'), leave = document.getElementById('member-link-leave');
+   const more = document.getElementById('member-links-more');
+   let records=[],next=null,selected=null,scope=null,result=null,mutationUnconfirmed=false;
+-  function clearPublication() {result=null;panel.hidden=true;summary.replaceChildren();meals.replaceChildren();pdf.hidden=true;leave.hidden=true;ui.releaseDownloads();}
++  let shopping=null,consumption=null;
++  function clearPublication() {consumption?.invalidate();consumption=null;shopping?.invalidate();shopping=null;result=null;panel.hidden=true;summary.replaceChildren();meals.replaceChildren();pdf.hidden=true;leave.hidden=true;ui.releaseDownloads();}
+   function clear() {scope?.invalidate();scope=null;records=[];next=null;selected=null;list.replaceChildren();clearPublication();more.hidden=true;document.getElementById('member-home').hidden=true;}
+   function controls() {more.hidden=!next;pdf.hidden=!result?.publication||result.capabilities?.download_published_pdf!==true;leave.hidden=!selected||selected.capabilities?.revoke_link!==true;leave.disabled=mutationUnconfirmed;list.querySelectorAll('[data-mutation]').forEach(button=>{button.disabled=mutationUnconfirmed;});}
+   const ui=VinculosUI.setup({status:'member-links-status',error:'member-links-error',clear,controls,
+@@ -58,6 +59,23 @@
+       }
+     }
+   }
++  function shoppingSource(data){
++    scope.check();const value=data?.publication;
++    if(!value || data.context?.link_id!==selected.link_id || data.link?.status!=='active')return null;
++    if(!uuid(value.id)||!version(value.version)||!version(data.link.version)||value.plan_schema_version!==1)throw new Error('Invalid published source');
++    return{key:selected.link_id+':'+data.link.version+':'+value.id+':'+value.version,kind:'publication',
++      link_id:selected.link_id,link_version:data.link.version,publication_id:value.id,publication_version:value.version,
++      plan_id:value.source_plan_id,plan:value.plan,label:'Fuente: publicación de '+data.context.gym_name+' · '+value.published_at+' · versión '+value.version+'.'};
++  }
++  function mountDaily(data){
++    scope.check();const currentScope=scope,link=selected.link_id;
++    shopping=PlanDayUI.mount({root:document.getElementById('plan-shopping'),context:currentScope,
++      readSource:async()=>{const current=await currentScope.read(context=>Api.vinculos.plan(link,context));currentScope.check();return shoppingSource(current);},
++      onSourceUnavailable:()=>{currentScope.invalidate();ui.status('La publicación cambió o ya no está disponible. Vuelve a consultar este vínculo.');}});
++    shopping.setSource(shoppingSource(data));
++    consumption=PublicationConsumption.mount({root:document.getElementById('plan-shopping'),scope:currentScope,shopping,
++      canRecord:data.capabilities.record_personal_consumption===true});
++  }
+   async function select(row) {
+     ui.context.check();scope?.invalidate();selected=row;clearPublication();scope=ui.context.scope(clearPublication);
+     ui.status('Consultando el plan de este vínculo…');
+@@ -72,6 +90,7 @@
+         const target=data.publication.meta?.kcal_objetivo;
+         if(target!==null&&target!==undefined&&Number.isFinite(target))node('p','Objetivo del plan: '+target+' kcal. No representa consumo registrado.',summary);
+         renderMenu(data.publication.plan);
++        mountDaily(data);
+         if(data.capabilities.download_published_pdf!==true)node('p','El PDF no está disponible para esta publicación.',summary);
+       }else node('p','El profesional aún no ha publicado un plan para este vínculo.',summary);
+       panel.hidden=false;controls();ui.status('Contexto consultado. Tu perfil y diario personales se conservan separados.');
+diff --git a/web/templates/plan_diario_section.html b/web/templates/plan_diario_section.html
+new file mode 100644
+index 0000000..ba9fdf7
+--- /dev/null
++++ b/web/templates/plan_diario_section.html
+@@ -0,0 +1,33 @@
++<section id="plan-shopping" class="plan-day" aria-labelledby="plan-shopping-title" aria-busy="false">
++  <h2 id="plan-shopping-title">Porciones y lista de compras</h2>
++  <p id="plan-source-label">Aún no hay una fuente consultada.</p>
++  <p id="plan-substitutions-state">Nuevas sustituciones no disponibles: falta un contrato de restricciones estructuradas y verificación final. Las opciones siguientes pertenecen a la fuente mostrada; no constituyen una garantía clínica.</p>
++  <p>El borrador de compra está separado del consumo registrado. Elige porciones y confirma el periodo: se sumarán esas mismas porciones una vez por día, sin registrar comidas ni recomendar repetir este menú.</p>
++  <div id="shopping-meals"></div>
++  <div class="plan-day-actions">
++    <label for="shopping-start">Inicio del periodo</label><input id="shopping-start" type="date">
++    <label for="shopping-end">Fin del periodo</label><input id="shopping-end" type="date">
++    <button type="button" id="shopping-build" disabled>Preparar borrador de compra</button>
++  </div>
++  <p id="shopping-status" role="status" aria-live="polite" tabindex="-1">Consulta una fuente antes de preparar la lista.</p>
++  <p id="shopping-unknown">Las partidas sin identidad de catálogo confirmada se muestran separadas. Las equivalencias son etiquetas y no se convierten a cantidades ni unidades.</p>
++  <ul id="shopping-items"></ul>
++  <section id="shopping-recorded-section" hidden aria-labelledby="shopping-recorded-title">
++    <h3 id="shopping-recorded-title">Alimentos ya registrados en ese periodo</h3>
++    <p>Esta consulta suma snapshots guardados. No es una recomendación de compra ni usa las opciones del plan sin registrar.</p>
++    <button type="button" id="shopping-read-recorded">Consultar alimentos registrados</button>
++    <p id="shopping-recorded-status" role="status" aria-live="polite"></p>
++    <ul id="shopping-recorded-items"></ul>
++  </section>
++  <section id="publication-consumption" hidden aria-labelledby="publication-consumption-title">
++    <h3 id="publication-consumption-title">Registrar consumo en mi diario personal</h3>
++    <p>Usa sólo las porciones elegidas de esta publicación vigente. No comparte tu diario con el gimnasio ni modifica su cartera.</p>
++    <label for="publication-diary-day">Día de consumo (Ciudad de México)</label><input type="date" id="publication-diary-day" disabled>
++    <label for="publication-diary-meal">Comida que deseas registrar</label><select id="publication-diary-meal"><option value="desayuno">Desayuno</option><option value="almuerzo">Almuerzo</option><option value="comida">Comida</option><option value="cena">Cena</option></select>
++    <div class="plan-day-actions"><button type="button" id="publication-diary-reload">Reconsultar mi diario</button><button type="button" id="publication-diary-save" disabled>Registrar esta selección de consumo</button></div>
++    <p id="publication-diary-status" role="status" aria-live="polite" tabindex="-1"></p>
++    <div id="publication-diary-records"></div>
++    <button type="button" id="publication-diary-discard" hidden>Descartar borrador de consumo</button>
++    <button type="button" id="publication-diary-retry" hidden>Registrar borrador después de revisar</button>
++  </section>
++</section>
+diff --git a/web/templates/usuario_mi_plan.html b/web/templates/usuario_mi_plan.html
+index 3c366bf..59cc666 100644
+--- a/web/templates/usuario_mi_plan.html
++++ b/web/templates/usuario_mi_plan.html
+@@ -1,6 +1,7 @@
+ {% extends "base_usuario.html" %}
+ {% block title %}Mi Plan{% endblock %}
+ {% block head %}
++<link rel="stylesheet" href="/static/css/plan-diario.css?v=r24-1">
+ <style nonce="{{ request.state.csp_nonce }}">
+ .u-veg-chip { color: var(--u-green); }
+ #diary-section .u-btn-secondary { color:var(--u-text);background:var(--u-bg-card);border:1px solid var(--u-border); }
+@@ -100,7 +101,7 @@
+         <button class="u-tip-nav-btn" id="tip-next" aria-label="Siguiente">&#8250;</button>
+       </div>
+     </div>
+-    <p class="u-tip-text" id="tip-text">Cargando consejo...</p>
++    <p class="u-tip-text" id="tip-text">Ver opciones no registra consumo.</p>
+     <div class="u-tip-rings">
+       <div class="u-tip-ring-item">
+         <svg viewBox="0 0 44 44" width="44" height="44">
+@@ -238,75 +239,19 @@
+ <div id="plan-comidas" style="display:none;">
+   <div class="u-section-header">
+     <h2 class="u-section-title">🍽️ Opciones del plan mostrado</h2>
+-    <p class="u-section-subtitle">Elige <strong>una opción</strong> de cada grupo por comida</p>
++    <p class="u-section-subtitle">Porciones de la fuente consultada. Ver opciones, preparar una compra y registrar consumo son acciones distintas.</p>
+   </div>
+   <div id="meals-container" style="display:grid; gap:20px;"></div>
+ </div>
+ 
++{% include "plan_diario_section.html" %}
++
+ <!-- ── 7b. NUTRITIONAL RECOMMENDATIONS ────────────────────── -->
+-<div id="recomendaciones-section" style="display:none;">
+-  <div class="u-section-header">
+-    <h2 class="u-section-title">💧 Recomendaciones Nutricionales</h2>
+-  </div>
+-  <div class="u-reco-grid">
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">💧</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">Hidratación</h4>
+-        <p class="u-reco-text">Toma al menos <strong>2 a 3 litros de agua</strong> al día. Tu metabolismo funciona mejor cuando estás bien hidratado.</p>
+-      </div>
+-    </div>
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">🥗</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">Vegetales en cada comida</h4>
+-        <p class="u-reco-text">Incluye al menos <strong>una porción de verduras</strong> en cada comida. Aportan fibra, vitaminas y te ayudan a sentirte satisfecho.</p>
+-      </div>
+-    </div>
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">⏰</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">Horarios regulares</h4>
+-        <p class="u-reco-text">Intenta comer a las <strong>mismas horas</strong> cada día. La regularidad mejora tu digestión y niveles de energía.</p>
+-      </div>
+-    </div>
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">🍳</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">Proteína en cada comida</h4>
+-        <p class="u-reco-text">Distribuye tu proteína entre las <strong>4 comidas del día</strong>. Esto maximiza la síntesis muscular y te mantiene satisfecho.</p>
+-      </div>
+-    </div>
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">🚫</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">Limita azúcares añadidos</h4>
+-        <p class="u-reco-text">Evita refrescos, jugos industriales y dulces. Prefiere <strong>agua natural, té o café sin azúcar</strong>.</p>
+-      </div>
+-    </div>
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">😴</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">Descansa bien</h4>
+-        <p class="u-reco-text">Duerme <strong>7 a 9 horas</strong> diarias. El descanso es clave para la recuperación muscular y el control del apetito.</p>
+-      </div>
+-    </div>
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">🧂</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">Modera la sal</h4>
+-        <p class="u-reco-text">Usa <strong>especias y hierbas</strong> para sazonar. Reduce la sal de mesa para cuidar tu presión arterial.</p>
+-      </div>
+-    </div>
+-    <div class="u-reco-card">
+-      <span class="u-reco-icon">🔥</span>
+-      <div class="u-reco-body">
+-        <h4 class="u-reco-title">No te saltes comidas</h4>
+-        <p class="u-reco-text">Saltarse comidas <strong>ralentiza tu metabolismo</strong>. Es mejor comer porciones controladas que ayunar sin plan.</p>
+-      </div>
+-    </div>
+-  </div>
+-</div>
++<section id="recomendaciones-section" class="u-card" style="display:none;" aria-labelledby="plan-use-title">
++  <h2 id="plan-use-title">Alcance de este plan</h2>
++  <p>Se muestran las porciones de la fuente consultada. Las preferencias guardadas no demuestran que un plan cumpla restricciones o alergias. Las nuevas sustituciones requieren validación final que aún no está disponible.</p>
++  <p>Registrar consumo conserva únicamente los alimentos elegidos como un hecho personal. Ver el plan o preparar una compra no registra ni completa comidas.</p>
++</section>
+ 
+ <!-- ── WATER TRACKING PANEL ────────────────────────────────── -->
+ <div class="u-panel-overlay" id="panel-agua-overlay" role="dialog" aria-modal="true" aria-labelledby="water-title" tabindex="-1" style="display:none;">
+@@ -355,7 +300,7 @@
+       <button class="u-panel-close" id="panel-excluir-close">&times;</button>
+     </div>
+     <div class="u-panel-body">
+-      <p class="u-panel-question" style="margin-bottom:12px;">Selecciona los alimentos que quieres excluir de tus planes. Se aplicarán en la próxima generación.</p>
++      <p class="u-panel-question" style="margin-bottom:12px;">Guarda tus preferencias de alimentos. Esta lista no certifica exclusiones o alergias en la fuente mostrada ni sustituye la verificación final de restricciones.</p>
+       <div id="excluir-tags" class="u-excl-tags"></div>
+       <div id="excluir-catalogo" class="u-excl-catalogo">
+         <p class="u-excl-loading" id="excluir-loading-msg">Cargando catálogo...</p>
+@@ -393,6 +338,8 @@
+ <script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
+ <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
+ <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-diario.js?v={{ static_version }}"></script>
++<script nonce="{{ request.state.csp_nonce }}" src="/static/js/plan-diario-datos.js?v={{ static_version }}"></script>
++<script nonce="{{ request.state.csp_nonce }}" src="/static/js/plan-diario-ui.js?v={{ static_version }}"></script>
+ <script nonce="{{ request.state.csp_nonce }}">
+ (async function() {
+ 
+@@ -444,6 +391,13 @@
+   }
+ 
+   var diario = null;
++  var shopping = null;
++  function sourceForShopping(data) {
++    personal.check();
++    if(!data || !personal.validPlanId(data.plan_id) || !data.plan)return null;
++    return {key:'personal:'+data.plan_id,kind:'personal',plan_id:data.plan_id,plan:data.plan,
++      label:'Fuente: plan personal #'+data.plan_id+' · '+(data.meta && data.meta.fecha ? data.meta.fecha : 'fecha no disponible')+'.'};
++  }
+ 
+   /* ── Load profile ── */
+   var perfil = null;
+@@ -455,6 +409,7 @@
+   function clearPersonalView() {
+     perfil = null; ultimoPlan = null;
+     if (diario) diario.invalidate();
++    if (shopping) shopping.invalidate();
+     excluirExcluidos = []; excluirCatalogoLoaded = false;
+     ['macros-section','quick-actions','context-bar','summary-section','plan-comidas','recomendaciones-section','empty-plan','onboarding-card'].forEach(function(id) {
+       var element = document.getElementById(id); if (element) element.style.display = 'none';
+@@ -509,6 +464,9 @@
+     diario = PersonalDiary.mountPlan({personal:personal,getPlan:function() { return ultimoPlan; }});
+     await diario.bootstrap();
+     if (!personal.active) return;
++    shopping = PlanDayUI.mount({root:document.getElementById('plan-shopping'),context:personal,
++      readSource:async function(){var data=await personal.read(function(context){return Api.usuario.miPlan(context);});personal.check();return sourceForShopping(data);},
++      readRecorded:function(start,end){return diario.calendar(start,end);},onInvalidated:function(){personal.invalidate();}});
+   } catch(e) {
+     return;
+   }
+@@ -586,102 +544,18 @@
+     document.getElementById('btn-descargar-pdf').style.display = data.tiene_pdf && personal.validPlanId(data.plan_id) ? '' : 'none';
+     document.getElementById('empty-plan').style.display = 'none';
+ 
+-    /* Render meals */
+-    var container = document.getElementById('meals-container');
+-    container.innerHTML = '';
+-
+-    var MACRO_LABELS = { proteinas: '🥩 Proteína', carbohidratos: '🍞 Carbohidratos', grasas: '🥑 Grasas' };
+-    var MACRO_CLASSES = { proteinas: 'u-macro-prot', carbohidratos: 'u-macro-carb', grasas: 'u-macro-fat' };
+-
+-    for (var j = 0; j < comidas.length; j++) {
+-      var comida = comidas[j];
+-      var mealData = plan[comida];
+-      if (!mealData) continue;
+-
+-      var icon = MEAL_ICONS[comida] || '🍽️';
+-      var label = MEAL_LABELS[comida] || comida;
+-      var kcalObj = Math.round(mealData.kcal_objetivo || 0);
+-
+-      var isOpciones = mealData.tipo_plan === 'opciones' || mealData.proteinas;
+-
+-      var bodyHtml = '';
+-
+-      if (isOpciones) {
+-        /* ── Options plan rendering ── */
+-        var macros = ['proteinas', 'carbohidratos', 'grasas'];
+-        for (var m = 0; m < macros.length; m++) {
+-          var macroKey = macros[m];
+-          var macroData = mealData[macroKey];
+-          if (!macroData || !macroData.opciones || !macroData.opciones.length) continue;
+-
+-          var cantObj = Math.round(macroData.cantidad_objetivo || 0);
+-          bodyHtml += '<div class="u-macro-group ' + (MACRO_CLASSES[macroKey] || '') + '">';
+-          bodyHtml += '<div class="u-macro-group-header">' +
+-            '<span class="u-macro-group-label">' + MACRO_LABELS[macroKey] + '</span>' +
+-            '<span class="u-macro-group-target">' + cantObj + 'g objetivo</span>' +
+-          '</div>';
+-          bodyHtml += '<div class="u-options-list">';
+-
+-          for (var o = 0; o < macroData.opciones.length; o++) {
+-            var op = macroData.opciones[o];
+-            var nombre = (op.alimento || '').replace(/_/g, ' ');
+-            nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+-            var equiv = op.equivalencia ? ' · ' + esc(op.equivalencia) : '';
+-            bodyHtml += '<div class="u-option-item">' +
+-              '<span class="u-option-num">' + (o + 1) + '</span>' +
+-              '<span class="u-option-name">' + esc(nombre) + equiv + '</span>' +
+-              '<span class="u-option-grams">' + Math.round(op.gramos || 0) + 'g</span>' +
+-            '</div>';
+-          }
+-          bodyHtml += '</div></div>';
+-        }
+-
+-        /* Vegetables */
+-        var vegs = mealData.vegetales || [];
+-        if (vegs.length) {
+-          bodyHtml += '<div class="u-macro-group u-macro-veg">';
+-          bodyHtml += '<div class="u-macro-group-header">' +
+-            '<span class="u-macro-group-label">🥬 Vegetales</span>' +
+-            '<span class="u-macro-group-target">125g recomendados</span>' +
+-          '</div>';
+-          bodyHtml += '<div class="u-veg-list">';
+-          for (var v = 0; v < vegs.length; v++) {
+-            var vn = (vegs[v].alimento || '').replace(/_/g, ' ');
+-            vn = vn.charAt(0).toUpperCase() + vn.slice(1);
+-            bodyHtml += '<span class="u-veg-chip">' + esc(vn) + ' · ' + Math.round(vegs[v].gramos || 0) + 'g</span>';
+-          }
+-          bodyHtml += '</div></div>';
+-        }
+-      } else {
+-        /* ── Fixed plan rendering (legacy) ── */
+-        var alimentos = mealData.alimentos || {};
+-        var entries = Object.entries(alimentos);
+-        for (var k = 0; k < entries.length; k++) {
+-          var nombre = entries[k][0];
+-          var gramos = entries[k][1];
+-          bodyHtml += '<div class="u-meal-item">' +
+-            '<span class="u-meal-item-name">' + esc(nombre) + '</span>' +
+-            '<span class="u-meal-item-amount">' + Math.round(gramos) + 'g</span>' +
+-          '</div>';
+-        }
+-      }
+-
+-      if (!bodyHtml) continue;
+-
+-      container.innerHTML += '<div class="u-card u-meal-card">' +
+-        '<div class="u-meal-header">' +
+-          '<h3 class="u-meal-title">' + icon + ' ' + esc(label) + '</h3>' +
+-          '<span class="u-meal-kcal">' + kcalObj + ' kcal</span>' +
+-        '</div>' +
+-        bodyHtml +
+-      '</div>';
+-    }
++    /* Structured source quantities; no defaults or ambiguous recipe parsing. */
++    PlanDayUI.renderMenu(document.getElementById('meals-container'),{plan:plan},function(){personal.check();});
+ 
+     document.getElementById('plan-comidas').style.display = 'block';
+     document.getElementById('recomendaciones-section').style.display = 'block';
+     document.getElementById('empty-plan').style.display = 'none';
+ 
+     if (diario) diario.syncPlan();
++    if(shopping)shopping.setSource(sourceForShopping(data),diario && diario.today);
++    if(shopping)personal.read(function(context){return Api.usuario.catalogo(context);}).then(function(catalog){
++      personal.check();shopping.setCatalog(Object.values(catalog).filter(Array.isArray).flat().filter(function(id){return typeof id==='string';}));
++    }).catch(function(){/* Unverified labels remain individual lines; no guessed merge. */});
+   }
+ 
+   /* ── Generate plan ── */
+@@ -819,7 +693,7 @@
+       var exclusions = excluirExcluidos.slice();
+       await personal.read(function(context) { return Api.usuario.guardarPerfil({ alimentos_excluidos: exclusions }, context); });
+       excluirOverlay.style.display = 'none';
+-      showToast('✅ Exclusiones guardadas. Las usaremos en tu próxima generación.');
++      showToast('Preferencias guardadas. Revisa los alimentos de cada fuente; no se confirmó una validación de restricciones.');
+     } catch(e) {
+       if (personal.active) showToast(e.message, 'error');
+     } finally {
+@@ -830,13 +704,10 @@
+   /* ── Rotating tips carousel ─────────────────────────────────────────── */
+   (function() {
+     var TIPS = [
+-      'Distribuye tu proteína equitativamente entre comidas para maximizar la síntesis muscular. Apunta a 25-40g por comida.',
+-      'Beber 500ml de agua 30 minutos antes de cada comida mejora la digestión y ayuda a controlar el apetito.',
+-      'Los carbohidratos complejos (avena, arroz integral, papa) liberan energía lenta y sostenida. Prefiere estos sobre los simples.',
+-      'Incluir grasas saludables como aguacate, aceite de oliva o nueces mejora la absorción de vitaminas liposolubles A, D, E y K.',
+-      'Comer cada 3-4 horas mantiene el metabolismo activo y previene los picos de insulina que favorecen el almacenamiento de grasa.',
+-      'El descanso es parte del plan: dormir 7-9 horas regula la grelina y la leptina, hormonas que controlan el hambre.',
+-      'Masticar despacio y sin distracciones mejora la señal de saciedad. Tu cerebro tarda ~20 minutos en registrar que estás lleno.'
++      'Ver las opciones no registra consumo. Confirma una comida únicamente cuando quieras guardar su selección.',
++      'La compra es un borrador en esta página. Sus cantidades dependen de las porciones y fechas que elijas.',
++      'El consumo registrado y la marca de completado son datos distintos. Sus totales provienen de snapshots guardados.',
++      'Las preferencias no certifican restricciones o alergias. Las nuevas sustituciones todavía no están disponibles.'
+     ];
+ 
+     var tipIdx = 0;
+@@ -878,8 +749,7 @@
+     tipTextEl.textContent = TIPS[tipIdx];
+     renderDots();
+ 
+-    /* Auto-rotate every 8 seconds */
+-    setInterval(function() { goTip(tipIdx + 1); }, 8000);
++    /* Change these usage notes only through the explicit navigation buttons. */
+   })();
+ 
+ })();
+diff --git a/web/templates/usuario_vinculos.html b/web/templates/usuario_vinculos.html
+index 46bcdc6..2fedc26 100644
+--- a/web/templates/usuario_vinculos.html
++++ b/web/templates/usuario_vinculos.html
+@@ -5,8 +5,12 @@
+   <title>Mis vínculos — Método Base</title>
+   <link rel="stylesheet" href="/static/css/vinculos.css">
+   <link rel="stylesheet" href="/static/css/privacy-export.css">
++  <link rel="stylesheet" href="/static/css/plan-diario.css">
+   <script src="/static/js/api.js" defer></script><script src="/static/js/vinculos-contexto.js" defer></script>
+-  <script src="/static/js/vinculos-ui.js" defer></script><script src="/static/js/vinculos-lectura.js" defer></script>
++  <script src="/static/js/vinculos-ui.js" defer></script>
++  <script src="/static/js/usuario-diario.js" defer></script><script src="/static/js/plan-diario-datos.js" defer></script>
++  <script src="/static/js/plan-diario-ui.js" defer></script><script src="/static/js/plan-publicacion-consumo.js" defer></script>
++  <script src="/static/js/vinculos-lectura.js" defer></script>
+   <script src="/static/js/usuario-privacidad.js" defer></script>
+ </head>
+ <body><main class="link-page" id="member-links-page">
+@@ -22,7 +26,8 @@
+     <div id="member-publication-summary"></div>
+     <div class="link-actions"><button id="member-publication-pdf" type="button" hidden>Descargar PDF de esta publicación</button><button id="member-link-leave" class="secondary" type="button" hidden>Desvincularme de este contexto</button></div>
+     <div id="member-publication-meals"></div>
++    {% include "plan_diario_section.html" %}
+   </section>
+-  <aside><h2>Tu diario sigue siendo personal</h2><p>Consultar este menú no registra consumo ni lo incorpora a tu diario. El vínculo no comparte tu diario, mediciones ni cartera profesional. Esas funciones requieren una integración y un consentimiento aparte.</p></aside>
++  <aside><h2>Tu diario sigue siendo personal</h2><p>Consultar este menú o preparar una compra no registra consumo. Registrar una selección requiere tu confirmación y un espacio personal autorizado; no comparte diario, mediciones ni cartera con el gimnasio. Un consumo confirmado conserva su snapshot personal aunque se retire la publicación.</p></aside>
+   {% include "member_export_section.html" %}
+ </main></body></html>

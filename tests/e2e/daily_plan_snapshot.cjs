@@ -1,0 +1,10 @@
+/* New publication provenance parser cases; reuse immutable18 diary controller criteria. */
+const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
+const source=fs.readFileSync(path.join(__dirname,'personal_diary_controller.cjs'),'utf8'),marker='(async()=>{const results=[];';
+if(source.split(marker).length!==2)throw Error('Unexpected controller fixture runner');
+const additions=String.raw`
+const provenance=()=>({kind:'publication',link_id:'00000000-0000-0000-0000-000000000001',publication_id:'00000000-0000-0000-0000-000000000002',link_version:2,publication_version:1,published_at:'2026-10-19T18:00:00+00:00'});
+test('Exact optional publication provenance is retained only inside the own snapshot',async()=>{const e=fixture(),value=empty();value.version=1;value.meals.desayuno={...meal(),source_context:provenance()};value.totals=value.meals.desayuno.totals;e.shared.days.set(value.local_date,value);await e.diary.bootstrap();assert.equal(e.diary.state,'ready');assert.deepEqual(clone(e.diary.day.meals.desayuno.source_context),provenance());assert.equal(e.shared.calls.length,0);});
+for(const [label,change]of [['foreign profile field',{gym_id:'must-not-export'}],['uppercase ID',{link_id:'AAAAAAAA-0000-0000-0000-000000000001'}],['boolean version',{link_version:true}],['missing zone',{published_at:'2026-10-19T18:00:00'}],['invalid date',{published_at:'2026-02-30T18:00:00Z'}],['different kind',{kind:'professional_profile'}]])test('Unverified source context rejects whole snapshot: '+label,async()=>{const e=fixture(),value=empty();value.version=1;value.meals.desayuno={...meal(),source_context:{...provenance(),...change}};value.totals=value.meals.desayuno.totals;e.shared.days.set(value.local_date,value);await e.diary.bootstrap();assert.equal(e.diary.state,'error');assert.equal(e.diary.day,null);assert.equal(e.views.length,0);});
+`;
+const candidate=new Module(__filename,module);candidate.filename=__filename;candidate.paths=module.paths;candidate._compile(source.replace(marker,additions+'\n'+marker),__filename);

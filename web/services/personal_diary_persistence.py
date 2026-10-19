@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 import json
 import logging
 import math
+import re
 from types import SimpleNamespace
 
 from fastapi import HTTPException
@@ -11,10 +12,11 @@ from sqlalchemy.orm import Session
 
 from web.database.models import PersonalDiaryDay, Usuario, UserRole
 from web.database.tenant_context import bind_verified_subject
-from web.personal_diary_schemas import CompletionOperation, MealOperation, MealSelection, WaterOperation
+from web.personal_diary_schemas import (CompletionOperation, MealOperation, MealSelection, WaterOperation,
+    PublicationMealOperation, RemoveMealOperation)
 from web.services.personal_diary_service import (
     DIARY_TIMEZONE, MACRO_FIELDS, MAX_MEAL_FOODS, MEALS, _clock, local_today,
-    require_calendar_range, require_writable_day, resolve_consumed_meal,
+    require_calendar_range, require_writable_day, resolve_consumed_meal, resolve_verified_meal,
 )
 
 MAX_DAY_JSON_BYTES = 64 * 1024
@@ -84,8 +86,19 @@ def decode_meals(raw: str) -> dict:
             _state_error()
         for name, snapshot in meals.items():
             required = {'source_plan_id','meal','selections','foods','totals','recorded_at','completed'}
-            if not isinstance(snapshot, dict) or set(snapshot) != required or snapshot['meal'] != name:
+            if (not isinstance(snapshot, dict) or set(snapshot) not in (required,required|{'source_context'})
+                    or snapshot['meal'] != name):
                 _state_error()
+            if 'source_context' in snapshot:
+                source=snapshot['source_context']
+                keys={'kind','link_id','publication_id','link_version','publication_version','published_at'}
+                if not isinstance(source,dict) or set(source)!=keys or source['kind']!='publication':_state_error()
+                for identity in ('link_id','publication_id'):
+                    if not isinstance(source[identity],str) or not re.fullmatch(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',source[identity]):_state_error()
+                for number in ('link_version','publication_version'):
+                    if type(source[number]) is not int or not 1<=source[number]<=MAX_VERSION:_state_error()
+                published=datetime.fromisoformat(source['published_at'])
+                if published.tzinfo is None or published.utcoffset() is None:_state_error()
             if (type(snapshot['source_plan_id']) is not int or not 0 < snapshot['source_plan_id'] <= MAX_VERSION
                     or type(snapshot['completed']) is not bool):
                 _state_error()
@@ -184,12 +197,23 @@ def _rollback(db):
         _fail(503, 'diary_save_unconfirmed', 'No fue posible confirmar el guardado. Recarga el dia antes de reintentar.')
 
 
-def patch_diary_day(db: Session, subject_id: str, day: date, operation, *, now=None):
+def patch_diary_day(db: Session, subject_id: str, day: date, operation, *, now=None, principal=None):
     """Exactly one service-owned COMMIT; the route dependency never autocommits."""
     try:
         instant = _clock(now)
         require_writable_day(day, now=instant)
-        require_personal_subject(db, subject_id, lock=True)
+        publication_source=None
+        if isinstance(operation,PublicationMealOperation):
+            if not isinstance(principal,dict) or principal.get('id')!=subject_id:
+                _fail(401,'diary_identity_unavailable','Inicia sesion nuevamente.')
+            require_personal_subject(db,subject_id)
+            from web.services.client_link_plans import consumption_source
+            # R12 locks all account IDs in total order before link/publication.
+            # Do not acquire a self-only write lock first and reverse that order.
+            publication_source=consumption_source(db,principal,operation)
+            require_personal_subject(db,subject_id)
+        else:
+            require_personal_subject(db, subject_id, lock=True)
         row = db.execute(select(PersonalDiaryDay).where(PersonalDiaryDay.user_id == subject_id,
             PersonalDiaryDay.local_date == day).execution_options(populate_existing=True)).scalar_one_or_none()
         version = row.version if row is not None else 0
@@ -210,6 +234,15 @@ def patch_diary_day(db: Session, subject_id: str, day: date, operation, *, now=N
                 _fail(404, 'diary_plan_unavailable', 'No se encontro ese plan personal.')
             meals[operation.meal] = {**resolve_consumed_meal(plan, subject_id, operation.meal, operation.selections, now=instant),
                 'completed':False}
+        elif isinstance(operation,PublicationMealOperation):
+            content=publication_source['plan'].get(operation.meal)
+            meals[operation.meal]={**resolve_verified_meal(publication_source['source_plan_id'],content,
+                operation.meal,operation.selections,now=instant),'completed':False,
+                'source_context':publication_source['source_context']}
+        elif isinstance(operation,RemoveMealOperation):
+            if operation.meal not in meals:
+                _fail(409,'diary_meal_required','No hay consumo registrado de esa comida para eliminar.')
+            del meals[operation.meal]
         elif isinstance(operation, CompletionOperation):
             if operation.meal not in meals:
                 _fail(409, 'diary_meal_required', 'Registra los alimentos de esa comida antes de completarla.')

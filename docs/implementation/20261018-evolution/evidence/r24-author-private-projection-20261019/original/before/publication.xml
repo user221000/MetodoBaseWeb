@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="8.931" timestamp="2026-10-19T09:14:44.080124-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_publication_diary_consumption" name="test_explicit_fixed_source_resolves_real_grams_instead_of_empty_consumption" time="0.321"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for MealSelection&#10;include_fixed_menu&#10;  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]&#10;    For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden">tests\test_publication_diary_consumption.py:16: in test_explicit_fixed_source_resolves_real_grams_instead_of_empty_consumption
+    result=resolve_consumed_meal(plan,'person','desayuno',MealSelection(include_fixed_menu=True),now=datetime.now(timezone.utc))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for MealSelection
+E   include_fixed_menu
+E     Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+E       For further information visit https://errors.pydantic.dev/2.14/v/extra_forbidden</failure></testcase><testcase classname="tests.test_publication_diary_consumption" name="test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access[web.main_web-sqlite]" time="6.670"><failure message="AssertionError: {&quot;detail&quot;:{&quot;code&quot;:&quot;invalid_diary_operation&quot;,&quot;message&quot;:&quot;Revisa los campos de la operacion.&quot;}}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code">tests\test_publication_diary_consumption.py:39: in test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access
+    assert saved.status_code==200,saved.text
+E   AssertionError: {"detail":{"code":"invalid_diary_operation","message":"Revisa los campos de la operacion."}}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code</failure></testcase><testcase classname="tests.test_publication_diary_consumption" name="test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access[api.app-sqlite]" time="0.372"><failure message="AssertionError: {&quot;detail&quot;:{&quot;code&quot;:&quot;invalid_diary_operation&quot;,&quot;message&quot;:&quot;Revisa los campos de la operacion.&quot;}}&#10;assert 422 == 200&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code">tests\test_publication_diary_consumption.py:39: in test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access
+    assert saved.status_code==200,saved.text
+E   AssertionError: {"detail":{"code":"invalid_diary_operation","message":"Revisa los campos de la operacion."}}
+E   assert 422 == 200
+E    +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code</failure></testcase></testsuite></testsuites>

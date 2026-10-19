@@ -1,6 +1,7 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mi Plan{% endblock %}
 {% block head %}
+<link rel="stylesheet" href="/static/css/plan-diario.css?v=r24-1">
 <style nonce="{{ request.state.csp_nonce }}">
 .u-veg-chip { color: var(--u-green); }
 #diary-section .u-btn-secondary { color:var(--u-text);background:var(--u-bg-card);border:1px solid var(--u-border); }
@@ -100,7 +101,7 @@
         <button class="u-tip-nav-btn" id="tip-next" aria-label="Siguiente">&#8250;</button>
       </div>
     </div>
-    <p class="u-tip-text" id="tip-text">Cargando consejo...</p>
+    <p class="u-tip-text" id="tip-text">Ver opciones no registra consumo.</p>
     <div class="u-tip-rings">
       <div class="u-tip-ring-item">
         <svg viewBox="0 0 44 44" width="44" height="44">
@@ -238,75 +239,19 @@
 <div id="plan-comidas" style="display:none;">
   <div class="u-section-header">
     <h2 class="u-section-title">🍽️ Opciones del plan mostrado</h2>
-    <p class="u-section-subtitle">Elige <strong>una opción</strong> de cada grupo por comida</p>
+    <p class="u-section-subtitle">Porciones de la fuente consultada. Ver opciones, preparar una compra y registrar consumo son acciones distintas.</p>
   </div>
   <div id="meals-container" style="display:grid; gap:20px;"></div>
 </div>
 
+{% include "plan_diario_section.html" %}
+
 <!-- ── 7b. NUTRITIONAL RECOMMENDATIONS ────────────────────── -->
-<div id="recomendaciones-section" style="display:none;">
-  <div class="u-section-header">
-    <h2 class="u-section-title">💧 Recomendaciones Nutricionales</h2>
-  </div>
-  <div class="u-reco-grid">
-    <div class="u-reco-card">
-      <span class="u-reco-icon">💧</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">Hidratación</h4>
-        <p class="u-reco-text">Toma al menos <strong>2 a 3 litros de agua</strong> al día. Tu metabolismo funciona mejor cuando estás bien hidratado.</p>
-      </div>
-    </div>
-    <div class="u-reco-card">
-      <span class="u-reco-icon">🥗</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">Vegetales en cada comida</h4>
-        <p class="u-reco-text">Incluye al menos <strong>una porción de verduras</strong> en cada comida. Aportan fibra, vitaminas y te ayudan a sentirte satisfecho.</p>
-      </div>
-    </div>
-    <div class="u-reco-card">
-      <span class="u-reco-icon">⏰</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">Horarios regulares</h4>
-        <p class="u-reco-text">Intenta comer a las <strong>mismas horas</strong> cada día. La regularidad mejora tu digestión y niveles de energía.</p>
-      </div>
-    </div>
-    <div class="u-reco-card">
-      <span class="u-reco-icon">🍳</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">Proteína en cada comida</h4>
-        <p class="u-reco-text">Distribuye tu proteína entre las <strong>4 comidas del día</strong>. Esto maximiza la síntesis muscular y te mantiene satisfecho.</p>
-      </div>
-    </div>
-    <div class="u-reco-card">
-      <span class="u-reco-icon">🚫</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">Limita azúcares añadidos</h4>
-        <p class="u-reco-text">Evita refrescos, jugos industriales y dulces. Prefiere <strong>agua natural, té o café sin azúcar</strong>.</p>
-      </div>
-    </div>
-    <div class="u-reco-card">
-      <span class="u-reco-icon">😴</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">Descansa bien</h4>
-        <p class="u-reco-text">Duerme <strong>7 a 9 horas</strong> diarias. El descanso es clave para la recuperación muscular y el control del apetito.</p>
-      </div>
-    </div>
-    <div class="u-reco-card">
-      <span class="u-reco-icon">🧂</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">Modera la sal</h4>
-        <p class="u-reco-text">Usa <strong>especias y hierbas</strong> para sazonar. Reduce la sal de mesa para cuidar tu presión arterial.</p>
-      </div>
-    </div>
-    <div class="u-reco-card">
-      <span class="u-reco-icon">🔥</span>
-      <div class="u-reco-body">
-        <h4 class="u-reco-title">No te saltes comidas</h4>
-        <p class="u-reco-text">Saltarse comidas <strong>ralentiza tu metabolismo</strong>. Es mejor comer porciones controladas que ayunar sin plan.</p>
-      </div>
-    </div>
-  </div>
-</div>
+<section id="recomendaciones-section" class="u-card" style="display:none;" aria-labelledby="plan-use-title">
+  <h2 id="plan-use-title">Alcance de este plan</h2>
+  <p>Se muestran las porciones de la fuente consultada. Las preferencias guardadas no demuestran que un plan cumpla restricciones o alergias. Las nuevas sustituciones requieren validación final que aún no está disponible.</p>
+  <p>Registrar consumo conserva únicamente los alimentos elegidos como un hecho personal. Ver el plan o preparar una compra no registra ni completa comidas.</p>
+</section>
 
 <!-- ── WATER TRACKING PANEL ────────────────────────────────── -->
 <div class="u-panel-overlay" id="panel-agua-overlay" role="dialog" aria-modal="true" aria-labelledby="water-title" tabindex="-1" style="display:none;">
@@ -355,7 +300,7 @@
       <button class="u-panel-close" id="panel-excluir-close">&times;</button>
     </div>
     <div class="u-panel-body">
-      <p class="u-panel-question" style="margin-bottom:12px;">Selecciona los alimentos que quieres excluir de tus planes. Se aplicarán en la próxima generación.</p>
+      <p class="u-panel-question" style="margin-bottom:12px;">Guarda tus preferencias de alimentos. Esta lista no certifica exclusiones o alergias en la fuente mostrada ni sustituye la verificación final de restricciones.</p>
       <div id="excluir-tags" class="u-excl-tags"></div>
       <div id="excluir-catalogo" class="u-excl-catalogo">
         <p class="u-excl-loading" id="excluir-loading-msg">Cargando catálogo...</p>
@@ -393,6 +338,8 @@
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-diario.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/plan-diario-datos.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/plan-diario-ui.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
 
@@ -444,6 +391,13 @@
   }
 
   var diario = null;
+  var shopping = null;
+  function sourceForShopping(data) {
+    personal.check();
+    if(!data || !personal.validPlanId(data.plan_id) || !data.plan)return null;
+    return {key:'personal:'+data.plan_id,kind:'personal',plan_id:data.plan_id,plan:data.plan,
+      label:'Fuente: plan personal #'+data.plan_id+' · '+(data.meta && data.meta.fecha ? data.meta.fecha : 'fecha no disponible')+'.'};
+  }
 
   /* ── Load profile ── */
   var perfil = null;
@@ -455,6 +409,7 @@
   function clearPersonalView() {
     perfil = null; ultimoPlan = null;
     if (diario) diario.invalidate();
+    if (shopping) shopping.invalidate();
     excluirExcluidos = []; excluirCatalogoLoaded = false;
     ['macros-section','quick-actions','context-bar','summary-section','plan-comidas','recomendaciones-section','empty-plan','onboarding-card'].forEach(function(id) {
       var element = document.getElementById(id); if (element) element.style.display = 'none';
@@ -509,6 +464,9 @@
     diario = PersonalDiary.mountPlan({personal:personal,getPlan:function() { return ultimoPlan; }});
     await diario.bootstrap();
     if (!personal.active) return;
+    shopping = PlanDayUI.mount({root:document.getElementById('plan-shopping'),context:personal,
+      readSource:async function(){var data=await personal.read(function(context){return Api.usuario.miPlan(context);});personal.check();return sourceForShopping(data);},
+      readRecorded:function(start,end){return diario.calendar(start,end);},onInvalidated:function(){personal.invalidate();}});
   } catch(e) {
     return;
   }
@@ -586,102 +544,18 @@
     document.getElementById('btn-descargar-pdf').style.display = data.tiene_pdf && personal.validPlanId(data.plan_id) ? '' : 'none';
     document.getElementById('empty-plan').style.display = 'none';
 
-    /* Render meals */
-    var container = document.getElementById('meals-container');
-    container.innerHTML = '';
-
-    var MACRO_LABELS = { proteinas: '🥩 Proteína', carbohidratos: '🍞 Carbohidratos', grasas: '🥑 Grasas' };
-    var MACRO_CLASSES = { proteinas: 'u-macro-prot', carbohidratos: 'u-macro-carb', grasas: 'u-macro-fat' };
-
-    for (var j = 0; j < comidas.length; j++) {
-      var comida = comidas[j];
-      var mealData = plan[comida];
-      if (!mealData) continue;
-
-      var icon = MEAL_ICONS[comida] || '🍽️';
-      var label = MEAL_LABELS[comida] || comida;
-      var kcalObj = Math.round(mealData.kcal_objetivo || 0);
-
-      var isOpciones = mealData.tipo_plan === 'opciones' || mealData.proteinas;
-
-      var bodyHtml = '';
-
-      if (isOpciones) {
-        /* ── Options plan rendering ── */
-        var macros = ['proteinas', 'carbohidratos', 'grasas'];
-        for (var m = 0; m < macros.length; m++) {
-          var macroKey = macros[m];
-          var macroData = mealData[macroKey];
-          if (!macroData || !macroData.opciones || !macroData.opciones.length) continue;
-
-          var cantObj = Math.round(macroData.cantidad_objetivo || 0);
-          bodyHtml += '<div class="u-macro-group ' + (MACRO_CLASSES[macroKey] || '') + '">';
-          bodyHtml += '<div class="u-macro-group-header">' +
-            '<span class="u-macro-group-label">' + MACRO_LABELS[macroKey] + '</span>' +
-            '<span class="u-macro-group-target">' + cantObj + 'g objetivo</span>' +
-          '</div>';
-          bodyHtml += '<div class="u-options-list">';
-
-          for (var o = 0; o < macroData.opciones.length; o++) {
-            var op = macroData.opciones[o];
-            var nombre = (op.alimento || '').replace(/_/g, ' ');
-            nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
-            var equiv = op.equivalencia ? ' · ' + esc(op.equivalencia) : '';
-            bodyHtml += '<div class="u-option-item">' +
-              '<span class="u-option-num">' + (o + 1) + '</span>' +
-              '<span class="u-option-name">' + esc(nombre) + equiv + '</span>' +
-              '<span class="u-option-grams">' + Math.round(op.gramos || 0) + 'g</span>' +
-            '</div>';
-          }
-          bodyHtml += '</div></div>';
-        }
-
-        /* Vegetables */
-        var vegs = mealData.vegetales || [];
-        if (vegs.length) {
-          bodyHtml += '<div class="u-macro-group u-macro-veg">';
-          bodyHtml += '<div class="u-macro-group-header">' +
-            '<span class="u-macro-group-label">🥬 Vegetales</span>' +
-            '<span class="u-macro-group-target">125g recomendados</span>' +
-          '</div>';
-          bodyHtml += '<div class="u-veg-list">';
-          for (var v = 0; v < vegs.length; v++) {
-            var vn = (vegs[v].alimento || '').replace(/_/g, ' ');
-            vn = vn.charAt(0).toUpperCase() + vn.slice(1);
-            bodyHtml += '<span class="u-veg-chip">' + esc(vn) + ' · ' + Math.round(vegs[v].gramos || 0) + 'g</span>';
-          }
-          bodyHtml += '</div></div>';
-        }
-      } else {
-        /* ── Fixed plan rendering (legacy) ── */
-        var alimentos = mealData.alimentos || {};
-        var entries = Object.entries(alimentos);
-        for (var k = 0; k < entries.length; k++) {
-          var nombre = entries[k][0];
-          var gramos = entries[k][1];
-          bodyHtml += '<div class="u-meal-item">' +
-            '<span class="u-meal-item-name">' + esc(nombre) + '</span>' +
-            '<span class="u-meal-item-amount">' + Math.round(gramos) + 'g</span>' +
-          '</div>';
-        }
-      }
-
-      if (!bodyHtml) continue;
-
-      container.innerHTML += '<div class="u-card u-meal-card">' +
-        '<div class="u-meal-header">' +
-          '<h3 class="u-meal-title">' + icon + ' ' + esc(label) + '</h3>' +
-          '<span class="u-meal-kcal">' + kcalObj + ' kcal</span>' +
-        '</div>' +
-        bodyHtml +
-      '</div>';
-    }
+    /* Structured source quantities; no defaults or ambiguous recipe parsing. */
+    PlanDayUI.renderMenu(document.getElementById('meals-container'),{plan:plan},function(){personal.check();});
 
     document.getElementById('plan-comidas').style.display = 'block';
     document.getElementById('recomendaciones-section').style.display = 'block';
     document.getElementById('empty-plan').style.display = 'none';
 
     if (diario) diario.syncPlan();
+    if(shopping)shopping.setSource(sourceForShopping(data),diario && diario.today);
+    if(shopping)personal.read(function(context){return Api.usuario.catalogo(context);}).then(function(catalog){
+      personal.check();shopping.setCatalog(Object.values(catalog).filter(Array.isArray).flat().filter(function(id){return typeof id==='string';}));
+    }).catch(function(){/* Unverified labels remain individual lines; no guessed merge. */});
   }
 
   /* ── Generate plan ── */
@@ -819,7 +693,7 @@
       var exclusions = excluirExcluidos.slice();
       await personal.read(function(context) { return Api.usuario.guardarPerfil({ alimentos_excluidos: exclusions }, context); });
       excluirOverlay.style.display = 'none';
-      showToast('✅ Exclusiones guardadas. Las usaremos en tu próxima generación.');
+      showToast('Preferencias guardadas. Revisa los alimentos de cada fuente; no se confirmó una validación de restricciones.');
     } catch(e) {
       if (personal.active) showToast(e.message, 'error');
     } finally {
@@ -830,13 +704,10 @@
   /* ── Rotating tips carousel ─────────────────────────────────────────── */
   (function() {
     var TIPS = [
-      'Distribuye tu proteína equitativamente entre comidas para maximizar la síntesis muscular. Apunta a 25-40g por comida.',
-      'Beber 500ml de agua 30 minutos antes de cada comida mejora la digestión y ayuda a controlar el apetito.',
-      'Los carbohidratos complejos (avena, arroz integral, papa) liberan energía lenta y sostenida. Prefiere estos sobre los simples.',
-      'Incluir grasas saludables como aguacate, aceite de oliva o nueces mejora la absorción de vitaminas liposolubles A, D, E y K.',
-      'Comer cada 3-4 horas mantiene el metabolismo activo y previene los picos de insulina que favorecen el almacenamiento de grasa.',
-      'El descanso es parte del plan: dormir 7-9 horas regula la grelina y la leptina, hormonas que controlan el hambre.',
-      'Masticar despacio y sin distracciones mejora la señal de saciedad. Tu cerebro tarda ~20 minutos en registrar que estás lleno.'
+      'Ver las opciones no registra consumo. Confirma una comida únicamente cuando quieras guardar su selección.',
+      'La compra es un borrador en esta página. Sus cantidades dependen de las porciones y fechas que elijas.',
+      'El consumo registrado y la marca de completado son datos distintos. Sus totales provienen de snapshots guardados.',
+      'Las preferencias no certifican restricciones o alergias. Las nuevas sustituciones todavía no están disponibles.'
     ];
 
     var tipIdx = 0;
@@ -878,8 +749,7 @@
     tipTextEl.textContent = TIPS[tipIdx];
     renderDots();
 
-    /* Auto-rotate every 8 seconds */
-    setInterval(function() { goTip(tipIdx + 1); }, 8000);
+    /* Change these usage notes only through the explicit navigation buttons. */
   })();
 
 })();

@@ -17,6 +17,16 @@
   function totals(value) {
     if (!value || macroNames.some(name => typeof value[name] !== 'number' || !Number.isFinite(value[name]) || value[name] < 0)) throw protocol();
   }
+  function sourceContext(value) {
+    const fields=['kind','link_id','publication_id','link_version','publication_version','published_at'];
+    const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+    if(!value || typeof value!=='object' || Array.isArray(value) || Object.keys(value).length!==fields.length ||
+       fields.some(key=>!Object.prototype.hasOwnProperty.call(value,key)) || value.kind!=='publication' ||
+       !uuid.test(value.link_id) || !uuid.test(value.publication_id) ||
+       ['link_version','publication_version'].some(key=>!Number.isSafeInteger(value[key]) || value[key]<1 || value[key]>2147483647) ||
+       typeof value.published_at!=='string' || !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d{1,6})?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(value.published_at)) throw protocol();
+    dateParts(value.published_at.slice(0,10));
+  }
   function parseDay(value, expected) {
     if (!value || value.timezone !== timezone) throw protocol();
     dateParts(value.local_date); dateParts(value.today);
@@ -29,6 +39,7 @@
       if (!mealNames.includes(name) || !meal || meal.meal !== name || !Number.isSafeInteger(meal.source_plan_id) || meal.source_plan_id < 1 ||
           typeof meal.completed !== 'boolean' || !Array.isArray(meal.foods) || meal.foods.length > 32 || !meal.selections || typeof meal.recorded_at !== 'string') throw protocol();
       totals(meal.totals);
+      if(Object.prototype.hasOwnProperty.call(meal,'source_context')) sourceContext(meal.source_context);
       for (const food of meal.foods) {
         if (!food || typeof food.food_id !== 'string' || !food.food_id || typeof food.grams !== 'number' || !Number.isFinite(food.grams) || food.grams <= 0) throw protocol();
         totals(food.macros);
@@ -238,7 +249,11 @@
         const list = document.createElement('ul');
         for (const food of saved.foods) { const item = document.createElement('li'); item.textContent = foodName(food.food_id)+' · '+number(food.grams)+' g'+(food.equivalence ? ' · '+food.equivalence : ''); list.append(item); }
         if (!saved.foods.length) { const item = document.createElement('li'); item.textContent = 'Se registró una selección vacía.'; list.append(item); }
-        article.append(title,text,list); root.append(article);
+        const provenance = document.createElement('p');
+        provenance.textContent = saved.source_context?.kind === 'publication' ? 'Fuente: publicación registrada el '+saved.source_context.published_at+' · consumo '+saved.recorded_at+'.' : 'Fuente: plan personal #'+saved.source_plan_id+' · consumo '+saved.recorded_at+'.';
+        const remove = document.createElement('button');remove.type='button';remove.className='u-btn u-btn-secondary';remove.textContent='Eliminar este consumo registrado';remove.dataset.removeConsumed='true';
+        remove.addEventListener('click',async()=>{try{personal.check();if(controller.writable && window.confirm('¿Eliminar únicamente el consumo registrado de '+labels[name]+' en '+day.local_date+'?'))await controller.save({operation:'remove_meal',meal:name});}catch{/* The shared context invalidates the view. */}});
+        article.append(title,text,provenance,list,remove); root.append(article);
       }
     }
     function draftDescription() {
@@ -246,8 +261,9 @@
       const operation = pending.operation;
       if (operation.operation === 'water') return 'Borrador sin confirmar para '+pending.day+': '+number(operation.water_ml)+' mL de agua.';
       if (operation.operation === 'completion') return 'Borrador sin confirmar: '+labels[operation.meal]+(operation.completed ? ' completada.' : ' sin completar.');
+      if (operation.operation === 'remove_meal') return 'Borrador sin confirmar: eliminar el consumo de '+labels[operation.meal]+' para '+pending.day+'.';
       const names = [];
-      if (source?.plan_id === operation.source_plan_id) {
+      if (operation.operation === 'meal' && source?.plan_id === operation.source_plan_id) {
         for (const [group,index] of Object.entries(operation.selections)) {
           if (group === 'include_vegetables') continue;
           const food = source.plan[operation.meal]?.[group]?.opciones?.[index];
@@ -274,6 +290,7 @@
       element('btn-comidas').disabled = !editable || !options.getPlan()?.plan_id;
       for (const input of element('meal-selector-content').querySelectorAll('input')) input.disabled = !editable;
       for (const [name,id] of Object.entries(checks)) element(id).disabled = !editable || !controller.day?.meals[name];
+      for(const button of element('diary-snapshots').querySelectorAll('[data-remove-consumed]'))button.disabled=!editable;
       if (['error','conflict','unconfirmed','review','exhausted','invalidated'].includes(update.state)) {
         const modal = ['panel-agua-overlay','panel-comidas-overlay'].map(element).find(panel => panel.style.display === 'flex');
         (modal?.querySelector('[data-diary-feedback]') || element('diary-status')).focus();
@@ -311,6 +328,12 @@
       for (const button of element('meal-tabs').querySelectorAll('[data-meal]')) button.setAttribute('aria-pressed',String(button.dataset.meal === name));
       if (!meal) return;
       const selected = chosen[name] ||= {include_vegetables:false};
+      if(meal.alimentos && !meal.proteinas && meal.tipo_plan!=='opciones') {
+        const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.checked=selected.include_fixed_menu===true;input.dataset.diaryFixed='true';
+        label.append(input,document.createTextNode('Registrar explícitamente el menú fijo completo de esta comida. El servidor verificará sus alimentos y cantidades.'));root.append(label);
+        input.addEventListener('change',()=>{try{personal.check();chosen[name]={include_fixed_menu:input.checked};element('diary-meal-status').textContent='Borrador de menú fijo sin registrar.';}catch{/* Context already cleared. */}});
+        element('diary-meal-status').textContent='Confirma el menú fijo completo antes de registrar. Abrir esta selección no guarda nada.';return;
+      }
       for (const [group,label] of [['proteinas','Proteína'],['carbohidratos','Carbohidratos'],['grasas','Grasas']]) {
         const foods = meal[group]?.opciones; if (!Array.isArray(foods)) continue;
         const fieldset = document.createElement('fieldset'); fieldset.className = 'u-sel-macro-group';

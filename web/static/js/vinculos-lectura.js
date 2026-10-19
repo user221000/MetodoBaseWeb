@@ -6,7 +6,8 @@
   const pdf = document.getElementById('member-publication-pdf'), leave = document.getElementById('member-link-leave');
   const more = document.getElementById('member-links-more');
   let records=[],next=null,selected=null,scope=null,result=null,mutationUnconfirmed=false;
-  function clearPublication() {result=null;panel.hidden=true;summary.replaceChildren();meals.replaceChildren();pdf.hidden=true;leave.hidden=true;ui.releaseDownloads();}
+  let shopping=null,consumption=null;
+  function clearPublication() {consumption?.invalidate();consumption=null;shopping?.invalidate();shopping=null;result=null;panel.hidden=true;summary.replaceChildren();meals.replaceChildren();pdf.hidden=true;leave.hidden=true;ui.releaseDownloads();}
   function clear() {scope?.invalidate();scope=null;records=[];next=null;selected=null;list.replaceChildren();clearPublication();more.hidden=true;document.getElementById('member-home').hidden=true;}
   function controls() {more.hidden=!next;pdf.hidden=!result?.publication||result.capabilities?.download_published_pdf!==true;leave.hidden=!selected||selected.capabilities?.revoke_link!==true;leave.disabled=mutationUnconfirmed;list.querySelectorAll('[data-mutation]').forEach(button=>{button.disabled=mutationUnconfirmed;});}
   const ui=VinculosUI.setup({status:'member-links-status',error:'member-links-error',clear,controls,
@@ -58,6 +59,23 @@
       }
     }
   }
+  function shoppingSource(data){
+    scope.check();const value=data?.publication;
+    if(!value || data.context?.link_id!==selected.link_id || data.link?.status!=='active')return null;
+    if(!uuid(value.id)||!version(value.version)||!version(data.link.version)||value.plan_schema_version!==1)throw new Error('Invalid published source');
+    return{key:selected.link_id+':'+data.link.version+':'+value.id+':'+value.version,kind:'publication',
+      link_id:selected.link_id,link_version:data.link.version,publication_id:value.id,publication_version:value.version,
+      plan_id:value.source_plan_id,plan:value.plan,label:'Fuente: publicación de '+data.context.gym_name+' · '+value.published_at+' · versión '+value.version+'.'};
+  }
+  function mountDaily(data){
+    scope.check();const currentScope=scope,link=selected.link_id;
+    shopping=PlanDayUI.mount({root:document.getElementById('plan-shopping'),context:currentScope,
+      readSource:async()=>{const current=await currentScope.read(context=>Api.vinculos.plan(link,context));currentScope.check();return shoppingSource(current);},
+      onSourceUnavailable:()=>{currentScope.invalidate();ui.status('La publicación cambió o ya no está disponible. Vuelve a consultar este vínculo.');}});
+    shopping.setSource(shoppingSource(data));
+    consumption=PublicationConsumption.mount({root:document.getElementById('plan-shopping'),scope:currentScope,shopping,
+      canRecord:data.capabilities.record_personal_consumption===true});
+  }
   async function select(row) {
     ui.context.check();scope?.invalidate();selected=row;clearPublication();scope=ui.context.scope(clearPublication);
     ui.status('Consultando el plan de este vínculo…');
@@ -72,6 +90,7 @@
         const target=data.publication.meta?.kcal_objetivo;
         if(target!==null&&target!==undefined&&Number.isFinite(target))node('p','Objetivo del plan: '+target+' kcal. No representa consumo registrado.',summary);
         renderMenu(data.publication.plan);
+        mountDaily(data);
         if(data.capabilities.download_published_pdf!==true)node('p','El PDF no está disponible para esta publicación.',summary);
       }else node('p','El profesional aún no ha publicado un plan para este vínculo.',summary);
       panel.hidden=false;controls();ui.status('Contexto consultado. Tu perfil y diario personales se conservan separados.');

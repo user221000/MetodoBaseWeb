@@ -89,12 +89,17 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Generate unique nonce per request for CSP
         nonce = secrets.token_urlsafe(16)
         request.state.csp_nonce = nonce
+        diary_api = (
+            request.url.path == "/api/usuario/diario"
+            or request.url.path.startswith("/api/usuario/diario/")
+        )
         
         try:
             response = await call_next(request)
         except Exception as error:
             if (request.url.path != "/api/usuario/historial"
-                    and not is_member_link_private(request.url.path)):
+                    and not is_member_link_private(request.url.path)
+                    and not diary_api):
                 raise
             # Generic handlers live outside response middleware. Reuse the
             # factory's existing public error body, then apply private headers.
@@ -146,6 +151,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = (
             "no-referrer" if (
                 recovery_api
+                or diary_api
                 or request.url.path == "/api/usuario/historial"
                 or is_member_link_private(request.url.path)
                 or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
@@ -156,7 +162,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if is_member_link_private(request.url.path):
+        if is_member_link_private(request.url.path) or diary_api:
             response.headers["Cache-Control"] = "no-store"
         
         # ─── Cache control para APIs ────────────────────────────────────────

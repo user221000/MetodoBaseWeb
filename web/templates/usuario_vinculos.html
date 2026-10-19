@@ -5,8 +5,12 @@
   <title>Mis vínculos — Método Base</title>
   <link rel="stylesheet" href="/static/css/vinculos.css">
   <link rel="stylesheet" href="/static/css/privacy-export.css">
+  <link rel="stylesheet" href="/static/css/plan-diario.css">
   <script src="/static/js/api.js" defer></script><script src="/static/js/vinculos-contexto.js" defer></script>
-  <script src="/static/js/vinculos-ui.js" defer></script><script src="/static/js/vinculos-lectura.js" defer></script>
+  <script src="/static/js/vinculos-ui.js" defer></script>
+  <script src="/static/js/usuario-diario.js" defer></script><script src="/static/js/plan-diario-datos.js" defer></script>
+  <script src="/static/js/plan-diario-ui.js" defer></script><script src="/static/js/plan-publicacion-consumo.js" defer></script>
+  <script src="/static/js/vinculos-lectura.js" defer></script>
   <script src="/static/js/usuario-privacidad.js" defer></script>
 </head>
 <body><main class="link-page" id="member-links-page">
@@ -22,7 +26,8 @@
     <div id="member-publication-summary"></div>
     <div class="link-actions"><button id="member-publication-pdf" type="button" hidden>Descargar PDF de esta publicación</button><button id="member-link-leave" class="secondary" type="button" hidden>Desvincularme de este contexto</button></div>
     <div id="member-publication-meals"></div>
+    {% include "plan_diario_section.html" %}
   </section>
-  <aside><h2>Tu diario sigue siendo personal</h2><p>Consultar este menú no registra consumo ni lo incorpora a tu diario. El vínculo no comparte tu diario, mediciones ni cartera profesional. Esas funciones requieren una integración y un consentimiento aparte.</p></aside>
+  <aside><h2>Tu diario sigue siendo personal</h2><p>Consultar este menú o preparar una compra no registra consumo. Registrar una selección requiere tu confirmación y un espacio personal autorizado; no comparte diario, mediciones ni cartera con el gimnasio. Un consumo confirmado conserva su snapshot personal aunque se retire la publicación.</p></aside>
   {% include "member_export_section.html" %}
 </main></body></html>

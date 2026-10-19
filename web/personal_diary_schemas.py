@@ -1,7 +1,8 @@
 """Personal diary input values; identity and nutritional totals are server-owned.
 
-R14 preparation: these DTOs are not wired to a route or persistence model yet.
-Every mutation replaces one stated value and carries its observed day version.
+Mounted diary DTOs for explicit personal mutations, including verified R12
+publication consumption. Each change carries its observed personal day version;
+source identity, authority and nutritional values are resolved by the service.
 """
 from typing import Annotated, Literal
 
@@ -17,6 +18,7 @@ class MealSelection(BaseModel):
     carbohidratos: OptionIndex | None = None
     grasas: OptionIndex | None = None
     include_vegetables: StrictBool = False
+    include_fixed_menu: StrictBool = False
 
 
 class DiaryOperation(BaseModel):
@@ -42,7 +44,23 @@ class CompletionOperation(DiaryOperation):
     completed: StrictBool
 
 
+class PublicationMealOperation(DiaryOperation):
+    operation: Literal['publication_meal']
+    source_kind: Literal['publication']
+    link_id: str = Field(min_length=36,max_length=36,pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+    publication_id: str = Field(min_length=36,max_length=36,pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+    expected_link_version: int = Field(strict=True,ge=1,le=2147483647)
+    expected_publication_version: int = Field(strict=True,ge=1,le=2147483647)
+    meal: MealName
+    selections: MealSelection
+
+
+class RemoveMealOperation(DiaryOperation):
+    operation: Literal['remove_meal']
+    meal: MealName
+
+
 DiaryPatch = Annotated[
-    WaterOperation | MealOperation | CompletionOperation,
+    WaterOperation | MealOperation | CompletionOperation | PublicationMealOperation | RemoveMealOperation,
     Field(discriminator='operation'),
 ]

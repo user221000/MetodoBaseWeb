@@ -99,7 +99,7 @@ def resolve_consumed_meal(plan_record, user_id: str, meal: MealName,
                           selections: MealSelection, *, now: datetime | None = None) -> dict:
     """Resolve one explicit consumption against an already-loaded own plan.
 
-    The future route fetches the record using persisted authenticated ownership.
+    The mounted diary service fetches this record using persisted ownership.
     This repeated check rejects accidental cross-account or deleted sources;
     a request body never supplies user_id, gym_id, macros or food labels.
     """
@@ -112,8 +112,6 @@ def resolve_consumed_meal(plan_record, user_id: str, meal: MealName,
     source_id = getattr(plan_record, 'id', None)
     if type(source_id) is not int or source_id <= 0:
         _unsupported()
-    chosen = selections.model_dump(exclude_none=True, exclude={'include_vegetables'})
-    foods = []
     raw = getattr(plan_record, 'plan_json', None)
     if (not isinstance(raw, str) or len(raw) > MAX_SOURCE_PLAN_BYTES
             or len(raw.encode('utf-8')) > MAX_SOURCE_PLAN_BYTES):
@@ -124,9 +122,32 @@ def resolve_consumed_meal(plan_record, user_id: str, meal: MealName,
         _unsupported()
     if not isinstance(source, dict) or not isinstance(source.get(meal), dict):
         _unsupported()
-    meal_data = source[meal]
+    return resolve_verified_meal(source_id, source[meal], meal, selections, now=now)
+
+
+def resolve_verified_meal(source_id: int, meal_data: dict, meal: MealName,
+                          selections: MealSelection, *, now=None) -> dict:
+    """Pure value extraction after the caller proves personal/publication authority.
+
+    This helper grants no source access. It accepts no request-provided foods,
+    grams or totals, and never manufactures a model with a different owner.
+    """
+    if type(source_id) is not int or source_id<=0 or meal not in MEALS or not isinstance(meal_data,dict):
+        _unsupported()
+    chosen = selections.model_dump(exclude_none=True, exclude={'include_vegetables','include_fixed_menu'})
+    foods = []
+    if selections.include_fixed_menu:
+        if chosen or selections.include_vegetables or meal_data.get('tipo_plan')=='opciones' or 'proteinas' in meal_data:
+            _fail(422,'invalid_diary_selection','Selecciona el menu fijo completo o las opciones, sin mezclarlos.')
+        fixed=meal_data.get('alimentos')
+        if not isinstance(fixed,dict) or len(fixed)>MAX_MEAL_FOODS:_unsupported()
+        foods=[_food({'alimento':name,'gramos':grams}) for name,grams in fixed.items()]
+        chosen={'include_fixed_menu':True}
+    elif isinstance(meal_data.get('alimentos'),dict) and 'proteinas' not in meal_data:
+        _fail(422,'invalid_diary_selection','Confirma explicitamente el menu fijo completo para registrarlo.')
     if chosen or selections.include_vegetables:
         for group,index in chosen.items():
+            if group=='include_fixed_menu':continue
             group_data = meal_data.get(group)
             options = group_data.get('opciones') if isinstance(group_data, dict) else None
             if not isinstance(options, list) or len(options) > MAX_GROUP_OPTIONS:

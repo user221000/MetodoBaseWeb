@@ -82,4 +82,4 @@ def calendar_day(day: str, usuario=Depends(get_usuario_actual), db=Depends(diary
 @router.patch('/usuario/diario/{day}', openapi_extra={'requestBody':{'required':True,
     'content':{'application/json':{'schema':_operation_schema()}}}})
 def patch_day(day: str, usuario=Depends(get_usuario_actual), db=Depends(diary_session), operation=Depends(operation_body)):
-    return JSONResponse(patch_diary_day(db, usuario['id'], calendar_date(day), operation), headers=_HEADERS)
+    return JSONResponse(patch_diary_day(db, usuario['id'], calendar_date(day), operation, principal=usuario), headers=_HEADERS)

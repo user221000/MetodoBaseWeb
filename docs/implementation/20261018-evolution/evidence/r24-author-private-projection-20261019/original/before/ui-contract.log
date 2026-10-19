@@ -1,0 +1,22 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_personal_plan_exposes_explicit_source_shopping_and_unavailable_substitutions[web.main_web] _
+tests\test_daily_plan_ui_contract.py:35: in test_personal_plan_exposes_explicit_source_shopping_and_unavailable_substitutions
+    assert 'id="plan-shopping"' in response.text
+E   assert 'id="plan-shopping"' in '<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-...seconds */\n    setInterval(function() { goTip(tipIdx + 1); }, 8000);\n  })();\n\n})();\n</script>\n\n</body>\n</html>'
+E    +  where '<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-...seconds */\n    setInterval(function() { goTip(tipIdx + 1); }, 8000);\n  })();\n\n})();\n</script>\n\n</body>\n</html>' = <Response [200 OK]>.text
+_ test_personal_plan_exposes_explicit_source_shopping_and_unavailable_substitutions[api.app] _
+tests\test_daily_plan_ui_contract.py:35: in test_personal_plan_exposes_explicit_source_shopping_and_unavailable_substitutions
+    assert 'id="plan-shopping"' in response.text
+E   assert 'id="plan-shopping"' in '<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-...seconds */\n    setInterval(function() { goTip(tipIdx + 1); }, 8000);\n  })();\n\n})();\n</script>\n\n</body>\n</html>'
+E    +  where '<!DOCTYPE html>\n<html lang="es">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-...seconds */\n    setInterval(function() { goTip(tipIdx + 1); }, 8000);\n  })();\n\n})();\n</script>\n\n</body>\n</html>' = <Response [200 OK]>.text
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_daily_plan_ui_contract.py::test_personal_plan_exposes_explicit_source_shopping_and_unavailable_substitutions[web.main_web]
+FAILED tests/test_daily_plan_ui_contract.py::test_personal_plan_exposes_explicit_source_shopping_and_unavailable_substitutions[api.app]
+2 failed, 1 warning in 5.88s

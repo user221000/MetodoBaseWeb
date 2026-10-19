@@ -59,8 +59,10 @@ def _context_dto(link):
         'client_display_name':link.client_display_name}
 
 
-def _capabilities(publication=None):
+def _capabilities(publication=None,actor=None):
+    from web.services.personal_diary_persistence import personal_space_supported
     return {'read_published_plan':True,'download_published_pdf':bool(publication and publication.source_object_id),
+        'record_personal_consumption':bool(publication and actor and personal_space_supported(actor)),
         'share_personal_diary':False,'read_shared_progress':False,'manage_clients':False,'manage_team':False}
 
 
@@ -83,7 +85,7 @@ def list_member_links(db,principal,*,limit=100,after=None):
 
 def read_member_plan(db,principal,link_id):
     with operation(db):
-        _,link=_read_context(db,principal,link_id)
+        actor,link=_read_context(db,principal,link_id)
         publication=_publication(db,link)
         dto=None
         if publication is not None:
@@ -95,7 +97,27 @@ def read_member_plan(db,principal,link_id):
                 'pdf_url':('/api/usuario/vinculos/'+link.id+'/publicaciones/'+publication.id+'/pdf') if publication.source_object_id else None}
             if publication.source_object_id is None:dto['pdf_unavailable_reason']='legacy_requires_review'
         return bounded({'context':_context_dto(link),'link':{'status':link.status,'version':link.version},
-            'capabilities':_capabilities(publication),'publication':dto})
+            'capabilities':_capabilities(publication,actor),'publication':dto})
+
+
+def consumption_source(db,principal,data):
+    """Lock exactly the accepted current recipient/publication for a diary write.
+
+    The diary service owns the fresh transaction and COMMIT. Account locks use
+    the same total order as R12 before link/publication locks. No professional
+    profile or raw Plan is read/written: the triple source FKs and validated
+    immutable projection are the publication authority, not a guessed owner.
+    """
+    _,link=_read_context(db,principal,data.link_id,write=True)
+    version(link.version,data.expected_link_version)
+    publication=_publication(db,link,data.publication_id,read=False)
+    if publication is None:unavailable('publication')
+    version(publication.publication_version,data.expected_publication_version)
+    try:content=read_projection(publication.plan_json,publication.plan_sha256)
+    except ProjectionUnavailable:fail(409,'member_publication_requires_review','La publicacion requiere una revision autorizada.')
+    return {'source_plan_id':publication.source_plan_id,'plan':content['plan'],
+        'source_context':{'kind':'publication','link_id':link.id,'publication_id':publication.id,
+            'link_version':link.version,'publication_version':publication.publication_version,'published_at':utc(publication.published_at)}}
 
 
 def read_member_pdf(db,principal,link_id,publication_id):

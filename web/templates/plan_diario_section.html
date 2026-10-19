@@ -1,0 +1,33 @@
+<section id="plan-shopping" class="plan-day" aria-labelledby="plan-shopping-title" aria-busy="false">
+  <h2 id="plan-shopping-title">Porciones y lista de compras</h2>
+  <p id="plan-source-label">Aún no hay una fuente consultada.</p>
+  <p id="plan-substitutions-state">Nuevas sustituciones no disponibles: falta un contrato de restricciones estructuradas y verificación final. Las opciones siguientes pertenecen a la fuente mostrada; no constituyen una garantía clínica.</p>
+  <p>El borrador de compra está separado del consumo registrado. Elige porciones y confirma el periodo: se sumarán esas mismas porciones una vez por día, sin registrar comidas ni recomendar repetir este menú.</p>
+  <div id="shopping-meals"></div>
+  <div class="plan-day-actions">
+    <label for="shopping-start">Inicio del periodo</label><input id="shopping-start" type="date">
+    <label for="shopping-end">Fin del periodo</label><input id="shopping-end" type="date">
+    <button type="button" id="shopping-build" disabled>Preparar borrador de compra</button>
+  </div>
+  <p id="shopping-status" role="status" aria-live="polite" tabindex="-1">Consulta una fuente antes de preparar la lista.</p>
+  <p id="shopping-unknown">Las partidas sin identidad de catálogo confirmada se muestran separadas. Las equivalencias son etiquetas y no se convierten a cantidades ni unidades.</p>
+  <ul id="shopping-items"></ul>
+  <section id="shopping-recorded-section" hidden aria-labelledby="shopping-recorded-title">
+    <h3 id="shopping-recorded-title">Alimentos ya registrados en ese periodo</h3>
+    <p>Esta consulta suma snapshots guardados. No es una recomendación de compra ni usa las opciones del plan sin registrar.</p>
+    <button type="button" id="shopping-read-recorded">Consultar alimentos registrados</button>
+    <p id="shopping-recorded-status" role="status" aria-live="polite"></p>
+    <ul id="shopping-recorded-items"></ul>
+  </section>
+  <section id="publication-consumption" hidden aria-labelledby="publication-consumption-title">
+    <h3 id="publication-consumption-title">Registrar consumo en mi diario personal</h3>
+    <p>Usa sólo las porciones elegidas de esta publicación vigente. No comparte tu diario con el gimnasio ni modifica su cartera.</p>
+    <label for="publication-diary-day">Día de consumo (Ciudad de México)</label><input type="date" id="publication-diary-day" disabled>
+    <label for="publication-diary-meal">Comida que deseas registrar</label><select id="publication-diary-meal"><option value="desayuno">Desayuno</option><option value="almuerzo">Almuerzo</option><option value="comida">Comida</option><option value="cena">Cena</option></select>
+    <div class="plan-day-actions"><button type="button" id="publication-diary-reload">Reconsultar mi diario</button><button type="button" id="publication-diary-save" disabled>Registrar esta selección de consumo</button></div>
+    <p id="publication-diary-status" role="status" aria-live="polite" tabindex="-1"></p>
+    <div id="publication-diary-records"></div>
+    <button type="button" id="publication-diary-discard" hidden>Descartar borrador de consumo</button>
+    <button type="button" id="publication-diary-retry" hidden>Registrar borrador después de revisar</button>
+  </section>
+</section>
