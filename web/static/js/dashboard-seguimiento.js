@@ -116,7 +116,26 @@
     }
   }
   controller=create(Api.stats,render);
-  refresh.addEventListener('click',()=>controller.load(Number(limit.value)));
+  refresh.addEventListener('click',async()=>{
+    const restore=document.activeElement===refresh;
+    let moved=false;
+    const focusChanged=event=>{if(event.target!==refresh && event.target!==document.body)moved=true;};
+    const userMoved=()=>{moved=true;};
+    // Native disabled prevents a second request but also blurs the button.
+    // Restore only the initiating keyboard position, preserving a deliberate
+    // focus change or session invalidation while the read was pending.
+    const pending=controller.load(Number(limit.value));
+    document.addEventListener('focusin',focusChanged);
+    document.addEventListener('pointerdown',userMoved,true);
+    document.addEventListener('keydown',userMoved,true);
+    try {await pending;} finally {
+      document.removeEventListener('focusin',focusChanged);
+      document.removeEventListener('pointerdown',userMoved,true);
+      document.removeEventListener('keydown',userMoved,true);
+      if(restore && !moved && !controller.state.invalid && refresh.isConnected && !refresh.disabled &&
+          (document.activeElement===document.body || document.activeElement===null))refresh.focus({preventScroll:true});
+    }
+  });
   window.addEventListener('storage',event=>{if(event.key===null || ['mb_token','mb_refresh_token'].includes(event.key))controller.invalidate();});
   window.addEventListener('metodobase-session-changed',()=>controller.invalidate());
   window.addEventListener('pagehide',()=>controller.invalidate());
