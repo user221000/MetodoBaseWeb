@@ -1,0 +1,13 @@
+# Higiene del candidato local
+
+R21 en curso. `dff6fd9` retiró 1648 archivos de entornos virtuales del índice. Se reinstalaron targets web y desktop en entornos Windows nuevos mediante locks con hashes; la ejecución Linux/imagen sigue pendiente. El workspace original y el historial se conservan.
+
+Se retiraron también del índice nueve artefactos de ejecución: tres logs de migración de marzo, cinco archivos de backup/checkpoint históricos y un logo subido a web/static/uploads. Las copias físicas siguen presentes en el clon y en el original. [Inventario de rutas/tamaños/hashes](evidence/retired-runtime-artifacts.json), sin incluir contenidos. Los assets que utiliza la aplicación no se retiraron por su extensión. La auditoría histórica y su evidencia fechada permanecen versionadas.
+
+`.gitignore` impide reintroducir entornos, bases, uploads y backups. `.dockerignore` excluye esos directorios y logs del contexto; esto evita incorporar archivos subidos por un cliente en una imagen nueva. No se reescribió Git ni se eliminó información productiva.
+
+Gitleaks8.30.1 se obtuvo del [release oficial](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1) y se verificó su SHA256 de archivo publicado: d29144deff3a68aa93ced33dddf84b7fdc26070add4aa0f4513094c8332afc4e (Windows x64). El binario permanece fuera del repositorio. `scripts/scan_secrets.py` fija versión, congela archivos tracked/unignored, usa configuración del snapshot, ignora comentarios gitleaks:allow y archivos de exclusión locales, elimina overrides de entorno, captura salida del scanner y sólo guarda ubicaciones/reglas/hashes. Falla ante hallazgos o fuentes cambiadas/agregadas durante el scan.
+
+El primer scan señaló57 fingerprints SHA256 y dos cadenas ficticias de tests CSRF. Las excepciones son AND por ruta estrecha y formato completo de línea filename:SHA256, o los dos literales exactos de ese test; no hay exclusiones globales de tests/docs. QA ejecutó un [probe independiente con canarios](evidence/secrets-config-independent-probe.json): detecta valores nuevos incluso con comentario de exclusión, sin retenerlos en evidencia. El scan completo sobre un candidato congelado aún está pendiente y no se sustituye con ese probe.
+
+Alcance: árbol entregable actual; no inspección exhaustiva de objetos históricos Git, archivos ignorados locales, imágenes binarias ni credenciales de producción. Conservar fuentes históricas no constituye borrado de datos o rotación de secretos. Los resultados del escaneo se presentan con ese límite.
