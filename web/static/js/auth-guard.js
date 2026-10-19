@@ -1,33 +1,64 @@
-/**
- * auth-guard.js — Auth + interface isolation guard.
- * - Unauthenticated users → /
- * - tipo='usuario' on gym-only pages → /mi-plan
- * - tipo='gym' on user-only pages → /dashboard
- * Uses window.location.replace() to prevent back-button loops.
- */
-(function() {
-  var path = window.location.pathname;
-  var authPages = ['/', '/login-gym', '/login-usuario', '/registro'];
-  if (authPages.some(function(p) { return path === p; })) return;
-
-  var token = localStorage.getItem('mb_token');
-  if (!token) {
-    window.location.replace('/');
-    return;
+/* Persisted identity decides the interface. Local account type is only a cache. */
+(function () {
+  'use strict';
+  var path = location.pathname;
+  var publicPages = ['/', '/login-gym', '/login-usuario', '/registro', '/auth/accept-invite'];
+  if (publicPages.includes(path)) return;
+  var current = null;
+  var ready = new Promise(function(resolve) {
+    async function resolveIdentity() {
+      if (!localStorage.getItem('mb_token')) { location.replace(path.startsWith('/mi-') ? '/login-usuario' : '/login-gym'); resolve(null); return; }
+      try {
+        var me = await Api.auth.me();
+        if (!me || typeof me.tipo !== 'string' || typeof me.role !== 'string') throw new Error('No se pudo confirmar el acceso de tu cuenta.');
+        current = me;
+        localStorage.setItem('mb_tipo', me.tipo);
+        if (me.nombre) localStorage.setItem('mb_nombre', me.nombre);
+        var professional = !!me.team_gym_id && ['admin','nutriologo','viewer'].includes(me.role);
+        var owner = !me.team_gym_id && me.tipo === 'gym' && me.role === 'owner';
+        var personal = !me.team_gym_id && me.tipo === 'usuario';
+        var gymPage = ['/dashboard','/clientes','/planes','/suscripciones','/configuracion','/generar-plan','/equipo','/equipo/inicio'].includes(path);
+        var personalPage = ['/mi-plan','/mi-perfil','/mi-historial','/mi-suscripcion'].includes(path);
+        if (professional && path === '/dashboard') { location.replace('/equipo/inicio'); resolve(me); return; }
+        if (personal && gymPage) { location.replace('/mi-plan'); resolve(me); return; }
+        if (owner && personalPage) { location.replace('/dashboard'); resolve(me); return; }
+        if (owner && path === '/equipo/inicio') { location.replace('/dashboard'); resolve(me); return; }
+        if (!professional && !owner && !personal) throw new Error('No se pudo confirmar el contexto de tu cuenta. Vuelve a iniciar sesión.');
+        if (professional) {
+          document.querySelectorAll('a[href="/dashboard"]').forEach(function(link) { link.href='/equipo/inicio'; });
+          var role = document.getElementById('sb-tipo');
+          if (role) role.textContent = personalPage ? 'Perfil personal' : 'Equipo · ' + (me.role_display || 'Acceso profesional');
+        }
+        document.querySelectorAll('[data-professional-context]').forEach(function(link) { link.hidden=!professional; });
+        document.querySelectorAll('[data-personal-context]').forEach(function(link) { link.hidden=!professional; });
+        applyPermissions(document);
+        new MutationObserver(function(records) {
+          records.forEach(function(record) { record.addedNodes.forEach(function(node) { if (node.nodeType === 1) applyPermissions(node); }); });
+        }).observe(document.body,{childList:true,subtree:true});
+        if (typeof setActiveSidebarLink === 'function') setActiveSidebarLink();
+        resolve(me);
+      } catch(error) {
+        current = null; applyPermissions(document);
+        var notice = document.createElement('div');
+        notice.className = 'chart-container'; notice.setAttribute('role','alert');
+        var text = document.createElement('p'); text.textContent = 'No pudimos verificar tu acceso. ' + error.message;
+        var retry = document.createElement('button'); retry.type='button'; retry.className='btn btn-outline'; retry.textContent='Volver a consultar';
+        retry.addEventListener('click',function() { location.reload(); });
+        notice.append(text,retry);
+        var main=document.querySelector('main'); if (main) main.prepend(notice);
+        resolve(null);
+      }
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',resolveIdentity,{once:true});
+    else resolveIdentity();
+  });
+  function can(permission) {
+    return !!current && Array.isArray(current.permissions) && current.permissions.some(function(value) { return Array.isArray(value) && value[0]+':'+value[1] === permission; });
   }
-
-  var tipo = localStorage.getItem('mb_tipo');
-
-  var gymPages = ['/dashboard', '/clientes', '/planes', '/suscripciones', '/configuracion', '/generar-plan'];
-  var userPages = ['/mi-plan', '/mi-perfil', '/mi-historial', '/mi-suscripcion'];
-
-  if (tipo === 'usuario' && gymPages.some(function(p) { return path === p || path.startsWith(p + '/'); })) {
-    window.location.replace('/mi-plan');
-    return;
+  function applyPermissions(root) {
+    var controls = root.matches && root.matches('[data-permission]') ? [root] : [];
+    if (root.querySelectorAll) controls = controls.concat(Array.from(root.querySelectorAll('[data-permission]')));
+    controls.forEach(function(control) { var hide=!can(control.dataset.permission); if (control.hidden !== hide) control.hidden=hide; });
   }
-
-  if (tipo === 'gym' && userPages.some(function(p) { return path === p || path.startsWith(p + '/'); })) {
-    window.location.replace('/dashboard');
-    return;
-  }
+  window.SessionIdentity = {ready:ready, can:can};
 })();

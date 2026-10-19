@@ -252,7 +252,7 @@
           localStorage.setItem('mb_tipo', data.tipo);
           localStorage.setItem('mb_nombre', data.nombre);
           localStorage.setItem('mb_email', data.email);
-          window.location.href = '/mi-plan';
+          window.location.href = data.team_gym_id ? '/equipo/inicio' : '/mi-plan';
         } else {
           errorMsg.textContent = data.detail || 'Email o contraseña incorrectos. Inténtalo de nuevo.';
           errorMsg.style.display = 'block';
@@ -320,7 +320,7 @@
             localStorage.setItem('mb_tipo', data.tipo);
             localStorage.setItem('mb_nombre', data.nombre);
             localStorage.setItem('mb_email', data.email);
-            window.location.href = '/mi-plan';
+            window.location.href = data.team_gym_id ? '/equipo/inicio' : '/mi-plan';
           } else {
             errorMsg.textContent = data.detail || 'No pudimos conectar con Google. Inténtalo de nuevo.';
             errorMsg.style.display = 'block';

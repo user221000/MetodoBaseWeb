@@ -3,7 +3,7 @@ const { chromium } = require('playwright-core');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const base = process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8766';
+const base = process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8765';
 if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(base)) throw Error('Expected an isolated loopback app');
 const out = path.resolve(__dirname, '../../docs/implementation/20261018-evolution/evidence/ux');
 
@@ -18,8 +18,13 @@ const out = path.resolve(__dirname, '../../docs/implementation/20261018-evolutio
     }});
     assert.ok(registration.ok());
     const tokens = await registration.json();
+    assert.equal(typeof tokens.token, 'string');
+    assert.ok(tokens.token.length > 20, 'Registration must return an actual access token');
+    const principal = await context.request.get(base + '/api/auth/me', {headers: {Authorization: 'Bearer ' + tokens.token}});
+    assert.ok(principal.ok(), 'The persisted synthetic principal must authenticate before transport fixtures');
+    assert.equal((await principal.json()).tipo, 'usuario');
     await context.addInitScript(tokens => {
-      localStorage.setItem('mb_token', tokens.access_token);
+      localStorage.setItem('mb_token', tokens.token);
       localStorage.setItem('mb_refresh_token', tokens.refresh_token || '');
       localStorage.setItem('mb_tipo', 'usuario');
     }, tokens);

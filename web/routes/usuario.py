@@ -39,8 +39,8 @@ class PerfilUpdate(NutritionProfileUpdate):
 # ── Helpers ───────────────────────────────────────────────────────────────
 
 def _require_usuario(user: dict):
-    """Ensure the authenticated user is tipo='usuario'."""
-    if user.get("tipo") != "usuario":
+    """Preserve a member's personal space, including legacy gym-type members."""
+    if user.get("tipo") != "usuario" and not user.get("team_gym_id"):
         raise HTTPException(403, "Esta ruta es solo para usuarios individuales.")
     return user
 

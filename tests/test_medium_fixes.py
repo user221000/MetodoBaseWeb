@@ -118,28 +118,34 @@ class TestM04RateLimiterProduction:
 
     def test_rate_limiter_forced_when_production(self, monkeypatch):
         """En producción, RATE_LIMIT_ENABLED debe ser True incluso si env dice false."""
-        monkeypatch.setenv("METODOBASE_ENV", "production")
-        monkeypatch.setenv("RATE_LIMIT_ENABLED", "false")
         from config.settings import get_settings
-        get_settings.cache_clear()
         import web.middleware.rate_limiter as rl
-        importlib.reload(rl)
         try:
-            assert rl.RATE_LIMIT_ENABLED is True
+            with monkeypatch.context() as environment:
+                environment.setenv("METODOBASE_ENV", "production")
+                environment.setenv("RATE_LIMIT_ENABLED", "false")
+                get_settings.cache_clear()
+                importlib.reload(rl)
+                assert rl.RATE_LIMIT_ENABLED is True
         finally:
-            # Restore
-            monkeypatch.setenv("METODOBASE_ENV", "development")
-            monkeypatch.setenv("RATE_LIMIT_ENABLED", "false")
+            # The environment is restored before rebuilding cached settings.
             get_settings.cache_clear()
             importlib.reload(rl)
 
     def test_rate_limiter_respects_env_in_development(self, monkeypatch):
         """En development, se respeta RATE_LIMIT_ENABLED=false."""
-        monkeypatch.setenv("METODOBASE_ENV", "development")
-        monkeypatch.setenv("RATE_LIMIT_ENABLED", "false")
+        from config.settings import get_settings
         import web.middleware.rate_limiter as rl
-        importlib.reload(rl)
-        assert rl.RATE_LIMIT_ENABLED is False
+        try:
+            with monkeypatch.context() as environment:
+                environment.setenv("METODOBASE_ENV", "development")
+                environment.setenv("RATE_LIMIT_ENABLED", "false")
+                get_settings.cache_clear()
+                importlib.reload(rl)
+                assert rl.RATE_LIMIT_ENABLED is False
+        finally:
+            get_settings.cache_clear()
+            importlib.reload(rl)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

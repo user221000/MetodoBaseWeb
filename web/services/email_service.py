@@ -12,6 +12,7 @@ Emails soportados:
   - Pago fallido
 """
 import logging
+from html import escape
 from pathlib import Path
 from typing import Optional
 
@@ -62,7 +63,7 @@ def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) 
         logger.info("Email enviado: to=%s subject=%s", to, subject)
         return True
     except Exception as e:
-        logger.error("Error enviando email: %s", e, exc_info=True)
+        logger.error("Email transport failed class=%s", type(e).__name__)
         return False
 
 
@@ -216,6 +217,8 @@ def send_team_invitation(
     invite_url: str,
 ) -> bool:
     """Envía email de invitación al equipo del gym."""
+    subject = f"Invitación a {gym_name} — Método Base".replace("\r", " ").replace("\n", " ")
+    nombre, gym_name, role, invite_url = (escape(str(value), quote=True) for value in (nombre, gym_name, role, invite_url))
     content = f"""\
 <h2 style="margin:0 0 16px;color:#22c55e;">¡Has sido invitado!</h2>
 <p>Hola, <strong>{nombre}</strong>.</p>
@@ -229,4 +232,4 @@ def send_team_invitation(
   </a>
 </p>
 <p style="color:#888;font-size:13px;">Esta invitación expira en 7 días.</p>"""
-    return _send(email, f"Invitación a {gym_name} — Método Base", _base_layout(content))
+    return _send(email, subject, _base_layout(content))

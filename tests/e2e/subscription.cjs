@@ -4,9 +4,12 @@ const { AxeBuilder } = require('@axe-core/playwright');
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const base = process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8766';
+const base = process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8765';
 if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(base)) throw Error('Only a local synthetic server is allowed');
 const out = path.resolve(__dirname, '../../docs/implementation/20261018-evolution/evidence/ux');
+const batch = process.env.METODOBASE_EVIDENCE_BATCH || 'run-'+Date.now();
+if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(batch)) throw Error('Invalid evidence batch');
+function artifact(name) { const extension=path.extname(name);return path.join(out,name.slice(0,-extension.length)+'-'+batch+extension); }
 fs.mkdirSync(out, {recursive:true});
 const state = { plan:'starter', status:'active', provider:null, planes_usados:0, max_planes:1, planes_restantes:1, renovacion:'2026-11', period_end:null, cancel_at_period_end:false };
 (async()=>{
@@ -20,7 +23,7 @@ const state = { plan:'starter', status:'active', provider:null, planes_usados:0,
   assert.equal(response.ok(),true,await response.text());
   const auth = await response.json();
   await context.addInitScript(auth=>{
-    localStorage.setItem('mb_token',auth.access_token);
+    localStorage.setItem('mb_token',auth.token);
     localStorage.setItem('mb_refresh_token',auth.refresh_token || '');
     localStorage.setItem('mb_tipo','usuario');
     localStorage.setItem('mb_nombre','Browser Synthetic');
@@ -70,7 +73,7 @@ const state = { plan:'starter', status:'active', provider:null, planes_usados:0,
   report.checks.push('Checkout retry reuses Idempotency-Key; structured failure visible; access unchanged');
   const dialogAxe = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
   report.dialogViolations=dialogAxe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))}));
-  await page.screenshot({path:path.join(out,'subscription-dialog-after.png'),fullPage:true});
+  await page.screenshot({path:artifact('subscription-dialog-after.png'),fullPage:true});
   await page.keyboard.press('Escape');
   await page.locator('[role=dialog]').waitFor({state:'hidden'});
   for(const width of [320,390,768,1440]){
@@ -78,7 +81,7 @@ const state = { plan:'starter', status:'active', provider:null, planes_usados:0,
     const dimensions = await page.evaluate(()=>({viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
     const axe = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
     report.viewports.push({width,dimensions,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))}))});
-    await page.screenshot({path:path.join(out,'subscription-after-'+width+'.png'),fullPage:true});
+    await page.screenshot({path:artifact('subscription-after-'+width+'.png'),fullPage:true});
   }
   state.plan='pro';state.provider='stripe';state.max_planes=5;state.period_end='2026-11-18T00:00:00Z';
   await page.locator('#btn-refresh-subscription').click();
@@ -105,7 +108,8 @@ const state = { plan:'starter', status:'active', provider:null, planes_usados:0,
   report.errors=errors;
   report.checkoutRequests=checkout.length;
   report.forbiddenPlanMutations=forbidden.length;
-  fs.writeFileSync(path.join(out,'subscription-browser.json'),JSON.stringify(report,null,2));
+  report.evidenceBatch=batch;
+  fs.writeFileSync(artifact('subscription-browser.json'),JSON.stringify(report,null,2));
   assert.equal(errors.length,0,JSON.stringify(errors));
   assert.ok(report.viewports.every(v=>v.dimensions.scrollWidth<=v.width),'Horizontal overflow');
   assert.equal(report.dialogViolations.length,0,'Dialog accessibility violations');

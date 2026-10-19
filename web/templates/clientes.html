@@ -9,7 +9,7 @@
     <h1 class="page-title">Tus clientes</h1>
     <p class="page-subtitle">Gestiona, activa y haz seguimiento de cada cliente en tu gym</p>
   </div>
-  <button class="btn btn-primary" id="btn-nuevo-cliente">
+  <button class="btn btn-primary" id="btn-nuevo-cliente" data-permission="create:cliente">
     <svg style="width:16px;height:16px" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
     </svg>
@@ -601,9 +601,9 @@ function renderTabla(clientes) {
       <td class="text-secondary-color text-sm">${formatDate(c.fecha_registro || c.ultima_actualizacion)}</td>
       <td>
         <div class="flex items-center gap-2" style="justify-content:flex-end;">
-          <button class="btn btn-icon btn-secondary btn-editar" data-id="${esc(c.id_cliente)}" title="Editar">✏️</button>
-          <a href="/generar-plan?id=${esc(c.id_cliente)}" class="btn btn-icon btn-primary" title="Generar plan">📄</a>
-          <button class="btn btn-icon btn-danger btn-eliminar" data-id="${esc(c.id_cliente)}" data-nombre="${esc(c.nombre)}" title="Eliminar">🗑️</button>
+          <button class="btn btn-icon btn-secondary btn-editar" data-permission="update:cliente" data-id="${esc(c.id_cliente)}" title="Editar">✏️</button>
+          <a href="/generar-plan?id=${esc(c.id_cliente)}" class="btn btn-icon btn-primary" data-permission="create:plan" title="Generar plan">📄</a>
+          <button class="btn btn-icon btn-danger btn-eliminar" data-permission="delete:cliente" data-id="${esc(c.id_cliente)}" data-nombre="${esc(c.nombre)}" title="Eliminar">🗑️</button>
         </div>
       </td>
     `;

@@ -74,8 +74,8 @@ const Api = (() => {
     return success;
   }
 
-  async function request(method, path, body = null, extraHeaders = {}) {
-    const token = getToken();
+  async function request(method, path, body = null, extraHeaders = {}, authenticated = true) {
+    const token = authenticated ? getToken() : '';
     const opts = {
       method,
       headers: {
@@ -94,7 +94,7 @@ const Api = (() => {
     }
 
     // 401 → intentar refresh antes de redirigir
-    if (res.status === 401) {
+    if (res.status === 401 && authenticated) {
       const refreshed = await _handleRefresh();
       if (refreshed) {
         // Reintentar la petición original con el nuevo token
@@ -359,6 +359,15 @@ const Api = (() => {
       }, key ? { 'Idempotency-Key': key } : {}),
   };
 
-  return { clientes, planes, stats, auth, billing, gym, usuario, clearTokens, saveTokens };
+  const team = {
+    list: () => request('GET', '/api/gym/team'),
+    invite: (data) => request('POST', '/api/gym/team/invite', data),
+    role: (id, role) => request('PATCH', '/api/gym/team/' + encodeURIComponent(id) + '/role', {role}),
+    remove: (id) => request('DELETE', '/api/gym/team/' + encodeURIComponent(id)),
+    resend: (id) => request('POST', '/api/gym/team/' + encodeURIComponent(id) + '/resend-invite'),
+    info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
+    accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
+  };
+  return { clientes, planes, stats, auth, billing, gym, usuario, team, clearTokens, saveTokens };
 })();
 

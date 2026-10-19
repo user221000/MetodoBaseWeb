@@ -1,0 +1,37 @@
+{
+  "reviewed_at_utc": "2026-10-19T03:05:32.647914+00:00",
+  "decision": "Accepted local R11 containment and commercial/identity behavior within the evidence below",
+  "freeze_manifest": "docs/implementation/20261018-evolution/evidence/ux/team-followup-freeze-source.json",
+  "freeze_manifest_sha256": "fc2cbdeb04a4ea2903d91d03b3a0c6d76afd26e37dced4734099bdb71b59b850",
+  "frozen_sources": 25,
+  "dependency_snapshots": 15,
+  "changed_files": {
+    "files": [],
+    "dependency_snapshots_not_owned_or_frozen_by_frontend": []
+  },
+  "pytest": {
+    "passed": 128,
+    "seconds": 37.25,
+    "junit": "../pytest-r11-followup-independent.xml"
+  },
+  "browser": {
+    "ui_screens": 11,
+    "real_auth_api_sqlite_flows": 7,
+    "axe_violations": 0,
+    "overflow_states": 0,
+    "javascript_errors": 0,
+    "ui_log": "team-followup-independent.log",
+    "fullstack_log": "team-fullstack-followup-independent.log"
+  },
+  "review": [
+    "Membership mutations condition observed subject/team/role/session version and revoke refresh in the same successful transaction; stale CAS does not revoke newer sessions.",
+    "New issue/resend/consume use persisted canonical multi-user rights, refresh the locked subscription after account-to-subscription lock ordering, and reject lost rights with402. Existing members can still be managed or revoked.",
+    "Real fullstack verifies Free refusal, valid Clinic invitation, explicit logout, one-use claim, persisted role/access, access+refresh revocation and retained personal weight. Historical gym-typed professionals retain personal access while owners without membership do not.",
+    "Own entitlement tests keep existing catalog booleans and introduce no team/device maximum. M04 test settings are restored before cache reload so combined ordering is meaningful."
+  ],
+  "limits": [
+    "No real email delivery/provider sandbox; truthful not_confirmed remains.",
+    "Browser persistence is isolated SQLite; RLS channels have separate UUID PostgreSQL acceptance.",
+    "WCAG axe AA is automated coverage, not a complete assisted-accessibility audit."
+  ]
+}

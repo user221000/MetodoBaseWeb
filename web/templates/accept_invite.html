@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer">
+  <meta name="csrf-token" content="{{ csrf_token(request) }}">
+  <title>Invitación al equipo — Método Base</title>
+  <link rel="stylesheet" href="/static/css/styles-auth.css?v={{ static_version }}"><link rel="stylesheet" href="/static/css/team.css?v={{ static_version }}">
+</head><body class="invite-page">
+<main class="invite-main team-card">
+  <a href="/">Método Base</a>
+  <h1>Invitación al equipo profesional</h1>
+  <p class="team-muted">Revisa el gimnasio y el rol antes de aceptar. Esta invitación no asigna un plan nutricional personal.</p>
+  <div class="team-feedback" id="invite-feedback" role="status" aria-live="polite">Consultando la invitación…</div>
+  <button type="button" id="invite-retry" class="team-button" hidden>Volver a consultar</button>
+  <section id="invite-details-section" aria-label="Datos de la invitación" hidden>
+    <dl class="invite-details"><dt>Gimnasio</dt><dd id="invite-gym"></dd><dt>Correo invitado</dt><dd id="invite-email"></dd><dt>Rol</dt><dd id="invite-role"></dd><dt>Vence</dt><dd id="invite-expiry"></dd></dl>
+  </section>
+  <section id="invite-session" class="team-feedback" hidden>
+    <h2>Hay una sesión abierta</h2><p>Para aceptar esta invitación, cierra la sesión actual y confirma el acceso del correo invitado.</p>
+    <button type="button" id="invite-logout" class="team-button">Cerrar sesión y continuar</button>
+  </section>
+  <form id="invite-form" hidden>
+    <div class="team-field"><label for="invite-password">Crea tu contraseña</label><input class="team-input" id="invite-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required aria-describedby="invite-password-help"><small class="team-muted" id="invite-password-help">Usa al menos 12 caracteres.</small></div>
+    <div class="team-field"><label for="invite-confirm">Confirma la contraseña</label><input class="team-input" id="invite-confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></div>
+    <button type="submit" class="team-button team-button-primary" id="invite-submit">Aceptar acceso profesional</button>
+  </form>
+  <p class="team-muted mt-6">Si el enlace venció o dejó de funcionar, pide una invitación nueva a quien administra el gimnasio.</p>
+  <p class="mt-4"><a href="/login-gym" id="invite-login">Ya tengo acceso: iniciar sesión</a></p>
+</main>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/accept-invite.js?v={{ static_version }}"></script>
+</body></html>

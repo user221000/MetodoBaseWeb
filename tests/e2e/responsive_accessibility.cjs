@@ -5,6 +5,9 @@ const fs = require('node:fs'), path = require('node:path'), assert = require('no
 const base = process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8765';
 if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(base)) throw Error('Only a local synthetic server is allowed');
 const out = path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/ux');
+const batch = process.env.METODOBASE_EVIDENCE_BATCH || 'run-'+Date.now();
+if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(batch)) throw Error('Invalid evidence batch');
+function artifact(name) { const extension=path.extname(name);return path.join(out,name.slice(0,-extension.length)+'-'+batch+extension); }
 const report={scope:'R13 local candidate UI; synthetic API transport; no external connections',checks:[],screens:[],errors:[]};
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
@@ -16,7 +19,7 @@ const report={scope:'R13 local candidate UI; synthetic API transport; no externa
    const page=await context.newPage();page.on('pageerror',error=>report.errors.push(error.message));
    await page.route('**/api/**',route=>{
     const url=new URL(route.request().url()), endpoint=url.pathname;
-    if(endpoint==='/api/auth/me') return route.fulfill({json:{role:'owner',tipo:kind,plan_features:{gestion_suscripciones:true,preferencias_alimentos:true}}});
+    if(endpoint==='/api/auth/me') return route.fulfill({json:{role:'owner',tipo:kind,permissions:[['read','dashboard'],['read','cliente'],['create','cliente'],['update','cliente'],['delete','cliente'],['read','plan'],['create','plan'],['read','billing'],['update','gym_profile'],['read','team'],['invite','team'],['remove','team'],['update_role','team']],plan_features:{gestion_suscripciones:true,preferencias_alimentos:true}}});
     if(endpoint==='/api/gym/profile') return route.fulfill({json:{nombre:'Gimnasio sintético'}});
     if(endpoint==='/api/clientes' && route.request().method()==='GET') return route.fulfill({json:{total:1,clientes:[{id_cliente:'synthetic-client',nombre:'Cliente sintético',telefono:'5550000000',edad:32,peso_kg:70,objetivo:'mantenimiento',fecha_registro:'2026-10-18',total_planes_generados:1}]}});
     if(endpoint==='/api/gym/planes-suscripcion') return route.fulfill({json:{planes:[{id:1,nombre:'Mensual',duracion_dias:30,precio:100,moneda:'MXN',activo:true}]}});
@@ -34,7 +37,7 @@ const report={scope:'R13 local candidate UI; synthetic API transport; no externa
    const dimensions=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,titleTop:document.querySelector('h1')?.getBoundingClientRect().top}));
    const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
    report.screens.push({label,dimensions,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))}))});
-   await page.screenshot({path:path.join(out,label+'.png'),fullPage:true});
+   await page.screenshot({path:artifact(label+'.png'),fullPage:true});
   }
   const gym=await newPage('gym');
   await gym.goto(base+'/clientes');await gym.locator('.btn-editar').waitFor();
@@ -93,7 +96,8 @@ const report={scope:'R13 local candidate UI; synthetic API transport; no externa
    assert.equal(await gym.locator('.pwd-toggle').getAttribute('aria-label'),'Ocultar contraseña');
    await scan(gym,route+'-after-390');
   }
-  fs.writeFileSync(path.join(out,'responsive-accessibility-browser.json'),JSON.stringify(report,null,2));
+  report.evidenceBatch=batch;
+  fs.writeFileSync(artifact('responsive-accessibility-browser.json'),JSON.stringify(report,null,2));
   assert.deepEqual(report.errors,[]);assert.ok(report.screens.every(s=>s.dimensions.scrollWidth<=s.dimensions.width),'Horizontal document overflow');
   assert.ok(report.screens.every(s=>s.violations.length===0),'Automated WCAG AA violations');
   console.log(JSON.stringify(report));

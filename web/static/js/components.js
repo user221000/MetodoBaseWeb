@@ -123,7 +123,7 @@ function setActiveSidebarLink() {
   const path = window.location.pathname;
   document.querySelectorAll('.nav-item').forEach(item => {
     const href = item.getAttribute('href') || '';
-    const isActive = href === path || (href !== '/' && path.startsWith(href));
+    const isActive = href === path || (href !== '/' && path.startsWith(href) && !(href === '/equipo' && path === '/equipo/inicio'));
     item.classList.toggle('active', isActive);
     if (isActive) item.setAttribute('aria-current', 'page');
     else item.removeAttribute('aria-current');

@@ -7,6 +7,9 @@ const assert = require('node:assert/strict');
 const base = process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8765';
 if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(base)) throw Error('Only a local synthetic server is allowed');
 const out = path.resolve(__dirname, '../../docs/implementation/20261018-evolution/evidence/ux');
+const batch = process.env.METODOBASE_EVIDENCE_BATCH || 'run-'+Date.now();
+if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(batch)) throw Error('Invalid evidence batch');
+function artifact(name) { const extension=path.extname(name);return path.join(out,name.slice(0,-extension.length)+'-'+batch+extension); }
 const state = {status:'none',plan:null};
 const config = {stripe_configured:true,mercadopago_configured:true,plans:{standard:{precio_mxn:159},gym_comercial:{precio_mxn:479},clinica:{precio_mxn:979}}};
 (async()=>{
@@ -18,9 +21,9 @@ const config = {stripe_configured:true,mercadopago_configured:true,plans:{standa
     await context.route('**/*',route=>route.request().url().startsWith(base) ? route.continue() : route.abort());
     const response = await context.request.post(base+'/api/auth/registro',{data:{email:'gym-browser-'+Date.now()+'@example.invalid',password:'Synthetic-Test-Password-2026!',nombre:'Synthetic Gym',tipo:'gym'}});
     assert.ok(response.ok(),await response.text());
-    await context.addInitScript(auth=>{localStorage.setItem('mb_token',auth.access_token);localStorage.setItem('mb_tipo','gym');localStorage.setItem('mb_nombre','Synthetic Gym');},await response.json());
+    await context.addInitScript(auth=>{localStorage.setItem('mb_token',auth.token);localStorage.setItem('mb_tipo','gym');localStorage.setItem('mb_nombre','Synthetic Gym');},await response.json());
     let role='owner', invalidState=null, invalidConfig=false, malformedPayments=false, checkoutSuccess=false;
-    await page.route('**/api/auth/me',route=>route.fulfill({json:{role,tipo:'gym'}}));
+    await page.route('**/api/auth/me',route=>route.fulfill({json:{role,tipo:'gym',permissions:[['read','dashboard'],['read','cliente'],['create','cliente'],['update','cliente'],['delete','cliente'],['read','plan'],['create','plan'],['read','billing'],['update','gym_profile'],['read','team'],['invite','team'],['remove','team'],['update_role','team']]}}));
     await page.route('**/api/billing/**',route=>{
       const endpoint=new URL(route.request().url()).pathname;
       if(route.request().method()==='POST') requests.push({endpoint,key:route.request().headers()['idempotency-key'],body:route.request().postDataJSON()});
@@ -55,7 +58,7 @@ const config = {stripe_configured:true,mercadopago_configured:true,plans:{standa
       const dimensions=await page.evaluate(()=>({viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,titleTop:document.querySelector('h1').getBoundingClientRect().top}));
       const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa','wcag22aa']).analyze();
       report.viewports.push({width,dimensions,violations:axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))}))});
-      await page.screenshot({path:path.join(out,'gym-subscription-after-'+width+'.png'),fullPage:true});
+      await page.screenshot({path:artifact('gym-subscription-after-'+width+'.png'),fullPage:true});
     }
     state.status='active';state.plan='standard';state.provider='stripe';state.max_clientes=25;state.current_period_end=1794960000;
     await page.locator('#btn-refresh-billing').click();
@@ -97,7 +100,8 @@ const config = {stripe_configured:true,mercadopago_configured:true,plans:{standa
     await page.waitForURL('https://checkout.stripe.com/c/pay/synthetic');
     report.checks.push('A validated backend checkout URL opens the intercepted provider; no external connection');
     report.errors=errors;
-    fs.writeFileSync(path.join(out,'gym-subscription-browser.json'),JSON.stringify(report,null,2));
+    report.evidenceBatch=batch;
+    fs.writeFileSync(artifact('gym-subscription-browser.json'),JSON.stringify(report,null,2));
     assert.deepEqual(errors,[]);
     assert.ok(report.viewports.every(v=>v.dimensions.scrollWidth<=v.width),'Horizontal overflow');
     assert.ok(report.viewports.every(v=>v.violations.length===0),'WCAG AA automated violations');

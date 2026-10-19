@@ -231,7 +231,7 @@
         const data = await res.json();
 
         if (res.ok) {
-          if (data.tipo !== 'gym') {
+          if (data.tipo !== 'gym' && !data.team_gym_id) {
             errorMsg.textContent = 'Esta cuenta no tiene acceso de gimnasio. ¿Eres miembro? Ingresa desde el portal de usuarios.';
             errorMsg.style.display = 'block';
             btn.disabled = false;
@@ -248,7 +248,7 @@
           } else {
             localStorage.removeItem('mb_remember');
           }
-          window.location.href = '/dashboard';
+          window.location.href = data.team_gym_id ? '/equipo/inicio' : '/dashboard';
         } else {
           errorMsg.textContent = data.detail || 'Email o contraseña incorrectos. Inténtalo de nuevo.';
           errorMsg.style.display = 'block';
@@ -314,7 +314,7 @@
           const data = await res.json();
 
           if (res.ok) {
-            if (data.tipo !== 'gym') {
+            if (data.tipo !== 'gym' && !data.team_gym_id) {
               errorMsg.textContent = 'Esta cuenta no tiene acceso de gimnasio. ¿Eres miembro? Ingresa desde el portal de usuarios.';
               errorMsg.style.display = 'block';
               return;
@@ -324,7 +324,7 @@
             localStorage.setItem('mb_tipo', data.tipo);
             localStorage.setItem('mb_nombre', data.nombre);
             localStorage.setItem('mb_email', data.email);
-            window.location.href = '/dashboard';
+            window.location.href = data.team_gym_id ? '/equipo/inicio' : '/dashboard';
           } else {
             errorMsg.textContent = data.detail || 'No pudimos conectar con Google. Inténtalo de nuevo.';
             errorMsg.style.display = 'block';

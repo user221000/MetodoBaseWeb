@@ -92,6 +92,24 @@ async def configuracion(request: Request):
     return template_response(templates, request, "configuracion.html", {"request": request})
 
 
+@router.get("/equipo", response_class=HTMLResponse)
+async def equipo_page(request: Request):
+    return template_response(templates, request, "equipo.html", {"request": request})
+
+
+@router.get("/equipo/inicio", response_class=HTMLResponse)
+async def equipo_inicio_page(request: Request):
+    return template_response(templates, request, "equipo_inicio.html", {"request": request})
+
+
+@router.get("/auth/accept-invite", response_class=HTMLResponse)
+async def accept_invite_page(request: Request):
+    response = template_response(templates, request, "accept_invite.html", {"request": request})
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    return response
+
+
 # ── Individual User Pages ─────────────────────────────────────────────────
 
 @router.get("/mi-plan", response_class=HTMLResponse)

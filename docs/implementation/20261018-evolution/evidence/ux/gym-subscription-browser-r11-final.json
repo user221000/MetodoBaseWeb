@@ -1,0 +1,51 @@
+{
+  "scope": "Real local candidate; synthetic account; payment transport fixtures; no provider connection",
+  "checks": [
+    "A success return does not activate a paid plan or post a plan mutation",
+    "Native Enter requests backend checkout; retries keep their key; Mercado Pago uses a separate backend intent and key",
+    "Existing Stripe subscription manages changes in the backend portal; it never starts another checkout",
+    "HTTP200 HTML, missing state/config and malformed payment history show errors; valid retries recover",
+    "A non-owner cannot initiate checkout or portal",
+    "A validated backend checkout URL opens the intercepted provider; no external connection"
+  ],
+  "viewports": [
+    {
+      "width": 320,
+      "dimensions": {
+        "viewport": 320,
+        "scrollWidth": 320,
+        "titleTop": 80
+      },
+      "violations": []
+    },
+    {
+      "width": 390,
+      "dimensions": {
+        "viewport": 390,
+        "scrollWidth": 390,
+        "titleTop": 80
+      },
+      "violations": []
+    },
+    {
+      "width": 768,
+      "dimensions": {
+        "viewport": 768,
+        "scrollWidth": 768,
+        "titleTop": 80
+      },
+      "violations": []
+    },
+    {
+      "width": 1440,
+      "dimensions": {
+        "viewport": 1440,
+        "scrollWidth": 1440,
+        "titleTop": 28
+      },
+      "violations": []
+    }
+  ],
+  "errors": [],
+  "evidenceBatch": "r11-final"
+}
