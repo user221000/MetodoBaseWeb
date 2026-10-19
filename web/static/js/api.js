@@ -617,6 +617,41 @@ const Api = (() => {
     window.addEventListener('pagehide',discardMfa);
   }
 
+  // Google subject association is purpose-closed and bound to one exact access.
+  function _googleLinkBody(body, required, optional = []) {
+    if (!body || typeof body !== 'object' || Array.isArray(body) ||
+        required.some(key => !Object.prototype.hasOwnProperty.call(body,key)) ||
+        Object.keys(body).some(key => !required.includes(key) && !optional.includes(key))) throw _mfaError('google_link_invalid_input');
+  }
+  function _googleLinkPrimary(body) {
+    if (typeof body.password !== 'string' || !body.password ||
+        (Object.prototype.hasOwnProperty.call(body,'code') && (typeof body.code !== 'string' || !/^\d{6}$/.test(body.code))) ||
+        (Object.prototype.hasOwnProperty.call(body,'recovery_code') && (typeof body.recovery_code !== 'string' || !/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))) ||
+        ('code' in body && 'recovery_code' in body)) throw _mfaError('google_link_invalid_input');
+  }
+  const googleLink = {
+    capture: mfa.capture, check: mfa.check, context: mfa.context, verify: mfa.verify, close: mfa.close,
+    status(handle, after = null) {
+      if (after !== null && (typeof after !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(after))) throw _mfaError('google_link_invalid_input');
+      return _mfaRequest('/api/auth/google/link/status'+(after === null ? '' : '?after='+after),null,handle,'GET');
+    },
+    start(body, handle) {
+      _googleLinkBody(body,['password','google_credential'],['code','recovery_code']);_googleLinkPrimary(body);
+      if (typeof body.google_credential !== 'string' || !body.google_credential) throw _mfaError('google_link_invalid_input');
+      return _mfaRequest('/api/auth/google/link/start',body,handle);
+    },
+    confirm(body, handle) {
+      _googleLinkBody(body,['intent','confirm']);
+      if (!_mfaBearer(body.intent) || body.confirm !== true) throw _mfaError('google_link_invalid_input');
+      return _mfaRequest('/api/auth/google/link/confirm',body,handle);
+    },
+    unlink(body, handle) {
+      _googleLinkBody(body,['identity_id','expected_version','password'],['code','recovery_code']);_googleLinkPrimary(body);
+      if (typeof body.identity_id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(body.identity_id) || !Number.isSafeInteger(body.expected_version) || body.expected_version < 1 || body.expected_version > 2147483647) throw _mfaError('google_link_invalid_input');
+      return _mfaRequest('/api/auth/google/link/unlink',body,handle);
+    },
+  };
+
   const billing = {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
@@ -985,6 +1020,6 @@ const Api = (() => {
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
     accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
   };
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, clearTokens, saveTokens };
 })();
 

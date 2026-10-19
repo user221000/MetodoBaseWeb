@@ -1,0 +1,406 @@
+diff --git b/web/routes/pages.py a/web/routes/pages.py
+index 056dabc..ad58232 100644
+--- b/web/routes/pages.py
++++ a/web/routes/pages.py
+@@ -140,16 +140,6 @@ async def progress_retirement_page(request: Request):
+ 
+ # ── Individual User Pages ─────────────────────────────────────────────────
+ 
+-@router.get('/cuenta/google', response_class=HTMLResponse)
+-async def google_link_page(request: Request):
+-    """Explicit Google binding; provider proof never enters the template."""
+-    from config.settings import Settings
+-    response = template_response(templates, request, 'cuenta_google.html', {
+-        'request': request, 'google_client_id': Settings().GOOGLE_CLIENT_ID,
+-    })
+-    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+-    return response
+-
+ @router.get("/mi-plan", response_class=HTMLResponse)
+ async def mi_plan_page(request: Request):
+     return template_response(templates, request, "usuario_mi_plan.html", {"request": request})
+diff --git b/web/static/css/google-vinculo.css a/web/static/css/google-vinculo.css
+deleted file mode 100644
+index 7934c6c..0000000
+--- b/web/static/css/google-vinculo.css
++++ /dev/null
+@@ -1,22 +0,0 @@
+-.google-link-page { max-width: 48rem; margin: 1.5rem auto; padding: 1.75rem; font: 1rem/1.6 system-ui,sans-serif; color: #19343a; }
+-.google-link-page, .google-link-page * { box-sizing: border-box; min-width: 0; }
+-.google-link-page h1 { font-size: clamp(1.7rem,6vw,2.3rem); line-height: 1.2; }
+-.google-link-page h2 { font-size: 1.35rem; }
+-.google-link-page p, .google-link-page li { overflow-wrap: anywhere; }
+-.google-link-page a { color: #075d60; text-underline-offset: .2em; }
+-.google-link-page label { display: block; font-weight: 650; margin-top: 1rem; }
+-.google-link-page input, .google-link-page select { display: block; width: 100%; min-height: 2.75rem; font: inherit; padding: .6rem; border: 1px solid #597571; border-radius: .3rem; background: white; color: #19343a; }
+-.google-link-page button { min-height: 2.75rem; max-width: 100%; font: inherit; padding: .65rem 1rem; background: #075d60; color: white; border: 2px solid #075d60; border-radius: .35rem; cursor: pointer; }
+-.google-link-page button.secondary { color: #075d60; background: white; }
+-.google-link-page button:disabled { color: #415956; background: #e5eeeb; border-color: #a5b8b1; cursor: default; }
+-.google-link-actions, .google-link-page nav { display: flex; flex-wrap: wrap; gap: .8rem; margin: 1rem 0; }
+-.google-link-page nav a { display: inline-flex; align-items: center; min-height: 2.75rem; }
+-.google-link-page section, .google-link-page aside, .google-link-page form { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #bccfc8; }
+-.google-link-page ol { padding-left: 1.4rem; }
+-.google-link-page article { margin: 1rem 0; padding: 1rem; border: 1px solid #aec6bc; border-radius: .4rem; }
+-.google-link-error { color: #80212a; background: #fff6f6; border: 2px solid #a12a35; padding: 1rem; border-radius: .4rem; }
+-.google-link-page .google-link-check { display: flex; align-items: flex-start; gap: .7rem; margin: 1rem 0; }
+-.google-link-page .google-link-check input { flex: 0 0 1.4rem; width: 1.4rem; min-height: 1.4rem; margin-top: .2rem; }
+-.google-link-page :focus-visible, .google-link-page [tabindex="-1"]:focus { outline: 3px solid #9a4800; outline-offset: 3px; }
+-.google-link-page [hidden] { display: none !important; }
+-@media(max-width:36rem) { .google-link-page { margin: 0; padding: 1rem; } .google-link-actions button { width: 100%; } }
+diff --git b/web/static/js/api.js a/web/static/js/api.js
+index c676e8d..d42f03f 100644
+--- b/web/static/js/api.js
++++ a/web/static/js/api.js
+@@ -617,41 +617,6 @@ const Api = (() => {
+     window.addEventListener('pagehide',discardMfa);
+   }
+ 
+-  // Google subject association is purpose-closed and bound to one exact access.
+-  function _googleLinkBody(body, required, optional = []) {
+-    if (!body || typeof body !== 'object' || Array.isArray(body) ||
+-        required.some(key => !Object.prototype.hasOwnProperty.call(body,key)) ||
+-        Object.keys(body).some(key => !required.includes(key) && !optional.includes(key))) throw _mfaError('google_link_invalid_input');
+-  }
+-  function _googleLinkPrimary(body) {
+-    if (typeof body.password !== 'string' || !body.password ||
+-        (Object.prototype.hasOwnProperty.call(body,'code') && (typeof body.code !== 'string' || !/^\d{6}$/.test(body.code))) ||
+-        (Object.prototype.hasOwnProperty.call(body,'recovery_code') && (typeof body.recovery_code !== 'string' || !/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))) ||
+-        ('code' in body && 'recovery_code' in body)) throw _mfaError('google_link_invalid_input');
+-  }
+-  const googleLink = {
+-    capture: mfa.capture, check: mfa.check, context: mfa.context, verify: mfa.verify, close: mfa.close,
+-    status(handle, after = null) {
+-      if (after !== null && (typeof after !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(after))) throw _mfaError('google_link_invalid_input');
+-      return _mfaRequest('/api/auth/google/link/status'+(after === null ? '' : '?after='+after),null,handle,'GET');
+-    },
+-    start(body, handle) {
+-      _googleLinkBody(body,['password','google_credential'],['code','recovery_code']);_googleLinkPrimary(body);
+-      if (typeof body.google_credential !== 'string' || !body.google_credential) throw _mfaError('google_link_invalid_input');
+-      return _mfaRequest('/api/auth/google/link/start',body,handle);
+-    },
+-    confirm(body, handle) {
+-      _googleLinkBody(body,['intent','confirm']);
+-      if (!_mfaBearer(body.intent) || body.confirm !== true) throw _mfaError('google_link_invalid_input');
+-      return _mfaRequest('/api/auth/google/link/confirm',body,handle);
+-    },
+-    unlink(body, handle) {
+-      _googleLinkBody(body,['identity_id','expected_version','password'],['code','recovery_code']);_googleLinkPrimary(body);
+-      if (typeof body.identity_id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(body.identity_id) || !Number.isSafeInteger(body.expected_version) || body.expected_version < 1 || body.expected_version > 2147483647) throw _mfaError('google_link_invalid_input');
+-      return _mfaRequest('/api/auth/google/link/unlink',body,handle);
+-    },
+-  };
+-
+   const billing = {
+     config:       () => request('GET', '/api/billing/config'),
+     subscription: () => request('GET', '/api/billing/subscription'),
+@@ -1020,6 +985,6 @@ const Api = (() => {
+     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
+     accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
+   };
+-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, clearTokens, saveTokens };
++  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, clearTokens, saveTokens };
+ })();
+ 
+diff --git b/web/static/js/google-vinculo-pagina.js a/web/static/js/google-vinculo-pagina.js
+deleted file mode 100644
+index 71972a8..0000000
+--- b/web/static/js/google-vinculo-pagina.js
++++ /dev/null
+@@ -1,62 +0,0 @@
+-/* First-party GIS integration. Never paste, decode, serialize or persist a provider credential. */
+-(function(){
+-  'use strict';
+-  const root=document.getElementById('google-link-page');if(!root||!window.GoogleVinculo||typeof Api==='undefined'||!Api.googleLink)return;
+-  const get=suffix=>document.getElementById('google-link-'+suffix),clientId=root.dataset.googleClientId||'';
+-  const password=get('password'),factor=get('factor'),method=get('method'),box=get('button');
+-  let controller,displayed=null,googleReady=false,googleLoading=false,googleTicket=null,serial=0;
+-  const clear=()=>{password.value='';factor.value='';get('unlink-agree').checked=false;googleTicket=null;};
+-  const node=(tag,text)=>{const result=document.createElement(tag);result.textContent=text;return result;};
+-  function chooseFactor(){factor.value='';factor.required=method.value!=='none';get('factor-group').hidden=method.value==='none';factor.disabled=controller.view().busy||method.value==='none';factor.inputMode=method.value==='totp'?'numeric':'text';get('factor-label').textContent=method.value==='recovery'?'Código de recuperación sin usar':'Código actual de la aplicación';}
+-  function renderGoogle(){
+-    if(!googleReady||controller.view().phase!=='ready')return;
+-    box.replaceChildren();const state='google-link-'+(++serial);
+-    google.accounts.id.renderButton(box,{theme:'outline',size:'large',text:'continue_with',locale:'es',width:Math.min(400,box.clientWidth||280),state,click_listener:()=>{const attempt=controller.beginGoogle();if(attempt)googleTicket={attempt,state};}});
+-  }
+-  function render(value){
+-    const blocked=['invalidated','closed','closed_error','closing'].includes(value.phase);
+-    get('status').textContent=value.message;
+-    get('load').disabled=value.busy||blocked;get('more').disabled=value.busy||blocked;get('more').hidden=!value.next;
+-    get('cancel').disabled=blocked;get('provider').hidden=!['ready','google'].includes(value.phase)||!value.canLink;
+-    get('enable').hidden=googleReady;get('enable').disabled=value.busy||blocked||value.phase!=='ready'||!clientId||googleLoading;
+-    get('proof').hidden=!['proof','unlink'].includes(value.phase);
+-    get('confirm-panel').hidden=value.phase!=='confirm';get('confirm').disabled=value.busy||value.phase!=='confirm';
+-    for(const suffix of ['password','method','factor','unlink-agree','submit'])get(suffix).disabled=value.busy||blocked;
+-    factor.disabled=value.busy||blocked||method.value==='none';
+-    get('unlink-label').hidden=value.phase!=='unlink';get('submit').textContent=value.phase==='unlink'?'Confirmar la desvinculación seleccionada':'Verificar y preparar vínculo';
+-    get('selection').textContent=value.selected===null?'':'Seleccionaste el vínculo '+(value.selected+1)+' de esta consulta. Comprueba sus fechas antes de confirmar.';
+-    get('contact').textContent=value.contact?'Cuenta de Google elegida: '+value.contact:'';
+-    get('expiry').textContent=value.expires?'Confirma antes de '+value.expires+' (fecha y zona del servidor).':'';
+-    get('list').hidden=!value.items.length;
+-    if(displayed!==value.items){displayed=value.items;get('items').replaceChildren();value.items.forEach((item,index)=>{const li=document.createElement('li'),article=document.createElement('article');article.append(node('h3','Vínculo '+(index+1)),node('p',item.active?'Activo para el acceso con Google.':'Desvinculado: no permite iniciar sesión.'),node('p','Creado: '+item.created_at),node('p',item.revoked_at?'Desvinculado: '+item.revoked_at:'Sin fecha de desvinculación registrada.'));if(item.active){const button=node('button','Seleccionar vínculo '+(index+1)+' para desvincular');button.type='button';button.addEventListener('click',()=>{if(controller.selectUnlink(index))password.focus();});article.append(button);}li.append(article);get('items').append(li);});}
+-    for(const button of get('items').querySelectorAll('button'))button.disabled=value.busy||blocked;
+-    if(value.phase!=='google')googleTicket=null;
+-    if(blocked||['idle','error'].includes(value.phase))box.replaceChildren();
+-    if(value.phase==='ready'&&!value.busy)renderGoogle();
+-  }
+-  controller=GoogleVinculo.create({onClear:clear,onView:render});
+-  function showError(text){get('error').textContent=text;get('error').hidden=false;get('error').focus();}
+-  async function action(task){get('error').textContent='';get('error').hidden=true;const result=await task();if(!result&&['error','invalidated','closed_error'].includes(controller.view().phase))get('status').focus();else if(result&&['proof','unlink'].includes(controller.view().phase))password.focus();else if(result)get('status').focus();}
+-  get('load').addEventListener('click',()=>void action(()=>controller.load()));get('more').addEventListener('click',()=>void action(controller.more));get('confirm').addEventListener('click',()=>void action(controller.confirm));
+-  get('cancel').addEventListener('click',()=>{controller.cancel();get('error').textContent='';get('error').hidden=true;get('status').focus();});
+-  method.addEventListener('change',chooseFactor);
+-  get('proof').addEventListener('submit',event=>{event.preventDefault();const proof={password:password.value,method:method.value,factor:factor.value},agreed=get('unlink-agree').checked;void action(()=>controller.view().phase==='unlink'?controller.unlink(proof,agreed):controller.start(proof));});
+-  get('enable').addEventListener('click',()=>{
+-    if(googleLoading||googleReady||!clientId||controller.view().phase!=='ready')return;
+-    googleLoading=true;render(controller.view());const script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;script.nonce=document.querySelector('script[nonce]')?.nonce||'';
+-    script.onerror=()=>{googleLoading=false;if(controller.view().phase!=='ready')return;render(controller.view());showError('No se pudo cargar Google. No se inició ningún vínculo. Puedes volver a cargar la opción explícitamente.');};
+-    script.onload=()=>{googleLoading=false;if(controller.view().phase!=='ready')return;try{
+-      google.accounts.id.initialize({client_id:clientId,ux_mode:'popup',auto_select:false,button_auto_select:false,essential_claims:'auth_time',callback:response=>{
+-        const ticket=googleTicket;if(!ticket||response.state!==ticket.state||controller.view().phase!=='google')return;googleTicket=null;
+-        if(controller.acceptGoogle(response.credential,ticket.attempt))password.focus();
+-      }});googleReady=true;render(controller.view());
+-    }catch(_){showError('Google no está disponible para esta verificación. No se preparó ningún vínculo.');}};
+-    document.head.appendChild(script);
+-  });
+-  function invalidate(){googleTicket=null;controller.invalidate();box.replaceChildren();get('error').textContent='';get('error').hidden=true;}
+-  window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('pagehide',invalidate);
+-  window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token'].includes(event.key))invalidate();});
+-  const timer=setInterval(()=>controller.expire(),1000);window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
+-  get('load').disabled=false;get('cancel').disabled=false;chooseFactor();render(controller.view());
+-  if(!clientId)get('provider-title').textContent='Google no está configurado. Puedes consultar o desvincular vínculos existentes con una prueba local válida.';
+-})();
+diff --git b/web/static/js/google-vinculo.js a/web/static/js/google-vinculo.js
+deleted file mode 100644
+index 8a57bc0..0000000
+--- b/web/static/js/google-vinculo.js
++++ /dev/null
+@@ -1,100 +0,0 @@
+-/* Explicit provider association. Proofs, credentials and intents live only in this closure. */
+-(function(root){
+-  'use strict';
+-  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,bearer=/^[A-Za-z0-9_-]{43}$/;
+-  const bad=()=>Object.assign(new Error('No se pudo comprobar la respuesta.'),{code:'google_link_invalid_response'});
+-  const changed=()=>Object.assign(new Error('La sesión cambió.'),{code:'session_changed'});
+-  function keys(value,names){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==names.length||names.some(name=>!Object.prototype.hasOwnProperty.call(value,name)))throw bad();}
+-  function timestamp(value){return typeof value==='string'&&value.length<=64&&/^\d{4}-\d\d-\d\dT.+(?:Z|[+-]\d\d:\d\d)$/.test(value)&&Number.isFinite(Date.parse(value));}
+-  function listing(data,after){
+-    keys(data,['provider','can_link','items','next_after']);if(data.provider!=='google'||typeof data.can_link!=='boolean'||!Array.isArray(data.items)||data.items.length>20)throw bad();
+-    let previous=after;const items=data.items.map(item=>{keys(item,['id','version','active','created_at','revoked_at']);
+-      if(typeof item.id!=='string'||!uuid.test(item.id)||!Number.isSafeInteger(item.version)||item.version<1||item.version>2147483647||typeof item.active!=='boolean'||!timestamp(item.created_at)||(item.revoked_at!==null&&!timestamp(item.revoked_at))||(previous!==null&&item.id<=previous))throw bad();
+-      previous=item.id;return Object.freeze({...item});});
+-    if(data.next_after!==null&&(typeof data.next_after!=='string'||!uuid.test(data.next_after)||!items.length||data.next_after!==items[items.length-1].id))throw bad();
+-    return{items:Object.freeze(items),canLink:data.can_link,next:data.next_after};
+-  }
+-  function primary(proof){
+-    if(!proof||typeof proof.password!=='string'||!proof.password)throw Object.assign(bad(),{code:'google_link_invalid_input'});
+-    const body={password:proof.password};
+-    if(proof.method==='totp'&&typeof proof.factor==='string'&&/^\d{6}$/.test(proof.factor))body.code=proof.factor;
+-    else if(proof.method==='recovery'&&typeof proof.factor==='string'&&/^[A-Za-z0-9_-]{22}$/.test(proof.factor))body.recovery_code=proof.factor;
+-    else if(proof.method!=='none'||proof.factor)throw Object.assign(bad(),{code:'google_link_invalid_input'});
+-    return body;
+-  }
+-  function bounded(body){if(new TextEncoder().encode(JSON.stringify(body)).length>32768)throw Object.assign(bad(),{code:'google_link_invalid_input'});return body;}
+-  const messages=Object.freeze({
+-    google_link_verification_failed:'No se pudo verificar tu contraseña local. Un acceso con Google o una sesión abierta no la sustituyen.',
+-    google_link_conflict:'El vínculo cambió o no se puede asignar a esta cuenta. Consulta el estado de nuevo antes de otra operación.',
+-    google_link_intent_unavailable:'La confirmación venció, se usó o pertenece a otro acceso. Se descartó; consulta y prepara un vínculo nuevo explícitamente.',
+-    google_link_session_version_exhausted:'Esta cuenta necesita revisión antes de cambiar su acceso con Google. No se confirma ningún cambio.',
+-    mfa_busy:'Hay otra operación en curso. Espera y realiza una consulta nueva antes de continuar.',
+-    mfa_verification_failed:'No se confirmó el segundo factor. Usa una prueba nueva al preparar otra operación.',
+-    mfa_primary_reauthentication_required:'Google no confirmó una autenticación suficientemente reciente. No basta con elegir una cuenta. Vuelve a autenticarte con Google y prepara la operación de nuevo; si no ofrece esa verificación, no puedes completar este vínculo por ahora.',
+-    google_identity_invalid:'No se pudo verificar la autenticación de Google. Se descartó; no se confirmó ningún vínculo.',
+-    google_link_invalid_input:'Escribe tu contraseña local y una prueba completa del segundo factor, si está activo. Confirma también la selección para desvincular.',
+-    google_link_invalid_response:'No pudimos comprobar la respuesta. No se confirma ningún cambio. Consulta de nuevo explícitamente antes de otra operación.',
+-  });
+-  function notice(error){if(Object.prototype.hasOwnProperty.call(messages,error.code))return messages[error.code];if(error.status===429)return'Hay un límite temporal de intentos. Espera antes de una nueva consulta u operación explícita.';if(error.status===501)return'Google no está configurado para este acceso. No se confirmó ningún vínculo.';if(error.status>=500||!error.status)return'El resultado es incierto; el cambio puede haberse confirmado. No repetiremos la operación ni consultaremos automáticamente. Vuelve a iniciar sesión cuando corresponda y consulta el estado explícitamente.';return'No se pudo confirmar el cambio. Consulta el estado antes de otra operación.';}
+-  function create(options){
+-    const api=options.api||Api.googleLink,now=options.now||Date.now;
+-    let context=null,epoch=0,phase='idle',busy=false,dead=false,closing=false,items=Object.freeze([]),next=null,canLink=false,selected=null,attempt=null,credential=null,credentialUntil=0,intent=null,expires=null,contact=null;
+-    let message='Consulta los vínculos de la cuenta con la que ya iniciaste sesión.';
+-    const view=()=>Object.freeze({phase,busy,items,next:next!==null,canLink,selected:selected===null?null:items.indexOf(selected),contact,expires,message});
+-    const emit=()=>options.onView?.(view());
+-    function clearProof(){credential=null;credentialUntil=0;attempt=null;intent=null;expires=null;contact=null;options.onClear?.();}
+-    function clearData(){clearProof();items=Object.freeze([]);next=null;canLink=false;selected=null;}
+-    function invalidate(){if(closing||phase==='invalidated')return;dead=true;epoch++;busy=false;context=null;phase='invalidated';clearData();message='La sesión o el almacenamiento cambiaron. Se descartó esta vista. Vuelve a abrirla desde la cuenta que quieres gestionar.';emit();}
+-    function alive(ticket){if(dead||ticket!==epoch)throw changed();}
+-    function check(ticket=epoch){alive(ticket);if(!context)throw changed();api.check(context);}
+-    function failure(error,ticket){
+-      if(dead||ticket!==epoch)return false;
+-      try{if(context)check(ticket);}catch(_){invalidate();return false;}
+-      if(['session_changed','session_storage_error','session_expired','mfa_identity_unavailable'].includes(error.code)){invalidate();return false;}
+-      clearData();if(dead||ticket!==epoch)return false;busy=false;phase='error';message=notice(error);emit();return false;
+-    }
+-    async function load(paging=false){
+-      if(dead||busy)return false;if(paging&&next===null)return false;
+-      const after=paging?next:null,ticket=++epoch;busy=true;clearData();if(dead||ticket!==epoch)return false;phase='loading';message='Consultando los vínculos de esta cuenta…';emit();
+-      try{alive(ticket);if(!context){const result=await api.context();alive(ticket);context=result.handle;}check(ticket);
+-        await api.verify(context);check(ticket);const reply=await api.status(context,after);check(ticket);const parsed=listing(reply,after);check(ticket);
+-        items=parsed.items;next=parsed.next;canLink=parsed.canLink;busy=false;phase='ready';message=items.length?'Estado consultado. Un vínculo nuevo requiere una verificación y una confirmación explícitas.':'Esta página no contiene vínculos registrados. Puedes preparar uno nuevo si está habilitado.';emit();check(ticket);return true;
+-      }catch(error){return failure(error,ticket);}
+-    }
+-    function cancel(){if(dead||closing)return;epoch++;busy=false;clearData();if(dead)return;phase='idle';message='Pruebas y vista descartadas. Una solicitud ya enviada puede haber finalizado; consulta el estado explícitamente antes de otra operación.';emit();}
+-    function beginGoogle(){
+-      if(dead||busy||phase!=='ready'||!canLink)return null;const ticket=++epoch;
+-      try{check(ticket);clearProof();check(ticket);selected=null;attempt=Object.freeze({});const result=attempt;phase='google';message='Elige la cuenta de Google. Todavía no se ha preparado ni confirmado un vínculo.';emit();check(ticket);return result;}catch(error){failure(error,ticket);return null;}
+-    }
+-    function acceptGoogle(value,observed){
+-      if(dead||busy||phase!=='google'||attempt!==observed)return false;const ticket=epoch;
+-      try{check(ticket);if(typeof value!=='string'||!value||value.length>30000)throw bad();credential=value;credentialUntil=now()+300000;attempt=null;phase='proof';message='Ahora verifica esta cuenta con su contraseña local y un código nuevo, si usa segundo factor. Google debe haber confirmado una autenticación reciente; elegir una cuenta no lo garantiza.';emit();check(ticket);return true;}catch(error){return failure(error,ticket);}
+-    }
+-    async function start(proof){
+-      if(dead||busy||phase!=='proof'||!credential)return false;const ticket=epoch;let body;
+-      try{check(ticket);if(now()>=credentialUntil)throw Object.assign(bad(),{code:'mfa_primary_reauthentication_required'});body=bounded({...primary(proof),google_credential:credential});check(ticket);
+-        busy=true;clearProof();check(ticket);phase='saving';message='Verificando la prueba. El vínculo todavía no está confirmado…';emit();check(ticket);
+-        const reply=await api.start(body,context);body=null;check(ticket);keys(reply,['intent','expires_at','provider','google_email','confirmation_required']);
+-        if(!bearer.test(reply.intent)||typeof reply.intent!=='string'||!timestamp(reply.expires_at)||Date.parse(reply.expires_at)<=now()||reply.provider!=='google'||typeof reply.google_email!=='string'||!reply.google_email||reply.google_email.length>320||reply.confirmation_required!==true)throw bad();
+-        check(ticket);intent=reply.intent;expires=reply.expires_at;contact=reply.google_email;busy=false;phase='confirm';message='Verificación recibida. Comprueba la cuenta de Google mostrada y confirma sólo si quieres vincularla.';emit();check(ticket);return true;
+-      }catch(error){body=null;return failure(error,ticket);}
+-    }
+-    function selectUnlink(index){if(dead||busy||!Number.isSafeInteger(index)||!items[index]||!items[index].active)return false;const ticket=epoch;
+-      try{check(ticket);clearProof();check(ticket);selected=items[index];phase='unlink';message='Comprueba la selección. Para desvincular se requiere tu contraseña local y un código nuevo, si usas segundo factor.';emit();check(ticket);return true;}catch(error){return failure(error,ticket);}}
+-    function finish(reply,ticket,unlink){
+-      check(ticket);keys(reply,unlink?['success','provider','identity_id','version','linked','reauthenticate']:['success','provider','linked','reauthenticate']);
+-      if(reply.success!==true||reply.provider!=='google'||reply.reauthenticate!==true||reply.linked!==!unlink||(unlink&&(reply.identity_id!==selected.id||!Number.isSafeInteger(reply.version)||reply.version>2147483647||reply.version!==selected.version+1)))throw bad();
+-      const previous=context;clearData();check(ticket);phase='closing';message='El servidor confirmó el cambio. Cerrando la sesión local…';emit();check(ticket);
+-      dead=true;epoch++;context=null;busy=false;closing=true;
+-      try{const closed=api.close(previous);closing=false;api.check(closed);phase='closed';message=unlink?'Desvinculación confirmada. La sesión local se cerró; inicia sesión de nuevo.':'Vínculo confirmado. La sesión local se cerró; inicia sesión de nuevo.';emit();api.check(closed);return true;}
+-      catch(error){closing=false;if(error.code==='session_changed'){invalidate();return false;}clearData();phase='closed_error';message='El servidor confirmó el cambio, pero no pudimos cerrar la sesión de forma segura. No repitas la operación; vuelve a iniciar sesión y consulta el estado.';emit();return false;}
+-    }
+-    async function confirm(){if(dead||busy||phase!=='confirm'||!intent)return false;const ticket=epoch;let body;
+-      try{check(ticket);if(now()>=Date.parse(expires))throw Object.assign(bad(),{code:'google_link_intent_unavailable'});body={intent,confirm:true};busy=true;clearProof();check(ticket);phase='saving';message='Confirmando el vínculo solicitado…';emit();check(ticket);const reply=await api.confirm(body,context);body=null;check(ticket);return finish(reply,ticket,false);}catch(error){body=null;return failure(error,ticket);}}
+-    async function unlink(proof,confirmed){if(dead||busy||phase!=='unlink'||!selected)return false;const ticket=epoch;let body;
+-      try{check(ticket);if(confirmed!==true)throw Object.assign(bad(),{code:'google_link_invalid_input'});body=bounded({...primary(proof),identity_id:selected.id,expected_version:selected.version});check(ticket);busy=true;clearProof();check(ticket);phase='saving';message='Verificando y desvinculando únicamente el vínculo seleccionado…';emit();check(ticket);const reply=await api.unlink(body,context);body=null;check(ticket);return finish(reply,ticket,true);}catch(error){body=null;return failure(error,ticket);}}
+-    function expire(){if(dead||busy)return;if((phase==='proof'&&now()>=credentialUntil)||(phase==='confirm'&&now()>=Date.parse(expires))){clearData();phase='error';message='La verificación venció. Consulta el estado y prepara una operación nueva; no se repitió ninguna acción.';emit();}}
+-    return Object.freeze({view,load,more:()=>load(true),beginGoogle,acceptGoogle,start,confirm,selectUnlink,unlink,cancel,invalidate,expire});
+-  }
+-  root.GoogleVinculo=Object.freeze({create,listing});
+-})(typeof window==='undefined'?globalThis:window);
+diff --git b/web/static/js/mfa-login.js a/web/static/js/mfa-login.js
+index 7e056e8..01a7da7 100644
+--- b/web/static/js/mfa-login.js
++++ a/web/static/js/mfa-login.js
+@@ -3,8 +3,7 @@
+   'use strict';
+   const methods=new Set(['totp','recovery_code']);
+   const messages={mfa_throttled:'Hay un límite temporal de intentos. Espera antes de volver a verificar.',mfa_verification_failed:'No se confirmó el código. Usa una prueba vigente e inténtalo de nuevo.',mfa_proof_unavailable:'La verificación venció o ya se usó. Inicia un acceso nuevo.',mfa_unconfirmed:'No llegó una confirmación fiable. Puede haberse consumido la prueba; inicia un acceso nuevo.',mfa_service_unavailable:'La verificación no está disponible. No se inició sesión; vuelve a consultar.'};
+-  const googleMessages=Object.freeze({google_link_required:'Google todavía no está vinculado a esta cuenta. Descarta este intento e inicia sesión con tu contraseña; después abre «Vincular Google» para confirmarlo explícitamente. No se fusionan cuentas por correo.',google_link_conflict:'No se pudo confirmar este vínculo de Google. Descarta el intento y consulta tus vínculos desde el acceso local; no se inició una sesión nueva.',google_identity_invalid:'No se pudo verificar la cuenta de Google. Descarta el intento y usa una autenticación válida; no se inició sesión.'});
+-  function message(error){if(Object.prototype.hasOwnProperty.call(googleMessages,error.code))return googleMessages[error.code];return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
++  function message(error){return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
+   function create(options={}){
+     const api=options.api||Api.mfa;
+     let context=null,challenge=null,method='totp',expiry=null,phase='primary',busy=false,epoch=0,dead=false,committing=false,committed=false;
+diff --git b/web/templates/configuracion.html a/web/templates/configuracion.html
+index a91fa96..b7a6049 100644
+--- b/web/templates/configuracion.html
++++ a/web/templates/configuracion.html
+@@ -178,7 +178,6 @@
+   </div>
+ </div>
+ 
+-<p><a href="/cuenta/google">Consultar, vincular o desvincular Google de mi cuenta</a></p>
+ {% include "mfa_account_partial.html" %}
+ {% endblock %}
+ 
+diff --git b/web/templates/cuenta_google.html a/web/templates/cuenta_google.html
+deleted file mode 100644
+index bc8d9bd..0000000
+--- b/web/templates/cuenta_google.html
++++ /dev/null
+@@ -1,61 +0,0 @@
+-<!doctype html>
+-<html lang="es">
+-<head>
+-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+-  <title>Google en mi cuenta — Método Base</title>
+-  <link rel="stylesheet" href="/static/css/google-vinculo.css?v={{ static_version }}">
+-  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}" defer></script>
+-  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/google-vinculo.js?v={{ static_version }}" defer></script>
+-  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/google-vinculo-pagina.js?v={{ static_version }}" defer></script>
+-</head>
+-<body>
+-<main id="google-link-page" class="google-link-page" data-google-client-id="{{ google_client_id | default('') | e }}">
+-  <a href="/">Método Base</a>
+-  <h1>Google en mi cuenta</h1>
+-  <p>Consulta y gestiona el acceso con Google de la cuenta con la que ya iniciaste sesión. Vincular requiere tu contraseña local, un código nuevo si usas segundo factor y una verificación reciente de Google. Tendrás que confirmar la cuenta elegida en un paso aparte.</p>
+-  <p>El correo de Google no fusiona cuentas, cambia tu contacto ni incorpora perfiles, clientes o planes anteriores.</p>
+-  <p id="google-link-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1">Consulta el estado para empezar. Esta página no inicia sesión automáticamente.</p>
+-  <p id="google-link-error" class="google-link-error" role="alert" tabindex="-1" hidden></p>
+-  <div class="google-link-actions">
+-    <button id="google-link-load" type="button" disabled>Consultar mis vínculos</button>
+-    <button id="google-link-more" type="button" hidden disabled>Consultar siguientes vínculos</button>
+-    <button id="google-link-cancel" class="secondary" type="button" disabled>Descartar pruebas y esta vista</button>
+-  </div>
+-  <section id="google-link-list" aria-labelledby="google-link-list-title" hidden>
+-    <h2 id="google-link-list-title">Vínculos de esta consulta</h2>
+-    <p>Se muestran estado y fechas del vínculo, sin el identificador privado de Google ni su correo. Si no puedes distinguir el vínculo que quieres desactivar, no confirmes la selección.</p>
+-    <ol id="google-link-items"></ol>
+-  </section>
+-  <section id="google-link-provider" aria-labelledby="google-link-provider-title" hidden>
+-    <h2 id="google-link-provider-title">Preparar un vínculo nuevo</h2>
+-    <p>Al habilitar esta opción se cargará el botón oficial de Google. Elige una cuenta y, cuando Google lo solicite, vuelve a autenticarte. Elegirla por sí solo no garantiza una verificación reciente.</p>
+-    <button id="google-link-enable" type="button" disabled>Cargar el botón de Google</button>
+-    <div id="google-link-button"></div>
+-  </section>
+-  <form id="google-link-proof" aria-labelledby="google-link-proof-title" novalidate hidden>
+-    <h2 id="google-link-proof-title">Verificar mi cuenta</h2>
+-    <label for="google-link-password">Contraseña local de mi cuenta</label>
+-    <input id="google-link-password" type="password" autocomplete="current-password" required disabled>
+-    <label for="google-link-method">Segundo factor de esta cuenta</label>
+-    <select id="google-link-method" disabled><option value="none">Mi cuenta no usa segundo factor</option><option value="totp">Código actual de mi aplicación</option><option value="recovery">Código de recuperación sin usar</option></select>
+-    <div id="google-link-factor-group" hidden><label for="google-link-factor" id="google-link-factor-label">Código nuevo</label><input id="google-link-factor" type="password" autocomplete="one-time-code" spellcheck="false" disabled><p>La prueba usada en otra operación no se reutiliza aquí. Un código de recuperación se consume una sola vez.</p></div>
+-    <p id="google-link-selection"></p>
+-    <label id="google-link-unlink-label" class="google-link-check" hidden><input id="google-link-unlink-agree" type="checkbox" disabled>Quiero desactivar únicamente el vínculo seleccionado y volver a iniciar sesión.</label>
+-    <button id="google-link-submit" type="submit" disabled>Verificar y preparar vínculo</button>
+-  </form>
+-  <section id="google-link-confirm-panel" aria-labelledby="google-link-confirm-title" hidden>
+-    <h2 id="google-link-confirm-title">Confirma la cuenta de Google</h2>
+-    <p id="google-link-contact"></p><p id="google-link-expiry"></p>
+-    <p>Este correo sólo identifica la selección que acabas de verificar. No cambia el contacto de tu cuenta. Confirmar el vínculo cerrará tus sesiones y tendrás que volver a entrar.</p>
+-    <button id="google-link-confirm" type="button" disabled>Confirmar el vínculo con esta cuenta de Google</button>
+-  </section>
+-  <aside aria-labelledby="google-link-limits-title">
+-    <h2 id="google-link-limits-title">Si no dispones de una contraseña o de tus códigos</h2>
+-    <p>Una sesión abierta o un acceso sólo con Google no sustituyen la contraseña local. Si tu acceso antiguo de Google nunca se vinculó de forma verificable, esta página no lo recupera por coincidencia de correo. Si perdiste todos tus factores, tampoco se omiten aquí. No se ofrece una recuperación automática de esos casos.</p>
+-    <p>Si un resultado es incierto, no repitas el cambio a ciegas: vuelve a autenticarte cuando corresponda y consulta el estado explícitamente.</p>
+-  </aside>
+-  <nav aria-label="Accesos"><a href="/login-usuario">Iniciar sesión personal</a><a href="/login-gym">Acceso profesional</a><a href="/mi-perfil">Mi perfil</a><a href="/configuracion">Configuración profesional</a></nav>
+-  <noscript>Activa JavaScript para usar estos controles. No envíes credenciales por URL ni pegues códigos de Google en esta página.</noscript>
+-</main>
+-</body>
+-</html>
+diff --git b/web/templates/login_gym.html a/web/templates/login_gym.html
+index e1c2af0..c2209f0 100644
+--- b/web/templates/login_gym.html
++++ a/web/templates/login_gym.html
+@@ -183,7 +183,6 @@
+             <a href="/registro?tipo=gym">Crea tu cuenta gratis →</a>
+           </p>
+           <p><a href="/retirar-consentimientos">Retirar permisos de progreso sin iniciar sesión</a></p>
+-          <p>Google no fusiona una cuenta existente por correo. <a href="/cuenta/google">Vincular Google después de acceder con contraseña</a>. Un primer registro con Google crea una cuenta nueva sin adoptar clientes ni planes anteriores.</p>
+         </div>
+ 
+       </div>
+diff --git b/web/templates/login_usuario.html a/web/templates/login_usuario.html
+index 89bdf78..e0ff697 100644
+--- b/web/templates/login_usuario.html
++++ a/web/templates/login_usuario.html
+@@ -182,7 +182,6 @@
+             <a href="/registro?tipo=usuario">Empieza gratis en menos de 2 minutos →</a>
+           </p>
+           <p><a href="/retirar-consentimientos">Retirar permisos de progreso sin iniciar sesión</a></p>
+-          <p>Google no fusiona una cuenta existente por correo. <a href="/cuenta/google">Vincular Google después de acceder con contraseña</a>. Un primer registro con Google crea una cuenta nueva sin adoptar perfiles ni planes anteriores.</p>
+         </div>
+ 
+       </div>
+diff --git b/web/templates/usuario_perfil.html a/web/templates/usuario_perfil.html
+index 4614cdf..7674b07 100644
+--- b/web/templates/usuario_perfil.html
++++ a/web/templates/usuario_perfil.html
+@@ -132,7 +132,6 @@
+ 
+ <section id="personal-data-section" class="u-card privacy-card u-form-max" aria-labelledby="personal-data-title" aria-busy="false">
+   <h2 id="personal-data-title">Tus datos personales</h2>
+-  <p><a href="/cuenta/google">Consultar, vincular o desvincular Google de mi cuenta</a></p>
+   <p><a href="/retirar-consentimientos">Retirar permisos de progreso sin iniciar sesión</a>. Esta vía también permite consultar tus permisos propios si ya no puedes acceder al espacio personal.</p>
+   <p>Descarga una copia JSON de tu cuenta y los datos guardados en tu espacio personal. Si hay más registros, podrás descargar la siguiente parte.</p>
+   <p class="privacy-detail">Cada parte refleja los datos disponibles al consultarla. El manifiesto de cada archivo explica su alcance. La cartera profesional, los archivos PDF y el diario local de este navegador quedan fuera de esta descarga.</p>

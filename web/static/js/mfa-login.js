@@ -3,7 +3,8 @@
   'use strict';
   const methods=new Set(['totp','recovery_code']);
   const messages={mfa_throttled:'Hay un límite temporal de intentos. Espera antes de volver a verificar.',mfa_verification_failed:'No se confirmó el código. Usa una prueba vigente e inténtalo de nuevo.',mfa_proof_unavailable:'La verificación venció o ya se usó. Inicia un acceso nuevo.',mfa_unconfirmed:'No llegó una confirmación fiable. Puede haberse consumido la prueba; inicia un acceso nuevo.',mfa_service_unavailable:'La verificación no está disponible. No se inició sesión; vuelve a consultar.'};
-  function message(error){return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
+  const googleMessages=Object.freeze({google_link_required:'Google todavía no está vinculado a esta cuenta. Descarta este intento e inicia sesión con tu contraseña; después abre «Vincular Google» para confirmarlo explícitamente. No se fusionan cuentas por correo.',google_link_conflict:'No se pudo confirmar este vínculo de Google. Descarta el intento y consulta tus vínculos desde el acceso local; no se inició una sesión nueva.',google_identity_invalid:'No se pudo verificar la cuenta de Google. Descarta el intento y usa una autenticación válida; no se inició sesión.'});
+  function message(error){if(Object.prototype.hasOwnProperty.call(googleMessages,error.code))return googleMessages[error.code];return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
   function create(options={}){
     const api=options.api||Api.mfa;
     let context=null,challenge=null,method='totp',expiry=null,phase='primary',busy=false,epoch=0,dead=false,committing=false,committed=false;
