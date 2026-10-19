@@ -1,0 +1,19 @@
+{
+  "captured_utc": "2026-10-19T09:00:47.723678+00:00",
+  "stage": "Preboot tool environment only; no product code or guest launched during failed passes",
+  "initial_error": "Native Windows OpenSSH returned 255 with no diagnostic when reduced environment omitted PROGRAMDATA. Fingerprint-only experiment isolated this single required variable.",
+  "fix": "PROGRAMDATA now points at owned lab profile. Ed25519 key generated using existing pinned-environment cryptography package, validated against its public key. Private key never printed.",
+  "retained_unexecuted_or_preboot_failed_scripts": [
+    {
+      "file": "seed_and_boot-initial-keygen.py",
+      "bytes": 7648,
+      "sha256": "7c50647e68f8ccd6fc91b6adcecc74dc0d31971197d3b5f54a7c031f856dbe42"
+    },
+    {
+      "file": "seed_and_boot-initial-programdata.py",
+      "bytes": 8112,
+      "sha256": "2f4252dfab8e0be5f032b8d10b4a5fc5d3eef936c2059ac10556cd7dbfd468b7"
+    }
+  ],
+  "scope": "No changes to Windows SSH service/configuration or global environment."
+}

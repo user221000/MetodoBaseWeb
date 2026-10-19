@@ -45,3 +45,15 @@ En UI606, una continuación del consumidor podía preparar una parte de A despu�
 ## SEC05 — Metadata privada en metricas
 
 La revision local confirma almacenamiento de ruta concreta y direccion/encabezado de cliente en memoria y errores recientes. La heuristica de agrupacion tampoco identifica correctamente las rutas declaradas. Corrección integrada7bde30b tras15propios+63replay independientes;12rojos/3controles contra blob previo,18fuentes quiet. Quince casos preservados en suite con AST idéntico; criterio local cerrado, R17/R31 completos abiertos. No afirma incidente con datos reales. [Contrato y alcance](METRICAS_PRIVACIDAD.md).
+
+## SEC06 — JSON falso del escáner aceptado como vacío
+
+Seguridad reprodujo enab4490b cuatro reportes JSON malformados que se convertían en lista vacía con exit0. El control de objeto no vacío fallaba cerrado. El binario real8.30.1 escribe[] seguido deLF al no hallar coincidencias. Fix41708e5 elimina únicamente la normalización `or []`; el driver independiente intacto pasó de1/5 a5/5 y ocho controles adicionales pasaron. Suite mantenida61/61; revisión7fuentes quietas. Integrado31ebb2f, criterio local verificado; no declara limpias otras fuentes. [Aceptación](evidence/secrets-wrapper-independent-review.json).
+
+## QA-11 — Referencias históricas mutables del verificador CI28
+
+QA reprodujo dos bypass de `--verify-only`: modificar a la vez el fixture y su snapshot, o un archivo histórico y su hash enbaseline.json. El autor encontró además sustitución del docstring por una expresión ejecutable descartada por la comparación. Los snapshots auténticos5db sí coinciden con Git; no se afirma modificación de CI remoto. Fix3978 fija referencia y snapshot, y admite sólo docstring literal. Cinco focales de autor y7CLIindependientes pasan: se rechazan los dos bypass originales y print/número/f-string, con controles intacto/documental verdes;764fuentes/89paquetes quietos. Integrado5ba98c6/7cf4e6c; criterio local verificado. [Dos negativos originales](evidence/recovery-ci28-independent-20261019/baseline-trust-red.json),[aceptación](evidence/recovery-ci28-fix-independent-20261019/final/summary.json).
+
+## SEC07 — Cabeceras privadas ausentes en errores de historial
+
+Root reprodujo5rojos/3controles frente al candidato71; fix49 conserva los8headers revisados y10fuentes quietas. Seguridad encontró después500sin Cache-Control/Referrer-Policy al fallar el SELECT de summaries, en ambas factories. Las respuestas no contienen cursor ni planes; no se demuestra fuga. Driver independiente de esos2negativos SHA56acd85a2d72d55dbcf0c564aba263945ecba28ad2b6235c15e8c04e996baac7 y19fuentes quietas. El contrato privado incluye500; autor prepara contención focal sin alterar transporte,CSP ni política global. R34 no aceptado todavía. [Primera reproducción y replay](evidence/history-headers-root-independent-20261019/manifest.json).

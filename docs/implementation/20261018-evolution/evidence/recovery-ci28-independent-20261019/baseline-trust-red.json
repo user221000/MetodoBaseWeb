@@ -1,0 +1,30 @@
+{
+  "head": "5db0732f33f8dea60b2d1192e1105a18f79d01c1",
+  "cases": [
+    {
+      "case": "untouched-shadow",
+      "exit": 0,
+      "expected": "pass"
+    },
+    {
+      "case": "fixture-and-baseline-same-unauthorized-statement",
+      "exit": 0,
+      "expected": "reject",
+      "unexpectedly_accepted": true,
+      "declared_historical_fixture_sha256": "941848a93f9bc748eea14f53872e6b3d6d45f881ef743010d5c8d905fb13c413",
+      "actual_tampered_snapshot_sha256": "c12c9f5b62ee774afd82d38fb833dafa43bdaa6eb6b7dde99a8d297228833cad",
+      "observation": "Full CLI accepts an unauthorized fixture AST when the unpinned historical fixture copy is changed with it."
+    },
+    {
+      "case": "historical-file-and-unpinned-metadata-updated",
+      "exit": 0,
+      "expected": "reject",
+      "unexpectedly_accepted": true,
+      "observation": "Full CLI accepts a changed historical verifier if its expected hash is also changed in unpinned baseline.json."
+    }
+  ],
+  "current_author_baselines_authentic_by_independent_git_review": true,
+  "actual_author_sources_and_historical_fixtures_unchanged": true,
+  "reproduction": "Byte-exact copied verifier plus minimal input shadow in exclusively owned Temp; actual models only imported for pure marker evaluation; no server, schema, browser, or PG.",
+  "recommendation": "Pin baseline.json to an accepted digest in verifier code, then enforce its historical fixture digest before AST comparison; preserve existing immutable verifier/parser."
+}

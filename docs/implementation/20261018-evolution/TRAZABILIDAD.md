@@ -106,6 +106,9 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [OPS10](#ops10) | P2 | Operación y documentación técnica | R18, R21, R31 | verificado | verificado | local |
 | [SEC04](#sec04) | P1 | Frontend y seguridad | R10, R14, R31 | verificado | verificado | local |
 | [SEC05](#sec05) | P1 | Coordinacion y seguridad | R17, R31 | verificado | verificado | local |
+| [SEC06](#sec06) | P1 | Coordinación y seguridad | R05, R18, R21 | verificado | verificado | local |
+| [QA-11](#qa-11) | P1 | Backend y QA | R05, R19 | verificado | verificado | local |
+| [SEC07](#sec07) | P1 | Frontend y seguridad | R13, R31, R34 | en_curso | en_curso | local |
 
 ## R01
 
@@ -231,13 +234,13 @@ Estado: en_revision; implementación: en_curso; validación: en_curso; despliegu
 
 Dependencias: sin dependencia declarada
 
-Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.; CI personal18+2VM/sexta fixture15/8pantallas, guard tipado y routing explícito de dos batch Windows; portable desktop en ambos targets, dosJUnit requeridos y noempty/noskip/fail/error.; CI27 exige19 reportesPG, restore27 explícito y OPS10desktopambostargets; se preservan fixtures26 y guardfrontend.; 00d2114 integra CI8435 después de QA:162Node y séptima fixture17+4 con marcadorJSON de finalización, mismoPID y fallo/cierre explícitos. Seis llamadas anteriores y guards intactos.
+Cambios: Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.; 14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes.; CI personal18+2VM/sexta fixture15/8pantallas, guard tipado y routing explícito de dos batch Windows; portable desktop en ambos targets, dosJUnit requeridos y noempty/noskip/fail/error.; CI27 exige19 reportesPG, restore27 explícito y OPS10desktopambostargets; se preservan fixtures26 y guardfrontend.; 00d2114 integra CI8435 después de QA:162Node y séptima fixture17+4 con marcadorJSON de finalización, mismoPID y fallo/cierre explícitos. Seis llamadas anteriores y guards intactos.; Composición28 integrada tras seguridad/QA/restore aislados y corrección independiente de CI21PG,restore28 y marker28. Otros criterios permanecen abiertos.
 
-Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, 64fe65a, e3039c2, 0459b0f, 6d33b9e, 00d2114
+Commits: 166038f88b211c52f0d149ce550880795361707c, e8e0c44, 64fe65a, e3039c2, 0459b0f, 6d33b9e, 00d2114, c297ea9, 33d5980, 94aa552, 5ba98c6, 7cf4e6c
 
-Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo; 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.; Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.; Cierre independiente candidato26: serial1813/1skip/232.55s y n2shuffle seed20261018 1813/1skip/133.73s; cuatro fotos519fuentes/403Python y89paquetes idénticos; pipcheck0. Único skip symlink Windows, Linux pendiente. No fallos; tres categorías de deprecación conocidas.; QA91CLI+27pytest+20Node+8reportes+8escenarios inertes; routing9negativos,58Bash y85/83 colección local. AutorWindows85 reales/0skip/0fail. No Actions/Linux real.; QA15 canarios guard,60Bash,73refs/81fuentes estables; Windows97/0skip real20.99s; colecciónLinux95local. No ejecuciónLinux/Actions nueva.; Gate amplio7bde30b:2064pass/1skip symlink Windows, serial457.33s y n2shuffle20261018 180.92s; cuatro fotos618fuentes/89paquetes quiet y4pipcheck0. Cobertura100%líneas/ramas sólo tres módulos de dominio acordados.; CI independiente:replay162Node/21CLI/8startup/13Bashinertes/15origen;43canarios propios(12startup/21orígenes/10Bash),cadaPID cerrado.61Bash/82refs,275archivos/89paquetes quiet,pipcheck0. Sin nuevos browser/Actions/Linux.
+Pruebas: A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.; Quality scripts/entrypoints: lint, AST, Bandit y canarios reales bloqueantes;111 pruebas independientes incluyen9 SQLite archivadas y102 contratos de identidad/equipo; 1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.; Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.; Cierre independiente candidato26: serial1813/1skip/232.55s y n2shuffle seed20261018 1813/1skip/133.73s; cuatro fotos519fuentes/403Python y89paquetes idénticos; pipcheck0. Único skip symlink Windows, Linux pendiente. No fallos; tres categorías de deprecación conocidas.; QA91CLI+27pytest+20Node+8reportes+8escenarios inertes; routing9negativos,58Bash y85/83 colección local. AutorWindows85 reales/0skip/0fail. No Actions/Linux real.; QA15 canarios guard,60Bash,73refs/81fuentes estables; Windows97/0skip real20.99s; colecciónLinux95local. No ejecuciónLinux/Actions nueva.; Gate amplio7bde30b:2064pass/1skip symlink Windows, serial457.33s y n2shuffle20261018 180.92s; cuatro fotos618fuentes/89paquetes quiet y4pipcheck0. Cobertura100%líneas/ramas sólo tres módulos de dominio acordados.; CI independiente:replay162Node/21CLI/8startup/13Bashinertes/15origen;43canarios propios(12startup/21orígenes/10Bash),cadaPID cerrado.61Bash/82refs,275archivos/89paquetes quiet,pipcheck0. Sin nuevos browser/Actions/Linux.; QA del fixCI28:7CLI,764fuentes/89paquetes quietos; referencias y docstring fijados. QA181+6propias/6SQLite/17PG/restore28 y seguridad46+10+10 conservados por fuente.
 
-Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/coordinator-quality-expansion-review.md; evidence/quality-expanded-source.json; evidence/quality-expanded-root-canaries.log; evidence/pytest-team-quality-root.xml; evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/ci-personal-independent/ci-personal-independent-source.json; evidence/ci-desktop-routing-independent/ci-desktop-routing-independent-source.json; evidence/ci-desktop-routing-windows-author.xml; evidence/ci27-independent/final/ci27-independent-source.json; evidence/qa-integrated27-final-20261019/evidence-manifest.json; evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json; evidence/ci-diary-independent-20261019/evidence-manifest.json; evidence/ci-diary-independent-20261019/ci-diary-independent-source.json
+Evidencia: QA_R05.md; evidence/pytest-r05-frozen-candidate.xml; evidence/qa-r05-frozen-hashes.json; evidence/A1-containment.xml; evidence/A1-containment-source.json; evidence/r05-followup-frozen-source.json; evidence/coordinator-quality-expansion-review.md; evidence/quality-expanded-source.json; evidence/quality-expanded-root-canaries.log; evidence/pytest-team-quality-root.xml; evidence/web-candidate-containment-final-source.json; evidence/pytest-web-candidate-containment-final.xml; evidence/web-candidate-containment-shuffle-source.json; evidence/pytest-web-candidate-containment-shuffle.xml; evidence/qa-b2b-privacy-utc-final-source.json; evidence/qa-r07-composition-final-source.json; evidence/private-runtime-dependency-review.json; evidence/ci-session-publication-independent-review.json; evidence/ci-session-publication-author-final-review.json; evidence/ci-individual-process-followup.json; evidence/ci-storage-browser-followup.json; evidence/web-candidate-protocol26-serial-independent-source.json; evidence/pytest-web-candidate-protocol26-serial-independent.xml; evidence/qa-web-candidate-protocol26-final-summary.json; evidence/pytest-web-candidate-protocol26-shuffle-independent.xml; evidence/web-candidate-protocol26-shuffle-independent-source.json; evidence/ci-personal-independent/ci-personal-independent-source.json; evidence/ci-desktop-routing-independent/ci-desktop-routing-independent-source.json; evidence/ci-desktop-routing-windows-author.xml; evidence/ci27-independent/final/ci27-independent-source.json; evidence/qa-integrated27-final-20261019/evidence-manifest.json; evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json; evidence/ci-diary-independent-20261019/evidence-manifest.json; evidence/ci-diary-independent-20261019/ci-diary-independent-source.json; evidence/recovery-ci28-fix-independent-20261019/final/summary.json; evidence/recovery28-main-composition-20261019/summary.json
 
 Documentación: ESTADO.md; DECISIONES.md; VALIDACION.md; QA_R05.md
 
@@ -539,13 +542,13 @@ Estado: en_revision; implementación: en_curso; validación: en_revision; despli
 
 Dependencias: sin dependencia declarada
 
-Cambios: Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado.
+Cambios: Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado.; Composición28 integrada tras seguridad/QA/restore aislados y corrección independiente de CI21PG,restore28 y marker28. Otros criterios permanecen abiertos.
 
-Commits: 93a9e1d
+Commits: 93a9e1d, c297ea9, 33d5980, 94aa552, 5ba98c6, 7cf4e6c
 
-Pruebas: 106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables.
+Pruebas: 106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables.; QA del fixCI28:7CLI,764fuentes/89paquetes quietos; referencias y docstring fijados. QA181+6propias/6SQLite/17PG/restore28 y seguridad46+10+10 conservados por fuente.
 
-Evidencia: evidence/auth-telemetry-independent-source.json; evidence/pytest-auth-telemetry-independent.xml; evidence/recovery28-qa-20261019/recovery28-qa-final-summary.json; evidence/recovery-security-independent-20261019/source.json; evidence/recovery-security-headers-fix-20261019/source.json
+Evidencia: evidence/auth-telemetry-independent-source.json; evidence/pytest-auth-telemetry-independent.xml; evidence/recovery28-qa-20261019/recovery28-qa-final-summary.json; evidence/recovery-security-independent-20261019/source.json; evidence/recovery-security-headers-fix-20261019/source.json; evidence/recovery-ci28-fix-independent-20261019/final/summary.json; evidence/recovery28-main-composition-20261019/summary.json
 
 Documentación: evidence/auth-telemetry-privacy.md; RECUPERACION_CUENTA.md
 
@@ -2946,3 +2949,87 @@ Revisión: Seguridad independiente15 adversariales y63 replay; coordinador integ
 Bloqueo: no registrado
 
 Observaciones: Datos sinteticos y ASGI local; no afirma incidente, envio a terceros ni cumplimiento legal. No cambia IP del rate limiter, cobertura de excepciones sin respuesta ni almacenamiento/alertas distribuidos.
+
+## SEC06
+
+Fuente: [Salida JSON falsa del escáner aceptada como vacía](NUEVOS_HALLAZGOS.md).
+
+Problema: La normalización json.loads(...) or [] acepta objetos y escalares falsos con exit0 como una lista vacía de hallazgos.
+
+Criterio original: Aceptar sólo lista JSON del escáner coherente con su estado; rechazar objetos y escalares incluidos null/false/0/cadena vacía sin emitir reporte exitoso; conservar cuatro reproducciones originales, controles de lista y prueba con el binario real, con revisión independiente.
+
+Estado: verificado; implementación: verificado; validación: verificado; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: Se eliminó la normalización falsa a lista vacía; sólo lista JSON y retorno coherente, integrado31ebb2f.
+
+Commits: ab4490b0b829ec120bb31df03a1a46a7e32ce32c, 41708e59622d1128c421d1975e3c6dbc16a6f008, 31ebb2f
+
+Pruebas: Driver independiente original1/5 antes y5/5 después;8 adicionales y lista vacía del binario real0/0/0.; Suite mantenida61/61. Guard independiente30/30;7 fuentes estables. Scan exacto41708e5:3028 archivos,2raw/2clasificados/0pendientes,fuentes estables.
+
+Evidencia: evidence/secrets-wrapper-independent-review.json; evidence/secrets-final41708e5-summary.json
+
+Documentación: NUEVOS_HALLAZGOS.md
+
+Revisión: Seguridad independiente; coordinador integra.
+
+Bloqueo: no registrado
+
+Observaciones: Frontera local de herramientas; no demuestra incidente ni uso de credenciales reales.
+
+## QA-11
+
+Fuente: [Referencia mutable en verificador CI28](NUEVOS_HALLAZGOS.md).
+
+Problema: El verificador CI28 permite alterar snapshot histórico y referencia de hashes, y descarta una primera expresión sin comprobar que sea docstring.
+
+Criterio original: Fijar integridad de baseline.json y del snapshot del fixture antes de comparar AST; permitir sólo docstring literal en el primer nodo; rechazar los dos bypass reproducidos por QA y sustitución por código ejecutable, conservar el delta CI28 autorizado y las referencias históricas, con revisión independiente.
+
+Estado: verificado; implementación: verificado; validación: verificado; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: Se fijaron metadata/snapshot histórico y docstring literal; integrado5ba98c6/7cf4e6c.
+
+Commits: 5db0732f33f8dea60b2d1192e1105a18f79d01c1, 3978b3fe7b6c7ed91118b8a2d4fcb40ccb31cb51
+
+Pruebas: QA confirmó2 aceptaciones indebidas en5db y fuentes730/paquetes89 quietos; autor3978 añade pin y docstring literal,5 focales y replay verdes.; QA fix7CLI/0violaciones: dos bypass originales rechazados, print/número/f-string rechazados y controles intacto/documental verdes;764fuentes/89paquetes quietos,pip0. Integrado5ba98c6/7cf4e6c.
+
+Evidencia: evidence/recovery-ci28-independent-20261019/baseline-trust-red.json; evidence/recovery-ci28-independent-20261019/red-review-closure.json; evidence/recovery-ci28-fix-independent-20261019/final/summary.json
+
+Documentación: NUEVOS_HALLAZGOS.md
+
+Revisión: QA independiente acepta3978; coordinador integra5ba98c6/7cf4e6c.
+
+Bloqueo: no registrado
+
+Observaciones: Frontera local de herramientas; no demuestra incidente ni uso de credenciales reales.
+
+## SEC07
+
+Fuente: [Cabeceras privadas ausentes en errores de historial](NUEVOS_HALLAZGOS.md).
+
+Problema: El nuevo historial paginado pierde no-store/no-referrer en422/405 del primer candidato y en500 por fallo de lectura de summaries aun tras el primer fix.
+
+Criterio original: Conservar Cache-Control no-store y Referrer-Policy no-referrer en respuestas del historial privado incluidas422,405y500 de ambas factories; preservar status/cuerpo público genérico sin cursor/planes, CSP y políticas de rutas ajenas; revisar negativos originales sin alterarlos y controles adyacentes independientemente.
+
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: Fix49 conserva422/405; contención focal500 todavía pendiente, no integrada.
+
+Commits: 71e2481ce37d64a244ae1fba3754ebfeba1d0a0d, 49eb44124d36a0d0aeaf732d7f720d969f1d517c
+
+Pruebas: Root5rojos/3controles frente71 y8verdes tras49;10fuentes estables. Seguridad confirma2rojos500 reales con19fuentes quietas, sin contenido privado en respuesta. Fix focal pendiente.
+
+Evidencia: evidence/history-headers-root-independent-20261019/before.xml; evidence/history-headers-root-independent-20261019/after-root-source.json; evidence/history-security-independent-20261019/source.json
+
+Documentación: NUEVOS_HALLAZGOS.md
+
+Revisión: Seguridad independiente conserva2negativos500; QA en curso, no aceptación final.
+
+Bloqueo: no registrado
+
+Observaciones: Frontera local de herramientas; no demuestra incidente ni uso de credenciales reales.

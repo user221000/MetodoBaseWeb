@@ -1,0 +1,63 @@
+{
+  "status": "blocked on two private-history query-error header failures; no data leakage demonstrated",
+  "reviewed_commit": "49eb44124d36a0d0aeaf732d7f720d969f1d517c",
+  "reviewed_tree": "d94af393156e4601d24c8da04213a88acebd874c",
+  "source_worktree": "F:\\MetodoBaseWeb-history-ui-20261019",
+  "sources_checked": 19,
+  "source_stable": true,
+  "worktree_clean": true,
+  "source_inventory_aggregate_before": "bdc9b35cb1def6ce5b74076dbefa54f32d4dfcacaf4fa5ead7849d05ae80fdec",
+  "source_inventory_aggregate_after": "bdc9b35cb1def6ce5b74076dbefa54f32d4dfcacaf4fa5ead7849d05ae80fdec",
+  "existing_contract": "Private history responses declare Cache-Control no-store and Referrer-Policy no-referrer, including errors. Root confirmed the 500 boundary is in scope.",
+  "finding": {
+    "id": "R34 private-history query-error headers; existing classification, no new SEC number assigned",
+    "trigger": "Persist synthetic account/profile/plans; obtain a real signed next cursor; inject a RuntimeError at only the summary SELECT through SQLAlchemy before_cursor_execute; request the next page via the real ASGI factory.",
+    "factories": [
+      "web.main_web",
+      "api.app"
+    ],
+    "response_status": 500,
+    "observed": {
+      "Cache-Control": null,
+      "Referrer-Policy": null,
+      "cursor_in_body": false,
+      "plans_in_body": false
+    },
+    "logging": "Observed generic class=RuntimeError log, no marker/SQL parameters claimed leaked.",
+    "interpretation": "The exception is handled by the outer generic error handler after the response middleware fails to reach its header-writing continuation. This is a newly tested boundary; no claim that feature49 introduced the generic-handler behavior.",
+    "tests": 2,
+    "failures": 2,
+    "errors": 0,
+    "driver_sha256": "56acd85a2d72d55dbcf0c564aba263945ecba28ad2b6235c15e8c04e996baac7",
+    "frozen_driver": "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\history-security-independent-20261019\\test_history_failure_headers_frozen.py",
+    "replay_rule": "Copy exact driver bytes to a fresh caller-owned Temp directory, then run tests/run_isolated.py -p conftest --confcutdir=<that directory> <driver> -q. Never execute the evidence copy in place: it writes only new safe JSON to its own directory.",
+    "assertions_immutable": true,
+    "remediation_owner": "Frontend author, focused header containment; reviewer does not modify product."
+  },
+  "preserved_green_checks": {
+    "HTTP_real_factories_own": 12,
+    "own_HMAC_canonical_negatives": 4,
+    "root_header_driver_exact_replay": 8,
+    "root_header_driver_sha256": "e2cc888f0919aa890003e040b093d0f672db633c009fb3b769e2e403f5058755",
+    "HTTP_total": 24,
+    "VM_composition_own": 12,
+    "VM_scope": "Actual API/personal/history controllers plus inline template with synthetic fetch/DOM. Account A to B, role/team/SV, Storage sticky, session event, control invalidation, literal markup, and same-account refresh preserving exact continuation cursor.",
+    "transport_regression_check": "LF-normalized API source outside the new historial helper is byte-identical to base5c9e097.",
+    "no_broad_replay": "No 15 diary, 162 VM, PG, migration or browser rerun by this review."
+  },
+  "contract_review": "Cursor is bounded before decode, canonical JSON/Base64URL, HMAC domain/account/profile bound. Keyset preserves dated DESC then NULL-last ID-desc continuation, with live owner/soft-delete checks and bounded summary reads. No other defect confirmed in this scope.",
+  "QA_coordination": "QA ack is running independent history browser on its own new fixture; informed that browser positives do not resolve the two error-header failures.",
+  "source_version_boundary": "This worktree uses model27. No claim about execution of model28 or a composed recovery/history candidate.",
+  "proof": {
+    "private_directory": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-history-security-independent-20261019",
+    "archive": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-history-security-independent-20261019\\history-security-independent-before.zip",
+    "archive_sha256": "d9d7e804eb0fcecda5d21a889bd23185ff2fbfa69565a8f86e5e0ee224c3db20",
+    "before_red_log": "failure-headers.log",
+    "before_red_junit": "failure-headers.xml",
+    "green_http_junit": "http.xml",
+    "green_vm_output": "vm.json",
+    "source_photos": "19 exact original raw files in frozen-source"
+  },
+  "no_product_author_tests_or_historical_proofs_modified": true,
+  "network": "Synthetic SQLite/ASGI and VM only; providers disabled and tests/isolation socket guard active for Python. No browser listener or PostgreSQL was started."
+}

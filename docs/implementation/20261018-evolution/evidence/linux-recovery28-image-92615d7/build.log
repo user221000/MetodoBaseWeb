@@ -1,0 +1,210 @@
+Sending build context to Docker daemon  17.23MB
+Step 1/29 : FROM python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36 AS base
+ ---> 54a0b2beae90
+Step 2/29 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1
+ ---> Running in 8ba9f8653dee
+Removing intermediate container 8ba9f8653dee
+ ---> ab10ff42f19c
+Step 3/29 : WORKDIR /app
+ ---> Running in c067dd9893f5
+Removing intermediate container c067dd9893f5
+ ---> 569f202905b4
+Step 4/29 : FROM base AS deps
+ ---> 569f202905b4
+Step 5/29 : COPY requirements_web.lock .
+ ---> 733da8e6d450
+Step 6/29 : RUN pip install --no-cache-dir --require-hashes -r requirements_web.lock
+ ---> Running in 5787aa65e252
+Collecting alembic==1.20.0 (from -r requirements_web.lock (line 3))
+  Downloading alembic-1.20.0-py3-none-any.whl (268 kB)
+Collecting annotated-doc==0.0.5 (from -r requirements_web.lock (line 9))
+  Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Collecting annotated-types==0.8.0 (from -r requirements_web.lock (line 15))
+  Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Collecting anyio==4.15.1 (from -r requirements_web.lock (line 21))
+  Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+Collecting bcrypt==4.3.0 (from -r requirements_web.lock (line 29))
+  Downloading bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl (284 kB)
+Collecting boto3==1.43.114 (from -r requirements_web.lock (line 85))
+  Downloading boto3-1.43.114-py3-none-any.whl (140 kB)
+Collecting botocore==1.43.114 (from -r requirements_web.lock (line 91))
+  Downloading botocore-1.43.114-py3-none-any.whl (16.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.1/16.1 MB 15.7 MB/s eta 0:00:00
+Collecting certifi==2026.10.18 (from -r requirements_web.lock (line 98))
+  Downloading certifi-2026.10.18-py3-none-any.whl (134 kB)
+Collecting cffi==2.1.1 (from -r requirements_web.lock (line 107))
+  Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+Collecting charset-normalizer==3.5.2 (from -r requirements_web.lock (line 211))
+  Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+Collecting click==8.5.0 (from -r requirements_web.lock (line 388))
+  Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Collecting cryptography==50.0.2 (from -r requirements_web.lock (line 394))
+  Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 12.1 MB/s eta 0:00:00
+Collecting fastapi==0.146.0 (from -r requirements_web.lock (line 457))
+  Downloading fastapi-0.146.0-py3-none-any.whl (144 kB)
+Collecting h11==0.16.0 (from -r requirements_web.lock (line 464))
+  Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Collecting hiredis==3.5.0 (from -r requirements_web.lock (line 471))
+  Downloading hiredis-3.5.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (314 kB)
+Collecting httpcore==1.0.9 (from -r requirements_web.lock (line 602))
+  Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Collecting httptools==0.9.0 (from -r requirements_web.lock (line 608))
+  Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 12.5 MB/s eta 0:00:00
+Collecting httpx==0.28.1 (from -r requirements_web.lock (line 730))
+  Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+Collecting idna==3.20 (from -r requirements_web.lock (line 736))
+  Downloading idna-3.20-py3-none-any.whl (69 kB)
+Collecting jinja2==3.1.6 (from -r requirements_web.lock (line 744))
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Collecting jmespath==1.1.0 (from -r requirements_web.lock (line 750))
+  Downloading jmespath-1.1.0-py3-none-any.whl (20 kB)
+Collecting mako==1.4.3 (from -r requirements_web.lock (line 757))
+  Downloading mako-1.4.3-py3-none-any.whl (80 kB)
+Collecting markupsafe==3.0.4 (from -r requirements_web.lock (line 763))
+  Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Collecting mercadopago==3.6.0 (from -r requirements_web.lock (line 919))
+  Downloading mercadopago-3.6.0-py3-none-any.whl (81 kB)
+Collecting opentelemetry-api==1.45.1 (from -r requirements_web.lock (line 925))
+  Downloading opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
+Collecting passlib==1.7.4 (from -r requirements_web.lock (line 931))
+  Downloading passlib-1.7.4-py2.py3-none-any.whl (525 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 525.6/525.6 kB 15.5 MB/s eta 0:00:00
+Collecting pillow==13.0.0 (from -r requirements_web.lock (line 937))
+  Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 12.7 MB/s eta 0:00:00
+Collecting psycopg2-binary==2.9.13 (from -r requirements_web.lock (line 1025))
+  Downloading psycopg2_binary-2.9.13-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 15.2 MB/s eta 0:00:00
+Collecting pycparser==3.11 (from -r requirements_web.lock (line 1096))
+  Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+Collecting pydantic==2.14.1 (from -r requirements_web.lock (line 1102))
+  Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+Collecting pydantic-core==2.50.1 (from -r requirements_web.lock (line 1109))
+  Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 19.5 MB/s eta 0:00:00
+Collecting pyjwt==2.15.1 (from -r requirements_web.lock (line 1250))
+  Downloading pyjwt-2.15.1-py3-none-any.whl (33 kB)
+Collecting python-dateutil==2.9.0.post0 (from -r requirements_web.lock (line 1256))
+  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Collecting python-dotenv==1.2.4 (from -r requirements_web.lock (line 1262))
+  Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+Collecting python-multipart==0.0.32 (from -r requirements_web.lock (line 1269))
+  Downloading python_multipart-0.0.32-py3-none-any.whl (30 kB)
+Collecting pyyaml==6.0.3 (from -r requirements_web.lock (line 1275))
+  Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 4.8 MB/s eta 0:00:00
+Collecting redis==5.3.1 (from -r requirements_web.lock (line 1352))
+  Downloading redis-5.3.1-py3-none-any.whl (272 kB)
+Collecting reportlab==4.5.1 (from -r requirements_web.lock (line 1358))
+  Downloading reportlab-4.5.1-py3-none-any.whl (2.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 17.1 MB/s eta 0:00:00
+Collecting requests==2.34.2 (from -r requirements_web.lock (line 1364))
+  Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Collecting resend==2.50.0 (from -r requirements_web.lock (line 1373))
+  Downloading resend-2.50.0-py2.py3-none-any.whl (126 kB)
+Collecting s3transfer==0.19.2 (from -r requirements_web.lock (line 1379))
+  Downloading s3transfer-0.19.2-py3-none-any.whl (90 kB)
+Collecting sentry-sdk==2.72.0 (from -r requirements_web.lock (line 1385))
+  Downloading sentry_sdk-2.72.0-py3-none-any.whl (544 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 544.8/544.8 kB 16.3 MB/s eta 0:00:00
+Collecting six==1.17.0 (from -r requirements_web.lock (line 1391))
+  Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Collecting sqlalchemy==2.1.5 (from -r requirements_web.lock (line 1397))
+  Downloading sqlalchemy-2.1.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 10.2 MB/s eta 0:00:00
+Collecting starlette==1.9.0 (from -r requirements_web.lock (line 1474))
+  Downloading starlette-1.9.0-py3-none-any.whl (80 kB)
+Collecting stripe==11.6.0 (from -r requirements_web.lock (line 1481))
+  Downloading stripe-11.6.0-py2.py3-none-any.whl (1.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 18.0 MB/s eta 0:00:00
+Collecting typing-extensions==4.16.0 (from -r requirements_web.lock (line 1487))
+  Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Collecting typing-inspection==0.4.4 (from -r requirements_web.lock (line 1503))
+  Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Collecting tzdata==2026.5 (from -r requirements_web.lock (line 1510))
+  Downloading tzdata-2026.5-py2.py3-none-any.whl (347 kB)
+Collecting urllib3==2.8.0 (from -r requirements_web.lock (line 1516))
+  Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Collecting uvicorn==0.54.0 (from -r requirements_web.lock (line 1524))
+  Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+Collecting uvloop==0.23.0 (from -r requirements_web.lock (line 1530))
+  Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 15.5 MB/s eta 0:00:00
+Collecting watchfiles==1.3.0 (from -r requirements_web.lock (line 1595))
+  Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+Collecting websockets==17.2 (from -r requirements_web.lock (line 1632))
+  Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+Installing collected packages: passlib, websockets, uvloop, urllib3, tzdata, typing-extensions, six, pyyaml, python-multipart, python-dotenv, pyjwt, pycparser, psycopg2-binary, pillow, markupsafe, jmespath, idna, httptools, hiredis, h11, click, charset-normalizer, certifi, bcrypt, annotated-types, annotated-doc, uvicorn, typing-inspection, sqlalchemy, sentry-sdk, requests, reportlab, redis, python-dateutil, pydantic-core, opentelemetry-api, mako, jinja2, httpcore, cffi, anyio, watchfiles, stripe, starlette, resend, pydantic, mercadopago, httpx, cryptography, botocore, alembic, s3transfer, fastapi, boto3
+Successfully installed alembic-1.20.0 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 bcrypt-4.3.0 boto3-1.43.114 botocore-1.43.114 certifi-2026.10.18 cffi-2.1.1 charset-normalizer-3.5.2 click-8.5.0 cryptography-50.0.2 fastapi-0.146.0 h11-0.16.0 hiredis-3.5.0 httpcore-1.0.9 httptools-0.9.0 httpx-0.28.1 idna-3.20 jinja2-3.1.6 jmespath-1.1.0 mako-1.4.3 markupsafe-3.0.4 mercadopago-3.6.0 opentelemetry-api-1.45.1 passlib-1.7.4 pillow-13.0.0 psycopg2-binary-2.9.13 pycparser-3.11 pydantic-2.14.1 pydantic-core-2.50.1 pyjwt-2.15.1 python-dateutil-2.9.0.post0 python-dotenv-1.2.4 python-multipart-0.0.32 pyyaml-6.0.3 redis-5.3.1 reportlab-4.5.1 requests-2.34.2 resend-2.50.0 s3transfer-0.19.2 sentry-sdk-2.72.0 six-1.17.0 sqlalchemy-2.1.5 starlette-1.9.0 stripe-11.6.0 typing-extensions-4.16.0 typing-inspection-0.4.4 tzdata-2026.5 urllib3-2.8.0 uvicorn-0.54.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.2
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[0m[91m
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+[0mRemoving intermediate container 5787aa65e252
+ ---> e341a15edb2b
+Step 7/29 : FROM base AS runtime
+ ---> 569f202905b4
+Step 8/29 : COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+ ---> e9f8e2497172
+Step 9/29 : COPY --from=deps /usr/local/bin /usr/local/bin
+ ---> 2c4f85f4f049
+Step 10/29 : COPY web/.build_version /tmp/web_build_version
+ ---> d6717e4ef948
+Step 11/29 : COPY config/ config/
+ ---> d652a2ceab78
+Step 12/29 : COPY core/ core/
+ ---> 8d4cf1a34cd9
+Step 13/29 : COPY src/ src/
+ ---> 5fc05a3ace7d
+Step 14/29 : COPY api/ api/
+ ---> 1a93e11a6140
+Step 15/29 : COPY web/ web/
+ ---> af47adda23d4
+Step 16/29 : COPY utils/ utils/
+ ---> 5f638ad66437
+Step 17/29 : COPY static/ static/
+ ---> 9a0fef98fdef
+Step 18/29 : COPY fonts/ fonts/
+ ---> 42caeb08d884
+Step 19/29 : RUN mkdir -p /data/registros /data/output /data/config /data/planes &&     useradd --system --no-create-home appuser &&     chown -R appuser:appuser /app /data
+ ---> Running in 2fa14bbd6cfd
+Removing intermediate container 2fa14bbd6cfd
+ ---> 935b4d04317a
+Step 20/29 : ENV METODOBASE_ENV=production     METODOBASE_DATA_DIR=/data     PYTHONPATH=/app     PORT=8000
+ ---> Running in f515d93c07e8
+Removing intermediate container f515d93c07e8
+ ---> 39b64c171b3e
+Step 21/29 : COPY entrypoint.sh /app/entrypoint.sh
+ ---> 2e5a82fcc27e
+Step 22/29 : RUN chmod +x /app/entrypoint.sh
+ ---> Running in b2d59dfb52e4
+Removing intermediate container b2d59dfb52e4
+ ---> 85ec050db495
+Step 23/29 : COPY alembic.ini /app/alembic.ini
+ ---> 98fb3de78f71
+Step 24/29 : COPY db_bootstrap.py /app/db_bootstrap.py
+ ---> 26326fd6ce45
+Step 25/29 : USER appuser
+ ---> Running in f1c7f824907f
+Removing intermediate container f1c7f824907f
+ ---> cacf440ebc24
+Step 26/29 : HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3     CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8000') + '/health/ready', timeout=5)" || exit 1
+ ---> Running in a9cb52236740
+Removing intermediate container a9cb52236740
+ ---> 1cc9c7bf22fb
+Step 27/29 : EXPOSE ${PORT}
+ ---> Running in 30462dbec732
+Removing intermediate container 30462dbec732
+ ---> 0ed4fe3edd3f
+Step 28/29 : CMD ["/app/entrypoint.sh"]
+ ---> Running in 810c3ef447d1
+Removing intermediate container 810c3ef447d1
+ ---> 9d98d3a9bab5
+Step 29/29 : LABEL org.opencontainers.image.revision=92615d74ee3a4bd82333c4606cca7898eb324a88
+ ---> Running in 6c43086b14fa
+Removing intermediate container 6c43086b14fa
+ ---> 5eb6d3009ae9
+Successfully built 5eb6d3009ae9
+Successfully tagged metodobase-lab:recovery28-92615d7

@@ -1,0 +1,22 @@
+    PID    PPID COMMAND         COMMAND
+   6392    6391 ps              ps -eo pid,ppid,comm,args --sort=-pcpu
+   6383     501 sshd            sshd: lab [priv]
+   6391    6390 bash            bash -c ps -eo pid,ppid,comm,args --sort=-pcpu | head -13; free -m; sudo -n dmesg --level=err,warn | tail -5
+   6393    6391 head            head -13
+   6390    6383 sshd            sshd: lab@notty
+      1       0 systemd         /sbin/init
+   1476       1 dockerd         /usr/sbin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+   1702       1 redis-server    /usr/bin/redis-server 127.0.0.1:6379
+   1349       1 containerd      /usr/bin/containerd
+    475       1 dbus-daemon     /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+   6254       2 kworker/u4:4-cp [kworker/u4:4-cpuset_migrate_mm]
+     15       2 rcu_preempt     [rcu_preempt]
+               total        used        free      shared  buff/cache   available
+Mem:            1978         307         714           0        1118        1671
+Swap:              0           0           0
+[    7.424946] GPT:6291455 != 25165823
+[    7.425454] GPT:Alternate GPT header not at the end of the disk.
+[    7.425784] GPT:6291455 != 25165823
+[    7.425999] GPT: Use GNU Parted to correct GPT errors.
+[   14.597110] device-mapper: core: CONFIG_IMA_DISABLE_HTABLE is disabled. Duplicate IMA measurements will not be recorded in the IMA log.
+

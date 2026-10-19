@@ -1,0 +1,174 @@
+"""Independent frozen CI28 baseline fix replay; previous red criteria stay immutable."""
+import ast
+import hashlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import zipfile
+
+ROOT = Path(r'F:\MetodoBaseWeb-recovery-ci-20261019')
+PACKAGE = Path(__file__).resolve().parent
+OUT = PACKAGE / 'final'
+OUT.mkdir(exist_ok=False)
+OLD = PACKAGE.parent / 'recovery-ci28-independent-20261019'
+SNAP = Path('docs/implementation/20261018-evolution/evidence/backend-recovery-ci28')
+HEAD = '3978b3fe7b6c7ed91118b8a2d4fcb40ccb31cb51'
+OLD_HEAD = '5db0732f33f8dea60b2d1192e1105a18f79d01c1'
+OLD_PROBE_SHA = '6440c6dd9bfbb337ecbb5aa8dbdcd43d365785647dca35701eb5ae7c8d4ab2ef'
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def save(name, value):
+    with (OUT / name).open('x', encoding='utf8') as stream:
+        json.dump(value, stream, indent=2)
+        stream.write('\n')
+
+
+def run(args, cwd=ROOT, **kwargs):
+    return subprocess.run(args, cwd=cwd, capture_output=True, text=True,
+                          encoding='utf8', timeout=30, **kwargs)
+
+
+def photo():
+    head = run(['git', 'rev-parse', 'HEAD']).stdout.strip()
+    assert head == HEAD
+    assert run(['git', 'status', '--porcelain']).stdout == ''
+    paths = run(['git', 'ls-files', '-z']).stdout.split('\0')
+    selected = [path for path in paths if path and (not path.startswith('docs/') or
+                path.startswith(str(SNAP).replace('\\', '/') + '/') or
+                path.startswith(str(SNAP).replace('\\', '/') + '-baseline-fix/'))]
+    return {'head': head, 'sources': {path: sha(ROOT / path) for path in selected},
+            'packages': sorted([dist.metadata['Name'], dist.version]
+                               for dist in importlib.metadata.distributions())}
+
+
+before = photo()
+save('before.json', before)
+assert len(before['packages']) == 89
+pip_before = run([sys.executable, '-m', 'pip', 'check'])
+(OUT / 'pip-before.log').write_text(pip_before.stdout + pip_before.stderr, encoding='utf8')
+assert pip_before.returncode == 0
+old_manifest = json.loads((OLD / 'red-review-manifest.json').read_text())
+assert all(sha(OLD / path) == expected for path, expected in old_manifest['files'].items())
+assert sha(OLD / 'probe_baseline_trust.py') == OLD_PROBE_SHA
+original_photo = json.loads((OLD / 'before.json').read_text())
+changes = [path for path, expected in original_photo['sources'].items() if sha(ROOT / path) != expected]
+assert changes == ['tests/verify_recovery_ci.py'], changes
+
+metadata = json.loads((ROOT / SNAP / 'baseline.json').read_text())
+metadata_lf_sha = hashlib.sha256((ROOT / SNAP / 'baseline.json').read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+code = ast.parse((ROOT / 'tests/verify_recovery_ci.py').read_text(encoding='utf8'))
+constants = {node.targets[0].id: node.value.value for node in code.body
+             if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+             and isinstance(node.value, ast.Constant)}
+assert constants['BASELINE_METADATA_SHA'] == metadata_lf_sha
+fixture_lf_sha = hashlib.sha256((ROOT / SNAP / 'diary27-fixture-before.py').read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+assert fixture_lf_sha == metadata['diary_fixture27_sha256']
+# The accepted baseline has not been replaced during the fix.
+for path in [str(SNAP / 'baseline.json'), str(SNAP / 'diary27-fixture-before.py'),
+             '.github/workflows/ci.yml', 'tests/e2e/personal_diary_server.py',
+             *metadata['unchanged_files']]:
+    assert sha(ROOT / path) == original_photo['sources'][path.replace('\\', '/')]
+
+# Reuse byte-for-byte sentinel inputs from the frozen original independent probe.
+original_probe = ast.parse((OLD / 'probe_baseline_trust.py').read_text(encoding='utf8'))
+sentinels = [node.value for node in ast.walk(original_probe) if isinstance(node, ast.Constant)
+             and isinstance(node.value, str) and node.value.startswith('\nCI28_UNAUTHORIZED_')]
+fixture_sentinel = next(value for value in sentinels if 'BASELINE_SENTINEL' in value)
+historical_sentinel = next(value for value in sentinels if 'HISTORICAL_SENTINEL' in value)
+assert len(sentinels) == 2
+scratch = Path(tempfile.mkdtemp(prefix='metodobase-ci28-fix-independent-20261019-'))
+shadow = scratch / 'shadow'; shadow.mkdir()
+paths = ['tests/verify_recovery_ci.py', '.github/workflows/ci.yml', 'tests/e2e/personal_diary_server.py',
+         str(SNAP / 'ci27-baseline.yml'), str(SNAP / 'diary27-fixture-before.py'),
+         str(SNAP / 'baseline.json'), *metadata['unchanged_files']]
+for path in paths:
+    target = shadow / path; target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / path, target)
+results = []
+
+
+def invoke(label, succeeds, rejection_reason=None):
+    result = run([sys.executable, '-X', 'utf8', str(shadow / 'tests/verify_recovery_ci.py'),
+                  '--output', str(scratch / ('result-' + label)), '--verify-only'],
+                 cwd=shadow, env=dict(os.environ, PYTHONPATH=str(ROOT)))
+    (OUT / (label + '.log')).write_text(result.stdout + result.stderr, encoding='utf8')
+    assert (result.returncode == 0) == succeeds, (label, result.returncode, result.stderr)
+    if rejection_reason:
+        assert rejection_reason in result.stderr, (label, result.stderr)
+    results.append({'case': label, 'exit': result.returncode,
+                    'expected': 'pass' if succeeds else 'reject', 'matched_contract': True,
+                    'specific_rejection_reason': rejection_reason})
+
+
+invoke('untouched-shadow', True)
+for path in ['tests/e2e/personal_diary_server.py', str(SNAP / 'diary27-fixture-before.py')]:
+    with (shadow / path).open('a', encoding='utf8') as stream:
+        stream.write(fixture_sentinel)
+invoke('original-fixture-baseline-pair-tampered', False, 'Historical diary fixture changed')
+for path in ['tests/e2e/personal_diary_server.py', str(SNAP / 'diary27-fixture-before.py')]:
+    shutil.copyfile(ROOT / path, shadow / path)
+historical = 'tests/verify_diary_ci.py'
+with (shadow / historical).open('a', encoding='utf8') as stream:
+    stream.write(historical_sentinel)
+modified = json.loads(json.dumps(metadata))
+modified['unchanged_files'][historical] = hashlib.sha256((shadow / historical).read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+(shadow / SNAP / 'baseline.json').write_text(json.dumps(modified, indent=2) + '\n', encoding='utf8')
+with zipfile.ZipFile(OLD / 'baseline-trust-raw.zip') as red_archive:
+    for path in [historical, str(SNAP / 'baseline.json')]:
+        key = 'baseline-trust-shadow/' + path.replace('\\', '/')
+        assert (shadow / path).read_bytes() == red_archive.read(key), path
+invoke('original-historical-file-and-metadata-tampered', False, 'Reviewed baseline metadata changed')
+for path in [historical, str(SNAP / 'baseline.json')]:
+    shutil.copyfile(ROOT / path, shadow / path)
+
+fixture = shadow / 'tests/e2e/personal_diary_server.py'
+source = fixture.read_text(encoding='utf8')
+first = ast.parse(source).body[0]
+assert isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str)
+remainder = ''.join(source.splitlines(keepends=True)[first.end_lineno:])
+for label, expression in [('print-call-instead-of-docstring', "print('CI28_QA_FIRST_EXPRESSION')"),
+                          ('numeric-constant-instead-of-docstring', '23'),
+                          ('f-string-instead-of-docstring', 'f"CI28_QA_{23}"')]:
+    fixture.write_text(expression + '\n' + remainder, encoding='utf8')
+    invoke(label, False, 'Fixture must start with a literal docstring')
+fixture.write_text('"""Permitted independent documentation-only revision."""\n' + remainder, encoding='utf8')
+invoke('literal-docstring-only-update', True)
+assert len(results) == 7
+after = photo()
+save('after.json', after)
+assert before == after
+pip_after = run([sys.executable, '-m', 'pip', 'check'])
+(OUT / 'pip-after.log').write_text(pip_after.stdout + pip_after.stderr, encoding='utf8')
+assert pip_after.returncode == 0
+assert all(sha(OLD / path) == expected for path, expected in old_manifest['files'].items())
+with zipfile.ZipFile(OUT / 'raw-shadow.zip', 'x', compression=zipfile.ZIP_DEFLATED) as archive:
+    for path in sorted(scratch.rglob('*')):
+        if path.is_file():
+            archive.write(path, path.relative_to(scratch).as_posix())
+save('summary.json', {
+    'head': HEAD, 'base': OLD_HEAD, 'decision': 'Accepted: both original baseline bypasses and executable/nonstring docstring substitutions reject; unchanged and literal-docstring controls pass.',
+    'only_original_source_changed': changes,
+    'original_probe_sha256': OLD_PROBE_SHA, 'original_red_evidence_all_files_unchanged': True,
+    'original_mutation_sentinels_reused_exactly': True,
+    'second_mutation_input_byte_identical_to_original_red_archive': True,
+    'metadata_lf_sha256': metadata_lf_sha, 'fixture_snapshot_lf_sha256': fixture_lf_sha,
+    'cases': results, 'sources': len(before['sources']), 'sources_stable': True,
+    'packages': len(before['packages']), 'packages_stable': True, 'pip_check_before_after': [0, 0],
+    'verifier_sha256': sha(ROOT / 'tests/verify_recovery_ci.py'),
+    'scope': 'Full verify-only CLI in exclusively owned Temp shadow, pure marker expression imports. No backend, PG, browser, Node162, generic55+7+5 or historical suites repeated. No product/CI/author edits or commits.',
+    'raw_archive_sha256': sha(OUT / 'raw-shadow.zip'),
+})
+files = {path.relative_to(OUT).as_posix(): sha(path) for path in sorted(OUT.rglob('*')) if path.is_file()}
+save('manifest.json', {'files': files, 'count': len(files), 'scope': 'All files except this manifest itself.'})
+print(json.dumps({'cases': len(results), 'violations': 0, 'sources': len(before['sources']),
+                  'packages': len(before['packages']), 'summary_sha256': sha(OUT / 'summary.json'),
+                  'manifest_sha256': sha(OUT / 'manifest.json')}))

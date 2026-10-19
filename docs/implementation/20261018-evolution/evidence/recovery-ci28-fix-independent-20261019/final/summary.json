@@ -1,0 +1,76 @@
+{
+  "head": "3978b3fe7b6c7ed91118b8a2d4fcb40ccb31cb51",
+  "base": "5db0732f33f8dea60b2d1192e1105a18f79d01c1",
+  "decision": "Accepted: both original baseline bypasses and executable/nonstring docstring substitutions reject; unchanged and literal-docstring controls pass.",
+  "only_original_source_changed": [
+    "tests/verify_recovery_ci.py"
+  ],
+  "original_probe_sha256": "6440c6dd9bfbb337ecbb5aa8dbdcd43d365785647dca35701eb5ae7c8d4ab2ef",
+  "original_red_evidence_all_files_unchanged": true,
+  "original_mutation_sentinels_reused_exactly": true,
+  "second_mutation_input_byte_identical_to_original_red_archive": true,
+  "metadata_lf_sha256": "ec3b455cef7a4a3bdb5a21640aa94e2edc8854909c54e79074629018e118f47e",
+  "fixture_snapshot_lf_sha256": "941848a93f9bc748eea14f53872e6b3d6d45f881ef743010d5c8d905fb13c413",
+  "cases": [
+    {
+      "case": "untouched-shadow",
+      "exit": 0,
+      "expected": "pass",
+      "matched_contract": true,
+      "specific_rejection_reason": null
+    },
+    {
+      "case": "original-fixture-baseline-pair-tampered",
+      "exit": 1,
+      "expected": "reject",
+      "matched_contract": true,
+      "specific_rejection_reason": "Historical diary fixture changed"
+    },
+    {
+      "case": "original-historical-file-and-metadata-tampered",
+      "exit": 1,
+      "expected": "reject",
+      "matched_contract": true,
+      "specific_rejection_reason": "Reviewed baseline metadata changed"
+    },
+    {
+      "case": "print-call-instead-of-docstring",
+      "exit": 1,
+      "expected": "reject",
+      "matched_contract": true,
+      "specific_rejection_reason": "Fixture must start with a literal docstring"
+    },
+    {
+      "case": "numeric-constant-instead-of-docstring",
+      "exit": 1,
+      "expected": "reject",
+      "matched_contract": true,
+      "specific_rejection_reason": "Fixture must start with a literal docstring"
+    },
+    {
+      "case": "f-string-instead-of-docstring",
+      "exit": 1,
+      "expected": "reject",
+      "matched_contract": true,
+      "specific_rejection_reason": "Fixture must start with a literal docstring"
+    },
+    {
+      "case": "literal-docstring-only-update",
+      "exit": 0,
+      "expected": "pass",
+      "matched_contract": true,
+      "specific_rejection_reason": null
+    }
+  ],
+  "sources": 764,
+  "sources_stable": true,
+  "packages": 89,
+  "packages_stable": true,
+  "pip_check_before_after": [
+    0,
+    0
+  ],
+  "verifier_sha256": "e6d60b0054d30df615cde47b93f2df7315530728357e2462bc39f2e1e86fdc78",
+  "scope": "Full verify-only CLI in exclusively owned Temp shadow, pure marker expression imports. No backend, PG, browser, Node162, generic55+7+5 or historical suites repeated. No product/CI/author edits or commits.",
+  "raw_archive_sha256": "87fa2a7f6e49f01c72dfb7459835f598ab192ac6c5fdf19f3f2eff78eca17e1e"
+}

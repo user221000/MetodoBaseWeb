@@ -1,0 +1,186 @@
+﻿{
+  "greeting": {
+    "QMP": {
+      "version": {
+        "qemu": {
+          "micro": 0,
+          "minor": 1,
+          "major": 11
+        },
+        "package": "v11.1.0-12130-ge470268ff4"
+      },
+      "capabilities": [
+        "oob"
+      ]
+    }
+  },
+  "qmp_capabilities": {
+    "return": {},
+    "id": "qmp_capabilities"
+  },
+  "query-status": {
+    "return": {
+      "status": "running",
+      "running": true
+    },
+    "id": "query-status"
+  },
+  "query-memory-size-summary": {
+    "return": {
+      "base-memory": 2147483648,
+      "plugged-memory": 0
+    },
+    "id": "query-memory-size-summary"
+  },
+  "query-block": {
+    "return": [
+      {
+        "io-status": "ok",
+        "device": "virtio0",
+        "locked": false,
+        "removable": false,
+        "inserted": {
+          "iops_rd": 0,
+          "detect_zeroes": "off",
+          "active": true,
+          "image": {
+            "backing-image": {
+              "limits": {
+                "write-zeroes-alignment": 65536,
+                "request-alignment": 1,
+                "min-mem-alignment": 512,
+                "discard-alignment": 65536,
+                "opt-mem-alignment": 4096,
+                "max-iov": 1024
+              },
+              "virtual-size": 3221225472,
+              "filename": "F:\\MetodoBaseWeb-linux-lab-20261019\\downloads\\debian-12-genericcloud-amd64-20261006-2623.qcow2",
+              "cluster-size": 65536,
+              "format": "qcow2",
+              "actual-size": 349896704,
+              "format-specific": {
+                "type": "qcow2",
+                "data": {
+                  "compat": "1.1",
+                  "compression-type": "zlib",
+                  "lazy-refcounts": false,
+                  "refcount-bits": 16,
+                  "corrupt": false,
+                  "extended-l2": false
+                }
+              },
+              "dirty-flag": false
+            },
+            "limits": {
+              "write-zeroes-alignment": 65536,
+              "request-alignment": 1,
+              "min-mem-alignment": 512,
+              "discard-alignment": 65536,
+              "opt-mem-alignment": 4096,
+              "max-iov": 1024
+            },
+            "backing-filename-format": "qcow2",
+            "virtual-size": 12884901888,
+            "filename": "F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\disk-overlay.qcow2",
+            "cluster-size": 65536,
+            "format": "qcow2",
+            "actual-size": 972554240,
+            "format-specific": {
+              "type": "qcow2",
+              "data": {
+                "compat": "1.1",
+                "compression-type": "zlib",
+                "lazy-refcounts": false,
+                "refcount-bits": 16,
+                "corrupt": false,
+                "extended-l2": false
+              }
+            },
+            "full-backing-filename": "F:\\MetodoBaseWeb-linux-lab-20261019\\downloads\\debian-12-genericcloud-amd64-20261006-2623.qcow2",
+            "backing-filename": "F:\\MetodoBaseWeb-linux-lab-20261019\\downloads\\debian-12-genericcloud-amd64-20261006-2623.qcow2",
+            "dirty-flag": false
+          },
+          "iops_wr": 0,
+          "ro": false,
+          "children": [
+            {
+              "node-name": "#block397",
+              "child": "backing"
+            },
+            {
+              "node-name": "#block078",
+              "child": "file"
+            }
+          ],
+          "node-name": "#block188",
+          "backing_file_depth": 1,
+          "drv": "qcow2",
+          "iops": 0,
+          "bps_wr": 0,
+          "write_threshold": 0,
+          "backing_file": "F:\\MetodoBaseWeb-linux-lab-20261019\\downloads\\debian-12-genericcloud-amd64-20261006-2623.qcow2",
+          "encrypted": false,
+          "bps": 0,
+          "bps_rd": 0,
+          "cache": {
+            "no-flush": false,
+            "direct": false,
+            "writeback": true
+          },
+          "file": "F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\disk-overlay.qcow2"
+        },
+        "qdev": "/machine/peripheral-anon/device[2]/virtio-backend",
+        "type": "unknown"
+      },
+      {
+        "io-status": "ok",
+        "device": "virtio1",
+        "locked": false,
+        "removable": false,
+        "inserted": {
+          "iops_rd": 0,
+          "detect_zeroes": "off",
+          "active": true,
+          "image": {
+            "limits": {
+              "request-alignment": 1,
+              "min-mem-alignment": 512,
+              "opt-mem-alignment": 4096,
+              "max-iov": 1024
+            },
+            "virtual-size": 69632,
+            "filename": "F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\seed.iso",
+            "format": "raw",
+            "actual-size": 69632
+          },
+          "iops_wr": 0,
+          "ro": true,
+          "children": [
+            {
+              "node-name": "#block447",
+              "child": "file"
+            }
+          ],
+          "node-name": "#block516",
+          "backing_file_depth": 0,
+          "drv": "raw",
+          "iops": 0,
+          "bps_wr": 0,
+          "write_threshold": 0,
+          "encrypted": false,
+          "bps": 0,
+          "bps_rd": 0,
+          "cache": {
+            "no-flush": false,
+            "direct": false,
+            "writeback": true
+          },
+          "file": "F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\seed.iso"
+        },
+        "qdev": "/machine/peripheral-anon/device[3]/virtio-backend",
+        "type": "unknown"
+      }
+    ],
+    "id": "query-block"
+  }
+}

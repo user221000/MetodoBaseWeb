@@ -1,5 +1,13 @@
 # Cambios de comportamiento
 
+## Integración de recuperación28 y gates
+
+Recuperación de cuenta c297ea9/33d5980: solicitudes uniformes y acotadas, token opaco de un uso con digest persistido, confirmación transaccional que cambia contraseña/revoca sesiones y cabeceras privadas también en errores de método.202 indica recepción, no entrega; cola local no durable y ningún correo real enviado. Esquema28 conserva26tablas/20familias RLS. Pruebas QA94aa552 conservan restore27 completo y añaden restore28 propio.
+
+CI5ba98c6/7cf4e6c exige21reportesPG,restore28 ymarker28. La revisión independiente rechazó dos bypass de referencias y sustituciones de docstring por código antes de aceptar. Composición integrada:6propias yCIverify-only verdes,606fuentes estables. [Resumen](evidence/recovery28-main-composition-20261019/summary.json). El gate amplio2064 sigue vinculado a7bde30b; R34 permanece aislado porSEC07.
+
+Escáner0c6cfae/31ebb2f: excepciones finitas y dos pines completos revisados para fragmentaciónGitleaks; JSON malformado falla cerrado. Scan41708e5:3028archivos estables,2raw/2clasificados/0restantes; no cubre las fuentes posteriores. [Contrato](ESCANER_FRAGMENTACION.md).
+
 Commit `166038f88b211c52f0d149ce550880795361707c`, lote A1 local:
 
 - Pro ya no se concede mediante POST de preferencias, suscripción incompleta ni redirect. Compra persistida antes del proveedor, conciliación Stripe/MP compartida y cuota individual reservada con idempotencia; callbacks viejos no revocan otra compra vigente. Compras históricas sin mapping y sandbox real siguen abiertos.

@@ -1,6 +1,6 @@
 # Recuperación de cuenta: candidato local 28
 
-La implementación está aislada: autor `35a3c133` y corrección `890a435`; composición `92615d74` en `F:/MetodoBaseWeb-recovery-compose-20261019`. MAIN continúa con producto27. Falta el delta CI28 y la aceptación de la composición final antes de integrar. Este lote no completa verificación de correo, MFA ni todos los criterios de R16.
+Implementación integrada localmente como c297ea9/33d5980/94aa552, desde autor `35a3c133`, corrección `890a435` y composición aceptada `92615d74`. CI5ba98c6/7cf4e6c exige21reportesPG,restore28 ymarker28 después de corregir y revisar independientemente su referencia histórica. Seis controles mantenidos y el verificadorCI pasan sobre la composición integrada,606fuentes estables. [Resumen](evidence/recovery28-main-composition-20261019/summary.json). El gate amplio del producto28 sigue pendiente; este lote no completa verificación de correo, MFA ni todos los criterios de R16.
 
 El formulario `/auth/reset-password` y los POST `/api/auth/password-reset/request` y `/confirm` usan un bearer aleatorio de256bits y un digest SHA256 separado por propósito. Sólo tres campos nullable de Usuario se añaden en28; permanecen26 tablas de negocio y20 familias RLS. El enlace lleva el bearer en el fragmento, que se retira de la barra antes de la interacción; GET no consume, no se persiste en Storage y no inicia sesión automáticamente. Caducidad técnica30min, sin nueva política comercial o de retención.
 
