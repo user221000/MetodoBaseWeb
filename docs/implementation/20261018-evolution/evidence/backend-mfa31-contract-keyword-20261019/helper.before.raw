@@ -1,0 +1,169 @@
+"""Opt-in current31 client for business contracts written before step-up.
+
+Enrollment, TOTP confirmation, recovery-code login and each operation grant use
+the real HTTP APIs. This helper never overrides identity/MFA or returns an
+issue response in place of the business request. A rejected grant is followed
+by the actual mutation without a grant, preserving the server's denial order.
+No refresh/retry occurs after a business failure or invalidated session.
+"""
+import base64
+from contextlib import contextmanager
+from contextvars import ContextVar
+from datetime import datetime, timezone
+import re
+from threading import RLock
+from urllib.parse import urlsplit
+
+import httpx
+
+
+_TEAM = re.compile(r"/api/gym/team/(?:invite|[A-Za-z0-9_-]{1,36}(?:/role|/resend-invite)?)\Z")
+_BILLING = frozenset({"/api/billing/checkout", "/api/billing/stripe/subscribe",
+    "/api/billing/confirm-subscription", "/api/billing/portal", "/api/billing/mp/preference",
+    "/api/pagos/stripe/session", "/api/pagos/mp/preference"})
+
+
+_AUTHENTICATION_INSTANT: ContextVar[datetime | None] = ContextVar(
+    "mfa_contract_authentication_instant", default=None)
+_CLOCK_OWNER = RLock()
+
+
+@contextmanager
+def _authentication_clock():
+    """One setup instant, request-context scoped, restored before business.
+
+    The temporary service wrapper delegates to the caller's original validator
+    whenever no setup ContextVar is present, including unrelated threads. Our
+    helpers serialize ownership; another clock installer is detected rather
+    than silently overwritten. This is a test-only isolated-fixture seam.
+    """
+    from web.services import mfa_service
+    with _CLOCK_OWNER:
+        if _AUTHENTICATION_INSTANT.get() is not None:
+            raise RuntimeError("Nested fixture authentication clock")
+        original = mfa_service.instant
+        observed = original().astimezone(timezone.utc)
+        def scoped(supplied=None):
+            fixed = _AUTHENTICATION_INSTANT.get()
+            return original(fixed if supplied is None and fixed is not None else supplied)
+        token = _AUTHENTICATION_INSTANT.set(observed)
+        mfa_service.instant = scoped
+        try:
+            yield observed
+        finally:
+            # Always clear our request tag, including when another actor has
+            # installed its own clock. Do not clobber that actor's function.
+            _AUTHENTICATION_INSTANT.reset(token)
+            if mfa_service.instant is not scoped:
+                raise RuntimeError("fixture clock ownership changed")
+            mfa_service.instant = original
+
+
+class MfaContractClient:
+    """Explicit fixture adoption; secrets stay in RAM and raw client is available.
+
+    ``principal`` selects only an account already persisted by this test. The
+    password must authenticate that account; its fields never become a route
+    dependency override. Switching an existing identity restores its same
+    access token, allowing the backend to reject a changed SV/role normally.
+    """
+    def __init__(self, raw, principal, factory, password):
+        self.raw = raw
+        self.principal = principal
+        self.factory = factory
+        self.password = password
+        self.events = []
+        self._sessions = {}
+        self._active = None
+
+    def __getattr__(self, name):
+        return getattr(self.raw, name)
+
+    @staticmethod
+    def _require(response, status, operation):
+        # Never include response bodies: they can contain the enrollment seed,
+        # recovery kit, access pair, CSRF value or single-operation capability.
+        assert response.status_code == status, f"{operation}: HTTP {response.status_code}, expected {status}"
+        return response.json()
+
+    def authenticate(self):
+        from web.database.models import Usuario
+        from web.services.mfa_crypto import totp
+
+        identity = self.principal["id"]
+        if identity == self._active:
+            return
+        if identity in self._sessions:
+            self.raw.headers["Authorization"] = "Bearer " + self._sessions[identity]
+            self._active = identity
+            return
+        with self.factory() as db:
+            persisted = db.get(Usuario, identity)
+            assert persisted is not None and persisted.activo
+            email = persisted.email
+        with _authentication_clock() as observed:
+            primary = self.raw.post("/api/auth/login", json={"email": email, "password": self.password})
+            first = self._require(primary, 200, "fixture primary login")
+            assert first["mfa_required"] is False
+            self.raw.headers["Authorization"] = "Bearer " + first["token"]
+            proof = self._require(self.raw.post("/api/auth/mfa/reauth", json={"password": self.password}),
+                                  200, "fixture primary reauthentication")
+            enrollment = self._require(self.raw.post("/api/auth/mfa/enroll", json={
+                "reauthentication_token": proof["reauthentication_token"]}), 200, "fixture enrollment")
+            seed = base64.b32decode(enrollment["secret"])
+            counter = int(observed.timestamp()) // 30
+            kit = self._require(self.raw.post("/api/auth/mfa/enroll/confirm", json={
+                "enrollment_id": enrollment["enrollment_id"], "code": totp(seed, counter)}),
+                200, "fixture TOTP confirmation")
+            del seed, enrollment, proof
+            challenge = self._require(self.raw.post("/api/auth/login", json={
+                "email": email, "password": self.password}), 202, "fixture factor challenge")
+            pair = self._require(self.raw.post("/api/auth/mfa/login/verify", json={
+                "challenge": challenge["challenge"], "recovery_code": kit["recovery_codes"][0]}),
+                200, "fixture recovery-code authentication")
+            self.raw.headers["Authorization"] = "Bearer " + pair["token"]
+            self._sessions[identity] = pair["token"]
+            self._active = identity
+            del pair, kit, challenge, first
+            current = self._require(self.raw.get("/api/auth/me"), 200, "fixture persisted identity")
+            assert current["id"] == identity
+            # Local test metadata follows the verified account; the request itself
+            # always resolves the bearer against persisted identity/SV again.
+            self.principal.update({key: current[key] for key in (
+                "id", "email", "nombre", "tipo", "role", "team_gym_id", "session_version") if key in current})
+
+    def issue(self, method, path, body, *, headers=None):
+        self.authenticate()
+        combined = httpx.Headers(self.raw.headers)
+        combined.update(headers or {})
+        data = {"method": method.upper(), "path": path, "body": body}
+        if "Idempotency-Key" in combined:
+            data["idempotency_key"] = combined["Idempotency-Key"]
+        response = self.raw.post("/api/auth/mfa/step-up", json=data,
+                                 headers={"Authorization": combined["Authorization"]})
+        self.events.append({"method": method.upper(), "path": path, "issue_status": response.status_code})
+        return response
+
+    def request(self, method, url, **kwargs):
+        method = method.upper()
+        path = urlsplit(str(url)).path
+        protected = (method in {"POST", "PATCH", "DELETE"} and
+                     (_TEAM.fullmatch(path) is not None or path in _BILLING))
+        headers = httpx.Headers(kwargs.get("headers"))
+        if protected and "X-MFA-Grant" not in headers:
+            response = self.issue(method, path, kwargs.get("json") or {}, headers=headers)
+            if response.status_code == 200:
+                headers["X-MFA-Grant"] = response.json()["grant"]
+            kwargs["headers"] = headers
+        # Always send the original method/body/resource, also after a denied
+        # issue. Never retry or pretend the issue response was the mutation.
+        return self.raw.request(method, url, **kwargs)
+
+    def post(self, url, **kwargs):
+        return self.request("POST", url, **kwargs)
+
+    def patch(self, url, **kwargs):
+        return self.request("PATCH", url, **kwargs)
+
+    def delete(self, url, **kwargs):
+        return self.request("DELETE", url, **kwargs)
