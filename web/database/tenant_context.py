@@ -58,6 +58,9 @@ def _on_engine_begin(connection):
     # Failure propagates: no query proceeds after an uncertain context install.
     identity = _tenant(current_tenant.get())
     connection.execute(_TENANT_SQL, {"tenant": identity})
+    # A prior session-level purpose setting must never survive pool reuse.
+    # No capability is carried across commits or inferred from a tenant ID.
+    connection.execute(text("SELECT set_config('app.client_invitation_digest', '', true)"))
     connection.info["_tenant_tx_identity"] = identity
 
 
