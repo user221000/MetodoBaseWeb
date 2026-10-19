@@ -1,0 +1,9 @@
+"""Successor: correct the exact docstring capitalization; old preparation retained."""
+from pathlib import Path
+import ast
+source=Path(__file__).with_name('metodobase-ci33-prepare-adapters-20261019.py').read_text(encoding='utf8')
+left="if group=='r24_race' else [('current31','current33'),('tests.ci_mfa31.current_link_fixtures','tests.ci_google33.current_link_fixtures')])"
+right="if group=='r24_race' else [('Current31','Current33'),('tests.ci_mfa31.current_link_fixtures','tests.ci_google33.current_link_fixtures')])"
+assert source.count(left)==1
+source=source.replace(left,right);ast.parse(source)
+exec(compile(source,'preserved-generator-capitalization-successor','exec'))

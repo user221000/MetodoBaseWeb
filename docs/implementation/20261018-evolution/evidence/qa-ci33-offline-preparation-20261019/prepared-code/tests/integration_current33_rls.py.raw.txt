@@ -1,0 +1,23 @@
+"""Current33 fixture binding; imported original function objects retain every assertion."""
+
+import pytest
+
+from tests.integration_postgres import owned_postgres_database, postgres_case
+
+from tests.integration_postgres import (
+    test_all_protected_tables_filter_real_rows_for_direct_sessions,
+    test_application_reinstalls_tenant_after_internal_commit,
+    test_background_worker_carries_scope_and_resets_context,
+    test_context_install_failure_blocks_business_queries,
+    test_direct_connection_and_session_reinstall_context_after_commit_and_rollback,
+    test_empty_context_overrides_stale_session_setting,
+    test_missing_tenant_cannot_read_any_protected_family_including_null_legacy_rows,
+    test_pool_one_connection_serves_two_tenants_then_denies_anonymous,
+    test_protected_tables_allow_own_writes_but_hide_foreign_update_delete,
+    test_protected_tables_reject_moving_own_row_to_foreign_tenant,
+    test_real_app_role_cannot_bypass_rls,
+    test_real_member_token_uses_team_scope_for_professional_and_own_scope_for_personal,
+    test_rls_denies_missing_tenant_and_pool_does_not_leak_it,
+    test_unscoped_or_foreign_tenant_insert_is_rejected_by_postgres,
+    test_verified_callback_subject_survives_commits_and_cannot_switch_account,
+)

@@ -1,0 +1,9 @@
+"""Current33 fixture binding; imported original function objects retain every assertion."""
+
+import pytest
+
+from tests.integration_postgres import owned_postgres_database
+
+from tests.integration_privacy_composition_postgres import (
+    test_mounted_privacy_route_preserves_personal_boundary_without_overrides,
+)

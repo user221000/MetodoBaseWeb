@@ -210,3 +210,8 @@ MAIN incorpora sólo control/evidencia. Composición aislada219f89 integra fcfc+
 ## Checkpoint128
 
 Integración local real desde227: MFA31, progreso/mediciones32, lector y consentimientos, exportación y UI/retiro público. Fuentes y tests de la candidata se copian exactamente; control/evidencias históricos de MAIN se conservan. No se altera Dockerfile ni locks. El retiro invalida sólo su Session nueva ante close fallido; el resto del módulo y servicio permanecen exactos. Google33 no se integra todavía.
+
+
+## Checkpoint129
+
+MAIN integra Google33 por issuer/sub, alta nueva vacía y enlace/desenlace explícitos. SEC17 revisa la composición3587. La coincidencia de correo no adopta una cuenta existente. La continuidad Google-only con sub histórico desconocido y la pérdida total de factores siguen pendientes. Los locks web/test/desktop incorporan las tres dependencias de verificación Google del autor33:google-auth2.62.0,pyasn1 0.6.4 ypyasn1-modules0.4.2. Entorno propio92; WEB89 permanece intacto. Dockerfile no cambia. Imagen,SBOM ySCA final vigentes siguen pendientes; el artefacto31 no se reatribuye. Diseño aprobado con propuestas UI77f179 ybackend844beab. No hay backend34 ni consumidor34 integrados. Backend implementa enWT propia desde3587: tareas/eventos durables,causa,próximo paso,responsable actual,CAS,idempotencia,historia y métricas de declaraciones guardadas. Nutri sólo accede a sus asignadas sin stats globales. Sin cobro inferido,contacto automático ni texto sanitario libre. El código yDDL34 requieren QA/SEC.

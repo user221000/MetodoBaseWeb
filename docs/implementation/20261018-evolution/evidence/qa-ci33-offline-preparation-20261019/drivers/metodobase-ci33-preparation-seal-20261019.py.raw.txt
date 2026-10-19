@@ -1,0 +1,80 @@
+"""Seal inactive CI33 preparation, all first failures, and explicit unfinished gates."""
+from pathlib import Path,PurePosixPath
+from datetime import UTC,datetime
+import ast,csv,hashlib,io,json,re,subprocess,tarfile,zipfile,xml.etree.ElementTree as ET
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp');ROOT=Path(r'F:\mb-qa-ci33-20261019')
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-ci33-offline-preparation-20261019'
+FIRST=TEMP/'metodobase-ci33-offline-checks-20261019';AFTER=TEMP/'metodobase-ci33-offline-checks-v2-20261019'
+FRONT=TEMP/'metodobase-ci33-offline-frontend-prepare-20261019'
+def meta(raw):return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def info(p):return meta(p.read_bytes())
+def encoded(value):return (json.dumps(value,indent=2)+'\n').encode()
+def read(path):return json.loads(path.read_text(encoding='utf8'))
+def git(*args):return subprocess.check_output(['git','--no-replace-objects','-C',str(ROOT),*args])
+before=read(FIRST/'summary.json');after=read(AFTER/'summary.json')
+assert (before['cases'],before['failures'],before['errors'],before['skips'])==(231,1,0,0)
+assert before['exit']==1 and (after['cases'],after['failures'],after['errors'],after['skips'],after['exit'])==(26,0,0,0,0)
+for folder in [FIRST,AFTER]:assert read(folder/'before.json')==read(folder/'after.json')
+firstcases=list(ET.parse(FIRST/'private/results.xml').getroot().iter('testcase'))
+old=[c for c in firstcases if c.get('classname')=='tests.test_mfa31_ci_trust']
+assert len(old)==205 and all(not(c.findall('failure')+c.findall('error')+c.findall('skipped')) for c in old)
+new=list(ET.parse(AFTER/'private/results.xml').getroot().iter('testcase'))
+assert len(new)==26 and {c.get('name') for c in new}=={c.get('name') for c in firstcases if c.get('classname')=='tests.test_ci33_offline_preparation'}
+assert git('rev-parse','HEAD').decode().strip()=='6f822ff50d93e01bb10249556a9bfc4e1a3b246b'
+assert not git('diff','--','.github/workflows/ci.yml')
+assert set(git('diff','--name-only').decode().splitlines())=={'tests/test_current_mfa31_fixture_clock.py','tests/test_current_publication_fixture_review.py','tests/test_publication_diary_consumption.py'}
+fn=next(n for n in ast.parse((TEMP/'metodobase-checkpoint119-prepare.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='scan')
+exec(compile(ast.Module(body=[fn],type_ignores=[]),'checkpoint119-scanner','exec'))
+files={'.gitattributes':b'* -text\n','REVIEW.md':(ROOT/'tests/ci_google33/PREPARACION.md').read_bytes()}
+for label,folder in [('first231',FIRST),('after-own26',AFTER)]:
+    for p in folder.glob('*'):
+        if p.is_file():files[label+'/'+p.name]=p.read_bytes()
+    suites=ET.Element('testsuites')
+    for source_suite in ET.parse(folder/'private/results.xml').getroot().iter('testsuite'):
+        suite=ET.SubElement(suites,'testsuite',{k:source_suite.get(k,'') for k in ['name','tests','failures','errors','skipped']})
+        for c in source_suite.findall('testcase'):
+            node=ET.SubElement(suite,'testcase',{k:c.get(k,'') for k in ['classname','name']})
+            for status in ['failure','error','skipped']:
+                if c.find(status) is not None:ET.SubElement(node,status,{'message':'Private diagnostics retained in RAW archive'})
+    files[label+'/results-structural.xml']=ET.tostring(suites,encoding='utf8',xml_declaration=True)
+files['frontend32-preparation.json']=(FRONT/'review.json').read_bytes()
+changed=git('diff','--name-only').decode().splitlines()
+untracked=git('ls-files','--others','--exclude-standard').decode().splitlines()
+code=sorted(set(changed+untracked));assert all(n.startswith('tests/') for n in code)
+code_meta={}
+for name in code:
+    raw=(ROOT/name).read_bytes();files['prepared-code/'+name+'.raw.txt']=raw;code_meta[name]=meta(raw)
+drivers=['metodobase-ci33-prepare-adapters-20261019.py','metodobase-ci33-prepare-adapters-v2-20261019.py','metodobase-ci33-prepare-compat-20261019.py','metodobase-ci33-prepare-browsers-20261019.py','metodobase-ci33-offline-prepare-run-20261019.py','metodobase-ci33-offline-prepare-v2-run-20261019.py','metodobase-ci33-preparation-failures-20261019.json','metodobase-ci33-preparation-seal-20261019.py']
+for name in drivers:files['drivers/'+name+'.raw.txt']=(TEMP/name).read_bytes()
+for name,raw in files.items():scan(raw,name)
+vault=TEMP/'metodobase-ci33-preparation-private-20261019';vault.mkdir(exist_ok=False)
+sid=next(csv.reader(io.StringIO(subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True))))[1]
+subprocess.run(['icacls',str(vault),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+acl=subprocess.check_output(['icacls',str(vault)]);(vault/'ACL-before-ZIP.raw.log').write_bytes(acl)
+archive=vault/'primaries.zip';members={}
+with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as z:
+    for folder in [FIRST,AFTER,FRONT]:
+        for p in sorted(folder.rglob('*')):
+            if p.is_file():
+                name=folder.name+'/'+p.relative_to(folder).as_posix();raw=p.read_bytes();members[name]=meta(raw);z.writestr(name,raw)
+    for name in drivers+['metodobase-ci33-offline-driver-20261019.raw.log','metodobase-ci33-offline-v2-driver-20261019.raw.log','metodobase-ci33-adapters-v2-20261019.raw.log','metodobase-ci33-compat-20261019.raw.log','metodobase-ci33-browsers-20261019.raw.log']:
+        raw=(TEMP/name).read_bytes();members['outer/'+name]=meta(raw);z.writestr('outer/'+name,raw)
+(vault/'members.json').write_bytes(encoded(members))
+files['source.json']=encoded({'status':'PREPARED_INACTIVE_NOT_CURRENT33_ACCEPTANCE','base':'6f822ff50d93e01bb10249556a9bfc4e1a3b246b','created_UTC':datetime.now(UTC).isoformat(),
+    'active_workflow_changed':False,'prepared_code':code_meta,'historical31_source':'de506b6077ba055587f02e7d839387e7f5c56f84','historical32_source':'6f822ff50d93e01bb10249556a9bfc4e1a3b246b',
+    'actual33_or_PG_or_Actions_or_image_browser_or_provider_accepted':False,'old31_canaries_passed':205,'own_guards_after':26,'first_phase':before,'after_phase':after,
+    'first_failure':'Own import comparator initially included auxiliary fixtures; successor compares exactly test_ functions. Original231 RAW retained. No original case/assert was changed.',
+    'first_generator_error':'Capitalization guard before any adapter write; conversation tool RAW and explicit projection retained, no invented saved RAW.',
+    'prepared_frontend32_scope':read(FRONT/'review.json'),'source_binary_package_quiet_per_phase':True,'source_scope_files':779,'package_metadata':89,'pip_each_phase':[0,0],
+    'new_PG_connections_or_objects':0,'private_archive':{'path':str(archive),**info(archive),'members':len(members),'ACL_before_ZIP':'Current SID and SYSTEM only','ACL_sha256':hashlib.sha256(acl).hexdigest()},
+    'remaining_work':'See REVIEW.md dependencies1–7; no runner/checker/current33 nodeID manifest nor global browser witness acceptance is claimed.'})
+for name,raw in files.items():scan(raw,name)
+assert not OUT.exists();OUT.mkdir();(OUT/'.gitattributes').write_bytes(files.pop('.gitattributes'))
+for name,raw in files.items():
+    p=OUT/name;p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb') as out:out.write(raw)
+manifest={p.relative_to(OUT).as_posix():info(p) for p in sorted(OUT.rglob('*')) if p.is_file()}
+(OUT/'manifest.json').write_bytes(encoded(manifest))
+for p in OUT.rglob('*'):
+    if p.is_file():scan(p.read_bytes(),p.relative_to(OUT).as_posix())
+print(json.dumps({'path':str(OUT),'members':len(manifest),'source':info(OUT/'source.json'),'manifest':info(OUT/'manifest.json'),'current33_accepted':False,'old_canaries':205,'own_guards':26}))

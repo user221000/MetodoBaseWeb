@@ -1,0 +1,77 @@
+[
+  {
+    "original": "test_security_google_subject_peer.py",
+    "original_raw_sha256": "35ec9a45d7a9307d53bb7ddb97b23e738218ff9504315225b33385214454ce22",
+    "mapped": "test_google33_association_security.py",
+    "transport_only_assert_mapping": [
+      "fixed_https_jwks",
+      "fixed_https_tokeninfo"
+    ],
+    "test_functions": [
+      {
+        "name": "test_unbound_third_party_google_subject_requires_independent_link_before_login",
+        "assertions": 5,
+        "business_asserts_preserved": true
+      },
+      {
+        "name": "test_unbound_google_subject_cannot_supply_fresh_primary_for_factor_account",
+        "assertions": 8,
+        "business_asserts_preserved": true
+      },
+      {
+        "name": "test_provider_validation_controls_do_not_issue_a_local_session",
+        "assertions": 4,
+        "business_asserts_preserved": true
+      }
+    ]
+  },
+  {
+    "original": "test_mfa31_google_reauth.py",
+    "original_raw_sha256": "776c37310bbef3941611e88d397b1fa9184c377efaa72f2f6afe1fbae72c29ca",
+    "mapped": "test_google33_mfa_reauth_contract.py",
+    "transport_only_assert_mapping": [
+      "https://www.googleapis.com/oauth2/v3/certs",
+      "https://oauth2.googleapis.com/tokeninfo"
+    ],
+    "test_functions": [
+      {
+        "name": "test_google_primary_reauth_rejects_stale_or_absent_auth_time_despite_new_iat",
+        "assertions": 3,
+        "business_asserts_preserved": true
+      },
+      {
+        "name": "test_fresh_google_primary_reauth_accepts_only_matching_persisted_account",
+        "assertions": 2,
+        "business_asserts_preserved": true
+      },
+      {
+        "name": "test_google_primary_cannot_reauthenticate_a_different_persisted_account",
+        "assertions": 1,
+        "business_asserts_preserved": true
+      },
+      {
+        "name": "test_google_primary_admission_budget_survives_credential_rotation",
+        "assertions": 2,
+        "business_asserts_preserved": true
+      }
+    ]
+  },
+  {
+    "original": "test_identity_security.py",
+    "original_raw_sha256": "23616750c173ad38cc8c8ed36abd2e850ed77466ff4408b156d44792496aeb15",
+    "mapped": "test_google33_identity_contract.py",
+    "transport_only_assert_mapping": null,
+    "test_functions": [
+      {
+        "name": "test_google_uses_same_member_identity",
+        "assertions": 5,
+        "business_asserts_preserved": true
+      },
+      {
+        "name": "test_disabled_google_account_is_not_recreated",
+        "assertions": 2,
+        "business_asserts_preserved": true
+      }
+    ]
+  }
+]

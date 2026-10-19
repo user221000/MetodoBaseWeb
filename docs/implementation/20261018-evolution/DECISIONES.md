@@ -131,3 +131,8 @@ Mantener alta Google nueva vacía por issuer/sub con contacto no verificado thir
 ## Checkpoint128
 
 Integrar código local revisado con estado en revisión sin exigir despliegue o proveedor live para autorizar cambios reversibles. Preservar semántica exacta por hashes; no atribuir Chrome219 ni broads31 al nuevo árbol completo. CI31 es histórico hasta su evolución33; mantener fixtures/targets22–32 intactos y añadir actuales33. Clasificaciones de checksum siguen pendientes de revisión independiente; no introducir excepciones de directorio o normalizar RAW para ocultar findings.
+
+
+## Checkpoint129
+
+Componer fuentes33 antes deQA integrada yconservar el ancestry real de506 paraCI histórica. Aceptar R05v1 sólo en su alcance focal; el gate global sigue abierto. ParaR23 se aprueban dos tablas,permiso dedicado deNutri asignado yningún step-up nuevo para tareas ordinarias; loginMFA ygrants deequipo/cobro permanecen. El hash por causa excluye now/as_of. Un responsable no elegible no provoca lookup decontacto privado deotro contexto. La historiaRESTRICT no define retención legal ni cierra purgaR31. La imagen final espera fuente estable.

@@ -1,0 +1,50 @@
+"""Prepare framing copies from frozen6f; do not execute product33 WIP."""
+from pathlib import Path
+import ast,hashlib,json
+
+ROOT=Path(r'F:\mb-qa-ci33-20261019')
+records={}
+def create(source,target,pairs,addition=None):
+    original=(ROOT/source).read_bytes().replace(b'\r\n',b'\n').decode();changed=original
+    for left,right in pairs:
+        assert left in changed,(source,left);changed=changed.replace(left,right)
+    if addition:
+        left,right=addition;assert changed.count(left)==1;changed=changed.replace(left,right)
+    ast.parse(changed);(ROOT/target).write_text(changed,encoding='utf8')
+    inverse=changed
+    if addition:inverse=inverse.replace(addition[1],addition[0])
+    for left,right in reversed(pairs):inverse=inverse.replace(right,left)
+    assert inverse==original,(source,'full byte inverse mismatch')
+    old=ast.parse(original);new=ast.parse(changed)
+    tests=lambda tree:{n.name:ast.dump(n,include_attributes=False) for n in tree.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name.startswith('test_')}
+    assert tests(old)==tests(new),(source,'business functions changed')
+    records[target]={'source':source,'source_normalized_sha256':hashlib.sha256(original.encode()).hexdigest(),
+        'current_normalized_sha256':hashlib.sha256(changed.encode()).hexdigest(),'full_inverse_exact':True,
+        'business_functions_exact':sorted(tests(old)),'framing_pairs':pairs,'addition':addition}
+
+for group in ['member_services','member_http','member_races','r24_publication','r24_race']:
+    create('tests/integration_current31_'+group+'.py','tests/integration_current33_'+group+'.py',[
+        ('current31','current33'),('schema31','schema33'),('tests.ci_mfa31.current_link_fixtures','tests.ci_google33.current_link_fixtures')]
+        if group=='r24_race' else [('current31','current33'),('tests.ci_mfa31.current_link_fixtures','tests.ci_google33.current_link_fixtures')])
+create('tests/ci_mfa31/current_link_fixtures.py','tests/ci_google33/current_link_fixtures.py',[
+    ('Current31','Current33'),('current31','current33'),("'20261019_mfa'","'20261019_google_subjects'"),
+    ('len(Base.metadata.tables) == 32','len(Base.metadata.tables) == 35'),('get_table_names()) == 33','get_table_names()) == 36'),
+    ('from tests.integration_schema_migrations import migration_database, run_migration','from tests.integration_schema_migrations import run_migration\nfrom tests.ci_google33.owned import migration_database')],
+    ('        app = application_engine(url, admin)\n','        app = application_engine(url, admin)\n        from tests.ci_google33.physical import physical_contract\n        physical_contract(app)\n'))
+create('tests/current_mfa31_publication_fixtures.py','tests/current_google33_publication_fixtures.py',[
+    ('current31','current33'),('database to31','database to33'),('tests.ci_mfa31.current_link_fixtures','tests.ci_google33.current_link_fixtures'),
+    ('20261019_mfa','20261019_google_subjects'),('get_table_names()) == 33','get_table_names()) == 36')])
+for source in ['tests/test_publication_diary_consumption.py','tests/test_current_publication_fixture_review.py','tests/test_current_mfa31_fixture_clock.py']:
+    # Explicit current import transition. All bodies/decorators, IDs and asserts
+    # remain byte-identical; originals are also pinned in historical31 source.
+    original=(ROOT/source).read_bytes().replace(b'\r\n',b'\n').decode()
+    changed=original.replace('tests.current_mfa31_publication_fixtures','tests.current_google33_publication_fixtures')
+    if changed==original:changed=original.replace('from tests import current_mfa31_publication_fixtures','from tests import current_google33_publication_fixtures')
+    assert changed!=original
+    assert {n.name:ast.dump(n) for n in ast.parse(original).body if isinstance(n,ast.FunctionDef)}=={n.name:ast.dump(n) for n in ast.parse(changed).body if isinstance(n,ast.FunctionDef)}
+    (ROOT/source).write_text(changed,encoding='utf8')
+    records[source]={'source_commit':'6f822ff50d93e01bb10249556a9bfc4e1a3b246b','source':source,
+        'source_normalized_sha256':hashlib.sha256(original.encode()).hexdigest(),'current_normalized_sha256':hashlib.sha256(changed.encode()).hexdigest(),
+        'only_fixture_import_transition':True,'all_function_AST_exact':True}
+(ROOT/'tests/ci_google33/adaptation-map.json').write_text(json.dumps(records,indent=2)+'\n',encoding='utf8')
+print(json.dumps({'prepared_adapters':len(records),'no_product33_executed':True}))

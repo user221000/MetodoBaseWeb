@@ -152,3 +152,8 @@ Las migraciones locales reversibles necesarias están autorizadas; inventar iden
 ## Checkpoint128
 
 MAIN es candidata local32, todavía sin regresión/CI/artefacto común vigente. SEC17 Google pendiente y las limitaciones de recuperación total/legacy Google siguen abiertas. SEC18 tiene aceptación focal, pero ninguna implementación puede prometer checkout0 si también falla invalidate antes de liberar. Gitleaks no está globalmente verde. Política de retención/países, objetivos SLO, entrevistas y validación profesional real siguen pendientes de datos/autorización aplicable.
+
+
+## Checkpoint129
+
+Implementación33 yUI integradas localmente en3587. Los8 criterios originales del primer peer pasan con transporteJWT/JWKS normalizado yasserts AST exactos. PeerPG,ataques,QAHTTP/browser yCI siguen en curso; no se declara cierre global. Las pruebas e intentos de la nueva UI Google se mantienen enRAM. Esto no resuelve la exposición legacy global deStorage,retención,borrado o acceso de soporte. El clasificador finito no acepta secretos nuevos. La historia de tareas prevista exige inventario ypurga bajoR31; no se inventa una política legal de conservación. El gate globalR05 sigue abierto yel árbol33 no tiene un escaneo completo nuevo. Las cifras de tablas34 son previsión,no observación. Países/retención,volumen/SLO,entrevistas yvalidación profesional requieren datos oparticipación real.

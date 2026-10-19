@@ -1,0 +1,51 @@
+"""Generate explicit33 frames; old tests22–32 and their helpers stay intact."""
+from pathlib import Path
+import ast,hashlib,json
+ROOT=Path(r'F:\mb-qa-ci33-20261019');records={}
+digest=lambda s:hashlib.sha256(s.encode()).hexdigest()
+def tests(tree):return {n.name:ast.dump(n,include_attributes=False) for n in tree.body if isinstance(n,ast.FunctionDef) and n.name.startswith('test_')}
+def clone(source,target,pairs):
+    raw=(ROOT/source).read_bytes().replace(b'\r\n',b'\n').decode();changed=raw
+    for a,b in pairs:assert a in changed;(changed:=changed.replace(a,b))
+    inverse=changed
+    for a,b in reversed(pairs):inverse=inverse.replace(b,a)
+    assert inverse==raw and tests(ast.parse(raw))==tests(ast.parse(changed))
+    (ROOT/target).write_text(changed,encoding='utf8')
+    records[target]={'source':source,'source_normalized_sha256':digest(raw),'current_normalized_sha256':digest(changed),
+        'full_inverse_exact':True,'framing_pairs':pairs,'business_functions_exact':sorted(tests(ast.parse(raw)))}
+def wrapper(sources,target,imports):
+    lines=['"""Current33 fixture binding; imported original function objects retain every assertion."""','import pytest',*imports]
+    mapping={};markers=[]
+    for source in sources:
+        raw=(ROOT/source).read_bytes().replace(b'\r\n',b'\n').decode();tree=ast.parse(raw);names=sorted(tests(tree))
+        module=source[:-3].replace('/','.')
+        lines.append('from '+module+' import (\n    '+',\n    '.join(names)+',\n)')
+        for node in tree.body:
+            if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='pytestmark' for t in node.targets):
+                markers.append(ast.get_source_segment(raw,node))
+        mapping[source]={'normalized_sha256':digest(raw),'functions':names}
+    assert len(set(markers))<=1
+    changed='\n\n'.join(lines+sorted(set(markers)))+'\n';ast.parse(changed);(ROOT/target).write_text(changed,encoding='utf8')
+    records[target]={'same_original_function_objects':True,'sources':mapping,'current_normalized_sha256':digest(changed)}
+
+clone('tests/integration_mfa31_postgres.py','tests/integration_current33_mfa_postgres.py',[
+    ('from tests.mfa31_fixtures import mfa_database as migration_database','from tests.ci_google33.owned import migration_database'),
+    ('from tests.mfa31_fixtures import REVISION','from tests.google33_fixtures import REVISION')])
+clone('tests/integration_progress32_postgres.py','tests/integration_current33_progress_postgres.py',[
+    ('from tests.progress32_fixtures import owned_database, REVISION','from tests.google33_fixtures import owned_database, REVISION')])
+clone('tests/integration_progress_retirement.py','tests/integration_current33_progress_retirement.py',[
+    ('from tests.retirement32_owned import owned_database','from tests.google33_owned import owned_database'),
+    ('"20261019_personal_progress"','"20261019_google_subjects"')])
+wrapper(['tests/integration_followup_postgres.py'],'tests/integration_current33_followup.py',[
+    'from tests.ci_google33.owned import migration_database'])
+wrapper(['tests/integration_personal_diary_postgres.py','tests/integration_personal_diary_security_review.py'],'tests/integration_current33_diary.py',[
+    'from tests.ci_google33.owned import migration_database',
+    'from tests.integration_personal_diary_postgres import diary_pg'])
+wrapper(['tests/integration_postgres.py'],'tests/integration_current33_rls.py',[
+    'from tests.integration_postgres import owned_postgres_database, postgres_case'])
+wrapper(['tests/integration_privacy_composition_postgres.py'],'tests/integration_current33_privacy.py',[
+    'from tests.integration_postgres import owned_postgres_database'])
+wrapper(['tests/integration_progress32_reader_adversarial.py'],'tests/integration_current33_progress_adversarial.py',[
+    'from tests.integration_current33_progress_postgres import progress_db, progress_http'])
+(ROOT/'tests/ci_google33/compatibility-map.json').write_text(json.dumps(records,indent=2)+'\n',encoding='utf8')
+print(json.dumps({'prepared_frames':len(records),'business_function_AST_or_imports_exact':True,'no_product33_executed':True}))

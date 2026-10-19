@@ -1,0 +1,132 @@
+"""R24 additive consumption from an accepted, exact published source; offline mail only."""
+from datetime import datetime, timezone
+import json
+from types import SimpleNamespace
+
+import pytest
+
+from tests.integration_client_link_http import issued
+from tests.integration_client_link_services import source
+from tests.current_google33_publication_fixtures import http, link_db, case
+
+
+def test_explicit_fixed_source_resolves_real_grams_instead_of_empty_consumption():
+    from web.personal_diary_schemas import MealSelection
+    from web.services.personal_diary_service import resolve_consumed_meal
+    plan=SimpleNamespace(id=41,gym_id='person',deleted_at=None,plan_json=json.dumps({'desayuno':{'alimentos':{'huevo':50}}}))
+    result=resolve_consumed_meal(plan,'person','desayuno',MealSelection(include_fixed_menu=True),now=datetime.now(timezone.utc))
+    assert result['foods'][0]['food_id']=='huevo' and result['foods'][0]['grams']==50
+    assert result['totals']['kcal']>0
+
+
+@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
+def test_publication_consumption_is_personal_and_survives_revocation_without_fresh_source_access(http):
+    from web.services.personal_diary_service import local_today
+    client=http['client_http'];issue,token=issued(http)
+    accepted=client.post('/api/usuario/vinculaciones/aceptar',headers=http['headers']['person'],
+        json={'token':token,'expected_version':1,'confirm':True})
+    assert accepted.status_code==200,accepted.text
+    plan,_,_=source(http,marker='huevo')
+    published=client.post('/api/clientes/'+http['client']+'/vinculacion/'+issue['link_id']+'/publicaciones',headers=http['headers']['gym'],
+        json={'plan_id':plan,'expected_link_version':2,'expected_publication_version':0,'expected_publication_id':None})
+    assert published.status_code==200,published.text
+    reader=client.get('/api/usuario/vinculos/'+issue['link_id']+'/plan',headers=http['headers']['person']).json()
+    publication=reader['publication']
+    body={'operation':'publication_meal','source_kind':'publication','expected_version':0,'link_id':issue['link_id'],
+        'publication_id':publication['id'],'expected_link_version':2,'expected_publication_version':publication['version'],
+        'meal':'desayuno','selections':{'include_fixed_menu':True}}
+    day='/api/usuario/diario/'+local_today().isoformat()
+    saved=client.patch(day,headers=http['headers']['person'],json=body)
+    assert saved.status_code==200,saved.text
+    snapshot=saved.json()['meals']['desayuno']
+    assert snapshot['foods'][0]['food_id']=='huevo' and snapshot['foods'][0]['grams']==50
+    assert snapshot['source_context']['publication_id']==publication['id']
+    assert snapshot['completed'] is False
+    assert client.get(day,headers=http['headers']['other']).json()['meals']=={}
+    withdrawn=client.request('DELETE','/api/usuario/vinculos/'+issue['link_id'],headers=http['headers']['person'],json={'expected_version':2})
+    assert withdrawn.status_code==200,withdrawn.text
+    assert client.get('/api/usuario/vinculos/'+issue['link_id']+'/plan',headers=http['headers']['person']).status_code==404
+    unchanged=client.get(day,headers=http['headers']['person']).json()
+    assert unchanged['meals']['desayuno']==snapshot
+    again=client.patch(day,headers=http['headers']['person'],json={**body,'expected_version':1})
+    assert again.status_code==404,again.text
+    removed=client.patch(day,headers=http['headers']['person'],json={'operation':'remove_meal','expected_version':1,'meal':'desayuno'})
+    assert removed.status_code==200,removed.text
+    assert removed.json()['meals']=={} and removed.json()['version']==2
+
+
+def prepare_publication(http,marker='huevo'):
+    from web.services.personal_diary_service import local_today
+    client=http['client_http'];receipt,token=issued(http)
+    accepted=client.post('/api/usuario/vinculaciones/aceptar',headers=http['headers']['person'],json={'token':token,'expected_version':1,'confirm':True})
+    assert accepted.status_code==200,accepted.text
+    plan,_,_=source(http,marker=marker,pdf=False)
+    result=client.post('/api/clientes/'+http['client']+'/vinculacion/'+receipt['link_id']+'/publicaciones',headers=http['headers']['gym'],
+        json={'plan_id':plan,'expected_link_version':2,'expected_publication_version':0,'expected_publication_id':None})
+    assert result.status_code==200,result.text
+    publication=client.get('/api/usuario/vinculos/'+receipt['link_id']+'/plan',headers=http['headers']['person']).json()['publication']
+    return '/api/usuario/diario/'+local_today().isoformat(),{
+        'operation':'publication_meal','source_kind':'publication','expected_version':0,'link_id':receipt['link_id'],
+        'publication_id':publication['id'],'expected_link_version':2,'expected_publication_version':publication['version'],
+        'meal':'desayuno','selections':{'include_fixed_menu':True}}
+
+
+@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
+@pytest.mark.parametrize('change,status',[
+    ({'publication_id':'00000000-0000-0000-0000-000000000001'},404),
+    ({'link_id':'00000000-0000-0000-0000-000000000001'},404),
+    ({'expected_link_version':1},409),({'expected_publication_version':2},409),
+    ({'source_plan_id':1},422),({'user_id':'not-the-actor'},422),({'foods':[]},422),
+    ({'expected_link_version':True},422),({'source_kind':'personal'},422),({'selections':{}},422),
+    ({'selections':{'include_fixed_menu':True,'proteinas':0}},422),
+])
+def test_untrusted_fields_stale_proofs_and_unconfirmed_fixed_selection_never_write(http,change,status):
+    day,body=prepare_publication(http)
+    response=http['client_http'].patch(day,headers=http['headers']['person'],json={**body,**change})
+    assert response.status_code==status,response.text
+    current=http['client_http'].get(day,headers=http['headers']['person']).json()
+    assert current['version']==0 and current['meals']=={}
+
+
+@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
+def test_foreign_actor_unknown_fixed_food_and_owner_barrier_do_not_create_consumption(http):
+    from sqlalchemy.orm import Session
+    from web.auth import crear_access_token,identity_from_user
+    from web.database.models import Usuario,UserRole
+    day,body=prepare_publication(http,marker='unknown-food-not-a-catalog-id')
+    client=http['client_http']
+    assert client.patch(day,headers=http['headers']['other'],json=body).status_code==404
+    assert client.patch(day,headers=http['headers']['person'],json=body).status_code==409
+    with Session(http['admin']) as db:
+        actor=db.get(Usuario,http['person']);actor.tipo='gym';actor.role=UserRole.OWNER;actor.session_version+=1;db.commit()
+        bearer={'Authorization':'Bearer '+crear_access_token(identity_from_user(actor,db))}
+    reader=client.get('/api/usuario/vinculos/'+body['link_id']+'/plan',headers=bearer)
+    assert reader.status_code==200 and reader.json()['capabilities']['record_personal_consumption'] is False
+    denied=client.patch(day,headers=bearer,json=body)
+    assert denied.status_code==403  # Existing professional OWNER has no personal endpoint grant.
+    with Session(http['admin']) as db:
+        actor=db.get(Usuario,http['person']);actor.tipo='usuario';actor.session_version+=1;db.commit()
+        ambiguous={'Authorization':'Bearer '+crear_access_token(identity_from_user(actor,db))}
+    denied=client.patch(day,headers=ambiguous,json=body)
+    assert denied.status_code==409 and denied.json()['detail']['code']=='diary_context_requires_review'
+
+
+@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
+def test_postcommit_lost_ack_is_uncertain_and_requery_does_not_repeat_consumption(http,monkeypatch):
+    from sqlalchemy.orm import Session
+    from web.database.models import PersonalDiaryDay
+    day,body=prepare_publication(http);actual=Session.commit;once=True
+    def lose_ack(db):
+        nonlocal once
+        # The service intentionally flushes before commit, so this row is no
+        # longer in Session.new/dirty. Retain the actual post-flush commit seam.
+        eligible=once and any(isinstance(item,PersonalDiaryDay) and item.user_id==http['person'] for item in db.identity_map.values())
+        actual(db)
+        if eligible:once=False;raise RuntimeError('synthetic lost commit ACK')
+    monkeypatch.setattr(Session,'commit',lose_ack)
+    response=http['client_http'].patch(day,headers=http['headers']['person'],json=body)
+    assert response.status_code==503 and response.json()['detail']['code']=='diary_save_unconfirmed'
+    confirmed=http['client_http'].get(day,headers=http['headers']['person']).json()
+    assert confirmed['version']==1 and len(confirmed['meals']['desayuno']['foods'])==1
+    assert http['client_http'].patch(day,headers=http['headers']['person'],json=body).status_code==409
+    assert http['client_http'].get(day,headers=http['headers']['person']).json()==confirmed
