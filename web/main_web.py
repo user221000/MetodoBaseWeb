@@ -230,6 +230,8 @@ def create_app() -> FastAPI:
     app.include_router(web_stats_router.router,    prefix="/api", dependencies=_api_auth)
     from web.routes.followup import router as followup_router
     app.include_router(followup_router, prefix="/api")
+    from web.routes import followup_tasks
+    app.include_router(followup_tasks.router, prefix="/api")
     app.include_router(web_gym_profile_router.router, prefix="/api", dependencies=_api_auth)
 
     # Usuario individual routes

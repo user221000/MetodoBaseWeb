@@ -1168,3 +1168,17 @@ class ClientPlanPublication(Base):
         Index('uq_client_publication_current', 'link_id', unique=True,
               postgresql_where=text("status='published'"), sqlite_where=text("status='published'")),
     )
+
+
+# Frozen, typed revision34 ledger shares its physical definition with migration34.
+from web.database.followup_schema_v1 import task_table, event_table  # noqa: E402
+
+
+class FollowupTask(Base):
+    """Current projection; only the append-only event trigger may advance it."""
+    __table__ = task_table(Base.metadata, UTCDateTime)
+
+
+class FollowupTaskEvent(Base):
+    """Durable operation declaration, not evidence of contact or payment."""
+    __table__ = event_table(Base.metadata, UTCDateTime)

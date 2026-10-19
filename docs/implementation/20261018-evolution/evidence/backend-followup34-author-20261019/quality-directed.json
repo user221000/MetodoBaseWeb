@@ -1,0 +1,70 @@
+{
+  "bandit": {
+    "author_review": "Seven static SQL DDL builders use only fixed operators/SNAPSHOT/trigger bodies; no request values interpolated. Not suppressed, no CI baseline changed; independent review pending.",
+    "errors": [],
+    "findings": [
+      {
+        "code": "30 def _source(equal):\n31     return f\"\"\"EXISTS(SELECT 1 FROM clientes c WHERE c.id_cliente=NEW.client_id AND c.gym_id=NEW.gym_id\n32         AND c.activo AND c.deleted_at IS NULL AND c.fecha_fin_suscripcion {equal} NEW.membership_end)\n33         AND NEW.plan_count=(SELECT count(*) FROM planes_generados p WHERE p.gym_id=NEW.gym_id\n34             AND p.id_cliente=NEW.client_id AND p.deleted_at IS NULL)\n35         AND NEW.last_plan_at {equal} (SELECT max(p.fecha_generacion) FROM planes_generados p\n36             WHERE p.gym_id=NEW.gym_id AND p.id_cliente=NEW.client_id AND p.deleted_at IS NULL)\"\"\"\n37 \n",
+        "confidence": "LOW",
+        "line": 31,
+        "path": ".\\web/database/followup_policy.py",
+        "rule": "B608",
+        "severity": "MEDIUM"
+      },
+      {
+        "code": "39 def _projection(equal):\n40     return \"EXISTS(SELECT 1 FROM followup_task_events e WHERE e.id=NEW.current_event_id AND e.task_id=NEW.id AND \" + \" AND \".join(\n41         f\"e.{field} {equal} NEW.{field}\" for field in SNAPSHOT) + \")\"\n42 \n",
+        "confidence": "LOW",
+        "line": 40,
+        "path": ".\\web/database/followup_policy.py",
+        "rule": "B608",
+        "severity": "MEDIUM"
+      },
+      {
+        "code": "57     values = [\"NEW.task_id\", *(\"NEW.\"+c for c in SNAPSHOT), \"NEW.id\"]\n58     return \"INSERT INTO followup_tasks(\"+\",\".join(names)+\") VALUES(\"+\",\".join(values)+\");\"\n59 \n",
+        "confidence": "LOW",
+        "line": 58,
+        "path": ".\\web/database/followup_policy.py",
+        "rule": "B608",
+        "severity": "MEDIUM"
+      },
+      {
+        "code": "61 def _projection_update():\n62     return \"UPDATE followup_tasks SET \" + \",\".join(f\"{c}=NEW.{c}\" for c in SNAPSHOT) + \",current_event_id=NEW.id WHERE id=NEW.task_id AND gym_id=NEW.gym_id;\"\n63 \n",
+        "confidence": "LOW",
+        "line": 62,
+        "path": ".\\web/database/followup_policy.py",
+        "rule": "B608",
+        "severity": "MEDIUM"
+      },
+      {
+        "code": "65 def _transition(prior):\n66     return f\"\"\"((NEW.kind='created' AND NEW.version=1 AND NEW.status='open' AND NEW.created_by=NEW.actor_id\n67         AND NEW.created_at=NEW.updated_at AND NOT EXISTS(SELECT 1 FROM followup_tasks t WHERE t.id=NEW.task_id))\n68         OR (NEW.kind<>'created' AND EXISTS(SELECT 1 FROM followup_tasks t WHERE t.id=NEW.task_id\n69           AND t.gym_id=NEW.gym_id AND t.status='open' AND t.version<2147483647 AND NEW.version=t.version+1\n70           AND ((NEW.kind='updated' AND NEW.status='open' AND (NEW.next_step<>t.next_step OR NEW.assignee_id {prior} t.assignee_id))\n71             OR (NEW.kind='completed' AND NEW.status='completed' AND NEW.completed_by=NEW.actor_id\n72                 AND NEW.assignee_id IS NOT NULL AND NEW.assignee_id=t.assignee_id AND NEW.next_step=t.next_step)\n73             OR (NEW.kind='cancelled' AND NEW.status='cancelled' AND NEW.cancelled_by=NEW.actor_id\n74                 AND NEW.assignee_id {('IS' if prior == 'IS NOT' else 'IS NOT DISTINCT FROM')} t.assignee_id AND NEW.next_step=t.next_step)))))\"\"\"\n75 \n",
+        "confidence": "LOW",
+        "line": 66,
+        "path": ".\\web/database/followup_policy.py",
+        "rule": "B608",
+        "severity": "MEDIUM"
+      },
+      {
+        "code": "90         BEGIN SELECT RAISE(ABORT,'Follow-up event requires reviewed purge'); END\"\"\")\n91     c.exec_driver_sql(f\"\"\"CREATE TRIGGER r34_event_authorize BEFORE INSERT ON followup_task_events BEGIN\n92         SELECT CASE WHEN NOT ({_actor()}) THEN RAISE(ABORT,'Follow-up actor denied') END;\n93         SELECT CASE WHEN NEW.kind<>'cancelled' AND NOT ({_assignee()}) THEN RAISE(ABORT,'Follow-up assignee denied') END;\n94         SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM clientes WHERE id_cliente=NEW.client_id AND gym_id=NEW.gym_id AND activo AND deleted_at IS NULL)\n95             THEN RAISE(ABORT,'Follow-up client denied') END;\n96         SELECT CASE WHEN NOT ({_transition('IS NOT')}) THEN RAISE(ABORT,'Follow-up transition denied') END;\n97         SELECT CASE WHEN NEW.kind='created' AND NOT ({_source('IS')}) THEN RAISE(ABORT,'Follow-up source changed') END;\n98         SELECT CASE WHEN NEW.kind='created' AND NOT ({_qualifies(\"strftime('%Y-%m-%d %H:%M:%f','now')\", \"strftime('%Y-%m-%d %H:%M:%f','now','-30 days')\")}) THEN RAISE(ABORT,'Follow-up cause absent') END;\n99         SELECT CASE WHEN NEW.actor_role='nutriologo' AND (NEW.kind<>'completed' OR NEW.assignee_id IS NOT NEW.actor_id)\n100             THEN RAISE(ABORT,'Follow-up assigned operation denied') END;\n101         END\"\"\")\n102     c.exec_driver_sql(f\"\"\"CREATE TRIGGER r34_task_insert BEFORE INSERT ON followup_tasks BEGIN\n",
+        "confidence": "LOW",
+        "line": 91,
+        "path": ".\\web/database/followup_policy.py",
+        "rule": "B608",
+        "severity": "MEDIUM"
+      },
+      {
+        "code": "118     actor = _actor().replace(\"lower(a.role)\", \"lower(a.role::text)\")\n119     c.exec_driver_sql(f\"\"\"CREATE FUNCTION r34_event_guard() RETURNS trigger LANGUAGE plpgsql\n120         VOLATILE SECURITY INVOKER SET search_path=pg_catalog,public AS $$\n121         DECLARE hint public.followup_tasks; prior public.followup_tasks;\n122         BEGIN\n123           IF TG_OP<>'INSERT' THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up event is append only'; END IF;\n124           IF NEW.gym_id IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'')\n125               OR ({actor}) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up actor denied'; END IF;\n126           SELECT * INTO hint FROM public.followup_tasks WHERE id=NEW.task_id AND gym_id=NEW.gym_id;\n127           PERFORM 1 FROM public.usuarios WHERE id=ANY(ARRAY[NEW.actor_id,NEW.gym_id,NEW.assignee_id,hint.assignee_id]) ORDER BY id FOR UPDATE NOWAIT;\n128           IF ({actor}) IS NOT TRUE OR (NEW.kind<>'cancelled' AND ({_assignee()}) IS NOT TRUE)\n129               THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up eligibility changed'; END IF;\n130           PERFORM 1 FROM public.clientes WHERE id_cliente=NEW.client_id AND gym_id=NEW.gym_id AND activo AND deleted_at IS NULL FOR SHARE;\n131           IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up client denied'; END IF;\n132           SELECT * INTO prior FROM public.followup_tasks WHERE id=NEW.task_id AND gym_id=NEW.gym_id FOR UPDATE NOWAIT;\n133           IF prior.assignee_id IS DISTINCT FROM hint.assignee_id THEN RAISE EXCEPTION USING ERRCODE='55P03',MESSAGE='Follow-up lock set changed'; END IF;\n134           IF ({_transition('IS DISTINCT FROM')}) IS NOT TRUE\n135               THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Follow-up transition denied'; END IF;\n136           IF NEW.kind='created' AND ({_source('IS NOT DISTINCT FROM')}) IS NOT TRUE\n137               THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Follow-up source changed'; END IF;\n138           IF NEW.kind='created' AND ({_qualifies(\"(clock_timestamp() AT TIME ZONE 'UTC')\", \"(clock_timestamp() AT TIME ZONE 'UTC') - interval '30 days'\")}) IS NOT TRUE\n139               THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Follow-up cause absent'; END IF;\n140           IF NEW.actor_role='nutriologo' AND (NEW.kind<>'completed' OR NEW.assignee_id IS DISTINCT FROM NEW.actor_id)\n141               THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up assigned operation denied'; END IF;\n142           RETURN NEW;\n143         END $$\"\"\")\n144     c.exec_driver_sql(\"CREATE TRIGGER r34_event_guard BEFORE INSERT OR UPDATE OR DELETE ON followup_task_events FOR EACH ROW EXECUTE FUNCTION r34_event_guard()\")\n",
+        "confidence": "LOW",
+        "line": 119,
+        "path": ".\\web/database/followup_policy.py",
+        "rule": "B608",
+        "severity": "MEDIUM"
+      }
+    ],
+    "pending_review_count": 7
+  },
+  "ruff_F821": "PASS directed nine new product modules",
+  "syntax": {
+    "all_parse": true,
+    "count": 30
+  }
+}
