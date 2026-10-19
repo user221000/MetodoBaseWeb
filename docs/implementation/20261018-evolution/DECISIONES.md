@@ -49,3 +49,8 @@ Integrar29/CI aceptado preservando su commit real como ancestor para archivar el
 ## Checkpoint 112
 
 MFA31 reservado exclusivamente a backend; sin migraciones paralelas. R24 usa borrador de compra explícito en RAM, cantidades reales y consumo confirmado como hecho personal mínimo; no define plazo nuevo de conservación ni publica diario al gimnasio. Menús/sustituciones ambiguos no generan cantidades o recomendaciones ficticias. Contratos en trabajo aislado, no aceptación completa R24/R32.
+
+
+## Checkpoint 113
+
+No repetir amplia30 ya verde sin cambios de fuente relevantes. Conservar el control768 rojo y validar corrección con addon idéntico. Registro de consumo evita doble escritura antes de await y conserva CAS real; contratos R24/MFA31 aún en validación, sin nuevas políticas comerciales o de retención.

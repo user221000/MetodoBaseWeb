@@ -1,0 +1,73 @@
+{
+  "head": "6d4e8b411a3f55dde0df250225b506e35f1f57e9",
+  "results": [
+    {
+      "mode": "serial",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/run_isolated.py",
+        "tests",
+        "--ignore=tests/test_login_desktop.py",
+        "--ignore=tests/test_desktop_entrypoints.py",
+        "-q",
+        "--tb=short",
+        "--cov",
+        "--cov-report=xml:C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-main30-regression-first-20261019\\coverage.xml",
+        "--cov-report=json:C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-main30-regression-first-20261019\\coverage.json",
+        "--junitxml=C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-main30-regression-first-20261019\\serial.xml"
+      ],
+      "exit": 0,
+      "seconds": 731.0929999999935,
+      "cases": 2492,
+      "failures": [],
+      "skips": [
+        {
+          "module": "tests.test_object_storage",
+          "case": "test_symlink_cannot_redirect_a_private_document",
+          "kind": "skipped",
+          "message": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+        }
+      ]
+    },
+    {
+      "mode": "shuffle",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/run_isolated.py",
+        "tests",
+        "--ignore=tests/test_login_desktop.py",
+        "--ignore=tests/test_desktop_entrypoints.py",
+        "-q",
+        "--tb=short",
+        "--shuffle-seed=20261018",
+        "-n",
+        "2",
+        "--junitxml=C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-main30-regression-first-20261019\\shuffle.xml"
+      ],
+      "exit": 0,
+      "seconds": 277.25,
+      "cases": 2492,
+      "failures": [],
+      "skips": [
+        {
+          "module": "tests.test_object_storage",
+          "case": "test_symlink_cannot_redirect_a_private_document",
+          "kind": "skipped",
+          "message": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+        }
+      ]
+    }
+  ],
+  "coverage_exit": 0,
+  "sources_packages_stable": true,
+  "sources": 7381,
+  "packages": 89,
+  "pip_exit": 0,
+  "scope": "Both required broad SaaS modes on merged schema30 with isolated synthetic roots; local Windows known platform skip evaluated separately. No PG/Redis/Linux/Actions/image claim."
+}

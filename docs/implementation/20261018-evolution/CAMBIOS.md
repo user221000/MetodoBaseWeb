@@ -130,3 +130,8 @@ Se integra29/CI29 con ancestry fd real, los16 targets históricos antiguos y c4 
 ## Checkpoint 112
 
 Se integra30 y CI30 con ancestry29 real. Se registraSEC10 sin renumerar106 previos; total107. Se sella aceptación independiente de navegador/CI30 y triage estático. R23/expiración,MFA31,R24 y Docker nuevos aún no integrados.
+
+
+## Checkpoint 113
+
+Se sella regresión amplia del esquema30 integrado. Se autentican147+manifest de composición R23 y42+manifest de corrección de foco; ambos aislados, sin presentar CI adicional como integrado.107 criterios exactos preservados.

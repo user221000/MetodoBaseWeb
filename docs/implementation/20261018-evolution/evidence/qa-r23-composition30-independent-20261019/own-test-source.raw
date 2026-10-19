@@ -1,0 +1,70 @@
+"""Own real-factory SQL failure recovery and coherent UTC window boundaries."""
+from datetime import datetime,timedelta,timezone
+import importlib
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import event
+from sqlalchemy.exc import StatementError
+from sqlalchemy.orm import Session
+
+PATH='/api/estadisticas/seguimiento'
+FACTORIES=['web.main_web','api.app']
+
+@pytest.mark.parametrize('factory',FACTORIES)
+def test_summary_driver_failure_after_rows_is_private503_then_real_recovery_and_SV401(factory,test_gym_user,caplog):
+    from web.database.engine import get_engine
+    from web.database.models import Cliente,Usuario
+    engine=get_engine();headers=test_gym_user['auth_headers']
+    with Session(engine) as db:
+        db.add(Cliente(id_cliente='qa-private-row',gym_id=test_gym_user['id'],nombre='PRIVATE-ROW-BEFORE-SUMMARY',notas='PRIVATE-NOTES'));db.commit()
+    statements=[]
+    def fail(connection,cursor,statement,parameters,context,many):
+        statements.append(statement)
+        if 'AS plans_saved' in statement:raise StatementError('PRIVATE-SUMMARY-DRIVER',statement,{'private':'PRIVATE-SQL-PARAM'},RuntimeError('PRIVATE-INNER'))
+    with TestClient(importlib.import_module(factory).create_app(),raise_server_exceptions=False) as client:
+        event.listen(engine,'before_cursor_execute',fail)
+        try:response=client.get(PATH,headers=headers)
+        finally:event.remove(engine,'before_cursor_execute',fail)
+        assert any('AS priority' in s for s in statements) and any('AS plans_saved' in s for s in statements)
+        assert response.status_code==503 and response.json()['detail']['code']=='followup_unavailable'
+        assert 'items' not in response.json() and response.headers['Referrer-Policy']=='no-referrer' and response.headers['Cache-Control']=='no-store'
+        assert all(value not in response.text+caplog.text for value in ['PRIVATE-ROW','PRIVATE-NOTES','PRIVATE-SUMMARY','PRIVATE-SQL-PARAM','PRIVATE-INNER'])
+        recovered=client.get(PATH,headers=headers)
+        assert recovered.status_code==200 and [row['id_cliente'] for row in recovered.json()['items']]==['qa-private-row']
+        assert recovered.json()['metrics']['plans_saved']==0 and recovered.json()['payment_evidence']=='unavailable'
+        with Session(engine) as db:
+            actor=db.get(Usuario,test_gym_user['id']);actor.session_version+=1;db.commit()
+        def no_followup_read(connection,cursor,statement,parameters,context,many):
+            assert 'AS priority' not in statement and 'AS plans_saved' not in statement
+        event.listen(engine,'before_cursor_execute',no_followup_read)
+        try:assert client.get(PATH,headers=headers).status_code==401
+        finally:event.remove(engine,'before_cursor_execute',no_followup_read)
+
+@pytest.mark.parametrize('factory',FACTORIES)
+def test_one_UTC_instant_has_inclusive_window_exclusive_future_and_no_GET_writes(factory,test_gym_user,monkeypatch):
+    from web.database.engine import get_engine
+    from web.database.models import Cliente,PlanGenerado
+    import web.services.followup_service as service
+    now=datetime(2026,10,19,15,0,tzinfo=timezone.utc);cutoff=now-timedelta(days=30)
+    class Clock:
+        @staticmethod
+        def now(tz=None):return now
+    monkeypatch.setattr(service,'datetime',Clock)
+    engine=get_engine()
+    with Session(engine) as db:
+        for identity,when,end in [('qa-before',cutoff-timedelta(microseconds=1),None),('qa-cutoff',cutoff,now.replace(tzinfo=None)),('qa-future',now+timedelta(microseconds=1),now.replace(tzinfo=None)-timedelta(microseconds=1)),('qa-now',now,None)]:
+            db.add(Cliente(id_cliente=identity,gym_id=test_gym_user['id'],nombre='Synthetic '+identity,fecha_fin_suscripcion=end));db.flush()
+            db.add(PlanGenerado(id_cliente=identity,gym_id=test_gym_user['id'],fecha_generacion=when))
+        db.commit()
+    with TestClient(importlib.import_module(factory).create_app(),raise_server_exceptions=False) as client:
+        statements=[]
+        def observe(connection,cursor,statement,parameters,context,many):statements.append(statement)
+        event.listen(engine,'before_cursor_execute',observe)
+        try:response=client.get(PATH,headers=test_gym_user['auth_headers'])
+        finally:event.remove(engine,'before_cursor_execute',observe)
+    assert response.status_code==200
+    body=response.json();assert body['as_of']==now.isoformat() and body['window_start']==cutoff.isoformat()
+    assert [(row['id_cliente'],row['causes']) for row in body['items']]==[('qa-before',['no_plan_in_window']),('qa-future',['membership_date_passed'])]
+    assert body['metrics']=={'plans_saved':2,'generation_operations_completed':0,'pdf_metadata_ready':0}
+    assert body['payment_evidence']=='unavailable' and body['responsibility']=='not_recorded'
+    assert not [s for s in statements if s.lstrip().upper().startswith(('INSERT','UPDATE','DELETE','CREATE','ALTER','DROP'))]

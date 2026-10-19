@@ -1,0 +1,67 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 60%]
+................................................................s....... [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 98%]
+............................................                             [100%]
+============================== warnings summary ===============================
+core\services\cliente_service.py:13
+  F:\MetodoBaseWeb-execution-20261018\core\services\cliente_service.py:13: DeprecationWarning: src.gestor_bd está deprecado. Usar src.repositories.cliente_repository o web.database.
+    from src.gestor_bd import GestorBDClientes
+
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_auth_telemetry_review.py::test_default_sdk_integrations_cannot_export_incoming_baggage_or_attachments
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sentry_sdk\tracing_utils.py:1044: DeprecationWarning: The `propagate_traces` parameter is deprecated. Please use `trace_propagation_targets` instead.
+    for key, value in sentry_sdk.get_current_scope().iter_trace_propagation_headers():
+
+tests/test_personal_history_pagination.py::test_each_factory_has_one_history_get_operation_and_no_added_personal_mutations[api.app]
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\openapi\utils.py:303: UserWarning: Duplicate Operation ID listar_catalogo_alimentos_api_alimentos_catalogo_get for function listar_catalogo_alimentos at F:\MetodoBaseWeb-execution-20261018\web\routes\planes.py
+    warnings.warn(message, stacklevel=1)
+
+tests/test_personal_history_pagination.py::test_each_factory_has_one_history_get_operation_and_no_added_personal_mutations[api.app]
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\openapi\utils.py:303: UserWarning: Duplicate Operation ID generar_plan_api_generar_plan_post for function generar_plan at F:\MetodoBaseWeb-execution-20261018\web\routes\planes.py
+    warnings.warn(message, stacklevel=1)
+
+tests/test_personal_history_pagination.py::test_each_factory_has_one_history_get_operation_and_no_added_personal_mutations[api.app]
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\openapi\utils.py:303: UserWarning: Duplicate Operation ID descargar_pdf_api_descargar_pdf__id_cliente__get for function descargar_pdf at F:\MetodoBaseWeb-execution-20261018\web\routes\planes.py
+    warnings.warn(message, stacklevel=1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.13-final-0 _______________
+
+Coverage XML written to file C:\Users\Consu\AppData\Local\Temp\metodobase-main30-regression-first-20261019\coverage.xml
+Coverage JSON written to file C:\Users\Consu\AppData\Local\Temp\metodobase-main30-regression-first-20261019\coverage.json
+2491 passed, 1 skipped, 6 warnings in 727.82s (0:12:07)

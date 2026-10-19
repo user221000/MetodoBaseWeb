@@ -383,7 +383,8 @@
         "evidence/history-landing-main-ci-review-20261019/summary.json",
         "evidence/main29-regression-20261019/summary.json",
         "evidence/qa-ci29-phase1-independent-20261019/final-summary.json",
-        "evidence/qa-ci-history30-independent-20261019/final-summary.json"
+        "evidence/qa-ci-history30-independent-20261019/final-summary.json",
+        "evidence/main30-regression-20261019/summary.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -400,7 +401,8 @@
         "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados.",
         "CI local integrado; sin ejecuciónGitHubActions/Linux por esta revisión. CierreQA KeyError de clave screenshot corregido en helper separado con originales intactos;sin replay ni cambios decriterio.",
         "Checkpoint111: MAIN29 actual:2464pass+1skip Windows en cada modo serial/cobertura y n2 shuffle. Los55 canarios de reports,27 probes inertes y26 reports de CI29 son evidencia local separada, no servicios reales.",
-        "Checkpoint112: Esquema30/CI30 integrado,5706fuentes en la revisiónCI y5496 en navegador, cada scope exacto conservado; no relabelar regresión29 como30. Nuevo gate amplio30 preparado."
+        "Checkpoint112: Esquema30/CI30 integrado,5706fuentes en la revisiónCI y5496 en navegador, cada scope exacto conservado; no relabelar regresión29 como30. Nuevo gate amplio30 preparado.",
+        "Checkpoint113: MAIN30 mismo6d4e8b4:2491pass+1skip Windows conocido en serie/cobertura y n2/shuffle;7381fuentes/89paquetes quietos,pip0,cobertura0. Sin PG/Linux/Actions por este gate."
       ]
     },
     {
@@ -812,7 +814,9 @@
         "evidence/main29-regression-20261019/summary.json",
         "evidence/qa-ci29-phase1-independent-20261019/final-summary.json",
         "evidence/qa-member-browser30-independent-20261019/final-summary.json",
-        "evidence/qa-ci-history30-independent-20261019/final-summary.json"
+        "evidence/qa-ci-history30-independent-20261019/final-summary.json",
+        "evidence/main30-regression-20261019/summary.json",
+        "evidence/qa-r23-composition30-independent-20261019/partial-summary.json"
       ],
       "documentacion": [],
       "revisor": null,
@@ -827,7 +831,8 @@
         "Checkpoint109: FaseQA939 rechazada:HTTP28/28,restore29poblado1,UI10,Node297ejecuciones/276criteriosúnicos. Backend147:144verdes+2skipsSQLitePG-only+1errorlauncherspawn;replaydelcasoverdeaparte. NavegadorrealPG/defaultpool20/10:7verdes,criterio8exportdisabledrojo,9–16noalcanzados. Fixec029 aisladoycongelado,3canariosafter/16regresionesautorverdes;QA/SECafterpendientes.",
         "Checkpoint110: La composición ec029 fue aceptada por QA: los 16 criterios originales de Chrome/HTTP/PostgreSQL29 pasan con pool real20/10 y API sin dobles; tres canarios de interferencia también pasan. Seguridad acepta31/31 controles. El cambio sigue aislado hasta cerrar CI29; no se relabelan los rojos939 ni los errores de harness como verdes.",
         "Checkpoint111: R12/ec029 y CI29/fd63620 integrados en e250. QA independiente acepta recorrido16/16, controles y CI completo sin los bypass anteriores; regresión actual29:2464 verdes+1 omisión Windows en serie/cobertura y n2/orden aleatorio.30 aún aislado.",
-        "Checkpoint112: Navegador current30 aceptado independientemente:50 mantenidas+22 propias+16freshreal/fixture0. CI30 aceptado74+19/full y ahora integrado en da0357; regresión amplia30 pendiente."
+        "Checkpoint112: Navegador current30 aceptado independientemente:50 mantenidas+22 propias+16freshreal/fixture0. CI30 aceptado74+19/full y ahora integrado en da0357; regresión amplia30 pendiente.",
+        "Checkpoint113: Regresión amplia30 integrada verde2491+1 por modo. Composición aislada R23/expiry sobre30:QA50unit+16freshR12+fixture0 y preservación perfiles/CAS/revocación; no se atribuye a MAIN antes de merge."
       ]
     },
     {
@@ -864,7 +869,9 @@
         "evidence/r12-controls-author-20261019/freeze.json",
         "evidence/security-r12-controls-independent-20261019/source.json",
         "evidence/security-session-emitter-independent-20261019/source.json",
-        "evidence/security-session-expiry-independent-20261019/source.json"
+        "evidence/security-session-expiry-independent-20261019/source.json",
+        "evidence/qa-r23-composition30-independent-20261019/partial-summary.json",
+        "evidence/qa-r23-focus-independent-20261019/final-summary.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -879,7 +886,8 @@
         "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.",
         "Checkpoint109: NuevoUX-18:VinculosUIcaptura/restaura disabled global ypisaprivacyconcurrente. Fixec029 usaownedControls explícitosporconsumidor;main noesfrontera porqueincluyeexport. 2rojosoriginales+1control→3verdesautor,16assertsexistentesintactas. Replayindependienteaúnenprogreso.",
         "Checkpoint110: UX-18 aceptado de forma independiente en ec029. Nuevo emisor de revisión e8ca8be rechazado: tres expiraciones de A podían redirigir una recuperación síncrona de B;7/10 propios,11/11 autor y74/74 transporte intactos. Se conserva el rechazo y se exige nuevo fix/replay, sin integrar e8.",
-        "Checkpoint111: e8+9eb corrige las mismas tres expiraciones obsoletas de sesión; Seguridad acepta102/102 focales. Sigue aislado y requiere composición. El rechazo e8 queda intacto."
+        "Checkpoint111: e8+9eb corrige las mismas tres expiraciones obsoletas de sesión; Seguridad acepta102/102 focales. Sigue aislado y requiere composición. El rechazo e8 queda intacto.",
+        "Checkpoint113: QA composición30 aislada:118Node,8freshR23+16freshR12. Control propio768 halló pérdida de foco pese a activación correcta; ee361d5 corrige continuidad respetando cambio voluntario de foco. Mismo addon después3/3+30Node independientes. Rojo previo intacto; no dictamen WCAG global."
       ]
     },
     {
@@ -1538,7 +1546,9 @@
         "evidence/statistics-availability-author-source.json",
         "evidence/statistics-http-independent-source.json",
         "evidence/pytest-statistics-http-independent.xml",
-        "evidence/security-r23-followup-independent-20261019/source.json"
+        "evidence/security-r23-followup-independent-20261019/source.json",
+        "evidence/qa-r23-composition30-independent-20261019/partial-summary.json",
+        "evidence/qa-r23-focus-independent-20261019/final-summary.json"
       ],
       "documentacion": [
         "ESTADISTICAS_DISPONIBILIDAD.md",
@@ -1551,7 +1561,8 @@
         "SEC03 confirmado: nombre persistido se interpreta comoDOM en drawer; CSP bloqueó handler sintético y no se demostró XSS activo. Autor fix7321d3b en rama aislada con9 browser/22 fuentes; QA independiente pendiente.",
         "Statistics delta accepted locally after independent QA:15 cases (7 author +8 own HTTP),6.23s, two real browser states,21 stable sources.503 errors are not measured zeroes. Other dashboard/session/retention criteria remain open.",
         "Disponibilidad de estadísticas aceptada localmente: QA15 HTTP+2 estados browser/21 fuentes estables,0e4bc07. No cierra el criterio general de este ID.",
-        "Checkpoint111: Dashboard readonly bcd aceptado por Seguridad20 controles propios+20VM autor, condicionado a fix de expiración9eb. Aislado: sin responsables persistidos, eventos atribuibles ni resultados clínicos/causales inventados; R23 parcial."
+        "Checkpoint111: Dashboard readonly bcd aceptado por Seguridad20 controles propios+20VM autor, condicionado a fix de expiración9eb. Aislado: sin responsables persistidos, eventos atribuibles ni resultados clínicos/causales inventados; R23 parcial.",
+        "Checkpoint113: Aceptación parcial aislada:53HTTP+50R12unit+2PG ambasfactories+4HTTPpropios+118Node+8freshR23+16freshR12.768 foco antes1/3, después3/3 y30Node; reflow/axe sección0errores observados. Faltan responsables persistidos/eventos atribuibles y resultados; no cerrar por pantalla."
       ]
     },
     {
@@ -1890,7 +1901,9 @@
         "evidence/qa-r12-composition29-independent-20261019/final-summary.json",
         "evidence/security-session-emitter-independent-20261019/source.json",
         "evidence/security-session-expiry-independent-20261019/source.json",
-        "evidence/security-r23-followup-independent-20261019/source.json"
+        "evidence/security-r23-followup-independent-20261019/source.json",
+        "evidence/qa-r23-composition30-independent-20261019/partial-summary.json",
+        "evidence/qa-r23-focus-independent-20261019/final-summary.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -1916,7 +1929,8 @@
         "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados.",
         "Checkpoint109: Exportacióndesiete coleccionesAPIverificada;suacciónUIaúnfallóenrecorridoreal porcontroldeshabilitado. Fixec029noalteraprivacycontroller;supropiociclodevidaseconserva. No cerrarprivacidadnirecorridoporpruebasAPIaisladas.",
         "Checkpoint110: Exportación real de siete colecciones y conservación de perfiles aceptadas en16/16; pruebas de privacidad y controles31/31. Fences de sesión generales siguen abiertos: e8ca8be falla tres continuaciones obsoletas tras recuperar otra cuenta; no hay fuga ni envío de DTO B demostrado en ese hallazgo.",
-        "Checkpoint111: Emisor+fix9eb aceptado focal por Seguridad102/102; aislado. R23 readonly aceptado acotado sin nuevos datos sensibles; faltan criterios de privacidad generales."
+        "Checkpoint111: Emisor+fix9eb aceptado focal por Seguridad102/102; aislado. R23 readonly aceptado acotado sin nuevos datos sensibles; faltan criterios de privacidad generales.",
+        "Checkpoint113: Composición R23/expiry aislada revisada en30 sin nuevos datos sensibles, sólo consulta. No acredita política de conservación ni cierre privacidad general; cinco UUID originales+focal cerrados según recibos independientes."
       ]
     },
     {

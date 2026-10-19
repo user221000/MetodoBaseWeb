@@ -191,3 +191,8 @@ MAIN29 e250:2464pass+1skip Windows conocido en serial/cobertura(686.25s) y n2/sh
 ## Checkpoint 112
 
 QA navegador30:50unit+22propios+16freshreal/fixture0,5496fuentes/5helpers/89paquetes/157Node estables,UUID/Chrome/8798 cerrados. QA CI30:74unit+19propios/full28reports/27workflow/55+24parser/27inert/76Bash/107refs,5706fuentes estables. Merge MAIN30 conserva106criterios y18targets; amplia30 pendiente. Dockerc02 sólo estático3+6;SEC SCA6/6 y16CNA primarias, errata inicial preservada.
+
+
+## Checkpoint 113
+
+MAIN30 6d4e8b4:2491pass+1skip Windows conocido en serie/cobertura731.093s y n2/shuffle277.25s. Gate cobertura0,7381fuentes/89paquetes quietos,pip0. QA R23 aislado53HTTP/50R12unit/2PG/4propios/118Node/8R23real/16R12real; addon768 antes1/3 por foco, después mismo3/3 y30Node. Recursos propios cerrados, evidencias exactas por scope; sin Actions/imagen/SLO.

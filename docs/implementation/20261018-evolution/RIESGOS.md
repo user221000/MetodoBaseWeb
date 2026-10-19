@@ -72,3 +72,8 @@ Los bypass CI29 anteriores están corregidos y aceptados independientemente; rec
 ## Checkpoint 112
 
 SEC10 Expat2.8.5 embebido sincapacityfix13c5f63; no reparación ni vía remota demostrada. SQLite50812 exclusión v3 rechazada;71 OS siguen abiertos. c02 scriptsparent arreglado sólo estático; build/runtime/SCA efectivo pendiente. Pool1holder desconocido abierto. Regresión30 debe corresponder a merge actual.
+
+
+## Checkpoint 113
+
+R23 sigue parcial por responsables/eventos no persistidos. El foco768 fue corregido y revisado sólo en fuente aislada; no declaración global de accesibilidad. MFA31 y R24 tienen hallazgos funcionales/concurrencia en corrección; no aceptados. Expat requiere reparar componente cargado y artefacto real; Linux y71OS siguen abiertos.

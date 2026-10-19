@@ -1,0 +1,23 @@
+"""Maintained HTTP/metadata/PG phases on one immutable composition, isolated data."""
+from support import *
+import xml.etree.ElementTree as ET
+mode=sys.argv[1];assert mode in ['http53','units50','pg2','own4']
+phase=TEMP/mode;phase.mkdir(exist_ok=False);origin=phase/'origin';origin.mkdir()
+before=photo(mode+'-before');env=os.environ.copy()
+for name in list(env):
+    key=name.upper()
+    if key=='DATABASE_URL' or key.endswith('_DATABASE_URL') or key.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST')) or any(word in key for word in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):env.pop(name,None)
+env.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1',PYTHONPATH=str(ROOT)+os.pathsep+str(OUT),QA_HISTORY30_MODULE_ORIGIN_OUT=str(origin))
+if mode=='pg2':
+    cfg=json.loads(PRIVATE.read_text(encoding='utf-8-sig'))
+    for key in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_PG_BIN']:env[key]=cfg[key]
+specs={'http53':['tests/test_retention_followup.py','tests/test_statistics_http_review.py','tests/test_statistics_availability.py'],'units50':['tests/test_member_browser_gate.py'],'pg2':['tests/integration_followup_postgres.py'],'own4':['--noconftest','-p','conftest','--import-mode=importlib',str(TEMP/'test_own_r23_review.py')]}
+expected={'http53':53,'units50':50,'pg2':2,'own4':4}[mode]
+command=[str(PYTHON),'-X','utf8','-B','tests/run_isolated.py','-p','qa_r23_origin',*specs[mode],'-q','--tb=short','--junitxml='+str(phase/'junit.xml')]
+with (phase/'stdout.raw.log').open('xb') as stdout,(phase/'stderr.raw.log').open('xb') as stderr:result=subprocess.run(command,cwd=ROOT,env=env,stdout=stdout,stderr=stderr,timeout=420)
+after=photo(mode+'-after');assert before==after
+cases=ET.parse(phase/'junit.xml').findall('.//testcase');passed=sum(not any(c.find(tag)is not None for tag in ['failure','error','skipped']) for c in cases)
+outputs=[publish(path,mode+'-'+path.relative_to(phase).as_posix().replace('/','--')) for path in sorted(phase.rglob('*')) if path.is_file()]
+save(mode+'-result.json',{'head':HEAD,'exit':result.returncode,'passed':passed,'total':len(cases),'expected':expected,'sources_helpers_packages_stable':True,'sources':before['source_count'],'helpers':before['helper_count'],'packages':89,'outputs':outputs,'scope':'Restricted owned PostgreSQL2 only for pg2; all other phases isolated SQLite. Fenced project modules/Base and own conftest. No Chrome or provider.'})
+print(json.dumps({'mode':mode,'exit':result.returncode,'passed':passed,'total':len(cases),'expected':expected,'sources':before['source_count'],'helpers':before['helper_count'],'packages':89,'stable':True}),flush=True)
+assert len(cases)==passed==expected and result.returncode==0
