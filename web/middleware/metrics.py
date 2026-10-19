@@ -34,8 +34,10 @@ from threading import Lock
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.routing import BaseRoute
 
 logger = logging.getLogger(__name__)
+_METHODS = frozenset({"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT"})
 
 
 # ── Configuración ────────────────────────────────────────────────────────────
@@ -54,7 +56,6 @@ class RequestMetric:
     method: str
     status_code: int
     latency_ms: float
-    client_ip: str
 
 
 @dataclass
@@ -142,8 +143,8 @@ class MetricsStore:
             self._total_requests += 1
             self._recent_requests.append(metric)
             
-            # Normalizar path (quitar IDs dinámicos)
-            normalized_path = self._normalize_path(metric.path)
+            # The middleware supplies only a declared route or one fixed fallback.
+            normalized_path = metric.path
             
             endpoint = self._endpoints[normalized_path]
             endpoint.path = normalized_path
@@ -152,25 +153,6 @@ class MetricsStore:
             if metric.status_code >= 400:
                 self._total_errors += 1
                 self._recent_errors.append(metric)
-    
-    def _normalize_path(self, path: str) -> str:
-        """
-        Normaliza paths para agrupar endpoints dinámicos.
-        /api/clientes/ABC123 -> /api/clientes/{id}
-        """
-        parts = path.strip("/").split("/")
-        normalized = []
-        
-        for part in parts:
-            # Si parece un ID (UUID, número, etc.), reemplazar
-            if len(part) > 6 and (part.isalnum() or "-" in part):
-                normalized.append("{id}")
-            elif part.isdigit():
-                normalized.append("{id}")
-            else:
-                normalized.append(part)
-        
-        return "/" + "/".join(normalized)
     
     def get_summary(self) -> dict:
         """Obtiene resumen de todas las métricas."""
@@ -235,7 +217,6 @@ class MetricsStore:
                     "method": m.method,
                     "status_code": m.status_code,
                     "latency_ms": m.latency_ms,
-                    "client_ip": m.client_ip,
                 }
                 for m in list(self._recent_errors)[-limit:]
             ]
@@ -365,18 +346,21 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         # Calcular latencia
         latency_ms = (time.perf_counter() - start_time) * 1000
         
-        # Registrar métrica
-        client_ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
-        if not client_ip and request.client:
-            client_ip = request.client.host
+        # Never retain a concrete path, forwarded header or client address.
+        # Router metadata is available only after a route has been resolved.
+        route = request.scope.get("route")
+        route_path = getattr(route, "path_format", None) if isinstance(route, BaseRoute) else None
+        if not isinstance(route_path, str):
+            route_path = getattr(route, "path", None) if isinstance(route, BaseRoute) else None
+        if not isinstance(route_path, str):
+            route_path = "/__unmatched__"
         
         metric = RequestMetric(
             timestamp=time.time(),
-            path=path,
-            method=request.method,
+            path=route_path,
+            method=request.method if request.method in _METHODS else "OTHER",
             status_code=response.status_code,
             latency_ms=round(latency_ms, 2),
-            client_ip=client_ip or "unknown",
         )
         
         self.store.record(metric)
