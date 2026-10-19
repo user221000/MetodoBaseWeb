@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Usuario — Método Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/styles-auth.css?v=20260402" />
+  <style>
+    /* Usuario theme: teal accent */
+    :root {
+      --auth-accent:      #2DD4BF;
+      --auth-accent-dark: #14B8A6;
+      --auth-glow:        rgba(45, 212, 191, 0.12);
+      --auth-glow-soft:   rgba(45, 212, 191, 0.06);
+      --auth-btn-text:    #EEEEF2;
+    }
+  </style>
+  <link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
+</head>
+<body>
+  <div class="split-layout">
+
+    <!-- ── LEFT: Personal Plan Showcase ── -->
+    <div class="showcase">
+      <div class="showcase-bg showcase-bg--purple"></div>
+      <div class="showcase-grid-bg"></div>
+
+      <div class="showcase-content anim-slide-left">
+        <div class="showcase-label">
+          <span class="dot"></span>
+          Así se ve tu plan personalizado
+        </div>
+        <p class="showcase-subtitle">
+          Tu nutrición, ajustada a tu cuerpo y tus metas.
+        </p>
+
+        <div class="plan-mockup">
+          <div class="plan-topbar">
+            <div class="plan-topbar-left">
+              <div class="plan-topbar-dot" style="background:var(--auth-accent);"></div>
+              <span class="plan-topbar-title">Mi Plan Nutricional</span>
+            </div>
+            <span style="font-size:.68rem;color:var(--text-muted);">Semana 3 de 12</span>
+          </div>
+          <div class="plan-body">
+            <!-- Profile card -->
+            <div class="profile-card">
+              <div class="profile-avatar">AL</div>
+              <div class="profile-info">
+                <p class="profile-name">Andrea López</p>
+                <p class="profile-meta">Pérdida de grasa · Meta: -5kg en 12 semanas</p>
+              </div>
+              <span class="profile-badge">Activo</span>
+            </div>
+
+            <!-- Macros -->
+            <div class="macros-grid">
+              <div class="macro-card">
+                <p class="macro-label">Calorías</p>
+                <p class="macro-value" style="color:var(--auth-accent);">1,850</p>
+              </div>
+              <div class="macro-card">
+                <p class="macro-label">Proteína</p>
+                <p class="macro-value" style="color:var(--auth-accent-dark);">120g</p>
+              </div>
+              <div class="macro-card">
+                <p class="macro-label">Carbos</p>
+                <p class="macro-value" style="color:var(--accent-green);">185g</p>
+              </div>
+            </div>
+
+            <!-- Day preview -->
+            <div class="plan-day">
+              <div class="plan-day-header">
+                <span class="plan-day-title">Lunes</span>
+                <span class="plan-day-kcal">1,850 kcal</span>
+              </div>
+              <div class="meal-row">
+                <div class="meal-icon" style="background:var(--auth-glow-soft);color:var(--auth-accent-dark);">🌅</div>
+                <span class="meal-name">Avena con fruta y proteína</span>
+                <span class="meal-kcal">420 kcal</span>
+              </div>
+              <div class="meal-row">
+                <div class="meal-icon" style="background:rgba(52,211,153,0.06);color:var(--accent-green);">🥗</div>
+                <span class="meal-name">Ensalada de pollo con quinoa</span>
+                <span class="meal-kcal">550 kcal</span>
+              </div>
+              <div class="meal-row">
+                <div class="meal-icon" style="background:var(--auth-glow-soft);color:var(--auth-accent);">🍽</div>
+                <span class="meal-name">Salmón con verduras al vapor</span>
+                <span class="meal-kcal">620 kcal</span>
+              </div>
+              <div class="meal-row">
+                <div class="meal-icon" style="background:rgba(255,255,255,0.04);color:var(--text-secondary);">🍎</div>
+                <span class="meal-name">Snacks: yogurt + almendras</span>
+                <span class="meal-kcal">260 kcal</span>
+              </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-title">Vas por buen camino</span>
+                <span class="progress-value">25%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:25%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Login Sidebar ── -->
+    <div class="sidebar-login">
+      <div class="anim-fade-right">
+        <a href="/" class="back-link">← Volver al inicio</a>
+
+        <div class="sidebar-icon">
+          <svg style="width:26px;height:26px;color:var(--text-primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </div>
+        <h1 class="sidebar-title">Bienvenido de vuelta</h1>
+        <p class="sidebar-subtitle">Tu plan te está esperando.</p>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        {% include "mfa_login_partial.html" %}
+        <form id="loginForm" novalidate>
+          <div class="input-group">
+            <label class="input-label" for="login-email">CORREO ELECTRÓNICO</label>
+            <input type="email" name="email" id="login-email" class="input-field"
+                   placeholder="tu@email.com" required autocomplete="email" />
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="pwdField">CONTRASEÑA</label>
+            <div style="position:relative;">
+              <input type="password" name="password" id="pwdField" class="input-field"
+                     placeholder="••••••••" required autocomplete="current-password" style="padding-right:44px;" />
+              <button type="button" class="pwd-toggle" data-action="toggle-password" aria-label="Mostrar contraseña" aria-controls="pwdField" aria-pressed="false">
+                <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="remember-row">
+            <label class="remember-label">
+              <input type="checkbox" id="rememberMe" />
+              Mantener sesión iniciada
+            </label>
+          </div>
+
+          <button type="submit" class="btn-login" id="submitBtn">
+            Ver mi plan
+          </button>
+        </form>
+        <p><a href="/auth/reset-password">Recuperar contraseña</a></p>
+
+        <p style="text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;">
+          🔒 Solo tú puedes ver tu plan &middot; 100% privado
+        </p>
+
+        <div class="auth-divider"><span>o accede con</span></div>
+        <div class="google-btn-wrapper" id="googleBtnContainer"></div>
+        <div class="error-msg" id="googleErrorMsg" style="display:none;"></div>
+
+        <div class="signup-footer">
+          <p>
+            ¿Eres nuevo en Método Base?
+            <a href="/registro?tipo=usuario">Empieza gratis en menos de 2 minutos →</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-login.js?v={{ static_version }}"></script>
+  <script nonce="{{ request.state.csp_nonce }}">
+    MfaLogin.mount({audience:"usuario",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});
+  </script>
+</body>
+</html>

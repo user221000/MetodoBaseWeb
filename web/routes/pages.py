@@ -130,6 +130,14 @@ async def reset_password_page(request:Request):
     return response
 
 
+@router.get('/retirar-consentimientos', response_class=HTMLResponse)
+async def progress_retirement_page(request: Request):
+    """Public purpose-only form; it never acquires general session authority."""
+    response = template_response(templates, request, 'retiro_consentimientos.html', {'request': request})
+    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+    return response
+
+
 # ── Individual User Pages ─────────────────────────────────────────────────
 
 @router.get("/mi-plan", response_class=HTMLResponse)
