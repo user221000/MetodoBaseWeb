@@ -20,7 +20,7 @@ class Element{
   click(){if(this.tagName==='A')this.doc.downloads.push({href:this.href,name:this.download});else return this.fire('click');}
   remove(){if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this);}
   focus(){this.doc.activeElement=this;}reportValidity(){return this.value.includes('@');}
-  querySelectorAll(selector){const out=[];for(const x of this.children){if(selector==='[data-mutation]'&&x.dataset.mutation)out.push(x);out.push(...x.querySelectorAll(selector));}return out;}
+  querySelectorAll(selector){const tags=selector.split(',').map(s=>s.toUpperCase());const out=[];for(const x of this.children){if((selector==='[data-mutation]'&&x.dataset.mutation)||tags.includes(x.tagName))out.push(x);out.push(...x.querySelectorAll(selector));}return out;}
 }
 function env(kind){
   const template={invitation:'accept_client_link.html',professional:'cliente_vinculacion.html',reader:'usuario_vinculos.html'}[kind];

@@ -1,0 +1,9 @@
+# Controles de vínculos y exportación independientes
+
+En9397569, una operación de vínculos capturaba y restauraba el estado disabled de todos los botones, inputs y selects del documento. La exportación se inicializa en paralelo dentro del mismo main y habilita su botón al verificar la cuenta. Restaurar el estado anterior de ese botón ajeno podía dejarlo deshabilitado. QA reprodujo el fallo en PostgreSQL real y Chrome: los primeros siete criterios pasaron; exportación, criterio8, falló;9–16 no se alcanzaron.
+
+VinculosUI.setup exige ahora ownedControls, una función que devuelve los controles del consumidor. Consulta, bloqueo temporal, restauración e invalidación sólo actúan sobre esa colección. Los tres consumidores enumeran sus controles estáticos y los descendientes de su lista propia; la exportación conserva su ciclo de vida. No se usa el main como límite porque contiene ambos consumidores. Autorización, fences de sesión, borrado de vistas, BlobURLs y acciones explícitas mantienen sus reglas.
+
+El mismo driver independiente reproduce dos fallos y un control verde antes; las tres aserciones pasan después. Las16 regresiones existentes pasan con sus aserciones intactas. El adaptador mínimo de DOM incorpora selectores nativos por etiqueta para recorrer los controles dinámicos. Node comprueba la sintaxis de los seis archivos. Estos son controles VM; la aceptación de navegador posterior sigue pendiente en este commit.
+
+Las fuentes4934 permanecieron estables durante el ensayo. El checkout raíz previo eraLF, mientras el checkout de QA eraCRLF: sus hashesRAW son distintos y se autentica la igualdad del contenidoGitLF. Dos preparaciones del autor compararon inicialmente esas representaciones de manera incorrecta y se detuvieron antes de ejecutar pruebas; scripts originales conservados. [Pruebas y fuente](evidence/r12-controls-author-20261019/freeze.json).

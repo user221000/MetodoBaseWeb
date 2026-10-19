@@ -6,7 +6,7 @@
   const inspect = document.getElementById('invitation-inspect'), accept = document.getElementById('invitation-accept');
   const details = document.getElementById('invitation-details'), panel = document.getElementById('invitation-context');
   const opened = document.getElementById('invitation-open-links');
-  const ui = VinculosUI.setup({status:'invitation-status',error:'invitation-error',clear:() => {
+  const ui = VinculosUI.setup({status:'invitation-status',error:'invitation-error',ownedControls:()=>[inspect,accept],clear:() => {
     token = null; info = null; scope = null; details.replaceChildren(); panel.hidden = true; accept.hidden = true; opened.hidden = true;
   }});
   if (!token) {

@@ -9,7 +9,9 @@
   function clearPublication() {result=null;panel.hidden=true;summary.replaceChildren();meals.replaceChildren();pdf.hidden=true;leave.hidden=true;ui.releaseDownloads();}
   function clear() {scope?.invalidate();scope=null;records=[];next=null;selected=null;list.replaceChildren();clearPublication();more.hidden=true;document.getElementById('member-home').hidden=true;}
   function controls() {more.hidden=!next;pdf.hidden=!result?.publication||result.capabilities?.download_published_pdf!==true;leave.hidden=!selected||selected.capabilities?.revoke_link!==true;leave.disabled=mutationUnconfirmed;list.querySelectorAll('[data-mutation]').forEach(button=>{button.disabled=mutationUnconfirmed;});}
-  const ui=VinculosUI.setup({status:'member-links-status',error:'member-links-error',clear,controls});
+  const ui=VinculosUI.setup({status:'member-links-status',error:'member-links-error',clear,controls,
+    ownedControls:()=>[document.getElementById('member-links-refresh'),more,pdf,leave,
+      ...list.querySelectorAll('button,input,select')]});
   function rowValid(row) {return row&&uuid(row.link_id)&&version(row.version)&&row.status==='active'&&row.context?.kind==='gym_member'&&row.context.link_id===row.link_id&&typeof row.context.gym_name==='string'&&typeof row.context.client_display_name==='string'&&row.capabilities?.read_published_plan===true;}
   async function load(reset=true) {
     const position=reset?null:next;if(!reset&&!position)return;

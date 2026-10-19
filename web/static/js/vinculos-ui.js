@@ -31,11 +31,15 @@
   }
   function setup(options) {
     const status = document.getElementById(options.status), error = document.getElementById(options.error);
+    // Each consumer owns this collection. Other controllers on the same page
+    // may change their controls while a link request is pending.
+    const ownedControls = options.ownedControls;
+    if (typeof ownedControls !== 'function') throw new Error('Owned link controls are required');
     const urls = new Set(); let busy = false;
     function releaseDownloads() { for (const url of urls) URL.revokeObjectURL(url); urls.clear(); }
     const context = MemberLinkContext.create({onInvalidated:() => {
       releaseDownloads(); options.clear();
-      document.querySelectorAll('button,input,select').forEach(item => { item.disabled = true; });
+      for (const item of ownedControls()) item.disabled = true;
       status.textContent = 'La sesión cambió. Vuelve a abrir esta página desde tu cuenta.';
       error.hidden = true; busy = false;
     }});
@@ -44,7 +48,7 @@
       const disabled = new Map();
       try {
         context.check(); busy = true; error.hidden = true;
-        document.querySelectorAll('button,input,select').forEach(item => { disabled.set(item,item.disabled); item.disabled = true; });
+        for (const item of ownedControls()) { disabled.set(item,item.disabled); item.disabled = true; }
         context.check();
         await task(); context.check();
       } catch (reason) {

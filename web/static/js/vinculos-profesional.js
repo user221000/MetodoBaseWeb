@@ -15,7 +15,9 @@
     more.hidden = !next;
     items.querySelectorAll('[data-mutation]').forEach(button=>{button.disabled=blocked;});
   }
-  const ui = VinculosUI.setup({status:'professional-link-status',error:'professional-link-error',clear,controls:applyControls});
+  const ui = VinculosUI.setup({status:'professional-link-status',error:'professional-link-error',clear,controls:applyControls,
+    ownedControls:()=>[document.getElementById('professional-link-refresh'),email,document.getElementById('link-issue'),retry,more,
+      ...items.querySelectorAll('button,input,select')]});
   const selectedPlan = new URLSearchParams(location.search).get('plan_id');
   function validRow(row) {
     return row && uuid(row.link_id) && version(row.version) && ['pending','active','revoked'].includes(row.status) &&
