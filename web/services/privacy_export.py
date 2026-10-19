@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from web.database.models import (
     Cliente, ClientProgress, GenerationReservation, PlanGenerado, PurchaseIntent,
-    Subscription, Usuario, UserRole, UserSubscription,
+    Subscription, Usuario, UserSubscription,
 )
 from web.database.tenant_context import bind_verified_subject
 
@@ -23,7 +23,7 @@ MAX_PAGE_SIZE = 200
 MAX_PLAN_JSON_CHARS = 250_000
 MAX_TEXT_CHARS = 131_072
 MAX_SECTION_BYTES = 131_072
-MAX_EXPORT_BYTES = 5 * MAX_SECTION_BYTES + 16_384
+MAX_EXPORT_BYTES = 6 * MAX_SECTION_BYTES + 16_384
 _MEALS = ("desayuno", "almuerzo", "comida", "cena")
 _ACCOUNT = ("id", "email", "nombre", "apellido", "tipo", "role", "fecha_registro")
 _PROFILE = ("id", "id_cliente", "nombre", "telefono", "email", "edad", "sexo",
@@ -198,7 +198,8 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
         bind_verified_subject(db, user.id)
     except ValueError:
         raise HTTPException(403, {"code": "privacy_context_mismatch", "message": "Abre tu espacio personal para exportar tus datos."}) from None
-    personal = user.role != UserRole.OWNER and (user.tipo == "usuario" or bool(user.team_gym_id))
+    from web.services.personal_diary_persistence import personal_space_supported, export_diary_page
+    personal = personal_space_supported(user)
     cursors = cursors or {}
     result = {
         "format_version": 1,
@@ -222,6 +223,7 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
         "measurements": {"records": [], "next_after": None},
         "purchases": {"records": [], "next_after": None},
         "generation_requests": {"records": [], "next_after": None},
+        "personal_diary": {"records": [], "next_after": None},
         "personal_subscription": None,
         "canonical_subscription": None,
     }
@@ -238,6 +240,8 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
         PurchaseIntent.plan == "pro_usuario"), PurchaseIntent, _PURCHASE, limit, cursors.get("purchase"))
     result["generation_requests"] = _page(db, select(GenerationReservation).where(GenerationReservation.user_id == user.id),
         GenerationReservation, _GENERATION, limit, cursors.get("generation"))
+    result["personal_diary"] = export_diary_page(db, user.id, limit=limit,
+        after=cursors.get("diary"), maximum_bytes=MAX_SECTION_BYTES)
     linked_ids = [item["plan_id"] for item in result["generation_requests"]["records"] if item["plan_id"] is not None]
     allowed_ids = set(db.execute(select(PlanGenerado.id).where(PlanGenerado.id.in_(linked_ids),
         PlanGenerado.gym_id == user.id, PlanGenerado.id_cliente.in_(own_profiles))).scalars()) if linked_ids else set()

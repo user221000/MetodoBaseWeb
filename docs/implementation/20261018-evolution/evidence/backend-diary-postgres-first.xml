@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="31" time="168.079" timestamp="2026-10-19T00:16:11.792838-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[sqlite-False]" time="5.537" /><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[sqlite-True]" time="5.343" /><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[postgresql-False]" time="7.775" /><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[postgresql-True]" time="7.701" /><testcase classname="tests.integration_personal_diary_migrations" name="test_source26_drift_rejected_before_diary_ddl[sqlite]" time="3.826" /><testcase classname="tests.integration_personal_diary_migrations" name="test_source26_drift_rejected_before_diary_ddl[postgresql]" time="5.367" /><testcase classname="tests.integration_personal_diary_migrations" name="test_failure_after_real_diary_ddl_rolls_back_table_rows_and_revision[sqlite]" time="2.920" /><testcase classname="tests.integration_personal_diary_migrations" name="test_failure_after_real_diary_ddl_rolls_back_table_rows_and_revision[postgresql]" time="4.654" /><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[sqlite-UTC]" time="4.129" /><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[sqlite-America/Mexico_City]" time="3.932" /><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[postgresql-UTC]" time="6.129"><failure message="sqlalchemy.exc.DataError: (psycopg2.errors.NumericValueOutOfRange) integer out of range&#10;&#10;[SQL: UPDATE personal_diary_days SET version=%(version)s WHERE personal_diary_days.id = %(id_1)s]&#10;[parameters: {'version': 2147483648, 'id_1': '51274b7d-8588-4789-ad35-9bb9d423d0aa'}]&#10;(Background on this error at: https://sqlalche.me/e/21/9h9h)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.NumericValueOutOfRange: integer out of range
+
+The above exception was the direct cause of the following exception:
+tests\integration_personal_diary_migrations.py:109: in test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk
+    db.query(PersonalDiaryDay).filter_by(id=row.id).update(changes)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\query.py:3373: in update
+    self.session.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2473: in execute
+    return self._execute_internal(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:1693: in orm_execute_statement
+    return super().orm_execute_statement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\context.py:316: in orm_execute_statement
+    result = conn.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.DataError: (psycopg2.errors.NumericValueOutOfRange) integer out of range
+E   
+E   [SQL: UPDATE personal_diary_days SET version=%(version)s WHERE personal_diary_days.id = %(id_1)s]
+E   [parameters: {'version': 2147483648, 'id_1': '51274b7d-8588-4789-ad35-9bb9d423d0aa'}]
+E   (Background on this error at: https://sqlalche.me/e/21/9h9h)</failure></testcase><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[postgresql-America/Mexico_City]" time="5.454"><failure message="sqlalchemy.exc.DataError: (psycopg2.errors.NumericValueOutOfRange) integer out of range&#10;&#10;[SQL: UPDATE personal_diary_days SET version=%(version)s WHERE personal_diary_days.id = %(id_1)s]&#10;[parameters: {'version': 2147483648, 'id_1': '1a41e5fb-d59f-4251-b81f-bc1c741ab800'}]&#10;(Background on this error at: https://sqlalche.me/e/21/9h9h)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.NumericValueOutOfRange: integer out of range
+
+The above exception was the direct cause of the following exception:
+tests\integration_personal_diary_migrations.py:109: in test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk
+    db.query(PersonalDiaryDay).filter_by(id=row.id).update(changes)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\query.py:3373: in update
+    self.session.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2473: in execute
+    return self._execute_internal(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2363: in _execute_internal
+    compile_state_cls.orm_execute_statement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\bulk_persistence.py:1693: in orm_execute_statement
+    return super().orm_execute_statement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\context.py:316: in orm_execute_statement
+    result = conn.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.DataError: (psycopg2.errors.NumericValueOutOfRange) integer out of range
+E   
+E   [SQL: UPDATE personal_diary_days SET version=%(version)s WHERE personal_diary_days.id = %(id_1)s]
+E   [parameters: {'version': 2147483648, 'id_1': '1a41e5fb-d59f-4251-b81f-bc1c741ab800'}]
+E   (Background on this error at: https://sqlalche.me/e/21/9h9h)</failure></testcase><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[sqlite-False]" time="5.330" /><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[sqlite-True]" time="5.113" /><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[postgresql-False]" time="7.309" /><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[postgresql-True]" time="7.330" /><testcase classname="tests.integration_individual_publication_migrations" name="test_source_drift_is_rejected_before_new_columns[sqlite]" time="3.773" /><testcase classname="tests.integration_individual_publication_migrations" name="test_source_drift_is_rejected_before_new_columns[postgresql]" time="5.330" /><testcase classname="tests.integration_individual_publication_migrations" name="test_failure_after_actual_ddl_rolls_back_columns_rows_and_revision[sqlite]" time="2.708" /><testcase classname="tests.integration_individual_publication_migrations" name="test_failure_after_actual_ddl_rolls_back_columns_rows_and_revision[postgresql]" time="4.195" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[sqlite-UTC]" time="3.963" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[sqlite-America/Mexico_City]" time="4.553" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[postgresql-UTC]" time="5.673" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[postgresql-America/Mexico_City]" time="5.711" /><testcase classname="tests.integration_personal_diary_postgres" name="test_force_rls_own_dml_foreign_absent_and_pool_reuse[postgresql]" time="4.074" /><testcase classname="tests.integration_personal_diary_postgres" name="test_two_processes_have_one_winner_for_absent_and_existing_day[False-postgresql]" time="6.887" /><testcase classname="tests.integration_personal_diary_postgres" name="test_two_processes_have_one_winner_for_absent_and_existing_day[True-postgresql]" time="6.709" /><testcase classname="tests.integration_personal_diary_postgres" name="test_mexico_midnight_and_typed_utc_are_independent_of_session_timezone[UTC-postgresql]" time="4.170" /><testcase classname="tests.integration_personal_diary_postgres" name="test_mexico_midnight_and_typed_utc_are_independent_of_session_timezone[America/Mexico_City-postgresql]" time="5.152" /><testcase classname="tests.integration_personal_diary_postgres" name="test_http_member_personal_scope_export_and_foreign_source_under_force_rls[web.main_web-postgresql]" time="8.775" /><testcase classname="tests.integration_personal_diary_postgres" name="test_http_member_personal_scope_export_and_foreign_source_under_force_rls[api.app-postgresql]" time="5.970" /></testsuite></testsuites>

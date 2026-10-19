@@ -147,7 +147,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
     )
 
@@ -234,6 +234,9 @@ def create_app() -> FastAPI:
 
     # Usuario individual routes
     app.include_router(web_usuario_router.router, prefix="/api", dependencies=_api_auth)
+
+    from web.routes.personal_diary import router as personal_diary_router
+    app.include_router(personal_diary_router, prefix="/api")
 
     from web.routes.privacy import router as privacy_router
     app.include_router(privacy_router, prefix="/api")

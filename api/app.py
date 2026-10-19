@@ -91,7 +91,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=allowed,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
     )
 
@@ -293,6 +293,9 @@ def create_app() -> FastAPI:
 
     from web.routes.privacy import router as privacy_router
     app.include_router(privacy_router, prefix="/api")
+
+    from web.routes.personal_diary import router as personal_diary_router
+    app.include_router(personal_diary_router, prefix="/api")
 
     # ── Planes history routes (web) ───────────────────────────────────────────
     from web.routes import planes as web_planes_routes

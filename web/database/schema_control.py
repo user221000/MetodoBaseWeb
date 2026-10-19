@@ -16,6 +16,7 @@ SCHEMA_CONTRACTS = {
     "20261018_gym_generation_quota": "20261018_gym_quota",
     "20261018_stored_objects": "20261018_stored_objects",
     "20261018_individual_publication": "20261018_individual_publication",
+    "20261019_personal_diary": "20261019_personal_diary",
 }
 
 

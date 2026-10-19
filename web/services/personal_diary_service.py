@@ -1,8 +1,7 @@
-"""R14 date and consumed-food snapshots, pending the reviewed diary schema.
+"""R14 date and consumed-food snapshots used by authenticated persistence.
 
-No route, table or sharing permission is created by this module. A future
-adapter must authenticate the persisted personal subject, fetch that subject's
-source plan, and commit these values using the diary's conditional version.
+The adapter authenticates the persisted personal subject, fetches that subject's
+source plan, and commits these values using the diary's conditional version.
 Snapshots preserve a meal's source when another menu is generated that day.
 """
 from datetime import date, datetime, timezone
@@ -17,6 +16,9 @@ from web.personal_diary_schemas import MealName, MealSelection
 DIARY_TIMEZONE = 'America/Mexico_City'
 MEALS = {'desayuno', 'almuerzo', 'comida', 'cena'}
 MACRO_FIELDS = {'kcal':'kcal', 'protein_g':'proteina', 'carbs_g':'carbs', 'fat_g':'grasa'}
+MAX_SOURCE_PLAN_BYTES = 256 * 1024
+MAX_MEAL_FOODS = 32
+MAX_GROUP_OPTIONS = 256
 
 
 def _fail(status: int, code: str, message: str):
@@ -72,6 +74,12 @@ def _food(option: dict) -> dict:
     equivalence = option.get('equivalencia')
     if equivalence is not None and (not isinstance(equivalence, str) or len(equivalence) > 500):
         _unsupported()
+    try:
+        food_id.encode('utf-8')
+        if equivalence is not None:
+            equivalence.encode('utf-8')
+    except UnicodeError:
+        _unsupported()
     macros = option.get('macros')
     if macros is None or macros == {}:
         # Legacy plan options sometimes lack macros. Resolve them from the
@@ -106,25 +114,29 @@ def resolve_consumed_meal(plan_record, user_id: str, meal: MealName,
         _unsupported()
     chosen = selections.model_dump(exclude_none=True, exclude={'include_vegetables'})
     foods = []
+    raw = getattr(plan_record, 'plan_json', None)
+    if (not isinstance(raw, str) or len(raw) > MAX_SOURCE_PLAN_BYTES
+            or len(raw.encode('utf-8')) > MAX_SOURCE_PLAN_BYTES):
+        _unsupported()
+    try:
+        source = json.loads(raw)
+    except (ValueError, RecursionError):
+        _unsupported()
+    if not isinstance(source, dict) or not isinstance(source.get(meal), dict):
+        _unsupported()
+    meal_data = source[meal]
     if chosen or selections.include_vegetables:
-        try:
-            source = json.loads(plan_record.plan_json)
-        except (AttributeError, TypeError, ValueError, RecursionError):
-            _unsupported()
-        if not isinstance(source, dict) or not isinstance(source.get(meal), dict):
-            _unsupported()
-        meal_data = source[meal]
         for group,index in chosen.items():
             group_data = meal_data.get(group)
             options = group_data.get('opciones') if isinstance(group_data, dict) else None
-            if not isinstance(options, list):
+            if not isinstance(options, list) or len(options) > MAX_GROUP_OPTIONS:
                 _unsupported()
             if index >= len(options):
                 _fail(422, 'invalid_diary_option', 'Una opción cambió. Vuelve a consultar el menú antes de guardar.')
             foods.append(_food(options[index]))
         if selections.include_vegetables:
             vegetables = meal_data.get('vegetales', [])
-            if not isinstance(vegetables, list):
+            if not isinstance(vegetables, list) or len(foods) + len(vegetables) > MAX_MEAL_FOODS:
                 _unsupported()
             foods.extend(_food(option) for option in vegetables)
     try:

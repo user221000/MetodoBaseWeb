@@ -855,3 +855,26 @@ class StoredObject(Base):
         CheckConstraint("storage_backend IN ('local', 's3')", name="ck_stored_object_backend"),
         CheckConstraint("status IN ('pending', 'ready')", name="ck_stored_object_status"),
     )
+
+
+class PersonalDiaryDay(Base):
+    """Independent personal consumption snapshots; no implicit Plan deletion."""
+    __tablename__ = "personal_diary_days"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=False, index=True)
+    local_date = Column(Date, nullable=False)
+    timezone = Column(String(64), nullable=False, default="America/Mexico_City", server_default="America/Mexico_City")
+    water_ml = Column(Integer, nullable=False, default=0, server_default="0")
+    version = Column(Integer, nullable=False, default=1, server_default="1")
+    meals_json = Column(Text, nullable=False, default="{}", server_default="{}")
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "local_date", name="uq_personal_diary_user_date"),
+        CheckConstraint("timezone = 'America/Mexico_City'", name="ck_personal_diary_timezone"),
+        CheckConstraint("water_ml BETWEEN 0 AND 20000", name="ck_personal_diary_water"),
+        CheckConstraint("version BETWEEN 1 AND 2147483647", name="ck_personal_diary_version"),
+        CheckConstraint("length(meals_json) BETWEEN 2 AND 65536", name="ck_personal_diary_content_size"),
+    )

@@ -44,7 +44,7 @@ def test_upgrade_preserves_legacy_rows_without_claiming_publication(migration_da
     columns, before = snapshot(engine)
     with pytest.raises(RuntimeError, match='revision'):
         verify_runtime_schema(engine)
-    run_migration(url, 'db_bootstrap.py', '--revision', 'head')
+    run_migration(url, 'db_bootstrap.py', '--revision', REVISION)
     assert snapshot(engine, columns)[1] == before
     with engine.connect() as db:
         assert len(inspect(db).get_table_names()) == 26
@@ -55,8 +55,8 @@ def test_upgrade_preserves_legacy_rows_without_claiming_publication(migration_da
             assert db.scalar(text("SELECT plan_id FROM generation_reservations WHERE id='reserved'")) is None
         if engine.dialect.name == 'sqlite':
             assert db.exec_driver_sql('PRAGMA foreign_key_check').all() == []
-    verify_runtime_schema(engine)
-    run_migration(url, 'db_bootstrap.py', '--revision', 'head')
+    verify_runtime_schema(engine, expected_revision=REVISION)
+    run_migration(url, 'db_bootstrap.py', '--revision', REVISION)
     assert snapshot(engine, columns)[1] == before
 
 
@@ -106,7 +106,7 @@ def test_checks_and_typed_marker_in_utc_and_mexico_sessions(migration_database, 
     url, engine = migration_database
     run_migration(url, 'db_bootstrap.py', '--revision', PREVIOUS)
     seed_previous(engine)
-    run_migration(url, 'db_bootstrap.py', '--revision', 'head')
+    run_migration(url, 'db_bootstrap.py', '--revision', REVISION)
     app = application_engine(url, engine)
     instant = datetime(2026, 10, 18, 7, 30, tzinfo=timezone(timedelta(hours=5, minutes=30)))
     try:
