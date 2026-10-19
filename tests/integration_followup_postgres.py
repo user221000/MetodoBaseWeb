@@ -1,4 +1,4 @@
-"""R23 shared HTTP on an owned UUID database, migrated head28, restricted FORCE RLS."""
+"""R23 shared HTTP on an owned UUID database, migrated current head, restricted FORCE RLS."""
 from datetime import datetime, timedelta, timezone
 import importlib
 

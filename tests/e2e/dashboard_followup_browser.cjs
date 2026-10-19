@@ -5,9 +5,18 @@ const dependencies=process.env.FOLLOWUP_NODE_MODULES||path.resolve(__dirname,'no
 const {chromium}=require(path.join(dependencies,'playwright-core'));
 const base=process.env.METODOBASE_E2E_URL||'http://127.0.0.1:8795';assert.equal(base,'http://127.0.0.1:8795');
 const out=path.resolve(process.argv[2]);fs.mkdirSync(out,{recursive:true});
-const report={scope:'Own migrated PostgreSQL head28 + actual password login/auth/HTTP; response failures/timing explicitly doubled',results:[],screens:[],pageErrors:[],externalBlocked:0};
+const report={scope:'Own migrated PostgreSQL revision30 + actual password login/auth/HTTP; response failures/timing explicitly doubled',results:[],screens:[],pageErrors:[],externalBlocked:0};
 const startupPath=process.env.FOLLOWUP_STARTUP_REPORT||path.resolve(out,'../startup-final-source.json');
 const startup=JSON.parse(fs.readFileSync(startupPath,'utf8')),sourceRoot=path.resolve(__dirname,'../..');
+assert.equal(startup.runtime_revision,'20261019_personal_history_index');
+assert.equal(startup.model_tables,29);assert.equal(startup.actual_tables,30);
+assert.equal(startup.application_role_restricted_nonowner,true);
+assert.deepEqual(startup.history_order_index,{
+  dialect:'postgresql',name:'ix_planes_gym_cliente_history',columns:['gym_id','id_cliente','fecha_generacion','id'],
+  unique:false,predicate:'deleted_at IS NULL',valid:true,ready:true,key_columns:4,all_columns:4,
+  indoption:[0,0,1,1],method:'btree',collations:['pg_catalog.default','pg_catalog.default',null,null],
+  operator_classes:['pg_catalog.text_ops','pg_catalog.text_ops','pg_catalog.timestamp_ops','pg_catalog.int4_ops']
+});
 function snapshot(){return Object.fromEntries(Object.keys(startup.sources).map(name=>[name,require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(sourceRoot,name))).digest('hex') ]));}
 report.source_start=snapshot();
 report.startup_delta=Object.fromEntries(Object.entries(report.source_start).filter(([name,hash])=>startup.sources[name]!==hash).map(([name,hash])=>[name,{startup:startup.sources[name],browser:hash}]));

@@ -58,6 +58,21 @@ try:
     from datetime import datetime,timedelta,timezone
     from web.auth import hash_password
     from web.database.models import Cliente,PlanGenerado,Usuario,UserRole,Base
+    from sqlalchemy import inspect
+    from web.database.schema_control import verify_runtime_schema
+    from web.database.alembic.history_index_contract_v1 import history_index_signature,expected_history_index
+    verify_runtime_schema(admin,expected_revision='20261019_personal_history_index')
+    with admin.connect() as connection:
+        physical_tables=len(inspect(connection).get_table_names())
+        history_index=history_index_signature(connection)
+    assert physical_tables==30 and len(Base.metadata.tables)==29
+    assert history_index==expected_history_index('postgresql')
+    with app_engine.connect() as connection:
+        restricted=connection.execute(text("SELECT r.rolsuper,r.rolbypassrls,"
+            "current_user=pg_get_userbyid(c.relowner),c.relrowsecurity,c.relforcerowsecurity "
+            "FROM pg_roles r CROSS JOIN pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
+            "WHERE r.rolname=current_user AND n.nspname='public' AND c.relname='planes_generados'")).one()
+    assert tuple(restricted)==(False,False,False,True,True)
     now=datetime.now(timezone.utc)
     with Session(admin) as db:
         for suffix in ['owner','other']:
@@ -83,12 +98,14 @@ try:
         'web/static/js/api.js','web/static/js/main.js','web/static/js/dashboard-seguimiento.js','web/auth.py',
         'web/auth_deps.py','web/services/permissions.py','web/database/models.py','web/database/tenant_context.py',
         'web/database/tenant_policy.py','web/database/engine.py','web/middleware/security_headers.py','tests/isolation.py',
+        'web/database/schema_control.py','web/database/alembic/history_index_contract_v1.py',
         'config/constantes.py','tests/e2e/followup_server.py','tests/e2e/dashboard_followup_browser.cjs',
         'requirements_web-windows.lock','requirements-test-windows.lock','tests/e2e/package.json','tests/e2e/package-lock.json']
     args.report.parent.mkdir(parents=True,exist_ok=True)
     report={'fixture':'r23-followup-real-pg','pid':os.getpid(),'port':args.port,'database':name,
         'runtime_revision':revision,'revision_method':'SELECT alembic_version after db_bootstrap --revision head',
         'model_tables':len(Base.metadata.tables),'model_tables_method':'ORM metadata count, not a migration claim',
+        'actual_tables':physical_tables,'history_order_index':history_index,'application_role_restricted_nonowner':True,
         'providers':'disabled; outbound sockets guarded; fixture synthetic only',
         'sources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in names}}
     args.report.write_bytes((json.dumps(report,indent=2)+'\n').encode())
