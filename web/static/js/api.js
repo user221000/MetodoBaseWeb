@@ -163,7 +163,15 @@ const Api = (() => {
   function _expire(snapshot, pair) {
     _assertPair(snapshot, pair);
     clearTokens();
-    window.location.href = getLoginUrl();
+    // The synchronous notification can explicitly recover another session.
+    // Only the exact complete empty revision produced by this clear may
+    // continue to the login page; never redirect a listener's replacement.
+    const cleared = { revision: snapshot.revision + 1 };
+    const empty = { token: '', refresh: '' };
+    _assertPair(cleared, empty);
+    const loginUrl = getLoginUrl();
+    _assertPair(cleared, empty);
+    window.location.href = loginUrl;
     const error = new Error('Sesión expirada.');
     error.code = 'session_expired';
     throw error;
