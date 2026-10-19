@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <script nonce="{{ request.state.csp_nonce }}">
+  (() => {
+    'use strict';
+    let token = null, state = 'missing';
+    try {
+      const fragment = location.hash, query = location.search;
+      history.replaceState(null, '', location.pathname);
+      if (location.hash || location.search) throw new Error('URL not cleared');
+      const match = !query && /^#token=([A-Za-z0-9_-]{43})$/.exec(fragment);
+      if (match) { token = match[1]; state = 'ready'; }
+      else if (fragment || query) state = 'invalid';
+    } catch { token = null; state = 'unavailable'; }
+    Object.defineProperty(window, 'takeClientLinkInvitation', {
+      configurable: true,
+      value: () => {
+        const result = {token, state};
+        token = null; state = 'used';
+        delete window.takeClientLinkInvitation;
+        return result;
+      },
+    });
+    const discard = () => { token = null; state = 'unavailable'; };
+    window.addEventListener('pagehide', discard, {once:true});
+    window.addEventListener('metodobase-session-changed', discard);
+    window.addEventListener('storage', event => {
+      if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) discard();
+    });
+  })();
+  </script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Aceptar vínculo — Método Base</title>
+  <link rel="stylesheet" href="/static/css/vinculos.css">
+  <script src="/static/js/api.js" defer></script>
+  <script src="/static/js/vinculos-contexto.js" defer></script>
+  <script src="/static/js/vinculos-invitacion.js" defer></script>
+</head>
+<body>
+  <main class="link-page" id="invitation-page">
+    <a href="/">Método Base</a>
+    <h1>Aceptar un vínculo con un gimnasio</h1>
+    <p>Este vínculo permite consultar el plan que te publique el profesional. Tu cuenta, equipo y perfil personal se conservan. No comparte tu diario ni tus mediciones.</p>
+    <p>Usa la cuenta cuyo correo recibió la invitación. Revisar el enlace no lo acepta: confirmarás el vínculo en un paso aparte.</p>
+    <p id="invitation-status" role="status" aria-live="polite"></p>
+    <div id="invitation-error" class="link-error" role="alert" tabindex="-1" hidden></div>
+    <div class="link-actions">
+      <button id="invitation-inspect" type="button">Revisar invitación con mi sesión</button>
+      <button id="invitation-accept" type="button" hidden>Confirmar vínculo con esta cuenta</button>
+    </div>
+    <section id="invitation-context" aria-labelledby="invitation-context-title" hidden>
+      <h2 id="invitation-context-title">Invitación verificada</h2>
+      <dl id="invitation-details"></dl>
+    </section>
+    <p id="invitation-open-links" hidden><a href="/mis-vinculos">Consultar mis vínculos</a></p>
+    <aside aria-labelledby="invitation-login-title">
+      <h2 id="invitation-login-title">Si necesitas iniciar sesión o registrarte</h2>
+      <p>Completa el acceso y vuelve a abrir el enlace original del correo. Iniciar sesión o crear una cuenta no acepta la invitación automáticamente.</p>
+      <p><a href="/login-usuario">Iniciar sesión personal</a> · <a href="/login-gym">Acceso profesional</a> · <a href="/registro?tipo=usuario">Crear una cuenta personal</a></p>
+    </aside>
+    <noscript>Activa JavaScript para revisar y aceptar el vínculo. No envíes el enlace a otra persona.</noscript>
+  </main>
+</body>
+</html>

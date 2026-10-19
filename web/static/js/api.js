@@ -596,6 +596,34 @@ const Api = (() => {
       }, key ? { 'Idempotency-Key': key } : {}),
   };
 
+  // R12 resource context is separate from the personal profile and professional tenant.
+  // Receiving a link does not make either of those spaces available.
+  const vinculos = {
+    contexto: async () => {
+      const snapshot = _snapshot();
+      const me = await auth.me();
+      _assertSnapshot(snapshot);
+      if (!me || typeof me.id !== 'string' || !me.id ||
+          !['usuario', 'gym'].includes(me.tipo) ||
+          !['owner', 'admin', 'nutriologo', 'viewer'].includes(me.role) ||
+          !Number.isSafeInteger(me.session_version) || me.session_version < 0 ||
+          !(me.team_gym_id == null || (typeof me.team_gym_id === 'string' && me.team_gym_id))) {
+        throw _sessionChanged();
+      }
+      return Object.freeze({ revision: snapshot.revision,
+        subject: JSON.stringify([me.id, me.tipo, me.role, me.team_gym_id || null, me.session_version]),
+        me: Object.freeze({ ...me }) });
+    },
+    validarContexto: context => { _assertSnapshot(context); },
+    verificarContexto: async context => {
+      _assertSnapshot(context);
+      const current = await vinculos.contexto();
+      _assertSnapshot(context);
+      if (current.subject !== context.subject) throw _sessionChanged();
+      return current.me;
+    },
+  };
+
   const team = {
     list: () => request('GET', '/api/gym/team'),
     invite: (data) => request('POST', '/api/gym/team/invite', data),
@@ -605,6 +633,6 @@ const Api = (() => {
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
     accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
   };
-  return { clientes, planes, stats, auth, billing, gym, usuario, team, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, team, clearTokens, saveTokens };
 })();
 

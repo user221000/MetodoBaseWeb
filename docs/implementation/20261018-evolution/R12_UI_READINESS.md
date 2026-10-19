@@ -63,11 +63,13 @@ de resolver el intento anterior. Un conflicto de versión exige reconsulta y una
 nueva confirmación; no reenvía un DTO actualizado silenciosamente.
 
 Revisión/identidad se comprueban antes y después de cada await, antes de procesar
-DTO, renderizar, crear Blob o iniciar descarga. Cambio de sesión, evento Storage,
-fallo Storage, cambio de contexto y pagehide invalidan sincrónicamente el estado,
-cancelan la continuidad y limpian los nodos privados, cachés y URLs propias. Los
-controles pueden invalidar sincrónicamente: se vuelve a comprobar el ticket
-después de dibujarlos. No se guarda información sanitaria, token ni claves de
+DTO, renderizar, crear Blob o iniciar descarga. Eventos de sesión/Storage,
+cambio de contexto y pagehide invalidan sincrónicamente el estado; un fallo
+Storage invalida cuando la comprobación lo detecta. Se cancela la continuidad y
+se limpian nodos privados, cachés y URLs propias. Un escritor sin evento se
+detecta en el siguiente check; no se promete observación inmediata de escritores
+legacy externos. Los controles pueden invalidar sincrónicamente: se vuelve a
+comprobar el ticket después de dibujarlos. No se guarda información sanitaria, token ni claves de
 operación en localStorage/sessionStorage; las claves legacy no se leen, importan,
 reasignan o borran.
 
@@ -103,3 +105,24 @@ errores del controlador; navegador móvil/desktop/teclado/axe tiene evidencia
 separada. No se abrirá Chrome mientras siga la compilación PyInstaller
 coordinada por root. No se reutilizan listeners ajenos ni se presenta un doble
 como E2E real.
+
+## Checkpoint de preparación: contexto y fragmento
+
+Se añadió exclusivamente el contexto de `Api.vinculos` y su exportación pública;
+el resto del cuerpo RAW de `api.js` es idéntico a base66. El contexto se obtiene
+de auth/me y no concede una capacidad de recurso. Un OWNER/tipoUsuario ambiguo
+no es normalizado: la API R12 aún debe rechazarlo conforme al contrato.
+
+El lifecycle nuevo admite scopes descartables por vínculo y verifica identidad
+antes/después de sus awaits y al renderizar. Las 26 pruebas VM del contexto usan
+el Api real con fetch/Storage sintéticos. Las 15 de fragmento ejecutan el primer
+script inline exacto del template de aceptación; prueban limpieza inmediata,
+URL que no se puede limpiar, token en query, duplicados, formato, pagehide y
+login/registro sin bearer ni aceptación automática. Son 41 casos de preparación.
+
+El template es una shell todavía no montada y su consumer de recurso está
+pendiente del DTO definitivo. No hay resultado HTTP/E2E ni lectura/publicación
+R12 implementada que se pueda atribuir a este checkpoint. Backend confirmó que
+su política first-party admite nonce al principio del head, antes de los assets
+propios. El documento HTML inicial ya fue solicitado: la limpieza no puede
+borrar registros históricos ni deshacer una query que un enlace ajeno añadió.
