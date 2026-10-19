@@ -1,4 +1,4 @@
-"""Own head27 UI fixture: real HTTP registration, auth, quota, worker and diary.
+"""Own current-head UI fixture: real HTTP registration, auth, quota, worker and diary.
 
 Only welcome delivery is replaced by a no-send boundary double. All storage is
 temporary and all non-loopback sockets are blocked before product imports.
@@ -29,6 +29,7 @@ def main():
     from sqlalchemy.orm import Session
     from web.auth import hash_password
     from web.database.engine import get_engine
+    from web.database.schema_control import expected_head
     from web.database.models import Base, Cliente, PlanGenerado, Subscription, Usuario, UserRole
     from web.services import email_service
     engine = get_engine()
@@ -99,7 +100,7 @@ def main():
         'web/static/js/usuario-plan-operacion.js','web/static/js/auth-guard.js','web/static/js/dialog-focus.js',
         'web/static/css/styles-usuario.css','tests/e2e/personal_diary_server.py','tests/e2e/personal_diary.cjs',
         'tests/e2e/personal_diary_controller.cjs','tests/e2e/personal_diary_api.cjs','tests/e2e/personal_logout.cjs']
-    print(json.dumps({'fixture':'personal-diary-ui','model_target_revision':'20261019_personal_diary',
+    print(json.dumps({'fixture':'personal-diary-ui','model_target_revision':expected_head(),
         'tables':len(Base.metadata.tables),'preparation':'own metadata-only SQLite and local objects; two VIEWER accounts registered through real loopback HTTP',
         'mail':'no-send boundary double','sources':{name:hashlib.sha256((root/name).read_bytes()).hexdigest() for name in names}}),flush=True)
     thread.join()

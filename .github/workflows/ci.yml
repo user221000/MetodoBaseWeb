@@ -237,17 +237,22 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_migrations.py -q --tb=short --junitxml=pytest-postgres-diary-migrations.xml
       - name: Personal diary snapshots, concurrency and independent restricted-role checks
         run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py -q --tb=short --junitxml=pytest-postgres-diary.xml
+      - name: Account recovery migration preserves revision27 and rejects schema drift
+        run: python -X utf8 tests/run_isolated.py tests/integration_account_recovery_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery-migrations.xml
+      - name: Account recovery HTTP, one-use races and uncertain commits under restricted role
+        run: python -X utf8 tests/run_isolated.py tests/integration_password_recovery_postgres.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery.xml
       - name: Encrypted PostgreSQL and object restoration into an empty owned database
-        run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py::test_encrypted_pg_restore_preserves_rows_constraints_and_private_objects tests/integration_diary_restore_review.py -q --tb=short --junitxml=pytest-postgres-restore.xml
+        run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py::test_encrypted_pg_restore_preserves_rows_constraints_and_private_objects tests/integration_recovery28_restore_review.py::test_revision28_restore_preserves_recovery_and_all_revision26_27_contracts -q --tb=short --junitxml=pytest-postgres-restore.xml
       - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
         run: >-
-          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
+          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==21 and len(set(reports))==21, 'Expected 21 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
           pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml
           pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml
           pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml
           pytest-postgres-plan-documents.xml pytest-postgres-utc.xml pytest-postgres-licenses.xml
           pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml
           pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml
+          pytest-postgres-recovery-migrations.xml pytest-postgres-recovery.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -377,7 +382,7 @@ jobs:
             for attempt in $(seq 1 30); do
               if ! kill -0 "$browser_fixture_pid" 2>/dev/null; then cat "$fixture_log"; return 1; fi
               if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then
-                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 26 --revision 20261019_personal_diary 2>/dev/null; then ready=1; break; fi
+                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 26 --revision 20261019_account_recovery 2>/dev/null; then ready=1; break; fi
               fi
               sleep 1
             done
