@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="0.992" timestamp="2026-10-18T20:49:01.375384-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_license_boundary_review" name="test_unicode_key_is_rejected_without_exception_or_remote_request[\xf1-invalid-license]" time="0.354"><failure message="TypeError: comparing strings with non-ASCII characters is not supported">tests\test_license_boundary_review.py:150: in test_unicode_key_is_rejected_without_exception_or_remote_request
+    assert manager.validar_licencia_online(untrusted_key)[0] is False
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core\licencia.py:554: in validar_licencia_online
+    if not hmac.compare_digest(raw_key, expected):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: comparing strings with non-ASCII characters is not supported</failure></testcase><testcase classname="tests.test_license_boundary_review" name="test_unicode_key_is_rejected_without_exception_or_remote_request[\uff11\uff12-invalid-license]" time="0.035"><failure message="TypeError: comparing strings with non-ASCII characters is not supported">tests\test_license_boundary_review.py:150: in test_unicode_key_is_rejected_without_exception_or_remote_request
+    assert manager.validar_licencia_online(untrusted_key)[0] is False
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core\licencia.py:554: in validar_licencia_online
+    if not hmac.compare_digest(raw_key, expected):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: comparing strings with non-ASCII characters is not supported</failure></testcase></testsuite></testsuites>

@@ -9,6 +9,7 @@ Flujo endurecido:
 
 import base64
 import calendar
+from contextlib import closing
 import hashlib
 import hmac
 import json
@@ -528,29 +529,42 @@ class GestorLicencias:
             "  ts REAL NOT NULL"
             ")"
         )
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(cache_validacion)")}
+        if "license_fingerprint" not in columns:
+            conn.execute("ALTER TABLE cache_validacion ADD COLUMN license_fingerprint TEXT")
         conn.commit()
         return conn
 
     def validar_licencia_online(self, clave: str) -> Tuple[bool, str]:
-        """Valida la licencia contra el servidor.
+        """Check remote status only after verifying this installation's license.
 
-        Cachea el resultado en SQLite local por 24 h para funcionar offline.
-        Nunca loguea la clave.
+        A cache or outage cannot grant access. An existing valid local license
+        remains usable until its own expiry when remote status is unavailable.
+        The legacy remote endpoint still requires an authenticated bridge before
+        it can be considered an end-to-end revocation integration.
         """
+        valid_local, message, license_data = self.validar_licencia()
+        if not valid_local or license_data is None:
+            return False, message
+        if license_data.get("formato") == "key_v2":
+            raw_key = self._normalizar_key(clave)
+            expected = self._generar_key_raw(license_data["id_instalacion"], int(license_data["periodo_meses"]))
+        else:
+            raw_key, expected = str(clave), str(license_data["clave"])
+        if not raw_key.isascii() or not hmac.compare_digest(raw_key, expected):
+            return False, "La clave no corresponde a la licencia local verificada."
+        fingerprint = hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
         hw_id = self._obtener_id_instalacion()
-
-        # Intentar caché
         try:
-            conn = self._get_cache_conn()
-            row = conn.execute(
-                "SELECT valida, mensaje, ts FROM cache_validacion WHERE hardware_id = ?",
-                (hw_id,),
-            ).fetchone()
+            with closing(self._get_cache_conn()) as conn:
+                row = conn.execute(
+                    "SELECT valida, mensaje, ts FROM cache_validacion "
+                    "WHERE hardware_id = ? AND license_fingerprint = ?",
+                    (hw_id, fingerprint),
+                ).fetchone()
             if row and (datetime.now().timestamp() - row[2]) < self._CACHE_TTL_SECONDS:
-                conn.close()
-                return bool(row[0]), row[1]
-            conn.close()
-        except Exception:
+                return bool(row[0]), "Licencia local verificada; estado remoto en caché." if row[0] else "El servidor no confirmó la vigencia de esta licencia."
+        except (sqlite3.Error, OSError):
             pass
 
         # Llamada al servidor
@@ -564,26 +578,24 @@ class GestorLicencias:
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
-            valida = bool(body.get("valida", False))
-            mensaje = str(body.get("mensaje", ""))
-        except (urllib.error.URLError, OSError, json.JSONDecodeError) as exc:
-            _logger.warning("[LIC-ONLINE] Sin conexión o error: %s", exc)
-            # Si no hay caché, asumir válida (modo offline tolerante)
-            if row:
-                return bool(row[0]), row[1]
-            return True, "Sin conexión — validación offline"
+            if not isinstance(body, dict) or type(body.get("valida")) is not bool:
+                raise ValueError("Invalid license status contract")
+            valida = body["valida"]
+            mensaje = "Licencia local verificada; estado remoto confirmado." if valida else "El servidor no confirmó la vigencia de esta licencia."
+        except (urllib.error.URLError, OSError, ValueError) as exc:
+            _logger.warning("[LIC-ONLINE] Estado remoto no confirmado class=%s", type(exc).__name__)
+            return True, "Licencia local verificada; estado remoto no confirmado."
 
         # Guardar en caché
         try:
-            conn = self._get_cache_conn()
-            conn.execute(
-                "INSERT OR REPLACE INTO cache_validacion (hardware_id, valida, mensaje, ts) "
-                "VALUES (?, ?, ?, ?)",
-                (hw_id, int(valida), mensaje, datetime.now().timestamp()),
-            )
-            conn.commit()
-            conn.close()
-        except Exception:
+            with closing(self._get_cache_conn()) as conn:
+                conn.execute(
+                    "INSERT OR REPLACE INTO cache_validacion "
+                    "(hardware_id, valida, mensaje, ts, license_fingerprint) VALUES (?, ?, ?, ?, ?)",
+                    (hw_id, int(valida), mensaje, datetime.now().timestamp(), fingerprint),
+                )
+                conn.commit()
+        except (sqlite3.Error, OSError):
             pass
 
         return valida, mensaje

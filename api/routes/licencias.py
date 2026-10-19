@@ -1,29 +1,18 @@
-"""Rutas de activación y consulta de licencias."""
-import hashlib
-import logging
-import os
-import secrets
-from datetime import datetime, timedelta, timezone
-
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel, Field
+"""Authenticated adapters for licenses already issued to the gym owner."""
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from config.constantes import PLANES_LICENCIA
+from web.auth_deps import get_usuario_gym
 from web.database.engine import get_db
-from web.database.models import LicenseActivation
-
-logger = logging.getLogger(__name__)
+from web.services import license_activation_service as licenses
 
 router = APIRouter(tags=["Licencias"])
 
-# ── Schemas ───────────────────────────────────────────────────────────────────
-
-_PLANES_VALIDOS = set(PLANES_LICENCIA.keys())
-
 
 class ActivarLicenciaRequest(BaseModel):
-    clave: str = Field(..., min_length=10, max_length=64, description="Clave de licencia")
+    model_config = ConfigDict(extra="forbid")
+    clave: str = Field(..., min_length=10, max_length=255)
     hardware_id: str = Field(..., min_length=8, max_length=128)
     email: str = Field(..., min_length=5, max_length=120)
 
@@ -33,86 +22,32 @@ class LicenciaResponse(BaseModel):
     plan: str
     max_clientes: int
     multi_usuario: bool
-    expira: str  # ISO date
+    expira: str | None
 
 
 class EstadoLicenciaResponse(BaseModel):
     activa: bool
     plan: str
-    dias_restantes: int
+    dias_restantes: int | None
     revocada: bool
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
-
 @router.post("/licencias/activar", response_model=LicenciaResponse)
-async def activar_licencia(req: ActivarLicenciaRequest, db: Session = Depends(get_db)):
-    """Activa una licencia vinculándola a un hardware_id."""
-    plan = _plan_desde_clave(req.clave)
-    if plan not in _PLANES_VALIDOS:
-        raise HTTPException(status_code=400, detail="Clave de licencia inválida.")
-
-    info_plan = PLANES_LICENCIA[plan]
-    expira = datetime.now(timezone.utc) + timedelta(days=365)
-
-    # Check if already activated
-    existing = db.query(LicenseActivation).filter_by(hardware_id=req.hardware_id).first()
-    if existing:
-        # Update existing activation
-        existing.clave_hash = hashlib.sha256(req.clave.encode()).hexdigest()
-        existing.email = req.email
-        existing.plan = plan
-        existing.activa = True
-        existing.revocada = False
-        existing.expira = expira
-    else:
-        activation = LicenseActivation(
-            hardware_id=req.hardware_id,
-            clave_hash=hashlib.sha256(req.clave.encode()).hexdigest(),
-            email=req.email,
-            plan=plan,
-            activa=True,
-            revocada=False,
-            expira=expira,
-        )
-        db.add(activation)
-
-    db.flush()
-    logger.info("Licencia activada plan=%s email=%s", plan, req.email)
-
-    return LicenciaResponse(
-        activa=True,
-        plan=plan,
-        max_clientes=info_plan["max_clientes"],
-        multi_usuario=info_plan["multi_usuario"],
-        expira=expira.date().isoformat(),
-    )
+def activar_licencia(req: ActivarLicenciaRequest, db: Session = Depends(get_db),
+                     owner: dict = Depends(get_usuario_gym)):
+    """Bind an issued key; prefixes, contact email and hardware grant no rights."""
+    try:
+        return licenses.activate(db, gym_id=owner["id"], key=req.clave,
+                                 hardware_id=req.hardware_id, email=req.email)
+    except licenses.LicenseError as error:
+        raise HTTPException(error.status, detail={"code": error.code, "message": error.message}) from None
 
 
 @router.get("/licencias/estado/{hardware_id}", response_model=EstadoLicenciaResponse)
-async def estado_licencia(hardware_id: str, db: Session = Depends(get_db)):
-    """Consulta el estado de una licencia por hardware_id."""
-    reg = db.query(LicenseActivation).filter_by(hardware_id=hardware_id).first()
-    if not reg:
-        raise HTTPException(status_code=404, detail="Licencia no encontrada.")
-
-    dias = max(0, (reg.expira - datetime.now(timezone.utc)).days)
-
-    return EstadoLicenciaResponse(
-        activa=reg.activa and dias > 0 and not reg.revocada,
-        plan=reg.plan,
-        dias_restantes=dias,
-        revocada=reg.revocada,
-    )
-
-
-# ── Helpers internos ──────────────────────────────────────────────────────────
-
-def _plan_desde_clave(clave: str) -> str:
-    """Decodifica el plan desde el prefijo de la clave.
-
-    Prefijos: STR → starter, PRO → profesional, CLN → clinica.
-    """
-    prefijo = clave[:3].upper()
-    mapping = {"STR": "standard", "PRO": "gym_comercial", "CLN": "clinica"}
-    return mapping.get(prefijo, "desconocido")
+def estado_licencia(hardware_id: str, db: Session = Depends(get_db),
+                    owner: dict = Depends(get_usuario_gym)):
+    """Read only the authenticated owner's explicitly associated activation."""
+    try:
+        return licenses.status(db, gym_id=owner["id"], hardware_id=hardware_id)
+    except licenses.LicenseError as error:
+        raise HTTPException(error.status, detail={"code": error.code, "message": error.message}) from None

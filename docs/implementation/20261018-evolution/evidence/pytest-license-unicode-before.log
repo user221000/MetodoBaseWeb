@@ -1,0 +1,22 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_unicode_key_is_rejected_without_exception_or_remote_request[\xf1-invalid-license] _
+tests\test_license_boundary_review.py:150: in test_unicode_key_is_rejected_without_exception_or_remote_request
+    assert manager.validar_licencia_online(untrusted_key)[0] is False
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core\licencia.py:554: in validar_licencia_online
+    if not hmac.compare_digest(raw_key, expected):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: comparing strings with non-ASCII characters is not supported
+_ test_unicode_key_is_rejected_without_exception_or_remote_request[\uff11\uff12-invalid-license] _
+tests\test_license_boundary_review.py:150: in test_unicode_key_is_rejected_without_exception_or_remote_request
+    assert manager.validar_licencia_online(untrusted_key)[0] is False
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core\licencia.py:554: in validar_licencia_online
+    if not hmac.compare_digest(raw_key, expected):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: comparing strings with non-ASCII characters is not supported
+=========================== short test summary info ===========================
+FAILED tests/test_license_boundary_review.py::test_unicode_key_is_rejected_without_exception_or_remote_request[\xf1-invalid-license]
+FAILED tests/test_license_boundary_review.py::test_unicode_key_is_rejected_without_exception_or_remote_request[\uff11\uff12-invalid-license]
+2 failed, 9 deselected in 1.00s

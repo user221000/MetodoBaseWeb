@@ -1,0 +1,148 @@
+FFFFFFFFFFFFFFFFFFF                                                      [100%]
+================================== FAILURES ===================================
+___________________ test_both_routes_require_authentication ___________________
+tests\test_license_activation_security.py:62: in test_both_routes_require_authentication
+    assert activate(license_case).status_code == 401
+E   AssertionError: assert 200 == 401
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC674530>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC358530>))
+_________ test_prefix_never_grants_a_license[STR-not-issued-anywhere] _________
+tests\test_license_activation_security.py:69: in test_prefix_never_grants_a_license
+    assert activate(license_case, key).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC697470>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC6757F0>), 'STR-not-issued-anywhere')
+_________ test_prefix_never_grants_a_license[PRO-not-issued-anywhere] _________
+tests\test_license_activation_security.py:69: in test_prefix_never_grants_a_license
+    assert activate(license_case, key).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC7087D0>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC674BF0>), 'PRO-not-issued-anywhere')
+_________ test_prefix_never_grants_a_license[CLN-not-issued-anywhere] _________
+tests\test_license_activation_security.py:69: in test_prefix_never_grants_a_license
+    assert activate(license_case, key).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC735E20>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC50AC00>), 'CLN-not-issued-anywhere')
+_ test_issued_expiry_and_custom_cap_are_authoritative_and_repeat_does_not_extend _
+tests\test_license_activation_security.py:78: in test_issued_expiry_and_custom_cap_are_authoritative_and_repeat_does_not_extend
+    assert first.json()["max_clientes"] == 73
+E   assert 75 == 73
+________ test_other_owner_cannot_activate_issued_key_or_read_hardware _________
+tests\test_license_activation_security.py:95: in test_other_owner_cannot_activate_issued_key_or_read_hardware
+    assert activate(license_case).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC7900E0>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-b', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC736630>))
+________ test_hardware_binding_cannot_be_overwritten_by_another_owner _________
+tests\test_license_activation_security.py:108: in test_hardware_binding_cannot_be_overwritten_by_another_owner
+    assert response.status_code == 409
+E   assert 200 == 409
+E    +  where 200 = <Response [200 OK]>.status_code
+____________ test_unusable_issued_license_never_activates[expired] ____________
+tests\test_license_activation_security.py:129: in test_unusable_issued_license_never_activates
+    assert activate(license_case).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC70A2D0>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC7CD670>))
+____________ test_unusable_issued_license_never_activates[revoked] ____________
+tests\test_license_activation_security.py:129: in test_unusable_issued_license_never_activates
+    assert activate(license_case).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC818380>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC791550>))
+___________ test_unusable_issued_license_never_activates[inactive] ____________
+tests\test_license_activation_security.py:129: in test_unusable_issued_license_never_activates
+    assert activate(license_case).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFCA26150>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC7CFF80>))
+_________ test_unusable_issued_license_never_activates[unknown_plan] __________
+tests\test_license_activation_security.py:129: in test_unusable_issued_license_never_activates
+    assert activate(license_case).status_code == 400
+E   AssertionError: assert 200 == 400
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC7364E0>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFCA24530>))
+___________ test_revoked_activation_cannot_be_reactivated_by_repeat ___________
+tests\test_license_activation_security.py:139: in test_revoked_activation_cannot_be_reactivated_by_repeat
+    assert activate(license_case).status_code == 409
+E   AssertionError: assert 200 == 409
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFCA88830>, sessionmaker(class_='Session', bind=Engine(sqlite://)...-a', 'tipo': 'gym', 'role': 'owner', 'team_gym_id': None}, <fastapi.applications.FastAPI object at 0x0000025BFC81B350>))
+____ test_perpetual_authority_and_less_than_one_day_are_not_invented_years ____
+tests\test_license_activation_security.py:151: in test_perpetual_authority_and_less_than_one_day_are_not_invented_years
+    assert response.status_code == 200 and response.json()["expira"] is None
+E   AssertionError: assert (200 == 200 and '2027-10-19' is None)
+E    +  where 200 = <Response [200 OK]>.status_code
+__________________ test_team_member_cannot_issue_activation ___________________
+tests\test_license_activation_security.py:165: in test_team_member_cannot_issue_activation
+    assert activate(license_case).status_code == 403
+E   AssertionError: assert 200 == 403
+E    +  where 200 = <Response [200 OK]>.status_code
+E    +    where <Response [200 OK]> = activate((<starlette.testclient.TestClient object at 0x0000025BFC7CF800>, sessionmaker(class_='Session', bind=Engine(sqlite://)...'gym', 'role': 'admin', 'team_gym_id': 'license-owner-a'}, <fastapi.applications.FastAPI object at 0x0000025BFCAA5E50>))
+________________ test_outage_does_not_validate_unknown_license ________________
+tests\test_license_offline_security.py:32: in test_outage_does_not_validate_unknown_license
+    assert local_license.validar_licencia_online("PRO-not-issued-anywhere")[0] is False
+E   assert True is False
+------------------------------ Captured log call ------------------------------
+WARNING  core.licencia:licencia.py:570 [LIC-ONLINE] Sin conexión o error: <urlopen error synthetic-network-unavailable>
+_____________ test_positive_cache_cannot_validate_unknown_license _____________
+tests\test_license_offline_security.py:39: in test_positive_cache_cannot_validate_unknown_license
+    assert local_license.validar_licencia_online("PRO-not-issued-anywhere")[0] is False
+E   assert True is False
+_____ test_valid_local_license_continues_offline_without_changing_expiry ______
+tests\test_license_offline_security.py:46: in test_valid_local_license_continues_offline_without_changing_expiry
+    assert ok is True and "local" in message.lower()
+E   AssertionError: assert (True is True and 'local' in 'sin conexión — validación offline')
+E    +  where 'sin conexión — validación offline' = <built-in method lower of str object at 0x0000025BFC11CC00>()
+E    +    where <built-in method lower of str object at 0x0000025BFC11CC00> = 'Sin conexión — validación offline'.lower
+------------------------------ Captured log call ------------------------------
+WARNING  core.licencia:licencia.py:570 [LIC-ONLINE] Sin conexión o error: <urlopen error synthetic-network-unavailable>
+_____________ test_another_key_cannot_reuse_a_valid_local_license _____________
+tests\test_license_offline_security.py:52: in test_another_key_cannot_reuse_a_valid_local_license
+    assert local_license.validar_licencia_online("PRO-not-issued-anywhere")[0] is False
+E   assert True is False
+------------------------------ Captured log call ------------------------------
+WARNING  core.licencia:licencia.py:570 [LIC-ONLINE] Sin conexión o error: <urlopen error synthetic-network-unavailable>
+_______________ test_cache_failure_plus_network_failure_is_safe _______________
+tests\test_license_offline_security.py:20: in outage
+    raise urllib.error.URLError("synthetic-network-unavailable")
+E   urllib.error.URLError: <urlopen error synthetic-network-unavailable>
+
+During handling of the above exception, another exception occurred:
+tests\test_license_offline_security.py:60: in test_cache_failure_plus_network_failure_is_safe
+    assert local_license.validar_licencia_online(key)[0] is True
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+core\licencia.py:572: in validar_licencia_online
+    if row:
+       ^^^
+E   UnboundLocalError: cannot access local variable 'row' where it is not associated with a value
+------------------------------ Captured log call ------------------------------
+WARNING  core.licencia:licencia.py:570 [LIC-ONLINE] Sin conexión o error: <urlopen error synthetic-network-unavailable>
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_license_activation_security.py::test_both_routes_require_authentication
+FAILED tests/test_license_activation_security.py::test_prefix_never_grants_a_license[STR-not-issued-anywhere]
+FAILED tests/test_license_activation_security.py::test_prefix_never_grants_a_license[PRO-not-issued-anywhere]
+FAILED tests/test_license_activation_security.py::test_prefix_never_grants_a_license[CLN-not-issued-anywhere]
+FAILED tests/test_license_activation_security.py::test_issued_expiry_and_custom_cap_are_authoritative_and_repeat_does_not_extend
+FAILED tests/test_license_activation_security.py::test_other_owner_cannot_activate_issued_key_or_read_hardware
+FAILED tests/test_license_activation_security.py::test_hardware_binding_cannot_be_overwritten_by_another_owner
+FAILED tests/test_license_activation_security.py::test_unusable_issued_license_never_activates[expired]
+FAILED tests/test_license_activation_security.py::test_unusable_issued_license_never_activates[revoked]
+FAILED tests/test_license_activation_security.py::test_unusable_issued_license_never_activates[inactive]
+FAILED tests/test_license_activation_security.py::test_unusable_issued_license_never_activates[unknown_plan]
+FAILED tests/test_license_activation_security.py::test_revoked_activation_cannot_be_reactivated_by_repeat
+FAILED tests/test_license_activation_security.py::test_perpetual_authority_and_less_than_one_day_are_not_invented_years
+FAILED tests/test_license_activation_security.py::test_team_member_cannot_issue_activation
+FAILED tests/test_license_offline_security.py::test_outage_does_not_validate_unknown_license
+FAILED tests/test_license_offline_security.py::test_positive_cache_cannot_validate_unknown_license
+FAILED tests/test_license_offline_security.py::test_valid_local_license_continues_offline_without_changing_expiry
+FAILED tests/test_license_offline_security.py::test_another_key_cannot_reuse_a_valid_local_license
+FAILED tests/test_license_offline_security.py::test_cache_failure_plus_network_failure_is_safe
+19 failed, 1 warning in 3.06s
