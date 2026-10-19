@@ -1,5 +1,13 @@
 # Validación
 
+Checkpoint99: diario27 integrado423296f tras QA141 HTTP/SQLite,33 migraciones/PG y1 restore poblado, más34 controles de seguridad;78 fuentes estables. Las pruebas independientes mantenidas se incorporan sin modificar fixtures26. Ver `evidence/qa-diary27-independent/qa-diary27-final-source.json` y `DIARIO.md`.
+
+ACKlogout0c55b16:13 casos independientes sin fallos/omisiones, ambas factories reales,18 fuentes estables. Incluye fallo antes del commit, ACK perdido después de persistir, aislamiento de otra cuenta y regresiones históricas. Alcance SQLite; consumidor/browser se revisan aparte. `LOGOUT_CONFIRMACION.md` conserva contrato aditivo y límites.
+
+Desktop9f real: build343.82s y ZIP122774966 bytes,39 controles independientes aceptan procedencia/integridad/Qt, sin acreditar instalación/firma ni flujo autenticado. OPS10 está corregido enbca89bb con QA97+3CLI; falta construir/verificar el reemplazo. El comando Windows de CI actualizado pasa97/0skip en20.99s. Autoría CI27 valida60 bloques Bash y19 reportes PG requeridos; revisión independiente pendiente.
+
+UI606 sigue retenida:129VM y21 grupos browser de QA son parciales; seguridad conserva6/10 y cuatro negativos. El nuevo driver machineACK adapta sólo dos fixtures positivas al protocolo aditivo del servidor y conserva aserciones/negativos. Ningún resultado anterior aprueba la corrección todavía en curso.
+
 Entorno inicial: Windows 10 build 19045, PowerShell 5.1; Python objetivo local 3.12.13 instalado por uv (predeterminado del host 3.14.6); uv 0.11.26; Git 2.55; Node 24.21. Herramientas Linux/imagen aún sin comprobar. PostgreSQL 17.11 instalado fuera de PATH; QA prepara cluster exclusivo, sin usar el servicio existente. Docker CLI disponible; daemon no disponible al inspeccionar.
 
 QA conserva baseline en snapshot del commit base, con SQLite temporal y bloqueo de conexiones externas. Consulte `evidence/baseline-source.json` y archivos baseline generados por QA. No se reutiliza como aprobación de cambios posteriores.

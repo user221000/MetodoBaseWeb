@@ -1,0 +1,10 @@
+{
+  "scope": "Own browser controls, actual isolated auth/logout/refresh/diary HTTP and named response/Storage doubles; no cross-tab/reload atomicity claim",
+  "checks": [
+    "Own invalid-access logout rotates once through real HTTP refresh, closes the canonical session and preserves unidentified legacy bytes",
+    "Own lost delivery after actual logout commit closes locally without claiming server confirmation or redirecting; prior server credentials are revoked"
+  ],
+  "pageErrors": [],
+  "passed": false,
+  "error": "page.evaluate: TypeError: Api.auth.login is not a function\n    at eval (eval at evaluate (:370:30), <anonymous>:1:102)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-diary-ui-qa-ekv3vd5m\\own-browser-review.cjs:16:1307\n    at async check (C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-diary-ui-qa-ekv3vd5m\\own-browser-review.cjs:13:32)\n    at async C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-diary-ui-qa-ekv3vd5m\\own-browser-review.cjs:16:2"
+}

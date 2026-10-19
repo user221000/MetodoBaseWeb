@@ -1,0 +1,298 @@
+"""Independent artifact checks. Read-only outside private Temp/evidence output."""
+from __future__ import annotations
+import ast, base64, hashlib, json, marshal, math, os, re, secrets, stat, struct, subprocess, sys, tempfile, time, types, zipfile
+from datetime import datetime, timezone
+from pathlib import Path, PurePosixPath
+ROOT = Path(r"F:\MetodoBaseWeb-desktop-build-lf-20261019")
+BUNDLE = ROOT / "dist/MetodoBase"
+ZIP = ROOT / "dist/MetodoBase_v2.0.0_win32.zip"
+PREP = ROOT / "dist/installer-inputs"
+OUT = Path(r"C:\Users\Consu\AppData\Local\Temp\metodobase-desktop-artifact-independent-20261019")
+COMMIT = "9f3f32e5fffa61d453f7bccfe27d91f24a13d561"
+EXPECTED_ZIP = "a3fdb846e51b027ff73f15fff1dcedf0aaf2898837e780d02d4184b85a0c6b46"
+R = {"started_utc":datetime.now(timezone.utc).isoformat(), "source_commit":COMMIT,
+     "source_worktree":str(ROOT), "review_interpreter":sys.executable, "checks":{}, "scope":{
+     "build_repeated":False, "installer_compiled":False, "installation_tested":False,
+     "signature_verified":False, "product_login_or_registration":False,
+     "os_network_isolation_verified":False, "source_or_bundle_edited":False}}
+FAIL = []
+def check(name, condition, details=None):
+    R["checks"][name] = {"ok":bool(condition)}
+    if details is not None: R["checks"][name]["details"] = details
+    if not condition: FAIL.append(name)
+    print(name + ": " + ("PASS" if condition else "FAIL"), flush=True)
+def sha(data): return hashlib.sha256(data).hexdigest()
+def file_info(path):
+    h=hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda:f.read(1024*1024), b""): h.update(block)
+    return {"bytes":path.stat().st_size, "sha256":h.hexdigest()}
+def canonical(data): return json.dumps(data, sort_keys=True, separators=(",",":"), ensure_ascii=True).encode()
+def safe_path(rel):
+    p=PurePosixPath(rel)
+    return bool(rel and "\\" not in rel and ":" not in rel and not p.is_absolute()
+                and all(x not in ("", ".", "..") for x in rel.split("/")))
+def tree(path):
+    result={}; unsafe=[]
+    for base, dirs, files in os.walk(path, followlinks=False):
+        for name in dirs+files:
+            p=Path(base)/name; st=p.lstat()
+            if p.is_symlink() or getattr(st,"st_file_attributes",0)&0x400: unsafe.append(p.relative_to(path).as_posix())
+        for name in files:
+            p=Path(base)/name
+            if p.is_file() and not p.is_symlink(): result[p.relative_to(path).as_posix()]=file_info(p)
+    return dict(sorted(result.items())), unsafe
+GITENV={k:v for k,v in os.environ.items() if not k.startswith("GIT_")}
+GITENV.update(GIT_CONFIG_NOSYSTEM="1",GIT_CONFIG_GLOBAL=os.devnull,GIT_ATTR_NOSYSTEM="1",
+              GIT_NO_REPLACE_OBJECTS="1",GIT_OPTIONAL_LOCKS="0")
+GIT=["git","--no-optional-locks","-c","core.fsmonitor=false","-c","core.hooksPath="+os.devnull,
+     "-c","core.attributesFile="+os.devnull,"-c","core.excludesFile="+os.devnull,"-C",str(ROOT)]
+def git(*args): return subprocess.check_output(GIT+list(args),env=GITENV)
+def config_snapshot():
+    paths=[Path(git("rev-parse","--path-format=absolute","--git-common-dir").decode().strip())/"config",
+           Path(git("rev-parse","--absolute-git-dir").decode().strip())/"config.worktree",
+           Path.home()/".gitconfig",Path.home()/".config/git/config"]
+    return {str(p):file_info(p) if p.is_file() else None for p in paths}
+def source_snapshot():
+    result={}; unsafe=[]
+    for rel in TRACKED:
+        p=ROOT/rel
+        if not p.is_file() or p.is_symlink() or getattr(p.lstat(),"st_file_attributes",0)&0x400:
+            unsafe.append(rel)
+        else: result[rel]=file_info(p)
+    return result,unsafe
+try:
+    TRACKED=git("ls-files","-z").decode("utf-8").rstrip("\0").split("\0")
+    check("git_commit",git("rev-parse","HEAD").decode().strip()==COMMIT)
+    check("git_status_before",git("status","--porcelain=v1","--untracked-files=all")==b"")
+    check("tracked_source_count",len(TRACKED)==1688,len(TRACKED))
+    config_before=config_snapshot()
+    source_before,source_unsafe=source_snapshot()
+    bundle_before,bundle_unsafe=tree(BUNDLE)
+    prep_before,prep_unsafe=tree(PREP)
+    zip_before=file_info(ZIP)
+    R["before"]={"tracked_sources":source_before,"bundle":bundle_before,"installer_inputs":prep_before,
+                 "zip":zip_before,"git_config_sha256_only":config_before}
+    check("no_source_or_payload_links",not(source_unsafe or bundle_unsafe or prep_unsafe),
+          {"source":source_unsafe,"bundle":bundle_unsafe,"preparation":prep_unsafe})
+    entries=[]
+    for item in git("ls-tree","-r","-z","--full-tree",COMMIT).split(b"\0"):
+        if not item: continue
+        descriptor,rawpath=item.split(b"\t",1); mode,kind,oid=descriptor.split()
+        entries.append((mode.decode(),kind.decode(),oid.decode(),rawpath.decode("utf-8")))
+    request="".join(oid+"\n" for _,kind,oid,_ in entries if kind=="blob").encode()
+    batch=subprocess.check_output(GIT+["cat-file","--batch"],input=request,env=GITENV)
+    offset=0; source_diff=[]; nonblobs=[]
+    for mode,kind,oid,rel in entries:
+        if kind!="blob" or mode not in ("100644","100755"):
+            nonblobs.append(rel); continue
+        eol=batch.index(b"\n",offset); header=batch[offset:eol].split(); size=int(header[2])
+        blob=batch[eol+1:eol+1+size]; offset=eol+1+size+1
+        if source_before.get(rel)!={"bytes":len(blob),"sha256":sha(blob)}: source_diff.append(rel)
+    check("working_source_exact_commit_blob_bytes",not source_diff and not nonblobs
+          and len(entries)==len(source_before),{"differences":source_diff,"special_entries":nonblobs,"files":len(entries)})
+    manifest_path=BUNDLE/"build-manifest.json"; manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
+    mf=manifest["files"]
+    check("manifest_metadata",manifest["source_commit"]==COMMIT and manifest["app_version"]=="2.0.0"
+          and manifest["architecture"]=="x86_64", {k:manifest[k] for k in ("source_commit","app_version","architecture")})
+    check("manifest_inventory_exact",len(mf)==1215 and set(mf)|{"build-manifest.json"}==set(bundle_before),
+          {"manifest_files":len(mf),"bundle_files":len(bundle_before)})
+    bad_manifest=[p for p,info in mf.items() if not safe_path(p) or bundle_before.get(p)!=info]
+    check("manifest_all_file_hashes_and_sizes",not bad_manifest,bad_manifest)
+    check("bundle_safe_and_case_unique_paths",all(map(safe_path,bundle_before))
+          and len({p.casefold() for p in bundle_before})==len(bundle_before))
+    # The certifi public trust store is intentionally shipped. Verify against
+    # the pinned environment; no other PEM/key path receives this exception.
+    import certifi
+    public_ca=BUNDLE/"_internal/certifi/cacert.pem"
+    ca_bytes=public_ca.read_bytes()
+    check("certifi_public_ca_exact_locked_reference",ca_bytes==Path(certifi.where()).read_bytes()
+          and b"PRIVATE KEY" not in ca_bytes,{"sha256":sha(ca_bytes),"public_certificate_bundle":True})
+    sensitive=[]
+    for rel in bundle_before:
+        if rel=="_internal/certifi/cacert.pem":continue
+        for part in PurePosixPath(rel).parts:
+            n=part.casefold()
+            if (n==".env" or n.startswith(".env.") or n in
+                (".venv","venv","env",".git","datos","licencias","backups","logs","instance")
+                or n.endswith((".db",".sqlite",".sqlite3",".lic",".pem",".key",".pfx",".p12",".dump",".bak",".log"))
+                or (n.startswith("licencia") and n.endswith(".json"))):
+                sensitive.append(rel); break
+    check("payload_filename_privacy_boundary",not sensitive,
+          {"suspicious_paths":sensitive,"limit":"Filename/resource boundary only; not an exhaustive embedded-constant secret scan."})
+    check("zip_expected_bytes_and_hash",zip_before=={"bytes":122774966,"sha256":EXPECTED_ZIP},zip_before)
+    zip_bad=[];zip_collision=[];zip_set=set();zip_links=[]
+    with zipfile.ZipFile(ZIP) as z:
+        infos=z.infolist(); names=[i.filename for i in infos]
+        check("zip_crc",z.testzip() is None)
+        check("zip_unique_safe_names",len(names)==len(set(names)) and len(names)==len({n.casefold() for n in names})
+              and all(map(safe_path,names)))
+        check("zip_exact_bundle_set",set(names)=={"MetodoBase/"+p for p in bundle_before},
+              {"members":len(names),"uncompressed_bytes":sum(i.file_size for i in infos)})
+        for info in infos:
+            if stat.S_IFMT(info.external_attr>>16)==stat.S_IFLNK: zip_links.append(info.filename)
+            rel=info.filename.removeprefix("MetodoBase/")
+            h=hashlib.sha256();count=0
+            with z.open(info) as f:
+                for block in iter(lambda:f.read(1024*1024),b""): h.update(block);count+=len(block)
+            if bundle_before.get(rel)!={"bytes":count,"sha256":h.hexdigest()}: zip_bad.append(info.filename)
+        check("zip_every_payload_byte_equals_bundle",not zip_bad,zip_bad)
+        check("zip_no_symbolic_links",not zip_links,zip_links)
+        check("zip_manifest_bytes_equal",sha(z.read("MetodoBase/build-manifest.json"))==file_info(manifest_path)["sha256"])
+    exe=BUNDLE/"MetodoBase.exe"; pe=exe.read_bytes(); peoff=struct.unpack_from("<I",pe,0x3c)[0]
+    machine=struct.unpack_from("<H",pe,peoff+4)[0]; opt=peoff+24
+    magic=struct.unpack_from("<H",pe,opt)[0]; subsystem=struct.unpack_from("<H",pe,opt+68)[0]
+    security_offset,security_size=struct.unpack_from("<II",pe,opt+112+8*4)
+    check("executable_pe64_windows_gui",pe[:2]==b"MZ" and pe[peoff:peoff+4]==b"PE\0\0"
+          and machine==0x8664 and magic==0x20b and subsystem==2,
+          {"machine":hex(machine),"optional_header_magic":hex(magic),"subsystem":subsystem,
+           "certificate_table_bytes":security_size,"certificate_table_offset":security_offset,
+           "meaning":"AMD64 Windows GUI; architecture, not runtime or signature trust."})
+    check("unsigned_candidate_explicit",security_offset==0 and security_size==0)
+    native_invalid=[];native_count=0
+    for rel in bundle_before:
+        if not rel.casefold().endswith((".exe",".dll",".pyd")):continue
+        native_count+=1
+        with (BUNDLE/rel).open("rb") as native:
+            header=native.read(64)
+            if header[:2]!=b"MZ":native_invalid.append(rel);continue
+            native.seek(struct.unpack_from("<I",header,0x3c)[0]);header=native.read(26)
+            if header[:4]!=b"PE\0\0" or struct.unpack_from("<H",header,4)[0]!=0x8664:
+                native_invalid.append(rel)
+    check("all_native_payloads_amd64",not native_invalid,{"native_files":native_count,"invalid":native_invalid})
+    resource_checks={}; required_resources=[
+        "fonts/Inter/Inter-Regular.ttf","fonts/Inter/Inter-Bold.ttf","fonts/Inter/Inter-Medium.ttf"]
+    source_resources=[rel for rel in TRACKED if rel.startswith(("assets/","fonts/","static/","style/","styles/"))
+                      and (BUNDLE/"_internal"/rel).is_file()]
+    for rel in source_resources: resource_checks[rel]=source_before[rel]==bundle_before["_internal/"+rel]
+    check("bundled_source_resources_equal",bool(resource_checks) and all(resource_checks.values()),
+          {"count":len(resource_checks),"mismatches":[p for p,ok in resource_checks.items() if not ok]})
+    check("required_inter_fonts_present",all((BUNDLE/"_internal"/p).is_file() for p in required_resources))
+    qt_plugins=[p for p in bundle_before if p.endswith(("/platforms/qwindows.dll","/platforms/qoffscreen.dll"))]
+    check("native_qt_platform_plugins",len(qt_plugins)==2,qt_plugins)
+    preparation=json.loads((PREP/"installer-preparation.json").read_text(encoding="utf-8"))
+    settings=(PREP/"verified-settings.iss").read_text(encoding="utf-8-sig")
+    definitions=dict(re.findall(r'^#define (\w+) "([^"]*)"$',settings,re.M))
+    prep_meta=preparation["source_commit"]==COMMIT and preparation["app_version"]=="2.0.0" and preparation["architecture"]=="x86_64"
+    prep_meta=prep_meta and preparation["manifest_sha256"]==file_info(manifest_path)["sha256"] and preparation["files"]==len(bundle_before)
+    check("inno_preparation_metadata",prep_meta)
+    check("inno_settings_match_frozen_artifact",definitions.get("MyAppVersion")=="2.0.0"
+          and definitions.get("VerifiedSourceCommit")==COMMIT
+          and definitions.get("VerifiedManifestSha256")==file_info(manifest_path)["sha256"]
+          and Path(definitions.get("VerifiedFilesInclude",""))==PREP/"verified-files.iss"
+          and Path(definitions.get("VerifiedOutputDir",""))==PREP/"Output")
+    lines=(PREP/"verified-files.iss").read_text(encoding="utf-8-sig").splitlines()
+    sources={};inno_bad=[]
+    pattern=re.compile(r'^Source: "([^"]+)"; DestDir: "([^"]+)"; Flags: ignoreversion$')
+    for line in lines:
+        m=pattern.fullmatch(line)
+        if not m: inno_bad.append("unrecognized line"); continue
+        path,dest=m.groups()
+        try: rel=Path(path).relative_to(BUNDLE).as_posix()
+        except ValueError: inno_bad.append("source outside bundle");continue
+        expected_dest="{app}"+("\\"+str(PurePosixPath(rel).parent).replace("/","\\") if "/" in rel else "")
+        if rel in sources or dest!=expected_dest or any(x in path for x in "*?"):inno_bad.append(rel)
+        sources[rel]=dest
+    check("inno_explicit_exact_payload_and_destinations",not inno_bad and set(sources)==set(bundle_before),
+          {"files":len(sources),"invalid":inno_bad})
+    iss=(ROOT/"setup_installer.iss").read_text(encoding="utf-8")
+    sections=re.findall(r"^\[([^\]]+)\]\s*$",iss,re.M)
+    check("inno_no_auto_start_or_data_deletion", "Run" not in sections and "UninstallDelete" not in sections,
+          {"sections":sections,"retained_app_id":"8A2F4E7B-3C9D-4B1A-A5E6-7F8D9C0B2E3A",
+           "legacy_unknown_data_retained":True})
+    check("inno_legacy_appid_and_x64_compatibility", "AppId={{8A2F4E7B-3C9D-4B1A-A5E6-7F8D9C0B2E3A}}" in iss
+          and "ArchitecturesAllowed=x64compatible" in iss and "UsePreviousAppDir=yes" in iss
+          and "MinVersion=10.0" in iss)
+    check("inno_pending_truthful",all(preparation[k] is False for k in ("compiler_executed","installer_tested","signature_verified"))
+          and len(preparation["pending"])==4,preparation["pending"])
+    from PyInstaller.archive.readers import CArchiveReader
+    archive=CArchiveReader(str(exe));pyz=archive.open_embedded_archive("PYZ.pyz")
+    def constant(v):
+        if isinstance(v,types.CodeType):return code(v)
+        if isinstance(v,tuple):return ["tuple",[constant(x) for x in v]]
+        if isinstance(v,frozenset):return ["frozenset",sorted([constant(x) for x in v],key=lambda x:canonical(x))]
+        if isinstance(v,bytes):return ["bytes",v.hex()]
+        if v is Ellipsis:return ["ellipsis"]
+        if isinstance(v,(str,int,float,complex,bool)) or v is None:return [type(v).__name__,repr(v)]
+        raise TypeError(type(v).__name__)
+    def code(c):
+        attrs=("co_argcount","co_posonlyargcount","co_kwonlyargcount","co_nlocals","co_stacksize","co_flags",
+               "co_names","co_varnames","co_freevars","co_cellvars","co_name","co_qualname","co_firstlineno")
+        result={a:getattr(c,a) for a in attrs}
+        result.update(co_code=c.co_code.hex(),co_linetable=c.co_linetable.hex(),
+                      co_exceptiontable=c.co_exceptiontable.hex(),co_consts=[constant(v) for v in c.co_consts])
+        return result
+    modules={"main":("main.py","archive"),"desktop_runtime_hook":("scripts/desktop_runtime_hook.py","archive"),
+       "config.constantes":("config/constantes.py","pyz"),"core.licencia":("core/licencia.py","pyz"),
+       "core.plan_catalog":("core/plan_catalog.py","pyz"),"core.services.auth_service":("core/services/auth_service.py","pyz"),
+       "core.services.key_manager":("core/services/key_manager.py","pyz"),
+       "src.gestor_usuarios":("src/gestor_usuarios.py","pyz"),
+       "ui_desktop.pyside.ventana_login_unificada":("ui_desktop/pyside/ventana_login_unificada.py","pyz"),
+       "ui_desktop.pyside.theme_manager":("ui_desktop/pyside/theme_manager.py","pyz")}
+    module_results={}
+    for module,(rel,where) in modules.items():
+        frozen=marshal.loads(archive.extract(module)) if where=="archive" else pyz.extract(module)
+        expected=compile((ROOT/rel).read_bytes(),rel,"exec",dont_inherit=True,optimize=0)
+        actual_hash=sha(canonical(code(frozen)));expected_hash=sha(canonical(code(expected)))
+        module_results[module]={"frozen_structural_sha256":actual_hash,"source_compiled_structural_sha256":expected_hash,
+                                "equal":actual_hash==expected_hash}
+    check("embedded_high_value_code_equals_source",all(v["equal"] for v in module_results.values()),
+          {"modules":module_results,"pyz_total_modules":len(pyz.toc),
+           "comparison":"Recursive code attributes/constants incl bytecode/linetable; co_filename excluded. No app code executed."})
+    # Independent bounded invocation of the opt-in diagnostic. No product login or registration.
+    start=time.monotonic()
+    with tempfile.TemporaryDirectory(prefix="metodobase-desktop-smoke-") as raw:
+        temporary=Path(raw);nonce=secrets.token_hex(32)
+        (temporary/".desktop-smoke-marker").write_text(nonce,encoding="ascii")
+        for name in ("data","appdata","localappdata","home"):(temporary/name).mkdir()
+        allow={"SYSTEMROOT","WINDIR","COMSPEC","PATH","PATHEXT","TMP","TEMP","LANG","LC_ALL"}
+        child={k:v for k,v in os.environ.items() if k.upper() in allow}
+        child.update(METODOBASE_DESKTOP_SMOKE_DIR=str(temporary),METODOBASE_DESKTOP_SMOKE_NONCE=nonce,
+                     METODOBASE_DATA_DIR=str(temporary/"data"),APPDATA=str(temporary/"appdata"),
+                     LOCALAPPDATA=str(temporary/"localappdata"),USERPROFILE=str(temporary/"home"),
+                     HOME=str(temporary/"home"),XDG_DATA_HOME=str(temporary/"home"),
+                     PYTHON_DOTENV_DISABLED="1",QT_QPA_PLATFORM="offscreen",METODOBASE_ENV="testing",
+                     SENTRY_DSN="",AWS_EC2_METADATA_DISABLED="true")
+        process=subprocess.run([str(exe)],cwd=temporary,env=child,capture_output=True,timeout=45)
+        receipt=json.loads((temporary/"receipt.json").read_text(encoding="utf-8"))
+        receipt_nonce=receipt.pop("nonce",None)
+        profile,profile_unsafe=tree(temporary)
+        profile.pop(".desktop-smoke-marker",None);profile.pop("receipt.json",None)
+        smoke={"exit_code":process.returncode,"elapsed_seconds":round(time.monotonic()-start,3),
+               "receipt":receipt,"private_created_files_sha256_only":profile,
+               "stdout_bytes":len(process.stdout),"stderr_bytes":len(process.stderr),
+               "stdout_sha256":sha(process.stdout),"stderr_sha256":sha(process.stderr),
+               "private_profile_root":str(temporary),"profile_reparse_points":profile_unsafe}
+        required={"ok":True,"qt_platform":"offscreen","widget":"VentanaLoginUnificada",
+                  "python_network_blocked":True,"os_network_isolation_verified":False,"product_flow_executed":False}
+        check("independent_packaged_offscreen_diagnostic",process.returncode==0 and receipt_nonce==nonce
+              and all(receipt.get(k)==v for k,v in required.items()) and not profile_unsafe,smoke)
+    check("diagnostic_private_profile_removed",not temporary.exists())
+    source_after,source_unsafe_after=source_snapshot()
+    bundle_after,bundle_unsafe_after=tree(BUNDLE)
+    prep_after,prep_unsafe_after=tree(PREP)
+    zip_after=file_info(ZIP);config_after=config_snapshot()
+    R["after"]={"tracked_sources":source_after,"bundle":bundle_after,"installer_inputs":prep_after,
+                "zip":zip_after,"git_config_sha256_only":config_after}
+    for name,before,after in (("source",source_before,source_after),("bundle",bundle_before,bundle_after),
+                              ("zip",zip_before,zip_after),("installer_inputs",prep_before,prep_after),
+                              ("git_config",config_before,config_after)):
+        check("stable_"+name,before==after,
+              {"before_inventory_sha256":sha(canonical(before)),"after_inventory_sha256":sha(canonical(after))})
+    check("git_status_after",git("status","--porcelain=v1","--untracked-files=all")==b"")
+except Exception as exc:
+    R["unexpected_error"]={"type":type(exc).__name__,"message":str(exc)}
+    FAIL.append("unexpected_error")
+    import traceback;traceback.print_exc()
+finally:
+    R["finished_utc"]=datetime.now(timezone.utc).isoformat()
+    R["failed_checks"]=FAIL
+    R["accepted_scope"]="Unsigned Windows x64 GUI onedir + complete ZIP + prepared installer inventory + bounded Qt offscreen/login-widget construction only"
+    R["pending"]=["Native Inno compilation and payload verification","Discardable Windows install/upgrade/uninstall",
+      "Signing/identity authorization and verification","Business login/registration/license-authority flows",
+      "SEC01 desktop licensing/rotation decision","Native Linux/macOS packaging and validation",
+      "OS-level egress isolation not measured","Exhaustive binary embedded-secret analysis not asserted"]
+    (OUT/"desktop-artifact-independent-source.json").write_text(json.dumps(R,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    print(json.dumps({"failed_checks":FAIL,"checks":len(R["checks"]),"evidence":str(OUT/"desktop-artifact-independent-source.json")}),flush=True)
+sys.exit(1 if FAIL else 0)
+

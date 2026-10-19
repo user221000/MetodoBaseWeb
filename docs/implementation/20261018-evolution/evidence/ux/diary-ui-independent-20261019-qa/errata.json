@@ -1,0 +1,26 @@
+[
+  {
+    "stage": "QA setup/report parsing",
+    "errors": [
+      "Initial KeyError dependencies; corrected to read_only_dependencies and source.sha256 metadata",
+      "Initial VM summary assumed total; race-review uses report array instead. No test rerun or changed results."
+    ],
+    "effect": "Before fixture setup or during postprocessing only; source51 matched final manifest."
+  },
+  {
+    "stage": "Own browser first attempt",
+    "error": "Api.auth.login is not a function after two valid controls",
+    "correction": "Only Temp driver changed to existing loginUsuario(email,password); full4 replay passed",
+    "preserved": [
+      "own-browser-review.cjs.initial",
+      "own-browser.log.initial",
+      "own-browser-report.json.initial",
+      "own-browser-result.json.initial"
+    ]
+  },
+  {
+    "stage": "Own process closure guard",
+    "error": "Expected base Python instead of candidate venv executable; guard refused stop",
+    "correction": "Verified exact candidate executable and Temp CLI in server-process-identity.json; stopped only ownPID22880; author8776 untouched"
+  }
+]

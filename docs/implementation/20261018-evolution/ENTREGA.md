@@ -1,15 +1,15 @@
 # Entrega candidata
 
-Implementación local en curso; todavía sin release final, imagen probada ni despliegue. Rama `implementation/20261018-execution`, base daa25efbf51d154710bad625025b345fa9ec9252; código integrado hasta9f3f32e. [Estado](ESTADO.md), [historia](CAMBIOS.md), [registro97](TRAZABILIDAD.md).
+Implementación local en curso; todavía sin release final, imagen probada ni despliegue. Rama `implementation/20261018-execution`, base daa25efbf51d154710bad625025b345fa9ec9252; código integrado hasta0c55b16, incluido backend27/OPS10/SDK/ACKlogout. [Estado](ESTADO.md), [historia](CAMBIOS.md), [registro99](TRAZABILIDAD.md).
 
 | Hito | Evidencia local | Pendiente material |
 | --- | --- | --- |
-| Catálogo, derechos y cuotas | Free10/1/10 confirmado, catálogo común; ledger B2B24 y publicación individual26 atómica; PG y recuperación tras muerte real de proceso | Sandbox, diario27 y validación del artefacto desktop |
-| Datos/RLS/restore | Contratos22–26 preservados por revisión; restore26 de25 tablas y19 familias FORCE, roles separados | Inspección/backup/staging y compatibilidad live |
+| Catálogo, derechos y cuotas | Free10/1/10 confirmado, catálogo común; ledger B2B24 y publicación individual26 atómica; PG y recuperación tras muerte real de proceso | Sandbox, UI diario y reemplazo del artefacto desktop |
+| Datos/RLS/restore | Contratos22–27 preservados por revisión; restore27 de26 tablas y20 familias FORCE, roles separados | Inspección/backup/staging y compatibilidad live |
 | Archivos privados | Esquema25, lectores/worker/branding, SDK fijado, inventario readonly31 pruebas | Procedencia/apply legacy, destino durable real, imagen/proveedor |
 | Sesiones y privacidad | API347,74 VM;36 grupos navegador actuales y3 Storage; sinks saneados y exportación personal | Reload/cross-tab/escritores directos, borrado/retención y revisión legal |
 | CI/regresión | Node/17PG/cinco fixtures navegador configurados; serial1813/1skip Windows con519 fuentes estables | n2shuffle1813/1skip aprobado en133.73s; Actions/Linux/imagen/Redis real pendientes |
-| Desktop | Receta3930398/171a8f0/9f3f32e integrada,94 pruebas independientes | Build/diagnóstico/ZIP real en curso; instalador/upgrade/firma pendientes |
+| Desktop | Receta integrada,94 pruebas independientes; build/ZIP/Qt9f revisado39; exclusión OPS10 revisada97+3CLI | Nuevo ZIP sin referencia, instalador/upgrade/firma pendientes |
 | Equipo y licencias | R11 independiente128 casos/recorridos; SEC0143 incluidas carreras PG | Correo/canje consentido, puente remoto y autoridad HMAC legacy |
 
 Antes de solicitar una operación externa faltan artefacto exacto/digest, variables sin secretos, migraciones en orden, backup/restore de ese candidato, transición de workers, rollback y observación. Migración26 exige drenar workers antiguos antes de reabrir generación: el startup nuevo no protege procesos viejos aún vivos. No se ejecutó ese cambio live.

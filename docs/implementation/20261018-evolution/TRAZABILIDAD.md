@@ -101,8 +101,10 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [OPS08](#ops08) | P1 | Coordinación y operación | R03, R18, R20 | en_revision | parcial | local |
 | [SEC01](#sec01) | P0 | Root - seguridad y licencias; backend - campos/preparaciónR04 | R01, R04, R09, R31 | en_revision | parcial | local |
 | [SEC02](#sec02) | P0 | Frontend y seguridad; coordinación integra | R10, R19, R31 | en_revision | parcial | local |
-| [OPS09](#ops09) | P1 | Operación y documentación técnica | R18, R21 | en_revision | parcial | local |
+| [OPS09](#ops09) | P1 | Operación y documentación técnica | R18, R21 | verificado | verificado | local |
 | [SEC03](#sec03) | P1 | Seguridad de aplicación y privacidad | R10, R15, R23, R31 | verificado | verificado | local |
+| [OPS10](#ops10) | P2 | Operación y documentación técnica | R18, R21, R31 | en_curso | reproducido | local |
+| [SEC04](#sec04) | P1 | Frontend y seguridad | R10, R14, R31 | en_curso | en_curso | local |
 
 ## R01
 
@@ -480,13 +482,13 @@ Estado: en_curso; implementación: parcial; validación: parcial; despliegue: no
 
 Dependencias: sin dependencia declarada
 
-Cambios: UI personal integrada: UUID en memoria y replay ambiguo, plan_id/PDF exacto, fence de contexto; no persiste todavía diario ni pagina historia.
+Cambios: UI personal integrada: UUID en memoria y replay ambiguo, plan_id/PDF exacto, fence de contexto; no persiste todavía diario ni pagina historia.; Backend diario27 integrado423296f: snapshots por sujeto/fecha, CAS, limites y exportacion sexta coleccion; UI606 retenida por SEC04 y confirmacion logout.
 
-Commits: 4e22852, c11256a
+Commits: 4e22852, c11256a, 423296f
 
-Pruebas: Preparacion pura35independientes tras1regresionRecursionError; NO API/DB/UI servidor implementados aun.; Seguridad independiente34/34 (25propiosHTTP+3históricos+2membresía+4PG),78 fuentes estables; revocación conserva diario/export y excluye cartera. Backend27 aún sin integrar, QA/restore/browser pendientes.
+Pruebas: Preparacion pura35independientes tras1regresionRecursionError; NO API/DB/UI servidor implementados aun.; Seguridad independiente34/34 (25propiosHTTP+3históricos+2membresía+4PG),78 fuentes estables; revocación conserva diario/export y excluye cartera. Backend27 aún sin integrar, QA/restore/browser pendientes.; QA141 HTTP/SQLite+33 migracion/PG+1 restore27 poblado; seguridad34/34,78 fuentes estables. No equivale a aceptacion UI.
 
-Evidencia: evidence/personal-diary-values-independent-source.json; evidence/pytest-personal-diary-values-independent.xml; evidence/ux/personal-plan-ui-independent-source.json; evidence/personal-ui-backend-review-40fd2af/personal-ui-backend-review.md; evidence/backend-diary-security-review/source.json; evidence/backend-diary-security-review/review.md
+Evidencia: evidence/personal-diary-values-independent-source.json; evidence/pytest-personal-diary-values-independent.xml; evidence/ux/personal-plan-ui-independent-source.json; evidence/personal-ui-backend-review-40fd2af/personal-ui-backend-review.md; evidence/backend-diary-security-review/source.json; evidence/backend-diary-security-review/review.md; evidence/qa-diary27-independent/qa-diary27-final-source.json
 
 Documentación: DIARIO.md; DIARIO_PERSISTENCIA_PROPUESTA.md
 
@@ -2312,15 +2314,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
-Cambios: pendiente
+Cambios: Backend diario27 integrado423296f: snapshots por sujeto/fecha, CAS, limites y exportacion sexta coleccion; UI606 retenida por SEC04 y confirmacion logout.
 
-Commits: pendiente
+Commits: 423296f
 
-Pruebas: pendiente
+Pruebas: QA141 HTTP/SQLite+33 migracion/PG+1 restore27 poblado; seguridad34/34,78 fuentes estables. No equivale a aceptacion UI.
 
-Evidencia: pendiente
+Evidencia: evidence/qa-diary27-independent/qa-diary27-final-source.json
 
-Documentación: DIARIO_PERSISTENCIA_PROPUESTA.md
+Documentación: DIARIO_PERSISTENCIA_PROPUESTA.md; DIARIO.md
 
 Revisión: pendiente
 
@@ -2340,15 +2342,15 @@ Estado: pendiente; implementación: pendiente; validación: pendiente; despliegu
 
 Dependencias: sin dependencia declarada
 
-Cambios: pendiente
+Cambios: Backend diario27 integrado423296f: snapshots por sujeto/fecha, CAS, limites y exportacion sexta coleccion; UI606 retenida por SEC04 y confirmacion logout.
 
-Commits: pendiente
+Commits: 423296f
 
-Pruebas: pendiente
+Pruebas: QA141 HTTP/SQLite+33 migracion/PG+1 restore27 poblado; seguridad34/34,78 fuentes estables. No equivale a aceptacion UI.
 
-Evidencia: pendiente
+Evidencia: evidence/qa-diary27-independent/qa-diary27-final-source.json
 
-Documentación: DIARIO_PERSISTENCIA_PROPUESTA.md
+Documentación: DIARIO_PERSISTENCIA_PROPUESTA.md; DIARIO.md
 
 Revisión: pendiente
 
@@ -2812,7 +2814,7 @@ Problema: El empaquetador puede atribuir a un commit código distinto oculto por
 
 Criterio original: La procedencia del artefacto exige comprobar fuentes contra el commit exacto bajo normalización/filtros de checkout revisados; modificaciones ocultas por assume-unchanged o skip-worktree deben rechazarse sin mutar el índice del operador.
 
-Estado: en_revision; implementación: parcial; validación: parcial; despliegue: no_desplegado; entorno: local.
+Estado: verificado; implementación: verificado; validación: verificado; despliegue: no_desplegado; entorno: local.
 
 Dependencias: R18
 
@@ -2820,15 +2822,15 @@ Cambios: Hallazgo independiente sobre41ad55f: dos repositorios Temp reales regis
 
 Commits: 3930398, 171a8f0, 9f3f32e
 
-Pruebas: Dos variantes rojas independientes: assume-unchanged y skip-worktree;58 pruebas de receta verdes no cubrían esta atribución.19 archivos fuente antes/después sin cambios.; QA94/22.85s sin errores/fallos/skips;27 fuentes/índice/config estables, dos rojos binarios preservados. No build ni instalador en ese gate.
+Pruebas: Dos variantes rojas independientes: assume-unchanged y skip-worktree;58 pruebas de receta verdes no cubrían esta atribución.19 archivos fuente antes/después sin cambios.; QA94/22.85s sin errores/fallos/skips;27 fuentes/índice/config estables, dos rojos binarios preservados. No build ni instalador en ese gate.; Artefacto9f3f32e:39/39 independientes,1688 fuentes iguales a blobs,1216 miembrosZIP exactos,217PE AMD64 y diagnóstico Qt propio. Procedencia cerrada localmente; OPS10 controla recurso de referencia, sin afirmar publicación.
 
-Evidencia: evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.provenance.py; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.provenance.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.before.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.after.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.tests.xml; evidence/desktop-qa-review-abfee196/desktop-provenance-final-independent-source.json; evidence/desktop-real-build-9f3f32e-source.json
+Evidencia: evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.provenance.py; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.provenance.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.before.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.after.json; evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.tests.xml; evidence/desktop-qa-review-abfee196/desktop-provenance-final-independent-source.json; evidence/desktop-real-build-9f3f32e-source.json; evidence/desktop-artifact-independent-source.json; evidence/desktop-artifact-independent-review.md
 
 Documentación: DESKTOP_PUBLICACION.md; ESTADO.md; RIESGOS.md; DESKTOP_EMPAQUETADO.md
 
-Revisión: Backend y QA independientes; QA94 receta aceptada, artefacto pendiente
+Revisión: Backend/QA independientes receta94; operación independiente artefacto39, bytes1688fuentes contra commit exacto9f3f32e e índice/config estables
 
-Bloqueo: "Falta aceptar artefacto construido desde commit integrado exacto; receta/procedencia94 aceptada. Primer preflight ANSI/autocrlf rechaza correctamente, segundo checkout LF en curso."
+Bloqueo: no registrado
 
 Observaciones: Nuevo hallazgo añadido sin renumerar92 originales ni OPS08/SEC01/SEC02; total96 registros. Los probes no ejecutan código sintético ni modifican el checkout revisado.
 
@@ -2859,3 +2861,59 @@ Revisión: QA independiente12 browser/22 fuentes estables; coordinador integra0f
 Bloqueo: no registrado
 
 Observaciones: Total97:92 originales más OPS08/OPS09/SEC01/SEC02/SEC03, sin renumerar. Error renderer usa doble local; no se atribuye control del error al backend.
+
+## OPS10
+
+Fuente: [La inspección visual añadió un pendiente de distribución](evidence/desktop-artifact-independent-review.md).
+
+Problema: El bundle incluye una captura de referencia no usada con nombres/correos cuya procedencia no está acreditada.
+
+Criterio original: Excluir assets/design-reference.png del inventario distribuido y rechazar su inclusión en bundle/ZIP/manifiesto, conservando el original del repositorio; verificar un nuevo artefacto exacto y el diagnóstico Qt sin alterar los recursos necesarios.
+
+Estado: en_curso; implementación: en_curso; validación: reproducido; despliegue: no_desplegado; entorno: local.
+
+Dependencias: R18
+
+Cambios: Revisión independiente del artefacto9f3f32e encuentra captura incluida por selección de extensiones; búsqueda literal de producto no encuentra uso. No se afirma que las identidades sean reales.; Exclusion exacta del recurso integrada en bca89bb sin borrar el original; nuevo artefacto aun pendiente.
+
+Commits: bca89bb
+
+Pruebas: Integridad/CRC/bytes y Qt39/39 verdes no acreditan procedencia del contenido de referencia. Artefacto9f preservado sin distribución.; QA97 casos y3 CLI propios aceptados,29 fuentes/indice/config/referencia estables; no acredita el ZIP reemplazo.
+
+Evidencia: evidence/desktop-artifact-independent-review.md; evidence/desktop-artifact-independent-resources-source.json; evidence/desktop-artifact-independent-source.json; evidence/desktop-artifact-independent-evidence-manifest.json; evidence/desktop-ops10-independent/desktop-ops10-independent-source.json; evidence/desktop-ops10-author-evidence-manifest.json
+
+Documentación: DESKTOP_EMPAQUETADO.md; ESTADO.md; RIESGOS.md
+
+Revisión: Operación independiente del builder root identifica recurso; autor corrige en worktree; QA y nuevo build posteriores pendientes
+
+Bloqueo: "Retener distribución hasta excluir el recurso del nuevo candidato y repetir validación del artefacto. Instalador, firma y flujos de negocio permanecen separados."
+
+Observaciones: Total98:92 originales más OPS08/OPS09/OPS10/SEC01/SEC02/SEC03; no se renumera ni cambia ningún criterio original.
+
+## SEC04
+
+Fuente: [Cruce del consumidor y cache de exportacion UI606](evidence/ux/diary-ui-security-independent-review.md).
+
+Problema: La continuacion de exportacion puede preparar datos de A tras reemplazar la sesion por B; el evento de Storage conserva la parte preparada.
+
+Criterio original: Verificar revision e identidad canonica en cada frontera del consumidor antes de aceptar DTO, preparar Blob o descargar; invalidar sincronicamente parte, URLs, contadores y acciones ante cambio de sesion o fallo Storage. Conservar negativos originales y revisar correccion con controles independientes de cambio de cuenta, rol, equipo y version de sesion, sin leer ni alterar legado localStorage.
+
+Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: no_desplegado; entorno: local.
+
+Dependencias: R02
+
+Cambios: UI606 retenida; correccion focal en worktree, sin integracion.
+
+Commits: pendiente
+
+Pruebas: VM independiente:6/10 verdes y cuatro rojos; dos rojos son este cruce/cache y dos pertenecen a confirmacion logout.
+
+Evidencia: evidence/ux/diary-ui-security-independent-review.md; evidence/ux/diary-ui-security-independent-realack-before.json; evidence/ux/diary-ui-security-independent-contract-addendum.json
+
+Documentación: RIESGOS.md; DIARIO.md
+
+Revisión: Seguridad independiente; correccion aun pendiente de revisar
+
+Bloqueo: no registrado
+
+Observaciones: Reproduccion VM sintetica; no afirma incidente ni explotacion con cuentas reales. Los21 grupos browser de QA son cobertura parcial y no anulan estos negativos.

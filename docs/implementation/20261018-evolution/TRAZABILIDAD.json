@@ -803,15 +803,18 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "UI personal integrada: UUID en memoria y replay ambiguo, plan_id/PDF exacto, fence de contexto; no persiste todavía diario ni pagina historia."
+        "UI personal integrada: UUID en memoria y replay ambiguo, plan_id/PDF exacto, fence de contexto; no persiste todavía diario ni pagina historia.",
+        "Backend diario27 integrado423296f: snapshots por sujeto/fecha, CAS, limites y exportacion sexta coleccion; UI606 retenida por SEC04 y confirmacion logout."
       ],
       "commits": [
         "4e22852",
-        "c11256a"
+        "c11256a",
+        "423296f"
       ],
       "pruebas": [
         "Preparacion pura35independientes tras1regresionRecursionError; NO API/DB/UI servidor implementados aun.",
-        "Seguridad independiente34/34 (25propiosHTTP+3históricos+2membresía+4PG),78 fuentes estables; revocación conserva diario/export y excluye cartera. Backend27 aún sin integrar, QA/restore/browser pendientes."
+        "Seguridad independiente34/34 (25propiosHTTP+3históricos+2membresía+4PG),78 fuentes estables; revocación conserva diario/export y excluye cartera. Backend27 aún sin integrar, QA/restore/browser pendientes.",
+        "QA141 HTTP/SQLite+33 migracion/PG+1 restore27 poblado; seguridad34/34,78 fuentes estables. No equivale a aceptacion UI."
       ],
       "evidencia": [
         "evidence/personal-diary-values-independent-source.json",
@@ -819,7 +822,8 @@
         "evidence/ux/personal-plan-ui-independent-source.json",
         "evidence/personal-ui-backend-review-40fd2af/personal-ui-backend-review.md",
         "evidence/backend-diary-security-review/source.json",
-        "evidence/backend-diary-security-review/review.md"
+        "evidence/backend-diary-security-review/review.md",
+        "evidence/qa-diary27-independent/qa-diary27-final-source.json"
       ],
       "documentacion": [
         "DIARIO.md",
@@ -3981,12 +3985,21 @@
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
+      "cambios": [
+        "Backend diario27 integrado423296f: snapshots por sujeto/fecha, CAS, limites y exportacion sexta coleccion; UI606 retenida por SEC04 y confirmacion logout."
+      ],
+      "commits": [
+        "423296f"
+      ],
+      "pruebas": [
+        "QA141 HTTP/SQLite+33 migracion/PG+1 restore27 poblado; seguridad34/34,78 fuentes estables. No equivale a aceptacion UI."
+      ],
+      "evidencia": [
+        "evidence/qa-diary27-independent/qa-diary27-final-source.json"
+      ],
       "documentacion": [
-        "DIARIO_PERSISTENCIA_PROPUESTA.md"
+        "DIARIO_PERSISTENCIA_PROPUESTA.md",
+        "DIARIO.md"
       ],
       "revisor": null,
       "bloqueo": null,
@@ -4013,12 +4026,21 @@
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
+      "cambios": [
+        "Backend diario27 integrado423296f: snapshots por sujeto/fecha, CAS, limites y exportacion sexta coleccion; UI606 retenida por SEC04 y confirmacion logout."
+      ],
+      "commits": [
+        "423296f"
+      ],
+      "pruebas": [
+        "QA141 HTTP/SQLite+33 migracion/PG+1 restore27 poblado; seguridad34/34,78 fuentes estables. No equivale a aceptacion UI."
+      ],
+      "evidencia": [
+        "evidence/qa-diary27-independent/qa-diary27-final-source.json"
+      ],
       "documentacion": [
-        "DIARIO_PERSISTENCIA_PROPUESTA.md"
+        "DIARIO_PERSISTENCIA_PROPUESTA.md",
+        "DIARIO.md"
       ],
       "revisor": null,
       "bloqueo": null,
@@ -4657,9 +4679,9 @@
       "dependencias": [
         "R18"
       ],
-      "estado": "en_revision",
-      "implementacion": "parcial",
-      "validacion": "parcial",
+      "estado": "verificado",
+      "implementacion": "verificado",
+      "validacion": "verificado",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
@@ -4673,7 +4695,8 @@
       ],
       "pruebas": [
         "Dos variantes rojas independientes: assume-unchanged y skip-worktree;58 pruebas de receta verdes no cubrían esta atribución.19 archivos fuente antes/después sin cambios.",
-        "QA94/22.85s sin errores/fallos/skips;27 fuentes/índice/config estables, dos rojos binarios preservados. No build ni instalador en ese gate."
+        "QA94/22.85s sin errores/fallos/skips;27 fuentes/índice/config estables, dos rojos binarios preservados. No build ni instalador en ese gate.",
+        "Artefacto9f3f32e:39/39 independientes,1688 fuentes iguales a blobs,1216 miembrosZIP exactos,217PE AMD64 y diagnóstico Qt propio. Procedencia cerrada localmente; OPS10 controla recurso de referencia, sin afirmar publicación."
       ],
       "evidencia": [
         "evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.md",
@@ -4683,7 +4706,9 @@
         "evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.after.json",
         "evidence/desktop-backend-review-41ad55f/desktop-packaging-backend-review.tests.xml",
         "evidence/desktop-qa-review-abfee196/desktop-provenance-final-independent-source.json",
-        "evidence/desktop-real-build-9f3f32e-source.json"
+        "evidence/desktop-real-build-9f3f32e-source.json",
+        "evidence/desktop-artifact-independent-source.json",
+        "evidence/desktop-artifact-independent-review.md"
       ],
       "documentacion": [
         "DESKTOP_PUBLICACION.md",
@@ -4691,8 +4716,8 @@
         "RIESGOS.md",
         "DESKTOP_EMPAQUETADO.md"
       ],
-      "revisor": "Backend y QA independientes; QA94 receta aceptada, artefacto pendiente",
-      "bloqueo": "Falta aceptar artefacto construido desde commit integrado exacto; receta/procedencia94 aceptada. Primer preflight ANSI/autocrlf rechaza correctamente, segundo checkout LF en curso.",
+      "revisor": "Backend/QA independientes receta94; operación independiente artefacto39, bytes1688fuentes contra commit exacto9f3f32e e índice/config estables",
+      "bloqueo": null,
       "observaciones": [
         "Nuevo hallazgo añadido sin renumerar92 originales ni OPS08/SEC01/SEC02; total96 registros. Los probes no ejecutan código sintético ni modifican el checkout revisado."
       ]
@@ -4743,6 +4768,102 @@
       "bloqueo": null,
       "observaciones": [
         "Total97:92 originales más OPS08/OPS09/SEC01/SEC02/SEC03, sin renumerar. Error renderer usa doble local; no se atribuye control del error al backend."
+      ]
+    },
+    {
+      "id": "OPS10",
+      "identificador_original": "OPS10",
+      "fuente": "docs/implementation/20261018-evolution/evidence/desktop-artifact-independent-review.md",
+      "seccion": "La inspección visual añadió un pendiente de distribución",
+      "problema": "El bundle incluye una captura de referencia no usada con nombres/correos cuya procedencia no está acreditada.",
+      "criterio_exacto": "Excluir assets/design-reference.png del inventario distribuido y rechazar su inclusión en bundle/ZIP/manifiesto, conservando el original del repositorio; verificar un nuevo artefacto exacto y el diagnóstico Qt sin alterar los recursos necesarios.",
+      "prioridad": "P2",
+      "responsable": "Operación y documentación técnica",
+      "tareas": [
+        "R18",
+        "R21",
+        "R31"
+      ],
+      "dependencias": [
+        "R18"
+      ],
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "reproducido",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [
+        "Revisión independiente del artefacto9f3f32e encuentra captura incluida por selección de extensiones; búsqueda literal de producto no encuentra uso. No se afirma que las identidades sean reales.",
+        "Exclusion exacta del recurso integrada en bca89bb sin borrar el original; nuevo artefacto aun pendiente."
+      ],
+      "commits": [
+        "bca89bb"
+      ],
+      "pruebas": [
+        "Integridad/CRC/bytes y Qt39/39 verdes no acreditan procedencia del contenido de referencia. Artefacto9f preservado sin distribución.",
+        "QA97 casos y3 CLI propios aceptados,29 fuentes/indice/config/referencia estables; no acredita el ZIP reemplazo."
+      ],
+      "evidencia": [
+        "evidence/desktop-artifact-independent-review.md",
+        "evidence/desktop-artifact-independent-resources-source.json",
+        "evidence/desktop-artifact-independent-source.json",
+        "evidence/desktop-artifact-independent-evidence-manifest.json",
+        "evidence/desktop-ops10-independent/desktop-ops10-independent-source.json",
+        "evidence/desktop-ops10-author-evidence-manifest.json"
+      ],
+      "documentacion": [
+        "DESKTOP_EMPAQUETADO.md",
+        "ESTADO.md",
+        "RIESGOS.md"
+      ],
+      "revisor": "Operación independiente del builder root identifica recurso; autor corrige en worktree; QA y nuevo build posteriores pendientes",
+      "bloqueo": "Retener distribución hasta excluir el recurso del nuevo candidato y repetir validación del artefacto. Instalador, firma y flujos de negocio permanecen separados.",
+      "observaciones": [
+        "Total98:92 originales más OPS08/OPS09/OPS10/SEC01/SEC02/SEC03; no se renumera ni cambia ningún criterio original."
+      ]
+    },
+    {
+      "id": "SEC04",
+      "identificador_original": "SEC04",
+      "fuente": "docs/implementation/20261018-evolution/evidence/ux/diary-ui-security-independent-review.md",
+      "seccion": "Cruce del consumidor y cache de exportacion UI606",
+      "problema": "La continuacion de exportacion puede preparar datos de A tras reemplazar la sesion por B; el evento de Storage conserva la parte preparada.",
+      "criterio_exacto": "Verificar revision e identidad canonica en cada frontera del consumidor antes de aceptar DTO, preparar Blob o descargar; invalidar sincronicamente parte, URLs, contadores y acciones ante cambio de sesion o fallo Storage. Conservar negativos originales y revisar correccion con controles independientes de cambio de cuenta, rol, equipo y version de sesion, sin leer ni alterar legado localStorage.",
+      "prioridad": "P1",
+      "responsable": "Frontend y seguridad",
+      "tareas": [
+        "R10",
+        "R14",
+        "R31"
+      ],
+      "dependencias": [
+        "R02"
+      ],
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [
+        "UI606 retenida; correccion focal en worktree, sin integracion."
+      ],
+      "commits": [],
+      "pruebas": [
+        "VM independiente:6/10 verdes y cuatro rojos; dos rojos son este cruce/cache y dos pertenecen a confirmacion logout."
+      ],
+      "evidencia": [
+        "evidence/ux/diary-ui-security-independent-review.md",
+        "evidence/ux/diary-ui-security-independent-realack-before.json",
+        "evidence/ux/diary-ui-security-independent-contract-addendum.json"
+      ],
+      "documentacion": [
+        "RIESGOS.md",
+        "DIARIO.md"
+      ],
+      "revisor": "Seguridad independiente; correccion aun pendiente de revisar",
+      "bloqueo": null,
+      "observaciones": [
+        "Reproduccion VM sintetica; no afirma incidente ni explotacion con cuentas reales. Los21 grupos browser de QA son cobertura parcial y no anulan estos negativos."
       ]
     }
   ]

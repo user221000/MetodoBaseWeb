@@ -1,0 +1,5 @@
+﻿#define MyAppVersion "2.0.0"
+#define VerifiedSourceCommit "9f3f32e5fffa61d453f7bccfe27d91f24a13d561"
+#define VerifiedManifestSha256 "d4ac759b5bedd73cac8e247a863c6a557f69fb31f4b8513756067afa32655bff"
+#define VerifiedFilesInclude "F:\MetodoBaseWeb-desktop-build-lf-20261019\dist\installer-inputs\verified-files.iss"
+#define VerifiedOutputDir "F:\MetodoBaseWeb-desktop-build-lf-20261019\dist\installer-inputs\Output"
