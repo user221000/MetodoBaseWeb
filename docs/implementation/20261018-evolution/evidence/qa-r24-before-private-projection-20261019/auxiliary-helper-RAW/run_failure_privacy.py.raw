@@ -1,0 +1,12 @@
+import sys,json,xml.etree.ElementTree as ET
+from pathlib import Path
+TOOLS=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-independent-20261019/review-tools');sys.path.insert(0,str(TOOLS))
+from support import *
+phase=TEMP/'failure-privacy';phase.mkdir();origin=phase/'origin';origin.mkdir();proofs=phase/'proofs';proofs.mkdir();before=photo('failure-privacy-before');env=environment();env.update(QA_HISTORY30_MODULE_ORIGIN_OUT=str(origin),R24_FAILURE_OUTPUT=str(proofs))
+test=TEMP/'test_r24_failure_privacy.py';frozen=sha(test.read_bytes());(OUT/'failure-privacy-driver.raw').write_bytes(test.read_bytes())
+command=[str(PYTHON),'-X','utf8','-B','tests/run_isolated.py','-p','qa_r24_origin','--rootdir='+str(ROOT),'--import-mode=importlib',str(test),'-q','--tb=short','--junitxml='+str(phase/'junit.xml')]
+with (phase/'stdout.raw.log').open('xb')as stdout,(phase/'stderr.raw.log').open('xb')as stderr:result=subprocess.run(command,cwd=ROOT,env=env,stdout=stdout,stderr=stderr,timeout=180)
+save('failure-privacy-child-exit.json',{'exit':result.returncode,'command':command});after=photo('failure-privacy-after');assert before==after and sha(test.read_bytes())==frozen
+cases=ET.parse(phase/'junit.xml').findall('.//testcase');outputs=[publish(p,'failure-privacy-'+p.relative_to(phase).as_posix().replace('/','--'))for p in sorted(phase.rglob('*'))if p.is_file()]
+save('failure-privacy-result.json',{'head':HEAD,'exit':result.returncode,'total':len(cases),'failures':sum(c.find('failure')is not None for c in cases),'driver_sha256':frozen,'sources':before['source_count'],'packages':89,'stable':True,'outputs':outputs})
+print(json.dumps({'exit':result.returncode,'total':len(cases),'failures':sum(c.find('failure')is not None for c in cases),'driver_sha256':frozen,'sources':before['source_count'],'stable':True}))

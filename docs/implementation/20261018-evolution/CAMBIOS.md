@@ -140,3 +140,8 @@ Se sella regresión amplia del esquema30 integrado. Se autentican147+manifest de
 ## Checkpoint 114
 
 Se registra SEC11:108 total,107 criterios previos exactos. Se sella aceptación CI573 y M2 estático; no merge de esas fuentes en este checkpoint. R24/MFA31 están aislados, R25 diseño y R35 evaluación inicial explícitos.
+
+
+## Checkpoint 115
+
+R23/expiración/CI573 integrado3643; no nuevoDDL. Estecheckpoint sólo documentación/evidencia. R24headers4042,SEC11/531 yMFA31 no se atribuyen aMAIN.

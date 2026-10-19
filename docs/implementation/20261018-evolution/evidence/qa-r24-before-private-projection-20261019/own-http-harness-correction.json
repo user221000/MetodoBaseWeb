@@ -1,0 +1,22 @@
+{
+  "before_test_sha256": "8c6fd61ddb320089418a7d485b7abc33ea71919313f845b5d071750a40d83a6d",
+  "after_test_sha256": "8f3691b713e524ebb1b6bc535099f27449ca14db6faad06e3a1cc74391191046",
+  "original_six_failures_preserved": "own-http-result.json",
+  "cause": "Own assumptions about literal cache header and global publication version contradicted existing valid contracts; not product changes.",
+  "changes": [
+    [
+      "assert result.headers['cache-control']=='no-store'and result.headers['referrer-policy']=='no-referrer'",
+      "directives={part.strip()for part in result.headers['cache-control'].split(',')};assert 'no-store'in directives and directives<={'no-store','max-age=0'}and result.headers['referrer-policy']=='no-referrer'"
+    ],
+    [
+      "assert current['version']==2",
+      "assert current['version']==1 and current['id']!=body['publication_id']"
+    ],
+    [
+      "'expected_publication_version':2}",
+      "'expected_publication_version':1}"
+    ]
+  ],
+  "inverse_entire_original_exact": true,
+  "source_product_unchanged": true
+}

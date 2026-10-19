@@ -1,0 +1,33 @@
+import sys,os,json
+from pathlib import Path
+ROOT=Path(sys.argv[1]);sys.path.insert(0,str(ROOT));private=Path(sys.argv[2]);out=Path(sys.argv[3]);resource=json.loads((private/'resource.json').read_bytes())
+from tests.isolation import prepare_environment,block_external_sockets,validate_postgres_test_url
+prepare_environment(discard_inherited=True);block_external_sockets()
+configuration=json.loads((private/'pg-config.private.json').read_bytes())
+from urllib.parse import urlsplit,urlunsplit
+url=configuration['METODOBASE_TEST_POSTGRES_URL'];validate_postgres_test_url(url);parsed=urlsplit(url);url=urlunsplit(parsed._replace(path='/'+resource['owned_database']))
+os.environ['DATABASE_URL']=url
+from sqlalchemy import create_engine,text
+from web.database.tenant_context import configure_tenant_engine
+from web.database.tenant_policy import verify_application_database_role
+from web.database.schema_control import verify_runtime_schema,expected_head
+from web.database.models import Base
+from web.database.alembic.history_index_contract_v1 import history_index_signature,expected_history_index
+for name,module in list(sys.modules.items()):
+    if module is not None and any(name==p or name.startswith(p+'.')for p in ['web','api','core','tests','config','scripts','src']):
+        path=getattr(module,'__file__',None)
+        if path:assert Path(path).resolve().is_relative_to(ROOT.resolve()),(name,path)
+engine=configure_tenant_engine(create_engine(url,pool_size=1,max_overflow=0))
+try:
+    verify_application_database_role(engine);verify_runtime_schema(engine,require_revision=True)
+    with engine.connect()as c:
+        assert c.execute(text('SELECT current_database()')).scalar_one()==resource['owned_database']
+        flags=tuple(c.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one());assert flags==(False,False,False,False)
+        assert c.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+        revision=c.execute(text('SELECT version_num FROM alembic_version')).scalar_one();assert revision==expected_head()=='20261019_personal_history_index'
+        physical=c.execute(text("SELECT count(*)FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")).scalar_one();assert physical==30
+        index=history_index_signature(c);assert index==expected_history_index('postgresql')
+        families=c.execute(text("SELECT count(*)FROM pg_class WHERE relname IN ('personal_diary_days','client_account_links','client_plan_publications')AND relrowsecurity AND relforcerowsecurity")).scalar_one();assert families==3
+    assert len(Base.metadata.tables)==29
+    out.write_text(json.dumps({'executed_revision':revision,'model_tables':29,'physical_tables':physical,'index':index,'restricted_flags':list(flags),'database_nonowner':True,'force_RLS_families':3,'owned_database':resource['owned_database'],'own_root':str(ROOT),'module_origins_verified':True,'read_only_observation_no_DDL':True},indent=2)+'\n')
+finally:engine.dispose()

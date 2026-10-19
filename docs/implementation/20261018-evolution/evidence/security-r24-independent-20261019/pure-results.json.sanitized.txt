@@ -1,0 +1,108 @@
+{
+  "scope": "Pure schema/projection/snapshot only; no HTTP/SQL/PG claim",
+  "modules_origin_verified": true,
+  "total": 25,
+  "passed": 25,
+  "results": [
+    {
+      "case": "Legacy snapshot and minimal publication snapshot decode without adopting a profile",
+      "passed": true
+    },
+    {
+      "case": "Reject complete snapshot with extra provenance gym_id",
+      "passed": true
+    },
+    {
+      "case": "Reject complete snapshot with extra provenance plan",
+      "passed": true
+    },
+    {
+      "case": "Reject complete snapshot with extra provenance profile",
+      "passed": true
+    },
+    {
+      "case": "Reject complete snapshot with extra provenance pdf_url",
+      "passed": true
+    },
+    {
+      "case": "Reject corrupt publication provenance link_version:True",
+      "passed": true
+    },
+    {
+      "case": "Reject corrupt publication provenance publication_version:0",
+      "passed": true
+    },
+    {
+      "case": "Reject corrupt publication provenance publication_version:2147483648",
+      "passed": true
+    },
+    {
+      "case": "Reject corrupt publication provenance link_id:<REDACTED_SYNTHETIC_ID>",
+      "passed": true
+    },
+    {
+      "case": "Reject corrupt publication provenance published_at:2026-02-30T10:00:00Z",
+      "passed": true
+    },
+    {
+      "case": "Reject corrupt publication provenance published_at:2026-10-19T10:00:00",
+      "passed": true
+    },
+    {
+      "case": "Reject corrupt publication provenance kind:professional_profile",
+      "passed": true
+    },
+    {
+      "case": "Duplicate snapshot keys reject the whole stored day",
+      "passed": true
+    },
+    {
+      "case": "Unknown fixed food cannot become a consumed food from a caller label",
+      "passed": true
+    },
+    {
+      "case": "Fixed source without explicit fixed selection cannot create empty consumption",
+      "passed": true
+    },
+    {
+      "case": "Fixed source cannot mix options with full-menu selection",
+      "passed": true
+    },
+    {
+      "case": "HTTP schema rejects untrusted field/type user_id",
+      "passed": true
+    },
+    {
+      "case": "HTTP schema rejects untrusted field/type gym_id",
+      "passed": true
+    },
+    {
+      "case": "HTTP schema rejects untrusted field/type foods",
+      "passed": true
+    },
+    {
+      "case": "HTTP schema rejects untrusted field/type totals",
+      "passed": true
+    },
+    {
+      "case": "HTTP schema rejects untrusted field/type expected_version",
+      "passed": true
+    },
+    {
+      "case": "HTTP schema rejects untrusted field/type expected_publication_version",
+      "passed": true
+    },
+    {
+      "case": "HTTP schema rejects untrusted field/type source_kind",
+      "passed": true
+    },
+    {
+      "case": "Remove operation carries only own CAS and meal, not source authority",
+      "passed": true
+    },
+    {
+      "case": "A changed source projection fails its pinned integrity digest",
+      "passed": true
+    }
+  ]
+}

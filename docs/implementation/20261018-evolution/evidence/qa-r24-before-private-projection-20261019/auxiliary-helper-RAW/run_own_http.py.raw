@@ -1,0 +1,12 @@
+import sys,json,xml.etree.ElementTree as ET
+from pathlib import Path
+TOOLS=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-independent-20261019/review-tools');sys.path.insert(0,str(TOOLS))
+from support import *
+phase=TEMP/'own-http';phase.mkdir();origin=phase/'origin';origin.mkdir();test=TEMP/'test_r24_own_http.py';own_sha=sha(test.read_bytes());before=photo('own-http-before');env=environment();env['QA_HISTORY30_MODULE_ORIGIN_OUT']=str(origin)
+command=[str(PYTHON),'-X','utf8','-B','tests/run_isolated.py','-p','qa_r24_origin','--rootdir='+str(ROOT),'--import-mode=importlib',str(test),'-q','--tb=short','--junitxml='+str(phase/'junit.xml')]
+with (phase/'stdout.raw.log').open('xb')as stdout,(phase/'stderr.raw.log').open('xb')as stderr:result=subprocess.run(command,cwd=ROOT,env=env,stdout=stdout,stderr=stderr,timeout=240)
+save('own-http-child-exit.json',{'exit':result.returncode,'command':command});after=photo('own-http-after');assert before==after and sha(test.read_bytes())==own_sha
+cases=ET.parse(phase/'junit.xml').findall('.//testcase');failures=[{'name':c.get('name'),'classname':c.get('classname')}for c in cases if any(c.find(t)is not None for t in ['failure','error','skipped'])]
+outputs=[publish(p,'own-http-'+p.relative_to(phase).as_posix().replace('/','--'))for p in sorted(phase.rglob('*'))if p.is_file()]
+save('own-http-result.json',{'head':HEAD,'exit':result.returncode,'total':len(cases),'passed':len(cases)-len(failures),'nonpass':failures,'source_files':before['source_count'],'packages':89,'stable':True,'own_test_sha256':own_sha,'outputs':outputs})
+print(json.dumps({'mode':'own-http','exit':result.returncode,'total':len(cases),'passed':len(cases)-len(failures),'nonpass':failures,'sources':before['source_count'],'stable':True}));assert result.returncode==0 and len(cases)==6 and not failures

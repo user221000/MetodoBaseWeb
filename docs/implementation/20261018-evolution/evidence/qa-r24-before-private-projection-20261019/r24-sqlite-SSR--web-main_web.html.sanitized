@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="REDACTED_CSRF_SHA256_2710fd14fb2732397a140f9775cb0922fd2da29f699fb360296280b58cab06a2">
+  <title>Mi Plan — Método Base</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous" />
+
+  <!-- User theme: standalone light-mode stylesheet -->
+  <link rel="stylesheet" href="/static/css/styles-usuario.css?v=325cced853" />
+
+  
+<link rel="stylesheet" href="/static/css/plan-diario.css?v=r24-1">
+<style nonce="odYZtSLQxa3zp150InCZeQ">
+.u-veg-chip { color: var(--u-green); }
+#diary-section .u-btn-secondary { color:var(--u-text);background:var(--u-bg-card);border:1px solid var(--u-border); }
+.u-meal-check-input { display:inline-block;width:18px;height:18px;accent-color:var(--u-accent); }
+.u-meal-check-label { display:inline-flex;align-items:center;gap:4px; }
+#meal-tabs .u-meal-tab { color:var(--u-text); }
+#meal-selector-content fieldset { min-width:0; }
+#meal-selector-content .u-sel-option input[type="radio"] { position:static;opacity:1;pointer-events:auto;flex-shrink:0;width:18px;height:18px;accent-color:var(--u-accent); }
+#meal-selector-content .u-sel-option span { min-width:0;overflow-wrap:anywhere; }
+#diary-section input:focus-visible,#diary-section button:focus-visible,#panel-agua input:focus-visible,#panel-comidas input:focus-visible,#panel-comidas button:focus-visible,.u-meal-check-input:focus-visible + .u-meal-check-pill { outline:3px solid var(--u-accent);outline-offset:3px; }
+</style>
+
+</head>
+<body>
+
+<!-- ── Auth Guard ─────────────────────────────────────────── -->
+<script nonce="odYZtSLQxa3zp150InCZeQ" src="/static/js/auth-guard.js?v=325cced853"></script>
+
+<!-- ── Sidebar ────────────────────────────────────────────── -->
+<aside class="u-sidebar" id="main-sidebar">
+
+  <!-- Logo -->
+  <div class="u-sidebar-logo">
+    <a href="/mi-plan" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+      <div class="u-sidebar-logo-icon">
+        <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="u-sidebar-logo-text">Método Base</div>
+        <div class="u-sidebar-logo-sub">Tu Plan Nutricional</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="u-sidebar-nav" aria-label="Menú principal">
+    <a href="/equipo/inicio" class="u-nav-item" data-professional-context hidden>Espacio del gimnasio</a>
+
+    <span class="u-nav-section">Principal</span>
+
+    <a href="/mi-plan" class="u-nav-item" data-page="mi-plan">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+      Dashboard
+    </a>
+
+    <a href="/mi-historial" class="u-nav-item" data-page="mi-historial">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      Progreso
+    </a>
+
+    <a href="/mis-vinculos" class="u-nav-item" data-page="mis-vinculos">Mis vínculos con gimnasios</a>
+
+    <span class="u-nav-section">Personal</span>
+
+    <a href="/mi-suscripcion" class="u-nav-item" data-page="mi-suscripcion">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+      Mi Suscripción
+    </a>
+
+    <a href="/mi-perfil" class="u-nav-item" data-page="mi-perfil">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Mi Perfil
+    </a>
+
+  </nav>
+
+  <!-- Promo card -->
+  <div class="u-sidebar-promo">
+    <h4>🔥 Consejo del día</h4>
+    <p>Ten agua a mano y adapta tu hidratación a tus necesidades y a la orientación de tu profesional de salud.</p>
+    <a href="/mi-plan" class="u-promo-btn">Ver mi plan →</a>
+  </div>
+
+  <!-- Footer -->
+  <div class="u-sidebar-footer">
+    <div class="u-sidebar-user">
+      <div class="u-avatar" id="sb-avatar">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.2 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+      <div>
+        <div class="u-sidebar-user-name" id="sb-nombre">Cargando...</div>
+        <div class="u-sidebar-user-role" id="sb-tipo">Usuario</div>
+      </div>
+    </div>
+    <button class="u-btn-logout" id="btn-logout">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Cerrar sesión
+    </button>
+  </div>
+</aside>
+
+<!-- ── Mobile hamburger ───────────────────────────────────── -->
+<button class="u-mobile-menu-btn" id="btn-hamburger" aria-label="Abrir menú" aria-controls="main-sidebar" aria-expanded="false">☰</button>
+<div class="u-sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ── Main Content ───────────────────────────────────────── -->
+<main class="u-main">
+  
+
+<!-- ── 1. HERO SECTION ────────────────────────────────────── -->
+<div class="u-hero">
+  <h1 class="u-hero-title" id="saludo">¡Hola!</h1>
+  <p class="u-hero-subtitle">Tu nutrición, ajustada a tu cuerpo y tus metas.</p>
+</div>
+
+<section class="u-card" id="diary-section" aria-labelledby="diary-title">
+  <h2 id="diary-title">Mi diario personal</h2>
+  <p>Fecha del servidor en Ciudad de México. Registrar consumo y marcar una comida completada son acciones distintas.</p>
+  <p id="diary-legacy-notice">Los datos locales de versiones anteriores no están sincronizados. No se importan ni se borran automáticamente.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+    <label for="diary-date">Día del registro</label>
+    <input type="date" id="diary-date" class="u-input" disabled />
+    <button type="button" id="diary-today" class="u-btn u-btn-secondary" disabled>Consultar hoy</button>
+    <button type="button" id="diary-reload" class="u-btn u-btn-secondary">Volver a consultar</button>
+  </div>
+  <p id="diary-status" role="status" aria-live="polite" tabindex="-1">Consultando diario…</p>
+  <p id="diary-draft-summary"></p>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;">
+    <button type="button" id="diary-retry" class="u-btn u-btn-primary" hidden>Registrar mi borrador sobre estos datos</button>
+    <button type="button" id="diary-discard" class="u-btn u-btn-secondary" hidden>Descartar borrador</button>
+  </div>
+  <p id="diary-water-current"></p>
+  <div id="diary-snapshots"></div>
+</section>
+
+<!-- ── 2. TWO-COLUMN LAYOUT ───────────────────────────────── -->
+<div class="u-grid-2-1" id="macros-section" style="display:none;">
+
+  <!-- LEFT: Daily Goal Card -->
+  <div class="u-card">
+    <div class="u-goal-card">
+      <div class="u-goal-card-left">
+        <div class="u-goal-card-badge">Consumo registrado</div>
+        <div class="u-goal-card-pct" id="goal-pct-label">Sin consultar</div>
+        <div class="u-goal-progress">
+          <div class="u-goal-progress-bar" id="goal-progress-bar" style="width:0%;"></div>
+        </div>
+        <div class="u-goal-card-numbers">
+          <span id="goal-current">—</span> kcal registradas
+        </div>
+        <p>Marca una comida como completada después de registrar su selección.</p>
+        <div class="u-meal-checks">
+          <label class="u-meal-check-label" for="chk-des">
+            <input type="checkbox" class="u-meal-check-input" id="chk-des">
+            <span class="u-meal-check-pill">🌅 Desayuno</span>
+          </label>
+          <label class="u-meal-check-label" for="chk-alm">
+            <input type="checkbox" class="u-meal-check-input" id="chk-alm">
+            <span class="u-meal-check-pill">🥗 Almuerzo</span>
+          </label>
+          <label class="u-meal-check-label" for="chk-com">
+            <input type="checkbox" class="u-meal-check-input" id="chk-com">
+            <span class="u-meal-check-pill">🍖 Comida</span>
+          </label>
+          <label class="u-meal-check-label" for="chk-cen">
+            <input type="checkbox" class="u-meal-check-input" id="chk-cen">
+            <span class="u-meal-check-pill">🌙 Cena</span>
+          </label>
+        </div>
+      </div>
+      <div class="u-goal-card-right">
+        <svg class="u-ring" viewBox="0 0 120 120" width="110" height="110">
+          <circle class="u-ring-bg" cx="60" cy="60" r="52" stroke-width="10" fill="none"/>
+          <circle class="u-ring-fg" id="goal-ring" cx="60" cy="60" r="52" stroke-width="10" fill="none"
+                  stroke-dasharray="326.73" stroke-dashoffset="326.73"
+                  stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          <text x="60" y="56" text-anchor="middle" class="u-ring-pct" id="goal-ring-pct">—</text>
+          <text x="60" y="72" text-anchor="middle" class="u-ring-label">completadas</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Nutrition Tip Card -->
+  <div class="u-card u-tip-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="u-tip-badge">💡 Dato del día</div>
+      <div class="u-tip-nav">
+        <button class="u-tip-nav-btn" id="tip-prev" aria-label="Anterior">&#8249;</button>
+        <span class="u-tip-dots" id="tip-dots"></span>
+        <button class="u-tip-nav-btn" id="tip-next" aria-label="Siguiente">&#8250;</button>
+      </div>
+    </div>
+    <p class="u-tip-text" id="tip-text">Ver opciones no registra consumo.</p>
+    <div class="u-tip-rings">
+      <div class="u-tip-ring-item">
+        <svg viewBox="0 0 44 44" width="44" height="44">
+          <circle cx="22" cy="22" r="18" stroke-width="4" fill="none" class="u-ring-bg"/>
+          <circle cx="22" cy="22" r="18" stroke-width="4" fill="none" class="u-ring-fg" id="tip-ring-p"
+                  stroke-dasharray="113.1" stroke-dashoffset="113.1"
+                  stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        </svg>
+        <span class="u-tip-ring-label">P</span>
+      </div>
+      <div class="u-tip-ring-item">
+        <svg viewBox="0 0 44 44" width="44" height="44">
+          <circle cx="22" cy="22" r="18" stroke-width="4" fill="none" class="u-ring-bg"/>
+          <circle cx="22" cy="22" r="18" stroke-width="4" fill="none" class="u-ring-fg-green" id="tip-ring-c"
+                  stroke-dasharray="113.1" stroke-dashoffset="113.1"
+                  stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        </svg>
+        <span class="u-tip-ring-label">C</span>
+      </div>
+      <div class="u-tip-ring-item">
+        <svg viewBox="0 0 44 44" width="44" height="44">
+          <circle cx="22" cy="22" r="18" stroke-width="4" fill="none" class="u-ring-bg"/>
+          <circle cx="22" cy="22" r="18" stroke-width="4" fill="none" class="u-ring-fg-blue" id="tip-ring-g"
+                  stroke-dasharray="113.1" stroke-dashoffset="113.1"
+                  stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        </svg>
+        <span class="u-tip-ring-label">G</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── 3. QUICK ACTION BUTTONS ────────────────────────────── -->
+<div class="u-quick-actions" id="quick-actions" style="display:none;">
+  <button class="u-quick-btn" id="btn-generar" title="Generar Plan">
+    <span class="u-quick-btn-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+    </span>
+    <span class="u-quick-btn-label">Generar</span>
+  </button>
+  <button class="u-quick-btn" id="btn-comidas" title="Ver Comidas">
+    <span class="u-quick-btn-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3zM12 8v8m-4-4h8"/></svg>
+    </span>
+    <span class="u-quick-btn-label">Registrar comida</span>
+  </button>
+  <button class="u-quick-btn" id="btn-agua" title="Hidratación">
+    <span class="u-quick-btn-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+    </span>
+    <span class="u-quick-btn-label">Agua</span>
+  </button>
+  <button class="u-quick-btn" id="btn-excluir" title="Excluir Alimentos">
+    <span class="u-quick-btn-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+    </span>
+    <span class="u-quick-btn-label">Excluir</span>
+  </button>
+  <button class="u-quick-btn" id="btn-descargar-pdf" style="display:none;" title="Descargar PDF">
+    <span class="u-quick-btn-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m4-5l5 5 5-5m-5 5V3"/></svg>
+    </span>
+    <span class="u-quick-btn-label">PDF</span>
+  </button>
+  <a href="/mi-perfil" class="u-quick-btn" title="Mi Perfil">
+    <span class="u-quick-btn-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </span>
+    <span class="u-quick-btn-label">Perfil</span>
+  </a>
+</div>
+
+<!-- ── 4. ONBOARDING CARD ─────────────────────────────────── -->
+<section id="personal-operation" class="u-card" aria-label="Estado de la generación" hidden>
+  <p id="personal-operation-message" role="status" aria-live="polite" tabindex="-1"></p>
+  <div style="display:flex;flex-wrap:wrap;gap:12px;">
+    <button type="button" id="personal-operation-retry" class="u-btn u-btn-primary" hidden>Reintentar la misma solicitud</button>
+    <button type="button" id="personal-operation-new" class="u-btn u-btn-secondary" hidden>Iniciar otra generación</button>
+    <a href="/mi-historial" target="_blank" rel="noopener noreferrer" class="u-btn u-btn-secondary">Consultar historial en otra pestaña</a>
+    <a href="/mi-plan" id="personal-session-reopen" class="u-btn u-btn-secondary" hidden>Volver a abrir mi plan</a>
+  </div>
+  <p id="personal-operation-cost" hidden>Una nueva solicitud puede utilizar otro plan de tu suscripción.</p>
+</section>
+<div id="onboarding-card" class="u-onboarding" style="display:none;">
+  <div class="u-onboarding-icon">🎯</div>
+  <div class="u-onboarding-body">
+    <h3 class="u-onboarding-title">Cuéntanos sobre ti para generar tu plan</h3>
+    <p class="u-onboarding-text">Solo necesitamos 3 datos (peso, estatura, objetivo) para calcular tu plan nutricional en segundos.</p>
+  </div>
+  <a href="/mi-perfil" class="u-btn u-btn-primary">Configurar mi plan →</a>
+</div>
+
+<!-- ── 5. CONTEXT BAR ─────────────────────────────────────── -->
+<div class="u-context-bar" id="context-bar" style="display:none;">
+  <span class="u-context-tag">Plan mostrado</span>
+  <span class="u-context-tag">🎯 Meta: <strong id="lbl-objetivo">—</strong></span>
+  <span class="u-context-tag">📅 Actualizado: <strong id="lbl-fecha-plan">—</strong></span>
+</div>
+
+<!-- ── 6. SUMMARY SECTION ─────────────────────────────────── -->
+<div id="summary-section" style="display:none;">
+  <div class="u-section-header">
+    <h2 class="u-section-title">📊 Referencia del plan mostrado</h2>
+  </div>
+  <div class="u-grid-4">
+    <div class="u-kpi-card">
+      <div class="u-kpi-dot" style="background:var(--u-accent);"></div>
+      <div class="u-kpi-label">Calorías</div>
+      <div class="u-kpi-value" id="kpi-kcal">—</div>
+      <div class="u-kpi-sub">kcal / día</div>
+    </div>
+    <div class="u-kpi-card">
+      <div class="u-kpi-dot" style="background:var(--u-orange);"></div>
+      <div class="u-kpi-label">Proteína</div>
+      <div class="u-kpi-value" id="kpi-proteina">—</div>
+      <div class="u-kpi-sub">gramos / día</div>
+    </div>
+    <div class="u-kpi-card">
+      <div class="u-kpi-dot" style="background:var(--u-green);"></div>
+      <div class="u-kpi-label">Carbohidratos</div>
+      <div class="u-kpi-value" id="kpi-carbs">—</div>
+      <div class="u-kpi-sub">gramos / día</div>
+    </div>
+    <div class="u-kpi-card">
+      <div class="u-kpi-dot" style="background:var(--u-blue);"></div>
+      <div class="u-kpi-label">Grasas</div>
+      <div class="u-kpi-value" id="kpi-grasa">—</div>
+      <div class="u-kpi-sub">gramos / día</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 7. MEALS SECTION (opciones) ─────────────────────────── -->
+<div id="plan-comidas" style="display:none;">
+  <div class="u-section-header">
+    <h2 class="u-section-title">🍽️ Opciones del plan mostrado</h2>
+    <p class="u-section-subtitle">Porciones de la fuente consultada. Ver opciones, preparar una compra y registrar consumo son acciones distintas.</p>
+  </div>
+  <div id="meals-container" style="display:grid; gap:20px;"></div>
+</div>
+
+<section id="plan-shopping" class="plan-day" aria-labelledby="plan-shopping-title" aria-busy="false">
+  <h2 id="plan-shopping-title">Porciones y lista de compras</h2>
+  <p id="plan-source-label">Aún no hay una fuente consultada.</p>
+  <p id="plan-substitutions-state">Nuevas sustituciones no disponibles: falta un contrato de restricciones estructuradas y verificación final. Las opciones siguientes pertenecen a la fuente mostrada; no constituyen una garantía clínica.</p>
+  <p>El borrador de compra está separado del consumo registrado. Elige porciones y confirma el periodo: se sumarán esas mismas porciones una vez por día, sin registrar comidas ni recomendar repetir este menú.</p>
+  <div id="shopping-meals"></div>
+  <div class="plan-day-actions">
+    <label for="shopping-start">Inicio del periodo</label><input id="shopping-start" type="date">
+    <label for="shopping-end">Fin del periodo</label><input id="shopping-end" type="date">
+    <button type="button" id="shopping-build" disabled>Preparar borrador de compra</button>
+  </div>
+  <p id="shopping-status" role="status" aria-live="polite" tabindex="-1">Consulta una fuente antes de preparar la lista.</p>
+  <p id="shopping-unknown">Las partidas sin identidad de catálogo confirmada se muestran separadas. Las equivalencias son etiquetas y no se convierten a cantidades ni unidades.</p>
+  <ul id="shopping-items"></ul>
+  <section id="shopping-recorded-section" hidden aria-labelledby="shopping-recorded-title">
+    <h3 id="shopping-recorded-title">Alimentos ya registrados en ese periodo</h3>
+    <p>Esta consulta suma snapshots guardados. No es una recomendación de compra ni usa las opciones del plan sin registrar.</p>
+    <button type="button" id="shopping-read-recorded">Consultar alimentos registrados</button>
+    <p id="shopping-recorded-status" role="status" aria-live="polite"></p>
+    <ul id="shopping-recorded-items"></ul>
+  </section>
+  <section id="publication-consumption" hidden aria-labelledby="publication-consumption-title">
+    <h3 id="publication-consumption-title">Registrar consumo en mi diario personal</h3>
+    <p>Usa sólo las porciones elegidas de esta publicación vigente. No comparte tu diario con el gimnasio ni modifica su cartera.</p>
+    <label for="publication-diary-day">Día de consumo (Ciudad de México)</label><input type="date" id="publication-diary-day" disabled>
+    <label for="publication-diary-meal">Comida que deseas registrar</label><select id="publication-diary-meal"><option value="desayuno">Desayuno</option><option value="almuerzo">Almuerzo</option><option value="comida">Comida</option><option value="cena">Cena</option></select>
+    <div class="plan-day-actions"><button type="button" id="publication-diary-reload">Reconsultar mi diario</button><button type="button" id="publication-diary-save" disabled>Registrar esta selección de consumo</button></div>
+    <p id="publication-diary-status" role="status" aria-live="polite" tabindex="-1"></p>
+    <div id="publication-diary-records"></div>
+    <button type="button" id="publication-diary-discard" hidden>Descartar borrador de consumo</button>
+    <button type="button" id="publication-diary-retry" hidden>Registrar borrador después de revisar</button>
+  </section>
+</section>
+
+<!-- ── 7b. NUTRITIONAL RECOMMENDATIONS ────────────────────── -->
+<section id="recomendaciones-section" class="u-card" style="display:none;" aria-labelledby="plan-use-title">
+  <h2 id="plan-use-title">Alcance de este plan</h2>
+  <p>Se muestran las porciones de la fuente consultada. Las preferencias guardadas no demuestran que un plan cumpla restricciones o alergias. Las nuevas sustituciones requieren validación final que aún no está disponible.</p>
+  <p>Registrar consumo conserva únicamente los alimentos elegidos como un hecho personal. Ver el plan o preparar una compra no registra ni completa comidas.</p>
+</section>
+
+<!-- ── WATER TRACKING PANEL ────────────────────────────────── -->
+<div class="u-panel-overlay" id="panel-agua-overlay" role="dialog" aria-modal="true" aria-labelledby="water-title" tabindex="-1" style="display:none;">
+  <div class="u-panel" id="panel-agua">
+    <div class="u-panel-header">
+      <h2 class="u-panel-title" id="water-title">Registrar agua</h2>
+      <button class="u-panel-close" id="panel-agua-close" aria-label="Cerrar registro de agua">&times;</button>
+    </div>
+    <div class="u-panel-body">
+      <label for="water-input" class="u-panel-question">Total de agua para el día seleccionado (mL)</label>
+      <div class="u-water-input-row">
+        <input type="number" id="water-input" class="u-water-input" min="0" max="20000" step="1" placeholder="0" aria-describedby="water-status" />
+        <span class="u-water-unit">mL</span>
+      </div>
+      <p id="water-saved-value"></p>
+      <p class="u-water-status" id="water-status" data-diary-feedback role="status" aria-live="polite" tabindex="-1"></p>
+      <button class="u-btn u-btn-primary" id="btn-water-save" style="width:100%;margin-top:16px;">Registrar agua</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MEAL SELECTOR PANEL ─────────────────────────────────── -->
+<div class="u-panel-overlay" id="panel-comidas-overlay" role="dialog" aria-modal="true" aria-labelledby="meal-registration-title" tabindex="-1" style="display:none;">
+  <div class="u-panel u-panel-lg" id="panel-comidas">
+    <div class="u-panel-header">
+      <h2 class="u-panel-title" id="meal-registration-title">Registrar una comida</h2>
+      <button class="u-panel-close" id="panel-comidas-close" aria-label="Cerrar selección de comida">&times;</button>
+    </div>
+    <div class="u-panel-body">
+      <p id="diary-source-label"></p>
+      <p>Las opciones son un borrador. Registrar sustituye sólo la comida elegida y desmarca su completado.</p>
+      <div class="u-meal-tabs" id="meal-tabs"></div>
+      <!-- Options selector per macro -->
+      <div id="meal-selector-content"></div>
+      <p id="diary-meal-status" data-diary-feedback role="status" aria-live="polite" tabindex="-1"></p>
+      <button class="u-btn u-btn-primary" id="btn-comidas-save" style="width:100%;margin-top:16px;">Registrar esta comida</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOD EXCLUSION PANEL ──────────────────────────────── -->
+<div class="u-panel-overlay" id="panel-excluir-overlay" style="display:none;">
+  <div class="u-panel u-panel-lg" id="panel-excluir">
+    <div class="u-panel-header">
+      <h3 class="u-panel-title">🚫 Excluir Alimentos</h3>
+      <button class="u-panel-close" id="panel-excluir-close">&times;</button>
+    </div>
+    <div class="u-panel-body">
+      <p class="u-panel-question" style="margin-bottom:12px;">Guarda tus preferencias de alimentos. Esta lista no certifica exclusiones o alergias en la fuente mostrada ni sustituye la verificación final de restricciones.</p>
+      <div id="excluir-tags" class="u-excl-tags"></div>
+      <div id="excluir-catalogo" class="u-excl-catalogo">
+        <p class="u-excl-loading" id="excluir-loading-msg">Cargando catálogo...</p>
+      </div>
+      <button class="u-btn u-btn-primary" id="btn-excluir-save" style="width:100%;margin-top:16px;">Guardar Exclusiones ✅</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 8. EMPTY STATE ─────────────────────────────────────── -->
+<div id="empty-plan" style="display:none;">
+  <div class="u-card">
+    <div class="u-empty">
+      <div class="u-empty-icon">🎯</div>
+      <h3 class="u-empty-title">Tu plan personalizado está listo para generarse</h3>
+      <p class="u-empty-text">En segundos tendrás tu menú completo con calorías, proteínas y macros calculados para tu objetivo.</p>
+      <button class="u-btn u-btn-primary" id="btn-generar-empty">Ver mi primer plan →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 9. LOADING STATE ───────────────────────────────────── -->
+<div id="loading-plan">
+  <div class="u-loading">
+    <div class="u-spinner"></div>
+    <p class="u-loading-text">Cargando tu plan…</p>
+  </div>
+</div>
+
+
+
+
+</main>
+
+<!-- Toast container -->
+<div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Scripts -->
+<script nonce="odYZtSLQxa3zp150InCZeQ" src="/static/js/api.js?v=325cced853"></script>
+
+<script nonce="odYZtSLQxa3zp150InCZeQ">
+(function() {
+  // Populate user name
+  var nombre = localStorage.getItem('mb_nombre') || '';
+  var el = document.getElementById('sb-nombre');
+  if (el) el.textContent = nombre || 'Mi cuenta';
+
+  // Avatar initials
+  var av = document.getElementById('sb-avatar');
+  if (av && nombre) {
+    var parts = nombre.trim().split(' ');
+    var initials = parts.map(function(p){ return p[0]; }).join('').substring(0,2).toUpperCase();
+    if (initials) av.textContent = initials;
+  }
+
+  // Active sidebar link
+  var path = window.location.pathname;
+  document.querySelectorAll('.u-nav-item').forEach(function(a) {
+    if (a.getAttribute('href') === path) { a.classList.add('active'); a.setAttribute('aria-current', 'page'); }
+  });
+
+  // Hamburger menu
+  var btn = document.getElementById('btn-hamburger');
+  var sidebar = document.getElementById('main-sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (btn && sidebar && overlay) {
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+    btn.addEventListener('click', function() {
+      var open = !sidebar.classList.contains('open');
+      sidebar.classList.toggle('open', open);
+      overlay.classList.toggle('active', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) sidebar.querySelector('a').focus();
+    });
+    overlay.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && sidebar.classList.contains('open')) closeMenu();
+    });
+  }
+
+  // Logout
+  var logoutBtn = document.getElementById('btn-logout');
+  if (logoutBtn) logoutBtn.addEventListener('click', async function() {
+    if (logoutBtn.disabled) return;
+    var notice = document.getElementById('logout-status');
+    if (!notice) {
+      notice = document.createElement('p'); notice.id = 'logout-status'; notice.setAttribute('role','status');
+      notice.setAttribute('aria-live','polite'); notice.tabIndex = -1; notice.style.color = '#FFFFFF'; notice.style.whiteSpace = 'normal'; logoutBtn.after(notice);
+    }
+    function changed(message,code) {
+      window.dispatchEvent(new CustomEvent('metodobase-session-changed',{detail:{message:message,code:code}}));
+    }
+    logoutBtn.disabled = true; notice.textContent = 'Cerrando sesión…';
+    try {
+      if (typeof Api === 'undefined' || !Api.auth || typeof Api.auth.logout !== 'function') throw new Error('El cierre de sesión no está disponible. Vuelve a abrir esta página.');
+      var result = await Api.auth.logout();
+      if (!result || result.state !== 'closed_local') {
+        notice.textContent = 'La sesión cambió. Se conserva la cuenta actual.'; changed(notice.textContent,'session_changed'); notice.focus(); return;
+      }
+      Api.usuario.validarContexto(result.context);
+      if (result.server_confirmed) {
+        notice.textContent = 'Sesión cerrada en este navegador.';
+        Api.usuario.validarContexto(result.context);
+        window.location.replace('/login-usuario');
+      } else {
+        notice.textContent = 'La sesión se cerró en este navegador. No pudimos confirmar la revocación en el servidor.';
+        changed(notice.textContent,'session_changed'); notice.focus();
+        var login = document.createElement('a'); login.href = '/login-usuario'; login.textContent = 'Volver a iniciar sesión'; login.style.color = '#FFFFFF'; login.style.textDecoration = 'underline'; notice.append(document.createTextNode(' '),login);
+      }
+    } catch(error) {
+      notice.textContent = error.message || 'No se pudo confirmar el cierre de sesión.';
+      if (['session_changed','session_storage_error'].includes(error.code)) changed(notice.textContent,error.code);
+      notice.focus();
+    } finally { logoutBtn.disabled = false; }
+  });
+})();
+</script>
+
+
+<script nonce="odYZtSLQxa3zp150InCZeQ" src="/static/js/dialog-focus.js?v=325cced853"></script>
+<script nonce="odYZtSLQxa3zp150InCZeQ" src="/static/js/usuario-plan-operacion.js?v=325cced853"></script>
+<script nonce="odYZtSLQxa3zp150InCZeQ" src="/static/js/usuario-diario.js?v=325cced853"></script>
+<script nonce="odYZtSLQxa3zp150InCZeQ" src="/static/js/plan-diario-datos.js?v=325cced853"></script>
+<script nonce="odYZtSLQxa3zp150InCZeQ" src="/static/js/plan-diario-ui.js?v=325cced853"></script>
+<script nonce="odYZtSLQxa3zp150InCZeQ">
+(async function() {
+
+  const OBJETIVOS = {
+    'deficit': 'Déficit (bajar grasa)',
+    'mantenimiento': 'Mantenimiento',
+    'superavit': 'Superávit (ganar masa)',
+  };
+
+  const MEAL_ICONS = {
+    'desayuno': '🌅',
+    'almuerzo': '🥗',
+    'comida': '🍖',
+    'cena': '🌙',
+  };
+
+  const MEAL_LABELS = {
+    'desayuno': 'Desayuno',
+    'almuerzo': 'Almuerzo',
+    'comida': 'Comida',
+    'cena': 'Cena',
+  };
+
+  /* ── Helpers ── */
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function showToast(msg, type) {
+    var c = document.getElementById('toast-container');
+    if (!c) return;
+    var t = document.createElement('div');
+    t.className = 'u-toast' + (type === 'error' ? ' u-toast-error' : '');
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(function() { t.remove(); }, 4000);
+  }
+
+  function updateRing(circleId, pct) {
+    var el = document.getElementById(circleId);
+    if (!el) return;
+    var r = parseFloat(el.getAttribute('r'));
+    var circumference = 2 * Math.PI * r;
+    var clamped = Math.min(Math.max(pct, 0), 100);
+    el.setAttribute('stroke-dasharray', circumference.toFixed(2));
+    el.setAttribute('stroke-dashoffset', (circumference * (1 - clamped / 100)).toFixed(2));
+  }
+
+  var diario = null;
+  var shopping = null;
+  function sourceForShopping(data) {
+    personal.check();
+    if(!data || !personal.validPlanId(data.plan_id) || !data.plan)return null;
+    return {key:'personal:'+data.plan_id,kind:'personal',plan_id:data.plan_id,plan:data.plan,
+      label:'Fuente: plan personal #'+data.plan_id+' · '+(data.meta && data.meta.fecha ? data.meta.fecha : 'fecha no disponible')+'.'};
+  }
+
+  /* ── Load profile ── */
+  var perfil = null;
+  var ultimoPlan = null;
+  var personal = PersonalPlanOperation.create({onState: operationState, onResult: function(data) {
+    ultimoPlan = data; renderPlan(data);
+  }, onInvalidated: clearPersonalView});
+
+  function clearPersonalView() {
+    perfil = null; ultimoPlan = null;
+    if (diario) diario.invalidate();
+    if (shopping) shopping.invalidate();
+    excluirExcluidos = []; excluirCatalogoLoaded = false;
+    ['macros-section','quick-actions','context-bar','summary-section','plan-comidas','recomendaciones-section','empty-plan','onboarding-card'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.style.display = 'none';
+    });
+    ['meals-container','excluir-tags','excluir-catalogo','meal-tabs','meal-selector-content'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.replaceChildren();
+    });
+    ['kpi-kcal','kpi-proteina','kpi-carbs','kpi-grasa','lbl-objetivo','lbl-fecha-plan','goal-current','goal-target','goal-ring-pct','goal-pct-label','sel-kcal','sel-prot','sel-carb','sel-fat','water-status'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.textContent = '';
+    });
+    ['goal-progress-bar','water-bar-fill'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.style.width = '0%';
+    });
+    document.querySelectorAll('.u-panel-overlay').forEach(function(panel) { panel.style.display = 'none'; });
+    document.querySelectorAll('main input').forEach(function(input) { input.value = ''; input.checked = false; });
+    ['saludo','sb-nombre','sb-avatar'].forEach(function(id) {
+      var element = document.getElementById(id); if (element) element.textContent = id === 'saludo' ? 'Mi plan' : '';
+    });
+    document.getElementById('loading-plan').style.display = 'none';
+  }
+  function operationState(update) {
+    var active = update.state === 'idle';
+    ['btn-generar','btn-generar-empty'].forEach(function(id) {
+      var button = document.getElementById(id); if (button) button.disabled = !active;
+    });
+    var panel = document.getElementById('personal-operation');
+    panel.hidden = update.state === 'idle';
+    document.getElementById('personal-operation-message').textContent = update.message;
+    document.getElementById('personal-operation-retry').hidden = !['unconfirmed','pending','reconciliation'].includes(update.state);
+    var canStart = ['completed','failed'].includes(update.state);
+    document.getElementById('personal-operation-new').hidden = !canStart;
+    document.getElementById('personal-operation-cost').hidden = !canStart;
+    document.getElementById('personal-session-reopen').hidden = update.state !== 'invalidated';
+    if (update.state !== 'idle' && !(ultimoPlan && ultimoPlan.plan && Object.keys(ultimoPlan.plan).length)) {
+      document.getElementById('empty-plan').style.display = 'none';
+    }
+    if (update.state !== 'idle' && update.state !== 'submitting') document.getElementById('personal-operation-message').focus();
+  }
+  document.getElementById('personal-operation-retry').addEventListener('click', function() { personal.generate(); });
+  document.getElementById('personal-operation-new').addEventListener('click', function() { personal.generate(true); });
+  ['click','input','change'].forEach(function(name) {
+    document.querySelector('main').addEventListener(name, function(event) {
+      if (event.target.closest('a')) return;
+      try { personal.check(); } catch { event.preventDefault(); event.stopImmediatePropagation(); }
+    }, true);
+  });
+
+  try {
+    var res = await personal.start();
+    document.getElementById('saludo').textContent = '\u00a1Hola, ' + (res.nombre ? res.nombre.split(' ')[0] : 'bienvenido') + '!';
+    perfil = res;
+    diario = PersonalDiary.mountPlan({personal:personal,getPlan:function() { return ultimoPlan; }});
+    await diario.bootstrap();
+    if (!personal.active) return;
+    shopping = PlanDayUI.mount({root:document.getElementById('plan-shopping'),context:personal,
+      readSource:async function(){var data=await personal.read(function(context){return Api.usuario.miPlan(context);});personal.check();return sourceForShopping(data);},
+      readRecorded:function(start,end){return diario.calendar(start,end);},onInvalidated:function(){personal.invalidate();}});
+  } catch(e) {
+    return;
+  }
+
+  try {
+    var data = await personal.read(function(context) { return Api.usuario.perfil(context); });
+    perfil = Object.assign({}, perfil, data);
+  } catch(e) {
+    if (!personal.active) return;
+    personal.invalidate(new Error('No se pudo consultar tu perfil. Vuelve a abrir esta página para intentarlo.')); return;
+  }
+
+  var perfilCompleto = perfil.peso_kg && perfil.estatura_cm && perfil.edad && perfil.objetivo;
+
+  if (!perfilCompleto) {
+    document.getElementById('loading-plan').style.display = 'none';
+    document.getElementById('onboarding-card').style.display = 'flex';
+    // Show quick actions with just generate + profile (value-first: let them see what awaits)
+    document.getElementById('quick-actions').style.display = '';
+    return;
+  }
+
+  /* ── Load latest plan ── */
+  try {
+    ultimoPlan = await personal.read(function(context) { return Api.usuario.miPlan(context); });
+  } catch(e) {
+    if (!personal.active) return;
+    personal.invalidate(new Error('No se pudo consultar tu plan. Revisa tu historial o vuelve a abrir esta página.')); return;
+  }
+
+  document.getElementById('loading-plan').style.display = 'none';
+  document.getElementById('macros-section').style.display = '';
+  document.getElementById('quick-actions').style.display = '';
+
+  var _planKeys = ultimoPlan && ultimoPlan.plan ? Object.keys(ultimoPlan.plan) : [];
+  if (ultimoPlan && ultimoPlan.plan && _planKeys.length > 0) {
+    renderPlan(ultimoPlan);
+  } else {
+    document.getElementById('empty-plan').style.display = 'block';
+    document.getElementById('recomendaciones-section').style.display = 'block';
+  }
+
+  /* ── Render plan ── */
+  function renderPlan(data) {
+    personal.check();
+    document.getElementById('context-bar').style.display = '';
+    document.getElementById('summary-section').style.display = '';
+    var plan = data.plan;
+    var meta = data.meta || {};
+
+    var kcalTarget = Math.round(meta.kcal_objetivo || 0);
+    var protG = Math.round(meta.proteina_g || 0);
+    var carbG = Math.round(meta.carbs_g || 0);
+    var fatG = Math.round(meta.grasa_g || 0);
+
+    /* KPIs */
+    document.getElementById('kpi-kcal').textContent = kcalTarget.toLocaleString();
+    document.getElementById('kpi-proteina').textContent = protG + 'g';
+    document.getElementById('kpi-carbs').textContent = carbG + 'g';
+    document.getElementById('kpi-grasa').textContent = fatG + 'g';
+    document.getElementById('lbl-objetivo').textContent = OBJETIVOS[perfil.objetivo] || perfil.objetivo || '\u2014';
+    document.getElementById('lbl-fecha-plan').textContent = meta.fecha ? new Date(meta.fecha).toLocaleDateString('es-MX',{timeZone:'America/Mexico_City'}) : 'Hoy';
+
+    var comidas = ['desayuno', 'almuerzo', 'comida', 'cena'];
+
+    /* Tip card macro rings */
+    var totalMacroG = protG + carbG + fatG;
+    if (totalMacroG > 0) {
+      updateRing('tip-ring-p', (protG / totalMacroG) * 100 * 2.5);
+      updateRing('tip-ring-c', (carbG / totalMacroG) * 100 * 2.5);
+      updateRing('tip-ring-g', (fatG / totalMacroG) * 100 * 2.5);
+    }
+
+    /* PDF button */
+    document.getElementById('btn-descargar-pdf').style.display = data.tiene_pdf && personal.validPlanId(data.plan_id) ? '' : 'none';
+    document.getElementById('empty-plan').style.display = 'none';
+
+    /* Structured source quantities; no defaults or ambiguous recipe parsing. */
+    PlanDayUI.renderMenu(document.getElementById('meals-container'),{plan:plan},function(){personal.check();});
+
+    document.getElementById('plan-comidas').style.display = 'block';
+    document.getElementById('recomendaciones-section').style.display = 'block';
+    document.getElementById('empty-plan').style.display = 'none';
+
+    if (diario) diario.syncPlan();
+    if(shopping)shopping.setSource(sourceForShopping(data),diario && diario.today);
+    if(shopping)personal.read(function(context){return Api.usuario.catalogo(context);}).then(function(catalog){
+      personal.check();shopping.setCatalog(Object.values(catalog).filter(Array.isArray).flat().filter(function(id){return typeof id==='string';}));
+    }).catch(function(){/* Unverified labels remain individual lines; no guessed merge. */});
+  }
+
+  /* ── Generate plan ── */
+  async function generarPlan() {
+    await personal.generate();
+  }
+
+  document.getElementById('btn-generar').addEventListener('click', generarPlan);
+  var btnE = document.getElementById('btn-generar-empty');
+  if (btnE) btnE.addEventListener('click', generarPlan);
+
+  /* ── Download PDF ── */
+  document.getElementById('btn-descargar-pdf').addEventListener('click', async function() {
+    var button = this, planId = ultimoPlan && ultimoPlan.plan_id;
+    if (!personal.validPlanId(planId)) return;
+    button.disabled = true;
+    try {
+      await personal.read(function(context) { return Api.usuario.descargarPlan(planId, context); });
+      showToast('PDF preparado para descargar.');
+    } catch (error) {
+      if (personal.active) showToast(error.message, 'error');
+    } finally { if (personal.active) button.disabled = false; }
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     FOOD EXCLUSION PANEL
+     ══════════════════════════════════════════════════════════ */
+  var excluirOverlay = document.getElementById('panel-excluir-overlay');
+  var excluirExcluidos = [];
+  var excluirCatalogoLoaded = false;
+  var CAT_LABELS_EX = {
+    proteina: '🥩 Proteínas',
+    carbs: '🍞 Carbohidratos',
+    grasa: '🥑 Grasas',
+    verdura: '🥦 Verduras',
+    fruta: '🍎 Frutas'
+  };
+
+  function exPrettyName(s) {
+    return s.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  }
+
+  function exRenderTags() {
+    var container = document.getElementById('excluir-tags');
+    if (!container) return;
+    if (!excluirExcluidos.length) {
+      container.innerHTML = '<span class="u-excl-empty">Ningún alimento excluido</span>';
+      return;
+    }
+    container.innerHTML = excluirExcluidos.map(function(a) {
+      return '<span class="u-excl-tag">' + exPrettyName(a) +
+        '<button type="button" class="u-excl-tag-remove" data-food="' + a + '">&times;</button></span>';
+    }).join('');
+    container.querySelectorAll('.u-excl-tag-remove').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var f = this.getAttribute('data-food');
+        excluirExcluidos = excluirExcluidos.filter(function(x) { return x !== f; });
+        exRenderTags();
+        exSyncChips();
+      });
+    });
+  }
+
+  function exSyncChips() {
+    document.querySelectorAll('#excluir-catalogo .u-excl-chip').forEach(function(chip) {
+      chip.classList.toggle('u-excl-chip-active', excluirExcluidos.indexOf(chip.getAttribute('data-food')) !== -1);
+    });
+  }
+
+  async function exLoadCatalogo() {
+    if (excluirCatalogoLoaded) { exSyncChips(); return; }
+    try {
+      var catalogo = await personal.read(function(context) { return Api.usuario.catalogo(context); });
+      var container = document.getElementById('excluir-catalogo');
+      var html = '';
+      var order = ['proteina', 'carbs', 'grasa', 'verdura', 'fruta'];
+      order.forEach(function(cat) {
+        var items = catalogo[cat] || [];
+        if (!items.length) return;
+        html += '<div class="u-excl-group">';
+        html += '<h4 class="u-excl-group-title">' + (CAT_LABELS_EX[cat] || cat) + '</h4>';
+        html += '<div class="u-excl-chips">';
+        items.forEach(function(food) {
+          var active = excluirExcluidos.indexOf(food) !== -1 ? ' u-excl-chip-active' : '';
+          html += '<button type="button" class="u-excl-chip' + active + '" data-food="' + food + '">' + exPrettyName(food) + '</button>';
+        });
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+      excluirCatalogoLoaded = true;
+      container.querySelectorAll('.u-excl-chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          var f = this.getAttribute('data-food');
+          var idx = excluirExcluidos.indexOf(f);
+          if (idx === -1) { excluirExcluidos.push(f); }
+          else { excluirExcluidos.splice(idx, 1); }
+          this.classList.toggle('u-excl-chip-active');
+          exRenderTags();
+        });
+      });
+    } catch(err) {
+      if (!personal.active) return;
+      var container = document.getElementById('excluir-catalogo');
+      if (container) container.innerHTML = '<p style="color:var(--u-text-muted);padding:12px 0;">No se pudo cargar el catálogo.</p>';
+    }
+  }
+
+  document.getElementById('btn-excluir').addEventListener('click', async function() {
+    if (!excluirCatalogoLoaded) {
+      try {
+        var pp = await personal.read(function(context) { return Api.usuario.perfil(context); });
+        excluirExcluidos = Array.isArray(pp.alimentos_excluidos) ? pp.alimentos_excluidos : [];
+      } catch(e) { if (!personal.active) return; showToast(e.message, 'error'); return; }
+    }
+    exRenderTags();
+    await exLoadCatalogo();
+    if (!personal.active) return;
+    personal.check();
+    excluirOverlay.style.display = 'flex';
+  });
+
+  document.getElementById('panel-excluir-close').addEventListener('click', function() {
+    excluirOverlay.style.display = 'none';
+  });
+
+  excluirOverlay.addEventListener('click', function(e) {
+    if (e.target === excluirOverlay) excluirOverlay.style.display = 'none';
+  });
+
+  document.getElementById('btn-excluir-save').addEventListener('click', async function() {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+    try {
+      var exclusions = excluirExcluidos.slice();
+      await personal.read(function(context) { return Api.usuario.guardarPerfil({ alimentos_excluidos: exclusions }, context); });
+      excluirOverlay.style.display = 'none';
+      showToast('Preferencias guardadas. Revisa los alimentos de cada fuente; no se confirmó una validación de restricciones.');
+    } catch(e) {
+      if (personal.active) showToast(e.message, 'error');
+    } finally {
+      if (personal.active) { btn.disabled = false; btn.textContent = 'Guardar Exclusiones ✅'; }
+    }
+  });
+
+  /* ── Rotating tips carousel ─────────────────────────────────────────── */
+  (function() {
+    var TIPS = [
+      'Ver las opciones no registra consumo. Confirma una comida únicamente cuando quieras guardar su selección.',
+      'La compra es un borrador en esta página. Sus cantidades dependen de las porciones y fechas que elijas.',
+      'El consumo registrado y la marca de completado son datos distintos. Sus totales provienen de snapshots guardados.',
+      'Las preferencias no certifican restricciones o alergias. Las nuevas sustituciones todavía no están disponibles.'
+    ];
+
+    var tipIdx = 0;
+    var tipTextEl = document.getElementById('tip-text');
+    var tipDotsEl = document.getElementById('tip-dots');
+    var tipPrev   = document.getElementById('tip-prev');
+    var tipNext   = document.getElementById('tip-next');
+
+    if (!tipTextEl || !tipDotsEl || !tipPrev || !tipNext) return;
+
+    function renderDots() {
+      tipDotsEl.innerHTML = '';
+      for (var i = 0; i < TIPS.length; i++) {
+        var d = document.createElement('span');
+        d.className = 'u-tip-dot' + (i === tipIdx ? ' active' : '');
+        d.setAttribute('data-i', i);
+        d.addEventListener('click', function() { goTip(parseInt(this.getAttribute('data-i'))); });
+        tipDotsEl.appendChild(d);
+      }
+    }
+
+    function goTip(idx) {
+      tipIdx = (idx + TIPS.length) % TIPS.length;
+      tipTextEl.classList.add('u-tip-fade-out');
+      setTimeout(function() {
+        tipTextEl.textContent = TIPS[tipIdx];
+        tipTextEl.classList.remove('u-tip-fade-out');
+        tipTextEl.classList.add('u-tip-fade-in');
+        renderDots();
+        setTimeout(function() { tipTextEl.classList.remove('u-tip-fade-in'); }, 350);
+      }, 200);
+    }
+
+    tipPrev.addEventListener('click', function() { goTip(tipIdx - 1); });
+    tipNext.addEventListener('click', function() { goTip(tipIdx + 1); });
+
+    /* Start on a random tip each session */
+    tipIdx = Math.floor(Math.random() * TIPS.length);
+    tipTextEl.textContent = TIPS[tipIdx];
+    renderDots();
+
+    /* Change these usage notes only through the explicit navigation buttons. */
+  })();
+
+})();
+</script>
+
+</body>
+</html>

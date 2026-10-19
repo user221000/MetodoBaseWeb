@@ -1,10 +1,7 @@
 # Entrega candidata en curso
 
-Checkpoint114:108 registros y92 IDs originales. MAIN esquema30, merge da0357df229e534c819d8b694fe0fb6c155c31ad. R12 y CI29 integrados tras QA/Seguridad independientes. Regresión histórica29:2464pass+1 omisión Windows por modo, serial/cobertura y n2 shuffle; gate de cobertura aprobado.
+Checkpoint115:108 registros y92 IDs originales. MAIN3643c3ee361abecba4d32ae98c1b87da99fb9d77 integra esquema30, R12, R23 readonly, expiración y CI573 tras revisiones independientes. R23 sigue parcial. La amplia anterior2491+1 por modo corresponde a su fuente6d4e8b4; la amplia actual está pendiente.
 
-Índice/restore/navegador/CI30 aceptados e integrados; regresión amplia30 verde2491+1 por modo serial/cobertura y n2/shuffle;7381fuentes/89paquetes estables,pip0. SEC10 Expat registrado;71 IDs OS siguen abiertos. Dockerc02 sólo aceptado estático. R23 y fix de expiración tienen aceptación focal aislada, R23 parcial. Linux sigue pendiente de imagen/arranque/SCA; no entrega final ni despliegue. Desktop soportado. Free10 clientes,1 plan/cliente/día y10 totales/gimnasio/día.
+R24 final4042, SEC11/531 y MFA31/56e810b siguen aislados en revisión/composición. ExpatM2 tiene sólo revisión estática; falta artefacto Linux reparado/arranque/SCA y siguen71 IDs OS abiertos. Desktop soportado. Free10 clientes,1 plan/cliente/día y10 totales/gimnasio/día.
 
-Ver [estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md). Evidencia anterior no acredita una fuente posterior.
-
-
-CI de R23/573 aceptado localmente, aún aislado. R24/9bfa y MFA31 siguen en revisión; SEC11 registrado sin declarar fix integrado. ExpatM2 sólo aceptado estático, no artefacto reparado. R35 evaluación inicial en curso.
+Sin entrega final, push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md). Evidencia anterior no acredita una fuente posterior.

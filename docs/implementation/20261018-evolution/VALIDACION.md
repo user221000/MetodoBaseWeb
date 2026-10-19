@@ -201,3 +201,8 @@ MAIN30 6d4e8b4:2491pass+1skip Windows conocido en serie/cobertura731.093s y n2/s
 ## Checkpoint 114
 
 QA CI573:87mantenidas disjuntas+35propias,23VM/348mínimos,19parsers+Node-e4legacy+5normalizers y8freshreal;6591fuentes/5helpers/89pkgs/157Node quietos y recursos propios cerrados. ExpatM2 sólo estático37+6+22/GPG0. R24 rootquality0 sobre5942/89 y fix9bfa16/16+17VM; fuente/browser anteriores se conservan por scope. SEC11 root11:8rojos+3verdes,6fuentes/89pkgs quietos, sin DB/HTTP/red.
+
+
+## Checkpoint 115
+
+R23 merge3643 padres/tree/108criterios/targets22–30/c4 verificados. Configlocal core.longpaths=true resuelve falsoM por ruta larga. Se conservan wrappers fallidos; comparación de sourceCRLF vs GitLF reparada comparando blobs exactos, sin normalizar RAW. SEC11root mismo11criterios verdes contra531; autor13secuencia aún requiere revisión. QA R24preimagen31SQLite+65Node+2PG+1canario y4headersrojos; fix4042 mismo4verde+94mantenidas, independiente final pendiente. SEC R24acotada25puros/18HTTP/16VM.

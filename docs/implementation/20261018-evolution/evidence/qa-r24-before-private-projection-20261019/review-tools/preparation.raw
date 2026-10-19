@@ -1,0 +1,40 @@
+from pathlib import Path
+import ast,hashlib,json,subprocess,zipfile
+ROOT=Path('F:/mb-r24-qa-20261019');AUTHOR=Path('F:/mb-r24-plan-20261019');FIX=Path('F:/mb-r24-invalidated-controls-20261019')
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-independent-20261019');TEMP=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-independent-20261019')
+HEAD='9bfa76dee0dcda846d9d29ac79d0192289ebd2f2';ADC='adc80c7edb6314a7851b9447bccb092a62c142d5'
+OUT.mkdir(exist_ok=True);assert (OUT/'.gitattributes').read_bytes()==b'* -text\n';TEMP.mkdir(exist_ok=True);(OUT/'review-tools').mkdir(exist_ok=True)
+sha=lambda raw:hashlib.sha256(raw).hexdigest();git=lambda*a,**k:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT,**k)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+relative='docs/implementation/20261018-evolution/evidence/r24';raw=(AUTHOR/relative/'final-source.json').read_bytes();archive=AUTHOR/relative/'final-source-raw.zip'
+assert sha(raw)=='749261abb9a10ad8ae818bee4fbbd39ce93bb6bf76ced549393049ed90a4cbda'and sha(archive.read_bytes())=='e58318ca0cbfd38a4fd17fc9002ed26b752ccb90102447910187a0a96bf184f2'
+freeze=json.loads(raw);assert freeze['product_count']==14 and freeze['test_count']==9 and len(freeze['sources'])==25
+rows=[]
+with zipfile.ZipFile(archive)as z:
+    for name,value in freeze['sources'].items():
+        source=(AUTHOR/name).read_bytes();blob=git('show',ADC+':'+name)
+        assert sha(source)==value['raw_sha256']and sha(blob)==value['git_lf_sha256']and source.replace(b'\r\n',b'\n')==blob
+        assert z.read(name)==source
+        current=git('show',HEAD+':'+name)
+        if name=='web/static/js/plan-publicacion-consumo.js':
+            assert current.count(b'discard.disabled=!active||update.busy;')==1
+            assert current.replace(b'discard.disabled=!active||update.busy;',b'discard.disabled=update.busy;')==blob
+        else:assert current==blob
+        assert (ROOT/name).read_bytes().replace(b'\r\n',b'\n')==current
+        rows.append({'path':name,**value,'own_RAW_sha256':sha((ROOT/name).read_bytes()),'final_GitLF_sha256':sha(current)})
+fixrel='docs/implementation/20261018-evolution/evidence/r24-invalidated-controls-author-20261019'
+fixraw=(FIX/fixrel/'freeze.json').read_bytes();assert sha(fixraw)=='e53f49f986a2d2b82815a6d332f225853d16791e7bcae38c5b437bfe73a14d15'
+fix=json.loads(fixraw)
+for name,value in fix['files'].items():
+    data=(FIX/fixrel/name).read_bytes();assert sha(data)==value['sha256']and len(data)==value['bytes']and data==git('show',HEAD+':'+fixrel+'/'+name)
+quality=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r24-root-quality-20261019')
+quality_records=[]
+for path in sorted(quality.iterdir()):
+    if path.is_file():quality_records.append({'path':str(path),'sha256':sha(path.read_bytes()),'bytes':path.stat().st_size})
+(OUT/'source-authentication.json').write_text(json.dumps({'head':HEAD,'ADC':ADC,'source_manifest_RAW_sha256':sha(raw),'source_ZIP_RAW_sha256':sha(archive.read_bytes()),'product':14,'tests':9,'sources':rows,'all_source_RAW_ZIP_GitLF_authenticated':True,'single_final_product_change_inverse_entire_file_exact':True,'fix_freeze_RAW_sha256':sha(fixraw),'fix_RAW_blobs_authenticated':len(fix['files']),'root_quality_readonly_authenticated':quality_records,'scope':'Exact source9bfa30; no R31 or current R23 merge assumed.'},indent=2)+'\n')
+(OUT/'author-final-source.raw.json').write_bytes(raw);(OUT/'root-fix-freeze.raw.json').write_bytes(fixraw)
+previous=OUT.parent/'qa-r23-ci-independent-20261019'
+origin=(previous/'qa_r23_ci_origin.py').read_text().replace('F:/mb-r23-ci-qa-20261019','F:/mb-r24-qa-20261019')
+(OUT/'review-tools/qa_r24_origin.py').write_text(origin)
+(OUT/'review-tools/preparation.raw').write_bytes(Path(__file__).read_bytes())
+print(json.dumps({'head':HEAD,'source23_RAW_ZIP_GitLF':True,'fix_inverse_exact':True,'fix_RAW_blobs':len(fix['files']),'no_services':True}))

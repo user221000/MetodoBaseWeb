@@ -1,0 +1,51 @@
+"""Independent R24 lifecycle and minimal export probes, real SQLite factories."""
+import pytest
+from tests.integration_client_link_services import link_db,case,source
+from tests.integration_client_link_http import http
+from tests.test_publication_diary_consumption import prepare_publication
+
+def patch(h,day,body):
+    result=h['client_http'].patch(day,headers=h['headers']['person'],json=body)
+    assert result.headers['cache-control']=='no-store'and result.headers['referrer-policy']=='no-referrer'
+    return result
+
+@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
+def test_minimal_source_export_and_own_remove_preserve_water_and_other_meal(http):
+    day,body=prepare_publication(http);client=http['client_http'];headers=http['headers']['person']
+    assert patch(http,day,{'operation':'water','expected_version':0,'water_ml':333}).status_code==200
+    one=patch(http,day,{**body,'expected_version':1});assert one.status_code==200
+    two=patch(http,day,{**body,'meal':'cena','expected_version':2});assert two.status_code==200
+    snapshot=two.json()['meals']['desayuno'];assert set(snapshot['source_context'])=={'kind','link_id','publication_id','link_version','publication_version','published_at'}
+    assert set(snapshot['foods'][0])=={'food_id','grams','equivalence','macros'}
+    response=client.get('/api/usuario/privacidad/exportar?limit=200',headers=headers);assert response.status_code==200
+    records=response.json()['personal_diary']['records'];own=next(r for r in records if r['local_date']==day.rsplit('/',1)[-1]);assert own['meals']['desayuno']==snapshot
+    assert client.get('/api/usuario/privacidad/exportar?limit=200',headers=http['headers']['other']).json()['personal_diary']['records']==[]
+    result=client.request('DELETE','/api/usuario/vinculos/'+body['link_id'],headers=headers,json={'expected_version':2});assert result.status_code==200
+    refused=patch(http,day,{**body,'expected_version':3});assert refused.status_code==404
+    removed=patch(http,day,{'operation':'remove_meal','expected_version':3,'meal':'desayuno'});assert removed.status_code==200
+    assert removed.json()['water_ml']==333 and removed.json()['meals']=={'cena':two.json()['meals']['cena']}
+    assert client.get('/api/auth/me',headers=headers).status_code==200
+
+@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
+def test_republished_same_version_new_identity_never_accepts_old_consumption_proof(http):
+    day,body=prepare_publication(http);client=http['client_http'];prefix='/api/clientes/'+http['client']+'/vinculacion/'+body['link_id']+'/publicaciones'
+    removed=client.request('DELETE',prefix+'/'+body['publication_id'],headers=http['headers']['gym'],json={'expected_version':1});assert removed.status_code==200
+    plan,_,_=source(http,pdf=False,marker='arroz')
+    new=client.post(prefix,headers=http['headers']['gym'],json={'plan_id':plan,'expected_link_version':2,'expected_publication_version':0,'expected_publication_id':None});assert new.status_code==200
+    current=client.get('/api/usuario/vinculos/'+body['link_id']+'/plan',headers=http['headers']['person']).json()['publication']
+    assert current['id']!=body['publication_id']and current['version']==body['expected_publication_version']==1
+    assert patch(http,day,body).status_code==404
+    state=client.get(day,headers=http['headers']['person']).json();assert state['version']==0 and state['meals']=={}
+    saved=patch(http,day,{**body,'publication_id':current['id']});assert saved.status_code==200 and saved.json()['meals']['desayuno']['foods'][0]['food_id']=='arroz'
+
+@pytest.mark.parametrize('link_db',['sqlite'],indirect=True)
+def test_replacement_does_not_rewrite_completed_personal_snapshot(http):
+    day,body=prepare_publication(http);client=http['client_http'];saved=patch(http,day,body);assert saved.status_code==200
+    completed=patch(http,day,{'operation':'completion','expected_version':1,'meal':'desayuno','completed':True});assert completed.status_code==200
+    old=completed.json()['meals']['desayuno'];plan,_,_=source(http,pdf=False,marker='arroz')
+    prefix='/api/clientes/'+http['client']+'/vinculacion/'+body['link_id']+'/publicaciones'
+    new=client.post(prefix,headers=http['headers']['gym'],json={'plan_id':plan,'expected_link_version':2,'expected_publication_version':1,'expected_publication_id':body['publication_id']});assert new.status_code==200
+    current=client.get('/api/usuario/vinculos/'+body['link_id']+'/plan',headers=http['headers']['person']).json()['publication'];assert current['version']==2
+    read=client.get(day,headers=http['headers']['person']).json();assert read['meals']['desayuno']==old and read['version']==2
+    nextmeal=patch(http,day,{**body,'meal':'cena','expected_version':2,'publication_id':current['id'],'expected_publication_version':2});assert nextmeal.status_code==200
+    assert nextmeal.json()['meals']['desayuno']==old and nextmeal.json()['meals']['cena']['foods'][0]['food_id']=='arroz'

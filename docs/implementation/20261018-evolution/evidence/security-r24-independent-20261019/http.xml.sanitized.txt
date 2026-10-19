@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="16" time="16.939" timestamp="2026-10-19T10:20:12.620781-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="" name="test_replacement_with_same_publication_version_still_rejects_obsolete_identity[web.main_web]" time="7.227" /><testcase classname="" name="test_replacement_with_same_publication_version_still_rejects_obsolete_identity[api.app]" time="0.497" /><testcase classname="" name="test_persisted_source_owner_parent_invalidates_consumption_despite_stale_browser_capability[web.main_web]" time="0.387" /><testcase classname="" name="test_persisted_source_owner_parent_invalidates_consumption_despite_stale_browser_capability[api.app]" time="0.308" /><testcase classname="" name="test_session_revocation_after_source_read_rejects_old_bearer_before_diary_mutation[web.main_web]" time="0.312" /><testcase classname="" name="test_session_revocation_after_source_read_rejects_old_bearer_before_diary_mutation[api.app]" time="0.253" /><testcase classname="" name="test_projection_digest_tamper_rejects_whole_write_and_does_not_emit_content[web.main_web]" time="0.319"><failure message="sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) R12 immutable publication&#10;[SQL: UPDATE client_plan_publications SET plan_json=? WHERE client_plan_publications.id = ?]&#10;[parameters: ('{&quot;meta&quot;:{&quot;carbs_g&quot;:null,&quot;get_total&quot;:null,&quot;grasa_g&quot;:null,&quot;kcal_objetivo&quot;:null,&quot;kcal_real&quot;:null,&quot;nivel_actividad&quot;:null,&quot;objetivo&quot;:null,&quot;proteina_g&quot;:nul ... (188 characters truncated) ... },&quot;comida&quot;:{&quot;alimentos&quot;:{&quot;huevo&quot;:50},&quot;kcal_objetivo&quot;:100,&quot;kcal_real&quot;:100},&quot;desayuno&quot;:{&quot;alimentos&quot;:{&quot;huevo&quot;:50},&quot;kcal_objetivo&quot;:100,&quot;kcal_real&quot;:100}}}', '<REDACTED_SYNTHETIC_ID>')]&#10;(Background on this error at: <REDACTED_URL>">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: R12 immutable publication
+
+The above exception was the direct cause of the following exception:
+C:\Users\Consu\AppData\Local\Temp\metodobase-r24-security-independent-20261019\test_http_review.py:76: in test_projection_digest_tamper_rejects_whole_write_and_does_not_emit_content
+    pub=db.get(ClientPlanPublication,body['publication_id']);pub.plan_json=pub.plan_json.replace('50','51',1);db.commit()
+                                                                                                              ^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:84: in _save_obj
+    _emit_update_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:916: in _emit_update_statements
+    c = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return <REDACTED_TWO_PART_HMAC>(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) R12 immutable publication
+E   [SQL: UPDATE client_plan_publications SET plan_json=? WHERE client_plan_publications.id = ?]
+E   [parameters: ('{"meta":{"carbs_g":null,"get_total":null,"grasa_g":null,"kcal_objetivo":null,"kcal_real":null,"nivel_actividad":null,"objetivo":null,"proteina_g":nul ... (188 characters truncated) ... },"comida":{"alimentos":{"huevo":50},"kcal_objetivo":100,"kcal_real":100},"desayuno":{"alimentos":{"huevo":50},"kcal_objetivo":100,"kcal_real":100}}}', '<REDACTED_SYNTHETIC_ID>')]
+E   (Background on this error at: <REDACTED_URL></failure></testcase><testcase classname="" name="test_projection_digest_tamper_rejects_whole_write_and_does_not_emit_content[api.app]" time="0.220"><failure message="sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) R12 immutable publication&#10;[SQL: UPDATE client_plan_publications SET plan_json=? WHERE client_plan_publications.id = ?]&#10;[parameters: ('{&quot;meta&quot;:{&quot;carbs_g&quot;:null,&quot;get_total&quot;:null,&quot;grasa_g&quot;:null,&quot;kcal_objetivo&quot;:null,&quot;kcal_real&quot;:null,&quot;nivel_actividad&quot;:null,&quot;objetivo&quot;:null,&quot;proteina_g&quot;:nul ... (188 characters truncated) ... },&quot;comida&quot;:{&quot;alimentos&quot;:{&quot;huevo&quot;:50},&quot;kcal_objetivo&quot;:100,&quot;kcal_real&quot;:100},&quot;desayuno&quot;:{&quot;alimentos&quot;:{&quot;huevo&quot;:50},&quot;kcal_objetivo&quot;:100,&quot;kcal_real&quot;:100}}}', '<REDACTED_SYNTHETIC_ID>')]&#10;(Background on this error at: <REDACTED_URL>">C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: R12 immutable publication
+
+The above exception was the direct cause of the following exception:
+C:\Users\Consu\AppData\Local\Temp\metodobase-r24-security-independent-20261019\test_http_review.py:76: in test_projection_digest_tamper_rejects_whole_write_and_does_not_emit_content
+    pub=db.get(ClientPlanPublication,body['publication_id']);pub.plan_json=pub.plan_json.replace('50','51',1);db.commit()
+                                                                                                              ^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:84: in _save_obj
+    _emit_update_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:916: in _emit_update_statements
+    c = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return <REDACTED_TWO_PART_HMAC>(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) R12 immutable publication
+E   [SQL: UPDATE client_plan_publications SET plan_json=? WHERE client_plan_publications.id = ?]
+E   [parameters: ('{"meta":{"carbs_g":null,"get_total":null,"grasa_g":null,"kcal_objetivo":null,"kcal_real":null,"nivel_actividad":null,"objetivo":null,"proteina_g":nul ... (188 characters truncated) ... },"comida":{"alimentos":{"huevo":50},"kcal_objetivo":100,"kcal_real":100},"desayuno":{"alimentos":{"huevo":50},"kcal_objetivo":100,"kcal_real":100}}}', '<REDACTED_SYNTHETIC_ID>')]
+E   (Background on this error at: <REDACTED_URL></failure></testcase><testcase classname="" name="test_snapshot_export_is_minimal_and_removal_after_revocation_needs_no_professional_source[web.main_web]" time="0.701" /><testcase classname="" name="test_snapshot_export_is_minimal_and_removal_after_revocation_needs_no_professional_source[api.app]" time="0.510" /><testcase classname="" name="test_precommit_failure_rolls_back_and_logs_only_technical_class[web.main_web]" time="0.418" /><testcase classname="" name="test_precommit_failure_rolls_back_and_logs_only_technical_class[api.app]" time="0.339" /><testcase classname="" name="test_diary_cas_checks_before_replacing_another_personal_snapshot[web.main_web]" time="0.409" /><testcase classname="" name="test_diary_cas_checks_before_replacing_another_personal_snapshot[api.app]" time="0.342" /><testcase classname="" name="test_duplicate_click_server_cas_has_exactly_one_confirmed_personal_change[web.main_web]" time="0.389" /><testcase classname="" name="test_duplicate_click_server_cas_has_exactly_one_confirmed_personal_change[api.app]" time="0.508" /></testsuite></testsuites>

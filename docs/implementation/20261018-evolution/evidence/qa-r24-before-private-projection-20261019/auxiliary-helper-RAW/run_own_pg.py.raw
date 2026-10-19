@@ -1,0 +1,12 @@
+import sys,json,xml.etree.ElementTree as ET
+from pathlib import Path
+TOOLS=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-independent-20261019/review-tools');sys.path.insert(0,str(TOOLS))
+from support import *
+phase=TEMP/'own-pg';phase.mkdir();origin=phase/'origin';origin.mkdir();test=TEMP/'test_r24_own_pg.py';frozen=sha(test.read_bytes());before=photo('own-pg-before');env=environment(True);env.update(QA_HISTORY30_MODULE_ORIGIN_OUT=str(origin),R24_PG_OUTPUT=str(phase/'resources'))
+command=[str(PYTHON),'-X','utf8','-B','tests/run_isolated.py','-p','qa_r24_origin','--rootdir='+str(ROOT),'--import-mode=importlib',str(test),'-q','--tb=short','--junitxml='+str(phase/'junit.xml')]
+with (phase/'stdout.raw.log').open('xb')as stdout,(phase/'stderr.raw.log').open('xb')as stderr:result=subprocess.run(command,cwd=ROOT,env=env,stdout=stdout,stderr=stderr,timeout=180)
+save('own-pg-child-exit.json',{'exit':result.returncode,'command':command});after=photo('own-pg-after');assert before==after and sha(test.read_bytes())==frozen
+cases=ET.parse(phase/'junit.xml').findall('.//testcase');failures=[{'name':c.get('name'),'classname':c.get('classname')}for c in cases if any(c.find(t)is not None for t in ['failure','error','skipped'])]
+outputs=[publish(p,'own-pg-'+p.relative_to(phase).as_posix().replace('/','--'))for p in sorted(phase.rglob('*'))if p.is_file()]
+save('own-pg-result.json',{'head':HEAD,'exit':result.returncode,'total':len(cases),'passed':len(cases)-len(failures),'nonpass':failures,'source_files':before['source_count'],'packages':89,'stable':True,'own_test_sha256':frozen,'outputs':outputs})
+print(json.dumps({'mode':'own-pg','exit':result.returncode,'total':len(cases),'passed':len(cases)-len(failures),'nonpass':failures,'sources':before['source_count'],'stable':True}));assert result.returncode==0 and len(cases)==1 and not failures

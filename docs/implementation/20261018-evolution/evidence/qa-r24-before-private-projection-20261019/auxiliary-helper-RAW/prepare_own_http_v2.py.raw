@@ -1,0 +1,13 @@
+import sys,json,hashlib
+from pathlib import Path
+TEMP=Path(__file__).parent;OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r24-independent-20261019')
+old=TEMP/'test_r24_own_http.py';raw=old.read_bytes();(OUT/'own-http-original-test.raw').write_bytes(raw)
+text=raw.decode();changes=[("assert result.headers['cache-control']=='no-store'and result.headers['referrer-policy']=='no-referrer'","directives={part.strip()for part in result.headers['cache-control'].split(',')};assert 'no-store'in directives and directives<={'no-store','max-age=0'}and result.headers['referrer-policy']=='no-referrer'"),("assert current['version']==2","assert current['version']==1 and current['id']!=body['publication_id']"),("'expected_publication_version':2}","'expected_publication_version':1}")]
+for before,after in changes:assert text.count(before)==1;text=text.replace(before,after)
+candidate=TEMP/'test_r24_own_http_v2.py';candidate.write_bytes(text.encode());inverse=text
+for before,after in reversed(changes):inverse=inverse.replace(after,before,1)
+assert inverse.encode()==raw
+runner=(TEMP/'run_own_http.py').read_text().replace("TEMP/'own-http'","TEMP/'own-http-v2'").replace("TEMP/'test_r24_own_http.py'","TEMP/'test_r24_own_http_v2.py'").replace("'own-http-","'own-http-v2-")
+(TEMP/'run_own_http_v2.py').write_text(runner,encoding='utf8')
+(OUT/'own-http-harness-correction.json').write_text(json.dumps({'before_test_sha256':hashlib.sha256(raw).hexdigest(),'after_test_sha256':hashlib.sha256(candidate.read_bytes()).hexdigest(),'original_six_failures_preserved':'own-http-result.json','cause':'Own assumptions about literal cache header and global publication version contradicted existing valid contracts; not product changes.','changes':changes,'inverse_entire_original_exact':True,'source_product_unchanged':True},indent=2)+'\n',encoding='utf8')
+print(json.dumps({'prepared':True,'three_exact_changes':True,'inverse_original_exact':True}))
