@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="8.249" timestamp="2026-10-19T09:52:12.251148-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_mfa31_billing_boundaries" name="test_privileged_portal_rejects_authority_component_in_return_path[api.app]" time="4.920"><failure message="assert 200 == 400&#10; +  where 200 = &lt;Response [200 OK]&gt;.status_code">tests\test_mfa31_billing_boundaries.py:30: in test_privileged_portal_rejects_authority_component_in_return_path
+    assert grant.status_code == 400
+E   assert 200 == 400
+E    +  where 200 = &lt;Response [200 OK]&gt;.status_code</failure></testcase><testcase classname="tests.test_mfa31_billing_boundaries" name="test_privileged_portal_rejects_authority_component_in_return_path[web.main_web]" time="1.048"><failure message="assert 200 == 400&#10; +  where 200 = &lt;Response [200 OK]&gt;.status_code">tests\test_mfa31_billing_boundaries.py:30: in test_privileged_portal_rejects_authority_component_in_return_path
+    assert grant.status_code == 400
+E   assert 200 == 400
+E    +  where 200 = &lt;Response [200 OK]&gt;.status_code</failure></testcase><testcase classname="tests.test_mfa31_billing_boundaries" name="test_portal_service_rejects_relative_authority_before_stripe_port[api.app]" time="0.280"><failure message="AssertionError: assert 'outside.example.invalid' == 'app.example.invalid'&#10;  &#10;  - app.example.invalid&#10;  ? ^^^&#10;  + outside.example.invalid&#10;  ? ^^^^^^^">tests\test_mfa31_billing_boundaries.py:54: in test_portal_service_rejects_relative_authority_before_stripe_port
+    assert urlsplit(calls[0]["return_url"]).hostname == "app.example.invalid"
+E   AssertionError: assert 'outside.example.invalid' == 'app.example.invalid'
+E     
+E     - app.example.invalid
+E     ? ^^^
+E     + outside.example.invalid
+E     ? ^^^^^^^</failure></testcase><testcase classname="tests.test_mfa31_billing_boundaries" name="test_portal_service_rejects_relative_authority_before_stripe_port[web.main_web]" time="0.301"><failure message="AssertionError: assert 'outside.example.invalid' == 'app.example.invalid'&#10;  &#10;  - app.example.invalid&#10;  ? ^^^&#10;  + outside.example.invalid&#10;  ? ^^^^^^^">tests\test_mfa31_billing_boundaries.py:54: in test_portal_service_rejects_relative_authority_before_stripe_port
+    assert urlsplit(calls[0]["return_url"]).hostname == "app.example.invalid"
+E   AssertionError: assert 'outside.example.invalid' == 'app.example.invalid'
+E     
+E     - app.example.invalid
+E     ? ^^^
+E     + outside.example.invalid
+E     ? ^^^^^^^</failure></testcase></testsuite></testsuites>
