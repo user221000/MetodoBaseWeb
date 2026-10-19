@@ -1,0 +1,1879 @@
+[
+  {
+    "id": "CVE-2005-2541",
+    "source_package": "tar",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "tar extraction of suid/sgid metadata; warnings are not a security boundary",
+    "action_group": "tar",
+    "proposed_corrective_action": "Backport applicable GNU tar fixes via vendor builds and validate restore independently. Never rely on --one-top-level, fresh extraction directory or listing-before-extract as sole security boundary; avoid untrusted archives and privileged extraction.",
+    "verification_required": "Constrain archive entries, hardlinks/symlinks and file metadata, preserve no-privilege extraction and separate destination. Treat rmt as its own executable/protocol; GNU tar differs from Perl Archive::Tar.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2005-2541",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2005-2541.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2007-5686",
+    "source_package": "shadow",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "btmp ownership/mode and logging semantics, including maintenance-created files",
+    "action_group": "shadow",
+    "proposed_corrective_action": "Remove unnecessary SUID/SGID account-management entry points or enforce NNP as a separately verified deployment control. Lock authentication logs and subordinate-ID policy to trusted configuration; follow vendor fixes.",
+    "verification_required": "Inventory chfn/chsh/su and modes, btmp permissions, subuid/subgid and shared/NFS mounts. Lack of sshd or newuidmap alone does not resolve the whole source group.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2007-5686",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2007-5686.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2010-4756",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "libc glob over attacker-controlled patterns/path trees; Python glob is not automatically the libc API",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2010-4756",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2010-4756.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2011-3374",
+    "source_package": "apt",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "apt-key master-keyring validation; its measured absence is component-specific, not proof all apt is safe",
+    "action_group": "apt",
+    "proposed_corrective_action": "Retain explicit Signed-By and signed HTTPS repositories; never introduce apt-key/import of untrusted keyservers. Remove package-manager tooling from a separately validated final runtime only if no bootstrap/runtime requirement remains.",
+    "verification_required": "Compare the affected apt-key implementation with package file inventory, not apt package-name alone. Revalidate the current image after any slimming.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2011-3374",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2011-3374.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2011-4116",
+    "source_package": "perl",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "Perl File::Temp safe-file/symlink checks; module remains present",
+    "action_group": "perl",
+    "proposed_corrective_action": "Use vendor fixes for Perl regex/File::Temp, Archive::Tar3.10 and Pod::Text6.1.1 as appropriate. Avoid processing untrusted data through system Perl in runtime/restore, and omit unnecessary modules in a separately validated image.",
+    "verification_required": "Archive::Tar and Pod::Text are modules, distinct from GNU tar or systemd logging. Verify @INC/module payload in current image; perl-base and regex/File::Temp remain present.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2011-4116",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2011-4116.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2013-4392",
+    "source_package": "systemd",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "systemd permission/SELinux update and symlink path; identify exact tmpfiles implementation",
+    "action_group": "systemd",
+    "proposed_corrective_action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "verification_required": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2013-4392",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2013-4392.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2017-18018",
+    "source_package": "coreutils",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "privileged chown/chgrp recursive -R -L over attacker-modifiable ancestors",
+    "action_group": "coreutils",
+    "proposed_corrective_action": "Backport the specified utility fixes through vendor package builds. Avoid recursive privileged ownership operations on shared writable trees and untrusted utility option strings; final-runtime CLI slimming needs its own dependency and entrypoint validation.",
+    "verification_required": "Audit exact chown/chgrp, sort, uniq and unexpand calls, including maintenance/restore. Do not remove coreutils wholesale or treat lack of a Python textual hit as a complete call graph.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2017-18018",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2017-18018.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2018-20796",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "libc POSIX regex recursion on crafted pattern; Python re uses a different implementation",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2018-20796",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2018-20796.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2019-1010022",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "stack-guard bypass presupposing another stack overflow; disputed classification does not remove scanner row",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2019-1010022",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2019-1010022.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2019-1010023",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "ldd against malicious ELF inputs and loader behavior; do not run diagnostics on uploaded executables",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2019-1010023",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2019-1010023.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2019-1010024",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "thread/heap cache ASLR mitigation limits, not an independently proven application exploit",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2019-1010024",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2019-1010024.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2019-1010025",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "pthread-created heap-address predictability; retain vendor dispute and mitigation context",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2019-1010025",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2019-1010025.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2019-9192",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "separate libc POSIX regex uncontrolled-recursion pattern from CVE-2018-20796",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2019-9192",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2019-9192.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2021-45346",
+    "source_package": "sqlite3",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "queries against attacker-corrupted SQLite DB; trusted catalog/restore provenance must be established",
+    "action_group": "sqlite3",
+    "proposed_corrective_action": "Use a vendor-fixed SQLite build including applicable Session changes. Disable extension loading and do not consume untrusted database/changeset/ZIP files in runtime/restore; keep bounded SQL/data inputs.",
+    "verification_required": "Production primary-DB rejection of SQLite is not sufficient: catalog/legacy SQLite call sites exist. Separate zipfile extension, Session v2/v3/shared helpers and malformed database exposure.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2021-45346",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2021-45346.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2022-0563",
+    "source_package": "util-linux",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 9,
+    "state": "source_binary_mapping_requires_final_attestation",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "util-linux chfn/chsh Readline INPUTRC; Debian config disables those executables and shadow supplies its own copies",
+    "action_group": "util-linux",
+    "proposed_corrective_action": "Prefer trixie-coherent builds with upstream stable2.41.6 fixes or later vendor backports; Debian unstable fixed versions are references, not permission to mix sid packages. Remove unneeded mount SUID and enforce NNP/cap-drop/no host namespaces as separately tested mitigations; prohibit privileged nsenter --join-cgroup into untrusted targets.",
+    "verification_required": "Retain mount/libmount/nsenter/login provenance and test the exact fixed paths. Empty fstab and kernel6.1 are lab observations, not deployment invariants or patches.",
+    "limit": "Debian primary explicitly uses --disable-chfn-chsh for util-linux. Existing SUID shadow binaries require separate review; their presence is not proof this util-linux implementation is shipped.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2022-0563",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2022-0563.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2023-31437",
+    "source_package": "systemd",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "sealed journal visibility manipulation, not arbitrary libsystemd call",
+    "action_group": "systemd",
+    "proposed_corrective_action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "verification_required": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2023-31437",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2023-31437.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2023-31438",
+    "source_package": "systemd",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "sealed journal truncation/resumed sealing, not application audit-log retention",
+    "action_group": "systemd",
+    "proposed_corrective_action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "verification_required": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2023-31438",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2023-31438.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2023-31439",
+    "source_package": "systemd",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "sealed journal event alteration/integrity verification path",
+    "action_group": "systemd",
+    "proposed_corrective_action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "verification_required": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2023-31439",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2023-31439.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2024-56433",
+    "source_package": "shadow",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "subordinate UID allocation colliding with administered/shared identities and mapping tools",
+    "action_group": "shadow",
+    "proposed_corrective_action": "Remove unnecessary SUID/SGID account-management entry points or enforce NNP as a separately verified deployment control. Lock authentication logs and subordinate-ID policy to trusted configuration; follow vendor fixes.",
+    "verification_required": "Inventory chfn/chsh/su and modes, btmp permissions, subuid/subgid and shared/NFS mounts. Lack of sshd or newuidmap alone does not resolve the whole source group.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2024-56433",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2024-56433.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2025-5278",
+    "source_package": "coreutils",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "sort traditional key syntax causing begfield under-read",
+    "action_group": "coreutils",
+    "proposed_corrective_action": "Backport the specified utility fixes through vendor package builds. Avoid recursive privileged ownership operations on shared writable trees and untrusted utility option strings; final-runtime CLI slimming needs its own dependency and entrypoint validation.",
+    "verification_required": "Audit exact chown/chgrp, sort, uniq and unexpand calls, including maintenance/restore. Do not remove coreutils wholesale or treat lack of a Python textual hit as a complete call graph.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2025-5278",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2025-5278.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2025-6141",
+    "source_package": "ncurses",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 4,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "ncurses termcap postprocess_termcap parsing; tinfo/native caller may remain despite CLI omission",
+    "action_group": "ncurses",
+    "proposed_corrective_action": "Backport infocmp/termcap fixes through Debian-compatible package builds. If infocmp is unnecessary, remove that utility in a separate tested final-stage change while preserving readline/libtinfo dependencies.",
+    "verification_required": "infocmp exists in the captured rootfs, so the HIGH cannot be dismissed because no TTY or interactive UI is expected. Review imported terminfo/termcap and native callers.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2025-6141",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2025-6141.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "6.5+20251115-2"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "6.5+20251115-2"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2025-69720",
+    "source_package": "ncurses",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 4,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "infocmp analyze_string stack overflow; executable is measured present",
+    "action_group": "ncurses",
+    "proposed_corrective_action": "Backport infocmp/termcap fixes through Debian-compatible package builds. If infocmp is unnecessary, remove that utility in a separate tested final-stage change while preserving readline/libtinfo dependencies.",
+    "verification_required": "infocmp exists in the captured rootfs, so the HIGH cannot be dismissed because no TTY or interactive UI is expected. Review imported terminfo/termcap and native callers.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2025-69720",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2025-69720.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "6.6+20251231-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "6.6+20251231-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2025-70873",
+    "source_package": "sqlite3",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "SQLite zipfile extension ZIP inflate; absence of exported init is not proof against statically embedded copies",
+    "action_group": "sqlite3",
+    "proposed_corrective_action": "Use a vendor-fixed SQLite build including applicable Session changes. Disable extension loading and do not consume untrusted database/changeset/ZIP files in runtime/restore; keep bounded SQL/data inputs.",
+    "verification_required": "Production primary-DB rejection of SQLite is not sufficient: catalog/legacy SQLite call sites exist. Separate zipfile extension, Session v2/v3/shared helpers and malformed database exposure.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2025-70873",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2025-70873.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-102010",
+    "source_package": "gcc-14",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 3,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "PBDS priority queue erase_if header/template UAF in compiled C++ consumers",
+    "action_group": "gcc-14",
+    "proposed_corrective_action": "Review GCC14 vendor fixes and separate exported libstdc++ code from header/template-instantiated code. Update runtime libraries for out-of-line code; rebuild affected native consumers against fixed headers where required.",
+    "verification_required": "Inventory DT_NEEDED plus statically linked/template code in the actual native wheels. Missing gcc executable/headers and a newer libstdc++ alone cannot prove closure.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-102010",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-102010.html",
+    "vendor_snapshot_fixed_references": {
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "14.4.0-3"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-102473",
+    "source_package": "dash",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "dash internal glob matcher without libc fnmatch and crafted multi-star input",
+    "action_group": "dash",
+    "proposed_corrective_action": "Use fixed vendor shell builds when available. Keep entrypoint arguments constant and never form dash -c/printf/echo format or glob expressions from external data.",
+    "verification_required": "Determine libc-fnmatch build option and actual builtin paths. Shell exists; bounds and restricted inputs reduce exposure without repairing it.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-102473",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-102473.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-102474",
+    "source_package": "dash",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "dash printf or echo %b Unicode conversion requiring more reserved bytes",
+    "action_group": "dash",
+    "proposed_corrective_action": "Use fixed vendor shell builds when available. Keep entrypoint arguments constant and never form dash -c/printf/echo format or glob expressions from external data.",
+    "verification_required": "Determine libc-fnmatch build option and actual builtin paths. Shell exists; bounds and restricted inputs reduce exposure without repairing it.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-102474",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-102474.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-15059",
+    "source_package": "systemd",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "systemd-oomd IPC path traversal affecting other processes",
+    "action_group": "systemd",
+    "proposed_corrective_action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "verification_required": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-15059",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-15059.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "261~rc3-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "261~rc3-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://github.com/systemd/systemd/commit/cde88c4ea364e816619f385a870d074ebc12fe0f",
+      "https://github.com/systemd/systemd/commit/a8feb2f23565d39df5c90a753c851c1934a53117"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-15534",
+    "source_package": "perl",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "Perl regex cache overflow from large subject and WHILEM-node product",
+    "action_group": "perl",
+    "proposed_corrective_action": "Use vendor fixes for Perl regex/File::Temp, Archive::Tar3.10 and Pod::Text6.1.1 as appropriate. Avoid processing untrusted data through system Perl in runtime/restore, and omit unnecessary modules in a separately validated image.",
+    "verification_required": "Archive::Tar and Pod::Text are modules, distinct from GNU tar or systemd logging. Verify @INC/module payload in current image; perl-base and regex/File::Temp remain present.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-15534",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-15534.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://github.com/Perl/perl5/commit/568e6fd238867bb9e99fa3f47cba3169009239e0",
+      "https://github.com/Perl/perl5/commit/54cf3d44cbbedd17d774e9a37921963e8fd5d0cb"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-16742",
+    "source_package": "systemd",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "homed-managed logged-in user group-modification path; libsystemd presence alone is not that service",
+    "action_group": "systemd",
+    "proposed_corrective_action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "verification_required": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-16742",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-16742.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "261.2-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "261.2-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://github.com/systemd/systemd/commit/d392d17143423e7af0cdb5bd0f64b43da8952662",
+      "https://github.com/systemd/systemd/commit/a7bce5b2052bdb098ad0729768c72e1df9a86adc",
+      "https://github.com/systemd/systemd/commit/8735bb63b7902b6824f4d171bca994252eb04a71",
+      "https://github.com/systemd/systemd/commit/04cba0a78da9d161c2f6426751d0460fb8193263"
+    ],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2026-18374",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "libc fopen attacker-controlled empty ccs mode; fixed Python file mode is not such proof for all native callers",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-18374",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-18374.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-18477",
+    "source_package": "tar",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "tar incremental dumpdir X rename race during restore; fresh destination alone is insufficient",
+    "action_group": "tar",
+    "proposed_corrective_action": "Backport applicable GNU tar fixes via vendor builds and validate restore independently. Never rely on --one-top-level, fresh extraction directory or listing-before-extract as sole security boundary; avoid untrusted archives and privileged extraction.",
+    "verification_required": "Constrain archive entries, hardlinks/symlinks and file metadata, preserve no-privilege extraction and separate destination. Treat rmt as its own executable/protocol; GNU tar differs from Perl Archive::Tar.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-18477",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-18477.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-18508",
+    "source_package": "tar",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "tar --one-top-level hardlink target escaping through existing symlink",
+    "action_group": "tar",
+    "proposed_corrective_action": "Backport applicable GNU tar fixes via vendor builds and validate restore independently. Never rely on --one-top-level, fresh extraction directory or listing-before-extract as sole security boundary; avoid untrusted archives and privileged extraction.",
+    "verification_required": "Constrain archive entries, hardlinks/symlinks and file metadata, preserve no-privilege extraction and separate destination. Treat rmt as its own executable/protocol; GNU tar differs from Perl Archive::Tar.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-18508",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-18508.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-19499",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "strfmon/strfmon_l right-justified padding and susceptible output buffer/format",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-19499",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-19499.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-19542",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "tsearch/tdelete deep native tree stack accounting after many insertions/deletions",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-19542",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-19542.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-4"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-4"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://sourceware.org/git/?p=glibc.git;a=commit;h=e2789c46e3bfdcd67a82bea9946b315c179e83d3"
+    ],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-27171",
+    "source_package": "zlib",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "crc32_combine64 or crc32_combine_gen64 loop with invalid length conditions",
+    "action_group": "zlib",
+    "proposed_corrective_action": "Review/backport crc32 length validation and gzwrite fix separately in vendor zlib, checking introduced-code ranges. Avoid unbounded/negative CRC-combine lengths and affected nonblocking gz* sequences until fixed.",
+    "verification_required": "Map actual system and vendored wheel copies; Python compress/decompress use does not imply crc32_combine or gzprintf use. An exported symbol list alone cannot show all static internal implementations.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-27171",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-27171.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "1:1.3.dfsg+really1.3.2-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "1:1.3.dfsg+really1.3.2-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://github.com/madler/zlib/commit/ba829a458576d1ff0f26fc7230c6de816d1f6a77"
+    ],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-3184",
+    "source_package": "util-linux",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 9,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "login -h canonicalization before PAM_RHOST; account/API login is a different path",
+    "action_group": "util-linux",
+    "proposed_corrective_action": "Prefer trixie-coherent builds with upstream stable2.41.6 fixes or later vendor backports; Debian unstable fixed versions are references, not permission to mix sid packages. Remove unneeded mount SUID and enforce NNP/cap-drop/no host namespaces as separately tested mitigations; prohibit privileged nsenter --join-cgroup into untrusted targets.",
+    "verification_required": "Retain mount/libmount/nsenter/login provenance and test the exact fixed paths. Empty fstab and kernel6.1 are lab observations, not deployment invariants or patches.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-3184",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-3184.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.42-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.42-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://github.com/util-linux/util-linux/commit/8b29aeb081e297e48c4c1ac53d88ae07e1331984"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-40228",
+    "source_package": "systemd",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "journald ForwardToWall=yes and ANSI emergency messages reaching terminals",
+    "action_group": "systemd",
+    "proposed_corrective_action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "verification_required": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-40228",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-40228.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-42250",
+    "source_package": "bzip2",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "bzip2recover global buffer off-by-one; libbz2 decode is not the affected utility",
+    "action_group": "bzip2",
+    "proposed_corrective_action": "Update the bzip2recover utility from vendor/upstream fixed source if shipped; otherwise attest omission of this utility while retaining libbz2 needed by Python.",
+    "verification_required": "The CLI defect is not automatically a libbz2 decompression defect. Bind its absence to the actual current rootfs/package file list.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-42250",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-42250.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://sourceware.org/cgit/bzip2/commit/?id=35d122a3df8b0cc4082a4d89fdc6ee99f375fe67"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-50812",
+    "source_package": "sqlite3",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "missing_v3_symbol_not_sufficient",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "Session changeset_apply_v3 NULL handling; v3 symbol absent but shared apply_v2 helper must be checked against patch",
+    "action_group": "sqlite3",
+    "proposed_corrective_action": "Use a vendor-fixed SQLite build including applicable Session changes. Disable extension loading and do not consume untrusted database/changeset/ZIP files in runtime/restore; keep bounded SQL/data inputs.",
+    "verification_required": "Production primary-DB rejection of SQLite is not sufficient: catalog/legacy SQLite call sites exist. Separate zipfile extension, Session v2/v3/shared helpers and malformed database exposure.",
+    "limit": "Do not close until patch is compared with actual Session shared helpers; a missing exported wrapper does not exclude an older path.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-50812",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-50812.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "3.53.2-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "3.53.2-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-50813",
+    "source_package": "sqlite3",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "Session concat/changegroup merge information disclosure; apply_v2/changegroup_add exist",
+    "action_group": "sqlite3",
+    "proposed_corrective_action": "Use a vendor-fixed SQLite build including applicable Session changes. Disable extension loading and do not consume untrusted database/changeset/ZIP files in runtime/restore; keep bounded SQL/data inputs.",
+    "verification_required": "Production primary-DB rejection of SQLite is not sufficient: catalog/legacy SQLite call sites exist. Separate zipfile extension, Session v2/v3/shared helpers and malformed database exposure.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-50813",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-50813.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "3.53.4-2"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "3.53.4-2"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-53910",
+    "source_package": "diffutils",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "diff3 integer line mapping and attacker-selected diff output/program",
+    "action_group": "diffutils",
+    "proposed_corrective_action": "Apply upstream diff3 arithmetic fixes through a reproducible vendor package, or omit diff3 from a validated final runtime. Do not allow attacker-selected --diff-program.",
+    "verification_required": "Inventory diff3 and maintenance workflows; supplying a different working directory does not repair arithmetic.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-53910",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-53910.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://cgit.git.savannah.gnu.org/cgit/diffutils.git/commit/?id=73ed7ce85cc78effb94daf028c9af6b4e5252e50",
+      "https://cgit.git.savannah.gnu.org/cgit/diffutils.git/commit/?id=9ff04d5b84743e331e80b589335a52c5480d1815"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-5435",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "deprecated DNS debug printing ns_printrrf/ns_printrr/fp_nquery TSIG output bounds",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-5435",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-5435.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-3"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-3"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-54369",
+    "source_package": "acl",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "libacl pathname functions with attacker-writable path components and privileged caller",
+    "action_group": "acl",
+    "proposed_corrective_action": "Prefer a vendor-coherent acl2.4 update with its new *_at ABI and rebuilt/migrated privileged callers; test tar compatibility. Do not transplant a single library patch or infer closure from deleting ACL CLIs.",
+    "verification_required": "Record native callers of acl_*_file and attacker-writable path ancestors, updated ABI consumers and symlink-race regression. Interim NNP/cap-drop and unprivileged, nonshared writable paths only reduce privilege impact.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-54369",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-54369.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.4.0-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.4.0-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://cgit.git.savannah.nongnu.org/cgit/acl.git/commit/?id=5906d2868ec8d3b08be556153696e6b1122eeeda",
+      "https://cgit.git.savannah.nongnu.org/cgit/acl.git/commit/?id=0071c6d1fea0a8a6270333baa85fb609be325c26",
+      "https://cgit.git.savannah.nongnu.org/cgit/acl.git/commit/?id=170dbd3beff9bd5bdab3f72db1a04bf282f6087c"
+    ],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2026-54370",
+    "source_package": "acl",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "getfacl/setfacl/chacl traversal TOCTOU; separate utility code from libacl CVE-2026-54369",
+    "action_group": "acl",
+    "proposed_corrective_action": "Prefer a vendor-coherent acl2.4 update with its new *_at ABI and rebuilt/migrated privileged callers; test tar compatibility. Do not transplant a single library patch or infer closure from deleting ACL CLIs.",
+    "verification_required": "Record native callers of acl_*_file and attacker-writable path ancestors, updated ABI consumers and symlink-race regression. Interim NNP/cap-drop and unprivileged, nonshared writable paths only reduce privilege impact.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-54370",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-54370.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.4.0-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.4.0-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://cgit.git.savannah.nongnu.org/cgit/acl.git/commit/?id=601cc884a548ae9e9d246ae749e54b3272e4b1d7",
+      "https://cgit.git.savannah.nongnu.org/cgit/acl.git/commit/?id=54e14e9bc545f505b379d0792a2748d9baf88700",
+      "https://cgit.git.savannah.nongnu.org/cgit/acl.git/commit/?id=2c03ceefa0610d551d9cc089ce0a404cbe2d34b4",
+      "https://cgit.git.savannah.nongnu.org/cgit/acl.git/commit/?id=2ee940139e9bba5005a3d987a6daecdda909089e"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-54371",
+    "source_package": "attr",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "getfattr/setfattr traversal symlink substitution under a privileged caller",
+    "action_group": "attr",
+    "proposed_corrective_action": "Use vendor attr2.6 and fixed utilities where needed, otherwise omit the utilities from final runtime without removing required libattr transitively.",
+    "verification_required": "Prove affected getfattr/setfattr implementation absent or fixed and disallow privileged traversal of user-controlled ancestors.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-54371",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-54371.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "1:2.6.0-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "1:2.6.0-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://cgit.git.savannah.nongnu.org/cgit/attr.git/commit/?id=641ea6fcc556c1f34b77efb9cd3f876dff0a0a07",
+      "https://cgit.git.savannah.nongnu.org/cgit/attr.git/commit/?id=3fb06b9ba314d37035d0877e6de313de754f1ac8"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-54411",
+    "source_package": "pam",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 4,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "pam_userdb repeated timing oracle in plaintext-password comparison",
+    "action_group": "pam",
+    "proposed_corrective_action": "Inventory installed PAM configuration/modules and exclude pam_userdb plaintext authentication from container and operational paths; use vendor timing fix when available.",
+    "verification_required": "FastAPI bcrypt is separate from PAM and does not prove PAM unreachable. Account/maintenance services and mounted host configurations must be addressed.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-54411",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-54411.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-56391",
+    "source_package": "coreutils",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "uniq -w multibyte field width producing out-of-bounds memcmp",
+    "action_group": "coreutils",
+    "proposed_corrective_action": "Backport the specified utility fixes through vendor package builds. Avoid recursive privileged ownership operations on shared writable trees and untrusted utility option strings; final-runtime CLI slimming needs its own dependency and entrypoint validation.",
+    "verification_required": "Audit exact chown/chgrp, sort, uniq and unexpand calls, including maintenance/restore. Do not remove coreutils wholesale or treat lack of a Python textual hit as a complete call graph.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-56391",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-56391.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=d64e35a8a4c0e4608321433e0d84d917e4e36371"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-56392",
+    "source_package": "coreutils",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "unexpand large -t stop allocation overflow",
+    "action_group": "coreutils",
+    "proposed_corrective_action": "Backport the specified utility fixes through vendor package builds. Avoid recursive privileged ownership operations on shared writable trees and untrusted utility option strings; final-runtime CLI slimming needs its own dependency and entrypoint validation.",
+    "verification_required": "Audit exact chown/chgrp, sort, uniq and unexpand calls, including maintenance/restore. Do not remove coreutils wholesale or treat lack of a Python textual hit as a complete call graph.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-56392",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-56392.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=b60a159fdc5bfcf9988d3a4cb6f53abe8ad5d35d"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-5704",
+    "source_package": "tar",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "GNU tar hidden injected entry bypassing pre-extraction inspection",
+    "action_group": "tar",
+    "proposed_corrective_action": "Backport applicable GNU tar fixes via vendor builds and validate restore independently. Never rely on --one-top-level, fresh extraction directory or listing-before-extract as sole security boundary; avoid untrusted archives and privileged extraction.",
+    "verification_required": "Constrain archive entries, hardlinks/symlinks and file metadata, preserve no-privilege extraction and separate destination. Treat rmt as its own executable/protocol; GNU tar differs from Perl Archive::Tar.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-5704",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-5704.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://cgit.git.savannah.gnu.org/cgit/tar.git/commit/?id=b8d8a61b25588caca4efaf9bdd2e3f1a49da77e3"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-6238",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "deprecated DNS debug printing RDATA length validation; distinct from normal resolver queries",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-6238",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-6238.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-3"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-3"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-6368",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "wordexp WRDE_APPEND invalid memory followed by wordfree",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-6368",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-6368.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-4"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-4"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-6791",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "wordexp tilde username stack allocation from unbounded untrusted input",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-6791",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-6791.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-3"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-3"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-76642",
+    "source_package": "util-linux",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 9,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "failed mount helper followed by privileged X-mount idmap/owner hooks",
+    "action_group": "util-linux",
+    "proposed_corrective_action": "Prefer trixie-coherent builds with upstream stable2.41.6 fixes or later vendor backports; Debian unstable fixed versions are references, not permission to mix sid packages. Remove unneeded mount SUID and enforce NNP/cap-drop/no host namespaces as separately tested mitigations; prohibit privileged nsenter --join-cgroup into untrusted targets.",
+    "verification_required": "Retain mount/libmount/nsenter/login provenance and test the exact fixed paths. Empty fstab and kernel6.1 are lab observations, not deployment invariants or patches.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-76642",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-76642.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.42.3-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.42.3-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2026-77117",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "iconv SHIFT_JISX0213 split-output conversion that never makes progress",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-77117",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-77117.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-78408",
+    "source_package": "util-linux",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 9,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "privileged nsenter --join-cgroup leaks root-opened cgroup FD into target, not standalone SUID escalation",
+    "action_group": "util-linux",
+    "proposed_corrective_action": "Prefer trixie-coherent builds with upstream stable2.41.6 fixes or later vendor backports; Debian unstable fixed versions are references, not permission to mix sid packages. Remove unneeded mount SUID and enforce NNP/cap-drop/no host namespaces as separately tested mitigations; prohibit privileged nsenter --join-cgroup into untrusted targets.",
+    "verification_required": "Retain mount/libmount/nsenter/login provenance and test the exact fixed paths. Empty fstab and kernel6.1 are lab observations, not deployment invariants or patches.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-78408",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-78408.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.42.4-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.42.4-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://github.com/util-linux/util-linux/commit/286dd3ff41526b582ef48830de239dffbaa61f90"
+    ],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2026-78409",
+    "source_package": "util-linux",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 9,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "X-mount.subdir detached-tree path on kernel>=6.15 with fstab-authorized restricted mount",
+    "action_group": "util-linux",
+    "proposed_corrective_action": "Prefer trixie-coherent builds with upstream stable2.41.6 fixes or later vendor backports; Debian unstable fixed versions are references, not permission to mix sid packages. Remove unneeded mount SUID and enforce NNP/cap-drop/no host namespaces as separately tested mitigations; prohibit privileged nsenter --join-cgroup into untrusted targets.",
+    "verification_required": "Retain mount/libmount/nsenter/login provenance and test the exact fixed paths. Empty fstab and kernel6.1 are lab observations, not deployment invariants or patches.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-78409",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-78409.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.42.3-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.42.3-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2026-78410",
+    "source_package": "util-linux",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 9,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "restricted fstab bind source not pinned before mount plus owner/group/mode hooks",
+    "action_group": "util-linux",
+    "proposed_corrective_action": "Prefer trixie-coherent builds with upstream stable2.41.6 fixes or later vendor backports; Debian unstable fixed versions are references, not permission to mix sid packages. Remove unneeded mount SUID and enforce NNP/cap-drop/no host namespaces as separately tested mitigations; prohibit privileged nsenter --join-cgroup into untrusted targets.",
+    "verification_required": "Retain mount/libmount/nsenter/login provenance and test the exact fixed paths. Empty fstab and kernel6.1 are lab observations, not deployment invariants or patches.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-78410",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-78410.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.42.3-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.42.3-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2026-80489",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "iconv EUC_JISX0213 split-output conversion; separate encoding from CVE-2026-77117",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-80489",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-80489.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-5"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-82560",
+    "source_package": "perl",
+    "source_severities": [
+      "UNKNOWN"
+    ],
+    "current_scan_entries": 1,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "Pod::Text <=6.1.0 nested =over formatting no-progress/memory exhaustion",
+    "action_group": "perl",
+    "proposed_corrective_action": "Use vendor fixes for Perl regex/File::Temp, Archive::Tar3.10 and Pod::Text6.1.1 as appropriate. Avoid processing untrusted data through system Perl in runtime/restore, and omit unnecessary modules in a separately validated image.",
+    "verification_required": "Archive::Tar and Pod::Text are modules, distinct from GNU tar or systemd logging. Verify @INC/module payload in current image; perl-base and regex/File::Temp remain present.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-82560",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-82560.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://github.com/rra/podlators/commit/70510174f69eb54aa6d617bde4e1402cd9b7c61f"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "CVE-2026-85091",
+    "source_package": "zlib",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 1,
+    "state": "introduced_code_range_discrepancy_open",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "gz_vacate nonblocking stale-pointer path; upstream introduced nonblocking gz support after installed1.3.1, while tracker still open",
+    "action_group": "zlib",
+    "proposed_corrective_action": "Review/backport crc32 length validation and gzwrite fix separately in vendor zlib, checking introduced-code ranges. Avoid unbounded/negative CRC-combine lengths and affected nonblocking gz* sequences until fixed.",
+    "verification_required": "Map actual system and vendored wheel copies; Python compress/decompress use does not imply crc32_combine or gzprintf use. An exported symbol list alone cannot show all static internal implementations.",
+    "limit": "Debian still marks installed1.3.1 open; upstream nonblocking introduction is v1.3.1.2. Verify exact Debian patched gzwrite source before any not-affected decision; version string alone is insufficient.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-85091",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-85091.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [
+      "https://github.com/madler/zlib/commit/df84af25dc1942490e1d1c899a07619152a46148"
+    ],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-8674",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "resolver startup/search domains around200chars from resolv.conf or LOCALDOMAIN; runtime networking uses libc",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-8674",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-8674.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-6"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-6"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://sourceware.org/git/?p=glibc.git;a=commit;h=506ea57086bfb9ce3daff1c14246a1cb532aba0a"
+    ],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-86805",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "SUID loader ORIGIN/parent path TOCTOU with protected_hardlinks disabled and susceptible RPATH",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-86805",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-86805.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://sourceware.org/git/?p=glibc.git;a=commit;h=ed0c137b97eb940b4b64981e84ed806d3276edd9"
+    ],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-89092",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "nscd enabled plus oversized untrusted DNS reply; no nscd package recorded but payload/socket attestation not complete",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-89092",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-89092.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-9538",
+    "source_package": "perl",
+    "source_severities": [
+      "HIGH"
+    ],
+    "current_scan_entries": 1,
+    "state": "component_absence_evidence_prior_snapshot_only_not_accepted",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "Perl Archive::Tar entry-size allocation, distinct from GNU tar; module absent in earlier @INC probe",
+    "action_group": "perl",
+    "proposed_corrective_action": "Use vendor fixes for Perl regex/File::Temp, Archive::Tar3.10 and Pod::Text6.1.1 as appropriate. Avoid processing untrusted data through system Perl in runtime/restore, and omit unnecessary modules in a separately validated image.",
+    "verification_required": "Archive::Tar and Pod::Text are modules, distinct from GNU tar or systemd logging. Verify @INC/module payload in current image; perl-base and regex/File::Temp remain present.",
+    "limit": "Measured payload/module absence is from the preceding image.86 unchanged OS versions plus build delta support a hypothesis but do not replace current rootfs/module attestation. No exception accepted.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-9538",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-9538.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "5.42.3-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "5.42.3-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "HIGH_REVIEW_FIRST"
+  },
+  {
+    "id": "CVE-2026-95619",
+    "source_package": "gcc-14",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 3,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "out-of-line or inlined aligned operator new large-input overflow; native C++ linkage must be mapped",
+    "action_group": "gcc-14",
+    "proposed_corrective_action": "Review GCC14 vendor fixes and separate exported libstdc++ code from header/template-instantiated code. Update runtime libraries for out-of-line code; rebuild affected native consumers against fixed headers where required.",
+    "verification_required": "Inventory DT_NEEDED plus statically linked/template code in the actual native wheels. Missing gcc executable/headers and a newer libstdc++ alone cannot prove closure.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-95619",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-95619.html",
+    "vendor_snapshot_fixed_references": {
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "14.4.0-3"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-95818",
+    "source_package": "glibc",
+    "source_severities": [
+      "MEDIUM"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "SUID/SGID dynamic-loader ORIGIN RPATH/RUNPATH parsing, independent of the hardlink race",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-95818",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-95818.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://sourceware.org/git/?p=glibc.git;a=commit;h=ed0c137b97eb940b4b64981e84ed806d3276edd9"
+    ],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "CVE-2026-97399",
+    "source_package": "glibc",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "architecture_precondition_contradicted_for_current_amd64",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "Power8-specific optimized strncasecmp; architecture precondition contradicts fixed linux/amd64 candidate",
+    "action_group": "glibc",
+    "proposed_corrective_action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "verification_required": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit.",
+    "limit": "The signed-off scope is amd64/x86_64, not Power8; retain the raw source-package report and revisit every other architecture. No ignore or cross-platform nonaffected claim.",
+    "primary_url": "https://security-tracker.debian.org/tracker/CVE-2026-97399",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/CVE-2026-97399.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "2.43-7"
+      }
+    },
+    "upstream_patch_references_from_primary": [],
+    "priority": "NATIVE_RUNTIME_PRIORITY"
+  },
+  {
+    "id": "DSA-6549-1",
+    "source_package": "xz-utils",
+    "source_severities": [
+      "UNKNOWN"
+    ],
+    "current_scan_entries": 0,
+    "state": "fixed_alias_removed_by_current_same_database_scan",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "XZ alias of GHSA-5qpq-xqfv-j9pg, removed only after verified liblzma5 u2 in current scan",
+    "action_group": "xz-utils",
+    "proposed_corrective_action": "Keep exact liblzma5 u2 package/hash/version checks in both shared stages; no rollback to u1 or legacy backend fallback.",
+    "verification_required": "Verified same-database scanner delta removes only these two aliases. This is not a fix for the other20 source groups.",
+    "limit": "Package fix only; original finding retained, no risk exception.",
+    "primary_url": "https://security-tracker.debian.org/tracker/DSA-6549-1",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/DSA-6549-1.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "TEMP-0290435-0B57B5",
+    "source_package": "tar",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "rmt remote-tape side effects/protocol outside the tar archive parser",
+    "action_group": "tar",
+    "proposed_corrective_action": "Backport applicable GNU tar fixes via vendor builds and validate restore independently. Never rely on --one-top-level, fresh extraction directory or listing-before-extract as sole security boundary; avoid untrusted archives and privileged extraction.",
+    "verification_required": "Constrain archive entries, hardlinks/symlinks and file metadata, preserve no-privilege extraction and separate destination. Treat rmt as its own executable/protocol; GNU tar differs from Perl Archive::Tar.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/TEMP-0290435-0B57B5",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/TEMP-0290435-0B57B5.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "TEMP-0517018-A83CE6",
+    "source_package": "sysvinit",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "installer no-root option and emergency sulogin authentication configuration",
+    "action_group": "sysvinit",
+    "proposed_corrective_action": "Do not ship/use an installer or emergency-login configuration permitting passwordless root recovery; remove unnecessary recovery utilities only after entrypoint/maintenance validation.",
+    "verification_required": "Review the original installer/sulogin scenario and root-account configuration. A web CMD alone does not attest all recovery paths.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/TEMP-0517018-A83CE6",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/TEMP-0517018-A83CE6.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "TEMP-0628843-DBAD28",
+    "source_package": "shadow",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 2,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "shadow su credential/tty-transition scenario linked to CVE-2005-4890; review original bug before exception",
+    "action_group": "shadow",
+    "proposed_corrective_action": "Remove unnecessary SUID/SGID account-management entry points or enforce NNP as a separately verified deployment control. Lock authentication logs and subordinate-ID policy to trusted configuration; follow vendor fixes.",
+    "verification_required": "Inventory chfn/chsh/su and modes, btmp permissions, subuid/subgid and shared/NFS mounts. Lack of sshd or newuidmap alone does not resolve the whole source group.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/TEMP-0628843-DBAD28",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/TEMP-0628843-DBAD28.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "TEMP-0841856-B18BAF",
+    "source_package": "bash",
+    "source_severities": [
+      "LOW"
+    ],
+    "current_scan_entries": 1,
+    "state": "open_component_present_reachability_not_established",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "bash credential transition to another user, requiring original bug/operational-path review",
+    "action_group": "bash",
+    "proposed_corrective_action": "Retain vendor tracking; avoid identities crossing through shell environments. Run the service with NNP, dropped capabilities and no privileged diagnostic shell.",
+    "verification_required": "Review the referenced Debian bug and actual shell credential/environment transition. UID999 or no SSH is not a proof of absence.",
+    "limit": "No complete native/deployment call graph or exploit test. Keep raw finding and require the specific gate; static text search is partial.",
+    "primary_url": "https://security-tracker.debian.org/tracker/TEMP-0841856-B18BAF",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/TEMP-0841856-B18BAF.html",
+    "vendor_snapshot_fixed_references": {},
+    "upstream_patch_references_from_primary": [],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  },
+  {
+    "id": "TEMP-1147318-639065",
+    "source_package": "xz-utils",
+    "source_severities": [
+      "UNKNOWN"
+    ],
+    "current_scan_entries": 0,
+    "state": "fixed_alias_removed_by_current_same_database_scan",
+    "risk_accepted": false,
+    "ignore_added": false,
+    "technical_precondition": "second XZ alias of GHSA-5qpq-xqfv-j9pg, same package fix and retained raw before row",
+    "action_group": "xz-utils",
+    "proposed_corrective_action": "Keep exact liblzma5 u2 package/hash/version checks in both shared stages; no rollback to u1 or legacy backend fallback.",
+    "verification_required": "Verified same-database scanner delta removes only these two aliases. This is not a fix for the other20 source groups.",
+    "limit": "Package fix only; original finding retained, no risk exception.",
+    "primary_url": "https://security-tracker.debian.org/tracker/TEMP-1147318-639065",
+    "primary_snapshot_path": "linux-recovery28-image-abd559a/os-audit/triage-primary/pages/TEMP-1147318-639065.html",
+    "vendor_snapshot_fixed_references": {
+      "forky": {
+        "status": "resolved",
+        "fixed_version": "5.8.4-1"
+      },
+      "sid": {
+        "status": "resolved",
+        "fixed_version": "5.8.4-1"
+      }
+    },
+    "upstream_patch_references_from_primary": [
+      "https://github.com/tukaani-project/xz/commit/fe4d763d566a38ad61d4c5022520c25578a3a464",
+      "https://github.com/tukaani-project/xz/commit/e5e63d50eac1b4357a5a7a0abd3c5f99a5c47881"
+    ],
+    "priority": "RETAIN_OPEN_FOLLOWUP"
+  }
+]

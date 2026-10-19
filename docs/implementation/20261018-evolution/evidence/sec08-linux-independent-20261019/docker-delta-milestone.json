@@ -1,0 +1,112 @@
+{
+  "kind": "SEC08_R18_INDEPENDENT_DOCKER_DELTA_MILESTONE",
+  "created_at": "2026-10-19T11:10:02.841045+00:00",
+  "decision": "accepted_for_local_integration_of_two_paths_only",
+  "source_head": "bc365c13b9af9e24129a56b4068059a67bb3afa0",
+  "delta_base": "a753b2c",
+  "worktree": "F:\\MetodoBaseWeb-image-security-20261019",
+  "source_stable": true,
+  "product_sources": {
+    "Dockerfile": "4ad0ade16369bb93beb1db962ca98a707131edc4a087cd318613ee2a755d1294",
+    "requirements-container-bootstrap.lock": "01cb7092ff6e66c2d52618b2076234ca877f833c067c6c3b51fd8607cebc15aa"
+  },
+  "evidence": {
+    "linux-recovery28-image-abd559a": {
+      "manifest_sha256": "fc0053a28039d61c8b7a82b99fd6f13b4a9ed595d9d8cd4711d96c1223aa6705",
+      "rehash_passed": 197,
+      "total_bytes": 10212222,
+      "extras_not_in_manifest": [
+        "evidence-manifest.json",
+        "evidence-manifest.sha256"
+      ],
+      "inventory_aggregate_sha256": "c6ff610b3b65e1369543facc24097b14649bca704c46b370cfe907a80865231d"
+    },
+    "linux-recovery28-image-bc365c1": {
+      "manifest_sha256": "15ff83b09c2340195de8677977ce0d9bd4c7e8cc238c7da2607484d63f71b566",
+      "rehash_passed": 53,
+      "total_bytes": 9471694,
+      "extras_not_in_manifest": [
+        "evidence-manifest.json",
+        "evidence-manifest.sha256"
+      ],
+      "inventory_aggregate_sha256": "387893ed55ff85c54823239036c556961f3ea603e969f652740a6de4f698af5c"
+    }
+  },
+  "image": {
+    "id": "sha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c",
+    "user": "appuser",
+    "uid": 999,
+    "architecture": "amd64",
+    "python": "3.12.15",
+    "pip": "26.2.1",
+    "lab_runtime_flags_are_not_dockerfile_defaults": [
+      "read_only_rootfs",
+      "cap_drop_ALL",
+      "no_new_privileges",
+      "network_none"
+    ]
+  },
+  "delta_checks": {
+    "decision": "accept Docker/bootstrap delta for local integration only; OS vulnerability gate remains red",
+    "changed_os_packages": {
+      "liblzma5:amd64": {
+        "before": [
+          "5.8.1-1+deb13u1",
+          "amd64"
+        ],
+        "after": [
+          "5.8.1-1+deb13u2",
+          "amd64"
+        ]
+      }
+    },
+    "removed_aliases": [
+      {
+        "VulnerabilityID": "DSA-6549-1",
+        "PkgName": "liblzma5",
+        "InstalledVersion": "5.8.1-1+deb13u1",
+        "FixedVersion": "5.8.1-1+deb13u2",
+        "Status": "fixed",
+        "Severity": "UNKNOWN"
+      },
+      {
+        "VulnerabilityID": "TEMP-1147318-639065",
+        "PkgName": "liblzma5",
+        "InstalledVersion": "5.8.1-1+deb13u1",
+        "FixedVersion": "5.8.1-1+deb13u2",
+        "Status": "fixed",
+        "Severity": "UNKNOWN"
+      }
+    ],
+    "remaining_entries": 164,
+    "remaining_ids": 71,
+    "comparison_six_fields_identical": true,
+    "full_vulnerability_object_changed_fields": {
+      "Fingerprint": 164,
+      "PkgIdentifier": 3
+    },
+    "same_scanner_and_database": true,
+    "empty_ignore": true,
+    "pypi_distributions": 55,
+    "pypi_findings": 0,
+    "apt_package_metadata_hash_matches_pinned": true,
+    "build_verified_package_hash_and_version": true,
+    "no_new_build_or_audit_run": true
+  },
+  "new_builds": 0,
+  "new_scans": 0,
+  "app_starts": 0,
+  "database_connections": 0,
+  "new_ignores": 0,
+  "risk_acceptances": 0,
+  "product_mutations": 0,
+  "private_proof": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-sec08-linux-docker-milestone-20261019.zip",
+  "private_proof_sha256": "34b998f1d236df1138a835439ca9928f8b6fec519af4b0e9868bded281af98d6",
+  "limits": [
+    "OS gate remains red:164 entries/71 IDs, HIGH44 entries.",
+    "No app/PG/deployment/Windows/desktop validation.",
+    "Signed APT evidence is retained prior execution and trusted keyring; reviewer did not re-execute signature verification.",
+    "Registry digest binding does not assert a verified image signature.",
+    "Lab NNP/cap-drop/read-only/network-none do not become Dockerfile defaults."
+  ]
+}

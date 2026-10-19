@@ -1,0 +1,73 @@
+{
+  "kind": "SEC08_R18_INDEPENDENT_LINUX_REVIEW_FINAL",
+  "created_at": "2026-10-19T11:17:25.157413+00:00",
+  "docker_delta_decision": "accepted_local_two_paths_only; frozen earlier milestone unchanged",
+  "os_gate": "RED",
+  "remaining_os_ids": 71,
+  "remaining_os_entries": 164,
+  "historical_matrix_ids_retained": 73,
+  "HIGH_ids": 8,
+  "HIGH_entries": 44,
+  "new_ignores": 0,
+  "risk_acceptances": 0,
+  "component_absence_exceptions_accepted": 0,
+  "review_states": {
+    "open_component_present_reachability_not_established": 53,
+    "component_absence_evidence_prior_snapshot_only_not_accepted": 14,
+    "source_binary_mapping_requires_final_attestation": 1,
+    "missing_v3_symbol_not_sufficient": 1,
+    "introduced_code_range_discrepancy_open": 1,
+    "architecture_precondition_contradicted_for_current_amd64": 1,
+    "fixed_alias_removed_by_current_same_database_scan": 2
+  },
+  "source_head": "bc365c13b9af9e24129a56b4068059a67bb3afa0",
+  "image_id": "sha256:99c846bd28b0d464c837a72fc6340df1c9583834b2529c8bde18bd6d7544410c",
+  "product_sources": {
+    "Dockerfile": "4ad0ade16369bb93beb1db962ca98a707131edc4a087cd318613ee2a755d1294",
+    "requirements-container-bootstrap.lock": "01cb7092ff6e66c2d52618b2076234ca877f833c067c6c3b51fd8607cebc15aa"
+  },
+  "product_sources_stable": true,
+  "sealed_evidence_file_count": 250,
+  "sealed_evidence_sources_stable": true,
+  "evidence_manifests": {
+    "linux-recovery28-image-abd559a": {
+      "manifest_sha256": "fc0053a28039d61c8b7a82b99fd6f13b4a9ed595d9d8cd4711d96c1223aa6705",
+      "file_count": 197,
+      "inventory_aggregate_before": "c6ff610b3b65e1369543facc24097b14649bca704c46b370cfe907a80865231d",
+      "inventory_aggregate_after": "c6ff610b3b65e1369543facc24097b14649bca704c46b370cfe907a80865231d"
+    },
+    "linux-recovery28-image-bc365c1": {
+      "manifest_sha256": "15ff83b09c2340195de8677977ce0d9bd4c7e8cc238c7da2607484d63f71b566",
+      "file_count": 53,
+      "inventory_aggregate_before": "387893ed55ff85c54823239036c556961f3ea603e969f652740a6de4f698af5c",
+      "inventory_aggregate_after": "387893ed55ff85c54823239036c556961f3ea603e969f652740a6de4f698af5c"
+    }
+  },
+  "openssl_vendor_backports_reviewed": 13,
+  "native_vendored_libraries_scope": "Not inventoried by OS-only Trivy or distribution-version OSV audit; no vulnerability/closure assertion.",
+  "new_builds": 0,
+  "new_scans": 0,
+  "VM_actions": 0,
+  "app_starts": 0,
+  "database_connections": 0,
+  "product_mutations": 0,
+  "external_research": "Public primary Debian/upstream web pages only; no providers or contacts.",
+  "private_proof": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-sec08-linux-independent-final-20261019.zip",
+  "private_proof_sha256": "41f4c829de71072c565e08319977747a3f57dabc5c90d80d3439b76ded090437",
+  "output_digests": {
+    "independent-matrix-73.json": "0a5b934fe02b53121eff06907a780d82c384163fb091bb518651396cfecc0e5e",
+    "independent-action-groups.json": "ce0e72e9c56644ac800b1b9fe7b60dfd4337f29fd04a87453b730ecc24df55a5",
+    "openssl13-independent.json": "a8e7d37d4163109c6baa2de4e92b271f8e1551b2ca78a8df5a06d7b90a183f08",
+    "os-review.md": "ebf9b26f7b7513cda7ae4a7cf0a425a818ef9526686036947f46f742c044cc0c"
+  },
+  "milestone_sha256": "16a79fad23c96059afe931b947b8c980a74c451ce83daeebbbb61f8f425a95f0",
+  "mandatory_followup": [
+    "Vendor-coherent patched image for outstanding IDs, not sid mixing.",
+    "Current-rootfs affected-component mapping and native/vendored library inventory.",
+    "Separately tested privilege/tooling reductions and actual deployment invariants.",
+    "New build/scan after a candidate change, then application/runtime/restore gates."
+  ],
+  "not_claimed": [
+    "No OS-green, exploit demonstration, deployment approval, desktop/Windows acceptance or general OpenSSL safety."
+  ]
+}

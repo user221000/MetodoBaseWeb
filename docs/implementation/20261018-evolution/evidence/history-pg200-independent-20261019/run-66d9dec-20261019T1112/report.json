@@ -1,0 +1,413 @@
+{
+  "scope": "Focal history: exactly200 measured Windows loopback HTTP, one1000-plan personal cohort, limit50; migrated own UUID PostgreSQL",
+  "commit": "66d9dec0e15dd873038bd248d3883daeeb27d4ca",
+  "clock_utc": "2026-10-19T11:14:18.709926+00:00",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "processor": "Intel64 Family 6 Model 158 Stepping 10, GenuineIntel",
+  "python": "3.12.13",
+  "cpu_logical": 12,
+  "versions": {
+    "fastapi": "0.146.0",
+    "uvicorn": "0.54.0",
+    "sqlalchemy": "2.1.5",
+    "httpx": "0.28.1",
+    "psycopg2-binary": "2.9.13"
+  },
+  "bounds": {
+    "concurrency": [
+      1,
+      5
+    ],
+    "requests_per_scenario": 100,
+    "seconds_per_scenario": 30
+  },
+  "pool": {
+    "size": 20,
+    "max_overflow": 10,
+    "timeout_seconds": 30,
+    "workers": 1
+  },
+  "limitations": [
+    "No agreed SLO, pass/fail latency threshold, production extrapolation, Linux/container/Redis proof",
+    "No CPU generation/PDF/PUT or durable-job queue measurement; existing stored-plan read paths only",
+    "Closed-loop offered load; coordinated omission possible; no business arrival-rate model",
+    "First request per route/identity excluded as warmup; OS and PostgreSQL cache not flushed",
+    "SQLAlchemy event overhead included; SQL counters omit pre_ping and DB network protocol operations",
+    "Pool _do_get timer includes connection creation/queue acquisition, excludes pre_ping; no worker queue timer",
+    "Concurrency is client workers with at most five pending HTTP calls; ASGI lifecycles can overlap response-body completion during dependency cleanup",
+    "Single shared local host/cluster; coordinated window reduces but cannot prove absence of host noise",
+    "Historical1400 includes7routes and5cohort sizes; only its40 history/cohort1000 samples correspond, with old unbounded1000-row response versus current50-row page",
+    "Only oneVIEWER/profile and1000plans seeded now; historical unrelated clients/diary/cohorts not recreated, so data distribution differs",
+    "One history warmup and auth-readiness requests excluded and enumerated; EXPLAIN occurs only after measured200",
+    "No numerical SLO agreed; no causal p95 claim across changed contention/runtime/schema/response semantics"
+  ],
+  "cleanup": {
+    "owned_uuid_database_created": true,
+    "owned_uuid_database_removed": true
+  },
+  "schema_revision": "20261019_account_recovery",
+  "postgres_version": "17.11",
+  "session_timezone": "America/Mexico_City",
+  "seed": {
+    "personal_subjects": 1,
+    "personal_profiles": 1,
+    "personal_plans": 1000,
+    "selected_historical_cohort": 4,
+    "selected_cohort_history": 1000,
+    "plan_content_utf8_bytes": 762,
+    "pdf_objects": 0,
+    "professional_clients": 0,
+    "diary_days": 0,
+    "data_origin": "Same synthetic stored plan content as immutable baseline; no generator or quota admission claim"
+  },
+  "readiness": {
+    "attempts": 3,
+    "last_status": 200
+  },
+  "server_identity": {
+    "nonce": "d7e8209fe52f410399932eefedfba84a",
+    "pid": 22220,
+    "parent_pid": 14892,
+    "launcher_pid": 14892,
+    "relation_verified": true,
+    "counter_pid": 22220
+  },
+  "warmup": [
+    {
+      "name": "history",
+      "cohort": 4,
+      "status": 200,
+      "semantic_valid": true
+    }
+  ],
+  "observer_flush": {
+    "expected": 200,
+    "observed": 200,
+    "wait_seconds": 0.0561398999998346,
+    "acknowledged": true
+  },
+  "owned_server_stopped": true,
+  "explain": {
+    "file": "explain-analyze-buffers.json",
+    "actual_rows": 51,
+    "after_measurement": true
+  },
+  "excluded_http_controls": {
+    "auth_readiness_attempts": 3,
+    "history_warmup": 1,
+    "counted_in_measured_200": false
+  },
+  "scenarios": [
+    {
+      "name": "history",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.3819129000185058,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 4.03125,
+        "rss_bytes": 157433856,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 5.0,
+        "rss_bytes": 157478912,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_cpu_seconds": 0.96875,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 11.77429995732382,
+        "p50": 13.400700001511723,
+        "p95": 16.23120001750067,
+        "max": 18.242399964947253
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 11.295000032987446,
+        "p50": 12.906399962957948,
+        "p95": 15.816300001461059,
+        "max": 18.251099972985685
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 3.0374000198207796,
+        "p50": 3.5631998907774687,
+        "p95": 4.3527999660000205,
+        "max": 5.727600015234202
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "asgi_lifecycles_open_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 2
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004299974534660578,
+        "p50": 0.006099988240748644,
+        "p95": 0.010200019460171461,
+        "max": 0.014999997802078724
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 100,
+            "min": 11.77429995732382,
+            "p50": 13.400700001511723,
+            "p95": 16.23120001750067,
+            "max": 18.242399964947253
+          },
+          "response_bytes": {
+            "n": 100,
+            "min": 8161,
+            "p50": 8161,
+            "p95": 8161,
+            "max": 8161
+          },
+          "records": [
+            50
+          ]
+        }
+      }
+    },
+    {
+      "name": "history",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.6014969000243582,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 5.0,
+        "rss_bytes": 157478912,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 6.203125,
+        "rss_bytes": 157929472,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_cpu_seconds": 1.203125,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 30.63350002048537,
+        "p50": 70.89899998391047,
+        "p95": 144.24409996718168,
+        "max": 243.53289999999106
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 28.195299964863807,
+        "p50": 94.438900006935,
+        "p95": 169.2003000061959,
+        "max": 274.72149999812245
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 3.645799937658012,
+        "p50": 5.5172001593746245,
+        "p95": 14.079999993555248,
+        "max": 26.39319997979328
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 5,
+        "p95": 6,
+        "max": 6
+      },
+      "asgi_lifecycles_open_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 7,
+        "p95": 10,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004400033503770828,
+        "p50": 0.008000002708286047,
+        "p95": 0.014599994756281376,
+        "max": 145.24209999945015
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 100,
+            "min": 30.63350002048537,
+            "p50": 70.89899998391047,
+            "p95": 144.24409996718168,
+            "max": 243.53289999999106
+          },
+          "response_bytes": {
+            "n": 100,
+            "min": 8161,
+            "p50": 8161,
+            "p95": 8161,
+            "max": 8161
+          },
+          "records": [
+            50
+          ]
+        }
+      }
+    }
+  ],
+  "outcome": "characterized",
+  "source_count": 261,
+  "sources_stable": true
+}

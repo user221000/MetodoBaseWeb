@@ -20,3 +20,5 @@ Artefactos desktop7bde30b:ZIP122492985bytes SHA256f57a964b11bf547f25e1883b125195
 Antes de operación externa siguen pendientes candidato exacto completo,digests/config sin secretos,migraciones/backup/restore,transición de workers,rollback yobservación. Migración26 exige drenar workers antiguos. No push,PR,Railway,cargos,mensajes o contactos reales. Dictámenes legales/clínicos ypilotos no se sustituyen con agentes ni resultados sintéticos.
 
 Actualización local: CIhistory/landing52af400 integrado trasQA ycomposición. CandidatoLinuxbc365c1 finalizóauditoríaOS:71IDs abiertos,sólo2aliasXZ corregidos y0hallazgos nuevos;55PyPI siguenOSV0. Docker aún enrevisiónindependiente. QEMUpropioapagadoordenadamente para ventanaPG/desktop,overlayconservado. No startupdeproductoni nuevoSetup.
+
+Checkpoint106: Dockercorregido integrado localmente trasseguridad;OS71IDs abierto. Ensayo200HTTP/200ACK completado con límites descriptivos,EXPLAIN revela1000filas. Desktop3.12.15 ZIP4966896c/Setup5651f418 construido,pendiente revisiónindependiente delpayload. Núcleo29/API/UI/restore yoptimización30 siguenaislados. No nuevo despliegue niSetup ejecutado.

@@ -1,0 +1,26 @@
+usage: run_history200.py [-h] [--private-env PRIVATE_ENV]
+                         [--window-file WINDOW_FILE]
+                         [--expected-head EXPECTED_HEAD] [--output OUTPUT]
+                         [--requests REQUESTS] [--seconds SECONDS] [--serve]
+                         [--port PORT] [--observer OBSERVER] [--ready READY]
+                         [--nonce NONCE]
+
+Bounded local HTTP characterization, never a production load generator.
+Explicit invocation only; no latency/SLO assertion. Own migrated PostgreSQL
+UUID database, real restricted-role app, real TCP HTTP, no auth/route
+overrides. Provider configuration is cleared by tests.isolation before app
+imports.
+
+options:
+  -h, --help            show this help message and exit
+  --private-env PRIVATE_ENV
+  --window-file WINDOW_FILE
+  --expected-head EXPECTED_HEAD
+  --output OUTPUT
+  --requests REQUESTS
+  --seconds SECONDS
+  --serve
+  --port PORT
+  --observer OBSERVER
+  --ready READY
+  --nonce NONCE

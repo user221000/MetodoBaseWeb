@@ -1,0 +1,122 @@
+{
+  "original_explain_sha256": "a8b4828379a8e300c553212c3398b3367707dbd3518c2ccca6815e0207604717",
+  "execution_time_ms": 4.883,
+  "planning_time_ms": 11.267,
+  "nodes": [
+    {
+      "depth": 0,
+      "Node Type": "Limit",
+      "Actual Rows": 51,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 2120,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 1,
+      "Node Type": "Sort",
+      "Actual Rows": 51,
+      "Actual Loops": 1,
+      "Sort Key": [
+        "planes_generados.fecha_generacion DESC NULLS LAST",
+        "planes_generados.id DESC"
+      ],
+      "Sort Method": "top-N heapsort",
+      "Sort Space Used": 31,
+      "Sort Space Type": "Memory",
+      "Shared Hit Blocks": 2120,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 2,
+      "Node Type": "Result",
+      "Actual Rows": 1000,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 2114,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 3,
+      "Node Type": "Nested Loop",
+      "Join Type": "Inner",
+      "Actual Rows": 1000,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 2114,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 4,
+      "Node Type": "Bitmap Heap Scan",
+      "Relation Name": "planes_generados",
+      "Actual Rows": 1000,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 114,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 5,
+      "Node Type": "BitmapAnd",
+      "Actual Rows": 0,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 2,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 6,
+      "Node Type": "Bitmap Index Scan",
+      "Index Name": "ix_planes_generados_deleted",
+      "Actual Rows": 1000,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 1,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 6,
+      "Node Type": "Bitmap Index Scan",
+      "Index Name": "ix_planes_generados_gym_id",
+      "Actual Rows": 1000,
+      "Actual Loops": 1,
+      "Shared Hit Blocks": 1,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    {
+      "depth": 4,
+      "Node Type": "Index Scan",
+      "Relation Name": "clientes",
+      "Index Name": "ix_clientes_gym_nombre",
+      "Actual Rows": 1,
+      "Actual Loops": 1000,
+      "Shared Hit Blocks": 2000,
+      "Shared Read Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    }
+  ],
+  "observed": "Limit51 over top-N heapsort31kB over1000 rows. BitmapAnd of deleted/gym_id indexes; clientes indexed join repeated1000times.2120shared hits,0shared reads,0tempIO.",
+  "current_declared_model_index": {
+    "name": "ix_planes_gym_fecha",
+    "columns": [
+      "gym_id",
+      "fecha_generacion"
+    ],
+    "source": "web/database/models.py:261; initial migration and frozen target28 retain the same two columns"
+  },
+  "index_not_used_in_this_plan": "ix_planes_gym_fecha",
+  "interpretation": "Returned candidates and Python materialization bounded51; this observed database plan still scans/sorts1000 and repeats profile lookup1000. This is not proof of O(50) database work.",
+  "decision_pending": "One hot synthetic1tenant plan is insufficient to choose physical DDL or attribute index causality. No index/migration changed or proposed by QA; further evaluation requires its own scope/window."
+}

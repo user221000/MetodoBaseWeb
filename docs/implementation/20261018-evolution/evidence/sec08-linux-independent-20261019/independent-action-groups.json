@@ -1,0 +1,86 @@
+{
+  "acl": {
+    "action": "Prefer a vendor-coherent acl2.4 update with its new *_at ABI and rebuilt/migrated privileged callers; test tar compatibility. Do not transplant a single library patch or infer closure from deleting ACL CLIs.",
+    "gate": "Record native callers of acl_*_file and attacker-writable path ancestors, updated ABI consumers and symlink-race regression. Interim NNP/cap-drop and unprivileged, nonshared writable paths only reduce privilege impact."
+  },
+  "apt": {
+    "action": "Retain explicit Signed-By and signed HTTPS repositories; never introduce apt-key/import of untrusted keyservers. Remove package-manager tooling from a separately validated final runtime only if no bootstrap/runtime requirement remains.",
+    "gate": "Compare the affected apt-key implementation with package file inventory, not apt package-name alone. Revalidate the current image after any slimming."
+  },
+  "attr": {
+    "action": "Use vendor attr2.6 and fixed utilities where needed, otherwise omit the utilities from final runtime without removing required libattr transitively.",
+    "gate": "Prove affected getfattr/setfattr implementation absent or fixed and disallow privileged traversal of user-controlled ancestors."
+  },
+  "bash": {
+    "action": "Retain vendor tracking; avoid identities crossing through shell environments. Run the service with NNP, dropped capabilities and no privileged diagnostic shell.",
+    "gate": "Review the referenced Debian bug and actual shell credential/environment transition. UID999 or no SSH is not a proof of absence."
+  },
+  "bzip2": {
+    "action": "Update the bzip2recover utility from vendor/upstream fixed source if shipped; otherwise attest omission of this utility while retaining libbz2 needed by Python.",
+    "gate": "The CLI defect is not automatically a libbz2 decompression defect. Bind its absence to the actual current rootfs/package file list."
+  },
+  "coreutils": {
+    "action": "Backport the specified utility fixes through vendor package builds. Avoid recursive privileged ownership operations on shared writable trees and untrusted utility option strings; final-runtime CLI slimming needs its own dependency and entrypoint validation.",
+    "gate": "Audit exact chown/chgrp, sort, uniq and unexpand calls, including maintenance/restore. Do not remove coreutils wholesale or treat lack of a Python textual hit as a complete call graph."
+  },
+  "dash": {
+    "action": "Use fixed vendor shell builds when available. Keep entrypoint arguments constant and never form dash -c/printf/echo format or glob expressions from external data.",
+    "gate": "Determine libc-fnmatch build option and actual builtin paths. Shell exists; bounds and restricted inputs reduce exposure without repairing it."
+  },
+  "diffutils": {
+    "action": "Apply upstream diff3 arithmetic fixes through a reproducible vendor package, or omit diff3 from a validated final runtime. Do not allow attacker-selected --diff-program.",
+    "gate": "Inventory diff3 and maintenance workflows; supplying a different working directory does not repair arithmetic."
+  },
+  "gcc-14": {
+    "action": "Review GCC14 vendor fixes and separate exported libstdc++ code from header/template-instantiated code. Update runtime libraries for out-of-line code; rebuild affected native consumers against fixed headers where required.",
+    "gate": "Inventory DT_NEEDED plus statically linked/template code in the actual native wheels. Missing gcc executable/headers and a newer libstdc++ alone cannot prove closure."
+  },
+  "glibc": {
+    "action": "Prefer supported Debian trixie security/point backports or a separately validated coherent base. Do not apt-mix sid libc into the candidate. Bound untrusted native inputs and remove privilege paths as mitigations, keeping IDs open until affected implementation or exact precondition is resolved.",
+    "gate": "Resolve each API/architecture/precondition below; patch/rebuild tests must cover runtime DNS, locale/conversion and SUID loader behavior, not only Python package audit."
+  },
+  "ncurses": {
+    "action": "Backport infocmp/termcap fixes through Debian-compatible package builds. If infocmp is unnecessary, remove that utility in a separate tested final-stage change while preserving readline/libtinfo dependencies.",
+    "gate": "infocmp exists in the captured rootfs, so the HIGH cannot be dismissed because no TTY or interactive UI is expected. Review imported terminfo/termcap and native callers."
+  },
+  "pam": {
+    "action": "Inventory installed PAM configuration/modules and exclude pam_userdb plaintext authentication from container and operational paths; use vendor timing fix when available.",
+    "gate": "FastAPI bcrypt is separate from PAM and does not prove PAM unreachable. Account/maintenance services and mounted host configurations must be addressed."
+  },
+  "perl": {
+    "action": "Use vendor fixes for Perl regex/File::Temp, Archive::Tar3.10 and Pod::Text6.1.1 as appropriate. Avoid processing untrusted data through system Perl in runtime/restore, and omit unnecessary modules in a separately validated image.",
+    "gate": "Archive::Tar and Pod::Text are modules, distinct from GNU tar or systemd logging. Verify @INC/module payload in current image; perl-base and regex/File::Temp remain present."
+  },
+  "shadow": {
+    "action": "Remove unnecessary SUID/SGID account-management entry points or enforce NNP as a separately verified deployment control. Lock authentication logs and subordinate-ID policy to trusted configuration; follow vendor fixes.",
+    "gate": "Inventory chfn/chsh/su and modes, btmp permissions, subuid/subgid and shared/NFS mounts. Lack of sshd or newuidmap alone does not resolve the whole source group."
+  },
+  "sqlite3": {
+    "action": "Use a vendor-fixed SQLite build including applicable Session changes. Disable extension loading and do not consume untrusted database/changeset/ZIP files in runtime/restore; keep bounded SQL/data inputs.",
+    "gate": "Production primary-DB rejection of SQLite is not sufficient: catalog/legacy SQLite call sites exist. Separate zipfile extension, Session v2/v3/shared helpers and malformed database exposure."
+  },
+  "systemd": {
+    "action": "Keep unneeded service payload omitted and do not mount host service sockets/config into the app. If adding those services later, apply the vendor fixes before enabling them.",
+    "gate": "Installed libsystemd0/libudev1 does not establish presence of homed/oomd/journald/tmpfiles. Conversely process-not-running is weaker than source-component/payload absence; current-rootfs proof is still needed."
+  },
+  "sysvinit": {
+    "action": "Do not ship/use an installer or emergency-login configuration permitting passwordless root recovery; remove unnecessary recovery utilities only after entrypoint/maintenance validation.",
+    "gate": "Review the original installer/sulogin scenario and root-account configuration. A web CMD alone does not attest all recovery paths."
+  },
+  "tar": {
+    "action": "Backport applicable GNU tar fixes via vendor builds and validate restore independently. Never rely on --one-top-level, fresh extraction directory or listing-before-extract as sole security boundary; avoid untrusted archives and privileged extraction.",
+    "gate": "Constrain archive entries, hardlinks/symlinks and file metadata, preserve no-privilege extraction and separate destination. Treat rmt as its own executable/protocol; GNU tar differs from Perl Archive::Tar."
+  },
+  "util-linux": {
+    "action": "Prefer trixie-coherent builds with upstream stable2.41.6 fixes or later vendor backports; Debian unstable fixed versions are references, not permission to mix sid packages. Remove unneeded mount SUID and enforce NNP/cap-drop/no host namespaces as separately tested mitigations; prohibit privileged nsenter --join-cgroup into untrusted targets.",
+    "gate": "Retain mount/libmount/nsenter/login provenance and test the exact fixed paths. Empty fstab and kernel6.1 are lab observations, not deployment invariants or patches."
+  },
+  "xz-utils": {
+    "action": "Keep exact liblzma5 u2 package/hash/version checks in both shared stages; no rollback to u1 or legacy backend fallback.",
+    "gate": "Verified same-database scanner delta removes only these two aliases. This is not a fix for the other20 source groups."
+  },
+  "zlib": {
+    "action": "Review/backport crc32 length validation and gzwrite fix separately in vendor zlib, checking introduced-code ranges. Avoid unbounded/negative CRC-combine lengths and affected nonblocking gz* sequences until fixed.",
+    "gate": "Map actual system and vendored wheel copies; Python compress/decompress use does not imply crc32_combine or gzprintf use. An exported symbol list alone cannot show all static internal implementations."
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "source_commit": "50085adda1136204a7e4d22fe0090c0c886effae",
+  "outcome": "late_cursor_51_candidates_preserves_page",
+  "anchor_offset": 900,
+  "first_returned_id": 902,
+  "returned": 50,
+  "candidate_limit": 51,
+  "proposed_index_present": true,
+  "actual_plan_row_work": 51,
+  "plan_nodes": [
+    {
+      "type": "Limit",
+      "relation": null,
+      "index": null,
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Merge Append",
+      "relation": null,
+      "index": null,
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Limit",
+      "relation": null,
+      "index": null,
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Result",
+      "relation": null,
+      "index": null,
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Nested Loop",
+      "relation": null,
+      "index": null,
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Index Scan",
+      "relation": "planes_generados",
+      "index": "ix_planes_gym_cliente_history",
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Materialize",
+      "relation": null,
+      "index": null,
+      "rows": 1,
+      "removed_filter": 0,
+      "loops": 51
+    },
+    {
+      "type": "Seq Scan",
+      "relation": "clientes",
+      "index": null,
+      "rows": 1,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Sort",
+      "relation": null,
+      "index": null,
+      "rows": 0,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Limit",
+      "relation": null,
+      "index": null,
+      "rows": 0,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Sort",
+      "relation": null,
+      "index": null,
+      "rows": 0,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Result",
+      "relation": null,
+      "index": null,
+      "rows": 0,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Nested Loop",
+      "relation": null,
+      "index": null,
+      "rows": 0,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Index Scan",
+      "relation": "planes_generados",
+      "index": "ix_planes_gym_cliente_history",
+      "rows": 0,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Seq Scan",
+      "relation": "clientes",
+      "index": null,
+      "rows": 0,
+      "removed_filter": 0,
+      "loops": 0
+    }
+  ],
+  "source_route_sha256": "99bbe79b136d97d8235a53670ef8175e6df9e1afd22fb96ea4daa58314049971",
+  "fixture_driver_sha256": "f27fb892f45c114186763d1380184ee5b91a8149f9347bf8626c2d778ceb0e09",
+  "scope": "Actual existing route function with persisted synthetic identity, restricted PostgreSQL app and tenant; original query captured and explained. No HTTP/auth-overrides claim, latency benchmark, SLO or production migration. The bounded UNION query plus index visits at most51 candidates for this all-dated corpus. Each mixed dated/NULL branch is separately capped at51; general maximum102 requires its own mixed corpus gate.",
+  "owned_database_removed_and_absence_checked": true,
+  "sources_stable": true
+}

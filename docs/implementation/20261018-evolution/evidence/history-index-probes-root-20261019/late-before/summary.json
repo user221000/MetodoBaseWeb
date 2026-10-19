@@ -1,0 +1,65 @@
+{
+  "source_commit": "50085adda1136204a7e4d22fe0090c0c886effae",
+  "outcome": "confirmed_late_cursor_work_not_bounded_by_page",
+  "anchor_offset": 900,
+  "first_returned_id": 902,
+  "returned": 50,
+  "candidate_limit": 51,
+  "proposed_index_present": true,
+  "actual_plan_row_work": 1000,
+  "plan_nodes": [
+    {
+      "type": "Limit",
+      "relation": null,
+      "index": null,
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Sort",
+      "relation": null,
+      "index": null,
+      "rows": 51,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Result",
+      "relation": null,
+      "index": null,
+      "rows": 99,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Nested Loop",
+      "relation": null,
+      "index": null,
+      "rows": 99,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Seq Scan",
+      "relation": "clientes",
+      "index": null,
+      "rows": 1,
+      "removed_filter": 0,
+      "loops": 1
+    },
+    {
+      "type": "Seq Scan",
+      "relation": "planes_generados",
+      "index": null,
+      "rows": 99,
+      "removed_filter": 901,
+      "loops": 1
+    }
+  ],
+  "source_route_sha256": "71fec6e7daf1cb1c0a01e6c010ad792ff3e37e6068f9fbc2a9c9e80e3f6b19ed",
+  "fixture_driver_sha256": "f27fb892f45c114186763d1380184ee5b91a8149f9347bf8626c2d778ceb0e09",
+  "scope": "Actual existing route function with persisted synthetic identity, restricted PostgreSQL app and tenant; original query captured and explained. No HTTP/auth-overrides claim, latency benchmark, SLO or production migration. An extra index alone still leaves late cursor work above the51-candidate budget.",
+  "owned_database_removed_and_absence_checked": true,
+  "sources_stable": true
+}

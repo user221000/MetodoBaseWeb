@@ -1,0 +1,55 @@
+{
+  "status": "prepared_not_executed",
+  "source_head_at_preparation": "52af40007eed53d32d0dca06b06b44dcbf7c64f3",
+  "driver": "run_history200.py",
+  "driver_sha256": "4592fb1782e6d19ee1ff61f65d59eb63583313e3d109875ae29a13c5082dca10",
+  "measurement": {
+    "route": "GET /api/usuario/historial",
+    "params": {
+      "limit": 50
+    },
+    "page": "first page, no cursor supplied",
+    "persisted_plans": 1000,
+    "subjects": 1,
+    "profiles": 1,
+    "role": "VIEWER personal account",
+    "concurrency": [
+      1,
+      5
+    ],
+    "requests_each": 100,
+    "measured_http_total": 200,
+    "max_seconds_each": 30,
+    "order": "C1 then C5, bounded closed loop; identical scheduler/timeout/client clocks to accepted harness",
+    "excluded_controls": {
+      "auth_readiness": "Actual attempts enumerated separately",
+      "history_warmup": 1,
+      "explain": "After both scenarios; no HTTP"
+    },
+    "semantics": "HTTP200;50unique summaries with cursor; exact public fields; no JSON/private paths in response; no auth/route overrides"
+  },
+  "database": {
+    "create": "Own UUID database only after root ACK",
+    "migration": "db_bootstrap head28 with migrator role",
+    "application": "Same restricted app role; assert noSUPER/noBYPASS/noCREATEDB/noCREATEROLE",
+    "seed": "Only1VIEWER+1profile+1000stored plans, same762-byte synthetic plan content; no other read flows/generator/PDF",
+    "cleanup": "Own UUID DROP exact + verify absence, owned HTTP nonce/PID/parent verified and stopped; receipt contains name not URL"
+  },
+  "explain": {
+    "source": "Exact summary SELECT and bind parameters captured in sole warmup before measured requests",
+    "execution": "EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) after both measured scenarios, same restricted app engine and tenant_scope(load-person-4)",
+    "checks": "SELECT only, LIMIT51, noCOUNT/no plan_json, real actual rows51; preserve full plan; no forced index/SLO assertion"
+  },
+  "baseline": {
+    "immutable_total": 1400,
+    "matching_subset": 40,
+    "samples_each_concurrency": 20,
+    "preserved_prefix": "F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-load-local-final-ack",
+    "manifest": "baseline-historical1000-selection.json",
+    "comparison": "Descriptive only; old unbounded1000-row response and now50-row page, sample sizes20vs100, schema/runtime/data-distribution/contention differ"
+  },
+  "slo_status": "PENDING: numerical objectives, arrival-rate/workload model and comparable production environment not agreed. No pass/fail latency target, causal p95 claim, production extrapolation, Linux/TCG/container benchmark or old7-flow rerun.",
+  "execution_authorization": "WAITING for root explicit ACK. Mandatory nonexpired resource-window JSON matching expected HEAD; no DB/HTTP already run.",
+  "safe_command_template": "<candidate-web-python> -X utf8 run_history200.py --private-env <private env.json> --output <owned new run dir> --requests 100 --seconds 30 --window-file <approved own Temp JSON> --expected-head <root frozen SHA>",
+  "source_and_baseline_unchanged_during_preparation": true
+}

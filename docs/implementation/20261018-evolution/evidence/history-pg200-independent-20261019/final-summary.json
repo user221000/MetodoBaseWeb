@@ -1,0 +1,486 @@
+{
+  "characterization_complete": true,
+  "latency_slo_acceptance": false,
+  "head": "66d9dec0e15dd873038bd248d3883daeeb27d4ca",
+  "driver_sha256": "4592fb1782e6d19ee1ff61f65d59eb63583313e3d109875ae29a13c5082dca10",
+  "preparation_head_retained": "52af40007eed53d32d0dca06b06b44dcbf7c64f3",
+  "execution_head_addendum": {
+    "preparation_head": "52af40007eed53d32d0dca06b06b44dcbf7c64f3",
+    "execution_head": "66d9dec0e15dd873038bd248d3883daeeb27d4ca",
+    "nondocument_changes_since_preparation": [
+      "Dockerfile",
+      "requirements-container-bootstrap.lock"
+    ],
+    "saas_runtime_bytes_identical_to_preparation": true,
+    "preparation_manifest_sha256": "9ee4396b7728e7369909fd8e37c40cc1b8fbb87c0d12e88435edaf8d84f02c6a",
+    "preparation_files_verified": 14,
+    "window_file": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-history200-resource-window-20261019T1112.json",
+    "window_sha256": "6fba9c3ff40ad769bf616e1717d094e586c3f78271e9a1b40f117ede117c705c",
+    "window_expires_utc": "2026-10-19T11:32:05+00:00",
+    "explicit_root_ack_received": true,
+    "private_configuration": "Only the approved driver child consumes private env.json; not read or serialized by this orchestrator"
+  },
+  "source_count": 737,
+  "packages": 89,
+  "source_and_package_before_after_identical": true,
+  "pip_checks": [
+    0,
+    0
+  ],
+  "selection": {
+    "route": "GET /api/usuario/historial?limit=50",
+    "subjects": 1,
+    "profiles": 1,
+    "stored_plans": 1000,
+    "concurrency": [
+      1,
+      5
+    ],
+    "measured_each": 100,
+    "measured_total": 200,
+    "statuses": {
+      "200": 200
+    },
+    "semantic_failures": 0,
+    "observer_missing": 0,
+    "observations_acknowledged": 200,
+    "returned_rows_each": 50,
+    "response_bytes_each": 8161
+  },
+  "excluded_controls": {
+    "auth_readiness_attempts": 3,
+    "history_warmup": 1,
+    "counted_in_measured_200": false
+  },
+  "readiness_note": "3 auth/readiness attempts, not3 guaranteed HTTP responses; only final response200 is asserted. Exactly1 history warmup excluded.",
+  "descriptive_comparison": [
+    {
+      "concurrency": 1,
+      "historical": {
+        "n": 20,
+        "rows_returned": 1000,
+        "response_bytes": 162773,
+        "client_ms": {
+          "n": 20,
+          "min": 52.23540001315996,
+          "p50": 63.28999996185303,
+          "p95": 142.0965999714099,
+          "max": 240.10580003960058
+        },
+        "source": "40 exact original matching cohort1000 samples selected without modifying baseline1400"
+      },
+      "current": {
+        "n": 100,
+        "rows_returned": 50,
+        "response_bytes": 8161,
+        "client_ms": {
+          "n": 100,
+          "min": 11.77429995732382,
+          "p50": 13.400700001511723,
+          "p95": 16.23120001750067,
+          "max": 18.242399964947253
+        },
+        "semantics_and_observer_complete": true
+      },
+      "inference": "Descriptive observations only. Response semantics, sample size, schema, dataset distribution and host contention differ; no causal speedup or SLO claim."
+    },
+    {
+      "concurrency": 5,
+      "historical": {
+        "n": 20,
+        "rows_returned": 1000,
+        "response_bytes": 162773,
+        "client_ms": {
+          "n": 20,
+          "min": 115.37170002702624,
+          "p50": 130.84539998089895,
+          "p95": 209.52610002132133,
+          "max": 213.59009994193912
+        },
+        "source": "40 exact original matching cohort1000 samples selected without modifying baseline1400"
+      },
+      "current": {
+        "n": 100,
+        "rows_returned": 50,
+        "response_bytes": 8161,
+        "client_ms": {
+          "n": 100,
+          "min": 30.63350002048537,
+          "p50": 70.89899998391047,
+          "p95": 144.24409996718168,
+          "max": 243.53289999999106
+        },
+        "semantics_and_observer_complete": true
+      },
+      "inference": "Descriptive observations only. Response semantics, sample size, schema, dataset distribution and host contention differ; no causal speedup or SLO claim."
+    }
+  ],
+  "scenarios_original": [
+    {
+      "name": "history",
+      "concurrency": 1,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.3819129000185058,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 4.03125,
+        "rss_bytes": 157433856,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 5.0,
+        "rss_bytes": 157478912,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_cpu_seconds": 0.96875,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 11.77429995732382,
+        "p50": 13.400700001511723,
+        "p95": 16.23120001750067,
+        "max": 18.242399964947253
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 11.295000032987446,
+        "p50": 12.906399962957948,
+        "p95": 15.816300001461059,
+        "max": 18.251099972985685
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 3.0374000198207796,
+        "p50": 3.5631998907774687,
+        "p95": 4.3527999660000205,
+        "max": 5.727600015234202
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 1
+      },
+      "asgi_lifecycles_open_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 1,
+        "p95": 1,
+        "max": 2
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004299974534660578,
+        "p50": 0.006099988240748644,
+        "p95": 0.010200019460171461,
+        "max": 0.014999997802078724
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 100,
+            "min": 11.77429995732382,
+            "p50": 13.400700001511723,
+            "p95": 16.23120001750067,
+            "max": 18.242399964947253
+          },
+          "response_bytes": {
+            "n": 100,
+            "min": 8161,
+            "p50": 8161,
+            "p95": 8161,
+            "max": 8161
+          },
+          "records": [
+            50
+          ]
+        }
+      }
+    },
+    {
+      "name": "history",
+      "concurrency": 5,
+      "offered_max_requests": 100,
+      "admission_seconds": 27,
+      "scenario_max_seconds": 30,
+      "elapsed_seconds": 1.6014969000243582,
+      "server_process_before": {
+        "available": true,
+        "cpu_seconds": 5.0,
+        "rss_bytes": 157478912,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_process_after": {
+        "available": true,
+        "cpu_seconds": 6.203125,
+        "rss_bytes": 157929472,
+        "lifetime_peak_rss_bytes": 160964608
+      },
+      "server_cpu_seconds": 1.203125,
+      "completed": 100,
+      "statuses": {
+        "200": 100
+      },
+      "semantic_failures": 0,
+      "observer_missing": 0,
+      "client_ms": {
+        "n": 100,
+        "min": 30.63350002048537,
+        "p50": 70.89899998391047,
+        "p95": 144.24409996718168,
+        "max": 243.53289999999106
+      },
+      "response_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "server_ms": {
+        "n": 100,
+        "min": 28.195299964863807,
+        "p50": 94.438900006935,
+        "p95": 169.2003000061959,
+        "max": 274.72149999812245
+      },
+      "sql_ms": {
+        "n": 100,
+        "min": 3.645799937658012,
+        "p50": 5.5172001593746245,
+        "p95": 14.079999993555248,
+        "max": 26.39319997979328
+      },
+      "wire_body_bytes": {
+        "n": 100,
+        "min": 8161,
+        "p50": 8161,
+        "p95": 8161,
+        "max": 8161
+      },
+      "pool_checked_out_peak": {
+        "n": 100,
+        "min": 1,
+        "p50": 5,
+        "p95": 6,
+        "max": 6
+      },
+      "asgi_lifecycles_open_at_start": {
+        "n": 100,
+        "min": 1,
+        "p50": 7,
+        "p95": 10,
+        "max": 10
+      },
+      "sql_commands_per_request": {
+        "SELECT": {
+          "n": 100,
+          "min": 7,
+          "p50": 7,
+          "p95": 7,
+          "max": 7
+        }
+      },
+      "pool_acquire_ms": {
+        "n": 300,
+        "min": 0.004400033503770828,
+        "p50": 0.008000002708286047,
+        "p95": 0.014599994756281376,
+        "max": 145.24209999945015
+      },
+      "by_cohort": {
+        "0": {
+          "seeded_history": 10,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "1": {
+          "seeded_history": 50,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "2": {
+          "seeded_history": 200,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "3": {
+          "seeded_history": 500,
+          "client_ms": {
+            "n": 0
+          },
+          "response_bytes": {
+            "n": 0
+          },
+          "records": []
+        },
+        "4": {
+          "seeded_history": 1000,
+          "client_ms": {
+            "n": 100,
+            "min": 30.63350002048537,
+            "p50": 70.89899998391047,
+            "p95": 144.24409996718168,
+            "max": 243.53289999999106
+          },
+          "response_bytes": {
+            "n": 100,
+            "min": 8161,
+            "p50": 8161,
+            "p95": 8161,
+            "max": 8161
+          },
+          "records": [
+            50
+          ]
+        }
+      }
+    }
+  ],
+  "explain": {
+    "file": "run-66d9dec-20261019T1112/explain-analyze-buffers.json",
+    "reading": "explain-reading.json",
+    "after_measured_windows": true,
+    "actual_rows": 51,
+    "same_restricted_role_and_tenant": true
+  },
+  "cleanup": {
+    "owned_uuid_database": {
+      "database": "metodobase_test_history200_476113b5e6464ea6",
+      "host": "127.0.0.1",
+      "port": 55483,
+      "created": true,
+      "removed": true
+    },
+    "server_identity": {
+      "nonce": "d7e8209fe52f410399932eefedfba84a",
+      "pid": 22220,
+      "parent_pid": 14892,
+      "launcher_pid": 14892,
+      "relation_verified": true,
+      "counter_pid": 22220
+    },
+    "os_postcheck": {
+      "processes": [],
+      "listeners": []
+    },
+    "after_driver_exit": true,
+    "all_own_pg_connections_closed": true,
+    "basis": "driver exact DROP/absence verification and engines disposed before exit0; actual HTTP and launcher PID absent/listeners absent"
+  },
+  "schema_revision": "20261019_account_recovery",
+  "postgres_version": "17.11",
+  "baseline1400_unchanged": true,
+  "preparation14_files_unchanged": true,
+  "slo_and_followup_pending": [
+    "Agreed numerical objectives and representative arrival/workload model",
+    "Comparable production environment/capacity evidence",
+    "Separate physical-index decision and controlled validation if authorized"
+  ],
+  "limits": [
+    "No agreed SLO, pass/fail latency threshold, production extrapolation, Linux/container/Redis proof",
+    "No CPU generation/PDF/PUT or durable-job queue measurement; existing stored-plan read paths only",
+    "Closed-loop offered load; coordinated omission possible; no business arrival-rate model",
+    "First request per route/identity excluded as warmup; OS and PostgreSQL cache not flushed",
+    "SQLAlchemy event overhead included; SQL counters omit pre_ping and DB network protocol operations",
+    "Pool _do_get timer includes connection creation/queue acquisition, excludes pre_ping; no worker queue timer",
+    "Concurrency is client workers with at most five pending HTTP calls; ASGI lifecycles can overlap response-body completion during dependency cleanup",
+    "Single shared local host/cluster; coordinated window reduces but cannot prove absence of host noise",
+    "Historical1400 includes7routes and5cohort sizes; only its40 history/cohort1000 samples correspond, with old unbounded1000-row response versus current50-row page",
+    "Only oneVIEWER/profile and1000plans seeded now; historical unrelated clients/diary/cohorts not recreated, so data distribution differs",
+    "One history warmup and auth-readiness requests excluded and enumerated; EXPLAIN occurs only after measured200",
+    "No numerical SLO agreed; no causal p95 claim across changed contention/runtime/schema/response semantics"
+  ],
+  "no_causal_p95_claim": true,
+  "no_additional_pg_or_http_after_cleanup": true,
+  "no_runtime_test_ci_or_git_mutation_by_qa": true,
+  "scope": "One authorized Windows native PostgreSQL loopback characterization. No other routes, old1400 replay, migrations/index edits, providers, image/Linux/TCG/production performance acceptance."
+}
