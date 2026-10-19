@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <title>Retirar permisos de progreso — Método Base</title>
+  <link rel="stylesheet" href="/static/css/retiro-consentimientos.css?v={{ static_version }}">
+  <script src="/static/js/retiro-consentimientos.js?v={{ static_version }}" defer></script>
+  <script src="/static/js/retiro-consentimientos-pagina.js?v={{ static_version }}" defer></script>
+</head>
+<body>
+  <main class="retirement-page" id="retirement-page">
+    <a href="/">Método Base</a>
+    <h1>Retirar permisos de progreso</h1>
+    <p>Consulta los permisos que tú registraste y retira uno de ellos. Puedes hacerlo sin iniciar sesión, aunque ya no tengas acceso al gimnasio. Esta página no da acceso a tus medidas, planes ni a la información del profesional.</p>
+    <p>Para cada consulta, página de resultados o retiro debes volver a escribir tu contraseña. Si tu cuenta tiene verificación en dos pasos, también necesitas un código nuevo. El código usado para consultar no se reutiliza para retirar.</p>
+    <p id="retirement-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1">Escribe el correo y la contraseña de la cuenta cuyos permisos quieres consultar.</p>
+    <p id="retirement-error" class="retirement-error" role="alert" tabindex="-1" hidden></p>
+    <form id="retirement-form" aria-describedby="retirement-status" novalidate>
+      <label for="retirement-email">Correo de la cuenta</label>
+      <input id="retirement-email" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" required disabled>
+      <label for="retirement-password">Contraseña de esta cuenta</label>
+      <input id="retirement-password" type="password" autocomplete="current-password" required disabled>
+      <label for="retirement-factor-kind">Verificación en dos pasos</label>
+      <select id="retirement-factor-kind" disabled>
+        <option value="none">Mi cuenta no tiene verificación en dos pasos</option>
+        <option value="totp">Código actual de mi aplicación</option>
+        <option value="recovery">Un código de recuperación sin usar</option>
+      </select>
+      <div id="retirement-factor-group" hidden>
+        <label id="retirement-factor-label" for="retirement-factor">Código de verificación</label>
+        <input id="retirement-factor" type="password" autocomplete="one-time-code" spellcheck="false" aria-describedby="retirement-factor-help" disabled>
+        <p id="retirement-factor-help">Usa un código distinto del utilizado en la consulta o acción anterior. Los códigos de recuperación se consumen una sola vez.</p>
+      </div>
+      <div class="retirement-actions">
+        <button id="retirement-query" type="submit" disabled>Consultar mis permisos</button>
+        <button id="retirement-next" type="button" hidden disabled>Consultar siguientes permisos</button>
+        <button id="retirement-withdraw" type="button" hidden disabled>Confirmar retiro del permiso seleccionado</button>
+        <button id="retirement-clear" class="secondary" type="button" disabled>Cancelar y borrar esta consulta</button>
+      </div>
+    </form>
+    <section id="retirement-results" aria-labelledby="retirement-results-title" hidden>
+      <h2 id="retirement-results-title" tabindex="-1">Permisos de esta consulta</h2>
+      <p>No se muestran nombres de gimnasios ni contactos. Distingue cada permiso por las categorías, el periodo y la fecha en que lo registraste. Si no puedes distinguirlo por estos datos, no confirmes el retiro. Un registro histórico no demuestra que el acceso siga vigente.</p>
+      <p id="retirement-selection" role="status" aria-live="polite"></p>
+      <ol id="retirement-items"></ol>
+    </section>
+    <aside aria-labelledby="retirement-limits-title">
+      <h2 id="retirement-limits-title">Si sólo accedes con Google o perdiste tus códigos</h2>
+      <p>Esta vía requiere una contraseña y, cuando está activo, tu segundo factor. No permite sustituirlos por Google, correo ni una sesión abierta. Si no dispones de ellos, no puedes completar el retiro por esta página; la recuperación de ese acceso requiere un proceso revisado aparte.</p>
+      <p>Retirar un permiso no borra tu cuenta ni los registros históricos. No inicia ni cierra tu sesión habitual. No se realiza ningún cobro.</p>
+    </aside>
+    <nav aria-label="Accesos a la cuenta"><a href="/login-usuario">Acceso personal</a><a href="/login-gym">Acceso profesional</a><a href="/mi-perfil">Volver a mi perfil</a></nav>
+    <noscript>Activa JavaScript para usar esta página. Los datos del formulario no se envían mediante navegación.</noscript>
+  </main>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "driver_sha256": "6eabea7e81037a2d167462a6267f6ab589c7f80f150e1faece76a64418d6b8c6",
+  "passed": 33,
+  "total": 34,
+  "case": "stream response abort after account change cannot publish DTO",
+  "cause": "Harness waited one microtask rather than proving reader.read had started; invalidation could happen before decoder acquired a reader, so cancellation-count assertion was not measuring the intended point.",
+  "correction": "Await an explicit reader-entered deferred signal. Keep all original assertions and product unchanged."
+}
