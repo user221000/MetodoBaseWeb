@@ -1,0 +1,18 @@
+"""Current31 runtime; every imported business assertion remains unchanged."""
+from tests.ci_mfa31.current_link_fixtures import case, http, link_db
+
+from tests.integration_client_link_services import (
+    test_issue_before_registration_accepts_exact_new_account_without_personal_adoption,
+    test_wrong_account_purpose_and_consumed_replay_do_not_disclose_context,
+    test_request_key_replay_and_rotation_do_not_resend_or_retarget,
+    test_expired_invitation_and_version_conflict_leave_no_assignment,
+    test_publication_exact_pdf_replacement_and_no_general_source_access,
+    test_legacy_menu_without_pdf_is_explicit_and_source_change_withdraws,
+    test_recipient_can_only_revoke_own_link_even_when_source_owner_inactive,
+    test_legitimate_owner_recipient_never_uses_own_gym_branch_to_read_someone_elses_link,
+    test_ambiguous_owner_cannot_adopt_member_context_or_export_portfolio,
+    test_member_export_keyset_and_budget_never_expand_to_portfolio_or_invitation,
+    test_professional_roles_are_reloaded_and_new_recipient_link_gives_no_professional_grant,
+    test_uncertain_commit_is_visible_and_never_returns_a_send_packet,
+)
+

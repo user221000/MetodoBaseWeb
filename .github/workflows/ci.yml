@@ -1,177 +1,282 @@
 name: CI
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
 permissions:
   contents: read
 env:
-  PYTHONUTF8: "1"
-  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUTF8: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
   QT_QPA_PLATFORM: offscreen
 jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: python -m pip install -r requirements-test-quality.txt
-      - name: Undefined names block integration
-        run: python tests/check_quality.py lint
-      - name: Parse every maintained Python source
-        run: python tests/check_quality.py syntax
-      - name: Reviewed Bandit baseline; new findings block integration
-        run: python tests/check_quality.py security
-      - name: Real quality tools reject synthetic script and entrypoint regressions
-        run: python tests/verify_quality_guards.py
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install -r requirements-test-quality.txt
+    - name: Undefined names block integration
+      run: python tests/check_quality.py lint
+    - name: Parse every maintained Python source
+      run: python tests/check_quality.py syntax
+    - name: Reviewed Bandit baseline; new findings block integration
+      run: python tests/check_quality.py security
+    - name: Real quality tools reject synthetic script and entrypoint regressions
+      run: python tests/verify_quality_guards.py
   secrets:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install the reviewed Gitleaks release outside the deliverable
-        run: |
-          mkdir -p "$RUNNER_TEMP/metodobase-gitleaks"
-          curl --fail --silent --show-error --location https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz --output "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz"
-          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" | sha256sum --check
-          tar -xzf "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" -C "$RUNNER_TEMP/metodobase-gitleaks"
-      - name: Scan the frozen deliverable tree with values withheld
-        run: python -X utf8 scripts/scan_secrets.py --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: secret-scan-metadata
-          path: ${{ runner.temp }}/metodobase-secrets-sanitized.json
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install the reviewed Gitleaks release outside the deliverable
+      run: |
+        mkdir -p "$RUNNER_TEMP/metodobase-gitleaks"
+        curl --fail --silent --show-error --location https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz --output "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz"
+        echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" | sha256sum --check
+        tar -xzf "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" -C "$RUNNER_TEMP/metodobase-gitleaks"
+    - name: Scan the frozen deliverable tree with values withheld
+      run: python -X utf8 scripts/scan_secrets.py --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: secret-scan-metadata
+        path: ${{ runner.temp }}/metodobase-secrets-sanitized.json
   test-web:
     runs-on: ubuntu-latest
     needs: quality
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.11", "3.12"]
+        python:
+        - '3.11'
+        - '3.12'
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-      - run: python -m pip install --require-hashes -r requirements-test.lock
-      - name: Physical history CI30 retains exact CI29 and requires current index contracts
-        run: python -X utf8 tests/verify_history_index_ci.py --output "$RUNNER_TEMP/history-index-ci"
-      - name: SaaS regression suite in fresh isolated data
-        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
-      - name: Required SaaS cases cannot silently become skips
-        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web.xml').findall('.//skipped'), 'Required SaaS cases were skipped'"
-      - name: Private storage SDK parameters and explicit configuration without a provider
-        run: python -X utf8 tests/run_isolated.py tests/integration_object_store_configuration.py tests/integration_object_store_configuration_review.py tests/integration_object_storage_sdk.py -q --tb=short --junitxml=pytest-storage-sdk.xml
-      - name: Required private storage SDK cases cannot silently become skips
-        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-storage-sdk.xml').findall('.//skipped'), 'Required storage SDK cases were skipped'"
-      - name: New nutrition contracts meet reviewed risk coverage
-        run: python tests/check_coverage.py coverage.json
-      - name: Full SaaS suite in shuffled order and two isolated workers
-        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py --shuffle-seed=20261018 -q -n 2 --tb=short --junitxml=pytest-web-shuffle.xml
-      - name: Required shuffled SaaS cases cannot silently become skips
-        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web-shuffle.xml').findall('.//skipped'), 'Required shuffled SaaS cases were skipped'"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: web-tests-${{ matrix.python }}
-          path: |
-            pytest-web.xml
-            pytest-web-shuffle.xml
-            pytest-storage-sdk.xml
-            coverage.xml
-            coverage.json
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Current MFA31 wiring, exact report nodes and offline trust canaries
+      run: python -X utf8 tests/verify_mfa31_ci.py --output "$RUNNER_TEMP/mfa31-ci-wiring"
+    - name: SaaS regression suite in fresh isolated data
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
+        ) > "$RUNNER_TEMP/web-private/step-4.raw.log" 2>&1
+    - name: Required SaaS cases cannot silently become skips
+      run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web.xml').findall('.//skipped'), 'Required
+        SaaS cases were skipped'"
+    - name: Private storage SDK parameters and explicit configuration without a provider
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_object_store_configuration.py tests/integration_object_store_configuration_review.py tests/integration_object_storage_sdk.py -q --tb=short --junitxml=pytest-storage-sdk.xml
+        ) > "$RUNNER_TEMP/web-private/step-6.raw.log" 2>&1
+    - name: Required private storage SDK cases cannot silently become skips
+      run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-storage-sdk.xml').findall('.//skipped'),
+        'Required storage SDK cases were skipped'"
+    - name: New nutrition contracts meet reviewed risk coverage
+      run: python tests/check_coverage.py coverage.json
+    - name: Full SaaS suite in shuffled order and two isolated workers
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web-private"
+        (
+        python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py --shuffle-seed=20261018 -q -n 2 --tb=short --junitxml=pytest-web-shuffle.xml
+        ) > "$RUNNER_TEMP/web-private/step-9.raw.log" 2>&1
+    - name: Required shuffled SaaS cases cannot silently become skips
+      run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web-shuffle.xml').findall('.//skipped'),
+        'Required shuffled SaaS cases were skipped'"
+    - name: Project current web reports without assertion bodies
+      if: always()
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/web-public" --files
+        "pytest-web.xml" "pytest-web-shuffle.xml" "pytest-storage-sdk.xml" "coverage.xml" "coverage.json"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: web-tests-${{ matrix.python }}
+        path: |-
+          ${{ runner.temp }}/web-public/pytest-web.xml
+          ${{ runner.temp }}/web-public/pytest-web-shuffle.xml
+          ${{ runner.temp }}/web-public/pytest-storage-sdk.xml
+          ${{ runner.temp }}/web-public/coverage.xml
+          ${{ runner.temp }}/web-public/coverage.json
+          ${{ runner.temp }}/web-public/publication.json
+        if-no-files-found: error
   frontend-contracts:
     runs-on: ubuntu-latest
     needs: quality
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Session refresh contracts and independent account-switch reproductions
-        run: |
-          node tests/e2e/auth_refresh.cjs > auth-refresh-contracts.json
-          node tests/e2e/auth_refresh_storage.cjs > auth-refresh-storage.json
-          node tests/e2e/auth_refresh_race_review.cjs > auth-refresh-reproductions.json
-          node tests/e2e/auth_refresh_security_review.cjs > auth-refresh-security.json
-          node -e "const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)"
-      - name: Personal operation and uncertain publication retain one intent
-        run: |
-          node tests/e2e/personal_operation.cjs > personal-operation-contracts.json
-          node tests/e2e/personal_operation_ambiguity_review.cjs > personal-operation-ambiguity.json
-          python scripts/check_frontend_report.py personal-operation-contracts.json --format counts --minimum 18
-          python scripts/check_frontend_report.py personal-operation-ambiguity.json --format counts --minimum 2
-      - name: Personal diary and private export consumer contracts
-        run: |
-          node tests/e2e/personal_diary_api.cjs > personal-diary-api.json
-          node tests/e2e/personal_diary_controller.cjs > personal-diary-controller.json
-          node tests/e2e/personal_logout.cjs > personal-diary-logout.json
-          node tests/e2e/personal_logout_ack.cjs > personal-diary-logout-ack.json
-          node tests/e2e/personal_export_controls.cjs > personal-export-controls.json
-          python scripts/check_frontend_report.py personal-diary-api.json --format counts --minimum 7
-          python scripts/check_frontend_report.py personal-diary-controller.json --format counts --minimum 18
-          python scripts/check_frontend_report.py personal-diary-logout.json --format counts --minimum 10
-          python scripts/check_frontend_report.py personal-diary-logout-ack.json --format counts --minimum 12
-          python scripts/check_frontend_report.py personal-export-controls.json --format counts --minimum 21
-      - name: Bounded private history consumer contracts
-        run: |
-          node tests/e2e/personal_history.cjs > personal-history-contracts.json
-          python scripts/check_frontend_report.py personal-history-contracts.json --format counts --minimum 23
-      - name: Member link API, context, fragment, consumers and seven-collection export contracts
-        run: |
-          node tests/e2e/member_link_context.cjs > member-link-context.json
-          python scripts/check_frontend_report.py member-link-context.json --format counts --minimum 26
-          node tests/e2e/member_link_fragment.cjs > member-link-fragment.json
-          python scripts/check_frontend_report.py member-link-fragment.json --format counts --minimum 15
-          node tests/e2e/member_link_api.cjs > member-link-api.json
-          python scripts/check_frontend_report.py member-link-api.json --format counts --minimum 23
-          node tests/e2e/member_link_consumers.cjs > member-link-consumers.json
-          python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16
-          node tests/e2e/member_link_export.cjs > member-link-export.json
-          python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
-          node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
-          python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
-      - name: Follow-up facts and synchronous session expiry regressions
-        run: |
-          node tests/e2e/session_revision_events.cjs > followup-contracts-session_revision_events.raw.json
-          python tests/e2e/normalize_followup_report.py followup-contracts-session_revision_events.raw.json followup-contracts-session_revision_events.json --kind counts --minimum 11
-          python scripts/check_frontend_report.py followup-contracts-session_revision_events.json --format counts --minimum 11
-          node tests/e2e/session_expiry_fences.cjs > followup-contracts-session_expiry_fences.raw.json
-          python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_fences.raw.json followup-contracts-session_expiry_fences.json --kind counts --minimum 3
-          python scripts/check_frontend_report.py followup-contracts-session_expiry_fences.json --format counts --minimum 3
-          node tests/e2e/dashboard_followup.cjs > followup-contracts-dashboard_followup.raw.json
-          python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup.raw.json followup-contracts-dashboard_followup.json --kind counts --minimum 20
-          python scripts/check_frontend_report.py followup-contracts-dashboard_followup.json --format counts --minimum 20
-          node tests/e2e/session_expiry_security.cjs > followup-contracts-session_expiry_security.raw.json
-          python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_security.raw.json followup-contracts-session_expiry_security.json --kind counts --minimum 10
-          python scripts/check_frontend_report.py followup-contracts-session_expiry_security.json --format counts --minimum 10
-          node tests/e2e/dashboard_followup_focus.cjs > followup-contracts-dashboard_followup_focus.raw.json
-          python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup_focus.raw.json followup-contracts-dashboard_followup_focus.json --kind counts --minimum 4
-          python scripts/check_frontend_report.py followup-contracts-dashboard_followup_focus.json --format counts --minimum 4
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: frontend-session-contracts
-          path: |
-            auth-refresh-*.json
-            personal-operation-*.json
-            personal-diary-*.json
-            personal-export-controls.json
-            personal-history-contracts.json
-            member-link-*.json
-            followup-contracts-*.json
-          if-no-files-found: error
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Session refresh contracts and independent account-switch reproductions
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/auth_refresh.cjs > auth-refresh-contracts.json
+        node tests/e2e/auth_refresh_storage.cjs > auth-refresh-storage.json
+        node tests/e2e/auth_refresh_race_review.cjs > auth-refresh-reproductions.json
+        node tests/e2e/auth_refresh_security_review.cjs > auth-refresh-security.json
+        node -e "const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)"
+        ) > "$RUNNER_TEMP/frontend-private/step-3.raw.log" 2>&1
+    - name: Personal operation and uncertain publication retain one intent
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/personal_operation.cjs > personal-operation-contracts.json
+        node tests/e2e/personal_operation_ambiguity_review.cjs > personal-operation-ambiguity.json
+        python scripts/check_frontend_report.py personal-operation-contracts.json --format counts --minimum 18
+        python scripts/check_frontend_report.py personal-operation-ambiguity.json --format counts --minimum 2
+        ) > "$RUNNER_TEMP/frontend-private/step-4.raw.log" 2>&1
+    - name: Personal diary and private export consumer contracts
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/personal_diary_api.cjs > personal-diary-api.json
+        node tests/e2e/personal_diary_controller.cjs > personal-diary-controller.json
+        node tests/e2e/personal_logout.cjs > personal-diary-logout.json
+        node tests/e2e/personal_logout_ack.cjs > personal-diary-logout-ack.json
+        node tests/e2e/personal_export_controls.cjs > personal-export-controls.json
+        python scripts/check_frontend_report.py personal-diary-api.json --format counts --minimum 7
+        python scripts/check_frontend_report.py personal-diary-controller.json --format counts --minimum 18
+        python scripts/check_frontend_report.py personal-diary-logout.json --format counts --minimum 10
+        python scripts/check_frontend_report.py personal-diary-logout-ack.json --format counts --minimum 12
+        python scripts/check_frontend_report.py personal-export-controls.json --format counts --minimum 21
+        ) > "$RUNNER_TEMP/frontend-private/step-5.raw.log" 2>&1
+    - name: Bounded private history consumer contracts
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/personal_history.cjs > personal-history-contracts.json
+        python scripts/check_frontend_report.py personal-history-contracts.json --format counts --minimum 23
+        ) > "$RUNNER_TEMP/frontend-private/step-6.raw.log" 2>&1
+    - name: Member link API, context, fragment, consumers and seven-collection export contracts; current31 uses real R24 companions
+        with all16 original callbacks
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/member_link_context.cjs > member-link-context.json
+        python scripts/check_frontend_report.py member-link-context.json --format counts --minimum 26
+        node tests/e2e/member_link_fragment.cjs > member-link-fragment.json
+        python scripts/check_frontend_report.py member-link-fragment.json --format counts --minimum 15
+        node tests/e2e/member_link_api.cjs > member-link-api.json
+        python scripts/check_frontend_report.py member-link-api.json --format counts --minimum 23
+        node tests/e2e/member_link_consumers31.cjs > member-link-consumers.json
+        python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16
+        node tests/e2e/member_link_export.cjs > member-link-export.json
+        python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
+        node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
+        python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
+        ) > "$RUNNER_TEMP/frontend-private/step-7.raw.log" 2>&1
+    - name: Follow-up facts and synchronous session expiry regressions
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/session_revision_events.cjs > followup-contracts-session_revision_events.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-session_revision_events.raw.json followup-contracts-session_revision_events.json --kind counts --minimum 11
+        python scripts/check_frontend_report.py followup-contracts-session_revision_events.json --format counts --minimum 11
+        node tests/e2e/session_expiry_fences.cjs > followup-contracts-session_expiry_fences.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_fences.raw.json followup-contracts-session_expiry_fences.json --kind counts --minimum 3
+        python scripts/check_frontend_report.py followup-contracts-session_expiry_fences.json --format counts --minimum 3
+        node tests/e2e/dashboard_followup.cjs > followup-contracts-dashboard_followup.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup.raw.json followup-contracts-dashboard_followup.json --kind counts --minimum 20
+        python scripts/check_frontend_report.py followup-contracts-dashboard_followup.json --format counts --minimum 20
+        node tests/e2e/session_expiry_security.cjs > followup-contracts-session_expiry_security.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-session_expiry_security.raw.json followup-contracts-session_expiry_security.json --kind counts --minimum 10
+        python scripts/check_frontend_report.py followup-contracts-session_expiry_security.json --format counts --minimum 10
+        node tests/e2e/dashboard_followup_focus.cjs > followup-contracts-dashboard_followup_focus.raw.json
+        python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup_focus.raw.json followup-contracts-dashboard_followup_focus.json --kind counts --minimum 4
+        python scripts/check_frontend_report.py followup-contracts-dashboard_followup_focus.json --format counts --minimum 4
+        ) > "$RUNNER_TEMP/frontend-private/step-8.raw.log" 2>&1
+    - name: MFA31 transport/state/consumer/prompt and current R24/export VM contracts
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/frontend-private"
+        (
+        node tests/e2e/mfa_api.cjs > mfa-api-current31.json
+        python scripts/check_frontend_report.py mfa-api-current31.json --format counts --minimum 28
+        node tests/e2e/mfa_state.cjs > mfa-state-current31.json
+        python scripts/check_frontend_report.py mfa-state-current31.json --format counts --minimum 30
+        node tests/e2e/mfa_consumers.cjs > mfa-consumers-current31.json
+        python scripts/check_frontend_report.py mfa-consumers-current31.json --format counts --minimum 8
+        node tests/e2e/mfa_prompt.cjs > mfa-prompt-current31.json
+        python scripts/check_frontend_report.py mfa-prompt-current31.json --format counts --minimum 8
+        node tests/e2e/daily_plan_data.cjs > daily-plan-data-current31.raw.json
+        python tests/e2e/normalize_followup_report.py daily-plan-data-current31.raw.json daily-plan-data-current31.json --kind counts --minimum 23
+        python scripts/check_frontend_report.py daily-plan-data-current31.json --format counts --minimum 23
+        node tests/e2e/daily_plan_controls.cjs > daily-plan-controls-current31.json
+        python scripts/check_frontend_report.py daily-plan-controls-current31.json --format counts --minimum 17
+        node tests/e2e/personal_export_context.cjs > personal-export-context-current31.json
+        python scripts/check_frontend_report.py personal-export-context-current31.json --format counts --minimum 17
+        node tests/e2e/personal_export_url_contract.cjs > personal-export-url-contract-current31.json
+        python scripts/check_frontend_report.py personal-export-url-contract-current31.json --format counts --minimum 15
+        ) > "$RUNNER_TEMP/frontend-private/step-9.raw.log" 2>&1
+    - name: Project frontend counters only; raw RAM harness diagnostics remain private
+      if: always()
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/frontend-public"
+        --files "auth-refresh-contracts.json" "auth-refresh-storage.json" "auth-refresh-reproductions.json" "auth-refresh-security.json"
+        "personal-operation-contracts.json" "personal-operation-ambiguity.json" "personal-diary-api.json" "personal-diary-controller.json"
+        "personal-diary-logout.json" "personal-diary-logout-ack.json" "personal-export-controls.json" "personal-history-contracts.json"
+        "member-link-context.json" "member-link-fragment.json" "member-link-api.json" "member-link-consumers.json" "member-link-export.json"
+        "member-link-controls.json" "followup-contracts-session_revision_events.raw.json" "followup-contracts-session_revision_events.json"
+        "followup-contracts-session_expiry_fences.raw.json" "followup-contracts-session_expiry_fences.json" "followup-contracts-dashboard_followup.raw.json"
+        "followup-contracts-dashboard_followup.json" "followup-contracts-session_expiry_security.raw.json" "followup-contracts-session_expiry_security.json"
+        "followup-contracts-dashboard_followup_focus.raw.json" "followup-contracts-dashboard_followup_focus.json" "mfa-api-current31.json"
+        "mfa-state-current31.json" "mfa-consumers-current31.json" "mfa-prompt-current31.json" "daily-plan-data-current31.raw.json"
+        "daily-plan-data-current31.json" "daily-plan-controls-current31.json" "personal-export-context-current31.json" "personal-export-url-contract-current31.json"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: frontend-session-contracts
+        path: |-
+          ${{ runner.temp }}/frontend-public/auth-refresh-contracts.json
+          ${{ runner.temp }}/frontend-public/auth-refresh-storage.json
+          ${{ runner.temp }}/frontend-public/auth-refresh-reproductions.json
+          ${{ runner.temp }}/frontend-public/auth-refresh-security.json
+          ${{ runner.temp }}/frontend-public/personal-operation-contracts.json
+          ${{ runner.temp }}/frontend-public/personal-operation-ambiguity.json
+          ${{ runner.temp }}/frontend-public/personal-diary-api.json
+          ${{ runner.temp }}/frontend-public/personal-diary-controller.json
+          ${{ runner.temp }}/frontend-public/personal-diary-logout.json
+          ${{ runner.temp }}/frontend-public/personal-diary-logout-ack.json
+          ${{ runner.temp }}/frontend-public/personal-export-controls.json
+          ${{ runner.temp }}/frontend-public/personal-history-contracts.json
+          ${{ runner.temp }}/frontend-public/member-link-context.json
+          ${{ runner.temp }}/frontend-public/member-link-fragment.json
+          ${{ runner.temp }}/frontend-public/member-link-api.json
+          ${{ runner.temp }}/frontend-public/member-link-consumers.json
+          ${{ runner.temp }}/frontend-public/member-link-export.json
+          ${{ runner.temp }}/frontend-public/member-link-controls.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_revision_events.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_revision_events.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_fences.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_fences.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_security.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-session_expiry_security.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup_focus.raw.json
+          ${{ runner.temp }}/frontend-public/followup-contracts-dashboard_followup_focus.json
+          ${{ runner.temp }}/frontend-public/mfa-api-current31.json
+          ${{ runner.temp }}/frontend-public/mfa-state-current31.json
+          ${{ runner.temp }}/frontend-public/mfa-consumers-current31.json
+          ${{ runner.temp }}/frontend-public/mfa-prompt-current31.json
+          ${{ runner.temp }}/frontend-public/daily-plan-data-current31.raw.json
+          ${{ runner.temp }}/frontend-public/daily-plan-data-current31.json
+          ${{ runner.temp }}/frontend-public/daily-plan-controls-current31.json
+          ${{ runner.temp }}/frontend-public/personal-export-context-current31.json
+          ${{ runner.temp }}/frontend-public/personal-export-url-contract-current31.json
+          ${{ runner.temp }}/frontend-public/publication.json
+        if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
     needs: quality
@@ -179,36 +284,123 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            requirements: requirements-test-desktop.lock
-          - os: windows-latest
-            requirements: requirements-test-desktop-windows.lock
+        - os: ubuntu-latest
+          requirements: requirements-test-desktop.lock
+        - os: windows-latest
+          requirements: requirements-test-desktop-windows.lock
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: python -m pip install --require-hashes -r ${{ matrix.requirements }}
-      - name: GUI bindings must really load in the supported target
-        run: python -c "from PySide6.QtWidgets import QApplication; app=QApplication([]); assert app.platformName()=='offscreen'"
-      - name: Supported desktop target
-        run: python -X utf8 tests/run_isolated.py tests/test_login_desktop.py tests/services -q --tb=short --junitxml=pytest-desktop.xml
-      - name: Desktop packaging and native Windows entrypoints
-        if: runner.os == 'Windows'
-        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py tests/test_desktop_packaging_ops10.py -q --tb=short --junitxml=pytest-desktop-packaging.xml
-      - name: Desktop packaging and portable entrypoints on Linux
-        if: runner.os != 'Windows'
-        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py tests/test_desktop_packaging_ops10.py -k "not test_new_batch_wrong_commit_from_other_cwd_preserves_files and not test_new_portable_launcher_missing_package_never_installs" -q --tb=short --junitxml=pytest-desktop-packaging.xml
-      - name: Required desktop cases cannot silently become skips
-        run: python -c "import xml.etree.ElementTree as ET; reports=[ET.parse(p) for p in ('pytest-desktop.xml','pytest-desktop-packaging.xml')]; assert all(r.findall('.//testcase') for r in reports), 'Empty required desktop report'; assert not any(r.findall('.//'+tag) for r in reports for tag in ('skipped','failure','error')), 'Required desktop acceptance failed or skipped'"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: desktop-tests-${{ matrix.os }}
-          path: |
-            pytest-desktop.xml
-            pytest-desktop-packaging.xml
-  postgres:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install --require-hashes -r ${{ matrix.requirements }}
+    - name: GUI bindings must really load in the supported target
+      run: python -c "from PySide6.QtWidgets import QApplication; app=QApplication([]); assert app.platformName()=='offscreen'"
+    - name: Supported desktop target
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/desktop-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/test_login_desktop.py tests/services -q --tb=short --junitxml=pytest-desktop.xml
+        ) > "$RUNNER_TEMP/desktop-private/step-4.raw.log" 2>&1
+      shell: bash
+    - name: Desktop packaging and native Windows entrypoints
+      if: runner.os == 'Windows'
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/desktop-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py tests/test_desktop_packaging_ops10.py -q --tb=short --junitxml=pytest-desktop-packaging.xml
+        ) > "$RUNNER_TEMP/desktop-private/step-5.raw.log" 2>&1
+      shell: bash
+    - name: Desktop packaging and portable entrypoints on Linux
+      if: runner.os != 'Windows'
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/desktop-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py tests/test_desktop_packaging_ops10.py -k "not test_new_batch_wrong_commit_from_other_cwd_preserves_files and not test_new_portable_launcher_missing_package_never_installs" -q --tb=short --junitxml=pytest-desktop-packaging.xml
+        ) > "$RUNNER_TEMP/desktop-private/step-6.raw.log" 2>&1
+      shell: bash
+    - name: Required desktop cases cannot silently become skips
+      run: python -c "import xml.etree.ElementTree as ET; reports=[ET.parse(p) for p in ('pytest-desktop.xml','pytest-desktop-packaging.xml')];
+        assert all(r.findall('.//testcase') for r in reports), 'Empty required desktop report'; assert not any(r.findall('.//'+tag)
+        for r in reports for tag in ('skipped','failure','error')), 'Required desktop acceptance failed or skipped'"
+    - name: Project desktop reports without assertion bodies
+      if: always()
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/desktop-public"
+        --files "pytest-desktop.xml" "pytest-desktop-packaging.xml"
+      shell: bash
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: desktop-tests-${{ matrix.os }}
+        path: |-
+          ${{ runner.temp }}/desktop-public/pytest-desktop.xml
+          ${{ runner.temp }}/desktop-public/pytest-desktop-packaging.xml
+          ${{ runner.temp }}/desktop-public/publication.json
+        if-no-files-found: error
+  redis:
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      redis:
+        image: redis:7.4.11-bookworm
+        ports:
+        - 56379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      METODOBASE_TEST_REDIS_URL: redis://127.0.0.1:56379/15
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Atomic Lua, fixed TTL, four real workers and distributed login account limit
+      run: python -X utf8 tests/run_isolated.py tests/integration_redis.py -q --tb=short --junitxml=pytest-redis.xml
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: redis-integration
+        path: pytest-redis.xml
+  ci-success:
+    runs-on: ubuntu-latest
+    needs:
+    - quality
+    - secrets
+    - test-web
+    - frontend-contracts
+    - test-desktop
+    - redis
+    - historical-ci30
+    - historical-postgres
+    - historical-image
+    - current-postgres
+    - current-image
+    if: always()
+    steps:
+    - name: Every required gate must succeed
+      env:
+        RESULTS: ${{ toJSON(needs) }}
+      run: python -c "import json,os; results=json.loads(os.environ['RESULTS']); assert all(item['result']=='success' for
+        item in results.values()), results"
+  historical-ci30:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Unchanged full CI30 and original VM348 on authenticated ancestor30
+      run: python -X utf8 tests/run_reviewed_ci30.py --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/ci30-full"
+        --include-vm
+  historical-postgres:
     runs-on: ubuntu-latest
     needs: quality
     services:
@@ -218,143 +410,312 @@ jobs:
           POSTGRES_USER: metodobase_test_admin
           POSTGRES_PASSWORD: synthetic-ci-only
           POSTGRES_DB: metodobase_test_integration
-        ports: ["55482:5432"]
-        options: >-
-          --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_integration"
-          --health-interval 5s --health-timeout 5s --health-retries 10
+        ports:
+        - 55482:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_integration" --health-interval 5s --health-timeout
+          5s --health-retries 10
     env:
       METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
-      METODOBASE_TEST_EVIDENCE_DIR: ${{ github.workspace }}/docs/implementation/20261018-evolution/evidence/ci-postgres
+      METODOBASE_TEST_EVIDENCE_DIR: ${{ runner.temp }}/ci30-postgres-private/evidence
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: python -m pip install --require-hashes -r requirements-test.lock
-      - name: Matching PostgreSQL client tools from the official PGDG repository
-        run: |
-          . /etc/os-release
-          sudo install -d /usr/share/postgresql-common/pgdg
-          sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
-          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-          sudo apt-get update
-          sudo apt-get install --yes postgresql-client-17
-      - name: Empty, legacy and drift migration paths preserve synthetic rows
-        run: python -X utf8 tests/run_isolated.py tests/integration_schema_migrations.py -q --tb=short --junitxml=pytest-postgres-migrations.xml
-      - name: Real empty-database migrations and restricted-role setup
-        run: python -X utf8 tests/prepare_postgres.py
-      - name: PostgreSQL two-tenant and transaction checks
-        run: python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-postgres-rls.xml
-      - name: Reviewed tenant activation, provider preparation and real onboarding under RLS
-        run: python -X utf8 tests/run_isolated.py tests/integration_tenant_activation.py tests/integration_provider_subjects.py tests/integration_onboarding_postgres.py tests/integration_invitation_tenant_postgres.py -q --tb=short --junitxml=pytest-postgres-channels.xml
-      - name: Gym quota migration preserves the reviewed source and rejects drift
-        run: python -X utf8 tests/run_isolated.py tests/integration_gym_quota_migrations.py -q --tb=short --junitxml=pytest-postgres-gym-migrations.xml
-      - name: Private metadata migration preserves quota history, owner references and RLS
-        run: python -X utf8 tests/run_isolated.py tests/integration_stored_objects_migrations.py -q --tb=short --junitxml=pytest-postgres-object-migrations.xml
-      - name: Private publication survives uncertain PUT and transaction failures under restricted role
-        run: python -X utf8 tests/run_isolated.py tests/integration_private_objects_review_postgres.py -q --tb=short --junitxml=pytest-postgres-objects.xml
-      - name: Legacy inventory remains globally consistent and physically read-only
-        run: python -X utf8 tests/run_isolated.py tests/integration_legacy_inventory_postgres.py -q --tb=short --junitxml=pytest-postgres-legacy-inventory.xml
-      - name: Existing cleanup cutoffs use epoch and UTC units with visible failures
-        run: python -X utf8 tests/run_isolated.py tests/integration_cleanup_tokens_postgres.py -q --tb=short --junitxml=pytest-postgres-cleanup.xml
-      - name: Real factory privacy export preserves personal scope and performs no writes
-        run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
-      - name: Exact historical plan PDF respects viewer scope, revocation and pool reuse
-        run: python -X utf8 tests/run_isolated.py tests/integration_plan_documents_postgres.py -q --tb=short --junitxml=pytest-postgres-plan-documents.xml
-      - name: UTC typed writes preserve physical schema and historical values in both session zones
-        run: python -X utf8 tests/run_isolated.py tests/integration_utc_datetime.py tests/integration_utc_datetime_review.py tests/integration_model_utc_postgres.py tests/integration_timestamp_observation.py -q --tb=short --junitxml=pytest-postgres-utc.xml
-      - name: Two-process HTTP license activation retains hardware ownership and expiry
-        run: python -X utf8 tests/run_isolated.py tests/integration_license_postgres.py -q --tb=short --junitxml=pytest-postgres-licenses.xml
-      - name: Last-credit and subscription GET races across PostgreSQL processes
-        run: python -X utf8 tests/run_isolated.py tests/integration_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-quota.xml
-      - name: Individual publication migration preserves legacy ambiguity and the frozen object contract
-        run: python -X utf8 tests/run_isolated.py tests/integration_individual_publication_migrations.py -q --tb=short --junitxml=pytest-postgres-individual-migrations.xml
-      - name: Individual worker commit, quota compensation and process recovery preserve one consumption
-        run: python -X utf8 tests/run_isolated.py tests/integration_individual_publication_postgres.py tests/integration_individual_generation_recovery_review.py tests/integration_individual_publication_edges_review.py tests/integration_individual_process_recovery_review.py -q --tb=short --junitxml=pytest-postgres-individual-publication.xml
-      - name: Gym caps, replay and process-crash recovery across both real HTTP adapters
-        run: python -X utf8 tests/run_isolated.py tests/integration_gym_caps_http_postgres.py tests/integration_gym_recovery_review_postgres.py tests/integration_gym_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-gym-quota.xml
-      - name: Personal diary migration preserves revision26 and rejects schema drift
-        run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_migrations.py -q --tb=short --junitxml=pytest-postgres-diary-migrations.xml
-      - name: Personal diary snapshots, concurrency and independent restricted-role checks
-        run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py -q --tb=short --junitxml=pytest-postgres-diary.xml
-      - name: Account recovery migration preserves revision27 and rejects schema drift
-        run: python -X utf8 tests/run_isolated.py tests/integration_account_recovery_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery-migrations.xml
-      - name: Account recovery HTTP, one-use races and uncertain commits under restricted role
-        run: python -X utf8 tests/run_isolated.py tests/integration_password_recovery_postgres.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery.xml
-      - name: Encrypted PostgreSQL and object restoration into an empty owned database
-        run: python -X utf8 tests/run_reviewed_ci28.py --output "$RUNNER_TEMP/reviewed-ci28-restore" --junitxml=pytest-postgres-restore.xml
-      - name: Member link migration preserves exact revision28, guards and rollback
-        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-migrations.xml
-      - name: Member link service authorization and bounded projection under restricted role
-        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_services.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-services.xml
-      - name: Member link real HTTP and worker contracts across both factories
-        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_http.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-http.xml
-      - name: Member proof races and exact publication identity CAS
-        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_service_races.py tests/integration_client_link_publication_cas.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-races.xml
-      - name: Current revision29 populated restore preserves all prior contracts and member links
-        run: python -X utf8 tests/run_reviewed_ci29.py --output "$RUNNER_TEMP/reviewed-ci29-restore" --junitxml=pytest-postgres-member-restore.xml
-      - name: Physical history index migration rollback and bounded ordered PostgreSQL query
-        run: python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_migrations.py tests/integration_personal_history_ordered_query.py -k postgresql -q --tb=short --junitxml=pytest-postgres-history-index.xml
-      - name: Current revision30 populated restore preserves history index and every prior contract
-        run: python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_restore.py -q --tb=short --junitxml=pytest-postgres-history-index-restore.xml
-      - name: Readonly follow-up facts under both current PostgreSQL factories
-        run: python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-postgres-followup.xml
-      - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
-        run: >-
-          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==29 and len(set(reports))==29, 'Expected 29 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
-          pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml
-          pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml
-          pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml
-          pytest-postgres-plan-documents.xml pytest-postgres-utc.xml pytest-postgres-licenses.xml
-          pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml
-          pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml
-          pytest-postgres-recovery-migrations.xml pytest-postgres-recovery.xml
-          pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml pytest-postgres-history-index.xml pytest-postgres-history-index-restore.xml pytest-postgres-followup.xml
-      - name: Current member link reports retain all selected PostgreSQL cases
-        run: python tests/check_member_link_reports.py
-      - name: Physical history reports retain every exact selected PostgreSQL case
-        run: python tests/check_history_index_reports.py
-      - name: Both follow-up PostgreSQL factory identities must pass
-        run: python tests/check_followup_reports.py
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: postgres-integration
-          path: |
-            pytest-postgres-*.xml
-            docs/implementation/20261018-evolution/evidence/ci-postgres
-  redis:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Materialize exact accepted CI30 Git blobs; no archive filters or replace refs
+      working-directory: ${{ github.workspace }}
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_reviewed_ci30.py --materialize-only --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/ci30-postgres"
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-2.raw.log" 2>&1
+    - name: Keep historical raw restore evidence private
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        install -d -m 700 "$METODOBASE_TEST_EVIDENCE_DIR"
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-3.raw.log" 2>&1
+    - run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -m pip install --require-hashes -r requirements-test.lock
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-4.raw.log" 2>&1
+    - name: Matching PostgreSQL client tools from the official PGDG repository
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        . /etc/os-release
+        sudo install -d /usr/share/postgresql-common/pgdg
+        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-17
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-5.raw.log" 2>&1
+    - name: Empty, legacy and drift migration paths preserve synthetic rows
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_schema_migrations.py -q --tb=short --junitxml=pytest-postgres-migrations.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-6.raw.log" 2>&1
+    - name: Real empty-database migrations and restricted-role setup
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/prepare_postgres.py
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-7.raw.log" 2>&1
+    - name: PostgreSQL two-tenant and transaction checks
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-postgres-rls.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-8.raw.log" 2>&1
+    - name: Reviewed tenant activation, provider preparation and real onboarding under RLS
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_tenant_activation.py tests/integration_provider_subjects.py tests/integration_onboarding_postgres.py tests/integration_invitation_tenant_postgres.py -q --tb=short --junitxml=pytest-postgres-channels.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-9.raw.log" 2>&1
+    - name: Gym quota migration preserves the reviewed source and rejects drift
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_gym_quota_migrations.py -q --tb=short --junitxml=pytest-postgres-gym-migrations.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-10.raw.log" 2>&1
+    - name: Private metadata migration preserves quota history, owner references and RLS
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_stored_objects_migrations.py -q --tb=short --junitxml=pytest-postgres-object-migrations.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-11.raw.log" 2>&1
+    - name: Private publication survives uncertain PUT and transaction failures under restricted role
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_private_objects_review_postgres.py -q --tb=short --junitxml=pytest-postgres-objects.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-12.raw.log" 2>&1
+    - name: Legacy inventory remains globally consistent and physically read-only
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_legacy_inventory_postgres.py -q --tb=short --junitxml=pytest-postgres-legacy-inventory.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-13.raw.log" 2>&1
+    - name: Existing cleanup cutoffs use epoch and UTC units with visible failures
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_cleanup_tokens_postgres.py -q --tb=short --junitxml=pytest-postgres-cleanup.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-14.raw.log" 2>&1
+    - name: Real factory privacy export preserves personal scope and performs no writes
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-15.raw.log" 2>&1
+    - name: Exact historical plan PDF respects viewer scope, revocation and pool reuse
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_plan_documents_postgres.py -q --tb=short --junitxml=pytest-postgres-plan-documents.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-16.raw.log" 2>&1
+    - name: UTC typed writes preserve physical schema and historical values in both session zones
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_utc_datetime.py tests/integration_utc_datetime_review.py tests/integration_model_utc_postgres.py tests/integration_timestamp_observation.py -q --tb=short --junitxml=pytest-postgres-utc.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-17.raw.log" 2>&1
+    - name: Two-process HTTP license activation retains hardware ownership and expiry
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_license_postgres.py -q --tb=short --junitxml=pytest-postgres-licenses.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-18.raw.log" 2>&1
+    - name: Last-credit and subscription GET races across PostgreSQL processes
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-quota.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-19.raw.log" 2>&1
+    - name: Individual publication migration preserves legacy ambiguity and the frozen object contract
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_individual_publication_migrations.py -q --tb=short --junitxml=pytest-postgres-individual-migrations.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-20.raw.log" 2>&1
+    - name: Individual worker commit, quota compensation and process recovery preserve one consumption
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_individual_publication_postgres.py tests/integration_individual_generation_recovery_review.py tests/integration_individual_publication_edges_review.py tests/integration_individual_process_recovery_review.py -q --tb=short --junitxml=pytest-postgres-individual-publication.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-21.raw.log" 2>&1
+    - name: Gym caps, replay and process-crash recovery across both real HTTP adapters
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_gym_caps_http_postgres.py tests/integration_gym_recovery_review_postgres.py tests/integration_gym_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-gym-quota.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-22.raw.log" 2>&1
+    - name: Personal diary migration preserves revision26 and rejects schema drift
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_personal_diary_migrations.py -q --tb=short --junitxml=pytest-postgres-diary-migrations.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-23.raw.log" 2>&1
+    - name: Personal diary snapshots, concurrency and independent restricted-role checks
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py -q --tb=short --junitxml=pytest-postgres-diary.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-24.raw.log" 2>&1
+    - name: Account recovery migration preserves revision27 and rejects schema drift
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_account_recovery_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery-migrations.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-25.raw.log" 2>&1
+    - name: Account recovery HTTP, one-use races and uncertain commits under restricted role
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_password_recovery_postgres.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-26.raw.log" 2>&1
+    - name: Encrypted PostgreSQL and object restoration into an empty owned database
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_reviewed_ci28.py --output "$RUNNER_TEMP/reviewed-ci28-restore" --junitxml=pytest-postgres-restore.xml --history-repository "$GITHUB_WORKSPACE"
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-27.raw.log" 2>&1
+    - name: Member link migration preserves exact revision28, guards and rollback
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_client_link_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-migrations.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-28.raw.log" 2>&1
+    - name: Member link service authorization and bounded projection under restricted role
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_client_link_services.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-services.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-29.raw.log" 2>&1
+    - name: Member link real HTTP and worker contracts across both factories
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_client_link_http.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-http.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-30.raw.log" 2>&1
+    - name: Member proof races and exact publication identity CAS
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_client_link_service_races.py tests/integration_client_link_publication_cas.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-races.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-31.raw.log" 2>&1
+    - name: Current revision29 populated restore preserves all prior contracts and member links
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_reviewed_ci29.py --output "$RUNNER_TEMP/reviewed-ci29-restore" --junitxml=pytest-postgres-member-restore.xml --history-repository "$GITHUB_WORKSPACE"
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-32.raw.log" 2>&1
+    - name: Physical history index migration rollback and bounded ordered PostgreSQL query
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_migrations.py tests/integration_personal_history_ordered_query.py -k postgresql -q --tb=short --junitxml=pytest-postgres-history-index.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-33.raw.log" 2>&1
+    - name: Current revision30 populated restore preserves history index and every prior contract
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_restore.py -q --tb=short --junitxml=pytest-postgres-history-index-restore.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-34.raw.log" 2>&1
+    - name: Readonly follow-up facts under both current PostgreSQL factories
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-postgres-followup.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-35.raw.log" 2>&1
+    - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==29 and len(set(reports))==29, 'Expected 29 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'" pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml pytest-postgres-plan-documents.xml pytest-postgres-utc.xml pytest-postgres-licenses.xml pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml pytest-postgres-recovery-migrations.xml pytest-postgres-recovery.xml pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml pytest-postgres-history-index.xml pytest-postgres-history-index-restore.xml pytest-postgres-followup.xml
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-36.raw.log" 2>&1
+    - name: Current member link reports retain all selected PostgreSQL cases
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python tests/check_member_link_reports.py
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-37.raw.log" 2>&1
+    - name: Physical history reports retain every exact selected PostgreSQL case
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python tests/check_history_index_reports.py
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-38.raw.log" 2>&1
+    - name: Both follow-up PostgreSQL factory identities must pass
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
+        (
+        python tests/check_followup_reports.py
+        ) > "$RUNNER_TEMP/ci30-postgres-private/step-39.raw.log" 2>&1
+    - name: Project all29 historical reports; retain exact old acceptance checks
+      if: always()
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/ci30-postgres/source" --output "$RUNNER_TEMP/ci30-postgres-public"
+        --files "pytest-postgres-migrations.xml" "pytest-postgres-rls.xml" "pytest-postgres-channels.xml" "pytest-postgres-gym-migrations.xml"
+        "pytest-postgres-object-migrations.xml" "pytest-postgres-objects.xml" "pytest-postgres-legacy-inventory.xml" "pytest-postgres-cleanup.xml"
+        "pytest-postgres-privacy.xml" "pytest-postgres-plan-documents.xml" "pytest-postgres-utc.xml" "pytest-postgres-licenses.xml"
+        "pytest-postgres-quota.xml" "pytest-postgres-individual-migrations.xml" "pytest-postgres-individual-publication.xml"
+        "pytest-postgres-gym-quota.xml" "pytest-postgres-diary-migrations.xml" "pytest-postgres-diary.xml" "pytest-postgres-recovery-migrations.xml"
+        "pytest-postgres-recovery.xml" "pytest-postgres-restore.xml" "pytest-postgres-member-migrations.xml" "pytest-postgres-member-services.xml"
+        "pytest-postgres-member-http.xml" "pytest-postgres-member-races.xml" "pytest-postgres-member-restore.xml" "pytest-postgres-history-index.xml"
+        "pytest-postgres-history-index-restore.xml" "pytest-postgres-followup.xml"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: historical30-postgres-tests
+        path: |-
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-migrations.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-rls.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-channels.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-gym-migrations.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-object-migrations.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-objects.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-legacy-inventory.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-cleanup.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-privacy.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-plan-documents.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-utc.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-licenses.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-quota.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-individual-migrations.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-individual-publication.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-gym-quota.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-diary-migrations.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-diary.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-recovery-migrations.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-recovery.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-restore.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-member-migrations.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-member-services.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-member-http.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-member-races.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-member-restore.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-history-index.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-history-index-restore.xml
+          ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-followup.xml
+          ${{ runner.temp }}/ci30-postgres-public/publication.json
+        if-no-files-found: error
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/ci30-postgres/source
+  historical-image:
     runs-on: ubuntu-latest
-    needs: quality
-    services:
-      redis:
-        image: redis:7.4.11-bookworm
-        ports: ["56379:6379"]
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s --health-timeout 3s --health-retries 10
-    env:
-      METODOBASE_TEST_REDIS_URL: redis://127.0.0.1:56379/15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: python -m pip install --require-hashes -r requirements-test.lock
-      - name: Atomic Lua, fixed TTL, four real workers and distributed login account limit
-        run: python -X utf8 tests/run_isolated.py tests/integration_redis.py -q --tb=short --junitxml=pytest-redis.xml
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: redis-integration
-          path: pytest-redis.xml
-  image:
-    runs-on: ubuntu-latest
-    needs: [test-web, postgres]
+    needs:
+    - test-web
+    - historical-postgres
     services:
       postgres-image:
         image: postgres:17.11
@@ -362,214 +723,456 @@ jobs:
           POSTGRES_USER: metodobase_test_admin
           POSTGRES_PASSWORD: synthetic-ci-only
           POSTGRES_DB: metodobase_test_image
-        ports: ["55483:5432"]
-        options: >-
-          --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_image"
-          --health-interval 5s --health-timeout 5s --health-retries 10
+        ports:
+        - 55483:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_image" --health-interval 5s --health-timeout
+          5s --health-retries 10
     steps:
-      - uses: actions/checkout@v4
-      - name: Build the production Dockerfile
-        run: docker build --tag metodobase-candidate:${{ github.sha }} .
-      - name: Migrate the synthetic database using the candidate itself
-        run: >-
-          docker run --rm --network host --entrypoint python -e METODOBASE_ENV=testing
-          -e MIGRATOR_DATABASE_URL=postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
-          -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
-          metodobase-candidate:${{ github.sha }} /app/db_bootstrap.py
-      - name: Grant a separate restricted runtime role
-        run: >-
-          docker exec ${{ job.services.postgres-image.id }} psql --username=metodobase_test_admin --dbname=metodobase_test_image --set=ON_ERROR_STOP=1
-          --command "CREATE ROLE metodobase_test_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD 'synthetic-app-only'; GRANT USAGE ON SCHEMA public TO metodobase_test_app; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO metodobase_test_app; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO metodobase_test_app;"
-      - name: Exercise the same web runtime inside the candidate
-        run: |
-          docker run --detach --name metodobase-candidate --network host --entrypoint python -e METODOBASE_ENV=testing -e WEB_SECRET_KEY=synthetic-ci-only-secret-at-least-32-characters -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image -e METODOBASE_DATA_DIR=/data -e OBJECT_STORAGE_BACKEND=local -e OBJECT_STORAGE_LOCAL_ROOT=/tmp/metodobase-image-objects -e METODOBASE_SEED_DEMO=0 -e PORT=8765 metodobase-candidate:${{ github.sha }} -m uvicorn web.main_web:create_app --factory --host 127.0.0.1 --port 8765
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:8765/health/ready; then exit 0; fi
-            sleep 1
-          done
-          docker logs metodobase-candidate
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Materialize exact accepted CI30 Git blobs; no archive filters or replace refs
+      working-directory: ${{ github.workspace }}
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        python -X utf8 tests/run_reviewed_ci30.py --materialize-only --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/ci30-image"
+        ) > "$RUNNER_TEMP/ci30-image-private/step-2.raw.log" 2>&1
+    - name: Build the production Dockerfile
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        docker build --tag metodobase-ci30:${{ github.sha }} .
+        ) > "$RUNNER_TEMP/ci30-image-private/step-3.raw.log" 2>&1
+    - name: Migrate the synthetic database using the candidate itself
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        docker run --rm --network host --entrypoint python -e METODOBASE_ENV=testing -e MIGRATOR_DATABASE_URL=postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image metodobase-ci30:${{ github.sha }} /app/db_bootstrap.py
+        ) > "$RUNNER_TEMP/ci30-image-private/step-4.raw.log" 2>&1
+    - name: Grant a separate restricted runtime role
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        docker exec ${{ job.services.postgres-image.id }} psql --username=metodobase_test_admin --dbname=metodobase_test_image --set=ON_ERROR_STOP=1 --command "CREATE ROLE metodobase_test_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD 'synthetic-app-only'; GRANT USAGE ON SCHEMA public TO metodobase_test_app; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO metodobase_test_app; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO metodobase_test_app;"
+        ) > "$RUNNER_TEMP/ci30-image-private/step-5.raw.log" 2>&1
+    - name: Exercise the same web runtime inside the candidate
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        docker run --detach --name metodobase-ci30 --network host --entrypoint python -e METODOBASE_ENV=testing -e WEB_SECRET_KEY=synthetic-ci-only-secret-at-least-32-characters -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image -e METODOBASE_DATA_DIR=/data -e OBJECT_STORAGE_BACKEND=local -e OBJECT_STORAGE_LOCAL_ROOT=/tmp/metodobase-image-objects -e METODOBASE_SEED_DEMO=0 -e PORT=8765 metodobase-ci30:${{ github.sha }} -m uvicorn web.main_web:create_app --factory --host 127.0.0.1 --port 8765
+        for attempt in $(seq 1 30); do
+          if curl --fail --silent http://127.0.0.1:8765/health/ready; then exit 0; fi
+          sleep 1
+        done
+        docker logs metodobase-ci30
+        exit 1
+        ) > "$RUNNER_TEMP/ci30-image-private/step-6.raw.log" 2>&1
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: npm
+        cache-dependency-path: tests/e2e/package-lock.json
+    - name: Reproducible browser tooling and Chromium
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        npm ci --prefix tests/e2e --ignore-scripts
+        node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
+        ) > "$RUNNER_TEMP/ci30-image-private/step-8.raw.log" 2>&1
+    - name: Browser subscription contracts and accessibility against the candidate
+      env:
+        METODOBASE_E2E_URL: http://127.0.0.1:8765
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+        node tests/e2e/subscription.cjs
+        node tests/e2e/subscription_contract_review.cjs
+        node tests/e2e/gym_subscription.cjs
+        node tests/e2e/responsive_accessibility.cjs
+        node tests/e2e/team.cjs
+        ) > "$RUNNER_TEMP/ci30-image-private/step-9.raw.log" 2>&1
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Exact runtime for the separate real R11 SQLite browser fixture
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        python -m pip install --require-hashes -r requirements-test.lock
+        ) > "$RUNNER_TEMP/ci30-image-private/step-11.raw.log" 2>&1
+    - name: Real team authentication and API with an isolated Clinic fixture
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+        export METODOBASE_E2E_URL=http://127.0.0.1:8767
+        python -X utf8 tests/e2e/team_fullstack_server.py > docs/implementation/20261018-evolution/evidence/ux/ci-team-fullstack-server.log 2>&1 &
+        team_fixture_pid=$!
+        trap 'kill "$team_fixture_pid" 2>/dev/null || true' EXIT
+        ready=0
+        for attempt in $(seq 1 30); do
+          if curl --fail --silent http://127.0.0.1:8767/health/ready; then ready=1; break; fi
+          sleep 1
+        done
+        if [ "$ready" -ne 1 ]; then
+          cat docs/implementation/20261018-evolution/evidence/ux/ci-team-fullstack-server.log
           exit 1
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
-          cache-dependency-path: tests/e2e/package-lock.json
-      - name: Reproducible browser tooling and Chromium
-        run: |
-          npm ci --prefix tests/e2e --ignore-scripts
-          node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
-      - name: Browser subscription contracts and accessibility against the candidate
-        env:
-          METODOBASE_E2E_URL: http://127.0.0.1:8765
-        run: |
-          export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-          node tests/e2e/subscription.cjs
-          node tests/e2e/subscription_contract_review.cjs
-          node tests/e2e/gym_subscription.cjs
-          node tests/e2e/responsive_accessibility.cjs
-          node tests/e2e/team.cjs
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Exact runtime for the separate real R11 SQLite browser fixture
-        run: python -m pip install --require-hashes -r requirements-test.lock
-      - name: Real team authentication and API with an isolated Clinic fixture
-        run: |
-          export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-          export METODOBASE_E2E_URL=http://127.0.0.1:8767
-          python -X utf8 tests/e2e/team_fullstack_server.py > docs/implementation/20261018-evolution/evidence/ux/ci-team-fullstack-server.log 2>&1 &
-          team_fixture_pid=$!
-          trap 'kill "$team_fixture_pid" 2>/dev/null || true' EXIT
-          ready=0
+        fi
+        node tests/e2e/team_fullstack.cjs
+        ) > "$RUNNER_TEMP/ci30-image-private/step-12.raw.log" 2>&1
+    - name: Generation, private branding, export and refresh with separate real synthetic fixtures
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+        export METODOBASE_EVIDENCE_BATCH="ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+        browser_fixture_pid=''
+        trap 'if [ -n "${browser_fixture_pid:-}" ]; then kill "$browser_fixture_pid" 2>/dev/null || true; fi' EXIT
+        run_browser_fixture() {
+          local fixture_script="$1" fixture_port="$2" driver="$3" expected_report="$4" minimum_checks="$5"
+          local report_format="${6:-strings}" minimum_screens="${7:-0}"
+          local second_driver="${8:-}" second_report="${9:-}" second_minimum="${10:-0}"
+          local second_format="${11:-strings}" second_screens="${12:-0}" ready_marker="${13:-}"
+          local fixture_log="docs/implementation/20261018-evolution/evidence/ux/ci-${fixture_port}-${driver##*/}-server.log"
+          export METODOBASE_E2E_URL="http://127.0.0.1:${fixture_port}"
+          python -X utf8 "$fixture_script" > "$fixture_log" 2>&1 &
+          browser_fixture_pid=$!
+          local ready=0
           for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:8767/health/ready; then ready=1; break; fi
+            if ! kill -0 "$browser_fixture_pid" 2>/dev/null; then cat "$fixture_log"; return 1; fi
+            if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then
+              if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 29 --revision 20261019_personal_history_index 2>/dev/null; then ready=1; break; fi
+            fi
             sleep 1
           done
-          if [ "$ready" -ne 1 ]; then
-            cat docs/implementation/20261018-evolution/evidence/ux/ci-team-fullstack-server.log
-            exit 1
-          fi
-          node tests/e2e/team_fullstack.cjs
-      - name: Generation, private branding, export and refresh with separate real synthetic fixtures
-        run: |
-          export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-          export METODOBASE_EVIDENCE_BATCH="ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          browser_fixture_pid=''
-          trap 'if [ -n "${browser_fixture_pid:-}" ]; then kill "$browser_fixture_pid" 2>/dev/null || true; fi' EXIT
-          run_browser_fixture() {
-            local fixture_script="$1" fixture_port="$2" driver="$3" expected_report="$4" minimum_checks="$5"
-            local report_format="${6:-strings}" minimum_screens="${7:-0}"
-            local second_driver="${8:-}" second_report="${9:-}" second_minimum="${10:-0}"
-            local second_format="${11:-strings}" second_screens="${12:-0}" ready_marker="${13:-}"
-            local fixture_log="docs/implementation/20261018-evolution/evidence/ux/ci-${fixture_port}-${driver##*/}-server.log"
-            export METODOBASE_E2E_URL="http://127.0.0.1:${fixture_port}"
-            python -X utf8 "$fixture_script" > "$fixture_log" 2>&1 &
-            browser_fixture_pid=$!
-            local ready=0
-            for attempt in $(seq 1 30); do
-              if ! kill -0 "$browser_fixture_pid" 2>/dev/null; then cat "$fixture_log"; return 1; fi
-              if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then
-                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 29 --revision 20261019_personal_history_index 2>/dev/null; then ready=1; break; fi
-              fi
-              sleep 1
-            done
-            if [ "$ready" -ne 1 ]; then cat "$fixture_log"; return 1; fi
+          if [ "$ready" -ne 1 ]; then cat "$fixture_log"; return 1; fi
+          kill -0 "$browser_fixture_pid" || return 1
+          node "$driver" || return $?
+          python scripts/check_frontend_report.py "$expected_report" --format "$report_format" --minimum "$minimum_checks" --minimum-screens "$minimum_screens" || return $?
+          if [ -n "$second_driver" ]; then
             kill -0 "$browser_fixture_pid" || return 1
-            node "$driver" || return $?
-            python scripts/check_frontend_report.py "$expected_report" --format "$report_format" --minimum "$minimum_checks" --minimum-screens "$minimum_screens" || return $?
-            if [ -n "$second_driver" ]; then
-              kill -0 "$browser_fixture_pid" || return 1
-              node "$second_driver" || return $?
-              python scripts/check_frontend_report.py "$second_report" --format "$second_format" --minimum "$second_minimum" --minimum-screens "$second_screens" || return $?
+            node "$second_driver" || return $?
+            python scripts/check_frontend_report.py "$second_report" --format "$second_format" --minimum "$second_minimum" --minimum-screens "$second_screens" || return $?
+          fi
+          kill "$browser_fixture_pid"
+          wait "$browser_fixture_pid" || true
+          browser_fixture_pid=''
+        }
+        browser_evidence=docs/implementation/20261018-evolution/evidence/ux
+        run_browser_fixture tests/e2e/gym_generation_server.py 8769 tests/e2e/gym_generation.cjs "${browser_evidence}/b2b-generation-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
+        run_browser_fixture tests/e2e/gym_branding_server.py 8770 tests/e2e/gym_branding.cjs "${browser_evidence}/private-branding-${METODOBASE_EVIDENCE_BATCH}/report.json" 10
+        run_browser_fixture tests/e2e/privacy_export_server.py 8768 tests/e2e/privacy_export.cjs "${browser_evidence}/privacy-export-${METODOBASE_EVIDENCE_BATCH}/privacy-export-browser.json" 8
+        run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_browser.cjs "${browser_evidence}/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
+        run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_storage_browser_review.cjs "${browser_evidence}/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 3
+        run_browser_fixture tests/e2e/personal_generation_server.py 8773 tests/e2e/personal_generation.cjs "${browser_evidence}/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 15 named 8
+        run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs "${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 17 named 8 tests/e2e/personal_export_context_browser.cjs "${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 4 strings 4 personal-diary-ui
+        run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 10 strings 4 "" "" 0 strings 0 personal-history-ui
+        run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 8 strings 4 "" "" 0 strings 0 public-landing
+        ) > "$RUNNER_TEMP/ci30-image-private/step-13.raw.log" 2>&1
+    - name: Real member linking browser with restricted migrated PostgreSQL and private mail transport
+      env:
+        METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+        METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+        METODOBASE_TEST_PG_BIN: /usr/bin
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        export QA_NODE_MODULES="$RUNNER_TEMP/ci30-image/source/tests/e2e/node_modules"
+        export QA_CHROME=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+        python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794
+        ) > "$RUNNER_TEMP/ci30-image-private/step-14.raw.log" 2>&1
+    - name: Record candidate identity
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        docker image inspect metodobase-ci30:${{ github.sha }} --format '{{.Id}}' > candidate-image-id.txt
+        ) > "$RUNNER_TEMP/ci30-image-private/step-15.raw.log" 2>&1
+    - name: Stop isolated candidate
+      if: always()
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        docker rm --force metodobase-ci30
+        ) > "$RUNNER_TEMP/ci30-image-private/step-16.raw.log" 2>&1
+    - name: Host checkout follow-up browser uses current restricted PostgreSQL fixture
+      timeout-minutes: 5
+      env:
+        METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+        METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+        METODOBASE_TEST_PG_BIN: /usr/bin
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
+        (
+        set -euo pipefail
+        private="$RUNNER_TEMP/followup-private"
+        public="$RUNNER_TEMP/followup-public"
+        mkdir "$private" "$public"
+        fixture_pid=""
+        finish_followup() {
+          status=$?
+          trap - EXIT INT TERM
+          touch "$private/stop"
+          if [ -n "$fixture_pid" ]; then
+            for attempt in $(seq 1 100); do
+              if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi
+              sleep 0.2
+            done
+            if jobs -pr | grep -qx "$fixture_pid"; then
+              echo "Owned follow-up fixture did not finalize" >&2
+              status=1
+            elif ! wait "$fixture_pid"; then
+              status=1
             fi
-            kill "$browser_fixture_pid"
-            wait "$browser_fixture_pid" || true
-            browser_fixture_pid=''
-          }
-          browser_evidence=docs/implementation/20261018-evolution/evidence/ux
-          run_browser_fixture tests/e2e/gym_generation_server.py 8769 tests/e2e/gym_generation.cjs "${browser_evidence}/b2b-generation-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
-          run_browser_fixture tests/e2e/gym_branding_server.py 8770 tests/e2e/gym_branding.cjs "${browser_evidence}/private-branding-${METODOBASE_EVIDENCE_BATCH}/report.json" 10
-          run_browser_fixture tests/e2e/privacy_export_server.py 8768 tests/e2e/privacy_export.cjs "${browser_evidence}/privacy-export-${METODOBASE_EVIDENCE_BATCH}/privacy-export-browser.json" 8
-          run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_browser.cjs "${browser_evidence}/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
-          run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_storage_browser_review.cjs "${browser_evidence}/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 3
-          run_browser_fixture tests/e2e/personal_generation_server.py 8773 tests/e2e/personal_generation.cjs "${browser_evidence}/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 15 named 8
-          run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs "${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 17 named 8 tests/e2e/personal_export_context_browser.cjs "${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 4 strings 4 personal-diary-ui
-          run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 10 strings 4 "" "" 0 strings 0 personal-history-ui
-          run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 8 strings 4 "" "" 0 strings 0 public-landing
-      - name: Real member linking browser with restricted migrated PostgreSQL and private mail transport
-        env:
-          METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
-          METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
-          METODOBASE_TEST_PG_BIN: /usr/bin
-        run: |
-          export QA_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"
-          export QA_CHROME=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-          python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: member-link-real-browser
-          path: ${{ runner.temp }}/member-link-public
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: candidate-browser-evidence
-          path: |
-            docs/implementation/20261018-evolution/evidence/ux
-            docs/implementation/20261018-evolution/evidence/history-pagination/browser-ci-*
-            docs/implementation/20261018-evolution/evidence/landing/browser-ci-*
-      - name: Record candidate identity
-        run: docker image inspect metodobase-candidate:${{ github.sha }} --format '{{.Id}}' > candidate-image-id.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: candidate-identity
-          path: candidate-image-id.txt
-      - name: Stop isolated candidate
-        if: always()
-        run: docker rm --force metodobase-candidate
-      - name: Host checkout follow-up browser uses current restricted PostgreSQL fixture
-        timeout-minutes: 5
-        env:
-          METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
-          METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
-          METODOBASE_TEST_PG_BIN: /usr/bin
-        run: |
-          set -euo pipefail
-          private="$RUNNER_TEMP/followup-private"
-          public="$RUNNER_TEMP/followup-public"
-          mkdir "$private" "$public"
-          fixture_pid=""
-          finish_followup() {
-            status=$?
-            trap - EXIT INT TERM
-            touch "$private/stop"
-            if [ -n "$fixture_pid" ]; then
-              for attempt in $(seq 1 100); do
-                if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi
-                sleep 0.2
-              done
-              if jobs -pr | grep -qx "$fixture_pid"; then
-                echo "Owned follow-up fixture did not finalize" >&2
-                status=1
-              elif ! wait "$fixture_pid"; then
-                status=1
-              fi
-            fi
-            exit "$status"
-          }
-          trap finish_followup EXIT
-          trap 'exit 130' INT
-          trap 'exit 143' TERM
-          python -c 'import json,os,pathlib; keys=("METODOBASE_TEST_MIGRATOR_URL","METODOBASE_TEST_POSTGRES_URL","METODOBASE_TEST_PG_BIN"); pathlib.Path(os.environ["RUNNER_TEMP"],"followup-private","config.json").write_text(json.dumps({key:os.environ[key] for key in keys}),encoding="utf8")'
-          export FOLLOWUP_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"
-          export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-          python -X utf8 tests/e2e/followup_server.py --pg-config "$private/config.json" --report "$public/startup.json" --stop-file "$private/stop" --port 8795 >"$private/server.stdout.log" 2>"$private/server.stderr.log" &
-          fixture_pid=$!
-          ready=0
-          for attempt in $(seq 1 90); do
-            if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi
-            if python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795 2>/dev/null && curl --fail --silent http://127.0.0.1:8795/health >/dev/null; then ready=1; break; fi
-            sleep 1
-          done
-          test "$ready" = 1
-          export FOLLOWUP_STARTUP_REPORT="$public/startup.json"
-          node tests/e2e/dashboard_followup_browser.cjs "$public"
-          python tests/e2e/normalize_followup_report.py "$public/report.json" "$public/normalized.json" --kind browser --minimum 8
-          python scripts/check_frontend_report.py "$public/normalized.json" --format named --minimum 8 --minimum-screens 5
-          python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: followup-host-real-browser
-          path: ${{ runner.temp }}/followup-public
-          if-no-files-found: error
-  ci-success:
+          fi
+          exit "$status"
+        }
+        trap finish_followup EXIT
+        trap 'exit 130' INT
+        trap 'exit 143' TERM
+        python -c 'import json,os,pathlib; keys=("METODOBASE_TEST_MIGRATOR_URL","METODOBASE_TEST_POSTGRES_URL","METODOBASE_TEST_PG_BIN"); pathlib.Path(os.environ["RUNNER_TEMP"],"followup-private","config.json").write_text(json.dumps({key:os.environ[key] for key in keys}),encoding="utf8")'
+        export FOLLOWUP_NODE_MODULES="$RUNNER_TEMP/ci30-image/source/tests/e2e/node_modules"
+        export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+        python -X utf8 tests/e2e/followup_server.py --pg-config "$private/config.json" --report "$public/startup.json" --stop-file "$private/stop" --port 8795 >"$private/server.stdout.log" 2>"$private/server.stderr.log" &
+        fixture_pid=$!
+        ready=0
+        for attempt in $(seq 1 90); do
+          if ! jobs -pr | grep -qx "$fixture_pid"; then break; fi
+          if python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795 2>/dev/null && curl --fail --silent http://127.0.0.1:8795/health >/dev/null; then ready=1; break; fi
+          sleep 1
+        done
+        test "$ready" = 1
+        export FOLLOWUP_STARTUP_REPORT="$public/startup.json"
+        node tests/e2e/dashboard_followup_browser.cjs "$public"
+        python tests/e2e/normalize_followup_report.py "$public/report.json" "$public/normalized.json" --kind browser --minimum 8
+        python scripts/check_frontend_report.py "$public/normalized.json" --format named --minimum 8 --minimum-screens 5
+        python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795
+        ) > "$RUNNER_TEMP/ci30-image-private/step-17.raw.log" 2>&1
+    - name: Historical30 labelled browser reports
+      if: always()
+      working-directory: ${{ github.workspace }}
+      run: |-
+        export METODOBASE_EVIDENCE_BATCH="ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+        python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/ci30-image/source" --output "$RUNNER_TEMP/ci30-image-public" --files "docs/implementation/20261018-evolution/evidence/ux/b2b-generation-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/ux/private-branding-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/ux/privacy-export-${METODOBASE_EVIDENCE_BATCH}/privacy-export-browser.json" "docs/implementation/20261018-evolution/evidence/ux/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/ux/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/ux/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/ux/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/ux/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: Historical30-labelled-browser-reports
+        path: |-
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/b2b-generation-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/private-branding-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/privacy-export-${METODOBASE_EVIDENCE_BATCH}/privacy-export-browser.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/ux/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json
+          ${{ runner.temp }}/ci30-image-public/publication.json
+        if-no-files-found: error
+    - name: Historical30 R12 and followup browser reports
+      if: always()
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP" --output "$RUNNER_TEMP/ci30-host-public" --files
+        "member-link-public/report.json" "followup-public/report.json"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: Historical30-R12-and-followup-browser-reports
+        path: |-
+          ${{ runner.temp }}/ci30-host-public/member-link-public/report.json
+          ${{ runner.temp }}/ci30-host-public/followup-public/report.json
+          ${{ runner.temp }}/ci30-host-public/publication.json
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v4
+      with:
+        name: historical30-candidate-identity
+        path: ${{ runner.temp }}/ci30-image/source/candidate-image-id.txt
+        if-no-files-found: error
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ runner.temp }}/ci30-image/source
+  current-postgres:
     runs-on: ubuntu-latest
-    needs: [quality, secrets, test-web, frontend-contracts, test-desktop, postgres, redis, image]
-    if: always()
-    steps:
-      - name: Every required gate must succeed
+    needs: quality
+    services:
+      postgres:
+        image: postgres:17.11
         env:
-          RESULTS: ${{ toJSON(needs) }}
-        run: python -c "import json,os; results=json.loads(os.environ['RESULTS']); assert all(item['result']=='success' for item in results.values()), results"
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_integration
+        ports:
+        - 55482:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_integration" --health-interval 5s --health-timeout
+          5s --health-retries 10
+    env:
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
+      METODOBASE_TEST_EVIDENCE_DIR: ${{ runner.temp }}/current31-private/evidence
+      R24_PG_OUTPUT: ${{ runner.temp }}/current31-private/r24
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Matching PostgreSQL client tools from the official PGDG repository
+      run: |
+        . /etc/os-release
+        sudo install -d /usr/share/postgresql-common/pgdg
+        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-17
+    - name: Create private current31 evidence locations
+      run: install -d -m 700 "$RUNNER_TEMP/current31-private" "$METODOBASE_TEST_EVIDENCE_DIR" "$R24_PG_OUTPUT"
+    - name: Current31 real migrations and restricted runtime role
+      run: python -X utf8 tests/prepare_postgres.py
+    - name: Current31 member-services; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_services.py -q --tb=short --junitxml=pytest-current31-member-services.xml
+        > "$RUNNER_TEMP/current31-private/member-services.raw.log" 2>&1
+    - name: Current31 member-http; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_http.py -q --tb=short --junitxml=pytest-current31-member-http.xml
+        > "$RUNNER_TEMP/current31-private/member-http.raw.log" 2>&1
+    - name: Current31 member-races; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_races.py -q --tb=short --junitxml=pytest-current31-member-races.xml
+        > "$RUNNER_TEMP/current31-private/member-races.raw.log" 2>&1
+    - name: Current31 r24-publication; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_publication.py -q --tb=short --junitxml=pytest-current31-r24-publication.xml
+        > "$RUNNER_TEMP/current31-private/r24-publication.raw.log" 2>&1
+    - name: Current31 r24-race; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_race.py -q --tb=short --junitxml=pytest-current31-r24-race.xml
+        > "$RUNNER_TEMP/current31-private/r24-race.raw.log" 2>&1
+    - name: Current31 mfa-migrations; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_migrations.py -k postgresql -q --tb=short --junitxml=pytest-current31-mfa-migrations.xml
+        > "$RUNNER_TEMP/current31-private/mfa-migrations.raw.log" 2>&1
+    - name: Current31 mfa-services; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_postgres.py -q --tb=short --junitxml=pytest-current31-mfa-services.xml
+        > "$RUNNER_TEMP/current31-private/mfa-services.raw.log" 2>&1
+    - name: Current31 mfa-restore; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_restore.py -q --tb=short --junitxml=pytest-current31-mfa-restore.xml
+        > "$RUNNER_TEMP/current31-private/mfa-restore.raw.log" 2>&1
+    - name: Current31 followup; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-current31-followup.xml
+        > "$RUNNER_TEMP/current31-private/followup.raw.log" 2>&1
+    - name: Current31 rls-worker; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-current31-rls-worker.xml
+        > "$RUNNER_TEMP/current31-private/rls-worker.raw.log" 2>&1
+    - name: Current31 privacy-export; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-current31-privacy-export.xml
+        > "$RUNNER_TEMP/current31-private/privacy-export.raw.log" 2>&1
+    - name: Current31 diary; original full business assertions
+      run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py
+        -q --tb=short --junitxml=pytest-current31-diary.xml > "$RUNNER_TEMP/current31-private/diary.raw.log" 2>&1
+    - name: Every exact current31 PG identity passes; no skips/errors/substitutions/duplicates
+      run: python -X utf8 tests/check_mfa31_reports.py
+    - name: Project all12 current31 reports without authentication diagnostics
+      if: always()
+      working-directory: ${{ github.workspace }}
+      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/current31-postgres-public"
+        --files "pytest-current31-member-services.xml" "pytest-current31-member-http.xml" "pytest-current31-member-races.xml"
+        "pytest-current31-r24-publication.xml" "pytest-current31-r24-race.xml" "pytest-current31-mfa-migrations.xml" "pytest-current31-mfa-services.xml"
+        "pytest-current31-mfa-restore.xml" "pytest-current31-followup.xml" "pytest-current31-rls-worker.xml" "pytest-current31-privacy-export.xml"
+        "pytest-current31-diary.xml"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: current31-postgres-tests
+        path: |-
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-services.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-http.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-member-races.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-r24-publication.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-r24-race.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-migrations.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-services.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-mfa-restore.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-followup.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-rls-worker.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-privacy-export.xml
+          ${{ runner.temp }}/current31-postgres-public/pytest-current31-diary.xml
+          ${{ runner.temp }}/current31-postgres-public/publication.json
+        if-no-files-found: error
+  current-image:
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      postgres-image:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_image
+        ports:
+        - 55483:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_image" --health-interval 5s --health-timeout
+          5s --health-retries 10
+    env:
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+      METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: npm
+        cache-dependency-path: tests/e2e/package-lock.json
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Matching PostgreSQL client tools from the official PGDG repository
+      run: |
+        . /etc/os-release
+        sudo install -d /usr/share/postgresql-common/pgdg
+        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+        sudo apt-get update
+        sudo apt-get install --yes postgresql-client-17
+    - name: Current31 locked browser dependencies and Chromium
+      run: |-
+        npm ci --prefix tests/e2e --ignore-scripts
+        node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
+    - name: Build current31 production Dockerfile from this exact checkout
+      run: docker build --tag metodobase-current31:${{ github.sha }} .
+    - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
+      run: |-
+        export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+        python -X utf8 tests/ci_mfa31/run_current_browser.py --image-tag metodobase-current31:${{ github.sha }} --output "$RUNNER_TEMP/current31-browser-public"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: current31-real-image-and-browser
+        path: |-
+          ${{ runner.temp }}/current31-browser-public/image-inventory.json
+          ${{ runner.temp }}/current31-browser-public/image-identity.json
+          ${{ runner.temp }}/current31-browser-public/image-browser.json
+          ${{ runner.temp }}/current31-browser-public/member-report.json
+          ${{ runner.temp }}/current31-browser-public/followup-report.json
+          ${{ runner.temp }}/current31-browser-public/daily-report.json
+          ${{ runner.temp }}/current31-browser-public/mfa-ui-report.json
+          ${{ runner.temp }}/current31-browser-public/mfa-personal-report.json
+          ${{ runner.temp }}/current31-browser-public/publication.json
+        if-no-files-found: error
+'on':
+  push:
+    branches:
+    - main
+    - develop
+  pull_request:
+    branches:
+    - main
+    - develop

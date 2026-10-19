@@ -1,0 +1,15 @@
+"""Current31 runtime; every imported business assertion remains unchanged."""
+from tests.ci_mfa31.current_link_fixtures import case, http, link_db
+
+from tests.integration_client_link_http import (
+    test_real_registration_uses_same_issued_proof_and_keeps_own_personal_profile,
+    test_http_explicit_publication_and_exact_old_pdf_replacement,
+    test_privacy_headers_survive_wrong_method_and_missing_page,
+    test_http_commit_failure_is_visible_without_sending_or_reverting_uncertain_issue,
+    test_queue_failure_after_confirmed_commit_keeps_pending_without_faking_delivery,
+    test_member_get_plan_list_and_export_have_no_business_dml_or_commit,
+    test_unexpected_adapter_failure_has_private_headers_and_sanitized_visible_error,
+    test_current_real_worker_four_meals_and_pdf_can_be_explicitly_published,
+    test_publication_lost_commit_ack_requires_fresh_exact_observation_before_replacement,
+)
+
