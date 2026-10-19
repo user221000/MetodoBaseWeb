@@ -1,0 +1,50 @@
+{
+  "accepted": false,
+  "head": "dd9877350aad3f483299c990a1e97aab63c83f5d",
+  "source_count": 667,
+  "package_count": 89,
+  "runs": [
+    {
+      "label": "serial",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "tests/run_isolated.py",
+        "tests",
+        "--ignore=tests/test_login_desktop.py",
+        "--ignore=tests/test_desktop_entrypoints.py",
+        "-q",
+        "--tb=short",
+        "--cov",
+        "--cov-report=xml:F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-20261019\\qa-integrated28-history-landing-coverage.xml",
+        "--cov-report=json:F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-20261019\\qa-integrated28-history-landing-coverage.json",
+        "--junitxml=F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-20261019\\qa-integrated28-history-landing-serial.xml"
+      ],
+      "temporary_test_root": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-test-qa-integrated28-serial-vdkml6f6",
+      "seconds": 574.407,
+      "exit": 1,
+      "junit": {
+        "collected": 2361,
+        "passed": 2358,
+        "failures": 2,
+        "errors": 0,
+        "skipped": [
+          {
+            "node": "tests.test_object_storage::test_symlink_cannot_redirect_a_private_document",
+            "message": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+          }
+        ]
+      },
+      "source_stable": true,
+      "packages_stable": true
+    }
+  ],
+  "error": {
+    "class": "AssertionError",
+    "detail": ""
+  },
+  "scope": "Current integrated web suite with source/locks/installed packages frozen. Serial coverage and two isolated shuffled workers. Fresh metadata-only SQLite and Python socket guard; no PG integrations/provider/image/Linux/desktopGUI/Actions execution.",
+  "only_allowed_skip": "tests.test_object_storage::test_symlink_cannot_redirect_a_private_document",
+  "all_prior_acceptance_evidence": "preserved; no earlier case totals reused or summed"
+}

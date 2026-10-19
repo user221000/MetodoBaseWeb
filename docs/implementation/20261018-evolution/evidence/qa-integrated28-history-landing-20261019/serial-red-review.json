@@ -1,0 +1,65 @@
+{
+  "accepted": false,
+  "head": "dd9877350aad3f483299c990a1e97aab63c83f5d",
+  "serial": {
+    "label": "serial",
+    "command": [
+      "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+      "-X",
+      "utf8",
+      "tests/run_isolated.py",
+      "tests",
+      "--ignore=tests/test_login_desktop.py",
+      "--ignore=tests/test_desktop_entrypoints.py",
+      "-q",
+      "--tb=short",
+      "--cov",
+      "--cov-report=xml:F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-20261019\\qa-integrated28-history-landing-coverage.xml",
+      "--cov-report=json:F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-20261019\\qa-integrated28-history-landing-coverage.json",
+      "--junitxml=F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-20261019\\qa-integrated28-history-landing-serial.xml"
+    ],
+    "temporary_test_root": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-test-qa-integrated28-serial-vdkml6f6",
+    "seconds": 574.407,
+    "exit": 1,
+    "junit": {
+      "collected": 2361,
+      "passed": 2358,
+      "failures": 2,
+      "errors": 0,
+      "skipped": [
+        {
+          "node": "tests.test_object_storage::test_symlink_cannot_redirect_a_private_document",
+          "message": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+        }
+      ]
+    },
+    "source_stable": true,
+    "packages_stable": true
+  },
+  "failures": [
+    {
+      "nodeid": "tests/test_landing_commercial.py::test_public_view_never_reads_credentials_fetches_private_data_or_writes[web.main_web]",
+      "kind": "failure",
+      "message": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = WindowsPath('web/pages/checkout.html').is_file\n +      where WindowsPath('web/pages/checkout.html') = Path('web/pages/checkout.html')",
+      "trace": "serial-red-trace-1.txt",
+      "trace_sha256": "36055eca60c28dc1d870c272dbbd34d184bfb767c0d57f2a26a32a8081328eea"
+    },
+    {
+      "nodeid": "tests/test_landing_commercial.py::test_public_view_never_reads_credentials_fetches_private_data_or_writes[api.app]",
+      "kind": "failure",
+      "message": "AssertionError: assert False\n +  where False = is_file()\n +    where is_file = WindowsPath('web/pages/checkout.html').is_file\n +      where WindowsPath('web/pages/checkout.html') = Path('web/pages/checkout.html')",
+      "trace": "serial-red-trace-2.txt",
+      "trace_sha256": "36055eca60c28dc1d870c272dbbd34d184bfb767c0d57f2a26a32a8081328eea"
+    }
+  ],
+  "sources": 667,
+  "packages": 89,
+  "source_and_packages_still_identical": true,
+  "pip_before_after": [
+    0,
+    0
+  ],
+  "shuffle_started": false,
+  "critical_coverage_guard_started": false,
+  "scope": "Unmodified full serial original JUnit/log/coverage retained. No case filtered, no criterion reinterpreted, no test/product edits. Separate focused reproduction may follow coordinator review."
+}
