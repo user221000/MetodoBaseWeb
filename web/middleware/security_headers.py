@@ -115,8 +115,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "SAMEORIGIN"
         # Private downloads/invitations may require the stricter policy. Do not
         # weaken it globally, or preserve arbitrary policies such as unsafe-url.
+        recovery_api = request.url.path in {
+            "/api/auth/password-reset/request", "/api/auth/password-reset/confirm",
+        }
         response.headers["Referrer-Policy"] = (
-            "no-referrer" if response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
+            "no-referrer" if recovery_api or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
             else "strict-origin-when-cross-origin"
         )
         response.headers["Permissions-Policy"] = (

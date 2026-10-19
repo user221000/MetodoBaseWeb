@@ -1,0 +1,44 @@
+{
+  "scope": "Exact recovery API paths force no-referrer for router-generated responses, including405; no credential leak was demonstrated",
+  "base": "35a3c133c194b8f6c8864314500db42031b79e59",
+  "changed_prior87": [
+    "web/middleware/security_headers.py"
+  ],
+  "original_independent_evidence_unchanged": true,
+  "semantic_driver_identical": true,
+  "before": {
+    "passed": 6,
+    "failed": 4,
+    "total": 10
+  },
+  "after": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10
+  },
+  "directed": {
+    "passed": 89,
+    "failed": 0,
+    "seconds": 10.18
+  },
+  "negative_proof": "42 method/exact-and-adjacent-path canaries; arbitrary downstream CSP/referrer rejected and prior CSP preserved; independent CSP driver unchanged",
+  "sources": {
+    "web/middleware/security_headers.py": "510ac917caccf26f2e37002155e4f03c39b0e6d29a4e76e94d93f61fe38496ac",
+    "tests/test_recovery_method_headers.py": "cbd5c2e19037a007a6b7180b77506953003d3be04581363751ae2ebd2e1a2e83",
+    "tests/test_security_middleware.py": "2d63727dc64bbb5dec187958e9d5e95b99daf77281d7220e0d0618f044c74b7d",
+    "tests/test_password_recovery_boundaries.py": "c1e6c1492935a40206f325e05249d56440de23e328431cec7caada81422e5233",
+    "tests/test_logout_confirmation_contract.py": "7ac3541e25dfc903b15cd25bda22ca3bce245b43a2955ac9ec344fe0fa594bef",
+    "tests/test_logout_confirmation_review.py": "14748a07c51750ccc3af2347d939350f10f713f9b8a51104789f4a0bac0b6901",
+    "web/routes/password_recovery.py": "257f167550d65fbaeba55a04f22fd5bdd2309fc224722d05a15a08d1e84e4444",
+    "web/routes/pages.py": "4fbcd9a71f56d0c27b026e0c37355453ed91689ac901955f5e362fb91f035cb4",
+    "web/main_web.py": "f420cf057a3f3b0a812bb89eac2003b5bebc1d9e1a211fbd3501d2491794fe88",
+    "api/app.py": "7a17e1fd8805c6c9dd11a7df7433018f3ced6409cb47139eacd469fdcbc54b62"
+  },
+  "changedDuringCheck": false,
+  "limitations": [
+    "HTTP/SQLite only for this header-only delta",
+    "No PG or broad181 rerun",
+    "No main/composer changes",
+    "Independent rereview pending"
+  ]
+}
