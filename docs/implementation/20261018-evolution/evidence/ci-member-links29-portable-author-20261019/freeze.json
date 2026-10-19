@@ -1,0 +1,613 @@
+{
+  "base": "7d0b6ca1ce5461a8063fb4348adc605ffd62ddae",
+  "source": {
+    ".github/workflows/ci.yml": {
+      "RAW_sha256": "847f850ea1ce607dbf959fbd314295624bf3d66c4fa6d08365d5097ea26b1c88",
+      "GitLF_sha256": "a763cefded20c5ac2bcc602c58538a494c5ad84eb0fe874faaac3b176e5d1f82"
+    },
+    "tests/verify_member_links_ci.py": {
+      "RAW_sha256": "ff0b767f85c36d01a248bda7811cb0cacf90738777303f6ab97ef666e0fa2908",
+      "GitLF_sha256": "ff0b767f85c36d01a248bda7811cb0cacf90738777303f6ab97ef666e0fa2908"
+    },
+    "tests/e2e/member_link_export.cjs": {
+      "RAW_sha256": "ca7b9e8e89532efd851447da6d23422712327b29beb12e6c80aefef41d71129a",
+      "GitLF_sha256": "287488236fe8cce0fee492145abf5e1b147ad9e038b7b03ada44285c9e6bd0d4"
+    },
+    "tests/e2e/member_link_postgres_server.py": {
+      "RAW_sha256": "307d95b8f4644b462b036863ac22f65c03772f900f4fbe5d6425550d1d9347fc",
+      "GitLF_sha256": "307d95b8f4644b462b036863ac22f65c03772f900f4fbe5d6425550d1d9347fc"
+    },
+    "tests/e2e/member_link_browser.cjs": {
+      "RAW_sha256": "90c826948d84ed1b2556ffa395e8911f5520490a082c904a0c9a191a6bccbce8",
+      "GitLF_sha256": "90c826948d84ed1b2556ffa395e8911f5520490a082c904a0c9a191a6bccbce8"
+    },
+    "tests/e2e/normalize_member_link_report.py": {
+      "RAW_sha256": "d415ec90669856e6613840a3c09da7c1881a37ea96da9f5b51b0d01bd715eaab",
+      "GitLF_sha256": "d415ec90669856e6613840a3c09da7c1881a37ea96da9f5b51b0d01bd715eaab"
+    },
+    "tests/e2e/run_member_link_browser.py": {
+      "RAW_sha256": "b0c23986c4d02693f4713b8e9bf8e1cc7f9e115f442218e1bfe86281c90190ba",
+      "GitLF_sha256": "b0c23986c4d02693f4713b8e9bf8e1cc7f9e115f442218e1bfe86281c90190ba"
+    },
+    "tests/test_member_browser_gate.py": {
+      "RAW_sha256": "95f490a1eef0164f00d57b81b58178825a06b575d8b0954bb429462b7f1d7ab2",
+      "GitLF_sha256": "95f490a1eef0164f00d57b81b58178825a06b575d8b0954bb429462b7f1d7ab2"
+    },
+    "docs/implementation/20261018-evolution/R12_CI_NAVEGADOR.md": {
+      "RAW_sha256": "383acc305fa8038b1910dc43a14e41ce6c698b6b2afbc87409a7b9941cf2a4dc",
+      "GitLF_sha256": "383acc305fa8038b1910dc43a14e41ce6c698b6b2afbc87409a7b9941cf2a4dc"
+    },
+    "docs/implementation/20261018-evolution/R12_CI29.md": {
+      "RAW_sha256": "8cedec69c3085be504f63d022af7f331e9eeb4707251ee641d25279c8660c89a",
+      "GitLF_sha256": "8cedec69c3085be504f63d022af7f331e9eeb4707251ee641d25279c8660c89a"
+    }
+  },
+  "validation": {
+    "VM_modules": 18,
+    "VM_assertion_executions": 300,
+    "VM_unique_criteria": 279,
+    "legacy_export_repeated": 21,
+    "actual_report_guards_passed": true,
+    "VM_sources": 5153,
+    "VM_packages": 89,
+    "VM_sources_packages_stable": true,
+    "unit_cases_final": 33,
+    "unit_cases_first": 29,
+    "quality": "lint/syntax508/Bandit6baseline0new/newharnesslint all exit0 before final digest-table expansion; verify-only25/currentmarkers/33unit after pins. Piecewise scope preserved.",
+    "workflow_delta_canaries": 25,
+    "historical_guard_sample_exit": 0,
+    "browser_or_PG_replay_for_new_orchestrator": false,
+    "Actions_or_Linux_execution": false
+  },
+  "known_open": "Historical archive replace-ref/export-ignore repair is separate and pending; CIglobal not accepted. Real portable browser run and independent review pending.",
+  "files": {
+    ".gitattributes": {
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    "first-run-derived-summary.json": {
+      "bytes": 2700,
+      "sha256": "037b26faa15b161620b152167af2370b1a57dc07aebab841c12016d9b7a334d3"
+    },
+    "metodobase-ci29-portable-pins-20261019.json": {
+      "bytes": 1361,
+      "sha256": "23a28c52efb61c219eed1db9bb6b5f5b34b7b7e36c3599cc15599a8543dac2c1"
+    },
+    "metodobase-ci29-portable-pins.py": {
+      "bytes": 3250,
+      "sha256": "60774919111a5969022706aa3438127fa281062baa4a7f43d41cd5e4141c8d94"
+    },
+    "metodobase-ci29-portable-preparation-20261019.json": {
+      "bytes": 1136,
+      "sha256": "e6a7ea5f76e1ad9e278827cdd1d87f1c66f0853dae800abb46314b79ada881f5"
+    },
+    "metodobase-ci29-portable-prepare.py": {
+      "bytes": 1530,
+      "sha256": "a842298cb15beb7047e758e019b20d4f6bc39e302f613ca38025ef47f8163a23"
+    },
+    "metodobase-ci29-portable-quality-20261019/lint.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-quality-20261019/lint.stdout.log": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "metodobase-ci29-portable-quality-20261019/new-harness-lint.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-quality-20261019/new-harness-lint.stdout.log": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "metodobase-ci29-portable-quality-20261019/review.json": {
+      "bytes": 5176,
+      "sha256": "a11e43173a184fa1215fc46316b661693443debf7b9ed9ed9897265ddcc8d9e3"
+    },
+    "metodobase-ci29-portable-quality-20261019/security.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-quality-20261019/security.stdout.log": {
+      "bytes": 38,
+      "sha256": "cc1fc06b1fba5be277a13e17b285b1fb3ac2b52d0fb7389fe75fe06584b0b1a6"
+    },
+    "metodobase-ci29-portable-quality-20261019/syntax.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-quality-20261019/syntax.stdout.log": {
+      "bytes": 36,
+      "sha256": "1366d7517f6fa03debae04f5905aaccc0f255c6fcc31d0b8532877203c30f3ea"
+    },
+    "metodobase-ci29-portable-quality.py": {
+      "bytes": 1675,
+      "sha256": "72df192d6a61bc57687113b69def729c77642a01885c6a7812c39bcb830227c1"
+    },
+    "metodobase-ci29-portable-unit-final-20261019.xml": {
+      "bytes": 5046,
+      "sha256": "02b31d72bda73d6a1d0e991b85f95cf24527074165d4b7984c790d7bfe24d344"
+    },
+    "metodobase-ci29-portable-unit-first-20261019.xml": {
+      "bytes": 4374,
+      "sha256": "8751cb659745d08a7f6d241449f2c6ad3cbc16b26e4db33d07a5a5c96ae6e6e4"
+    },
+    "metodobase-ci29-portable-vm-run-v2.py": {
+      "bytes": 3356,
+      "sha256": "57a98d9fd847e3093fd3bdcd0c7f9f573e2e297f7f6c7b3cc306fd229281ad91"
+    },
+    "metodobase-ci29-portable-vm-run.py": {
+      "bytes": 3350,
+      "sha256": "87c65e5becc78e954da4cdc1e1b232b7ee2966b90074f7945f9536d6e9543959"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-contracts.json": {
+      "bytes": 4273,
+      "sha256": "aa7d45f62a9bfe4dfc8e98f16af656c2e4aee91131570121c6c333befc74c606"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-contracts.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-reproductions.json": {
+      "bytes": 212,
+      "sha256": "05230647f4c98135f269b89c19fd7637599aed7285d48c0e4bee3b74d1b65c80"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-reproductions.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-security.json": {
+      "bytes": 1954,
+      "sha256": "ae3810ca5ed40c0a2034f15a9e5c87b512d609c5a41bbb87c889c0d606314bdc"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-security.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-storage.json": {
+      "bytes": 3815,
+      "sha256": "dac1d5f409cc5107ea89850f378d2dde7b829a05ed94d2c1f42a5a835b49f2ef"
+    },
+    "metodobase-ci29-portable-vm18-20261019/auth-refresh-storage.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/before.json": {
+      "bytes": 866145,
+      "sha256": "0336fef1e6c2f6ae8a3b1bd28f1e423d763962b8d80f064e3143af0e2222dac5"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-0.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-1.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-10.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-11.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-12.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-13.log": {
+      "bytes": 64,
+      "sha256": "c5d050f27adca2442381793059e1e192fa8daaa28edacfaf688020d557db13b4"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-2.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-3.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-4.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-5.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-6.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-7.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-8.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/guard-9.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-api.json": {
+      "bytes": 2705,
+      "sha256": "ef6643969f9de928bab0122e699d599aec8e8365f57efaed06787300bc62953b"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-api.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-consumers.json": {
+      "bytes": 2221,
+      "sha256": "1cd963479f603c2747afc717a7e4bd79f0157d301618f3a3e5ce1da60c9769eb"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-consumers.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-context.json": {
+      "bytes": 3153,
+      "sha256": "434ae5a6962d465ac64c830694de1b1c00eaa5ec1d85c3bf8bc23515fb0e8e31"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-context.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-controls.json": {
+      "bytes": 655,
+      "sha256": "fa030403a6f39f8f3c563d3946e98900cdd7be13c9556a69a1c43cf1d746466f"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-controls.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-export.json": {
+      "bytes": 4453,
+      "sha256": "ac1697e3d5e15ece9d0d7fe67e96d3c64f9d83a530d00d49faca268be468a99a"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-export.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-fragment.json": {
+      "bytes": 1908,
+      "sha256": "0402b93e98bd34713493e7aef0244ccb00d75c07cf1f43d244aff2c6de5e4114"
+    },
+    "metodobase-ci29-portable-vm18-20261019/member-link-fragment.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-api.json": {
+      "bytes": 1006,
+      "sha256": "41e8d5c6a3f9eb21385531c5f392e2ac8720a0b3530fc8fd040996c9164c7c77"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-api.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-controller.json": {
+      "bytes": 2280,
+      "sha256": "f628e663b22f1946e289c6fe8a1fef9c4f84bdbeafd744b324e937058b6b6068"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-controller.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-logout-ack.json": {
+      "bytes": 1302,
+      "sha256": "fe956605e5f2ebfbb10574624e38aed3ec2da29397e1573e22c5033599c0970c"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-logout-ack.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-logout.json": {
+      "bytes": 1627,
+      "sha256": "db8b93ee619e44202c228cb13be63077fae932c884d7ac3fa3aa6e53f7f29429"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-diary-logout.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-export-controls.json": {
+      "bytes": 2995,
+      "sha256": "cca6633f41b3a6798b2efd4318f83b98e553e1f5dbbf72b09529d91a50990368"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-export-controls.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-history-contracts.json": {
+      "bytes": 2909,
+      "sha256": "ac6d6807a1e0bf62951d4563883b9b39e96954a299bc992a3bfe5563414cbbb0"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-history-contracts.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-operation-ambiguity.json": {
+      "bytes": 415,
+      "sha256": "5357c0f2dd9a06a49c492405a3ddfe0dfa78e1145f6e5b78e82293f04969782e"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-operation-ambiguity.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-operation-contracts.json": {
+      "bytes": 2400,
+      "sha256": "65a269ee36dd7d3e738e68ab995a9e985bf1a709f98e46f61418b67d07c315c2"
+    },
+    "metodobase-ci29-portable-vm18-20261019/personal-operation-contracts.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/after.json": {
+      "bytes": 867561,
+      "sha256": "de95fd2e27b1e461e33eb6091ebe64b061fb4f4391bc2cf2626a21439634c583"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-contracts.json": {
+      "bytes": 4273,
+      "sha256": "aa7d45f62a9bfe4dfc8e98f16af656c2e4aee91131570121c6c333befc74c606"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-contracts.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-reproductions.json": {
+      "bytes": 212,
+      "sha256": "05230647f4c98135f269b89c19fd7637599aed7285d48c0e4bee3b74d1b65c80"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-reproductions.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-security.json": {
+      "bytes": 1954,
+      "sha256": "ae3810ca5ed40c0a2034f15a9e5c87b512d609c5a41bbb87c889c0d606314bdc"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-security.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-storage.json": {
+      "bytes": 3815,
+      "sha256": "dac1d5f409cc5107ea89850f378d2dde7b829a05ed94d2c1f42a5a835b49f2ef"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/auth-refresh-storage.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/before.json": {
+      "bytes": 867561,
+      "sha256": "de95fd2e27b1e461e33eb6091ebe64b061fb4f4391bc2cf2626a21439634c583"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-0.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-1.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-10.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-11.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-12.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-13.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-14.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-2.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-3.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-4.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-5.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-6.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-7.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-8.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/guard-9.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-api.json": {
+      "bytes": 2705,
+      "sha256": "ef6643969f9de928bab0122e699d599aec8e8365f57efaed06787300bc62953b"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-api.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-consumers.json": {
+      "bytes": 2221,
+      "sha256": "1cd963479f603c2747afc717a7e4bd79f0157d301618f3a3e5ce1da60c9769eb"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-consumers.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-context.json": {
+      "bytes": 3153,
+      "sha256": "434ae5a6962d465ac64c830694de1b1c00eaa5ec1d85c3bf8bc23515fb0e8e31"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-context.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-controls.json": {
+      "bytes": 655,
+      "sha256": "fa030403a6f39f8f3c563d3946e98900cdd7be13c9556a69a1c43cf1d746466f"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-controls.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-export.json": {
+      "bytes": 4448,
+      "sha256": "6789b0bf5d455a532f3fbadd29bd8dee8fbb8d33d4972c8cf56408d929130d1e"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-export.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-fragment.json": {
+      "bytes": 1908,
+      "sha256": "0402b93e98bd34713493e7aef0244ccb00d75c07cf1f43d244aff2c6de5e4114"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/member-link-fragment.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-api.json": {
+      "bytes": 1006,
+      "sha256": "41e8d5c6a3f9eb21385531c5f392e2ac8720a0b3530fc8fd040996c9164c7c77"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-api.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-controller.json": {
+      "bytes": 2280,
+      "sha256": "f628e663b22f1946e289c6fe8a1fef9c4f84bdbeafd744b324e937058b6b6068"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-controller.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout-ack.json": {
+      "bytes": 1302,
+      "sha256": "fe956605e5f2ebfbb10574624e38aed3ec2da29397e1573e22c5033599c0970c"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout-ack.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout.json": {
+      "bytes": 1627,
+      "sha256": "db8b93ee619e44202c228cb13be63077fae932c884d7ac3fa3aa6e53f7f29429"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-export-controls.json": {
+      "bytes": 2995,
+      "sha256": "cca6633f41b3a6798b2efd4318f83b98e553e1f5dbbf72b09529d91a50990368"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-export-controls.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-history-contracts.json": {
+      "bytes": 2909,
+      "sha256": "ac6d6807a1e0bf62951d4563883b9b39e96954a299bc992a3bfe5563414cbbb0"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-history-contracts.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-operation-ambiguity.json": {
+      "bytes": 415,
+      "sha256": "5357c0f2dd9a06a49c492405a3ddfe0dfa78e1145f6e5b78e82293f04969782e"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-operation-ambiguity.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-operation-contracts.json": {
+      "bytes": 2400,
+      "sha256": "65a269ee36dd7d3e738e68ab995a9e985bf1a709f98e46f61418b67d07c315c2"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/personal-operation-contracts.json.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metodobase-ci29-portable-vm18-after-20261019/summary.json": {
+      "bytes": 10902,
+      "sha256": "784f75faf912f868001c4ff20c0fc477bc107724ac1cbf784a97c6acd3226c11"
+    },
+    "metodobase-ci29-trust-compose-resume.py": {
+      "bytes": 2381,
+      "sha256": "669f6ff81b0e1022cab5c90b1912b6851e0828e86ac02b49b4d6d139f7ba2f56"
+    },
+    "metodobase-ci29-trust-compose.py": {
+      "bytes": 2183,
+      "sha256": "85252ade785de13b009358758bfca635603897fd9c8324dbe8702a35dd68640e"
+    },
+    "metodobase-ci29-trust-composition-20261019/apply.log": {
+      "bytes": 174,
+      "sha256": "6fe1930f7e83d4a103536686321f2e6f695f9839dfecbc2fe734199bc4dd6555"
+    },
+    "metodobase-ci29-trust-composition-20261019/cherry-resumed.log": {
+      "bytes": 1153,
+      "sha256": "32f80a3e463106b13b801d87452201c7fb3ad5dcd32db1412ae553d1799398d0"
+    },
+    "metodobase-ci29-trust-composition-20261019/owned-before-0": {
+      "bytes": 35149,
+      "sha256": "a763cefded20c5ac2bcc602c58538a494c5ad84eb0fe874faaac3b176e5d1f82"
+    },
+    "metodobase-ci29-trust-composition-20261019/owned-before-1": {
+      "bytes": 6841,
+      "sha256": "ca7b9e8e89532efd851447da6d23422712327b29beb12e6c80aefef41d71129a"
+    },
+    "metodobase-ci29-trust-composition-20261019/owned-before-2": {
+      "bytes": 25554,
+      "sha256": "5b9f3471526a3c9a0a08d933d133b7b01014d96f9a23f5db100cf34b1d3ac1c1"
+    },
+    "metodobase-ci29-trust-composition-20261019/owned-ci2.patch": {
+      "bytes": 10851,
+      "sha256": "81d2d9068c4c1d4ce240f5d4302aca5c374fa7cd54cdf3d6f6a025164b1d3491"
+    },
+    "metodobase-ci29-trust-composition-20261019/receipt.json": {
+      "bytes": 1276,
+      "sha256": "96bb4ae14ffcdd039db9fb35aa80afe2fbe6a711c959729935db14360c0c339a"
+    },
+    "tested-sources-RAW.zip": {
+      "bytes": 39307,
+      "sha256": "720666497496bd7aa0e5e675348be4223720d4b27aa76071a086d9d8a60962ba"
+    },
+    "wiring-historical.log": {
+      "bytes": 112,
+      "sha256": "6cb31af8b055f3bde301698e1c6503afef7af87d55dbd8c86fe4a7ffa44362a8"
+    },
+    "wiring-review.json": {
+      "bytes": 3943,
+      "sha256": "bdf7de95018b10b4f915647553fcdc84ff3f489eca989eb7cf383e7c83839b82"
+    }
+  }
+}

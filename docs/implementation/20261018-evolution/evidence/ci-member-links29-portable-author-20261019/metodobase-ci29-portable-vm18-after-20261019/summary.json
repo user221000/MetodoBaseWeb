@@ -1,0 +1,352 @@
+{
+  "head": "7d0b6ca1ce5461a8063fb4348adc605ffd62ddae",
+  "modules": [
+    {
+      "command": [
+        "node",
+        "tests/e2e/auth_refresh.cjs"
+      ],
+      "report": "auth-refresh-contracts.json",
+      "exit_code": 0,
+      "cases": 33
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/auth_refresh_storage.cjs"
+      ],
+      "report": "auth-refresh-storage.json",
+      "exit_code": 0,
+      "cases": 26
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/auth_refresh_race_review.cjs"
+      ],
+      "report": "auth-refresh-reproductions.json",
+      "exit_code": 0,
+      "cases": 2
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/auth_refresh_security_review.cjs"
+      ],
+      "report": "auth-refresh-security.json",
+      "exit_code": 0,
+      "cases": 13
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_operation.cjs"
+      ],
+      "report": "personal-operation-contracts.json",
+      "exit_code": 0,
+      "cases": 18
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_operation_ambiguity_review.cjs"
+      ],
+      "report": "personal-operation-ambiguity.json",
+      "exit_code": 0,
+      "cases": 2
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_diary_api.cjs"
+      ],
+      "report": "personal-diary-api.json",
+      "exit_code": 0,
+      "cases": 7
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_diary_controller.cjs"
+      ],
+      "report": "personal-diary-controller.json",
+      "exit_code": 0,
+      "cases": 18
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_logout.cjs"
+      ],
+      "report": "personal-diary-logout.json",
+      "exit_code": 0,
+      "cases": 10
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_logout_ack.cjs"
+      ],
+      "report": "personal-diary-logout-ack.json",
+      "exit_code": 0,
+      "cases": 12
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_export_controls.cjs"
+      ],
+      "report": "personal-export-controls.json",
+      "exit_code": 0,
+      "cases": 21
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/personal_history.cjs"
+      ],
+      "report": "personal-history-contracts.json",
+      "exit_code": 0,
+      "cases": 23
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/member_link_context.cjs"
+      ],
+      "report": "member-link-context.json",
+      "exit_code": 0,
+      "cases": 26
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/member_link_fragment.cjs"
+      ],
+      "report": "member-link-fragment.json",
+      "exit_code": 0,
+      "cases": 15
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/member_link_api.cjs"
+      ],
+      "report": "member-link-api.json",
+      "exit_code": 0,
+      "cases": 23
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/member_link_consumers.cjs"
+      ],
+      "report": "member-link-consumers.json",
+      "exit_code": 0,
+      "cases": 16
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/member_link_export.cjs"
+      ],
+      "report": "member-link-export.json",
+      "exit_code": 0,
+      "cases": 32
+    },
+    {
+      "command": [
+        "node",
+        "tests/e2e/member_link_controls.cjs",
+        "web/static/js/vinculos-ui.js"
+      ],
+      "report": "member-link-controls.json",
+      "exit_code": 0,
+      "cases": 3
+    }
+  ],
+  "guards": [
+    {
+      "command": [
+        "node",
+        "-e",
+        "const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-operation-contracts.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "18"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-operation-ambiguity.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "2"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-diary-api.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "7"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-diary-controller.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "18"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-diary-logout.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "10"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-diary-logout-ack.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "12"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-export-controls.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "21"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\personal-history-contracts.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "23"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\member-link-context.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "26"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\member-link-fragment.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "15"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\member-link-api.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "23"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\member-link-consumers.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "16"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\member-link-export.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "32"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "F:\\mb-r12-ci29-20261019\\scripts\\check_frontend_report.py",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-portable-vm18-after-20261019\\member-link-controls.json",
+        "--format",
+        "counts",
+        "--minimum",
+        "3"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "module_count": 18,
+  "assertion_executions": 300,
+  "sources_packages_stable": true,
+  "sources": 5153,
+  "packages": 89,
+  "scope": "Actual eighteen VM workflow modules and actual report guards. No browser, HTTP, PostgreSQL, Actions or runtime30 claim; source has uncommitted CI2 only."
+}

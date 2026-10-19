@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>Vínculo del cliente — Método Base</title>
+  <link rel="stylesheet" href="/static/css/vinculos.css">
+  <script src="/static/js/api.js" defer></script><script src="/static/js/vinculos-contexto.js" defer></script>
+  <script src="/static/js/vinculos-ui.js" defer></script><script src="/static/js/vinculos-profesional.js" defer></script>
+</head>
+<body><main class="link-page" id="professional-link-page" data-client-id="{{ client_id }}">
+  <a href="/clientes">Volver a clientes</a>
+  <h1>Vínculo y plan compartido</h1>
+  <p>Invita a la cuenta destinataria de este cliente. Generar un plan no lo publica: decide qué plan compartir en una acción aparte.</p>
+  <p id="professional-link-status" role="status" aria-live="polite">Verificando acceso…</p>
+  <div id="professional-link-error" class="link-error" role="alert" tabindex="-1" hidden></div>
+  <div class="link-actions"><button id="professional-link-refresh" type="button">Consultar estado</button></div>
+  <section id="professional-link-controls" hidden>
+    <form id="link-invite-form" hidden novalidate>
+      <h2>Solicitar una invitación</h2>
+      <label for="link-recipient">Correo de la cuenta destinataria</label>
+      <input id="link-recipient" type="email" maxlength="255" autocomplete="off" required>
+      <p>Escribe el correo que debe recibir el enlace. Una coincidencia con el correo del cliente no crea un vínculo. El destinatario puede registrarse después.</p>
+      <button id="link-issue" type="submit">Solicitar invitación</button>
+      <button id="link-issue-retry" type="button" hidden>Reintentar la misma solicitud</button>
+    </form>
+    <p>Solicitud recibida significa que se registró el intento. No confirma que el correo se entregó. Reenviar invalida el enlace anterior.</p>
+    <div id="professional-link-items"></div>
+    <button id="professional-link-more" type="button" hidden>Cargar vínculos anteriores</button>
+  </section>
+  <aside><h2>Datos personales separados</h2><p>Publicar o revocar este vínculo no cambia la cuenta, el equipo, el diario ni los planes personales del destinatario. Esta función no comparte su diario ni sus mediciones.</p></aside>
+</main></body></html>

@@ -56,12 +56,14 @@ jobs:
         python: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install --require-hashes -r requirements-test.lock
-      - name: History and landing CI delta preserves reviewed CI28 and all acceptance gates
-        run: python -X utf8 tests/verify_history_landing_ci.py --output "$RUNNER_TEMP/history-landing-ci"
+      - name: Member link CI29 preserves reviewed historical gates and requires current contracts
+        run: python -X utf8 tests/verify_member_links_ci.py --output "$RUNNER_TEMP/member-links-ci"
       - name: SaaS regression suite in fresh isolated data
         run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
       - name: Required SaaS cases cannot silently become skips
@@ -126,6 +128,20 @@ jobs:
         run: |
           node tests/e2e/personal_history.cjs > personal-history-contracts.json
           python scripts/check_frontend_report.py personal-history-contracts.json --format counts --minimum 23
+      - name: Member link API, context, fragment, consumers and seven-collection export contracts
+        run: |
+          node tests/e2e/member_link_context.cjs > member-link-context.json
+          python scripts/check_frontend_report.py member-link-context.json --format counts --minimum 26
+          node tests/e2e/member_link_fragment.cjs > member-link-fragment.json
+          python scripts/check_frontend_report.py member-link-fragment.json --format counts --minimum 15
+          node tests/e2e/member_link_api.cjs > member-link-api.json
+          python scripts/check_frontend_report.py member-link-api.json --format counts --minimum 23
+          node tests/e2e/member_link_consumers.cjs > member-link-consumers.json
+          python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16
+          node tests/e2e/member_link_export.cjs > member-link-export.json
+          python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
+          node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
+          python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -136,6 +152,7 @@ jobs:
             personal-diary-*.json
             personal-export-controls.json
             personal-history-contracts.json
+            member-link-*.json
           if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
@@ -194,6 +211,8 @@ jobs:
       METODOBASE_TEST_EVIDENCE_DIR: ${{ github.workspace }}/docs/implementation/20261018-evolution/evidence/ci-postgres
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -249,10 +268,20 @@ jobs:
       - name: Account recovery HTTP, one-use races and uncertain commits under restricted role
         run: python -X utf8 tests/run_isolated.py tests/integration_password_recovery_postgres.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery.xml
       - name: Encrypted PostgreSQL and object restoration into an empty owned database
-        run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py::test_encrypted_pg_restore_preserves_rows_constraints_and_private_objects tests/integration_recovery28_restore_review.py::test_revision28_restore_preserves_recovery_and_all_revision26_27_contracts -q --tb=short --junitxml=pytest-postgres-restore.xml
+        run: python -X utf8 tests/run_reviewed_ci28.py --output "$RUNNER_TEMP/reviewed-ci28-restore" --junitxml=pytest-postgres-restore.xml
+      - name: Member link migration preserves exact revision28, guards and rollback
+        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-migrations.xml
+      - name: Member link service authorization and bounded projection under restricted role
+        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_services.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-services.xml
+      - name: Member link real HTTP and worker contracts across both factories
+        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_http.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-http.xml
+      - name: Member proof races and exact publication identity CAS
+        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_service_races.py tests/integration_client_link_publication_cas.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-races.xml
+      - name: Current revision29 populated restore preserves all prior contracts and member links
+        run: python -X utf8 tests/run_isolated.py tests/integration_client_link_restore.py -q --tb=short --junitxml=pytest-postgres-member-restore.xml
       - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
         run: >-
-          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==21 and len(set(reports))==21, 'Expected 21 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
+          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==26 and len(set(reports))==26, 'Expected 26 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
           pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml
           pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml
           pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml
@@ -260,6 +289,9 @@ jobs:
           pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml
           pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml
           pytest-postgres-recovery-migrations.xml pytest-postgres-recovery.xml
+          pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml
+      - name: Current member link reports retain all selected PostgreSQL cases
+        run: python tests/check_member_link_reports.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -389,7 +421,7 @@ jobs:
             for attempt in $(seq 1 30); do
               if ! kill -0 "$browser_fixture_pid" 2>/dev/null; then cat "$fixture_log"; return 1; fi
               if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then
-                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 26 --revision 20261019_account_recovery 2>/dev/null; then ready=1; break; fi
+                if [ -z "$ready_marker" ] || python scripts/check_browser_fixture_startup.py "$fixture_log" --fixture "$ready_marker" --tables 29 --revision 20261019_client_account_links 2>/dev/null; then ready=1; break; fi
               fi
               sleep 1
             done
@@ -416,6 +448,21 @@ jobs:
           run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs "${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 17 named 8 tests/e2e/personal_export_context_browser.cjs "${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 4 strings 4 personal-diary-ui
           run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 10 strings 4 "" "" 0 strings 0 personal-history-ui
           run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 8 strings 4 "" "" 0 strings 0 public-landing
+      - name: Real member linking browser with restricted migrated PostgreSQL and private mail transport
+        env:
+          METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+          METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+          METODOBASE_TEST_PG_BIN: /usr/bin
+        run: |
+          export QA_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"
+          export QA_CHROME=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+          python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: member-link-real-browser
+          path: ${{ runner.temp }}/member-link-public
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:

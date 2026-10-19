@@ -630,6 +630,11 @@ function renderTabla(clientes) {
       }
     });
 
+    const accountLink = document.createElement('a');
+    accountLink.href = '/clientes/' + encodeURIComponent(c.id_cliente) + '/vinculacion';
+    accountLink.className = 'btn btn-sm btn-secondary';
+    accountLink.textContent = 'Vínculo de cuenta';
+    tr.querySelector('td:last-child').appendChild(accountLink);
     tbody.appendChild(tr);
   });
 }

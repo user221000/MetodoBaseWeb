@@ -1,0 +1,71 @@
+{
+  "kind": "R12_CANONICAL29_SCHEMA_MECHANISMS_AUTHOR_FREEZE_NOT_API_ACCEPTANCE",
+  "created_at": "2026-10-19T10:59:28.110197+00:00",
+  "product_base": "7cf4e6c996708f580054a798406ccdc3336a0fa6",
+  "evidence_head": "c12eb6372af7173c4858924a39b19e34f5684624",
+  "sources_after_tests_sha256": {
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-author.md": "950f90f8ba7a11396774df6e9053caf13d6972f5e78c5ba2fa97ee79e3b60f67",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-owner-lock-after.log": "6a69cc554982000a2c1f126c860a54b7147e18692e685a14333612abbf77a707",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-owner-lock-after.xml": "1f59b3c07c5fa621b262a7dd6da067902b08ecefdcb09a1ca040fee815478420",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-storage-schema.log": "d9c9a6d01302bfe3a34087d82c4cf40eb717d7dca39e949bebe2ed896dbcbe17",
+    "docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-storage-schema.xml": "988e4a2afab23af6caa58b5ad447bab4c5c074b3d5493bc95db4bc2ab4b7288f",
+    "tests/integration_client_link_canonical_postgres.py": "63eb08809952a78cb6108141b969c0a3e662ff58e006cee4d7bc77d5a7bdc304",
+    "tests/integration_client_link_migrations.py": "898836f9f2a167528e1925c689cbc701d43a02a204e03ea4a2a1679b9665f0bf",
+    "tests/integration_client_link_owner_lock_review.py": "114d6f5c1a52f96651100ec64ee50543d5fbc574515a490a659b3d7b75d4d5e0",
+    "tests/integration_client_link_projection_postgres.py": "200c6479c0b8600e2d221563de090a55ab60e011f5dd9e18b713f3e6c97571ff",
+    "tests/integration_client_link_root_review_adapted.py": "faf24534c95aa364c3e0784fa288b10cdf784b8e0a9557024a1fe342ac95338e",
+    "tests/test_client_link_models.py": "93d0fdc8b473cca5aadb336b90b0bde5e905121bfa60536d34d69b3be97213af",
+    "web/database/alembic/member_link_ddl/20261019_postgresql.sql": "b73758f8c96d47e3d921bc8cfd5dde93220a7d98238505ea21064a9321a0fbfc",
+    "web/database/alembic/member_link_ddl/20261019_sqlite.sql": "5c97334725ac8053353f8f1baf7fc77beb4dc92ca49c5697bf215d98dd874fc3",
+    "web/database/alembic/member_link_security_v1.py": "78a993a930d662b570eab23e82176999b35c2faeb22ea1e689bbe7402e28415a",
+    "web/database/alembic/schema_targets/20261019_client_account_links_postgresql.json": "086dbdd597f02dd15f809c0edb2a869ff28186f5d7d88fe569086bbacc46c252",
+    "web/database/alembic/schema_targets/20261019_client_account_links_sqlite.json": "1190194b67dc254a96e246d7e7bc353bcec6c3b03062d6796d3f7b9fbf2427ef",
+    "web/database/alembic/versions/20261019_client_account_links.py": "1504c74226f6cf202009a4b54e2cdaf702809312001be921bd91f8916eee0a6b",
+    "web/database/member_link_policy_v1.py": "b3dd5906b38e4247e70ebc962ad4bf80052840b7555e141154bf418e937218a2",
+    "web/database/member_link_projection_v1.py": "70abe70c17c029a5e9adf2409e9366afe2c7dfa94c454f085d874662d8ebe552",
+    "web/database/member_link_sqlite_v1.py": "70c2dab224ebdc668fb7a4dde978217d703229c4946c5ea661b869389c535631",
+    "web/database/models.py": "967ae1e734e4b322b3dd9c213d815bff37aa79900cc0418cfee2d2babc2e1e24",
+    "web/database/schema_control.py": "30df2eb37e3963d1c5f52cb27da0b4af846055b8775d65a6a3de091a00556a0e",
+    "web/database/tenant_context.py": "35d346dcdb3c17762ed441b6dd2a6de038f2029b76f68dc3ca1ebdc7de894e0a"
+  },
+  "historical_dependencies_total": 99,
+  "only_existing_dependencies_changed": [
+    "web/database/models.py",
+    "web/database/schema_control.py",
+    "web/database/tenant_context.py"
+  ],
+  "unchanged_original_dependencies": 96,
+  "historical_targets22_to28_changed": false,
+  "root_adapted_criteria_asserts_raises_ast_identical_after_table_normalization": true,
+  "tests": [
+    {
+      "suite": "canonical29-owner-lock-after",
+      "passed": 55,
+      "seconds": 38.51
+    },
+    {
+      "suite": "canonical29-storage-schema",
+      "passed": 31,
+      "seconds": 90.08,
+      "note": "Before final owner-lock guard; affected PG criteria rerun in55"
+    }
+  ],
+  "schema": {
+    "business_tables": 29,
+    "rls_families": 23,
+    "control_plane_tables": 6,
+    "previous_policies_unchanged": 20
+  },
+  "source_capture_phase": "post-run; exact sources kept quiet, independent pre/post run still required",
+  "api_implemented": false,
+  "providers_contacted": false,
+  "independent29_acceptance": false,
+  "pending": [
+    "API and mail double",
+    "Exact PDF capability",
+    "Full runtime RC compatibility",
+    "Historical gates",
+    "Restore29",
+    "Independent review"
+  ]
+}

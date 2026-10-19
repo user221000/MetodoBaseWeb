@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="16" time="9.492" timestamp="2026-10-19T05:41:48.823896-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_noncanonical_parent_cuts_current_recipient_grant[source_owner]" time="6.733"><failure message="AssertionError: assert 1 == 0&#10; +  where 1 = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5D580&gt;, {'id': 'b6f1dfde-467c-4188-9c69-43384ecc1165'})&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1E5D400&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5D580&gt; = text('SELECT count(*) FROM client_plan_publications WHERE id=:id')">tests\integration_client_link_canonical_v2_review.py:24: in test_noncanonical_parent_cuts_current_recipient_grant
+    assert db.scalar(text('SELECT count(*) FROM client_plan_publications WHERE id=:id'),{'id':identity})==0
+E   AssertionError: assert 1 == 0
+E    +  where 1 = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5D580&gt;, {'id': 'b6f1dfde-467c-4188-9c69-43384ecc1165'})
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1E5D400&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5D580&gt; = text('SELECT count(*) FROM client_plan_publications WHERE id=:id')</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_noncanonical_parent_cuts_current_recipient_grant[actor_parent]" time="0.123"><failure message="AssertionError: assert 1 == 0&#10; +  where 1 = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8D1C0&gt;, {'id': '2144b479-5139-4ae1-adc2-743ae85f697f'})&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1D8E120&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8D1C0&gt; = text('SELECT count(*) FROM client_plan_publications WHERE id=:id')">tests\integration_client_link_canonical_v2_review.py:24: in test_noncanonical_parent_cuts_current_recipient_grant
+    assert db.scalar(text('SELECT count(*) FROM client_plan_publications WHERE id=:id'),{'id':identity})==0
+E   AssertionError: assert 1 == 0
+E    +  where 1 = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8D1C0&gt;, {'id': '2144b479-5139-4ae1-adc2-743ae85f697f'})
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1D8E120&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8D1C0&gt; = text('SELECT count(*) FROM client_plan_publications WHERE id=:id')</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_owner_own_acceptance_requires_proof_until_deferred_commit[empty]" time="0.088"><failure message="Failed: DID NOT RAISE DBAPIError">tests\integration_client_link_canonical_v2_review.py:38: in test_owner_own_acceptance_requires_proof_until_deferred_commit
+    with pytest.raises(DBAPIError):db.commit()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE DBAPIError</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_owner_own_acceptance_requires_proof_until_deferred_commit[wrong_purpose]" time="0.091" /><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_owner_own_acceptance_requires_proof_until_deferred_commit[valid]" time="0.085" /><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[scope-null]" time="0.061"><failure message="AssertionError: assert None is False&#10; +  where None = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5F8C0&gt;)&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1E5EF90&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5F8C0&gt; = text(('SELECT ' + 'public.r12_gym_scope(NULL)'))">tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert None is False
+E    +  where None = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5F8C0&gt;)
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1E5EF90&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1E5F8C0&gt; = text(('SELECT ' + 'public.r12_gym_scope(NULL)'))</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[proof-null]" time="0.051" /><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[pending-null]" time="0.079" /><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[consumed-null]" time="0.069" /><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[recipient-null]" time="0.063" /><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[json-null]" time="0.056"><failure message="AssertionError: assert True is False&#10; +  where True = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC08F0&gt;)&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC0800&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC08F0&gt; = text(('SELECT ' + 'public.r12_unique_json(NULL::json)'))">tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert True is False
+E    +  where True = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC08F0&gt;)
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC0800&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC08F0&gt; = text(('SELECT ' + 'public.r12_unique_json(NULL::json)'))</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[depth-null]" time="0.056"><failure message="assert True is False&#10; +  where True = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC10A0&gt;)&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC0FB0&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC10A0&gt; = text(('SELECT ' + &quot;public.r12_unique_json('{}'::json,NULL)&quot;))">tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert True is False
+E    +  where True = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC10A0&gt;)
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC0FB0&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC10A0&gt; = text(('SELECT ' + "public.r12_unique_json('{}'::json,NULL)"))</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[allowed-null]" time="0.055"><failure message="assert True is False&#10; +  where True = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC17F0&gt;)&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC15B0&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC17F0&gt; = text(('SELECT ' + &quot;public.r12_keys('{}'::jsonb,NULL,ARRAY[]::text[])&quot;))">tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert True is False
+E    +  where True = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC17F0&gt;)
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC15B0&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1EC17F0&gt; = text(('SELECT ' + "public.r12_keys('{}'::jsonb,NULL,ARRAY[]::text[])"))</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[required-null]" time="0.055"><failure message="assert None is False&#10; +  where None = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1CFE510&gt;)&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC22A0&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1CFE510&gt; = text(('SELECT ' + &quot;public.r12_keys('{}'::jsonb,ARRAY[]::text[],NULL)&quot;))">tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert None is False
+E    +  where None = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1CFE510&gt;)
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1EC22A0&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1CFE510&gt; = text(('SELECT ' + "public.r12_keys('{}'::jsonb,ARRAY[]::text[],NULL)"))</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[positive-null]" time="0.063"><failure message="assert None is False&#10; +  where None = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8DBB0&gt;)&#10; +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1D8F080&gt;.scalar&#10; +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8DBB0&gt; = text(('SELECT ' + &quot;public.r12_number('0'::jsonb,NULL)&quot;))">tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert None is False
+E    +  where None = scalar(&lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8DBB0&gt;)
+E    +    where scalar = &lt;sqlalchemy.engine.base.Connection object at 0x000001F4D1D8F080&gt;.scalar
+E    +    and   &lt;sqlalchemy.sql.elements.TextClause object at 0x000001F4D1D8DBB0&gt; = text(('SELECT ' + "public.r12_number('0'::jsonb,NULL)"))</failure></testcase><testcase classname="tests.integration_client_link_canonical_v2_review" name="test_boolean_helpers_are_total_and_fail_closed_on_sql_null[food-flag-null]" time="0.256"><failure message="sqlalchemy.exc.StatementError: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter '1'&#10;[SQL: SELECT public.r12_food('{&quot;alimento&quot;:&quot;synthetic&quot;,&quot;gramos&quot;%(1)s}'::jsonb,NULL)]&#10;(Background on this error at: https://sqlalche.me/e/21/cd3x)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1801: in _execute_context
+    context = constructor(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1662: in _init_compiled
+    compiled.construct_params(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\compiler.py:2074: in construct_params
+    raise exc.InvalidRequestError(
+E   sqlalchemy.exc.InvalidRequestError: A value is required for bind parameter '1' (Background on this error at: https://sqlalche.me/e/21/cd3x)
+
+The above exception was the direct cause of the following exception:
+tests\integration_client_link_canonical_v2_review.py:58: in test_boolean_helpers_are_total_and_fail_closed_on_sql_null
+    with tx(lab,UA) as db:assert db.scalar(text('SELECT '+expression)) is False
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1347: in scalar
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:551: in _execute_on_scalar
+    return self._execute_on_connection(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1807: in _execute_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1801: in _execute_context
+    context = constructor(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1662: in _init_compiled
+    compiled.construct_params(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\compiler.py:2074: in construct_params
+    raise exc.InvalidRequestError(
+E   sqlalchemy.exc.StatementError: (sqlalchemy.exc.InvalidRequestError) A value is required for bind parameter '1'
+E   [SQL: SELECT public.r12_food('{"alimento":"synthetic","gramos"%(1)s}'::jsonb,NULL)]
+E   (Background on this error at: https://sqlalche.me/e/21/cd3x)</failure></testcase></testsuite></testsuites>

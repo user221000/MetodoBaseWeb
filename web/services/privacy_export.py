@@ -23,7 +23,7 @@ MAX_PAGE_SIZE = 200
 MAX_PLAN_JSON_CHARS = 250_000
 MAX_TEXT_CHARS = 131_072
 MAX_SECTION_BYTES = 131_072
-MAX_EXPORT_BYTES = 6 * MAX_SECTION_BYTES + 16_384
+MAX_EXPORT_BYTES = 7 * MAX_SECTION_BYTES + 16_384
 _MEALS = ("desayuno", "almuerzo", "comida", "cena")
 _ACCOUNT = ("id", "email", "nombre", "apellido", "tipo", "role", "fecha_registro")
 _PROFILE = ("id", "id_cliente", "nombre", "telefono", "email", "edad", "sexo",
@@ -212,7 +212,7 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
             "page_size": limit,
             "max_response_bytes": MAX_EXPORT_BYTES,
             "max_collection_bytes": MAX_SECTION_BYTES,
-            "coverage": "account_and_persisted_personal_space",
+            "coverage": "account_persisted_personal_space_and_active_member_link_metadata",
             "excluded_categories": ["professional_portfolio", "credentials_and_tokens", "provider_resource_identifiers",
                 "security_logs_and_metadata", "binary_objects", "browser_local_diary", "unverified_gym_member_links"],
             "legacy_plan_content": "Known nutrition fields only; unavailable or oversized bodies require authorized review.",
@@ -224,9 +224,17 @@ def export_personal_data(db: Session, subject_id: str, *, limit: int = 100, curs
         "purchases": {"records": [], "next_after": None},
         "generation_requests": {"records": [], "next_after": None},
         "personal_diary": {"records": [], "next_after": None},
+        "member_links": {"records": [], "next_after": None},
         "personal_subscription": None,
         "canonical_subscription": None,
     }
+    # An explicit recipient relationship is separate from the personal-space
+    # decision. In particular, a legitimate professional OWNER can export its
+    # own link metadata while all six portfolio/personal collections stay empty.
+    from web.services.client_link_export import export_member_links
+    result["member_links"] = export_member_links(db, user, limit=limit,
+        after=cursors.get("member_link"), maximum_bytes=MAX_SECTION_BYTES)
+    result["scope"]["member_links"] = "active_recipient_metadata_only"
     if not personal:
         return _finish(result)
     own_profiles = select(Cliente.id_cliente).where(Cliente.gym_id == user.id)

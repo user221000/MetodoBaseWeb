@@ -2,8 +2,9 @@
 (function () {
   'use strict';
   var section=document.getElementById('personal-data-section');if(!section)return;
-  var names=['profiles','plans','measurements','purchases','generation_requests','personal_diary'];
-  var cursorNames={profiles:'profile',plans:'plan',measurements:'measurement',purchases:'purchase',generation_requests:'generation',personal_diary:'diary'};
+  var names=['profiles','plans','measurements','purchases','generation_requests','personal_diary','member_links'];
+  var cursorNames={profiles:'profile',plans:'plan',measurements:'measurement',purchases:'purchase',generation_requests:'generation',personal_diary:'diary',member_links:'member_link'};
+  var contextApi=section.dataset.exportContext==='recipient' ? Api.vinculos : Api.usuario;
   var uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var status=document.getElementById('privacy-status'),errorBox=document.getElementById('privacy-error');
   var start=document.getElementById('privacy-start'),next=document.getElementById('privacy-next'),again=document.getElementById('privacy-again'),restart=document.getElementById('privacy-restart');
@@ -12,7 +13,7 @@
   function changed(){return Object.assign(new Error('La sesión cambió. Vuelve a abrir tus datos desde la cuenta actual.'),{code:'session_changed'});}
   function check(context,ticket){
     if(invalid || ticket!==epoch || !context)throw changed();
-    Api.usuario.validarContexto(context);
+    contextApi.validarContexto(context);
   }
   function invalidate(error){
     epoch++;invalid=true;pageContext=null;busy=false;discard(true);controls();
@@ -21,11 +22,22 @@
     errorBox.hidden=false;errorBox.focus();
   }
   async function verify(context,ticket){
-    try{check(context,ticket);await Api.usuario.verificarContexto(context);check(context,ticket);}
+    try{check(context,ticket);await contextApi.verificarContexto(context);check(context,ticket);}
     catch(error){if(ticket===epoch && !invalid)invalidate(error);throw error;}
   }
   function protocol(){throw new Error('No pudimos verificar esta parte. Vuelve a intentarlo; no se preparó un archivo nuevo.');}
-  function recordId(value,name){return ['purchases','generation_requests','personal_diary'].includes(name) ? typeof value==='string' && uuid.test(value) : Number.isSafeInteger(value) && value>0;}
+  function recordId(value,name){return ['purchases','generation_requests','personal_diary','member_links'].includes(name) ? typeof value==='string' && uuid.test(value) : Number.isSafeInteger(value) && value>0;}
+  function volume(value){
+    var text=JSON.stringify(value),bytes=0;
+    for(var character of text){var point=character.codePointAt(0);bytes+=point<128?1:point<2048?2:point<65536?3:4;}
+    return bytes;
+  }
+  function memberRecord(record){
+    var allowed=['id','status','version','gym_name','client_display_name','accepted_at','publication'];
+    if(Object.keys(record).length!==allowed.length || Object.keys(record).some(function(key){return !allowed.includes(key);}) || record.status!=='active' || !Number.isSafeInteger(record.version) || record.version<1 || record.version>2147483647 || typeof record.gym_name!=='string' || typeof record.client_display_name!=='string' || typeof record.accepted_at!=='string' || !Number.isFinite(Date.parse(record.accepted_at)))protocol();
+    var published=record.publication;
+    if(published!==null && (!published || Object.keys(published).length!==3 || Object.keys(published).some(function(key){return !['id','version','published_at'].includes(key);}) || !recordId(published.id,'member_links') || !Number.isSafeInteger(published.version) || published.version<1 || published.version>2147483647 || typeof published.published_at!=='string' || !Number.isFinite(Date.parse(published.published_at))))protocol();
+  }
   function diaryDate(value){
     if(typeof value!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
     var parts=value.split('-').map(Number),year=parts[0],month=parts[1],day=parts[2],leap=year%4===0 && (year%100!==0 || year%400===0);
@@ -35,8 +47,16 @@
     var countRow=document.createElement('div'),countLabel=document.createElement('dt'),countValue=document.createElement('dd');
     countLabel.textContent='Días de diario';countValue.dataset.exportCount='personal_diary';countValue.textContent='0';countRow.append(countLabel,countValue);document.getElementById('privacy-counts').append(countRow);
   }
+  if(!section.querySelector('[data-export-count="member_links"]')){
+    var linkRow=document.createElement('div'),linkLabel=document.createElement('dt'),linkValue=document.createElement('dd');
+    linkLabel.textContent='Vínculos activos propios';linkValue.dataset.exportCount='member_links';linkValue.textContent='0';linkRow.append(linkLabel,linkValue);document.getElementById('privacy-counts').append(linkRow);
+  }
+  if(section.dataset.exportContext!=='recipient'){
+    var linkScope=document.createElement('p');linkScope.className='privacy-detail';
+    linkScope.textContent='La descarga también incluye metadatos de tus vínculos activos propios. Este conjunto no incorpora los planes o PDF del gimnasio, su cartera ni relaciones revocadas.';section.append(linkScope);
+  }
   function controls(){
-    if(!invalid && pageContext){try{Api.usuario.validarContexto(pageContext);}catch(error){invalidate(error);return;}}
+    if(!invalid && pageContext){try{contextApi.validarContexto(pageContext);}catch(error){invalidate(error);return;}}
     var received=state && state.part>0;
     start.hidden=!!received && !state.complete;start.textContent=received ? 'Empezar otra descarga' : failed ? 'Volver a intentar descarga' : 'Descargar mis datos';
     next.hidden=!received || state.complete;next.textContent=failed ? 'Volver a intentar esta parte' : 'Descargar siguiente parte';
@@ -46,7 +66,7 @@
     document.getElementById('privacy-counts').hidden=!received;
     document.getElementById('privacy-content-warning').hidden=!state || state.contentReview===0;
     names.forEach(function(name){section.querySelector('[data-export-count="'+name+'"]').textContent=state ? state.counts[name].toLocaleString('es-MX') : '0';});
-    if(!invalid && pageContext){try{Api.usuario.validarContexto(pageContext);}catch(error){invalidate(error);}}
+    if(!invalid && pageContext){try{contextApi.validarContexto(pageContext);}catch(error){invalidate(error);}}
   }
   function release(url){var timer=urls.get(url);if(timer)clearTimeout(timer);try{URL.revokeObjectURL(url);}finally{urls.delete(url);}}
   function discard(revokeNow){state=null;lastFile=null;failed=false;if(revokeNow)urls.forEach(function(_,url){release(url);});}
@@ -56,17 +76,22 @@
     names.forEach(function(name){value.done[name]=false;value.counts[name]=0;value.pages[name]=0;value.seen[name]=[];});return value;
   }
   function verified(data,expected){
-    if(!data || data.format_version!==1 || typeof data.exported_at!=='string' || !Number.isFinite(Date.parse(data.exported_at)) || !data.account || data.account.id!==expected || !Object.prototype.hasOwnProperty.call(data,'personal_subscription') || !Object.prototype.hasOwnProperty.call(data,'canonical_subscription') || !data.scope || data.scope.consistency!=='live_keyset_pages' || data.scope.coverage!=='account_and_persisted_personal_space' || typeof data.scope.personal_space!=='boolean' || typeof data.scope.professional_membership!=='boolean' || !Number.isInteger(data.scope.page_size) || data.scope.page_size<1 || data.scope.page_size>200 || !Array.isArray(data.scope.excluded_categories) || !data.scope.excluded_categories.length || !data.scope.excluded_categories.every(function(value){return typeof value==='string';})){
+    if(!data || data.format_version!==1 || typeof data.exported_at!=='string' || !Number.isFinite(Date.parse(data.exported_at)) || !data.account || data.account.id!==expected || !Object.prototype.hasOwnProperty.call(data,'personal_subscription') || !Object.prototype.hasOwnProperty.call(data,'canonical_subscription') || !data.scope || data.scope.consistency!=='live_keyset_pages' || data.scope.coverage!=='account_persisted_personal_space_and_active_member_link_metadata' || data.scope.member_links!=='active_recipient_metadata_only' || typeof data.scope.personal_space!=='boolean' || typeof data.scope.professional_membership!=='boolean' || !Number.isInteger(data.scope.page_size) || data.scope.page_size<1 || data.scope.page_size>200 || !Array.isArray(data.scope.excluded_categories) || !data.scope.excluded_categories.length || !data.scope.excluded_categories.every(function(value){return typeof value==='string';})){
       if(data && data.account && data.account.id!==expected)throw changed();protocol();
     }
+    if(volume(data)>933888)protocol();
+    var metadataOnlyOwner=section.dataset.exportContext==='recipient' && pageContext && pageContext.me.tipo==='gym' && pageContext.me.role==='owner' && !pageContext.me.team_gym_id;
+    if(metadataOnlyOwner && data.scope.personal_space)protocol();
     names.forEach(function(name){
       var collection=data[name];
-      if(!collection || !Array.isArray(collection.records) || collection.records.length>data.scope.page_size || !Object.prototype.hasOwnProperty.call(collection,'next_after'))protocol();
+      if(!collection || !Array.isArray(collection.records) || collection.records.length>data.scope.page_size || !Object.prototype.hasOwnProperty.call(collection,'next_after') || volume(collection)>131072)protocol();
       var ids=collection.records.map(function(record){if(!record || !recordId(record.id,name))protocol();return record.id;});
       if(new Set(ids).size!==ids.length)protocol();
       var cursorValues=name==='personal_diary' ? collection.records.map(function(record){if(!diaryDate(record.local_date))protocol();return record.local_date;}) : ids;
       if(name==='personal_diary' && cursorValues.some(function(value,index){return index>0 && value<=cursorValues[index-1];}))protocol();
       if(!data.scope.personal_space && ['profiles','plans','measurements','personal_diary'].includes(name) && ids.length)protocol();
+      if(section.dataset.exportContext==='recipient' && (!data.scope.personal_space || metadataOnlyOwner) && name!=='member_links' && ids.length)protocol();
+      if(name==='member_links')collection.records.forEach(memberRecord);
       var after=collection.next_after;
       if(after!==null && (!(name==='personal_diary' ? diaryDate(after) : recordId(after,name)) || !cursorValues.length || after!==cursorValues[cursorValues.length-1]))protocol();
       if(!state.done[name]){
@@ -155,7 +180,7 @@
   window.addEventListener('pageshow',function(event){if(event.persisted)invalidate(changed());});
   (async function(){var ticket=epoch;try{
       if(window.SessionIdentity){await SessionIdentity.ready;if(ticket!==epoch || invalid)return;}
-      var context=await Api.usuario.contexto();check(context,ticket);pageContext=context;
+      var context=await contextApi.contexto();check(context,ticket);pageContext=context;
       status.textContent='Descarga tus datos por partes. El archivo indicará su alcance y contenido.';
       check(context,ticket);
     }catch(error){if(ticket===epoch && !invalid)invalidate(error);}finally{controls();}})();

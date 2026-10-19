@@ -18,6 +18,7 @@ SCHEMA_CONTRACTS = {
     "20261018_individual_publication": "20261018_individual_publication",
     "20261019_personal_diary": "20261019_personal_diary",
     "20261019_account_recovery": "20261019_account_recovery",
+    "20261019_client_account_links": "20261019_client_account_links",
 }
 
 
@@ -70,6 +71,10 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
                 from web.database.tenant_policy import tenant_security_signature
                 if tenant_security_signature(connection) != contract["tenant_security"]:
                     raise RuntimeError("Database tenant policies differ from the reviewed application boundary")
+            if "member_link_security" in contract:
+                from web.database.alembic.member_link_security_v1 import member_link_security_signature
+                if member_link_security_signature(connection) != contract["member_link_security"]:
+                    raise RuntimeError("Database member link guards differ from the reviewed application boundary")
             if expected_revision is not None:
                 # Explicit historical migration acceptance uses that revision's
                 # frozen model, not the current application's newer metadata.

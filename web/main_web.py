@@ -152,8 +152,6 @@ def create_app() -> FastAPI:
     )
 
     # ── Security Headers + Compression ───────────────────────────────────────
-    app.add_middleware(SecurityHeadersMiddleware)
-    app.add_middleware(RequestIDMiddleware)
     app.add_middleware(GZipMiddleware, minimum_size=500)
 
     # ── CSRF Protection ──────────────────────────────────────────────────────
@@ -239,6 +237,8 @@ def create_app() -> FastAPI:
     app.include_router(personal_diary_router, prefix="/api")
     from web.routes.password_recovery import router as password_recovery_router
     app.include_router(password_recovery_router, prefix="/api")
+    from web.routes.client_links import router as client_links_router
+    app.include_router(client_links_router, prefix="/api")
 
     from web.routes.privacy import router as privacy_router
     app.include_router(privacy_router, prefix="/api")
@@ -354,6 +354,12 @@ def create_app() -> FastAPI:
 
     # ── Rutas HTML (páginas) — now served by web/routes/pages.py ────────────
 
+    # Starlette wraps the last registered middleware around earlier ones.
+    # Include early rate/CSRF/tenant responses in the same security policy and
+    # assign the nonce before any inner middleware or template can use it.
+    app.add_middleware(SecurityHeadersMiddleware)
+    # Keep correlation around responses created by the private error boundary.
+    app.add_middleware(RequestIDMiddleware)
     return app
 
 

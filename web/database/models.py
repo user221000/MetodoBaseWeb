@@ -216,6 +216,7 @@ class Cliente(Base):
     planes = relationship("PlanGenerado", back_populates="cliente", cascade="all, delete-orphan")
 
     __table_args__ = (
+        UniqueConstraint('gym_id', 'id_cliente', name='uq_client_account_owner'),
         Index("ix_clientes_gym_activo", "gym_id", "activo"),
         Index("ix_clientes_gym_nombre", "gym_id", "nombre"),
         Index("ix_clientes_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
@@ -256,6 +257,7 @@ class PlanGenerado(Base):
     cliente = relationship("Cliente", back_populates="planes")
 
     __table_args__ = (
+        UniqueConstraint('gym_id', 'id_cliente', 'id', name='uq_member_plan_source_owner'),
         ForeignKeyConstraint(["gym_id", "pdf_object_id"], ["stored_objects.gym_id", "stored_objects.id"],
                              name="fk_plan_pdf_object_owner", ondelete="RESTRICT"),
         Index("ix_planes_gym_fecha", "gym_id", "fecha_generacion"),
@@ -882,4 +884,124 @@ class PersonalDiaryDay(Base):
         CheckConstraint("water_ml BETWEEN 0 AND 20000", name="ck_personal_diary_water"),
         CheckConstraint("version BETWEEN 1 AND 2147483647", name="ck_personal_diary_version"),
         CheckConstraint("length(meals_json) BETWEEN 2 AND 65536", name="ck_personal_diary_content_size"),
+    )
+
+
+class ClientAccountLink(Base):
+    """Explicit client-to-account association; never a personal-profile adoption."""
+    __tablename__ = 'client_account_links'
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    gym_id = Column(String(36), ForeignKey('usuarios.id', ondelete='RESTRICT'), nullable=False, index=True)
+    client_id = Column(String(36), nullable=False)
+    user_id = Column(String(36), ForeignKey('usuarios.id', ondelete='RESTRICT'), nullable=True, index=True)
+    status = Column(String(10), nullable=False, default='pending')
+    version = Column(Integer, nullable=False, default=1, server_default='1')
+    gym_name = Column(String(255), nullable=False)
+    client_display_name = Column(String(200), nullable=False)
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    accepted_at = Column(UTCDateTime, nullable=True)
+    revoked_at = Column(UTCDateTime, nullable=True)
+
+    __table_args__ = (
+        ForeignKeyConstraint(['gym_id', 'client_id'], ['clientes.gym_id', 'clientes.id_cliente'],
+                             name='fk_client_link_owner', ondelete='RESTRICT'),
+        UniqueConstraint('gym_id', 'client_id', 'id', name='uq_client_link_resource'),
+        UniqueConstraint('id', 'gym_id', 'client_id', 'user_id', name='uq_client_link_acceptance'),
+        CheckConstraint('length(id) = 36', name='ck_client_link_id'),
+        CheckConstraint("status IN ('pending','active','revoked')", name='ck_client_link_status'),
+        CheckConstraint('version BETWEEN 1 AND 2147483647', name='ck_client_link_version'),
+        CheckConstraint('length(gym_name) BETWEEN 1 AND 255 AND length(client_display_name) BETWEEN 1 AND 200', name='ck_client_link_labels'),
+        CheckConstraint("(status='pending' AND user_id IS NULL AND accepted_at IS NULL AND revoked_at IS NULL) OR "
+                        "(status='active' AND user_id IS NOT NULL AND accepted_at IS NOT NULL AND revoked_at IS NULL) OR "
+                        "(status='revoked' AND revoked_at IS NOT NULL AND ((user_id IS NULL AND accepted_at IS NULL) OR (user_id IS NOT NULL AND accepted_at IS NOT NULL)))", name='ck_client_link_state'),
+        Index('uq_client_link_current', 'gym_id', 'client_id', unique=True,
+              postgresql_where=text("status IN ('pending','active')"), sqlite_where=text("status IN ('pending','active')")),
+        Index('uq_client_link_recipient', 'gym_id', 'user_id', unique=True,
+              postgresql_where=text("status='active'"), sqlite_where=text("status='active'")),
+    )
+
+
+class ClientLinkInvitation(Base):
+    """One-use recipient proof, scoped only to the exact link and purpose."""
+    __tablename__ = 'client_link_invitations'
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    link_id = Column(String(36), nullable=False, unique=True)
+    gym_id = Column(String(36), nullable=False, index=True)
+    client_id = Column(String(36), nullable=False)
+    recipient_email = Column(String(255), nullable=False)
+    token_hash = Column(String(64), nullable=False, unique=True)
+    expires_at = Column(UTCDateTime, nullable=False)
+    status = Column(String(10), nullable=False, default='pending')
+    issued_by = Column(String(36), ForeignKey('usuarios.id', ondelete='RESTRICT'), nullable=False)
+    consumed_by = Column(String(36), ForeignKey('usuarios.id', ondelete='RESTRICT'), nullable=True)
+    consumed_at = Column(UTCDateTime, nullable=True)
+    revoked_at = Column(UTCDateTime, nullable=True)
+    version = Column(Integer, nullable=False, default=1, server_default='1')
+    request_key = Column(String(128), nullable=False)
+    payload_hash = Column(String(64), nullable=False)
+    created_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    __table_args__ = (
+        ForeignKeyConstraint(['gym_id', 'client_id', 'link_id'], ['client_account_links.gym_id', 'client_account_links.client_id', 'client_account_links.id'],
+                             name='fk_client_invitation_link', ondelete='RESTRICT'),
+        ForeignKeyConstraint(['link_id', 'gym_id', 'client_id', 'consumed_by'], ['client_account_links.id', 'client_account_links.gym_id', 'client_account_links.client_id', 'client_account_links.user_id'],
+                             name='fk_client_invitation_consumption', ondelete='NO ACTION', deferrable=True, initially='DEFERRED'),
+        UniqueConstraint('gym_id', 'request_key', name='uq_client_invitation_request'),
+        CheckConstraint('length(id) = 36', name='ck_client_invitation_id'),
+        CheckConstraint('length(token_hash) = 64 AND length(payload_hash) = 64', name='ck_client_invitation_hashes'),
+        CheckConstraint('length(request_key) BETWEEN 1 AND 128', name='ck_client_invitation_request'),
+        CheckConstraint("length(recipient_email) BETWEEN 3 AND 255 AND recipient_email=lower(trim(recipient_email))", name='ck_client_invitation_email'),
+        CheckConstraint("status IN ('pending','consumed','revoked')", name='ck_client_invitation_status'),
+        CheckConstraint('version BETWEEN 1 AND 2147483647', name='ck_client_invitation_version'),
+        CheckConstraint("(status='consumed' AND consumed_by IS NOT NULL AND consumed_at IS NOT NULL AND consumed_at<expires_at AND revoked_at IS NULL) OR "
+                        "(status='pending' AND consumed_by IS NULL AND consumed_at IS NULL AND revoked_at IS NULL) OR "
+                        "(status='revoked' AND consumed_by IS NULL AND consumed_at IS NULL AND revoked_at IS NOT NULL)", name='ck_client_invitation_state'),
+    )
+
+
+class ClientPlanPublication(Base):
+    """Immutable bounded projection explicitly delivered to a particular link."""
+    __tablename__ = 'client_plan_publications'
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    gym_id = Column(String(36), nullable=False, index=True)
+    client_id = Column(String(36), nullable=False)
+    link_id = Column(String(36), nullable=False, index=True)
+    source_plan_id = Column(Integer, nullable=False)
+    schema_version = Column(Integer, nullable=False, default=1, server_default='1')
+    publication_version = Column(Integer, nullable=False, default=1, server_default='1')
+    status = Column(String(10), nullable=False, default='published')
+    published_by = Column(String(36), ForeignKey('usuarios.id', ondelete='RESTRICT'), nullable=False)
+    published_at = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    withdrawn_at = Column(UTCDateTime, nullable=True)
+    plan_json = Column(Text, nullable=False)
+    plan_sha256 = Column(String(64), nullable=False)
+    source_object_id = Column(String(32), nullable=True)
+    object_key = Column(String(512), nullable=True)
+    content_type = Column(String(128), nullable=True)
+    byte_size = Column(Integer, nullable=True)
+    sha256 = Column(String(64), nullable=True)
+    storage_backend = Column(String(10), nullable=True)
+
+    __table_args__ = (
+        ForeignKeyConstraint(['gym_id', 'client_id', 'link_id'], ['client_account_links.gym_id', 'client_account_links.client_id', 'client_account_links.id'],
+                             name='fk_client_publication_link', ondelete='RESTRICT'),
+        ForeignKeyConstraint(['gym_id', 'client_id', 'source_plan_id'], ['planes_generados.gym_id', 'planes_generados.id_cliente', 'planes_generados.id'],
+                             name='fk_client_publication_source', ondelete='RESTRICT'),
+        ForeignKeyConstraint(['gym_id', 'source_object_id'], ['stored_objects.gym_id', 'stored_objects.id'],
+                             name='fk_client_publication_object', ondelete='RESTRICT'),
+        CheckConstraint('length(id) = 36', name='ck_client_publication_id'),
+        CheckConstraint('schema_version = 1', name='ck_client_publication_schema'),
+        CheckConstraint('publication_version BETWEEN 1 AND 2147483647', name='ck_client_publication_version'),
+        CheckConstraint("status IN ('published','withdrawn')", name='ck_client_publication_status'),
+        CheckConstraint("(status='published' AND withdrawn_at IS NULL) OR (status='withdrawn' AND withdrawn_at IS NOT NULL)", name='ck_client_publication_state'),
+        CheckConstraint('length(plan_json) BETWEEN 2 AND 262144 AND length(plan_sha256) = 64', name='ck_client_publication_content'),
+        CheckConstraint("(source_object_id IS NULL AND object_key IS NULL AND content_type IS NULL AND byte_size IS NULL AND sha256 IS NULL AND storage_backend IS NULL) OR "
+                        "(source_object_id IS NOT NULL AND length(source_object_id)=32 AND object_key IS NOT NULL AND length(object_key) BETWEEN 1 AND 512 AND content_type IS NOT NULL AND content_type='application/pdf' AND byte_size IS NOT NULL AND byte_size BETWEEN 1 AND 67108864 AND sha256 IS NOT NULL AND length(sha256)=64 AND storage_backend IS NOT NULL AND storage_backend IN ('local','s3'))", name='ck_client_publication_pdf'),
+        Index('uq_client_publication_current', 'link_id', unique=True,
+              postgresql_where=text("status='published'"), sqlite_where=text("status='published'")),
     )

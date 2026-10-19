@@ -42,7 +42,7 @@ def test_empty_and_populated27_upgrade_repeat_and_preserve_authority(migration_d
     with pytest.raises(RuntimeError,match='revision'):
         verify_runtime_schema(engine)
     run_migration(url,'db_bootstrap.py','--revision',REVISION)
-    verify_runtime_schema(engine)
+    verify_runtime_schema(engine,expected_revision=REVISION)
     assert snapshot(engine,columns)[1]==before
     with engine.connect() as db:
         assert len(inspect(db).get_table_names())==27  # 26 business tables, no new authority table.

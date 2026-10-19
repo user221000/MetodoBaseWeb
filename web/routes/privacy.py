@@ -34,6 +34,7 @@ def export_personal(
     after_purchase: Annotated[str | None, Query(min_length=36, max_length=36), AfterValidator(_uuid_cursor)] = None,
     after_generation: Annotated[str | None, Query(min_length=36, max_length=36), AfterValidator(_uuid_cursor)] = None,
     after_diary: Annotated[str | None, Query(pattern=r'^\d{4}-\d{2}-\d{2}$')] = None,
+    after_member_link: Annotated[str | None, Query(min_length=36, max_length=36), AfterValidator(_uuid_cursor)] = None,
 ):
     try:
         diary_cursor = date.fromisoformat(after_diary) if after_diary is not None else None
@@ -43,6 +44,7 @@ def export_personal(
         "profile": after_profile, "plan": after_plan, "measurement": after_measurement,
         "purchase": after_purchase, "generation": after_generation,
         "diary": diary_cursor,
+        "member_link": after_member_link,
     })
     return JSONResponse(data, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
         "X-Content-Type-Options": "nosniff",

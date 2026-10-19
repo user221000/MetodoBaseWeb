@@ -1,0 +1,49 @@
+{
+  "tenant_security_differences": [
+    {
+      "key": "policies",
+      "index": 4,
+      "expected": [
+        "client_account_links",
+        "r12_link_update",
+        "PERMISSIVE",
+        "{public}",
+        "UPDATE",
+        "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+        "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY ((ARRAY['pending'::character varying, 'revoked'::character varying])::text[]))) OR (((status)::text = 'active'::text) AND r12_consumed_proof(client_account_links.*)) OR (((status)::text = 'revoked'::text) AND ((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()))"
+      ],
+      "actual": [
+        "client_account_links",
+        "r12_link_update",
+        "PERMISSIVE",
+        "{public}",
+        "UPDATE",
+        "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+        "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY[('pending'::character varying)::text, ('revoked'::character varying)::text]))) OR (((status)::text = 'active'::text) AND r12_consumed_proof(client_account_links.*)) OR (((status)::text = 'revoked'::text) AND ((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()))"
+      ]
+    },
+    {
+      "key": "policies",
+      "index": 7,
+      "expected": [
+        "client_link_invitations",
+        "r12_invitation_update",
+        "PERMISSIVE",
+        "{public}",
+        "UPDATE",
+        "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+        "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY ((ARRAY['pending'::character varying, 'revoked'::character varying])::text[])) AND (consumed_by IS NULL) AND (consumed_at IS NULL)) OR (r12_proof(client_link_invitations.*) AND ((status)::text = 'consumed'::text) AND ((consumed_by)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND (consumed_at < expires_at)))"
+      ],
+      "actual": [
+        "client_link_invitations",
+        "r12_invitation_update",
+        "PERMISSIVE",
+        "{public}",
+        "UPDATE",
+        "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+        "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY[('pending'::character varying)::text, ('revoked'::character varying)::text])) AND (consumed_by IS NULL) AND (consumed_at IS NULL)) OR (r12_proof(client_link_invitations.*) AND ((status)::text = 'consumed'::text) AND ((consumed_by)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND (consumed_at < expires_at)))"
+      ]
+    }
+  ],
+  "member_functions_triggers_equal": true
+}

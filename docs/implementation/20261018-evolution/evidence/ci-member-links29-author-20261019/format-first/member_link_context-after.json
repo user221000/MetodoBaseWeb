@@ -1,0 +1,111 @@
+{
+  "scope": "Offline VM with actual Api and new lifecycle; all transports/Storage synthetic",
+  "passed": 26,
+  "total": 26,
+  "results": [
+    {
+      "case": "personal VIEWER uses only canonical auth/me context",
+      "passed": true
+    },
+    {
+      "case": "professional OWNER receiving a link uses only canonical auth/me context",
+      "passed": true
+    },
+    {
+      "case": "historical gym member uses only canonical auth/me context",
+      "passed": true
+    },
+    {
+      "case": "ambiguous OWNER is not normalized or given a personal profile by the helper",
+      "passed": true
+    },
+    {
+      "case": "malformed canonical identity is rejected before consumers",
+      "passed": true
+    },
+    {
+      "case": "canonical id change invalidates the captured resource context",
+      "passed": true
+    },
+    {
+      "case": "canonical role change invalidates the captured resource context",
+      "passed": true
+    },
+    {
+      "case": "canonical team_gym_id change invalidates the captured resource context",
+      "passed": true
+    },
+    {
+      "case": "canonical session_version change invalidates the captured resource context",
+      "passed": true
+    },
+    {
+      "case": "canonical tipo change invalidates the captured resource context",
+      "passed": true
+    },
+    {
+      "case": "late successful auth/me response cannot adopt account B",
+      "passed": true
+    },
+    {
+      "case": "account change while parsing auth/me is fenced",
+      "passed": true
+    },
+    {
+      "case": "same-session refresh still allows canonical context verification",
+      "passed": true
+    },
+    {
+      "case": "Storage failure prevents context I/O without touching unrelated keys",
+      "passed": true
+    },
+    {
+      "case": "explicit new login rejects the prior context and allows a fresh context",
+      "passed": true
+    },
+    {
+      "case": "pending resource result is discarded and all private scopes clear on account change",
+      "passed": true
+    },
+    {
+      "case": "storage synchronously clears resource scopes",
+      "passed": true
+    },
+    {
+      "case": "storage synchronously clears resource scopes",
+      "passed": true
+    },
+    {
+      "case": "metodobase-session-changed synchronously clears resource scopes",
+      "passed": true
+    },
+    {
+      "case": "pagehide synchronously clears resource scopes",
+      "passed": true
+    },
+    {
+      "case": "unrelated Storage event does not adopt or delete legacy data",
+      "passed": true
+    },
+    {
+      "case": "switching a selected link cancels only its resource scope",
+      "passed": true
+    },
+    {
+      "case": "controls invalidating synchronously cannot continue rendering private data",
+      "passed": true
+    },
+    {
+      "case": "canonical SV change after resource response prevents a return to the view",
+      "passed": true
+    },
+    {
+      "case": "late failed resource response also verifies the session before reporting an error",
+      "passed": true
+    },
+    {
+      "case": "one failing cleanup callback cannot leave sibling scopes active",
+      "passed": true
+    }
+  ]
+}

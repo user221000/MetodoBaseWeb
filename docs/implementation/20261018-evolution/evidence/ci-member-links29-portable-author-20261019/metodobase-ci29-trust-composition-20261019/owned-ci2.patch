@@ -1,0 +1,141 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index ad64e51..dfdc68a 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -140,6 +140,8 @@ jobs:
+           python scripts/check_frontend_report.py member-link-consumers.json --format counts --minimum 16
+           node tests/e2e/member_link_export.cjs > member-link-export.json
+           python scripts/check_frontend_report.py member-link-export.json --format counts --minimum 32
++          node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
++          python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
+       - uses: actions/upload-artifact@v4
+         if: always()
+         with:
+@@ -446,6 +448,21 @@ jobs:
+           run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs "${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 17 named 8 tests/e2e/personal_export_context_browser.cjs "${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 4 strings 4 personal-diary-ui
+           run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 10 strings 4 "" "" 0 strings 0 personal-history-ui
+           run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 8 strings 4 "" "" 0 strings 0 public-landing
++      - name: Real member linking browser with restricted migrated PostgreSQL and private mail transport
++        env:
++          METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
++          METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
++          METODOBASE_TEST_PG_BIN: /usr/bin
++        run: |
++          export QA_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"
++          export QA_CHROME=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
++          python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794
++      - uses: actions/upload-artifact@v4
++        if: always()
++        with:
++          name: member-link-real-browser
++          path: ${{ runner.temp }}/member-link-public
++          if-no-files-found: error
+       - uses: actions/upload-artifact@v4
+         if: always()
+         with:
+diff --git a/tests/e2e/member_link_export.cjs b/tests/e2e/member_link_export.cjs
+index 0553d19..98b6b30 100644
+--- a/tests/e2e/member_link_export.cjs
++++ b/tests/e2e/member_link_export.cjs
+@@ -22,7 +22,7 @@ test('Recipient OWNER exports only own active metadata without adopting six pers
+ test('Missing seventh dataset fails the whole page without claiming completion',async()=>{
+  const e=await fixture();e.setTransport(async()=>{const d=page();delete d.member_links;return Response.json(d);});await e.prepare();assert.equal(e.downloads.length,0);assert.equal(e.node('privacy-error').hidden,false);assert(!e.node('privacy-status').textContent.includes('todas las partes'));
+ });
+-for(const bad of [{...linked(),status:'revoked'},{...linked(),recipient_user_id:'synthetic-foreign'},{...linked(),publication:{id:LINK_B,version:1,published_at:'2026-10-19T12:00:00Z',object_key:'must-not-export'}}])test('Non-contract or revoked member metadata is rejected entirely: '+Object.keys(bad).at(-1),async()=>{
++for(const [field,bad] of [['status',{...linked(),status:'revoked'}],['recipient_user_id',{...linked(),recipient_user_id:'synthetic-foreign'}],['publication',{...linked(),publication:{id:LINK_B,version:1,published_at:'2026-10-19T12:00:00Z',object_key:'must-not-export'}}]])test('Non-contract or revoked member metadata is rejected entirely: '+field,async()=>{
+  const e=await fixture();e.setTransport(async()=>{const d=page();d.member_links.records=[bad];return Response.json(d);});await e.prepare();assert.equal(e.downloads.length,0);assert.equal(e.node('privacy-error').hidden,false);e.intact();
+ });
+ test('Oversize member section is rejected before constructing an export Blob',async()=>{
+diff --git a/tests/verify_member_links_ci.py b/tests/verify_member_links_ci.py
+index 8cd820b..59fe1c9 100644
+--- a/tests/verify_member_links_ci.py
++++ b/tests/verify_member_links_ci.py
+@@ -34,10 +34,13 @@ WIRING_STEP = {
+     'run': 'python -X utf8 tests/verify_member_links_ci.py --output "$RUNNER_TEMP/member-links-ci"',
+ }
+ VM_MODULES = {'member_link_context': 26, 'member_link_fragment': 15,
+-              'member_link_api': 23, 'member_link_consumers': 16, 'member_link_export': 32}
++              'member_link_api': 23, 'member_link_consumers': 16, 'member_link_export': 32,
++              'member_link_controls': 3}
+ VM_STEP = {
+     'name': 'Member link API, context, fragment, consumers and seven-collection export contracts',
+-    'run': ''.join('node tests/e2e/' + name + '.cjs > ' + name.replace('_', '-') + '.json\n'
++    'run': ''.join('node tests/e2e/' + name + '.cjs' +
++                   (' web/static/js/vinculos-ui.js' if name == 'member_link_controls' else '') +
++                   ' > ' + name.replace('_', '-') + '.json\n'
+                    'python scripts/check_frontend_report.py ' + name.replace('_', '-') +
+                    '.json --format counts --minimum ' + str(minimum) + '\n'
+                    for name, minimum in VM_MODULES.items()),
+@@ -57,6 +60,22 @@ PG_SPECS = (
+ NEW_REPORTS = tuple('pytest-postgres-' + suffix + '.xml' for _, _, suffix in PG_SPECS)
+ REPORT_STEP = {'name': 'Current member link reports retain all selected PostgreSQL cases',
+                'run': 'python tests/check_member_link_reports.py'}
++BROWSER_STEP = {
++    'name': 'Real member linking browser with restricted migrated PostgreSQL and private mail transport',
++    'env': {
++        'METODOBASE_TEST_MIGRATOR_URL': 'postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image',
++        'METODOBASE_TEST_POSTGRES_URL': 'postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image',
++        'METODOBASE_TEST_PG_BIN': '/usr/bin',
++    },
++    'run': 'export QA_NODE_MODULES="$GITHUB_WORKSPACE/tests/e2e/node_modules"\n'
++           'export QA_CHROME=$(node -e "process.stdout.write(require(\'./tests/e2e/node_modules/playwright-core\').chromium.executablePath())")\n'
++           'python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794\n',
++}
++BROWSER_UPLOAD = {
++    'uses': 'actions/upload-artifact@v4', 'if': 'always()',
++    'with': {'name': 'member-link-real-browser', 'path': '${{ runner.temp }}/member-link-public',
++             'if-no-files-found': 'error'},
++}
+ 
+ 
+ def normalized(path: Path) -> bytes:
+@@ -107,6 +126,9 @@ def expected_workflow(old: dict) -> dict:
+     needle = '--tables 26 --revision ' + PREVIOUS
+     assert browser['run'].count(needle) == 1
+     browser['run'] = browser['run'].replace(needle, '--tables 29 --revision ' + REVISION)
++    image_steps = expected['jobs']['image']['steps']
++    index = image_steps.index(browser) + 1
++    image_steps[index:index] = [BROWSER_STEP, BROWSER_UPLOAD]
+     return expected
+ 
+ 
+@@ -159,7 +181,9 @@ def delta_cases(workflow: dict, old: dict) -> list[dict]:
+              'allow-SQLite-in-PG', 'missing-report-parser', 'lower-report-count',
+              'missing-new-report', 'omit-historical-report', 'missing-VM', 'lower-VM-minimum',
+              'missing-VM-upload', 'old-fixture-head', 'old-fixture-tables',
+-             'changed-process-cleanup', 'changed-liveness', 'omit-old-browser', 'unrelated-job']
++             'changed-process-cleanup', 'changed-liveness', 'omit-old-browser', 'unrelated-job',
++             'missing-real-member-browser', 'public-private-directory-glob',
++             'missing-real-browser-upload', 'missing-owned-controls', 'wrong-owned-controls-source']
+     for name in names:
+         mutant = copy.deepcopy(workflow)
+         web = mutant['jobs']['test-web']['steps']
+@@ -197,6 +221,19 @@ def delta_cases(workflow: dict, old: dict) -> list[dict]:
+         elif name == 'changed-liveness': browser['run'] = browser['run'].replace('kill -0 "$browser_fixture_pid" || return 1', 'true')
+         elif name == 'omit-old-browser': browser['run'] = '\n'.join(line for line in browser['run'].splitlines() if not line.startswith('run_browser_fixture tests/e2e/gym_generation_server.py')) + '\n'
+         elif name == 'unrelated-job': mutant['jobs']['redis']['runs-on'] = 'windows-latest'
++        elif name == 'missing-real-member-browser': mutant['jobs']['image']['steps'].remove(BROWSER_STEP)
++        elif name == 'public-private-directory-glob':
++            step = next(step for step in mutant['jobs']['image']['steps']
++                        if step.get('with', {}).get('name') == BROWSER_UPLOAD['with']['name'])
++            step['with']['path'] = '${{ runner.temp }}/**'
++        elif name == 'missing-real-browser-upload': mutant['jobs']['image']['steps'].remove(BROWSER_UPLOAD)
++        elif name in ['missing-owned-controls', 'wrong-owned-controls-source']:
++            step = next(step for step in front if step.get('name') == VM_STEP['name'])
++            if name == 'missing-owned-controls':
++                step['run'] = '\n'.join(line for line in step['run'].splitlines()
++                                         if 'member-link-controls' not in line and 'member_link_controls' not in line) + '\n'
++            else:
++                step['run'] = step['run'].replace(' web/static/js/vinculos-ui.js', ' web/static/js/api.js')
+         assert mutant != workflow, name
+         try: verify_workflow(mutant, old)
+         except AssertionError: rows.append({'case': name, 'rejected': True})
+@@ -326,7 +363,7 @@ def main() -> None:
+     report = {'scope': 'Local CI29 wiring/parsers/actual marker expressions and owned inert Bash; no Actions/browser/PG/provider execution',
+         'historical_source_pin': '66d9dec0e15dd873038bd248d3883daeeb27d4ca',
+         'historical_exit': historical.returncode, 'reports': reports, 'current_PG_minimum_cases': 60,
+-        'VM_minima': VM_MODULES, 'VM_executions_in_full17': 297, 'VM_unique_criteria': 276,
++        'VM_minima': VM_MODULES, 'VM_executions_in_full18': 300, 'VM_unique_criteria': 279,
+         'duplicate_legacy_export_executions': 21, 'actual_markers': actual_fixture_markers(),
+         'unauthorized_delta_canaries': delta_cases(workflow, old)}
+     if not args.verify_only:

@@ -1,0 +1,68 @@
+{
+  "scope": "Offline actual consumers and minimal DOM with fixed APIv1 doubles",
+  "passed": 14,
+  "total": 15,
+  "results": [
+    {
+      "name": "opening invitation never inspects or accepts; inspection does not consume",
+      "passed": true
+    },
+    {
+      "name": "late inspection after account change does not render the old identity or offer acceptance",
+      "passed": true
+    },
+    {
+      "name": "lost acceptance ACK requires reinspection/list and never autoaccepts again",
+      "passed": true
+    },
+    {
+      "name": "professional issue lost response retains exactly the same email/key and blocks edits",
+      "passed": true
+    },
+    {
+      "name": "two issue clicks while pending create only one operation",
+      "passed": true
+    },
+    {
+      "name": "account replacement before form submit clears the draft and cannot issue under the new account",
+      "passed": true
+    },
+    {
+      "name": "professional capabilities hide invitation form and produce no mutation on load",
+      "passed": true
+    },
+    {
+      "name": "publication choices never publish automatically and use observed CAS versions",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ {\n+   me: {\n+     id: 'synthetic-a',\n+     role: 'viewer',\n+     session_version: 1,\n+     team_gym_id: null,\n+     tipo: 'usuario'\n+   },\n+   revision: 0,\n+   subject: 'synthetic-a'\n+ }\n- '22222222-2222-4222-8222-222222222222'\n\n    at F:\\mb-r12-ui-20261019\\tests\\e2e\\member_link_consumers.cjs:91:148\n    at async F:\\mb-r12-ui-20261019\\tests\\e2e\\member_link_consumers.cjs:125:61"
+    },
+    {
+      "name": "reader selection is literal, explicit and has no personal diary writes",
+      "passed": true
+    },
+    {
+      "name": "PDF resolved just before account switch produces neither BlobURL nor download",
+      "passed": true
+    },
+    {
+      "name": "session event clears prepared menu and revokes its temporary URL synchronously",
+      "passed": true
+    },
+    {
+      "name": "list page error preserves prior rows and reuses the same continuation on retry",
+      "passed": true
+    },
+    {
+      "name": "revoked exact PDF surfaces error without invoking a fallback or downloading",
+      "passed": true
+    },
+    {
+      "name": "known own consent can be withdrawn even when the publication becomes unavailable",
+      "passed": true
+    },
+    {
+      "name": "lost unlink ACK disables further mutations until an explicit status query",
+      "passed": true
+    }
+  ]
+}

@@ -16,6 +16,7 @@ Uso:
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, JSONResponse
+from web.client_link_paths import is_member_link_private
 
 import inspect
 import logging
@@ -92,7 +93,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
         except Exception as error:
-            if request.url.path != "/api/usuario/historial":
+            if (request.url.path != "/api/usuario/historial"
+                    and not is_member_link_private(request.url.path)):
                 raise
             # Generic handlers live outside response middleware. Reuse the
             # factory's existing public error body, then apply private headers.
@@ -105,7 +107,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 if not isinstance(response, Response) or response.status_code != 500:
                     raise ValueError('Invalid generic error response')
             except Exception:
-                logging.getLogger(__name__).error("Private history failed class=%s", type(error).__name__)
+                logging.getLogger(__name__).error("Private request failed class=%s", type(error).__name__)
                 body = {"detail": "Error interno del servidor"}
                 if getattr(request.state, "request_id", None):
                     body["request_id"] = request.state.request_id
@@ -121,7 +123,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # ─── CSP (with per-request nonce) ────────────────────────────────────
         if self.csp_enabled:
-            if request.url.path == "/auth/reset-password":
+            if request.url.path in {"/auth/reset-password", "/auth/accept-client-link"}:
                 # Fixed first-party policy for the public recovery form. Never
                 # accept an arbitrary policy supplied by a downstream handler.
                 response.headers["Content-Security-Policy"] = (
@@ -145,6 +147,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "no-referrer" if (
                 recovery_api
                 or request.url.path == "/api/usuario/historial"
+                or is_member_link_private(request.url.path)
                 or response.headers.get("Referrer-Policy", "").strip().lower() == "no-referrer"
             )
             else "strict-origin-when-cross-origin"
@@ -153,6 +156,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
+        if is_member_link_private(request.url.path):
+            response.headers["Cache-Control"] = "no-store"
         
         # ─── Cache control para APIs ────────────────────────────────────────
         if request.url.path.startswith("/api/"):
