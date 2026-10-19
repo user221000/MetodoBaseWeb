@@ -61,6 +61,10 @@ def has_higher_or_equal_role(user_role: UserRole, required_role: UserRole) -> bo
 
 # Permisos mapeados por (acción, recurso) -> set de roles permitidos
 PERMISSIONS: dict[tuple[str, str], Set[UserRole]] = {
+    # Operational follow-up grants no team/billing or global statistics rights.
+    ("manage", "followup_task"): {UserRole.OWNER, UserRole.ADMIN},
+    ("read", "followup_assigned"): {UserRole.NUTRIOLOGO},
+    ("update", "followup_assigned"): {UserRole.NUTRIOLOGO},
     # ── Clientes ──
     ("create", "cliente"): {UserRole.OWNER, UserRole.ADMIN, UserRole.NUTRIOLOGO},
     ("read", "cliente"): {UserRole.OWNER, UserRole.ADMIN, UserRole.NUTRIOLOGO, UserRole.VIEWER},

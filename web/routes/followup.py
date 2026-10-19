@@ -5,9 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from web.auth_deps import get_usuario_actual, get_effective_gym_id
+from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db_readonly
-from web.services.followup_service import get_followup
+from web.services.followup_tasks import dashboard
 from web.services.permissions import has_permission, verify_permission
 
 router = APIRouter(tags=['Seguimiento'])
@@ -26,7 +26,9 @@ def followup(response: Response, limit: int = Query(50, ge=1, le=100),
         raise HTTPException(403, {'code': 'professional_context_required',
             'message': 'Abre el contexto profesional para consultar el seguimiento.'}, headers=PRIVATE)
     try:
-        body = get_followup(db, get_effective_gym_id(usuario), limit)
+        body = dashboard(db, usuario, limit)
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.error('Follow-up unavailable class=%s', type(exc).__name__)
         # The web factory's legacy HTTPException handler drops exc.headers.
