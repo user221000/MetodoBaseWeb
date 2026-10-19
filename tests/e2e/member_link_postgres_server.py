@@ -95,6 +95,7 @@ def main():
             for key,label in [('gym','Synthetic owner A'),('othergym','Synthetic owner B'),('person','Synthetic recipient'),('other','Synthetic other account')]:
                 row=db.get(Usuario,case[key]);row.password_hash=auth.hash_password(password);row.nombre=label
             db.add(Cliente(id_cliente=personal,gym_id=case['person'],nombre='Preserved personal profile',notas='PRIVATE_PERSONAL_PROFILE'))
+            db.add(Cliente(id_cliente=str(uuid.uuid4()),gym_id=case['other'],nombre='Preserved other personal profile'))
             db.commit()
         plan_a,descriptor_a,content_a=shared.source(case,marker='SYNTHETIC_BROWSER_A')
         external=dict(case,gym=case['othergym'],client=case['otherclient'])
