@@ -94,3 +94,8 @@ No atribuir los quince grupos Chrome c669 a la corrección UX19 posterior. No su
 ## Checkpoint 121
 
 Los canarios offline no son PostgreSQL y los replays no son casos nuevos. Un target compilado no acredita procedencia vacía ni superficie ELF alterada. Preservar D60 rojo y de69 sin reconstruirlo para disfrazar resultados. DDL32 queda reservado a R25; el contrato no autoriza copiar diarios, inferir ingesta ni conclusiones clínicas.
+
+
+## Checkpoint122
+
+La aceptación focal R17 no equivale a métricas distribuidas ni SLO. Conservar before12rojos ysame-driver24after, separar replays. No actualizar pinsCI por una cautela sin evidencia: publicación_diary no está en source_modules del mapping; comprobar gate real tras integrar79.

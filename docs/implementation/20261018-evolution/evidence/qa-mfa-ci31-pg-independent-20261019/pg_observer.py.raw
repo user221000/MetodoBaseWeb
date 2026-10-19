@@ -1,0 +1,84 @@
+"""Own database ownership observer; strict no-FORCE cleanup, no SQL/body logs."""
+import ctypes, functools, hashlib, json, os, re, sys
+from datetime import datetime, timezone
+from pathlib import Path
+import psycopg2
+from psycopg2.extensions import connection as PGConnection, cursor as PGCursor
+INSTALLED=False
+OWNED=set()
+ORIGINAL=psycopg2.connect
+CONFIG=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json')
+def birth(pid=None):
+    k=ctypes.WinDLL('kernel32',use_last_error=True);k.GetCurrentProcess.restype=ctypes.c_void_p
+    k.OpenProcess.restype=ctypes.c_void_p
+    handle=k.GetCurrentProcess()if pid is None else k.OpenProcess(0x1000,False,pid)
+    assert handle
+    times=[ctypes.c_ulonglong()for _ in range(4)]
+    assert k.GetProcessTimes(ctypes.c_void_p(handle),*[ctypes.byref(v)for v in times])
+    if pid is not None:k.CloseHandle(ctypes.c_void_p(handle))
+    return datetime.fromtimestamp(times[0].value/10000000-11644473600,timezone.utc).isoformat()
+@functools.cache
+def identity():
+    k=ctypes.WinDLL('kernel32');k.GetCurrentProcess.restype=ctypes.c_void_p
+    basic=(ctypes.c_void_p*6)()
+    assert ctypes.WinDLL('ntdll').NtQueryInformationProcess(ctypes.c_void_p(k.GetCurrentProcess()),0,ctypes.byref(basic),ctypes.sizeof(basic),None)==0
+    parent=basic[5]
+    own_birth=birth();parent_birth=birth(parent)
+    assert parent_birth<=own_birth
+    return {'pid':os.getpid(),'birth_UTC':own_birth,'parent_pid':parent,'parent_birth_UTC':parent_birth,'executable_SHA':hashlib.sha256(Path(sys.executable).read_bytes()).hexdigest(),'observer_SHA':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+def event(kind,**fields):
+    path=Path(os.environ['MFA_QA_REGISTRY'])
+    with path.open('a',encoding='utf8')as f:
+        f.write(json.dumps({'kind':kind,'at_UTC':datetime.now(timezone.utc).isoformat(),'command':os.environ.get('MFA_QA_COMMAND','orchestrator'),'process':identity(),**fields})+'\n')
+def control_dsn():
+    conf=json.loads(CONFIG.read_text(encoding='utf-8-sig'))
+    return conf['METODOBASE_TEST_MIGRATOR_URL'].replace('postgresql+psycopg2://','postgresql://',1)
+def state(names):
+    db=ORIGINAL(control_dsn(),connect_timeout=5)
+    try:
+        with db.cursor()as cur:
+            cur.execute('SELECT datname FROM pg_database WHERE datname=ANY(%s) ORDER BY datname',(list(names),));remaining=[r[0]for r in cur.fetchall()]
+            cur.execute('SELECT datname,pid,backend_start,state FROM pg_stat_activity WHERE datname=ANY(%s) ORDER BY datname,pid',(list(names),))
+            sessions=[{'database':r[0],'pid':r[1],'birth_UTC':r[2].isoformat(),'state':r[3]}for r in cur.fetchall()]
+        return {'remaining':remaining,'sessions':sessions}
+    finally:db.close()
+NAME=r'metodobase_test_(?:ci31_qa|migrations|rls|backup|restore)_[0-9a-f]{12}'
+class Cursor(PGCursor):
+    def execute(self,query,vars=None):
+        rendered=query.as_string(self.connection)if hasattr(query,'as_string')else query
+        if isinstance(rendered,bytes):rendered=rendered.decode('utf8')
+        if isinstance(rendered,str)and re.match(r'^\s*(?:CREATE|ALTER|DROP)\s+(?:ROLE|USER)\b',rendered,re.I):
+            raise AssertionError('QA forbids global role mutations')
+        create=re.fullmatch(r'CREATE DATABASE "?('+NAME+r')"?',rendered or '',re.I)
+        drop=re.fullmatch(r'DROP DATABASE(?: IF EXISTS)? "?('+NAME+r')"?(?: WITH \(FORCE\))?',rendered or '',re.I)
+        if isinstance(rendered,str)and re.match(r'^\s*(CREATE|DROP) DATABASE',rendered,re.I):
+            assert create or drop,'Database DDL outside exact QA-owned name contract'
+        if create:
+            name=create.group(1);assert name not in OWNED
+            initial=state([name]);assert initial=={'remaining':[],'sessions':[]}
+            event('planned-before-CREATE',name=name,state=initial)
+            result=super().execute(query,vars)
+            OWNED.add(name)
+            event('created-immediate',name=name)
+            observed=state([name]);assert observed['remaining']==[name]
+            event('created-verified-fresh-connection',name=name,state=observed)
+            return result
+        if drop:
+            name=drop.group(1);assert name in OWNED,'DROP without this exact process creation lease'
+            observed=state([name]);event('before-exact-DROP',name=name,state=observed,original_fixture_requested_FORCE='FORCE' in rendered.upper())
+            assert observed['sessions']==[],'Open session prevents no-FORCE cleanup'
+            # Cleanup-only strict adapter: retain original fixture/criteria;
+            # execute stronger DROP without FORCE once zero sessions verified.
+            clean=re.sub(r' WITH \(FORCE\)$','',rendered,flags=re.I)
+            result=super().execute(clean,vars)
+            after=state([name]);event('after-exact-DROP-fresh-connection',name=name,state=after,executed_FORCE=False)
+            assert after=={'remaining':[],'sessions':[]}
+            return result
+        return super().execute(query,vars)
+class Connection(PGConnection):
+    def cursor(self,*args,**kwargs):kwargs.setdefault('cursor_factory',Cursor);return super().cursor(*args,**kwargs)
+def connect(*args,**kwargs):kwargs.setdefault('connection_factory',Connection);return ORIGINAL(*args,**kwargs)
+def install():
+    global INSTALLED
+    if not INSTALLED:
+        psycopg2.connect=connect;INSTALLED=True;event('observer-installed')

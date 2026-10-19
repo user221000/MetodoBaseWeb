@@ -1,0 +1,131 @@
+"""Exactly12 current31 commands, isolated private artifacts and owned PG only."""
+import argparse,hashlib,importlib.metadata,json,os,shlex,subprocess,sys,time,traceback,uuid
+from pathlib import Path
+from urllib.parse import urlsplit,urlunsplit
+P=argparse.ArgumentParser();P.add_argument('--reserved-window-ack',action='store_true');a=P.parse_args();assert a.reserved_window_ack
+ROOT=Path('F:/mb-mfa-ci31-fix-qa-20261019');TEMP=Path(__file__).parent
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa-ci31-pg-independent-20261019')
+PRIVATE=TEMP/'private';PRIVATE.mkdir(exist_ok=False)
+CONF=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json')
+HEAD='ed4a3be11fb1e921962182812362b515afd8885a';SHA=lambda b:hashlib.sha256(b).hexdigest()
+os.chdir(ROOT);sys.path.insert(0,str(ROOT))
+for key in list(os.environ):
+    upper=key.upper()
+    if upper=='DATABASE_URL'or upper.endswith('_DATABASE_URL')or upper.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST','MFA_QA_'))or any(x in upper for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):os.environ.pop(key,None)
+os.environ.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+from tests.isolation import prepare_environment,block_external_sockets,validate_postgres_test_url
+prepare_environment(discard_inherited=True);block_external_sockets()
+conf=json.loads(CONF.read_text(encoding='utf-8-sig'))
+for key in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_PG_BIN']:os.environ[key]=conf[key]
+for key in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL']:
+    validate_postgres_test_url(os.environ[key]);assert urlsplit(os.environ[key]).port==55483
+git=lambda*a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+names=[n for n in git('ls-files','-z').decode().split('\0')if n]
+pgbin=Path(conf['METODOBASE_TEST_PG_BIN'])
+def photo():
+    return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{n:SHA((ROOT/n).read_bytes())for n in names},
+      'helpers':{p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')},'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions()),
+      'Python_SHA':SHA(Path(sys.executable).read_bytes()),'Python_base_SHA':SHA(Path(sys._base_executable).read_bytes()),'private_config_SHA':SHA(CONF.read_bytes()),
+      'PG_bin':{str(p.relative_to(pgbin)):SHA(p.read_bytes())for p in pgbin.rglob('*')if p.is_file()}}
+before=photo();assert len(before['packages'])==89
+(OUT/'before.json').write_text(json.dumps(before,indent=2)+'\n')
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-before.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+from tests.ci_mfa31.workflow import CURRENT_REPORT_COMMANDS
+from tests.check_mfa31_reports import required_reports
+required=required_reports();assert len(required)==len(CURRENT_REPORT_COMMANDS)==12 and sum(map(len,required.values()))==173
+os.environ.update(MFA_QA_SOURCE=str(ROOT),MFA_QA_COMMAND='baseline-owner',MFA_QA_REGISTRY=str(PRIVATE/'baseline-observation.jsonl'))
+import pg_observer as observer
+observer.install()
+base='metodobase_test_ci31_qa_'+uuid.uuid4().hex[:12]
+admin_parts=urlsplit(conf['METODOBASE_TEST_MIGRATOR_URL']);app_parts=urlsplit(conf['METODOBASE_TEST_POSTGRES_URL'])
+admin_url=urlunsplit(admin_parts._replace(path='/'+base));app_url=urlunsplit(app_parts._replace(path='/'+base))
+plan={'source_head':HEAD,'baseline_UUID':base,'identity':observer.identity(),'command_specs':[{'label':n,'modules':m,'selection':s,'expected':len(required['pytest-current31-'+n+'.xml'])}for n,m,s in CURRENT_REPORT_COMMANDS],
+ 'nested_UUIDs':'Original maintained generators, each recorded planned before CREATE and created immediately by mandatory child observer.',
+ 'cleanup':'Exact ownership and0sessions first; no FORCE executed, no backend termination, no global role/HBA changes.',
+ 'output_adaptation':'Only absolute private JUnit destination; exact maintained12 module/selection/-q/--tb=short commands. Observer plugin does not alter tests/fixtures/assertions.'}
+(OUT/'execution-plan.json').write_text(json.dumps(plan,indent=2)+'\n')
+results=[];fatal=None;start=time.monotonic();base_created=False
+def childenv(label):
+    env=dict(os.environ)
+    env.pop('_METODOBASE_TEST_ROOT',None)
+    env.update(MFA_QA_COMMAND=label,MFA_QA_REGISTRY=str(PRIVATE/(label+'-observation.jsonl')),
+       PYTHONPATH=str(TEMP)+os.pathsep+str(ROOT),METODOBASE_TEST_DATABASE_URL=app_url,
+       METODOBASE_TEST_EVIDENCE_DIR=str(PRIVATE/'evidence'),R24_PG_OUTPUT=str(PRIVATE/'r24'),
+       MFA_QA_ORIGINS=str(PRIVATE/(label+'-origins.json')))
+    return env
+try:
+    import psycopg2
+    from psycopg2 import sql
+    control=psycopg2.connect(observer.control_dsn(),connect_timeout=5);control.autocommit=True
+    try:
+        with control.cursor()as cur:cur.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(base)))
+        base_created=True
+    finally:control.close()
+    (PRIVATE/'evidence').mkdir();(PRIVATE/'r24').mkdir()
+    env=childenv('baseline-migrate');env.update(DATABASE_URL=admin_url,METODOBASE_TEST_DATABASE_URL='')
+    with (PRIVATE/'baseline-migrate.log').open('wb')as f:
+        p=subprocess.run([sys.executable,'-X','utf8','db_bootstrap.py','--revision','20261019_mfa'],cwd=ROOT,env=env,stdout=f,stderr=subprocess.STDOUT)
+    assert p.returncode==0,'Baseline real migration failed; private diagnostics retained'
+    from sqlalchemy import create_engine,text,inspect
+    from tests.integration_provider_subjects import application_engine
+    admin=create_engine(admin_url)
+    app=application_engine(admin_url,admin)
+    from web.database.schema_control import verify_runtime_schema
+    from web.database.alembic.history_index_contract_v1 import expected_history_index,history_index_signature
+    try:
+        verify_runtime_schema(app,expected_revision='20261019_mfa')
+        with app.connect()as db:
+            flags=tuple(db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one())
+            nonowner=db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
+            owned_tables=db.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND pg_get_userbyid(relowner)=current_user"))
+            force=db.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relrowsecurity AND relforcerowsecurity"))
+            actual=len(inspect(db).get_table_names());index=history_index_signature(db)
+            assert flags==(False,)*4 and nonowner is True and owned_tables==0 and force==25 and actual==33 and index==expected_history_index('postgresql')
+        (OUT/'real-baseline-role-schema.json').write_text(json.dumps({'role_flags4':list(flags),'database_nonowner':nonowner,'owned_public_tables':owned_tables,'FORCE_RLS_tables':force,'actual_tables':actual,'expected_revision':'20261019_mfa','history_index':index,'actual_SQL_not_synthetic_marker':True},indent=2)+'\n')
+    finally:app.dispose();admin.dispose()
+    for label,modules,selection in CURRENT_REPORT_COMMANDS:
+        filename='pytest-current31-'+label+'.xml'
+        env=childenv(label);env.update(PYTEST_PLUGINS='qa_observer_plugin',MFA_QA_EXPECTED_COUNT=str(len(required[filename])))
+        argv=[sys.executable,'-X','utf8','tests/run_isolated.py',*modules,*shlex.split(selection),'-q','--tb=short','--junitxml='+str(PRIVATE/filename)]
+        print(json.dumps({'phase':'START','command':label,'expected_nodes':len(required[filename])}),flush=True)
+        t=time.monotonic()
+        with (PRIVATE/(label+'.raw.log')).open('wb')as f:p=subprocess.run(argv,cwd=ROOT,env=env,stdout=f,stderr=subprocess.STDOUT)
+        row={'label':label,'exit':p.returncode,'expected_nodes':len(required[filename]),'seconds':time.monotonic()-t,'argv_without_env':argv}
+        results.append(row);(OUT/'command-results.json').write_text(json.dumps(results,indent=2)+'\n')
+        print(json.dumps({'phase':'DONE','command':label,'exit':p.returncode}),flush=True)
+        assert p.returncode==0,'A maintained command failed; no automatic retry'
+    with (PRIVATE/'checker.raw.log').open('wb')as f:
+        p=subprocess.run([sys.executable,'-X','utf8','tests/check_mfa31_reports.py','--directory',str(PRIVATE)],cwd=ROOT,env=childenv('real-final-checker'),stdout=f,stderr=subprocess.STDOUT)
+    assert p.returncode==0,'Actual strict12-report checker rejected real results'
+except BaseException as exc:
+    fatal=type(exc).__name__
+    (PRIVATE/'orchestration-failure.raw.log').write_text(traceback.format_exc(),encoding='utf8')
+finally:
+    # Child commands have exited. Transfer only their observed exact CREATE
+    # leases for cleanup if a fixture failed; never infer ownership by prefix.
+    created={base}if base_created else set()
+    for file in PRIVATE.glob('*-observation.jsonl'):
+        for line in file.read_text().splitlines():
+            row=json.loads(line)
+            if row['kind']=='created-immediate':created.add(row['name'])
+    os.environ['MFA_QA_COMMAND']='final-owned-cleanup'
+    for name in sorted(created):
+        state=observer.state([name])
+        if state['remaining']:
+            assert state['sessions']==[],'Residual owned sessions require review; no FORCE/kill'
+            observer.OWNED.add(name)
+            observer.event('recorded-CREATE-lease-transferred-for-cleanup',name=name)
+            db=psycopg2.connect(observer.control_dsn(),connect_timeout=5);db.autocommit=True
+            try:
+                with db.cursor()as cur:cur.execute(sql.SQL('DROP DATABASE {}').format(sql.Identifier(name)))
+            finally:db.close()
+    closed=observer.state(sorted(created));assert closed=={'remaining':[],'sessions':[]}
+    (OUT/'final-owned-closure.json').write_text(json.dumps({'names':sorted(created),'created_count':len(created),'fresh_connection_state':closed,'FORCE_executed':False,'backend_termination':False},indent=2)+'\n')
+after=photo();(OUT/'after.json').write_text(json.dumps(after,indent=2)+'\n');assert before==after
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-after.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+inventory={str(p.relative_to(PRIVATE)):{'bytes':p.stat().st_size,'SHA256':SHA(p.read_bytes())}for p in PRIVATE.rglob('*')if p.is_file()}
+(OUT/'private-artifact-hashes.json').write_text(json.dumps(inventory,indent=2)+'\n')
+summary={'decision':'PASS'if fatal is None else'FAIL/PARTIAL','source_head':HEAD,'commands_finished':len(results),'expected_commands':12,'expected_nodes':173,'fatal_type':fatal,'before_after_exact':True,'source_files':len(names),'packages':89,'owned_databases':len(created),'all_owned_absent_zero_sessions':True,'FORCE_executed':False,'wall_seconds':time.monotonic()-start,'scope':'Functional Windows local PG; no latency/SLO, Chrome, image, Actions or Linux claim.'}
+(OUT/'execution-summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary),flush=True)
+raise SystemExit(0 if fatal is None else 1)

@@ -1,0 +1,9 @@
+"""Private child hook, no credentials in argv or output."""
+import os,sys
+if os.environ.get('MFA_QA_REGISTRY'):
+    sys.dont_write_bytecode=True
+    sys.path.insert(0,os.environ['MFA_QA_SOURCE'])
+    from tests.isolation import block_external_sockets
+    block_external_sockets()
+    import pg_observer
+    pg_observer.install()

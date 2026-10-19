@@ -236,3 +236,8 @@ QA peer de fixtures aceptado: 24 SQLite (20 replays y4 propios) y16 VM con módu
 ## Checkpoint 121
 
 Se preservan el rechazo CIe0 y el contrato ed4 aceptado independientemente: mismos tres negativos,205 canarios offline,145 workflow, snapshot25 y SQL de rol. Los173PG están en curso, no aprobados todavía. Broad bd348:2381=2360pass+2fail+18error+1skip; maxfail20 y fuente/89paquetes quietos. de69 tiene aceptación estática21+11 y target compilado0/6smokes, con compiler argv vacío y superficie ELF diferente aún sin aceptación. R17 es autor103+52, no QA independiente.
+
+
+## Checkpoint122
+
+QA173PG:12comandos exit0/checker1730;42UUIDcerradas sinFORCE/cero sesiones/ausenciafreshconn. R17mismo24before12rojos→after24verdes, mismos2boundsverdes; autor84 yreplay24 solapados, noPG. Candidataaislada5637 componeCIed4 yR17b500 exactos; peer79 ybroadcomún pendientes.

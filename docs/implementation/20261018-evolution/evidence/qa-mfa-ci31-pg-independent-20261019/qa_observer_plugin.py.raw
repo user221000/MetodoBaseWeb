@@ -1,0 +1,21 @@
+"""Require observer and own module origins before fixtures create databases."""
+import json,os,sys
+import pytest
+from pathlib import Path
+import pg_observer
+ROOT=Path(os.environ['MFA_QA_SOURCE']).resolve()
+def check():
+    assert pg_observer.INSTALLED,'Missing mandatory ownership observer'
+    rows={}
+    for name,module in list(sys.modules.items()):
+        if name.split('.')[0]in{'web','api','core','tests'}and getattr(module,'__file__',None):
+            path=Path(module.__file__).resolve();assert path.is_relative_to(ROOT),'Application/test source escaped own WT';rows[name]=str(path.relative_to(ROOT))
+    from web.database.models import Base
+    assert Base.__module__=='web.database.models'and len(Base.metadata.tables)==32
+    out=Path(os.environ['MFA_QA_ORIGINS']);out.write_text(json.dumps(rows,indent=2)+'\n')
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(session,config,items):
+    check()
+    expected=int(os.environ['MFA_QA_EXPECTED_COUNT']);assert len(items)==expected
+def pytest_runtest_call(item):check()
+def pytest_sessionfinish(session,exitstatus):check()

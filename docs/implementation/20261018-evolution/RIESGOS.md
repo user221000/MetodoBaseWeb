@@ -117,3 +117,8 @@ CI e0 no tiene aceptación por omisión de siete casos nuevos snapshot y marcado
 ## Checkpoint 121
 
 Pendientes: integración y regresión amplia31,173PG eimagen común; instrumentación argv y exportaciones ELF del target nativo; revisión independiente R17 y aspectos operativos MFA. OPS13 conserva la diferencia real de símbolos y su causa: falta -fvisibility=hidden de la configuración interna de la base. Continúan políticas, entrevistas/pilotos reales, validación profesional y objetivos de carga sin inventarlos.
+
+
+## Checkpoint122
+
+Pendientes peer79, regresión serial con cobertura y n2 de la composición,imagen común y operacionesMFA. Linux requiere revisar/reconstruir argvreal yvisibilidad antes de aceptación. R25DDL32 aún exclusivo ysinproducto; políticas/países/SLO/pilotos/dictámenes no inventados.

@@ -1,9 +1,9 @@
 # Entrega candidata en curso
 
-Checkpoint 121: 118 requisitos; 92 originales y 112 criterios anteriores intactos. MAIN continúa en esquema 30. MFA 31 sigue aislado y su regresión amplia inicial se detuvo con dos fallos Google y dieciocho errores de preparación, bajo revisión de fixtures.
+Checkpoint122:119requisitos,92originales y118criterios anteriores exactos. MAIN permanece en esquema30; candidata31 aislada5637 integra CIed4 y R17b500.
 
-QA aceptó el contrato CI ed4 tras corregir tres fronteras; las 173 identidades PostgreSQL están en ejecución. R17 fee219 tiene 103 comprobaciones dirigidas y 52 focales de autor, con revisión independiente pendiente.
+QA aprobó173casos PostgreSQL en12comandos;42bases propias cerradas sinFORCE. Seguridad aprobó la corrección de cabeceras operativas con el mismo driver24 y dos controles; el before12rojos permanece intacto. Faltan peer79 y regresión completa compuesta.
 
-El target Expat de69 compiló y pasó seis smoke checks, pero mantiene una brecha de argumentos del compilador y una diferencia de exportaciones ELF. No acredita imagen común, runtime54, SCA ni cierre OS. R25 conserva sólo su contrato, sin DDL32 ejecutado.
+Linux de69 mantiene brechas reales de traza del compilador y símbolos ELF. El fix nuevo requiere revisión independiente previa a reconstrucción. R25 conserva contrato y reservaDDL32; aún sin producto32.
 
-Free: diez clientes, un plan por cliente al día y diez totales por gimnasio al día. Desktop sigue soportado. Sin push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [registro](TRAZABILIDAD.md), [validación](VALIDACION.md).
+Free:diez clientes,un plan por cliente al día y diez totales por gimnasio al día. Desktop sigue soportado. Sin push,PR,despliegue,cargos ni comunicaciones reales. [Estado](ESTADO.md),[registro](TRAZABILIDAD.md),[validación](VALIDACION.md).

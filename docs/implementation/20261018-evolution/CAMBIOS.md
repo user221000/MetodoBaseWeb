@@ -175,3 +175,8 @@ Se incorpora documentación de la aceptación focal de fixtures, y se preserva e
 ## Checkpoint 121
 
 MAIN sólo registra seis hallazgos y evidencia. CIed4 repara CLI, snapshot y rol obligatorio; de69 añade un único header auténtico. La candidataR17 monta observabilidad protegida y cuenta errores500 sin guardar detalles. La adaptación de fixtures Google/publicación no altera producto. R25 sigue documental.
+
+
+## Checkpoint122
+
+SEC14 añade cabeceras privadas para respuestas de método405 ylector500 de tres rutas operativas exactas. Mergeaislado38b integraCIed4;5637 integraR17b500. MAIN sólo registra evidencia/criterios; no producto31 integrado todavía.

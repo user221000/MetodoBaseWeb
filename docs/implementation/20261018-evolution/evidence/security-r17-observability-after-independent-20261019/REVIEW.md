@@ -1,0 +1,9 @@
+# R17 / SEC14: aceptación acotada después del fix de headers
+
+Se acepta el delta b50058280b9e4989799732b81a8a10292ebaba92 sobre fee2199, en checkout propio y sin overlays. Sólo cambia web/middleware/security_headers.py. La coincidencia es exacta para /metrics, /alerts y /health/circuits; no añade prefijos, aliases, rutas adyacentes ni un handler global. Reutiliza el boundary privado de errores ya existente y su respuesta opaca. Fuerza no-store, no-referrer y Pragma no-cache en las tres rutas para todos los métodos/status que producen respuesta.
+
+El driver independiente original conserva bytes y aserciones: antes 12/24 controles verdes y 12 fallos reales; después 24/24. Los doce recorridos antes rojos son OPTIONS 405 y GET autorizado con lector que falla 500, en dos factories y tres rutas. Ahora tienen los tres headers privados, cuerpo opaco y ninguna redirección/eco de la excepción. El before y su manifest permanecen intactos. No se afirmó una fuga en el before ni se acepta por el replay del autor.
+
+Los mismos dos controles independientes de historias acotadas pasan 2/2: contadores completos, labels de rutas acotados y sin retener identidad/query/body/headers/valores de excepción. Son replay de casos existentes, no 26 criterios nuevos. Se mantienen las pruebas de captura por factory de configuración, denegaciones opacas, comparación UTF8 constante, fake credentials, early503/500, deshabilitación explícita y Enum alerts. No se reejecutan las 84 del autor como aceptación independiente.
+
+Las 10145 fuentes, 89 paquetes y el ejecutable Python conservan bytes/versiones antes/después; los módulos de la aplicación provienen exclusivamente del checkout propio. Se distingue GitLF de los RAW del autor. Sin PG, Chrome, VM, proveedores, correo, instalaciones ni edición de producto. No acredita distribución multiworker, retención, streaming completo, disponibilidad/SLO, operación real ni seguridad global R17/R31/ASVS.
