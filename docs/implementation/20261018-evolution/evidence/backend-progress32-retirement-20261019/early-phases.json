@@ -1,0 +1,37 @@
+{
+  "observations": {
+    "baseline-original": {
+      "cases": 1,
+      "passed": 1,
+      "failures": 0,
+      "errors": 0,
+      "xml_sha256": "267f9b505764e70c7b443ca4c1ef8e03c893c5b93969a7f47488a7606a92ebb0",
+      "pre_post_source_environment_snapshot_captured": false
+    },
+    "http-first": {
+      "cases": 4,
+      "passed": 4,
+      "failures": 0,
+      "errors": 0,
+      "xml_sha256": "73dff9adafba3c26e88aa9e958ed4d6f75089c23f998a7b800cad480a41be379",
+      "pre_post_source_environment_snapshot_captured": false
+    },
+    "http-complete-first": {
+      "cases": 30,
+      "passed": 28,
+      "failures": 2,
+      "errors": 0,
+      "xml_sha256": "b731ded980a4f85be5f76154347c6b7d1a7d2dc6c9df0754d607ad89bb695824",
+      "pre_post_source_environment_snapshot_captured": false
+    },
+    "sqlite-final-first": {
+      "cases": 50,
+      "passed": 50,
+      "failures": 0,
+      "errors": 0,
+      "xml_sha256": "24c95621103349b8d9c293d7f84fab232a5180db617ef21d89ec822ce09def25",
+      "pre_post_source_environment_snapshot_captured": false
+    }
+  },
+  "erratum": "The first30 contain2 test failures (not pytest setup errors) caused by fixture invitation_token uniqueness in a shared module DB. Assertions stayed unchanged; later50 pass. No product defect or retrospective cause of any historical main broad run is asserted. Early phases do not claim unrecorded pre/post quiet. The initial seal driver incorrectly expected error tags and stopped before archive/public writes; its source is retained privately."
+}

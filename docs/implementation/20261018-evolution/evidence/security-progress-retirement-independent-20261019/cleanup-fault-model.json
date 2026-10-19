@@ -1,0 +1,47 @@
+{
+  "fault_source_sha256": "1002b027643932e0579eb5cf46b264ec46f129aea9f0f4346be0b579f7bd757a",
+  "source_immutable": true,
+  "sqlalchemy": "2.1.5",
+  "psycopg2-binary": "2.9.13",
+  "first_sqlite": {
+    "exit": 1,
+    "cases": 75,
+    "outcomes": {
+      "passed": 73,
+      "failure": 2,
+      "error": 0,
+      "skipped": 0
+    },
+    "source_count": 526,
+    "packages": 89,
+    "sources_packages_python_exact": true,
+    "pip_before": 0,
+    "pip_after": 0
+  },
+  "first_postgres": {
+    "exit": 1,
+    "cases": 26,
+    "outcomes": {
+      "passed": 24,
+      "failure": 2,
+      "error": 0,
+      "skipped": 0
+    },
+    "source_count": 526,
+    "packages": 89,
+    "sources_packages_python_exact": true,
+    "pip_before": 0,
+    "pip_after": 0
+  },
+  "passing_close_control": "Session.close raises before super only after successful real operation commit; connection is already returned by SQLAlchemy commit.",
+  "failing_cleanup_model": "Operation Session.commit raises before super; the same retained Session.rollback raises before super; Session.close raises before super. A strong reference prevents GC masking the retained checkout.",
+  "confirmed_observations": [
+    "503 opaque result; no successful response",
+    "ContextVar restored to previous unrelated actor",
+    "pool.checkedout()==1 before harness cleanup on both factories and both dialects",
+    "No explicit Session.invalidate fallback exists in frozen _execute",
+    "Harness finally calls unbound real Session.rollback/close only on its retained own Session; owned DBs then close normally"
+  ],
+  "limits": "Synthetic Session-boundary fault injection, not an observed psycopg2/SQLite driver failure, remote exploit, cross-tenant data leak or general authentication bypass.",
+  "recommendation": "Consider invalidating only the newly owned Session after failed cleanup, preserving opaque503 and finally restoration. Retain these exact assertions; no pool-wide dispose, ambient retagging or reuse of an uncertain factor."
+}

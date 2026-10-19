@@ -121,3 +121,8 @@ No debilitar assertions para corregir carreras de fixtures: congelar sólo setup
 Precisión de autorización: el encargo permite las migraciones locales necesarias para resolver un hallazgo técnico. La restricción «sin nueva DDL» pertenece sólo al contrato de la retirada excepcional de esquema32. Una futura asociación de Google puede requerir una migración revisada; sus sujetos deben provenir de pruebas válidas de identidad. No se puede inventar un `sub` ni reconstruirlo desde un email.
 
 No ampliar RLS ni alterar funciones para satisfacer asserts impropios del observador. Usar verify_runtime_schema congelado y allowlist25FORCE en el futuro worker. Preservar primererror/continuaciónreadonly con prefijos distintos del futuro sucesor. Apagar sólo VM propia por QMP tras cierre de servicios y fotos de identidad. No considerar contraseñas preparadas postrestore como restauradas. ContratoGoogle: separar autoridad criptográfica tokeninfo de asociaciónlocalpor email; no usar mocks imposibles como exploit real.
+
+
+## Checkpoint127
+
+Mantener alta Google nueva vacía por issuer/sub con contacto no verificado thirdparty/nohd, sin adopción por email ni derechos/perfiles implícitos. Email ya registrado exige vínculo explícito localfresh+MFA; desenlace explícito conserva historial y primaria local utilizable. No backfill de sub desde email. Probar causalidad con ocho casos originales tokeninfo antes de sustituir verificador; proveedor final con JWT firmado y fixtureJWKS sólo por transporte, sin mock de identidad. Nuevo entorno propio, no mutar WEB89 de evidencia. SEC18: invalidar sólo Session nueva si falla limpieza, no pool global.

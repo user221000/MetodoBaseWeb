@@ -1,0 +1,383 @@
+diff --git a/web/routes/pages.py b/web/routes/pages.py
+index 6540f80..ad58232 100644
+--- a/web/routes/pages.py
++++ b/web/routes/pages.py
+@@ -130,6 +130,14 @@ async def reset_password_page(request:Request):
+     return response
+ 
+ 
++@router.get('/retirar-consentimientos', response_class=HTMLResponse)
++async def progress_retirement_page(request: Request):
++    """Public purpose-only form; it never acquires general session authority."""
++    response = template_response(templates, request, 'retiro_consentimientos.html', {'request': request})
++    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
++    return response
++
++
+ # ── Individual User Pages ─────────────────────────────────────────────────
+ 
+ @router.get("/mi-plan", response_class=HTMLResponse)
+diff --git a/web/static/css/retiro-consentimientos.css b/web/static/css/retiro-consentimientos.css
+new file mode 100644
+index 0000000..a31bd14
+--- /dev/null
++++ b/web/static/css/retiro-consentimientos.css
+@@ -0,0 +1,21 @@
++.retirement-page { max-width: 48rem; margin: 1.5rem auto; padding: 1.75rem; font: 1rem/1.6 system-ui, sans-serif; color: #19343a; background: #fff; }
++.retirement-page, .retirement-page * { box-sizing: border-box; min-width: 0; }
++.retirement-page h1 { font-size: clamp(1.7rem, 6vw, 2.3rem); line-height: 1.2; }
++.retirement-page h2 { font-size: 1.35rem; }
++.retirement-page p, .retirement-page li { overflow-wrap: anywhere; }
++.retirement-page a { color: #075d60; text-underline-offset: .2em; }
++.retirement-page label { display: block; font-weight: 650; margin-top: 1rem; }
++.retirement-page input, .retirement-page select { display: block; width: 100%; font: inherit; min-height: 2.75rem; padding: .6rem; border: 1px solid #597571; border-radius: .3rem; color: #19343a; background: #fff; }
++.retirement-page button { font: inherit; min-height: 2.75rem; max-width: 100%; padding: .65rem 1rem; border: 2px solid #075d60; border-radius: .35rem; color: #fff; background: #075d60; cursor: pointer; }
++.retirement-page button.secondary { background: #fff; color: #075d60; }
++.retirement-page button:disabled { color: #415956; background: #e5eeeb; border-color: #a5b8b1; cursor: default; }
++.retirement-actions, .retirement-page nav { display: flex; flex-wrap: wrap; gap: .8rem; margin: 1rem 0; }
++.retirement-page nav a { display: inline-flex; align-items: center; min-height: 2.75rem; }
++.retirement-page aside, .retirement-page section { border-top: 1px solid #bccfc8; margin-top: 2rem; padding-top: 1rem; }
++.retirement-page ol { padding-left: 1.4rem; }
++.retirement-page article { border: 1px solid #aec6bc; border-radius: .4rem; margin: 1rem 0; padding: 1rem; }
++.retirement-page article h3 { margin-top: 0; }
++.retirement-error { color: #80212a; background: #fff6f6; border: 2px solid #a12a35; border-radius: .4rem; padding: 1rem; }
++.retirement-page :focus-visible, .retirement-page [tabindex="-1"]:focus { outline: 3px solid #9a4800; outline-offset: 3px; }
++.retirement-page [hidden] { display: none !important; }
++@media (max-width: 36rem) { .retirement-page { margin: 0; padding: 1rem; } .retirement-actions button { width: 100%; } }
+diff --git a/web/static/js/retiro-consentimientos-pagina.js b/web/static/js/retiro-consentimientos-pagina.js
+new file mode 100644
+index 0000000..926185e
+--- /dev/null
++++ b/web/static/js/retiro-consentimientos-pagina.js
+@@ -0,0 +1,59 @@
++/* Standalone purpose-only DOM adapter: text sinks, proof properties and RAM only. */
++(function () {
++  'use strict';
++  const byId = id => document.getElementById('retirement-'+id), form = byId('form');
++  if (!form || !window.RetiroConsentimientos) return;
++  const email = byId('email'), password = byId('password'), factor = byId('factor'), kind = byId('factor-kind');
++  const names = {weight:'Peso corporal',body_fat:'Grasa corporal',lean_mass:'Masa magra',completion:'Marcas de consumo completado'};
++  let displayed = null, page;
++  const node = (tag,text) => { const result = document.createElement(tag); result.textContent = text; return result; };
++  const clearSecrets = () => { password.value = ''; factor.value = ''; };
++  function showFactor() {
++    factor.value = ''; const active = kind.value !== 'none';
++    byId('factor-group').hidden = !active; factor.required = active; factor.disabled = !active;
++    factor.inputMode = kind.value === 'totp' ? 'numeric' : 'text';
++    byId('factor-label').textContent = kind.value === 'recovery' ? 'Código de recuperación sin usar' : 'Código actual de la aplicación';
++  }
++  function render(state) {
++    byId('status').textContent = state.status; byId('error').textContent = state.error; byId('error').hidden = !state.error;
++    form.setAttribute('aria-busy',String(state.busy));
++    for (const suffix of ['password','factor-kind','query','next','withdraw']) byId(suffix).disabled = state.busy;
++    factor.disabled = state.busy || kind.value === 'none';
++    byId('next').hidden = !state.next; byId('withdraw').hidden = state.selected === null;
++    byId('results').hidden = !state.rows.length;
++    byId('selection').textContent = state.selected === null ? '' : 'Permiso '+(state.selected+1)+' seleccionado. Comprueba sus categorías y periodo antes de confirmar.';
++    if (displayed !== state.rows) {
++      displayed = state.rows; byId('items').replaceChildren();
++      state.rows.forEach((row,index) => {
++        const li = document.createElement('li'), article = document.createElement('article'), record = row.consent;
++        article.append(node('h3','Permiso '+(index+1)),node('p','Categorías: '+(Object.keys(names).filter(key => record.categories[key]).map(key => names[key]).join(', ') || 'Ninguna categoría registrada')+'.'),
++          node('p','Periodo: desde '+record.from_date+(record.ongoing ? ', sin fecha final indicada.' : ' hasta '+record.through_date+'.')),
++          node('p','Registro: '+record.created_at+' (fecha y zona originales).'),
++          node('p',record.event === 'withdraw' ? 'Retirado. El registro histórico se conserva.' : 'Permiso registrado. Esta consulta no demuestra acceso vigente a sus datos.'));
++        if (row.capabilities.withdraw) {
++          const button = node('button','Seleccionar permiso '+(index+1)+' para retirar'); button.type = 'button';
++          button.disabled = state.busy; button.addEventListener('click',() => { page.select(index); if (page.view().selected === index) password.focus(); }); article.append(button);
++        }
++        li.append(article); byId('items').append(li);
++      });
++    }
++    for (const button of byId('items').querySelectorAll('button')) button.disabled = state.busy;
++  }
++  page = RetiroConsentimientos.create({email:() => email.value,proof:() => ({password:password.value,factorKind:kind.value,factorValue:factor.value}),clearSecrets,fetch:(...args) => window.fetch(...args),render});
++  async function action(call) {
++    const result = await call();
++    if (result === 'error' || result === 'invalid') { if (page.view().error) byId('error').focus(); }
++    else if (result === 'confirmed') { if (page.view().rows.length) byId('results-title').focus(); else byId('status').focus(); }
++  }
++  form.addEventListener('submit',event => { event.preventDefault(); void action(page.query); });
++  byId('next').addEventListener('click',() => { void action(page.more); });
++  byId('withdraw').addEventListener('click',() => { void action(page.withdraw); });
++  email.addEventListener('input',() => page.invalidate('El correo cambió. La consulta anterior se descartó; verifica de nuevo la cuenta.'));
++  kind.addEventListener('change',showFactor);
++  function discard(message) { email.value = ''; kind.value = 'none'; showFactor(); page.invalidate(message); }
++  byId('clear').addEventListener('click',() => { discard('Consulta cancelada y datos de esta pantalla borrados. No cambia tu sesión habitual.'); email.focus(); });
++  window.addEventListener('pagehide',() => discard('Consulta descartada al salir de la página.'));
++  window.addEventListener('metodobase-session-changed',() => discard('La cuenta del navegador cambió. Verifica de nuevo los datos para esta consulta.'));
++  window.addEventListener('storage',event => { if (event.key === null || ['mb_token','mb_refresh_token'].includes(event.key)) discard('La cuenta del navegador cambió. Verifica de nuevo los datos para esta consulta.'); });
++  email.disabled = false; byId('clear').disabled = false; showFactor(); render(page.view());
++})();
+diff --git a/web/static/js/retiro-consentimientos.js b/web/static/js/retiro-consentimientos.js
+new file mode 100644
+index 0000000..e8673ef
+--- /dev/null
++++ b/web/static/js/retiro-consentimientos.js
+@@ -0,0 +1,165 @@
++/* Purpose-only proof per call. No session transport, persistence or automatic retry. */
++(function (root) {
++  'use strict';
++  const scope = 'own_consent_retirement_only';
++  const paths = Object.freeze({query:'/api/auth/progress-retirement/metadata', withdraw:'/api/auth/progress-retirement/withdraw'});
++  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
++  const categories = ['weight','body_fat','lean_mass','completion'];
++  const maximum = 2147483647, responseBudget = 262144;
++  const fail = code => Object.assign(new Error(code), {code});
++  function keys(value, expected) {
++    if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).length !== expected.length || expected.some(key => !Object.prototype.hasOwnProperty.call(value,key))) throw fail('protocol');
++  }
++  function id(value) { if (typeof value !== 'string' || !uuid.test(value)) throw fail('protocol'); return value; }
++  function integer(value) { if (!Number.isSafeInteger(value) || value < 1 || value > maximum) throw fail('protocol'); return value; }
++  function day(value) {
++    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(Date.parse(value+'T00:00:00Z')) || new Date(value+'T00:00:00Z').toISOString().slice(0,10) !== value) throw fail('protocol');
++    return value;
++  }
++  function consent(value) {
++    keys(value,['id','version','event','protocol','link_version','categories','from_date','through_date','ongoing','created_at']);
++    if (!['grant','withdraw'].includes(value.event) || value.protocol !== 'progress_share_v1') throw fail('protocol');
++    keys(value.categories,categories);
++    if (categories.some(key => typeof value.categories[key] !== 'boolean') || typeof value.ongoing !== 'boolean') throw fail('protocol');
++    const from = day(value.from_date), through = value.through_date === null ? null : day(value.through_date);
++    if ((value.ongoing && through !== null) || (!value.ongoing && (through === null || through < from))) throw fail('protocol');
++    if (typeof value.created_at !== 'string' || value.created_at.length > 64 || !/T.+(?:Z|[+-]\d{2}:\d{2})$/.test(value.created_at) || !Number.isFinite(Date.parse(value.created_at))) throw fail('protocol');
++    return Object.freeze({id:id(value.id),version:integer(value.version),event:value.event,protocol:value.protocol,link_version:integer(value.link_version),categories:Object.freeze({...value.categories}),from_date:from,through_date:through,ongoing:value.ongoing,created_at:value.created_at});
++  }
++  function item(value) {
++    keys(value,['link_id','consent','capabilities']);keys(value.capabilities,['withdraw','grant']);
++    if (typeof value.capabilities.withdraw !== 'boolean' || value.capabilities.grant !== false) throw fail('protocol');
++    const record = consent(value.consent);
++    if (record.event === 'withdraw' && value.capabilities.withdraw) throw fail('protocol');
++    return Object.freeze({link_id:id(value.link_id),consent:record,capabilities:Object.freeze({...value.capabilities})});
++  }
++  function metadata(value, after) {
++    keys(value,['scope','items','next_after']);
++    if (value.scope !== scope || !Array.isArray(value.items) || value.items.length > 50) throw fail('protocol');
++    const rows = value.items.map(item);
++    let previous = after || null;
++    for (const row of rows) { if (previous !== null && row.link_id <= previous) throw fail('protocol'); previous = row.link_id; }
++    const next = value.next_after === null ? null : id(value.next_after);
++    if (next !== null && (!rows.length || next !== rows[rows.length-1].link_id)) throw fail('protocol');
++    return Object.freeze({rows:Object.freeze(rows),next});
++  }
++  function withdrawal(value, selected) {
++    keys(value,['scope','link_id','consent','capabilities','effective']);
++    if (value.scope !== scope || value.effective !== false) throw fail('protocol');
++    const row = item({link_id:value.link_id,consent:value.consent,capabilities:value.capabilities});
++    const before = selected.consent, after = row.consent;
++    if (row.link_id !== selected.link_id || after.id === before.id || after.event !== 'withdraw' || row.capabilities.withdraw || after.version !== before.version+1 || after.link_version !== before.link_version || after.from_date !== before.from_date || after.through_date !== before.through_date || after.ongoing !== before.ongoing || categories.some(key => after.categories[key] !== before.categories[key])) throw fail('protocol');
++    return row;
++  }
++  const messages = Object.freeze({
++    input:'Escribe el correo y la contraseña. Si usas verificación en dos pasos, elige el tipo y escribe un código nuevo válido.',
++    protocol:'No pudimos comprobar la respuesta. No se confirma ningún retiro. Realiza otra consulta explícita con tu contraseña y un código nuevo, si corresponde.',
++    progress_retirement_verification_failed:'No se pudo verificar la cuenta o el código. Revisa los datos y usa un código nuevo, si corresponde. No se confirma ningún retiro.',
++    progress_retirement_primary_unavailable:'Esta vía requiere una contraseña. No admite Google ni una sesión abierta como sustitutos.',
++    mfa_service_unavailable:'La verificación en dos pasos no está disponible. No se confirma ningún retiro. Consulta de nuevo cuando esté disponible, con otra prueba válida.',
++    progress_retirement_throttled:'Se alcanzó el límite de intentos. Espera antes de realizar otra consulta explícita con una prueba nueva.',
++    rate_limit_backend_unavailable:'La verificación no está disponible. No se confirma ningún retiro. Vuelve a consultar explícitamente más adelante.',
++    progress_retirement_busy:'Hay otra operación de esta cuenta en curso. Espera antes de realizar una nueva consulta explícita con otra prueba válida.',
++    conflict:'El permiso pudo cambiar o ya estar retirado. No repetiremos el retiro. Consulta otra vez con tu contraseña y un código nuevo, si corresponde.',
++    uncertain:'No se pudo confirmar el resultado; la acción puede haberse realizado. No repetiremos la operación. Consulta de nuevo explícitamente con tu contraseña y otro código válido, si corresponde.',
++    invalid:'La solicitud no pudo completarse. Revisa los datos y realiza otra consulta explícita. No se confirma ningún retiro.'
++  });
++  function errorMessage(error) {
++    if (Object.prototype.hasOwnProperty.call(messages,error.code)) return messages[error.code];
++    if (error.status === 404 || error.status === 409) return messages.conflict;
++    if (error.status >= 500 || error.code === 'transport') return messages.uncertain;
++    return messages.invalid;
++  }
++  function create(options) {
++    let epoch = 0, busy = false, rows = Object.freeze([]), next = null, selected = null, controller = null, metadataEmail = null;
++    let status = 'Escribe los datos de la cuenta para consultar sus permisos.', error = '';
++    const email = () => String(options.email()).trim();
++    const view = () => Object.freeze({rows,next:next !== null,selected:selected === null ? null : rows.indexOf(selected),busy,status,error});
++    const emit = () => options.render(view());
++    function invalidate(message) {
++      epoch++; if (controller) controller.abort(); controller = null; busy = false;
++      rows = Object.freeze([]); next = null; selected = null; metadataEmail = null; error = '';
++      status = message || 'Consulta descartada. Escribe de nuevo los datos de la cuenta.';
++      options.clearSecrets(); emit();
++    }
++    function check(ticket) {
++      if (epoch === ticket.epoch && email() !== ticket.email) invalidate('El correo cambió. La consulta anterior se descartó; verifica de nuevo la cuenta.');
++      if (epoch !== ticket.epoch || email() !== ticket.email) throw fail('changed');
++    }
++    function select(index) {
++      if (metadataEmail !== null && metadataEmail !== email()) { invalidate(); return; }
++      if (busy || !Number.isSafeInteger(index) || !rows[index] || !rows[index].capabilities.withdraw || rows[index].consent.event !== 'grant') return;
++      selected = rows[index]; options.clearSecrets(); error = '';
++      status = 'Permiso seleccionado. Escribe de nuevo tu contraseña y un código nuevo, si corresponde, para confirmar el retiro.'; emit();
++    }
++    function bodyFor(kind, paging) {
++      const proof = options.proof(), address = email();
++      if (!address || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) || typeof proof.password !== 'string' || !proof.password) throw fail('input');
++      const body = {primary:{method:'password',email:address,password:proof.password}};
++      if (proof.factorKind === 'totp') { if (!/^\d{6}$/.test(proof.factorValue)) throw fail('input'); body.factor = {code:proof.factorValue}; }
++      else if (proof.factorKind === 'recovery') { if (!/^[A-Za-z0-9_-]{22}$/.test(proof.factorValue)) throw fail('input'); body.factor = {recovery_code:proof.factorValue}; }
++      else if (proof.factorKind !== 'none' || proof.factorValue) throw fail('input');
++      if (kind === 'withdraw') {
++        if (!selected || !selected.capabilities.withdraw) throw fail('input');
++        Object.assign(body,{link_id:selected.link_id,expected_consent_id:selected.consent.id,expected_version:selected.consent.version});
++      } else { if (paging && next === null) throw fail('input'); Object.assign(body,{limit:50,after:paging ? next : null}); }
++      const serialized = JSON.stringify(body);
++      if (new TextEncoder().encode(serialized).byteLength > 8192) throw fail('input');
++      return serialized;
++    }
++    async function decode(response, ticket) {
++      if (!response.headers || !/^application\/json(?:\s*;|$)/i.test(response.headers.get('Content-Type') || '')) throw fail('protocol');
++      const size = response.headers.get('Content-Length');
++      if (size !== null && (!/^\d+$/.test(size) || Number(size) > responseBudget)) throw fail('protocol');
++      let text = '';
++      if (response.body && typeof response.body.getReader === 'function') {
++        const reader = response.body.getReader(), decoder = new TextDecoder('utf-8',{fatal:true}); let length = 0;
++        try { while (true) { const part = await reader.read(); check(ticket); if (part.done) break; length += part.value.byteLength; if (length > responseBudget) throw fail('protocol'); text += decoder.decode(part.value,{stream:true}); } text += decoder.decode(); }
++        finally { try { await reader.cancel(); } catch (_) {} check(ticket); }
++      } else { text = await response.text(); check(ticket); if (new TextEncoder().encode(text).byteLength > responseBudget) throw fail('protocol'); }
++      try { return JSON.parse(text); } catch (_) { throw fail('protocol'); }
++    }
++    async function submit(kind, paging) {
++      if (busy) return 'busy';
++      if ((kind === 'withdraw' || paging) && metadataEmail !== email()) { invalidate(); return 'changed'; }
++      const ticket = {epoch,email:email()}, observed = selected, after = paging ? next : null;
++      let body;
++      try { body = bodyFor(kind,paging); check(ticket); }
++      catch (_) {
++        try { check(ticket); } catch (_) { return 'changed'; }
++        options.clearSecrets(); error = messages.input; emit(); return 'invalid';
++      }
++      controller = new AbortController(); const current = controller;
++      busy = true; error = ''; status = kind === 'withdraw' ? 'Comprobando la prueba y el retiro solicitado…' : 'Comprobando la prueba y consultando tus permisos…';
++      options.clearSecrets();
++      if (kind === 'query') { rows = Object.freeze([]); next = null; selected = null; metadataEmail = null; }
++      try {
++        emit(); check(ticket);
++        const pending = options.fetch(paths[kind],{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body,credentials:'omit',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer',signal:current.signal});
++        body = null;
++        const response = await pending; check(ticket);
++        const data = await decode(response,ticket); check(ticket);
++        if (response.status !== 200) {
++          const code = data && data.detail && typeof data.detail.code === 'string' ? data.detail.code : '';
++          throw Object.assign(fail(code === 'progress_retirement_unconfirmed' ? 'uncertain' : code),{status:response.status});
++        }
++        if (kind === 'query') {
++          const result = metadata(data,after); check(ticket); rows = result.rows; next = result.next; selected = null; metadataEmail = ticket.email;
++          status = rows.length ? 'Consulta confirmada. Selecciona un permiso para retirarlo; deberás verificarte de nuevo.' : 'No hay permisos registrados en esta página de tu cuenta.';
++        } else {
++          const result = withdrawal(data,observed); check(ticket);
++          rows = Object.freeze(rows.map(row => row === observed ? result : row)); selected = null;
++          status = 'Retiro confirmado. Este permiso ya no autoriza compartir progreso. No se han borrado los registros históricos.';
++        }
++        check(ticket); busy = false; controller = null; options.clearSecrets(); emit(); check(ticket); return 'confirmed';
++      } catch (problem) {
++        if (problem.code === 'changed' || epoch !== ticket.epoch || email() !== ticket.email) return 'changed';
++        rows = Object.freeze([]); next = null; selected = null; metadataEmail = null; busy = false; controller = null;
++        error = errorMessage(problem.code ? problem : fail('transport')); status = 'No se confirma ningún retiro. Hace falta una consulta nueva.';
++        options.clearSecrets(); emit(); return 'error';
++      } finally { body = null; }
++    }
++    return Object.freeze({view,invalidate,select,query:() => submit('query',false),more:() => submit('query',true),withdraw:() => submit('withdraw',false)});
++  }
++  root.RetiroConsentimientos = Object.freeze({create,metadata,withdrawal});
++})(typeof window === 'undefined' ? globalThis : window);
+diff --git a/web/templates/login_gym.html b/web/templates/login_gym.html
+index 3a66da8..c2209f0 100644
+--- a/web/templates/login_gym.html
++++ b/web/templates/login_gym.html
+@@ -182,6 +182,7 @@
+             ¿Nuevo en Método Base?
+             <a href="/registro?tipo=gym">Crea tu cuenta gratis →</a>
+           </p>
++          <p><a href="/retirar-consentimientos">Retirar permisos de progreso sin iniciar sesión</a></p>
+         </div>
+ 
+       </div>
+diff --git a/web/templates/login_usuario.html b/web/templates/login_usuario.html
+index 358ce36..e0ff697 100644
+--- a/web/templates/login_usuario.html
++++ b/web/templates/login_usuario.html
+@@ -181,6 +181,7 @@
+             ¿Eres nuevo en Método Base?
+             <a href="/registro?tipo=usuario">Empieza gratis en menos de 2 minutos →</a>
+           </p>
++          <p><a href="/retirar-consentimientos">Retirar permisos de progreso sin iniciar sesión</a></p>
+         </div>
+ 
+       </div>
+diff --git a/web/templates/retiro_consentimientos.html b/web/templates/retiro_consentimientos.html
+new file mode 100644
+index 0000000..8b85151
+--- /dev/null
++++ b/web/templates/retiro_consentimientos.html
+@@ -0,0 +1,59 @@
++<!doctype html>
++<html lang="es">
++<head>
++  <meta charset="utf-8">
++  <meta name="viewport" content="width=device-width,initial-scale=1">
++  <meta name="referrer" content="no-referrer">
++  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
++  <title>Retirar permisos de progreso — Método Base</title>
++  <link rel="stylesheet" href="/static/css/retiro-consentimientos.css?v={{ static_version }}">
++  <script src="/static/js/retiro-consentimientos.js?v={{ static_version }}" defer></script>
++  <script src="/static/js/retiro-consentimientos-pagina.js?v={{ static_version }}" defer></script>
++</head>
++<body>
++  <main class="retirement-page" id="retirement-page">
++    <a href="/">Método Base</a>
++    <h1>Retirar permisos de progreso</h1>
++    <p>Consulta los permisos que tú registraste y retira uno de ellos. Puedes hacerlo sin iniciar sesión, aunque ya no tengas acceso al gimnasio. Esta página no da acceso a tus medidas, planes ni a la información del profesional.</p>
++    <p>Para cada consulta, página de resultados o retiro debes volver a escribir tu contraseña. Si tu cuenta tiene verificación en dos pasos, también necesitas un código nuevo. El código usado para consultar no se reutiliza para retirar.</p>
++    <p id="retirement-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1">Escribe el correo y la contraseña de la cuenta cuyos permisos quieres consultar.</p>
++    <p id="retirement-error" class="retirement-error" role="alert" tabindex="-1" hidden></p>
++    <form id="retirement-form" aria-describedby="retirement-status" novalidate>
++      <label for="retirement-email">Correo de la cuenta</label>
++      <input id="retirement-email" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" required disabled>
++      <label for="retirement-password">Contraseña de esta cuenta</label>
++      <input id="retirement-password" type="password" autocomplete="current-password" required disabled>
++      <label for="retirement-factor-kind">Verificación en dos pasos</label>
++      <select id="retirement-factor-kind" disabled>
++        <option value="none">Mi cuenta no tiene verificación en dos pasos</option>
++        <option value="totp">Código actual de mi aplicación</option>
++        <option value="recovery">Un código de recuperación sin usar</option>
++      </select>
++      <div id="retirement-factor-group" hidden>
++        <label id="retirement-factor-label" for="retirement-factor">Código de verificación</label>
++        <input id="retirement-factor" type="password" autocomplete="one-time-code" spellcheck="false" aria-describedby="retirement-factor-help" disabled>
++        <p id="retirement-factor-help">Usa un código distinto del utilizado en la consulta o acción anterior. Los códigos de recuperación se consumen una sola vez.</p>
++      </div>
++      <div class="retirement-actions">
++        <button id="retirement-query" type="submit" disabled>Consultar mis permisos</button>
++        <button id="retirement-next" type="button" hidden disabled>Consultar siguientes permisos</button>
++        <button id="retirement-withdraw" type="button" hidden disabled>Confirmar retiro del permiso seleccionado</button>
++        <button id="retirement-clear" class="secondary" type="button" disabled>Cancelar y borrar esta consulta</button>
++      </div>
++    </form>
++    <section id="retirement-results" aria-labelledby="retirement-results-title" hidden>
++      <h2 id="retirement-results-title" tabindex="-1">Permisos de esta consulta</h2>
++      <p>No se muestran nombres de gimnasios ni contactos. Distingue cada permiso por las categorías, el periodo y la fecha en que lo registraste. Si no puedes distinguirlo por estos datos, no confirmes el retiro. Un registro histórico no demuestra que el acceso siga vigente.</p>
++      <p id="retirement-selection" role="status" aria-live="polite"></p>
++      <ol id="retirement-items"></ol>
++    </section>
++    <aside aria-labelledby="retirement-limits-title">
++      <h2 id="retirement-limits-title">Si sólo accedes con Google o perdiste tus códigos</h2>
++      <p>Esta vía requiere una contraseña y, cuando está activo, tu segundo factor. No permite sustituirlos por Google, correo ni una sesión abierta. Si no dispones de ellos, no puedes completar el retiro por esta página; la recuperación de ese acceso requiere un proceso revisado aparte.</p>
++      <p>Retirar un permiso no borra tu cuenta ni los registros históricos. No inicia ni cierra tu sesión habitual. No se realiza ningún cobro.</p>
++    </aside>
++    <nav aria-label="Accesos a la cuenta"><a href="/login-usuario">Acceso personal</a><a href="/login-gym">Acceso profesional</a><a href="/mi-perfil">Volver a mi perfil</a></nav>
++    <noscript>Activa JavaScript para usar esta página. Los datos del formulario no se envían mediante navegación.</noscript>
++  </main>
++</body>
++</html>
+diff --git a/web/templates/usuario_perfil.html b/web/templates/usuario_perfil.html
+index 2343ec6..7674b07 100644
+--- a/web/templates/usuario_perfil.html
++++ b/web/templates/usuario_perfil.html
+@@ -132,6 +132,7 @@
+ 
+ <section id="personal-data-section" class="u-card privacy-card u-form-max" aria-labelledby="personal-data-title" aria-busy="false">
+   <h2 id="personal-data-title">Tus datos personales</h2>
++  <p><a href="/retirar-consentimientos">Retirar permisos de progreso sin iniciar sesión</a>. Esta vía también permite consultar tus permisos propios si ya no puedes acceder al espacio personal.</p>
+   <p>Descarga una copia JSON de tu cuenta y los datos guardados en tu espacio personal. Si hay más registros, podrás descargar la siguiente parte.</p>
+   <p class="privacy-detail">Cada parte refleja los datos disponibles al consultarla. El manifiesto de cada archivo explica su alcance. La cartera profesional, los archivos PDF y el diario local de este navegador quedan fuera de esta descarga.</p>
+   <p id="privacy-status" role="status" aria-live="polite" aria-atomic="true">Verificando tu sesión…</p>

@@ -1,0 +1,206 @@
+{
+  "control-audience-api_app": {
+    "google_http": 401,
+    "issued_general_tokens": false,
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": false,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      }
+    ]
+  },
+  "control-audience-web_main_web": {
+    "google_http": 401,
+    "issued_general_tokens": false,
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": false,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      }
+    ]
+  },
+  "control-provider_rejection-api_app": {
+    "google_http": 401,
+    "issued_general_tokens": false,
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 400
+      }
+    ]
+  },
+  "control-provider_rejection-web_main_web": {
+    "google_http": 401,
+    "issued_general_tokens": false,
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 400
+      }
+    ]
+  },
+  "unbound-login-api_app": {
+    "scope": "Modeled structurally valid tokeninfo result only; not Google live or signature bypass",
+    "no_independent_password_or_factor_in_google_request": true,
+    "no_authorization_header_in_google_request": true,
+    "distinct_nonempty_subjects_same_third_party_email": true,
+    "outcomes": [
+      {
+        "google_http": 200,
+        "issued_general_tokens": true,
+        "resolved_existing_password_account": true
+      },
+      {
+        "google_http": 200,
+        "issued_general_tokens": true,
+        "resolved_existing_password_account": true
+      }
+    ],
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      },
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": true,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      }
+    ],
+    "persisted_password_unchanged": true
+  },
+  "unbound-login-web_main_web": {
+    "scope": "Modeled structurally valid tokeninfo result only; not Google live or signature bypass",
+    "no_independent_password_or_factor_in_google_request": true,
+    "no_authorization_header_in_google_request": true,
+    "distinct_nonempty_subjects_same_third_party_email": true,
+    "outcomes": [
+      {
+        "google_http": 200,
+        "issued_general_tokens": true,
+        "resolved_existing_password_account": true
+      },
+      {
+        "google_http": 200,
+        "issued_general_tokens": true,
+        "resolved_existing_password_account": true
+      }
+    ],
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      },
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": true,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      }
+    ],
+    "persisted_password_unchanged": true
+  },
+  "unbound-reauth-api_app": {
+    "scope": "Real password/factor setup; Google transport modeled only, no factor bypass asserted",
+    "google_reauth_http": 200,
+    "issued_primary_reauthentication_proof": true,
+    "existing_second_factor_still_required": true,
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      }
+    ],
+    "new_google_subject_was_not_explicitly_linked": true
+  },
+  "unbound-reauth-web_main_web": {
+    "scope": "Real password/factor setup; Google transport modeled only, no factor bypass asserted",
+    "google_reauth_http": 200,
+    "issued_primary_reauthentication_proof": true,
+    "existing_second_factor_still_required": true,
+    "provider_calls": [
+      {
+        "fixed_https_tokeninfo": true,
+        "aud_matches": true,
+        "sub_nonempty": true,
+        "sub_changed": false,
+        "issuer_google": true,
+        "future_exp": true,
+        "email_verified_true": true,
+        "hd_absent": true,
+        "email_class": "third_party_synthetic",
+        "provider_http": 200
+      }
+    ],
+    "new_google_subject_was_not_explicitly_linked": true
+  }
+}

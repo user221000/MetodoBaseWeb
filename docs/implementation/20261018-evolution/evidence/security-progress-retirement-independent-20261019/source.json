@@ -1,0 +1,77 @@
+{
+  "source_head": "fcfb55e5849e0e20b568be8729dcc1b8c6b1762e",
+  "parent": "345aa7ce16f65fec9481b48cfcd63c33ff3835fc",
+  "verdict": "FUNCTIONAL_SECURITY_CONTROLS_PASS_CLEANUP_FAULT_OPEN",
+  "author_sqlite_pass": 68,
+  "author_pg_pass": 16,
+  "own_sqlite": {
+    "passed": 5,
+    "cleanup_fault_red": 2
+  },
+  "own_pg": {
+    "passed": 8,
+    "cleanup_fault_red": 2
+  },
+  "baseline_supported_lineage": {
+    "same_canary_source": true,
+    "expected_contract_red": 1,
+    "metadata": 404,
+    "withdraw": 404
+  },
+  "candidate_supported_lineage": {
+    "metadata": 200,
+    "withdraw": 200,
+    "general_auth": 401
+  },
+  "phases": {
+    "baseline-lineage": {
+      "exit": 1,
+      "cases": 1,
+      "outcomes": {
+        "passed": 0,
+        "failure": 1,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 513,
+      "packages": 89,
+      "sources_packages_python_exact": true,
+      "pip_before": 0,
+      "pip_after": 0
+    },
+    "sqlite-freeze": {
+      "exit": 1,
+      "cases": 75,
+      "outcomes": {
+        "passed": 73,
+        "failure": 2,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 526,
+      "packages": 89,
+      "sources_packages_python_exact": true,
+      "pip_before": 0,
+      "pip_after": 0
+    },
+    "postgres-freeze": {
+      "exit": 1,
+      "cases": 26,
+      "outcomes": {
+        "passed": 24,
+        "failure": 2,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_count": 526,
+      "packages": 89,
+      "sources_packages_python_exact": true,
+      "pip_before": 0,
+      "pip_after": 0
+    }
+  },
+  "owned_pg_databases_closed": 2,
+  "no_product_or_author_test_changes": true,
+  "source_photos_scope": "Every Python source beneath web/api/core/config/tests, including own harness:513 baseline and526 candidate. Distribution name/version metadata89 and interpreter/base executable hashes. No claim of hashing all installed package bytes or every repository asset.",
+  "scope": "Frozen limited-retirement APIs, real factories, SQLite32 and restricted own PostgreSQL32 pool1; excludes mounted SSR/UI/browser, Google33/recovery, live providers, deployment and global R25/R31 closure."
+}

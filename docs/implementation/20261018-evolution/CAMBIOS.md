@@ -200,3 +200,8 @@ MAIN sólo incorpora evidencia y control, sin producto31/32. Cambios aislados: l
 ## Checkpoint126
 
 MAIN sólo registra pruebas y control. Runtimef74 app6a75/native72/logger474 medido con su USERreal y firststartup; noatribución32. Nuevo retiro API/UI permanece en WT independientes desde345 conwire5b6de9 congelado. Ningún cambio producto en este checkpoint.
+
+
+## Checkpoint127
+
+MAIN incorpora sólo control/evidencia. Composición aislada219f89 integra fcfc+UIde216+de506 con bytes exactos; no se atribuyen broads31 a32. UI tiene32paths de evidencia incluidos atributos (31además del archivo de atributos). Dos fallos de preparación del import se corrigieron antes de escribir: manifestGoogle excluye atributos y UI31contaba sin ellos. No cambian producto ni resultados.

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Socio Comercial — Método Base</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/styles-auth.css?v=20260331" />
+  <!-- Gym theme: yellow accent (defaults in styles-auth.css) -->
+  <link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
+</head>
+<body>
+  <div class="split-layout">
+
+    <!-- ── LEFT: Dashboard Showcase ── -->
+    <div class="showcase">
+      <div class="showcase-bg"></div>
+      <div class="showcase-grid-bg"></div>
+
+      <div class="showcase-content anim-slide-left">
+        <div class="showcase-label">
+          <span class="dot"></span>
+          Así se ve tu panel de control
+        </div>
+        <p class="showcase-subtitle">
+          Tu negocio, ordenado. Tus clientes, retenidos.
+        </p>
+
+        <div class="dash-mockup">
+          <div class="dash-topbar">
+            <div class="dash-topbar-left">
+              <div class="dash-topbar-dot" style="background:var(--auth-accent);"></div>
+              <span class="dash-topbar-title">Método Base — Dashboard</span>
+            </div>
+            <div class="dash-topbar-nav">
+              <span class="active">Dashboard</span>
+              <span>Clientes</span>
+              <span>Planes</span>
+            </div>
+          </div>
+          <div class="dash-body">
+            <!-- KPIs -->
+            <div class="kpi-row">
+              <div class="kpi-card">
+                <p class="kpi-label">Clientes activos</p>
+                <p class="kpi-value" style="color:var(--auth-accent);">127</p>
+                <p class="kpi-change kpi-up">↑ 12%</p>
+              </div>
+              <div class="kpi-card">
+                <p class="kpi-label">Ingresos / Mes</p>
+                <p class="kpi-value" style="color:var(--accent-green);">$48,500</p>
+                <p class="kpi-change kpi-up">↑ 8.3%</p>
+              </div>
+              <div class="kpi-card">
+                <p class="kpi-label">Planes generados</p>
+                <p class="kpi-value" style="color:var(--accent-purple);">312</p>
+                <p class="kpi-change kpi-up">↑ 24%</p>
+              </div>
+            </div>
+
+            <!-- Client earnings table -->
+            <div class="clients-panel">
+              <div class="clients-header">
+                <h3>Top Clientes del Mes</h3>
+                <span id="preview-month"></span>
+              </div>
+              <div class="client-row">
+                <div class="client-avatar" style="background:linear-gradient(135deg,var(--auth-accent),var(--auth-accent-dark));color:var(--bg-primary);">MR</div>
+                <div class="client-info">
+                  <p class="client-name">María Rodríguez</p>
+                  <p class="client-plan">Plan Premium · 2,340 kcal</p>
+                </div>
+                <div class="client-earning">
+                  <p class="client-earning-value">$2,800</p>
+                  <p class="client-earning-label">este mes</p>
+                </div>
+              </div>
+              <div class="client-row">
+                <div class="client-avatar" style="background:linear-gradient(135deg,var(--accent-purple),var(--accent-purple));color:var(--text-primary);">CL</div>
+                <div class="client-info">
+                  <p class="client-name">Carlos López</p>
+                  <p class="client-plan">Plan Básico · 1,800 kcal</p>
+                </div>
+                <div class="client-earning">
+                  <p class="client-earning-value">$1,500</p>
+                  <p class="client-earning-label">este mes</p>
+                </div>
+              </div>
+              <div class="client-row">
+                <div class="client-avatar" style="background:linear-gradient(135deg,var(--accent-green),var(--accent-green));color:var(--bg-primary);">AG</div>
+                <div class="client-info">
+                  <p class="client-name">Ana García</p>
+                  <p class="client-plan">Plan Premium · 2,100 kcal</p>
+                </div>
+                <div class="client-earning">
+                  <p class="client-earning-value">$2,800</p>
+                  <p class="client-earning-label">este mes</p>
+                </div>
+              </div>
+              <div class="client-row">
+                <div class="client-avatar" style="background:var(--auth-glow);color:var(--auth-accent);">JM</div>
+                <div class="client-info">
+                  <p class="client-name">Jorge Martínez</p>
+                  <p class="client-plan">Plan Deportivo · 3,200 kcal</p>
+                </div>
+                <div class="client-earning">
+                  <p class="client-earning-value">$3,100</p>
+                  <p class="client-earning-label">este mes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Login Sidebar ── -->
+    <div class="sidebar-login">
+      <div class="anim-fade-right">
+        <a href="/" class="back-link">← Volver al inicio</a>
+
+        <div class="sidebar-icon">
+          <svg style="width:26px;height:26px;color:var(--bg-primary)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+        </div>
+        <h1 class="sidebar-title">Tu Panel de Gestión</h1>
+        <p class="sidebar-subtitle">Clientes, planes y pagos. Todo en un solo lugar.</p>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        {% include "mfa_login_partial.html" %}
+        <form id="loginForm" novalidate>
+          <div class="input-group">
+            <label class="input-label" for="login-email">CORREO ELECTRÓNICO</label>
+            <input type="email" name="email" id="login-email" class="input-field"
+                   placeholder="gym@ejemplo.com" required autocomplete="email" />
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="pwdField">CONTRASEÑA</label>
+            <div style="position:relative;">
+              <input type="password" name="password" id="pwdField" class="input-field"
+                     placeholder="••••••••" required autocomplete="current-password" style="padding-right:44px;" />
+              <button type="button" class="pwd-toggle" data-action="toggle-password" aria-label="Mostrar contraseña" aria-controls="pwdField" aria-pressed="false">
+                <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="remember-row">
+            <label class="remember-label">
+              <input type="checkbox" id="rememberMe" />
+              Mantener sesión iniciada
+            </label>
+          </div>
+
+          <button type="submit" class="btn-login" id="submitBtn">
+            Entrar a mi panel
+          </button>
+        </form>
+        <p><a href="/auth/reset-password">Recuperar contraseña</a></p>
+
+        <p style="text-align:center;font-size:.73rem;color:var(--text-muted);margin:12px 0 0;">
+          🔒 Conexión cifrada &middot; Tus datos están protegidos
+        </p>
+
+        <div class="auth-divider"><span>o accede con</span></div>
+        <div class="google-btn-wrapper" id="googleBtnContainer"></div>
+        <div class="error-msg" id="googleErrorMsg" style="display:none;"></div>
+
+        <div class="signup-footer">
+          <p>
+            ¿Nuevo en Método Base?
+            <a href="/registro?tipo=gym">Crea tu cuenta gratis →</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-login.js?v={{ static_version }}"></script>
+  <script nonce="{{ request.state.csp_nonce }}">
+    MfaLogin.mount({audience:"gym",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});
+  </script>
+</body>
+</html>

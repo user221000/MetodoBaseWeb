@@ -1,0 +1,23 @@
+{
+  "source_head": "345aa7ce16f65fec9481b48cfcd63c33ff3835fc",
+  "VerifiedGooglePrimary_fields": [
+    "email",
+    "authenticated_at"
+  ],
+  "google_login_function_ast_sha256": "4a6c8a1f276262507b32af1ee1135d06a689126a8615f2d19d6d7f6f9d81b120",
+  "reauthenticate_function_ast_sha256": "99f48db41047dcb9cc61fc0515f64e0568efa9e6e9f5af867126b16077f36b72",
+  "payment_association_provider_check": "provider IN ('stripe','mercadopago')",
+  "payment_association_resource_check": "resource_type IN ('customer','subscription','payment','preference')",
+  "reviewed_paths": [
+    "web/services/google_identity.py",
+    "web/routes/auth.py",
+    "web/services/mfa_service.py",
+    "web/database/models.py",
+    "web/sync_user.py"
+  ],
+  "observations": [
+    "Login selects persisted Usuario by normalized provider email, not Google subject.",
+    "Google primary reauthentication compares provider email and fresh auth_time, without a persisted Google subject binding.",
+    "The sync bridge is a no-op; payment subject mappings are a separate constrained domain and are not a hidden Google identity binding."
+  ]
+}

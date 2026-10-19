@@ -142,3 +142,8 @@ QA-16 helpers aceptados acotadamente; serial/n2 de la composición31 siguen pend
 ## Checkpoint126
 
 Worker31 todavía sin atestación completa; source/image parcial no habilita despliegue. Serial/n2 y matrizcomún32 pendientes. Retiroexcepcional yGoogle-only requieren pruebas; asociaciónsub nuevaDDL/backfillnoautorizada por inferencia ni implementada todavía. VMOFF liberóRAM después de presión observada; QA esperó1.8GiB antesCREATE, no se tocó proceso ajeno. Las dependencias de políticas, países, retención, SLO, pilotos y especialista permanecen abiertas.
+
+
+## Checkpoint127
+
+Las migraciones locales reversibles necesarias están autorizadas; inventar identidad Google histórica a partir de email carece de evidencia y no es una migración técnica legítima. SEC17 y SEC18 pendientes de aceptación. Gitleaks global31564remaining:2FPmetadata confirmados/31562previos sin clasificar, no todo falso positivo. Worker31parcial no habilita despliegue. Países,retención,SLO,pilotos,especialista y pérdida total de factores permanecen abiertos.
