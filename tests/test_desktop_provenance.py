@@ -75,6 +75,28 @@ def test_binary_bytes_are_never_normalized(frozen):
         module.source_snapshot(head)
 
 
+@pytest.mark.parametrize("payload,git_eol", [(b"\x01\x02\x03\x04\x05\x06\n", b"i/-text"),
+                                          (b"\x7f\n", b"i/-text"),
+                                          (b"text\x1b[31m\n", b"i/lf"),
+                                          (b"line\rbreak\n", b"i/-text")],
+                         ids=["control-bytes", "delete-byte", "escape-byte", "lone-cr"])
+def test_utf8_binary_controls_require_exact_commit_bytes(frozen, payload, git_eol):
+    module, root, _ = frozen
+    payload.decode("utf-8")  # Valid encoding alone cannot establish text.
+    (root / "body.dat").write_bytes(payload)
+    git(root, "add", "body.dat")
+    git(root, "-c", "user.name=Desktop Test", "-c", "user.email=desktop@example.invalid",
+        "-c", "commit.gpgSign=false", "commit", "-qm", "Synthetic control payload")
+    head = git(root, "rev-parse", "HEAD").decode().strip()
+    # Git recognizes controls, DEL and lone CR as binary; ESC is conservatively
+    # byte-exact under the packaging policy even if Git allows text conversion.
+    assert git_eol in git(root, "ls-files", "--eol", "body.dat")
+    assert "body.dat" in module.source_snapshot(head)
+    (root / "body.dat").write_bytes(payload.replace(b"\n", b"\r\n"))
+    with pytest.raises(module.BuildError):
+        module.source_snapshot(head)
+
+
 def test_committed_filter_is_rejected_without_running_it(frozen):
     module, root, head = frozen
     sentinel = root.parent / "filter-must-never-run"

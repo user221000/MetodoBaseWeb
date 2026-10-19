@@ -343,7 +343,13 @@ def _checkout_matches(blob: bytes, working: bytes, attributes: dict[str, str]) -
     eol = attributes.get("eol", "unspecified")
     if text not in ("unspecified", "set", "unset", "auto") or eol not in ("unspecified", "unset", "lf", "crlf"):
         raise BuildError("Unsupported committed checkout attributes")
-    if text == "unset" or b"\0" in blob:
+    # Valid UTF-8 can still be binary (for example a control-byte payload).
+    # Conservatively require its exact committed bytes even with text attrs;
+    # Only TAB and line endings are supported controls for conversion. A lone
+    # CR makes even valid UTF-8 binary to Git and must stay byte-exact too.
+    binary_controls = any(value < 32 and value not in (9, 10, 13) or value == 127 for value in blob)
+    lone_cr = b"\r" in blob.replace(b"\r\n", b"")
+    if text == "unset" or binary_controls or lone_cr:
         return working == blob
     try:
         blob.decode("utf-8")
