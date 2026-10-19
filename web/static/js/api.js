@@ -622,7 +622,74 @@ const Api = (() => {
       if (current.subject !== context.subject) throw _sessionChanged();
       return current.me;
     },
+    estado: (client, context, after = null) => _linkRequest('GET', _clientLinkPath(client) + _linkPage(after), null, context),
+    emitir: (client, recipient_email, request_key, context) => _linkRequest('POST', _clientLinkPath(client) + '/invitaciones', {recipient_email, request_key}, context),
+    rotar: (client, invitation, version, context) => _linkRequest('POST', _clientLinkPath(client) + '/invitaciones/' + _linkUUID(invitation) + '/reenviar', {expected_version:_linkVersion(version)}, context),
+    revocar: (client, link, version, context) => _linkRequest('DELETE', _clientLinkPath(client) + '/' + _linkUUID(link), {expected_version:_linkVersion(version)}, context),
+    publicar: (client, link, plan, linkVersion, publicationVersion, context) => {
+      if (!Number.isSafeInteger(plan) || plan < 1 || plan > 2147483647 || !Number.isSafeInteger(publicationVersion) || publicationVersion < 0 || publicationVersion > 2147483647) throw new Error('Selecciona un plan válido.');
+      return _linkRequest('POST', _clientLinkPath(client) + '/' + _linkUUID(link) + '/publicaciones', {plan_id:plan,expected_link_version:_linkVersion(linkVersion),expected_publication_version:publicationVersion}, context);
+    },
+    retirar: (client, link, publication, version, context) => _linkRequest('DELETE', _clientLinkPath(client) + '/' + _linkUUID(link) + '/publicaciones/' + _linkUUID(publication), {expected_version:_linkVersion(version)}, context),
+    inspeccionar: (token, context) => _linkRequest('POST', '/api/usuario/vinculaciones/invitacion', {token:_linkToken(token)}, context),
+    aceptar: (token, version, context) => _linkRequest('POST', '/api/usuario/vinculaciones/aceptar', {token:_linkToken(token),expected_version:_linkVersion(version),confirm:true}, context),
+    listar: (context, after = null) => _linkRequest('GET', '/api/usuario/vinculos' + _linkPage(after), null, context),
+    plan: (link, context) => _linkRequest('GET', '/api/usuario/vinculos/' + _linkUUID(link) + '/plan', null, context),
+    desvincular: (link, version, context) => _linkRequest('DELETE', '/api/usuario/vinculos/' + _linkUUID(link), {expected_version:_linkVersion(version)}, context),
+    pdf: async (link, publication, context) => {
+      _assertSnapshot(context);
+      await vinculos.verificarContexto(context); _assertSnapshot(context);
+      const res = await _authenticatedFetch('/api/usuario/vinculos/' + _linkUUID(link) + '/publicaciones/' + _linkUUID(publication) + '/pdf', {cache:'no-store',referrerPolicy:'no-referrer'}, context);
+      _assertSnapshot(context);
+      if (!res.ok) throw Object.assign(new Error('No se pudo descargar esta publicación. Vuelve a consultar el vínculo.'), {status:res.status});
+      const length = res.headers.get('Content-Length');
+      if (res.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/pdf' || (length !== null && (!/^\d+$/.test(length) || Number(length) > 67108864))) throw new Error('El servidor no devolvió un PDF válido.');
+      if (!res.body?.getReader) throw new Error('No se pudo leer esta descarga.');
+      const reader = res.body.getReader(), chunks = [];
+      let bytes = 0;
+      try {
+        while (true) {
+          const part = await reader.read(); _assertSnapshot(context);
+          if (part.done) break;
+          bytes += part.value.byteLength;
+          if (bytes > 67108864) throw new Error('El PDF supera el tamaño permitido.');
+          chunks.push(part.value);
+        }
+      } catch (error) { try { await reader.cancel(); } catch {} throw error; }
+      finally { reader.releaseLock(); }
+      _assertSnapshot(context);
+      if (!bytes) throw new Error('El PDF no está disponible para esta descarga.');
+      const blob = new Blob(chunks, {type:'application/pdf'});
+      const signature = await blob.slice(0,5).text(); _assertSnapshot(context);
+      if (signature !== '%PDF-') throw new Error('El servidor no devolvió un PDF válido.');
+      await vinculos.verificarContexto(context); _assertSnapshot(context);
+      return blob;
+    },
   };
+
+  function _linkUUID(value) {
+    if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) throw new Error('El vínculo no es válido.');
+    return value;
+  }
+  function _linkVersion(value) {
+    if (!Number.isSafeInteger(value) || value < 1 || value > 2147483647) throw new Error('Vuelve a consultar el estado antes de confirmar.');
+    return value;
+  }
+  function _linkToken(value) {
+    if (typeof value !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(value)) throw new Error('Vuelve a abrir el enlace original del correo.');
+    return value;
+  }
+  function _clientLinkPath(client) {
+    if (typeof client !== 'string' || !client || client.length > 128) throw new Error('El cliente no es válido.');
+    return '/api/clientes/' + encodeURIComponent(client) + '/vinculacion';
+  }
+  function _linkPage(after) {
+    return '?limit=100' + (after === null ? '' : '&after=' + _linkUUID(after));
+  }
+  function _linkRequest(method, path, body, context) {
+    _assertSnapshot(context);
+    return request(method, path, body, {'Cache-Control':'no-store'});
+  }
 
   const team = {
     list: () => request('GET', '/api/gym/team'),

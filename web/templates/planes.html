@@ -240,6 +240,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!sessionChanged) feedback.textContent = error.message || 'No se pudo descargar este plan.';
           } finally { button.disabled = false; }
         });
+        const publicationLink = document.createElement('a');
+        publicationLink.href = '/clientes/' + encodeURIComponent(p.id_cliente) + '/vinculacion?plan_id=' + p.id;
+        publicationLink.className = 'btn btn-sm btn-secondary';
+        publicationLink.textContent = 'Publicar este plan';
+        tr.querySelector('td:last-child').appendChild(publicationLink);
         tbody.appendChild(tr);
       });
 

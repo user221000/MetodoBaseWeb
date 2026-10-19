@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>Mis vínculos — Método Base</title>
+  <link rel="stylesheet" href="/static/css/vinculos.css">
+  <script src="/static/js/api.js" defer></script><script src="/static/js/vinculos-contexto.js" defer></script>
+  <script src="/static/js/vinculos-ui.js" defer></script><script src="/static/js/vinculos-lectura.js" defer></script>
+</head>
+<body><main class="link-page" id="member-links-page">
+  <a href="/">Método Base</a> <a id="member-home" href="/mi-plan" hidden>Mi espacio</a>
+  <h1>Mis vínculos con gimnasios</h1>
+  <p>Consulta los planes que te han publicado. Cada vínculo es un contexto separado de tu perfil personal y de tu acceso profesional.</p>
+  <p id="member-links-status" role="status" aria-live="polite">Verificando tu cuenta…</p>
+  <div id="member-links-error" class="link-error" role="alert" tabindex="-1" hidden></div>
+  <div class="link-actions"><button id="member-links-refresh" type="button">Actualizar mis vínculos</button><button id="member-links-more" type="button" hidden>Cargar más vínculos</button></div>
+  <section aria-labelledby="member-context-title"><h2 id="member-context-title">Elige un contexto</h2><div id="member-links-list"></div></section>
+  <section id="member-publication" aria-labelledby="member-publication-title" hidden>
+    <h2 id="member-publication-title">Plan publicado</h2>
+    <div id="member-publication-summary"></div>
+    <div class="link-actions"><button id="member-publication-pdf" type="button" hidden>Descargar PDF de esta publicación</button><button id="member-link-leave" class="secondary" type="button" hidden>Desvincularme de este contexto</button></div>
+    <div id="member-publication-meals"></div>
+  </section>
+  <aside><h2>Tu diario sigue siendo personal</h2><p>Consultar este menú no registra consumo ni lo incorpora a tu diario. El vínculo no comparte tu diario, mediciones ni cartera profesional. Esas funciones requieren una integración y un consentimiento aparte.</p></aside>
+</main></body></html>

@@ -145,3 +145,24 @@ async def mi_historial_page(request: Request):
 @router.get("/mi-suscripcion", response_class=HTMLResponse)
 async def mi_suscripcion_page(request: Request):
     return template_response(templates, request, "usuario_suscripcion.html", {"request": request, "individual_plans": get_individual_plan_catalog()})
+
+
+def _client_link_page(request: Request, template: str, **values):
+    response = template_response(templates, request, template, {"request": request, **values})
+    response.headers.update({"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+    return response
+
+
+@router.get("/clientes/{client_id}/vinculacion", response_class=HTMLResponse)
+async def client_link_page(request: Request, client_id: str):
+    return _client_link_page(request, "cliente_vinculacion.html", client_id=client_id)
+
+
+@router.get("/mis-vinculos", response_class=HTMLResponse)
+async def member_links_page(request: Request):
+    return _client_link_page(request, "usuario_vinculos.html")
+
+
+@router.get("/auth/accept-client-link", response_class=HTMLResponse)
+async def accept_client_link_page(request: Request):
+    return _client_link_page(request, "accept_client_link.html")
