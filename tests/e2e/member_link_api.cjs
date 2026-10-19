@@ -19,7 +19,7 @@ const checks=[
   ['issue','POST','/api/clientes/synthetic-client/vinculacion/invitaciones',{recipient_email:'synthetic@example.invalid',request_key:A},(a,c)=>a.emitir('synthetic-client','synthetic@example.invalid',A,c)],
   ['rotate','POST',`/api/clientes/synthetic-client/vinculacion/invitaciones/${A}/reenviar`,{expected_version:7},(a,c)=>a.rotar('synthetic-client',A,7,c)],
   ['professional revoke','DELETE',`/api/clientes/synthetic-client/vinculacion/${A}`,{expected_version:7},(a,c)=>a.revocar('synthetic-client',A,7,c)],
-  ['publish','POST',`/api/clientes/synthetic-client/vinculacion/${A}/publicaciones`,{plan_id:41,expected_link_version:7,expected_publication_version:0},(a,c)=>a.publicar('synthetic-client',A,41,7,0,c)],
+  ['publish','POST',`/api/clientes/synthetic-client/vinculacion/${A}/publicaciones`,{plan_id:41,expected_link_version:7,expected_publication_version:0,expected_publication_id:null},(a,c)=>a.publicar('synthetic-client',A,41,7,0,null,c)],
   ['withdraw','DELETE',`/api/clientes/synthetic-client/vinculacion/${A}/publicaciones/${B}`,{expected_version:3},(a,c)=>a.retirar('synthetic-client',A,B,3,c)],
   ['inspect','POST','/api/usuario/vinculaciones/invitacion',{token:'S'.repeat(43)},(a,c)=>a.inspeccionar('S'.repeat(43),c)],
   ['explicit accept','POST','/api/usuario/vinculaciones/aceptar',{token:'S'.repeat(43),expected_version:4,confirm:true},(a,c)=>a.aceptar('S'.repeat(43),4,c)],
@@ -41,8 +41,11 @@ test('changed local account blocks old-resource mutation before fetch',async()=>
   assert.throws(()=>e.api.vinculos.revocar('synthetic-client',A,7,c),x=>x.code==='session_changed');assert.equal(e.calls.length,1);
 });
 test('publication CAS fields never derive a guessed next version',async()=>{
-  const e=env(),c=await e.api.vinculos.contexto();await e.api.vinculos.publicar('synthetic-client',A,41,17,29,c);
-  assert.deepEqual(JSON.parse(e.calls.at(-1).options.body),{plan_id:41,expected_link_version:17,expected_publication_version:29});
+  const e=env(),c=await e.api.vinculos.contexto();await e.api.vinculos.publicar('synthetic-client',A,41,17,29,B,c);
+  assert.deepEqual(JSON.parse(e.calls.at(-1).options.body),{plan_id:41,expected_link_version:17,expected_publication_version:29,expected_publication_id:B});
+});
+for(const [id,v]of [[null,1],[B,0],[undefined,0]])test('Publication ID/version pair must be explicit and consistent: '+String(id)+'/'+v,async()=>{
+ const e=env(),c=await e.api.vinculos.contexto();assert.throws(()=>e.api.vinculos.publicar('synthetic-client',A,41,17,v,id,c));assert.equal(e.calls.length,1);
 });
 function pdfReply(chunks,{mime='application/pdf',length=null,onRead}={}){
   let index=0,cancelled=false,released=false;

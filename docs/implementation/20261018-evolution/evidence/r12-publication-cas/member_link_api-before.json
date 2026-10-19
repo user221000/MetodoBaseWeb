@@ -1,0 +1,101 @@
+{
+  "scope": "Offline actual API helper, synthetic transport/Storage/streams",
+  "passed": 21,
+  "total": 23,
+  "results": [
+    {
+      "name": "issue uses exact contract body and current Bearer",
+      "passed": true
+    },
+    {
+      "name": "rotate uses exact contract body and current Bearer",
+      "passed": true
+    },
+    {
+      "name": "professional revoke uses exact contract body and current Bearer",
+      "passed": true
+    },
+    {
+      "name": "publish uses exact contract body and current Bearer",
+      "passed": false,
+      "error": "TypeError: Cannot read properties of null (reading 'revision')\n    at _assertSnapshot (evalmachine.<anonymous>:67:39)\n    at _linkRequest (evalmachine.<anonymous>:690:5)\n    at Object.publicar (evalmachine.<anonymous>:631:14)\n    at checks.expected_version (F:\\mb-r12-ui-20261019\\tests\\e2e\\member_link_api.cjs:22:191)\n    at F:\\mb-r12-ui-20261019\\tests\\e2e\\member_link_api.cjs:29:57\n    at async F:\\mb-r12-ui-20261019\\tests\\e2e\\member_link_api.cjs:79:62"
+    },
+    {
+      "name": "withdraw uses exact contract body and current Bearer",
+      "passed": true
+    },
+    {
+      "name": "inspect uses exact contract body and current Bearer",
+      "passed": true
+    },
+    {
+      "name": "explicit accept uses exact contract body and current Bearer",
+      "passed": true
+    },
+    {
+      "name": "own unlink uses exact contract body and current Bearer",
+      "passed": true
+    },
+    {
+      "name": "list continuation preserves the opaque UUID and limits one page to100",
+      "passed": true
+    },
+    {
+      "name": "invalid cursor cannot become a path or query parameter",
+      "passed": true
+    },
+    {
+      "name": "changed local account blocks old-resource mutation before fetch",
+      "passed": true
+    },
+    {
+      "name": "publication CAS fields never derive a guessed next version",
+      "passed": false,
+      "error": "Error: La sesión cambió. Vuelve a abrir esta página desde tu cuenta.\n    at _sessionChanged (evalmachine.<anonymous>:60:19)\n    at _assertSnapshot (evalmachine.<anonymous>:67:55)\n    at _linkRequest (evalmachine.<anonymous>:690:5)\n    at Object.publicar (evalmachine.<anonymous>:631:14)\n    at F:\\mb-r12-ui-20261019\\tests\\e2e\\member_link_api.cjs:44:72\n    at async F:\\mb-r12-ui-20261019\\tests\\e2e\\member_link_api.cjs:79:62"
+    },
+    {
+      "name": "Publication ID/version pair must be explicit and consistent: null/1",
+      "passed": true
+    },
+    {
+      "name": "Publication ID/version pair must be explicit and consistent: 22222222-2222-4222-8222-222222222222/0",
+      "passed": true
+    },
+    {
+      "name": "Publication ID/version pair must be explicit and consistent: undefined/0",
+      "passed": true
+    },
+    {
+      "name": "PDF reads only exact link/publication URL and returns a validated bounded Blob",
+      "passed": true
+    },
+    {
+      "name": "HTML is rejected without returning a download",
+      "passed": true
+    },
+    {
+      "name": "wrong signature is rejected without returning a download",
+      "passed": true
+    },
+    {
+      "name": "empty is rejected without returning a download",
+      "passed": true
+    },
+    {
+      "name": "oversize header is rejected without returning a download",
+      "passed": true
+    },
+    {
+      "name": "oversize stream is rejected without returning a download",
+      "passed": true
+    },
+    {
+      "name": "new account while waiting for a PDF chunk cancels the old reader",
+      "passed": true
+    },
+    {
+      "name": "retired exact publication404 has no latest or professional fallback",
+      "passed": true
+    }
+  ]
+}

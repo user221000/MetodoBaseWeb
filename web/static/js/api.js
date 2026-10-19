@@ -626,9 +626,10 @@ const Api = (() => {
     emitir: (client, recipient_email, request_key, context) => _linkRequest('POST', _clientLinkPath(client) + '/invitaciones', {recipient_email, request_key}, context),
     rotar: (client, invitation, version, context) => _linkRequest('POST', _clientLinkPath(client) + '/invitaciones/' + _linkUUID(invitation) + '/reenviar', {expected_version:_linkVersion(version)}, context),
     revocar: (client, link, version, context) => _linkRequest('DELETE', _clientLinkPath(client) + '/' + _linkUUID(link), {expected_version:_linkVersion(version)}, context),
-    publicar: (client, link, plan, linkVersion, publicationVersion, context) => {
+    publicar: (client, link, plan, linkVersion, publicationVersion, publicationId, context) => {
       if (!Number.isSafeInteger(plan) || plan < 1 || plan > 2147483647 || !Number.isSafeInteger(publicationVersion) || publicationVersion < 0 || publicationVersion > 2147483647) throw new Error('Selecciona un plan válido.');
-      return _linkRequest('POST', _clientLinkPath(client) + '/' + _linkUUID(link) + '/publicaciones', {plan_id:plan,expected_link_version:_linkVersion(linkVersion),expected_publication_version:publicationVersion}, context);
+      if (publicationVersion === 0 ? publicationId !== null : (typeof publicationId !== 'string' || _linkUUID(publicationId) !== publicationId.toLowerCase())) throw new Error('Vuelve a consultar la publicación antes de confirmar.');
+      return _linkRequest('POST', _clientLinkPath(client) + '/' + _linkUUID(link) + '/publicaciones', {plan_id:plan,expected_link_version:_linkVersion(linkVersion),expected_publication_id:publicationId,expected_publication_version:publicationVersion}, context);
     },
     retirar: (client, link, publication, version, context) => _linkRequest('DELETE', _clientLinkPath(client) + '/' + _linkUUID(link) + '/publicaciones/' + _linkUUID(publication), {expected_version:_linkVersion(version)}, context),
     inspeccionar: (token, context) => _linkRequest('POST', '/api/usuario/vinculaciones/invitacion', {token:_linkToken(token)}, context),

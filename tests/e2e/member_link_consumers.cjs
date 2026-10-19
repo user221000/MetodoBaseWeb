@@ -88,7 +88,14 @@ test('publication choices never publish automatically and use observed CAS versi
   e.handlers.publicar=()=>({publication_id:B,link_id:A,source_plan_id:42});e.load();await flush();assert(!e.calls.some(x=>x.name==='publicar'));
   const card=e.ids['professional-link-items'];const buttons=card.querySelectorAll('[data-mutation]');const publish=buttons.find(x=>x.textContent==='Reemplazar el plan publicado');
   const walk=x=>[x,...x.children.flatMap(walk)];walk(card).find(x=>x.tagName==='INPUT').value='42';await publish.fire('click');
-  const sent=e.calls.find(x=>x.name==='publicar');assert.equal(sent.args[2],42);assert.equal(sent.args[3],17);assert.equal(sent.args[4],29);
+  const sent=e.calls.find(x=>x.name==='publicar');assert.equal(sent.args[2],42);assert.equal(sent.args[3],17);assert.equal(sent.args[4],29);assert.equal(sent.args[5],B);
+});
+test('publication conflict never substitutes an ID until visible requery and another explicit confirmation',async()=>{
+  const e=env('professional');let current=B,first=true;e.handlers.estado=()=>({client_id:'synthetic-client',capabilities,items:[{link_id:A,status:'active',version:7,invitation_status:'consumed',publication:{id:current,version:1,source_plan_id:41,published_at:'2026-10-19T12:00:00Z'}}],next_after:null});
+  e.handlers.publicar=()=>{if(first){first=false;current=A;throw Object.assign(new Error('Synthetic concurrent publication'),{status:409,code:'member_version_conflict'});}current='33333333-3333-4333-8333-333333333333';return {publication_id:current,link_id:A,source_plan_id:42};};e.load();await flush();
+  const choose=()=>{const card=e.ids['professional-link-items'],walk=x=>[x,...x.children.flatMap(walk)];walk(card).find(x=>x.tagName==='INPUT').value='42';return card.querySelectorAll('[data-mutation]').find(x=>x.textContent==='Reemplazar el plan publicado');};
+  const old=choose();await old.fire('click');assert(old.disabled);assert.equal(e.calls.filter(x=>x.name==='publicar').length,1);assert.equal(e.calls.filter(x=>x.name==='estado').length,1);assert.equal(e.calls.find(x=>x.name==='publicar').args[5],B);
+  await e.ids['professional-link-refresh'].fire('click');await choose().fire('click');const writes=e.calls.filter(x=>x.name==='publicar');assert.equal(writes.length,2);assert.equal(writes[1].args[5],A);assert.equal(writes[1].args[4],1);
 });
 test('reader selection is literal, explicit and has no personal diary writes',async()=>{
   const e=env('reader');e.load();await flush();assert.deepEqual(e.calls.map(x=>x.name),['listar']);

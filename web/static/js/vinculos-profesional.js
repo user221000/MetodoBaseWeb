@@ -52,7 +52,7 @@
       node('h2',row.status==='active'?'Vínculo aceptado':row.status==='pending'?'Invitación pendiente':'Vínculo revocado',card);
       const status={pending:'Pendiente de aceptación',expired:'Vencida',consumed:'Utilizada',revoked:'Revocada'};
       node('p','Invitación: '+(status[row.invitation_status]||'No disponible')+'. Vigencia: '+date(row.expires_at)+'.',card);
-      node('p',row.publication ? 'Plan publicado: '+row.publication.source_plan_id+'. '+(row.status==='active'?'Disponible para esta cuenta destinataria.':'Se mostrará sólo al aceptar el vínculo.') : 'Sin plan publicado.',card);
+      node('p',row.publication ? 'Plan publicado: '+row.publication.source_plan_id+'. Publicado: '+date(row.publication.published_at)+'. '+(row.status==='active'?'Disponible para esta cuenta destinataria.':'Se mostrará sólo al aceptar el vínculo.') : 'Sin plan publicado.',card);
       if(row.status==='revoked')continue;
       const actions=node('div',undefined,card);actions.className='link-actions';
       if(caps.rotate_invitation && ['pending','expired'].includes(row.invitation_status) && uuid(row.invitation_id) && version(row.invitation_version)) {
@@ -74,7 +74,7 @@
         node('p','Selecciona el número de un plan de este cliente desde el historial. Sólo se compartirá al confirmar; reemplazar retira la publicación anterior.',card);
         action(node('button',undefined,card),row.publication?'Reemplazar el plan publicado':'Publicar este plan',async()=>{
           const plan=Number(input.value);
-          const data=await ui.context.read(context=>Api.vinculos.publicar(client,row.link_id,plan,row.version,row.publication?.version||0,context));
+          const data=await ui.context.read(context=>Api.vinculos.publicar(client,row.link_id,plan,row.version,row.publication?.version||0,row.publication?.id||null,context));
           if(!uuid(data?.publication_id)||data.link_id!==row.link_id||data.source_plan_id!==plan)throw new Error('Invalid publication receipt');
         });
       }
