@@ -1,12 +1,18 @@
 /* Provider returns never grant access. Authenticated APIs confirm account state. */
 (function () {
   'use strict';
-  if (localStorage.getItem('mb_tipo') === 'usuario') { location.replace('/mi-suscripcion'); return; }
-  var config = null, subscription = null, owner = false, busy = false, loading = false, keys = {};
+  var config = null, subscription = null, owner = false, busy = false, loading = false, keys = {}, context = null, epoch = 0, invalid = false, uncertain = false;
   var feedback = document.getElementById('billing-feedback');
   var names = { free: 'Free', standard: 'Standard', gym_comercial: 'Gym Comercial', clinica: 'Clínica' };
   var statuses = { active: 'Activo', trialing: 'Prueba', past_due: 'Pago atrasado', canceled: 'Cancelada', incomplete: 'Pago pendiente', incomplete_expired: 'Pago vencido', unpaid: 'Sin pago vigente', paused: 'Pausada', none: 'Sin suscripción de pago' };
   var returned = new URLSearchParams(location.search);
+  function invalidate() {
+    if(invalid)return;invalid=true;epoch++;context=null;config=null;subscription=null;owner=false;busy=false;loading=false;keys={};
+    render();document.getElementById('payments-tbody').replaceChildren();document.getElementById('payments-state').textContent='Se descartaron los datos de la sesión anterior.';
+    notify('La sesión cambió o no se pudo leer de forma segura. Recarga para consultar tu cuenta.');
+  }
+  function current(ticket) {if(invalid || ticket!==epoch || !context)return false;try{Api.stats.validarContexto(context);return !invalid && ticket===epoch;}catch(_){invalidate();return false;}}
+  async function verify(ticket) {if(!current(ticket))return false;await Api.stats.verificarContexto(context);return current(ticket);}
   function notify(message) { feedback.textContent = message; feedback.hidden = false; }
   function failure(error) { return (error.message || 'No pudimos completar la solicitud. Intenta de nuevo.') + (error.requestId ? ' Referencia: ' + error.requestId : ''); }
   function date(value) { if (!value) return 'Sin fecha confirmada'; var d = new Date(typeof value === 'number' ? value * 1000 : value); return Number.isNaN(d.getTime()) ? 'Sin fecha confirmada' : d.toLocaleDateString('es-MX'); }
@@ -24,7 +30,7 @@
     document.getElementById('sub-precio').textContent = info && Number.isFinite(info.precio_mxn) ? '$' + info.precio_mxn + ' MXN' : known && subscription.status === 'none' ? 'Sin cargo' : 'Por confirmar';
     document.getElementById('sub-renewal-note').textContent = !known ? 'Consulta el estado antes de iniciar otro pago.' : existingProvider === 'mercadopago' ? 'Mercado Pago: pago único, sin renovación automática.' : subscription.cancel_at_period_end ? 'Cancelación programada. Consulta la vigencia confirmada.' : existingProvider === 'stripe' ? 'La renovación y la cancelación se gestionan en Stripe. Consulta de nuevo tras su confirmación.' : 'No hay una renovación automática confirmada para mostrar.';
     document.getElementById('btn-portal').hidden = !known || !owner || existingProvider !== 'stripe';
-    document.getElementById('btn-portal').disabled = busy || loading;
+    document.getElementById('btn-portal').disabled = busy || loading || uncertain;
     document.getElementById('btn-refresh-billing').disabled = !owner || busy || loading;
     document.getElementById('billing-methods').disabled = !owner || !known || busy || loading || existingProvider === 'stripe';
     document.querySelectorAll('[name="billing-provider"]').forEach(function(input) { input.disabled = !configured(input.value); });
@@ -32,50 +38,53 @@
     document.querySelectorAll('.btn-plan').forEach(function(button) {
       var current = known && subscription.plan === button.dataset.plan && ['active','trialing'].includes(subscription.status);
       var portalAvailable = existingProvider === 'stripe';
-      button.disabled = !known || !owner || busy || loading || current || (!portalAvailable && !configured(provider()));
+      button.disabled = !known || !owner || busy || loading || uncertain || current || (!portalAvailable && !configured(provider()));
       button.textContent = current ? 'Plan actual' : portalAvailable ? 'Gestionar en Stripe' : 'Elegir ' + names[button.dataset.plan];
       document.getElementById('plan-' + button.dataset.plan).classList.toggle('current-plan', current);
     });
   }
   async function load() {
-    if (!owner || busy || loading) return;
+    if (invalid || !owner || busy || loading) return;var ticket=epoch;
     loading = true; subscription = null; config = null; feedback.hidden = true; render();
     try {
+      if(!await verify(ticket))return;
       var result = await Promise.all([Api.billing.subscription(), Api.billing.config()]);
+      if(!await verify(ticket))return;
       var value = result[0], options = result[1];
       if (!value || !Object.prototype.hasOwnProperty.call(statuses, value.status) || (value.status === 'none' ? value.plan !== null : !Object.prototype.hasOwnProperty.call(names, value.plan))) throw new Error('El servidor devolvió un estado de suscripción incompleto. Intenta consultar de nuevo.');
       if (value.status !== 'none' && value.plan !== 'free' && !['stripe','mercadopago'].includes(value.provider)) throw new Error('El servidor no confirmó el proveedor de la suscripción. Intenta consultar de nuevo.');
       if (!options || typeof options.stripe_configured !== 'boolean' || typeof options.mercadopago_configured !== 'boolean' || !options.plans || typeof options.plans !== 'object') throw new Error('El servidor devolvió una disponibilidad de pagos incompleta. Intenta consultar de nuevo.');
-      subscription = value; config = options;
+      subscription = value; config = options; uncertain=false;
       var selected = provider();
       if (!configured(selected)) selected = configured('stripe') ? 'stripe' : configured('mercadopago') ? 'mercadopago' : null;
       document.querySelectorAll('[name="billing-provider"]').forEach(function(input) { input.checked = input.value === selected; });
       if (returned.get('result') === 'success' || returned.get('subscription') === 'success' || returned.get('redirect_status') === 'succeeded') {
         notify(subscription.status === 'active' ? 'El panel muestra el estado confirmado de tu cuenta. El regreso del proveedor no confirma por sí solo un cambio de plan.' : 'El pago aún no aparece confirmado. Consulta de nuevo antes de iniciar otro pago.');
       } else if (returned.get('result') === 'canceled' || returned.get('subscription') === 'canceled') notify('Volviste del proveedor sin una confirmación de pago. Revisa el estado de tu cuenta.');
-    } catch(error) { subscription = null; config = null; notify('No pudimos consultar tu suscripción y los medios de pago. ' + failure(error)); }
-    finally { loading = false; render(); }
+    } catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}subscription = null; config = null; notify('No pudimos consultar tu suscripción y los medios de pago. ' + failure(error)); }
+    finally { if(current(ticket)){loading = false; render();} }
   }
-  function redirect(value, name, portal) {
+  function redirect(value, name, portal, ticket) {
+    if(!current(ticket))return;
     var url;
     try { url = new URL(value); } catch (_) { throw new Error('El proveedor no devolvió una dirección válida. Consulta tu estado.'); }
     var hosts = name === 'mercadopago' ? ['www.mercadopago.com.mx','www.mercadopago.com','sandbox.mercadopago.com.mx','sandbox.mercadopago.com'] : [portal ? 'billing.stripe.com' : 'checkout.stripe.com'];
     if (url.protocol !== 'https:' || url.username || url.password || !hosts.includes(url.hostname)) throw new Error('No pudimos abrir el proveedor de pago. Consulta tu estado antes de intentar de nuevo.');
-    location.assign(url.href);
+    if(current(ticket))location.assign(url.href);
   }
   async function portal() {
-    if (busy || loading || !owner || !subscription || subscription.provider !== 'stripe') return;
+    if (invalid || uncertain || busy || loading || !owner || !subscription || subscription.provider !== 'stripe') return;var ticket=epoch;
     busy = true; render();
-    try { redirect((await Api.billing.portal()).url, 'stripe', true); }
-    catch(error) { notify(failure(error)); }
-    finally { busy = false; render(); }
+    try { if(!await verify(ticket))return;var result=await Api.billing.portal();if(!await verify(ticket))return;redirect(result.url, 'stripe', true, ticket); }
+    catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}notify(failure(error)); }
+    finally { if(current(ticket)){busy = false; render();} }
   }
   document.getElementById('btn-refresh-billing').addEventListener('click', function() { load(); payments(); });
   document.getElementById('btn-portal').addEventListener('click', portal);
   document.querySelectorAll('[name="billing-provider"]').forEach(function(input) { input.addEventListener('change', render); });
   document.querySelectorAll('.btn-plan').forEach(function(button) {
     button.addEventListener('click', async function() {
-      if (busy || loading || !owner || !subscription) return;
+      if (invalid || uncertain || busy || loading || !owner || !subscription) return;var ticket=epoch;
       if (subscription.provider === 'stripe') return portal();
       var plan = button.dataset.plan, name = provider();
       if (!configured(name)) return;
@@ -83,18 +92,23 @@
       if (!keys[intent]) keys[intent] = 'purchase-' + crypto.randomUUID();
       busy = true; render(); button.textContent = 'Abriendo proveedor…';
       try {
+        if(!await verify(ticket))return;
         var result = name === 'stripe' ? await Api.billing.checkout(plan, keys[intent]) : await Api.billing.mpPreference(plan, keys[intent]);
-        redirect(name === 'stripe' ? result.url : result.redirect_url, name, false);
-      } catch(error) { notify(failure(error)); feedback.scrollIntoView({block:'nearest'}); }
-      finally { busy = false; render(); }
+        if(!await verify(ticket))return;redirect(name === 'stripe' ? result.url : result.redirect_url, name, false, ticket);
+      } catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}
+        if((!error.status || error.status>=500) && !['mfa_cancelled','mfa_ui_unavailable'].includes(error.code))uncertain=true;
+        notify(failure(error)+(uncertain?' El resultado es incierto. Consulta el estado antes de volver a intentarlo; se conservará la misma clave para esta intención.':''));feedback.scrollIntoView({block:'nearest'}); }
+      finally { if(current(ticket)){busy = false; render();} }
     });
   });
   async function payments() {
-    if (!owner) return;
+    if (invalid || !owner) return;var ticket=epoch;
     var state = document.getElementById('payments-state'), body = document.getElementById('payments-tbody');
     body.replaceChildren(); state.textContent = 'Consultando pagos…';
     try {
+      if(!await verify(ticket))return;
       var response = await Api.billing.payments();
+      if(!await verify(ticket))return;
       if (!response || !Array.isArray(response.payments)) throw new Error('El servidor devolvió un historial de pagos incompleto.');
       var rows = response.payments;
       state.textContent = rows.length ? rows.length + ' pagos registrados.' : 'No hay pagos registrados en tu cuenta.';
@@ -106,16 +120,18 @@
         [date(payment.created_at), amount, payment.status || 'Por confirmar', names[payment.plan] || 'Plan por confirmar'].forEach(function(text) { var cell = document.createElement('td'); cell.textContent = text; row.appendChild(cell); });
         body.appendChild(row);
       });
-    } catch(error) { body.replaceChildren(); state.textContent = 'No pudimos consultar los pagos. ' + failure(error); }
+    } catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}body.replaceChildren(); state.textContent = 'No pudimos consultar los pagos. ' + failure(error); }
   }
+  window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('storage',function(event){if(!event.key || ['mb_token','mb_refresh_token'].includes(event.key))current(epoch);});window.addEventListener('pagehide',invalidate);
   (async function() {
+    var ticket=epoch;
     render();
     try {
-      var me = await Api.auth.me();
+      context=await Api.stats.contexto();if(invalid || ticket!==epoch)return;var me = await Api.auth.me();if(!await verify(ticket))return;
       owner = String(me.role || '').toLowerCase() === 'owner';
       if (!owner) { notify('La facturación sólo está disponible para la persona propietaria del gimnasio.'); document.getElementById('payments-state').textContent = 'No tienes permiso para consultar pagos.'; render(); return; }
       await Promise.all([load(),payments()]);
-    } catch(error) { notify('No pudimos consultar tu cuenta. ' + failure(error)); render(); }
+    } catch(error) { if(!invalid && ticket===epoch){if(['session_changed','session_storage_error'].includes(error.code))invalidate();else{notify('No pudimos consultar tu cuenta. ' + failure(error));render();}} }
   })();
   if (location.search) history.replaceState({}, '', '/suscripciones');
 })();

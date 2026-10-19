@@ -178,9 +178,14 @@
   </div>
 </div>
 
+{% include "mfa_account_partial.html" %}
 {% endblock %}
 
 {% block scripts %}
+<link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-ui.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}">MfaUI.mountAccount({loginUrl:"/login-gym",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});</script>
+
 <style>
 #gym-logo-section img { object-fit:contain; }
 #gym-logo-section [hidden] { display:none !important; }

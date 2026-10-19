@@ -1,0 +1,19 @@
+<section id="mfa-login-panel" class="mfa-view" aria-labelledby="mfa-login-title" hidden>
+  <h2 id="mfa-login-title">Verificar acceso</h2>
+  <p id="mfa-login-status" role="status" aria-live="polite" tabindex="-1"></p>
+  <form id="mfa-login-factor" hidden>
+    <label for="mfa-login-method">Método de verificación</label>
+    <select id="mfa-login-method"><option value="totp">Aplicación autenticadora</option><option value="recovery_code">Código de recuperación</option></select>
+    <label id="mfa-login-code-label" for="mfa-login-code">Código del autenticador (seis cifras)
+      <input id="mfa-login-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false" aria-describedby="mfa-login-status">
+    </label>
+    <label id="mfa-login-recovery-label" for="mfa-login-recovery" hidden>Código de recuperación sin usar
+      <input id="mfa-login-recovery" type="text" autocomplete="off" maxlength="22" spellcheck="false" autocapitalize="none" aria-describedby="mfa-login-status">
+    </label>
+    <button type="submit">Verificar e iniciar sesión</button>
+  </form>
+  <button type="button" id="mfa-login-cancel">Descartar verificación</button>
+  <button type="button" id="mfa-login-reopen">Volver a abrir el acceso</button>
+  <button type="button" id="mfa-login-destination" hidden>Consultar el destino de mi cuenta</button>
+  <p>Un código de recuperación es de un uso. Si se perdió la confirmación, inicia un acceso nuevo. Recuperar la contraseña no desactiva este factor.</p>
+</section>
