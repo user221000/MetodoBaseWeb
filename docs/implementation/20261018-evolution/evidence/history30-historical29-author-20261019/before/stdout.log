@@ -1,0 +1,31 @@
+FF..F                                                                    [100%]
+================================== FAILURES ===================================
+__ test_exact28_upgrade_repeat_preserves_rows_and_old_policies[sqlite-False] __
+tests\integration_client_link_migrations.py:40: in test_exact28_upgrade_repeat_preserves_rows_and_old_policies
+    verify_runtime_schema(engine)
+web\database\schema_control.py:64: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations
+__ test_exact28_upgrade_repeat_preserves_rows_and_old_policies[sqlite-True] ___
+tests\integration_client_link_migrations.py:40: in test_exact28_upgrade_repeat_preserves_rows_and_old_policies
+    verify_runtime_schema(engine)
+web\database\schema_control.py:64: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations
+_____ test_member_helper_or_trigger_drift_fails_runtime_contract[sqlite] ______
+tests\integration_client_link_migrations.py:95: in test_member_helper_or_trigger_drift_fails_runtime_contract
+    verify_runtime_schema(engine)
+web\database\schema_control.py:64: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+------------------------------ Captured log call ------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume non-transactional DDL.
+=========================== short test summary info ===========================
+FAILED tests/integration_client_link_migrations.py::test_exact28_upgrade_repeat_preserves_rows_and_old_policies[sqlite-False]
+FAILED tests/integration_client_link_migrations.py::test_exact28_upgrade_repeat_preserves_rows_and_old_policies[sqlite-True]
+FAILED tests/integration_client_link_migrations.py::test_member_helper_or_trigger_drift_fails_runtime_contract[sqlite]
+3 failed, 2 passed, 5 deselected in 26.62s

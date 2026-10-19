@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="26.279" timestamp="2026-10-19T08:13:58.650506-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_client_link_migrations" name="test_exact28_upgrade_repeat_preserves_rows_and_old_policies[sqlite-False]" time="5.557"><failure message="RuntimeError: Database revision does not match application; run reviewed migrations">tests\integration_client_link_migrations.py:40: in test_exact28_upgrade_repeat_preserves_rows_and_old_policies
+    verify_runtime_schema(engine)
+web\database\schema_control.py:64: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations</failure></testcase><testcase classname="tests.integration_client_link_migrations" name="test_exact28_upgrade_repeat_preserves_rows_and_old_policies[sqlite-True]" time="5.360"><failure message="RuntimeError: Database revision does not match application; run reviewed migrations">tests\integration_client_link_migrations.py:40: in test_exact28_upgrade_repeat_preserves_rows_and_old_policies
+    verify_runtime_schema(engine)
+web\database\schema_control.py:64: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations</failure></testcase><testcase classname="tests.integration_client_link_migrations" name="test_unknown28_drift_aborts_before_link_ddl[sqlite]" time="5.035" /><testcase classname="tests.integration_client_link_migrations" name="test_parent_rebuild_failure_rolls_back_constraints_rows_and_revision[sqlite]" time="5.111" /><testcase classname="tests.integration_client_link_migrations" name="test_member_helper_or_trigger_drift_fails_runtime_contract[sqlite]" time="4.120"><failure message="RuntimeError: Database revision does not match application; run reviewed migrations">tests\integration_client_link_migrations.py:95: in test_member_helper_or_trigger_drift_fails_runtime_contract
+    verify_runtime_schema(engine)
+web\database\schema_control.py:64: in verify_runtime_schema
+    raise RuntimeError("Database revision does not match application; run reviewed migrations")
+E   RuntimeError: Database revision does not match application; run reviewed migrations</failure></testcase></testsuite></testsuites>

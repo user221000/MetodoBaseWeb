@@ -37,7 +37,7 @@ def test_exact28_upgrade_repeat_preserves_rows_and_old_policies(migration_databa
     verify_runtime_schema(engine,expected_revision=PREVIOUS)
     with pytest.raises(RuntimeError,match='revision'):verify_runtime_schema(engine)
     run_migration(url,'db_bootstrap.py','--revision',REVISION)
-    verify_runtime_schema(engine)
+    verify_runtime_schema(engine,expected_revision=REVISION)
     assert snapshot(engine,columns)[1]==before
     with engine.connect() as db:
         assert len(inspect(db).get_table_names())==30  #29 business + bookkeeping.
@@ -92,9 +92,9 @@ def test_parent_rebuild_failure_rolls_back_constraints_rows_and_revision(migrati
 def test_member_helper_or_trigger_drift_fails_runtime_contract(migration_database):
     url,engine=migration_database
     run_migration(url,'db_bootstrap.py','--revision',REVISION)
-    verify_runtime_schema(engine)
+    verify_runtime_schema(engine,expected_revision=REVISION)
     with engine.begin() as db:
         if engine.dialect.name=='postgresql':
             db.exec_driver_sql("ALTER TABLE client_account_links DISABLE TRIGGER r12_guard_link")
         else:db.exec_driver_sql('DROP TRIGGER r12_link_update')
-    with pytest.raises(RuntimeError,match='guards'):verify_runtime_schema(engine)
+    with pytest.raises(RuntimeError,match='guards'):verify_runtime_schema(engine,expected_revision=REVISION)
