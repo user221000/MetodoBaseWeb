@@ -126,10 +126,11 @@
       controller.check();seed.replaceChildren();node('p','Configura una cuenta TOTP de seis cifras, intervalo30 segundos, en tu autenticador. La semilla es manual y sólo se muestra en esta vista hasta '+expiry+'.',seed);
       const value=node('p',secret,seed);value.className='mfa-secret';controller.check();confirmation.hidden=false;get('mfa-account-new-code').focus();
     },onKit(codes,closed){
+      Api.mfa.check(closed);get('mfa-account-summary').textContent='';
       form.hidden=true;confirmation.hidden=true;get('mfa-account-google').hidden=true;get('mfa-account-refresh').hidden=true;state.textContent='Cambio confirmado. Sesión anterior cerrada; guarda el kit antes de salir.';
       recoveryView=kit(kitRoot,codes,closed,options.loginUrl);Api.mfa.check(closed);
     },onClosed(closed){
-      Api.mfa.check(closed);form.hidden=true;confirmation.hidden=true;get('mfa-account-google').hidden=true;state.textContent='Autenticación en dos pasos desactivada y sesión cerrada. Para hacer cambios protegidos tendrás que activarla de nuevo.';
+      Api.mfa.check(closed);get('mfa-account-summary').textContent='';form.hidden=true;confirmation.hidden=true;get('mfa-account-google').hidden=true;state.textContent='Autenticación en dos pasos desactivada y sesión cerrada. Para hacer cambios protegidos tendrás que activarla de nuevo.';
       const link=node('a','Iniciar sesión de nuevo',kitRoot);link.href=options.loginUrl;Api.mfa.check(closed);
     },onClosedError(text){clear();form.hidden=true;get('mfa-account-google').hidden=true;state.textContent=text;state.focus();}});
     function currentProof(){return controller.enabled?factor(get('mfa-account-method').value,get('mfa-account-factor').value.trim()):{};}
