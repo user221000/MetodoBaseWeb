@@ -4877,6 +4877,50 @@
       "observaciones": [
         "Reproduccion VM sintetica; no afirma incidente ni explotacion con cuentas reales. Los21 grupos browser de QA son cobertura parcial y no anulan estos negativos."
       ]
+    },
+    {
+      "id": "SEC05",
+      "identificador_original": "SEC05",
+      "fuente": "docs/implementation/20261018-evolution/METRICAS_PRIVACIDAD.md",
+      "seccion": "Rutas concretas e identidad de cliente en metricas",
+      "problema": "MetricsMiddleware conserva ruta concreta y direccion/encabezado de cliente en memoria y errores recientes; normalizacion heuristica mezcla endpoints.",
+      "criterio_exacto": "Retener solo ruta declarada del router o etiqueta fija sin coincidencia, metodos cerrados y datos tecnicos acotados; no leer ni guardar direccion de cliente, X-Forwarded-For, ruta concreta, query o cuerpo. Conservar reproducciones antes/despues y revisar memoria/salida, agrupacion y regresiones de proteccion de metricas/tenants independientemente.",
+      "prioridad": "P1",
+      "responsable": "Coordinacion y seguridad",
+      "tareas": [
+        "R17",
+        "R31"
+      ],
+      "dependencias": [],
+      "estado": "en_revision",
+      "implementacion": "en_revision",
+      "validacion": "en_revision",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [
+        "Fix aislado2b58139; producto no integrado en candidato."
+      ],
+      "commits": [
+        "2b58139ca534fb245095be926d9d00c33ba09504"
+      ],
+      "pruebas": [
+        "Autor3rojosASGI antes;63verdes despues incluidos errores/alertas, proteccion metricas y tenants. Revision independiente pendiente."
+      ],
+      "evidencia": [
+        "evidence/metrics-privacy-root-source.json",
+        "evidence/metrics-privacy-root-before.xml",
+        "evidence/metrics-privacy-root-after.xml",
+        "evidence/metrics-privacy-author-copy.json"
+      ],
+      "documentacion": [
+        "METRICAS_PRIVACIDAD.md",
+        "RIESGOS.md"
+      ],
+      "revisor": null,
+      "bloqueo": null,
+      "observaciones": [
+        "Datos sinteticos y ASGI local; no afirma incidente, envio a terceros ni cumplimiento legal. No cambia IP del rate limiter, cobertura de excepciones sin respuesta ni almacenamiento/alertas distribuidos."
+      ]
     }
   ]
 }

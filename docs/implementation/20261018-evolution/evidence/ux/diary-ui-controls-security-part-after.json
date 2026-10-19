@@ -1,0 +1,81 @@
+{
+  "scope": "Independent part(true)/part(false) guard probes with real UI/API code and synthetic VM DOM/Storage/transport; no browser or network claim",
+  "sourceBefore": {
+    "web/static/js/api.js": "ec8ddcf7dd62d79f2a55860cdb98ec02e1759df02e9ddf031ec45f9399c0a19f",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "c1dae44884cf32cc7d956dde8a59789b1eedd24047183da7ea797ef3b8194e84",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sourceAfter": {
+    "web/static/js/api.js": "ec8ddcf7dd62d79f2a55860cdb98ec02e1759df02e9ddf031ec45f9399c0a19f",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "c1dae44884cf32cc7d956dde8a59789b1eedd24047183da7ea797ef3b8194e84",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sources_stable": true,
+  "driver_sha256": "cb282217593d31c3cf019a94bd458ee02383f2928eb2d833a3a14295f61efad3",
+  "total": 4,
+  "passed": 4,
+  "results": [
+    {
+      "case": "First part preserves invalidation status after controls detects account",
+      "passed": true
+    },
+    {
+      "case": "First part preserves invalidation status after controls detects storage",
+      "passed": true
+    },
+    {
+      "case": "Next part preserves invalidation status after controls detects account",
+      "passed": true
+    },
+    {
+      "case": "Next part preserves invalidation status after controls detects storage",
+      "passed": true
+    }
+  ],
+  "observations": [
+    {
+      "button": "privacy-start",
+      "mode": "account",
+      "statusWrites": [
+        "La descarga se descartó porque no se pudo confirmar la sesión."
+      ],
+      "new_requests": 0,
+      "new_downloads": 0,
+      "cache_urls": 0
+    },
+    {
+      "button": "privacy-start",
+      "mode": "storage",
+      "statusWrites": [
+        "La descarga se descartó porque no se pudo confirmar la sesión."
+      ],
+      "new_requests": 0,
+      "new_downloads": 0,
+      "cache_urls": 0
+    },
+    {
+      "button": "privacy-next",
+      "mode": "account",
+      "statusWrites": [
+        "La descarga se descartó porque no se pudo confirmar la sesión."
+      ],
+      "new_requests": 0,
+      "new_downloads": 0,
+      "cache_urls": 0
+    },
+    {
+      "button": "privacy-next",
+      "mode": "storage",
+      "statusWrites": [
+        "La descarga se descartó porque no se pudo confirmar la sesión."
+      ],
+      "new_requests": 0,
+      "new_downloads": 0,
+      "cache_urls": 0
+    }
+  ]
+}

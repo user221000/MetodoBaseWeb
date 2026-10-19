@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="1.814" timestamp="2026-10-19T01:35:05.826190-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_metrics_privacy_contract" name="test_metrics_store_only_declared_route_label_and_no_client_identity[matched]" time="0.909"><failure message="AssertionError: assert {'/probe/{id}'} == {'/probe/{subject}'}&#10;  &#10;  Extra items in the left set:&#10;  '/probe/{id}'&#10;  Extra items in the right set:&#10;  '/probe/{subject}'&#10;  Use -v to get more diff">tests\test_metrics_privacy_contract.py:31: in test_metrics_store_only_declared_route_label_and_no_client_identity
+    assert set(summary['endpoints']) == {expected}
+E   AssertionError: assert {'/probe/{id}'} == {'/probe/{subject}'}
+E     
+E     Extra items in the left set:
+E     '/probe/{id}'
+E     Extra items in the right set:
+E     '/probe/{subject}'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.test_metrics_privacy_contract" name="test_metrics_store_only_declared_route_label_and_no_client_identity[unmatched]" time="0.022"><failure message="AssertionError: assert {'/{id}/{id}'} == {'/__unmatched__'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/{id}'&#10;  Extra items in the right set:&#10;  '/__unmatched__'&#10;  Use -v to get more diff">tests\test_metrics_privacy_contract.py:31: in test_metrics_store_only_declared_route_label_and_no_client_identity
+    assert set(summary['endpoints']) == {expected}
+E   AssertionError: assert {'/{id}/{id}'} == {'/__unmatched__'}
+E     
+E     Extra items in the left set:
+E     '/{id}/{id}'
+E     Extra items in the right set:
+E     '/__unmatched__'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.test_metrics_privacy_contract" name="test_metrics_never_store_unknown_http_method_or_raw_path" time="0.020"><failure message="AssertionError: assert '/synthetic-private-subject' == '/__unmatched__'&#10;  &#10;  - /__unmatched__&#10;  + /synthetic-private-subject">tests\test_metrics_privacy_contract.py:53: in test_metrics_never_store_unknown_http_method_or_raw_path
+    assert recent[0]['path'] == '/__unmatched__'
+E   AssertionError: assert '/synthetic-private-subject' == '/__unmatched__'
+E     
+E     - /__unmatched__
+E     + /synthetic-private-subject</failure></testcase></testsuite></testsuites>

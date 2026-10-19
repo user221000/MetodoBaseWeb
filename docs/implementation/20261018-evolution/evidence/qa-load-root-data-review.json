@@ -1,0 +1,197 @@
+{
+  "author_commit": "7125774a0049d279af01794cdf6f18c19a0c3e3c",
+  "review": "Independent coordinator source/data review; no repeated HTTP load, PostgreSQL execution or OS counters attributed.",
+  "manifest_files_verified": {
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-smoke/report.json": "0e8c4724e242195d5effea459c7a495595174c9f868352386e72602e46042e29",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-smoke/run.log": "4f36875399d8262c1ea629dd6766324e6f0557f11dd9310820151db8620eeb29",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-smoke/source.json": "b8e9c62187285fbc70bfb93bb929da860585f0ffd053d0c6e7112d315a4cc172",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final/report.json": "3a0f3e8bdbe1920c5a20fa54f238841fa6c583ec536f8cfecedfc9961029bb99",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final/run.log": "9a0369d1a8ff7574e1df7e86852b232f22145b0207be2d45e04a05c883ad7b9c",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final/samples.json": "5e91e3f96385b6f645b037cb7270d5bf632d23d849b95629ba1931cc86b38c48",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final/server-observations.jsonl": "13c5cc0c01965920afe693d8dfc94ca84d13076e1c14f1e9ba5d40f83a4adda3",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final/source.json": "dfe73e32d8b97bd7b5aea5c3496b78f07d12ece428474ee5845e248f74055523",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-verified/report.json": "70ace0648b31b43bddbd498b7355773e145b8ca7476688b556591cb7462bbb20",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-verified/run.log": "413c49025a14c4aa18157db4c5b687d1227c2ccdf56f14c9977d403b4cb881a4",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-verified/samples.json": "25859b051c131d49ab22d211d928422262fc0d6de44b9a7d7c4749989eb534cf",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-verified/server-identity.json": "2149cfcc7e6d6c8a76b1d1afbbb6051fbde3912220b0abcf2dce7a2af6381f8b",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-verified/server-observations.jsonl": "a40c8dca615e8464dc2c4477cfc0b74c18e1143a5be79cea7564b7816e0768ee",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-verified/source.json": "98a3d2a460646e03c9ba4a3432e74bb02dca97e54c10d867954a15834a6a9c1f",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-ack/harness.py.txt": "6172e7556a522da28a0f80a93694cd7d231f60b7d6520e05fdabcbaaa561bdf6",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-ack/report.json": "4afa41df33e07dcf903186ffb6b54970bd7c8bbac838efa820e221f939682b01",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-ack/run.log": "ae48347563868b73c71320db53541d6ab6c463a72a550892bc991f6b9dd32dd5",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-ack/samples.json": "56a042357ea0ac4c52e765174bed9815c9dab9e4f13359d2b053e92dbba47aa3",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-ack/server-identity.json": "5074a62e46dfd192ca845daf2a10b175ca3e1be76f13486054521fc7b3ac8b04",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-ack/server-observations.jsonl": "170237c07a8761cc13eb0e75108d394cbffda91aef83124a1877a50ed0c70ecf",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-ack/source.json": "11b2746af88a1f5f455bebee97285199e6457d3793684b07eea1c642786cc40e",
+    "tests/performance/characterize_local_http.py": "6172e7556a522da28a0f80a93694cd7d231f60b7d6520e05fdabcbaaa561bdf6",
+    "docs/implementation/20261018-evolution/CARGA_LOCAL.md": "410f15c1f9e0f7e513d8bceaf8e096e2b8ddf5ec843a65ce8af3a48050ce7881",
+    "docs/implementation/20261018-evolution/evidence/qa-load-local-final-checks.json": "472c97980244c1c76e4554e30e4e9cff7c83f3bcce236144696d89dc2e57b70c"
+  },
+  "samples_and_observations_exactly_matched": 1400,
+  "sources_stable": 248,
+  "scenarios_recomputed": [
+    {
+      "flow": "client-detail",
+      "client_concurrency": 1,
+      "n": 100,
+      "p50_ms": 8.658800041303039,
+      "p95_ms": 9.702100011054426,
+      "SQL_SELECT_counts": [
+        6
+      ],
+      "max_response_bytes": 608
+    },
+    {
+      "flow": "client-detail",
+      "client_concurrency": 5,
+      "n": 100,
+      "p50_ms": 37.6473999931477,
+      "p95_ms": 49.56850002054125,
+      "SQL_SELECT_counts": [
+        6
+      ],
+      "max_response_bytes": 608
+    },
+    {
+      "flow": "clients-100",
+      "client_concurrency": 1,
+      "n": 100,
+      "p50_ms": 20.14550002058968,
+      "p95_ms": 23.316800012253225,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 61105
+    },
+    {
+      "flow": "clients-100",
+      "client_concurrency": 5,
+      "n": 100,
+      "p50_ms": 104.61829998530447,
+      "p95_ms": 169.59479998331517,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 61105
+    },
+    {
+      "flow": "clients-25",
+      "client_concurrency": 1,
+      "n": 100,
+      "p50_ms": 12.355500017292798,
+      "p95_ms": 15.017200028523803,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 15297
+    },
+    {
+      "flow": "clients-25",
+      "client_concurrency": 5,
+      "n": 100,
+      "p50_ms": 57.37479997333139,
+      "p95_ms": 77.63170002726838,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 15297
+    },
+    {
+      "flow": "diary-30",
+      "client_concurrency": 1,
+      "n": 100,
+      "p50_ms": 11.457799992058426,
+      "p95_ms": 12.818800052627921,
+      "SQL_SELECT_counts": [
+        8
+      ],
+      "max_response_bytes": 8494
+    },
+    {
+      "flow": "diary-30",
+      "client_concurrency": 5,
+      "n": 100,
+      "p50_ms": 54.723899986129254,
+      "p95_ms": 67.80499999877065,
+      "SQL_SELECT_counts": [
+        8
+      ],
+      "max_response_bytes": 8494
+    },
+    {
+      "flow": "export-25",
+      "client_concurrency": 1,
+      "n": 100,
+      "p50_ms": 32.711600011680275,
+      "p95_ms": 38.049700029660016,
+      "SQL_SELECT_counts": [
+        15
+      ],
+      "max_response_bytes": 37559
+    },
+    {
+      "flow": "export-25",
+      "client_concurrency": 5,
+      "n": 100,
+      "p50_ms": 149.12529999855906,
+      "p95_ms": 199.3957999511622,
+      "SQL_SELECT_counts": [
+        15
+      ],
+      "max_response_bytes": 37559
+    },
+    {
+      "flow": "history",
+      "client_concurrency": 1,
+      "n": 100,
+      "p50_ms": 18.71569996001199,
+      "p95_ms": 69.74090001313016,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 162773
+    },
+    {
+      "flow": "history",
+      "client_concurrency": 5,
+      "n": 100,
+      "p50_ms": 130.42100000893697,
+      "p95_ms": 209.52610002132133,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 162773
+    },
+    {
+      "flow": "latest-plan",
+      "client_concurrency": 1,
+      "n": 100,
+      "p50_ms": 9.61269997060299,
+      "p95_ms": 11.640499986242503,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 938
+    },
+    {
+      "flow": "latest-plan",
+      "client_concurrency": 5,
+      "n": 100,
+      "p50_ms": 43.342299992218614,
+      "p95_ms": 101.75559995695949,
+      "SQL_SELECT_counts": [
+        7
+      ],
+      "max_response_bytes": 938
+    }
+  ],
+  "scope": "Bounded historical939681e read characterization accepted. R34 remains open; no SLO or production extrapolation. Product/runtime unchanged.",
+  "harness_review": [
+    "QA-only local55483 gate and URL validation",
+    "database name generated inside owned scope, DROP only after successful CREATE",
+    "process nonce plus Popen parent relation",
+    "requests5..200/seconds5..30 and at most5 client workers",
+    "provider environment cleared and Python socket guard",
+    "no raw response body or SQL parameters persisted"
+  ]
+}

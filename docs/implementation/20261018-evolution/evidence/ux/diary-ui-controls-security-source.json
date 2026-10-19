@@ -1,0 +1,74 @@
+{
+  "status": "Scoped independent VM acceptance of minimal controls guard fix; QA browser remains separate",
+  "author_commit": "bf46e163f82a318873c4da6b460609520eb80d85",
+  "author_manifest_sha256": "cfecc433a12a796cf7014a62311002535cb82fd787a90e62a8c76cbcba19ef7d",
+  "sources_count": 57,
+  "sources_stable": true,
+  "tracked_sources_clean": true,
+  "api_unchanged": "ec8ddcf7dd62d79f2a55860cdb98ec02e1759df02e9ddf031ec45f9399c0a19f",
+  "consumer": "c1dae44884cf32cc7d956dde8a59789b1eedd24047183da7ea797ef3b8194e84",
+  "results": {
+    "machineack_frozen": {
+      "passed": 10,
+      "total": 10,
+      "exit": 0
+    },
+    "extras_frozen": {
+      "passed": 11,
+      "total": 11,
+      "exit": 0
+    },
+    "own_part_guard_current": {
+      "passed": 4,
+      "total": 4,
+      "exit": 0
+    },
+    "own_part_guard_exact_raw87": {
+      "passed": 0,
+      "total": 4,
+      "exit": 1
+    }
+  },
+  "historical_evidence_preserved": {
+    "diary-ui-consumer-security-extras-before.json": "b9ac8defe8c4f982f14b3a48ad8d4a2a3da954fee6b2a39d57bf8bcad74129d8",
+    "diary-ui-consumer-security-baseline606.json": "e64d9fcf32afbd656ab14f5f9d929eab8425bea17d1b8c51c8a64c59a0917294",
+    "diary-ui-consumer-security-review-source.json": "31d9502fb35d05744324f2927fc4a9e05e5efed6f0c597ee3839322133dab070",
+    "diary-ui-security-independent-driver-param-machineack.cjs": "027d50ffe765fb6fca8b2a38cc3c529e4d82d62b079c76699c0b92bbf09fd142",
+    "diary-ui-consumer-security-extras-frozen.cjs": "903a4fe4e8fa0ee556f5d9218a3aab7c9c398ad6949bb16e07e53e4f4ab6342b"
+  },
+  "historical_counts": {
+    "extras87": [
+      9,
+      11
+    ],
+    "machineack606": [
+      6,
+      10
+    ]
+  },
+  "review": "Only two guards after controls plus moving epoch capture before controls. The first and next part probes retain invalidation notice and do not issue new requests/downloads after same-tab subject replacement or Storage failure. Frozen repeat probes settle without TypeError and discard private cache. No new blocker found in this delta.",
+  "harness_errata": [
+    {
+      "attempt": "Initial private raw87 archive preparation",
+      "error": "Expected original filename usuario-privacidad.js, but ZIP member is usuario-privacidad-87.js. Preparation failed without product mutation; premature dependent Node invocation consequently ENOENT. Neither attempt is a product test result. Corrected only archive member selection and then verified exact five baseline hashes before the real 0/4 run."
+    }
+  ],
+  "limits": [
+    "Synthetic VM DOM/Storage/transport; no browser, HTTP/backend, PG, provider or deployment assertion.",
+    "Existing R10 reload/cross-tab atomicity and legacy unidentified bytes remain open.",
+    "Historical scope label of immutable machineack driver says UI606; actual per-run raw source hashes identify bf46 candidate.",
+    "Historical erratum and red results are unchanged."
+  ],
+  "artifacts": {
+    "diary-ui-controls-security-sources-before.json": "7852d532315f4c6b789ef9017c5e8d2c4a446a7fd0921b4703a5db5a153d8234",
+    "diary-ui-controls-security-sources-after.json": "7852d532315f4c6b789ef9017c5e8d2c4a446a7fd0921b4703a5db5a153d8234",
+    "diary-ui-controls-security-machineack-after.json": "d94274b8dd4d3a9f6ae87608c7c1253c1ed9b30bd08df27e3cf186faf1832c83",
+    "diary-ui-controls-security-extras-after.json": "17edc288a6ee1cbd4a72eadd65514af80536ae693bb11390ef18e392663dbc19",
+    "diary-ui-controls-security-part-after.json": "5e618b5708da17411f9cbceaa02f6e7995422d4f47c530ed5646e7ae8f6d0f35",
+    "diary-ui-controls-security-part-before87.json": "95f55a4dcd775defd356bc7bfb1799fb30e2b0fe6701d30dc58e8648664124f5",
+    "diary-ui-controls-security-part-driver.cjs": "cb282217593d31c3cf019a94bd458ee02383f2928eb2d833a3a14295f61efad3",
+    "diary-ui-controls-security-baseline87-provenance.json": "baf63e1636a8318e729cb79d05e66819080dbad02d06769076df58ecf52f901e",
+    "diary-ui-controls-security-freeze.py": "b900a4f3efc438bd2343f89bb1b8a861b7864e011933ea7e80627d5fe5debf95",
+    "diary-ui-controls-security-prepare-baseline.py": "8da8591f726c1699bf7cd15a797f339f5ebd2ac18b8e6f03de083bb4416fae63"
+  }
+}

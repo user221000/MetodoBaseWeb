@@ -105,6 +105,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [SEC03](#sec03) | P1 | Seguridad de aplicación y privacidad | R10, R15, R23, R31 | verificado | verificado | local |
 | [OPS10](#ops10) | P2 | Operación y documentación técnica | R18, R21, R31 | en_curso | reproducido | local |
 | [SEC04](#sec04) | P1 | Frontend y seguridad | R10, R14, R31 | en_curso | en_curso | local |
+| [SEC05](#sec05) | P1 | Coordinacion y seguridad | R17, R31 | en_revision | en_revision | local |
 
 ## R01
 
@@ -2917,3 +2918,31 @@ Revisión: Seguridad independiente; correccion aun pendiente de revisar
 Bloqueo: no registrado
 
 Observaciones: Reproduccion VM sintetica; no afirma incidente ni explotacion con cuentas reales. Los21 grupos browser de QA son cobertura parcial y no anulan estos negativos.
+
+## SEC05
+
+Fuente: [Rutas concretas e identidad de cliente en metricas](METRICAS_PRIVACIDAD.md).
+
+Problema: MetricsMiddleware conserva ruta concreta y direccion/encabezado de cliente en memoria y errores recientes; normalizacion heuristica mezcla endpoints.
+
+Criterio original: Retener solo ruta declarada del router o etiqueta fija sin coincidencia, metodos cerrados y datos tecnicos acotados; no leer ni guardar direccion de cliente, X-Forwarded-For, ruta concreta, query o cuerpo. Conservar reproducciones antes/despues y revisar memoria/salida, agrupacion y regresiones de proteccion de metricas/tenants independientemente.
+
+Estado: en_revision; implementación: en_revision; validación: en_revision; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: Fix aislado2b58139; producto no integrado en candidato.
+
+Commits: 2b58139ca534fb245095be926d9d00c33ba09504
+
+Pruebas: Autor3rojosASGI antes;63verdes despues incluidos errores/alertas, proteccion metricas y tenants. Revision independiente pendiente.
+
+Evidencia: evidence/metrics-privacy-root-source.json; evidence/metrics-privacy-root-before.xml; evidence/metrics-privacy-root-after.xml; evidence/metrics-privacy-author-copy.json
+
+Documentación: METRICAS_PRIVACIDAD.md; RIESGOS.md
+
+Revisión: pendiente
+
+Bloqueo: no registrado
+
+Observaciones: Datos sinteticos y ASGI local; no afirma incidente, envio a terceros ni cumplimiento legal. No cambia IP del rate limiter, cobertura de excepciones sin respuesta ni almacenamiento/alertas distribuidos.

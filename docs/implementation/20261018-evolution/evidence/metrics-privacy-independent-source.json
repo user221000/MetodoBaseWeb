@@ -1,0 +1,88 @@
+{
+  "status": "Independent scoped acceptance of SEC05 route-label privacy delta; no new blocker found",
+  "author_commit": "2b58139ca534fb245095be926d9d00c33ba09504",
+  "author_manifest_sha256": "415660608b364b45224fedfc56e717efb1cc779473e364768a0c3470f677f6f9",
+  "source_count": 18,
+  "sources_stable": true,
+  "author_checkout_clean": true,
+  "product_sha256": "773ca5205020cf89829875d319d5146060df79947adff67f77fee590dee61202",
+  "baseline": {
+    "git_blob_source": "2b58139^:web/middleware/metrics.py",
+    "raw_sha256": "0988eec31d180860d27783d1d85a0a49b61955e6bc8068c8dde7cb02c950f6bf",
+    "equals_author_original_raw_digest": true,
+    "own_criteria_passed": 3,
+    "own_criteria_failed": 12,
+    "exit_code": 1
+  },
+  "candidate": {
+    "independent_canaries": {
+      "passed": 15,
+      "total": 15,
+      "exit_code": 0
+    },
+    "existing_contracts_replayed": {
+      "passed": 63,
+      "total": 63,
+      "failed": 0,
+      "skipped": 0,
+      "warning": "Existing Starlette httpx TestClient deprecation"
+    },
+    "total_test_invocations_passed": 78
+  },
+  "review": {
+    "privacy": "RequestMetric and recent-error output no longer retain client identity. Middleware only records trusted declared BaseRoute path_format/path or one fixed unmatched label; method uses a finite allowlist. Dynamic path converter inputs, query/body/authorization/cookies/forwarded/client context and private response body are absent from store, summary and alerts in canaries. Identity property/header access trap passes without inspection.",
+    "integrity": "Success, redirect, explicit 500, validation and method-not-allowed responses keep useful declared endpoint labels and correct counts. Unknown metadata and methods collapse. Existing request/error/latency history limits and endpoint alert signal are retained in the 111-request canary.",
+    "callers": "Repository search found RequestMetric construction and record(metric) only inside MetricsMiddleware; removing the exported client_ip field does not leave a repository caller mismatch.",
+    "product_delta": "Only web/middleware/metrics.py changed; author tests/docs reviewed. No product edit, commit, integration, CI mutation, provider I/O, real request data or HTTP listener in this review."
+  },
+  "limits": [
+    "Exceptions raised before call_next returns are not recorded; an explicit independent test proves this pre-existing boundary. No complete 500 coverage claim.",
+    "Factory API mounts MetricsMiddleware; SaaS factory does not gain metrics from this change. Existing factory/auth/tenant tests replayed, while new canaries use isolated synthetic ASGI apps.",
+    "Route metadata is trusted application configuration; no general defense is claimed against malicious application route registration or direct untrusted construction of internal metrics objects.",
+    "Prefix exclusions are unchanged; no endpoint coverage expansion, durable metrics, distributed alerts, real delivery, retention policy, rate-limiter IP change or legal-compliance claim. R17/R31 broader scopes remain open.",
+    "Loopback is permitted for Windows asyncio socketpair; all external connect/connect_ex are blocked and provider configuration cleared before imports."
+  ],
+  "harness_errata": [
+    {
+      "attempt": "Initial over-strict all-sockets guard",
+      "result": "15 setup/runtime failures before assertions could assess product: Windows asyncio creates a loopback self-pipe via socketpair/connect. Raw logs/XML/JSON preserved separately. Replaced only harness network guard with repository external-destination blocker."
+    },
+    {
+      "attempt": "Router-metadata ASGI double omitted lifespan protocol",
+      "result": "3 lifecycle fixture failures plus 12 passes. Added correct lifespan startup/shutdown handling only; no assertions or product changed. Raw partial results preserved; final current and Git baseline then used identical 15 criteria."
+    }
+  ],
+  "runtime": {
+    "python": "3.12.13 (main, Jun 23 2026, 15:23:43) [MSC v.1944 64 bit (AMD64)]",
+    "packages": {
+      "pytest": "9.1.1",
+      "fastapi": "0.146.0",
+      "starlette": "1.9.0",
+      "httpx": "0.28.1",
+      "anyio": "4.15.1",
+      "SQLAlchemy": "2.1.5"
+    }
+  },
+  "artifacts": {
+    "metrics-privacy-independent-test.py": "67f1ffe8de4fee3166b51cc4d9cd30e6bb89f167c1a80d19536a5acf5adda779",
+    "metrics-privacy-independent-runner.py": "95df8e8d8519c5d466c4667b153f8e403e7daf656a558e472fe48462d597fac9",
+    "metrics-privacy-independent-freeze.py": "76278885934092d2f55fcc29e9942a81613fcff3ebf8b4e6df99360d60084400",
+    "metrics-privacy-independent-sources-before.json": "644718b83402864aa09327e2ddff4daf579c484dfac925755cab076e2f94f775",
+    "metrics-privacy-independent-sources-after.json": "644718b83402864aa09327e2ddff4daf579c484dfac925755cab076e2f94f775",
+    "metrics-privacy-independent-baseline-git-metrics.py": "0988eec31d180860d27783d1d85a0a49b61955e6bc8068c8dde7cb02c950f6bf",
+    "metrics-privacy-independent-after.json": "6a22c9133cd2628d88ace50c116b95d1f27fb63f27373e7f7a7c986ac66d9215",
+    "metrics-privacy-independent-after.xml": "0cf11669cd5f373c5e1cddfebfad5fccfe5caa3b98508675cb99c1927ef03856",
+    "metrics-privacy-independent-after.log": "c5333269a2d88fb54624cadcbd4698ff40a6758fc048fc80443d77130df673b6",
+    "metrics-privacy-independent-before.json": "b530a43815a80d8896521b387f2ee3e4bcda31130785bbe1efc11862e1add725",
+    "metrics-privacy-independent-before.xml": "c36ef4188f075073a2a1ffd3f7afeaea3f3772b95766329f1205b286ee38100d",
+    "metrics-privacy-independent-before.log": "65aff2a362cc35613ac091991f05ddaeeb0145275dabd2d92e1b3e0bf8932c41",
+    "metrics-privacy-independent-author-replay.xml": "e648962f635135ae80d46203ef230058b6db9dca3c2f27b41b9aeb43df347c32",
+    "metrics-privacy-independent-author-replay.log": "7941a0b8ed493aa838a3825e0a9bb26acde44376a0ea51e1307ccb135c79b07f",
+    "metrics-privacy-independent-harness-all-sockets.log": "b3686cad34afa99fc9ee890e8a8b281853f2c8d6402b0d154dc1c0503cb59931",
+    "metrics-privacy-independent-harness-all-sockets.xml": "1857612b401c54c0f2215e7d5e9144034f1523dcd70f4d61325d1ac011f599fc",
+    "metrics-privacy-independent-harness-all-sockets.json": "d25e9041eaf4bffcae18c275818a11900318efee44f8bc9a7235fe7da1b8aa2b",
+    "metrics-privacy-independent-harness-lifespan.log": "24feb088dcd625c4af5f7b30bd2ec15f41322b559b13ed80ad593d92d980d372",
+    "metrics-privacy-independent-harness-lifespan.xml": "141c59e0cd553f46bece05155bf3e589b8edada3ddb2f0419f86bd852dc58ffd",
+    "metrics-privacy-independent-harness-lifespan.json": "d5faf4812ebd061e4f60f1cadc27f7de14df50d42ff608afa22dffe36ce986f5"
+  }
+}

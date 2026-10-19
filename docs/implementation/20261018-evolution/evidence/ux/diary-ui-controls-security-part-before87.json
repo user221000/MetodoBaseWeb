@@ -1,0 +1,44 @@
+{
+  "scope": "Independent part(true)/part(false) guard probes with real UI/API code and synthetic VM DOM/Storage/transport; no browser or network claim",
+  "sourceBefore": {
+    "web/static/js/api.js": "ec8ddcf7dd62d79f2a55860cdb98ec02e1759df02e9ddf031ec45f9399c0a19f",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "2d94a7569689cf5018c88424506204cc6d961707240b13bceab0b5be9c312302",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sourceAfter": {
+    "web/static/js/api.js": "ec8ddcf7dd62d79f2a55860cdb98ec02e1759df02e9ddf031ec45f9399c0a19f",
+    "web/static/js/usuario-diario.js": "1bc51ef06ccfe41250ae07b277cb50b81d0fba088ed49a2174e22597ad56166a",
+    "web/static/js/usuario-privacidad.js": "2d94a7569689cf5018c88424506204cc6d961707240b13bceab0b5be9c312302",
+    "web/static/js/usuario-plan-operacion.js": "492406553c39acbdeed50c8815a7969b45dd2f77f697a60ba0f074e5414c1980",
+    "web/templates/base_usuario.html": "19ecde365f316b2372c92b681ec0f8164759c240efbda1402811062de35a75b4"
+  },
+  "sources_stable": true,
+  "driver_sha256": "cb282217593d31c3cf019a94bd458ee02383f2928eb2d833a3a14295f61efad3",
+  "total": 4,
+  "passed": 0,
+  "results": [
+    {
+      "case": "First part preserves invalidation status after controls detects account",
+      "passed": false,
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(env.get('privacy-status').textContent.includes('no se pudo confirmar'))\n"
+    },
+    {
+      "case": "First part preserves invalidation status after controls detects storage",
+      "passed": false,
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(env.get('privacy-status').textContent.includes('no se pudo confirmar'))\n"
+    },
+    {
+      "case": "Next part preserves invalidation status after controls detects account",
+      "passed": false,
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(env.get('privacy-status').textContent.includes('no se pudo confirmar'))\n"
+    },
+    {
+      "case": "Next part preserves invalidation status after controls detects storage",
+      "passed": false,
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(env.get('privacy-status').textContent.includes('no se pudo confirmar'))\n"
+    }
+  ],
+  "observations": []
+}

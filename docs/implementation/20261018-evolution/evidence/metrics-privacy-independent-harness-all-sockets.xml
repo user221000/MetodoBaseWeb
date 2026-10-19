@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="15" time="6.408" timestamp="2026-10-19T01:55:24.954071-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="test_metrics_security_review" name="test_path_converter_and_response_body_never_enter_history_or_alerts" time="0.064"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:33: in test_path_converter_and_response_body_never_enter_history_or_alerts
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[200]" time="0.005"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:45: in test_success_redirect_validation_and_error_keep_declared_route
+    with TestClient(app,follow_redirects=False) as client:assert client.get('/operation/'+PRIVATE).status_code==status
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[302]" time="0.003"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:45: in test_success_redirect_validation_and_error_keep_declared_route
+    with TestClient(app,follow_redirects=False) as client:assert client.get('/operation/'+PRIVATE).status_code==status
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[422]" time="0.004"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:45: in test_success_redirect_validation_and_error_keep_declared_route
+    with TestClient(app,follow_redirects=False) as client:assert client.get('/operation/'+PRIVATE).status_code==status
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[500]" time="0.003"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:45: in test_success_redirect_validation_and_error_keep_declared_route
+    with TestClient(app,follow_redirects=False) as client:assert client.get('/operation/'+PRIVATE).status_code==status
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_method_not_allowed_partial_match_preserves_template_not_subject" time="0.003"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:53: in test_method_not_allowed_partial_match_preserves_template_not_subject
+    with TestClient(app) as client:assert client.post('/partial/'+PRIVATE).status_code==405
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_no_trusted_router_metadata_uses_one_fixed_fallback[None]" time="0.012"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:62: in test_no_trusted_router_metadata_uses_one_fixed_fallback
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_no_trusted_router_metadata_uses_one_fixed_fallback[metadata1]" time="0.002"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:62: in test_no_trusted_router_metadata_uses_one_fixed_fallback
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_no_trusted_router_metadata_uses_one_fixed_fallback[metadata2]" time="0.003"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:62: in test_no_trusted_router_metadata_uses_one_fixed_fallback
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_middleware_does_not_read_forwarded_headers_or_client_property" time="0.004"><failure message="AssertionError: Independent metrics review forbids network connections">..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\pytest_plugin.py:290: in pytest_pyfunc_call
+    with get_runner(backend_name, backend_options) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\pytest_plugin.py:72: in get_runner
+    _current_runner = _runner_stack.enter_context(
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2345: in __enter__
+    self._runner.__enter__()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_disabled_or_explicitly_excluded_path_retains_nothing[False]" time="0.005"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:96: in test_disabled_or_explicitly_excluded_path_retains_nothing
+    with TestClient(app) as client:response=client.get(('/'+PRIVATE) if disabled else ('/health/'+PRIVATE))
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_disabled_or_explicitly_excluded_path_retains_nothing[True]" time="0.002"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:96: in test_disabled_or_explicitly_excluded_path_retains_nothing
+    with TestClient(app) as client:response=client.get(('/'+PRIVATE) if disabled else ('/health/'+PRIVATE))
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_declared_methods_retained_unknown_methods_collapsed_and_no_body_or_header_identity" time="0.003"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:105: in test_declared_methods_retained_unknown_methods_collapsed_and_no_body_or_header_identity
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_existing_history_bounds_and_alerts_retain_counts_without_subjects" time="0.004"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:116: in test_existing_history_bounds_and_alerts_retain_counts_without_subjects
+    with TestClient(app) as client:
+         ^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase><testcase classname="test_metrics_security_review" name="test_unhandled_exception_without_response_is_explicitly_outside_metrics_claim" time="0.005"><failure message="AssertionError: Independent metrics review forbids network connections">test_metrics_security_review.py:127: in test_unhandled_exception_without_response_is_explicitly_outside_metrics_claim
+    with TestClient(app,raise_server_exceptions=False) as client:assert client.get('/raises/'+PRIVATE).status_code==500
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\starlette\testclient.py:559: in __enter__
+    self.portal = portal = stack.enter_context(anyio.from_thread.start_blocking_portal(**self.async_backend))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:554: in start_blocking_portal
+    portal = future.result()
+             ^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\from_thread.py:538: in run_blocking_portal
+    run_eventloop(
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_core\_eventloop.py:83: in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\metodobase-candidate-web-20261018\Lib\site-packages\anyio\_backends\_asyncio.py:2547: in run
+    with Runner(debug=debug, loop_factory=loop_factory) as runner:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:58: in __enter__
+    self._lazy_init()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\runners.py:137: in _lazy_init
+    self._loop = events.new_event_loop()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:823: in new_event_loop
+    return get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\events.py:720: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:640: in __init__
+    self._make_self_pipe()
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\asyncio\proactor_events.py:787: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\socket.py:623: in _fallback_socketpair
+    csock.connect((addr, port))
+review.py:6: in deny
+    def deny(*args,**kwargs):raise AssertionError('Independent metrics review forbids network connections')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Independent metrics review forbids network connections</failure></testcase></testsuite></testsuites>

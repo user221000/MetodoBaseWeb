@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="12" skipped="0" tests="15" time="1.573" timestamp="2026-10-19T01:56:01.566867-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="test_metrics_security_review" name="test_path_converter_and_response_body_never_enter_history_or_alerts" time="0.081"><failure message="AssertionError: assert {'/{id}/a', '.../nested/{id}'} == {'/records/{tail}'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/{id}/nested/{id}'&#10;  '/{id}/a'&#10;  '/{id}/{id}'&#10;  Extra items in the right set:&#10;  '/records/{tail}'&#10;  Use -v to get more diff">test_metrics_security_review.py:37: in test_path_converter_and_response_body_never_enter_history_or_alerts
+    assert set(store.get_summary()['endpoints'])=={'/records/{tail}'}
+E   AssertionError: assert {'/{id}/a', '.../nested/{id}'} == {'/records/{tail}'}
+E     
+E     Extra items in the left set:
+E     '/{id}/{id}/nested/{id}'
+E     '/{id}/a'
+E     '/{id}/{id}'
+E     Extra items in the right set:
+E     '/records/{tail}'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[200]" time="0.008"><failure message="AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/{id}'&#10;  Extra items in the right set:&#10;  '/operation/{subject}'&#10;  Use -v to get more diff">test_metrics_security_review.py:46: in test_success_redirect_validation_and_error_keep_declared_route
+    summary=store.get_summary();assert set(summary['endpoints'])=={'/operation/{subject}'}
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}
+E     
+E     Extra items in the left set:
+E     '/{id}/{id}'
+E     Extra items in the right set:
+E     '/operation/{subject}'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[302]" time="0.008"><failure message="AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/{id}'&#10;  Extra items in the right set:&#10;  '/operation/{subject}'&#10;  Use -v to get more diff">test_metrics_security_review.py:46: in test_success_redirect_validation_and_error_keep_declared_route
+    summary=store.get_summary();assert set(summary['endpoints'])=={'/operation/{subject}'}
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}
+E     
+E     Extra items in the left set:
+E     '/{id}/{id}'
+E     Extra items in the right set:
+E     '/operation/{subject}'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[422]" time="0.008"><failure message="AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/{id}'&#10;  Extra items in the right set:&#10;  '/operation/{subject}'&#10;  Use -v to get more diff">test_metrics_security_review.py:46: in test_success_redirect_validation_and_error_keep_declared_route
+    summary=store.get_summary();assert set(summary['endpoints'])=={'/operation/{subject}'}
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}
+E     
+E     Extra items in the left set:
+E     '/{id}/{id}'
+E     Extra items in the right set:
+E     '/operation/{subject}'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_success_redirect_validation_and_error_keep_declared_route[500]" time="0.009"><failure message="AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/{id}'&#10;  Extra items in the right set:&#10;  '/operation/{subject}'&#10;  Use -v to get more diff">test_metrics_security_review.py:46: in test_success_redirect_validation_and_error_keep_declared_route
+    summary=store.get_summary();assert set(summary['endpoints'])=={'/operation/{subject}'}
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/{id}'} == {'/operation/{subject}'}
+E     
+E     Extra items in the left set:
+E     '/{id}/{id}'
+E     Extra items in the right set:
+E     '/operation/{subject}'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_method_not_allowed_partial_match_preserves_template_not_subject" time="0.009"><failure message="AssertionError: assert {'/{id}/{id}'} == {'/partial/{subject}'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/{id}'&#10;  Extra items in the right set:&#10;  '/partial/{subject}'&#10;  Use -v to get more diff">test_metrics_security_review.py:54: in test_method_not_allowed_partial_match_preserves_template_not_subject
+    assert set(store.get_summary()['endpoints'])=={'/partial/{subject}'};no_identity(store)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/{id}'} == {'/partial/{subject}'}
+E     
+E     Extra items in the left set:
+E     '/{id}/{id}'
+E     Extra items in the right set:
+E     '/partial/{subject}'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_no_trusted_router_metadata_uses_one_fixed_fallback[None]" time="0.013"><failure message="AssertionError: assert {'/{id}/one', '/{id}/two'} == {'/__unmatched__'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/two'&#10;  '/{id}/one'&#10;  Extra items in the right set:&#10;  '/__unmatched__'&#10;  Use -v to get more diff">test_metrics_security_review.py:71: in test_no_trusted_router_metadata_uses_one_fixed_fallback
+    summary=store.get_summary();assert set(summary['endpoints'])=={'/__unmatched__'}
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/one', '/{id}/two'} == {'/__unmatched__'}
+E     
+E     Extra items in the left set:
+E     '/{id}/two'
+E     '/{id}/one'
+E     Extra items in the right set:
+E     '/__unmatched__'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_no_trusted_router_metadata_uses_one_fixed_fallback[metadata1]" time="0.010"><failure message="AssertionError: assert {'/{id}/one', '/{id}/two'} == {'/__unmatched__'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/two'&#10;  '/{id}/one'&#10;  Extra items in the right set:&#10;  '/__unmatched__'&#10;  Use -v to get more diff">test_metrics_security_review.py:71: in test_no_trusted_router_metadata_uses_one_fixed_fallback
+    summary=store.get_summary();assert set(summary['endpoints'])=={'/__unmatched__'}
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/one', '/{id}/two'} == {'/__unmatched__'}
+E     
+E     Extra items in the left set:
+E     '/{id}/two'
+E     '/{id}/one'
+E     Extra items in the right set:
+E     '/__unmatched__'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_no_trusted_router_metadata_uses_one_fixed_fallback[metadata2]" time="0.010"><failure message="AssertionError: assert {'/{id}/one', '/{id}/two'} == {'/__unmatched__'}&#10;  &#10;  Extra items in the left set:&#10;  '/{id}/two'&#10;  '/{id}/one'&#10;  Extra items in the right set:&#10;  '/__unmatched__'&#10;  Use -v to get more diff">test_metrics_security_review.py:71: in test_no_trusted_router_metadata_uses_one_fixed_fallback
+    summary=store.get_summary();assert set(summary['endpoints'])=={'/__unmatched__'}
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert {'/{id}/one', '/{id}/two'} == {'/__unmatched__'}
+E     
+E     Extra items in the left set:
+E     '/{id}/two'
+E     '/{id}/one'
+E     Extra items in the right set:
+E     '/__unmatched__'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_middleware_does_not_read_forwarded_headers_or_client_property" time="0.002"><failure message="AssertionError: Identity header was read">test_metrics_security_review.py:91: in test_middleware_does_not_read_forwarded_headers_or_client_property
+    response=await middleware.dispatch(GuardRequest(scope),call_next)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+baseline-metrics.py:369: in dispatch
+    client_ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+test_metrics_security_review.py:79: in get
+    if key.lower() in {'x-forwarded-for','forwarded','authorization','cookie'}:raise AssertionError('Identity header was read')
+                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: Identity header was read</failure></testcase><testcase classname="test_metrics_security_review" name="test_disabled_or_explicitly_excluded_path_retains_nothing[False]" time="0.007" /><testcase classname="test_metrics_security_review" name="test_disabled_or_explicitly_excluded_path_retains_nothing[True]" time="0.008" /><testcase classname="test_metrics_security_review" name="test_declared_methods_retained_unknown_methods_collapsed_and_no_body_or_header_identity" time="0.036"><failure message="AssertionError: assert {'CONNECT', '... 'PATCH', ...} == {'CONNECT', '... 'OTHER', ...}&#10;  &#10;  Extra items in the left set:&#10;  'PRIVATE'&#10;  Extra items in the right set:&#10;  'OTHER'&#10;  Use -v to get more diff">test_metrics_security_review.py:113: in test_declared_methods_retained_unknown_methods_collapsed_and_no_body_or_header_identity
+    assert {x.method for x in store._recent_requests}==set(methods)|{'OTHER'}
+E   AssertionError: assert {'CONNECT', '... 'PATCH', ...} == {'CONNECT', '... 'OTHER', ...}
+E     
+E     Extra items in the left set:
+E     'PRIVATE'
+E     Extra items in the right set:
+E     'OTHER'
+E     Use -v to get more diff</failure></testcase><testcase classname="test_metrics_security_review" name="test_existing_history_bounds_and_alerts_retain_counts_without_subjects" time="0.338"><failure message="AssertionError: assert 0 == 5&#10; +  where 0 = len(deque([]))&#10; +    where deque([]) = EndpointStats(path='', total_requests=0, total_errors=0, latencies=deque([], maxlen=5), status_codes=defaultdict(&lt;class 'int'&gt;, {}), last_request=None).latencies">test_metrics_security_review.py:125: in test_existing_history_bounds_and_alerts_retain_counts_without_subjects
+    assert len(store._endpoints['/bounded/{subject}'].latencies)==5
+E   AssertionError: assert 0 == 5
+E    +  where 0 = len(deque([]))
+E    +    where deque([]) = EndpointStats(path='', total_requests=0, total_errors=0, latencies=deque([], maxlen=5), status_codes=defaultdict(&lt;class 'int'&gt;, {}), last_request=None).latencies</failure></testcase><testcase classname="test_metrics_security_review" name="test_unhandled_exception_without_response_is_explicitly_outside_metrics_claim" time="0.008" /></testsuite></testsuites>

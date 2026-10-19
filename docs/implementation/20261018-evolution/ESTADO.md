@@ -1,6 +1,6 @@
 # Estado de ejecución 20261018-evolution
 
-Implementación local en curso de los92 identificadores originales y OPS08/OPS09/OPS10/SEC01/SEC02/SEC03/SEC04:99 registros. El [registro canónico](TRAZABILIDAD.json) conserva criterios y fuentes originales. Los módulos aceptados no completan los criterios pendientes de otros IDs.
+Implementación local en curso de los92 identificadores originales y OPS08/OPS09/OPS10/SEC01/SEC02/SEC03/SEC04/SEC05:100 registros. El [registro canónico](TRAZABILIDAD.json) conserva criterios y fuentes originales. Los módulos aceptados no completan los criterios pendientes de otros IDs.
 
 Base daa25efbf51d154710bad625025b345fa9ec9252; rama implementation/20261018-execution en F:/MetodoBaseWeb-execution-20261018. El original F:/MetodoBaseWeb-main permanece intacto. Sin push, PR, despliegue, cargos ni comunicaciones reales.
 
@@ -31,3 +31,5 @@ Continúan los criterios restantes del registro, incluidos vínculo explícito p
 Operación aceptó independientemente procedencia/integridad/diagnóstico del artefacto9f:39 controles,1688 fuentes idénticas a blobs,1216 miembrosZIP y217PE AMD64. OPS09 queda verificado en ese alcance local. La distribución sigue pendiente por OPS10: captura no usada assets/design-reference.png con procedencia desconocida. La exclusión exacta bca89bb conserva el original y supera QA97+3CLI propios; falta construir y verificar el reemplazo. [Revisión](evidence/desktop-artifact-independent-review.md).
 
 OPS10: exclusion exacta integrada bca89bb,97 casos QA y3 CLI propios verdes; reemplazo del artefacto pendiente. Correo169241a corrige clave SDK `from` y exige ACK id valido para informar accepted;22+17 controles independientes sin envios reales. R16 permanece abierto. [Correo](CORREO_SDK.md).
+
+SEC05: metricas conservan ruta concreta y direcciones de cliente. Correccion aislada2b58139,3rojos antes/63verdes autor despues; producto no integrado, revision independiente pendiente. [Contrato](METRICAS_PRIVACIDAD.md).

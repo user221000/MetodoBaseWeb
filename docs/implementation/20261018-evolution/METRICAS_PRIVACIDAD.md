@@ -1,0 +1,9 @@
+# Etiquetas de métricas sin identidades de solicitudes
+
+La revisión local del middleware de métricas encontró que los errores recientes conservaban la ruta concreta y la dirección del cliente, incluso el valor arbitrario de `X-Forwarded-For`. La agrupación posterior intentaba adivinar IDs por longitud y caracteres; podía convertir nombres de endpoints en `{id}` y no eliminaba los datos de la memoria de solicitudes recientes. No se afirma un incidente ni una exportación real a terceros.
+
+El cambio usa exclusivamente la ruta declarada por el router después de resolver la solicitud. Cuando no existe metadata de una ruta resuelta, conserva una única etiqueta fija `/__unmatched__`. Los métodos provienen de un conjunto cerrado y cualquier otro se agrupa como `OTHER`. No se leen ni almacenan dirección de conexión o encabezados de dirección, tampoco query, cuerpo o ruta concreta. El almacén y la salida de errores recientes conservan sólo fecha técnica, etiqueta, método, estado y duración. El límite de historial existente se mantiene.
+
+Las tres reproducciones ASGI fallan antes del cambio y pasan después. Cubren cuatro sujetos en una ruta declarada, cuatro solicitudes sin ruta y un método desconocido; verifican agrupación, conteos y ausencia de identidades tanto en la salida como en memoria. Las63 pruebas posteriores incluyen las tres nuevas, errores/alertas anteriores, protección de métricas y aislamiento de tenants. Una deprecación httpx existente queda documentada en el JUnit.
+
+El cambio afecta al middleware que monta la factory API y a cualquier montaje explícito de esa clase; no añade métricas a la factory SaaS. No cambia el tratamiento de IP del rate limiter ni acredita alertas distribuidas, cobertura de excepciones sin respuesta, entrega de notificaciones, almacenamiento durable o cumplimiento legal. R17/R31 permanecen abiertos en esos alcances.
