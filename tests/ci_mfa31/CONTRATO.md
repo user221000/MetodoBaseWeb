@@ -12,13 +12,15 @@ El intento anterior auténtico `eea8f773fba9b7f92241958139fcefa23b9ee1d4` perman
 | `historical-postgres` | CWD fijo de la fuente573; exactamente 29 informes originales, incluidos índice, restore y seguimiento. Los runners28/29 reciben `--history-repository "$GITHUB_WORKSPACE"`. |
 | `historical-image` | Docker y browsers originales sobre fuente573. Los informes publicados son una lista explícita de proyecciones, sin carpetas RAW. |
 | `test-web`, desktop, Redis | Fuente actual; se conservan serial con cobertura, umbral, SDK, n2/shuffle, no-skips y ambos targets desktop. |
-| `frontend-contracts` | Los otros22 módulos previos y los16 callbacks de consumo con companions reales; MFA74 y otros72 casos de cantidades/controles/exportación actuales. No se suman como criterios únicos. |
+| `frontend-contracts` | Los otros22 módulos previos y los16 callbacks de consumo con companions reales; MFA74 y otros97 casos actuales, incluidos snapshot25 (7 nuevos y18 criterios de diario repetidos). Son 32 módulos/519 ejecuciones, sin atribuirles519 criterios únicos. |
 | `current-postgres` | Fuente actual31, 12 informes y 173 identidades completas, sin skips, errores, fallos, duplicados ni sustitución de dialecto/nodo. |
 | `current-image` | Imagen actual, CMD/entrypoint real, migración one-shot, rol app restringido no owner y MIGRATOR ausente. Browsers actuales de imagen/MFA, R12, R24 y seguimiento con montaje real31. |
 
 ## Las 173 identidades actuales
 
 `current-report-nodeids.json` proviene de colección offline de la fuente actual. Está fijado por SHA256 en `check_mfa31_reports.py`; editar JSON y su propio campo hash no cambia esa ancla ejecutable. `current-business-mapping.json` conserva el vínculo con cada función de negocio anterior.
+
+El verificador autentica por SHA256 normalizado el archivo ejecutable completo `check_mfa31_reports.py` antes de importarlo. Cada una de las132 reducciones de informes se rechaza tanto mediante `validate()` como ejecutando el CLI en un proceso real; también se ejecutan el positivo173 y el mutante de QA que sustituye sólo `main()` por `return0`. Ese mutante produce el falso éxito esperado y se rechaza por el ancla del ejecutable. El bundle e0 rechazado y sus RAW permanecen intactos.
 
 | Informes | Casos |
 | --- | ---: |
@@ -35,6 +37,8 @@ Los wrappers R12 importan las funciones originales sin cambiar sus asserts. Su f
 El test de carrera R24 conserva byte a byte el cuerpo decorado del driver independiente `eb4f7d36d69fb903c1f31d5eb072f6f8063c8ef9bf8051a7915adf14cfe38f3c`; cambia sólo el montaje actual y su pool acotado. Restore31 ejecuta el caso poblado real con MFA y todos los contratos26–30; un resultado estático no lo sustituye.
 
 Los fixtures browser nuevos migran su UUID real antes del arranque. Cada marcador31 compara datos leídos del motor; no se imprime30 usando Base31. La inscripción MFA incrementa `session_version` una vez: los nuevos controles de identidad conservan roles/perfiles y exigen ese delta causal, además del bump explícito de revocación. No se alteran los controles originales de la fuente histórica.
+
+Todos los marcadores PostgreSQL y el inventario de imagen emiten `application_role_restricted_nonowner` desde las consultas reales de cuatro flags de rol y del owner de la base. El campo es obligatorio y debe ser exactamente `true`; ausencia, cadenas, números y `false` se rechazan. Los canarios estáticos ejecutan únicamente esos fragmentos con resultados SQL simulados para las cuatro fuentes; no sustituyen su futura ejecución PostgreSQL.
 
 ## Privacidad y ciclo de vida
 

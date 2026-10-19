@@ -214,6 +214,8 @@ jobs:
         python scripts/check_frontend_report.py daily-plan-data-current31.json --format counts --minimum 23
         node tests/e2e/daily_plan_controls.cjs > daily-plan-controls-current31.json
         python scripts/check_frontend_report.py daily-plan-controls-current31.json --format counts --minimum 17
+        node tests/e2e/daily_plan_snapshot.cjs > daily-plan-snapshot-current31.json
+        python scripts/check_frontend_report.py daily-plan-snapshot-current31.json --format counts --minimum 25
         node tests/e2e/personal_export_context.cjs > personal-export-context-current31.json
         python scripts/check_frontend_report.py personal-export-context-current31.json --format counts --minimum 17
         node tests/e2e/personal_export_url_contract.cjs > personal-export-url-contract-current31.json
@@ -232,7 +234,8 @@ jobs:
         "followup-contracts-dashboard_followup.json" "followup-contracts-session_expiry_security.raw.json" "followup-contracts-session_expiry_security.json"
         "followup-contracts-dashboard_followup_focus.raw.json" "followup-contracts-dashboard_followup_focus.json" "mfa-api-current31.json"
         "mfa-state-current31.json" "mfa-consumers-current31.json" "mfa-prompt-current31.json" "daily-plan-data-current31.raw.json"
-        "daily-plan-data-current31.json" "daily-plan-controls-current31.json" "personal-export-context-current31.json" "personal-export-url-contract-current31.json"
+        "daily-plan-data-current31.json" "daily-plan-controls-current31.json" "daily-plan-snapshot-current31.json" "personal-export-context-current31.json"
+        "personal-export-url-contract-current31.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -273,6 +276,7 @@ jobs:
           ${{ runner.temp }}/frontend-public/daily-plan-data-current31.raw.json
           ${{ runner.temp }}/frontend-public/daily-plan-data-current31.json
           ${{ runner.temp }}/frontend-public/daily-plan-controls-current31.json
+          ${{ runner.temp }}/frontend-public/daily-plan-snapshot-current31.json
           ${{ runner.temp }}/frontend-public/personal-export-context-current31.json
           ${{ runner.temp }}/frontend-public/personal-export-url-contract-current31.json
           ${{ runner.temp }}/frontend-public/publication.json

@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import io
+import ast
 import json
 import os
 from pathlib import Path
 import sys
+import subprocess
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -15,6 +17,12 @@ from tests import check_mfa31_reports as checker
 from tests import run_reviewed_ci30 as history
 from tests.ci_mfa31 import publish
 from tests.ci_mfa31 import run_current_browser as controller
+from tests import verify_mfa31_ci as verifier
+
+
+def checker_cli(path, directory):
+    return subprocess.run([sys.executable, '-X', 'utf8', '-B', str(path), '--directory', str(directory)],
+                          capture_output=True, timeout=15)
 
 
 def write_reports(directory):
@@ -30,6 +38,9 @@ def write_reports(directory):
 def test_all_exact_current31_nodes_are_required(tmp_path):
     write_reports(tmp_path)
     assert checker.validate(tmp_path) == 173
+    result = checker_cli(checker.__file__, tmp_path)
+    assert result.returncode == 0
+    assert json.loads(result.stdout)['passed_nodes'] == 173
 
 
 @pytest.mark.parametrize('report', tuple(checker.required_reports()))
@@ -63,6 +74,92 @@ def test_each_current31_boundary_rejects_reduction_or_substitution(tmp_path, rep
         ET.ElementTree(root).write(path, encoding='utf8', xml_declaration=True)
     with pytest.raises((ValueError, OSError, ET.ParseError)):
         checker.validate(tmp_path)
+    result = checker_cli(checker.__file__, tmp_path)
+    assert result.returncode == 1 and not result.stdout
+
+
+def test_main_only_false_success_mutant_is_not_a_trusted_checker(tmp_path):
+    source = Path(checker.__file__).read_text(encoding='utf8')
+    function = next(node for node in ast.parse(source).body
+                    if isinstance(node, ast.FunctionDef) and node.name == 'main')
+    lines = source.splitlines(keepends=True)
+    mutant = ''.join(lines[:function.lineno - 1]) + 'def main() -> int:\n    return 0\n' + ''.join(lines[function.end_lineno:])
+    path = tmp_path / 'checker-main-false-success.py'
+    path.write_text(mutant, encoding='utf8')
+    # Reproduce QA's real process false success, then reject that executable.
+    result = checker_cli(path, tmp_path)
+    assert result.returncode == 0 and not result.stdout
+    with pytest.raises(ValueError, match='executable differs'):
+        verifier.verify_report_checker(path)
+
+
+@pytest.mark.parametrize('value', [None, False, 0, 1, 'true', 'absent'])
+def test_current_pg_marker_requires_exact_true_physical_role_witness(value):
+    marker = {'pid': 123, 'runtime_revision': '20261019_mfa', 'model_tables': 32, 'actual_tables': 33}
+    if value != 'absent':
+        marker['application_role_restricted_nonowner'] = value
+    with pytest.raises((AssertionError, KeyError)):
+        controller.validate_pg_marker(marker, 123)
+
+
+def test_current_pg_marker_accepts_complete_required_witness():
+    marker = {'pid': 123, 'runtime_revision': '20261019_mfa', 'model_tables': 32, 'actual_tables': 33,
+              'application_role_restricted_nonowner': True}
+    controller.validate_pg_marker(marker, 123)
+
+
+@pytest.mark.parametrize('name', ['tests/e2e/member_link31_postgres_server.py',
+                                'tests/e2e/followup31_server.py', 'tests/e2e/daily_plan31_server.py',
+                                'tests/ci_mfa31/image_inventory.py'])
+@pytest.mark.parametrize('flags,nonowner,accepted', [
+    ((False, False, False, False), True, True),
+    ((False, False, False, False), False, False),
+    ((True, False, False, False), True, False),
+    ((False, True, False, False), True, False),
+    ((False, False, True, False), True, False),
+    ((False, False, False, True), True, False),
+])
+def test_each_pg_marker_uses_the_actual_sql_result_before_acceptance(name, flags, nonowner, accepted):
+    tree = ast.parse((history.ROOT / name).read_text(encoding='utf8'))
+    statements = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            if node.targets[0].id in {'flags', 'database_nonowner', 'application_role_restricted_nonowner'}:
+                assert node.targets[0].id not in statements
+                statements[node.targets[0].id] = node
+    assert set(statements) == {'flags', 'database_nonowner', 'application_role_restricted_nonowner'}
+    class Connection:
+        query = ''
+
+        def execute(self, query):
+            self.query = query
+            return self
+
+        def one(self):
+            assert 'rolsuper,rolbypassrls,rolcreatedb,rolcreaterole' in self.query
+            assert 'rolname=current_user' in self.query
+            return flags
+
+        def scalar_one(self):
+            assert 'pg_get_userbyid(datdba)<>current_user' in self.query
+            assert 'datname=current_database()' in self.query
+            return nonowner
+
+        def scalar(self, query):
+            return self.execute(query).scalar_one()
+    connection = Connection()
+    namespace = {'connection': connection, 'db': connection, 'text': lambda value: value}
+    block = ast.Module(body=[statements[key] for key in ('flags', 'database_nonowner',
+                                                       'application_role_restricted_nonowner')], type_ignores=[])
+    exec(compile(block, name, 'exec'), namespace)
+    assert namespace['application_role_restricted_nonowner'] is accepted
+    emitted = [value for item in ast.walk(tree) if isinstance(item, ast.Dict)
+               for key, value in zip(item.keys, item.values)
+               if isinstance(key, ast.Constant) and key.value == 'application_role_restricted_nonowner']
+    assert len(emitted) == 1 and isinstance(emitted[0], ast.Name)
+    assert emitted[0].id == 'application_role_restricted_nonowner'
+    required_assert = ast.dump(ast.parse('application_role_restricted_nonowner is True', mode='eval').body)
+    assert any(isinstance(node, ast.Assert) and ast.dump(node.test) == required_assert for node in ast.walk(tree))
 
 
 @pytest.mark.parametrize('name', ['../escape', '/absolute', 'a//b', 'a/./b', 'a/../b', 'a\\b',
