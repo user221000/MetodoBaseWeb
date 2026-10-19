@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
+from web.account_values import normalize_account_email
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Auth"])
@@ -125,7 +126,7 @@ async def google_login(data: GoogleLoginRequest, request: Request):
     if google_info.get("email_verified") != "true":
         raise HTTPException(401, "El email de Google no está verificado.")
 
-    email = google_info["email"].strip().lower()
+    email = normalize_account_email(google_info["email"])
     nombre = google_info.get("given_name", google_info.get("name", "")).strip()
     apellido = google_info.get("family_name", "").strip()
 

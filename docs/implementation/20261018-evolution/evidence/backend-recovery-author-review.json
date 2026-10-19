@@ -1,0 +1,104 @@
+{
+  "status": "author_frozen_candidate_awaiting_independent_QA_security_restore28",
+  "worktree": "F:\\MetodoBaseWeb-recovery-20261019",
+  "branch": "implementation/account-recovery-20261019",
+  "base": "f687e44eeb3e059e19ae5c8ca7e1fcd7c035908c",
+  "composed_dependencies_not_own_features": [
+    "169241a -> ddedfb6",
+    "0c55b167 -> f687e44"
+  ],
+  "source_manifest": "backend-recovery-source.json",
+  "source_manifest_sha256": "6a508f91806301d3b3c25f472c0f0b7cc4b9b0fcbbe2046c5eb30a1cc166e446",
+  "gates": {
+    "backend-recovery-before-configured.xml": {
+      "tests": 6,
+      "failures": 5,
+      "errors": 0,
+      "seconds": 4.545
+    },
+    "backend-recovery-reuse-order-before.xml": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "seconds": 1.3
+    },
+    "backend-recovery-csp-before.xml": {
+      "tests": 2,
+      "failures": 2,
+      "errors": 0,
+      "seconds": 4.893
+    },
+    "backend-recovery-freeze-directed.xml": {
+      "tests": 181,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 126.517
+    },
+    "backend-recovery-postgres-second.xml": {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 114.316
+    },
+    "backend-recovery-migrations-sqlite.xml": {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 29.851
+    },
+    "backend-recovery-history-first.xml": {
+      "tests": 79,
+      "failures": 18,
+      "errors": 0,
+      "seconds": 369.09
+    },
+    "backend-recovery-history-seeds-after.xml": {
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 145.664
+    },
+    "backend-recovery-email-wire.xml": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 2.248
+    }
+  },
+  "history_interpretation": "79 before = 61 pass + 18 failures only two current-ORM seeds; 37 affected cases pass after approved Core insert adaptations, unaffected 42 not repeated",
+  "history_proof": "backend-recovery-preservation-proof.json",
+  "seed_defaults_proof": "backend-recovery-seed-defaults-proof.json",
+  "browser": "backend-recovery-browser.json",
+  "static": {
+    "syntax": "pass",
+    "F821": "pass",
+    "Bandit": "six existing reviewed findings; zero new"
+  },
+  "entrypoints": [
+    "GET /auth/reset-password",
+    "POST /api/auth/password-reset/request",
+    "POST /api/auth/password-reset/confirm"
+  ],
+  "new_revision": "20261019_account_recovery",
+  "business_tables": 26,
+  "rls_families": 20,
+  "independent_commands": [
+    "python -X utf8 tests/run_isolated.py tests/test_password_recovery.py tests/test_password_recovery_boundaries.py tests/test_password_recovery_admission.py tests/test_password_recovery_email.py tests/test_password_recovery_lock_order.py tests/test_account_recovery_contract_before.py tests/test_account_recovery_inspection.py -q --tb=short",
+    "Using private synthetic URLs loaded inside child Python and R05 guards: pytest tests/integration_password_recovery_postgres.py tests/integration_account_recovery_migrations.py -k postgresql -q --tb=short",
+    "python -X utf8 tests/run_isolated.py tests/integration_account_recovery_migrations.py -k sqlite -q --tb=short",
+    "Local browser fixture: python -X utf8 tests/e2e/password_recovery_server.py ; node tests/e2e/password_recovery.cjs (only 127.0.0.1:8784)"
+  ],
+  "invalid_harness_attempts_excluded": [
+    "initial PG launcher reentered pytest on spawn; repeat guarded17/17 valid",
+    "first admission fixture missed transitive fixture import; final gate181/181 valid",
+    "one command referenced a nonexistent team test filename; no tests ran"
+  ],
+  "residue": "Private Temp/metodobase-recovery-invalid-spawn-residue-20261019.json; three catalog candidates with unconfirmed ownership; no database deletion; not a production resource",
+  "external_open_gates": [
+    "independent QA/security and restore28",
+    "verified sender/domain and link tracking configuration",
+    "real provider acceptance/receipt/bounce",
+    "legitimate MFA recovery"
+  ],
+  "deployment_or_real_messages": false
+}

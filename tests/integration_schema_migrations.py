@@ -171,15 +171,18 @@ def test_legacy_roles_only_backfill_gym_owners(migration_database):
 
 def test_parallel_onboarding_uses_five_templates(migration_database):
     from concurrent.futures import ThreadPoolExecutor
+    from datetime import datetime, timezone
     from threading import Barrier
+    from sqlalchemy import MetaData, Table
     from sqlalchemy.orm import Session
-    from web.database.models import Usuario, UserRole
     from web.database.repository import _crear_planes_default
     url, engine = migration_database
     run_migration(url, 'db_bootstrap.py')
+    usuarios = Table('usuarios', MetaData(), autoload_with=engine)
     with Session(engine) as db:
-        db.add(Usuario(id='parallel-owner', email='parallel@example.test', password_hash='synthetic',
-                       nombre='Synthetic', tipo='gym', role=UserRole.OWNER))
+        db.execute(usuarios.insert().values(id='parallel-owner', email='parallel@example.test', password_hash='synthetic',
+                       nombre='Synthetic', tipo='gym', role='OWNER', apellido='', activo=True, session_version=0,
+                       fecha_registro=datetime.now(timezone.utc).replace(tzinfo=None)))
         db.commit()
     start = Barrier(2)
     def onboard():

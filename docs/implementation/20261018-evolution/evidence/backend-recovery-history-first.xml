@@ -1,0 +1,1348 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="18" skipped="0" tests="79" time="369.090" timestamp="2026-10-19T01:52:47.535718-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.integration_schema_migrations" name="test_empty_and_legacy_reach_exact_frozen_contract[sqlite-empty]" time="4.956" /><testcase classname="tests.integration_schema_migrations" name="test_empty_and_legacy_reach_exact_frozen_contract[sqlite-legacy]" time="3.816" /><testcase classname="tests.integration_schema_migrations" name="test_empty_and_legacy_reach_exact_frozen_contract[postgresql-empty]" time="5.977" /><testcase classname="tests.integration_schema_migrations" name="test_empty_and_legacy_reach_exact_frozen_contract[postgresql-legacy]" time="4.903" /><testcase classname="tests.integration_schema_migrations" name="test_unrecognized_unversioned_schema_is_never_adopted[sqlite]" time="1.909" /><testcase classname="tests.integration_schema_migrations" name="test_unrecognized_unversioned_schema_is_never_adopted[postgresql]" time="2.084" /><testcase classname="tests.integration_schema_migrations" name="test_historical_rows_and_custom_prices_survive_reconciliation[sqlite]" time="4.434" /><testcase classname="tests.integration_schema_migrations" name="test_historical_rows_and_custom_prices_survive_reconciliation[postgresql]" time="4.520" /><testcase classname="tests.integration_schema_migrations" name="test_versioned_unknown_unique_constraint_aborts_instead_of_dropping_it[sqlite]" time="3.071" /><testcase classname="tests.integration_schema_migrations" name="test_versioned_unknown_unique_constraint_aborts_instead_of_dropping_it[postgresql]" time="3.849" /><testcase classname="tests.integration_schema_migrations" name="test_legacy_roles_only_backfill_gym_owners[sqlite]" time="2.134" /><testcase classname="tests.integration_schema_migrations" name="test_legacy_roles_only_backfill_gym_owners[postgresql]" time="4.421" /><testcase classname="tests.integration_schema_migrations" name="test_parallel_onboarding_uses_five_templates[sqlite]" time="2.678"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('parallel-owner', 'parallel@example.test', 'synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:53:37.938345')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_schema_migrations.py:183: in test_parallel_onboarding_uses_five_templates
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1237: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('parallel-owner', 'parallel@example.test', 'synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:53:37.938345')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_schema_migrations" name="test_parallel_onboarding_uses_five_templates[postgresql]" time="3.409"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (%(id)s, %(email)s, %(password_hash)s, %(nombre)s, %(apellido)s, %(tipo)s, %(role)s, %(team_gym_id)s, %(invited_by)s, %(invitation_token)s, %(invitation_expires)s, %(invitation_role)s, %(activo)s, %(session_version)s, %(password_reset_hash)s, %(password_reset_expires_at)s, %(password_reset_session_version)s, %(deleted_at)s, %(fecha_registro)s)]&#10;[parameters: {'id': 'parallel-owner', 'email': 'parallel@example.test', 'password_hash': 'synthetic', 'nombre': 'Synthetic', 'apellido': '', 'tipo': 'gym', 'role': 'OWNER', 'team_gym_id': None, 'invited_by': None, 'invitation_token': None, 'invitation_expires': None, 'invitation_role': None, 'activo': True, 'session_version': 0, 'password_reset_hash': None, 'password_reset_expires_at': None, 'password_reset_session_version': None, 'deleted_at': None, 'fecha_registro': datetime.datetime(2026, 10, 19, 7, 53, 42, 54865)}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_schema_migrations.py:183: in test_parallel_onboarding_uses_five_templates
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1237: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (%(id)s, %(email)s, %(password_hash)s, %(nombre)s, %(apellido)s, %(tipo)s, %(role)s, %(team_gym_id)s, %(invited_by)s, %(invitation_token)s, %(invitation_expires)s, %(invitation_role)s, %(activo)s, %(session_version)s, %(password_reset_hash)s, %(password_reset_expires_at)s, %(password_reset_session_version)s, %(deleted_at)s, %(fecha_registro)s)]
+E   [parameters: {'id': 'parallel-owner', 'email': 'parallel@example.test', 'password_hash': 'synthetic', 'nombre': 'Synthetic', 'apellido': '', 'tipo': 'gym', 'role': 'OWNER', 'team_gym_id': None, 'invited_by': None, 'invitation_token': None, 'invitation_expires': None, 'invitation_role': None, 'activo': True, 'session_version': 0, 'password_reset_hash': None, 'password_reset_expires_at': None, 'password_reset_session_version': None, 'deleted_at': None, 'fecha_registro': datetime.datetime(2026, 10, 19, 7, 53, 42, 54865)}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_schema_migrations" name="test_invalid_role_aborts_and_rolls_back_adoption[sqlite]" time="2.058" /><testcase classname="tests.integration_schema_migrations" name="test_invalid_role_aborts_and_rolls_back_adoption[postgresql]" time="2.149" /><testcase classname="tests.integration_schema_migrations" name="test_previously_active_rls_is_never_disabled[sqlite]" time="4.789" /><testcase classname="tests.integration_schema_migrations" name="test_previously_active_rls_is_never_disabled[postgresql]" time="4.986" /><testcase classname="tests.integration_schema_migrations" name="test_postgres_timezone_drift_is_not_treated_as_exact_legacy[postgresql]" time="2.782" /><testcase classname="tests.integration_schema_migrations" name="test_pg_check_normalization_rejects_changed_values_or_conditions[tipo IN ('gym','usuario','admin','injected')-postgresql]" time="2.282" /><testcase classname="tests.integration_schema_migrations" name="test_pg_check_normalization_rejects_changed_values_or_conditions[tipo IN ('gym','usuario','admin') OR true-postgresql]" time="2.107" /><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[sqlite-20261018_provider_subjects-20261018_prepared-invoice]" time="4.253"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:08.239155', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:08.239155')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:08.239155', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:08.239155')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[sqlite-20261018_provider_subjects-20261018_prepared-refund]" time="2.399"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:11.393179', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:11.393179')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:11.393179', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:11.393179')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[sqlite-20261018_provider_subjects-20261018_prepared-cancel]" time="2.644"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:14.982160', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:14.982160')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:14.982160', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:14.982160')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[sqlite-20261018_tenant_isolation-20261018_isolated-invoice]" time="2.826"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:18.500472', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:18.500472')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:18.500472', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:18.500472')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[sqlite-20261018_tenant_isolation-20261018_isolated-refund]" time="2.584"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:21.719612', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:21.719612')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:21.719612', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:21.719612')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[sqlite-20261018_tenant_isolation-20261018_isolated-cancel]" time="2.511"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:24.817024', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:24.817024')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:24.817024', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:24.817024')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[postgresql-20261018_provider_subjects-20261018_prepared-invoice]" time="3.719"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 29, 64851), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 29, 64851), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 29, 64851), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 29, 64851), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[postgresql-20261018_provider_subjects-20261018_prepared-refund]" time="4.019"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 33, 838507), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 33, 838507), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 33, 838507), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 33, 838507), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[postgresql-20261018_provider_subjects-20261018_prepared-cancel]" time="3.821"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 38, 330932), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 38, 330932), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 38, 330932), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 38, 330932), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[postgresql-20261018_tenant_isolation-20261018_isolated-invoice]" time="3.590"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 42, 656981), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 42, 656981), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 42, 656981), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 42, 656981), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[postgresql-20261018_tenant_isolation-20261018_isolated-refund]" time="5.051"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 48, 413867), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 48, 413867), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 48, 413867), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 48, 413867), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_legacy_callbacks_without_purchase_intent_still_reconcile[postgresql-20261018_tenant_isolation-20261018_isolated-cancel]" time="3.827"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 53, 217566), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 53, 217566), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:91: in test_legacy_callbacks_without_purchase_intent_still_reconcile
+    license_id = seed_legacy(url, engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 54, 53, 217566), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 54, 53, 217566), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_conflicting_legacy_association_aborts_preparation_without_losing_rows[sqlite]" time="3.907"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:57.932998', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:57.932998')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:133: in test_conflicting_legacy_association_aborts_preparation_without_losing_rows
+    seed_legacy(url, engine, conflict=True)
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:57.932998', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:54:57.932998')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_conflicting_legacy_association_aborts_preparation_without_losing_rows[postgresql]" time="4.844"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 55, 3, 502077), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 55, 3, 502077), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:133: in test_conflicting_legacy_association_aborts_preparation_without_losing_rows
+    seed_legacy(url, engine, conflict=True)
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 55, 3, 502077), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 55, 3, 502077), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_provider_namespace_and_ambient_subject_cannot_be_confused[sqlite]" time="3.289"><failure message="sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]&#10;[parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:55:07.679883', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:55:07.679883')]&#10;(Background on this error at: https://sqlalche.me/e/21/e3q8)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table usuarios has no column named password_reset_hash
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:152: in test_provider_namespace_and_ambient_subject_cannot_be_confused
+    seed_legacy(url, engine)
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table usuarios has no column named password_reset_hash
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_session_version, deleted_at, fecha_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('legacy-a', 'legacy-a@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:55:07.679883', 'legacy-b', 'legacy-b@example.test', 'unused-synthetic', 'Synthetic', '', 'gym', 'OWNER', None, None, None, None, None, 1, 0, None, None, None, None, '2026-10-19 07:55:07.679883')]
+E   (Background on this error at: https://sqlalche.me/e/21/e3q8)</failure></testcase><testcase classname="tests.integration_provider_subjects" name="test_provider_namespace_and_ambient_subject_cannot_be_confused[postgresql]" time="4.034"><failure message="sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column &quot;password_reset_hash&quot; of relation &quot;usuarios&quot; does not exist&#10;LINE 1: ...xpires, invitation_role, activo, session_version, password_r...&#10;                                                             ^&#10;&#10;[SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]&#10;[parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 55, 12, 243947), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 55, 12, 243947), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]&#10;(Background on this error at: https://sqlalche.me/e/21/f405)">C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.UndefinedColumn: column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\integration_provider_subjects.py:152: in test_provider_namespace_and_ambient_subject_cannot_be_confused
+    seed_legacy(url, engine)
+tests\integration_provider_subjects.py:32: in seed_legacy
+    db.commit()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:2095: in commit
+    trans.commit(_to_root=True)
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit&gt;:2: in commit
+    return target(fn, self, _to_root=_to_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1330: in commit
+    self._prepare_impl()
+&lt;sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl&gt;:2: in _prepare_impl
+    return target(fn, self)
+           ^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:1304: in _prepare_impl
+    self.session.flush()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4536: in flush
+    self._flush(objects)
+&lt;sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush&gt;:2: in _flush
+    return target(fn, self, objects=objects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\deprecations.py:281: in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4679: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\util\langhelpers.py:166: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\session.py:4640: in _flush
+    flush_context.execute()
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:467: in execute
+    rec.execute(self)
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\unitofwork.py:643: in execute
+    util.preloaded.orm_persistence._save_obj(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:92: in _save_obj
+    _emit_insert_statements(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\orm\persistence.py:1147: in _emit_insert_statements
+    result = connection.execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1830: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2121: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2104: in _exec_insertmany_context
+    dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "password_reset_hash" of relation "usuarios" does not exist
+E   LINE 1: ...xpires, invitation_role, activo, session_version, password_r...
+E                                                                ^
+E   
+E   [SQL: INSERT INTO usuarios (id, email, password_hash, nombre, apellido, tipo, role, team_gym_id, invited_by, invitation_token, invitation_expires, invitation_role, activo, session_version, password_reset_hash, password_reset_expires_at, password_reset_sess ... 754 characters truncated ... et_expires_at__1)s, %(password_reset_session_version__1)s, %(deleted_at__1)s, %(fecha_registro__1)s)]
+E   [parameters: {'invited_by__0': None, 'session_version__0': 0, 'email__0': 'legacy-a@example.test', 'password_reset_hash__0': None, 'id__0': 'legacy-a', 'fecha_registro__0': datetime.datetime(2026, 10, 19, 7, 55, 12, 243947), 'password_hash__0': 'unused-synthetic', 'password_reset_session_version__0': None, 'password_reset_expires_at__0': None, 'invitation_role__0': None, 'invitation_expires__0': None, 'tipo__0': 'gym', 'activo__0': True, 'apellido__0': '', 'deleted_at__0': None, 'team_gym_id__0': None, 'nombre__0': 'Synthetic', 'invitation_token__0': None, 'role__0': 'OWNER', 'invited_by__1': None, 'session_version__1': 0, 'email__1': 'legacy-b@example.test', 'password_reset_hash__1': None, 'id__1': 'legacy-b', 'fecha_registro__1': datetime.datetime(2026, 10, 19, 7, 55, 12, 243947), 'password_hash__1': 'unused-synthetic', 'password_reset_session_version__1': None, 'password_reset_expires_at__1': None, 'invitation_role__1': None, 'invitation_expires__1': None, 'tipo__1': 'gym', 'activo__1': True, 'apellido__1': '', 'deleted_at__1': None, 'team_gym_id__1': None, 'nombre__1': 'Synthetic', 'invitation_token__1': None, 'role__1': 'OWNER'}]
+E   (Background on this error at: https://sqlalche.me/e/21/f405)</failure></testcase><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[sqlite-empty]" time="3.551" /><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[sqlite-unversioned-legacy]" time="2.763" /><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[postgresql-empty]" time="5.578" /><testcase classname="tests.integration_gym_quota_migrations" name="test_empty_and_legacy_upgrade_to_frozen_quota_head[postgresql-unversioned-legacy]" time="5.171" /><testcase classname="tests.integration_gym_quota_migrations" name="test_source_drift_aborts_before_creating_ledger[schema-postgresql]" time="6.814" /><testcase classname="tests.integration_gym_quota_migrations" name="test_source_drift_aborts_before_creating_ledger[policy-postgresql]" time="5.364" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[sqlite-empty]" time="5.019" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[sqlite-legacy]" time="4.657" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[sqlite-populated24]" time="5.767" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[postgresql-empty]" time="6.185" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[postgresql-legacy]" time="7.582" /><testcase classname="tests.integration_stored_objects_migrations" name="test_upgrade_is_repeatable_and_preserves_previous_data[postgresql-populated24]" time="8.205" /><testcase classname="tests.integration_stored_objects_migrations" name="test_source_drift_aborts_before_object_metadata_ddl[sqlite]" time="4.490" /><testcase classname="tests.integration_stored_objects_migrations" name="test_source_drift_aborts_before_object_metadata_ddl[postgresql]" time="5.868" /><testcase classname="tests.integration_stored_objects_migrations" name="test_ddl_failure_rolls_back_table_columns_revision_and_rows[sqlite]" time="3.062" /><testcase classname="tests.integration_stored_objects_migrations" name="test_ddl_failure_rolls_back_table_columns_revision_and_rows[postgresql]" time="4.977" /><testcase classname="tests.integration_stored_objects_migrations" name="test_metadata_constraints_and_same_owner_composite_references[sqlite]" time="4.096" /><testcase classname="tests.integration_stored_objects_migrations" name="test_metadata_constraints_and_same_owner_composite_references[postgresql]" time="5.777" /><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[sqlite-False]" time="5.550" /><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[sqlite-True]" time="5.818" /><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[postgresql-False]" time="8.344" /><testcase classname="tests.integration_individual_publication_migrations" name="test_upgrade_preserves_legacy_rows_without_claiming_publication[postgresql-True]" time="8.011" /><testcase classname="tests.integration_individual_publication_migrations" name="test_source_drift_is_rejected_before_new_columns[sqlite]" time="5.037" /><testcase classname="tests.integration_individual_publication_migrations" name="test_source_drift_is_rejected_before_new_columns[postgresql]" time="6.287" /><testcase classname="tests.integration_individual_publication_migrations" name="test_failure_after_actual_ddl_rolls_back_columns_rows_and_revision[sqlite]" time="2.979" /><testcase classname="tests.integration_individual_publication_migrations" name="test_failure_after_actual_ddl_rolls_back_columns_rows_and_revision[postgresql]" time="4.375" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[sqlite-UTC]" time="4.232" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[sqlite-America/Mexico_City]" time="4.328" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[postgresql-UTC]" time="5.629" /><testcase classname="tests.integration_individual_publication_migrations" name="test_checks_and_typed_marker_in_utc_and_mexico_sessions[postgresql-America/Mexico_City]" time="5.466" /><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[sqlite-False]" time="5.405" /><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[sqlite-True]" time="5.413" /><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[postgresql-False]" time="8.117" /><testcase classname="tests.integration_personal_diary_migrations" name="test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat[postgresql-True]" time="7.725" /><testcase classname="tests.integration_personal_diary_migrations" name="test_source26_drift_rejected_before_diary_ddl[sqlite]" time="4.009" /><testcase classname="tests.integration_personal_diary_migrations" name="test_source26_drift_rejected_before_diary_ddl[postgresql]" time="5.423" /><testcase classname="tests.integration_personal_diary_migrations" name="test_failure_after_real_diary_ddl_rolls_back_table_rows_and_revision[sqlite]" time="2.743" /><testcase classname="tests.integration_personal_diary_migrations" name="test_failure_after_real_diary_ddl_rolls_back_table_rows_and_revision[postgresql]" time="4.303" /><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[sqlite-UTC]" time="3.861" /><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[sqlite-America/Mexico_City]" time="3.991" /><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[postgresql-UTC]" time="5.785" /><testcase classname="tests.integration_personal_diary_migrations" name="test_constraints_restrict_owner_and_preserve_snapshots_without_source_fk[postgresql-America/Mexico_City]" time="5.756" /></testsuite></testsuites>

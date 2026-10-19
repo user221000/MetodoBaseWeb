@@ -21,6 +21,7 @@ import time
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
+from web.account_values import normalize_account_email, validate_new_password
 
 _logger = logging.getLogger(__name__)
 
@@ -197,11 +198,10 @@ def crear_usuario(
     if tipo not in tipos_validos:
         raise ValueError(f"Tipo inválido: {tipo!r}")
 
-    email = email.strip().lower()
+    email = normalize_account_email(email)
     if not email or "@" not in email:
         raise ValueError("Email inválido.")
-    if len(password) < 12:
-        raise ValueError("La contraseña debe tener al menos 12 caracteres.")
+    validate_new_password(password)
 
     Usuario, _ = _get_models()
     from web.database.models import UserRole
@@ -254,7 +254,7 @@ def verificar_credenciales(
     Returns:
         dict con datos del usuario, o None si las credenciales son inválidas.
     """
-    email = email.strip().lower()
+    email = normalize_account_email(email)
     Usuario, _ = _get_models()
     session = _get_session()
     try:
@@ -521,10 +521,12 @@ def rotar_refresh_token(old_token: str) -> Optional[dict]:
         if result == 0:
             # Token already revoked — possible reuse attack
             # Revoke ALL tokens for this user as security measure
+            Usuario, _ = _get_models()
+            with_conn_session.query(Usuario).filter(Usuario.id == user_id).update(
+                {Usuario.id: Usuario.id}, synchronize_session=False)
             with_conn_session.query(RefreshToken).filter(
                 RefreshToken.user_id == user_id,
             ).update({"revoked": True})
-            Usuario, _ = _get_models()
             with_conn_session.query(Usuario).filter(Usuario.id == user_id).update(
                 {Usuario.session_version: Usuario.session_version + 1}
             )
@@ -550,6 +552,9 @@ def revocar_refresh_tokens_usuario(user_id: str) -> None:
     Usuario, RefreshToken = _get_models()
     session = _get_session()
     try:
+        # Same account -> refresh order as recovery and membership changes.
+        session.query(Usuario).filter(Usuario.id == user_id).update(
+            {Usuario.id: Usuario.id}, synchronize_session=False)
         session.query(RefreshToken).filter(
             RefreshToken.user_id == user_id,
         ).update({"revoked": True})

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><title>Recuperar acceso — Método Base</title>
+<link rel="stylesheet" href="/static/css/account-recovery.css">
+<script src="/static/js/account-recovery.js" defer></script></head>
+<body><main><a href="/">Método Base</a><h1>Recuperar acceso</h1>
+<p id="recovery-status" role="status" aria-live="polite"></p>
+<form id="recovery-request" novalidate>
+<p>Si la cuenta puede recuperarse, se intentará enviar un enlace a su correo. La recepción de esta solicitud no confirma la entrega.</p>
+<label for="recovery-email">Correo de la cuenta</label>
+<input id="recovery-email" name="email" type="email" autocomplete="username" maxlength="255" required>
+<button type="submit">Solicitar enlace</button></form>
+<form id="recovery-confirm" hidden novalidate>
+<p>Elige una contraseña de al menos 12 caracteres y hasta 72 bytes UTF-8. Al confirmarla se revocarán las sesiones anteriores; después deberás iniciar sesión.</p>
+<label for="recovery-password">Contraseña nueva</label>
+<input id="recovery-password" name="new_password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+<label for="recovery-confirmation">Repite la contraseña</label>
+<input id="recovery-confirmation" name="confirm_password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+<button type="submit">Guardar contraseña</button></form>
+<p><a href="/login-usuario">Iniciar sesión personal</a> · <a href="/login-gym">Acceso profesional</a></p>
+<noscript>Activa JavaScript para usar el enlace sin enviarlo en la dirección de la página.</noscript>
+</main></body></html>

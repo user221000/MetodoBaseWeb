@@ -98,7 +98,17 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # ─── CSP (with per-request nonce) ────────────────────────────────────
         if self.csp_enabled:
-            response.headers["Content-Security-Policy"] = self._build_csp_header(nonce)
+            if request.url.path == "/auth/reset-password":
+                # Fixed first-party policy for the public recovery form. Never
+                # accept an arbitrary policy supplied by a downstream handler.
+                response.headers["Content-Security-Policy"] = (
+                    "default-src 'none'; "
+                    f"script-src 'self' 'nonce-{nonce}'; "
+                    "style-src 'self'; connect-src 'self'; form-action 'self'; "
+                    "frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+                )
+            else:
+                response.headers["Content-Security-Policy"] = self._build_csp_header(nonce)
         
         # ─── Otros headers de seguridad ─────────────────────────────────────
         response.headers["X-Content-Type-Options"] = "nosniff"

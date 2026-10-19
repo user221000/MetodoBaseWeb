@@ -14,7 +14,7 @@ from urllib.parse import urlsplit, urlunsplit
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine, inspect, text, MetaData, Table
 from sqlalchemy.orm import Session
 
 from tests.integration_schema_migrations import migration_database, run_migration, ROOT
@@ -22,13 +22,16 @@ from web.database.alembic.schema_contract_v1 import schema_signature
 
 
 def seed_legacy(url, engine, *, conflict=False):
-    from web.database.models import Usuario, UserRole, Subscription, StripeCustomer, UserSubscription, GymLicense
+    from web.database.models import Subscription, StripeCustomer, UserSubscription, GymLicense
     run_migration(url, 'db_bootstrap.py', '--revision', '20261018_schema_reconciliation')
     now = datetime.now(timezone.utc)
+    usuarios = Table('usuarios', MetaData(), autoload_with=engine)
     with Session(engine) as db:
         for suffix in ('a', 'b'):
-            db.add(Usuario(id='legacy-' + suffix, email='legacy-' + suffix + '@example.test',
-                nombre='Synthetic', password_hash='unused-synthetic', tipo='gym', role=UserRole.OWNER))
+            db.execute(usuarios.insert().values(id='legacy-' + suffix, email='legacy-' + suffix + '@example.test',
+                nombre='Synthetic', password_hash='unused-synthetic', tipo='gym', role='OWNER',
+                apellido='', activo=True, session_version=0,
+                fecha_registro=datetime.now(timezone.utc).replace(tzinfo=None)))
         db.commit()
         db.add(Subscription(gym_id='legacy-a', plan='pro_usuario', status='active', provider='stripe',
             stripe_customer_id='cus_legacy', stripe_subscription_id='sub_legacy', max_clientes=1,

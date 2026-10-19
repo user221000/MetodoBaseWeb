@@ -31,7 +31,7 @@ def test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat(migration_da
         verify_runtime_schema(engine)
     run_migration(url,'db_bootstrap.py','--revision',REVISION)
     assert snapshot(engine,columns)[1]==before
-    verify_runtime_schema(engine)
+    verify_runtime_schema(engine,expected_revision=REVISION)
     with engine.connect() as db:
         assert len(inspect(db).get_table_names())==27  # 26 business + Alembic.
         assert db.scalar(text('SELECT version_num FROM alembic_version'))==REVISION

@@ -141,6 +141,8 @@ def send_plan_generated(
     The caller must authorize bytes for the recipient/tenant before passing
     them. A supplied byte payload never falls back to a filename on error.
     """
+
+
     subject_name = str(nombre_cliente).replace("\r", " ").replace("\n", " ")
     safe_name = escape(str(nombre_cliente), quote=True)
     content = f"""\
@@ -225,6 +227,20 @@ def send_payment_failed(email: str, nombre: str) -> bool:
   </a>
 </p>"""
     return _send(email, "⚠️ Problema con tu pago — Método Base", _base_layout(content))
+
+
+def send_password_reset(email: str, nombre: str, link: str) -> bool:
+    """Acceptance only; the private link is never logged or returned publicly."""
+    content=f'<h2>Recuperar acceso</h2><p>Hola, {escape(nombre)}.</p>'
+    content+=f'<p><a href="{escape(link,quote=True)}">Elegir una contraseña nueva</a></p>'
+    content+='<p>El enlace vence en 30 minutos. Una nueva emisión invalida los enlaces anteriores. Si no lo solicitaste, puedes ignorarlo: tu contraseña y sesiones no cambiaron.</p>'
+    return _send(email,'Recuperar acceso — Método Base',_base_layout(content))
+
+
+def send_password_changed(email: str, nombre: str) -> bool:
+    content=f'<h2>Contraseña actualizada</h2><p>Hola, {escape(nombre)}.</p>'
+    content+='<p>Tu contraseña cambió y las sesiones anteriores fueron revocadas. Si no reconoces este cambio, solicita otro enlace de recuperación desde el acceso habitual.</p>'
+    return _send(email,'Contraseña actualizada — Método Base',_base_layout(content))
 
 
 def send_team_invitation(

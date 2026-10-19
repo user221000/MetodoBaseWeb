@@ -106,6 +106,9 @@ class Usuario(Base):
     activo = Column(Boolean, nullable=False, default=True)
     # Incremented transactionally on logout/revocation; legacy tokens use zero.
     session_version = Column(Integer, nullable=False, default=0, server_default="0")
+    password_reset_hash = Column(String(64), nullable=True)
+    password_reset_expires_at = Column(UTCDateTime, nullable=True)
+    password_reset_session_version = Column(Integer, nullable=True)
     deleted_at = Column(UTCDateTime, nullable=True)
     fecha_registro = Column(UTCDateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
@@ -123,6 +126,8 @@ class Usuario(Base):
 
     __table_args__ = (
         CheckConstraint("tipo IN ('gym', 'usuario', 'admin')", name="ck_usuario_tipo"),
+        UniqueConstraint('password_reset_hash',name='uq_usuario_password_reset_hash'),
+        CheckConstraint("(password_reset_hash IS NULL AND password_reset_expires_at IS NULL AND password_reset_session_version IS NULL) OR (password_reset_hash IS NOT NULL AND length(password_reset_hash) = 64 AND password_reset_expires_at IS NOT NULL AND password_reset_session_version IS NOT NULL AND password_reset_session_version >= 0)", name="ck_usuario_reset_state"),
         Index("ix_usuarios_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
         # NOTE: team_gym_id already has index=True on the column definition
         # NOTE: invitation_token already has unique=True which creates an index

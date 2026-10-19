@@ -17,6 +17,7 @@ from sqlalchemy import func, or_, select, update
 from sqlalchemy.orm import Session
 
 from web.constants import INVITATION_EXPIRY_DAYS
+from web.account_values import validate_new_password
 from web.database.models import RefreshToken, Subscription, Usuario, UserRole
 from web.services.permissions import can_manage_user, get_assignable_roles
 
@@ -144,6 +145,7 @@ def find_invitation(db: Session, token: str) -> Usuario | None:
 def consume(db: Session, token: str, password: str) -> dict:
     """One conditional UPDATE wins even when two readers observed the token."""
     from web.auth import hash_password, identity_from_user
+    validate_new_password(password)
 
     user = find_invitation(db, token)
     if user is None:

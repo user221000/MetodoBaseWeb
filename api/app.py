@@ -144,6 +144,7 @@ def create_app() -> FastAPI:
         exclude_paths=[
             "/health", "/health/ready", "/docs", "/redoc", "/openapi.json",
             "/static/", "/metrics", "/alerts",
+            "/api/auth/password-reset/",
         ],
     )
 
@@ -296,6 +297,8 @@ def create_app() -> FastAPI:
 
     from web.routes.personal_diary import router as personal_diary_router
     app.include_router(personal_diary_router, prefix="/api")
+    from web.routes.password_recovery import router as password_recovery_router
+    app.include_router(password_recovery_router, prefix="/api")
 
     # ── Planes history routes (web) ───────────────────────────────────────────
     from web.routes import planes as web_planes_routes

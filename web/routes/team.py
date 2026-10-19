@@ -21,6 +21,7 @@ from web.auth_deps import get_effective_gym_id, get_usuario_actual
 from web.database.engine import get_db
 from web.database.models import GymProfile, Usuario, UserRole
 from web.services import team_invitation_service as invitations
+from web.account_values import normalize_account_email, validate_new_password
 from web.services.permissions import (
     can_manage_user, get_assignable_roles, get_role_display_name,
     has_permission, verify_permission,
@@ -47,7 +48,7 @@ class TeamInviteRequest(BaseModel):
     @field_validator("email")
     @classmethod
     def validate_email(cls, value: str) -> str:
-        value = value.strip().lower()
+        value = normalize_account_email(value)
         if any(char.isspace() for char in value) or value.count("@") != 1 or "." not in value.split("@")[-1]:
             raise ValueError("Email inválido")
         return value
@@ -111,9 +112,7 @@ class AcceptInviteRequest(InviteInfoRequest):
     @field_validator("password")
     @classmethod
     def validate_password_size(cls, value: str) -> str:
-        if len(value.encode("utf-8")) > 72:
-            raise ValueError("Usa una contraseña más corta, de al menos 12 caracteres.")
-        return value
+        return validate_new_password(value)
 
 
 class AcceptInviteResponse(BaseModel):

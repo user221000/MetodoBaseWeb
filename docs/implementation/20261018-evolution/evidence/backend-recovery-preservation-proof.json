@@ -1,0 +1,82 @@
+{
+  "base": "f687e44",
+  "historical_comparison": "Git blobs vs working files, CRLF normalized to LF only",
+  "historical_contracts_unchanged": [
+    "web/database/alembic/schema_targets/20261018_gym_quota_postgresql.json",
+    "web/database/alembic/schema_targets/20261018_gym_quota_sqlite.json",
+    "web/database/alembic/schema_targets/20261018_individual_publication_postgresql.json",
+    "web/database/alembic/schema_targets/20261018_individual_publication_sqlite.json",
+    "web/database/alembic/schema_targets/20261018_isolated_postgresql.json",
+    "web/database/alembic/schema_targets/20261018_isolated_sqlite.json",
+    "web/database/alembic/schema_targets/20261018_prepared_postgresql.json",
+    "web/database/alembic/schema_targets/20261018_prepared_sqlite.json",
+    "web/database/alembic/schema_targets/20261018_reconciled_postgresql.json",
+    "web/database/alembic/schema_targets/20261018_reconciled_sqlite.json",
+    "web/database/alembic/schema_targets/20261018_stored_objects_postgresql.json",
+    "web/database/alembic/schema_targets/20261018_stored_objects_sqlite.json",
+    "web/database/alembic/schema_targets/20261019_personal_diary_postgresql.json",
+    "web/database/alembic/schema_targets/20261019_personal_diary_sqlite.json",
+    "tests/fixtures/schema/gym_quota_20261018_postgresql.sql",
+    "tests/fixtures/schema/gym_quota_20261018_sqlite.sql",
+    "tests/fixtures/schema/individual_publication_20261018_postgresql.sql",
+    "tests/fixtures/schema/individual_publication_20261018_sqlite.sql",
+    "tests/fixtures/schema/legacy_20260402_postgresql.sql",
+    "tests/fixtures/schema/legacy_20260402_sqlite.sql",
+    "tests/fixtures/schema/personal_diary_20261019_postgresql.sql",
+    "tests/fixtures/schema/personal_diary_20261019_sqlite.sql",
+    "tests/fixtures/schema/prepared_20261018_postgresql.sql",
+    "tests/fixtures/schema/prepared_20261018_sqlite.sql",
+    "tests/fixtures/schema/reconciled_20261018_postgresql.sql",
+    "tests/fixtures/schema/reconciled_20261018_sqlite.sql",
+    "tests/fixtures/schema/stored_objects_20261018_postgresql.sql",
+    "tests/fixtures/schema/stored_objects_20261018_sqlite.sql"
+  ],
+  "historical27_test_only_expected_revision_keyword": true,
+  "email_existing_function_asts_unchanged": [
+    "_base_layout",
+    "_is_configured",
+    "_send",
+    "send_payment_failed",
+    "send_plan_generated",
+    "send_subscription_activated",
+    "send_subscription_canceled",
+    "send_team_invitation",
+    "send_welcome"
+  ],
+  "login_script_blocks_unchanged": [
+    "web/templates/login_gym.html",
+    "web/templates/login_usuario.html"
+  ],
+  "historical_test_deltas": [
+    {
+      "path": "tests/integration_personal_diary_migrations.py",
+      "allowed_function_delta": [
+        "test_empty_and_populated26_upgrade_preserve_old_rows_and_repeat"
+      ],
+      "assertions_identical": true,
+      "other_functions_identical": true,
+      "before_git_blob_sha256": "9eceff82fb1c19ccbdfed509f0d1dfb695f24ba07021dbaceb0fec5a5744dcb4",
+      "after_working_bytes_sha256": "f034b66ff933df334f95e6ddbc72bda76f4ad9a1814d3677b8d1d45b83166ade"
+    },
+    {
+      "path": "tests/integration_provider_subjects.py",
+      "allowed_function_delta": [
+        "seed_legacy"
+      ],
+      "assertions_identical": true,
+      "other_functions_identical": true,
+      "before_git_blob_sha256": "391e7845855a584ddb040d5c49bc561c38b40e0510081fb6629ab34c1beeefff",
+      "after_working_bytes_sha256": "7342bbb301418fa14b99c461a748e7909aa7baa8c123b63d6bb2377c7bb104b1"
+    },
+    {
+      "path": "tests/integration_schema_migrations.py",
+      "allowed_function_delta": [
+        "test_parallel_onboarding_uses_five_templates"
+      ],
+      "assertions_identical": true,
+      "other_functions_identical": true,
+      "before_git_blob_sha256": "642ed3daaa557cd0486f3400fbcea31d7e116b4d2976920e8c329eec762c5d15",
+      "after_working_bytes_sha256": "419c0e07826f42501b801a5ab3cdf9798ef0955fc1db6ab4b5e13e0c6deb2a7d"
+    }
+  ]
+}

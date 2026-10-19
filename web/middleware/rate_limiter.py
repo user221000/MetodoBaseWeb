@@ -31,6 +31,7 @@ import time
 import logging
 import hashlib
 import hmac
+from web.account_values import normalize_account_email
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 from threading import Lock
@@ -341,7 +342,7 @@ def rate_limit_dependency(
                 body = None  # The endpoint's DTO still rejects malformed JSON.
             account = body.get(account_field) if isinstance(body, dict) else None
             if isinstance(account, str) and account.strip():
-                normalized = account.strip().casefold()
+                normalized = normalize_account_email(account)
                 digest = hmac.new(settings.SECRET_KEY.encode("utf-8"),
                     ("rate-limit-account-v1:" + normalized).encode("utf-8"),
                     hashlib.sha256).hexdigest()

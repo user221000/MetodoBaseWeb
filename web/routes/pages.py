@@ -110,6 +110,15 @@ async def accept_invite_page(request: Request):
     return response
 
 
+@router.get('/auth/reset-password',response_class=HTMLResponse)
+async def reset_password_page(request:Request):
+    response=template_response(templates,request,'account_recovery.html',{'request':request})
+    response.headers.update({'Cache-Control':'no-store','Referrer-Policy':'no-referrer',
+        'X-Content-Type-Options':'nosniff',
+        'Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"})
+    return response
+
+
 # ── Individual User Pages ─────────────────────────────────────────────────
 
 @router.get("/mi-plan", response_class=HTMLResponse)
