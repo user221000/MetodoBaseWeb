@@ -1,0 +1,16 @@
+diff --git a/tests/mfa31_contract_client.py b/tests/mfa31_contract_client.py
+index 5feb9f8..caa8001 100644
+--- a/tests/mfa31_contract_client.py
++++ b/tests/mfa31_contract_client.py
+@@ -43,9 +43,9 @@ def _authentication_clock():
+             raise RuntimeError("Nested fixture authentication clock")
+         original = mfa_service.instant
+         observed = original().astimezone(timezone.utc)
+-        def scoped(supplied=None):
++        def scoped(now=None):
+             fixed = _AUTHENTICATION_INSTANT.get()
+-            return original(fixed if supplied is None and fixed is not None else supplied)
++            return original(fixed if now is None and fixed is not None else now)
+         token = _AUTHENTICATION_INSTANT.set(observed)
+         mfa_service.instant = scoped
+         try:

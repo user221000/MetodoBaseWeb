@@ -1,0 +1,40 @@
+"""Own immutable SQLite clock phases; no endpoint/identity/crypto overrides by the runner."""
+from pathlib import Path
+import argparse,ast,hashlib,importlib.metadata,json,os,subprocess,sys,time,xml.etree.ElementTree as ET
+
+p=argparse.ArgumentParser();p.add_argument('mode',choices=['exception']);p.add_argument('source',type=Path);p.add_argument('head');p.add_argument('output',type=Path);a=p.parse_args()
+ROOT=a.source.resolve();OUT=a.output;OUT.mkdir(exist_ok=False)
+def meta(p):
+    raw=p.read_bytes();return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def write(path,value):
+    with path.open('x',encoding='utf-8') as out:json.dump(value,out,indent=2);out.write('\n')
+assert git('rev-parse','HEAD').decode().strip()==a.head and not git('status','--porcelain','--untracked-files=no').strip()
+names=git('ls-files','-z','config','core','src','api','web','utils','tests','db_bootstrap.py','alembic.ini','.github/workflows').decode().split('\0');names=sorted(n for n in names if n)
+own=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-current31-clock-exception-20261019.py')
+def photo():
+    return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{name:meta(ROOT/name) for name in names},'packages':sorted([d.metadata['Name'],d.version] for d in importlib.metadata.distributions()),'python_shim':meta(Path(sys.executable)),'python_backing':meta(Path(sys._base_executable)),'probe':meta(own),'runner':meta(Path(__file__))}
+before=photo();assert len(before['packages'])==89;write(OUT/'before.json',before)
+env=dict(os.environ)
+for key in list(env):
+    upper=key.upper()
+    if upper=='DATABASE_URL' or upper.endswith('_DATABASE_URL') or upper.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST','MFA_QA_','CLOCK_QA_')) or any(x in upper for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):env.pop(key,None)
+env.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+pip=subprocess.run([sys.executable,'-m','pip','check'],env=env,capture_output=True,check=False);(OUT/'pip-before.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+modules=[str(own)]
+args=[sys.executable,'-X','utf8','-B','tests/run_isolated.py',*modules,'-q','--tb=short','--basetemp='+str(OUT/'pytest-private'),'--junitxml='+str(OUT/'results.xml')]
+start=time.monotonic()
+with (OUT/'stdout.private.raw.log').open('xb') as stdout,(OUT/'stderr.private.raw.log').open('xb') as stderr:r=subprocess.run(args,cwd=ROOT,env=env,stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,timeout=900,check=False)
+elapsed=round(time.monotonic()-start,3);write(OUT/'command.json',{'argv':args,'exit_code':r.returncode,'elapsed_seconds':elapsed})
+after=photo();write(OUT/'after.json',after);assert before==after
+pip=subprocess.run([sys.executable,'-m','pip','check'],env=env,capture_output=True,check=False);(OUT/'pip-after.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+cases=list(ET.parse(OUT/'results.xml').getroot().iter('testcase'))
+rows=[{'class':c.attrib.get('classname'),'name':c.attrib['name'],'errors':len(c.findall('error')),'failures':len(c.findall('failure')),'skips':len(c.findall('skipped'))} for c in cases]
+summary={'mode':a.mode,'head':a.head,'cases':rows,'count':len(rows),'exit_code':r.returncode,'elapsed_seconds':elapsed,'source_count':len(names),'packages':89,'source_package_python_quiet':True,'pip_before_after':[0,0],'helper_clock_source_SHA256':meta(ROOT/'tests/ci_mfa31/current_link_fixtures.py')['sha256'],'contract_helper_SHA256':meta(ROOT/'tests/mfa31_contract_client.py')['sha256'],'scope':'Independent controlled SQLite fixture diagnostics; clocks/entropy only within test seams and real password/MFA HTTP. No attribution of the original uninstrumented broad-run failure cause; no PG, VM, Chrome, provider, full suite or production claim.'}
+write(OUT/'summary.json',summary)
+if a.mode=='exception':
+    assert r.returncode==0 and len(rows)==2 and not any(row['errors'] or row['failures'] or row['skips'] for row in rows)
+else:
+    assert r.returncode==1 and len(rows)==1 and rows[0]['errors']==1 and rows[0]['failures']==rows[0]['skips']==0
+    err=cases[0].find('error');assert err.attrib['message'].endswith('fixture TOTP confirmation: HTTP 400, expected 200')
+print(json.dumps({'mode':a.mode,'exit_code':r.returncode,'count':len(rows),'source_count':len(names),'status':'PASS_FOCAL' if a.mode=='focal' else 'CONFIRMED_CONTROLLED_UNCHANGED_HELPER_CLOCK_GAP','output':str(OUT)}))

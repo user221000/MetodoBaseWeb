@@ -1,0 +1,14 @@
+from pathlib import Path
+import hashlib,json,xml.etree.ElementTree as ET
+ROOT=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-clock31-contract-diagnostic-20261019')
+summary=json.loads((ROOT/'summary.json').read_text())
+assert summary['exit_code']==1 and summary['count']==1 and summary['source_package_python_quiet'] is True
+cases=list(ET.parse(ROOT/'results.xml').getroot().iter('testcase'));assert len(cases)==1
+case=cases[0];assert len(case.findall('error'))==1 and not case.findall('failure') and not case.findall('skipped')
+error=case.find('error')
+expected='fixture TOTP confirmation: HTTP 400, expected 200'
+assert expected in error.attrib['message'] and expected in error.text
+assert 'mfa31_contract_client.py:47' in error.text
+record={'status':'CONFIRMED_CONTROLLED_UNCHANGED_HELPER_CLOCK_GAP','source':summary['head'],'cases':1,'setup_errors':1,'test_body_executed':False,'actual_assertion':expected,'private_JUnit_sha256':hashlib.sha256((ROOT/'results.xml').read_bytes()).hexdigest(),'scope':'One controlled old-counter/new-counter seam with real endpoints. Original broad failure cause remains unmeasured; no source fix or acceptance of this older helper.','parser_precondition':'Initial postcheck incorrectly used endswith on pytest XML message containing assertion-rewrite detail. This post-only review retains the exact expected assertion plus file/line and original result; no test replay.'}
+with (ROOT/'postcheck.json').open('x',encoding='utf-8') as out:json.dump(record,out,indent=2);out.write('\n')
+print(json.dumps(record))

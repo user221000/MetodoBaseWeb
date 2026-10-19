@@ -1,0 +1,36 @@
+2026-10-19 13:44:03.966 CST [26880] LOG:  starting PostgreSQL 17.11 on x86_64-windows, compiled by msvc-19.44.35228, 64-bit
+2026-10-19 13:44:03.967 CST [26880] LOG:  listening on IPv4 address "127.0.0.1", port 55486
+2026-10-19 13:44:04.039 CST [26148] LOG:  database system was shut down at 2026-10-19 13:43:58 CST
+2026-10-19 13:44:04.099 CST [26880] LOG:  database system is ready to accept connections
+2026-10-19 13:49:04.024 CST [29588] LOG:  checkpoint starting: time
+2026-10-19 13:49:07.100 CST [29588] LOG:  checkpoint complete: wrote 31 buffers (0.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=3.043 s, sync=0.018 s, total=3.076 s; sync files=10, longest=0.003 s, average=0.002 s; distance=173 kB, estimate=173 kB; lsn=0/1596400, redo lsn=0/15963A8
+2026-10-19 13:53:34.905 CST [27992] FATAL:  password authentication failed for user "mb31_root_72725a9c89c64287b99add9d2c018517"
+2026-10-19 13:53:34.905 CST [27992] DETAIL:  Connection matched file "C:/Users/Consu/AppData/Local/Temp/metodobase-mfa31-runtime72-pg55486-gtf7xlmg/data/pg_hba.conf" line 115: "host    all             all             127.0.0.1/32            scram-sha-256"
+2026-10-19 13:55:43.961 CST [21564] FATAL:  password authentication failed for user "mb31_root_72725a9c89c64287b99add9d2c018517"
+2026-10-19 13:55:43.961 CST [21564] DETAIL:  Connection matched file "C:/Users/Consu/AppData/Local/Temp/metodobase-mfa31-runtime72-pg55486-gtf7xlmg/data/pg_hba.conf" line 115: "host    all             all             127.0.0.1/32            scram-sha-256"
+2026-10-19 13:55:45.128 CST [21780] ERROR:  permission denied to set role "mb31_m_ad98a93c22d34e9b963eb2eedd8aae9a"
+2026-10-19 13:55:45.128 CST [21780] STATEMENT:  SET ROLE "mb31_m_ad98a93c22d34e9b963eb2eedd8aae9a"
+2026-10-19 13:55:45.131 CST [21780] ERROR:  permission denied to create role
+2026-10-19 13:55:45.131 CST [21780] DETAIL:  Only roles with the CREATEROLE attribute may create roles.
+2026-10-19 13:55:45.131 CST [21780] STATEMENT:  CREATE ROLE "mb31_denied_ad98a93c22d34e9b963eb2eedd8aae9a"
+2026-10-19 13:55:45.135 CST [21780] ERROR:  permission denied for schema public at character 14
+2026-10-19 13:55:45.135 CST [21780] STATEMENT:  CREATE TABLE public."mb31_denied_ad98a93c22d34e9b963eb2eedd8aae9a"(id integer)
+2026-10-19 13:55:45.136 CST [21780] ERROR:  permission denied to create temporary tables in database "metodobase_test_runtime31_ad98a93c22d34e9b963eb2eedd8aae9a" at character 19
+2026-10-19 13:55:45.136 CST [21780] STATEMENT:  CREATE TEMP TABLE "mb31_denied_ad98a93c22d34e9b963eb2eedd8aae9a"(id integer)
+2026-10-19 13:55:45.186 CST [15096] FATAL:  permission denied for database "postgres"
+2026-10-19 13:55:45.186 CST [15096] DETAIL:  User does not have CONNECT privilege.
+2026-10-19 13:55:45.300 CST [26400] FATAL:  permission denied for database "template1"
+2026-10-19 13:55:45.300 CST [26400] DETAIL:  User does not have CONNECT privilege.
+2026-10-19 13:55:45.406 CST [27876] FATAL:  password authentication failed for user "mb31_a_ad98a93c22d34e9b963eb2eedd8aae9a"
+2026-10-19 13:55:45.406 CST [27876] DETAIL:  Connection matched file "C:/Users/Consu/AppData/Local/Temp/metodobase-mfa31-runtime72-pg55486-gtf7xlmg/data/pg_hba.conf" line 115: "host    all             all             127.0.0.1/32            scram-sha-256"
+2026-10-19 13:59:04.119 CST [29588] LOG:  checkpoint starting: time
+2026-10-19 14:00:50.639 CST [29588] LOG:  checkpoint complete: wrote 973 buffers (23.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=105.839 s, sync=0.669 s, total=106.520 s; sync files=307, longest=0.046 s, average=0.003 s; distance=4539 kB, estimate=4539 kB; lsn=0/1A05078, redo lsn=0/1A04FE8
+2026-10-19 14:04:04.709 CST [29588] LOG:  checkpoint starting: time
+2026-10-19 14:04:24.112 CST [29588] LOG:  checkpoint complete: wrote 176 buffers (4.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=19.204 s, sync=0.153 s, total=19.404 s; sync files=288, longest=0.003 s, average=0.001 s; distance=1815 kB, estimate=4266 kB; lsn=0/1BCAD08, redo lsn=0/1BCACB0
+2026-10-19 14:09:43.038 CST [26880] LOG:  received fast shutdown request
+2026-10-19 14:09:43.042 CST [26880] LOG:  aborting any active transactions
+2026-10-19 14:09:43.069 CST [26880] LOG:  background worker "logical replication launcher" (PID 27252) exited with exit code 1
+2026-10-19 14:09:43.070 CST [29588] LOG:  shutting down
+2026-10-19 14:09:43.072 CST [29588] LOG:  checkpoint starting: shutdown immediate
+2026-10-19 14:09:43.083 CST [29588] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.014 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=3840 kB; lsn=0/1BCADB8, redo lsn=0/1BCADB8
+2026-10-19 14:09:43.141 CST [26880] LOG:  database system is shut down

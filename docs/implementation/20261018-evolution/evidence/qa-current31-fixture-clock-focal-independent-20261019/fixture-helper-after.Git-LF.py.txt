@@ -1,0 +1,145 @@
+"""Current31 fixtures for unchanged R12 assertions; no legacy helper is edited.
+
+Every module receives its own UUID via the accepted migration owner/finalizer.
+The same UUID is upgraded to the real head before any product factory starts.
+HTTP identities use actual password, enrollment, TOTP, challenge and recovery.
+"""
+from __future__ import annotations
+
+import base64
+from datetime import datetime
+import importlib
+from itertools import count
+import os
+from threading import Event
+from types import SimpleNamespace
+
+from fastapi.testclient import TestClient
+import pytest
+from sqlalchemy import inspect, select, text
+from sqlalchemy.orm import Session, sessionmaker
+
+from tests import integration_client_link_services as shared
+from tests.integration_schema_migrations import migration_database, run_migration
+from tests.integration_provider_subjects import application_engine
+
+_PEERS = count(1)
+PASSWORD = 'Synthetic-Current31-Password-2026!'
+case = shared.case
+
+
+@pytest.fixture(scope='module', params=['postgresql'])
+def link_db(request, tmp_path_factory):
+    owner = migration_database.__wrapped__(SimpleNamespace(param=request.param),
+                                          tmp_path_factory.mktemp('current31-r12'))
+    url, admin = next(owner)
+    app = None
+    try:
+        run_migration(url, 'db_bootstrap.py', '--revision', '20261019_mfa')
+        from web.database.models import Base
+        from web.database.schema_control import expected_head, verify_runtime_schema
+        from web.database.alembic.history_index_contract_v1 import expected_history_index, history_index_signature
+        assert expected_head() == '20261019_mfa' and len(Base.metadata.tables) == 32
+        verify_runtime_schema(admin, expected_revision='20261019_mfa')
+        with admin.connect() as db:
+            assert len(inspect(db).get_table_names()) == 33
+            assert history_index_signature(db) == expected_history_index('postgresql')
+        app = application_engine(url, admin)
+        with app.connect() as db:
+            flags = db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one()
+            assert tuple(flags) == (False, False, False, False)
+            assert db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
+            assert db.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace=current_schema()::regnamespace AND relname IN ('mfa_credentials','mfa_recovery_codes') AND relrowsecurity AND relforcerowsecurity")) == 2
+        yield admin, app
+    finally:
+        if app is not None:
+            app.dispose()
+        owner.close()
+
+
+def full_mfa_login(client, email: str, password: str, *, now: datetime) -> dict:
+    """Secrets stay in this child memory, never assertions, stdout or reports."""
+    from web.services.mfa_crypto import totp
+    primary = client.post('/api/auth/login', json={'email': email, 'password': password})
+    assert primary.status_code == 200, 'Fresh synthetic account password login failed'
+    headers = {'Authorization': 'Bearer ' + primary.json()['token']}
+    proof = client.post('/api/auth/mfa/reauth', headers=headers, json={'password': password})
+    assert proof.status_code == 200, 'Real primary reauthentication failed'
+    enrollment = client.post('/api/auth/mfa/enroll', headers=headers,
+                             json={'reauthentication_token': proof.json()['reauthentication_token']})
+    assert enrollment.status_code == 200, 'Real factor enrollment failed'
+    value = enrollment.json()
+    seed = base64.b32decode(value['secret'])
+    code = totp(seed, int(now.timestamp()) // 30)
+    confirmed = client.post('/api/auth/mfa/enroll/confirm', headers=headers,
+                            json={'enrollment_id': value['enrollment_id'], 'code': code})
+    assert confirmed.status_code == 200, 'Real TOTP enrollment confirmation failed'
+    recovery = confirmed.json()['recovery_codes']
+    assert len(recovery) == 8
+    # Confirmation invalidates the old primary pair. The accepted pair comes
+    # only from a new password202 and a consumed, persisted recovery factor.
+    assert client.get('/api/auth/me', headers=headers).status_code == 401
+    challenge = client.post('/api/auth/login', json={'email': email, 'password': password})
+    assert challenge.status_code == 202 and 'token' not in challenge.json()
+    result = client.post('/api/auth/mfa/login/verify',
+                         json={'challenge': challenge.json()['challenge'], 'recovery_code': recovery[0]})
+    assert result.status_code == 200, 'Real challenge recovery verification failed'
+    pair = result.json()
+    assert 'token' in pair and 'refresh_token' in pair
+    replay = client.post('/api/auth/mfa/login/verify',
+                         json={'challenge': challenge.json()['challenge'], 'recovery_code': recovery[0]})
+    assert replay.status_code in {400, 409}, 'A consumed MFA login was replayed'
+    return pair
+
+
+@pytest.fixture(params=['web.main_web', 'api.app'])
+def http(case, request, monkeypatch):
+    """Keep the R12 real dispatcher witness; only delivery is a local double."""
+    from web import auth
+    from web.database import engine as database
+    from web.database.models import ClientLinkInvitation, Usuario
+    from web.database.tenant_context import current_tenant
+    from web.services import email_service
+    from web.settings import get_settings
+    settings = get_settings()
+    monkeypatch.setattr(settings, 'BASE_URL', 'https://member.example.invalid')
+    monkeypatch.setattr(settings, 'RESEND_API_KEY', 're_synthetic_offline_only')
+    monkeypatch.setattr(settings, 'MFA_ENCRYPTION_KEY', base64.urlsafe_b64encode(os.urandom(32)).decode('ascii'))
+    monkeypatch.setattr(database, '_engine', case['app'])
+    monkeypatch.setattr(database, '_SessionLocal', sessionmaker(bind=case['app'], autoflush=False, expire_on_commit=False))
+    with Session(case['admin']) as db:
+        for key in ('gym', 'othergym', 'person', 'other'):
+            db.get(Usuario, case[key]).password_hash = auth.hash_password(PASSWORD)
+        db.commit()
+    mail, received = [], Event()
+
+    def send(recipient, subject, html, **kwargs):
+        assert current_tenant.get() == ''
+        if '#token=' in html:
+            with Session(case['admin']) as db:
+                assert db.scalar(select(ClientLinkInvitation.status).where(ClientLinkInvitation.recipient_email == recipient)) == 'pending'
+            mail.append((recipient, subject, html))
+            received.set()
+        return True
+
+    monkeypatch.setattr(email_service, '_send', send)
+    application = importlib.import_module(request.param).create_app()
+    peer = next(_PEERS)
+    with TestClient(application, raise_server_exceptions=False,
+                    client=('192.0.2.' + str(peer % 250 + 1), 50000 + peer)) as client:
+        with Session(case['admin']) as db:
+            emails = {key: db.get(Usuario, case[key]).email for key in ('gym', 'othergym', 'person', 'other')}
+        # Freeze only the MFA clock while these real HTTP setup requests
+        # enroll and authenticate the persisted actors. Business requests
+        # after setup retain the caller's original clock and permissions.
+        from web.services import mfa_service
+        original_clock = mfa_service.instant
+        observed = original_clock()
+        with monkeypatch.context() as setup_clock:
+            setup_clock.setattr(mfa_service, 'instant', lambda supplied=None:
+                original_clock(observed if supplied is None else supplied))
+            headers = {key: {'Authorization': 'Bearer ' + full_mfa_login(client, email, PASSWORD, now=observed)['token']}
+                       for key, email in emails.items()}
+        assert client.get('/api/auth/me', headers=headers['person']).status_code == 200
+        yield {**case, 'client_http': client, 'headers': headers, 'mail': mail,
+               'received': received, 'factory': request.param}

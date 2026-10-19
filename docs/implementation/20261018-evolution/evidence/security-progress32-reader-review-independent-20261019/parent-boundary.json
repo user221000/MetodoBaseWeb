@@ -1,0 +1,18 @@
+{
+  "classification": "DIAGNOSTIC_AUTH_BOUNDARY_ONLY",
+  "factory": "web.main_web",
+  "account_creation": "real MFA-protected team invite -> public acceptance -> real password login",
+  "actor_tipo": "usuario",
+  "actor_role": "viewer",
+  "actor_active_after_shutdown": true,
+  "parent_distinct_from_linked_professional_gym": true,
+  "prior_explicit_consent_http": 200,
+  "prior_own_metadata_http": 200,
+  "administrative_stimulus": "only parent.activo=false; synthetic SQL, no public deactivation-flow claim",
+  "metadata_after_shutdown_http": 401,
+  "withdraw_after_shutdown_http": 401,
+  "professional_projection_after_shutdown_http": 404,
+  "projection_after_parent_reactivation_http": 200,
+  "withdraw_event_created": false,
+  "scope": "No global authentication relaxation proposed; purpose-limited policy decision remains with coordinator."
+}

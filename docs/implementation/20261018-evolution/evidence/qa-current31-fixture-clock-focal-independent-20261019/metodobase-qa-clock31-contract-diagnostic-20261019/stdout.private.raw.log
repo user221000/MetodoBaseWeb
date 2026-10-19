@@ -1,0 +1,23 @@
+E                                                                        [100%]
+=================================== ERRORS ====================================
+____ ERROR at setup of test_unchanged_contract_helper_crossing_diagnostic _____
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\pytest_asyncio\plugin.py:924: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+tests\test_team_invitation_contract.py:65: in team_case
+    client.authenticate()
+tests\mfa31_contract_client.py:75: in authenticate
+    kit = self._require(self.raw.post("/api/auth/mfa/enroll/confirm", json={
+tests\mfa31_contract_client.py:47: in _require
+    assert response.status_code == status, f"{operation}: HTTP {response.status_code}, expected {status}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: fixture TOTP confirmation: HTTP 400, expected 200
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR ::test_unchanged_contract_helper_crossing_diagnostic - AssertionError: ...
+1 warning, 1 error in 7.84s

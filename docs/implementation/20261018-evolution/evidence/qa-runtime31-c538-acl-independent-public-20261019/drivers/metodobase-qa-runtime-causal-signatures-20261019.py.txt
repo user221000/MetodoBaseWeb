@@ -1,0 +1,44 @@
+"""Additional independent read-only signature capture while the two owned DBs exist."""
+from pathlib import Path
+import hashlib,json,time
+import psycopg2
+ROOT=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-runtime-causal-20261019')
+SOURCE=Path(r'F:\mb-mfa31-runtime72-20261019')
+target=SOURCE/'web/database/alembic/schema_targets/20261019_client_account_links_postgresql.json'
+expected=json.loads(target.read_text())['member_link_security']
+assert len(expected['functions'])==19 and all(f[7] is None and f[3] is False for f in expected['functions'])
+deadline=time.monotonic()+250
+while not (ROOT/'explicit_function_execute-to29.json').exists():
+    assert time.monotonic()<deadline
+    time.sleep(.5)
+records={}
+for path in sorted((ROOT/'private').glob('lease-*.json')):
+    lease=json.loads(path.read_text());assert lease['state']=='READY_FOR_REAL_CLI' or lease['state']=='PROBED'
+    passwords=json.loads((ROOT/'private'/('credentials-'+lease['nonce']+'.json')).read_text())
+    c=psycopg2.connect(host='127.0.0.1',port=55486,dbname=lease['database'],user=lease['migrator'],password=passwords[lease['migrator']],connect_timeout=3)
+    with c.cursor() as x:
+        x.execute('SET TRANSACTION READ ONLY')
+        x.execute('SELECT version_num FROM alembic_version');revision=[r[0] for r in x.fetchall()]
+        x.execute("""SELECT p.proname,pg_get_function_identity_arguments(p.oid),pg_get_function_result(p.oid),
+           p.prosecdef,p.proconfig,p.provolatile,p.proparallel,p.proacl::text,p.prosrc,l.lanname
+           FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+           JOIN pg_language l ON l.oid=p.prolang WHERE n.nspname=current_schema() AND p.proname LIKE 'r12_%'
+           ORDER BY p.proname,pg_get_function_identity_arguments(p.oid)""")
+        funcs=[list(r) for r in x.fetchall()]
+        x.execute("""SELECT c.relname,t.tgname,t.tgenabled,t.tgdeferrable,t.tginitdeferred,pg_get_triggerdef(t.oid,false)
+           FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+           WHERE c.relnamespace=current_schema()::regnamespace AND NOT t.tgisinternal AND t.tgname LIKE 'r12_%'
+           ORDER BY c.relname,t.tgname""")
+        triggers=[list(r) for r in x.fetchall()]
+        x.execute("SELECT p.proname,has_function_privilege(%s,p.oid,'EXECUTE') FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname LIKE 'r12_%' ORDER BY p.proname",(lease['app'],))
+        app_execute=[list(r) for r in x.fetchall()]
+    c.rollback();c.close()
+    normalized=[]
+    for row in funcs:
+        row=list(row);row[7]=None;normalized.append(row)
+    assert normalized==expected['functions'] and triggers==expected['triggers']
+    assert len(app_execute)==19 and all(r[1] is True for r in app_execute)
+    records[lease['variant']]={'revision':revision,'functions':funcs,'triggers':triggers,'all_fields_except_acl_match_frozen29':True,'application_execute':app_execute}
+with (ROOT/'readonly-full-signature-causal-check.json').open('x',encoding='utf-8') as out:
+    json.dump({'source_target_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'records':records,'scope':'Read-only two own DBs. Signatures equal to frozen29 except only explicit proacl; application effective EXECUTE exists in both variants.'},out,indent=2);out.write('\n')
+print(json.dumps({'status':'PASS_READONLY_FULL_SIGNATURE','variants':list(records),'functions_each':19,'effective_application_execute_each':19}))

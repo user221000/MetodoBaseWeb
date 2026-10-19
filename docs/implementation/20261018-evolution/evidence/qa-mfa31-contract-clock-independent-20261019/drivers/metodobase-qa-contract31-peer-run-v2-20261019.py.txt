@@ -1,0 +1,48 @@
+"""Independent immutable helper2 phases with actual source/metadata/binary photos."""
+from pathlib import Path
+import argparse,hashlib,importlib.metadata,json,os,subprocess,sys,time,xml.etree.ElementTree as ET
+
+p=argparse.ArgumentParser();p.add_argument('mode',choices=['signature-before','signature-after','targeted','own-concurrency']);p.add_argument('source',type=Path);p.add_argument('head');p.add_argument('output',type=Path);a=p.parse_args()
+ROOT=a.source.resolve();OUT=a.output;OUT.mkdir(exist_ok=False)
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+signature=TEMP/'metodobase-qa-contract31-explicit-now-20261019.py'
+canary=TEMP/'metodobase-qa-contract-client-crossing-20261019.py'
+concurrency=TEMP/'metodobase-qa-contract31-concurrency-20261019.py'
+modules={'signature-before':[str(signature)],'signature-after':[str(signature)],'targeted':[str(canary),'tests/test_mfa31_contract_clock.py','tests/test_team_invitation_contract.py','tests/test_team_entitlement_review.py','tests/test_personal_diary_security_review.py::test_real_membership_revocation_preserves_personal_diary_and_removes_portfolio'],'own-concurrency':[str(concurrency)]}[a.mode]
+def meta(path):
+    raw=path.read_bytes();return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def write(path,value):
+    with path.open('x',encoding='utf-8') as out:json.dump(value,out,indent=2);out.write('\n')
+assert git('rev-parse','HEAD').decode().strip()==a.head and not git('status','--porcelain','--untracked-files=no').strip()
+names=sorted(n for n in git('ls-files','-z','config','core','src','api','web','utils','tests','db_bootstrap.py','alembic.ini','.github/workflows').decode().split('\0') if n)
+probes=[Path(x) for x in modules if Path(x).is_absolute()]
+def photo():
+    return {'source':a.head,'files':{n:meta(ROOT/n) for n in names},'packages':sorted([d.metadata['Name'],d.version] for d in importlib.metadata.distributions()),'python_shim':meta(Path(sys.executable)),'python_backing':meta(Path(sys._base_executable)),'probes':{str(p):meta(p) for p in probes},'runner':meta(Path(__file__))}
+before=photo();assert len(before['packages'])==89;write(OUT/'before.json',before)
+env=dict(os.environ)
+for key in list(env):
+    u=key.upper()
+    if u=='DATABASE_URL' or u.endswith('_DATABASE_URL') or u.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST','MFA_QA_','CLOCK_QA_')) or any(x in u for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):env.pop(key,None)
+env.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+pip=subprocess.run([sys.executable,'-m','pip','check'],env=env,capture_output=True,check=False);(OUT/'pip-before.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+args=[sys.executable,'-X','utf8','-B','tests/run_isolated.py',*modules,'-q','--tb=short','--basetemp='+str(OUT/'pytest-private'),'--junitxml='+str(OUT/'results.xml')]
+start=time.monotonic()
+with (OUT/'stdout.private.raw.log').open('xb') as stdout,(OUT/'stderr.private.raw.log').open('xb') as stderr:r=subprocess.run(args,cwd=ROOT,env=env,stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,timeout=900,check=False)
+elapsed=round(time.monotonic()-start,3);write(OUT/'command.json',{'argv':args,'exit_code':r.returncode,'elapsed_seconds':elapsed})
+after=photo();write(OUT/'after.json',after);assert before==after
+pip=subprocess.run([sys.executable,'-m','pip','check'],env=env,capture_output=True,check=False);(OUT/'pip-after.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+cases=list(ET.parse(OUT/'results.xml').getroot().iter('testcase'))
+rows=[{'class':c.attrib.get('classname'),'name':c.attrib['name'],'errors':len(c.findall('error')),'failures':len(c.findall('failure')),'skips':len(c.findall('skipped'))} for c in cases]
+summary={'mode':a.mode,'source':a.head,'count':len(rows),'cases':rows,'exit_code':r.returncode,'elapsed_seconds':elapsed,'source_files':len(names),'package_metadata':89,'sources_packages_python_probes_runner_quiet':True,'pip_before_after':[0,0],'scope':'Independent helper2 fixture peer only; no PG, VM, Chrome, provider, broad-suite, image, SCA or production acceptance.'}
+write(OUT/'summary.json',summary)
+if a.mode=='signature-before':
+    assert r.returncode==1 and len(rows)==2 and all(row['failures']==1 and row['errors']==row['skips']==0 for row in rows)
+    for case in cases:
+        assert "unexpected keyword argument 'now'" in case.find('failure').attrib['message']
+    status='CONFIRMED_NAMED_NOW_SIGNATURE_REGRESSION'
+else:
+    expected={'signature-after':2,'targeted':52,'own-concurrency':2}[a.mode]
+    assert r.returncode==0 and len(rows)==expected and not any(row['errors'] or row['failures'] or row['skips'] for row in rows)
+    status='PASS_'+a.mode.upper().replace('-','_')
+print(json.dumps({'mode':a.mode,'status':status,'source':a.head,'cases':len(rows),'output':str(OUT)}))

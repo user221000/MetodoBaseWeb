@@ -1,0 +1,74 @@
+{
+  "status": "PASS_CAUSAL_HARNESS_ACL_DIAGNOSTIC_ONLY",
+  "immutable_closed_preimage": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\qa-runtime31-c538-acl-independent-20261019",
+  "preimage_source": {
+    "bytes": 7503,
+    "sha256": "5ddcef2b428e0af1859096c65caed51c265aab31d76053557615e5de3952f1d6"
+  },
+  "preimage_manifest": {
+    "bytes": 5948,
+    "sha256": "5df52bd824c85f1ad28dadf1c178cbeeed956757d1faf8760c0e6d098e0781ee"
+  },
+  "public_code_projections": [
+    {
+      "path": "drivers/metodobase-qa-runtime-causal-20261019.py.txt",
+      "original": {
+        "bytes": 21381,
+        "sha256": "a4bb011b05af924054d28db158236391c088ce709b8f1374966bee1e2dbb072f"
+      },
+      "projection": {
+        "bytes": 21391,
+        "sha256": "7337cf4e83cf9f4c5eb0b97885a962df3ce455747914716f49eabe9c62524d2c"
+      },
+      "reason": "Split synthetic literal prefixes in public code projection to satisfy the broad live-key scanner. Executed original bytes remain privately preserved; no actual credential was present in this file."
+    }
+  ],
+  "private_zip_acl": "Inheritance removed; current user SID and SYSTEM only; archive bytes unchanged after ACL restriction.",
+  "canonical_token_scan": "PASS on all final public bytes including manifest/source; code literal prefix only was projected.",
+  "runtime_summary": {
+    "status": "PASS_CAUSAL_HARNESS_ACL_DIAGNOSTIC",
+    "finished": "2026-10-19T20:22:20.208557+00:00",
+    "source": "c5386ebaab835b72af692a0d74e9b78ed5c8f511",
+    "image": "sha256:47e813ed1cf255a5f8575eecd3aba45f4314069e59c9baff05cb0cd63870f74f",
+    "producer_manifest_files": 55,
+    "producer_proof_files": 56,
+    "producer_proof_unchanged": true,
+    "original_product_source_unchanged": true,
+    "own_databases": 2,
+    "results": [
+      {
+        "variant": "default_null",
+        "phase": "to29",
+        "exit_code": 0,
+        "actual_revision": [
+          "20261019_client_account_links"
+        ]
+      },
+      {
+        "variant": "default_null",
+        "phase": "to31",
+        "exit_code": 0,
+        "actual_revision": [
+          "20261019_mfa"
+        ]
+      },
+      {
+        "variant": "explicit_function_execute",
+        "phase": "to29",
+        "exit_code": 1,
+        "actual_revision": [
+          "20261019_client_account_links"
+        ]
+      },
+      {
+        "variant": "explicit_function_execute",
+        "phase": "to31",
+        "exit_code": 1,
+        "actual_revision": [
+          "20261019_client_account_links"
+        ]
+      }
+    ],
+    "scope": "Unmodified real CLI via explicit container override. No original entrypoint recipe, worker, health, readiness, provider, SCA, production or SEC15 acceptance."
+  }
+}

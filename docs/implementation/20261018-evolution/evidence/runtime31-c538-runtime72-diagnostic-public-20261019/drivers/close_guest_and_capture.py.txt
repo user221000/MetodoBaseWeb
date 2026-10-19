@@ -1,0 +1,81 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import ast,hashlib,json,subprocess,sys
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime72-validation-20261019')
+WT=Path(r'F:\mb-mfa31-runtime72-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import guest_access,lab_control
+def info(path):
+ with path.open('rb') as stream:sha=hashlib.file_digest(stream,'sha256').hexdigest()
+ return {'bytes':path.stat().st_size,'sha256':sha}
+before=json.loads((RUN/'host-preflight-before.json').read_text())
+inputs={name:info(Path(name)) for name in before['input_hashes']};assert inputs==before['input_hashes']
+working={name:info(WT/name) for name in before['context_source_working_hashes']};assert working==before['context_source_working_hashes']
+assert subprocess.check_output(['git','--no-replace-objects','rev-parse','HEAD'],cwd=WT).decode().strip()==before['source_commit']
+assert subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=all'],cwd=WT)==b''
+state=lab_control.state();assert state['pid']==29768;assert lab_control.process_identity(state)
+raw=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command','Get-CimInstance Win32_Process -Filter "ProcessId=29768" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress'],creationflags=subprocess.CREATE_NO_WINDOW)
+identity=json.loads(raw);assert identity['CreationDate']==before['owned_qemu']['creation_date']
+assert hashlib.sha256(identity['CommandLine'].encode()).hexdigest()==before['owned_qemu']['commandline_sha256']
+remote=r'''
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,os,signal,shutil,socket,subprocess,time
+assert os.getuid()==0
+root=Path('/var/tmp/metodobase-mfa31-runtime72-20261019')
+redis=root/'redis6386';owned=json.loads((redis/'owned-state.json').read_text());fp=owned['identity']
+proc=Path('/proc')/str(fp['pid']);assert proc.is_dir()
+assert proc.joinpath('stat').read_text().split()[21]==fp['birth_ticks']
+assert str(proc.joinpath('exe').resolve())==fp['executable']
+assert hashlib.sha256(proc.joinpath('exe').read_bytes()).hexdigest()==fp['executable_sha256']
+assert hashlib.sha256(proc.joinpath('cmdline').read_bytes()).hexdigest()==fp['commandline_sha256']
+def cli(*args):return subprocess.check_output(['redis-cli','-h','127.0.0.1','-p','6386',*args],text=True,timeout=5).strip()
+server=dict(line.split(':',1) for line in cli('INFO','server').splitlines() if ':' in line)
+assert int(server['process_id'])==fp['pid'] and server['tcp_port']=='6386' and cli('DBSIZE')=='0'
+os.kill(fp['pid'],signal.SIGTERM)
+for _ in range(100):
+ if not proc.exists() or proc.joinpath('stat').read_text().split()[2]=='Z':break
+ time.sleep(0.1)
+else:raise AssertionError('Owned Redis did not stop')
+with socket.socket() as test:test.bind(('127.0.0.1',6386))
+assert hashlib.sha256(Path(fp['executable']).read_bytes()).hexdigest()==fp['executable_sha256']
+smoke=json.loads((root/'smoke-owned-state.json').read_text());row=json.loads(subprocess.check_output(['docker','inspect',smoke['container_id']]))[0]
+assert row['Image']==smoke['image_id'] and row['Config']['Labels']['metodobase.lab.plan']==smoke['nonce']
+assert not row['State']['Running'] and row['State']['ExitCode']==1 and not row['State']['OOMKilled']
+image_raw=subprocess.check_output(['docker','image','inspect',smoke['image_id']])
+receipt=json.loads((root/'context-manifest.json').read_text())
+files={p.relative_to(root/'context').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in (root/'context').rglob('*') if p.is_file()}
+assert files=={name:{k:record[k] for k in ('bytes','sha256')} for name,record in receipt['files'].items()}
+assert hashlib.sha256((root/'context.tar').read_bytes()).hexdigest()==receipt['context_sha256']
+running=subprocess.check_output(['docker','ps','--no-trunc','--format','{{.ID}} {{.Names}}'],text=True);assert not running.strip()
+native_raw=subprocess.check_output(['docker','image','inspect','sha256:a2b7e06ec1971f6519395aa1cd08c54f6d18c2bf26749abf3d65513f86337e7f'])
+assert hashlib.sha256(native_raw).hexdigest()=='40561b32a985cc8a5ed7a32d4f08f199911bb14c2525cdd823c155bf8b0fe514'
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'redis6386_closed':True,'redis_before_close_server_version':server['redis_version'],
+ 'redis_before_close_pid':int(server['process_id']),'redis_fingerprint_verified':fp,'redis_keys_before_close':0,'redis_private_logs_preserved':True,
+ 'original6379_still_ping':subprocess.check_output(['redis-cli','-h','127.0.0.1','-p','6379','PING'],text=True).strip(),
+ 'container_failed_preserved':{'id':row['Id'],'image':row['Image'],'exit_code':row['State']['ExitCode'],'oom_killed':row['State']['OOMKilled'],
+  'created':row['Created'],'started':row['State']['StartedAt'],'finished':row['State']['FinishedAt'],'private_inspect_sha256':hashlib.sha256(subprocess.check_output(['docker','inspect',row['Id']])).hexdigest()},
+ 'runtime_image_inspect_sha256':hashlib.sha256(image_raw).hexdigest(),'native72_image_unchanged':True,'context_exact_after':True,'context_files_after':files,
+ 'running_containers':running,'disk_free_bytes':shutil.disk_usage('/').free,
+ 'memory_available':next(line for line in Path('/proc/meminfo').read_text().splitlines() if line.startswith('MemAvailable:')),
+ 'tcp_listeners':subprocess.check_output(['ss','-ltn'],text=True),
+ 'images':subprocess.check_output(['docker','image','ls','--no-trunc','--format','{{.ID}} {{.Repository}}:{{.Tag}}'],text=True)}
+(root/'closed-guest-source.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report))
+'''
+ast.parse(remote)
+with (RUN/'close-guest-payload.py').open('x',encoding='utf-8') as stream:stream.write(remote)
+with (RUN/'close-guest-payload.py').open('rb') as stream:r=guest_access.run('sudo -n python3 -',stdin=stream,timeout=90)
+(RUN/'close-guest-raw.stdout').write_bytes(r.stdout);(RUN/'close-guest-raw.stderr').write_bytes(r.stderr)
+assert r.returncode==0,r.stderr.decode()
+guest=json.loads(r.stdout)
+assert guest['runtime_image_inspect_sha256']==json.loads((RUN/'runtime-image-identity-source.json').read_text())['image_inspect_sha256']
+previous=json.loads((RUN/'guest-preflight-source.json').read_text())
+assert {line.split()[0] for line in previous['images'].splitlines()} <= {line.split()[0] for line in guest['images'].splitlines()}
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'source_commit':before['source_commit'],'host_inputs_after':inputs,
+ 'host_inputs_unchanged':True,'context_source_working_hashes_after':working,'context_sources_unchanged':True,'source_worktree_clean':True,
+ 'owned_qemu':before['owned_qemu'],'owned_qemu_birth_and_cmd_unchanged':True,'guest_after':guest,
+ 'lease':'VM29768 idle retained ROOT/Security. Own PG55486 closed separately; Redis6386 closed; no running containers. Failed container, image, contexts and private data preserved.'}
+(RUN/'final-before-after-source.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'inputs_unchanged':len(inputs),'context_sources_unchanged':len(working),'guest_context_exact_after':guest['context_exact_after'],
+ 'runtime_image_unchanged':True,'redis6386_closed':True,'running_containers':0,'disk_free_bytes':guest['disk_free_bytes'],'vm_lease':'idle ROOT/Security'}))

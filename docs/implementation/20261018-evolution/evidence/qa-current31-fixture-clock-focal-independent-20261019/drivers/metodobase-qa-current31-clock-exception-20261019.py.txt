@@ -1,0 +1,34 @@
+"""Own setup-failure lifecycle seam; no product endpoint or identity is replaced."""
+from types import SimpleNamespace
+
+import pytest
+
+from tests import current_mfa31_publication_fixtures as fixtures
+
+case = fixtures.case
+link_db = fixtures.link_db
+
+
+@pytest.mark.parametrize('factory', ['web.main_web', 'api.app'])
+@pytest.mark.parametrize('link_db', ['sqlite'], indirect=True)
+def test_mfa_setup_clock_restores_when_setup_helper_raises(case, factory, monkeypatch):
+    from tests.ci_mfa31 import current_link_fixtures
+    from web.services import mfa_service
+    incoming = mfa_service.instant
+    calls = []
+
+    def stop_setup(*args, **kwargs):
+        calls.append('setup-entered')
+        assert mfa_service.instant is not incoming
+        assert kwargs['now'].tzinfo is not None
+        raise RuntimeError('QA_SETUP_STOP')
+
+    monkeypatch.setattr(current_link_fixtures, 'full_mfa_login', stop_setup)
+    generator = fixtures.http.__wrapped__(case, SimpleNamespace(param=factory), monkeypatch)
+    try:
+        with pytest.raises(RuntimeError, match='^QA_SETUP_STOP$'):
+            next(generator)
+    finally:
+        generator.close()
+    assert calls == ['setup-entered']
+    assert mfa_service.instant is incoming

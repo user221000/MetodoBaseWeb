@@ -1,0 +1,75 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,re,socket,subprocess
+import psycopg2
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime72-validation-20261019')
+WT=Path(r'F:\mb-mfa31-runtime72-20261019')
+pointer=json.loads((RUN/'pg55486-instance-pointer.json').read_text());admin=json.loads(Path(pointer['private_admin_file']).read_text())
+roles=json.loads(Path(json.loads((RUN/'roles-private-pointer.json').read_text())['private_file']).read_text())
+assert pointer['port']==admin['port']==55486 and admin['host']=='127.0.0.1'
+data=Path(pointer['data_directory']).resolve();private=Path(pointer['private_root']).resolve()
+assert data==Path(admin['data_dir']).resolve() and data.is_relative_to(private)
+assert private.name.startswith('metodobase-mfa31-runtime72-pg55486-')
+expected=pointer['process_identity']
+def fingerprint():
+ command='Get-CimInstance Win32_Process -Filter "ProcessId='+str(expected['pid'])+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress'
+ raw=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',command],creationflags=subprocess.CREATE_NO_WINDOW)
+ if not raw.strip():return None
+ row=json.loads(raw)
+ assert row['CreationDate']==expected['creation_date'] and Path(row['ExecutablePath']).resolve()==Path(expected['executable']).resolve()
+ assert hashlib.sha256(row['CommandLine'].encode()).hexdigest()==expected['commandline_sha256']
+ return row
+def info(path):
+ with path.open('rb') as stream:sha=hashlib.file_digest(stream,'sha256').hexdigest()
+ return {'bytes':path.stat().st_size,'sha256':sha}
+assert fingerprint()
+connect={'host':'127.0.0.1','port':55486,'user':admin['username'],'password':admin['password'],'connect_timeout':5}
+connection=psycopg2.connect(**connect,dbname=roles['database'],application_name='runtime31_owned_readonly_close')
+with connection.cursor() as cursor:
+ cursor.execute('SET TRANSACTION READ ONLY')
+ cursor.execute('SELECT current_database(),current_user,host(inet_server_addr()),inet_server_port(),current_setting(\'transaction_read_only\')')
+ identity=cursor.fetchone();assert identity==(roles['database'],admin['username'],'127.0.0.1',55486,'on')
+ cursor.execute('SHOW data_directory');assert Path(cursor.fetchone()[0]).resolve()==data
+ cursor.execute("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename");tables=[r[0] for r in cursor.fetchall()]
+ version=None
+ if 'alembic_version' in tables:
+  cursor.execute('SELECT version_num FROM alembic_version');version=[r[0] for r in cursor.fetchall()]
+ cursor.execute("SELECT pg_get_userbyid(d.defaclrole),n.nspname,d.defaclobjtype,d.defaclacl::text FROM pg_default_acl d LEFT JOIN pg_namespace n ON n.oid=d.defaclnamespace WHERE d.defaclrole=(SELECT oid FROM pg_roles WHERE rolname=%s) ORDER BY d.defaclobjtype",(roles['migrator_role'],))
+ defaults=[list(r) for r in cursor.fetchall()]
+ cursor.execute("SELECT pid,datname,usename,state,backend_type FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid() ORDER BY pid")
+ sessions=[list(r) for r in cursor.fetchall()];assert not sessions
+ cursor.execute('SELECT datname FROM pg_database ORDER BY datname');databases=[r[0] for r in cursor.fetchall()]
+ cursor.execute('SELECT rolname,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=ANY(%s) ORDER BY rolname',([roles['migrator_role'],roles['application_role']],))
+ flags=[list(r) for r in cursor.fetchall()]
+connection.rollback();connection.close()
+target=WT/'web/database/alembic/schema_targets/20261019_client_account_links_postgresql.json'
+contract=json.loads(target.read_text(encoding='utf-8'))
+function_acl_expected=[{'name':row[0],'acl':row[7]} for row in contract['member_link_security']['functions']]
+assert len(function_acl_expected)==19 and all(row['acl'] is None for row in function_acl_expected)
+function_defaults=[r for r in defaults if r[2]=='f'];assert len(function_defaults)==1 and roles['application_role'] in function_defaults[0][3]
+hba_before=info(data/'pg_hba.conf');config_before=info(data/'postgresql.conf')
+record={'captured_utc':datetime.now(timezone.utc).isoformat(),'identity':list(identity),'tables_after_failed_migration':tables,
+ 'alembic_revision_after_failure':version,'migration_transaction_rolled_back_no_public_tables':not tables,
+ 'default_acl':defaults,'frozen_target29_function_acl':function_acl_expected,
+ 'causal_status':'STATIC_AND_READONLY_HYPOTHESIS_ONLY: harness default function EXECUTE grant introduces explicit UUID ACL while target29 requires null; no replay or permission adjustment performed.',
+ 'first_exception_traceback':'Not emitted by original CLI: catches Exception, logs class without exc_info; Alembic fileConfig may disable existing db_bootstrap logger. Original stdout/stderr retained.',
+ 'sessions_excluding_capture':sessions,'databases_retained':databases,'owned_role_flags':flags,
+ 'hba_before_close':hba_before,'config_before_close':config_before,'process_fingerprint':expected,'private_data_directory':str(data)}
+(RUN/'pg55486-before-close-source.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
+assert fingerprint()
+binary=Path(pointer['source_existing_installation_read_only'])/'bin/pg_ctl.exe'
+baseline=json.loads((RUN/'pg55486-setup/tool-files.before.json').read_text());assert info(binary)==baseline['bin/pg_ctl.exe']
+with (private/'shutdown.stdout.log').open('xb') as out,(private/'shutdown.stderr.log').open('xb') as err:
+ result=subprocess.run([str(binary),'-D',str(data),'stop','-m','fast','-w','-t','30'],stdout=out,stderr=err,stdin=subprocess.DEVNULL,timeout=45,creationflags=subprocess.CREATE_NO_WINDOW)
+assert result.returncode==0
+assert fingerprint() is None
+with socket.socket() as test:test.bind(('127.0.0.1',55486))
+assert info(data/'pg_hba.conf')==hba_before and info(data/'postgresql.conf')==config_before
+for rel in ('bin/postgres.exe','bin/initdb.exe','bin/pg_ctl.exe'):
+ assert info(Path(pointer['source_existing_installation_read_only'])/rel)==baseline[rel]
+closed={'closed_utc':datetime.now(timezone.utc).isoformat(),'port':55486,'owned_postmaster_pid':expected['pid'],'own_process_absent':True,
+ 'port_free':True,'sessions_before_close':0,'private_data_directory_retained':str(data),'new_roles_and_database_retained_for_review':True,
+ 'hba_and_config_hashes_unchanged':True,'tool_binaries_unchanged':True,'other55483_or55484_touched':False,
+ 'shutdown_stdout':info(private/'shutdown.stdout.log'),'shutdown_stderr':info(private/'shutdown.stderr.log')}
+(RUN/'pg55486-closed-source.json').write_text(json.dumps(closed,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'closed':True,'port':55486,'public_tables_after_failed_transaction':len(tables),'sessions_before_close':0,'function_default_acl_explicit':True,'cause_confirmed_by_replay':False,'data_preserved':True}))

@@ -1,0 +1,5 @@
+Keyword compatibility successor to9abdab, test-only.
+
+The temporary clock wrapper used supplied=None while the original service accepts now=None. The same two frozen QA canaries reproduced TypeError for named aware and named naive input; after the two-line name/reference correction they pass. One separately maintained test checks full inspect.signature equality, now=None, named aware forwarding, original naive ValueError and exact restoration.
+
+3/3 scoped author cases pass with quiet source/package snapshots and pip0/0. The previous5 own tests and51 directed results stay historical/intact; the planned QA52 replay retains the prior selection and does not silently include this new separate1-case module. No caller, old assertion, helper1, product, DDL, workflow, provider or access-token behavior changes. Full-file inverse bytes after explicit CRLF-to-LF normalization and AST recreate9abdab exactly. Independent replay remains pending. RAW proof attributes were created before writing; no closed artifacts are overwritten.

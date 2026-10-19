@@ -1,0 +1,186 @@
+{
+  "variant": "default_null",
+  "phase": "to29",
+  "revision_requested": "20261019_client_account_links",
+  "exit_code": 0,
+  "elapsed_seconds": 66.453,
+  "stdout": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "bytes": 4087,
+    "sha256": "161d0242b82b470482ae9910cbb9056a9f63733e240dd97bc09505dc6dd5ddb6"
+  },
+  "invocation": [
+    "sudo",
+    "-n",
+    "docker",
+    "run",
+    "--rm",
+    "-i",
+    "--pull=never",
+    "--network=host",
+    "--read-only",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--user=65534:65534",
+    "--pids-limit=64",
+    "--memory=512m",
+    "--cpus=1",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,size=32m,mode=1777",
+    "--entrypoint",
+    "python",
+    "sha256:47e813ed1cf255a5f8575eecd3aba45f4314069e59c9baff05cb0cd63870f74f",
+    "-I",
+    "-B",
+    "-c",
+    "import os,json,sys,subprocess; os.environ.update(json.load(sys.stdin)); raise SystemExit(subprocess.call([sys.executable,'-B','db_bootstrap.py','--revision','20261019_client_account_links']))"
+  ],
+  "source": "c5386ebaab835b72af692a0d74e9b78ed5c8f511",
+  "image": "sha256:47e813ed1cf255a5f8575eecd3aba45f4314069e59c9baff05cb0cd63870f74f",
+  "tables": [
+    "alembic_version",
+    "audit_log",
+    "auth_audit_log",
+    "checkout_sessions",
+    "client_account_links",
+    "client_link_invitations",
+    "client_plan_publications",
+    "client_progress",
+    "clientes",
+    "generation_reservations",
+    "gym_branding",
+    "gym_generation_reservations",
+    "gym_licenses",
+    "gym_profiles",
+    "gym_settings",
+    "invoices",
+    "license_activations",
+    "payments",
+    "personal_diary_days",
+    "planes_generados",
+    "planes_suscripcion",
+    "provider_subject_associations",
+    "purchase_intents",
+    "refresh_tokens",
+    "stored_objects",
+    "stripe_customers",
+    "stripe_webhook_events",
+    "subscriptions",
+    "user_subscriptions",
+    "usuarios"
+  ],
+  "actual_revision": [
+    "20261019_client_account_links"
+  ],
+  "r12_function_acl": [
+    [
+      "r12_actor_valid",
+      false,
+      null
+    ],
+    [
+      "r12_canonical_gym",
+      false,
+      null
+    ],
+    [
+      "r12_check_pair",
+      false,
+      null
+    ],
+    [
+      "r12_consumed_proof",
+      false,
+      null
+    ],
+    [
+      "r12_food",
+      false,
+      null
+    ],
+    [
+      "r12_guard_invitation",
+      false,
+      null
+    ],
+    [
+      "r12_guard_link",
+      false,
+      null
+    ],
+    [
+      "r12_guard_publication",
+      false,
+      null
+    ],
+    [
+      "r12_gym_scope",
+      false,
+      null
+    ],
+    [
+      "r12_invalidate_source",
+      false,
+      null
+    ],
+    [
+      "r12_keys",
+      false,
+      null
+    ],
+    [
+      "r12_lock_canonical_gym",
+      false,
+      null
+    ],
+    [
+      "r12_number",
+      false,
+      null
+    ],
+    [
+      "r12_pending_proof",
+      false,
+      null
+    ],
+    [
+      "r12_project_plan",
+      false,
+      null
+    ],
+    [
+      "r12_proof",
+      false,
+      null
+    ],
+    [
+      "r12_recipient",
+      false,
+      null
+    ],
+    [
+      "r12_require_rc",
+      false,
+      null
+    ],
+    [
+      "r12_unique_json",
+      false,
+      null
+    ]
+  ],
+  "default_acl": [
+    [
+      "S",
+      "{mbqa_a_3c94139e56704ce9967649140e1aec0d=rU/mbqa_m_3c94139e56704ce9967649140e1aec0d}"
+    ],
+    [
+      "r",
+      "{mbqa_a_3c94139e56704ce9967649140e1aec0d=arwd/mbqa_m_3c94139e56704ce9967649140e1aec0d}"
+    ]
+  ],
+  "history_indexes": []
+}

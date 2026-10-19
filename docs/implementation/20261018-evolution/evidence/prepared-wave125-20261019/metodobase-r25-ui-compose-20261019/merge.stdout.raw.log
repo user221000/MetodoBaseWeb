@@ -1,0 +1,160 @@
+Merge made by the 'ort' strategy.
+ .../20261018-evolution/R25_UI_FUNCIONAL.md         |  42 ++
+ .../20261018-evolution/R25_UI_READINESS.md         |  58 ++
+ .../evidence/r25-ui/.gitattributes                 |   1 +
+ .../evidence/r25-ui/api-helper-first.json          | Bin 0 -> 4272 bytes
+ .../evidence/r25-ui/backend-wire-v1.json           | 642 +++++++++++++++++
+ .../evidence/r25-ui/before/backend-contract.md     | 285 ++++++++
+ .../evidence/r25-ui/before/pages-missing.log       | Bin 0 -> 3592 bytes
+ .../evidence/r25-ui/before/pages-missing.xml       |   7 +
+ .../evidence/r25-ui/before/source-raw.zip          | Bin 0 -> 66009 bytes
+ .../evidence/r25-ui/before/source.json             |  68 ++
+ .../evidence/r25-ui/data-wire-v1.json              | Bin 0 -> 5070 bytes
+ .../evidence/r25-ui/export8-after-first.json       | Bin 0 -> 9624 bytes
+ .../evidence/r25-ui/export8-before.json            | Bin 0 -> 1176 bytes
+ .../evidence/r25-ui/export8-cursor-date-after.json | Bin 0 -> 10448 bytes
+ .../r25-ui/export8-cursor-date-before.json         | Bin 0 -> 10732 bytes
+ .../privacy8-intermediate-reconstructed.js         | 202 ++++++
+ .../export8-pre-wire/reconstructed-replay.json     | Bin 0 -> 10732 bytes
+ .../r25-ui/export8-pre-wire/source-raw.zip         | Bin 0 -> 29248 bytes
+ .../evidence/r25-ui/export8-pre-wire/source.json   |  19 +
+ .../evidence/r25-ui/export8-wire-v1.json           | Bin 0 -> 10448 bytes
+ .../evidence/r25-ui/final-vm/progreso_api.cjs.json |  67 ++
+ .../r25-ui/final-vm/progreso_controlador.cjs.json  |  55 ++
+ .../r25-ui/final-vm/progreso_datos.cjs.json        |  83 +++
+ .../r25-ui/final-vm/progreso_operacion.cjs.json    |  47 ++
+ .../r25-ui/final-vm/progreso_paginas.cjs.json      |  71 ++
+ .../r25-ui/final-vm/progreso_respuestas.cjs.json   |  59 ++
+ .../r25-ui/final-vm/progreso_vista.cjs.json        |  63 ++
+ .../r25-ui/final-vm/progreso_wire.cjs.json         |  68 ++
+ .../r25-ui/final-vm/progress_export.cjs.json       | 159 +++++
+ .../evidence/r25-ui/final-vm/summary.json          |  63 ++
+ .../evidence/r25-ui/functional-edge-source-raw.zip | Bin 0 -> 50928 bytes
+ .../evidence/r25-ui/functional-source-raw.zip      | Bin 0 -> 105322 bytes
+ .../evidence/r25-ui/functional-source.json         | 794 +++++++++++++++++++++
+ .../r25-ui/lifecycle-after-harness-gate.json       | Bin 0 -> 3234 bytes
+ .../evidence/r25-ui/lifecycle-first.json           | Bin 0 -> 3234 bytes
+ .../evidence/r25-ui/operation-first.json           | Bin 0 -> 2874 bytes
+ .../r25-ui/pages-controller-edge-first.json        | Bin 0 -> 4950 bytes
+ .../evidence/r25-ui/pages-controller-final.json    | Bin 0 -> 4950 bytes
+ .../evidence/r25-ui/pages-controller-first.json    | Bin 0 -> 3784 bytes
+ .../evidence/r25-ui/pages-final.log                | Bin 0 -> 1352 bytes
+ .../evidence/r25-ui/pages-final.xml                |   1 +
+ .../evidence/r25-ui/pages-shell.log                | Bin 0 -> 1352 bytes
+ .../evidence/r25-ui/pages-shell.xml                |   1 +
+ .../evidence/r25-ui/prepared-source-raw.zip        | Bin 0 -> 48452 bytes
+ .../evidence/r25-ui/prepared-source.json           | 181 +++++
+ .../evidence/r25-ui/pure-first.json                | Bin 0 -> 4792 bytes
+ .../r25-ui/response-fixed-contract-first.json      | Bin 0 -> 3506 bytes
+ .../evidence/r25-ui/response-full-wire.json        | Bin 0 -> 3816 bytes
+ .../evidence/r25-ui/response-wire-v1.json          | Bin 0 -> 3816 bytes
+ .../evidence/r25-ui/shared-columns-after.json      | Bin 0 -> 4024 bytes
+ .../evidence/r25-ui/shared-columns-before.json     | Bin 0 -> 4106 bytes
+ .../evidence/r25-ui/view-first.json                | Bin 0 -> 3464 bytes
+ .../evidence/r25-ui/view-utc-after.json            | Bin 0 -> 3740 bytes
+ .../evidence/r25-ui/wire-normalizer-first.json     | Bin 0 -> 4602 bytes
+ tests/e2e/progreso_api.cjs                         |  29 +
+ tests/e2e/progreso_controlador.cjs                 |  28 +
+ tests/e2e/progreso_datos.cjs                       |  26 +
+ tests/e2e/progreso_operacion.cjs                   |  17 +
+ tests/e2e/progreso_paginas.cjs                     |  77 ++
+ tests/e2e/progreso_respuestas.cjs                  |  19 +
+ tests/e2e/progreso_vista.cjs                       |  28 +
+ tests/e2e/progreso_wire.cjs                        |  20 +
+ tests/e2e/progress_export.cjs                      |  32 +
+ tests/test_progress_ui_pages.py                    |  21 +
+ web/routes/pages.py                                |  10 +
+ web/static/css/progreso.css                        |  46 ++
+ web/static/js/api.js                               |  85 ++-
+ web/static/js/cliente-progreso.js                  |  47 ++
+ web/static/js/progreso-consentimientos.js          |  61 ++
+ web/static/js/progreso-controlador.js              |  55 ++
+ web/static/js/progreso-datos.js                    |  60 ++
+ web/static/js/progreso-operacion.js                |  43 ++
+ web/static/js/progreso-personal-medidas.js         |  72 ++
+ web/static/js/progreso-respuestas.js               | 104 +++
+ web/static/js/progreso-vista.js                    |  51 ++
+ web/static/js/usuario-privacidad.js                |  27 +-
+ web/static/js/usuario-progreso.js                  |  50 ++
+ web/templates/cliente_progreso.html                |  35 +
+ web/templates/clientes.html                        |   5 +
+ web/templates/usuario_perfil.html                  |   1 +
+ web/templates/usuario_progreso.html                |  85 +++
+ web/templates/usuario_vinculos.html                |   1 +
+ 82 files changed, 4163 insertions(+), 8 deletions(-)
+ create mode 100644 docs/implementation/20261018-evolution/R25_UI_FUNCIONAL.md
+ create mode 100644 docs/implementation/20261018-evolution/R25_UI_READINESS.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/api-helper-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/backend-wire-v1.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/before/backend-contract.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/before/pages-missing.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/before/pages-missing.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/before/source-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/before/source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/data-wire-v1.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-after-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-cursor-date-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-cursor-date-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-pre-wire/privacy8-intermediate-reconstructed.js
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-pre-wire/reconstructed-replay.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-pre-wire/source-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-pre-wire/source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/export8-wire-v1.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_api.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_controlador.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_datos.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_operacion.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_paginas.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_respuestas.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_vista.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progreso_wire.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/progress_export.cjs.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/final-vm/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/functional-edge-source-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/functional-source-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/functional-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/lifecycle-after-harness-gate.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/lifecycle-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/operation-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pages-controller-edge-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pages-controller-final.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pages-controller-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pages-final.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pages-final.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pages-shell.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pages-shell.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/prepared-source-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/prepared-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/pure-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/response-fixed-contract-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/response-full-wire.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/response-wire-v1.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/shared-columns-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/shared-columns-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/view-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/view-utc-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r25-ui/wire-normalizer-first.json
+ create mode 100644 tests/e2e/progreso_api.cjs
+ create mode 100644 tests/e2e/progreso_controlador.cjs
+ create mode 100644 tests/e2e/progreso_datos.cjs
+ create mode 100644 tests/e2e/progreso_operacion.cjs
+ create mode 100644 tests/e2e/progreso_paginas.cjs
+ create mode 100644 tests/e2e/progreso_respuestas.cjs
+ create mode 100644 tests/e2e/progreso_vista.cjs
+ create mode 100644 tests/e2e/progreso_wire.cjs
+ create mode 100644 tests/e2e/progress_export.cjs
+ create mode 100644 tests/test_progress_ui_pages.py
+ create mode 100644 web/static/css/progreso.css
+ create mode 100644 web/static/js/cliente-progreso.js
+ create mode 100644 web/static/js/progreso-consentimientos.js
+ create mode 100644 web/static/js/progreso-controlador.js
+ create mode 100644 web/static/js/progreso-datos.js
+ create mode 100644 web/static/js/progreso-operacion.js
+ create mode 100644 web/static/js/progreso-personal-medidas.js
+ create mode 100644 web/static/js/progreso-respuestas.js
+ create mode 100644 web/static/js/progreso-vista.js
+ create mode 100644 web/static/js/usuario-progreso.js
+ create mode 100644 web/templates/cliente_progreso.html
+ create mode 100644 web/templates/usuario_progreso.html

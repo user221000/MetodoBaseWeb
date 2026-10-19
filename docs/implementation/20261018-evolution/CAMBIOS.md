@@ -190,3 +190,8 @@ La candidata aislada809 integra fixtures79 después del peer, preservando produc
 ## Checkpoint124
 
 SEC15 añade identidadSVmáximo válida y guard409 de capacidad antes de cambiar factor, sin wrap/decremento ni assertions antiguas alteradas. MAIN sólo registra evidencia. Runtimec538 combinaapp809+native72;366Gitblobs contextoconSHA22fc3b52, sin secretos/DB/docs/tests/assetsreferencia. R25router montado ywirev1 fijo, sinproducto32 aceptado.
+
+
+## Checkpoint125
+
+MAIN sólo incorpora evidencia y control, sin producto31/32. Cambios aislados: loggerAlembic474, clocks9b14/9ab, exportprivate200295 y CSSef9; composiciónUI345. Backend32bd0501 ofrece medidas explícitas, consentimientos append-only/CAS y lector limitado; UI8dc conserva RAMfences y export8. Las reparaciones no cambian contratos clínicos/comerciales. Fuenteimagenf74=app6a75+native72+logger474; contextoa644366Gitblobs. Se conservan todos los befores y diagnósticos rechazados.

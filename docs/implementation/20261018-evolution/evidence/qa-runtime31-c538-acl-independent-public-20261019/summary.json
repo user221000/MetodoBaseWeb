@@ -1,0 +1,46 @@
+{
+  "status": "PASS_CAUSAL_HARNESS_ACL_DIAGNOSTIC",
+  "finished": "2026-10-19T20:22:20.208557+00:00",
+  "source": "c5386ebaab835b72af692a0d74e9b78ed5c8f511",
+  "image": "sha256:47e813ed1cf255a5f8575eecd3aba45f4314069e59c9baff05cb0cd63870f74f",
+  "producer_manifest_files": 55,
+  "producer_proof_files": 56,
+  "producer_proof_unchanged": true,
+  "original_product_source_unchanged": true,
+  "own_databases": 2,
+  "results": [
+    {
+      "variant": "default_null",
+      "phase": "to29",
+      "exit_code": 0,
+      "actual_revision": [
+        "20261019_client_account_links"
+      ]
+    },
+    {
+      "variant": "default_null",
+      "phase": "to31",
+      "exit_code": 0,
+      "actual_revision": [
+        "20261019_mfa"
+      ]
+    },
+    {
+      "variant": "explicit_function_execute",
+      "phase": "to29",
+      "exit_code": 1,
+      "actual_revision": [
+        "20261019_client_account_links"
+      ]
+    },
+    {
+      "variant": "explicit_function_execute",
+      "phase": "to31",
+      "exit_code": 1,
+      "actual_revision": [
+        "20261019_client_account_links"
+      ]
+    }
+  ],
+  "scope": "Unmodified real CLI via explicit container override. No original entrypoint recipe, worker, health, readiness, provider, SCA, production or SEC15 acceptance."
+}

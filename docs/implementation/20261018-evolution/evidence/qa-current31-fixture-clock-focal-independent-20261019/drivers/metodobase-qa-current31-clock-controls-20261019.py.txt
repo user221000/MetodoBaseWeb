@@ -1,0 +1,76 @@
+"""Independent fixture clock restoration and real-factor rejection controls."""
+from datetime import UTC, datetime, timedelta
+
+import pytest
+from sqlalchemy.orm import Session
+
+from tests import current_mfa31_publication_fixtures as fixtures
+
+case = fixtures.case
+http = fixtures.http
+link_db = fixtures.link_db
+
+
+@pytest.fixture(autouse=True)
+def incoming_clock(monkeypatch):
+    from web.services import mfa_service
+    original = mfa_service.instant
+    current = [datetime.now(UTC) - timedelta(minutes=2)]
+    calls = []
+
+    def incoming(supplied=None):
+        calls.append(supplied is None)
+        return original(current[0] if supplied is None else supplied)
+
+    monkeypatch.setattr(mfa_service, 'instant', incoming)
+    return {'clock': incoming, 'current': current, 'calls': calls}
+
+
+@pytest.mark.parametrize('link_db', ['sqlite'], indirect=True)
+def test_setup_clock_restored_and_invalid_factor_still_denied(http, incoming_clock):
+    from tests.ci_mfa31.current_link_fixtures import PASSWORD
+    from web.auth import _decode_token
+    from web.database.models import MfaCredential, Usuario
+    from web.services import mfa_service
+    from web.services.mfa_crypto import decrypt, totp
+
+    # The caller's exact incoming clock is restored before business fixture yield.
+    assert mfa_service.instant is incoming_clock['clock']
+    assert any(incoming_clock['calls'])
+    before = incoming_clock['current'][0]
+    incoming_clock['current'][0] = before + timedelta(seconds=61)
+    now = mfa_service.instant()
+    assert now == incoming_clock['current'][0] and now != before
+    client = http['client_http']
+    with Session(http['admin']) as db:
+        email = db.get(Usuario, http['person']).email
+        row = db.get(MfaCredential, http['person'])
+        counter_before = row.last_counter
+        secret = decrypt(row.secret_ciphertext, mfa_service.configuration(),
+                         mfa_service._aad(row, row.generation, 'active'))
+    valid = totp(secret, int(now.timestamp()) // 30)
+    del secret
+    wrong = valid[:-1] + str((int(valid[-1]) + 1) % 10)
+    challenge = client.post('/api/auth/login', json={'email': email, 'password': PASSWORD})
+    assert challenge.status_code == 202
+    primary_has_tokens = any(k in challenge.json() for k in ('token', 'refresh_token'))
+    assert not primary_has_tokens
+    opaque_challenge = challenge.json()['challenge']
+    absent = client.post('/api/auth/mfa/login/verify', json={'challenge': opaque_challenge})
+    assert absent.status_code == 422
+    invalid = client.post('/api/auth/mfa/login/verify', json={'challenge': opaque_challenge, 'code': wrong})
+    assert invalid.status_code == 400
+    rejected_has_tokens = any(k in invalid.json() for k in ('token', 'refresh_token'))
+    assert not rejected_has_tokens
+    with Session(http['admin']) as db:
+        assert db.get(MfaCredential, http['person']).last_counter == counter_before
+    accepted = client.post('/api/auth/mfa/login/verify', json={'challenge': opaque_challenge, 'code': valid})
+    assert accepted.status_code == 200
+    claims = _decode_token(accepted.json()['token'])
+    assert claims['amr'] == ['pwd', 'otp']
+    replay = client.post('/api/auth/mfa/login/verify', json={'challenge': opaque_challenge, 'code': valid})
+    assert replay.status_code in {400, 409}
+    status = client.get('/api/auth/mfa/status', headers=http['headers']['person'])
+    assert status.status_code == 200
+    assert status.json()['enabled'] is True and status.json()['recovery_codes_remaining'] == 7
+    assert mfa_service.instant is incoming_clock['clock']

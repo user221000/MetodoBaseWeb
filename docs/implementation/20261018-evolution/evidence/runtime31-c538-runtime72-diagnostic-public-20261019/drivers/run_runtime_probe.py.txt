@@ -1,0 +1,52 @@
+from pathlib import Path
+import io,json,hashlib,re,subprocess,sys,tarfile,time
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime72-validation-20261019')
+REMOTE='/var/tmp/metodobase-mfa31-runtime72-20261019'
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+receipt=json.loads((RUN/'runtime-build-receipt.json').read_text());assert receipt['exit_code']==0
+assert lab_control.process_identity(lab_control.state())
+command="""python3 - <<'PY'
+from pathlib import Path
+import json,re,subprocess
+root=Path('/var/tmp/metodobase-mfa31-runtime72-20261019')
+image=(root/'runtime.iid').read_text().strip();assert re.fullmatch('sha256:[0-9a-f]{64}',image)
+raw=subprocess.check_output(['sudo','-n','docker','image','inspect',image])
+row=json.loads(raw)[0]
+assert row['Config']['Labels']['org.opencontainers.image.revision']=='c5386ebaab835b72af692a0d74e9b78ed5c8f511'
+assert row['Architecture']=='amd64' and row['Os']=='linux'
+report={'image_id':image,'image_inspect_sha256':__import__('hashlib').sha256(raw).hexdigest(),
+        'architecture':row['Architecture'],'os':row['Os'],'created':row['Created'],'size_bytes':row['Size'],
+        'rootfs_layers':row['RootFS']['Layers'],'label_revision':row['Config']['Labels']['org.opencontainers.image.revision']}
+print(json.dumps(report))
+PY
+"""
+r=guest_access.run(command,timeout=30)
+(RUN/'runtime-image-identity-raw.log').write_bytes(r.stdout+b'\nSTDERR\n'+r.stderr)
+assert r.returncode==0,r.stderr.decode()
+image=json.loads(r.stdout);(RUN/'runtime-image-identity-source.json').write_bytes(r.stdout)
+assert re.fullmatch('sha256:[0-9a-f]{64}',image['image_id'])
+container=['sudo','-n','docker','run','--rm','-i','--pull=never','--network=none','--read-only','--cap-drop=ALL',
+           '--security-opt=no-new-privileges','--user=65534:65534','--pids-limit=64','--memory=512m','--cpus=1',
+           image['image_id'],'python','-I','-B','-']
+# Static tokens only. No value derives from user data or credentials.
+remote=' '.join(container)
+start=time.monotonic()
+with (RUN/'runtime_probe.py').open('rb') as stream:
+ result=guest_access.run(remote,stdin=stream,timeout=300)
+(RUN/'runtime-import-probe-raw.stdout').write_bytes(result.stdout)
+(RUN/'runtime-import-probe-raw.stderr').write_bytes(result.stderr)
+(RUN/'runtime-import-probe-receipt.json').write_text(json.dumps({'image_id':image['image_id'],'exit_code':result.returncode,'elapsed_seconds':round(time.monotonic()-start,3),
+ 'invocation':container,'probe_sha256':hashlib.sha256((RUN/'runtime_probe.py').read_bytes()).hexdigest(),
+ 'scope':'Read-only compiler stage; no production or product flows'},indent=2)+'\n',encoding='utf-8')
+assert result.returncode==0,result.stderr.decode('utf-8','replace')
+data=json.loads(result.stdout)
+assert data['status']=='PASS_RUNTIME_IMPORT_DIAGNOSTIC_ONLY' and len(data['imports'])==54
+data['image_id']=image['image_id']
+(RUN/'runtime-import-probe-source.json').write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'image_id':image['image_id'],'exit_code':0,'elapsed_seconds':round(time.monotonic()-start,3),
+ 'imports':len(data['imports']),'sources_exact':data['source_files_exact'],'native_elf_sha256':data['native']['pyexpat']['sha256'],
+ 'xml_cases':len(data['small_xml_cases']),'runtime_os_packages':data['os_package_counts'],
+ 'pip_ensurepip_absent':data['pip_and_ensurepip_and_bundled_wheels_absent'],'libpq':data['libpq_runtime'],
+ 'openssl_system':data['openssl_system'],'openssl_cryptography':data['openssl_cryptography_actual'],'status':data['status']}))

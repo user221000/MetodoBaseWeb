@@ -1,0 +1,87 @@
+from pathlib import Path,PurePosixPath
+from datetime import datetime,timezone
+import ast,csv,hashlib,io,json,re,subprocess,tarfile,zipfile
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+ROOT=Path(r'F:\mb-qa-bootstrap-log-20261019')
+AUTHOR=Path(r'F:\mb-bootstrap-log-20261019')
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-bootstrap-outcome-logging-independent-20261019'
+CURRENT=TEMP/'metodobase-qa-bootstrap-log-peer-v3-20261019'
+HEAD='4740fa235170ded9596927c9ea261a9d7998122e'
+def meta(raw):return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def info(p):return meta(p.read_bytes())
+def write(p,j):
+    with p.open('x',encoding='utf-8') as out:json.dump(j,out,indent=2);out.write('\n')
+def git(root,*args):return subprocess.check_output(['git','-C',str(root),*args])
+assert git(ROOT,'rev-parse','HEAD').decode().strip()==HEAD and git(AUTHOR,'rev-parse','HEAD').decode().strip()==HEAD
+assert not git(ROOT,'status','--porcelain','--untracked-files=no').strip() and not git(AUTHOR,'status','--porcelain','--untracked-files=no').strip()
+summary=json.loads((CURRENT/'summary.json').read_text());assert summary['exit_code']==0 and len(summary['cases'])==3
+assert not any(r['failures'] or r['errors'] or r['skips'] for r in summary['cases'])
+before=json.loads((CURRENT/'source.before.json').read_text());after=json.loads((CURRENT/'source.after.json').read_text());assert before==after
+assert json.loads((CURRENT/'author-source.before.json').read_text())==json.loads((CURRENT/'author-source.after.json').read_text())
+assert json.loads((CURRENT/'packages.before.json').read_text())==json.loads((CURRENT/'packages.after.json').read_text())
+git_photo={}
+for name,row in before.items():
+    raw=(ROOT/name).read_bytes();blob=git(ROOT,'show',HEAD+':'+name)
+    assert meta(raw)==row and raw.replace(b'\r\n',b'\n')==blob
+    git_photo[name]={'raw':meta(raw),'Git_LF':meta(blob),'only_CRLF_conversion':raw!=blob,'content_matches_Git_after_declared_EOL_conversion':True}
+tokens=git(ROOT,'ls-files','-v').decode().splitlines()
+assert all(t.startswith('H ') for t in tokens)
+own_v2=ast.parse((TEMP/'metodobase-qa-bootstrap-log-peer-v2-20261019/test_own_bootstrap_logging.py').read_text())
+own_v3=ast.parse((CURRENT/'test_own_bootstrap_logging.py').read_text())
+old_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(own_v2) if isinstance(n,ast.Assert)]
+new_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(own_v3) if isinstance(n,ast.Assert)]
+# The changed child assertion is embedded in the child source string; outer own assertions are byte-for-byte AST identical.
+assert old_asserts==new_asserts
+test_blob=git(ROOT,'show',HEAD+':tests/test_bootstrap_outcome_logging.py')
+assert meta(test_blob)['sha256']=='6355f8429eeed85b89c18284237ea36e72ccbf42226fe42bde24042d75b27795'
+assert_count=sum(isinstance(n,ast.Assert) for n in ast.walk(ast.parse(test_blob)))
+assert assert_count==15
+# Extract only the canonical scanner function, without running its checkpoint producer.
+fn=next(n for n in ast.parse((TEMP/'metodobase-checkpoint119-prepare.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='scan')
+exec(compile(ast.Module(body=[fn],type_ignores=[]),'canonical-scan-extraction','exec'))
+vault=TEMP/'metodobase-qa-bootstrap-log-private-20261019';vault.mkdir(exist_ok=False)
+who=subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True);sid=next(csv.reader(io.StringIO(who)))[1]
+subprocess.run(['icacls',str(vault),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+archive=vault/'primaries.zip'
+phase_names=['metodobase-qa-bootstrap-log-peer-20261019','metodobase-qa-bootstrap-log-peer-v2-20261019','metodobase-qa-bootstrap-log-peer-v3-20261019']
+driver_names=[name+'.py' for name in phase_names]+['metodobase-qa-bootstrap-log-diagnose-20261019.py','metodobase-qa-bootstrap-log-peer-seal-20261019.py']
+log_names=[name+'-driver.log' for name in phase_names]+['metodobase-qa-bootstrap-log-diagnose-20261019-driver.log']
+with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as z:
+    for name in phase_names:
+        for p in sorted((TEMP/name).rglob('*')):
+            if p.is_file():z.write(p,name+'/'+p.relative_to(TEMP/name).as_posix())
+    for name in driver_names+log_names:z.write(TEMP/name,'drivers/'+name)
+OUT.mkdir(exist_ok=False);(OUT/'.gitattributes').write_bytes(b'* -text\n')
+for phase in phase_names:
+    folder=OUT/phase;folder.mkdir()
+    for p in sorted((TEMP/phase).glob('*')):
+        if p.is_file() and p.suffix in ['.json','.xml','.log','.py','.stdout','.stderr']:
+            raw=p.read_bytes();scan(raw,phase+'/'+p.name);(folder/p.name).write_bytes(raw)
+    if phase.endswith('-v2-20261019'):
+        diag=TEMP/phase/'diagnostic'
+        for p in sorted(diag.glob('*')):
+            if p.is_file() and p.suffix!='.db':
+                raw=p.read_bytes();scan(raw,phase+'/diagnostic/'+p.name);dest=folder/'diagnostic'/p.name;dest.parent.mkdir(exist_ok=True);dest.write_bytes(raw)
+(OUT/'drivers').mkdir()
+for name in driver_names+log_names:
+    raw=(TEMP/name).read_bytes();scan(raw,'drivers/'+name);(OUT/'drivers'/(name+'.txt')).write_bytes(raw)
+write(OUT/'selected-Git-LF-and-RAW.json',git_photo)
+write(OUT/'assertion-and-preconditions.json',{'maintained_test_Git_LF':meta(test_blob),'maintained_asserts':assert_count,'own_outer_assertion_count':len(old_asserts),'own_outer_assertions_AST_exact_v2_v3':True,'own_child_assertion_change':{'before':'db_bootstrap.logger.disabled is False','after':'not db_bootstrap.logger.disabled','cause':'Python logging fileConfig assigns integer 0; identity with False is an invalid own harness assumption. Logical enabled-state assertion retained.','diagnostic_actual':json.loads((TEMP/'metodobase-qa-bootstrap-log-peer-v2-20261019/diagnostic/witness.json.entry.json').read_text())},'preflight_failure':{'phase':'first','cause':'Guessed tests/conftest.py does not exist; photo failed before any tests/subprocesses','successor':'v2 enumerated the actual 67 paths; first directory/log/driver retained.'},'preserved_failed_own_run':{'phase':'v2','maintained_pass':2,'own_failed':1,'product_failure':False},'final_same_controls':{'phase':'v3','maintained_pass':2,'own_pass':1,'skips':0,'errors':0},'tracked_flags':'All 10180 source index entries are H; no assumed-unchanged or skip-worktree entries.'})
+write(OUT/'private-originals-receipt.json',{'archive':str(archive),'metadata':info(archive),'entries':len(zipfile.ZipFile(archive).namelist()),'ACL':'Current user SID and SYSTEM only before archive creation','SQLite_DB_or_private_fixture_directories_published':False})
+(OUT/'maintained-test.Git-LF.py.txt').write_bytes(test_blob)
+(OUT/'maintained-test.RAW.py.txt').write_bytes((ROOT/'tests/test_bootstrap_outcome_logging.py').read_bytes())
+review='''Aceptación focal independiente de 4740fa235170ded9596927c9ea261a9d7998122e, desde un worktree propio. El cambio de producto sólo registra db_bootstrap/INFO en Alembic; conserva los niveles y handlers anteriores. No añade exc_info ni texto de excepción ni URL al logger. Los 15 asserts mantenidos permanecen exactos.
+
+Pasaron los mismos dos controles reales de CLI SQLite y un control propio adicional: después de que la migración y la verificación reales terminaran, se inyectó una excepción con marcador y ruta privados. El CLI devolvió 1 y emitió una única clasificación RuntimeError; no emitió éxito, traceback, detalle privado ni ruta. Se comprobó que el logger ajeno sigue deshabilitado, db_bootstrap está habilitado/INFO y root/sqlalchemy conservan WARN. La revisión 29 ya confirmada permanece; no se atribuye rollback a una excepción posterior a la verificación/commit.
+
+Se preservan dos fallos de harness: foto inicial apuntó a un conftest inexistente y no llegó a ejecutar pruebas; el primer control propio usó identidad con False cuando logging asigna el entero 0. Un diagnóstico guardó esos valores; se corrigió sólo esa comprobación propia a `not disabled`. Los asserts externos del control propio y los 15 asserts mantenidos permanecen iguales. El resultado final es 3/3, sin errores ni skips; los replays no se suman como casos únicos.
+
+Antes y después permanecieron 67 archivos relevantes de ambos worktrees, 89 metadatos de paquetes y el ejecutable shim Python. pip check devolvió 0 en ambos extremos. Se registran Git LF y RAW Windows por separado; la única diferencia permitida es CRLF declarada. No hubo PG, VM, imagen nueva, worker, health, readiness, proveedor, suite completa, SCA ni aceptación de producción.
+'''
+(OUT/'REVIEW.md').write_text(review,encoding='utf-8')
+write(OUT/'source.json',{'status':'PASS_FOCAL_LOGGING_PEER','source_head':HEAD,'source_parent':'6a75d096ea3d63d9e78c76d33b7e243160b23364','created':datetime.now(timezone.utc).isoformat(),'test_counts':{'maintained':2,'own':1,'unique_total':3},'final':summary,'source_files_observed':67,'metadata_packages_observed':89,'Python_observation':'sys.executable virtual-environment shim bytes before/after. No separate own preimage of the backing interpreter binary is claimed.','private_archive':info(archive),'drivers':{name:info(TEMP/name) for name in driver_names},'scope':'Independent focal CLI logging acceptance only'})
+manifest={p.relative_to(OUT).as_posix():info(p) for p in sorted(OUT.rglob('*')) if p.is_file()}
+write(OUT/'manifest.json',manifest)
+for p in OUT.rglob('*'):
+    if p.is_file():scan(p.read_bytes(),p.relative_to(OUT).as_posix())
+print(json.dumps({'path':str(OUT),'manifest_members':len(manifest),'source':info(OUT/'source.json'),'manifest':info(OUT/'manifest.json'),'cases':3,'status':'PASS_FOCAL_LOGGING_PEER'}))

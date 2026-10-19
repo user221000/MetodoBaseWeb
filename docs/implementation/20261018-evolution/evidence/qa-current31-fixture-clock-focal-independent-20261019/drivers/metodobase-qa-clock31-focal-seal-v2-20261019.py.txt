@@ -1,0 +1,105 @@
+from pathlib import Path,PurePosixPath
+from datetime import datetime,timezone
+import ast,csv,hashlib,io,json,re,subprocess,tarfile,zipfile,xml.etree.ElementTree as ET
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+ROOT=Path(r'F:\mb-qa-current31-clock-20261019')
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-current31-fixture-clock-focal-independent-20261019'
+HEAD='9b14e2e9c3279a9a85eef444f1ef50f3f5f8750b'
+def meta(raw):return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def info(p):return meta(p.read_bytes())
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def write(p,j):
+    with p.open('x',encoding='utf-8') as out:json.dump(j,out,indent=2);out.write('\n')
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain','--untracked-files=no').strip()
+changed=git('diff','--name-only',HEAD+'^',HEAD).decode().splitlines();assert changed==['tests/ci_mfa31/current_link_fixtures.py','tests/test_current_mfa31_fixture_clock.py']
+old=git('show',HEAD+'^:tests/ci_mfa31/current_link_fixtures.py').decode();new=git('show',HEAD+':tests/ci_mfa31/current_link_fixtures.py').decode()
+assert hashlib.sha256(new.encode()).hexdigest()=='85d72effd2cb31a85d8a51c3431641d4a6eb10b5b7e2b78d296a7fdb3d2d0a47'
+assert hashlib.sha256(git('show',HEAD+':tests/test_current_mfa31_fixture_clock.py')).hexdigest()=='898c1bde416890e5bbf4a7f19ff6c489c95a597ff0c4b44b50f920a899dae3ae'
+old_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(old)) if isinstance(n,ast.Assert)]
+new_asserts=[ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(new)) if isinstance(n,ast.Assert)]
+assert len(old_asserts)==len(new_asserts)==19 and old_asserts==new_asserts
+new_block="""        # Freeze only the MFA clock while these real HTTP setup requests
+        # enroll and authenticate the persisted actors. Business requests
+        # after setup retain the caller's original clock and permissions.
+        from web.services import mfa_service
+        original_clock = mfa_service.instant
+        observed = original_clock()
+        with monkeypatch.context() as setup_clock:
+            setup_clock.setattr(mfa_service, 'instant', lambda supplied=None:
+                original_clock(observed if supplied is None else supplied))
+            headers = {key: {'Authorization': 'Bearer ' + full_mfa_login(client, email, PASSWORD, now=observed)['token']}
+                       for key, email in emails.items()}
+"""
+old_block="""        headers = {key: {'Authorization': 'Bearer ' + full_mfa_login(client, email, PASSWORD)['token']}
+                   for key, email in emails.items()}
+"""
+inverse=new
+changes=[('from datetime import datetime\n','from datetime import datetime, timezone\n'),('def full_mfa_login(client, email: str, password: str, *, now: datetime) -> dict:','def full_mfa_login(client, email: str, password: str) -> dict:'),('code = totp(seed, int(now.timestamp()) // 30)','code = totp(seed, int(datetime.now(timezone.utc).timestamp()) // 30)'),(new_block,old_block)]
+for after,before in changes:
+    assert inverse.count(after)==1;inverse=inverse.replace(after,before)
+assert inverse==old
+focal=TEMP/'metodobase-qa-clock31-focal-20261019';exc=TEMP/'metodobase-qa-clock31-exception-20261019';contract=TEMP/'metodobase-qa-clock31-contract-diagnostic-20261019';ci=TEMP/'metodobase-qa-clock31-ci-preflight-20261019'
+focal_summary=json.loads((focal/'summary.json').read_text());exc_summary=json.loads((exc/'summary.json').read_text());contract_post=json.loads((contract/'postcheck.json').read_text())
+for summary,count in [(focal_summary,33),(exc_summary,2)]:
+    assert summary['exit_code']==0 and summary['count']==count and summary['head']==HEAD
+    assert not any(r['failures'] or r['errors'] or r['skips'] for r in summary['cases'])
+    assert summary['source_count']==735 and summary['packages']==89 and summary['pip_before_after']==[0,0] and summary['source_package_python_quiet']
+assert contract_post['status']=='CONFIRMED_CONTROLLED_UNCHANGED_HELPER_CLOCK_GAP'
+old_broad=TEMP/'metodobase-mfa31-composed-serial-terminal-sv-20261019'
+broad_summary=json.loads((old_broad/'summary.private.json').read_text());assert broad_summary['head']=='6a75d096ea3d63d9e78c76d33b7e243160b23364' and broad_summary['cases']==3047
+before_ids={(c.attrib.get('classname'),c.attrib['name']) for c in ET.parse(old_broad/'results.xml').getroot().iter('testcase') if c.attrib.get('classname')=='tests.test_publication_diary_consumption'}
+after_ids={(c.attrib.get('classname'),c.attrib['name']) for c in ET.parse(focal/'results.xml').getroot().iter('testcase') if c.attrib.get('classname')=='tests.test_publication_diary_consumption'}
+assert len(before_ids)==29 and before_ids==after_ids
+ci_report=json.loads((ci/'review.json').read_text());assert len(ci_report['workflow_canaries'])==145 and ci_report['immutable_helpers']==23 and ci_report['current']['required_full_current_PG_nodeids']==173
+baseline=json.loads((ROOT/'tests/ci_mfa31/baseline.json').read_text());helpers=baseline['helpers23_sha256'];assert len(helpers)==23
+for name,expected in helpers.items():assert hashlib.sha256(git('show',HEAD+':'+name)).hexdigest()==expected
+mapping_blob=git('show',HEAD+':tests/ci_mfa31/current-business-mapping.json');assert mapping_blob==git('show',HEAD+'^:tests/ci_mfa31/current-business-mapping.json')
+pins={}
+for section in json.loads(mapping_blob).values():
+    if isinstance(section,dict):pins.update(section.get('source_modules',{}))
+assert len(pins)==5
+for name,digest in pins.items():assert hashlib.sha256(git('show',HEAD+':tests/'+name+'.py')).hexdigest()==digest
+contract_helper=git('show',HEAD+':tests/mfa31_contract_client.py')
+assert contract_helper==git('show','4740fa235170ded9596927c9ea261a9d7998122e:tests/mfa31_contract_client.py')
+fn=next(n for n in ast.parse((TEMP/'metodobase-checkpoint119-prepare.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='scan')
+exec(compile(ast.Module(body=[fn],type_ignores=[]),'canonical-scan-extraction','exec'))
+vault=TEMP/'metodobase-qa-clock31-focal-private-20261019';vault.mkdir(exist_ok=False)
+who=subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True);sid=next(csv.reader(io.StringIO(who)))[1]
+subprocess.run(['icacls',str(vault),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+archive=vault/'primaries.zip'
+phase_dirs=[focal,exc,contract,ci]
+drivers=['metodobase-qa-current31-clock-controls-20261019.py','metodobase-qa-contract-client-crossing-20261019.py','metodobase-qa-current31-clock-exception-20261019.py','metodobase-qa-clock31-run-20261019.py','metodobase-qa-clock31-exception-run-20261019.py','metodobase-qa-clock31-contract-postcheck-20261019.py','metodobase-qa-clock31-focal-seal-20261019.py','metodobase-qa-clock31-focal-seal-v2-20261019.py']
+logs=[folder.name+'-driver.log' for folder in phase_dirs]+['metodobase-qa-clock31-focal-seal-20261019-driver.log']
+with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as z:
+    for folder in phase_dirs:
+        for p in sorted(folder.rglob('*')):
+            if p.is_file():z.write(p,folder.name+'/'+p.relative_to(folder).as_posix())
+    for name in drivers+logs:z.write(TEMP/name,'drivers/'+name)
+OUT.mkdir(exist_ok=False);(OUT/'.gitattributes').write_bytes(b'* -text\n')
+for folder in phase_dirs:
+    dest=OUT/folder.name;dest.mkdir()
+    for p in sorted(folder.glob('*')):
+        if p.is_file():
+            raw=p.read_bytes();scan(raw,folder.name+'/'+p.name);(dest/p.name).write_bytes(raw)
+(OUT/'drivers').mkdir()
+for name in drivers+logs:
+    raw=(TEMP/name).read_bytes();scan(raw,'drivers/'+name);(OUT/'drivers'/(name+'.txt')).write_bytes(raw)
+(OUT/'fixture-helper-before.Git-LF.py.txt').write_bytes(old.encode());(OUT/'fixture-helper-after.Git-LF.py.txt').write_bytes(new.encode())
+(OUT/'fixture-helper-after.RAW.py.txt').write_bytes((ROOT/'tests/ci_mfa31/current_link_fixtures.py').read_bytes())
+write(OUT/'structural-review.json',{'source':HEAD,'parent':'6a75d096ea3d63d9e78c76d33b7e243160b23364','changed_paths':changed,'helper_assertions':19,'all_assertion_AST_exact':True,'full_helper_inverse_equals_previous_Git_LF':True,'full_inverse':meta(inverse.encode()),'old_publication_nodeids':sorted(before_ids),'all29_publication_nodeids_retained':True,'original_broad_XML':{'path':str(old_broad/'results.xml'),'metadata':info(old_broad/'results.xml'),'scope':'Only expected structural case IDs are reused. Its original setup failure had no counter/status telemetry; cause remains unmeasured.'},'CI':{'workflow_canaries':145,'PG_required_nodeids':173,'historical_helper_hashes23':helpers,'business_source_groups':4,'business_source_module_pins5':pins,'preflight_executed':True,'PG173_executed':False},'older_contract_helper_Git_LF':meta(contract_helper),'same_old_contract_helper_at474_and9b14':True})
+write(OUT/'preconditions-and-scope.json',{'exception_runner_stdout_label_erratum':'The derived exception runner retained the contract diagnostic label in its final print only. Its assertions, command exit0, summary mode=exception and two passing XML cases are authoritative. Correct decision: PASS_OWN_SETUP_EXCEPTION_CLOCK_RESTORATION. Original stdout/driver remain intact.','contract_postparser_erratum':'Initial postparser incorrectly expected message.endswith exact text; pytest includes rewrite detail. Post-only review of the unchanged XML confirms the same exact assertion and file/line, without rerunning the negative canary.','search_preparation_note':'An initial broad rg under Temp encountered WinSAT access denied; no source/service mutation and no invented saved RAW output file. Subsequent searches used the specifically known evidence directories.','current_fixture_clock_scope':'Brief process-global monkeypatch during isolated fixture setup; successful and exceptional restoration checked. No arbitrary concurrent unrelated-thread isolation claim.','older_contract_helper_scope':'One controlled real-HTTP setup error demonstrates separate wall-clock fragility. Helper remains unchanged here; no correction or original broad-failure causal attribution claimed.','private_archive':{'path':str(archive),'metadata':info(archive),'ACL':'Current user SID and SYSTEM only before archive creation'},'no_VM_Chrome_providers_external_messages_or_global_PG_mutations':True})
+review='''Aceptación focal independiente del fixture current31 en 9b14. Pasaron 33 casos: los 2 canarios de cruce, los 29 node IDs anteriores de publicación/diario y 2 controles propios. Estos últimos verifican que el reloj entrante vuelve antes del negocio y avanza después del setup; el login sigue respondiendo 202 sin tokens, factor ausente422, OTP incorrecto400, OTP correcto200 y replay denegado. Otros 2 controles propios de fallo de setup comprobaron la restauración al propagarse una excepción; no sustituyen ninguna prueba de factor HTTP.
+
+Los 19 asserts anteriores del helper permanecen exactos y una inversa completa devuelve exactamente el Git LF anterior. Sólo cambiaron el helper y el test nuevo. El preflight propio conservó145 canarios de workflow,173 node IDs PG requeridos,23 helpers históricos y4 grupos de negocio/5 pins de módulos. Esto es estático; la ejecución PG34 se entrega aparte.
+
+Se reprodujo por separado el mismo patrón temporal en el MfaContractClient sin editar, mediante su caller real team_case: el TOTP generado antes del cambio de contador fue rechazado después con HTTP400 en setup. Su cuerpo no ejecutó. Esta fragilidad del otro helper sigue abierta aquí. El error amplio original de 3047 casos no tenía telemetría de contador/status; no se atribuye retrospectivamente a esta causa.
+
+Se conservaron735 fuentes,89 metadatos de paquetes y binarios Python shim/base antes y después, pip0/0. RAW y SQLite sintéticas permanecen privadas; la proyección pública pasa el scanner canónico. Se declaran los errores de postparser y de etiqueta heredada en un print, sin repetir ni sobrescribir resultados. El reloj temporal es global al proceso durante setup; los controles cubren los fixtures aislados y su restauración, sin prometer aislamiento de hilos ajenos concurrentes. No se usaron VM, Chrome, proveedores ni servicios externos.
+'''
+(OUT/'REVIEW.md').write_text(review,encoding='utf-8')
+write(OUT/'source.json',{'status':'PASS_CURRENT31_FIXTURE_CLOCK_FOCAL_ONLY','source':HEAD,'created':datetime.now(timezone.utc).isoformat(),'unique_positive_cases':{'maintained_crossing':2,'maintained_publication':29,'own_factor_clock':2,'own_exception_lifecycle':2,'total':35},'negative_separate_contract_helper_cases':1,'negative_status':'Confirmed controlled setup error, not acceptance','focal':focal_summary,'exception':exc_summary,'contract_diagnostic':contract_post,'private_archive':info(archive),'scope':'Fixture9b14 focal only; no closure of the separate older helper or original uninstrumented failure; PG is separate.'})
+manifest={p.relative_to(OUT).as_posix():info(p) for p in sorted(OUT.rglob('*')) if p.is_file()}
+write(OUT/'manifest.json',manifest)
+for p in OUT.rglob('*'):
+    if p.is_file():scan(p.read_bytes(),p.relative_to(OUT).as_posix())
+print(json.dumps({'path':str(OUT),'manifest_members':len(manifest),'source':info(OUT/'source.json'),'manifest':info(OUT/'manifest.json'),'positive_unique':35,'controlled_negative':1}))

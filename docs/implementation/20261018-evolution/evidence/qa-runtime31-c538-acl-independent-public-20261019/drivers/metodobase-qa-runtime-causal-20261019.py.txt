@@ -1,0 +1,213 @@
+"""Independent causal migration rehearsal. Does not modify product or old QA objects."""
+from pathlib import Path
+from datetime import datetime, timezone
+from urllib.parse import quote
+import ast, base64, csv, hashlib, io, json, os, re, secrets, shlex, socket, subprocess, sys, tempfile, time, uuid
+import psycopg2
+from psycopg2 import sql, extensions
+
+TEMP = Path(tempfile.gettempdir())
+OUT = TEMP / 'metodobase-qa-runtime-causal-20261019'
+OUT.mkdir(exist_ok=False)
+RAW = OUT / 'private'; RAW.mkdir()
+who = subprocess.check_output(['whoami','/user','/fo','csv','/nh'], text=True)
+sid = next(csv.reader(io.StringIO(who)))[1]
+assert re.fullmatch(r'S-1-[0-9-]+', sid)
+subprocess.run(['icacls',str(RAW),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+AUTHOR = TEMP / 'metodobase-mfa31-runtime72-validation-20261019'
+PROOF = Path(r'F:\MetodoBaseWeb-linux-lab-20261019\evidence\runtime31-c538-runtime72-diagnostic-20261019')
+SOURCE = Path(r'F:\mb-mfa31-runtime72-20261019')
+LAB = Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+sys.path.insert(0, str(LAB / 'scripts'))
+import guest_access, lab_control
+IMAGE = 'sha256:47e813ed1cf255a5f8575eecd3aba45f4314069e59c9baff05cb0cd63870f74f'
+HEAD = 'c5386ebaab835b72af692a0d74e9b78ed5c8f511'
+def now(): return datetime.now(timezone.utc).isoformat()
+def info(p):
+    raw=p.read_bytes(); return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def write(path,value):
+    with path.open('x',encoding='utf-8') as stream: json.dump(value,stream,indent=2);stream.write('\n')
+def proof_photo(): return {p.relative_to(PROOF).as_posix():info(p) for p in sorted(PROOF.rglob('*')) if p.is_file()}
+def process(pid):
+    cmd='Get-CimInstance Win32_Process -Filter "ProcessId='+str(pid)+'" | Select-Object ProcessId,ParentProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress'
+    raw=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',cmd],creationflags=subprocess.CREATE_NO_WINDOW)
+    return json.loads(raw) if raw.strip() else None
+def fingerprint(row):
+    return {'pid':row['ProcessId'],'parent':row['ParentProcessId'],'birth':row['CreationDate'],'exe':row['ExecutablePath'],'argv_sha256':hashlib.sha256(row['CommandLine'].encode()).hexdigest()}
+def git(*args): return subprocess.check_output(['git','-C',str(SOURCE),*args])
+assert git('rev-parse','HEAD').decode().strip()==HEAD
+assert not git('status','--porcelain','--untracked-files=no').strip()
+assert info(PROOF/'source.json')['sha256']=='0e3d7f8abea736dbf64b63de29a0bdefd78cd8b2aa1db4d5ad38162ea8fca399'
+assert info(PROOF/'manifest.json')['sha256']=='9f82dc1520dea6fd7cb134319b594d490033040a2af4f0963fe473db847af585'
+manifest=json.loads((PROOF/'manifest.json').read_text())
+for name, expected in manifest.items(): assert info(PROOF/name)==expected, name
+before_proof=proof_photo();write(OUT/'producer-proof.before.json',before_proof)
+context=json.loads((PROOF/'exact-git-context-manifest.json').read_text())
+write(OUT/'producer-context-top-level.json',{'keys':list(context),'manifest':info(PROOF/'exact-git-context-manifest.json')})
+assert context['source']==HEAD and len(context['files'])==366
+source_before={name:info(SOURCE/name) for name in context['files']}
+write(OUT/'selected-source.before.json',source_before)
+assert lab_control.process_identity(lab_control.state())
+vm_before=guest_access.run('sudo -n docker image inspect '+IMAGE+'; sudo -n docker ps -aq; sudo -n docker ps -q; df -B1 /; cat /proc/meminfo',timeout=30)
+(RAW/'vm-before.stdout').write_bytes(vm_before.stdout);(RAW/'vm-before.stderr').write_bytes(vm_before.stderr)
+assert vm_before.returncode==0
+# Read only the specifically authorized new instance credential.
+pointer=json.loads((AUTHOR/'pg55486-instance-pointer.json').read_text())
+admin_path=Path(pointer['private_admin_file']); admin_raw=admin_path.read_bytes(); admin=json.loads(admin_raw)
+data=Path(pointer['data_directory']).resolve(); private=Path(pointer['private_root']).resolve()
+assert private.name=='metodobase-mfa31-runtime72-pg55486-gtf7xlmg' and data==private/'data'
+assert data==Path(admin['data_dir']).resolve() and admin['port']==pointer['port']==55486 and admin['host']=='127.0.0.1'
+assert admin['database']=='postgres' and re.fullmatch('mb31_root_[0-9a-f]{32}',admin['username'])
+assert not (data/'postmaster.pid').exists()
+with socket.socket() as probe: probe.bind(('127.0.0.1',55486))
+baseline=json.loads((AUTHOR/'pg55486-setup/tool-files.before.json').read_text())
+install=Path(pointer['source_existing_installation_read_only']); binary=install/'bin/postgres.exe'; pgctl=install/'bin/pg_ctl.exe'
+for rel in ['bin/postgres.exe','bin/pg_ctl.exe']: assert info(install/rel)==baseline[rel]
+assert info(binary)['sha256']=='8ae8bb442e8a4c4fb2c8e9ad38c19aca610ee3cba33afd69249de769f905329b'
+configs={name:info(data/name) for name in ['pg_hba.conf','postgresql.conf','pg_ident.conf']}
+write(OUT/'pg-config.before.json',configs)
+argv=pointer['command'];assert argv[0]==str(binary) and argv[1:3]==['-D',str(data)] and argv[3:7]==['-h','127.0.0.1','-p','55486']
+env={k:v for k,v in os.environ.items() if k.upper() in {'SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','TMP','TEMP'}}
+env.update(PATH=str(install/'bin')+os.pathsep+r'C:\Windows\System32',PGPASSFILE=str(RAW/'no-ambient-password'),PGSYSCONFDIR=str(RAW))
+server=None; server_id=None; leases=[]; results=[]; succeeded=False
+try:
+    with (RAW/'postgres.stdout').open('xb') as stdout, (RAW/'postgres.stderr').open('xb') as stderr:
+        server=subprocess.Popen(argv,cwd=data,env=env,stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,creationflags=subprocess.CREATE_NO_WINDOW|subprocess.CREATE_NEW_PROCESS_GROUP)
+    row=process(server.pid);assert row and Path(row['ExecutablePath']).resolve()==binary.resolve()
+    assert str(data).casefold() in row['CommandLine'].casefold() and '-p 55486' in row['CommandLine']
+    server_id=fingerprint(row);write(OUT/'pg-owned-start.json',{'time':now(),'process':server_id,'data':str(data),'command':argv})
+    connect={'host':'127.0.0.1','port':55486,'user':admin['username'],'password':admin['password'],'connect_timeout':3}
+    deadline=time.monotonic()+45
+    while True:
+        assert server.poll() is None
+        try: cn=psycopg2.connect(**connect,dbname='postgres',application_name='qa_runtime_causal_setup');break
+        except psycopg2.OperationalError:
+            assert time.monotonic()<deadline;time.sleep(.25)
+    cn.autocommit=True
+    with cn.cursor() as cur:
+        cur.execute("SELECT current_user,current_database(),host(inet_server_addr()),inet_server_port(),current_setting('server_version'),current_setting('data_directory')")
+        identity=cur.fetchone();assert identity[:5]==(admin['username'],'postgres','127.0.0.1',55486,'17.11') and Path(identity[5]).resolve()==data
+        cur.execute("SELECT datname,oid,pg_get_userbyid(datdba) FROM pg_database ORDER BY datname")
+        db_before=[list(r) for r in cur.fetchall()]
+        cur.execute("SELECT rolname,oid,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,rolinherit,rolcanlogin FROM pg_roles ORDER BY rolname")
+        roles_before=[list(r) for r in cur.fetchall()]
+        cur.execute('SELECT line_number,type,address,auth_method,error FROM pg_hba_file_rules ORDER BY line_number')
+        hba=[list(r) for r in cur.fetchall()];assert all(r[3]=='scram-sha-256' and r[4] is None for r in hba)
+    write(OUT/'pg-catalog.before.json',{'identity':list(identity),'databases':db_before,'roles':roles_before,'hba':hba})
+    for variant in ['default_null','explicit_function_execute']:
+        nonce=uuid.uuid4().hex
+        lease={'nonce':nonce,'variant':variant,'database':'metodobase_test_qa_causal_'+nonce,'migrator':'mbqa_m_'+nonce,'app':'mbqa_a_'+nonce,'state':'PLANNED_BEFORE_CREATE','created_roles':[],'created_database':False,'oid':None,'started':now()}
+        lease_path=RAW/('lease-'+nonce+'.json');write(lease_path,lease); leases.append((lease,lease_path))
+        passwords={lease['migrator']:secrets.token_hex(32),lease['app']:secrets.token_hex(32)}
+        write(RAW/('credentials-'+nonce+'.json'),passwords)
+        def persist(): lease_path.write_text(json.dumps(lease,indent=2)+'\n',encoding='utf-8')
+        with cn.cursor() as cur:
+            cur.execute('SELECT rolname FROM pg_roles WHERE rolname=ANY(%s)',([lease['migrator'],lease['app']],));assert cur.fetchall()==[]
+            cur.execute('SELECT oid FROM pg_database WHERE datname=%s',(lease['database'],));assert cur.fetchone() is None
+            for role in [lease['migrator'],lease['app']]:
+                verifier=extensions.encrypt_password(passwords[role],role,cn,algorithm='scram-sha-256')
+                cur.execute(sql.SQL('CREATE ROLE {} LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION NOINHERIT CONNECTION LIMIT 8 PASSWORD %s').format(sql.Identifier(role)),(verifier,))
+                lease['created_roles'].append(role);persist()
+            cur.execute(sql.SQL("CREATE DATABASE {} OWNER {} TEMPLATE template0 ENCODING 'UTF8'").format(sql.Identifier(lease['database']),sql.Identifier(lease['migrator'])))
+            lease['created_database']=True;persist()
+            cur.execute('SELECT oid FROM pg_database WHERE datname=%s',(lease['database'],));lease['oid']=cur.fetchone()[0];persist()
+            cur.execute(sql.SQL('REVOKE ALL ON DATABASE {} FROM PUBLIC').format(sql.Identifier(lease['database'])))
+            cur.execute(sql.SQL('GRANT CONNECT ON DATABASE {} TO {},{}').format(sql.Identifier(lease['database']),sql.Identifier(lease['migrator']),sql.Identifier(lease['app'])))
+        owner=psycopg2.connect(host='127.0.0.1',port=55486,dbname=lease['database'],user=lease['migrator'],password=passwords[lease['migrator']],connect_timeout=5)
+        with owner,owner.cursor() as cur:
+            cur.execute('REVOKE ALL ON SCHEMA public FROM PUBLIC')
+            cur.execute(sql.SQL('ALTER SCHEMA public OWNER TO {}').format(sql.Identifier(lease['migrator'])))
+            cur.execute(sql.SQL('GRANT USAGE ON SCHEMA public TO {}').format(sql.Identifier(lease['app'])))
+            cur.execute(sql.SQL('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT,INSERT,UPDATE,DELETE ON TABLES TO {}').format(sql.Identifier(lease['app'])))
+            cur.execute(sql.SQL('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE,SELECT ON SEQUENCES TO {}').format(sql.Identifier(lease['app'])))
+            if variant=='explicit_function_execute':
+                cur.execute(sql.SQL('ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO {}').format(sql.Identifier(lease['app'])))
+        owner.close();lease['state']='READY_FOR_REAL_CLI';persist()
+        def url(role): return 'postgresql+psycopg2://'+role+':'+quote(passwords[role],safe='')+'@10.0.2.2:55486/'+lease['database']
+        payload={'DATABASE_URL':url(lease['app']),'MIGRATOR_DATABASE_URL':url(lease['migrator']),'METODOBASE_ENV':'production','WEB_SECRET_KEY':secrets.token_hex(32),'METODO_BASE_SALT':secrets.token_hex(32),'MFA_ENCRYPTION_KEY':base64.urlsafe_b64encode(secrets.token_bytes(32)).decode(),'CORS_ORIGINS':'https://qa-causal.invalid','BASE_URL':'https://qa-causal.invalid','METODOBASE_SEED_DEMO':'0','AWS_EC2_METADATA_DISABLED':'true','RESEND_API_KEY':'','SENTRY_DSN':'','STRIPE_SECRET_KEY':'sk_live_' + 'lab31_'+secrets.token_hex(32),'STRIPE_PUBLISHABLE_KEY':'pk_live_' + 'lab31_'+secrets.token_hex(32),'STRIPE_WEBHOOK_SECRET':'whsec_lab31_'+secrets.token_hex(32),'OBJECT_STORAGE_BACKEND':'local','OBJECT_STORAGE_LOCAL_ROOT':'/tmp/private','METODOBASE_DATA_DIR':'/tmp/data'}
+        payload['REDIS_URL']='redis://127.0.0.1:6386/0'  # Shape only; this migration rehearsal never connects to Redis.
+        for key in ['STRIPE_PRICE_STANDARD','STRIPE_PRICE_GYM_COMERCIAL','STRIPE_PRICE_CLINICA','STRIPE_PRICE_PRO_USUARIO']:payload[key]='price_lab31_'+secrets.token_hex(16)
+        request=RAW/('payload-'+nonce+'.json');write(request,payload)
+        for phase,revision in [('to29','20261019_client_account_links'),('to31','head')]:
+            # The override launches the original unmodified CLI; no entrypoint/worker/health acceptance.
+            wrapper="import os,json,sys,subprocess; os.environ.update(json.load(sys.stdin)); raise SystemExit(subprocess.call([sys.executable,'-B','db_bootstrap.py','--revision',"+repr(revision)+"]))"
+            args=['sudo','-n','docker','run','--rm','-i','--pull=never','--network=host','--read-only','--cap-drop=ALL','--security-opt=no-new-privileges','--user=65534:65534','--pids-limit=64','--memory=512m','--cpus=1','--tmpfs','/tmp:rw,nosuid,nodev,size=32m,mode=1777','--entrypoint','python',IMAGE,'-I','-B','-c',wrapper]
+            remote=' '.join(shlex.quote(x) for x in args)
+            started=time.monotonic()
+            with request.open('rb') as stream: r=guest_access.run(remote,stdin=stream,timeout=180)
+            (RAW/(variant+'-'+phase+'.stdout')).write_bytes(r.stdout);(RAW/(variant+'-'+phase+'.stderr')).write_bytes(r.stderr)
+            record={'variant':variant,'phase':phase,'revision_requested':revision,'exit_code':r.returncode,'elapsed_seconds':round(time.monotonic()-started,3),'stdout':info(RAW/(variant+'-'+phase+'.stdout')),'stderr':info(RAW/(variant+'-'+phase+'.stderr')),'invocation':args,'source':HEAD,'image':IMAGE}
+            own=psycopg2.connect(host='127.0.0.1',port=55486,dbname=lease['database'],user=lease['migrator'],password=passwords[lease['migrator']],connect_timeout=5)
+            with own.cursor() as cur:
+                cur.execute('SET TRANSACTION READ ONLY')
+                cur.execute("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename");record['tables']=[r[0] for r in cur.fetchall()]
+                if 'alembic_version' in record['tables']:
+                    cur.execute('SELECT version_num FROM alembic_version');record['actual_revision']=[r[0] for r in cur.fetchall()]
+                else:record['actual_revision']=[]
+                cur.execute("SELECT p.proname,p.prosecdef,p.proacl::text FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname LIKE 'r12_%' ORDER BY p.proname")
+                record['r12_function_acl']=[list(r) for r in cur.fetchall()]
+                cur.execute("SELECT d.defaclobjtype,d.defaclacl::text FROM pg_default_acl d WHERE d.defaclrole=(SELECT oid FROM pg_roles WHERE rolname=current_user) ORDER BY d.defaclobjtype")
+                record['default_acl']=[list(r) for r in cur.fetchall()]
+                cur.execute("SELECT indexname FROM pg_indexes WHERE schemaname='public' AND indexname LIKE '%history%' ORDER BY indexname");record['history_indexes']=[r[0] for r in cur.fetchall()]
+            own.rollback();own.close()
+            write(OUT/(variant+'-'+phase+'.json'),record);results.append(record)
+            print(json.dumps({'variant':variant,'phase':phase,'exit_code':r.returncode,'actual_revision':record['actual_revision'],'function_count':len(record['r12_function_acl']),'explicit_acl_count':sum(v[2] is not None for v in record['r12_function_acl'])}),flush=True)
+        lease['state']='PROBED';persist()
+    # Assertions are fixed before any execution and reflect each original CLI's two-stage commit/verification.
+    rows={(r['variant'],r['phase']):r for r in results}
+    for variant in ['default_null','explicit_function_execute']:
+        assert rows[(variant,'to29')]['actual_revision']==['20261019_client_account_links']
+        assert len(rows[(variant,'to29')]['r12_function_acl'])==19
+        assert all(r[1] is False for r in rows[(variant,'to29')]['r12_function_acl'])
+    assert rows[('default_null','to29')]['exit_code']==0
+    assert rows[('explicit_function_execute','to29')]['exit_code']==1
+    assert all(r[2] is None for r in rows[('default_null','to29')]['r12_function_acl'])
+    assert all(r[2] is not None for r in rows[('explicit_function_execute','to29')]['r12_function_acl'])
+    assert rows[('default_null','to31')]['exit_code']==0 and rows[('default_null','to31')]['actual_revision']==['20261019_mfa']
+    assert rows[('explicit_function_execute','to31')]['exit_code']==1 and rows[('explicit_function_execute','to31')]['actual_revision']==['20261019_client_account_links']
+    assert rows[('explicit_function_execute','to31')]['tables']==rows[('explicit_function_execute','to29')]['tables']
+    assert rows[('explicit_function_execute','to31')]['r12_function_acl']==rows[('explicit_function_execute','to29')]['r12_function_acl']
+    assert rows[('explicit_function_execute','to31')]['history_indexes']==rows[('explicit_function_execute','to29')]['history_indexes']
+    succeeded=True
+finally:
+    closure=[]
+    if server is not None and server.poll() is None:
+        assert fingerprint(process(server.pid))==server_id
+        if 'cn' in globals(): cn.close()
+        close=psycopg2.connect(host='127.0.0.1',port=55486,user=admin['username'],password=admin['password'],dbname='postgres',connect_timeout=5);close.autocommit=True
+        with close.cursor() as cur:
+            for lease,path in leases:
+                cur.execute('SELECT oid FROM pg_database WHERE datname=%s',(lease['database'],));actual=cur.fetchone()
+                if actual:
+                    assert lease['created_database'] and actual[0]==lease['oid']
+                    cur.execute('SELECT pid FROM pg_stat_activity WHERE datname=%s',(lease['database'],));assert cur.fetchall()==[]
+                    cur.execute(sql.SQL('DROP DATABASE {}').format(sql.Identifier(lease['database'])))
+                cur.execute('SELECT oid FROM pg_database WHERE datname=%s',(lease['database'],));assert cur.fetchone() is None
+                for role in reversed(lease['created_roles']):
+                    cur.execute(sql.SQL('DROP ROLE {}').format(sql.Identifier(role)))
+                cur.execute('SELECT rolname FROM pg_roles WHERE rolname=ANY(%s)',([lease['migrator'],lease['app']],));assert cur.fetchall()==[]
+                lease['state']='CLOSED_OWN_UUID_NO_FORCE';lease['closed']=now();path.write_text(json.dumps(lease,indent=2)+'\n',encoding='utf-8');closure.append({'nonce':lease['nonce'],'database':lease['database'],'oid':lease['oid'],'zero_sessions_before_drop':True,'fresh_database_and_roles_absent':True})
+            cur.execute('SELECT datname,oid,pg_get_userbyid(datdba) FROM pg_database ORDER BY datname');db_after=[list(r) for r in cur.fetchall()]
+            cur.execute('SELECT rolname,oid,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,rolinherit,rolcanlogin FROM pg_roles ORDER BY rolname');roles_after=[list(r) for r in cur.fetchall()]
+            assert db_after==db_before and roles_after==roles_before
+            cur.execute("SELECT pid FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()");assert cur.fetchall()==[]
+        close.close()
+        # The setup handle is the only remaining client and is closed before pg_ctl.
+        if 'cn' in globals():cn.close()
+        assert fingerprint(process(server.pid))==server_id
+        with (RAW/'shutdown.stdout').open('xb') as stdout,(RAW/'shutdown.stderr').open('xb') as stderr:
+            stop=subprocess.run([str(pgctl),'-D',str(data),'stop','-m','fast','-w','-t','30'],stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,timeout=40,creationflags=subprocess.CREATE_NO_WINDOW)
+        assert stop.returncode==0;server.wait(timeout=10);assert process(server.pid) is None
+        with socket.socket() as probe:probe.bind(('127.0.0.1',55486))
+        write(OUT/'closure.json',{'time':now(),'objects':closure,'catalog_databases_exact_before_after':db_after==db_before,'catalog_roles_exact_before_after':roles_after==roles_before,'postgres_absent':True,'port55486_free':True,'shutdown_exit_code':stop.returncode,'signal_only_fingerprinted_service':server_id})
+    assert admin_path.read_bytes()==admin_raw
+    assert {name:info(data/name) for name in configs}==configs
+    for rel in ['bin/postgres.exe','bin/pg_ctl.exe']: assert info(install/rel)==baseline[rel]
+    assert proof_photo()==before_proof
+    assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain','--untracked-files=no').strip()
+    assert {name:info(SOURCE/name) for name in context['files']}==source_before
+    vm_after=guest_access.run('sudo -n docker image inspect '+IMAGE+'; sudo -n docker ps -aq; sudo -n docker ps -q; df -B1 /; cat /proc/meminfo',timeout=30)
+    (RAW/'vm-after.stdout').write_bytes(vm_after.stdout);(RAW/'vm-after.stderr').write_bytes(vm_after.stderr);assert vm_after.returncode==0
+    assert lab_control.process_identity(lab_control.state())
+    write(OUT/'summary.json',{'status':'PASS_CAUSAL_HARNESS_ACL_DIAGNOSTIC' if succeeded else 'FAILED_PRESERVED','finished':now(),'source':HEAD,'image':IMAGE,'producer_manifest_files':len(manifest),'producer_proof_files':len(before_proof),'producer_proof_unchanged':True,'original_product_source_unchanged':True,'own_databases':len(leases),'results':[{'variant':r['variant'],'phase':r['phase'],'exit_code':r['exit_code'],'actual_revision':r['actual_revision']} for r in results],'scope':'Unmodified real CLI via explicit container override. No original entrypoint recipe, worker, health, readiness, provider, SCA, production or SEC15 acceptance.'})
+print(json.dumps({'status':'PASS_CAUSAL_HARNESS_ACL_DIAGNOSTIC' if succeeded else 'FAILED_PRESERVED','output':str(OUT)}))

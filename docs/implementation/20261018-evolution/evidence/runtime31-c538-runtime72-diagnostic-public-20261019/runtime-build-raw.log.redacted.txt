@@ -1,0 +1,264 @@
+Sending build context to Docker daemon   18.5MB
+
+Step 1/47 : FROM python:3.12.15-slim@sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe AS base
+ ---> df18428df8a0
+Step 2/47 : RUN printf '%s\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-security.list     && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list         -o Dir::Etc::sourceparts=- -o APT::Update::Error-Mode=any         -o Acquire::AllowInsecureRepositories=false update     && cd /tmp     && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list         -o Dir::Etc::sourceparts=- -o APT::Get::AllowUnauthenticated=false         download liblzma5=5.8.1-1+deb13u2     && test "$(stat -c %s /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb)" = '309696'     && printf '%s  %s\n'         'b38acab30f295bf1066a6632e31cbd0a1980f2924b38040cda131d5dea5384ec'         '/tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb' | sha256sum --check -     && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list         -o Dir::Etc::sourceparts=- -o APT::Get::AllowUnauthenticated=false         install -y --only-upgrade --no-install-recommends /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb     && test "$(dpkg-query -W -f='${Version}' liblzma5)" = '5.8.1-1+deb13u2'     && rm -f /tmp/metodobase-security.list /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3094037fe3cf
+Step 3/47 : COPY requirements-container-bootstrap.lock /usr/local/share/metodobase/requirements-container-bootstrap.lock
+ ---> Using cache
+ ---> 90bffb05f0e0
+Step 4/47 : RUN python -m pip --isolated install --no-cache-dir --require-hashes --only-binary=:all:     --index-url https://pypi.org/simple -r /usr/local/share/metodobase/requirements-container-bootstrap.lock
+ ---> Using cache
+ ---> a51e551b61ee
+Step 5/47 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1
+ ---> Using cache
+ ---> a74a93e41db4
+Step 6/47 : WORKDIR /app
+ ---> Using cache
+ ---> 83b4b91ebaf4
+Step 7/47 : FROM base AS native-runtime
+ ---> 83b4b91ebaf4
+Step 8/47 : COPY requirements-container-apt-metadata.lock /usr/local/share/metodobase/requirements-container-apt-metadata.lock
+ ---> Using cache
+ ---> c9a48cff4e07
+Step 9/47 : RUN set -eu;     printf '%s\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-native.list;     mkdir -p /usr/local/share/metodobase/native-runtime;     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/native-runtime/before.tsv;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Update::Error-Mode=any -o Acquire::AllowInsecureRepositories=false update;     sha256sum --check /usr/local/share/metodobase/requirements-container-apt-metadata.lock;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends libpq5=17.11-0+deb13u1;     test "$(dpkg-query -W -f='${Version}' libpq5)" = '17.11-0+deb13u1';     test "$(dpkg-query -W -f='${Version}' libssl3t64)" = '3.5.7-1~deb13u3';     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/native-runtime/after.tsv;     python -c "from pathlib import Path; p=Path('/usr/local/share/metodobase/native-runtime'); rows=lambda n:dict(line.split('\t') for line in (p/n).read_text().splitlines()); before=rows('before.tsv'); after=rows('after.tsv'); assert all(after.get(k)==v for k,v in before.items()), 'Existing base packages changed'";     rm -f /tmp/metodobase-native.list;     rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 77dc9d5c052a
+Step 10/47 : FROM native-runtime AS psycopg-build
+ ---> 77dc9d5c052a
+Step 11/47 : COPY requirements-container-build.lock requirements-container-psycopg.lock /tmp/
+ ---> Using cache
+ ---> 5659961ddeaa
+Step 12/47 : RUN set -eu;     printf '%s\n'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian trixie-updates main'         'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://security.debian.org/debian-security trixie-security main'         > /tmp/metodobase-native.list;     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /tmp/native-before.tsv;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Update::Error-Mode=any -o Acquire::AllowInsecureRepositories=false update;     sha256sum --check /usr/local/share/metodobase/requirements-container-apt-metadata.lock;     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=-         -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends         gcc=4:14.2.0-1 libc6-dev=2.41-12+deb13u4 libpq-dev=17.11-0+deb13u1 libssl-dev=3.5.7-1~deb13u3;     test "$(dpkg-query -W -f='${Version}' libpq-dev)" = "$(dpkg-query -W -f='${Version}' libpq5)";     mkdir -p /wheelhouse /tmp/metodobase-native-build;     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /wheelhouse/builder-dpkg.tsv;     python -c "from pathlib import Path; rows=lambda p:dict(line.split('\t') for line in Path(p).read_text().splitlines()); before=rows('/tmp/native-before.tsv'); after=rows('/wheelhouse/builder-dpkg.tsv'); assert all(after.get(k)==v for k,v in before.items()), 'Existing native runtime packages changed'";     python -m venv /opt/psycopg-build-tools;     /opt/psycopg-build-tools/bin/python -m pip --isolated install --no-cache-dir --require-hashes --only-binary=:all:         --index-url https://pypi.org/simple -r /usr/local/share/metodobase/requirements-container-bootstrap.lock;     /opt/psycopg-build-tools/bin/python -m pip --isolated install --no-cache-dir --require-hashes --no-deps --only-binary=:all:         --index-url https://pypi.org/simple -r /tmp/requirements-container-build.lock;     mkdir -p /tmp/metodobase-native-source;     python -c "from pathlib import Path; import hashlib,urllib.request; raw=urllib.request.urlopen('https://files.pythonhosted.org/packages/91/81/6ea19b8b28feb9405c8c87a307776614d6e404bdb98467d1ce10a39d2c1d/psycopg2-2.9.13.tar.gz',timeout=60).read(); assert len(raw)==378068 and hashlib.sha256(raw).hexdigest()=='d36784fc2dae69523ba4b79c7d1d1b4d6e83e87836874f111262f4db940b16a6'; Path('/tmp/metodobase-native-source/psycopg2-2.9.13.tar.gz').write_bytes(raw)";     TMPDIR=/tmp/metodobase-native-build SOURCE_DATE_EPOCH=1792414502 PYTHONHASHSEED=0         CFLAGS='-g0 -ffile-prefix-map=/tmp/metodobase-native-build=.'         /opt/psycopg-build-tools/bin/python -m pip --isolated wheel --no-cache-dir --require-hashes --no-deps         --no-build-isolation --no-binary=:all: --no-index --find-links=/tmp/metodobase-native-source         --wheel-dir /wheelhouse -r /tmp/requirements-container-psycopg.lock;     python -c "from pathlib import Path; import hashlib,zipfile; root=Path('/wheelhouse'); wheels=list(root.glob('*.whl')); assert len(wheels)==1; wheel=wheels[0]; assert wheel.name.startswith('psycopg2-2.9.13-'); z=zipfile.ZipFile(wheel); assert z.testzip() is None; assert not any('.libs/' in n or n.startswith('/') or '..' in Path(n).parts for n in z.namelist()); digest=hashlib.sha256(wheel.read_bytes()).hexdigest(); (root/'built-wheel.lock').write_text('psycopg2==2.9.13 --hash=sha256:'+digest+'\n')";     /usr/bin/pg_config --version > /wheelhouse/pg-config-version.txt;     /opt/psycopg-build-tools/bin/python -m pip --isolated freeze --all > /wheelhouse/build-tools.txt;     cp /tmp/requirements-container-build.lock /tmp/requirements-container-psycopg.lock /wheelhouse/;     cp /usr/local/share/metodobase/requirements-container-apt-metadata.lock /wheelhouse/;     rm -f /tmp/native-before.tsv /tmp/metodobase-native.list;     rm -rf /var/lib/apt/lists/* /tmp/metodobase-native-build /tmp/metodobase-native-source
+ ---> Using cache
+ ---> 721da043a669
+Step 13/47 : FROM psycopg-build AS expat-build
+ ---> 721da043a669
+Step 14/47 : COPY runtime-source/expat-sec10 /tmp/metodobase-expat-sec10
+ ---> 576a23d2f802
+Step 15/47 : RUN /opt/psycopg-build-tools/bin/python -I /tmp/metodobase-expat-sec10/rebuild_pyexpat.py --build --output /expat-output
+ ---> Running in 9b02da8d20aa
+Removing intermediate container 9b02da8d20aa
+ ---> 16804e4aa071
+Step 16/47 : FROM native-runtime AS deps
+ ---> 77dc9d5c052a
+Step 17/47 : COPY requirements-container.lock .
+ ---> 02488559fc59
+Step 18/47 : RUN python -m pip --isolated install --no-cache-dir --require-hashes --only-binary=:all:     --index-url https://pypi.org/simple -r requirements-container.lock
+ ---> Running in a2569f40673a
+[91mWARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/alembic/
+[0m[91mWARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/alembic/
+[0m[91mWARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/alembic/
+[0m[91mWARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/alembic/
+[0m[91mWARNING: Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NameResolutionError("HTTPSConnection(host='pypi.org', port=443): Failed to resolve 'pypi.org' ([Errno -3] Temporary failure in name resolution)")': /simple/alembic/
+[0mCollecting alembic==1.20.0 (from -r requirements-container.lock (line 3))
+  Downloading alembic-1.20.0-py3-none-any.whl (268 kB)
+Collecting annotated-doc==0.0.5 (from -r requirements-container.lock (line 9))
+  Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Collecting annotated-types==0.8.0 (from -r requirements-container.lock (line 15))
+  Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Collecting anyio==4.15.1 (from -r requirements-container.lock (line 21))
+  Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+Collecting bcrypt==4.3.0 (from -r requirements-container.lock (line 29))
+  Downloading bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl (284 kB)
+Collecting boto3==1.43.114 (from -r requirements-container.lock (line 85))
+  Downloading boto3-1.43.114-py3-none-any.whl (140 kB)
+Collecting botocore==1.43.114 (from -r requirements-container.lock (line 91))
+  Downloading botocore-1.43.114-py3-none-any.whl (16.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.1/16.1 MB 10.4 MB/s  0:00:01
+Collecting certifi==2026.10.18 (from -r requirements-container.lock (line 98))
+  Downloading certifi-2026.10.18-py3-none-any.whl (134 kB)
+Collecting cffi==2.1.1 (from -r requirements-container.lock (line 107))
+  Downloading cffi-2.1.[REDACTED_TWO_PART_TOKEN].whl (221 kB)
+Collecting charset-normalizer==3.5.2 (from -r requirements-container.lock (line 211))
+  Downloading charset_normalizer-3.5.[REDACTED_THREE_PART_TOKEN].whl (257 kB)
+Collecting click==8.5.0 (from -r requirements-container.lock (line 388))
+  Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Collecting cryptography==50.0.2 (from -r requirements-container.lock (line 394))
+  Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 15.6 MB/s  0:00:00
+Collecting fastapi==0.146.0 (from -r requirements-container.lock (line 457))
+  Downloading fastapi-0.146.0-py3-none-any.whl (144 kB)
+Collecting h11==0.16.0 (from -r requirements-container.lock (line 464))
+  Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Collecting hiredis==3.5.0 (from -r requirements-container.lock (line 471))
+  Downloading hiredis-3.5.[REDACTED_THREE_PART_TOKEN].whl (314 kB)
+Collecting httpcore==1.0.9 (from -r requirements-container.lock (line 602))
+  Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Collecting httptools==0.9.0 (from -r requirements-container.lock (line 608))
+  Downloading httptools-0.9.[REDACTED_THREE_PART_TOKEN].whl (552 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 17.8 MB/s  0:00:00
+Collecting httpx==0.28.1 (from -r requirements-container.lock (line 730))
+  Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+Collecting idna==3.20 (from -r requirements-container.lock (line 736))
+  Downloading idna-3.20-py3-none-any.whl (69 kB)
+Collecting jinja2==3.1.6 (from -r requirements-container.lock (line 744))
+  Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Collecting jmespath==1.1.0 (from -r requirements-container.lock (line 750))
+  Downloading jmespath-1.1.0-py3-none-any.whl (20 kB)
+Collecting mako==1.4.3 (from -r requirements-container.lock (line 757))
+  Downloading mako-1.4.3-py3-none-any.whl (80 kB)
+Collecting markupsafe==3.0.4 (from -r requirements-container.lock (line 763))
+  Downloading markupsafe-3.0.[REDACTED_THREE_PART_TOKEN].whl (22 kB)
+Collecting mercadopago==3.6.0 (from -r requirements-container.lock (line 919))
+  Downloading mercadopago-3.6.0-py3-none-any.whl (81 kB)
+Collecting opentelemetry-api==1.45.1 (from -r requirements-container.lock (line 925))
+  Downloading opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
+Collecting passlib==1.7.4 (from -r requirements-container.lock (line 931))
+  Downloading passlib-1.7.4-py2.py3-none-any.whl (525 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 525.6/525.6 kB 17.8 MB/s  0:00:00
+Collecting pillow==13.0.0 (from -r requirements-container.lock (line 937))
+  Downloading pillow-13.0.[REDACTED_TWO_PART_TOKEN].whl (7.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 15.5 MB/s  0:00:00
+Collecting pycparser==3.11 (from -r requirements-container.lock (line 1025))
+  Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+Collecting pydantic==2.14.1 (from -r requirements-container.lock (line 1031))
+  Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+Collecting pydantic-core==2.50.1 (from -r requirements-container.lock (line 1038))
+  Downloading pydantic_core-2.50.[REDACTED_TWO_PART_TOKEN].whl (2.2 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 15.2 MB/s  0:00:00
+Collecting pyjwt==2.15.1 (from -r requirements-container.lock (line 1179))
+  Downloading pyjwt-2.15.1-py3-none-any.whl (33 kB)
+Collecting python-dateutil==2.9.0.post0 (from -r requirements-container.lock (line 1185))
+  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Collecting python-dotenv==1.2.4 (from -r requirements-container.lock (line 1191))
+  Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+Collecting python-multipart==0.0.32 (from -r requirements-container.lock (line 1198))
+  Downloading python_multipart-0.0.32-py3-none-any.whl (30 kB)
+Collecting pyyaml==6.0.3 (from -r requirements-container.lock (line 1204))
+  Downloading pyyaml-6.0.[REDACTED_THREE_PART_TOKEN].whl (807 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 16.7 MB/s  0:00:00
+Collecting redis==5.3.1 (from -r requirements-container.lock (line 1281))
+  Downloading redis-5.3.1-py3-none-any.whl (272 kB)
+Collecting reportlab==4.5.1 (from -r requirements-container.lock (line 1287))
+  Downloading reportlab-4.5.1-py3-none-any.whl (2.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 17.4 MB/s  0:00:00
+Collecting requests==2.34.2 (from -r requirements-container.lock (line 1293))
+  Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Collecting resend==2.50.0 (from -r requirements-container.lock (line 1302))
+  Downloading resend-2.50.0-py2.py3-none-any.whl (126 kB)
+Collecting s3transfer==0.19.2 (from -r requirements-container.lock (line 1308))
+  Downloading s3transfer-0.19.2-py3-none-any.whl (90 kB)
+Collecting sentry-sdk==2.72.0 (from -r requirements-container.lock (line 1314))
+  Downloading sentry_sdk-2.72.0-py3-none-any.whl (544 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 544.8/544.8 kB 15.5 MB/s  0:00:00
+Collecting six==1.17.0 (from -r requirements-container.lock (line 1320))
+  Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Collecting sqlalchemy==2.1.5 (from -r requirements-container.lock (line 1326))
+  Downloading sqlalchemy-2.1.[REDACTED_THREE_PART_TOKEN].whl (4.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 16.2 MB/s  0:00:00
+Collecting starlette==1.9.0 (from -r requirements-container.lock (line 1403))
+  Downloading starlette-1.9.0-py3-none-any.whl (80 kB)
+Collecting stripe==11.6.0 (from -r requirements-container.lock (line 1410))
+  Downloading stripe-11.6.0-py2.py3-none-any.whl (1.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 15.5 MB/s  0:00:00
+Collecting typing-extensions==4.16.0 (from -r requirements-container.lock (line 1416))
+  Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Collecting typing-inspection==0.4.4 (from -r requirements-container.lock (line 1432))
+  Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Collecting tzdata==2026.5 (from -r requirements-container.lock (line 1439))
+  Downloading tzdata-2026.5-py2.py3-none-any.whl (347 kB)
+Collecting urllib3==2.8.0 (from -r requirements-container.lock (line 1445))
+  Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Collecting uvicorn==0.54.0 (from -r requirements-container.lock (line 1453))
+  Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+Collecting uvloop==0.23.0 (from -r requirements-container.lock (line 1459))
+  Downloading uvloop-0.23.[REDACTED_THREE_PART_TOKEN].whl (4.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 16.0 MB/s  0:00:00
+Collecting watchfiles==1.3.0 (from -r requirements-container.lock (line 1524))
+  Downloading watchfiles-1.3.[REDACTED_TWO_PART_TOKEN].whl (458 kB)
+Collecting websockets==17.2 (from -r requirements-container.lock (line 1561))
+  Downloading [REDACTED_THREE_PART_TOKEN].manylinux_2_5_x86_64.whl (225 kB)
+Installing collected packages: passlib, websockets, uvloop, urllib3, tzdata, typing-extensions, six, pyyaml, python-multipart, python-dotenv, pyjwt, pycparser, pillow, markupsafe, jmespath, idna, httptools, hiredis, h11, click, charset-normalizer, certifi, bcrypt, annotated-types, annotated-doc, uvicorn, typing-inspection, sqlalchemy, sentry-sdk, requests, reportlab, redis, python-dateutil, pydantic-core, opentelemetry-api, mako, jinja2, httpcore, cffi, anyio, watchfiles, stripe, starlette, resend, pydantic, mercadopago, httpx, cryptography, botocore, alembic, s3transfer, fastapi, boto3
+
+Successfully installed alembic-1.20.0 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 bcrypt-4.3.0 boto3-1.43.114 botocore-1.43.114 certifi-2026.10.18 cffi-2.1.1 charset-normalizer-3.5.2 click-8.5.0 cryptography-50.0.2 fastapi-0.146.0 h11-0.16.0 hiredis-3.5.0 httpcore-1.0.9 httptools-0.9.0 httpx-0.28.1 idna-3.20 jinja2-3.1.6 jmespath-1.1.0 mako-1.4.3 markupsafe-3.0.4 mercadopago-3.6.0 opentelemetry-api-1.45.1 passlib-1.7.4 pillow-13.0.0 pycparser-3.11 pydantic-2.14.1 pydantic-core-2.50.1 pyjwt-2.15.1 python-dateutil-2.9.0.post0 python-dotenv-1.2.4 python-multipart-0.0.32 pyyaml-6.0.3 redis-5.3.1 reportlab-4.5.1 requests-2.34.2 resend-2.50.0 s3transfer-0.19.2 sentry-sdk-2.72.0 six-1.17.0 sqlalchemy-2.1.5 starlette-1.9.0 stripe-11.6.0 typing-extensions-4.16.0 typing-inspection-0.4.4 tzdata-2026.5 urllib3-2.8.0 uvicorn-0.54.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.2
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[0mRemoving intermediate container a2569f40673a
+ ---> ad50c39fdb57
+Step 19/47 : COPY --from=psycopg-build /wheelhouse /tmp/psycopg-wheelhouse
+ ---> b22196a066fb
+Step 20/47 : RUN set -eu;     python -m pip --isolated install --no-cache-dir --no-index --no-deps --require-hashes --only-binary=:all:         --find-links=/tmp/psycopg-wheelhouse -r /tmp/psycopg-wheelhouse/built-wheel.lock;     python -m pip check;     mkdir -p /usr/local/share/metodobase/psycopg2-build;     cp /tmp/psycopg-wheelhouse/*.lock /tmp/psycopg-wheelhouse/*.tsv /tmp/psycopg-wheelhouse/*.txt /usr/local/share/metodobase/psycopg2-build/;     rm -rf /tmp/psycopg-wheelhouse
+ ---> Running in bdd4dce8b7e3
+Looking in links: /tmp/psycopg-wheelhouse
+Processing /tmp/psycopg-wheelhouse/psycopg2-2.9.13-cp312-cp312-linux_x86_64.whl (from -r /tmp/psycopg-wheelhouse/built-wheel.lock (line 1))
+Installing collected packages: psycopg2
+Successfully installed psycopg2-2.9.13
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[0mNo broken requirements found.
+Removing intermediate container bdd4dce8b7e3
+ ---> 64e252461d9f
+Step 21/47 : FROM native-runtime AS runtime
+ ---> 77dc9d5c052a
+Step 22/47 : COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+ ---> 7152cee8ff75
+Step 23/47 : COPY --from=deps /usr/local/bin /usr/local/bin
+ ---> a9f44acf7ebb
+Step 24/47 : COPY --from=deps /usr/local/share/metodobase/psycopg2-build /usr/local/share/metodobase/psycopg2-build
+ ---> 7513d36fc6b9
+Step 25/47 : COPY --from=expat-build /expat-output/pyexpat.cpython-312-x86_64-linux-gnu.so /usr/local/lib/python3.12/lib-dynload/pyexpat.cpython-312-x86_64-linux-gnu.so
+ ---> 1c01896e180b
+Step 26/47 : COPY --from=expat-build /expat-output/build-provenance.json /expat-output/sbom.json /expat-output/source-pins.json /expat-output/13c5f63.patch /expat-output/COPYING.expat /expat-output/small-binding-tests.log /usr/local/share/metodobase/expat-sec10/
+ ---> 093671307e5c
+Step 27/47 : COPY web/.build_version /tmp/web_build_version
+ ---> d6d775ba8c1b
+Step 28/47 : COPY config/ config/
+ ---> 830ecaaba6ad
+Step 29/47 : COPY core/ core/
+ ---> 7b5ad6837be8
+Step 30/47 : COPY src/ src/
+ ---> 6a5a388bfdb1
+Step 31/47 : COPY api/ api/
+ ---> 9012b2179b8c
+Step 32/47 : COPY web/ web/
+ ---> f8666a10b38c
+Step 33/47 : COPY utils/ utils/
+ ---> 9778b2db56df
+Step 34/47 : COPY static/ static/
+ ---> 4eb3534fb8cd
+Step 35/47 : COPY fonts/ fonts/
+ ---> 9c021785b1e9
+Step 36/47 : RUN mkdir -p /data/registros /data/output /data/config /data/planes &&     useradd --system --no-create-home appuser &&     chown -R appuser:appuser /app /data
+ ---> Running in c99fc7587df6
+Removing intermediate container c99fc7587df6
+ ---> 46a7e4dc502b
+Step 37/47 : ENV METODOBASE_ENV=production     METODOBASE_DATA_DIR=/data     PYTHONPATH=/app     PORT=8000
+ ---> Running in e4671d3526e0
+Removing intermediate container e4671d3526e0
+ ---> b6c253cc7671
+Step 38/47 : COPY entrypoint.sh /app/entrypoint.sh
+ ---> 4d619ca407e3
+Step 39/47 : RUN chmod +x /app/entrypoint.sh
+ ---> Running in 8652735421f8
+Removing intermediate container 8652735421f8
+ ---> fcc5f859e243
+Step 40/47 : COPY alembic.ini /app/alembic.ini
+ ---> a87a6c817467
+Step 41/47 : COPY db_bootstrap.py /app/db_bootstrap.py
+ ---> 72a152920049
+Step 42/47 : RUN set -eu;     python -c "from pathlib import Path; import importlib.metadata as m,sysconfig; root=Path('/usr/local/lib/python3.12'); site=root/'site-packages'; scripts=Path('/usr/local/bin'); assert Path(sysconfig.get_path('stdlib'))==root and Path(sysconfig.get_path('purelib'))==site and Path(sysconfig.get_path('scripts'))==scripts; assert root.resolve()==root and site.resolve()==site; assert scripts.is_dir() and not scripts.is_symlink() and scripts.resolve()==scripts; assert m.version('pip')=='26.2.1'; assert all(p.is_dir() and not p.is_symlink() for p in (site/'pip',site/'pip-26.2.1.dist-info',root/'ensurepip')); assert (root/'ensurepip'/'_bundled').is_dir()";     rm -rf -- /usr/local/lib/python3.12/site-packages/pip         /usr/local/lib/python3.12/site-packages/pip-26.2.1.dist-info         /usr/local/lib/python3.12/ensurepip;     rm -f -- /usr/local/bin/pip /usr/local/bin/pip3 /usr/local/bin/pip3.12;     python -c "from pathlib import Path; import importlib.util as u,importlib.metadata as m,json; root=Path('/usr/local'); assert all(u.find_spec(n) is None for n in ('pip','ensurepip')); assert not any(root.rglob('*.whl')); assert not any(p.name.lower().startswith(('pip-','pip.')) for p in (root/'lib/python3.12/site-packages').iterdir()); assert not any(p.exists() or p.is_symlink() for p in (root/'bin/pip',root/'bin/pip3',root/'bin/pip3.12')); rows=sorted((d.metadata['Name'],d.version) for d in m.distributions()); assert len(rows)==54 and all(n.lower() not in ('pip','setuptools','wheel') for n,v in rows); Path('/usr/local/share/metodobase/runtime-python-metadata.json').write_text(json.dumps(rows,indent=2)+'\n')"
+ ---> Running in 75b83f53f947
+Removing intermediate container 75b83f53f947
+ ---> 992c93c307b3
+Step 43/47 : USER appuser
+ ---> Running in 1a1efee92b13
+Removing intermediate container 1a1efee92b13
+ ---> 592161506918
+Step 44/47 : HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3     CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8000') + '/health/ready', timeout=5)" || exit 1
+ ---> Running in a95355f66d07
+Removing intermediate container a95355f66d07
+ ---> bd97ef7c9f93
+Step 45/47 : EXPOSE ${PORT}
+ ---> Running in eda045fe1af5
+Removing intermediate container eda045fe1af5
+ ---> 8c7bb75f29c6
+Step 46/47 : CMD ["/app/entrypoint.sh"]
+ ---> Running in dda69f86a571
+Removing intermediate container dda69f86a571
+ ---> 3d4d0f8e0245
+Step 47/47 : LABEL org.opencontainers.image.revision=c5386ebaab835b72af692a0d74e9b78ed5c8f511
+ ---> Running in 8cd67e46aaf9
+Removing intermediate container 8cd67e46aaf9
+ ---> 47e813ed1cf2
+Successfully built 47e813ed1cf2
+Successfully tagged metodobase-lab:mfa31-runtime72-c5386eb

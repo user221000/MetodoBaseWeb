@@ -1,0 +1,10 @@
+from pathlib import Path
+import json,sys
+import psycopg2
+p=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime72-validation-20261019')
+a=json.loads(Path(json.loads((p/'pg55486-instance-pointer.json').read_text())['private_admin_file']).read_text())
+c=psycopg2.connect(host='127.0.0.1',port=55486,dbname='postgres',user=a['username'],password=a['password'])
+with c.cursor() as x:
+    x.execute("SELECT datname,state,wait_event_type,wait_event,extract(epoch from now()-query_start)::int,left(query,100) FROM pg_stat_activity WHERE datname LIKE 'metodobase_test_qa_causal_%'")
+    print(json.dumps(x.fetchall()))
+c.close()

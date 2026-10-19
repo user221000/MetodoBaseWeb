@@ -1,0 +1,38 @@
+from pathlib import Path
+import argparse,ast,hashlib,json,subprocess
+p=argparse.ArgumentParser();p.add_argument('source',type=Path);p.add_argument('head');p.add_argument('output',type=Path);a=p.parse_args()
+ROOT=a.source;OUT=a.output;OUT.mkdir(exist_ok=False)
+BASE='9b14e2e9c3279a9a85eef444f1ef50f3f5f8750b'
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+assert git('rev-parse','HEAD').decode().strip()==a.head and not git('status','--porcelain','--untracked-files=no').strip()
+old=git('show',BASE+':tests/mfa31_contract_client.py').decode();new=git('show',a.head+':tests/mfa31_contract_client.py').decode()
+inverse=new
+for line in ['from contextlib import contextmanager\n','from contextvars import ContextVar\n','from threading import RLock\n']:
+    assert inverse.count(line)==1;inverse=inverse.replace(line,'')
+start=inverse.index('\n_AUTHENTICATION_INSTANT:');end=inverse.index('class MfaContractClient:')
+inverse=inverse[:start].rstrip('\n')+'\n\n\n'+inverse[end:]
+scope='        with _authentication_clock() as observed:\n'
+start=inverse.index(scope);end=inverse.index('\n    def issue(',start)
+body=inverse[start+len(scope):end]
+assert all(not line or line.startswith('            ') for line in body.split('\n'))
+unwrapped='\n'.join(line[4:] if line else '' for line in body.split('\n'))
+inverse=inverse[:start]+unwrapped+inverse[end:]
+assert inverse.count('counter = int(observed.timestamp()) // 30')==1
+inverse=inverse.replace('counter = int(observed.timestamp()) // 30','counter = int(datetime.now(timezone.utc).timestamp()) // 30')
+assert inverse==old
+old_asserts=[ast.dump(n,include_attributes=False) for n in sorted((n for n in ast.walk(ast.parse(old)) if isinstance(n,ast.Assert)),key=lambda n:n.lineno)]
+new_class=next(n for n in ast.parse(new).body if isinstance(n,ast.ClassDef) and n.name=='MfaContractClient')
+new_asserts=[ast.dump(n,include_attributes=False) for n in sorted((n for n in ast.walk(new_class) if isinstance(n,ast.Assert)),key=lambda n:n.lineno)]
+assert old_asserts==new_asserts
+callers=['tests/test_team_invitation_contract.py','tests/test_team_entitlement_review.py','tests/test_personal_diary_security_review.py','tests/ci_mfa31/current_link_fixtures.py','tests/test_current_mfa31_fixture_clock.py','tests/ci_mfa31/current-business-mapping.json','tests/ci_mfa31/current-report-nodeids.json']
+preserved={}
+for path in callers:
+    before=git('show',BASE+':'+path);after=git('show',a.head+':'+path);assert before==after
+    preserved[path]={'Git_LF_sha256':sha(before),'whole_file_exact':True,'asserts':sum(isinstance(n,ast.Assert) for n in ast.walk(ast.parse(before))) if path.endswith('.py') else None}
+all_changes=git('diff','--name-only',BASE,a.head).decode().splitlines()
+non_docs=[name for name in all_changes if not name.startswith('docs/')]
+assert set(non_docs)=={'tests/mfa31_contract_client.py','tests/test_mfa31_contract_clock.py','tests/test_mfa31_contract_clock_keyword.py'}
+record={'source':a.head,'base':BASE,'entire_helper_inverse_Git_LF_exact':True,'entire_helper_inverse_AST_exact':ast.dump(ast.parse(inverse),include_attributes=False)==ast.dump(ast.parse(old),include_attributes=False),'inverse_sha256':sha(inverse.encode()),'old_helper_asserts':len(old_asserts),'old_assertions_AST_exact':True,'preserved_callers_clock1_mapping_reports':preserved,'non_documentation_changed_paths':non_docs,'all_changed_paths':all_changes}
+(OUT/'helper.before.Git-LF.py.txt').write_text(old,encoding='utf-8');(OUT/'helper.after.Git-LF.py.txt').write_text(new,encoding='utf-8');(OUT/'helper.full-inverse.Git-LF.py.txt').write_text(inverse,encoding='utf-8');(OUT/'review.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'status':'PASS_FULL_HELPER_INVERSE','source':a.head,'asserts_preserved':len(old_asserts),'callers_files':len(preserved)}))

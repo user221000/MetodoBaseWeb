@@ -1,0 +1,19 @@
+from pathlib import Path
+import json,logging,os,sys
+import db_bootstrap
+from web.database import schema_control
+unknown=logging.getLogger('qa_unknown_logger_before_fileconfig')
+assert unknown.disabled is False
+original=schema_control.verify_runtime_schema
+def fault_after_real_verify(engine,**kwargs):
+    original(engine,**kwargs)
+    Path(os.environ['QA_PRIVATE_WITNESS']+'.entry.json').write_text(json.dumps({'unknown_disabled':unknown.disabled,'bootstrap_disabled':db_bootstrap.logger.disabled,'bootstrap_level':db_bootstrap.logger.level,'kwargs':kwargs}))
+    assert unknown.disabled is True
+    assert db_bootstrap.logger.disabled is False
+    record={'real_verify_completed':True,'unknown_logger_disabled':unknown.disabled,'bootstrap_enabled':not db_bootstrap.logger.disabled,'bootstrap_level':db_bootstrap.logger.level,'root_level':logging.getLogger().level,'sqlalchemy_level':logging.getLogger('sqlalchemy.engine').level}
+    Path(os.environ['QA_PRIVATE_WITNESS']).write_text(json.dumps(record))
+    raise RuntimeError('QA_PRIVATE_EXCEPTION_DETAIL_MARKER '+str(Path(os.environ['QA_PRIVATE_WITNESS'])))
+schema_control.verify_runtime_schema=fault_after_real_verify
+result=db_bootstrap.main(['--revision','20261019_client_account_links'])
+unknown.error('QA_PRIVATE_UNKNOWN_LOGGER_MARKER')
+raise SystemExit(result)

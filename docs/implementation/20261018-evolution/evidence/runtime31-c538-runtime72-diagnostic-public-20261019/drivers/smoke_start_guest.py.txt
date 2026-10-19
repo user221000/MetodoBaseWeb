@@ -1,0 +1,41 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,os,re,socket,subprocess
+root=Path('/var/tmp/metodobase-mfa31-runtime72-20261019')
+private=root/'runtime-private.json';raw=private.read_bytes();payload=json.loads(raw)
+expected=json.loads((root/'expected-runtime-image.json').read_text())
+image=expected['image_id'];assert re.fullmatch('sha256:[0-9a-f]{64}',image)
+nonce=payload['nonce'];assert re.fullmatch('[0-9a-f]{32}',nonce)
+name='metodobase-mfa31-c538-smoke-'+nonce[:12]
+assert not subprocess.check_output(['sudo','-n','docker','ps','-aq','--filter','name=^/'+name+'$']).strip()
+assert not subprocess.check_output(['sudo','-n','docker','ps','-q']).strip()
+with socket.socket() as test:test.bind(('0.0.0.0',18031))
+environment=payload['runtime_stdin']
+assert environment['METODOBASE_ENV']=='production' and environment['PORT']=='18031' and environment['METODOBASE_SEED_DEMO']=='0'
+assert environment['DATABASE_URL']!=environment['MIGRATOR_DATABASE_URL']
+assert '@10.0.2.2:55486/' in environment['DATABASE_URL'] and '@10.0.2.2:55486/' in environment['MIGRATOR_DATABASE_URL']
+assert environment['REDIS_URL']=='redis://127.0.0.1:6386/0'
+assert environment['OBJECT_STORAGE_BACKEND']=='local' and not environment['RESEND_API_KEY'] and not environment['SENTRY_DSN']
+assert all(re.fullmatch('[A-Z][A-Z0-9_]*',k) and isinstance(v,str) and '\n' not in v and '\r' not in v for k,v in environment.items())
+envfile=root/'runtime-private.env';assert not envfile.exists()
+envfile.write_text(''.join(k+'='+v+'\n' for k,v in sorted(environment.items())));envfile.chmod(0o600)
+assert not (root/'smoke-owned-state.json').exists()
+args=['sudo','-n','docker','run','-d','--pull=never','--name',name,'--network=host','--cap-drop=ALL',
+ '--security-opt=no-new-privileges','--pids-limit=96','--memory=768m','--cpus=1',
+ '--tmpfs','/data:rw,nosuid,nodev,size=64m,mode=0700,uid='+str(expected['uid'])+',gid='+str(expected['gid']),
+ '--env-file',str(envfile),'--label','metodobase.lab.plan='+nonce,'--label','metodobase.lab.source='+expected['source_commit'],image]
+result=subprocess.run(args,capture_output=True,text=True,timeout=60)
+(root/'smoke-start-private.stderr').write_text(result.stderr);assert result.returncode==0,'Docker start failed; inspect owned private stderr'
+container=result.stdout.strip();assert re.fullmatch('[0-9a-f]{64}',container)
+inspect=json.loads(subprocess.check_output(['sudo','-n','docker','inspect',container]))[0]
+assert inspect['Image']==image and inspect['Config']['Labels']['metodobase.lab.plan']==nonce
+pid=inspect['State']['Pid'];assert inspect['State']['Running'] and pid>0
+proc=Path('/proc')/str(pid)
+state={'started_utc':datetime.now(timezone.utc).isoformat(),'container_id':container,'container_name':name,'image_id':image,
+ 'source_commit':expected['source_commit'],'nonce':nonce,'guest_pid':pid,'guest_birth_ticks':proc.joinpath('stat').read_text().split()[21],
+ 'executable':str(proc.joinpath('exe').resolve()),'commandline_sha256':hashlib.sha256(proc.joinpath('cmdline').read_bytes()).hexdigest(),
+ 'environment_file_private_sha256':hashlib.sha256(envfile.read_bytes()).hexdigest(),'runtime_private_input_sha256':hashlib.sha256(raw).hexdigest(),
+ 'entrypoint_recipe':inspect['Config']['Cmd'],'network_mode':'host','guest_port':18031,'host_port_published':False,
+ 'private_provider_values':'Synthetic only; no provider calls or business flows requested','product_acceptance':False}
+(root/'smoke-owned-state.json').write_text(json.dumps(state,indent=2)+'\n')
+print(json.dumps(state))

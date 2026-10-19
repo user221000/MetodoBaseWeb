@@ -1,0 +1,84 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,io,json,re,socket,subprocess,sys,zipfile
+ROOT=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-runtime-causal-20261019')
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+PUBLIC=LAB/'evidence/qa-runtime31-c538-acl-independent-20261019'
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+def info(p):
+    raw=p.read_bytes();return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def write(p,j):
+    with p.open('x',encoding='utf-8') as out:json.dump(j,out,indent=2);out.write('\n')
+assert json.loads((ROOT/'summary.json').read_text())['status']=='PASS_CAUSAL_HARNESS_ACL_DIAGNOSTIC'
+assert json.loads((ROOT/'readonly-full-signature-causal-check.json').read_text())['records'].keys()=={'default_null','explicit_function_execute'}
+state=lab_control.state();assert state['pid']==29768 and state['resources']=={'vcpus':2,'memory_mib':2048,'acceleration':'tcg,thread=multi'}
+assert lab_control.process_identity(state)
+cmd='Get-CimInstance Win32_Process -Filter "ProcessId=29768" | Select-Object ProcessId,ParentProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress'
+p=json.loads(subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',cmd],creationflags=subprocess.CREATE_NO_WINDOW))
+vm={'pid':p['ProcessId'],'parent':p['ParentProcessId'],'birth':p['CreationDate'],'exe':p['ExecutablePath'],'exe_sha256':info(Path(p['ExecutablePath']))['sha256'],'argv_sha256':hashlib.sha256(p['CommandLine'].encode()).hexdigest(),'resources':state['resources'],'ports':state['ports'],'overlay_retained':state['overlay'],'source_image_retained':state['source_image']}
+remote="python3 - <<'PY'\nimport json,subprocess\na=subprocess.check_output(['sudo','-n','docker','ps','-aq']).decode().splitlines();r=subprocess.check_output(['sudo','-n','docker','ps','-q']).decode().splitlines();assert r==[];print(json.dumps({'all_containers':a,'running_containers':r,'root_free_bytes':int(subprocess.check_output(['df','-B1','--output=avail','/']).decode().splitlines()[1])}))\nPY"
+r=guest_access.run(remote,timeout=30)
+(ROOT/'private/final-guest.stdout').write_bytes(r.stdout);(ROOT/'private/final-guest.stderr').write_bytes(r.stderr)
+assert r.returncode==0
+guest=json.loads(r.stdout)
+raw_before=(ROOT/'private/vm-before.stdout').read_text();raw_after=(ROOT/'private/vm-after.stdout').read_text()
+before_image,end=json.JSONDecoder().raw_decode(raw_before.lstrip());after_image,end2=json.JSONDecoder().raw_decode(raw_after.lstrip())
+assert before_image==after_image and len(before_image)==1
+image=before_image[0]
+assert image['Id']=='sha256:47e813ed1cf255a5f8575eecd3aba45f4314069e59c9baff05cb0cd63870f74f'
+assert image['Config']['Labels']['org.opencontainers.image.revision']=='c5386ebaab835b72af692a0d74e9b78ed5c8f511' and image['Config']['User']=='appuser'
+historical_before=[v for v in raw_before[end:].splitlines() if re.fullmatch('[0-9a-f]{12,64}',v)]
+historical_after=[v for v in raw_after[end2:].splitlines() if re.fullmatch('[0-9a-f]{12,64}',v)]
+assert historical_before==historical_after==guest['all_containers']
+with socket.socket() as probe:probe.bind(('127.0.0.1',55486))
+vm.update(guest=guest,old_containers_unchanged=True,original_image_inspect_unchanged=True,pg55486_port_free=True,lease_returned_to='ROOT',vm_shutdown_or_resources_changed=False)
+write(ROOT/'vm-lease-handoff.json',vm)
+# Preserve original private logs, source and secret inputs without publishing any secret.
+archive=ROOT/'private-originals.zip'
+with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as z:
+    for p in sorted((ROOT/'private').rglob('*')):
+        if p.is_file():z.write(p,p.relative_to(ROOT/'private').as_posix())
+    for name in ['metodobase-qa-runtime-causal-20261019-driver.log','metodobase-qa-runtime-causal-signatures-20261019-driver.log','metodobase-qa-runtime-causal-signatures-v2-20261019-driver.log']:
+        p=ROOT.parent/name;z.write(p,'drivers/'+name)
+PUBLIC.mkdir(exist_ok=False)
+(PUBLIC/'.gitattributes').write_bytes(b'* -text\n')
+for p in sorted(ROOT.glob('*.json')):
+    (PUBLIC/p.name).write_bytes(p.read_bytes())
+drivers=['metodobase-qa-runtime-causal-20261019.py','metodobase-qa-runtime-causal-signatures-20261019.py','metodobase-qa-runtime-causal-signatures-v2-20261019.py','metodobase-qa-runtime-causal-observe-20261019.py','metodobase-qa-runtime-causal-seal-20261019.py']
+(PUBLIC/'drivers').mkdir()
+for name in drivers:(PUBLIC/'drivers'/(name+'.txt')).write_bytes((ROOT.parent/name).read_bytes())
+secret_values=[]
+for p in (ROOT/'private').glob('payload-*.json'):secret_values.extend(json.loads(p.read_text()).values())
+for p in (ROOT/'private').glob('credentials-*.json'):secret_values.extend(json.loads(p.read_text()).values())
+secret_values=sorted({v for v in secret_values if isinstance(v,str) and len(v)>=20},key=len,reverse=True)
+redactions=[]
+for p in sorted((ROOT/'private').glob('*.*')):
+    if p.suffix not in ['.stdout','.stderr']:continue
+    if p.name.startswith('vm-') or p.name.startswith('final-guest'):continue
+    text=p.read_text(errors='replace');count=0
+    for value in secret_values:
+        count+=text.count(value);text=text.replace(value,'[PRIVATE_REDACTED]')
+    dest=PUBLIC/(p.name+'.redacted.txt');dest.write_text(text,encoding='utf-8')
+    redactions.append({'file':dest.name,'original':info(p),'known_secret_replacements':count,'public':info(dest)})
+for name in ['metodobase-qa-runtime-causal-20261019-driver.log','metodobase-qa-runtime-causal-signatures-20261019-driver.log','metodobase-qa-runtime-causal-signatures-v2-20261019-driver.log']:
+    text=(ROOT.parent/name).read_text(errors='replace')
+    for value in secret_values:text=text.replace(value,'[PRIVATE_REDACTED]')
+    (PUBLIC/(name+'.redacted.txt')).write_text(text,encoding='utf-8')
+write(PUBLIC/'private-originals-receipt.json',{'private_archive':str(archive),'archive':info(archive),'archive_entries':len(zipfile.ZipFile(archive).namelist()),'redacted_logs':redactions,'secret_payloads_or_credentials_published':False})
+write(PUBLIC/'preconditions-and-limits.json',{'harness_incidents':[{'kind':'PowerShell parser failure before optional readonly observation','effects':'No Python/SQL or service mutation executed by that command; tool output retained in conversation. No claim of a saved RAW output file.'},{'kind':'First full signature observer failed at the permission query','cause':'psycopg2 parameter formatting interpreted the unescaped SQL LIKE percent','before_driver':'drivers/metodobase-qa-runtime-causal-signatures-20261019.py.txt','after_driver':'drivers/metodobase-qa-runtime-causal-signatures-v2-20261019.py.txt','effects':'Read-only observations only; fixed percent escaping in own query, same target/function/trigger/permission assertions passed.'}],'independent_image_import_probe':'Prepared separately but NOT executed, to return the VM promptly for Chrome work. The authenticated producer54-import report is not attributed to this QA run.','acceptance':'Causal harness diagnostic only; source, target, original image and failed product startup preserved.'})
+review='''La hipótesis ACL quedó confirmada en dos bases UUID y cuatro roles nuevos, sin cambiar producto, targets ni la imagen c538. Se ejecutó el CLI original por un override explícito de contenedor. El control sin privilegio por defecto de funciones pasó a 29 y luego a head31 (exit0/exit0). La única variante añadió GRANT EXECUTE por defecto de funciones: quedó realmente en 29 con exit1 en la verificación posterior y rechazó 29→31 con exit1, conservando revisión, tablas, funciones e índices de 29.
+
+La captura readonly propia comprobó las 19 firmas completas y todos los triggers contra el target29. Sólo proacl difiere. Las 19 funciones siguen INVOKER y el rol app tiene EXECUTE efectivo en ambas variantes; el grant adicional materializa ACL explícita que el contrato congelado rechaza. Esto identifica una preparación incompatible del harness, sin justificar cambios al contrato ni a los permisos de la base fallida original.
+
+El matiz transaccional queda explícito: el primer CLI con ACL adicional devolvió 1 después de confirmar la migración a 29, cuando verify_runtime_schema detectó la diferencia. El segundo CLI rechazó 29→31 dentro de la transacción y conservó 29. No se generaliza rollback a todo exit1.
+
+Se autenticaron los 55 miembros del manifiesto del productor (56 archivos totales al incluir el propio manifiesto) y permanecieron iguales. Los 366 archivos locales seleccionados, la imagen, contenedores históricos, binarios PG, HBA/config y catálogo de roles/bases previo permanecieron iguales. Las dos bases propias se eliminaron sólo tras cero sesiones, sin FORCE; sus cuatro roles se eliminaron y una consulta fresca confirmó ausencia. PG55486 se cerró por PID, nacimiento, ejecutable y argv; puerto libre. VM29768 queda con 2 CPU/2 GiB, cero contenedores en ejecución y lease ROOT.
+
+Se conserva el primer observador readonly fallido por escape de % en psycopg2 y su sucesor con las mismas aserciones. El primer comando de observación opcional falló en el parser de PowerShell antes de Python; no se inventa un archivo RAW de esa salida. No hubo imagen nueva, nueva ejecución del entrypoint original, worker, health, readiness, Google, Redis, correo, SCA, cierre de SEC15 ni aceptación de producción. El reporte de 54 imports es del productor y no fue repetido en esta revisión.
+'''
+(PUBLIC/'REVIEW.md').write_text(review,encoding='utf-8')
+write(PUBLIC/'source.json',{'created':datetime.now(timezone.utc).isoformat(),'role':'Independent QA, not source/image author','source_head':'c5386ebaab835b72af692a0d74e9b78ed5c8f511','image':image['Id'],'producer_source_sha256':'0e3d7f8abea736dbf64b63de29a0bdefd78cd8b2aa1db4d5ad38162ea8fca399','producer_manifest_sha256':'9f82dc1520dea6fd7cb134319b594d490033040a2af4f0963fe473db847af585','private_primaries':{p.relative_to(ROOT).as_posix():info(p) for p in sorted(ROOT.rglob('*')) if p.is_file()},'drivers':{name:info(ROOT.parent/name) for name in drivers},'status':'PASS_CAUSAL_HARNESS_ACL_DIAGNOSTIC_ONLY'})
+manifest={p.relative_to(PUBLIC).as_posix():info(p) for p in sorted(PUBLIC.rglob('*')) if p.is_file()}
+write(PUBLIC/'manifest.json',manifest)
+print(json.dumps({'public':str(PUBLIC),'manifest_files':len(manifest),'source_sha256':info(PUBLIC/'source.json')['sha256'],'manifest_sha256':info(PUBLIC/'manifest.json')['sha256'],'VM_lease':'ROOT','running_containers':0,'PG55486':'closed'}))

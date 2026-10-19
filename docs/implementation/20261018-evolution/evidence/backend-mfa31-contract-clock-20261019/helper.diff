@@ -1,0 +1,125 @@
+diff --git a/tests/mfa31_contract_client.py b/tests/mfa31_contract_client.py
+index 6308dc8..5feb9f8 100644
+--- a/tests/mfa31_contract_client.py
++++ b/tests/mfa31_contract_client.py
+@@ -7,8 +7,11 @@ by the actual mutation without a grant, preserving the server's denial order.
+ No refresh/retry occurs after a business failure or invalidated session.
+ """
+ import base64
++from contextlib import contextmanager
++from contextvars import ContextVar
+ from datetime import datetime, timezone
+ import re
++from threading import RLock
+ from urllib.parse import urlsplit
+ 
+ import httpx
+@@ -20,6 +23,42 @@ _BILLING = frozenset({"/api/billing/checkout", "/api/billing/stripe/subscribe",
+     "/api/pagos/stripe/session", "/api/pagos/mp/preference"})
+ 
+ 
++_AUTHENTICATION_INSTANT: ContextVar[datetime | None] = ContextVar(
++    "mfa_contract_authentication_instant", default=None)
++_CLOCK_OWNER = RLock()
++
++
++@contextmanager
++def _authentication_clock():
++    """One setup instant, request-context scoped, restored before business.
++
++    The temporary service wrapper delegates to the caller's original validator
++    whenever no setup ContextVar is present, including unrelated threads. Our
++    helpers serialize ownership; another clock installer is detected rather
++    than silently overwritten. This is a test-only isolated-fixture seam.
++    """
++    from web.services import mfa_service
++    with _CLOCK_OWNER:
++        if _AUTHENTICATION_INSTANT.get() is not None:
++            raise RuntimeError("Nested fixture authentication clock")
++        original = mfa_service.instant
++        observed = original().astimezone(timezone.utc)
++        def scoped(supplied=None):
++            fixed = _AUTHENTICATION_INSTANT.get()
++            return original(fixed if supplied is None and fixed is not None else supplied)
++        token = _AUTHENTICATION_INSTANT.set(observed)
++        mfa_service.instant = scoped
++        try:
++            yield observed
++        finally:
++            # Always clear our request tag, including when another actor has
++            # installed its own clock. Do not clobber that actor's function.
++            _AUTHENTICATION_INSTANT.reset(token)
++            if mfa_service.instant is not scoped:
++                raise RuntimeError("fixture clock ownership changed")
++            mfa_service.instant = original
++
++
+ class MfaContractClient:
+     """Explicit fixture adoption; secrets stay in RAM and raw client is available.
+ 
+@@ -62,35 +101,36 @@ class MfaContractClient:
+             persisted = db.get(Usuario, identity)
+             assert persisted is not None and persisted.activo
+             email = persisted.email
+-        primary = self.raw.post("/api/auth/login", json={"email": email, "password": self.password})
+-        first = self._require(primary, 200, "fixture primary login")
+-        assert first["mfa_required"] is False
+-        self.raw.headers["Authorization"] = "Bearer " + first["token"]
+-        proof = self._require(self.raw.post("/api/auth/mfa/reauth", json={"password": self.password}),
+-                              200, "fixture primary reauthentication")
+-        enrollment = self._require(self.raw.post("/api/auth/mfa/enroll", json={
+-            "reauthentication_token": proof["reauthentication_token"]}), 200, "fixture enrollment")
+-        seed = base64.b32decode(enrollment["secret"])
+-        counter = int(datetime.now(timezone.utc).timestamp()) // 30
+-        kit = self._require(self.raw.post("/api/auth/mfa/enroll/confirm", json={
+-            "enrollment_id": enrollment["enrollment_id"], "code": totp(seed, counter)}),
+-            200, "fixture TOTP confirmation")
+-        del seed, enrollment, proof
+-        challenge = self._require(self.raw.post("/api/auth/login", json={
+-            "email": email, "password": self.password}), 202, "fixture factor challenge")
+-        pair = self._require(self.raw.post("/api/auth/mfa/login/verify", json={
+-            "challenge": challenge["challenge"], "recovery_code": kit["recovery_codes"][0]}),
+-            200, "fixture recovery-code authentication")
+-        self.raw.headers["Authorization"] = "Bearer " + pair["token"]
+-        self._sessions[identity] = pair["token"]
+-        self._active = identity
+-        del pair, kit, challenge, first
+-        current = self._require(self.raw.get("/api/auth/me"), 200, "fixture persisted identity")
+-        assert current["id"] == identity
+-        # Local test metadata follows the verified account; the request itself
+-        # always resolves the bearer against persisted identity/SV again.
+-        self.principal.update({key: current[key] for key in (
+-            "id", "email", "nombre", "tipo", "role", "team_gym_id", "session_version") if key in current})
++        with _authentication_clock() as observed:
++            primary = self.raw.post("/api/auth/login", json={"email": email, "password": self.password})
++            first = self._require(primary, 200, "fixture primary login")
++            assert first["mfa_required"] is False
++            self.raw.headers["Authorization"] = "Bearer " + first["token"]
++            proof = self._require(self.raw.post("/api/auth/mfa/reauth", json={"password": self.password}),
++                                  200, "fixture primary reauthentication")
++            enrollment = self._require(self.raw.post("/api/auth/mfa/enroll", json={
++                "reauthentication_token": proof["reauthentication_token"]}), 200, "fixture enrollment")
++            seed = base64.b32decode(enrollment["secret"])
++            counter = int(observed.timestamp()) // 30
++            kit = self._require(self.raw.post("/api/auth/mfa/enroll/confirm", json={
++                "enrollment_id": enrollment["enrollment_id"], "code": totp(seed, counter)}),
++                200, "fixture TOTP confirmation")
++            del seed, enrollment, proof
++            challenge = self._require(self.raw.post("/api/auth/login", json={
++                "email": email, "password": self.password}), 202, "fixture factor challenge")
++            pair = self._require(self.raw.post("/api/auth/mfa/login/verify", json={
++                "challenge": challenge["challenge"], "recovery_code": kit["recovery_codes"][0]}),
++                200, "fixture recovery-code authentication")
++            self.raw.headers["Authorization"] = "Bearer " + pair["token"]
++            self._sessions[identity] = pair["token"]
++            self._active = identity
++            del pair, kit, challenge, first
++            current = self._require(self.raw.get("/api/auth/me"), 200, "fixture persisted identity")
++            assert current["id"] == identity
++            # Local test metadata follows the verified account; the request itself
++            # always resolves the bearer against persisted identity/SV again.
++            self.principal.update({key: current[key] for key in (
++                "id", "email", "nombre", "tipo", "role", "team_gym_id", "session_version") if key in current})
+ 
+     def issue(self, method, path, body, *, headers=None):
+         self.authenticate()

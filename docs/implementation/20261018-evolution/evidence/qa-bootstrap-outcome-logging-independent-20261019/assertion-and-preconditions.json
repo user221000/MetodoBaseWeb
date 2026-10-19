@@ -1,0 +1,41 @@
+{
+  "maintained_test_Git_LF": {
+    "bytes": 2864,
+    "sha256": "6355f8429eeed85b89c18284237ea36e72ccbf42226fe42bde24042d75b27795"
+  },
+  "maintained_asserts": 15,
+  "own_outer_assertion_count": 9,
+  "own_outer_assertions_AST_exact_v2_v3": true,
+  "own_child_assertion_change": {
+    "before": "db_bootstrap.logger.disabled is False",
+    "after": "not db_bootstrap.logger.disabled",
+    "cause": "Python logging fileConfig assigns integer 0; identity with False is an invalid own harness assumption. Logical enabled-state assertion retained.",
+    "diagnostic_actual": {
+      "unknown_disabled": true,
+      "bootstrap_disabled": 0,
+      "bootstrap_level": 20,
+      "kwargs": {
+        "expected_revision": "20261019_client_account_links"
+      }
+    }
+  },
+  "preflight_failure": {
+    "phase": "first",
+    "cause": "Guessed tests/conftest.py does not exist; photo failed before any tests/subprocesses",
+    "successor": "v2 enumerated the actual 67 paths; first directory/log/driver retained."
+  },
+  "preserved_failed_own_run": {
+    "phase": "v2",
+    "maintained_pass": 2,
+    "own_failed": 1,
+    "product_failure": false
+  },
+  "final_same_controls": {
+    "phase": "v3",
+    "maintained_pass": 2,
+    "own_pass": 1,
+    "skips": 0,
+    "errors": 0
+  },
+  "tracked_flags": "All 10180 source index entries are H; no assumed-unchanged or skip-worktree entries."
+}

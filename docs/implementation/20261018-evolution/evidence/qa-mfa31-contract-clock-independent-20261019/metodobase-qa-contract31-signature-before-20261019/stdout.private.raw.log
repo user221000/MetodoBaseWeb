@@ -1,0 +1,15 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+____________ test_named_aware_now_keeps_original_service_contract _____________
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-contract31-explicit-now-20261019.py:15: in test_named_aware_now_keeps_original_service_contract
+    assert service.instant(now=explicit) == explicit
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: _authentication_clock.<locals>.scoped() got an unexpected keyword argument 'now'
+________________ test_named_naive_now_keeps_original_validator ________________
+C:\Users\Consu\AppData\Local\Temp\metodobase-qa-contract31-explicit-now-20261019.py:31: in test_named_naive_now_keeps_original_validator
+    service.instant(now=invalid)
+E   TypeError: _authentication_clock.<locals>.scoped() got an unexpected keyword argument 'now'
+=========================== short test summary info ===========================
+FAILED ::test_named_aware_now_keeps_original_service_contract - TypeError: _a...
+FAILED ::test_named_naive_now_keeps_original_validator - TypeError: _authenti...
+2 failed in 5.02s

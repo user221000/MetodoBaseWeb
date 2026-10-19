@@ -1,0 +1,36 @@
+"""Separate diagnostic: the unchanged older business helper has its own wall clock."""
+from datetime import UTC, datetime, timedelta
+
+import pytest
+
+from tests.test_team_invitation_contract import team_case
+
+
+@pytest.fixture(autouse=True)
+def cross_existing_helper_clock(monkeypatch):
+    from tests import mfa31_contract_client
+    from web.services import mfa_service
+    from web.services.mfa_crypto import totp
+    generated = (datetime.now(UTC) - timedelta(minutes=2)).replace(second=29, microsecond=900000)
+    arrival = generated + timedelta(milliseconds=200)
+    seed = b'12345678901234567890'
+    assert totp(seed, int(generated.timestamp()) // 30) != totp(seed, int(arrival.timestamp()) // 30)
+
+    class GeneratorClock:
+        @staticmethod
+        def now(_zone=None):
+            return generated
+
+    original = mfa_service.instant
+    entropy = mfa_service.secrets.token_bytes
+    monkeypatch.setattr(mfa31_contract_client, 'datetime', GeneratorClock)
+    monkeypatch.setattr(mfa_service, 'instant', lambda supplied=None:
+        original(arrival if supplied is None else supplied))
+    monkeypatch.setattr(mfa_service.secrets, 'token_bytes', lambda size=32:
+        seed if size == 20 else entropy(size))
+
+
+def test_unchanged_contract_helper_crossing_diagnostic(team_case):
+    # This body is intentionally unreachable if the unchanged helper rejects the old-counter code.
+    client, _, _, _ = team_case
+    assert client.get('/api/auth/me').status_code == 200

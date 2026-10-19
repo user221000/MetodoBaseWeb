@@ -1,0 +1,40 @@
+from pathlib import Path
+import ast,json,sys
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime72-validation-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+remote=r'''python3 - <<'PY'
+from pathlib import Path
+import hashlib,json,os,socket,subprocess,time,uuid
+root=Path('/var/tmp/metodobase-mfa31-runtime72-20261019/redis6386');assert root.is_dir() and (root/'redis-private.log').read_text()=='Usage: /usr/bin/redis-check-rdb <rdb-file-name>\n'
+assert not (root/'owned-state.json').exists()
+with socket.socket() as test:test.bind(('127.0.0.1',6386))
+binary=Path('/usr/bin/redis-server').resolve();digest=hashlib.sha256(binary.read_bytes()).hexdigest()
+version=subprocess.check_output([str(binary),'--version'],text=True).strip()
+argv=['/usr/bin/redis-server','--bind','127.0.0.1','--port','6386','--protected-mode','yes','--save','','--appendonly','no','--daemonize','no','--dir',str(root)]
+with (root/'redis-server-running-private.log').open('xb') as log:
+ process=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,cwd=root,start_new_session=True)
+time.sleep(0.2);assert process.poll() is None
+proc=Path('/proc')/str(process.pid)
+identity={'pid':process.pid,'birth_ticks':proc.joinpath('stat').read_text().split()[21],
+ 'executable':str(proc.joinpath('exe').resolve()),'executable_sha256':digest,
+ 'commandline_sha256':hashlib.sha256(proc.joinpath('cmdline').read_bytes()).hexdigest()}
+def call(*args):return subprocess.check_output(['redis-cli','-h','127.0.0.1','-p','6386',*args],text=True,timeout=5).strip()
+assert call('PING')=='PONG' and call('DBSIZE')=='0'
+nonce=uuid.uuid4().hex;key='runtime31:owned-smoke:'+nonce
+assert call('SET',key,nonce,'EX','60','NX')=='OK' and call('GET',key)==nonce and call('DEL',key)=='1'
+assert call('DBSIZE')=='0' and hashlib.sha256(binary.read_bytes()).hexdigest()==digest
+report={'version':version,'identity':identity,'listen':'127.0.0.1:6386','plan_id':'runtime31-redis-'+nonce,
+ 'private_root':str(root),'ping_set_ttl_get_delete_own_key':True,'initial_and_final_key_count':0,'existing6379_changed':False}
+(root/'owned-state.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report))
+PY
+'''
+# The payload is a literal standalone program, not an interpolated shell value.
+ast.parse(remote.partition("python3 - <<'PY'\n")[2].rsplit('\nPY',1)[0])
+r=guest_access.run(remote,timeout=30)
+(RUN/'redis6386-continuation-raw.stdout').write_bytes(r.stdout);(RUN/'redis6386-continuation-raw.stderr').write_bytes(r.stderr)
+assert r.returncode==0,r.stderr.decode()
+report=json.loads(r.stdout);(RUN/'redis6386-continuation-source.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+print(json.dumps(report))

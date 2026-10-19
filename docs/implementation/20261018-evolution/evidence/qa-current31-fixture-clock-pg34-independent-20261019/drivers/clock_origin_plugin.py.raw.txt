@@ -1,0 +1,57 @@
+import json
+import os
+from pathlib import Path
+import sys
+
+import pytest
+
+import pg_clock_observer
+
+ROOT = Path(os.environ['CLOCK_QA_SOURCE']).resolve()
+
+
+def check():
+    assert pg_clock_observer.INSTALLED
+    rows = {}
+    for name, module in list(sys.modules.items()):
+        if name.split('.')[0] in {'web', 'api', 'core', 'tests'} and getattr(module, '__file__', None):
+            path = Path(module.__file__).resolve()
+            assert path.is_relative_to(ROOT)
+            rows[name] = str(path.relative_to(ROOT))
+    from web.database.models import Base
+    assert len(Base.metadata.tables) == 32
+    Path(os.environ['CLOCK_QA_ORIGINS']).write_text(json.dumps(rows, indent=2) + '\n', encoding='utf-8')
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(session, config, items):
+    check()
+    assert len(items) == 34
+
+
+def pytest_runtest_call(item):
+    check()
+    context = item.funcargs.get('http')
+    if context is not None:
+        from sqlalchemy import inspect, text
+        from web.database.alembic.history_index_contract_v1 import expected_history_index, history_index_signature
+        with context['app'].connect() as db:
+            db.execute(text('SET TRANSACTION READ ONLY'))
+            flags = tuple(db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one())
+            nonowner = db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
+            owned = db.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND pg_get_userbyid(relowner)=current_user"))
+            force = db.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relrowsecurity AND relforcerowsecurity"))
+            tables = len(inspect(db).get_table_names())
+            revision = db.scalar(text('SELECT version_num FROM alembic_version'))
+            index = history_index_signature(db)
+            assert flags == (False,) * 4 and nonowner is True and owned == 0
+            assert force == 25 and tables == 33 and revision == '20261019_mfa'
+            assert index == expected_history_index('postgresql')
+        with Path(os.environ['CLOCK_QA_ROLE_CHECKS']).open('a', encoding='utf-8') as out:
+            out.write(json.dumps({'nodeid': item.nodeid, 'flags4': list(flags), 'database_nonowner': nonowner,
+                                  'owned_tables': owned, 'FORCE_RLS_tables': force, 'physical_tables': tables,
+                                  'revision': revision, 'history_index': index}) + '\n')
+
+
+def pytest_sessionfinish(session, exitstatus):
+    check()

@@ -1,0 +1,120 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,re,shutil,subprocess
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime72-validation-20261019')
+CTX=RUN.parent/'metodobase-mfa31-runtime72-context-20261019'
+WT=Path(r'F:\mb-mfa31-runtime72-20261019')
+PUBLIC=LAB/'evidence/runtime31-c538-runtime72-diagnostic-20261019'
+def load(name):return json.loads((RUN/name).read_text(encoding='utf-8'))
+def info(path):
+ with path.open('rb') as stream:digest=hashlib.file_digest(stream,'sha256').hexdigest()
+ return {'bytes':path.stat().st_size,'sha256':digest}
+def write(path,value):path.write_text(json.dumps(value,indent=2,ensure_ascii=True)+'\n',encoding='utf-8')
+assert not PUBLIC.exists()
+build=load('runtime-build-receipt.json');probe=load('runtime-import-probe-source.json')
+startup=load('smoke-startup-source.json');failed=load('startup-failure-state-source.json')
+final=load('final-before-after-source.json');pg=load('pg55486-closed-source.json');db=load('pg55486-before-close-source.json')
+identity=load('runtime-image-identity-source.json')
+assert build['exit_code']==0 and probe['status']=='PASS_RUNTIME_IMPORT_DIAGNOSTIC_ONLY'
+assert len(probe['imports'])==len(probe['distributions'])==54 and probe['source_files_exact']==355
+assert probe['pip_and_ensurepip_and_bundled_wheels_absent'] and probe['base_identity_files_unchanged']==218
+assert startup['status']=='STARTUP_DIAGNOSTIC_FAILED' and failed['exit_code']==1 and failed['oom_killed'] is False
+assert db['migration_transaction_rolled_back_no_public_tables'] and db['sessions_excluding_capture']==[]
+assert pg['own_process_absent'] and pg['port_free'] and final['guest_after']['redis6386_closed']
+assert not final['guest_after']['running_containers'].strip()
+assert final['guest_after']['runtime_image_inspect_sha256']==identity['image_inspect_sha256']
+assert final['host_inputs_unchanged'] and final['context_sources_unchanged'] and final['source_worktree_clean']
+pg_pointer=load('pg55486-instance-pointer.json');role_pointer=load('roles-private-pointer.json')
+admin=json.loads(Path(pg_pointer['private_admin_file']).read_text());roles=json.loads(Path(role_pointer['private_file']).read_text())
+secret_values=[admin['password'],*roles['passwords'].values(),*[value for key,value in roles['runtime_stdin'].items() if value and any(part in key for part in ('SECRET','KEY','SALT','DATABASE_URL'))]]
+def sanitize(text):
+ for value in sorted(set(secret_values),key=len,reverse=True):text=text.replace(value,'[REDACTED_SYNTHETIC_SECRET]')
+ text=re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])','[REDACTED_THREE_PART_TOKEN]',text)
+ return re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])','[REDACTED_TWO_PART_TOKEN]',text)
+pgroot=Path(pg_pointer['private_root']);(RUN/'pg55486-server-after-shutdown-raw.log').write_bytes((pgroot/'server.stderr.log').read_bytes())
+install=Path(pg_pointer['source_existing_installation_read_only'])
+tools_before=load('pg55486-setup/tool-files.before.json');tools_after={name:info(install/name) for name in tools_before}
+assert tools_before==tools_after
+write(RUN/'pg-tooling-final-source.json',{'tool_files_verified':len(tools_after),'all_bytes_unchanged':True,'source':str(install),'files_after':tools_after})
+notes=[
+ {'phase':'PG setup initial helper','result':'Original equality inet::text==bare IPv4 failed because PostgreSQL returns /32. Initial helper/log retained. Same initialized cluster was completed read-only using host(inet_server_addr()). No reinitialization.', 'second_inline_diagnostic':'Repeated the raw equality before recording values; its failure is recorded from tool transcript, no local raw file was created for that inline invocation.'},
+ {'phase':'Redis preparation initial payload','result':'SyntaxError before remote program execution/resource creation; exact initial script/stdout/stderr/log retained with .initial suffix.'},
+ {'phase':'Redis preparation argv0','result':'Resolved Debian redis-server symlink to redis-check-rdb; invoking resolved argv0 selected the checker and exited. Original failed log and .attempt2 receipts preserved. Continuation used redis-server argv0 with the same authenticated bytes; one actual server ran.'},
+ {'phase':'Smoke start metadata','result':'The one real CMD container started; unprivileged guest could not read /proc/PID/exe of appuser. Read-only root identity recovery preserved same container, without restart or config/source change.'},
+ {'phase':'Actual migration/startup','result':'Original CMD container exited1, not OOM, before server. Last logged upgrade is client_account_links to personal_history_index. No SQL ERROR in PG at that time; no Python traceback emitted by original CLI. Failed container/image and transactional rollback preserved; no migration replay.'}
+]
+write(RUN/'operation-notes-final-source.json',notes)
+PUBLIC.mkdir()
+selected=['host-preflight-before.json','host-memory-immediate-before-build.json','guest-preflight-source.json','remote-context-source.json',
+ 'runtime-build-receipt.json','runtime-image-identity-source.json','runtime-import-probe-source.json','runtime-import-probe-receipt.json',
+ 'pg55486-instance-pointer.json','pg55486-identity-diagnostic-source.json','pg55486-preparation-notes-source.json','pg55486-setup/summary.json',
+ 'pg55486-before-close-source.json','pg55486-closed-source.json','pg-tooling-final-source.json','guest-pg55486-connectivity-source.json',
+ 'redis6386-argv0-diagnostic-source.json','redis6386-continuation-source.json','smoke-private-transfer-source.json',
+ 'smoke-identity-recovery-source.json','smoke-startup-source.json','startup-failure-state-source.json','final-before-after-source.json','operation-notes-final-source.json']
+for name in selected:
+ target=PUBLIC/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(RUN/name,target)
+shutil.copy2(Path(role_pointer['private_root'])/'sanitized-report.json',PUBLIC/'roles-sanitized-report.json')
+shutil.copy2(CTX/'manifest.json',PUBLIC/'exact-git-context-manifest.json')
+for name in ['runtime-build-raw.log','startup-application-raw.stdout','startup-application-raw.stderr','pg55486-server-after-shutdown-raw.log']:
+ text=(RUN/name).read_text(encoding='utf-8',errors='replace')
+ (PUBLIC/(name+'.redacted.txt')).write_text(sanitize(text),encoding='utf-8')
+drivers=PUBLIC/'drivers';drivers.mkdir()
+for path in sorted(RUN.glob('*.py')):shutil.copy2(path,drivers/(path.name+'.txt'))
+source_dir=PUBLIC/'executed-source';source_dir.mkdir()
+for name in ['db_bootstrap.py','entrypoint.sh','web/database/alembic/env.py','web/database/alembic/member_link_security_v1.py','web/database/alembic/versions/20261019_personal_history_index.py']:
+ raw=subprocess.check_output(['git','--no-replace-objects','cat-file','blob',final['source_commit']+':'+name],cwd=WT)
+ target=source_dir/(name.replace('/','__')+'.txt');target.write_bytes(raw)
+record={'status':'BUILD_AND_54_IMPORTS_PASS_STARTUP_RED','sealed_utc':datetime.now(timezone.utc).isoformat(),
+ 'source_commit':final['source_commit'],'application_base':'809eab28c40c112cb6e3c9d8caceebae28683abd','native_source':'72c44a1834d7bd9803b4b8846c6c87e85a53bfd3',
+ 'root_broad_application_limit':'3036passed+2terminal-session failures+1knownWindows skip on809. This first image is diagnostic; no common acceptance. New262 context not built.',
+ 'image':identity,'context':{'path':str(CTX),'tar':info(CTX/'context.tar'),'files':366,'exact_Git_and_COPY_and_exclusions_verified':True},
+ 'build':build,'runtime_imports':{'probe_receipt':load('runtime-import-probe-receipt.json'),'status':probe['status'],'imports':54,'metadata':54,'sources':355,
+  'pip_ensurepip_bundled_wheels_absent':True,'nonroot_uid':probe['uid'],'os_counts':probe['os_package_counts'],'pyexpat_sha256':probe['native']['pyexpat']['sha256'],
+  'base_identity_files_unchanged':218,'xml_small_cases':11,'libpq_compile':probe['libpq_compile'],'libpq_runtime':probe['libpq_runtime'],
+  'openssl_system':probe['openssl_system'],'openssl_cryptography_actual':probe['openssl_cryptography_actual']},
+ 'startup':{'status':startup['status'],'failed_container':final['guest_after']['container_failed_preserved'],
+  'exact_original_CMD':True,'production_synthetic_settings':True,'server_or_health_started':False,'worker_MIGRATOR_unset_observed':False,
+  'migrations_reached_head':False,'last_log_upgrade':'20261019_client_account_links -> 20261019_personal_history_index',
+  'traceback_emitted':False,'database_after':db,
+  'causal_acceptance':'Hypothesis only until an independent causal control in a new database: operator harness default function EXECUTE grants produce explicit UUID ACL; target29 requires null ACL for19INVOKER functions.',
+  'no_replay_or_privilege_or_target_adjustment':True},
+ 'bind_and_network':{'production_selected_bind_from_source':'0.0.0.0:18031','HTTP_listener_observed':False,
+  'host_app_port_published':False,'new_QEMU_hostforward_or_proxy_created':False,'OS_egress_isolation_claimed':False,
+  'only_own_PG_target':'Windows127.0.0.1:55486 reached from guest10.0.2.2:55486','provider_or_mail_or_business_flow_executed':False},
+ 'before_after':final,'pg_closed':pg,'pg_tools_before_after':{'files':len(tools_after),'all_unchanged':True},'preparation_notes':notes,
+ 'raw_private_directory':str(RUN),'private_PG_root':pg_pointer['private_root'],'private_roles_root':role_pointer['private_root'],
+ 'private_raw_inventory':{p.relative_to(RUN).as_posix():info(p) for p in sorted(RUN.rglob('*')) if p.is_file() and p.name!='seal-runtime-diagnostic-driver-raw.log'},
+ 'scope':{'product_sources_or_locks_changed_by_operator':False,'runtime_builds_attempted':1,'real_start_containers_created':1,
+  'complete_product_or_MFA_AAL2_acceptance':False,'SEC15_or_SEC10_or_SCA_or_OS71_closure':False,'production_or_paid_or_external_application_state_changed':False,
+  'seeds_or_database_dump_published':False,'secrets_in_public_projection':False},
+ 'next_control':'Independent Security first. If authorized later: use new UUID DB/roles without redundant default EXECUTE function grant, preserve table/sequence least privileges, run same exact frozen image with original failed evidence intact; never adapt frozen schema target or widen authority to pass.',
+ 'lease':{'VM_pid':29768,'fingerprint':final['owned_qemu'],'state':'idle ROOT/Security','running_containers':0,
+  'PG55486_closed':True,'Redis6386_closed':True,'failed_container_image_context_and_private_data_preserved':True}}
+write(PUBLIC/'source.json',record)
+(PUBLIC/'REVIEW.md').write_text('''La imagen runtime completa c538 se construyó una vez y pasó el diagnóstico de 54 imports y metadatos. El arranque real quedó rojo: el entrypoint original terminó con exit1 durante las migraciones, sin OOM y antes del servidor. No se aceptan health, readiness, head31 ni la retirada de MIGRATOR en un worker que no llegó a iniciarse.
+
+La imagen conserva 355 archivos de aplicación exactos, 54 distribuciones, usuario nonroot y ausencia de pip, ensurepip, wheels residuales y herramientas de compilación. El ELF pyexpat recompilado tiene SHA0f618283812cdf461c41513ce22c4cbf4de141552a8458cabf23733b53d8e4be, igual al nativo72 aceptado, un único export PyInit_pyexpat, cinco argv registrados y CAPI coherente. Pasaron once XML pequeños y permanecieron 218 identidades base. Runtime mide 97 paquetes OS tras87→97; libpq170011, OpenSSL sistema3.5.7 y cryptography OpenSSL4.0.3 se registran por separado.
+
+El contexto preexistente se autenticó contra366blobs Git exactos, cada miembro TAR, el Dockerfile/COPY y exclusiones. No se recreó ni se incluyeron env, DB, uploads, docs, tests, desktop o referencia de diseño. Contexto, 366fuentes locales seleccionadas, ocho insumos/herramientas, imagen y nativo72 se contrastaron al cerrar.
+
+El último upgrade registrado fue client_account_links→personal_history_index. La transacción dejó cero tablas públicas y ninguna revisión. La evidencia estática y readonly apunta a un efecto del harness: el productor añadió GRANT EXECUTE por defecto de funciones al rol UUID de aplicación, mientras target29 exige ACL null en sus19funciones INVOKER y R30 compara proacl. Esta sigue siendo hipótesis hasta un control causal independiente en nueva DB. No se repitió la migración, no se cambiaron permisos ni targets, y no se atribuye un bug de producto confirmado. La excepción Python completa no fue emitida por el CLI original: captura Exception sin exc_info y Alembic fileConfig puede deshabilitar su logger preexistente. Se conservan stdout/stderr y logs completos originales privados.
+
+Se creó sólo un cluster PostgreSQL17.11 nuevo en55486 con binarios autenticados y ACL privada, SCRAM y roles/DB UUID propios. No se leyó admin anterior ni se tocó55483/55484. El guest llegó a10.0.2.2:55486 sin puente. Redis6386 fue nuevo y propio; su prueba usó una clave UUID con TTL y terminó con cero claves. Ambos servicios se cerraron por identidad; antes del cierre PG había cero sesiones. Se preservan directorios, datos, roles, imagen y el contenedor fallido para revisión.
+
+Las incidencias de preparación se conservan en operation-notes-final-source.json: igualdad inet::text con /32, payload Redis inválido, argv0 multicall resuelto y lectura /proc sin privilegio tras el único start. Las continuaciones no reconstruyeron ni reiniciaron el contenedor de producto.
+
+El código de producción selecciona bind0.0.0.0:18031, pero no hubo listener HTTP observado en este intento. No se publicó ese puerto ni se creó hostfwd/proxy; no se afirma aislamiento OS de egreso. No hubo login, matrícula MFA, correo, proveedor ni flujo de negocio. La app809 mantiene sus dos fallos amplios conocidos; tampoco se acepta SEC15/SEC10, SCA, OS71, MFA/AAL2 o producción. La candidata262 preparada por raíz no fue construida.
+
+VM29768 queda idle bajo lease ROOT/Seguridad, con identidad y recursos2CPU/2GiB intactos, cero contenedores en ejecución y los servicios propios cerrados. La siguiente revisión debe conservar este primer rojo y probar la hipótesis en una DB nueva antes de otra aceptación de arranque.
+''',encoding='utf-8')
+for path in PUBLIC.rglob('*'):
+ if path.is_file():
+  data=path.read_bytes()
+  assert all(value.encode() not in data for value in secret_values if len(value)>=16),path.name
+manifest={p.relative_to(PUBLIC).as_posix():info(p) for p in sorted(PUBLIC.rglob('*')) if p.is_file()}
+write(PUBLIC/'manifest.json',manifest)
+print(json.dumps({'status':record['status'],'public_prefix':str(PUBLIC),'files':len(manifest),
+ 'source_sha256':info(PUBLIC/'source.json')['sha256'],'manifest_sha256':info(PUBLIC/'manifest.json')['sha256'],
+ 'image_id':identity['image_id'],'context_sha256':info(CTX/'context.tar')['sha256'],
+ 'failed_container':failed['container_id'],'private_raw_root':str(RUN),'VM_lease':'idle ROOT/Security'},indent=2))

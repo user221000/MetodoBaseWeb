@@ -1,0 +1,7 @@
+Aceptación independiente de los34 casos HTTP actuales de miembro sobre PostgreSQL17.11 real, en9b14. Se ejecutó el módulo mantenido sin cambiar cuerpos/asserts y el conjunto exacto de34 node IDs coincidió con required_reports. No hubo fallos, errores ni skips.
+
+La observación propia antes de cada cuerpo verificó rol app con4 flags de privilegio false, no propietario,0 tablas propias,25 tablas FORCE RLS,33 tablas físicas, revisión31 e índice30 exacto. El pool de aplicación es1 por el helper original; no se amplió. Los helpers históricos y el mapping permanecieron intactos.
+
+Una sola base UUID fue creada por el fixture original. Antes de CREATE se abrió una lease exclusiva y se registró PID/nacimiento; después se obtuvo OID por conexión fresca. El finalizador mantuvo la exigencia de cero sesiones y tradujo sólo el DROP FORCE solicitado por el fixture a un DROP normal. Se verificó ausencia fresca; no hubo FORCE ni terminación de backends, cambios de roles globales o HBA. El catálogo de roles previo quedó idéntico.
+
+Se preservó un primer fallo de orquestación: frozenset no serializable en el plan antes de lanzar pytest/crear DB. El sucesor sólo ordena esas mismas34 identidades para JSON. Permanecieron735 fuentes,89 metadatos de paquetes, Python shim/base, binarios PG, infraestructura y configuración privada antes/después; pip0/0. RAW y DB sintéticas quedan en archivo privado protegido; se publica XML estructural. Se acepta PG34 local, sin atribuir full173, VM, Chrome, imagen, proveedores, SLO o producción.

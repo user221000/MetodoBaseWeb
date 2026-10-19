@@ -1,0 +1,6 @@
+{
+  "initial_browser_failure": "isDisabled(FIELDSET) is false in installed Playwright even if disabled property is true. No product source changed.",
+  "installed_bundle_SHA256": "829521b67ed7be90c7d6d6098ff39f2241562d47e4ad7ccab13710924a56001d",
+  "bounded_source": "function getAriaDisabled(element) {\\n  return isNativelyDisabled(element) || hasExplicitAriaDisabled(element);\\n}\\nfunction isNativelyDisabled(element) {\\n  const isNativeFormControl = [\"BUTTON\", \"INPUT\", \"SELECT\", \"TEXTAREA\", \"OPTION\", \"OPTGROUP\"].includes(elementSafeTagName(element));\\n  return isNativeFormControl && (element.hasAttribute(\"disabled\") || belongsToDisabledOptGroup(element) || belongsToDisabledFieldSet(element));\\n}\\nfunction belongsToDisabledOptGroup(element) {\\n  return elementSafeTagName(element) === \"OPTION\" && !!element.closest(\"OPTGROUP[DISABLED]\");\\n}\\nfunction belongsToDisabledFieldSet(element) {\\n  const fieldSetElement = element == null ? void 0 : element.closest(\"FIELDSET[DISABLED]\");\\n  if (!fieldSetElement)\\n    return false;\\n  const legendElement = fieldSetEl",
+  "changes": "New driver derives from original UTF8 pre-syntax-fix source to avoid the first PowerShell rewrite encoding; fixes the extra closing brace and uses actual DOM fieldset.disabled plus descendant input isDisabled. All business assertions unchanged."
+}

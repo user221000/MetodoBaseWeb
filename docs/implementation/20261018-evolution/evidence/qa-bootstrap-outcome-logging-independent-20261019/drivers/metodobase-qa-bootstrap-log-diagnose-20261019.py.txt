@@ -1,0 +1,17 @@
+from pathlib import Path
+import ast,json,os,subprocess,sys
+BASE=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-bootstrap-log-peer-v2-20261019')
+OUT=BASE/'diagnostic';OUT.mkdir(exist_ok=False)
+node=ast.parse((BASE/'test_own_bootstrap_logging.py').read_text())
+test=next(n for n in node.body if isinstance(n,ast.FunctionDef))
+child=next(n.value.value for n in test.body if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name) and n.targets[0].id=='child')
+old='    assert unknown.disabled is True'
+new="    Path(os.environ['QA_PRIVATE_WITNESS']+'.entry.json').write_text(json.dumps({'unknown_disabled':unknown.disabled,'bootstrap_disabled':db_bootstrap.logger.disabled,'bootstrap_level':db_bootstrap.logger.level,'kwargs':kwargs}))\n"+old
+assert child.count(old)==1;child=child.replace(old,new)
+(OUT/'child.py.txt').write_text(child)
+env=os.environ.copy()
+for k in ('DATABASE_URL','MIGRATOR_DATABASE_URL','METODOBASE_TEST_DATABASE_URL','METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_REDIS_URL'):env.pop(k,None)
+env.update(DATABASE_URL='sqlite:///'+(OUT/'diagnostic.db').as_posix(),METODOBASE_ENV='testing',ENV='testing',PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1',QA_PRIVATE_WITNESS=str(OUT/'witness.json'))
+r=subprocess.run([sys.executable,'-X','utf8','-B','-c',child],cwd=r'F:\mb-qa-bootstrap-log-20261019',env=env,capture_output=True,check=False,timeout=60)
+(OUT/'stdout.raw').write_bytes(r.stdout);(OUT/'stderr.raw').write_bytes(r.stderr)
+print(json.dumps({'exit_code':r.returncode,'entry':json.loads((OUT/'witness.json.entry.json').read_text())}))

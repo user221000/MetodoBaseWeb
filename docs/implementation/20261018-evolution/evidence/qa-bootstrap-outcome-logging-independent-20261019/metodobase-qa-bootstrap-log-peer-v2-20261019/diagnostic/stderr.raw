@@ -1,0 +1,28 @@
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 01f435f74091, initial schema multi-tenant
+INFO  [alembic.runtime.migration] Running upgrade 01f435f74091 -> 936af15af980, add subscriptions and payments tables
+INFO  [alembic.runtime.migration] Running upgrade 936af15af980 -> c4f8e9d2a3b1, enable_rls_policies_multi_tenant
+INFO  [alembic.runtime.migration] Running upgrade c4f8e9d2a3b1 -> 62e2a638d74e, add_gym_branding_table
+INFO  [alembic.runtime.migration] Running upgrade 62e2a638d74e -> a19a0ae3ac49, add_license_activations_checkout_sessions_fiscal_fields
+INFO  [alembic.runtime.migration] Running upgrade a19a0ae3ac49 -> 6731d0d2d7d5, add_index_fecha_fin_suscripcion
+INFO  [alembic.runtime.migration] Running upgrade 6731d0d2d7d5 -> 57ad7409ccfc, add_horarios_comidas_gym
+INFO  [alembic.runtime.migration] Running upgrade 57ad7409ccfc -> 2411a87ea6c0, add_gym_settings_table
+INFO  [alembic.runtime.migration] Running upgrade 2411a87ea6c0 -> ae1e9e68e9c0, add_gym_licenses_table
+INFO  [alembic.runtime.migration] Running upgrade ae1e9e68e9c0 -> 86928e690925, add_auth_audit_log_table
+INFO  [alembic.runtime.migration] Running upgrade 86928e690925 -> 77162ee0e00c, add_soft_delete_timestamps
+INFO  [alembic.runtime.migration] Running upgrade 77162ee0e00c -> f8a1b2c3d4e5, add all missing tables and columns for production
+INFO  [alembic.runtime.migration] Running upgrade f8a1b2c3d4e5 -> 20260402_plan_json, add plan_json column to planes_generados
+INFO  [alembic.runtime.migration] Running upgrade 20260402_plan_json -> 20261018_billing_integrity, Durable billing/quota identities and compatible session revocation.
+INFO  [alembic.runtime.migration] Running upgrade 20261018_billing_integrity -> 20261018_schema_reconciliation, Reconcile known legacy shapes and make onboarding templates idempotent.
+INFO  [alembic.runtime.migration] Running upgrade 20261018_schema_reconciliation -> 20261018_provider_subjects, Prepare minimal historical provider associations before RLS rollout.
+INFO  [alembic.runtime.migration] Running upgrade 20261018_provider_subjects -> 20261018_tenant_isolation, Activate the reviewed transaction-local tenant boundary on PostgreSQL.
+INFO  [alembic.runtime.migration] Running upgrade 20261018_tenant_isolation -> 20261018_gym_generation_quota, Add durable gym quota/publication ledger after the accepted R04 boundary.
+INFO  [alembic.runtime.migration] Running upgrade 20261018_gym_generation_quota -> 20261018_stored_objects, Track private objects without guessing legacy paths or deleting stored bytes.
+INFO  [alembic.runtime.migration] Running upgrade 20261018_stored_objects -> 20261018_individual_publication, Keep individual consumption atomic with a physically published plan.
+INFO  [alembic.runtime.migration] Running upgrade 20261018_individual_publication -> 20261019_personal_diary, Personal consumption snapshots with explicit ownership and no inferred import.
+INFO  [alembic.runtime.migration] Running upgrade 20261019_personal_diary -> 20261019_account_recovery, Account-bound opaque recovery state; no history/identity is inferred.
+INFO  [alembic.runtime.migration] Running upgrade 20261019_account_recovery -> 20261019_client_account_links, Explicit recipient proof and immutable plan publications; no legacy adoption.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+ERROR [db_bootstrap] Migration aborted class=AssertionError; database not accepted for release

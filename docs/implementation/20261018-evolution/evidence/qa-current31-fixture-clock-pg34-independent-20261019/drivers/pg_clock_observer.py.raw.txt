@@ -1,0 +1,134 @@
+"""Own current31-only UUID leases; never executes FORCE or global role DDL."""
+from datetime import datetime, timezone
+from functools import cache
+from pathlib import Path
+import ctypes
+import hashlib
+import json
+import os
+import re
+
+import psycopg2
+from psycopg2.extensions import connection as PGConnection, cursor as PGCursor
+
+CONFIG = Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-pg55483-private-ok6hrpyq/env.json')
+ORIGINAL = psycopg2.connect
+INSTALLED = False
+OWNED = {}
+NAME = r'metodobase_test_migrations_[0-9a-f]{12}'
+
+
+def birth(pid=None):
+    k = ctypes.WinDLL('kernel32', use_last_error=True)
+    k.GetCurrentProcess.restype = ctypes.c_void_p
+    k.OpenProcess.restype = ctypes.c_void_p
+    handle = k.GetCurrentProcess() if pid is None else k.OpenProcess(0x1000, False, pid)
+    assert handle
+    times = [ctypes.c_ulonglong() for _ in range(4)]
+    assert k.GetProcessTimes(ctypes.c_void_p(handle), *[ctypes.byref(v) for v in times])
+    if pid is not None:
+        k.CloseHandle(ctypes.c_void_p(handle))
+    return datetime.fromtimestamp(times[0].value / 10000000 - 11644473600, timezone.utc).isoformat()
+
+
+@cache
+def identity():
+    k = ctypes.WinDLL('kernel32')
+    k.GetCurrentProcess.restype = ctypes.c_void_p
+    basic = (ctypes.c_void_p * 6)()
+    assert ctypes.WinDLL('ntdll').NtQueryInformationProcess(ctypes.c_void_p(k.GetCurrentProcess()), 0, ctypes.byref(basic), ctypes.sizeof(basic), None) == 0
+    parent = basic[5]
+    return {'pid': os.getpid(), 'birth': birth(), 'parent': parent, 'parent_birth': birth(parent),
+            'executable_sha256': hashlib.sha256(Path(os.path.realpath(os.sys.executable)).read_bytes()).hexdigest(),
+            'observer_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+
+
+def control_dsn():
+    config = json.loads(CONFIG.read_text(encoding='utf-8-sig'))
+    from urllib.parse import urlsplit
+    url = config['METODOBASE_TEST_MIGRATOR_URL']
+    assert urlsplit(url).hostname in {'127.0.0.1', 'localhost'} and urlsplit(url).port == 55483
+    return url.replace('postgresql+psycopg2://', 'postgresql://', 1)
+
+
+def state(names):
+    c = ORIGINAL(control_dsn(), connect_timeout=5)
+    try:
+        with c.cursor() as x:
+            x.execute('SELECT datname,oid FROM pg_database WHERE datname=ANY(%s) ORDER BY datname', (list(names),))
+            databases = [{'name': r[0], 'oid': r[1]} for r in x.fetchall()]
+            x.execute('SELECT datname,pid,backend_start,state FROM pg_stat_activity WHERE datname=ANY(%s) ORDER BY datname,pid', (list(names),))
+            sessions = [{'name': r[0], 'pid': r[1], 'birth': r[2].isoformat(), 'state': r[3]} for r in x.fetchall()]
+        return {'databases': databases, 'sessions': sessions}
+    finally:
+        c.close()
+
+
+def event(kind, **fields):
+    with Path(os.environ['CLOCK_QA_EVENTS']).open('a', encoding='utf-8') as out:
+        out.write(json.dumps({'kind': kind, 'at': datetime.now(timezone.utc).isoformat(), 'process': identity(), **fields}) + '\n')
+
+
+class Cursor(PGCursor):
+    def execute(self, query, vars=None):
+        rendered = query.as_string(self.connection) if hasattr(query, 'as_string') else query
+        if isinstance(rendered, bytes):
+            rendered = rendered.decode('utf-8')
+        if isinstance(rendered, str) and re.match(r'^\s*(?:CREATE|ALTER|DROP)\s+(?:ROLE|USER)\b', rendered, re.I):
+            raise AssertionError('QA forbids role DDL')
+        create = re.fullmatch(r'CREATE DATABASE "?(' + NAME + r')"?', rendered or '', re.I)
+        drop = re.fullmatch(r'DROP DATABASE(?: IF EXISTS)? "?(' + NAME + r')"?(?: WITH \(FORCE\))?', rendered or '', re.I)
+        if isinstance(rendered, str) and re.match(r'^\s*(CREATE|DROP) DATABASE', rendered, re.I):
+            assert create or drop, 'Database DDL outside exact current31 UUID contract'
+        if create:
+            name = create.group(1)
+            assert name not in OWNED and state([name]) == {'databases': [], 'sessions': []}
+            lease = {'name': name, 'planned_at': datetime.now(timezone.utc).isoformat(), 'process': identity(),
+                     'oid': None, 'created': False, 'state': 'PLANNED_BEFORE_CREATE'}
+            path = Path(os.environ['CLOCK_QA_LEASES']) / (name + '.json')
+            with path.open('x', encoding='utf-8') as out:
+                json.dump(lease, out, indent=2)
+            event('exclusive-lease-before-CREATE', name=name, lease_path=str(path))
+            result = super().execute(query, vars)
+            observed = state([name])
+            assert len(observed['databases']) == 1 and observed['databases'][0]['name'] == name
+            lease.update(oid=observed['databases'][0]['oid'], created=True, state='CREATED_OID_VERIFIED')
+            path.write_text(json.dumps(lease, indent=2) + '\n', encoding='utf-8')
+            OWNED[name] = lease['oid']
+            event('created-OID-fresh-connection', name=name, oid=lease['oid'])
+            return result
+        if drop:
+            name = drop.group(1)
+            assert name in OWNED, 'DROP without exact own process creation lease'
+            observed = state([name])
+            assert observed['databases'] == [{'name': name, 'oid': OWNED[name]}] and observed['sessions'] == []
+            event('zero-sessions-before-DROP', name=name, oid=OWNED[name], original_fixture_requested_FORCE='FORCE' in rendered.upper())
+            clean = re.sub(r' WITH \(FORCE\)$', '', rendered, flags=re.I)
+            result = super().execute(clean, vars)
+            assert state([name]) == {'databases': [], 'sessions': []}
+            path = Path(os.environ['CLOCK_QA_LEASES']) / (name + '.json')
+            lease = json.loads(path.read_text())
+            lease.update(state='CLOSED_NO_FORCE_FRESH_ABSENCE', closed_at=datetime.now(timezone.utc).isoformat())
+            path.write_text(json.dumps(lease, indent=2) + '\n', encoding='utf-8')
+            event('fresh-absence-after-DROP', name=name, executed_FORCE=False)
+            return result
+        return super().execute(query, vars)
+
+
+class Connection(PGConnection):
+    def cursor(self, *args, **kwargs):
+        kwargs.setdefault('cursor_factory', Cursor)
+        return super().cursor(*args, **kwargs)
+
+
+def connect(*args, **kwargs):
+    kwargs.setdefault('connection_factory', Connection)
+    return ORIGINAL(*args, **kwargs)
+
+
+def install():
+    global INSTALLED
+    if not INSTALLED:
+        psycopg2.connect = connect
+        INSTALLED = True
+        event('observer-installed')

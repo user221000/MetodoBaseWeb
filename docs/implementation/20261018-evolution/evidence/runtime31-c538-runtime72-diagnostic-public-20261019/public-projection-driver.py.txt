@@ -1,0 +1,62 @@
+from pathlib import Path,PurePosixPath
+from datetime import datetime,timezone
+import ast,hashlib,io,json,re,shutil,tarfile,zipfile
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+TMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+OLD=LAB/'evidence/runtime31-c538-runtime72-diagnostic-20261019'
+OUT=LAB/'evidence/runtime31-c538-runtime72-diagnostic-public-20261019'
+RAW=TMP/'metodobase-mfa31-runtime72-validation-20261019'
+def info(p):
+ with p.open('rb') as f:d=hashlib.file_digest(f,'sha256').hexdigest()
+ return {'bytes':p.stat().st_size,'sha256':d}
+def write(p,v):p.write_text(json.dumps(v,indent=2,ensure_ascii=True)+'\n',encoding='utf-8')
+assert not OUT.exists()
+old_source=info(OLD/'source.json');old_manifest=info(OLD/'manifest.json')
+assert old_source['sha256']=='0e3d7f8abea736dbf64b63de29a0bdefd78cd8b2aa1db4d5ad38162ea8fca399'
+assert old_manifest['sha256']=='9f82dc1520dea6fd7cb134319b594d490033040a2af4f0963fe473db847af585'
+manifest=json.loads((OLD/'manifest.json').read_bytes());source=json.loads((OLD/'source.json').read_bytes())
+assert len(manifest)==55
+for name,row in manifest.items():assert info(OLD/name)==row,name
+for name,row in source['private_raw_inventory'].items():assert info(RAW/name)==row,name
+definition=next(n for n in ast.parse((TMP/'metodobase-checkpoint119-prepare.py').read_bytes()).body if isinstance(n,ast.FunctionDef) and n.name=='scan')
+exec(compile(ast.Module(body=[definition],type_ignores=[]),'preserved-scanner119','exec'))
+canary='drivers/produce_runtime31_roles.py.txt'
+try:scan((OLD/canary).read_bytes(),canary)
+except AssertionError:negative_before=True
+else:raise AssertionError('Expected original synthetic literal scanner rejection not reproduced')
+OUT.mkdir();(OUT/'.gitattributes').write_bytes(b'* -text\n')
+for name in manifest:
+ if name=='source.json':continue
+ target=OUT/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((OLD/name).read_bytes())
+original=(OLD/canary).read_bytes()
+prefix=('sk_'+'live_lab28_').encode()
+assert original.count(b"'"+prefix+b"'")==1
+projected=original.replace(b"'"+prefix+b"'",b"'sk_' + 'live_lab28_'")
+ast.parse(projected)
+(OUT/canary).write_bytes(projected)
+executed=RAW/'produce_runtime31_roles.py'
+assert info(executed)==source['private_raw_inventory']['produce_runtime31_roles.py']
+assert executed.read_bytes()==original
+shutil.copyfile(OLD/'source.json',OUT/'preimage-source.json')
+shutil.copyfile(OLD/'manifest.json',OUT/'preimage-manifest.json')
+driver=OUT/'public-projection-driver.py.txt';driver.write_bytes(Path(__file__).read_bytes())
+record=dict(source)
+record['public_projection_successor']={
+ 'sealed_utc':datetime.now(timezone.utc).isoformat(),'immutable_closed_preimage':str(OLD),'preimage_source':old_source,'preimage_manifest':old_manifest,
+ 'original_scanner_negative_reproduced':negative_before,
+ 'projection':{'path':canary,'original_public':info(OLD/canary),'executed_private_path':str(executed),'executed_private':info(executed),'projected_public':info(OUT/canary),
+ 'reason':'Split one synthetic literal prefix in the public code projection. Executed original bytes and all old proofs remain unchanged. This is a publication projection, not a runtime replay or recipe change.'},
+ 'canonical_scanner':'Scan119, exact AST function from preserved driver, on all final bytes including source and manifest',
+ 'private_RAW_files_verified_unchanged':len(source['private_raw_inventory']),
+ 'runtime_replayed':False,'product_or_image_or_database_or_VM_changed':False,
+ 'old_measurement_lease_is_historical':True,'current_VM_state':'Remains OFF while host RAM guard is below safe start threshold.'}
+write(OUT/'source.json',record)
+for path in OUT.rglob('*'):
+ if path.is_file():scan(path.read_bytes(),path.relative_to(OUT).as_posix())
+new_manifest={p.relative_to(OUT).as_posix():info(p) for p in sorted(OUT.rglob('*')) if p.is_file()}
+write(OUT/'manifest.json',new_manifest)
+for path in OUT.rglob('*'):
+ if path.is_file():scan(path.read_bytes(),path.relative_to(OUT).as_posix())
+assert info(OLD/'source.json')==old_source and info(OLD/'manifest.json')==old_manifest
+for name,row in manifest.items():assert info(OLD/name)==row,name
+print(json.dumps({'status':'PASS_PUBLIC_PROJECTION_ONLY','prefix':str(OUT),'source':info(OUT/'source.json'),'manifest':info(OUT/'manifest.json'),'files':len(new_manifest),'private_RAW_unchanged':len(source['private_raw_inventory']),'scan119':'PASS_ALL_BYTES','runtime_replayed':False},indent=2))

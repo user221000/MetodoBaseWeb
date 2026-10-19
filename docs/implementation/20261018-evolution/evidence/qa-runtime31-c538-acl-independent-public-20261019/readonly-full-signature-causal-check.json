@@ -1,0 +1,842 @@
+{
+  "source_target_sha256": "685f452893e7e71ced8afb7eb2972e4c0ae692dea7c407930e57e82550117b29",
+  "records": {
+    "default_null": {
+      "revision": [
+        "20261019_mfa"
+      ],
+      "functions": [
+        [
+          "r12_actor_valid",
+          "",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          null,
+          "\n SELECT EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NULLIF(current_setting('app.current_tenant',true),'')\n   AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL\n   AND ((u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL)\n     OR (u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)\n       AND (u.team_gym_id IS NULL OR EXISTS(SELECT 1 FROM public.usuarios parent WHERE parent.id=u.team_gym_id\n         AND parent.tipo='gym' AND parent.role='OWNER' AND parent.team_gym_id IS NULL\n         AND parent.activo AND parent.deleted_at IS NULL AND parent.invitation_token IS NULL)))))\n ",
+          "sql"
+        ],
+        [
+          "r12_canonical_gym",
+          "identity text",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          null,
+          "\n SELECT EXISTS(SELECT 1 FROM public.usuarios u\n  WHERE u.id=identity AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL\n    AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL)\n ",
+          "sql"
+        ],
+        [
+          "r12_check_pair",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          null,
+          "\n DECLARE invitation public.client_link_invitations; linked public.client_account_links; target text;\n BEGIN\n  IF TG_TABLE_NAME='client_link_invitations' THEN\n   IF OLD.status<>'pending' OR NEW.status<>'consumed' THEN RETURN NEW; END IF;\n   target=NEW.link_id;\n  ELSE\n   IF OLD.status<>'pending' OR NEW.status<>'active' THEN RETURN NEW; END IF;\n   target=NEW.id;\n  END IF;\n  SELECT * INTO invitation FROM public.client_link_invitations WHERE link_id=target;\n  IF NOT FOUND OR invitation.status<>'consumed' OR public.r12_proof(invitation) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 commit proof unavailable'; END IF;\n  SELECT * INTO linked FROM public.client_account_links WHERE id=target;\n  IF NOT FOUND OR linked.status NOT IN ('active','revoked') OR linked.user_id IS DISTINCT FROM invitation.consumed_by OR linked.accepted_at IS DISTINCT FROM invitation.consumed_at\n   THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 acceptance incomplete'; END IF;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_consumed_proof",
+          "l client_account_links",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          null,
+          "\n SELECT COALESCE(l.user_id=NULLIF(current_setting('app.current_tenant',true),'') AND EXISTS(\n SELECT 1 FROM public.client_link_invitations i WHERE i.link_id=l.id AND i.gym_id=l.gym_id AND i.client_id=l.client_id\n AND i.status='consumed' AND i.consumed_by=l.user_id AND i.consumed_at=l.accepted_at AND public.r12_proof(i)),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_food",
+          "value jsonb, vegetable boolean",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          null,
+          "\n DECLARE macro jsonb;\n BEGIN\n  IF vegetable IS NULL THEN RETURN false; END IF;\n  IF public.r12_keys(value,ARRAY['alimento','gramos','equivalencia','macros'],ARRAY['alimento','gramos']) IS NOT TRUE\n   OR jsonb_typeof(value->'alimento')<>'string' OR length(value->>'alimento') NOT BETWEEN 1 AND 200\n   OR public.r12_number(value->'gramos',true) IS NOT TRUE THEN RETURN false; END IF;\n  IF value ? 'equivalencia' AND (jsonb_typeof(value->'equivalencia')<>'string' OR length(value->>'equivalencia')>500) THEN RETURN false; END IF;\n  IF value ? 'macros' THEN\n   IF public.r12_keys(value->'macros',ARRAY['kcal','proteina','carbs','grasa'],ARRAY[]::text[]) IS NOT TRUE THEN RETURN false; END IF;\n   FOR macro IN SELECT x.value FROM jsonb_each(value->'macros') x LOOP\n    IF public.r12_number(macro) IS NOT TRUE THEN RETURN false; END IF;\n   END LOOP;\n  END IF;\n  RETURN true;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_guard_invitation",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          null,
+          "\n DECLARE decision timestamp;\n BEGIN\n  PERFORM public.r12_require_rc();\n  IF TG_OP='INSERT' THEN\n   IF NEW.status<>'pending' OR NEW.consumed_by IS NOT NULL OR NEW.version<>1 OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 invitation denied'; END IF;\n   NEW.created_at=clock_timestamp() AT TIME ZONE 'UTC';\n   NEW.updated_at=NEW.created_at;\n   NEW.consumed_at=NULL;\n   NEW.revoked_at=NULL;\n   IF NEW.token_hash!~'^[a-f0-9]{64}$' OR NEW.payload_hash!~'^[a-f0-9]{64}$' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 invitation digest denied'; END IF;\n   RETURN NEW;\n  END IF;\n  IF (NEW.id,NEW.link_id,NEW.gym_id,NEW.client_id,NEW.recipient_email,NEW.issued_by,NEW.request_key,NEW.payload_hash,NEW.created_at) IS DISTINCT FROM (OLD.id,OLD.link_id,OLD.gym_id,OLD.client_id,OLD.recipient_email,OLD.issued_by,OLD.request_key,OLD.payload_hash,OLD.created_at)\n   OR NEW.version<>OLD.version+1 OR OLD.status<>'pending' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable invitation'; END IF;\n  IF NEW.status='consumed' THEN\n   decision=clock_timestamp() AT TIME ZONE 'UTC';\n   IF public.r12_proof(OLD) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE OR NEW.consumed_by IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'')\n    OR NEW.token_hash IS DISTINCT FROM OLD.token_hash OR NEW.expires_at IS DISTINCT FROM OLD.expires_at OR decision>=OLD.expires_at\n    THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 consumption denied'; END IF;\n   NEW.consumed_at=decision;\n  ELSIF public.r12_gym_scope(NEW.gym_id) IS NOT TRUE OR NEW.status NOT IN ('pending','revoked')\n   OR (NEW.status='pending' AND public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 invitation transition denied'; END IF;\n  IF NEW.status='revoked' THEN\n   IF (NEW.token_hash,NEW.expires_at) IS DISTINCT FROM (OLD.token_hash,OLD.expires_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable invitation'; END IF;\n   NEW.revoked_at=clock_timestamp() AT TIME ZONE 'UTC';\n  ELSIF NEW.status='pending' THEN\n   IF NEW.token_hash!~'^[a-f0-9]{64}$' OR NEW.token_hash=OLD.token_hash OR NEW.expires_at<=clock_timestamp() AT TIME ZONE 'UTC' THEN\n    RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 rotation denied'; END IF;\n  END IF;\n  NEW.updated_at=clock_timestamp() AT TIME ZONE 'UTC';\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_guard_link",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          null,
+          "\n BEGIN\n  PERFORM public.r12_require_rc();\n  IF TG_OP='INSERT' THEN\n   IF NEW.status<>'pending' OR NEW.user_id IS NOT NULL OR NEW.version<>1 OR public.r12_gym_scope(NEW.gym_id) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 link denied'; END IF;\n   PERFORM 1 FROM public.clientes WHERE gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND activo AND deleted_at IS NULL FOR SHARE;\n   IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 client unavailable'; END IF;\n   NEW.created_at=clock_timestamp() AT TIME ZONE 'UTC';\n   NEW.updated_at=NEW.created_at;\n   NEW.accepted_at=NULL;\n   NEW.revoked_at=NULL;\n  ELSE\n   IF (NEW.id,NEW.gym_id,NEW.client_id,NEW.gym_name,NEW.client_display_name,NEW.created_at) IS DISTINCT FROM (OLD.id,OLD.gym_id,OLD.client_id,OLD.gym_name,OLD.client_display_name,OLD.created_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable link'; END IF;\n   IF OLD.status='pending' AND NEW.status='active' THEN\n    IF public.r12_consumed_proof(NEW) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 consumption proof required'; END IF;\n   ELSIF OLD.status IN ('pending','active') AND NEW.status='revoked' THEN\n    IF (NEW.user_id,NEW.accepted_at) IS DISTINCT FROM (OLD.user_id,OLD.accepted_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable recipient'; END IF;\n    NEW.revoked_at=clock_timestamp() AT TIME ZONE 'UTC';\n   ELSE RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 link transition denied'; END IF;\n   IF NEW.version<>OLD.version+1 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 version denied'; END IF;\n   NEW.updated_at=clock_timestamp() AT TIME ZONE 'UTC';\n  END IF;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_guard_publication",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          null,
+          "\n DECLARE source public.planes_generados; object public.stored_objects; projected jsonb;\n BEGIN\n  PERFORM public.r12_require_rc();\n  IF TG_OP='UPDATE' THEN\n   IF (NEW.id,NEW.gym_id,NEW.client_id,NEW.link_id,NEW.source_plan_id,NEW.source_object_id,NEW.object_key,NEW.content_type,NEW.byte_size,NEW.sha256,NEW.storage_backend,NEW.plan_json)\n    IS DISTINCT FROM (OLD.id,OLD.gym_id,OLD.client_id,OLD.link_id,OLD.source_plan_id,OLD.source_object_id,OLD.object_key,OLD.content_type,OLD.byte_size,OLD.sha256,OLD.storage_backend,OLD.plan_json)\n    OR (NEW.schema_version,NEW.published_by,NEW.published_at,NEW.plan_sha256) IS DISTINCT FROM (OLD.schema_version,OLD.published_by,OLD.published_at,OLD.plan_sha256)\n    OR OLD.status<>'published' OR NEW.status<>'withdrawn' OR NEW.publication_version<>OLD.publication_version+1\n    THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable publication'; END IF;\n   NEW.withdrawn_at=clock_timestamp() AT TIME ZONE 'UTC';\n   RETURN NEW;\n  END IF;\n  IF NEW.status<>'published' OR NEW.publication_version<>1 OR NEW.schema_version<>1 OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 publication owner unavailable'; END IF;\n  IF NEW.plan_json IS NULL OR octet_length(NEW.plan_json)>262144 THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection volume unavailable'; END IF;\n  PERFORM 1 FROM public.clientes WHERE gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND activo AND deleted_at IS NULL FOR SHARE;\n  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication client unavailable'; END IF;\n  PERFORM 1 FROM public.client_account_links WHERE id=NEW.link_id AND gym_id=NEW.gym_id AND client_id=NEW.client_id AND status IN ('pending','active') FOR SHARE;\n  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication link unavailable'; END IF;\n  SELECT * INTO source FROM public.planes_generados WHERE id=NEW.source_plan_id AND gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND deleted_at IS NULL FOR SHARE;\n  IF NOT FOUND OR NEW.source_object_id IS DISTINCT FROM source.pdf_object_id THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication source unavailable'; END IF;\n  IF source.pdf_object_id IS NOT NULL THEN\n   SELECT * INTO object FROM public.stored_objects WHERE id=source.pdf_object_id AND gym_id=NEW.gym_id FOR SHARE;\n   IF NOT FOUND OR object.status<>'ready' OR object.kind<>'plan_pdf' OR object.storage_backend NOT IN ('local','s3')\n    OR (NEW.source_object_id,NEW.object_key,NEW.content_type,NEW.byte_size,NEW.sha256,NEW.storage_backend)\n     IS DISTINCT FROM (object.id,object.key,object.content_type,object.byte_size,object.sha256,object.storage_backend)\n    THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication object unavailable'; END IF;\n  END IF;\n  projected=public.r12_project_plan(source);\n  IF public.r12_unique_json(NEW.plan_json::json) IS NOT TRUE OR NEW.plan_json::jsonb IS DISTINCT FROM projected\n    OR NEW.plan_sha256 IS DISTINCT FROM encode(sha256(convert_to(NEW.plan_json,'UTF8')),'hex') THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection source mismatch'; END IF;\n  NEW.plan_json=projected::text;\n  NEW.plan_sha256=encode(sha256(convert_to(NEW.plan_json,'UTF8')),'hex');\n  NEW.published_at=clock_timestamp() AT TIME ZONE 'UTC';\n  NEW.withdrawn_at=NULL;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_gym_scope",
+          "identity text",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          null,
+          "\n SELECT COALESCE(identity=NULLIF(current_setting('app.current_tenant',true),''),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_invalidate_source",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          null,
+          "\n BEGIN\n  IF TG_TABLE_NAME='clientes' THEN\n   IF NOT ((NEW.activo IS FALSE AND OLD.activo IS DISTINCT FROM NEW.activo) OR (NEW.deleted_at IS NOT NULL AND OLD.deleted_at IS DISTINCT FROM NEW.deleted_at)\n      OR (NEW.gym_id,NEW.id_cliente) IS DISTINCT FROM (OLD.gym_id,OLD.id_cliente)) THEN RETURN NEW; END IF;\n   PERFORM public.r12_require_rc();\n   PERFORM 1 FROM public.client_account_links WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente ORDER BY id FOR UPDATE;\n   UPDATE public.client_account_links SET status='revoked',version=version+1,revoked_at=clock_timestamp() AT TIME ZONE 'UTC'\n     WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente AND status IN ('pending','active');\n   UPDATE public.client_link_invitations SET status='revoked',version=version+1 WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente AND status='pending';\n   UPDATE public.client_plan_publications SET status='withdrawn',publication_version=publication_version+1 WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente AND status='published';\n  ELSIF TG_TABLE_NAME='planes_generados' THEN\n   IF NEW IS NOT DISTINCT FROM OLD THEN RETURN NEW; END IF;\n   PERFORM public.r12_require_rc();\n   UPDATE public.client_plan_publications SET status='withdrawn',publication_version=publication_version+1 WHERE source_plan_id=OLD.id AND gym_id=OLD.gym_id AND status='published';\n  ELSE\n   IF (NEW.id,NEW.gym_id,NEW.kind,NEW.key,NEW.content_type,NEW.byte_size,NEW.sha256,NEW.storage_backend,NEW.status)\n    IS NOT DISTINCT FROM (OLD.id,OLD.gym_id,OLD.kind,OLD.key,OLD.content_type,OLD.byte_size,OLD.sha256,OLD.storage_backend,OLD.status) THEN RETURN NEW; END IF;\n   PERFORM public.r12_require_rc();\n   UPDATE public.client_plan_publications SET status='withdrawn',publication_version=publication_version+1 WHERE source_object_id=OLD.id AND gym_id=OLD.gym_id AND status='published';\n  END IF;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_keys",
+          "value jsonb, allowed text[], required text[]",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          null,
+          "\n SELECT CASE WHEN jsonb_typeof(value)='object' AND allowed IS NOT NULL AND required IS NOT NULL THEN\n  value ?& required AND NOT EXISTS(SELECT 1 FROM jsonb_object_keys(value) key WHERE NOT key=ANY(allowed))\n  ELSE false END\n ",
+          "sql"
+        ],
+        [
+          "r12_lock_canonical_gym",
+          "identity text",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          null,
+          "\n BEGIN\n  PERFORM 1 FROM public.usuarios u WHERE u.id=identity AND u.tipo='gym' AND u.role='OWNER'\n    AND u.team_gym_id IS NULL AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL FOR SHARE NOWAIT;\n  RETURN FOUND;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_number",
+          "value jsonb, positive boolean",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          null,
+          "\n SELECT CASE WHEN jsonb_typeof(value)='number' AND positive IS NOT NULL THEN\n  (value::text)::numeric BETWEEN 0 AND 1000000000000 AND (NOT positive OR (value::text)::numeric>0)\n  ELSE false END\n ",
+          "sql"
+        ],
+        [
+          "r12_pending_proof",
+          "l client_account_links",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          null,
+          "\n SELECT COALESCE(l.status='pending' AND EXISTS(SELECT 1 FROM public.client_link_invitations i WHERE i.link_id=l.id\n  AND i.gym_id=l.gym_id AND i.client_id=l.client_id AND i.status IN ('pending','consumed') AND public.r12_proof(i)),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_project_plan",
+          "source planes_generados",
+          "jsonb",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          null,
+          "\n DECLARE raw json; plan jsonb; meal jsonb; block jsonb; item jsonb; category text; name text;\n  projected jsonb; metadata jsonb; scalar jsonb; foods integer;\n BEGIN\n  IF source.plan_json IS NULL OR octet_length(source.plan_json)>262144 THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source content unavailable'; END IF;\n  raw=source.plan_json::json;\n  IF public.r12_unique_json(raw) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source content unavailable'; END IF;\n  plan=raw::jsonb;\n  IF public.r12_keys(plan,ARRAY['desayuno','almuerzo','comida','cena'],ARRAY['desayuno','almuerzo','comida','cena']) IS NOT TRUE THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source schema unavailable'; END IF;\n  FOREACH name IN ARRAY ARRAY['desayuno','almuerzo','comida','cena'] LOOP\n   meal=plan->name;\n   IF meal->>'tipo_plan'='opciones' THEN\n    foods=0;\n    IF public.r12_keys(meal,ARRAY['kcal_objetivo','tipo_plan','proteinas','carbohidratos','grasas','vegetales'],\n      ARRAY['kcal_objetivo','tipo_plan','proteinas','carbohidratos','grasas','vegetales']) IS NOT TRUE\n      OR public.r12_number(meal->'kcal_objetivo') IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source options unavailable'; END IF;\n    FOREACH category IN ARRAY ARRAY['proteinas','carbohidratos','grasas'] LOOP\n     block=meal->category;\n     IF public.r12_keys(block,ARRAY['cantidad_objetivo','opciones'],ARRAY['cantidad_objetivo','opciones']) IS NOT TRUE\n      OR public.r12_number(block->'cantidad_objetivo') IS NOT TRUE OR jsonb_typeof(block->'opciones')<>'array' THEN\n       RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source options unavailable'; END IF;\n     IF jsonb_array_length(block->'opciones')>256 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source options unavailable'; END IF;\n     foods=foods+jsonb_array_length(block->'opciones');\n     FOR item IN SELECT jsonb_array_elements(block->'opciones') LOOP\n      IF public.r12_food(item) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source food unavailable'; END IF;\n     END LOOP;\n    END LOOP;\n    IF jsonb_typeof(meal->'vegetales')<>'array' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source vegetables unavailable'; END IF;\n    IF jsonb_array_length(meal->'vegetales')>32 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source vegetables unavailable'; END IF;\n    foods=foods+jsonb_array_length(meal->'vegetales');\n    FOR item IN SELECT jsonb_array_elements(meal->'vegetales') LOOP\n     IF public.r12_food(item,true) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source food unavailable'; END IF;\n    END LOOP;\n    IF foods=0 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 empty meal unavailable'; END IF;\n   ELSE\n    IF public.r12_keys(meal,ARRAY['kcal_objetivo','kcal_real','alimentos'],ARRAY['kcal_objetivo','kcal_real','alimentos']) IS NOT TRUE\n      OR public.r12_number(meal->'kcal_objetivo') IS NOT TRUE OR public.r12_number(meal->'kcal_real') IS NOT TRUE\n      OR jsonb_typeof(meal->'alimentos')<>'object' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source fixed menu unavailable'; END IF;\n    IF (SELECT count(*) FROM jsonb_object_keys(meal->'alimentos')) NOT BETWEEN 1 AND 256 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source foods unavailable'; END IF;\n    FOR name,scalar IN SELECT key,value FROM jsonb_each(meal->'alimentos') LOOP\n     IF length(name) NOT BETWEEN 1 AND 200 OR public.r12_number(scalar,true) IS NOT TRUE THEN\n      RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source food unavailable'; END IF;\n    END LOOP;\n   END IF;\n  END LOOP;\n  metadata=jsonb_build_object('tmb',source.tmb,'get_total',source.get_total,'kcal_objetivo',source.kcal_objetivo,\n    'kcal_real',source.kcal_real,'proteina_g',source.proteina_g,'carbs_g',source.carbs_g,'grasa_g',source.grasa_g,\n    'objetivo',source.objetivo,'nivel_actividad',source.nivel_actividad,'tipo_plan',source.tipo_plan);\n  FOREACH name IN ARRAY ARRAY['tmb','get_total','kcal_objetivo','kcal_real','proteina_g','carbs_g','grasa_g'] LOOP\n   IF metadata->name<>'null'::jsonb AND public.r12_number(metadata->name) IS NOT TRUE THEN\n    RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source metadata unavailable'; END IF;\n  END LOOP;\n  projected=jsonb_build_object('plan',plan,'meta',metadata);\n  IF octet_length(projected::text)>262144 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection volume unavailable'; END IF;\n  RETURN projected;\n EXCEPTION WHEN invalid_text_representation OR numeric_value_out_of_range THEN\n  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source content unavailable';\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_proof",
+          "i client_link_invitations",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          null,
+          "\n SELECT COALESCE(public.r12_actor_valid() AND i.token_hash=NULLIF(current_setting('app.client_invitation_digest',true),'')\n AND EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NULLIF(current_setting('app.current_tenant',true),'')\n   AND u.email=i.recipient_email AND u.email=lower(btrim(u.email)))\n AND (i.status<>'consumed' OR i.consumed_by=NULLIF(current_setting('app.current_tenant',true),'')),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_recipient",
+          "p client_plan_publications",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          null,
+          "\n SELECT COALESCE(p.status='published' AND public.r12_actor_valid() AND EXISTS(\n SELECT 1 FROM public.client_account_links l WHERE l.id=p.link_id AND l.gym_id=p.gym_id AND l.client_id=p.client_id\n  AND l.user_id=NULLIF(current_setting('app.current_tenant',true),'') AND l.status='active'\n  AND public.r12_canonical_gym(l.gym_id)),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_require_rc",
+          "",
+          "void",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          null,
+          "\n BEGIN IF current_setting('transaction_isolation') IS DISTINCT FROM 'read committed' THEN RAISE EXCEPTION USING ERRCODE='25000',MESSAGE='R12 requires READ COMMITTED'; END IF; END ",
+          "plpgsql"
+        ],
+        [
+          "r12_unique_json",
+          "value json, depth integer",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          null,
+          "\n DECLARE child json;\n BEGIN\n  IF value IS NULL OR depth IS NULL OR depth<0 OR depth>12 THEN RETURN false; END IF;\n  IF json_typeof(value)='object' THEN\n   IF (SELECT count(*)<>count(DISTINCT key) FROM json_each(value)) THEN RETURN false; END IF;\n   FOR child IN SELECT x.value FROM json_each(value) x LOOP\n    IF public.r12_unique_json(child,depth+1) IS NOT TRUE THEN RETURN false; END IF;\n   END LOOP;\n  ELSIF json_typeof(value)='array' THEN\n   FOR child IN SELECT json_array_elements(value) LOOP\n    IF public.r12_unique_json(child,depth+1) IS NOT TRUE THEN RETURN false; END IF;\n   END LOOP;\n  END IF;\n  RETURN true;\n END ",
+          "plpgsql"
+        ]
+      ],
+      "triggers": [
+        [
+          "client_account_links",
+          "r12_guard_link",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_guard_link BEFORE INSERT OR UPDATE ON public.client_account_links FOR EACH ROW EXECUTE FUNCTION r12_guard_link()"
+        ],
+        [
+          "client_account_links",
+          "r12_link_pair",
+          "O",
+          true,
+          true,
+          "CREATE CONSTRAINT TRIGGER r12_link_pair AFTER UPDATE ON public.client_account_links DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION r12_check_pair()"
+        ],
+        [
+          "client_link_invitations",
+          "r12_guard_invitation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_guard_invitation BEFORE INSERT OR UPDATE ON public.client_link_invitations FOR EACH ROW EXECUTE FUNCTION r12_guard_invitation()"
+        ],
+        [
+          "client_link_invitations",
+          "r12_invitation_pair",
+          "O",
+          true,
+          true,
+          "CREATE CONSTRAINT TRIGGER r12_invitation_pair AFTER UPDATE ON public.client_link_invitations DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION r12_check_pair()"
+        ],
+        [
+          "client_plan_publications",
+          "r12_guard_publication",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_guard_publication BEFORE INSERT OR UPDATE ON public.client_plan_publications FOR EACH ROW EXECUTE FUNCTION r12_guard_publication()"
+        ],
+        [
+          "clientes",
+          "r12_client_invalidation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_client_invalidation AFTER UPDATE ON public.clientes FOR EACH ROW EXECUTE FUNCTION r12_invalidate_source()"
+        ],
+        [
+          "planes_generados",
+          "r12_plan_invalidation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_plan_invalidation AFTER UPDATE ON public.planes_generados FOR EACH ROW EXECUTE FUNCTION r12_invalidate_source()"
+        ],
+        [
+          "stored_objects",
+          "r12_object_invalidation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_object_invalidation AFTER UPDATE ON public.stored_objects FOR EACH ROW EXECUTE FUNCTION r12_invalidate_source()"
+        ]
+      ],
+      "all_fields_except_acl_match_frozen29": true,
+      "application_execute": [
+        [
+          "r12_actor_valid",
+          true
+        ],
+        [
+          "r12_canonical_gym",
+          true
+        ],
+        [
+          "r12_check_pair",
+          true
+        ],
+        [
+          "r12_consumed_proof",
+          true
+        ],
+        [
+          "r12_food",
+          true
+        ],
+        [
+          "r12_guard_invitation",
+          true
+        ],
+        [
+          "r12_guard_link",
+          true
+        ],
+        [
+          "r12_guard_publication",
+          true
+        ],
+        [
+          "r12_gym_scope",
+          true
+        ],
+        [
+          "r12_invalidate_source",
+          true
+        ],
+        [
+          "r12_keys",
+          true
+        ],
+        [
+          "r12_lock_canonical_gym",
+          true
+        ],
+        [
+          "r12_number",
+          true
+        ],
+        [
+          "r12_pending_proof",
+          true
+        ],
+        [
+          "r12_project_plan",
+          true
+        ],
+        [
+          "r12_proof",
+          true
+        ],
+        [
+          "r12_recipient",
+          true
+        ],
+        [
+          "r12_require_rc",
+          true
+        ],
+        [
+          "r12_unique_json",
+          true
+        ]
+      ]
+    },
+    "explicit_function_execute": {
+      "revision": [
+        "20261019_client_account_links"
+      ],
+      "functions": [
+        [
+          "r12_actor_valid",
+          "",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NULLIF(current_setting('app.current_tenant',true),'')\n   AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL\n   AND ((u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL)\n     OR (u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)\n       AND (u.team_gym_id IS NULL OR EXISTS(SELECT 1 FROM public.usuarios parent WHERE parent.id=u.team_gym_id\n         AND parent.tipo='gym' AND parent.role='OWNER' AND parent.team_gym_id IS NULL\n         AND parent.activo AND parent.deleted_at IS NULL AND parent.invitation_token IS NULL)))))\n ",
+          "sql"
+        ],
+        [
+          "r12_canonical_gym",
+          "identity text",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT EXISTS(SELECT 1 FROM public.usuarios u\n  WHERE u.id=identity AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL\n    AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL)\n ",
+          "sql"
+        ],
+        [
+          "r12_check_pair",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n DECLARE invitation public.client_link_invitations; linked public.client_account_links; target text;\n BEGIN\n  IF TG_TABLE_NAME='client_link_invitations' THEN\n   IF OLD.status<>'pending' OR NEW.status<>'consumed' THEN RETURN NEW; END IF;\n   target=NEW.link_id;\n  ELSE\n   IF OLD.status<>'pending' OR NEW.status<>'active' THEN RETURN NEW; END IF;\n   target=NEW.id;\n  END IF;\n  SELECT * INTO invitation FROM public.client_link_invitations WHERE link_id=target;\n  IF NOT FOUND OR invitation.status<>'consumed' OR public.r12_proof(invitation) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 commit proof unavailable'; END IF;\n  SELECT * INTO linked FROM public.client_account_links WHERE id=target;\n  IF NOT FOUND OR linked.status NOT IN ('active','revoked') OR linked.user_id IS DISTINCT FROM invitation.consumed_by OR linked.accepted_at IS DISTINCT FROM invitation.consumed_at\n   THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 acceptance incomplete'; END IF;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_consumed_proof",
+          "l client_account_links",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT COALESCE(l.user_id=NULLIF(current_setting('app.current_tenant',true),'') AND EXISTS(\n SELECT 1 FROM public.client_link_invitations i WHERE i.link_id=l.id AND i.gym_id=l.gym_id AND i.client_id=l.client_id\n AND i.status='consumed' AND i.consumed_by=l.user_id AND i.consumed_at=l.accepted_at AND public.r12_proof(i)),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_food",
+          "value jsonb, vegetable boolean",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n DECLARE macro jsonb;\n BEGIN\n  IF vegetable IS NULL THEN RETURN false; END IF;\n  IF public.r12_keys(value,ARRAY['alimento','gramos','equivalencia','macros'],ARRAY['alimento','gramos']) IS NOT TRUE\n   OR jsonb_typeof(value->'alimento')<>'string' OR length(value->>'alimento') NOT BETWEEN 1 AND 200\n   OR public.r12_number(value->'gramos',true) IS NOT TRUE THEN RETURN false; END IF;\n  IF value ? 'equivalencia' AND (jsonb_typeof(value->'equivalencia')<>'string' OR length(value->>'equivalencia')>500) THEN RETURN false; END IF;\n  IF value ? 'macros' THEN\n   IF public.r12_keys(value->'macros',ARRAY['kcal','proteina','carbs','grasa'],ARRAY[]::text[]) IS NOT TRUE THEN RETURN false; END IF;\n   FOR macro IN SELECT x.value FROM jsonb_each(value->'macros') x LOOP\n    IF public.r12_number(macro) IS NOT TRUE THEN RETURN false; END IF;\n   END LOOP;\n  END IF;\n  RETURN true;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_guard_invitation",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n DECLARE decision timestamp;\n BEGIN\n  PERFORM public.r12_require_rc();\n  IF TG_OP='INSERT' THEN\n   IF NEW.status<>'pending' OR NEW.consumed_by IS NOT NULL OR NEW.version<>1 OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 invitation denied'; END IF;\n   NEW.created_at=clock_timestamp() AT TIME ZONE 'UTC';\n   NEW.updated_at=NEW.created_at;\n   NEW.consumed_at=NULL;\n   NEW.revoked_at=NULL;\n   IF NEW.token_hash!~'^[a-f0-9]{64}$' OR NEW.payload_hash!~'^[a-f0-9]{64}$' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 invitation digest denied'; END IF;\n   RETURN NEW;\n  END IF;\n  IF (NEW.id,NEW.link_id,NEW.gym_id,NEW.client_id,NEW.recipient_email,NEW.issued_by,NEW.request_key,NEW.payload_hash,NEW.created_at) IS DISTINCT FROM (OLD.id,OLD.link_id,OLD.gym_id,OLD.client_id,OLD.recipient_email,OLD.issued_by,OLD.request_key,OLD.payload_hash,OLD.created_at)\n   OR NEW.version<>OLD.version+1 OR OLD.status<>'pending' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable invitation'; END IF;\n  IF NEW.status='consumed' THEN\n   decision=clock_timestamp() AT TIME ZONE 'UTC';\n   IF public.r12_proof(OLD) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE OR NEW.consumed_by IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'')\n    OR NEW.token_hash IS DISTINCT FROM OLD.token_hash OR NEW.expires_at IS DISTINCT FROM OLD.expires_at OR decision>=OLD.expires_at\n    THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 consumption denied'; END IF;\n   NEW.consumed_at=decision;\n  ELSIF public.r12_gym_scope(NEW.gym_id) IS NOT TRUE OR NEW.status NOT IN ('pending','revoked')\n   OR (NEW.status='pending' AND public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 invitation transition denied'; END IF;\n  IF NEW.status='revoked' THEN\n   IF (NEW.token_hash,NEW.expires_at) IS DISTINCT FROM (OLD.token_hash,OLD.expires_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable invitation'; END IF;\n   NEW.revoked_at=clock_timestamp() AT TIME ZONE 'UTC';\n  ELSIF NEW.status='pending' THEN\n   IF NEW.token_hash!~'^[a-f0-9]{64}$' OR NEW.token_hash=OLD.token_hash OR NEW.expires_at<=clock_timestamp() AT TIME ZONE 'UTC' THEN\n    RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 rotation denied'; END IF;\n  END IF;\n  NEW.updated_at=clock_timestamp() AT TIME ZONE 'UTC';\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_guard_link",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n BEGIN\n  PERFORM public.r12_require_rc();\n  IF TG_OP='INSERT' THEN\n   IF NEW.status<>'pending' OR NEW.user_id IS NOT NULL OR NEW.version<>1 OR public.r12_gym_scope(NEW.gym_id) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 link denied'; END IF;\n   PERFORM 1 FROM public.clientes WHERE gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND activo AND deleted_at IS NULL FOR SHARE;\n   IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 client unavailable'; END IF;\n   NEW.created_at=clock_timestamp() AT TIME ZONE 'UTC';\n   NEW.updated_at=NEW.created_at;\n   NEW.accepted_at=NULL;\n   NEW.revoked_at=NULL;\n  ELSE\n   IF (NEW.id,NEW.gym_id,NEW.client_id,NEW.gym_name,NEW.client_display_name,NEW.created_at) IS DISTINCT FROM (OLD.id,OLD.gym_id,OLD.client_id,OLD.gym_name,OLD.client_display_name,OLD.created_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable link'; END IF;\n   IF OLD.status='pending' AND NEW.status='active' THEN\n    IF public.r12_consumed_proof(NEW) IS NOT TRUE OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 consumption proof required'; END IF;\n   ELSIF OLD.status IN ('pending','active') AND NEW.status='revoked' THEN\n    IF (NEW.user_id,NEW.accepted_at) IS DISTINCT FROM (OLD.user_id,OLD.accepted_at) THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable recipient'; END IF;\n    NEW.revoked_at=clock_timestamp() AT TIME ZONE 'UTC';\n   ELSE RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 link transition denied'; END IF;\n   IF NEW.version<>OLD.version+1 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 version denied'; END IF;\n   NEW.updated_at=clock_timestamp() AT TIME ZONE 'UTC';\n  END IF;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_guard_publication",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n DECLARE source public.planes_generados; object public.stored_objects; projected jsonb;\n BEGIN\n  PERFORM public.r12_require_rc();\n  IF TG_OP='UPDATE' THEN\n   IF (NEW.id,NEW.gym_id,NEW.client_id,NEW.link_id,NEW.source_plan_id,NEW.source_object_id,NEW.object_key,NEW.content_type,NEW.byte_size,NEW.sha256,NEW.storage_backend,NEW.plan_json)\n    IS DISTINCT FROM (OLD.id,OLD.gym_id,OLD.client_id,OLD.link_id,OLD.source_plan_id,OLD.source_object_id,OLD.object_key,OLD.content_type,OLD.byte_size,OLD.sha256,OLD.storage_backend,OLD.plan_json)\n    OR (NEW.schema_version,NEW.published_by,NEW.published_at,NEW.plan_sha256) IS DISTINCT FROM (OLD.schema_version,OLD.published_by,OLD.published_at,OLD.plan_sha256)\n    OR OLD.status<>'published' OR NEW.status<>'withdrawn' OR NEW.publication_version<>OLD.publication_version+1\n    THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 immutable publication'; END IF;\n   NEW.withdrawn_at=clock_timestamp() AT TIME ZONE 'UTC';\n   RETURN NEW;\n  END IF;\n  IF NEW.status<>'published' OR NEW.publication_version<>1 OR NEW.schema_version<>1 OR public.r12_lock_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R12 publication owner unavailable'; END IF;\n  IF NEW.plan_json IS NULL OR octet_length(NEW.plan_json)>262144 THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection volume unavailable'; END IF;\n  PERFORM 1 FROM public.clientes WHERE gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND activo AND deleted_at IS NULL FOR SHARE;\n  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication client unavailable'; END IF;\n  PERFORM 1 FROM public.client_account_links WHERE id=NEW.link_id AND gym_id=NEW.gym_id AND client_id=NEW.client_id AND status IN ('pending','active') FOR SHARE;\n  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication link unavailable'; END IF;\n  SELECT * INTO source FROM public.planes_generados WHERE id=NEW.source_plan_id AND gym_id=NEW.gym_id AND id_cliente=NEW.client_id AND deleted_at IS NULL FOR SHARE;\n  IF NOT FOUND OR NEW.source_object_id IS DISTINCT FROM source.pdf_object_id THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication source unavailable'; END IF;\n  IF source.pdf_object_id IS NOT NULL THEN\n   SELECT * INTO object FROM public.stored_objects WHERE id=source.pdf_object_id AND gym_id=NEW.gym_id FOR SHARE;\n   IF NOT FOUND OR object.status<>'ready' OR object.kind<>'plan_pdf' OR object.storage_backend NOT IN ('local','s3')\n    OR (NEW.source_object_id,NEW.object_key,NEW.content_type,NEW.byte_size,NEW.sha256,NEW.storage_backend)\n     IS DISTINCT FROM (object.id,object.key,object.content_type,object.byte_size,object.sha256,object.storage_backend)\n    THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 publication object unavailable'; END IF;\n  END IF;\n  projected=public.r12_project_plan(source);\n  IF public.r12_unique_json(NEW.plan_json::json) IS NOT TRUE OR NEW.plan_json::jsonb IS DISTINCT FROM projected\n    OR NEW.plan_sha256 IS DISTINCT FROM encode(sha256(convert_to(NEW.plan_json,'UTF8')),'hex') THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection source mismatch'; END IF;\n  NEW.plan_json=projected::text;\n  NEW.plan_sha256=encode(sha256(convert_to(NEW.plan_json,'UTF8')),'hex');\n  NEW.published_at=clock_timestamp() AT TIME ZONE 'UTC';\n  NEW.withdrawn_at=NULL;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_gym_scope",
+          "identity text",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT COALESCE(identity=NULLIF(current_setting('app.current_tenant',true),''),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_invalidate_source",
+          "",
+          "trigger",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n BEGIN\n  IF TG_TABLE_NAME='clientes' THEN\n   IF NOT ((NEW.activo IS FALSE AND OLD.activo IS DISTINCT FROM NEW.activo) OR (NEW.deleted_at IS NOT NULL AND OLD.deleted_at IS DISTINCT FROM NEW.deleted_at)\n      OR (NEW.gym_id,NEW.id_cliente) IS DISTINCT FROM (OLD.gym_id,OLD.id_cliente)) THEN RETURN NEW; END IF;\n   PERFORM public.r12_require_rc();\n   PERFORM 1 FROM public.client_account_links WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente ORDER BY id FOR UPDATE;\n   UPDATE public.client_account_links SET status='revoked',version=version+1,revoked_at=clock_timestamp() AT TIME ZONE 'UTC'\n     WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente AND status IN ('pending','active');\n   UPDATE public.client_link_invitations SET status='revoked',version=version+1 WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente AND status='pending';\n   UPDATE public.client_plan_publications SET status='withdrawn',publication_version=publication_version+1 WHERE gym_id=OLD.gym_id AND client_id=OLD.id_cliente AND status='published';\n  ELSIF TG_TABLE_NAME='planes_generados' THEN\n   IF NEW IS NOT DISTINCT FROM OLD THEN RETURN NEW; END IF;\n   PERFORM public.r12_require_rc();\n   UPDATE public.client_plan_publications SET status='withdrawn',publication_version=publication_version+1 WHERE source_plan_id=OLD.id AND gym_id=OLD.gym_id AND status='published';\n  ELSE\n   IF (NEW.id,NEW.gym_id,NEW.kind,NEW.key,NEW.content_type,NEW.byte_size,NEW.sha256,NEW.storage_backend,NEW.status)\n    IS NOT DISTINCT FROM (OLD.id,OLD.gym_id,OLD.kind,OLD.key,OLD.content_type,OLD.byte_size,OLD.sha256,OLD.storage_backend,OLD.status) THEN RETURN NEW; END IF;\n   PERFORM public.r12_require_rc();\n   UPDATE public.client_plan_publications SET status='withdrawn',publication_version=publication_version+1 WHERE source_object_id=OLD.id AND gym_id=OLD.gym_id AND status='published';\n  END IF;\n  RETURN NEW;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_keys",
+          "value jsonb, allowed text[], required text[]",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT CASE WHEN jsonb_typeof(value)='object' AND allowed IS NOT NULL AND required IS NOT NULL THEN\n  value ?& required AND NOT EXISTS(SELECT 1 FROM jsonb_object_keys(value) key WHERE NOT key=ANY(allowed))\n  ELSE false END\n ",
+          "sql"
+        ],
+        [
+          "r12_lock_canonical_gym",
+          "identity text",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n BEGIN\n  PERFORM 1 FROM public.usuarios u WHERE u.id=identity AND u.tipo='gym' AND u.role='OWNER'\n    AND u.team_gym_id IS NULL AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL FOR SHARE NOWAIT;\n  RETURN FOUND;\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_number",
+          "value jsonb, positive boolean",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT CASE WHEN jsonb_typeof(value)='number' AND positive IS NOT NULL THEN\n  (value::text)::numeric BETWEEN 0 AND 1000000000000 AND (NOT positive OR (value::text)::numeric>0)\n  ELSE false END\n ",
+          "sql"
+        ],
+        [
+          "r12_pending_proof",
+          "l client_account_links",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT COALESCE(l.status='pending' AND EXISTS(SELECT 1 FROM public.client_link_invitations i WHERE i.link_id=l.id\n  AND i.gym_id=l.gym_id AND i.client_id=l.client_id AND i.status IN ('pending','consumed') AND public.r12_proof(i)),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_project_plan",
+          "source planes_generados",
+          "jsonb",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n DECLARE raw json; plan jsonb; meal jsonb; block jsonb; item jsonb; category text; name text;\n  projected jsonb; metadata jsonb; scalar jsonb; foods integer;\n BEGIN\n  IF source.plan_json IS NULL OR octet_length(source.plan_json)>262144 THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source content unavailable'; END IF;\n  raw=source.plan_json::json;\n  IF public.r12_unique_json(raw) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source content unavailable'; END IF;\n  plan=raw::jsonb;\n  IF public.r12_keys(plan,ARRAY['desayuno','almuerzo','comida','cena'],ARRAY['desayuno','almuerzo','comida','cena']) IS NOT TRUE THEN\n   RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source schema unavailable'; END IF;\n  FOREACH name IN ARRAY ARRAY['desayuno','almuerzo','comida','cena'] LOOP\n   meal=plan->name;\n   IF meal->>'tipo_plan'='opciones' THEN\n    foods=0;\n    IF public.r12_keys(meal,ARRAY['kcal_objetivo','tipo_plan','proteinas','carbohidratos','grasas','vegetales'],\n      ARRAY['kcal_objetivo','tipo_plan','proteinas','carbohidratos','grasas','vegetales']) IS NOT TRUE\n      OR public.r12_number(meal->'kcal_objetivo') IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source options unavailable'; END IF;\n    FOREACH category IN ARRAY ARRAY['proteinas','carbohidratos','grasas'] LOOP\n     block=meal->category;\n     IF public.r12_keys(block,ARRAY['cantidad_objetivo','opciones'],ARRAY['cantidad_objetivo','opciones']) IS NOT TRUE\n      OR public.r12_number(block->'cantidad_objetivo') IS NOT TRUE OR jsonb_typeof(block->'opciones')<>'array' THEN\n       RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source options unavailable'; END IF;\n     IF jsonb_array_length(block->'opciones')>256 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source options unavailable'; END IF;\n     foods=foods+jsonb_array_length(block->'opciones');\n     FOR item IN SELECT jsonb_array_elements(block->'opciones') LOOP\n      IF public.r12_food(item) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source food unavailable'; END IF;\n     END LOOP;\n    END LOOP;\n    IF jsonb_typeof(meal->'vegetales')<>'array' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source vegetables unavailable'; END IF;\n    IF jsonb_array_length(meal->'vegetales')>32 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source vegetables unavailable'; END IF;\n    foods=foods+jsonb_array_length(meal->'vegetales');\n    FOR item IN SELECT jsonb_array_elements(meal->'vegetales') LOOP\n     IF public.r12_food(item,true) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source food unavailable'; END IF;\n    END LOOP;\n    IF foods=0 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 empty meal unavailable'; END IF;\n   ELSE\n    IF public.r12_keys(meal,ARRAY['kcal_objetivo','kcal_real','alimentos'],ARRAY['kcal_objetivo','kcal_real','alimentos']) IS NOT TRUE\n      OR public.r12_number(meal->'kcal_objetivo') IS NOT TRUE OR public.r12_number(meal->'kcal_real') IS NOT TRUE\n      OR jsonb_typeof(meal->'alimentos')<>'object' THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source fixed menu unavailable'; END IF;\n    IF (SELECT count(*) FROM jsonb_object_keys(meal->'alimentos')) NOT BETWEEN 1 AND 256 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source foods unavailable'; END IF;\n    FOR name,scalar IN SELECT key,value FROM jsonb_each(meal->'alimentos') LOOP\n     IF length(name) NOT BETWEEN 1 AND 200 OR public.r12_number(scalar,true) IS NOT TRUE THEN\n      RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source food unavailable'; END IF;\n    END LOOP;\n   END IF;\n  END LOOP;\n  metadata=jsonb_build_object('tmb',source.tmb,'get_total',source.get_total,'kcal_objetivo',source.kcal_objetivo,\n    'kcal_real',source.kcal_real,'proteina_g',source.proteina_g,'carbs_g',source.carbs_g,'grasa_g',source.grasa_g,\n    'objetivo',source.objetivo,'nivel_actividad',source.nivel_actividad,'tipo_plan',source.tipo_plan);\n  FOREACH name IN ARRAY ARRAY['tmb','get_total','kcal_objetivo','kcal_real','proteina_g','carbs_g','grasa_g'] LOOP\n   IF metadata->name<>'null'::jsonb AND public.r12_number(metadata->name) IS NOT TRUE THEN\n    RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source metadata unavailable'; END IF;\n  END LOOP;\n  projected=jsonb_build_object('plan',plan,'meta',metadata);\n  IF octet_length(projected::text)>262144 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 projection volume unavailable'; END IF;\n  RETURN projected;\n EXCEPTION WHEN invalid_text_representation OR numeric_value_out_of_range THEN\n  RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R12 source content unavailable';\n END ",
+          "plpgsql"
+        ],
+        [
+          "r12_proof",
+          "i client_link_invitations",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT COALESCE(public.r12_actor_valid() AND i.token_hash=NULLIF(current_setting('app.client_invitation_digest',true),'')\n AND EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NULLIF(current_setting('app.current_tenant',true),'')\n   AND u.email=i.recipient_email AND u.email=lower(btrim(u.email)))\n AND (i.status<>'consumed' OR i.consumed_by=NULLIF(current_setting('app.current_tenant',true),'')),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_recipient",
+          "p client_plan_publications",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "s",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n SELECT COALESCE(p.status='published' AND public.r12_actor_valid() AND EXISTS(\n SELECT 1 FROM public.client_account_links l WHERE l.id=p.link_id AND l.gym_id=p.gym_id AND l.client_id=p.client_id\n  AND l.user_id=NULLIF(current_setting('app.current_tenant',true),'') AND l.status='active'\n  AND public.r12_canonical_gym(l.gym_id)),false)\n ",
+          "sql"
+        ],
+        [
+          "r12_require_rc",
+          "",
+          "void",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "v",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n BEGIN IF current_setting('transaction_isolation') IS DISTINCT FROM 'read committed' THEN RAISE EXCEPTION USING ERRCODE='25000',MESSAGE='R12 requires READ COMMITTED'; END IF; END ",
+          "plpgsql"
+        ],
+        [
+          "r12_unique_json",
+          "value json, depth integer",
+          "boolean",
+          false,
+          [
+            "search_path=pg_catalog"
+          ],
+          "i",
+          "u",
+          "{=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_m_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47,mbqa_a_888d7742859848439e764ad441cd2a47=X/mbqa_m_888d7742859848439e764ad441cd2a47}",
+          "\n DECLARE child json;\n BEGIN\n  IF value IS NULL OR depth IS NULL OR depth<0 OR depth>12 THEN RETURN false; END IF;\n  IF json_typeof(value)='object' THEN\n   IF (SELECT count(*)<>count(DISTINCT key) FROM json_each(value)) THEN RETURN false; END IF;\n   FOR child IN SELECT x.value FROM json_each(value) x LOOP\n    IF public.r12_unique_json(child,depth+1) IS NOT TRUE THEN RETURN false; END IF;\n   END LOOP;\n  ELSIF json_typeof(value)='array' THEN\n   FOR child IN SELECT json_array_elements(value) LOOP\n    IF public.r12_unique_json(child,depth+1) IS NOT TRUE THEN RETURN false; END IF;\n   END LOOP;\n  END IF;\n  RETURN true;\n END ",
+          "plpgsql"
+        ]
+      ],
+      "triggers": [
+        [
+          "client_account_links",
+          "r12_guard_link",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_guard_link BEFORE INSERT OR UPDATE ON public.client_account_links FOR EACH ROW EXECUTE FUNCTION r12_guard_link()"
+        ],
+        [
+          "client_account_links",
+          "r12_link_pair",
+          "O",
+          true,
+          true,
+          "CREATE CONSTRAINT TRIGGER r12_link_pair AFTER UPDATE ON public.client_account_links DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION r12_check_pair()"
+        ],
+        [
+          "client_link_invitations",
+          "r12_guard_invitation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_guard_invitation BEFORE INSERT OR UPDATE ON public.client_link_invitations FOR EACH ROW EXECUTE FUNCTION r12_guard_invitation()"
+        ],
+        [
+          "client_link_invitations",
+          "r12_invitation_pair",
+          "O",
+          true,
+          true,
+          "CREATE CONSTRAINT TRIGGER r12_invitation_pair AFTER UPDATE ON public.client_link_invitations DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION r12_check_pair()"
+        ],
+        [
+          "client_plan_publications",
+          "r12_guard_publication",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_guard_publication BEFORE INSERT OR UPDATE ON public.client_plan_publications FOR EACH ROW EXECUTE FUNCTION r12_guard_publication()"
+        ],
+        [
+          "clientes",
+          "r12_client_invalidation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_client_invalidation AFTER UPDATE ON public.clientes FOR EACH ROW EXECUTE FUNCTION r12_invalidate_source()"
+        ],
+        [
+          "planes_generados",
+          "r12_plan_invalidation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_plan_invalidation AFTER UPDATE ON public.planes_generados FOR EACH ROW EXECUTE FUNCTION r12_invalidate_source()"
+        ],
+        [
+          "stored_objects",
+          "r12_object_invalidation",
+          "O",
+          false,
+          false,
+          "CREATE TRIGGER r12_object_invalidation AFTER UPDATE ON public.stored_objects FOR EACH ROW EXECUTE FUNCTION r12_invalidate_source()"
+        ]
+      ],
+      "all_fields_except_acl_match_frozen29": true,
+      "application_execute": [
+        [
+          "r12_actor_valid",
+          true
+        ],
+        [
+          "r12_canonical_gym",
+          true
+        ],
+        [
+          "r12_check_pair",
+          true
+        ],
+        [
+          "r12_consumed_proof",
+          true
+        ],
+        [
+          "r12_food",
+          true
+        ],
+        [
+          "r12_guard_invitation",
+          true
+        ],
+        [
+          "r12_guard_link",
+          true
+        ],
+        [
+          "r12_guard_publication",
+          true
+        ],
+        [
+          "r12_gym_scope",
+          true
+        ],
+        [
+          "r12_invalidate_source",
+          true
+        ],
+        [
+          "r12_keys",
+          true
+        ],
+        [
+          "r12_lock_canonical_gym",
+          true
+        ],
+        [
+          "r12_number",
+          true
+        ],
+        [
+          "r12_pending_proof",
+          true
+        ],
+        [
+          "r12_project_plan",
+          true
+        ],
+        [
+          "r12_proof",
+          true
+        ],
+        [
+          "r12_recipient",
+          true
+        ],
+        [
+          "r12_require_rc",
+          true
+        ],
+        [
+          "r12_unique_json",
+          true
+        ]
+      ]
+    }
+  },
+  "scope": "Read-only two own DBs. Signatures equal to frozen29 except only explicit proacl; application effective EXECUTE exists in both variants."
+}

@@ -109,3 +109,8 @@ No interpretar el GUCactor como firma verificable. R25 requiere un lector mínim
 ## Checkpoint124
 
 No arreglar el fallo de recuperación cambiando suassert. Separar identidadválida de capacidad de incrementarSV. Conservar809rojo y repetir fullmatrix con fuente nueva y nombres distintos. Retiropropio es exclusión de permisos y admiteOWNERambiguo sólo sobre user_id persistido propio; no espacio personal ni cartera. Reactivación de vínculo revocado no adopta grants; togglecuenta sin retirar consentimiento no equivale a revocación.
+
+
+## Checkpoint125
+
+No debilitar assertions para corregir carreras de fixtures: congelar sólo setup, restaurar antes del negocio y preservar la firma original. No atribuir el error3047 a una carrera sin telemetría histórica suficiente. El DEFAULTFUNCTIONS del harness era redundante y alteraba proacl: retirar ese estímulo de la nueva prueba, no relajar el guard29→30. Aceptar header/CSS sólo con los mismos canarios y fuente345. Mantener login general inválido con padreOFF; retiro necesita un flujo limitado con pruebas frescas y sin JWT, todavía pendiente. Corrección de redacción CI:4grupos,5módulos/pins. El lease autor32 usa UUID, pero write_text inicial no demuestra creación exclusiva; no alterar ese sello ni repetir la afirmación.

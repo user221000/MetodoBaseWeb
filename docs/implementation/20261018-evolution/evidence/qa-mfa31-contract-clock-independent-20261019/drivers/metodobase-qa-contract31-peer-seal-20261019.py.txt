@@ -1,0 +1,96 @@
+from pathlib import Path,PurePosixPath
+from datetime import datetime,timezone
+import ast,csv,hashlib,io,json,re,subprocess,tarfile,zipfile,xml.etree.ElementTree as ET
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+ROOT=Path(r'F:\mb-qa-contract31-clock-keyword-20261019')
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-mfa31-contract-clock-independent-20261019'
+HEAD='d0121919e6207dd76bbb8c0c9bff5966c6930d3f'
+PREVIOUS='9abdabf5e1e7c2aa6b2c005cee15068a6ef9b9cb'
+BASE='9b14e2e9c3279a9a85eef444f1ef50f3f5f8750b'
+def meta(raw):return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def info(p):return meta(p.read_bytes())
+def write(p,j):
+    with p.open('x',encoding='utf-8') as out:json.dump(j,out,indent=2);out.write('\n')
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain','--untracked-files=no').strip()
+phase_names=['metodobase-qa-contract31-signature-before-20261019','metodobase-qa-contract31-concurrency-before-20261019','metodobase-qa-contract31-signature-after-20261019','metodobase-qa-contract31-concurrency-after-20261019','metodobase-qa-contract31-targeted-final-20261019']
+phases={name:json.loads((TEMP/name/'summary.json').read_text()) for name in phase_names}
+for name,summary in phases.items():
+    assert summary['sources_packages_python_probes_runner_quiet'] and summary['package_metadata']==89 and summary['pip_before_after']==[0,0]
+    before=json.loads((TEMP/name/'before.json').read_text());after=json.loads((TEMP/name/'after.json').read_text());assert before==after
+    assert summary['source']==(PREVIOUS if '-before-' in name else HEAD)
+    assert summary['source_files']==(736 if '-before-' in name else 737)
+sig_before=phases[phase_names[0]];conc_before=phases[phase_names[1]];sig_after=phases[phase_names[2]];conc_after=phases[phase_names[3]];targeted=phases[phase_names[4]]
+assert sig_before['count']==2 and sig_before['exit_code']==1 and all(c['failures']==1 and not c['errors'] and not c['skips'] for c in sig_before['cases'])
+for s,count in [(conc_before,2),(sig_after,2),(conc_after,2),(targeted,53)]:
+    assert s['exit_code']==0 and s['count']==count and not any(c['errors'] or c['failures'] or c['skips'] for c in s['cases'])
+def ids(rows):return {(row['class'],row['name']) for row in rows}
+assert ids(sig_before['cases'])==ids(sig_after['cases']) and ids(conc_before['cases'])==ids(conc_after['cases'])
+sig_probe=TEMP/'metodobase-qa-contract31-explicit-now-20261019.py';conc_probe=TEMP/'metodobase-qa-contract31-concurrency-20261019.py';canary=TEMP/'metodobase-qa-contract-client-crossing-20261019.py'
+assert info(sig_probe)['sha256']=='7bd90d5484b818ef6980a2a02f2161380c3ba0b5ab3c7281d5c5717bc0b1c418'
+assert info(conc_probe)['sha256']=='57d85b1db0babc6572848ea95a260858e4264bcefab6df4d28ceda0aea88c54b'
+assert info(canary)['sha256']=='e8627bd904422d64dba3a8e022b3670bd8c523aa0e50426f3f3d71ed1a2c30e5'
+for name in [phase_names[0],phase_names[2]]:
+    assert json.loads((TEMP/name/'before.json').read_text())['probes'][str(sig_probe)]==info(sig_probe)
+for name in [phase_names[1],phase_names[3]]:
+    assert json.loads((TEMP/name/'before.json').read_text())['probes'][str(conc_probe)]==info(conc_probe)
+author_prefix='docs/implementation/20261018-evolution/evidence/backend-mfa31-contract-clock-20261019/'
+author_source=git('show',PREVIOUS+':'+author_prefix+'source.json');author=json.loads(author_source)
+directed=git('show',PREVIOUS+':'+author_prefix+'directed.xml')
+entry=next(r for r in author['proof_files'] if r['path']=='directed.xml');assert info(TEMP/'metodobase-mfa31-contract-clock-author-20261019/directed.xml')['sha256']==entry['RAW_sha256']==hashlib.sha256(directed).hexdigest()
+author_cases=list(ET.fromstring(directed).iter('testcase'));assert len(author_cases)==51
+author_ids={(c.attrib.get('classname'),c.attrib['name']) for c in author_cases};assert len(author_ids)==51
+assert all(not c.findall('failure')+c.findall('error')+c.findall('skipped') for c in author_cases)
+all_target_ids=ids(targeted['cases']);assert author_ids.issubset(all_target_ids)
+new_ids=all_target_ids-author_ids;assert len(new_ids)==2
+assert ('','test_unchanged_contract_helper_crossing_diagnostic') in new_ids
+assert sum(c[0]=='tests.test_mfa31_contract_clock_keyword' for c in new_ids)==1
+own_final_ids=ids(sig_after['cases'])|ids(conc_after['cases']);assert len(own_final_ids)==4 and not (own_final_ids&all_target_ids)
+assert len(all_target_ids|own_final_ids)==57
+old_cross=TEMP/'metodobase-qa-clock31-contract-diagnostic-20261019'
+old_cross_post=json.loads((old_cross/'postcheck.json').read_text());assert old_cross_post['status']=='CONFIRMED_CONTROLLED_UNCHANGED_HELPER_CLOCK_GAP'
+assert json.loads((old_cross/'before.json').read_text())['probe']==info(canary)
+assert json.loads((TEMP/phase_names[4]/'before.json').read_text())['probes'][str(canary)]==info(canary)
+preservation=TEMP/'metodobase-qa-contract31-preservation-final-20261019'
+preserve=json.loads((preservation/'review.json').read_text());assert preserve['entire_helper_inverse_Git_LF_exact'] and preserve['old_assertions_AST_exact'] and preserve['old_helper_asserts']==4
+assert preserve['source']==HEAD and preserve['base']==BASE
+fn=next(n for n in ast.parse((TEMP/'metodobase-checkpoint119-prepare.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='scan')
+exec(compile(ast.Module(body=[fn],type_ignores=[]),'canonical-scan-extraction','exec'))
+vault=TEMP/'metodobase-qa-contract31-peer-private-20261019';vault.mkdir(exist_ok=False)
+who=subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True);sid=next(csv.reader(io.StringIO(who)))[1]
+subprocess.run(['icacls',str(vault),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+archive=vault/'primaries.zip'
+driver_names=['metodobase-qa-contract31-peer-run-20261019.py','metodobase-qa-contract31-peer-run-v2-20261019.py','metodobase-qa-contract31-peer-run-v3-20261019.py','metodobase-qa-contract31-explicit-now-20261019.py','metodobase-qa-contract31-concurrency-20261019.py','metodobase-qa-contract31-preservation-20261019.py','metodobase-qa-contract31-peer-seal-20261019.py','metodobase-qa-contract31-static-review-20261019.txt','metodobase-qa-contract-client-crossing-20261019.py']
+logs=[name+'-driver.log' for name in phase_names]+['metodobase-qa-contract31-preservation-final-20261019-driver.log']
+with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as z:
+    for name in phase_names+[preservation.name]:
+        for p in sorted((TEMP/name).rglob('*')):
+            if p.is_file():z.write(p,name+'/'+p.relative_to(TEMP/name).as_posix())
+    for name in driver_names+logs:z.write(TEMP/name,'drivers/'+name)
+OUT.mkdir(exist_ok=False);(OUT/'.gitattributes').write_bytes(b'* -text\n')
+for name in phase_names+[preservation.name]:
+    dest=OUT/name;dest.mkdir()
+    for p in sorted((TEMP/name).glob('*')):
+        if p.is_file():
+            raw=p.read_bytes();scan(raw,name+'/'+p.name);(dest/p.name).write_bytes(raw)
+(OUT/'drivers').mkdir()
+for name in driver_names+logs:
+    raw=(TEMP/name).read_bytes();scan(raw,name);(OUT/'drivers'/(name+'.txt')).write_bytes(raw)
+write(OUT/'case-count-and-comparison.json',{'final_source':HEAD,'before_source':PREVIOUS,'old_crossing_before_source':'4740fa235170ded9596927c9ea261a9d7998122e','author_previous51_ids':sorted(author_ids),'targeted_additional2_ids':sorted(new_ids),'final_targeted_unique':53,'own_additional4_ids':sorted(own_final_ids),'final_distinct_union':57,'same_signature2_before_after':True,'same_concurrency2_before_after':True,'same_e862_before_setup_error_after_PASS':True,'replays_counted_as_new':False,'author51_XML_Git_blob':meta(directed),'author_source_Git_blob':meta(author_source),'old_crossing_original_XML':info(old_cross/'results.xml'),'old_crossing_postcheck':old_cross_post})
+write(OUT/'scope-and-preconditions.json',{'confirmed_keyword_bug':{'before':'9abdab scoped(supplied=None) rejects now= with TypeError, both aware and naive input.','repair':'d012 scoped(now=None) delegates explicit values to original validator. Two identical independent canaries now pass.','before_failures_preserved':True},'planned_selection_correction':'Targeted was initially planned with the whole diary security module but never launched that mode. v2 selects the exact historical two-branch node before execution. v3 includes the one new author keyword test, so final measured count is53. Earlier signature/concurrency runs retain original runner bytes; no test/assertion was changed.','static_review_role':'Separate independent reader, no tests or mutations, source9abdab; named now issue was subsequently confirmed and fixed dynamically.','clock_limits':['Synchronous cooperating helpers are serialized by RLock; no arbitrary same-thread asyncio-task isolation guarantee.','Explicitly copied context carries its authentication tag; the foreign real HTTP witness uses an untagged thread.','Ownership check covers foreign replacement after wrapper installation; no atomic CAS against noncooperating external clock installers racing before assignment.'],'privacy':{'archive':str(archive),'metadata':info(archive),'ACL':'Current user SID and SYSTEM only before archive creation','SQLite_DB_or_private_fixture_directories_published':False},'PG_VM_Chrome_provider_broad_SCA_production_acceptance':False})
+(OUT/'REVIEW.md').write_text('''Aceptación focal independiente de helper2 en d012, sucesor mínimo de9abdab. Los mismos2 canarios propios now= que fallaban con TypeError pasaron sin cambios. Se conserva la validación original de fecha aware/naive y la restauración exacta del reloj/contexto. El fallo era del wrapper de fixture; producto y política MFA no cambiaron.
+
+El dirigido final pasó53/53: los51 IDs anteriores del autor, el canary e862 independiente y el nuevo caso keyword del autor. Otros2 canarios propios keyword y2 de concurrencia/anidamiento pasaron por separado. La unión exacta es57 IDs positivos; los replays before/after no aumentan esa cifra. El canary e862 permanece byte idéntico al diagnóstico previo de setupERROR y ahora pasa con los endpoints reales.
+
+Se reprodujeron los controles de HTTP real/contexto del autor: confirmación TOTP y recuperación genuinas, restauración antes del grant/mutación de negocio, OTP inválido rechazado una sola vez sin factor habilitado ni sesión cacheada, reautenticación real desde thread ajeno con tiempo persistido vivo, excepción y reemplazo posterior sin clobber. Mis controles adicionales comprobaron rechazo de scope anidado sin perder dueño exterior, serialización de owners síncronos y delegación del thread sin tag. Una lectura estática independiente señaló la incompatibilidad now= antes de su confirmación dinámica.
+
+La inversa FULL del helper devuelve exactamente el Git LF de9b14 y conserva sus4 asserts. Los callers, helper1, su canary y mapping/reportes completos permanecen intactos. Los snapshots conservaron736 fuentes before9abdab y737 finales,89 metadatos de paquetes, Python shim/base y probes/runners, pip0/0.
+
+Los límites son del seam de pruebas síncronas: RLock no promete aislamiento de tasks asyncio en el mismo hilo; copiar contexto transmite su tag; el control de dueño no es CAS frente a instaladores externos no cooperantes antes de asignar el wrapper. Se conservaron fuentes y RAW privados protegidos, y el scanner canónico pasó la proyección pública. No se repitió PG34 ni se ejecutaron VM, Chrome, proveedores, suite completa, imagen, SCA o producción. No se atribuye retrospectivamente una causa al fallo amplio original sin telemetría.
+''',encoding='utf-8')
+write(OUT/'source.json',{'status':'PASS_HELPER2_CONTEXT_CLOCK_FOCAL','source':HEAD,'previous':PREVIOUS,'base':BASE,'created':datetime.now(timezone.utc).isoformat(),'phases':phases,'unique_final_positive_cases':57,'prior_author_preserved_caseids':51,'private_archive':info(archive),'signature_probe':info(sig_probe),'concurrency_probe':info(conc_probe),'unchanged_e862_probe':info(canary),'preservation':preserve,'scope':'Independent helper2 SQLite/direct clock peer only; prior helper1 PG34 proof remains separate.'})
+manifest={p.relative_to(OUT).as_posix():info(p) for p in sorted(OUT.rglob('*')) if p.is_file()}
+write(OUT/'manifest.json',manifest)
+for p in OUT.rglob('*'):
+    if p.is_file():scan(p.read_bytes(),p.relative_to(OUT).as_posix())
+print(json.dumps({'path':str(OUT),'manifest_members':len(manifest),'source':info(OUT/'source.json'),'manifest':info(OUT/'manifest.json'),'targeted':53,'own_other':4,'union_unique':57}))

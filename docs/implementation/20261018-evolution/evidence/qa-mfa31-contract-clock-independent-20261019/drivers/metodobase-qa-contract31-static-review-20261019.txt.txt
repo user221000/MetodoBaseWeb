@@ -1,0 +1,7 @@
+Independent static review by /root/qa_runtime_causal/clock_static_peer, source9abdabf5e1e7c2aa6b2c005cee15068a6ef9b9cb. The reviewer only read files and did not execute tests or modify sources.
+
+The wrapper reads ContextVar inside the HTTP thread, rather than capturing one fixed value in its closure. An untagged thread delegates to the original clock. RLock serializes cooperating synchronous helper owners. finally resets the tag and restores the exact previous function on normal/error exit; a replacement made after wrapper installation is preserved and produces an ownership error. Invalid enrollment OTP fails one confirmation before caching a factor-authenticated session. Business request/issue paths remain unchanged.
+
+Named-argument regression identified: scoped(supplied=None) does not accept original instant(now=...). This was then reproduced independently with two exact canaries and corrected in d012 by scoped(now=None), with both canaries replayed unchanged. Dynamic results are separate from this static review.
+
+Scope limits: RLock does not guarantee isolation among multiple asynchronous tasks on the same OS thread. Context explicitly copied from authentication carries the ContextVar tag. The unrelated-thread witness covers a fresh context. The after-install replacement check is not an atomic compare-and-swap against uncooperative external installers racing before wrapper assignment. These are limits of the isolated synchronous test seam, not a production clock policy.

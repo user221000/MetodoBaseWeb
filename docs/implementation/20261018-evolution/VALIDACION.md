@@ -251,3 +251,8 @@ QA peer79:56/56,58aserciones originales e inversas completas, misma SQLite31/33t
 ## Checkpoint124
 
 Serial809:3039=3036pass+2fail+1skipWindows;2598IDs preservados y cobertura pasa, fuente10178/89paquetes/Pythonquiet,pips0. SEC15mismo14before10rojos4controles→after14green,8nuevos y6replays;3NodeVMexit0. Peer y nueva fullserial6a75 en curso,n2 pendiente. Native72independiente16XML+19contratos verde, argv registrados ligados a objetos; no nuevosgcc ni falsa prephoto propia.
+
+
+## Checkpoint125
+
+SEC15:41/41 peer. Logger474:36autor/3peer. Reloj9b14:35positivos SQLite y34/34 PostgreSQL;CI145/173/23 quieto,4grupos/5módulos. Helper9ab:51autor pero2keyword now= rojos independientes;d012 conserva esos2canarios y pasa53+4=57IDs distintos deQA. Comúnde506 preflight145workflow/205parser/173PGIDs/23helpers,10208fuentes/89paquetes/Pythonquiet,pip0/0; nueva serial iniciada21:07UTC,n2pendiente. Serial6a75:3045PASS+1setupERROR+1skip, no aprobación ni causalidad retrospectiva; cobertura real100%líneas/ramas en3módulos. R25lector:22criterios repartidos20/22+3/3; no23green enuna tanda. UIb7:152VM/2SSR/22autorHTTP/14Chrome con sufuente;345: mismos2HTTP+4móviles afterverdes,8vistas axe/reflow/capturas revisadas. Todos los recursos propios de esas fases cerrados. Runtimec538:54metadata/import/355fuentes medidos perostartup rojo; QA ACLsinDEFAULTFUNCTIONS29/head31green,conDEFAULTFUNCTIONS29commit+headrollback correctamente rojos. No SLO ni SCA71.

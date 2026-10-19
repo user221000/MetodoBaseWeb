@@ -1,0 +1,31 @@
+{
+  "source_head": "bd0501cdfbad1e48d483718b66e31bb65559f05e",
+  "verdict": "PASS_BOUNDED_READER_SCOPED",
+  "author_cases_replayed": 16,
+  "own_reader_cases": 6,
+  "separate_auth_boundary_diagnostic": 1,
+  "single23_case_green_run_claimed": false,
+  "own_postgres_uuids_closed": 5,
+  "phases": [
+    {
+      "prefix": "security-progress32-reader-independent-20261019",
+      "verdict": "REJECTED_OWN_PREPARATION",
+      "manifest_sha256": "aee23ad46d4a4e03f225ac25968b89eac51735f04dbc800e0d75bb5708d96037",
+      "source_sha256": "a6b13f1d264a6a7b7850eab9716a5a38e497ef6e91ea0ce0c13ad08e63d3c1b0"
+    },
+    {
+      "prefix": "security-progress32-reader-independent-v2-20261019",
+      "verdict": "PARTIAL_TWO_OWN_FIXTURE_ERRORS",
+      "manifest_sha256": "1fab573219f90704f122be8cae1206f0f5d30944c80079c943b1b36c0461be46",
+      "source_sha256": "f0c7e4e645acada06795025427f63e33ebf204ef13d5778434f9f7294c19dd68"
+    },
+    {
+      "prefix": "security-progress32-reader-independent-v3-20261019",
+      "verdict": "PASS_TARGETED_REPLAY_AND_AUTH_BOUNDARY_DIAGNOSTIC",
+      "manifest_sha256": "a11b24a157638246e1a2ab078ccfa2680d2f041c4b4843e0ed1cb3f54fce8fdc",
+      "source_sha256": "d582f74b08907c13be7922ce0b7160e11b05c0f0bfeb95857d5467e83154a5c7"
+    }
+  ],
+  "retirement_without_general_login": "Open R25/R31; design only, no product change",
+  "scope": "Source-reader/authority/context controls only. No full R25/R31, export privacy headers, UI, CI, restore, provider, production or clinical acceptance."
+}

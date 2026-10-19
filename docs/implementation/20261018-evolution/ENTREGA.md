@@ -1,9 +1,9 @@
 # Entrega candidata en curso
 
-Checkpoint124:120requisitos,92originales y119criterios anteriores exactos. MAIN permanece en esquema30. La candidata31aislada6a75 corrigeSEC15; autor14focales verdes, peer y nueva regresión serial pendientes; n2 no iniciado.
+Checkpoint 125: 124 requisitos, 92 originales; 120 criterios anteriores exactos. MAIN sigue en esquema 30. Las candidatas 31 y 32 todavía necesitan integración y comprobaciones comunes; no constituyen una versión lista para desplegar.
 
-La serial809 roja se conserva:3036pass,2fallos recovery loginMAX y1skipWindows. Conserva2598IDs previos y cobertura requerida; no es aceptación completa.
+31: SEC15 tiene 41 controles independientes verdes. La serial 6a75 se conserva roja: 3.045 PASS, un error de setup MFA y un skip Windows. Ambos helpers de reloj están aceptados acotadamente: 35 SQLite/34 PG para 9b14 y 57 IDs de QA para d012. Logger 474 tiene 36 del autor/3 del peer verdes. Común de506: preflight 145 workflow/205 parser y serial en curso; n2 pendiente. Imagen dc8fab5 construida y probe aprobado por Operación; startup, health, ready, worker y cierre todavía pendientes de sello.
 
-Expat72 tiene aceptación nativa independiente sólo diagnóstica. Imagen runtimec538(app809+native72) en construcción/pruebas; aún sinfixSV ni aceptación común. R25backend/UI32 avanzan separados conwirev1 fijo y sinfreezeaceptado.
+32: backendbd0501/UI8dc y lector acotado revisados; composición345 corrige exportación privada y tablas móviles con los mismos2+4 canarios verdes y8 vistas afectadas. Pendientes retiro con padre inactivo, restore32 independiente, CI32 y matriz común. No se reatribuyen resultados históricos a345.
 
-Free:diez clientes,un plan por cliente al día y diez totales por gimnasio al día. Desktop sigue soportado. Sin push,PR,despliegue,cargos ni comunicaciones reales. [Estado](ESTADO.md),[registro](TRAZABILIDAD.md),[validación](VALIDACION.md).
+Free:diez clientes activos,un plan por cliente al día y diez totales por gimnasio al día. Desktop soportado. Sin push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [registro](TRAZABILIDAD.md), [validación](VALIDACION.md).

@@ -1,0 +1,28 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,os,re,subprocess
+assert os.getuid()==0
+root=Path('/var/tmp/metodobase-mfa31-runtime72-20261019')
+payload=json.loads((root/'runtime-private.json').read_text());expected=json.loads((root/'expected-runtime-image.json').read_text())
+nonce=payload['nonce'];assert re.fullmatch('[0-9a-f]{32}',nonce)
+ids=subprocess.check_output(['docker','ps','-aq','--no-trunc','--filter','label=metodobase.lab.plan='+nonce],text=True).split()
+assert len(ids)==1
+row=json.loads(subprocess.check_output(['docker','inspect',ids[0]]))[0]
+assert row['Image']==expected['image_id'] and row['Config']['Labels']['metodobase.lab.plan']==nonce
+assert row['Config']['Labels']['metodobase.lab.source']==expected['source_commit']
+assert row['Config']['Cmd']==['/app/entrypoint.sh'] and row['HostConfig']['NetworkMode']=='host'
+state={'recorded_utc':datetime.now(timezone.utc).isoformat(),'container_id':row['Id'],'container_name':row['Name'],
+ 'image_id':row['Image'],'source_commit':expected['source_commit'],'nonce':nonce,'created':row['Created'],
+ 'running':row['State']['Running'],'exit_code':row['State']['ExitCode'],'guest_pid':row['State']['Pid'],
+ 'entrypoint_recipe':row['Config']['Cmd'],'network_mode':'host','guest_port':18031,'host_port_published':False,
+ 'operator_metadata_recovery':'Initial start created this one container, then unprivileged reading /proc/PID/exe failed. This root read-only capture recovers exact identity; no restart/build or source/config change.',
+ 'product_acceptance':False}
+if row['State']['Running']:
+ proc=Path('/proc')/str(row['State']['Pid'])
+ state.update(guest_birth_ticks=proc.joinpath('stat').read_text().split()[21],executable=str(proc.joinpath('exe').resolve()),
+  executable_sha256=hashlib.sha256(proc.joinpath('exe').read_bytes()).hexdigest(),commandline_sha256=hashlib.sha256(proc.joinpath('cmdline').read_bytes()).hexdigest())
+logs=subprocess.run(['docker','logs',row['Id']],capture_output=True,timeout=30)
+(root/'startup-application-private.log').write_bytes(logs.stdout+b'\nSTDERR\n'+logs.stderr)
+state['application_log_sha256']=hashlib.sha256((root/'startup-application-private.log').read_bytes()).hexdigest()
+(root/'smoke-owned-state.json').write_text(json.dumps(state,indent=2)+'\n')
+print(json.dumps(state))

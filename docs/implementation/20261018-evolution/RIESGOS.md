@@ -132,3 +132,8 @@ Pendientes resultado broadserial/n2 de809, imagen común y validación nativa72.
 ## Checkpoint124
 
 Pendientes peerSEC15,nueva fullserial/n2, imagen runtime ysourcefixposterior. Native72diagnóstico no cierra54/SCA71/SEC10. R25lector/restore32/freeze e integración pendientes. ConfiguraciónMFA,avisos,custodia,rotación,políticas,objetivos,pilotos ydictámenes siguen sin inventarse.
+
+
+## Checkpoint125
+
+QA-16 helpers aceptados acotadamente; serial/n2 de la composición31 siguen pendientes, y las pruebas seriales no garantizan aislamiento de contextos copiados. R25/R31 retiroparentOFF sigue abierto, al igual que restore32/CI32/matrizcomún. Runtime nuevo requiere sello delsmoke/cierre yrevisión; c538rojo no acreditahealth/ready/worker. RAMhostobservada cerca1.5GiBconVM2GiB: sinChrome ni nuevos trabajos pesados simultáneos, cierrecooperativo de propios. CryptographyOpenSSL4.0.3 ysystem3.5.7 son identidades distintas y no cierranSCA71. Se conserva lease32write_text noexclusivo como límite de evidencia. Políticas/retención/países, SLOrepresentativo, pilotos, dictamen especialista y dependenciasMFA/proveedores siguen pendientes.

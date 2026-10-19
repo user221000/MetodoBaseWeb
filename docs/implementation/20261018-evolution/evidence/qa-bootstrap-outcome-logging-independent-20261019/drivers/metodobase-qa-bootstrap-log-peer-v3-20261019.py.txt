@@ -1,0 +1,93 @@
+"""Frozen logging fix peer: same two author tests plus one independent post-verify failure control."""
+from pathlib import Path
+import ast,hashlib,importlib.metadata,json,os,sqlite3,subprocess,sys,time,xml.etree.ElementTree as ET
+ROOT=Path(r'F:\mb-qa-bootstrap-log-20261019')
+AUTHOR=Path(r'F:\mb-bootstrap-log-20261019')
+OUT=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-bootstrap-log-peer-v3-20261019')
+OUT.mkdir(exist_ok=False)
+HEAD='4740fa235170ded9596927c9ea261a9d7998122e'
+def meta(p):
+    raw=p.read_bytes();return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def write(p,j):
+    with p.open('x',encoding='utf-8') as out:json.dump(j,out,indent=2);out.write('\n')
+def git(root,*args):return subprocess.check_output(['git','-C',str(root),*args])
+assert git(ROOT,'rev-parse','HEAD').decode().strip()==HEAD and git(AUTHOR,'rev-parse','HEAD').decode().strip()==HEAD
+assert not git(ROOT,'status','--porcelain','--untracked-files=no').strip() and not git(AUTHOR,'status','--porcelain','--untracked-files=no').strip()
+diff=git(ROOT,'diff','--name-only',HEAD+'^',HEAD).decode().splitlines();assert diff==['alembic.ini','tests/test_bootstrap_outcome_logging.py']
+expected_test='6355f8429eeed85b89c18284237ea36e72ccbf42226fe42bde24042d75b27795'
+assert hashlib.sha256(git(ROOT,'show',HEAD+':tests/test_bootstrap_outcome_logging.py')).hexdigest()==expected_test
+source_paths=['alembic.ini','db_bootstrap.py','web/settings.py','config/settings.py','web/database/models.py','web/database/engine.py','web/database/schema_control.py','web/database/tenant_policy.py','tests/isolation.py','tests/run_isolated.py','tests/test_bootstrap_outcome_logging.py']
+source_paths+=git(ROOT,'ls-files','web/database/alembic').decode().splitlines()
+source_paths=sorted(set(source_paths))
+def photo(root):return {name:meta(root/name) for name in source_paths}
+def packages():return sorted((d.metadata['Name'],d.version) for d in importlib.metadata.distributions())
+before=photo(ROOT);author_before=photo(AUTHOR);pkg_before=packages();assert len(pkg_before)==89
+write(OUT/'source.before.json',before);write(OUT/'author-source.before.json',author_before);write(OUT/'packages.before.json',pkg_before)
+python=Path(sys.executable);python_before=meta(python)
+pip_before=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True,check=False)
+(OUT/'pip.before.stdout').write_bytes(pip_before.stdout);(OUT/'pip.before.stderr').write_bytes(pip_before.stderr);assert pip_before.returncode==0
+test=r'''from pathlib import Path
+import json,os,sqlite3,subprocess,sys
+
+ROOT=Path(r'F:\mb-qa-bootstrap-log-20261019')
+PREVIOUS='20261019_client_account_links'
+
+def test_own_post_verification_error_stays_opaque_and_unknown_logger_disabled(tmp_path):
+    database=tmp_path/'qa-private-after-verify.db'
+    witness=tmp_path/'qa-private-witness.json'
+    environment=os.environ.copy()
+    for key in ('DATABASE_URL','MIGRATOR_DATABASE_URL','METODOBASE_TEST_DATABASE_URL','METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_REDIS_URL'):
+        environment.pop(key,None)
+    environment.update(DATABASE_URL='sqlite:///'+database.as_posix(),METODOBASE_ENV='testing',ENV='testing',PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1',QA_PRIVATE_WITNESS=str(witness))
+    child="""from pathlib import Path
+import json,logging,os,sys
+import db_bootstrap
+from web.database import schema_control
+unknown=logging.getLogger('qa_unknown_logger_before_fileconfig')
+assert unknown.disabled is False
+original=schema_control.verify_runtime_schema
+def fault_after_real_verify(engine,**kwargs):
+    original(engine,**kwargs)
+    assert unknown.disabled is True
+    assert not db_bootstrap.logger.disabled
+    record={'real_verify_completed':True,'unknown_logger_disabled':unknown.disabled,'bootstrap_enabled':not db_bootstrap.logger.disabled,'bootstrap_level':db_bootstrap.logger.level,'root_level':logging.getLogger().level,'sqlalchemy_level':logging.getLogger('sqlalchemy.engine').level}
+    Path(os.environ['QA_PRIVATE_WITNESS']).write_text(json.dumps(record))
+    raise RuntimeError('QA_PRIVATE_EXCEPTION_DETAIL_MARKER '+str(Path(os.environ['QA_PRIVATE_WITNESS'])))
+schema_control.verify_runtime_schema=fault_after_real_verify
+result=db_bootstrap.main(['--revision','20261019_client_account_links'])
+unknown.error('QA_PRIVATE_UNKNOWN_LOGGER_MARKER')
+raise SystemExit(result)
+"""
+    result=subprocess.run([sys.executable,'-X','utf8','-B','-c',child],cwd=ROOT,env=environment,capture_output=True,check=False,timeout=60)
+    for suffix,raw in [('stdout',result.stdout),('stderr',result.stderr)]:
+        (tmp_path/('own-control.'+suffix+'.raw.log')).write_bytes(raw)
+    output=(result.stdout+result.stderr).decode('utf-8',errors='strict')
+    assert result.returncode==1
+    facts=json.loads(witness.read_text())
+    assert facts=={'real_verify_completed':True,'unknown_logger_disabled':True,'bootstrap_enabled':True,'bootstrap_level':20,'root_level':30,'sqlalchemy_level':30}
+    assert output.count('Migration aborted class=RuntimeError; database not accepted for release')==1
+    assert 'Migration completed and verified' not in output
+    assert 'QA_PRIVATE_EXCEPTION_DETAIL_MARKER' not in output
+    assert 'QA_PRIVATE_UNKNOWN_LOGGER_MARKER' not in output
+    assert str(tmp_path) not in output
+    assert 'Traceback' not in output
+    with sqlite3.connect(database) as connection:
+        assert connection.execute('SELECT version_num FROM alembic_version').fetchone()==(PREVIOUS,)
+'''
+testfile=OUT/'test_own_bootstrap_logging.py';testfile.write_text(test,encoding='utf-8');ast.parse(test)
+args=[sys.executable,'-X','utf8','-B','tests/run_isolated.py','tests/test_bootstrap_outcome_logging.py',str(testfile),'-q','--tb=short','--basetemp='+str(OUT/'pytest-private'),'--junitxml='+str(OUT/'results.xml')]
+start=time.monotonic()
+with (OUT/'stdout.raw.log').open('xb') as stdout,(OUT/'stderr.raw.log').open('xb') as stderr:
+    r=subprocess.run(args,cwd=ROOT,stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,timeout=240,check=False)
+elapsed=round(time.monotonic()-start,3)
+write(OUT/'command.json',{'argv':args,'exit_code':r.returncode,'elapsed_seconds':elapsed})
+after=photo(ROOT);author_after=photo(AUTHOR);pkg_after=packages();write(OUT/'source.after.json',after);write(OUT/'author-source.after.json',author_after);write(OUT/'packages.after.json',pkg_after)
+pip_after=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True,check=False)
+(OUT/'pip.after.stdout').write_bytes(pip_after.stdout);(OUT/'pip.after.stderr').write_bytes(pip_after.stderr)
+assert before==after and author_before==author_after and pkg_before==pkg_after and meta(python)==python_before
+assert pip_after.returncode==0
+cases=list(ET.parse(OUT/'results.xml').getroot().iter('testcase'))
+report={'source':HEAD,'parent':git(ROOT,'rev-parse',HEAD+'^').decode().strip(),'changed_paths':diff,'source_files':len(before),'packages':len(pkg_before),'python':str(python),'python_bytes':python_before,'quiet_before_after':True,'pip_before_after':[pip_before.returncode,pip_after.returncode],'exit_code':r.returncode,'elapsed_seconds':elapsed,'cases':[{'class':c.attrib.get('classname'),'name':c.attrib['name'],'failures':len(c.findall('failure')),'errors':len(c.findall('error')),'skips':len(c.findall('skipped'))} for c in cases],'scope':'Two maintained real SQLite CLI controls plus one own post-verification injected failure/unknown-logger control. No runtime image, PostgreSQL, full suite, worker, providers, SCA or production acceptance.'}
+write(OUT/'summary.json',report)
+assert r.returncode==0 and len(cases)==3 and not any(c.findall('failure')+c.findall('error')+c.findall('skipped') for c in cases)
+print(json.dumps({'status':'PASS_FOCAL_LOGGING_PEER','cases':len(cases),'source_files':len(before),'packages':len(pkg_before),'output':str(OUT)}))

@@ -1,0 +1,72 @@
+"""Own synchronous scope lifecycle controls; no product endpoint is replaced."""
+from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
+from itertools import count
+from threading import Event
+
+import pytest
+
+
+def test_own_nested_scope_rejected_without_losing_outer_owner():
+    from tests import mfa31_contract_client as helper
+    from web.services import mfa_service as service
+    original = service.instant
+    with helper._authentication_clock() as outer:
+        installed = service.instant
+        with pytest.raises(RuntimeError, match='^Nested fixture authentication clock$'):
+            with helper._authentication_clock():
+                raise AssertionError('Nested scope unexpectedly entered')
+        assert service.instant is installed
+        assert helper._AUTHENTICATION_INSTANT.get() == outer
+        assert service.instant() == outer
+    assert service.instant is original
+    assert helper._AUTHENTICATION_INSTANT.get() is None
+
+
+def test_own_thread_owners_serialize_and_untagged_thread_delegates(monkeypatch):
+    from tests import mfa31_contract_client as helper
+    from web.services import mfa_service as service
+    validator = service.instant
+    epoch = validator()
+    sequence = count()
+
+    def source(now=None):
+        return validator(epoch + timedelta(seconds=next(sequence)) if now is None else now)
+
+    monkeypatch.setattr(service, 'instant', source)
+    first_entered, second_attempted, second_entered, release = Event(), Event(), Event(), Event()
+    observed = []
+
+    def first():
+        with helper._authentication_clock() as current:
+            observed.append(current)
+            first_entered.set()
+            assert release.wait(10)
+            assert service.instant() == current
+            assert helper._AUTHENTICATION_INSTANT.get() == current
+        assert helper._AUTHENTICATION_INSTANT.get() is None
+
+    def second():
+        assert first_entered.wait(10)
+        second_attempted.set()
+        with helper._authentication_clock() as current:
+            observed.append(current)
+            second_entered.set()
+            assert service.instant() == current
+            assert helper._AUTHENTICATION_INSTANT.get() == current
+        assert helper._AUTHENTICATION_INSTANT.get() is None
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        one, two = pool.submit(first), pool.submit(second)
+        try:
+            assert first_entered.wait(10) and second_attempted.wait(10)
+            assert not second_entered.wait(.1)
+            assert helper._AUTHENTICATION_INSTANT.get() is None
+            assert service.instant() != observed[0]
+        finally:
+            release.set()
+        one.result(timeout=10)
+        two.result(timeout=10)
+    assert second_entered.is_set() and len(observed) == 2 and observed[0] != observed[1]
+    assert service.instant is source
+    assert helper._AUTHENTICATION_INSTANT.get() is None

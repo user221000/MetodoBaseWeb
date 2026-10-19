@@ -1,0 +1,86 @@
+from pathlib import Path,PurePosixPath
+from datetime import datetime,timezone
+import ast,csv,hashlib,io,json,re,subprocess,tarfile,zipfile,xml.etree.ElementTree as ET
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+ROOT=Path(r'F:\mb-qa-current31-clock-20261019')
+INFRA=TEMP/'metodobase-qa-clock31-pg-20261019'
+RUN=INFRA/'run-v2'
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-current31-fixture-clock-pg34-independent-20261019'
+HEAD='9b14e2e9c3279a9a85eef444f1ef50f3f5f8750b'
+def meta(raw):return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def info(p):return meta(p.read_bytes())
+def write(p,j):
+    with p.open('x',encoding='utf-8') as out:json.dump(j,out,indent=2);out.write('\n')
+summary=json.loads((RUN/'summary.json').read_text());assert summary['status']=='PASS_CURRENT31_MEMBER_HTTP34' and summary['exit_code']==0
+assert summary['owned_databases']==1 and summary['own_objects_closed']
+before=json.loads((RUN/'before.json').read_text());after=json.loads((RUN/'after.json').read_text());assert before==after and len(before['sources'])==735 and len(before['packages'])==89
+assert subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD']).decode().strip()==HEAD
+assert not subprocess.check_output(['git','-C',str(ROOT),'status','--porcelain','--untracked-files=no']).strip()
+review=json.loads((RUN/'report-review.json').read_text());assert review['count']==34 and review['exact_expected_nodeids'] and review['no_errors_failures_skips']
+plan=json.loads((RUN/'plan.json').read_text());assert len(plan['expected_nodeids'])==34
+role_rows=[json.loads(line) for line in (RUN/'private/role-schema.jsonl').read_text().splitlines()]
+assert len(role_rows)==34 and len({r['nodeid'] for r in role_rows})==34
+for r in role_rows:
+    assert r['flags4']==[False]*4 and r['database_nonowner'] is True and r['owned_tables']==0
+    assert r['FORCE_RLS_tables']==25 and r['physical_tables']==33 and r['revision']=='20261019_mfa'
+closure=json.loads((RUN/'closure.json').read_text());assert len(closure['leases'])==1 and closure['roles_before_after_exact']
+leases=[json.loads(p.read_text()) for p in (RUN/'private/leases').glob('*.json')]
+assert len(leases)==1 and all(l['created'] and l['oid'] and l['state']=='CLOSED_NO_FORCE_FRESH_ABSENCE' for l in leases)
+events=[json.loads(line) for line in (RUN/'private/child.events.jsonl').read_text().splitlines()]
+kinds=[e['kind'] for e in events]
+for required in ['exclusive-lease-before-CREATE','created-OID-fresh-connection','zero-sessions-before-DROP','fresh-absence-after-DROP']:assert kinds.count(required)==1
+assert kinds.index('exclusive-lease-before-CREATE')<kinds.index('created-OID-fresh-connection')<kinds.index('zero-sessions-before-DROP')<kinds.index('fresh-absence-after-DROP')
+assert next(e for e in events if e['kind']=='fresh-absence-after-DROP')['executed_FORCE'] is False
+failed=INFRA/'run';assert list((failed/'private/leases').glob('*'))==[]
+assert not (failed/'private/stdout.raw.log').exists()
+fn=next(n for n in ast.parse((TEMP/'metodobase-checkpoint119-prepare.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='scan')
+exec(compile(ast.Module(body=[fn],type_ignores=[]),'canonical-scan-extraction','exec'))
+vault=TEMP/'metodobase-qa-clock31-pg34-private-20261019';vault.mkdir(exist_ok=False)
+who=subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True);sid=next(csv.reader(io.StringIO(who)))[1]
+subprocess.run(['icacls',str(vault),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+archive=vault/'primaries.zip'
+with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as z:
+    for p in sorted(INFRA.rglob('*')):
+        if p.is_file():z.write(p,p.relative_to(INFRA).as_posix())
+    for name in ['metodobase-qa-clock31-pg-20261019-driver.log','metodobase-qa-clock31-pg-v2-20261019-driver.log','metodobase-qa-clock31-pg-seal-20261019.py']:
+        z.write(TEMP/name,'outer/'+name)
+OUT.mkdir(exist_ok=False);(OUT/'.gitattributes').write_bytes(b'* -text\n')
+for p in sorted(RUN.glob('*')):
+    if p.is_file():
+        raw=p.read_bytes();scan(raw,p.name);(OUT/p.name).write_bytes(raw)
+(OUT/'drivers').mkdir()
+for p in sorted(INFRA.glob('*.py')):
+    raw=p.read_bytes();scan(raw,p.name);(OUT/'drivers'/(p.name+'.raw.txt')).write_bytes(raw)
+for name in ['metodobase-qa-clock31-pg-20261019-driver.log','metodobase-qa-clock31-pg-v2-20261019-driver.log','metodobase-qa-clock31-pg-seal-20261019.py']:
+    raw=(TEMP/name).read_bytes();scan(raw,name);(OUT/'drivers'/(name+'.raw.txt')).write_bytes(raw)
+(OUT/'role-schema.jsonl').write_bytes((RUN/'private/role-schema.jsonl').read_bytes())
+(OUT/'owned-child-events.jsonl').write_bytes((RUN/'private/child.events.jsonl').read_bytes())
+(OUT/'owned-parent-events.jsonl').write_bytes((RUN/'private/parent.events.jsonl').read_bytes())
+(OUT/'leases').mkdir()
+for p in (RUN/'private/leases').glob('*.json'):(OUT/'leases'/p.name).write_bytes(p.read_bytes())
+(OUT/'source-origins.json').write_bytes((RUN/'private/origins.json').read_bytes())
+raw_xml=RUN/'private/results.xml'
+cases=list(ET.parse(raw_xml).getroot().iter('testcase'));assert len(cases)==34
+suite=ET.Element('testsuite',{'name':'independent-current31-member-http','tests':'34','failures':'0','errors':'0','skipped':'0'})
+for c in cases:
+    assert not c.findall('failure')+c.findall('error')+c.findall('skipped')
+    ET.SubElement(suite,'testcase',{k:c.attrib[k] for k in ['classname','name']})
+(OUT/'results-structural.xml').write_bytes(ET.tostring(suite,encoding='utf-8',xml_declaration=True))
+(OUT/'pre-create-failure').mkdir()
+for name in ['before.json','pip-before.raw.log']:(OUT/'pre-create-failure'/name).write_bytes((failed/name).read_bytes())
+(OUT/'pre-create-failure/plan.partial.raw.txt').write_bytes((failed/'plan.json').read_bytes())
+write(OUT/'preconditions-and-privacy.json',{'first_attempt':{'cause':'required_reports returns a frozenset; initial plan serializer attempted to write it directly.','effects':'Stopped after readonly server/role checks and observer install, before child test launch or CREATE. Zero lease files, no child stdout.','successor':'Only plan JSON converts the exact same34 expected tuples to a sorted list; source/tests/observer and assertions unchanged.'},'RAW_JUnit':{'private_path':str(raw_xml),'metadata':info(raw_xml),'public_projection':'results-structural.xml; identities/statuses only, no raw traceback or HTTP body'},'private_archive':{'path':str(archive),'metadata':info(archive),'ACL':'Current user SID and SYSTEM only before archive creation'},'full173_or_image_or_Chrome_or_VM_or_provider_or_SLO_acceptance':False})
+(OUT/'REVIEW.md').write_text('''Aceptación independiente de los34 casos HTTP actuales de miembro sobre PostgreSQL17.11 real, en9b14. Se ejecutó el módulo mantenido sin cambiar cuerpos/asserts y el conjunto exacto de34 node IDs coincidió con required_reports. No hubo fallos, errores ni skips.
+
+La observación propia antes de cada cuerpo verificó rol app con4 flags de privilegio false, no propietario,0 tablas propias,25 tablas FORCE RLS,33 tablas físicas, revisión31 e índice30 exacto. El pool de aplicación es1 por el helper original; no se amplió. Los helpers históricos y el mapping permanecieron intactos.
+
+Una sola base UUID fue creada por el fixture original. Antes de CREATE se abrió una lease exclusiva y se registró PID/nacimiento; después se obtuvo OID por conexión fresca. El finalizador mantuvo la exigencia de cero sesiones y tradujo sólo el DROP FORCE solicitado por el fixture a un DROP normal. Se verificó ausencia fresca; no hubo FORCE ni terminación de backends, cambios de roles globales o HBA. El catálogo de roles previo quedó idéntico.
+
+Se preservó un primer fallo de orquestación: frozenset no serializable en el plan antes de lanzar pytest/crear DB. El sucesor sólo ordena esas mismas34 identidades para JSON. Permanecieron735 fuentes,89 metadatos de paquetes, Python shim/base, binarios PG, infraestructura y configuración privada antes/después; pip0/0. RAW y DB sintéticas quedan en archivo privado protegido; se publica XML estructural. Se acepta PG34 local, sin atribuir full173, VM, Chrome, imagen, proveedores, SLO o producción.
+''',encoding='utf-8')
+write(OUT/'source.json',{'status':'PASS_CURRENT31_FIXTURE_CLOCK_PG34_ONLY','source':HEAD,'created':datetime.now(timezone.utc).isoformat(),'summary':summary,'maintained_unique_nodeids':34,'own_metadata_role_schema_observations':34,'own_databases':leases,'private_archive':info(archive),'raw_JUnit':info(raw_xml),'public_structural_XML':info(OUT/'results-structural.xml'),'infrastructure_files':{p.name:info(p) for p in sorted(INFRA.glob('*.py'))},'scope':'Independent local PostgreSQL34 member HTTP only; SQLite and older-helper diagnostic have separate seals.'})
+manifest={p.relative_to(OUT).as_posix():info(p) for p in sorted(OUT.rglob('*')) if p.is_file()}
+write(OUT/'manifest.json',manifest)
+for p in OUT.rglob('*'):
+    if p.is_file():scan(p.read_bytes(),p.relative_to(OUT).as_posix())
+print(json.dumps({'path':str(OUT),'manifest_members':len(manifest),'source':info(OUT/'source.json'),'manifest':info(OUT/'manifest.json'),'actual_PG_cases':34,'own_closed_UUIDs':1}))
