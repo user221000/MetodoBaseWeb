@@ -1,0 +1,65 @@
+{
+  "status": "STATIC_CONTRACT_REVIEW_REQUIRES_INDEPENDENT_SECURITY_CANARY",
+  "source": "345aa7ce16f65fec9481b48cfcd63c33ff3835fc",
+  "retrieved_utc": "2026-10-19T21:13:58.975170+00:00",
+  "files": {
+    "web/services/google_identity.py": {
+      "raw_sha256": "526af7b639a9351e387e08a97a36ecdd1c563642effb6c8fe6085d75666e9a1a",
+      "git_lf_sha256": "526af7b639a9351e387e08a97a36ecdd1c563642effb6c8fe6085d75666e9a1a"
+    },
+    "web/routes/auth.py": {
+      "raw_sha256": "694d217de5713a2c336708b8ba9210d3e161530b52840967bbde76611e07f361",
+      "git_lf_sha256": "694d217de5713a2c336708b8ba9210d3e161530b52840967bbde76611e07f361"
+    },
+    "web/services/mfa_service.py": {
+      "raw_sha256": "1c322bbd14bc5b5990264af97807e6b66c67555eaf568ee35a53c89c14a3787f",
+      "git_lf_sha256": "1c322bbd14bc5b5990264af97807e6b66c67555eaf568ee35a53c89c14a3787f"
+    },
+    "web/database/models.py": {
+      "raw_sha256": "034ca13422a44ae49309653718f0e54ce8ac3ce556bca44d9db4b48811ac7d84",
+      "git_lf_sha256": "034ca13422a44ae49309653718f0e54ce8ac3ce556bca44d9db4b48811ac7d84"
+    }
+  },
+  "VerifiedGooglePrimary_fields": [
+    "email",
+    "authenticated_at"
+  ],
+  "Usuario_declared_attributes": [
+    "__table_args__",
+    "__tablename__",
+    "activo",
+    "apellido",
+    "clientes",
+    "deleted_at",
+    "email",
+    "fecha_registro",
+    "id",
+    "invitation_expires",
+    "invitation_role",
+    "invitation_token",
+    "invited_by",
+    "nombre",
+    "password_hash",
+    "password_reset_expires_at",
+    "password_reset_hash",
+    "password_reset_session_version",
+    "refresh_tokens",
+    "role",
+    "session_version",
+    "team_gym_id",
+    "team_members",
+    "tipo"
+  ],
+  "google_login_function_ast_sha256": "4a6c8a1f276262507b32af1ee1135d06a689126a8615f2d19d6d7f6f9d81b120",
+  "reauthenticate_function_ast_sha256": "99f48db41047dcb9cc61fc0515f64e0568efa9e6e9f5af867126b16077f36b72",
+  "observations": [
+    "Provider verification calls fixed HTTPS Google tokeninfo, then checks configured aud and email_verified. A missing local issuer/exp check alone does not prove signature or expiry bypass: the provider endpoint supplies validation authority.",
+    "Existing account lookup in google_login uses normalized email. VerifiedGooglePrimary and MFA reauthentication compare email/auth_time without a persisted Google subject binding in this path.",
+    "Google-only accounts receive an unknown random password hash at creation. The new limited-retirement password flow cannot claim to support such accounts until a reviewed alternative exists."
+  ],
+  "hypothesis": "Email-based automatic association can exceed Google authority for third-party email without hd and does not retain the stable provider sub. Requires independent security reproduction and migration/linking design; no production exploit shown.",
+  "decision": "New retirement scope accepts only an actually verified password and existing factor, with explicit fail-closed handling for unavailable primary. Do not weaken general authentication or invent subject backfill.",
+  "limits": [
+    "Static code and provider-document contract review only. No token, provider call with credentials, account linkage, live data, schema change, authorization bypass or new test result."
+  ]
+}

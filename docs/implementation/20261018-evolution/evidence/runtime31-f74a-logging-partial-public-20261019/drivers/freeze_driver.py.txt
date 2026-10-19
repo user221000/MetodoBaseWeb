@@ -1,0 +1,114 @@
+from pathlib import Path
+from datetime import datetime, timezone
+import ast, hashlib, json, subprocess, sys, tarfile
+
+TMP = Path(r'C:\Users\Consu\AppData\Local\Temp')
+WT = Path(r'F:\mb-mfa31-runtime-logging-20261019')
+BASE = '262f3b9687f911c5d6d4a7f88b58f326044f08f8'
+LOGGING = '4740fa235170ded9596927c9ea261a9d7998122e'
+CTX = TMP / 'metodobase-mfa31-runtime-logging-context-20261019'
+RUN = TMP / 'metodobase-mfa31-runtime-logging-validation-20261019'
+OLD = TMP / 'metodobase-mfa31-runtime-terminal-context-20261019'
+EXPECTED = {'alembic.ini', 'tests/test_bootstrap_outcome_logging.py'}
+
+def git(*args):
+    return subprocess.check_output(['git', '--no-replace-objects', *args], cwd=WT)
+
+def tree(rev):
+    result = {}
+    for row in git('ls-tree', '-r', '-z', rev).split(b'\0'):
+        if not row:
+            continue
+        meta, name = row.split(b'\t', 1)
+        mode, kind, oid = meta.decode().split()
+        result[name.decode()] = {'mode': mode, 'kind': kind, 'oid': oid}
+    return result
+
+def info(path):
+    with path.open('rb') as stream:
+        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    return {'bytes': path.stat().st_size, 'sha256': digest}
+
+assert not RUN.exists() and not CTX.exists()
+assert git('status', '--porcelain=v1', '--untracked-files=all') == b''
+head = git('rev-parse', 'HEAD').decode().strip()
+parents = git('show', '-s', '--format=%P', head).decode().split()
+assert parents == [BASE, LOGGING], parents
+before, after, logging = tree(BASE), tree(head), tree(LOGGING)
+changed = {n for n in set(before) | set(after) if before.get(n) != after.get(n)}
+assert changed == EXPECTED, changed
+assert all(after[n] == logging[n] for n in changed)
+unchanged = {n: row for n, row in before.items() if n not in changed}
+assert all(after.get(n) == row for n, row in unchanged.items())
+old_archive_before = info(OLD / 'context.tar')
+old_manifest_before = info(OLD / 'manifest.json')
+assert old_archive_before == {'bytes': 18493440, 'sha256': '872e2662724169e403262504f5fce32fc2695e24ec0a2f8579cbceef038f3f5f'}
+
+RUN.mkdir()
+(RUN / 'freeze_driver.py').write_bytes(Path(__file__).read_bytes())
+preserved = TMP / 'metodobase-runtime-terminal-context-prepare.py'
+raw = preserved.read_bytes()
+text = raw.decode('utf-8')
+replacements = {
+    str(Path(r'F:\mb-mfa31-runtime-terminal-20261019')): str(WT),
+    'metodobase-mfa31-runtime-terminal-context-20261019': CTX.name,
+    BASE: head,
+}
+for old, new in replacements.items():
+    assert text.count(old) == 1, old
+    text = text.replace(old, new)
+original_ast = ast.parse(raw)
+adapted_ast = ast.parse(text)
+allowed_values = set(replacements) | set(replacements.values())
+def normalized(node):
+    class Constants(ast.NodeTransformer):
+        def visit_Constant(self, value):
+            if isinstance(value.value, str) and value.value in allowed_values:
+                return ast.copy_location(ast.Constant(value='<adapted-source-prefix-or-head>'), value)
+            return value
+    return ast.dump(Constants().visit(node), include_attributes=False)
+assert normalized(original_ast) == normalized(adapted_ast)
+driver = TMP / 'metodobase-runtime-logging-context-prepare.py'
+assert not driver.exists()
+driver.write_bytes(text.encode('utf-8'))
+subprocess.run([sys.executable, '-B', str(driver)], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
+
+old_manifest = json.loads((OLD / 'manifest.json').read_bytes())
+new_manifest = json.loads((CTX / 'manifest.json').read_bytes())
+assert old_manifest['source'] == BASE and new_manifest['source'] == head
+assert set(old_manifest['files']) == set(new_manifest['files']) and len(new_manifest['files']) == 366
+context_changed = {n for n in old_manifest['files'] if old_manifest['files'][n] != new_manifest['files'][n]}
+assert context_changed == {'alembic.ini'}, context_changed
+assert all(n not in new_manifest['files'] for n in ('tests/test_bootstrap_outcome_logging.py', 'assets/design-reference.png'))
+assert old_manifest['local_COPY_inputs'] == new_manifest['local_COPY_inputs']
+with tarfile.open(CTX / 'context.tar') as tar:
+    members = tar.getmembers()
+    assert len(members) == 366 and len({m.name for m in members}) == 366
+    assert set(tar.getnames()) == set(new_manifest['files'])
+    for member in members:
+        assert member.isfile() and member.uid == member.gid == member.mtime == 0
+        data = tar.extractfile(member).read()
+        row = new_manifest['files'][member.name]
+        assert len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256']
+        assert member.mode == int(row['mode'][-3:], 8)
+        assert data == git('cat-file', 'blob', head + ':' + member.name)
+assert info(OLD / 'context.tar') == old_archive_before
+assert info(OLD / 'manifest.json') == old_manifest_before
+assert git('status', '--porcelain=v1', '--untracked-files=all') == b''
+report = {
+    'captured_utc': datetime.now(timezone.utc).isoformat(),
+    'status': 'SOURCE_AND_CONTEXT_FROZEN_ONLY',
+    'source': head, 'worktree': str(WT), 'parents': parents,
+    'tree_entries_before': len(before), 'tree_entries_after': len(after),
+    'changed_paths': {n: {'before': before.get(n), 'after': after[n], 'logging_source': logging[n]} for n in sorted(changed)},
+    'all_other_entries_unchanged': len(unchanged),
+    'tree_before': before, 'tree_after': after,
+    'context': {'path': str(CTX), 'tar': info(CTX / 'context.tar'), 'manifest': info(CTX / 'manifest.json'), 'files': len(new_manifest['files']), 'changed_paths_against_262': sorted(context_changed)},
+    'old_context_immutable': {'path': str(OLD), 'tar': old_archive_before, 'manifest': old_manifest_before},
+    'driver_ast_delta_only_source_prefix_and_head': True,
+    'drivers': {str(p): info(p) for p in (Path(__file__), driver, preserved, TMP / 'metodobase-checkpoint119-prepare.py')},
+    'VM_started': False, 'build_started': False, 'services_started': False,
+    'scope': 'Exact Git source and explicit Docker COPY context only. Runtime and startup not measured; awaiting host RAM lease.'
+}
+(RUN / 'source-context-freeze.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+print(json.dumps({'source': head, 'context': report['context'], 'proof': str(RUN / 'source-context-freeze.json'), 'proof_info': info(RUN / 'source-context-freeze.json'), 'unchanged_entries': len(unchanged), 'VM_started': False, 'build_started': False}))

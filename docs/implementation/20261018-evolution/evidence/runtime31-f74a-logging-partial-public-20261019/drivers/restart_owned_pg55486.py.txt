@@ -1,0 +1,60 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import csv,hashlib,io,json,os,re,socket,subprocess,time,uuid
+import psycopg2
+RUN=Path(__file__).resolve().parent;OLD=RUN.parent/'metodobase-mfa31-runtime72-validation-20261019'
+pointer=json.loads((OLD/'pg55486-instance-pointer.json').read_bytes());admin=json.loads(Path(pointer['private_admin_file']).read_bytes())
+data=Path(pointer['data_directory']).resolve();private=Path(pointer['private_root']).resolve();install=Path(pointer['source_existing_installation_read_only'])
+def info(p):
+ with p.open('rb') as f:d=hashlib.file_digest(f,'sha256').hexdigest()
+ return {'bytes':p.stat().st_size,'sha256':d}
+def ps(s):
+ raw=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',s],creationflags=subprocess.CREATE_NO_WINDOW)
+ return json.loads(raw) if raw.strip() else None
+assert data==Path(admin['data_dir']).resolve() and data.is_relative_to(private) and private.is_relative_to(RUN.parent.resolve())
+assert admin['host']=='127.0.0.1' and admin['port']==55486
+for p in (data,*data.parents):assert not p.is_symlink() and not(getattr(p.lstat(),'st_file_attributes',0)&0x400)
+assert not (data/'postmaster.pid').exists()
+with socket.socket() as probe:probe.bind(('127.0.0.1',55486))
+baseline=json.loads((OLD/'pg55486-setup/tool-files.before.json').read_bytes());current={name:info(install/name) for name in baseline}
+assert current==baseline and len(current)==1752
+config={name:info(data/name) for name in ('postgresql.conf','pg_hba.conf','pg_ident.conf','postgresql.auto.conf')}
+nonce=uuid.uuid4().hex
+lease={'plan_id':'runtime31-f74a-pg55486-'+nonce,'state':'LEASE_EXCLUSIVE_BEFORE_START','created_utc':datetime.now(timezone.utc).isoformat(),'port':55486,'data_directory':str(data),'intent':'Restart own private cluster, preserve all old DB/roles; new UUID objects only.'}
+with (RUN/'pg55486-exclusive-lease.json').open('x') as f:json.dump(lease,f,indent=2)
+(RUN/'pg55486-tools-before.json').write_text(json.dumps(current,indent=2)+'\n');(RUN/'pg55486-config-before.json').write_text(json.dumps(config,indent=2)+'\n')
+sid=next(csv.reader(io.StringIO(subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True))))[1];assert re.fullmatch('S-1-[0-9-]+',sid)
+subprocess.run(['icacls',str(RUN),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+argv=pointer['command'];assert argv[1:3]==['-D',str(data)] and argv[3:7]==['-h','127.0.0.1','-p','55486']
+assert info(Path(argv[0]))['sha256']=='8ae8bb442e8a4c4fb2c8e9ad38c19aca610ee3cba33afd69249de769f905329b'
+env={k:v for k,v in os.environ.items() if k.upper() in {'SYSTEMROOT','WINDIR','COMSPEC','PATH','PATHEXT','TMP','TEMP','LANG','LC_ALL'}}
+with (RUN/'postgres-owned-private.log').open('xb') as log:
+ process=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,env=env,cwd=private,creationflags=subprocess.CREATE_NO_WINDOW|subprocess.CREATE_NEW_PROCESS_GROUP)
+identity=ps('Get-CimInstance Win32_Process -Filter "ProcessId='+str(process.pid)+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine,ParentProcessId | ConvertTo-Json -Compress')
+assert identity and Path(identity['ExecutablePath']).resolve()==Path(argv[0]).resolve() and str(data).casefold() in identity['CommandLine'].casefold()
+identity['executable_sha256']=info(Path(identity['ExecutablePath']))['sha256'];identity['commandline_sha256']=hashlib.sha256(identity['CommandLine'].encode()).hexdigest()
+parent=ps('Get-CimInstance Win32_Process -Filter "ProcessId='+str(identity['ParentProcessId'])+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine,ParentProcessId | ConvertTo-Json -Compress')
+fresh={**pointer,'postmaster_pid':process.pid,'process_identity':identity,'launcher_parent_generation':parent,'plan_id':lease['plan_id'],'created_utc':datetime.now(timezone.utc).isoformat()}
+(RUN/'pg55486-instance-pointer.json').write_text(json.dumps(fresh,indent=2)+'\n')
+for _ in range(100):
+ assert process.poll() is None,'Owned PostgreSQL exited; preserve private log'
+ try:connection=psycopg2.connect(host='127.0.0.1',port=55486,user=admin['username'],password=admin['password'],dbname='postgres',connect_timeout=2)
+ except psycopg2.OperationalError:time.sleep(.2);continue
+ break
+else:raise AssertionError('Owned PostgreSQL not ready')
+with connection.cursor() as c:
+ c.execute('SET TRANSACTION READ ONLY');c.execute('SELECT version(),host(inet_server_addr()),inet_server_port(),current_user,pg_postmaster_start_time()');version,host,port,user,birth=c.fetchone()
+ assert version.startswith('PostgreSQL 17.11') and host=='127.0.0.1' and port==55486 and user==admin['username']
+ c.execute('SELECT system_identifier FROM pg_control_system()');system_id=c.fetchone()[0]
+ c.execute("SELECT name,setting FROM pg_settings WHERE name IN ('data_directory','listen_addresses','port','password_encryption','ssl','log_statement') ORDER BY name");settings=dict(c.fetchall());assert settings['listen_addresses']=='127.0.0.1' and settings['password_encryption']=='scram-sha-256'
+ c.execute('SELECT line_number,type,address,netmask,auth_method,error FROM pg_hba_file_rules ORDER BY line_number');hba=c.fetchall();assert all(r[4]=='scram-sha-256' and r[5] is None for r in hba)
+ c.execute('SELECT oid,datname,datdba,datacl::text FROM pg_database ORDER BY oid');databases=c.fetchall()
+ c.execute('SELECT oid,rolname,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles ORDER BY oid');roles=c.fetchall()
+ c.execute("SELECT pid FROM pg_stat_activity WHERE pid<>pg_backend_pid() AND backend_type='client backend'");assert not c.fetchall()
+connection.rollback();connection.close()
+pidfile=(data/'postmaster.pid').read_text().splitlines();assert int(pidfile[0])==process.pid and pidfile[3]=='55486'
+assert {name:info(data/name) for name in config}==config
+lease.update(state='OWNED_CLUSTER_READY_EXCLUSIVE',postmaster_pid=process.pid,postmaster_start_time=birth.isoformat(),system_identifier=system_id)
+(RUN/'pg55486-exclusive-lease.json').write_text(json.dumps(lease,indent=2)+'\n')
+(RUN/'pg55486-restart-source.json').write_text(json.dumps({'lease':lease,'process_identity':identity,'launcher_parent_generation':parent,'version':version,'settings':settings,'hba':hba,'old_database_inventory':databases,'old_role_inventory':roles,'other_client_sessions':[],'tools_exact':len(current),'config_unchanged':config,'old_55483_55484_modified':False},indent=2)+'\n')
+print(json.dumps({'status':'OWNED_PG55486_READY','pid':process.pid,'birth':identity['CreationDate'],'version':version,'database_count_preserved':len(databases),'role_count_preserved':len(roles),'tools_exact':len(current)}))

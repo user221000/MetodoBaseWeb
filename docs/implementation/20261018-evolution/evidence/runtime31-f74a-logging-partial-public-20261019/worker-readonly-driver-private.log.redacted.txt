@@ -1,0 +1,14 @@
+python.exe : Traceback (most recent call last):
+En línea: 2 Carácter: 1
++ & 'C:\Users\Consu\AppData\Local\Temp\metodobase-desktop-package-20261 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime-logging-validation-20261019\capture_worker_readonly_
+diagnostic.py", line 58, in <module>
+    c.execute("SELECT proname,prosecdef,proacl::text FROM pg_proc WHERE pronamespace='public'::regnamespace ORDER BY 
+proname");functions=c.fetchall();assert len(functions)==19 and all(not r[1] and r[2] is None for r in functions)
+                                                                                                                       
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

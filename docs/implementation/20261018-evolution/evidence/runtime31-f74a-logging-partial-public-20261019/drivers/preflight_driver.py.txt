@@ -1,0 +1,113 @@
+from pathlib import Path,PurePosixPath
+from datetime import datetime,timezone
+import hashlib,json,re,shlex,subprocess,sys,tarfile
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+WT=Path(r'F:\mb-mfa31-runtime-logging-20261019')
+CTX=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime-logging-context-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime-logging-validation-20261019')
+MAIN=Path(r'F:\MetodoBaseWeb-execution-20261018')
+REV='f74a0a20e83b53ac7a5c8e8a0408f299940126f9'
+sys.path.insert(0,str(LAB/'scripts'));import guest_access,lab_control
+def info(path):
+ with path.open('rb') as stream: digest=hashlib.file_digest(stream,'sha256').hexdigest()
+ return {'bytes':path.stat().st_size,'sha256':digest}
+def git(*args,**kwargs):return subprocess.check_output(['git','--no-replace-objects',*args],cwd=WT,**kwargs)
+def ps(text):return json.loads(subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',text],creationflags=subprocess.CREATE_NO_WINDOW))
+assert RUN.is_dir() and not (RUN/'host-preflight-before.json').exists()
+assert git('rev-parse','HEAD').decode().strip()==REV and git('status','--porcelain=v1','--untracked-files=all')==b''
+manifest=json.loads((CTX/'manifest.json').read_text());assert manifest['source']==REV
+assert info(CTX/'context.tar')=={'bytes':18493440,'sha256':'a6440df56f78285e7bb2e45f419c01e039c88d14e6c2920f8dd63fb0dd9204d9'}
+docker=git('cat-file','blob',REV+':Dockerfile');sources=[]
+for line in docker.decode().splitlines():
+ if not line.startswith('COPY '):continue
+ words=shlex.split(line)
+ if words[1].startswith('--from='):continue
+ assert len(words)>=3 and all(not word.startswith('--') for word in words[1:])
+ for source in words[1:-1]:
+  assert source not in {'.','/'} and not any(c in source for c in '*?[')
+  assert not PurePosixPath(source).is_absolute() and '..' not in PurePosixPath(source).parts
+  sources.append(source)
+assert sources==manifest['local_COPY_inputs']
+expected={}
+for row in git('ls-tree','-r','-z',REV).split(b'\0'):
+ if not row:continue
+ meta,name=row.split(b'\t',1);mode,kind,oid=meta.decode().split();name=name.decode();path=PurePosixPath(name)
+ selected=name in {'Dockerfile','.dockerignore'} or any(name==s.rstrip('/') or name.startswith(s.rstrip('/')+'/') for s in sources)
+ if not selected:continue
+ if '__pycache__' in path.parts or name.startswith('web/static/uploads/') or path.name.startswith('.env'):continue
+ if path.suffix.lower() in {'.db','.pyc','.log','.md','.bat','.spec'} or path.name=='conftest.py':continue
+ assert kind=='blob' and mode in {'100644','100755'}
+ expected[name]={'mode':mode,'oid':oid}
+assert set(expected)==set(manifest['files']) and len(expected)==366
+assert len({n.casefold() for n in expected})==len(expected)
+assert not any(n.startswith(('docs/','tests/','assets/','ui_desktop/')) for n in expected)
+assert not any(PurePosixPath(n).suffix.lower() in {'.zip','.whl','.sqlite','.sqlite3'} or n.endswith('design-reference.png') for n in expected)
+assert all(not PurePosixPath(n).is_absolute() and '..' not in PurePosixPath(n).parts and ':' not in n and '\\' not in n for n in expected)
+blobs={}
+batch=git('cat-file','--batch',input=''.join(row['oid']+'\n' for row in expected.values()).encode());cursor=0
+for name,row in expected.items():
+ end=batch.index(b'\n',cursor);oid,kind,size=batch[cursor:end].decode().split();size=int(size);cursor=end+1
+ data=batch[cursor:cursor+size];cursor+=size;assert batch[cursor:cursor+1]==b'\n';cursor+=1
+ assert oid==row['oid'] and kind=='blob' and len(data)==size
+ assert hashlib.sha1(b'blob '+str(size).encode()+b'\0'+data,usedforsecurity=False).hexdigest()==oid
+ actual={'mode':row['mode'],'oid':oid,'bytes':size,'sha256':hashlib.sha256(data).hexdigest()}
+ assert actual==manifest['files'][name];blobs[name]=data
+assert cursor==len(batch)
+with tarfile.open(CTX/'context.tar') as archive:
+ members=archive.getmembers();assert len(members)==366 and set(m.name for m in members)==set(expected)
+ for member in members:
+  assert member.isfile() and member.uid==member.gid==member.mtime==0
+  assert member.mode==int(expected[member.name]['mode'][-3:],8)
+  assert set(member.pax_headers)<={'path'} and archive.extractfile(member).read()==blobs[member.name]
+sec=MAIN/'docs/implementation/20261018-evolution/evidence/security-expat-72c-native-independent-20261019'
+sec_info={n:info(sec/n) for n in ('source.json','manifest.json')}
+assert sec_info['source.json']['sha256']=='8c8f6d2b0a8713520126ef63923b66c216f2ccadb9fbcc35f9ba3124431327e7'
+assert sec_info['manifest.json']['sha256']=='492397f2198544f6a0f559dda043c9000c476cda667e4c5c053bd311305d596f'
+restart=json.loads((RUN/'vm-restart-after.json').read_text())
+state=lab_control.state();assert state['pid']==restart['start']['pid'];assert lab_control.process_identity(state)
+pid=state['pid']
+identity=ps('Get-CimInstance Win32_Process -Filter "ProcessId='+str(pid)+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine,ParentProcessId | ConvertTo-Json -Compress')
+old={'pid':pid,'creation_date':identity['CreationDate'],'executable':identity['ExecutablePath'],
+     'commandline_sha256':hashlib.sha256(identity['CommandLine'].encode()).hexdigest(),
+     'executable_sha256':info(Path(identity['ExecutablePath']))['sha256'],'parent_pid':identity['ParentProcessId']}
+assert identity=={k:v for k,v in restart['identity'].items() if k not in ('executable_sha256','commandline_sha256')}
+assert old['executable_sha256']==restart['identity']['executable_sha256']
+memory=ps('Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | ConvertTo-Json -Compress')
+assert memory['FreePhysicalMemory']>1536*1024,'Host RAM below 1536 MiB; do not expand VM'
+qmp=lab_control.qmp(state,['query-status','query-memory-size-summary'])
+assert qmp['query-status']['return']['status']=='running' and qmp['query-memory-size-summary']['return']['base-memory']==2048*1024*1024
+inputs=[CTX/'context.tar',CTX/'manifest.json',CTX/'driver.py',LAB/'scripts/lab_control.py',LAB/'scripts/guest_access.py',Path(sys.executable),Path(r'C:\Windows\System32\OpenSSH\ssh.exe'),Path(identity['ExecutablePath'])]
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'source_commit':REV,'context_manifest':manifest,
+ 'context_exact_git_and_COPY_validated':True,'context_source_working_hashes':{n:info(WT/n) for n in expected},
+ 'input_hashes':{str(p):info(p) for p in inputs},'owned_qemu':old,'host_memory_kib':memory,'qmp_readonly':qmp,
+ 'security_native72_proof':{'path':str(sec),'files':sec_info},
+ 'application_acceptance':'Diagnostic candidate only: application6a75 plus logging474. No global broad acceptance or schema32 claim.'}
+(RUN/'host-preflight-before.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+remote="""python3 - <<'PY'
+from pathlib import Path
+import json,shutil,subprocess
+assert not Path('/var/tmp/metodobase-mfa31-runtime-logging-20261019').exists()
+assert not subprocess.check_output(['sudo','-n','docker','image','ls','-q','metodobase-lab:mfa31-logging-f74a0a2']).strip()
+running=subprocess.check_output(['sudo','-n','docker','ps','--no-trunc','--format','{{.ID}} {{.Image}} {{.Names}}'],text=True);assert not running.strip()
+free=shutil.disk_usage('/').free;assert free>2500*1024*1024
+memory=Path('/proc/meminfo').read_text().splitlines();available=int(next(line.split()[1] for line in memory if line.startswith('MemAvailable:')));assert available>1000*1024
+version=subprocess.check_output(['sudo','-n','docker','version','--format','{{.Server.Version}}'],text=True).strip();assert version=='20.10.24+dfsg1'
+def run(*args):return subprocess.check_output(args,text=True).strip()
+tools={name:shutil.which(name) for name in ['postgres','initdb','pg_ctl','psql','redis-server','redis-cli','readelf','nm']}
+packages=run('dpkg-query','-W','-f=${binary:Package}\\t${Version}\\n')
+native_packages=[line for line in packages.splitlines() if line.startswith(('postgresql','redis-server','redis-tools'))]
+report={'docker_server_version':version,'disk_free_bytes':free,'mem_available_kib':available,'running_containers':running,
+ 'images':run('sudo','-n','docker','image','ls','--no-trunc','--format','{{.ID}} {{.Repository}}:{{.Tag}}'),
+ 'containers':run('sudo','-n','docker','ps','-a','--no-trunc','--format','{{.ID}} {{.Names}} {{.Status}}'),
+ 'tools':tools,'native_db_packages':native_packages,'postgres_version_directories':[p.name for p in Path('/usr/lib/postgresql').glob('*')],
+ 'tcp_listeners':run('ss','-ltn'),'existing_services_not_changed':True}
+print(json.dumps(report))
+PY
+"""
+r=guest_access.run(remote,timeout=60)
+(RUN/'guest-preflight-raw.stdout').write_bytes(r.stdout);(RUN/'guest-preflight-raw.stderr').write_bytes(r.stderr)
+assert r.returncode==0,r.stderr.decode()
+guest=json.loads(r.stdout);(RUN/'guest-preflight-source.json').write_text(json.dumps(guest,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'preflight':'PASS','context_files':366,'context_sha256':manifest['context_sha256'],
+ 'host_free_mib':round(memory['FreePhysicalMemory']/1024),'guest_free_mib':round(guest['disk_free_bytes']/1024/1024),
+ 'guest_available_mib':round(guest['mem_available_kib']/1024),'native_db_packages':guest['native_db_packages'],'db_tools':guest['tools']}))

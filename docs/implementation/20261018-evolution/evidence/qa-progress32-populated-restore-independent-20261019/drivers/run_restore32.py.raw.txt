@@ -1,0 +1,93 @@
+"""Execute one unchanged populated restore32 with exact own source/target UUID leases."""
+from pathlib import Path
+import csv,hashlib,importlib.metadata,io,json,os,subprocess,sys,time,traceback,xml.etree.ElementTree as ET
+
+ROOT=Path(r'F:\mb-qa-progress32-restore-20261019')
+INFRA=Path(__file__).parent
+memory=json.loads(subprocess.check_output(['powershell','-NoProfile','-Command','Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ConvertTo-Json -Compress'],text=True))
+assert memory['FreePhysicalMemory']*1024>=1.8*1024**3,'Hold: parent requires at least 1.8 GiB free before new restore backends'
+OUT=INFRA/'run';OUT.mkdir(exist_ok=False)
+PRIVATE=OUT/'private';PRIVATE.mkdir()
+who=subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True);sid=next(csv.reader(io.StringIO(who)))[1]
+subprocess.run(['icacls',str(PRIVATE),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],check=True,stdout=subprocess.DEVNULL)
+LEASES=PRIVATE/'leases';LEASES.mkdir()
+CONFIG=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-qa-pg55483-private-ok6hrpyq/env.json')
+HEAD='345aa7ce16f65fec9481b48cfcd63c33ff3835fc'
+def meta(p):
+    raw=p.read_bytes();return {'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def write(p,j):
+    with p.open('x',encoding='utf-8') as out:json.dump(j,out,indent=2);out.write('\n')
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain','--untracked-files=no').strip()
+os.chdir(ROOT);sys.path.insert(0,str(ROOT))
+for key in list(os.environ):
+    upper=key.upper()
+    if upper=='DATABASE_URL' or upper.endswith('_DATABASE_URL') or upper.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST','MFA_QA_','RESTORE_QA_')) or any(x in upper for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):os.environ.pop(key,None)
+os.environ.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+from tests.isolation import prepare_environment,block_external_sockets,validate_postgres_test_url
+prepare_environment(discard_inherited=True);block_external_sockets()
+config=json.loads(CONFIG.read_text(encoding='utf-8-sig'))
+for key in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_PG_BIN']:os.environ[key]=config[key]
+from urllib.parse import urlsplit
+for key in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL']:
+    validate_postgres_test_url(os.environ[key]);assert urlsplit(os.environ[key]).port==55483
+names=sorted(n for n in git('ls-files','-z','config','core','src','api','web','utils','tests','scripts','requirements','db_bootstrap.py','alembic.ini','.github/workflows').decode().split('\0') if n)
+pgbin=Path(config['METODOBASE_TEST_PG_BIN'])
+def photo():
+    return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{name:meta(ROOT/name) for name in names},'packages':sorted([d.metadata['Name'],d.version] for d in importlib.metadata.distributions()),'Python_shim':meta(Path(sys.executable)),'Python_backing':meta(Path(sys._base_executable)),'config':meta(CONFIG),'PG_bin':{p.relative_to(pgbin).as_posix():meta(p) for p in sorted(pgbin.rglob('*')) if p.is_file()},'infra':{p.name:meta(p) for p in sorted(INFRA.glob('*.py'))}}
+before=photo();assert len(before['packages'])==89;write(OUT/'before.json',before)
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True,check=False);(OUT/'pip-before.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+expected=frozenset({('tests.integration_progress32_restore','test_revision32_restore_preserves_progress_and_all_revision26_27_28_29_30_31_contracts')});assert len(expected)==1
+os.environ.update(RESTORE_QA_SOURCE=str(ROOT),RESTORE_QA_EVENTS=str(PRIVATE/'parent.events.jsonl'),RESTORE_QA_LEASES=str(LEASES))
+import restore_observer as observer
+observer.install()
+import psycopg2
+from psycopg2 import sql
+admin=observer.ORIGINAL(observer.control_dsn(),connect_timeout=5)
+with admin.cursor() as x:
+    x.execute("SELECT host(inet_server_addr()),inet_server_port(),current_setting('server_version')")
+    actual=x.fetchone();assert actual==('127.0.0.1',55483,'17.11')
+    x.execute('SELECT rolname,oid,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles ORDER BY rolname');roles_before=[list(r) for r in x.fetchall()]
+admin.close()
+write(OUT/'plan.json',{'source':HEAD,'module':'tests/integration_progress32_restore.py','expected_nodeids':sorted(expected),'roles_before':roles_before,'server':list(actual),'fresh_objects':'Only maintained fixture creates two own UUID databases: source and target. Exclusive lease before each CREATE and OID read afterward.','old_helpers_changed':False,'full173_executed':False,'memory_before_new_backends':memory})
+env=dict(os.environ);env.pop('_METODOBASE_TEST_ROOT',None)
+env.update(PYTHONPATH=str(INFRA)+os.pathsep+str(ROOT),PYTEST_PLUGINS='restore_peer_plugin',RESTORE_QA_EVENTS=str(PRIVATE/'child.events.jsonl'),RESTORE_QA_ORIGINS=str(PRIVATE/'origins.json'),RESTORE_QA_ROLE_CHECKS=str(PRIVATE/'role-schema.jsonl'))
+args=[sys.executable,'-X','utf8','-B','tests/run_isolated.py','tests/integration_progress32_restore.py','-q','--tb=short','--basetemp='+str(PRIVATE/'pytest'),'--junitxml='+str(PRIVATE/'results.xml')]
+evidence=PRIVATE/'evidence';evidence.mkdir();adapter_leases=PRIVATE/'author-adapter-leases';adapter_leases.mkdir()
+env.update(METODOBASE_TEST_EVIDENCE_DIR=str(evidence),R25_EVIDENCE_DIR=str(adapter_leases),RESTORE_QA_POST_HTTP=str(PRIVATE/'own-postrestore-http.json'))
+start=time.monotonic();fatal=None;result=None
+try:
+    with (PRIVATE/'stdout.raw.log').open('xb') as stdout,(PRIVATE/'stderr.raw.log').open('xb') as stderr:
+        result=subprocess.run(args,cwd=ROOT,env=env,stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,timeout=1200,check=False)
+    assert result.returncode==0,'Maintained PG command failed; original private logs preserved'
+    cases=list(ET.parse(PRIVATE/'results.xml').getroot().iter('testcase'))
+    actual_ids={(c.attrib.get('classname'),c.attrib['name']) for c in cases}
+    assert actual_ids=={tuple(v) for v in expected} and len(cases)==1
+    assert not any(c.findall('failure')+c.findall('error')+c.findall('skipped') for c in cases)
+    write(OUT/'report-review.json',{'count':len(cases),'exact_expected_nodeids':True,'cases':[{'class':c.attrib.get('classname'),'name':c.attrib['name']} for c in cases],'no_errors_failures_skips':True})
+except BaseException as exc:
+    fatal=type(exc).__name__;(PRIVATE/'orchestration-failure.raw.log').write_text(traceback.format_exc(),encoding='utf-8')
+finally:
+    closure=[]
+    for path in sorted(LEASES.glob('*.json')):
+        lease=json.loads(path.read_text());name=lease['name'];assert lease['created'] is True and lease['oid'] is not None
+        observed=observer.state([name])
+        if observed['databases']:
+            assert observed['databases']==[{'name':name,'oid':lease['oid']}] and observed['sessions']==[]
+            observer.OWNED[name]=lease['oid'];observer.event('exact-created-OID-lease-transferred-for-cleanup',name=name,oid=lease['oid'])
+            cn=psycopg2.connect(observer.control_dsn(),connect_timeout=5);cn.autocommit=True
+            try:
+                with cn.cursor() as x:x.execute(sql.SQL('DROP DATABASE {}').format(sql.Identifier(name)))
+            finally:cn.close()
+        assert observer.state([name])=={'databases':[],'sessions':[]}
+        closure.append({'name':name,'oid':lease['oid'],'fresh_absent':True,'no_FORCE':True,'backend_termination':False})
+    cn=observer.ORIGINAL(observer.control_dsn(),connect_timeout=5)
+    with cn.cursor() as x:
+        x.execute('SELECT rolname,oid,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles ORDER BY rolname');roles_after=[list(r) for r in x.fetchall()]
+    cn.close();assert roles_before==roles_after
+    write(OUT/'closure.json',{'leases':closure,'roles_before_after_exact':True,'roles_after':roles_after,'no_role_DDL_or_HBA_mutation':True})
+after=photo();write(OUT/'after.json',after);assert before==after
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True,check=False);(OUT/'pip-after.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+summary={'status':'PASS_PROGRESS32_POPULATED_RESTORE' if fatal is None else 'FAILED_PRESERVED','source':HEAD,'exit_code':None if result is None else result.returncode,'fatal_type':fatal,'elapsed_seconds':round(time.monotonic()-start,3),'source_count':len(names),'package_metadata':89,'sources_packages_python_PG_bins_private_config_quiet':True,'pip_before_after':[0,0],'owned_databases':len(closure),'own_objects_closed':True,'scope':'One maintained populated PostgreSQL restore32 plus post-maintained own real HTTP/MFA/progress retention controls. No parent-OFF retirement, broad, VM, Chrome, provider, SLO or production acceptance.'}
+write(OUT/'summary.json',summary);print(json.dumps(summary))
+raise SystemExit(0 if fatal is None else 1)

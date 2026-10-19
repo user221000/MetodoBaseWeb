@@ -1,0 +1,73 @@
+{
+  "captured_utc": "2026-10-19T21:01:49.109673+00:00",
+  "start": {
+    "pid": 29408,
+    "ports": {
+      "ssh": 53105,
+      "qmp": 53106
+    },
+    "reused_owned_overlay": true
+  },
+  "identity": {
+    "ProcessId": 29408,
+    "CreationDate": "/Date(1792443620117)/",
+    "ExecutablePath": "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe",
+    "CommandLine": "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe -name metodobase-linux-tcg-local-lab -no-user-config -nodefaults -L F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\share -machine q35 -accel tcg,thread=multi -cpu max -smp 2 -m 2048 -display none -monitor none -qmp tcp:127.0.0.1:53106,server=on,wait=off -serial file:F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\guest-serial-20261019T210018.log -boot order=c -no-reboot -drive file=F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\disk-overlay.qcow2,if=virtio,format=qcow2,cache=writeback,discard=unmap -drive file=F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\seed.iso,if=virtio,format=raw,readonly=on -object rng-builtin,id=rng0 -device virtio-rng-pci,rng=rng0 -netdev user,id=net0,hostfwd=tcp:127.0.0.1:53105-:22 -device virtio-net-pci,netdev=net0,mac=52:54:00:19:10:19 -rtc base=utc",
+    "ParentProcessId": 17788,
+    "executable_sha256": "47d57a6072e0bb3bd98f87926eb129eb1736dfe818c67b3b81ef7ce4edd0b3cd",
+    "commandline_sha256": "13914bee5bd6ed9203ca8520e7e9051e6eb0abb3a2d9e7e783db3632271d1f70"
+  },
+  "launcher_parent_generation": null,
+  "parent_generation_limit": "Original launcher exited after first QMP connection refusal; if absent, its birth cannot be reconstructed from a reused PID.",
+  "qmp": {
+    "greeting": {
+      "QMP": {
+        "version": {
+          "qemu": {
+            "micro": 0,
+            "minor": 1,
+            "major": 11
+          },
+          "package": "v11.1.0-12130-ge470268ff4"
+        },
+        "capabilities": [
+          "oob"
+        ]
+      }
+    },
+    "qmp_capabilities": {
+      "return": {},
+      "id": "qmp_capabilities"
+    },
+    "query-status": {
+      "return": {
+        "status": "running",
+        "running": true
+      },
+      "id": "query-status"
+    },
+    "query-memory-size-summary": {
+      "return": {
+        "base-memory": 2147483648,
+        "plugged-memory": 0
+      },
+      "id": "query-memory-size-summary"
+    }
+  },
+  "host_memory_kib": {
+    "TotalVisibleMemorySize": 16710572,
+    "FreePhysicalMemory": 3036104,
+    "FreeVirtualMemory": 3251316
+  },
+  "SSH_exit_code": 0,
+  "initial_QMP_refused_before_listener_ready": true,
+  "initial_driver": {
+    "bytes": 4722,
+    "sha256": "9e95b01086f7f2da09da5453f2d0fcf6439d72c43ae94081ce36a5b62381a0bd"
+  },
+  "initial_private_log": {
+    "bytes": 2804,
+    "sha256": "aff2d3f98c98d65860b2add9f3bc83af5bc4e40c70944b79fa166871e0bde9ac"
+  },
+  "recovery": "Read-only identity/QMP/SSH capture for same already-started generation. No second start, stop, resource/config/source change."
+}

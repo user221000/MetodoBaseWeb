@@ -1,0 +1,179 @@
+"""Observe unchanged restore32, then exercise own HTTP controls before UUID teardown."""
+from functools import wraps
+from pathlib import Path
+import importlib
+import json
+import os
+import sys
+
+import pytest
+
+import restore_observer
+
+ROOT=Path(os.environ['RESTORE_QA_SOURCE']).resolve()
+CAPTURE={}
+ORIGINALS=[]
+
+
+def check_origins():
+    assert restore_observer.INSTALLED
+    rows={}
+    for name,module in list(sys.modules.items()):
+        if name.split('.')[0] in {'web','api','core','tests'} and getattr(module,'__file__',None):
+            path=Path(module.__file__).resolve();assert path.is_relative_to(ROOT);rows[name]=str(path.relative_to(ROOT))
+    from web.database.models import Base
+    assert len(Base.metadata.tables)==33
+    Path(os.environ['RESTORE_QA_ORIGINS']).write_text(json.dumps(rows,indent=2)+'\n',encoding='utf-8')
+
+
+def pytest_configure(config):
+    # Return values stay only in this process RAM. No factor/identity/endpoint is replaced.
+    for module,name,key in [('tests.client_link_restore_helpers','populate_links29','links'),
+                            ('tests.progress32_restore_helpers','populate_progress32','progress'),
+                            ('tests.mfa31_restore_helpers','populate_mfa31','mfa')]:
+        target=importlib.import_module(module);original=getattr(target,name)
+        @wraps(original)
+        def observed(*args,__original=original,__key=key,**kwargs):
+            value=__original(*args,**kwargs);CAPTURE[__key]=value;return value
+        ORIGINALS.append((target,name,original));setattr(target,name,observed)
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(session,config,items):
+    check_origins();assert len(items)==1
+
+
+def blank_pool(app):
+    from sqlalchemy import text
+    with app.connect() as db:
+        for key in ['app.current_tenant','app.client_invitation_digest','app.mfa_actor']:
+            assert db.scalar(text('SELECT current_setting(:key,true)'),{'key':key})==''
+    assert app.pool.size()==1 and app.pool.checkedout()==0
+
+
+def postrestore(item):
+    from fastapi.testclient import TestClient
+    from sqlalchemy import create_engine,inspect,select,text
+    from sqlalchemy.orm import Session,sessionmaker
+    from tests.integration_provider_subjects import application_engine
+    from tests.mfa31_restore_helpers import KEY,PASSWORD
+    from web import auth
+    from web.database import engine as database
+    from web.database.models import ClientProgress,ProgressConsent,Usuario
+    from web.settings import get_settings
+
+    assert set(CAPTURE)=={'links','progress','mfa'}
+    (_,source_url),(target_name,target_url)=item.funcargs['owned_databases']
+    admin=create_engine(target_url,pool_size=1,max_overflow=0);app=None
+    report={'scope':'Own post-maintained-restore controls. Original60 asserts completed first; actors/proofs captured observationally in RAM only.',
+            'target':target_name,'factories':[],'original_MFA_password_and_codes_restored':True,
+            'progress_password_setup':'Four synthetic placeholder hashes are replaced only AFTER the maintained full-row comparisons. These new progress passwords are not claimed restored.',
+            'parent_OFF_retirement_acceptance':False}
+    try:
+        app=application_engine(target_url,admin)
+        with app.connect() as db:
+            flags=tuple(db.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one())
+            nonowner=db.scalar(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()'))
+            owned=db.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND pg_get_userbyid(relowner)=current_user"))
+            force=db.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relrowsecurity AND relforcerowsecurity"))
+            tables=len(inspect(db).get_table_names());revision=db.scalar(text('SELECT version_num FROM alembic_version'))
+            assert flags==(False,)*4 and nonowner and owned==0 and force==26 and tables==34 and revision=='20261019_personal_progress'
+        report['actual_role_schema']={'flags4':list(flags),'database_nonowner':nonowner,'owned_tables':owned,'FORCE_RLS':force,'physical_tables':tables,'revision':revision,'application_pool_size':app.pool.size()}
+        links=CAPTURE['links'];progress=CAPTURE['progress'];ids=links['ids'];grant=progress['consents']['recipient'];link=progress['links']['recipient']
+        password='Synthetic independent restore32 progress password 42!'
+        with Session(admin) as db:
+            for key in ['gym_a','gym_b','recipient','other']:
+                db.get(Usuario,ids[key]).password_hash=auth.hash_password(password)
+            db.commit()
+        snapshot_before=None;withdrawn=None
+        for number,factory in enumerate(['web.main_web','api.app']):
+            configuration=get_settings()
+            with item.funcargs['monkeypatch'].context() as scoped:
+                scoped.setattr(database,'_engine',app)
+                scoped.setattr(database,'_SessionLocal',sessionmaker(bind=app,autoflush=False,expire_on_commit=False))
+                scoped.setattr(configuration,'MFA_ENCRYPTION_KEY',KEY)
+                client_peer=('192.0.2.'+str(161+number),56032+number)
+                with TestClient(importlib.import_module(factory).create_app(),raise_server_exceptions=False,client=client_peer) as client:
+                    # These password hashes and recovery codes are from the original populated backup.
+                    actor='restore-mfa-owner-a';material=CAPTURE['mfa']['actors'][actor]
+                    challenge=client.post('/api/auth/login',json={'email':actor+'@example.invalid','password':PASSWORD})
+                    assert challenge.status_code==202
+                    assert not any(k in challenge.json() for k in ['token','refresh_token'])
+                    opaque=challenge.json()['challenge']
+                    bad=next(c*22 for c in ['A','B','C'] if c*22 not in material['codes'])
+                    denied=client.post('/api/auth/mfa/login/verify',json={'challenge':opaque,'recovery_code':bad})
+                    assert denied.status_code==400
+                    assert not any(k in denied.json() for k in ['token','refresh_token'])
+                    verified=client.post('/api/auth/mfa/login/verify',json={'challenge':opaque,'recovery_code':material['codes'][2+number]})
+                    assert verified.status_code==200
+                    bearer=verified.json()['token'];claims=auth._decode_token(bearer)
+                    assert claims['id']==actor and claims['amr']==['pwd','recovery']
+                    assert client.get('/api/auth/me',headers={'Authorization':'Bearer '+bearer}).status_code==200
+                    replay=client.post('/api/auth/mfa/login/verify',json={'challenge':opaque,'recovery_code':material['codes'][2+number]})
+                    assert replay.status_code in {400,409}
+                    state=client.get('/api/auth/mfa/status',headers={'Authorization':'Bearer '+bearer})
+                    assert state.status_code==200 and state.json()['enabled'] is True
+                    assert state.json()['recovery_codes_remaining']==5-number
+                    headers={}
+                    for key in ['gym_a','gym_b','recipient','other']:
+                        login=client.post('/api/auth/login',json={'email':ids[key]+'@example.invalid','password':password})
+                        assert login.status_code==200
+                        headers[key]={'Authorization':'Bearer '+login.json()['token']}
+                    measurement='/api/usuario/progreso/mediciones/'+progress['records']['recipient']
+                    own=client.get(measurement,headers=headers['recipient']);assert own.status_code==200
+                    assert own.json()['source_kind']=='self_reported' and own.json()['values']['peso_kg']==71.5
+                    assert own.json()['values']['grasa_corporal_pct']==21
+                    if snapshot_before is None:snapshot_before=own.json()
+                    else:assert own.json()==snapshot_before
+                    assert client.get(measurement,headers=headers['other']).status_code==404
+                    suffix='?expected_consent_id='+grant['id']+'&expected_version=2&expected_link_version=2&from='+progress['today'].isoformat()+'&through='+progress['today'].isoformat()
+                    shared='/api/clientes/'+links['clients']['active']+'/vinculacion/'+link['link']+'/progreso'+suffix
+                    assert client.get(shared,headers=headers['gym_b']).status_code==404
+                    if number==0:
+                        observed=client.get(shared,headers=headers['gym_a']);assert observed.status_code==200
+                        assert observed.json()['measurements']['items'][0]['values']=={'peso_kg':71.5}
+                        assert observed.json()['completion']['items']==[{'local_date':progress['today'].isoformat(),'registered_snapshots':1,'completed_snapshots':1,'ratio':1.0,'status':'observed'}]
+                        assert all(word not in observed.text for word in ['notas','grasa_corporal_pct','meals_json','water_ml'])
+                        removed=client.post('/api/usuario/vinculos/'+link['link']+'/progreso/consentimiento/retirar',headers=headers['recipient'],json={'expected_consent_id':grant['id'],'expected_version':2})
+                        assert removed.status_code==200
+                        withdrawn=removed.json()['consent'];assert withdrawn['event']=='withdraw' and withdrawn['version']==3
+                    assert client.get(shared,headers=headers['gym_a']).status_code==409
+                    latest=client.get('/api/usuario/vinculos/'+link['link']+'/progreso/consentimiento',headers=headers['recipient'])
+                    assert latest.status_code==200 and latest.json()['consent']==withdrawn
+                    retained=client.get(measurement,headers=headers['recipient']);assert retained.status_code==200 and retained.json()==snapshot_before
+                    exported=client.get('/api/usuario/privacidad/exportar?limit=100',headers=headers['recipient']);assert exported.status_code==200
+                    events=exported.json()['progress_consents']['records'];assert len(events)==3
+                    assert {e['event'] for e in events}=={'grant','withdraw'}
+                    assert all('user_id' not in e and 'gym_id' not in e and 'client_id' not in e for e in events)
+                    report['factories'].append({'factory':factory,'fresh_password_login_MFA_challenge':202,'invalid_factor':400,'original_restored_recovery_verified':200,'replay_denied':replay.status_code,'remaining_recovery_codes':state.json()['recovery_codes_remaining'],
+                        'own_restored_measurement_retained':True,'cross_subject_denied':404,'cross_gym_denied':404,'stale_grant_denied':409,'withdrawn_latest_version':3,'own_export_events':3,'new_progress_passwords_prepared_after_restore':True})
+            blank_pool(app)
+        with Session(admin) as db:
+            events=db.scalars(select(ProgressConsent).where(ProgressConsent.link_id==link['link']).order_by(ProgressConsent.version)).all()
+            assert [e.event for e in events]==['grant','grant','withdraw']
+            assert db.query(ProgressConsent).count()==5
+            row=db.get(ClientProgress,progress['legacy_id'])
+            assert row.source_kind=='legacy_unverified' and row.measured_on is None and row.recorded_by_id is None
+            assert row.fecha.year==2020 and row.notas=='Synthetic legacy private text excluded from projections'
+        report['append_only_consent_events_retained']=True;report['legacy_provenance_retained']=True
+    finally:
+        if app is not None:app.dispose()
+        admin.dispose()
+    Path(os.environ['RESTORE_QA_POST_HTTP']).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+
+
+@pytest.hookimpl(hookwrapper=True,trylast=True)
+def pytest_runtest_call(item):
+    check_origins()
+    outcome=yield
+    if outcome.excinfo is None:
+        postrestore(item)
+
+
+def pytest_sessionfinish(session,exitstatus):
+    check_origins()
+
+
+def pytest_unconfigure(config):
+    for target,name,original in reversed(ORIGINALS):setattr(target,name,original)
+    CAPTURE.clear()

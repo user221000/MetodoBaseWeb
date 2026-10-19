@@ -114,3 +114,8 @@ No arreglar el fallo de recuperación cambiando suassert. Separar identidadváli
 ## Checkpoint125
 
 No debilitar assertions para corregir carreras de fixtures: congelar sólo setup, restaurar antes del negocio y preservar la firma original. No atribuir el error3047 a una carrera sin telemetría histórica suficiente. El DEFAULTFUNCTIONS del harness era redundante y alteraba proacl: retirar ese estímulo de la nueva prueba, no relajar el guard29→30. Aceptar header/CSS sólo con los mismos canarios y fuente345. Mantener login general inválido con padreOFF; retiro necesita un flujo limitado con pruebas frescas y sin JWT, todavía pendiente. Corrección de redacción CI:4grupos,5módulos/pins. El lease autor32 usa UUID, pero write_text inicial no demuestra creación exclusiva; no alterar ese sello ni repetir la afirmación.
+
+
+## Checkpoint126
+
+No ampliar RLS ni alterar funciones para satisfacer asserts impropios del observador. Usar verify_runtime_schema congelado y allowlist25FORCE en el futuro worker. Preservar primererror/continuaciónreadonly con prefijos distintos del futuro sucesor. Apagar sólo VM propia por QMP tras cierre de servicios y fotos de identidad. No considerar contraseñas preparadas postrestore como restauradas. ContratoGoogle: separar autoridad criptográfica tokeninfo de asociaciónlocalpor email; no usar mocks imposibles como exploit real.

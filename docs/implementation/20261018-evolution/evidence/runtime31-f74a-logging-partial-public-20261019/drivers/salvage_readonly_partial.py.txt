@@ -1,0 +1,16 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json
+RUN=Path(__file__).resolve().parent
+raw=(RUN/'worker-readonly-diagnostic-private.stdout').read_bytes();remote=json.loads(raw)
+assert remote['PID1_worker_has_migrator'] is False and remote['health']['status']==200 and remote['readiness']=={'status':200,'body':{'ready':True}}
+probe=json.loads((RUN/'runtime-import-probe-source.json').read_bytes());assert remote['source_hashes_after_startup']==probe['source_hashes']
+report={'status':'PARTIAL_READONLY_WORKER_PHOTO_NOT_COMPLETE_ACCEPTANCE','captured_utc':datetime.now(timezone.utc).isoformat(),
+ 'remote_readonly_photo':remote,'remote_raw_sha256':hashlib.sha256(raw).hexdigest(),
+ 'source_files_exact_after_startup':len(remote['source_hashes_after_startup']),
+ 'first_attestation_failed':{'driver':'smoke_observe_guest.py','criterion':'all tables whose name begins mfa_ require FORCE RLS','cause':'Overbroad harness assertion; frozen policy names only mfa_credentials and mfa_recovery_codes. Original script/error retained, no worker replay.'},
+ 'readonly_continuation_failure':{'driver':'capture_worker_readonly_diagnostic.py','criterion':'All public functions count19 and all INVOKER/null ACL','cause':'Overbroad function inventory boundary:19 is the member_link_security subset, not every public function. Actual complete public inventory captured later before cleanup. No product/policy/authority changes, no requery to force green.'},
+ 'original_worker_exec_replayed':False,'complete_worker_acceptance':False,
+ 'next_control':'Future successor prefix only, exact revision31 contract/25 FORCE table allowlist and exact function subset; no rebuild or in-place rewriting of this evidence.'}
+(RUN/'worker-readonly-partial-source.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'status':report['status'],'health':remote['health'],'ready':remote['readiness'],'docker_health':remote['docker_health'],'PID1_migrator_absent':True,'ConfigEnv_migrator_present':remote['container_ConfigEnv_has_migrator'],'sources_after':report['source_files_exact_after_startup'],'complete_worker_acceptance':False}))

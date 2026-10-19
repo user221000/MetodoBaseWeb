@@ -1,0 +1,64 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import ast,hashlib,json,subprocess,sys
+import psycopg2
+RUN=Path(__file__).resolve().parent;LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import guest_access
+assert (RUN/'first-worker-failure-source.json').is_file()
+remote=r'''
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,os,subprocess,urllib.request
+assert os.getuid()==0
+root=Path('/var/tmp/metodobase-mfa31-runtime-logging-20261019');state=json.loads((root/'smoke-owned-state.json').read_text())
+raw=subprocess.check_output(['docker','inspect',state['container_id']]);row=json.loads(raw)[0]
+assert row['Id']==state['container_id'] and row['Image']==state['image_id'] and row['Config']['Labels']['metodobase.lab.plan']==state['nonce']
+assert row['Config']['Labels']['metodobase.lab.source']==state['source_commit'] and row['Config']['Cmd']==['/app/entrypoint.sh']
+assert row['State']['Running'] and not row['State']['OOMKilled']
+pid=row['State']['Pid'];proc=Path('/proc')/str(pid);birth=proc.joinpath('stat').read_text().split()[21]
+assert pid==state['guest_pid'] and birth==state['guest_birth_ticks']
+status=dict(line.split(':',1) for line in proc.joinpath('status').read_text().splitlines() if ':' in line)
+uids=[int(n) for n in status['Uid'].split()];gids=[int(n) for n in status['Gid'].split()];assert uids==gids==[999]*4
+env=dict(part.split(b'=',1) for part in proc.joinpath('environ').read_bytes().split(b'\0') if b'=' in part)
+assert b'MIGRATOR_DATABASE_URL' not in env and b'DATABASE_URL' in env and env[b'METODOBASE_ENV']==b'production'
+assert env[b'PORT']==b'18033' and env[b'METODOBASE_SEED_DEMO']==b'0'
+command=proc.joinpath('cmdline').read_bytes();assert b'web/main_web.py' in command and b'--no-browser' in command
+app=proc/'root/app';sources={}
+for p in app.rglob('*'):
+ if not p.is_file() or '__pycache__' in p.parts:continue
+ with p.open('rb') as f:sources[p.relative_to(app).as_posix()]=hashlib.file_digest(f,'sha256').hexdigest()
+def request(path):
+ with urllib.request.urlopen('http://127.0.0.1:18033'+path,timeout=10) as response:return {'status':response.status,'body':json.load(response)}
+health=request('/health');ready=request('/health/ready');assert health['status']==200 and health['body']['database']=='ok' and ready=={'status':200,'body':{'ready':True}}
+listeners=[line for line in subprocess.check_output(['ss','-ltnp'],text=True).splitlines() if ':18033 ' in line]
+assert listeners and all('0.0.0.0:18033' in line and 'pid='+str(pid)+',' in line for line in listeners)
+assert row['State']['Health']['Status']=='healthy'
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'status':'READONLY_EXISTING_WORKER_DIAGNOSTIC_ONLY','container_id':row['Id'],'image_id':row['Image'],'source_commit':state['source_commit'],
+ 'configured_CMD':row['Config']['Cmd'],'configured_USER':row['Config']['User'],'container_ConfigEnv_has_migrator':any(x.startswith('MIGRATOR_DATABASE_URL=') for x in row['Config']['Env']),
+ 'PID1_worker_has_migrator':False,'PID1_worker_has_database':True,'PID1_worker_production':True,'PID1_seed_demo':False,
+ 'worker_process':{'pid':pid,'birth_ticks':birth,'executable':str(proc.joinpath('exe').resolve()),'executable_sha256':hashlib.sha256(proc.joinpath('exe').read_bytes()).hexdigest(),'commandline_sha256':hashlib.sha256(command).hexdigest(),'UIDs':uids,'GIDs':gids},
+ 'health':health,'readiness':ready,'docker_health':'healthy','listeners':listeners,'host_published_port':False,'Docker_host_network_guest_only':True,
+ 'source_hashes_after_startup':sources,'private_inspect_sha256':hashlib.sha256(raw).hexdigest(),'worker_exec_replayed':False,
+ 'scope':'Read-only /proc/owned-PID/root + HTTP + Docker inspect of the same original worker. No Dockerexec, second startup, policy/source/secret edits, provider or business flow.'}
+(root/'worker-readonly-diagnostic-source.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
+'''
+ast.parse(remote);payload=RUN/'worker-readonly-diagnostic-payload.py';payload.write_text(remote,encoding='utf-8')
+with payload.open('rb') as f:r=guest_access.run('sudo -n python3 -',stdin=f,timeout=90)
+(RUN/'worker-readonly-diagnostic-private.stdout').write_bytes(r.stdout);(RUN/'worker-readonly-diagnostic-private.stderr').write_bytes(r.stderr)
+assert r.returncode==0,'Readonly existing worker diagnostic failed; preserve output, no worker replay'
+report=json.loads(r.stdout);probe=json.loads((RUN/'runtime-import-probe-source.json').read_bytes());assert report['source_hashes_after_startup']==probe['source_hashes']
+pointer=json.loads((RUN/'roles-private-pointer.json').read_bytes());roles=json.loads(Path(pointer['private_file']).read_bytes())
+conn=psycopg2.connect(host='127.0.0.1',port=55486,dbname=roles['database'],user=roles['application_role'],password=roles['passwords'][roles['application_role']],connect_timeout=5,application_name='runtime31_f74a_app_readonly_diagnostic')
+with conn.cursor() as c:
+ c.execute('SET TRANSACTION READ ONLY');c.execute('SELECT current_user,(SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname=current_database())');role,owner=c.fetchone();assert role==roles['application_role'] and owner==roles['migrator_role'] and role!=owner
+ c.execute('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,rolreplication,rolinherit FROM pg_roles WHERE rolname=current_user');flags=list(c.fetchone());assert flags==[False]*6
+ c.execute('SELECT version_num FROM alembic_version');head=[r[0] for r in c.fetchall()];assert head==['20261019_mfa']
+ c.execute("SELECT relname,relrowsecurity,relforcerowsecurity FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' ORDER BY relname");rls=c.fetchall();mfa={n:(enabled,forced) for n,enabled,forced in rls if n.startswith('mfa_')}
+ assert mfa=={'mfa_authorizations':(False,False),'mfa_credentials':(True,True),'mfa_recovery_codes':(True,True)}
+ c.execute("SELECT proname,prosecdef,proacl::text FROM pg_proc WHERE pronamespace='public'::regnamespace ORDER BY proname");functions=c.fetchall();assert len(functions)==19 and all(not r[1] and r[2] is None for r in functions)
+conn.rollback();conn.close()
+report['database_readonly_from_real_application_role']={'role':role,'database_owner':owner,'nonowner':True,'role_flags_false':flags,'revision':head,'tables_RLS':rls,'function_invoker_ACLs':functions}
+report['source_files_exact_after_startup']=len(report['source_hashes_after_startup'])
+report['first_worker_failure_cause']={'line':22,'failed_assumption':'Every mfa_ table must have ENABLE/FORCE RLS','frozen_policy':'mfa_policy.install_policies applies only to mfa_credentials and mfa_recovery_codes','product_or_policy_changed':False,'original_failed_worker_probe_replayed':False}
+(RUN/'worker-readonly-diagnostic-source.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'status':report['status'],'health':report['health'],'ready':report['readiness'],'docker_health':report['docker_health'],'PID1_migrator_absent':not report['PID1_worker_has_migrator'],'ConfigEnv_migrator_present':report['container_ConfigEnv_has_migrator'],'source_files_exact':report['source_files_exact_after_startup'],'role_flags':flags,'head':head,'MFA_RLS_actual':mfa,'worker_replayed':False}))

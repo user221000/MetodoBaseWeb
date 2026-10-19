@@ -137,3 +137,8 @@ Pendientes peerSEC15,nueva fullserial/n2, imagen runtime ysourcefixposterior. Na
 ## Checkpoint125
 
 QA-16 helpers aceptados acotadamente; serial/n2 de la composición31 siguen pendientes, y las pruebas seriales no garantizan aislamiento de contextos copiados. R25/R31 retiroparentOFF sigue abierto, al igual que restore32/CI32/matrizcomún. Runtime nuevo requiere sello delsmoke/cierre yrevisión; c538rojo no acreditahealth/ready/worker. RAMhostobservada cerca1.5GiBconVM2GiB: sinChrome ni nuevos trabajos pesados simultáneos, cierrecooperativo de propios. CryptographyOpenSSL4.0.3 ysystem3.5.7 son identidades distintas y no cierranSCA71. Se conserva lease32write_text noexclusivo como límite de evidencia. Políticas/retención/países, SLOrepresentativo, pilotos, dictamen especialista y dependenciasMFA/proveedores siguen pendientes.
+
+
+## Checkpoint126
+
+Worker31 todavía sin atestación completa; source/image parcial no habilita despliegue. Serial/n2 y matrizcomún32 pendientes. Retiroexcepcional yGoogle-only requieren pruebas; asociaciónsub nuevaDDL/backfillnoautorizada por inferencia ni implementada todavía. VMOFF liberóRAM después de presión observada; QA esperó1.8GiB antesCREATE, no se tocó proceso ajeno. Las dependencias de políticas, países, retención, SLO, pilotos y especialista permanecen abiertas.

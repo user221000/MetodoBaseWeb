@@ -195,3 +195,8 @@ SEC15 añade identidadSVmáximo válida y guard409 de capacidad antes de cambiar
 ## Checkpoint125
 
 MAIN sólo incorpora evidencia y control, sin producto31/32. Cambios aislados: loggerAlembic474, clocks9b14/9ab, exportprivate200295 y CSSef9; composiciónUI345. Backend32bd0501 ofrece medidas explícitas, consentimientos append-only/CAS y lector limitado; UI8dc conserva RAMfences y export8. Las reparaciones no cambian contratos clínicos/comerciales. Fuenteimagenf74=app6a75+native72+logger474; contextoa644366Gitblobs. Se conservan todos los befores y diagnósticos rechazados.
+
+
+## Checkpoint126
+
+MAIN sólo registra pruebas y control. Runtimef74 app6a75/native72/logger474 medido con su USERreal y firststartup; noatribución32. Nuevo retiro API/UI permanece en WT independientes desde345 conwire5b6de9 congelado. Ningún cambio producto en este checkpoint.

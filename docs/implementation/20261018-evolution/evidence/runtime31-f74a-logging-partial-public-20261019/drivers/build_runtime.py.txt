@@ -1,0 +1,83 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,subprocess,sys,tempfile,time
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime-logging-validation-20261019')
+CTX=RUN.parent/'metodobase-mfa31-runtime-logging-context-20261019'
+REMOTE='/var/tmp/metodobase-mfa31-runtime-logging-20261019'
+TAG='metodobase-lab:mfa31-logging-f74a0a2'
+REV='f74a0a20e83b53ac7a5c8e8a0408f299940126f9'
+sys.path.insert(0,str(LAB/'scripts'));import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+before=json.loads((RUN/'host-preflight-before.json').read_text())
+for name,row in before['input_hashes'].items():
+ with Path(name).open('rb') as stream:digest=hashlib.file_digest(stream,'sha256').hexdigest()
+ assert {'bytes':Path(name).stat().st_size,'sha256':digest}==row
+free=int(subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command','(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory'],creationflags=subprocess.CREATE_NO_WINDOW).strip())
+assert free>1536*1024,'Stop: host RAM below 1536 MiB'
+(RUN/'host-memory-immediate-before-build.json').write_text(json.dumps({'free_mib':round(free/1024),'captured_utc':datetime.now(timezone.utc).isoformat(),'vm_expanded':False})+'\n',encoding='utf-8')
+def call(command,data=None,timeout=90,log=''):
+ if data is None:r=guest_access.run(command,timeout=timeout)
+ else:
+  with tempfile.TemporaryFile(dir=RUN) as stream:
+   stream.write(data);stream.seek(0);r=guest_access.run(command,stdin=stream,timeout=timeout)
+ (RUN/log).write_bytes(r.stdout+b'\nSTDERR\n'+r.stderr)
+ assert r.returncode==0,(log,r.returncode,r.stderr.decode('utf-8','replace'))
+ return r.stdout
+raw=(CTX/'context.tar').read_bytes()
+assert len(raw)==18493440 and hashlib.sha256(raw).hexdigest()=='a6440df56f78285e7bb2e45f419c01e039c88d14e6c2920f8dd63fb0dd9204d9'
+call('umask 077; test ! -e '+REMOTE+' && mkdir -m 700 '+REMOTE+' && cat > '+REMOTE+'/context.tar',raw,log='context-transfer-raw.log')
+call('umask 077; test ! -e '+REMOTE+'/context-manifest.json && cat > '+REMOTE+'/context-manifest.json',(CTX/'manifest.json').read_bytes(),log='manifest-transfer-raw.log')
+verify="""python3 - <<'PY'
+from pathlib import Path,PurePosixPath
+import hashlib,json,tarfile
+root=Path('/var/tmp/metodobase-mfa31-runtime-logging-20261019');receipt=json.loads((root/'context-manifest.json').read_text())
+archive=root/'context.tar';assert archive.stat().st_size==18493440
+assert hashlib.sha256(archive.read_bytes()).hexdigest()=='a6440df56f78285e7bb2e45f419c01e039c88d14e6c2920f8dd63fb0dd9204d9'
+target=root/'context';target.mkdir();files={}
+with tarfile.open(archive) as tar:
+ assert len(tar.getmembers())==366 and set(tar.getnames())==set(receipt['files'])
+ for member in tar:
+  name=PurePosixPath(member.name)
+  assert member.isfile() and member.name==name.as_posix() and not name.is_absolute()
+  assert '..' not in name.parts and '\\\\' not in member.name and ':' not in member.name
+  assert member.name not in files and member.size<20000000
+  raw=tar.extractfile(member).read();row={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+  expected=receipt['files'][member.name];assert row=={k:expected[k] for k in ('bytes','sha256')}
+  assert member.mode==int(expected['mode'][-3:],8)
+  path=target/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw);path.chmod(member.mode)
+  files[member.name]=row
+assert files=={p.relative_to(target).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in target.rglob('*') if p.is_file()}
+report={'source':receipt['source'],'target':'runtime','archive_sha256':receipt['context_sha256'],'exact_file_set':True,
+ 'files':files,'remote_root':str(target),'application_transferred':True,'context_excludes_env_data_tests_docs_desktop':True}
+(root/'verified-context.json').write_text(json.dumps(report,indent=2)+'\\n')
+print(json.dumps(report))
+PY
+"""
+verified=call(verify,log='context-verification-raw.log')
+(RUN/'remote-context-source.json').write_bytes(verified)
+command,environment=guest_access.configuration()
+build='set -eu; test ! -e '+REMOTE+'/runtime.iid; test -z "$(sudo -n docker image ls -q '+TAG+')"; sudo -n env DOCKER_BUILDKIT=0 docker build --pull=false --platform=linux/amd64 --target runtime --iidfile '+REMOTE+'/runtime.iid --label org.opencontainers.image.revision='+REV+' -t '+TAG+' '+REMOTE+'/context'
+assert lab_control.process_identity(lab_control.state())
+start=time.monotonic()
+with (RUN/'runtime-build-raw.log').open('xb') as log:
+ process=subprocess.Popen(command+[build],cwd=LAB/'instance',env=environment,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
+ query='Get-CimInstance Win32_Process -Filter "ProcessId='+str(process.pid)+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress'
+ raw_identity=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',query],creationflags=subprocess.CREATE_NO_WINDOW)
+ identity=json.loads(raw_identity)
+ record={'started_utc':datetime.now(timezone.utc).isoformat(),'owned_ssh_pid':process.pid,'creation_date':identity['CreationDate'],
+  'executable':identity['ExecutablePath'],'commandline_sha256':hashlib.sha256(identity['CommandLine'].encode()).hexdigest(),
+  'target':'runtime','tag':TAG,'source_commit':REV,'remote_root':REMOTE,
+  'scope':'Diagnostic full runtime candidate6a75 plus logging474; no global acceptance.'}
+ (RUN/'owned-build-ssh-identity.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
+ print(json.dumps({'phase':'RUNTIME_BUILD_STARTED','owned_ssh_pid':process.pid,'source':REV,'target':'runtime'}),flush=True)
+ try:exit_code=process.wait(timeout=3600)
+ except subprocess.TimeoutExpired:
+  process.terminate()
+  try:process.wait(timeout=15)
+  except subprocess.TimeoutExpired:process.kill();process.wait(timeout=15)
+  raise
+record.update(finished_utc=datetime.now(timezone.utc).isoformat(),exit_code=exit_code,elapsed_seconds=round(time.monotonic()-start,3))
+(RUN/'runtime-build-receipt.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'phase':'RUNTIME_BUILD_FINISHED','exit_code':exit_code,'elapsed_seconds':record['elapsed_seconds']}),flush=True)
+raise SystemExit(exit_code)

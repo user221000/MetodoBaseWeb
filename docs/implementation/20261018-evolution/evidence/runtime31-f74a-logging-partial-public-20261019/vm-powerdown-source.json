@@ -1,0 +1,92 @@
+{
+  "started_utc": "2026-10-19T21:17:01.896405+00:00",
+  "state": "OWNED_VM_OFF_SERVICES_CLOSED",
+  "owned_qemu": {
+    "pid": 29408,
+    "creation_date": "/Date(1792443620117)/",
+    "executable": "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe",
+    "commandline_sha256": "13914bee5bd6ed9203ca8520e7e9051e6eb0abb3a2d9e7e783db3632271d1f70",
+    "executable_sha256": "47d57a6072e0bb3bd98f87926eb129eb1736dfe818c67b3b81ef7ce4edd0b3cd",
+    "parent_pid": 17788
+  },
+  "full_process_identity_before": {
+    "ProcessId": 29408,
+    "CreationDate": "/Date(1792443620117)/",
+    "ExecutablePath": "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe",
+    "CommandLine": "F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\qemu-system-x86_64.exe -name metodobase-linux-tcg-local-lab -no-user-config -nodefaults -L F:\\MetodoBaseWeb-linux-lab-20261019\\tools\\qemu\\share -machine q35 -accel tcg,thread=multi -cpu max -smp 2 -m 2048 -display none -monitor none -qmp tcp:127.0.0.1:53106,server=on,wait=off -serial file:F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\guest-serial-20261019T210018.log -boot order=c -no-reboot -drive file=F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\disk-overlay.qcow2,if=virtio,format=qcow2,cache=writeback,discard=unmap -drive file=F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\seed.iso,if=virtio,format=raw,readonly=on -object rng-builtin,id=rng0 -device virtio-rng-pci,rng=rng0 -netdev user,id=net0,hostfwd=tcp:127.0.0.1:53105-:22 -device virtio-net-pci,netdev=net0,mac=52:54:00:19:10:19 -rtc base=utc",
+    "ParentProcessId": 17788
+  },
+  "controller": {
+    "bytes": 4634,
+    "sha256": "b5729b9ad3746bc9d18fc50f8ed14ad5acb2015326a8b9f856aadb745d1cf7d0"
+  },
+  "services_closed": {
+    "running_containers": 0,
+    "own_Redis6388": true,
+    "PG55486": true,
+    "UUID_fresh_absence": true
+  },
+  "root_explicit_shutdown_authorization": true,
+  "other_consumers": "ROOT exclusive lease; no other VM consumers authorized. No new workload started after closure.",
+  "memory_before_kib": {
+    "FreePhysicalMemory": 874872,
+    "FreeVirtualMemory": 4555280
+  },
+  "method": "Existing authenticated controller QMP system_powerdown only, no forced termination or foreign process operation.",
+  "qmp": {
+    "greeting": {
+      "QMP": {
+        "version": {
+          "qemu": {
+            "micro": 0,
+            "minor": 1,
+            "major": 11
+          },
+          "package": "v11.1.0-12130-ge470268ff4"
+        },
+        "capabilities": [
+          "oob"
+        ]
+      }
+    },
+    "qmp_capabilities": {
+      "return": {},
+      "id": "qmp_capabilities"
+    },
+    "system_powerdown": {
+      "return": {},
+      "id": "system_powerdown"
+    }
+  },
+  "closed_utc": "2026-10-19T21:17:11.939680+00:00",
+  "owned_PID_absent": true,
+  "ports_free": [
+    53105,
+    53106,
+    55486
+  ],
+  "retained_inputs": {
+    "overlay": {
+      "path": "F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\disk-overlay.qcow2",
+      "exists": true,
+      "bytes": 7837122560
+    },
+    "source_image": {
+      "path": "F:\\MetodoBaseWeb-linux-lab-20261019\\downloads\\debian-12-genericcloud-amd64-20261006-2623.qcow2",
+      "exists": true,
+      "bytes": 349896704
+    },
+    "seed_iso": {
+      "path": "F:\\MetodoBaseWeb-linux-lab-20261019\\instance\\seed.iso",
+      "exists": true,
+      "bytes": 69632
+    }
+  },
+  "memory_after_kib": {
+    "FreePhysicalMemory": 3059136,
+    "FreeVirtualMemory": 6505548
+  },
+  "forced_termination": false,
+  "disk_byte_identity_claimed": false,
+  "image_container_context_overlay_and_private_forensics_preserved": true
+}

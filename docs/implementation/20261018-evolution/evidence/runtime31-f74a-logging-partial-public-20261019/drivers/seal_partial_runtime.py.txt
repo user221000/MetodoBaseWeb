@@ -1,0 +1,129 @@
+from pathlib import Path,PurePosixPath
+from datetime import datetime,timezone
+import ast,hashlib,io,json,re,subprocess,tarfile,zipfile
+RUN=Path(__file__).resolve().parent;TMP=RUN.parent
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+WT=Path(r'F:\mb-mfa31-runtime-logging-20261019')
+CTX=TMP/'metodobase-mfa31-runtime-logging-context-20261019'
+OUT=LAB/'evidence/runtime31-f74a-logging-partial-public-20261019'
+REV='f74a0a20e83b53ac7a5c8e8a0408f299940126f9'
+def load(name):return json.loads((RUN/name).read_bytes())
+def info(p):
+ with p.open('rb') as f:d=hashlib.file_digest(f,'sha256').hexdigest()
+ return {'bytes':p.stat().st_size,'sha256':d}
+def write(p,value):p.write_text(json.dumps(value,indent=2,ensure_ascii=True)+'\n',encoding='utf-8')
+assert not OUT.exists()
+freeze=load('source-context-freeze.json');assert info(RUN/'source-context-freeze.json')['sha256']=='97d8d00c575f7b7fef8f3901fff5d4ac287bf38aa428aa2b3e109f42fcdc2d88'
+build=load('runtime-build-receipt.json');probe=load('runtime-import-probe-source.json');image=load('runtime-image-identity-source.json')
+first=load('first-worker-failure-source.json');partial=load('worker-readonly-partial-source.json')
+close=load('final-before-after-source.json');pg=load('pg55486-closed-source.json');db=load('pg55486-before-close-source.json');off=load('vm-powerdown-source.json')
+assert build['exit_code']==0 and probe['status']=='PASS_RUNTIME_IMPORT_DIAGNOSTIC_ONLY'
+assert len(probe['imports'])==len(probe['distributions'])==54 and probe['source_files_exact']==355
+assert probe['uid']==probe['gid']==999 and image['configured_image_user']=='appuser'
+assert probe['base_identity_files_unchanged']==218
+assert probe['pip_and_ensurepip_and_bundled_wheels_absent'] and probe['build_tools_absent']
+photo=partial['remote_readonly_photo'];assert photo['source_hashes_after_startup']==probe['source_hashes']
+assert photo['health']['status']==200 and photo['readiness']=={'status':200,'body':{'ready':True}}
+assert photo['docker_health']=='healthy' and photo['PID1_worker_has_migrator'] is False and photo['container_ConfigEnv_has_migrator'] is True
+assert not partial['complete_worker_acceptance'] and not partial['original_worker_exec_replayed']
+assert db['revision']==['20261019_mfa'] and db['sessions_excluding_capture']==[]
+assert pg['own_process_absent'] and pg['port_free'] and pg['new_UUID_fresh_absence_verified'] and pg['old_databases_roles_and_ACLs_preserved']
+assert pg['tools_unchanged']==1752 and close['guest_after']['redis6388_closed'] and not close['guest_after']['running_containers'].strip()
+assert close['host_inputs_unchanged'] and close['context_sources_unchanged'] and close['source_worktree_clean']
+assert off['state']=='OWNED_VM_OFF_SERVICES_CLOSED' and off['owned_PID_absent'] and not off['forced_termination']
+assert subprocess.check_output(['git','--no-replace-objects','rev-parse','HEAD'],cwd=WT).decode().strip()==REV
+assert not subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=all'],cwd=WT)
+assert info(CTX/'context.tar')['sha256']=='a6440df56f78285e7bb2e45f419c01e039c88d14e6c2920f8dd63fb0dd9204d9'
+assert info(TMP/'metodobase-mfa31-runtime-terminal-context-20261019/context.tar')['sha256']=='872e2662724169e403262504f5fce32fc2695e24ec0a2f8579cbceef038f3f5f'
+assert info(TMP/'metodobase-mfa31-runtime72-context-20261019/context.tar')['sha256']=='22fc3b529966e3d190a020671e759f1ca5a42be1689e0ddc7a92ea93e1da92fb'
+role_pointer=load('roles-private-pointer.json');pg_pointer=load('pg55486-instance-pointer.json')
+roles=json.loads(Path(role_pointer['private_file']).read_bytes());admin=json.loads(Path(pg_pointer['private_admin_file']).read_bytes())
+secrets=[admin['password'],*roles['passwords'].values(),*[v for k,v in roles['runtime_stdin'].items() if v and any(s in k for s in ('SECRET','KEY','SALT','DATABASE_URL'))]]
+def sanitize(text):
+ for value in sorted(set(secrets),key=len,reverse=True):text=text.replace(value,'[REDACTED_SYNTHETIC_SECRET]')
+ text=re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])','[REDACTED_THREE_PART_TOKEN]',text)
+ return re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])','[REDACTED_TWO_PART_TOKEN]',text)
+definition=next(n for n in ast.parse((TMP/'metodobase-checkpoint119-prepare.py').read_bytes()).body if isinstance(n,ast.FunctionDef) and n.name=='scan')
+exec(compile(ast.Module(body=[definition],type_ignores=[]),'preserved-scanner119','exec'))
+OUT.mkdir();(OUT/'.gitattributes').write_bytes(b'* -text\n')
+selected=['host-preflight-before.json','guest-preflight-source.json','remote-context-source.json','runtime-build-receipt.json','runtime-image-identity-source.json',
+ 'runtime-import-probe-source.json','runtime-import-probe-receipt.json','native-host-comparison-source.json','vm-preflight-first-failure.json','vm-restart-before.json','vm-restart-after.json',
+ 'pg55486-exclusive-lease.json','pg55486-instance-pointer.json','pg55486-restart-source.json','pg55486-before-close-source.json','pg55486-closed-source.json',
+ 'redis6388-source.json','smoke-start-source.json','smoke-private-transfer-source.json','first-worker-failure-source.json','worker-readonly-partial-source.json',
+ 'smoke-live-log-source.json','host-memory-smoke-samples.json','final-before-after-source.json','vm-powerdown-source.json','driver-preparation-source.json']
+for name in selected:
+ raw=(RUN/name).read_bytes();scan(raw,name);(OUT/name).write_bytes(raw)
+(OUT/'exact-git-context-manifest.json').write_bytes((CTX/'manifest.json').read_bytes())
+role_report=Path(role_pointer['private_root'])/'sanitized-report.json'
+(OUT/'roles-sanitized-report.json').write_bytes(role_report.read_bytes())
+log_names=['runtime-build-raw.log','first-worker-attestation-private.stderr','first-startup-application-final-private.log','first-smoke-readiness-progress.json',
+ 'worker-readonly-driver-private.log','pg55486-restart-private.log','pg55486-close-driver-private.log']
+for name in log_names:
+ raw=(RUN/name).read_bytes()
+ text=raw.decode('utf-16' if raw.startswith((b'\xff\xfe',b'\xfe\xff')) else 'utf-8',errors='replace')
+ (OUT/(name+'.redacted.txt')).write_text(sanitize(text),encoding='utf-8')
+drivers=OUT/'drivers';drivers.mkdir();projections=[]
+for p in sorted(RUN.glob('*.py')):
+ raw=p.read_bytes();projected=raw
+ prefix=('sk_'+'live_lab28_').encode()
+ projected=projected.replace(b"'"+prefix+b"'",b"'sk_' + 'live_lab28_'")
+ target=drivers/(p.name+'.txt');target.write_bytes(projected)
+ if raw!=projected:
+  projections.append({'public_path':target.relative_to(OUT).as_posix(),'executed_original_private_path':str(p),'original':info(p),'projection':info(target),'reason':'Split synthetic literal in public source only; original executed bytes remain private and unchanged.'})
+source_dir=OUT/'frozen-policy-sources';source_dir.mkdir()
+for name in ('entrypoint.sh','alembic.ini','web/database/mfa_policy.py','web/database/alembic/versions/20261019_mfa.py'):
+ raw=subprocess.check_output(['git','--no-replace-objects','cat-file','blob',REV+':'+name],cwd=WT)
+ (source_dir/(name.replace('/','__')+'.txt')).write_bytes(raw)
+notes=[
+ {'phase':'VM preflight1','result':'4000MiB initial guard rejected before VM start. Root then corrected policy to two physical>=3.5GiB and virtual>=3GiB samples before VM2GiB. Original driver/failure preserved.'},
+ {'phase':'VM startup metadata','result':'One actual VM start. Initial QMP query was before listener readiness and refused; an early SSH read was also not ready. Same PID29408 generation was recovered read-only, not restarted. Original launcher parent PID17788 had exited before its birth record could be recovered; no fabricated parent identity.'},
+ {'phase':'PG launcher preparation','result':'Initial invocation named a script absent on disk and Python exited before PG execution. Error log retained. Actual restart used verified restart_owned_pg55486.py, exactly one PG generation7932, existing private cluster and1752 authenticated tools.'},
+ {'phase':'Native receipt comparison','result':'First entire-object comparison failed because ldd includes ASLR addresses. Successor host-only comparator preserved artifact/ELF equality and compared ldd after address normalization only; no native/image probe replay.'},
+ {'phase':'Original worker attestation','result':'First Dockerexec subprobe failed at own line22: overbroad startswith(mfa_) FORCE rule. Frozen policy names only credentials/recovery codes. Original script and first raw failure remain unchanged; no runtime or policy gap inferred.'},
+ {'phase':'Readonly same-worker continuation','result':'/proc,355 hashes,health200,ready200,Dockerhealthy and PID1 migrator absence were captured without Dockerexec. A later host SQL assertion incorrectly treated19 member-link functions as every public function; its full-inventory boundary was overbroad. Original continuation retained; no retry or complete worker pass.'},
+ {'phase':'RAM closure','result':'Physical RAM dropped below1536MiB during already-running smoke. Root allowed only completion/read-only photos and cooperative closure. No new concurrent container/probe, foreign process kill, or VM expansion. App/Redis/PG closed; only own UUID objects dropped without FORCE; authenticated QMP powerdown released memory.'}
+]
+write(OUT/'operation-notes.json',notes)
+readme='''Candidato f74a: build,54 imports/metadatos y355 fuentes exactas verificados. El arranque original alcanzó head31, health200, readiness200 y Docker healthy. El PID1 real es999:999 y no conserva MIGRATOR_DATABASE_URL; Config.Env sí conserva el valor inicial, distinción registrada sin modificarlo. La lectura posterior de355 fuentes coincide con la imagen.
+
+La atestación completa del worker permanece INCOMPLETA. Su primer subprobe Dockerexec falló por una regla del harness demasiado amplia: exigió FORCE RLS a toda tabla mfa_, aunque la política congelada sólo lo aplica a mfa_credentials y mfa_recovery_codes. Una continuación readonly del mismo PID capturó los hechos parciales; después falló otra regla amplia que confundió las19 funciones de member_link_security con todas las funciones públicas. Se preservan ambos errores y no se repitió Dockerexec ni el arranque. El futuro observador requiere verify_runtime_schema congelado31 y la allowlist exacta de25 tablas FORCE del contrato. No se amplió RLS ni autoridad para pasar.
+
+El contexto conserva366 blobs Git exactos; contra262 sólo cambia alembic.ini y el test nuevo queda excluido. Las capas nativas se reutilizaron: el ELF actual0f618 coincide con el nativo72 autenticado, conserva1 export,5 argv registrados, CAPI y31 identidades PSF de procedencia;218 identidades base fueron hasheadas en esta imagen y pasaron11 XML pequeños. Esto no afirma una compilación nativa nueva. Runtime mide97 paquetes OS desde87; libpq170011, OpenSSL sistema3.5.7 y cryptography4.0.3 se registran por separado. No hay pip/ensurepip/wheels/herramientas de build.
+
+Bind observado0.0.0.0:18033 dentro del guest. No hubo puerto de aplicación publicado, hostfwd nuevo ni proxy. Las pruebas usaron configuración sintética y servicios locales propios, sin flujo de login/MFA/negocio ni llamadas de proveedor solicitadas. No se afirma aislamiento OS de egreso ni TLS, SCA, OS71, aceptación global funcional o producción, ni schema32.
+
+Aplicación y Redis6388 cerraron por huellas y SIGTERM. PostgreSQL55486 cerró en modo smart con cero sesiones; sólo los UUID nuevos fueron eliminados por OID/owner con DROP ordinario sin FORCE, y se verificó ausencia fresca. Las DB/roles/ACL anteriores,1752 herramientas y configuración permanecieron intactos. La VM29408 se apagó cooperativamente mediante QMP autenticado, sin terminación forzada. Se conservan imagen, contenedores, contextos, overlay y datos forenses privados. Los RAW finales remotos de cierre permanecen dentro del overlay apagado y se enlazan por sus hashes; no se reinició VM para copiarlos.
+'''
+(OUT/'REVIEW.md').write_text(readme,encoding='utf-8')
+raw_inventory={p.relative_to(RUN).as_posix():info(p) for p in sorted(RUN.rglob('*')) if p.is_file()}
+record={'status':'PARTIAL_RUNTIME_DIAGNOSTIC_WORKER_INCOMPLETE','sealed_utc':datetime.now(timezone.utc).isoformat(),'source_commit':REV,
+ 'application_source':'6a75d096ea3d63d9e78c76d33b7e243160b23364','logging_source':'4740fa235170ded9596927c9ea261a9d7998122e','native_source':'72c44a1834d7bd9803b4b8846c6c87e85a53bfd3',
+ 'source_freeze':{'path':str(RUN/'source-context-freeze.json'),'file':info(RUN/'source-context-freeze.json'),'parents':freeze['parents'],'changed_paths':freeze['changed_paths'],'all_other_entries_unchanged':freeze['all_other_entries_unchanged']},
+ 'context':{'path':str(CTX),'tar':info(CTX/'context.tar'),'manifest':info(CTX/'manifest.json'),'files':366,'changed_against_262':['alembic.ini'],'old_c538_and_262_contexts_unchanged':True},
+ 'image':image,'build':build,
+ 'measured_import_source_native_subset':{'imports':54,'metadata':54,'sources':355,'image_default_uid':999,'image_default_gid':999,'forced_user_override':False,'pip_ensurepip_wheels_and_buildtools_absent':True,
+ 'pyexpat_sha256':probe['native']['pyexpat']['sha256'],'ELF_exports':probe['native']['pyexpat']['exports'],'cached_compiler_commands':len(probe['expat_attestation']['compiler_commands']),'PSF_source_provenance_identities':31,'base_identity_files_hashed':218,'XML_small_cases':len(probe['small_xml_cases']),
+ 'OS_counts':probe['os_package_counts'],'libpq_compile':probe['libpq_compile'],'libpq_runtime':probe['libpq_runtime'],'OpenSSL_system':probe['openssl_system'],'OpenSSL_cryptography_actual':probe['openssl_cryptography_actual'],'fresh_native_compilation_claimed':False},
+ 'actual_startup_partial':{'original_CMD':['/app/entrypoint.sh'],'actual_head_before_close':db['revision'],'health':photo['health'],'readiness':photo['readiness'],'docker_health':photo['docker_health'],
+ 'PID1_migrator_absent':True,'ConfigEnv_initial_migrator_present':True,'PID1_identity':photo['worker_process'],'source_files_exact_after':355,'observed_listeners':photo['listeners'],
+ 'complete_worker_acceptance':False,'full_runtime_acceptance':False,'original_worker_probe_replayed':False,'first_error':first,'readonly_continuation_status':partial['status']},
+ 'before_after':close,'PG_closed':pg,'VM_powerdown':off,
+ 'actual_schema_before_cleanup':{'revision':db['revision'],'public_table_count':len(db['tables_RLS']),'FORCE_RLS_table_count':sum(bool(r[2]) for r in db['tables_RLS']),'public_function_count_observed':len(db['functions_invoker_ACL']),'universal_function_count19_assertion_rejected':True},
+ 'bind_network_scope':{'guest_bind':'0.0.0.0:18033','new_host_forward_or_proxy':False,'host_application_port_published':False,'Docker_network':'host inside owned VM','OS_egress_isolation_claimed':False,'TLS_claimed':False,'provider_or_business_flow_requested':False},
+ 'public_driver_projections':projections,'notes':notes,'private_raw_directory':str(RUN),'private_raw_inventory':raw_inventory,
+ 'private_sensitive_inputs':{'roles_payload':{'path':role_pointer['private_file'],'file':info(Path(role_pointer['private_file']))},'ownership_journal':{'path':role_pointer['journal_file'],'file':info(Path(role_pointer['journal_file']))},'admin':{'path':pg_pointer['private_admin_file'],'file':info(Path(pg_pointer['private_admin_file']))}},
+ 'remote_private_closed_artifacts_in_retained_overlay':{'root':'/var/tmp/metodobase-mfa31-runtime-logging-20261019','closed_application_log':close['guest_after']['application_log_private'],'closed_container_inspect_sha256':close['guest_after']['container_preserved']['private_inspect_sha256'],'old_container_unchanged':True},
+ 'canonical_scanner':'PASS Scan119 over every final public byte, including source and manifest; no archive or private credential publication.',
+ 'scope':{'runtime_builds_attempted':1,'application_start_containers_created':1,'complete_worker_PASS':False,'full_runtime_or_product_or_broad_acceptance':False,'schema32_claimed':False,'SCA_OS71_SEC10_AAL2_or_production_closure':False,'product_or_CI_sources_changed_by_operator':False,'seeds_or_DB_dumps_published':False,'external_or_paid_state_changed':False},
+ 'next_control':'Successor prefix only, with exact frozen verify_runtime_schema31 and exact25 FORCE table allowlist; no generic prefix/count rule, rebuild, or rewrite of these first errors. VM remains OFF; new lease/RAM guard required.'}
+write(OUT/'source.json',record)
+for p in OUT.rglob('*'):
+ if p.is_file():
+  blob=p.read_bytes();scan(blob,p.relative_to(OUT).as_posix())
+  assert all(value.encode() not in blob for value in secrets if len(value)>=16),p.name
+manifest={p.relative_to(OUT).as_posix():info(p) for p in sorted(OUT.rglob('*')) if p.is_file()}
+write(OUT/'manifest.json',manifest)
+for p in OUT.rglob('*'):
+ if p.is_file():scan(p.read_bytes(),p.relative_to(OUT).as_posix())
+assert raw_inventory=={p.relative_to(RUN).as_posix():info(p) for p in sorted(RUN.rglob('*')) if p.is_file()}
+print(json.dumps({'status':record['status'],'prefix':str(OUT),'files':len(manifest),'source':info(OUT/'source.json'),'manifest':info(OUT/'manifest.json'),'image_id':image['image_id'],'raw_files_private':len(raw_inventory),'VM':'OFF','scan119':'PASS_ALL_FINAL_BYTES','complete_worker_acceptance':False,'FORCE_tables_measured':record['actual_schema_before_cleanup']['FORCE_RLS_table_count'],'public_functions_measured':record['actual_schema_before_cleanup']['public_function_count_observed']},indent=2))

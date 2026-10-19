@@ -1,0 +1,49 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,socket,subprocess,sys,time
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime-logging-validation-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import lab_control,guest_access
+def info(p,algorithm='sha256'):
+ with p.open('rb') as f:d=hashlib.file_digest(f,algorithm).hexdigest()
+ return {'bytes':p.stat().st_size,algorithm:d}
+def ps(script):
+ raw=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',script],creationflags=subprocess.CREATE_NO_WINDOW)
+ return json.loads(raw) if raw.strip() else None
+assert info(LAB/'scripts/lab_control.py')['sha256']=='b5729b9ad3746bc9d18fc50f8ed14ad5acb2015326a8b9f856aadb745d1cf7d0'
+assert info(LAB/'scripts/guest_access.py')['sha256']=='616b66b791140966dac837fbd58808291b165d4ae06011a1395279462f43b7a7'
+receipt=RUN.parent/'metodobase-vm-memory-handoff-20261019/receipt.json'
+previous=json.loads(receipt.read_bytes());state=lab_control.state()
+assert state['pid']==29768 and state['resources']=={'vcpus':2,'memory_mib':2048,'acceleration':'tcg,thread=multi'}
+assert not ps('Get-CimInstance Win32_Process -Filter "ProcessId=29768" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine,ParentProcessId | ConvertTo-Json -Compress')
+for port in (53105,53106):
+ with socket.socket() as probe:probe.bind(('127.0.0.1',port))
+memory=ps('Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | ConvertTo-Json -Compress')
+assert memory['FreePhysicalMemory']>=4000*1024,'Preserve RAM guard: need 4000 MiB before VM start'
+assert len([x for x in state['command'] if 'hostfwd=' in x])==1
+assert 'hostfwd=tcp:127.0.0.1:53105-:22' in ' '.join(state['command'])
+before={'captured_utc':datetime.now(timezone.utc).isoformat(),'handoff_receipt':info(receipt),'old_pid_absent':True,
+ 'ports_free':[53105,53106],'host_memory_kib':memory,'resources':state['resources'],
+ 'inputs':{k:info(Path(state[k]),'sha512' if k=='source_image' else 'sha256') for k in ('source_image','seed_iso','overlay')}}
+assert before['inputs']['source_image']['sha512']==state['source_sha512']
+assert before['inputs']['seed_iso']['sha256']=='a1839630f556803dc3b5fa70771cef4ed6488a31f1771c412a934194bc25614d'
+(RUN/'vm-restart-before.json').write_text(json.dumps(before,indent=2)+'\n')
+started=lab_control.start(state)
+identity=ps('Get-CimInstance Win32_Process -Filter "ProcessId='+str(started['pid'])+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine,ParentProcessId | ConvertTo-Json -Compress')
+identity['executable_sha256']=info(Path(identity['ExecutablePath']))['sha256']
+assert identity['executable_sha256']=='47d57a6072e0bb3bd98f87926eb129eb1736dfe818c67b3b81ef7ce4edd0b3cd'
+identity['commandline_sha256']=hashlib.sha256(identity['CommandLine'].encode()).hexdigest()
+parent=ps('Get-CimInstance Win32_Process -Filter "ProcessId='+str(identity['ParentProcessId'])+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine,ParentProcessId | ConvertTo-Json -Compress')
+result={'captured_utc':datetime.now(timezone.utc).isoformat(),'start':started,'identity':identity,'launcher_parent_generation':parent,
+ 'qmp':lab_control.qmp(lab_control.state(),['query-status','query-memory-size-summary']),
+ 'host_memory_kib':ps('Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | ConvertTo-Json -Compress')}
+(RUN/'vm-restart-after.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'VM_pid':started['pid'],'birth':identity['CreationDate'],'resources':state['resources'],'host_free_mib':round(result['host_memory_kib']['FreePhysicalMemory']/1024),'ports':started['ports'],'build_started':False}),flush=True)
+for attempt in range(18):
+ try:
+  response=guest_access.run('true',timeout=10)
+  if response.returncode==0:break
+ except (OSError,subprocess.TimeoutExpired):pass
+ time.sleep(2)
+else:raise AssertionError('Owned guest SSH unavailable; preserved restart proof')
+print('OWNED_GUEST_SSH_READY',flush=True)

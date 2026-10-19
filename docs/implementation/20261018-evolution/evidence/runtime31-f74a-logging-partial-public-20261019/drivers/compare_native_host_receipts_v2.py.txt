@@ -1,0 +1,31 @@
+from pathlib import Path
+import hashlib,json,re
+RUN=Path(__file__).resolve().parent;TMP=RUN.parent
+OLD=TMP/'metodobase-mfa31-runtime72-validation-20261019'
+current=json.loads((RUN/'runtime-import-probe-source.json').read_bytes());previous=json.loads((OLD/'runtime-import-probe-source.json').read_bytes())
+new_context=json.loads((TMP/'metodobase-mfa31-runtime-logging-context-20261019/manifest.json').read_bytes());old_context=json.loads((TMP/'metodobase-mfa31-runtime72-context-20261019/manifest.json').read_bytes())
+assert set(current['native'])==set(previous['native'])
+differences={};ldd_receipts={}
+for name,new in current['native'].items():
+ old=previous['native'][name];assert set(new)==set(old)
+ differences[name]=[k for k in new if new[k]!=old[k]]
+ assert all(new[k]==old[k] for k in new if k!='ldd'),(name,differences[name])
+ normalize=lambda s:re.sub(r'0x[0-9a-fA-F]+','<ASLR_ADDRESS>',s)
+ assert normalize(new['ldd'])==normalize(old['ldd']),(name,'ldd changed beyond addresses')
+ ldd_receipts[name]={'before_sha256':hashlib.sha256(old['ldd'].encode()).hexdigest(),'after_sha256':hashlib.sha256(new['ldd'].encode()).hexdigest(),'equal_after_ASLR_address_normalization':True}
+assert current['expat_attestation']==previous['expat_attestation']
+assert current['base_identity_files_unchanged']==previous['base_identity_files_unchanged']==218
+assert len(current['expat_attestation']['compiled_source']['after'])==31
+assert set(new_context['files'])==set(old_context['files'])
+changes=sorted(n for n in new_context['files'] if new_context['files'][n]!=old_context['files'][n]);assert changes==['alembic.ini','web/services/mfa_service.py','web/static/js/mfa-ui.js']
+report={'status':'CURRENT_NATIVE_BYTES_AND_ELF_CONTRACT_IDENTICAL_TO_PREVIOUS_AUTHENTICATED_RUNTIME_ARTIFACT','current_image':current['image_id'],'previous_image':previous['image_id'],
+ 'current_54_metadata_and_imports_measured':True,'current_355_application_hashes_measured':True,'image_default_user_measured':{'uid':current['uid'],'gid':current['gid'],'forced_user_override':False},
+ 'native_files':current['native'],'expat_attestation_sha256':current['expat_attestation_sha256'],'cached_native_provenance_identical_to_previous':True,
+ 'compiled_PSF_source_identities':31,'base_identities_currently_hashed_unchanged':218,'native_compiler_argv_preserved':len(current['expat_attestation']['compiler_commands']),
+ 'fresh_native_compilation_claimed':False,'context_delta_against_c538':changes,
+ 'independent_native72_proof':{'source_sha256':'8c8f6d2b0a8713520126ef63923b66c216f2ccadb9fbcc35f9ba3124431327e7','manifest_sha256':'492397f2198544f6a0f559dda043c9000c476cda667e4c5c053bd311305d596f'},
+ 'initial_host_comparison_failure':{'driver':'compare_native_host_receipts.py','sha256':hashlib.sha256((RUN/'compare_native_host_receipts.py').read_bytes()).hexdigest(),'assertion':'Entire native JSON object equality','actual_differing_fields':differences,'cause':'ldd prints process ASLR load addresses; all artifact hashes and ELF fields are identical. No image or probe rerun.'},
+ 'ldd_ASLR_projection':ldd_receipts,
+ 'scope':'Actual runtime SHA/ELF exports/DT_NEEDED/RPATH/CAPI/XML measured here. Cached compiler/source provenance linked to native72 independent acceptance; no fresh compilation, SCA/global acceptance, or product change.'}
+(RUN/'native-host-comparison-source.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'native_bytes_and_ELF_identical':True,'PSF_source_identities':31,'base_identity_files_measured':218,'cached_argv':report['native_compiler_argv_preserved'],'context_delta':changes,'image_default_uid':current['uid'],'initial_compare_cause':'ldd ASLR addresses only'}))

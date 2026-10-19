@@ -1,0 +1,16 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,re,sys
+RUN=Path(__file__).resolve().parent;LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import guest_access
+state=json.loads((RUN/'smoke-start-source.json').read_bytes());container=state['container_id'];assert re.fullmatch('[0-9a-f]{64}',container)
+r=guest_access.run('sudo -n docker logs '+container,timeout=30)
+(RUN/'smoke-live-application-private.stdout').write_bytes(r.stdout);(RUN/'smoke-live-application-private.stderr').write_bytes(r.stderr)
+pointer=json.loads((RUN/'roles-private-pointer.json').read_bytes());roles=json.loads(Path(pointer['private_file']).read_bytes())
+admin=json.loads(Path(json.loads((RUN/'pg55486-instance-pointer.json').read_bytes())['private_admin_file']).read_bytes())
+values=[admin['password'],*roles['passwords'].values(),*[v for k,v in roles['runtime_stdin'].items() if v and any(s in k for s in ('SECRET','KEY','SALT','DATABASE_URL'))]]
+text=(r.stdout+b'\nSTDERR\n'+r.stderr).decode('utf-8','replace')
+for secret in sorted(set(values),key=len,reverse=True):text=text.replace(secret,'[REDACTED_SYNTHETIC_SECRET]')
+safe='\n'.join(text.splitlines()[-14:])
+(RUN/'smoke-live-log-source.json').write_text(json.dumps({'captured_utc':datetime.now(timezone.utc).isoformat(),'container_id':container,'logs_exit_code':r.returncode,'stdout_sha256':hashlib.sha256(r.stdout).hexdigest(),'stderr_sha256':hashlib.sha256(r.stderr).hexdigest(),'last_safe_lines':safe},indent=2)+'\n')
+print(safe)

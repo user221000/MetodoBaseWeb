@@ -1,0 +1,23 @@
+{
+  "references": [
+    {
+      "title": "Verify the Google ID token on your server side",
+      "url": "https://developers.google.com/identity/gsi/web/guides/verify-google-id-token",
+      "consulted_utc": "2026-10-19T21:13:58.975170+00:00",
+      "facts": [
+        "Google recommends associating the stable sub with the local account instead of using email as its identifier.",
+        "For third-party email without hd, email_verified can reflect an older verification and Google does not establish current ownership of that email.",
+        "The document recommends libraries for production verification and describes tokeninfo as a development/debugging validation endpoint."
+      ]
+    },
+    {
+      "title": "OpenID Connect",
+      "url": "https://developers.google.com/identity/openid-connect/openid-connect",
+      "consulted_utc": "2026-10-19T21:13:58.975170+00:00",
+      "facts": [
+        "Google documents signature, audience, issuer and expiration validation and recommends local verification for production."
+      ]
+    }
+  ],
+  "interpretation": "Separate the account-association concern from a cryptographic validation claim. Provider responses mocked with impossible verified claims cannot establish a real-provider bypass."
+}

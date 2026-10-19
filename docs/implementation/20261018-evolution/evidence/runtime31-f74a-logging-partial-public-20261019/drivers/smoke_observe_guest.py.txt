@@ -1,0 +1,86 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,os,subprocess,time,urllib.error,urllib.request
+assert os.getuid()==0
+root=Path('/var/tmp/metodobase-mfa31-runtime-logging-20261019')
+state=json.loads((root/'smoke-owned-state.json').read_text());container=state['container_id']
+def inspect_owned():
+ row=json.loads(subprocess.check_output(['docker','inspect',container]))[0]
+ assert row['Id']==container and row['Image']==state['image_id'] and row['Config']['Labels']['metodobase.lab.plan']==state['nonce']
+ assert row['Config']['Labels']['metodobase.lab.source']==state['source_commit']
+ return row
+def logs():
+ r=subprocess.run(['docker','logs',container],capture_output=True,timeout=30)
+ target=root/'startup-application-final-private.log';target.write_bytes(r.stdout+b'\nSTDERR\n'+r.stderr)
+ return {'bytes':target.stat().st_size,'sha256':hashlib.sha256(target.read_bytes()).hexdigest()}
+def request(path):
+ try:
+  with urllib.request.urlopen('http://127.0.0.1:18033'+path,timeout=5) as response:
+   return {'status':response.status,'body':json.load(response)}
+ except urllib.error.HTTPError as error:
+  return {'status':error.code,'body':json.loads(error.read())}
+ except (urllib.error.URLError,TimeoutError,ConnectionError) as error:
+  return {'status':None,'error_class':type(error).__name__}
+observations=[];deadline=time.monotonic()+360
+while time.monotonic()<deadline:
+ row=inspect_owned()
+ observation={'utc':datetime.now(timezone.utc).isoformat(),'running':row['State']['Running'],'exit_code':row['State']['ExitCode']}
+ if not row['State']['Running']:
+  observations.append(observation);break
+ observation['ready']=request('/health/ready');observations.append(observation)
+ (root/'smoke-readiness-progress.json').write_text(json.dumps(observations,indent=2)+'\n')
+ if observation['ready'].get('status')==200 and observation['ready'].get('body')=={'ready':True}:break
+ time.sleep(2)
+ready=observations[-1].get('ready',{}).get('status')==200
+result={'status':'PASS_STARTUP_HEALTH_DIAGNOSTIC_ONLY' if ready else 'STARTUP_DIAGNOSTIC_FAILED',
+ 'container_id':container,'image_id':state['image_id'],'source_commit':state['source_commit'],'readiness_observations':observations,
+ 'real_image_CMD_unchanged':True,'production_mode_synthetic':True,'product_acceptance':False,'raw_log':logs()}
+if ready:
+ result['health']=request('/health');assert result['health']['status']==200 and result['health']['body']['database']=='ok'
+ script=r'''
+from pathlib import Path
+import hashlib,json,os
+from config.settings import get_settings
+from web.database.engine import get_engine
+from web.database.schema_control import expected_head,verify_runtime_schema
+from web.database.tenant_policy import verify_application_database_role
+from sqlalchemy import text
+settings=get_settings();assert settings.is_production and settings.ENV=='production' and not settings.SEED_DEMO
+worker=dict(part.split(b'=',1) for part in Path('/proc/1/environ').read_bytes().split(b'\0') if b'=' in part)
+assert b'MIGRATOR_DATABASE_URL' not in worker and b'DATABASE_URL' in worker
+assert worker[b'METODOBASE_ENV']==b'production' and worker[b'PORT']==b'18033'
+engine=get_engine();verify_runtime_schema(engine);verify_application_database_role(engine)
+with engine.connect() as connection:
+ head=connection.execute(text('SELECT version_num FROM alembic_version')).scalar_one();assert head==expected_head()
+ role=connection.execute(text('SELECT current_user')).scalar_one()
+ flags=connection.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,rolreplication,rolinherit FROM pg_roles WHERE rolname=current_user')).one();assert not any(flags)
+ owner=connection.execute(text('SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname=current_database()')).scalar_one();assert role!=owner
+ tables=connection.execute(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r'")).scalar_one()
+ rls=[dict(r._mapping) for r in connection.execute(text("SELECT relname,relrowsecurity,relforcerowsecurity FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' ORDER BY relname"))]
+ assert any(r['relforcerowsecurity'] for r in rls)
+ assert all(r['relrowsecurity'] and r['relforcerowsecurity'] for r in rls if r['relname'].startswith('mfa_'))
+sources={p.relative_to('/app').as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in Path('/app').rglob('*') if p.is_file() and '__pycache__' not in p.parts}
+print(json.dumps({'production_settings_valid':True,'migrator_unset_in_worker_PID1':True,'application_database_role':role,'migration_database_owner':owner,
+ 'application_role_flags_false':list(flags),'head':head,'expected_head':expected_head(),'public_table_count':tables,'runtime_schema_verified':True,
+ 'table_RLS_flags':rls,'source_hashes_after_startup':sources,'uid':os.getuid(),'seed_demo':False,'private_store_backend':settings.OBJECT_STORAGE_BACKEND,
+ 'provider_authentication_or_business_flow_executed':False}))
+'''
+ import ast
+ ast.parse(script)
+ checked=subprocess.run(['docker','exec','-i',container,'python','-B','-'],input=script.encode(),capture_output=True,timeout=180)
+ (root/'worker-attestation-private.stdout').write_bytes(checked.stdout);(root/'worker-attestation-private.stderr').write_bytes(checked.stderr)
+ assert checked.returncode==0,'Worker attestation failed; inspect owned private logs'
+ result['worker']=json.loads(checked.stdout)
+ health_deadline=time.monotonic()+60
+ while time.monotonic()<health_deadline:
+  row=inspect_owned();health=row['State'].get('Health',{}).get('Status')
+  if health=='healthy':break
+  time.sleep(2)
+ result['docker_health_status']=health;assert health=='healthy'
+ pid=row['State']['Pid'];proc=Path('/proc')/str(pid)
+ result['worker_process_fingerprint']={'guest_pid':pid,'birth_ticks':proc.joinpath('stat').read_text().split()[21],
+  'executable':str(proc.joinpath('exe').resolve()),'executable_sha256':hashlib.sha256(proc.joinpath('exe').read_bytes()).hexdigest(),
+  'commandline_sha256':hashlib.sha256(proc.joinpath('cmdline').read_bytes()).hexdigest()}
+ result['raw_log']=logs()
+(root/'smoke-startup-source.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result))

@@ -1,0 +1,57 @@
+
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,os,signal,shutil,socket,subprocess,time
+assert os.getuid()==0
+root=Path('/var/tmp/metodobase-mfa31-runtime-logging-20261019')
+smoke=json.loads((root/'smoke-owned-state.json').read_text());container=smoke['container_id']
+def inspect():
+ row=json.loads(subprocess.check_output(['docker','inspect',container]))[0]
+ assert row['Id']==container and row['Image']==smoke['image_id'] and row['Config']['Labels']['metodobase.lab.plan']==smoke['nonce'] and row['Config']['Labels']['metodobase.lab.source']==smoke['source_commit']
+ assert row['Config']['Cmd']==['/app/entrypoint.sh']
+ return row
+row=inspect();before_running=row['State']['Running']
+initial_pid=row['State']['Pid'];initial_birth=None
+if before_running:
+ proc=Path('/proc')/str(initial_pid);initial_birth=proc.joinpath('stat').read_text().split()[21]
+ assert initial_birth==smoke['guest_birth_ticks']
+ subprocess.run(['docker','kill','--signal=SIGTERM',container],check=True,stdout=subprocess.DEVNULL,timeout=15)
+ for _ in range(300):
+  row=inspect()
+  if not row['State']['Running']:break
+  time.sleep(.1)
+ else:raise AssertionError('Owned runtime did not stop cooperatively; no escalation performed')
+assert not row['State']['Running'] and not row['State']['OOMKilled']
+container_raw=subprocess.check_output(['docker','inspect',container]);(root/'closed-container-private-inspect.json').write_bytes(container_raw)
+logs=subprocess.run(['docker','logs',container],capture_output=True,timeout=30)
+(root/'closed-runtime-application-private.log').write_bytes(logs.stdout+b'\nSTDERR\n'+logs.stderr)
+redis=root/'redis6388';owned=json.loads((redis/'owned-state.json').read_text());fp=owned['identity'];proc=Path('/proc')/str(fp['pid'])
+assert proc.joinpath('stat').read_text().split()[21]==fp['birth_ticks'] and str(proc.joinpath('exe').resolve())==fp['executable']
+assert hashlib.sha256(proc.joinpath('exe').read_bytes()).hexdigest()==fp['executable_sha256'] and hashlib.sha256(proc.joinpath('cmdline').read_bytes()).hexdigest()==fp['commandline_sha256']
+def cli(*args):return subprocess.check_output(['redis-cli','-h','127.0.0.1','-p','6388',*args],text=True,timeout=5).strip()
+server=dict(line.split(':',1) for line in cli('INFO','server').splitlines() if ':' in line);assert int(server['process_id'])==fp['pid'] and server['tcp_port']=='6388'
+keys=int(cli('DBSIZE'))
+os.kill(fp['pid'],signal.SIGTERM)
+for _ in range(100):
+ if not proc.exists() or proc.joinpath('stat').read_text().split()[2]=='Z':break
+ time.sleep(.1)
+else:raise AssertionError('Owned Redis did not stop; no escalation performed')
+for port,host in ((6388,'127.0.0.1'),(18033,'0.0.0.0')):
+ with socket.socket() as probe:probe.bind((host,port))
+receipt=json.loads((root/'context-manifest.json').read_text())
+files={p.relative_to(root/'context').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in (root/'context').rglob('*') if p.is_file()}
+assert files=={n:{k:v[k] for k in ('bytes','sha256')} for n,v in receipt['files'].items()}
+assert hashlib.sha256((root/'context.tar').read_bytes()).hexdigest()==receipt['context_sha256']
+image_raw=subprocess.check_output(['docker','image','inspect',smoke['image_id']])
+native_raw=subprocess.check_output(['docker','image','inspect','sha256:a2b7e06ec1971f6519395aa1cd08c54f6d18c2bf26749abf3d65513f86337e7f']);assert hashlib.sha256(native_raw).hexdigest()=='40561b32a985cc8a5ed7a32d4f08f199911bb14c2525cdd823c155bf8b0fe514'
+old_raw=subprocess.check_output(['docker','image','inspect','sha256:47e813ed1cf255a5f8575eecd3aba45f4314069e59c9baff05cb0cd63870f74f']);assert hashlib.sha256(old_raw).hexdigest()=='80582e6141bb1bdf0bef200340c754d37fde86dc6e93f08f87f6ae1b9e8dfdd6'
+old_container_raw=subprocess.check_output(['docker','inspect','3f75a60898cc3f352bb86d8c41db84e31c83e111d3cb6aa65e3e6adcbb8ef4ad'])
+running=subprocess.check_output(['docker','ps','--no-trunc','--format','{{.ID}} {{.Names}}'],text=True);assert not running.strip()
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'redis6388_closed':True,'redis_before_close_keys':keys,'redis_identity':fp,
+ 'runtime_stopped_cooperatively':True,'runtime_was_running':before_running,'runtime_initial_pid':initial_pid,'runtime_initial_birth':initial_birth,
+ 'container_preserved':{'id':container,'image':row['Image'],'exit_code':row['State']['ExitCode'],'oom_killed':row['State']['OOMKilled'],'private_inspect_sha256':hashlib.sha256(container_raw).hexdigest()},
+ 'application_log_private':{'bytes':len(logs.stdout)+8+len(logs.stderr),'sha256':hashlib.sha256((root/'closed-runtime-application-private.log').read_bytes()).hexdigest()},
+ 'runtime_image_inspect_sha256':hashlib.sha256(image_raw).hexdigest(),'native72_image_unchanged':True,'old_c538_image_unchanged':True,'old_c538_container_inspect_sha256':hashlib.sha256(old_container_raw).hexdigest(),
+ 'context_exact_after':True,'context_files_after':files,'running_containers':running,'disk_free_bytes':shutil.disk_usage('/').free,
+ 'tcp_listeners':subprocess.check_output(['ss','-ltn'],text=True),'images':subprocess.check_output(['docker','image','ls','--no-trunc','--format','{{.ID}} {{.Repository}}:{{.Tag}}'],text=True)}
+(root/'closed-guest-source.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))

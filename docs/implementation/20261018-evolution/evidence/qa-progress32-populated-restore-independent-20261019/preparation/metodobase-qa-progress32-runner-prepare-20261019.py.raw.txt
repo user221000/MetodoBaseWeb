@@ -1,0 +1,21 @@
+from pathlib import Path
+import ast
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+INFRA=TEMP/'metodobase-qa-progress32-restore-20261019'
+source=(TEMP/'metodobase-qa-clock31-pg-20261019/run_current34_v2.py').read_text()
+source=source.replace("ROOT=Path(r'F:\\mb-qa-current31-clock-20261019')","ROOT=Path(r'F:\\mb-qa-progress32-restore-20261019')")
+source=source.replace("OUT=INFRA/'run-v2'","OUT=INFRA/'run'")
+source=source.replace("HEAD='9b14e2e9c3279a9a85eef444f1ef50f3f5f8750b'","HEAD='345aa7ce16f65fec9481b48cfcd63c33ff3835fc'")
+old="from tests.check_mfa31_reports import required_reports\nexpected=required_reports()['pytest-current31-member-http.xml'];assert len(expected)==34"
+assert source.count(old)==1
+source=source.replace(old,"expected=frozenset({('tests.integration_progress32_restore','test_revision32_restore_preserves_progress_and_all_revision26_27_28_29_30_31_contracts')});assert len(expected)==1")
+source=source.replace('CLOCK_QA_','RESTORE_QA_').replace('pg_clock_observer','restore_observer').replace('clock_origin_plugin','restore_peer_plugin')
+source=source.replace('tests/integration_current31_member_http.py','tests/integration_progress32_restore.py')
+source=source.replace('len(cases)==34','len(cases)==1').replace('PASS_CURRENT31_MEMBER_HTTP34','PASS_PROGRESS32_POPULATED_RESTORE')
+source=source.replace("start=time.monotonic();fatal=None;result=None","evidence=PRIVATE/'evidence';evidence.mkdir();adapter_leases=PRIVATE/'author-adapter-leases';adapter_leases.mkdir()\nenv.update(METODOBASE_TEST_EVIDENCE_DIR=str(evidence),R25_EVIDENCE_DIR=str(adapter_leases),RESTORE_QA_POST_HTTP=str(PRIVATE/'own-postrestore-http.json'))\nstart=time.monotonic();fatal=None;result=None")
+source=source.replace("'scope':'Actual local PostgreSQL34 member HTTP only, exact maintained IDs/assertions, application role fourflagsfalse/nonowner/pool1 and FORCE RLS. No full173, VM, Chrome, providers, image, SLO or production acceptance.'","'scope':'One maintained populated PostgreSQL restore32 plus post-maintained own real HTTP/MFA/progress retention controls. No parent-OFF retirement, broad, VM, Chrome, provider, SLO or production acceptance.'")
+source=source.replace('timeout=1200','timeout=1200')
+ast.parse(source)
+out=INFRA/'run_restore32.py'
+with out.open('x',encoding='utf-8') as stream:stream.write(source)
+print('RUNNER PREPARED')

@@ -1,0 +1,36 @@
+
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,os,subprocess,urllib.request
+assert os.getuid()==0
+root=Path('/var/tmp/metodobase-mfa31-runtime-logging-20261019');state=json.loads((root/'smoke-owned-state.json').read_text())
+raw=subprocess.check_output(['docker','inspect',state['container_id']]);row=json.loads(raw)[0]
+assert row['Id']==state['container_id'] and row['Image']==state['image_id'] and row['Config']['Labels']['metodobase.lab.plan']==state['nonce']
+assert row['Config']['Labels']['metodobase.lab.source']==state['source_commit'] and row['Config']['Cmd']==['/app/entrypoint.sh']
+assert row['State']['Running'] and not row['State']['OOMKilled']
+pid=row['State']['Pid'];proc=Path('/proc')/str(pid);birth=proc.joinpath('stat').read_text().split()[21]
+assert pid==state['guest_pid'] and birth==state['guest_birth_ticks']
+status=dict(line.split(':',1) for line in proc.joinpath('status').read_text().splitlines() if ':' in line)
+uids=[int(n) for n in status['Uid'].split()];gids=[int(n) for n in status['Gid'].split()];assert uids==gids==[999]*4
+env=dict(part.split(b'=',1) for part in proc.joinpath('environ').read_bytes().split(b'\0') if b'=' in part)
+assert b'MIGRATOR_DATABASE_URL' not in env and b'DATABASE_URL' in env and env[b'METODOBASE_ENV']==b'production'
+assert env[b'PORT']==b'18033' and env[b'METODOBASE_SEED_DEMO']==b'0'
+command=proc.joinpath('cmdline').read_bytes();assert b'web/main_web.py' in command and b'--no-browser' in command
+app=proc/'root/app';sources={}
+for p in app.rglob('*'):
+ if not p.is_file() or '__pycache__' in p.parts:continue
+ with p.open('rb') as f:sources[p.relative_to(app).as_posix()]=hashlib.file_digest(f,'sha256').hexdigest()
+def request(path):
+ with urllib.request.urlopen('http://127.0.0.1:18033'+path,timeout=10) as response:return {'status':response.status,'body':json.load(response)}
+health=request('/health');ready=request('/health/ready');assert health['status']==200 and health['body']['database']=='ok' and ready=={'status':200,'body':{'ready':True}}
+listeners=[line for line in subprocess.check_output(['ss','-ltnp'],text=True).splitlines() if ':18033 ' in line]
+assert listeners and all('0.0.0.0:18033' in line and 'pid='+str(pid)+',' in line for line in listeners)
+assert row['State']['Health']['Status']=='healthy'
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'status':'READONLY_EXISTING_WORKER_DIAGNOSTIC_ONLY','container_id':row['Id'],'image_id':row['Image'],'source_commit':state['source_commit'],
+ 'configured_CMD':row['Config']['Cmd'],'configured_USER':row['Config']['User'],'container_ConfigEnv_has_migrator':any(x.startswith('MIGRATOR_DATABASE_URL=') for x in row['Config']['Env']),
+ 'PID1_worker_has_migrator':False,'PID1_worker_has_database':True,'PID1_worker_production':True,'PID1_seed_demo':False,
+ 'worker_process':{'pid':pid,'birth_ticks':birth,'executable':str(proc.joinpath('exe').resolve()),'executable_sha256':hashlib.sha256(proc.joinpath('exe').read_bytes()).hexdigest(),'commandline_sha256':hashlib.sha256(command).hexdigest(),'UIDs':uids,'GIDs':gids},
+ 'health':health,'readiness':ready,'docker_health':'healthy','listeners':listeners,'host_published_port':False,'Docker_host_network_guest_only':True,
+ 'source_hashes_after_startup':sources,'private_inspect_sha256':hashlib.sha256(raw).hexdigest(),'worker_exec_replayed':False,
+ 'scope':'Read-only /proc/owned-PID/root + HTTP + Docker inspect of the same original worker. No Dockerexec, second startup, policy/source/secret edits, provider or business flow.'}
+(root/'worker-readonly-diagnostic-source.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))

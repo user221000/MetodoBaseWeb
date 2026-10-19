@@ -1,0 +1,42 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,socket,subprocess,sys,time
+RUN=Path(__file__).resolve().parent;LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import lab_control
+def info(p):
+ with p.open('rb') as f:d=hashlib.file_digest(f,'sha256').hexdigest()
+ return {'bytes':p.stat().st_size,'sha256':d}
+def ps(code):
+ raw=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command',code],creationflags=subprocess.CREATE_NO_WINDOW)
+ return json.loads(raw) if raw.strip() else None
+final=json.loads((RUN/'final-before-after-source.json').read_bytes());pg=json.loads((RUN/'pg55486-closed-source.json').read_bytes());fp=final['owned_qemu']
+assert pg['own_process_absent'] and pg['port_free'] and pg['sessions_before_close']==0 and pg['new_UUID_fresh_absence_verified']
+assert final['guest_after']['redis6388_closed'] and not final['guest_after']['running_containers'].strip()
+with socket.socket() as probe:probe.bind(('127.0.0.1',55486))
+s=lab_control.state();assert s['pid']==fp['pid']==29408 and lab_control.process_identity(s)
+identity=ps('Get-CimInstance Win32_Process -Filter "ProcessId=29408" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine,ParentProcessId | ConvertTo-Json -Compress')
+assert identity['CreationDate']==fp['creation_date'] and identity['ExecutablePath']==fp['executable']
+assert info(Path(identity['ExecutablePath']))['sha256']==fp['executable_sha256']
+assert hashlib.sha256(identity['CommandLine'].encode()).hexdigest()==fp['commandline_sha256']
+memory_before=ps('Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,FreeVirtualMemory | ConvertTo-Json -Compress')
+record={'started_utc':datetime.now(timezone.utc).isoformat(),'state':'PREPARED_OWN_POWERDOWN','owned_qemu':fp,'full_process_identity_before':identity,
+ 'controller':info(LAB/'scripts/lab_control.py'),'services_closed':{'running_containers':0,'own_Redis6388':True,'PG55486':True,'UUID_fresh_absence':True},
+ 'root_explicit_shutdown_authorization':True,'other_consumers':'ROOT exclusive lease; no other VM consumers authorized. No new workload started after closure.',
+ 'memory_before_kib':memory_before,'method':'Existing authenticated controller QMP system_powerdown only, no forced termination or foreign process operation.'}
+path=RUN/'vm-powerdown-source.json';assert not path.exists();path.write_text(json.dumps(record,indent=2)+'\n')
+answer=lab_control.qmp(s,['system_powerdown']);record['qmp']=answer
+path.write_text(json.dumps(record,indent=2)+'\n');print('OWNED_QMP_SYSTEM_POWERDOWN_SENT',flush=True)
+for _ in range(80):
+ process=ps('Get-CimInstance Win32_Process -Filter "ProcessId=29408" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress')
+ if process is None:break
+ assert process['CreationDate']==fp['creation_date'] and process['ExecutablePath']==fp['executable'],'PID generation changed; never touch reused PID'
+ time.sleep(1)
+else:raise AssertionError('Owned QEMU did not exit cooperatively; no escalation performed')
+for port in (53105,53106):
+ with socket.socket() as probe:probe.bind(('127.0.0.1',port))
+retained={k:{'path':s[k],'exists':Path(s[k]).is_file(),'bytes':Path(s[k]).stat().st_size} for k in ('overlay','source_image','seed_iso')};assert all(x['exists'] for x in retained.values())
+record.update(state='OWNED_VM_OFF_SERVICES_CLOSED',closed_utc=datetime.now(timezone.utc).isoformat(),owned_PID_absent=True,ports_free=[53105,53106,55486],retained_inputs=retained,
+ memory_after_kib=ps('Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,FreeVirtualMemory | ConvertTo-Json -Compress'),forced_termination=False,
+ disk_byte_identity_claimed=False,image_container_context_overlay_and_private_forensics_preserved=True)
+path.write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({'status':record['state'],'owned_pid':29408,'ports_free':record['ports_free'],'host_free_MiB':round(record['memory_after_kib']['FreePhysicalMemory']/1024),'retained':list(retained),'forced_termination':False}),flush=True)

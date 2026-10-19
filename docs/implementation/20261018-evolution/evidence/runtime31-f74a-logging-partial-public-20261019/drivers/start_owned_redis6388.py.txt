@@ -1,0 +1,47 @@
+from pathlib import Path
+import ast,json,sys
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(__file__).resolve().parent
+sys.path.insert(0,str(LAB/'scripts'));import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+remote=r'''python3 - <<'PY'
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,socket,subprocess,time,uuid
+root=Path('/var/tmp/metodobase-mfa31-runtime-logging-20261019/redis6388');assert not root.exists()
+with socket.socket() as probe:probe.bind(('127.0.0.1',6388))
+root.mkdir(mode=0o700)
+binary=Path('/usr/bin/redis-server').resolve();digest=hashlib.sha256(binary.read_bytes()).hexdigest()
+version=subprocess.check_output(['/usr/bin/redis-server','--version'],text=True).strip()
+argv=['/usr/bin/redis-server','--bind','127.0.0.1','--port','6388','--protected-mode','yes','--save','','--appendonly','no','--daemonize','no','--dir',str(root)]
+with (root/'redis-server-private.log').open('xb') as log:
+ process=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,cwd=root,start_new_session=True)
+def call(*args):return subprocess.check_output(['redis-cli','-h','127.0.0.1','-p','6388',*args],text=True,timeout=5).strip()
+for _ in range(100):
+ assert process.poll() is None,'Owned Redis exited; preserve private log'
+ try:
+  if call('PING')=='PONG':break
+ except subprocess.CalledProcessError:pass
+ time.sleep(.05)
+else:raise AssertionError('Owned Redis not ready')
+assert call('DBSIZE')=='0'
+proc=Path('/proc')/str(process.pid)
+identity={'pid':process.pid,'birth_ticks':proc.joinpath('stat').read_text().split()[21],
+ 'executable':str(proc.joinpath('exe').resolve()),'executable_sha256':digest,'commandline_sha256':hashlib.sha256(proc.joinpath('cmdline').read_bytes()).hexdigest()}
+nonce=uuid.uuid4().hex;key='runtime31:owned-smoke:'+nonce
+assert call('SET',key,nonce,'EX','60','NX')=='OK' and call('GET',key)==nonce and call('DEL',key)=='1' and call('DBSIZE')=='0'
+server=dict(line.split(':',1) for line in call('INFO','server').splitlines() if ':' in line)
+assert int(server['process_id'])==process.pid and server['tcp_port']=='6388'
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'version':version,'identity':identity,'listen':'127.0.0.1:6388',
+ 'server_version_actual':server['redis_version'],'plan_id':'runtime31-f74a-redis-'+nonce,'private_root':str(root),
+ 'ping_set_ttl_get_delete_own_key':True,'initial_and_final_key_count':0,'existing6379_changed':False}
+(root/'owned-state.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report))
+PY
+'''
+ast.parse(remote.partition("python3 - <<'PY'\n")[2].rsplit('\nPY',1)[0])
+r=guest_access.run(remote,timeout=30)
+(RUN/'redis6388-start-private.stdout').write_bytes(r.stdout);(RUN/'redis6388-start-private.stderr').write_bytes(r.stderr)
+assert r.returncode==0,'Owned Redis preparation failed; private logs preserved'
+report=json.loads(r.stdout);(RUN/'redis6388-source.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report))

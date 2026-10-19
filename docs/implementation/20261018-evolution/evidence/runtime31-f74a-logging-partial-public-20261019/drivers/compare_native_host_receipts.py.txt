@@ -1,0 +1,25 @@
+from pathlib import Path
+import hashlib,json
+RUN=Path(__file__).resolve().parent;TMP=RUN.parent
+OLD=TMP/'metodobase-mfa31-runtime72-validation-20261019'
+current=json.loads((RUN/'runtime-import-probe-source.json').read_bytes());previous=json.loads((OLD/'runtime-import-probe-source.json').read_bytes())
+new_context=json.loads((TMP/'metodobase-mfa31-runtime-logging-context-20261019/manifest.json').read_bytes())
+old_context=json.loads((TMP/'metodobase-mfa31-runtime72-context-20261019/manifest.json').read_bytes())
+assert current['native']==previous['native']
+assert current['expat_attestation']==previous['expat_attestation']
+assert current['base_identity_files_unchanged']==previous['base_identity_files_unchanged']==218
+assert len(current['expat_attestation']['compiled_source']['after'])==31
+assert set(new_context['files'])==set(old_context['files'])
+changes=sorted(n for n in new_context['files'] if new_context['files'][n]!=old_context['files'][n])
+assert changes==['alembic.ini','web/services/mfa_service.py','web/static/js/mfa-ui.js'],changes
+report={'status':'CURRENT_NATIVE_IDENTICAL_TO_PREVIOUS_AUTHENTICATED_RUNTIME_ARTIFACT',
+ 'current_image':current['image_id'],'previous_image':previous['image_id'],
+ 'current_54_metadata_and_imports_measured':True,'current_355_application_hashes_measured':True,'image_default_user_measured':{'uid':current['uid'],'gid':current['gid'],'forced_user_override':False},
+ 'native_files_and_linkage_identical':current['native'],'expat_attestation_sha256':current['expat_attestation_sha256'],
+ 'cached_native_provenance_identical_to_previous':True,'compiled_PSF_source_identities':31,'base_identities_currently_hashed_unchanged':218,
+ 'native_compiler_argv_preserved':len(current['expat_attestation']['compiler_commands']),
+ 'fresh_native_compilation_claimed':False,'context_delta_against_c538':changes,
+ 'independent_native72_proof':{'source_sha256':'8c8f6d2b0a8713520126ef63923b66c216f2ccadb9fbcc35f9ba3124431327e7','manifest_sha256':'492397f2198544f6a0f559dda043c9000c476cda667e4c5c053bd311305d596f'},
+ 'scope':'Actual runtime hashes, ELF exports, DT_NEEDED/RPATH, CAPI and bounded XML probes were measured in this image. Cached compiler/source provenance is linked to native72 independent acceptance; no new compile claim or SCA/global acceptance.'}
+(RUN/'native-host-comparison-source.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps({'native_identical':True,'PSF_source_provenance_identities':31,'base_identity_files_measured':218,'cached_argv':report['native_compiler_argv_preserved'],'context_delta':changes,'image_default_uid':current['uid']}))

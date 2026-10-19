@@ -1,0 +1,14 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import json,subprocess,sys
+RUN=Path(__file__).resolve().parent;LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import guest_access
+memory=json.loads(subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command','Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,FreeVirtualMemory | ConvertTo-Json -Compress'],creationflags=subprocess.CREATE_NO_WINDOW))
+path=RUN/'host-memory-smoke-samples.json'
+samples=json.loads(path.read_bytes()) if path.exists() else {'previous_tool_transcript_readings_kib_in_observed_order':[1590364,1490684,1525236,1611468],'previous_readings_exact_UTC_not_recorded':True,'continued_only_existing_smoke_per_ROOT':True,'samples':[]}
+samples['samples'].append({'captured_utc':datetime.now(timezone.utc).isoformat(),**memory});path.write_text(json.dumps(samples,indent=2)+'\n')
+r=guest_access.run('test -f /var/tmp/metodobase-mfa31-runtime-logging-20261019/smoke-readiness-progress.json && cat /var/tmp/metodobase-mfa31-runtime-logging-20261019/smoke-readiness-progress.json',timeout=30)
+(RUN/'readiness-progress-private.stdout').write_bytes(r.stdout);(RUN/'readiness-progress-private.stderr').write_bytes(r.stderr)
+if r.returncode==0:
+ progress=json.loads(r.stdout);print(json.dumps({'observations':len(progress),'last':progress[-1],'memory_kib':memory}))
+else:print(json.dumps({'progress_not_ready':True,'exit_code':r.returncode,'memory_kib':memory}))

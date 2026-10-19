@@ -1,0 +1,388 @@
+{
+  "environment": "synthetic PostgreSQL explicit revision32; preserved26/27/28/29/30/31 and populated progress/MFA",
+  "tables": 33,
+  "schema_signature_sha256": "9cb8680fac6fa67ed717441c098eb68a98f27f30315e5deb43ca26bd5bcb4699",
+  "rls_families_force": 26,
+  "private_objects": 5,
+  "pending_objects": 1,
+  "legacy_files": 2,
+  "individual_reservations": 4,
+  "individual_consumed_credits": 3,
+  "diary_days": 5,
+  "diary_subjects": 2,
+  "deleted_source_snapshot_preserved": true,
+  "restored_diary_http": [
+    {
+      "factory": "web.main_web",
+      "startup": {
+        "commits": 1,
+        "dml": 1
+      },
+      "get_export_commits": 0,
+      "get_export_dml": 0,
+      "restored_subject_days": [
+        3,
+        2
+      ],
+      "cursor_pages_complete": true
+    },
+    {
+      "factory": "api.app",
+      "startup": {
+        "commits": 0,
+        "dml": 0
+      },
+      "get_export_commits": 0,
+      "get_export_dml": 0,
+      "restored_subject_days": [
+        3,
+        2
+      ],
+      "cursor_pages_complete": true
+    }
+  ],
+  "restored_recovery": {
+    "pending_subjects": 2,
+    "prebackup_consumed_subjects": 1,
+    "prebackup_stale_sv_subjects": 1,
+    "exact_seeded_revoked_ids_cleaned_by_existing_factory": 4,
+    "remaining_live_refresh_before_reset": 4,
+    "business_projection_unchanged": true,
+    "http": [
+      {
+        "factory": "web.main_web",
+        "restored_pending_bearer_consumed_once": true,
+        "old_access_refresh_rejected": true,
+        "normal_new_password_login": true,
+        "no_autologin": true
+      },
+      {
+        "factory": "api.app",
+        "restored_pending_bearer_consumed_once": true,
+        "old_access_refresh_rejected": true,
+        "normal_new_password_login": true,
+        "no_autologin": true
+      }
+    ]
+  },
+  "restored_member_links": {
+    "links": 6,
+    "invitations": 6,
+    "pending": 1,
+    "active": 4,
+    "revoked": 1,
+    "current_publications": 3,
+    "withdrawn_publications": 2,
+    "private_pdf_objects": 5,
+    "exact_pdf_after_reconstructed_adapter": true,
+    "recipient_owner_self_and_external": true,
+    "same_gym_other_recipient_denied": true,
+    "deferred_half_consumption_commit_rejected": true,
+    "business_rows_unchanged_by_checks": true,
+    "real_app_role_no_bypass_or_ddl_owner": true
+  },
+  "restored_mfa": {
+    "actors": 3,
+    "tenants": 2,
+    "active_factors": 3,
+    "pending_replacement": 1,
+    "recovery_codes": 24,
+    "used_recovery_codes": 4,
+    "force_actor_isolation": true,
+    "ciphertext_decrypts_only_with_independent_key_and_original_aad": true,
+    "unused_grant_validated_then_rolled_back": true,
+    "plaintext_absent_from_physical_rows": true
+  },
+  "restored_progress": {
+    "measurements_self_reported": 2,
+    "legacy_measurements_unverified": 1,
+    "consent_append_events": 4,
+    "current_grant": 1,
+    "withdrawn_latest": 1,
+    "selected_values_only": true,
+    "sql_counts_only": true,
+    "cross_gym_denied": true,
+    "forbidden_update_delete": true,
+    "no_session_capability_residue": true
+  },
+  "progress_security": {
+    "dialect": "postgresql",
+    "functions": [
+      [
+        "r25_account",
+        "identity text",
+        "boolean",
+        false,
+        [
+          "search_path=pg_catalog"
+        ],
+        "s",
+        "u",
+        null,
+        "\n SELECT EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=identity AND u.activo AND u.deleted_at IS NULL\n AND u.invitation_token IS NULL AND u.role IN ('OWNER','ADMIN','NUTRIOLOGO','VIEWER')) ",
+        "sql"
+      ],
+      [
+        "r25_guard_consent",
+        "",
+        "trigger",
+        false,
+        [
+          "search_path=pg_catalog"
+        ],
+        "v",
+        "u",
+        null,
+        "\n DECLARE prior public.progress_consents; linked public.client_account_links;\n BEGIN\n IF TG_OP<>'INSERT' THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R25 consent is append only'; END IF;\n IF current_setting('transaction_isolation')<>'read committed' OR NEW.user_id IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'') OR public.r25_account(NEW.user_id) IS NOT TRUE OR (NEW.event='grant' AND public.r25_personal(NEW.user_id) IS NOT TRUE) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R25 consent subject denied'; END IF;\n PERFORM 1 FROM public.usuarios WHERE id=NEW.user_id FOR UPDATE NOWAIT;\n SELECT * INTO prior FROM public.progress_consents WHERE link_id=NEW.link_id ORDER BY version DESC LIMIT 1;\n IF NEW.version<>COALESCE(prior.version,0)+1 OR NEW.version>2147483647 THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 consent version denied'; END IF;\n IF NEW.event='withdraw' THEN\n  IF prior.id IS NULL OR prior.event<>'grant' OR (NEW.link_id,NEW.gym_id,NEW.client_id,NEW.user_id,NEW.link_version,NEW.protocol,NEW.source_profile_id,NEW.share_weight,NEW.share_body_fat,NEW.share_lean_mass,NEW.share_completion,NEW.from_date,NEW.through_date)\n   IS DISTINCT FROM (prior.link_id,prior.gym_id,prior.client_id,prior.user_id,prior.link_version,prior.protocol,prior.source_profile_id,prior.share_weight,prior.share_body_fat,prior.share_lean_mass,prior.share_completion,prior.from_date,prior.through_date)\n   THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 withdrawal scope denied'; END IF;\n ELSE\n  SELECT * INTO linked FROM public.client_account_links WHERE id=NEW.link_id AND user_id=NEW.user_id AND gym_id=NEW.gym_id AND client_id=NEW.client_id AND status='active' AND version=NEW.link_version FOR SHARE;\n  IF linked.id IS NULL OR public.r12_canonical_gym(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 grant source denied'; END IF;\n  IF NEW.source_profile_id IS NOT NULL THEN\n   PERFORM 1 FROM public.clientes WHERE gym_id=NEW.user_id AND id_cliente=NEW.source_profile_id AND activo AND deleted_at IS NULL FOR SHARE;\n   IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 personal profile denied'; END IF;\n  END IF;\n END IF;\n NEW.created_at=clock_timestamp() AT TIME ZONE 'UTC'; RETURN NEW;\n END ",
+        "plpgsql"
+      ],
+      [
+        "r25_guard_measurement",
+        "",
+        "trigger",
+        false,
+        [
+          "search_path=pg_catalog"
+        ],
+        "v",
+        "u",
+        null,
+        "\n BEGIN\n IF NEW.source_kind='legacy_unverified' THEN\n  IF NEW.record_key IS NOT NULL OR NEW.measured_on IS NOT NULL OR NEW.recorded_by_id IS NOT NULL OR NEW.recorded_at IS NOT NULL OR NEW.updated_at IS NOT NULL OR NEW.withdrawn_at IS NOT NULL OR NEW.version<>1\n   OR (TG_OP='UPDATE' AND OLD.source_kind<>'legacy_unverified') THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 legacy provenance denied'; END IF;\n  RETURN NEW;\n END IF;\n IF NEW.gym_id IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'') OR public.r25_personal(NEW.gym_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='R25 measurement subject denied'; END IF;\n PERFORM 1 FROM public.usuarios WHERE id=NEW.gym_id FOR UPDATE NOWAIT;\n PERFORM 1 FROM public.clientes WHERE gym_id=NEW.gym_id AND id_cliente=NEW.id_cliente AND activo AND deleted_at IS NULL FOR SHARE;\n IF NOT FOUND OR NEW.measured_on>(clock_timestamp() AT TIME ZONE 'America/Mexico_City')::date THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 measurement source denied'; END IF;\n IF TG_OP='INSERT' THEN\n  IF NEW.version<>1 OR NEW.withdrawn_at IS NOT NULL THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 initial version denied'; END IF;\n  NEW.recorded_at=clock_timestamp() AT TIME ZONE 'UTC'; NEW.updated_at=NEW.recorded_at; NEW.fecha=NEW.recorded_at;\n ELSE\n  IF OLD.source_kind<>'self_reported' OR OLD.withdrawn_at IS NOT NULL OR NEW.version<>OLD.version+1\n   OR (NEW.id,NEW.gym_id,NEW.id_cliente,NEW.record_key,NEW.recorded_by_id,NEW.recorded_at,NEW.fecha,NEW.notas) IS DISTINCT FROM (OLD.id,OLD.gym_id,OLD.id_cliente,OLD.record_key,OLD.recorded_by_id,OLD.recorded_at,OLD.fecha,OLD.notas)\n   THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='R25 immutable measurement denied'; END IF;\n  NEW.updated_at=clock_timestamp() AT TIME ZONE 'UTC';\n  IF NEW.withdrawn_at IS NOT NULL THEN NEW.withdrawn_at=NEW.updated_at; END IF;\n END IF;\n RETURN NEW; END ",
+        "plpgsql"
+      ],
+      [
+        "r25_personal",
+        "identity text",
+        "boolean",
+        false,
+        [
+          "search_path=pg_catalog"
+        ],
+        "s",
+        "u",
+        null,
+        "\n SELECT EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=identity AND u.activo AND u.deleted_at IS NULL\n AND u.invitation_token IS NULL AND u.role IN ('ADMIN','NUTRIOLOGO','VIEWER')\n AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)\n AND (u.team_gym_id IS NULL OR public.r12_canonical_gym(u.team_gym_id))) ",
+        "sql"
+      ]
+    ],
+    "triggers": [
+      [
+        "client_progress",
+        "r25_measurement",
+        "O",
+        false,
+        false,
+        "CREATE TRIGGER r25_measurement BEFORE INSERT OR UPDATE ON public.client_progress FOR EACH ROW EXECUTE FUNCTION r25_guard_measurement()"
+      ],
+      [
+        "progress_consents",
+        "r25_consent_append",
+        "O",
+        false,
+        false,
+        "CREATE TRIGGER r25_consent_append BEFORE INSERT OR DELETE OR UPDATE ON public.progress_consents FOR EACH ROW EXECUTE FUNCTION r25_guard_consent()"
+      ]
+    ]
+  },
+  "mfa_protected_families": 2,
+  "source_history_index": {
+    "dialect": "postgresql",
+    "name": "ix_planes_gym_cliente_history",
+    "columns": [
+      "gym_id",
+      "id_cliente",
+      "fecha_generacion",
+      "id"
+    ],
+    "unique": false,
+    "valid": true,
+    "ready": true,
+    "key_columns": 4,
+    "all_columns": 4,
+    "indoption": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "predicate": "deleted_at IS NULL",
+    "method": "btree",
+    "collations": [
+      "pg_catalog.default",
+      "pg_catalog.default",
+      null,
+      null
+    ],
+    "operator_classes": [
+      "pg_catalog.text_ops",
+      "pg_catalog.text_ops",
+      "pg_catalog.timestamp_ops",
+      "pg_catalog.int4_ops"
+    ]
+  },
+  "restored_history_index": {
+    "dialect": "postgresql",
+    "name": "ix_planes_gym_cliente_history",
+    "columns": [
+      "gym_id",
+      "id_cliente",
+      "fecha_generacion",
+      "id"
+    ],
+    "unique": false,
+    "valid": true,
+    "ready": true,
+    "key_columns": 4,
+    "all_columns": 4,
+    "indoption": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "predicate": "deleted_at IS NULL",
+    "method": "btree",
+    "collations": [
+      "pg_catalog.default",
+      "pg_catalog.default",
+      null,
+      null
+    ],
+    "operator_classes": [
+      "pg_catalog.text_ops",
+      "pg_catalog.text_ops",
+      "pg_catalog.timestamp_ops",
+      "pg_catalog.int4_ops"
+    ]
+  },
+  "wrong_asc_history_index": {
+    "dialect": "postgresql",
+    "name": "ix_planes_gym_cliente_history",
+    "columns": [
+      "gym_id",
+      "id_cliente",
+      "fecha_generacion",
+      "id"
+    ],
+    "unique": false,
+    "valid": true,
+    "ready": true,
+    "key_columns": 4,
+    "all_columns": 4,
+    "indoption": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "predicate": "deleted_at IS NULL",
+    "method": "btree",
+    "collations": [
+      "pg_catalog.default",
+      "pg_catalog.default",
+      null,
+      null
+    ],
+    "operator_classes": [
+      "pg_catalog.text_ops",
+      "pg_catalog.text_ops",
+      "pg_catalog.timestamp_ops",
+      "pg_catalog.int4_ops"
+    ]
+  },
+  "asc_only_drift_rejected_with_unchanged_v1_schema_and_rows": true,
+  "correct_index_recreated_and_runtime_rows_security_reverified": true,
+  "restored_recovery_material_before_factory": {
+    "constraint_sqlstates": [
+      "23514",
+      "23514",
+      "23514",
+      "23505"
+    ],
+    "utc_zones": [
+      "UTC",
+      "America/Mexico_City"
+    ],
+    "restored_refresh_rows_before_factory": 8,
+    "restored_revoked_rows_before_factory": 4,
+    "all_reset_states_persisted_exactly": true,
+    "plain_bearer_absent_in_restored_accounts": true
+  },
+  "physical_backup_rows_by_table": {
+    "alembic_version": 1,
+    "stripe_webhook_events": 0,
+    "usuarios": 12,
+    "audit_log": 0,
+    "auth_audit_log": 39,
+    "checkout_sessions": 0,
+    "clientes": 11,
+    "gym_branding": 0,
+    "gym_licenses": 1,
+    "gym_settings": 0,
+    "invoices": 0,
+    "mfa_authorizations": 11,
+    "mfa_credentials": 3,
+    "payments": 0,
+    "personal_diary_days": 6,
+    "planes_suscripcion": 5,
+    "provider_subject_associations": 1,
+    "purchase_intents": 0,
+    "refresh_tokens": 11,
+    "stored_objects": 10,
+    "stripe_customers": 0,
+    "subscriptions": 1,
+    "user_subscriptions": 1,
+    "client_account_links": 6,
+    "client_progress": 3,
+    "gym_profiles": 1,
+    "license_activations": 2,
+    "mfa_recovery_codes": 24,
+    "planes_generados": 9,
+    "client_link_invitations": 6,
+    "client_plan_publications": 5,
+    "generation_reservations": 4,
+    "gym_generation_reservations": 1,
+    "progress_consents": 4
+  },
+  "alembic_revision": "20261019_personal_progress",
+  "rows_by_table": {
+    "alembic_version": 1,
+    "stripe_webhook_events": 0,
+    "usuarios": 12,
+    "audit_log": 0,
+    "auth_audit_log": 39,
+    "checkout_sessions": 0,
+    "clientes": 11,
+    "gym_branding": 0,
+    "gym_licenses": 1,
+    "gym_settings": 0,
+    "invoices": 0,
+    "mfa_authorizations": 11,
+    "mfa_credentials": 3,
+    "payments": 0,
+    "personal_diary_days": 6,
+    "planes_suscripcion": 5,
+    "provider_subject_associations": 1,
+    "purchase_intents": 0,
+    "refresh_tokens": 7,
+    "stored_objects": 10,
+    "stripe_customers": 0,
+    "subscriptions": 1,
+    "user_subscriptions": 1,
+    "client_account_links": 6,
+    "client_progress": 3,
+    "gym_profiles": 1,
+    "license_activations": 2,
+    "mfa_recovery_codes": 24,
+    "planes_generados": 9,
+    "client_link_invitations": 6,
+    "client_plan_publications": 5,
+    "generation_reservations": 4,
+    "gym_generation_reservations": 1,
+    "progress_consents": 4
+  },
+  "backup_seconds": 0.9849999999860302,
+  "restore_seconds": 0.7809999999590218,
+  "snapshot_age_at_verification_seconds": 15.036434,
+  "scope": "Actual local candidate schema recovery; technical timings do not approve business RPO/RTO or production recovery."
+}

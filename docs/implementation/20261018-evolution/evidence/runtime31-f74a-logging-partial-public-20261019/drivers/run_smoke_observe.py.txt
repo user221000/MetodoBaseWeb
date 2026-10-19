@@ -1,0 +1,15 @@
+from pathlib import Path
+import ast,json,sys
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-runtime-logging-validation-20261019')
+sys.path.insert(0,str(LAB/'scripts'));import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+script=RUN/'smoke_observe_guest.py';ast.parse(script.read_text())
+with script.open('rb') as stream:r=guest_access.run('sudo -n python3 -',stdin=stream,timeout=620)
+(RUN/'smoke-observe-raw.stdout').write_bytes(r.stdout);(RUN/'smoke-observe-raw.stderr').write_bytes(r.stderr)
+assert r.returncode==0,r.stderr.decode()
+report=json.loads(r.stdout);(RUN/'smoke-startup-source.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'status':report['status'],'image_id':report['image_id'],'health':report.get('health'),
+ 'head':report.get('worker',{}).get('head'),'worker_migrator_unset':report.get('worker',{}).get('migrator_unset_in_worker_PID1'),
+ 'docker_health':report.get('docker_health_status'),'source_files_after':len(report.get('worker',{}).get('source_hashes_after_startup',{})),
+ 'product_acceptance':False}))

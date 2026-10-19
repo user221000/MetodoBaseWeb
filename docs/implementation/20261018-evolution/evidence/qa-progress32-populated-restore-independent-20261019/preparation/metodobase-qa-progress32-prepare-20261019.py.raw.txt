@@ -1,0 +1,15 @@
+from pathlib import Path
+import ast,json
+TEMP=Path(r'C:\Users\Consu\AppData\Local\Temp')
+OUT=TEMP/'metodobase-qa-progress32-restore-20261019';OUT.mkdir(exist_ok=False)
+old=(TEMP/'metodobase-qa-clock31-pg-20261019/pg_clock_observer.py').read_text()
+assert old.count('metodobase_test_migrations_[0-9a-f]{12}')==1
+new=old.replace('metodobase_test_migrations_[0-9a-f]{12}','metodobase_test_progress_[0-9a-f]{32}').replace('CLOCK_QA_','RESTORE_QA_')
+line="        create = re.fullmatch(r'CREATE DATABASE \"?(' + NAME + r')\"?', rendered or '', re.I)"
+assert new.count(line)==1
+new=new.replace(line,"        create = re.fullmatch(r'CREATE DATABASE \"?(' + NAME + r')\"? TEMPLATE template0', rendered or '', re.I)")
+ast.parse(new);(OUT/'restore_observer.py').write_text(new,encoding='utf-8')
+site=(TEMP/'metodobase-qa-clock31-pg-20261019/sitecustomize.py').read_text().replace('CLOCK_QA_','RESTORE_QA_').replace('pg_clock_observer','restore_observer')
+ast.parse(site);(OUT/'sitecustomize.py').write_text(site,encoding='utf-8')
+(OUT/'preparation-notes.json').write_text(json.dumps({'initial_PowerShell_preparation':'Parser rejected a quoted regex replacement before execution; no file, SQL or service mutation. Tool output exists in conversation; no invented saved RAW file.','observer_infrastructure_origin':'Own prior no-FORCE UUID/OID observer, adapted only to exact progress32 UUID32/TEMPLATE template0 and own environment names.','historical_helpers_edited':False},indent=2)+'\n')
+print('PREPARED')
