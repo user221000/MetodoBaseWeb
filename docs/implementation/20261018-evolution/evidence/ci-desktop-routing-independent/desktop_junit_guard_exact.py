@@ -1,0 +1,1 @@
+import xml.etree.ElementTree as ET; reports=[ET.parse(p) for p in ('pytest-desktop.xml','pytest-desktop-packaging.xml')]; assert all(r.findall('.//testcase') for r in reports), 'Empty required desktop report'; assert not any(r.findall('.//'+tag) for r in reports for tag in ('skipped','failure','error')), 'Required desktop acceptance failed or skipped'

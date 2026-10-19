@@ -1,0 +1,18 @@
+.F                                                                       [100%]
+================================== FAILURES ===================================
+_ test_real_membership_revocation_preserves_personal_diary_and_removes_portfolio[api.app] _
+tests\test_personal_diary_security_review.py:233: in test_real_membership_revocation_preserves_personal_diary_and_removes_portfolio
+    assert client.get('/api/clientes/'+portfolio_profile,headers=old_headers).status_code==200
+E   AssertionError: assert 403 == 200
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+E    +    where <Response [403 Forbidden]> = get(('/api/clientes/' + 'd4ff9ff0-57d1-4705-a62f-a82fa90c41d5'), headers={'Authorization': 'Bearer [SYNTHETIC_BEARER_REDACTED]'})
+E    +      where get = <starlette.testclient.TestClient object at 0x0000026BDEBD3D40>.get
+============================== warnings summary ===============================
+..\..\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_personal_diary_security_review.py::test_real_membership_revocation_preserves_personal_diary_and_removes_portfolio[api.app]
+1 failed, 1 passed, 25 deselected, 1 warning in 5.51s

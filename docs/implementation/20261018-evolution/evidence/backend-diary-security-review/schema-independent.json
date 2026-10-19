@@ -1,0 +1,45 @@
+{
+  "scope": "Independent immutable target comparison; real migration/runtime testing is separate.",
+  "results": [
+    {
+      "dialect": "sqlite",
+      "previous_business_tables": 25,
+      "business_tables": 26,
+      "only_table_added": "personal_diary_days",
+      "previous_definitions_identical": true,
+      "security_additions": {
+        "tables": [],
+        "policies": [],
+        "set_tenant": []
+      }
+    },
+    {
+      "dialect": "postgresql",
+      "previous_business_tables": 25,
+      "business_tables": 26,
+      "only_table_added": "personal_diary_days",
+      "previous_definitions_identical": true,
+      "security_additions": {
+        "tables": [
+          [
+            "personal_diary_days",
+            true,
+            true
+          ]
+        ],
+        "policies": [
+          [
+            "personal_diary_days",
+            "tenant_isolation_personal_diary_days",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ]
+        ],
+        "set_tenant": []
+      }
+    }
+  ]
+}

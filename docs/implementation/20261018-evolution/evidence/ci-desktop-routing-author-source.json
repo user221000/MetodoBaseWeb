@@ -1,0 +1,35 @@
+{
+  "scope": "Author workflow routing/static proof; Windows real85 test result is separate; no Linux or Actions execution",
+  "before": {
+    ".github/workflows/ci.yml": "2e4753142b0dca9dccb4cefca14086e2240c347f7d4deccca068e4af4ded3e00",
+    "scripts/check_frontend_report.py": "08618abb3094219eb4fa386cfc05ff0bf22935ee566c59ee4a4b461a4862addb",
+    "tests/test_frontend_report_guard.py": "91e4c69ee681a6b80f096c3a3c38fe4acd4fc2dcc45f3d53b3746b401b9aa01d"
+  },
+  "after": {
+    ".github/workflows/ci.yml": "2e4753142b0dca9dccb4cefca14086e2240c347f7d4deccca068e4af4ded3e00",
+    "scripts/check_frontend_report.py": "08618abb3094219eb4fa386cfc05ff0bf22935ee566c59ee4a4b461a4862addb",
+    "tests/test_frontend_report_guard.py": "91e4c69ee681a6b80f096c3a3c38fe4acd4fc2dcc45f3d53b3746b401b9aa01d"
+  },
+  "stable": true,
+  "web_gate_commands": [
+    "python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml",
+    "python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py --shuffle-seed=20261018 -q -n 2 --tb=short --junitxml=pytest-web-shuffle.xml"
+  ],
+  "native_windows_cases": [
+    "test_new_batch_wrong_commit_from_other_cwd_preserves_files",
+    "test_new_portable_launcher_missing_package_never_installs"
+  ],
+  "windows_step": {
+    "name": "Desktop packaging and native Windows entrypoints",
+    "if": "runner.os == 'Windows'",
+    "run": "python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py -q --tb=short --junitxml=pytest-desktop-packaging.xml"
+  },
+  "linux_step": {
+    "name": "Desktop packaging and portable entrypoints on Linux",
+    "if": "runner.os != 'Windows'",
+    "run": "python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py -k \"not test_new_batch_wrong_commit_from_other_cwd_preserves_files and not test_new_portable_launcher_missing_package_never_installs\" -q --tb=short --junitxml=pytest-desktop-packaging.xml"
+  },
+  "bash_blocks": 58,
+  "prior_accepted_guard_sources_unchanged": true,
+  "windows_junit": "ci-desktop-routing-windows-author.xml"
+}

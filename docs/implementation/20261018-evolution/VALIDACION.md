@@ -84,3 +84,11 @@ Checkpoint posterior, aún en revisión: [R21](HIGIENE.md) conserva scan2f8b7f9 
 - Desktop:94 independientes/22.85s,0 errores/fallos/skips,27 fuentes/índice/config estables. [Fuente](evidence/desktop-qa-review-abfee196/desktop-provenance-final-independent-source.json). Valida receta y procedencia; build real posterior se registra aparte.
 
 Los1813 serial/n2 siguen vinculados a6d33b9e; no se suman resultados dirigidos ni se atribuyen al nuevo candidato. Backend diario27 y UI/CI nuevos necesitan sus revisiones antes de integración/aceptación.
+
+## CI personal y routing desktop
+
+[Guard independiente](evidence/ci-personal-independent/ci-personal-independent-source.json):91 canarios CLI propios,27 pytest,20 Node,8 reportes históricos y8 escenarios inertes de la función de fixtures. Tres fuentes estables; cinco llamadas previas y guardNode exactos. Primera metadata autor apuntaba a ruta inexistente aunque fallback ejecutó reporte real author-freeze; manifest inicial preservado y errata final conSHA, sin resultado ni producto cambiado.
+
+[Routing independiente](evidence/ci-desktop-routing-independent/ci-desktop-routing-independent-source.json): workflow2e475314,guard08618abb/test91e4c69;58 Bash válidos. Colección localWindows85/Linux-selección83, diferencia exactamente dos node IDs batch nativos. No ejecutaLinux. El guard real de dosJUnit rechaza9 casos ausentes/vacíos/skip/fail/error/malformed y acepta positivo. Autor ejecutó comandoWindows exacto85/0skip/0fail/0error,19.853s. Ambos gatesweb excluyen el módulo entrypoints completo, cuya parte portable sí está cubierta en desktop de ambos sistemas. Cero-skips sigue obligatorio para la selección de cada sistema.
+
+Quality tras integrar receta:lint0,415 Python mantenidos parseados,Bandit6 baseline/0nuevos. Sin Actions ni imagenLinux real. No repetir91 canarios al revisar sólo routing, pues guard y pruebas mantuvieron SHA exacto.

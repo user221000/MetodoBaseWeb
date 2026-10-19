@@ -61,7 +61,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m pip install --require-hashes -r requirements-test.lock
       - name: SaaS regression suite in fresh isolated data
-        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
+        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
       - name: Required SaaS cases cannot silently become skips
         run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web.xml').findall('.//skipped'), 'Required SaaS cases were skipped'"
       - name: Private storage SDK parameters and explicit configuration without a provider
@@ -71,7 +71,7 @@ jobs:
       - name: New nutrition contracts meet reviewed risk coverage
         run: python tests/check_coverage.py coverage.json
       - name: Full SaaS suite in shuffled order and two isolated workers
-        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --shuffle-seed=20261018 -q -n 2 --tb=short --junitxml=pytest-web-shuffle.xml
+        run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py --shuffle-seed=20261018 -q -n 2 --tb=short --junitxml=pytest-web-shuffle.xml
       - name: Required shuffled SaaS cases cannot silently become skips
         run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web-shuffle.xml').findall('.//skipped'), 'Required shuffled SaaS cases were skipped'"
       - uses: actions/upload-artifact@v4
@@ -92,6 +92,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Session refresh contracts and independent account-switch reproductions
         run: |
           node tests/e2e/auth_refresh.cjs > auth-refresh-contracts.json
@@ -99,11 +102,19 @@ jobs:
           node tests/e2e/auth_refresh_race_review.cjs > auth-refresh-reproductions.json
           node tests/e2e/auth_refresh_security_review.cjs > auth-refresh-security.json
           node -e "const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)"
+      - name: Personal operation and uncertain publication retain one intent
+        run: |
+          node tests/e2e/personal_operation.cjs > personal-operation-contracts.json
+          node tests/e2e/personal_operation_ambiguity_review.cjs > personal-operation-ambiguity.json
+          python scripts/check_frontend_report.py personal-operation-contracts.json --format counts --minimum 18
+          python scripts/check_frontend_report.py personal-operation-ambiguity.json --format counts --minimum 2
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: frontend-session-contracts
-          path: auth-refresh-*.json
+          path: |
+            auth-refresh-*.json
+            personal-operation-*.json
           if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
@@ -126,13 +137,21 @@ jobs:
         run: python -c "from PySide6.QtWidgets import QApplication; app=QApplication([]); assert app.platformName()=='offscreen'"
       - name: Supported desktop target
         run: python -X utf8 tests/run_isolated.py tests/test_login_desktop.py tests/services -q --tb=short --junitxml=pytest-desktop.xml
+      - name: Desktop packaging and native Windows entrypoints
+        if: runner.os == 'Windows'
+        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py -q --tb=short --junitxml=pytest-desktop-packaging.xml
+      - name: Desktop packaging and portable entrypoints on Linux
+        if: runner.os != 'Windows'
+        run: python -X utf8 tests/run_isolated.py tests/test_desktop_packaging.py tests/test_desktop_packaging_review.py tests/test_desktop_provenance.py tests/test_desktop_entrypoints.py -k "not test_new_batch_wrong_commit_from_other_cwd_preserves_files and not test_new_portable_launcher_missing_package_never_installs" -q --tb=short --junitxml=pytest-desktop-packaging.xml
       - name: Required desktop cases cannot silently become skips
-        run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-desktop.xml').findall('.//skipped'), 'Required desktop cases were skipped'"
+        run: python -c "import xml.etree.ElementTree as ET; reports=[ET.parse(p) for p in ('pytest-desktop.xml','pytest-desktop-packaging.xml')]; assert all(r.findall('.//testcase') for r in reports), 'Empty required desktop report'; assert not any(r.findall('.//'+tag) for r in reports for tag in ('skipped','failure','error')), 'Required desktop acceptance failed or skipped'"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: desktop-tests-${{ matrix.os }}
-          path: pytest-desktop.xml
+          path: |
+            pytest-desktop.xml
+            pytest-desktop-packaging.xml
   postgres:
     runs-on: ubuntu-latest
     needs: quality
@@ -329,6 +348,7 @@ jobs:
           trap 'if [ -n "${browser_fixture_pid:-}" ]; then kill "$browser_fixture_pid" 2>/dev/null || true; fi' EXIT
           run_browser_fixture() {
             local fixture_script="$1" fixture_port="$2" driver="$3" expected_report="$4" minimum_checks="$5"
+            local report_format="${6:-strings}" minimum_screens="${7:-0}"
             local fixture_log="docs/implementation/20261018-evolution/evidence/ux/ci-${fixture_port}-${driver##*/}-server.log"
             export METODOBASE_E2E_URL="http://127.0.0.1:${fixture_port}"
             python -X utf8 "$fixture_script" > "$fixture_log" 2>&1 &
@@ -340,7 +360,7 @@ jobs:
             done
             if [ "$ready" -ne 1 ]; then cat "$fixture_log"; return 1; fi
             node "$driver"
-            python -c "import json,sys; from pathlib import Path; p=Path(sys.argv[1]); r=json.loads(p.read_text()); assert isinstance(r,dict); checks=r.get('checks'); errors=r.get('pageErrors'); assert isinstance(checks,list) and len(checks)>=int(sys.argv[2]) and all(isinstance(x,str) and x for x in checks); assert isinstance(errors,list) and not errors" "$expected_report" "$minimum_checks"
+            python scripts/check_frontend_report.py "$expected_report" --format "$report_format" --minimum "$minimum_checks" --minimum-screens "$minimum_screens"
             kill "$browser_fixture_pid"
             wait "$browser_fixture_pid" || true
             browser_fixture_pid=''
@@ -351,6 +371,7 @@ jobs:
           run_browser_fixture tests/e2e/privacy_export_server.py 8768 tests/e2e/privacy_export.cjs "${browser_evidence}/privacy-export-${METODOBASE_EVIDENCE_BATCH}/privacy-export-browser.json" 8
           run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_browser.cjs "${browser_evidence}/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
           run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_storage_browser_review.cjs "${browser_evidence}/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 3
+          run_browser_fixture tests/e2e/personal_generation_server.py 8773 tests/e2e/personal_generation.cjs "${browser_evidence}/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 15 named 8
       - uses: actions/upload-artifact@v4
         if: always()
         with:

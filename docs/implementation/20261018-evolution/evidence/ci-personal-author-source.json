@@ -1,0 +1,120 @@
+{
+  "scope": "Author CLI/Node/report-shape/Bash/YAML/quality checks only; no GitHub Actions, Linux image or new browser execution",
+  "before": {
+    ".github/workflows/ci.yml": "50d93e6c38774ba2fd06f823a9a0312be1afea6c027f12d52f17550f7208c4c1",
+    "scripts/check_frontend_report.py": "08618abb3094219eb4fa386cfc05ff0bf22935ee566c59ee4a4b461a4862addb",
+    "tests/test_frontend_report_guard.py": "91e4c69ee681a6b80f096c3a3c38fe4acd4fc2dcc45f3d53b3746b401b9aa01d"
+  },
+  "after": {
+    ".github/workflows/ci.yml": "50d93e6c38774ba2fd06f823a9a0312be1afea6c027f12d52f17550f7208c4c1",
+    "scripts/check_frontend_report.py": "08618abb3094219eb4fa386cfc05ff0bf22935ee566c59ee4a4b461a4862addb",
+    "tests/test_frontend_report_guard.py": "91e4c69ee681a6b80f096c3a3c38fe4acd4fc2dcc45f3d53b3746b401b9aa01d"
+  },
+  "stable": true,
+  "pytest_cases": 27,
+  "bash_blocks_parsed": 56,
+  "checks": [
+    {
+      "label": "operation",
+      "exit_code": 0
+    },
+    {
+      "label": "operation-guard",
+      "exit_code": 0
+    },
+    {
+      "label": "ambiguity",
+      "exit_code": 0
+    },
+    {
+      "label": "ambiguity-guard",
+      "exit_code": 0
+    },
+    {
+      "label": "browser-report-0",
+      "exit_code": 0
+    },
+    {
+      "label": "browser-report-1",
+      "exit_code": 0
+    },
+    {
+      "label": "browser-report-2",
+      "exit_code": 0
+    },
+    {
+      "label": "browser-report-3",
+      "exit_code": 0
+    },
+    {
+      "label": "browser-report-4",
+      "exit_code": 0
+    },
+    {
+      "label": "browser-report-5",
+      "exit_code": 0
+    },
+    {
+      "label": "browser-report-6",
+      "exit_code": 0
+    },
+    {
+      "label": "quality-lint",
+      "exit_code": 0
+    },
+    {
+      "label": "quality-syntax",
+      "exit_code": 0
+    },
+    {
+      "label": "quality-security",
+      "exit_code": 0
+    }
+  ],
+  "historical_browser_reports_checked": [
+    {
+      "path": "b2b-generation-independent-runtime26-20261019-qa/report.json",
+      "format": "strings",
+      "minimum": 9,
+      "screens": 0
+    },
+    {
+      "path": "private-branding-independent-runtime26-20261019-qa/report.json",
+      "format": "strings",
+      "minimum": 10,
+      "screens": 0
+    },
+    {
+      "path": "privacy-export-independent-runtime26-20261019-qa/privacy-export-browser.json",
+      "format": "strings",
+      "minimum": 8,
+      "screens": 0
+    },
+    {
+      "path": "auth-refresh-browser-independent-runtime26-20261019-qa/report.json",
+      "format": "strings",
+      "minimum": 9,
+      "screens": 0
+    },
+    {
+      "path": "auth-refresh-storage-browser-independent-runtime26-storage-20261019-qa/report.json",
+      "format": "strings",
+      "minimum": 3,
+      "screens": 0
+    },
+    {
+      "path": "personal-plan-ui-browser-author-freeze/report.json",
+      "format": "named",
+      "minimum": 15,
+      "screens": 8,
+      "sha256": "0863c570af2d8b6a5c7d4002a003fd666b29ecc98b521ce79beb5dd6eb1362b9"
+    },
+    {
+      "path": "personal-plan-ui-browser-independent-20261019-qa/report.json",
+      "format": "named",
+      "minimum": 15,
+      "screens": 8
+    }
+  ],
+  "evidence_erratum": "Initial author manifest recorded a nonexistent preferred path; helper actually selected an existing report via fallback. Corrected only metadata to the exact selected path and SHA; initial manifest preserved, no source or result change."
+}
