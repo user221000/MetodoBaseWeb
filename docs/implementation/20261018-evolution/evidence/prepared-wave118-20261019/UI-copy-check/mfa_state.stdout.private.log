@@ -1,0 +1,127 @@
+{
+  "scope": "Real central transport/consumer code with RAM responses and minimal kit DOM only; no API31/provider/browser claim",
+  "passed": 30,
+  "total": 30,
+  "results": [
+    {
+      "case": "Password202 keeps a pending factor entirely outside credential storage",
+      "passed": true
+    },
+    {
+      "case": "Explicit verify200 commits centrally before notifying authenticated state",
+      "passed": true
+    },
+    {
+      "case": "Recovery method sends exactly one recovery proof and no TOTP",
+      "passed": true
+    },
+    {
+      "case": "Cancelling a retained primary prevents its eventual200 from opening a session",
+      "passed": true
+    },
+    {
+      "case": "Replacement after verify helper resolves cannot commit an old login ACK",
+      "passed": true
+    },
+    {
+      "case": "A lost verification503 discards challenge instead of automatically retrying it",
+      "passed": true
+    },
+    {
+      "case": "A Google callback from an explicitly discarded intent never sends a credential",
+      "passed": true
+    },
+    {
+      "case": "A duplicate factor action while verification is pending does not send a second proof",
+      "passed": true
+    },
+    {
+      "case": "A reentrant onClear callback cannot turn an old challenge into a new actor login",
+      "passed": true
+    },
+    {
+      "case": "Account bootstrap reads status without revealing seed or codes",
+      "passed": true
+    },
+    {
+      "case": "Enrolment displays one manual seed but never activates or changes credentials",
+      "passed": true
+    },
+    {
+      "case": "Valid confirm clears prior state then preserves the new one-time kit after own synchronous close",
+      "passed": true
+    },
+    {
+      "case": "A subsequent new session immediately destroys an already visible kit",
+      "passed": true
+    },
+    {
+      "case": "Pagehide destroys a visible kit while keeping the closed session closed",
+      "passed": true
+    },
+    {
+      "case": "A confirm ACK resolved after session replacement cannot reveal its kit or clear the new actor",
+      "passed": true
+    },
+    {
+      "case": "A session replacement inside pre-close cleanup preserves the new pair and reveals no codes",
+      "passed": true
+    },
+    {
+      "case": "A reentrant replacement during clearTokens cannot be closed or receive another actor kit",
+      "passed": true
+    },
+    {
+      "case": "Partial Storage removal after valid ACK makes kit unavailable rather than claiming closure",
+      "passed": true
+    },
+    {
+      "case": "Regenerate requires fresh primary plus current factor and closes before the replacement kit",
+      "passed": true
+    },
+    {
+      "case": "Explicit revoke closes with no recovery kit and does not add permissions",
+      "passed": true
+    },
+    {
+      "case": "An invalid or message-only confirm body is uncertain, never success or local close",
+      "passed": true
+    },
+    {
+      "case": "A current-factor400 is visible and does not pretend activation or emit a kit",
+      "passed": true
+    },
+    {
+      "case": "Reentrant controls after primary cleanup cannot dispatch a request with a new actor",
+      "passed": true
+    },
+    {
+      "case": "A committed login with destination lookup failure keeps the committed state for explicit readback",
+      "passed": true
+    },
+    {
+      "case": "Explicit destination retry does not repeat primary or factor and cannot switch its actor",
+      "passed": true
+    },
+    {
+      "case": "An expired login challenge requires a new primary and never sends its factor",
+      "passed": true
+    },
+    {
+      "case": "A login429 retains the challenge for an explicit later retry without automatic traffic",
+      "passed": true
+    },
+    {
+      "case": "Google202 enters the same explicit factor stage without committing a session",
+      "passed": true
+    },
+    {
+      "case": "A pending enrollment503 is uncertain and cannot be activated by another confirm click",
+      "passed": true
+    },
+    {
+      "case": "Pagehide during held enrollment discards the late seed",
+      "passed": true
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 # Entrega candidata en curso
 
-Checkpoint117:110 registros y92 IDs originales. MAINeea8f773fba9b7f92241958139fcefa23b9ee1d4 integra esquema30,R12,R23/expiración/CI573,SEC11 yR24 parcial. Amplia actual2597aprobadas+1omisión Windows por modo serial/cobertura y n2/shuffle;9542fuentes/89paquetes quietos,pip0,cobertura0,2492casosprevios íntegros.
+Checkpoint118:110 requisitos,92 identificadores originales y110 criterios intactos. La rama de ejecución continúa con esquema30; su última regresión amplia pasó2597 casos y una omisión Windows por modo serial/cobertura y dos workers con orden mezclado.
 
-MFA31 sigueaislado conrefinamientos dekey/privacidad yparentcanónicoSEC13 en revisión;UI/QA/Seguridad/CI31 pendientes. LinuxExpatM2 sólorevisiónestática,faltaartefacto/arranque/SCA ysiguen71IDsOS abiertos. Desktopsoportado. Free10clientes,1plan/cliente/día y10totales/gimnasio/día.
+MFA31 está en la candidata aislada da34304aaf9066f45c6fc854cfd81d00e2fbc581. El backend440 tiene aceptación de seguridad acotada; la UI está compuesta y pasó el replay de74VM y14SSR/HTTP. QA y CI31 siguen en curso. No se atribuyen a esa candidata las pruebas de otro freeze ni se declara aceptación integral.
 
-Sin entrega final,push,PR,despliegue,cargos ni comunicaciones reales. [Estado](ESTADO.md),[validación](VALIDACION.md),[riesgos](RIESGOS.md)y[registro](TRAZABILIDAD.md). Cada evidencia conserva fuente/entorno.
+R34 completó un diagnóstico natural de16 solicitudes200 sin reproducir el timeout histórico; no demuestra un SLO ni una corrección del pool. Linux/Expat sigue pendiente de build y validación dinámica, con71 identificadores OS abiertos. Desktop continúa soportado. Free:10 clientes,1 plan por cliente al día y10 totales por gimnasio al día.
+
+No es una entrega final. Sin push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md).

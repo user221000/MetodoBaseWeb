@@ -155,3 +155,8 @@ SEC11 integrado5949 yR24 parcialbd3 con cabeceras privadas en todoslos errores d
 ## Checkpoint 117
 
 Se sella gate actualR23/R24/SEC11 yse registraSEC13 de fuente31aislada.78d27key y8b64privacidad están fueraMAIN ypendientes de revisión posterior. No nuevo producto encheckpoint.
+
+
+## Checkpoint 118
+
+Se sellan revisiones independientes de MFA, su composición UI aislada y el diagnóstico del pool. La rama principal no cambia producto ni esquema. En la candidata da343 se ajustan veinte textos en tres archivos; la inversa reconstruye exactamente los bytes anteriores. Las pruebas de invitación se adaptan con MFA real y tres expectativas de status cambian por una precedencia deliberada de autorización, documentada y aún sin integrar.

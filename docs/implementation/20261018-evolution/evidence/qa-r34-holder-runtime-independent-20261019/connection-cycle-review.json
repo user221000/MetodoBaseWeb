@@ -1,0 +1,1036 @@
+{
+  "single_connection_alias": "C1",
+  "cyclic_alias_not_unique_checkout_identity": true,
+  "method": "Exact checkout -> next checkin interval on the sole connection, then actual Session_transaction_begin mapping inside that interval. No inference from thread reuse or actor identity. Missing Session at early checkout snapshot is resolved only by its later observed transaction_begin in the same unique checkout cycle.",
+  "cycles": [
+    {
+      "waiter_start_sequence": 1073,
+      "checkout_sequence": 1059,
+      "transaction_begin_sequence": 1064,
+      "session": "S4",
+      "checkin_sequence": 1070,
+      "close_start_sequence": 1071,
+      "close_end_sequence": 1072,
+      "owner_request": "r34-web-main_web-serial-0",
+      "owner_path": "/api/auth/me",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/subscription_guard.py",
+          "function": "_get_gym_plan",
+          "line": 232
+        },
+        {
+          "file": "web/routes/auth.py",
+          "function": "me",
+          "line": 291
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 1066,
+      "last_query_finished_after_waiter_start_emit": false,
+      "snapshot_checkout_task": {
+        "alive": true,
+        "alias": "T3",
+        "done": false,
+        "cancelled": false,
+        "await_chain_bounded": [
+          {
+            "file": "anyio/_core/_tasks.py",
+            "function": "_run_coro",
+            "line": 327
+          },
+          {
+            "file": "starlette/middleware/base.py",
+            "function": "coro",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 79
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 104
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "__call__",
+            "line": 91
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "simple_response",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/exceptions.py",
+            "function": "__call__",
+            "line": 63
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/middleware/asyncexitstack.py",
+            "function": "__call__",
+            "line": 18
+          },
+          {
+            "file": "starlette/routing.py",
+            "function": "__call__",
+            "line": 678
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 2809
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1837
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 2892
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "_handle_selected",
+            "line": 1863
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1326
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 166
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 148
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 737
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 217
+          }
+        ]
+      },
+      "checkin_before_start_emit": true
+    },
+    {
+      "waiter_start_sequence": 1312,
+      "checkout_sequence": 1305,
+      "transaction_begin_sequence": 1311,
+      "session": "S16",
+      "checkin_sequence": 1316,
+      "close_start_sequence": 1315,
+      "close_end_sequence": 1317,
+      "owner_request": "r34-web-main_web-triple-0",
+      "owner_path": "/api/auth/me",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_get_session",
+          "line": 120
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_get_user_by_id",
+          "line": 599
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_current_token_identity",
+          "line": 437
+        },
+        {
+          "file": "web/auth.py",
+          "function": "verificar_token",
+          "line": 455
+        },
+        {
+          "file": "web/auth_deps.py",
+          "function": "get_usuario_actual",
+          "line": 28
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/auth.py",
+          "function": "_get_user_by_id",
+          "line": 604
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_current_token_identity",
+          "line": 437
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 1314,
+      "last_query_finished_after_waiter_start_emit": true,
+      "snapshot_checkout_task": {
+        "alive": false
+      },
+      "checkin_before_start_emit": false
+    },
+    {
+      "waiter_start_sequence": 1378,
+      "checkout_sequence": 1362,
+      "transaction_begin_sequence": 1367,
+      "session": "S19",
+      "checkin_sequence": 1374,
+      "close_start_sequence": 1375,
+      "close_end_sequence": 1376,
+      "owner_request": "r34-web-main_web-triple-0",
+      "owner_path": "/api/auth/me",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/subscription_guard.py",
+          "function": "_get_gym_plan",
+          "line": 232
+        },
+        {
+          "file": "web/routes/auth.py",
+          "function": "me",
+          "line": 291
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 1369,
+      "last_query_finished_after_waiter_start_emit": false,
+      "snapshot_checkout_task": {
+        "alive": true,
+        "alias": "T17",
+        "done": false,
+        "cancelled": false,
+        "await_chain_bounded": [
+          {
+            "file": "anyio/_core/_tasks.py",
+            "function": "_run_coro",
+            "line": 327
+          },
+          {
+            "file": "starlette/middleware/base.py",
+            "function": "coro",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 79
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 104
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "__call__",
+            "line": 91
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "simple_response",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/exceptions.py",
+            "function": "__call__",
+            "line": 63
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/middleware/asyncexitstack.py",
+            "function": "__call__",
+            "line": 18
+          },
+          {
+            "file": "starlette/routing.py",
+            "function": "__call__",
+            "line": 678
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 2809
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1837
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 2892
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "_handle_selected",
+            "line": 1863
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1326
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 166
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 148
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 737
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 217
+          }
+        ]
+      },
+      "checkin_before_start_emit": true
+    },
+    {
+      "waiter_start_sequence": 1381,
+      "checkout_sequence": 1362,
+      "transaction_begin_sequence": 1367,
+      "session": "S19",
+      "checkin_sequence": 1374,
+      "close_start_sequence": 1375,
+      "close_end_sequence": 1376,
+      "owner_request": "r34-web-main_web-triple-0",
+      "owner_path": "/api/auth/me",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/subscription_guard.py",
+          "function": "_get_gym_plan",
+          "line": 232
+        },
+        {
+          "file": "web/routes/auth.py",
+          "function": "me",
+          "line": 291
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 1369,
+      "last_query_finished_after_waiter_start_emit": false,
+      "snapshot_checkout_task": {
+        "alive": true,
+        "alias": "T17",
+        "done": true,
+        "cancelled": false,
+        "await_chain_bounded": [
+          {
+            "file": "anyio/_core/_tasks.py",
+            "function": "_run_coro",
+            "line": 327
+          },
+          {
+            "file": "starlette/middleware/base.py",
+            "function": "coro",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 79
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 104
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "__call__",
+            "line": 91
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "simple_response",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/exceptions.py",
+            "function": "__call__",
+            "line": 63
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/middleware/asyncexitstack.py",
+            "function": "__call__",
+            "line": 18
+          },
+          {
+            "file": "starlette/routing.py",
+            "function": "__call__",
+            "line": 678
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 2809
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1837
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 2892
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "_handle_selected",
+            "line": 1863
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1326
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 166
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 148
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 758
+          }
+        ]
+      },
+      "checkin_before_start_emit": true
+    },
+    {
+      "waiter_start_sequence": 2019,
+      "checkout_sequence": 2005,
+      "transaction_begin_sequence": 2010,
+      "session": "S27",
+      "checkin_sequence": 2016,
+      "close_start_sequence": 2017,
+      "close_end_sequence": 2018,
+      "owner_request": "r34-api-app-serial-0",
+      "owner_path": "/api/auth/me",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/subscription_guard.py",
+          "function": "_get_gym_plan",
+          "line": 232
+        },
+        {
+          "file": "web/routes/auth.py",
+          "function": "me",
+          "line": 291
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 2012,
+      "last_query_finished_after_waiter_start_emit": false,
+      "snapshot_checkout_task": {
+        "alive": true,
+        "alias": "T20",
+        "done": false,
+        "cancelled": false,
+        "await_chain_bounded": [
+          {
+            "file": "anyio/_core/_tasks.py",
+            "function": "_run_coro",
+            "line": 327
+          },
+          {
+            "file": "starlette/middleware/base.py",
+            "function": "coro",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 79
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 104
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "__call__",
+            "line": 91
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "simple_response",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/exceptions.py",
+            "function": "__call__",
+            "line": 63
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/middleware/asyncexitstack.py",
+            "function": "__call__",
+            "line": 18
+          },
+          {
+            "file": "starlette/routing.py",
+            "function": "__call__",
+            "line": 678
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 2809
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1837
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 2892
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "_handle_selected",
+            "line": 1863
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1326
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 166
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 148
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 737
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 217
+          }
+        ]
+      },
+      "checkin_before_start_emit": true
+    },
+    {
+      "waiter_start_sequence": 2202,
+      "checkout_sequence": 2188,
+      "transaction_begin_sequence": 2193,
+      "session": "S37",
+      "checkin_sequence": 2198,
+      "close_start_sequence": 2199,
+      "close_end_sequence": 2200,
+      "owner_request": "r34-api-app-pair-0",
+      "owner_path": "/api/auth/me",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/subscription_guard.py",
+          "function": "_get_gym_plan",
+          "line": 232
+        },
+        {
+          "file": "web/routes/auth.py",
+          "function": "me",
+          "line": 291
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 2195,
+      "last_query_finished_after_waiter_start_emit": false,
+      "snapshot_checkout_task": {
+        "alive": true,
+        "alias": "T29",
+        "done": false,
+        "cancelled": false,
+        "await_chain_bounded": [
+          {
+            "file": "anyio/_core/_tasks.py",
+            "function": "_run_coro",
+            "line": 327
+          },
+          {
+            "file": "starlette/middleware/base.py",
+            "function": "coro",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 79
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 104
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "__call__",
+            "line": 91
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "simple_response",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/exceptions.py",
+            "function": "__call__",
+            "line": 63
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/middleware/asyncexitstack.py",
+            "function": "__call__",
+            "line": 18
+          },
+          {
+            "file": "starlette/routing.py",
+            "function": "__call__",
+            "line": 678
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 2809
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1837
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 2892
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "_handle_selected",
+            "line": 1863
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1326
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 166
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 148
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 737
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 217
+          }
+        ]
+      },
+      "checkin_before_start_emit": true
+    },
+    {
+      "waiter_start_sequence": 2342,
+      "checkout_sequence": 2325,
+      "transaction_begin_sequence": 2331,
+      "session": "S45",
+      "checkin_sequence": 2336,
+      "close_start_sequence": 2339,
+      "close_end_sequence": 2340,
+      "owner_request": "r34-api-app-triple-0",
+      "owner_path": "/api/auth/me",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/subscription_guard.py",
+          "function": "_get_gym_plan",
+          "line": 232
+        },
+        {
+          "file": "web/routes/auth.py",
+          "function": "me",
+          "line": 291
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 2333,
+      "last_query_finished_after_waiter_start_emit": false,
+      "snapshot_checkout_task": {
+        "alive": true,
+        "alias": "T36",
+        "done": false,
+        "cancelled": false,
+        "await_chain_bounded": [
+          {
+            "file": "anyio/_core/_tasks.py",
+            "function": "_run_coro",
+            "line": 327
+          },
+          {
+            "file": "starlette/middleware/base.py",
+            "function": "coro",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 79
+          },
+          {
+            "file": "starlette/middleware/gzip.py",
+            "function": "__call__",
+            "line": 104
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "__call__",
+            "line": 91
+          },
+          {
+            "file": "starlette/middleware/cors.py",
+            "function": "simple_response",
+            "line": 149
+          },
+          {
+            "file": "starlette/middleware/exceptions.py",
+            "function": "__call__",
+            "line": 63
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/middleware/asyncexitstack.py",
+            "function": "__call__",
+            "line": 18
+          },
+          {
+            "file": "starlette/routing.py",
+            "function": "__call__",
+            "line": 678
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 2809
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1837
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 2892
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "_handle_selected",
+            "line": 1863
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "handle",
+            "line": 1326
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 166
+          },
+          {
+            "file": "starlette/_exception_handler.py",
+            "function": "wrapped_app",
+            "line": 42
+          },
+          {
+            "file": "fastapi/routing.py",
+            "function": "app",
+            "line": 148
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 737
+          },
+          {
+            "file": "contextlib.py",
+            "function": "__aexit__",
+            "line": 217
+          }
+        ]
+      },
+      "checkin_before_start_emit": true
+    },
+    {
+      "waiter_start_sequence": 2360,
+      "checkout_sequence": 2354,
+      "transaction_begin_sequence": 2359,
+      "session": "S48",
+      "checkin_sequence": 2364,
+      "close_start_sequence": 2363,
+      "close_end_sequence": 2365,
+      "owner_request": "r34-api-app-triple-2",
+      "owner_path": "/api/estadisticas/seguimiento",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_get_session",
+          "line": 120
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_get_user_by_id",
+          "line": 599
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_current_token_identity",
+          "line": 437
+        },
+        {
+          "file": "web/auth.py",
+          "function": "verificar_token",
+          "line": 455
+        },
+        {
+          "file": "web/auth_deps.py",
+          "function": "get_usuario_actual",
+          "line": 28
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/auth.py",
+          "function": "_get_user_by_id",
+          "line": 604
+        },
+        {
+          "file": "web/auth.py",
+          "function": "_current_token_identity",
+          "line": 437
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 2362,
+      "last_query_finished_after_waiter_start_emit": true,
+      "snapshot_checkout_task": {
+        "alive": false
+      },
+      "checkin_before_start_emit": false
+    },
+    {
+      "waiter_start_sequence": 2373,
+      "checkout_sequence": 2367,
+      "transaction_begin_sequence": 2372,
+      "session": "S44",
+      "checkin_sequence": 2407,
+      "close_start_sequence": 2410,
+      "close_end_sequence": 2411,
+      "owner_request": "r34-api-app-triple-1",
+      "owner_path": "/api/estadisticas",
+      "constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "checkout_app_frames": [
+        {
+          "file": "web/database/repository.py",
+          "function": "obtener_estadisticas",
+          "line": 300
+        }
+      ],
+      "last_finished_query_in_checkout_cycle_sequence": 2405,
+      "last_query_finished_after_waiter_start_emit": true,
+      "snapshot_checkout_task": {
+        "alive": false
+      },
+      "checkin_before_start_emit": false
+    }
+  ]
+}

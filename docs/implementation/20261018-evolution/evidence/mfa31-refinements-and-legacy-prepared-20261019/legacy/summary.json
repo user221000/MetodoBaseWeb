@@ -1,0 +1,490 @@
+{
+  "head": "913cb66061ac754ad09344fc24e8f769b5722997",
+  "exit": 1,
+  "timed_out": false,
+  "seconds": 27.405999999959022,
+  "cases": 92,
+  "counts": {
+    "passed": 72,
+    "failure": 20,
+    "error": 0,
+    "skipped": 0
+  },
+  "rows": [
+    {
+      "module": "tests.test_auth_security.TestBcryptRequired",
+      "case": "test_bcrypt_is_available",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestBcryptRequired",
+      "case": "test_hash_password_works",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestBcryptRequired",
+      "case": "test_verify_password_works",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestNoSHA256Fallback",
+      "case": "test_sha256_hash_not_verified",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestNoSHA256Fallback",
+      "case": "test_only_bcrypt_format_accepted",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestPasswordNeverPlain",
+      "case": "test_hash_is_different_from_password",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestPasswordNeverPlain",
+      "case": "test_same_password_different_hash",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestTimingAttackMitigation",
+      "case": "test_wrong_password_similar_time",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_auth_security.TestRegistroUsuario",
+      "case": "test_registro_usa_bcrypt",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_activate_subscription_creates_new",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_activate_subscription_updates_existing",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_activate_subscription_mp_provider",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_complete_checkout_updates_pending",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_complete_checkout_creates_if_no_pending",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_is_payment_processed_false",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_is_payment_processed_true",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestSubscriptionService",
+      "case": "test_record_payment",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestStripePriceIDs",
+      "case": "test_checkout_uses_price_id_when_available",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestStripePriceIDs",
+      "case": "test_checkout_uses_price_data_when_no_price_id",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestStripeUsesSharedService",
+      "case": "test_paid_checkout_reconciles_provider_state",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestPagosLegacyDelegation",
+      "case": "test_pagos_no_inline_stripe_session_create",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestPagosLegacyDelegation",
+      "case": "test_pagos_uses_shared_subscription_service",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestPagosLegacyDelegation",
+      "case": "test_billing_has_mp_endpoints",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestPagosLegacyDelegation",
+      "case": "test_no_duplicate_subscription_logic_in_pagos",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestPriceIDConfiguration",
+      "case": "test_settings_has_stripe_price_ids",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestPriceIDConfiguration",
+      "case": "test_constantes_reads_price_ids_from_env",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestPriceIDConfiguration",
+      "case": "test_production_requires_price_ids",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_consolidation.TestCSRFExemption",
+      "case": "test_mp_webhook_exempt_from_csrf",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_preferences_cannot_grant_pro",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_incomplete_subscription_cannot_grant_pro",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_unconfirmed_subscription_cannot_grant_pro",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_paid_individual_subscription_fits_schema_and_updates_projection",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_independent_mercadopago_subscriptions_do_not_collide",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_exhausted_individual_quota_never_calls_generator",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_unpaid_checkout_never_activates_rights",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_unknown_paid_plan_is_rejected",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_confirm_paid_snapshot_then_cancellation_updates_both_tables",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_provider_evidence_never_grants_unpaid_or_wrong_product[incomplete]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_provider_evidence_never_grants_unpaid_or_wrong_product[unpaid_invoice]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_provider_evidence_never_grants_unpaid_or_wrong_product[wrong_price]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_provider_evidence_never_grants_unpaid_or_wrong_product[wrong_currency]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_provider_evidence_never_grants_unpaid_or_wrong_product[refunded]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_cannot_confirm_another_subject_purchase",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_old_active_event_after_cancellation_uses_current_provider_state",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_failed_generation_returns_credit_once",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_completed_retry_returns_same_plan_without_generation",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_quota_month_is_mexico_city_not_utc",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_mp_signature_binds_body_query_and_time[different_id]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_mp_signature_binds_body_query_and_time[expired]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_mp_signature_binds_body_query_and_time[signature]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_mp_approved_payment_then_refund_reconciles_projection",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_invoice_without_verified_charge_does_not_grant_access[None]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_invoice_without_verified_charge_does_not_grant_access[evidence1]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_invoice_without_verified_charge_does_not_grant_access[evidence2]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_unexpanded_charge_is_retrieved_and_refund_is_checked",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_old_refund_after_renewal_preserves_current_paid_access",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_old_mp_approval_after_new_purchase_preserves_new_period",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_professional_keeps_separate_personal_profile",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_provider_error_is_redacted_from_public_response_and_logs",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_missing_stripe_key_never_grants_unpaid_gym_premium[False]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_missing_stripe_key_never_grants_unpaid_gym_premium[True]",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_mercadopago_rights_use_persisted_period_without_stripe",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_expired_individual_canonical_period_removes_pro_projection",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_resilience_never_logs_provider_exception_text",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_purchase_identity_is_durable_and_request_key_scoped",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_stale_mapping_before_lock_cannot_cancel_new_purchase",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_old_stripe_cancellation_cannot_revoke_current_mp_purchase",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_subscription_get_month_reset_cannot_overwrite_reserved_credit",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_billing_integrity",
+      "case": "test_simultaneous_initial_subscription_gets_create_one_projection",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invite_uses_absolute_single_token_url_and_does_not_claim_delivery",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_valid_invite_accepts_once_with_persisted_professional_identity",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_expired_invitation_is_visible_and_cannot_activate_account",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_resend_rotates_token_and_returns_current_shareable_link",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_revocation_preserves_personal_profile_and_invalidates_team_sessions",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_existing_personal_email_never_becomes_a_professional_link",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_admin_cannot_rotate_an_admin_invitation",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invite_password_follows_registration_minimum",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_member_list_exposes_current_capabilities_and_invitation_expiry",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stored_digest_is_not_a_bearer_token",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_cancel_pending_invitation_never_activates_personal_account",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_unicode_password_size_error_does_not_consume_invitation",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_email_escapes_untrusted_names_and_url",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_parallel_consumers_only_one_can_claim_token",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_email_transport_failure_does_not_log_bearer_or_message",
+      "result": "passed"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_detaching_historical_gym_typed_member_never_changes_owner",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_mutations_never_cross_to_another_gym[role]",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_mutations_never_cross_to_another_gym[remove]",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_team_mutations_never_cross_to_another_gym[resend]",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_invitation_name_is_scoped_to_persisted_offer_not_input_gym",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_role_change_between_read_and_claim_cannot_restore_stale_role",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[role-role]",
+      "result": "failure"
+    },
+    {
+      "module": "tests.test_team_invitation_contract",
+      "case": "test_stale_membership_mutation_rejects_changed_target_without_revoking_new_sessions[role-remove]",
+      "result": "failure"
+    }
+  ],
+  "maxfail": 20,
+  "selected": [
+    "tests/test_auth_security.py",
+    "tests/test_billing_consolidation.py",
+    "tests/test_billing_integrity.py",
+    "tests/test_team_invitation_contract.py",
+    "tests/test_team_entitlement_review.py",
+    "tests/test_security_billing_review.py",
+    "tests/test_rbac_permissions.py",
+    "tests/test_api_team_plan_storage_review.py"
+  ],
+  "source_packages_quiet": true,
+  "source_files": 663,
+  "packages": 89,
+  "scope": "Initial bounded affected legacy-contract diagnostic against isolated current31backend composition, before fixture adaptation or UI composition. Intentional MFA stepup adoption may require legitimate test enrollment/grants, not environment bypass or weaker business assertions. Not full regression/acceptance, no PG/browser/provider."
+}

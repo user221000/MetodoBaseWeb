@@ -1,0 +1,57 @@
+{
+  "engine_constructor": "actual web.database.engine.get_engine -> init_db",
+  "DB_POOL_SIZE": 1,
+  "DB_MAX_OVERFLOW": 0,
+  "pool_size": 1,
+  "max_overflow": 0,
+  "original_runtime_timeout_seconds": 30,
+  "diagnostic_timeout_seconds": 2,
+  "timeout_delta_harness_only": true,
+  "runtime_SessionLocal_bound_to_same_engine": true,
+  "model_tables": 29,
+  "actual_tables": 30,
+  "revision": "20261019_personal_history_index",
+  "history_index": {
+    "dialect": "postgresql",
+    "name": "ix_planes_gym_cliente_history",
+    "columns": [
+      "gym_id",
+      "id_cliente",
+      "fecha_generacion",
+      "id"
+    ],
+    "unique": false,
+    "valid": true,
+    "ready": true,
+    "key_columns": 4,
+    "all_columns": 4,
+    "indoption": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "predicate": "deleted_at IS NULL",
+    "method": "btree",
+    "collations": [
+      "pg_catalog.default",
+      "pg_catalog.default",
+      null,
+      null
+    ],
+    "operator_classes": [
+      "pg_catalog.text_ops",
+      "pg_catalog.text_ops",
+      "pg_catalog.timestamp_ops",
+      "pg_catalog.int4_ops"
+    ]
+  },
+  "restricted_role_flags": [
+    false,
+    false,
+    false,
+    false
+  ],
+  "database_nonowner": true,
+  "FORCE_RLS_families": 23
+}

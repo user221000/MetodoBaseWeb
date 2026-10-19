@@ -216,3 +216,8 @@ QA4042:98/98 en424.86s,21focales,freshR24_11+R12_16;5987/89/157Node/tools/config
 ## Checkpoint 117
 
 Ampliaeea8:serial2597pass+1skipWindows777.079s,shuffle2597pass+1skip384.438s;9542fuentes/89paquetes estables,pip0,cobertura0,2492caseIDs previos exactos más106nuevos cada modo.3módulos100%líneas/ramas. No PG/Redis/Linux/Actions/imagen/SLO. Composición46dc94mantenidas+8propias porfases;1+1rojos de fixture cache preservados y10assertsAST intactos en refinamiento final, sincambioproducto.
+
+
+## Checkpoint 118
+
+Seguridad: backend440 aceptado con los mismos replays6+4+5+20; PG4 pertenece sólo56 y composición913 sólo tiene peer estático. Autor UI087 conserva15 grupos/12 pantallas; root da343 pasó74VM+14SSR/HTTP,679 fuentes/89 paquetes estables. R34:16 solicitudes200,0 timeout,9 snapshots de los cuales3 son solapamientos efectivos;3UUID cerradas y8804 sin listener. No capacidad, SLO, Actions, Linux ni proveedor real inferidos.

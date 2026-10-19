@@ -1,0 +1,32 @@
+FF..FF                                                                   [100%]
+================================== FAILURES ===================================
+_ test_team_mutation_and_grant_consumption_are_one_uncertain_commit[api.app-False] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-security-full-20261019\test_business_atomicity.py:33: in test_team_mutation_and_grant_consumption_are_one_uncertain_commit
+    assert triggered and result.status_code==503
+E   assert (False)
+_ test_team_mutation_and_grant_consumption_are_one_uncertain_commit[api.app-True] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-security-full-20261019\test_business_atomicity.py:33: in test_team_mutation_and_grant_consumption_are_one_uncertain_commit
+    assert triggered and result.status_code==503
+E   assert (False)
+_ test_exact_action_resource_and_body_mismatch_do_not_consume_grant[api.app] __
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-security-full-20261019\test_business_atomicity.py:65: in test_exact_action_resource_and_body_mismatch_do_not_consume_grant
+    assert result.status_code==400
+E   assert 404 == 400
+E    +  where 404 = <Response [404 Not Found]>.status_code
+_ test_exact_action_resource_and_body_mismatch_do_not_consume_grant[web.main_web] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-security-full-20261019\test_business_atomicity.py:65: in test_exact_action_resource_and_body_mismatch_do_not_consume_grant
+    assert result.status_code==400
+E   assert 403 == 400
+E    +  where 403 = <Response [403 Forbidden]>.status_code
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: <PRIVATE_URL>
+=========================== short test summary info ===========================
+FAILED ::test_team_mutation_and_grant_consumption_are_one_uncertain_commit[api.app-False]
+FAILED ::test_team_mutation_and_grant_consumption_are_one_uncertain_commit[api.app-True]
+FAILED ::test_exact_action_resource_and_body_mismatch_do_not_consume_grant[api.app]
+FAILED ::test_exact_action_resource_and_body_mismatch_do_not_consume_grant[web.main_web]
+4 failed, 2 passed, 1 warning in 11.38s

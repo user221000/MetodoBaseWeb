@@ -1,0 +1,132 @@
+"""Owned runtime observation only: never read SQL, parameters, identities or locals."""
+import asyncio,contextvars,sys,threading,time,types,weakref
+from pathlib import Path
+from sqlalchemy import event
+from sqlalchemy.orm import Session
+
+REQUEST=contextvars.ContextVar('qa_r34_request',default=None)
+
+class PoolTrace:
+    def __init__(self,engine,root):
+        self.engine=engine;self.root=Path(root).resolve();self.events=[];self.holders={};self.records=weakref.WeakKeyDictionary();self.sessions=weakref.WeakKeyDictionary();self.tasks=weakref.WeakKeyDictionary();self.lock=threading.RLock();self.callbacks=[];self.factory='setup';self.stage='setup';self.next_record=0;self.next_session=0;self.next_task=0
+    def frame(self,frame):
+        path=Path(frame.f_code.co_filename)
+        try:name=path.resolve().relative_to(self.root).as_posix()
+        except ValueError:
+            parts=path.parts;name='/'.join(parts[parts.index('site-packages')+1:])if'site-packages'in parts else path.name
+        return {'file':name,'function':frame.f_code.co_name,'line':frame.f_lineno}
+    def frames(self,frame=None,limit=16):
+        frame=frame or sys._getframe(2);rows=[]
+        try:
+            while frame is not None and len(rows)<limit:rows.append(self.frame(frame));frame=frame.f_back
+        finally:del frame
+        return rows
+    def task(self):
+        try:return asyncio.current_task()
+        except RuntimeError:return None
+    def taskref(self,task):return weakref.ref(task)if task is not None else None
+    def taskalias(self,task):
+        if task is None:return None
+        if task not in self.tasks:self.next_task+=1;self.tasks[task]='T'+str(self.next_task)
+        return self.tasks[task]
+    def task_snapshot(self,reference):
+        task=reference()if reference else None
+        if task is None:return {'alive':False}
+        coroutine=task.get_coro();chain=[]
+        for _ in range(24):
+            frame=getattr(coroutine,'cr_frame',None)or getattr(coroutine,'gi_frame',None)or getattr(coroutine,'ag_frame',None)
+            if frame is not None:chain.append(self.frame(frame))
+            coroutine=getattr(coroutine,'cr_await',None)or getattr(coroutine,'gi_yieldfrom',None)or getattr(coroutine,'ag_await',None)
+            if coroutine is None:break
+        return {'alive':True,'alias':self.taskalias(task),'done':task.done(),'cancelled':task.cancelled(),'await_chain_bounded':chain}
+    def context(self):
+        value=REQUEST.get()or{};task=self.task()
+        return {'request':value.get('request'),'path':value.get('path'),'factory':value.get('factory',self.factory),'stage':value.get('stage',self.stage),'thread':threading.get_ident(),'thread_name':threading.current_thread().name,'current_async_task':self.taskalias(task),'running_on_async_loop':task is not None}
+    def emit(self,kind,**data):
+        with self.lock:
+            assert len(self.events)<10000,'Bounded diagnostic event budget'
+            self.events.append({'sequence':len(self.events)+1,'t':time.monotonic(),'event':kind,'context':self.context(),**data})
+    def rec(self,record):
+        if record not in self.records:self.next_record+=1;self.records[record]='C'+str(self.next_record)
+        return self.records[record]
+    def session(self,value):
+        if value not in self.sessions:self.next_session+=1;self.sessions[value]={'alias':'S'+str(self.next_session),'constructor_context':self.context(),'constructor_frames':self.frames()}
+        return self.sessions[value]
+    def snapshot(self):
+        rows=[];thread_frames=sys._current_frames()
+        with self.lock:holders=[(alias,dict(holder))for alias,holder in self.holders.items()]
+        for alias,holder in holders:
+            session=holder.get('session_ref');session=session()if session else None
+            state={'alive':session is not None}
+            if session is not None:state.update(alias=self.session(session)['alias'],in_transaction=bool(session.in_transaction()),is_active=session.is_active)
+            row={k:v for k,v in holder.items()if k not in ['session_ref','request_task_ref','checkout_task_ref']}
+            row.update(connection=alias,Session_state=state,origin_request_task=self.task_snapshot(holder.get('request_task_ref')),checkout_async_task=self.task_snapshot(holder.get('checkout_task_ref')))
+            thread=holder['checkout_context']['thread'];row['checkout_thread_state_now_not_ownership_proof']=self.frames(thread_frames[thread],12)if thread in thread_frames else[]
+            rows.append(row)
+        return rows
+    def install(self):
+        pool=self.engine.pool;self.original_do_get=pool._do_get;self.original_init=Session.__init__;self.original_close=Session.close
+        trace=self
+        def do_get(_pool):
+            trace.emit('acquire_start',holders=trace.snapshot(),waiter_frames=trace.frames())
+            try:record=trace.original_do_get()
+            except Exception as exc:
+                trace.emit('acquire_failed',exception_class=type(exc).__name__,holders=trace.snapshot(),waiter_frames=trace.frames());raise
+            trace.emit('acquire_return',connection=trace.rec(record));return record
+        pool._do_get=types.MethodType(do_get,pool)
+        def init(session,*a,**k):
+            trace.original_init(session,*a,**k)
+            if session.bind is trace.engine:
+                data=trace.session(session);trace.emit('Session_constructed',session=data['alias'],constructor_frames=data['constructor_frames'])
+        def close(session,*a,**k):
+            observed=session.bind is trace.engine
+            if observed:trace.emit('Session_close_start',session=trace.session(session)['alias'],close_frames=trace.frames())
+            try:return trace.original_close(session,*a,**k)
+            finally:
+                if observed:trace.emit('Session_close_end',session=trace.session(session)['alias'])
+        Session.__init__=init;Session.close=close
+        def listen(target,name,callback):event.listen(target,name,callback);self.callbacks.append((target,name,callback))
+        def checkout(connection,record,proxy):
+            value=REQUEST.get()or{};alias=trace.rec(record)
+            with trace.lock:trace.holders[alias]={'checkout_context':trace.context(),'checkout_frames':trace.frames(),'request_task_ref':value.get('task_ref'),'checkout_task_ref':trace.taskref(trace.task()),'checkout_at':time.monotonic(),'query_active':False,'last_query_finished':None,'Session_constructor':None}
+            trace.emit('checkout',connection=alias)
+        def checkin(connection,record):
+            alias=trace.rec(record);trace.emit('checkin',connection=alias,holder=trace.snapshot())
+            with trace.lock:trace.holders.pop(alias,None)
+        def after_begin(session,transaction,connection):
+            if session.bind is not trace.engine:return
+            record=connection.connection._connection_record;alias=trace.rec(record);data=trace.session(session)
+            with trace.lock:
+                if alias in trace.holders:trace.holders[alias].update(session_ref=weakref.ref(session),Session_constructor=data)
+            trace.emit('Session_transaction_begin',session=data['alias'],connection=alias)
+        def before_query(connection,cursor,statement,parameters,context,many):
+            alias=trace.rec(connection.connection._connection_record)
+            with trace.lock:
+                if alias in trace.holders:trace.holders[alias]['query_active']=True
+            trace.emit('query_start',connection=alias,caller_frames=trace.frames())
+        def after_query(connection,cursor,statement,parameters,context,many):
+            alias=trace.rec(connection.connection._connection_record)
+            with trace.lock:
+                if alias in trace.holders:trace.holders[alias].update(query_active=False,last_query_finished=time.monotonic())
+            trace.emit('query_finished',connection=alias)
+        listen(pool,'checkout',checkout);listen(pool,'checkin',checkin);listen(Session,'after_begin',after_begin)
+        listen(self.engine,'before_cursor_execute',before_query);listen(self.engine,'after_cursor_execute',after_query)
+    def uninstall(self):
+        self.engine.pool._do_get=self.original_do_get;Session.__init__=self.original_init;Session.close=self.original_close
+        for target,name,callback in reversed(self.callbacks):event.remove(target,name,callback)
+        self.callbacks.clear()
+    def wrap(self,application,factory):
+        trace=self
+        class ObservedASGI:
+            async def __call__(self,scope,receive,send):
+                if scope['type']!='http':return await application(scope,receive,send)
+                assert scope['method']=='GET'and scope['path']in ['/api/auth/me','/api/estadisticas','/api/estadisticas/seguimiento']
+                raw=next(v for k,v in scope['headers']if k.lower()==b'x-qa-r34-request');label=raw.decode('ascii');assert label.startswith('r34-')and len(label)<80
+                token=REQUEST.set({'request':label,'path':scope['path'],'factory':factory,'stage':trace.stage,'task_ref':trace.taskref(trace.task())})
+                trace.emit('request_start')
+                async def observed_send(message):
+                    if message['type']=='http.response.start':trace.emit('response_start',status=message['status'])
+                    await send(message)
+                try:await application(scope,receive,observed_send)
+                finally:trace.emit('request_end');REQUEST.reset(token)
+        return ObservedASGI()

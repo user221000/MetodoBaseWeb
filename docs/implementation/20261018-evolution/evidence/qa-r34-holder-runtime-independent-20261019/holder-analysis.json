@@ -1,0 +1,353 @@
+{
+  "method": "Snapshot dictionary copied at _do_get entry then enriched; enrichment may overlap checkin. A checkin sequence before acquire_start emission is classified explicitly, not as a waiter blocked by that holder. checkout_async_task is actual checkout task; origin task is outer request envelope, not necessarily the dependency-finalizer task.",
+  "rows": [
+    {
+      "start_sequence": 1073,
+      "factory": "web.main_web",
+      "stage": "serial-controls",
+      "waiter_request": "r34-web-main_web-serial-1",
+      "waiter_path": "/api/estadisticas",
+      "waiter_loop_thread": true,
+      "holder_request": "r34-web-main_web-serial-0",
+      "holder_path": "/api/auth/me",
+      "holder_on_loop_thread": true,
+      "holder_checkout_sequence": 1059,
+      "holder_checkin_sequence": 1070,
+      "checkin_preceded_acquire_start_emit": true,
+      "Session_alias": "S4",
+      "Session_state": {
+        "alive": true,
+        "alias": "S4",
+        "in_transaction": false,
+        "is_active": true
+      },
+      "Session_constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "holder_last_query_finished_before_start_emit": true,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": true,
+      "checkout_task_done": false,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [
+        1071
+      ],
+      "acquire_outcome_sequence": 1074,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 1312,
+      "factory": "web.main_web",
+      "stage": "natural-overlap3",
+      "waiter_request": "r34-web-main_web-triple-1",
+      "waiter_path": "/api/estadisticas",
+      "waiter_loop_thread": true,
+      "holder_request": "r34-web-main_web-triple-0",
+      "holder_path": "/api/auth/me",
+      "holder_on_loop_thread": false,
+      "holder_checkout_sequence": 1305,
+      "holder_checkin_sequence": 1316,
+      "checkin_preceded_acquire_start_emit": false,
+      "Session_alias": null,
+      "Session_state": {
+        "alive": false
+      },
+      "Session_constructor_app_frames": [],
+      "holder_last_query_finished_before_start_emit": false,
+      "holder_query_active_snapshot": true,
+      "owner_task_done": false,
+      "checkout_task_alive": false,
+      "checkout_task_done": null,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [],
+      "acquire_outcome_sequence": 1318,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 1378,
+      "factory": "web.main_web",
+      "stage": "natural-overlap3",
+      "waiter_request": "r34-web-main_web-triple-1",
+      "waiter_path": "/api/estadisticas",
+      "waiter_loop_thread": false,
+      "holder_request": "r34-web-main_web-triple-0",
+      "holder_path": "/api/auth/me",
+      "holder_on_loop_thread": true,
+      "holder_checkout_sequence": 1362,
+      "holder_checkin_sequence": 1374,
+      "checkin_preceded_acquire_start_emit": true,
+      "Session_alias": "S19",
+      "Session_state": {
+        "alive": true,
+        "alias": "S19",
+        "in_transaction": false,
+        "is_active": true
+      },
+      "Session_constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "holder_last_query_finished_before_start_emit": true,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": true,
+      "checkout_task_done": false,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [
+        1375
+      ],
+      "acquire_outcome_sequence": 1379,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 1381,
+      "factory": "web.main_web",
+      "stage": "natural-overlap3",
+      "waiter_request": "r34-web-main_web-triple-2",
+      "waiter_path": "/api/estadisticas/seguimiento",
+      "waiter_loop_thread": false,
+      "holder_request": "r34-web-main_web-triple-0",
+      "holder_path": "/api/auth/me",
+      "holder_on_loop_thread": true,
+      "holder_checkout_sequence": 1362,
+      "holder_checkin_sequence": 1374,
+      "checkin_preceded_acquire_start_emit": true,
+      "Session_alias": "S19",
+      "Session_state": {
+        "alive": true,
+        "alias": "S19",
+        "in_transaction": false,
+        "is_active": true
+      },
+      "Session_constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "holder_last_query_finished_before_start_emit": true,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": true,
+      "checkout_task_done": true,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [
+        1375
+      ],
+      "acquire_outcome_sequence": 1423,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 2019,
+      "factory": "api.app",
+      "stage": "serial-controls",
+      "waiter_request": "r34-api-app-serial-1",
+      "waiter_path": "/api/estadisticas",
+      "waiter_loop_thread": true,
+      "holder_request": "r34-api-app-serial-0",
+      "holder_path": "/api/auth/me",
+      "holder_on_loop_thread": true,
+      "holder_checkout_sequence": 2005,
+      "holder_checkin_sequence": 2016,
+      "checkin_preceded_acquire_start_emit": true,
+      "Session_alias": "S27",
+      "Session_state": {
+        "alive": true,
+        "alias": "S27",
+        "in_transaction": false,
+        "is_active": true
+      },
+      "Session_constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "holder_last_query_finished_before_start_emit": true,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": true,
+      "checkout_task_done": false,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [
+        2017
+      ],
+      "acquire_outcome_sequence": 2020,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 2202,
+      "factory": "api.app",
+      "stage": "natural-overlap2",
+      "waiter_request": "r34-api-app-pair-1",
+      "waiter_path": "/api/estadisticas",
+      "waiter_loop_thread": false,
+      "holder_request": "r34-api-app-pair-0",
+      "holder_path": "/api/auth/me",
+      "holder_on_loop_thread": true,
+      "holder_checkout_sequence": 2188,
+      "holder_checkin_sequence": 2198,
+      "checkin_preceded_acquire_start_emit": true,
+      "Session_alias": "S37",
+      "Session_state": {
+        "alive": true,
+        "alias": "S37",
+        "in_transaction": false,
+        "is_active": true
+      },
+      "Session_constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "holder_last_query_finished_before_start_emit": true,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": true,
+      "checkout_task_done": false,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [
+        2199
+      ],
+      "acquire_outcome_sequence": 2203,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 2342,
+      "factory": "api.app",
+      "stage": "natural-overlap3",
+      "waiter_request": "r34-api-app-triple-2",
+      "waiter_path": "/api/estadisticas/seguimiento",
+      "waiter_loop_thread": false,
+      "holder_request": "r34-api-app-triple-0",
+      "holder_path": "/api/auth/me",
+      "holder_on_loop_thread": true,
+      "holder_checkout_sequence": 2325,
+      "holder_checkin_sequence": 2336,
+      "checkin_preceded_acquire_start_emit": true,
+      "Session_alias": "S45",
+      "Session_state": {
+        "alive": true,
+        "alias": "S45",
+        "in_transaction": false,
+        "is_active": true
+      },
+      "Session_constructor_app_frames": [
+        {
+          "file": "web/database/engine.py",
+          "function": "SessionLocal",
+          "line": 132
+        },
+        {
+          "file": "web/database/engine.py",
+          "function": "get_db",
+          "line": 139
+        }
+      ],
+      "holder_last_query_finished_before_start_emit": true,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": true,
+      "checkout_task_done": false,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [
+        2339
+      ],
+      "acquire_outcome_sequence": 2353,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 2360,
+      "factory": "api.app",
+      "stage": "natural-overlap3",
+      "waiter_request": "r34-api-app-triple-1",
+      "waiter_path": "/api/estadisticas",
+      "waiter_loop_thread": false,
+      "holder_request": "r34-api-app-triple-2",
+      "holder_path": "/api/estadisticas/seguimiento",
+      "holder_on_loop_thread": false,
+      "holder_checkout_sequence": 2354,
+      "holder_checkin_sequence": 2364,
+      "checkin_preceded_acquire_start_emit": false,
+      "Session_alias": null,
+      "Session_state": {
+        "alive": false
+      },
+      "Session_constructor_app_frames": [],
+      "holder_last_query_finished_before_start_emit": false,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": false,
+      "checkout_task_done": null,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [],
+      "acquire_outcome_sequence": 2366,
+      "acquire_outcome": "acquire_return"
+    },
+    {
+      "start_sequence": 2373,
+      "factory": "api.app",
+      "stage": "natural-overlap3",
+      "waiter_request": "r34-api-app-triple-2",
+      "waiter_path": "/api/estadisticas/seguimiento",
+      "waiter_loop_thread": false,
+      "holder_request": "r34-api-app-triple-1",
+      "holder_path": "/api/estadisticas",
+      "holder_on_loop_thread": false,
+      "holder_checkout_sequence": 2367,
+      "holder_checkin_sequence": 2407,
+      "checkin_preceded_acquire_start_emit": false,
+      "Session_alias": null,
+      "Session_state": {
+        "alive": false
+      },
+      "Session_constructor_app_frames": [],
+      "holder_last_query_finished_before_start_emit": false,
+      "holder_query_active_snapshot": false,
+      "owner_task_done": false,
+      "checkout_task_alive": false,
+      "checkout_task_done": null,
+      "checkout_task_app_frames": [],
+      "Session_close_sequences": [],
+      "acquire_outcome_sequence": 2408,
+      "acquire_outcome": "acquire_return"
+    }
+  ]
+}

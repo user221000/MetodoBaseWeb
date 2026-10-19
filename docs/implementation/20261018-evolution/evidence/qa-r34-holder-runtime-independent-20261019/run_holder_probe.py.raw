@@ -1,0 +1,154 @@
+"""R34 natural16 HTTP requests, one owned PG30 UUID; no product source changes."""
+import traceback
+import argparse,asyncio,hashlib,importlib,importlib.metadata,json,logging,os,re,socket,subprocess,sys,threading,time,uuid
+from datetime import datetime,timedelta,timezone
+from pathlib import Path
+from urllib.parse import urlsplit,urlunsplit
+parser=argparse.ArgumentParser();parser.add_argument('--execute-after-root-ack',action='store_true');args=parser.parse_args();assert args.execute_after_root_ack
+ROOT=Path('F:/mb-r34-holder-20261019');HEAD='4d2a828612d5fbc08c5fabafb4c179990cf19438';OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-r34-holder-runtime-independent-20261019');TEMP=Path(__file__).resolve().parent;RUN=TEMP/'run';PRIVATE=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json');PORT=8804
+OUT.mkdir();(OUT/'.gitattributes').write_bytes(b'* -text\n');RUN.mkdir();sys.path.insert(0,str(ROOT));sys.dont_write_bytecode=True
+sha=lambda raw:hashlib.sha256(raw).hexdigest();git=lambda*a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+def save(name,data):
+    path=OUT/name;path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('x',encoding='utf8',newline='\n')as stream:json.dump(data,stream,indent=2,default=str);stream.write('\n')
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+names=sorted(set(n for n in git('ls-files','-co','--exclude-standard','-z').decode().split('\0')if n))
+def photo():return {'head':HEAD,'sources':{n:sha((ROOT/n).read_bytes())for n in names},'helpers':{p.name:sha(p.read_bytes())for p in TEMP.glob('*.py')},'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions()),'Python':{'version':sys.version,'executable_sha256':sha(Path(sys.executable).read_bytes()),'base_executable_sha256':sha(Path(sys._base_executable).read_bytes())},'private_config_sha256':sha(PRIVATE.read_bytes())}
+before=photo();save('before.json',before);assert len(before['packages'])==89
+p=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-before.log').write_bytes(p.stdout+p.stderr);assert p.returncode==0
+contract=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-r34-contract-next.json').read_bytes();historical=ROOT/'docs/implementation/20261018-evolution/evidence/qa-r12-composition29-independent-20261019/final939/pool1-retained-observation.json';history=historical.read_bytes();save('source-provenance.json',{'own_root':str(ROOT),'previous_clean_head':'3643c3ee361abecba4d32ae98c1b87da99fb9d77','new_clean_head':HEAD,'checkout_detached_only_after_clean_exact_root_verification':True,'historical939_observation_sha256':sha(history),'historical939_not_reexecuted_or_reattributed':True,'contract_sha256':sha(contract),'no_source_edits':True,'schema_targets30_and_all_alembic_sources_in_before_after':True})
+(OUT/'contract.raw.json').write_bytes(contract);(OUT/'historical939-observation.raw.json').write_bytes(history)
+configuration=json.loads(PRIVATE.read_text(encoding='utf-8-sig'))
+for key in list(os.environ):
+    upper=key.upper()
+    if upper=='DATABASE_URL'or upper.endswith('_DATABASE_URL')or upper.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST'))or any(x in upper for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):os.environ.pop(key,None)
+os.environ.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+for key in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL','METODOBASE_TEST_PG_BIN']:os.environ[key]=configuration[key]
+from tests.isolation import prepare_environment,block_external_sockets,validate_postgres_test_url
+prepare_environment(discard_inherited=True);block_external_sockets()
+for key in ['METODOBASE_TEST_MIGRATOR_URL','METODOBASE_TEST_POSTGRES_URL']:validate_postgres_test_url(configuration[key])
+import ctypes
+from ctypes import wintypes
+import psycopg2
+def native_birth():
+    kernel=ctypes.WinDLL("kernel32",use_last_error=True);kernel.GetCurrentProcess.restype=wintypes.HANDLE
+    kernel.GetProcessTimes.argtypes=[wintypes.HANDLE]+[ctypes.POINTER(wintypes.FILETIME)]*4
+    values=[wintypes.FILETIME()for _ in range(4)]
+    if not kernel.GetProcessTimes(kernel.GetCurrentProcess(),*(ctypes.byref(v)for v in values)):raise ctypes.WinError(ctypes.get_last_error())
+    return (((values[0].dwHighDateTime<<32)|values[0].dwLowDateTime)-116444736000000000)/10000000
+from psycopg2 import sql
+from sqlalchemy import create_engine,text
+from sqlalchemy.orm import Session
+from tests.integration_schema_migrations import run_migration
+from tests.integration_provider_subjects import application_engine
+from pool_trace import PoolTrace
+born=native_birth();planned='metodobase_test_r34_holder_'+uuid.uuid4().hex[:12]
+def origin_fence():
+    checked={}
+    for name,module in list(sys.modules.items()):
+        if name.split('.')[0]in {'web','api','core','tests'}and getattr(module,'__file__',None):
+            origin=Path(module.__file__).resolve()
+            if not origin.is_relative_to(ROOT.resolve()):
+                save('module-origin-violation-'+str(len(list(OUT.glob('module-origin-violation*'))))+'.json',{'module':name,'file':str(origin)});raise AssertionError('Module origin outside frozen own worktree')
+            checked[name]=str(origin.relative_to(ROOT.resolve()))
+    return checked
+
+for module_name in ['httpx','uvicorn','web.main_web','api.app']:importlib.import_module(module_name)
+save('module-origin-before-CREATE.json',origin_fence())
+lease={'database':planned,'owner_process_pid':os.getpid(),'owner_parent_pid':os.getppid(),'owner_process_created_unix':born,'owner_process_created_utc':datetime.fromtimestamp(born,timezone.utc).isoformat(),'owner_executable_sha256':sha(Path(sys.executable).read_bytes()),'planned_utc':datetime.now(timezone.utc).isoformat(),'status':'planned_not_created'};save('lease-planned.json',lease)
+control=None;admin=None;bootstrap=None;engine=None;trace=None;server=None;thread=None;created=False;error=None;request_rows=[];closure={};runtime_witness={}
+print(json.dumps({'phase':'R34-CREATE-planned','database':planned,'pid':os.getpid(),'birth':lease['owner_process_created_utc'],'head':HEAD}),flush=True)
+try:
+    control=psycopg2.connect(configuration['METODOBASE_TEST_MIGRATOR_URL'].replace('postgresql+psycopg2://','postgresql://',1),connect_timeout=5);control.autocommit=True
+    with control.cursor()as cursor:
+        cursor.execute('SELECT count(*)FROM pg_database WHERE datname=%s',(planned,));assert cursor.fetchone()[0]==0
+        cursor.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(planned)));created=True
+    lease_created={**lease,'status':'CREATE_confirmed','confirmed_utc':datetime.now(timezone.utc).isoformat(),'database_absent_before_exact_CREATE':True};save('lease-created.json',lease_created)
+    url=urlunsplit(urlsplit(configuration['METODOBASE_TEST_MIGRATOR_URL'])._replace(path='/'+planned));admin=create_engine(url)
+    migration=run_migration(url,'db_bootstrap.py','--revision','20261019_personal_history_index');(RUN/'migration.stdout.private.log').write_text(migration.stdout);(RUN/'migration.stderr.private.log').write_text(migration.stderr)
+    bootstrap=application_engine(url,admin);restricted_url=bootstrap.url.render_as_string(hide_password=False);bootstrap.dispose();bootstrap=None
+    os.environ.update(DATABASE_URL=restricted_url,DB_POOL_SIZE='1',DB_MAX_OVERFLOW='0',BASE_URL='http://127.0.0.1:'+str(PORT),CORS_ORIGINS='http://127.0.0.1:'+str(PORT))
+    from web.database import engine as database
+    database._engine=None;database._SessionLocal=None;engine=database.get_engine();assert engine.pool.size()==1 and engine.pool._max_overflow==0 and engine.pool._timeout==30
+    assert database._SessionLocal.kw['bind']is engine
+    # Explicit harness-only diagnostic delta after genuine runtime construction.
+    engine.pool._timeout=2
+    from web.database.schema_control import verify_runtime_schema,expected_head
+    from web.database.tenant_policy import verify_application_database_role
+    from web.database.alembic.history_index_contract_v1 import history_index_signature,expected_history_index
+    from web.database.models import Base,Usuario,UserRole,Subscription
+    verify_application_database_role(engine);verify_runtime_schema(engine,require_revision=True)
+    with engine.connect()as c:
+        flags=tuple(c.execute(text('SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user')).one());assert flags==(False,False,False,False)
+        assert c.execute(text('SELECT pg_get_userbyid(datdba)<>current_user FROM pg_database WHERE datname=current_database()')).scalar_one()
+        revision=c.execute(text('SELECT version_num FROM alembic_version')).scalar_one();assert revision==expected_head()=='20261019_personal_history_index'
+        physical=c.execute(text("SELECT count(*)FROM information_schema.tables WHERE table_schema='public'AND table_type='BASE TABLE'")).scalar_one();assert physical==30 and len(Base.metadata.tables)==29
+        index=history_index_signature(c);assert index==expected_history_index('postgresql')
+        families=c.execute(text('SELECT count(*)FROM pg_class WHERE relrowsecurity AND relforcerowsecurity')).scalar_one();assert families==23
+    runtime_witness={'engine_constructor':'actual web.database.engine.get_engine -> init_db','DB_POOL_SIZE':1,'DB_MAX_OVERFLOW':0,'pool_size':engine.pool.size(),'max_overflow':engine.pool._max_overflow,'original_runtime_timeout_seconds':30,'diagnostic_timeout_seconds':engine.pool._timeout,'timeout_delta_harness_only':True,'runtime_SessionLocal_bound_to_same_engine':True,'model_tables':29,'actual_tables':physical,'revision':revision,'history_index':index,'restricted_role_flags':list(flags),'database_nonowner':True,'FORCE_RLS_families':families};save('runtime-witness.json',runtime_witness)
+    actor=str(uuid.uuid4())
+    with Session(admin)as db:
+        user=Usuario(id=actor,email='synthetic-r34@example.invalid',password_hash='not-used-by-bearer-diagnostic',nombre='Synthetic R34',tipo='gym',role=UserRole.OWNER,activo=True,session_version=0)
+        db.add(user);db.flush();db.add(Subscription(gym_id=actor,plan='clinica',status='active',current_period_end=datetime.now(timezone.utc)+timedelta(days=30)));db.commit()
+        from web.auth import crear_access_token,identity_from_user
+        persisted_identity=identity_from_user(db.get(Usuario,actor),db);assert persisted_identity
+    admin.dispose();trace=PoolTrace(engine,ROOT);trace.install()
+    import httpx,uvicorn
+    async def request(client,factory,label,path):
+        try:
+            response=await client.get('http://127.0.0.1:'+str(PORT)+path,headers={'Authorization':'Bearer '+bearer,'X-QA-R34-Request':label,'X-Request-ID':label},follow_redirects=False)
+            row={'factory':factory,'request':label,'path':path,'status':response.status_code,'request_id_present':bool(response.headers.get('x-request-id')),'response_body_recorded':False}
+        except Exception as exc:row={'factory':factory,'request':label,'path':path,'transport_exception_class':type(exc).__name__,'response_body_recorded':False}
+        request_rows.append(row);return row
+    async def exercise(factory):
+        async with httpx.AsyncClient(timeout=12,trust_env=False)as client:
+            trace.stage='serial-controls'
+            for i,path in enumerate(['/api/auth/me','/api/estadisticas','/api/estadisticas/seguimiento']):
+                row=await request(client,factory,'r34-'+factory.replace('.','-')+'-serial-'+str(i),path);assert row.get('status')==200,'Serial supported endpoint failed before concurrency'
+            trace.stage='natural-overlap2'
+            await asyncio.gather(*(request(client,factory,'r34-'+factory.replace('.','-')+'-pair-'+str(i),path)for i,path in enumerate(['/api/auth/me','/api/estadisticas'])))
+            trace.stage='natural-overlap3'
+            await asyncio.gather(*(request(client,factory,'r34-'+factory.replace('.','-')+'-triple-'+str(i),path)for i,path in enumerate(['/api/auth/me','/api/estadisticas','/api/estadisticas/seguimiento'])))
+    for factory in ['web.main_web','api.app']:
+        with socket.socket()as p:assert p.connect_ex(('127.0.0.1',PORT))!=0
+        trace.factory=factory;trace.stage='factory-startup';application=importlib.import_module(factory).create_app();bearer=crear_access_token(persisted_identity);observed=trace.wrap(application,factory)
+        server=uvicorn.Server(uvicorn.Config(observed,host='127.0.0.1',port=PORT,log_level='critical',access_log=False,timeout_graceful_shutdown=8));thread=threading.Thread(target=server.run,name='R34-own-uvicorn-'+factory,daemon=True);thread.start()
+        end=time.monotonic()+30
+        while not server.started:
+            assert thread.is_alive()and time.monotonic()<end,'Own runtime startup failure';time.sleep(.05)
+        asyncio.run(exercise(factory));server.should_exit=True;thread.join(15);assert not thread.is_alive();server=None;thread=None
+        assert engine.pool.checkedout()==0 and not trace.holders,'Natural batch left an outstanding runtime connection'
+        print(json.dumps({'phase':'R34-factory-finished','factory':factory,'requests':8,'pool_checked_out':engine.pool.checkedout(),'acquire_failures_so_far':sum(e['event']=='acquire_failed'for e in trace.events)}),flush=True)
+    assert len(request_rows)==16
+    (RUN/'events.private.json').write_text(json.dumps(trace.events,indent=2)+'\n')
+except BaseException as exc:
+    error={'class':type(exc).__name__,'details_logged':False,'missing_module':getattr(exc,'name',None),'frames':[{'file':str(Path(frame.filename)),'function':frame.name,'line':frame.lineno}for frame in traceback.extract_tb(exc.__traceback__)]};save('caught-error-structural.json',error)
+    if trace is not None:(RUN/'events.private.json').write_text(json.dumps(trace.events,indent=2)+'\n')
+finally:
+    if server is not None:server.should_exit=True
+    if thread is not None:thread.join(15)
+    pending_before_dispose=trace.snapshot()if trace is not None else[]
+    if trace is not None:trace.uninstall()
+    if engine is not None:engine.dispose()
+    if bootstrap is not None:bootstrap.dispose()
+    if admin is not None:admin.dispose()
+    active=[];absent=None
+    if created:
+        with control.cursor()as cursor:
+            cursor.execute('SELECT pid,state,wait_event_type FROM pg_stat_activity WHERE datname=%s',(planned,));active=[{'PID':r[0],'state':r[1],'wait_event_type':r[2]}for r in cursor.fetchall()]
+            cursor.execute(sql.SQL('DROP DATABASE {} WITH (FORCE)').format(sql.Identifier(planned)))
+            cursor.execute('SELECT count(*)FROM pg_database WHERE datname=%s',(planned,));absent=cursor.fetchone()[0]==0
+        assert absent
+    if control is not None:control.close()
+    with socket.socket()as p:listener_closed=p.connect_ex(('127.0.0.1',PORT))!=0
+    closure={'owned_database':planned,'CREATE_confirmed':created,'DROP_exact_owned_database_confirmed':created and absent,'owned_database_absent':absent,'remaining_sessions_before_DROP_after_all_engine_dispose':active,'DROP_FORCE_clause_used':True,'force_was_needed_to_remove_open_sessions':bool(active),'holder_snapshot_before_dispose':pending_before_dispose,'runtime_server_thread_closed':thread is None or not thread.is_alive(),'listener8804_closed':listener_closed,'all_control_connections_closed':control is None or bool(control.closed),'owner_process_pid':os.getpid(),'owner_process_birth_unchanged':native_birth()==born,'error':error};save('resource-closure.json',closure)
+save('module-origin-after.json',origin_fence())
+after=photo();save('after.json',after);assert before==after
+p=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-after.log').write_bytes(p.stdout+p.stderr);assert p.returncode==0
+# Every event is a structural whitelist: no SQL/params/locals/identity/token values.
+events=trace.events if trace is not None else[];failed=[e for e in events if e['event']=='acquire_failed'];holds=[e for e in events if e['event']=='acquire_start'and e['holders']]
+projection={'events':events,'requests':request_rows,'raw_scope':'Only bounded structural instrumentation; no source line text, SQL, parameters, locals, actor identity, payload, URL query, or bearer values captured.'}
+save('instrumentation.json',projection)
+save('diagnostic-result.json',{'head':HEAD,'completed':error is None,'error':error,'requests':len(request_rows),'factory_count':len(set(r['factory']for r in request_rows)),'serial_controls_all200':all(r.get('status')==200 for r in request_rows if'-serial-'in r['request']),'request_outcomes':request_rows,'acquire_start_with_holder':len(holds),'acquire_failure_count':len(failed),'acquire_failure_structural_witnesses':failed,'runtime_witness':runtime_witness,'outstanding_holders_after_natural_runs_before_dispose':pending_before_dispose,'resource_closure':closure,'source_files':len(names),'packages':89,'sources_helpers_packages_Python_config_stable':True,'historical939_reproduction_claim':False,'natural_overlap_only_no_artificial_delay_GC_or_scenario_forge':True,'interpretation':'Direct ownership/task/thread/Session/queryfinish evidence only. A pool acquisition failure under diagnostic2s is not automatically a reproduction of historical30s or a universal capacity/SLO result.','scope':'No product change or pool20 cure claim; one owned migratedPG30 runtimepool1/0, two factories,16 total natural requests, no browser/load/provider.'})
+print(json.dumps({'phase':'R34-diagnostic-closed','completed':error is None,'requests':len(request_rows),'acquire_failures':len(failed),'starts_with_direct_holder':len(holds),'owned_database':planned,'database_absent':absent,'port8804_closed':listener_closed,'source_files':len(names),'packages':89,'stable':True,'error_class':error['class']if error else None}),flush=True)
+assert error is None and created and absent and listener_closed and not active

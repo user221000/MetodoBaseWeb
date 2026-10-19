@@ -1,0 +1,9 @@
+# MFA31: aceptación independiente acotada de backend
+
+PASS_BACKEND_SCOPED para la fuente440e7c78d3cb7e1f9734ac9e08141c2d7f5556ae. Se revisaron los cuatro archivos de producto que difieren de56: aliases de pagos, middleware de privacidad primaria, current_identity y authorize. El último delta exige invitation_token IS NULL para actor/padre/OWNER autorizante; incluye el literal vacío ambiguo. No cambia web.auth global, locks, DDL, targets o RLS.
+
+Mismos drivers originales y criterios intactos:6 parent,4 NULL literal,5 aliases y20 PRIMARY, todos verdes. Los35 son replay de criterios ya registrados; no se suman a sus preimágenes ni al PG56 como35 pruebas nuevas independientes. Los ocho rojos del hito original completo y cuatro de aliases inicial se preservan; no se reescribieron manifest, drivers, asserts ni resultados históricos.
+
+La matriz de doce fronteras está en security-mfa31-full-independent-20261019/REVIEW.md. Los cuatro PG propios originales56 y su cierre se sellan por separado. Sus políticas/locks/cap mantienen identidad de código salvo los guards canónicos examinados: no se atribuye ejecución PG a440 ni se repiten gates de rutina. El replay20 sobre440 preserva primaria/desafío, testigo original, revocación/reset y Google sintético; el replay5 conserva binding e intención del Header en rutas soportadas.
+
+Aceptación limitada a código backend y contratos locales revisados. No es integración MAIN, UI/E2E, restore31, envío/cobro ni operación real de proveedores. Continúan pendientes avisos de seguridad por correo, gestión y rotación real de key, recuperación legítima cuando faltan todos los factores, política R31 y pruebas de integración por los otros roles. TOTP no es resistente a phishing y no se declara ASVS/AAL2 ni cumplimiento global. No quedan rojos propios de producto sin corregir dentro de estos criterios.
