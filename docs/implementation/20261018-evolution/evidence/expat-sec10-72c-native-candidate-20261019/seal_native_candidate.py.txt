@@ -1,0 +1,96 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,re,shutil
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-validation-20261019')
+CTX=RUN.parent/'metodobase-expat-72c-native-context-20261019'
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+PUBLIC=LAB/'evidence/expat-sec10-72c-native-candidate-20261019'
+def info(path):
+ with path.open('rb') as stream: digest=hashlib.file_digest(stream,'sha256').hexdigest()
+ return {'bytes':path.stat().st_size,'sha256':digest}
+def load(name):return json.loads((RUN/name).read_text(encoding='utf-8'))
+def write(path,value):path.write_text(json.dumps(value,indent=2,ensure_ascii=True)+'\n',encoding='utf-8')
+def sanitize(text):
+ text=re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{4,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])','[REDACTED_THREE_PART_TOKEN]',text)
+ return re.sub(r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}(?![A-Za-z0-9_-])','[REDACTED_TWO_PART_TOKEN]',text)
+assert sanitize('a'*16+'.'+'b'*16)=='[REDACTED_TWO_PART_TOKEN]'
+assert sanitize('a'*16+'.'+'b'*16+'.'+'c'*16)=='[REDACTED_THREE_PART_TOKEN]'
+assert not PUBLIC.exists()
+native=load('native-build-receipt.json');probe=load('native-independent-probe-source.json')
+final=load('final-readonly-capture-source.json');identity=load('native-image-identity-source.json')
+assert native['exit_code']==load('native-independent-probe-receipt.json')['exit_code']==0
+assert probe['native_probe_pass'] and probe['compiler_trace_complete'] and probe['compiler_commands_count']==5
+assert probe['base_export_surface_equal']
+assert probe['pyexpat_elf']['defined_exports']==probe['original_pyexpat_elf']['defined_exports']==['PyInit_pyexpat']
+assert probe['pyexpat_exports_added']==probe['pyexpat_exports_removed']==[]
+assert probe['source31_exact_signed_tar'] and probe['source31_unchanged_after_probe']
+assert len(probe['native_objects'])==4 and len(probe['independent_small_binding_cases'])==11
+assert probe['builder_small_binding_cases']['small_cases']==6
+assert probe['all_base_identity_files_unchanged'] and probe['base_identity_file_count']==218
+assert probe['psycopg']['compile_time_libpq']==probe['psycopg']['runtime_libpq']==170011
+assert final['input_hashes_unchanged'] and final['source_worktree_clean']
+assert final['source_files_unchanged']==len(final['source_hashes_after'])
+assert final['source_hashes_after']==load('host-preflight-before.json')['source_hashes_before']
+assert final['guest_after']['image_inspect_sha256']==identity['image_inspect_sha256']
+assert final['owned_qemu_birth_unchanged'] and not final['guest_after']['running_containers'].strip()
+old=LAB/'evidence/expat-sec10-de69-native-diagnostic-20261019'
+assert info(old/'source.json')['sha256']=='ba64804ae9f2ccbcb638d73dfbe68630e295821076f98efaa4dcfdee95502b09'
+assert info(old/'manifest.json')['sha256']=='9a7abd7b4b054144daa059577371507b796b2a2e63344e566a86833fe0c88542'
+old_manifest=json.loads((old/'manifest.json').read_text())
+assert {name:info(old/name) for name in old_manifest}==old_manifest
+PUBLIC.mkdir()
+selected=['host-preflight-before.json','host-memory-immediate-before-build.json','guest-preflight-source.json','operation-notes-source.json',
+ 'remote-context-source.json','native-build-receipt.json','native-image-identity-source.json',
+ 'native-output-manifest-source.json','native-independent-probe-receipt.json','native-independent-probe-source.json',
+ 'final-readonly-capture-source.json']
+for name in selected:shutil.copy2(RUN/name,PUBLIC/name)
+shutil.copytree(RUN/'native-outputs',PUBLIC/'native-outputs')
+shutil.copy2(CTX/'receipt.json',PUBLIC/'exact-git-context-receipt.json')
+for name in ['prepare_native_context.py','preflight_native_candidate.py','prepare_independent_probe.py',
+ 'run_native_build.py','native_independent_probe.py','run_native_independent_probe.py',
+ 'native_export_probe.py','export_native_outputs.py','capture_final_readonly.py','seal_native_candidate.py']:
+ shutil.copy2(RUN/name,PUBLIC/(name+'.txt'))
+raw=(RUN/'native-build-raw.log').read_text(encoding='utf-8',errors='replace')
+assert 'PRIVATE KEY' not in raw
+(PUBLIC/'native-build.redacted.log').write_text(sanitize(raw),encoding='utf-8')
+record={'status':'PASS_NATIVE_DIAGNOSTIC_ONLY','sealed_utc':datetime.now(timezone.utc).isoformat(),
+ 'source_commit':final['source_commit'],'target':'expat-build','image':identity,
+ 'context':{'path':str(CTX),'archive':info(CTX/'native-build-context.tar'),'files':12},
+ 'native_build':native,'probe_receipt':load('native-independent-probe-receipt.json'),
+ 'operation_notes':load('operation-notes-source.json'),
+ 'independent_probe':probe,'before_after':final,
+ 'native_outputs':load('native-output-manifest-source.json'),
+ 'raw_native_archive':{'private_path':str(RUN/'native-output-raw.tar'),**info(RUN/'native-output-raw.tar')},
+ 'original_DE69_preserved':{'path':str(old),'files_checked':len(old_manifest),
+  'source_sha256':info(old/'source.json')['sha256'],'manifest_sha256':info(old/'manifest.json')['sha256']},
+ 'raw_private_directory':str(RUN),
+ 'private_raw_inventory':{p.relative_to(RUN).as_posix():info(p) for p in sorted(RUN.rglob('*')) if p.is_file() and p.name!='seal-native-candidate-driver-raw.log'},
+ 'scope':{'native_compiler_stage_diagnostic_pass':True,'complete_product_acceptance':False,
+  'independent_security_native_review_pending':True,'runtime54_or_os71_or_sca_or_SEC10_closure':False,
+  'MFA_AAL2_or_production_claim':False,'product_or_pins_or_helper_edited_by_operator':False,
+  'builds_attempted_for_candidate':1,'automatic_retries':False,'paid_resources_or_deploy_or_PG_proxy':False,
+  'tests':'Eleven bounded Python XML cases (six prior guards plus UTF8, entities and namespace), six builder cases; no unsafe native allocation-length call or DoS.'},
+ 'public_projection':{'token_two_and_three_part_sanitization':True,'raw_originals_private':True,
+  'wheel':'New source-built psycopg2 wheel only; CRC/unique safe paths/no symlinks/no vendored libs verified; no app data or seeds exported.',
+  'private_key_content_disclosed':False},
+ 'lease':{'pid':29768,'fingerprint':final['owned_qemu_fingerprint'],'state':'idle retained for ROOT/Security native review',
+  'running_containers':False,'operator_will_not_close_before_handoff':True}}
+write(PUBLIC/'source.json',record)
+(PUBLIC/'REVIEW.md').write_text('''La candidata 72c44a pasó el diagnóstico nativo de la etapa `expat-build`. La compilación nueva terminó con exit 0 y las pruebas independientes midieron cinco argv reales registrados: cuatro compilaciones C y un enlace, con cuatro objetos ELF existentes. Los argv incluyen `-ffile-prefix-map=/expat-output=.` y `-fvisibility=hidden`. La imagen y el contexto son nuevos; DE69 y los intentos anteriores permanecen conservados.
+
+El ELF nuevo y el de la base exportan exactamente `PyInit_pyexpat`, dependen sólo de libc y no tienen RPATH/RUNPATH. La cápsula `pyexpat.expat_CAPI`, su header y `_elementtree` de la base permanecen coherentes. Los 31 archivos fuente se contrastaron con el tar PSF de SHA autenticado y con los hashes antes/después del backport; sólo cambia xmlparse.c según el parche fijado. El probe vuelve a verificar los hashes de los 31 archivos, objetos, herramientas, artefacto, wheel y las 218 identidades base después de los checks.
+
+Pasaron once casos XML pequeños independientes: los seis guards previos, UTF8 multibyte por bytes, ElementTree multibyte, entidades predefinidas/numéricas y namespace. También pasaron los seis casos del builder. El wheel psycopg2 fuente carga libpq 170011 en compilación y ejecución, junto con OpenSSL 3.5.7 del sistema. Los inventarios publicados son los medidos en `native-independent-probe-source.json`; no se atribuye a esta etapa el conjunto de imports de la imagen final.
+
+Se verificaron las fuentes y los 12 blobs del contexto antes y después, además de la identidad inmutable de la imagen. El preflight comprobó RAM/disco y mantuvo la VM en 2 CPU/2 GiB, sin expansión. No se editaron el helper, flags, locks ni aplicación durante esta operación, ni se reconstruyó la candidata tras un fallo.
+
+La aceptación se limita al diagnóstico nativo descrito. Quedan pendientes la revisión nativa independiente de Seguridad y la construcción/validación de la imagen final: runtime, 54 imports, OS71, SCA, SEC10, MFA/AAL2 y producción. La versión Expat sigue siendo 2.8.5 con pedigree de backport; este informe no modifica versiones ni define excepciones del scanner.
+
+La VM propia PID 29768 conserva nacimiento, ejecutable y hash de comando; SSH 53105/QMP 53106. Queda idle, sin contenedores en ejecución, bajo lease ROOT/Seguridad. No se abre PostgreSQL, proxy ni servicio adicional. RAW privados, manifiestos, scripts y recibos quedan conservados para revisión.
+''',encoding='utf-8')
+manifest={p.relative_to(PUBLIC).as_posix():info(p) for p in sorted(PUBLIC.rglob('*')) if p.is_file()}
+write(PUBLIC/'manifest.json',manifest)
+print(json.dumps({'status':record['status'],'public_prefix':str(PUBLIC),'files':len(manifest),
+ 'source_sha256':info(PUBLIC/'source.json')['sha256'],'manifest_sha256':info(PUBLIC/'manifest.json')['sha256'],
+ 'image_id':identity['image_id'],'native_elf_sha256':probe['pyexpat_elf']['sha256'],
+ 'wheel_sha256':probe['psycopg']['wheel_sha256'],'private_raw_directory':str(RUN),'lease':'idle ROOT/Security'},indent=2))

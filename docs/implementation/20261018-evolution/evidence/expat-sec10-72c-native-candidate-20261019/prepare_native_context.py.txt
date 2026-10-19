@@ -1,0 +1,67 @@
+"""Prepare exact Git inputs for the native compiler stage; do not start a VM/build."""
+from pathlib import Path, PurePosixPath
+import hashlib
+import io
+import json
+import re
+import subprocess
+import tarfile
+
+ROOT = Path(r'F:\mb-expat-call-visibility-20261019')
+OUT = Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-context-20261019')
+REVISION = '72c44a1834d7bd9803b4b8846c6c87e85a53bfd3'
+NAMES = ['Dockerfile', '.dockerignore', 'requirements-container.lock',
+         'requirements-container-apt-metadata.lock', 'requirements-container-bootstrap.lock',
+         'requirements-container-build.lock', 'requirements-container-psycopg.lock', 'runtime-source']
+git = lambda *args, **kwargs: subprocess.check_output(['git', '--no-replace-objects', *args], cwd=ROOT, **kwargs)
+assert git('rev-parse', REVISION + '^{commit}').decode().strip() == REVISION
+listing = git('ls-tree', '-r', '-z', '--long', REVISION, '--', *NAMES)
+files = {}
+for entry in listing[:-1].split(b'\0'):
+    metadata, separator, raw_name = entry.partition(b'\t')
+    match = re.fullmatch(rb'(100644|100755) blob ([0-9a-f]{40}) +([0-9]+)', metadata)
+    assert separator and match
+    name = raw_name.decode()
+    path = PurePosixPath(name)
+    assert name == path.as_posix() and not path.is_absolute() and '..' not in path.parts and ':' not in name and '\\' not in name
+    assert name not in files
+    files[name] = {'mode': int(match[1], 8) & 0o777, 'object_id': match[2].decode(), 'bytes': int(match[3])}
+assert 'runtime-source/expat-sec10/rebuild_pyexpat.py' in files and len(files) == 12
+batch = git('cat-file', '--batch', input=''.join(meta['object_id'] + '\n' for meta in files.values()).encode())
+cursor = 0
+contents = {}
+for name, meta in files.items():
+    end = batch.index(b'\n', cursor)
+    header = batch[cursor:end].split()
+    assert header == [meta['object_id'].encode(), b'blob', str(meta['bytes']).encode()]
+    cursor = end + 1
+    blob = batch[cursor:cursor+meta['bytes']]
+    cursor += meta['bytes'] + 1
+    assert hashlib.sha1(b'blob ' + str(len(blob)).encode() + b'\0' + blob, usedforsecurity=False).hexdigest() == meta['object_id']
+    meta['sha256'] = hashlib.sha256(blob).hexdigest()
+    contents[name] = blob
+assert cursor == len(batch)
+OUT.mkdir(exist_ok=False)
+(OUT / 'driver.py').write_bytes(Path(__file__).read_bytes())
+archive_path = OUT / 'native-build-context.tar'
+with tarfile.open(archive_path, 'x', format=tarfile.PAX_FORMAT) as archive:
+    for name, blob in contents.items():
+        member = tarfile.TarInfo(name)
+        member.size = len(blob)
+        member.mode = files[name]['mode']
+        member.mtime = 0
+        archive.addfile(member, io.BytesIO(blob))
+with tarfile.open(archive_path) as archive:
+    assert archive.getnames() == list(contents)
+    for member in archive:
+        assert member.isfile() and member.size == files[member.name]['bytes'] and member.mode == files[member.name]['mode']
+        assert archive.extractfile(member).read() == contents[member.name]
+receipt = {'revision': REVISION, 'tree': git('rev-parse', REVISION + '^{tree}').decode().strip(),
+           'target': 'expat-build', 'context_scope': NAMES, 'files': files,
+           'archive_sha256': hashlib.sha256(archive_path.read_bytes()).hexdigest(), 'archive_bytes': archive_path.stat().st_size,
+           'source': 'Direct pinned Git blobs, replacement objects disabled, no archive/export-attribute trust or newline normalization.',
+           'status': 'PREPARED_ONLY',
+           'scope': 'Native compiler-stage inputs only. No VM, Docker build, runtime dependency installation, linkage, smoke, SBOM, SCA or application acceptance executed. Not the final MFA31 application image. Later final build may reuse authenticated native cache layers.'}
+(OUT / 'receipt.json').write_bytes((json.dumps(receipt, indent=2) + '\n').encode())
+print(json.dumps({'status': receipt['status'], 'files': len(files), 'bytes': receipt['archive_bytes'],
+                  'sha256': receipt['archive_sha256'], 'revision': REVISION, 'target': 'expat-build'}))

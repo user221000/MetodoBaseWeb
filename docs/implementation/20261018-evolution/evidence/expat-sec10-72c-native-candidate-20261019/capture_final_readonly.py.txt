@@ -1,0 +1,101 @@
+from pathlib import Path
+from datetime import datetime, timezone
+import hashlib, json, subprocess, sys
+
+LAB = Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN = Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-validation-20261019')
+sys.path.insert(0, str(LAB / 'scripts'))
+import guest_access, lab_control
+
+def info(path):
+    with path.open('rb') as stream:
+        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    return {'bytes': path.stat().st_size, 'sha256': digest}
+
+before = json.loads((RUN / 'host-preflight-before.json').read_text())
+after = {name: info(Path(name)) for name in before['input_hashes']}
+assert after == before['input_hashes']
+state = lab_control.state()
+process = lab_control.process_identity(state)
+assert process and state['pid'] == 29768
+assert hashlib.sha256(process['CommandLine'].encode()).hexdigest() == before['owned_qemu']['commandline_sha256']
+ps = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command',
+    'Get-CimInstance Win32_Process -Filter "ProcessId=29768" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress'],
+    capture_output=True, check=True, timeout=20, creationflags=subprocess.CREATE_NO_WINDOW)
+identity = json.loads(ps.stdout)
+assert identity['CreationDate'] == before['owned_qemu']['creation_date']
+source = Path(r'F:\mb-expat-call-visibility-20261019')
+head = subprocess.check_output(['git', '--no-replace-objects', 'rev-parse', 'HEAD'], cwd=source).decode().strip()
+assert head == before['source_commit']
+assert subprocess.check_output(['git', 'status', '--porcelain=v1', '--untracked-files=all'], cwd=source) == b''
+tracked=[name.decode() for name in subprocess.check_output(['git','ls-files','-z'],cwd=source).split(b'\0') if name]
+source_after={name:info(source/name) for name in tracked}
+assert source_after==before['source_hashes_before']
+
+receipt = json.loads((Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-context-20261019') / 'receipt.json').read_text())
+git_blob_after = {}
+for name, row in receipt['files'].items():
+    raw = subprocess.check_output(['git', '--no-replace-objects', 'cat-file', 'blob', row['object_id']], cwd=source)
+    actual = {'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+    assert actual == {key: row[key] for key in ('bytes', 'sha256')}
+    git_blob_after[name] = actual
+remote = r'''python3 - <<'PY'
+from pathlib import Path
+import hashlib,json,shutil,subprocess
+root=Path('/var/tmp/metodobase-expat-72c-native-20261019')
+receipt=json.loads((root/'context-receipt.json').read_text())
+files={p.relative_to(root/'context').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in (root/'context').rglob('*') if p.is_file()}
+assert files=={name:{key:row[key] for key in ('bytes','sha256')} for name,row in receipt['files'].items()}
+image=(root/'expat-build.iid').read_text().strip()
+assert image.startswith('sha256:') and len(image)==71
+assert image!='sha256:5f85c450c1f1d949a75294a4cd8316f2e745b0c952b05e69082bd0bf9dc5b2d5'
+assert (root/'expat-build.iid').read_text().strip()==image
+inspection=subprocess.check_output(['sudo','-n','docker','inspect',image])
+obj=json.loads(inspection)[0]
+assert obj['Id']==image
+assert obj['Config']['Labels']['org.opencontainers.image.revision']==receipt['revision']
+old_image_raw=subprocess.check_output(['sudo','-n','docker','inspect','sha256:5f85c450c1f1d949a75294a4cd8316f2e745b0c952b05e69082bd0bf9dc5b2d5'])
+assert hashlib.sha256(old_image_raw).hexdigest()=='17b9e2bdead87a629201b3d62e53a012fbeb12623196a137745ebe17af1fe984'
+old={}
+for short in ['7cbc85823cba','9010e255a90c','399a539cec64']:
+ raw=subprocess.check_output(['sudo','-n','docker','inspect',short]);data=json.loads(raw)[0]
+ assert not data['State']['Running']
+ old[data['Id']]={'created':data['Created'],'state':data['State'],'inspect_sha256':hashlib.sha256(raw).hexdigest()}
+running=subprocess.check_output(['sudo','-n','docker','ps','--no-trunc','--format','{{.ID}} {{.Image}} {{.Names}}'],text=True)
+assert not running.strip(),running
+report={'image_id':image,'image_inspect_sha256':hashlib.sha256(inspection).hexdigest(),
+ 'context_exact_after':True,'context_files_after':files,'previous_containers_retained':old,
+ 'running_containers':running,'guest_disk_free_bytes':shutil.disk_usage('/').free,
+ 'docker_server_version':subprocess.check_output(['sudo','-n','docker','version','--format','{{.Server.Version}}'],text=True).strip(),
+ 'images':subprocess.check_output(['sudo','-n','docker','image','ls','--no-trunc','--format','{{.ID}} {{.Repository}}:{{.Tag}}'],text=True)}
+print(json.dumps(report))
+PY
+'''
+result = guest_access.run(remote, timeout=60)
+(RUN / 'final-readonly-capture-raw.stdout').write_bytes(result.stdout)
+(RUN / 'final-readonly-capture-raw.stderr').write_bytes(result.stderr)
+assert result.returncode == 0, result.stderr.decode()
+guest = json.loads(result.stdout)
+original = json.loads((RUN / 'native-image-identity-source.json').read_text())
+assert guest['image_inspect_sha256'] == original['image_inspect_sha256']
+pre_guest = json.loads((RUN / 'guest-preflight-source.json').read_text())
+assert {line.split()[0] for line in pre_guest['images'].splitlines()} <= {line.split()[0] for line in guest['images'].splitlines()}
+old_contexts = {}
+for directory, expected in [
+ ('metodobase-expat-m2-native-context-20261019', '0c6395021e7ea2546583439784b6691baa07cf50b2db48197eedd01214aea709'),
+ ('metodobase-expat-d60-native-context-20261019', '589c9f65805b205009823aad0806fad8252dd55acc6b3f22b0b6217fc4caafa6'),
+ ('metodobase-expat-de69-native-context-20261019', 'ffdc4a998ea5ec85c0aa8b12bba85ca7adf9d0f96e7ef693ed2d8d823bf4afdf')]:
+    path = RUN.parent / directory / 'native-build-context.tar'
+    row = info(path)
+    assert row['sha256'] == expected
+    old_contexts[str(path)] = row
+report = {'captured_utc': datetime.now(timezone.utc).isoformat(),
+ 'source_commit': head, 'source_worktree_clean': True, 'source_files_unchanged':len(source_after),'source_hashes_after':source_after, 'input_hashes_after': after,
+ 'input_hashes_unchanged': True, 'exact_git_context_blobs_after': git_blob_after,
+ 'old_contexts_unchanged': old_contexts, 'owned_qemu_fingerprint': before['owned_qemu'],
+ 'owned_qemu_birth_unchanged': True, 'guest_after': guest,
+ 'lease': 'Idle VM retained for ROOT and independent Security; no running containers; do not close without ROOT handoff.'}
+(RUN / 'final-readonly-capture-source.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+print(json.dumps({'source_files_unchanged':len(source_after),'input_files_unchanged': len(after), 'git_blobs_unchanged': len(git_blob_after),
+ 'image_unchanged': True, 'owned_qemu_pid': 29768, 'lease': 'idle ROOT',
+ 'guest_disk_free_bytes': guest['guest_disk_free_bytes']}))

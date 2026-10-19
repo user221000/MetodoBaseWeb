@@ -1,0 +1,72 @@
+from pathlib import Path
+from datetime import datetime, timezone
+import hashlib, json, subprocess, sys
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-validation-20261019')
+CTX=RUN.parent/'metodobase-expat-72c-native-context-20261019'
+SOURCE=Path(r'F:\mb-expat-call-visibility-20261019')
+MAIN=Path(r'F:\MetodoBaseWeb-execution-20261018')
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+def info(path):
+ with path.open('rb') as stream: sha=hashlib.file_digest(stream,'sha256').hexdigest()
+ return {'bytes':path.stat().st_size,'sha256':sha}
+def ps(command):
+ r=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,check=True,timeout=30,creationflags=subprocess.CREATE_NO_WINDOW)
+ return json.loads(r.stdout)
+revision='72c44a1834d7bd9803b4b8846c6c87e85a53bfd3'
+assert subprocess.check_output(['git','--no-replace-objects','rev-parse','HEAD'],cwd=SOURCE).decode().strip()==revision
+assert subprocess.check_output(['git','status','--porcelain=v1','--untracked-files=all'],cwd=SOURCE)==b''
+tracked=[name.decode() for name in subprocess.check_output(['git','ls-files','-z'],cwd=SOURCE).split(b'\0') if name]
+source_hashes={name:info(SOURCE/name) for name in tracked}
+receipt=json.loads((CTX/'receipt.json').read_text())
+assert receipt['archive_sha256']=='adee246f9e9e442758767050ffc0410f7aa9f67bd6b132a4510ff60d622ac482'
+assert receipt['revision']==revision and len(receipt['files'])==12
+state=lab_control.state();assert state['pid']==29768
+owned=lab_control.process_identity(state);assert owned
+identity=ps('Get-CimInstance Win32_Process -Filter "ProcessId=29768" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress')
+old=json.loads((RUN.parent/'metodobase-expat-de69-native-validation-20261019/owned-qemu-fingerprint-source.json').read_text())
+assert identity['CreationDate']==old['creation_date']
+assert hashlib.sha256(identity['CommandLine'].encode()).hexdigest()==old['commandline_sha256']
+assert info(Path(identity['ExecutablePath']))['sha256']==old['executable_sha256']
+resources=ps('Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | ConvertTo-Json -Compress')
+assert resources['FreePhysicalMemory']*1024>1500*1024*1024,'Stop: host free RAM below 1500 MiB; no VM expansion'
+qmp=lab_control.qmp(state,['query-status','query-memory-size-summary'])
+assert qmp['query-status']['return']['status']=='running'
+assert qmp['query-memory-size-summary']['return']['base-memory']==2048*1024*1024
+sec=MAIN/'docs/implementation/20261018-evolution/evidence/security-expat-call-visibility-independent-20261019'
+sec_info={name:info(sec/name) for name in ['source.json','manifest.json']}
+assert sec_info['source.json']['sha256']=='a2d9ce8779169a123042c30e40bebfe0066d2e2f9c18689e586985b02781ded4'
+assert sec_info['manifest.json']['sha256']=='30f97f414f975cc2a4fddb5e48a62556de0d91e78372f02bd95873934427b97c'
+inputs=[CTX/'native-build-context.tar',CTX/'receipt.json',CTX/'driver.py',LAB/'scripts/lab_control.py',LAB/'scripts/guest_access.py',Path(sys.executable),Path(r'C:\Windows\System32\OpenSSH\ssh.exe'),Path(identity['ExecutablePath'])]
+inputs += [SOURCE/name for name in receipt['files']]
+report={'captured_utc':datetime.now(timezone.utc).isoformat(),'source_commit':revision,'source_hashes_before':source_hashes,
+ 'source_file_count':len(source_hashes),'source_worktree_clean':True,'input_hashes':{str(p):info(p) for p in inputs},
+ 'owned_qemu':old,'qmp_readonly':qmp,'host_memory_kib':resources,'static_security_proof':{'path':str(sec),'files':sec_info},
+ 'target':'expat-build','application_code_transferred':False,'private_key_content_read_or_disclosed':False}
+(RUN/'host-preflight-before.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+remote="""python3 - <<'PY'
+from pathlib import Path
+import json,shutil,subprocess
+assert not Path('/var/tmp/metodobase-expat-72c-native-20261019').exists()
+assert not subprocess.check_output(['sudo','-n','docker','image','ls','-q','metodobase-lab:expat-sec10-m2-72c44a1']).strip()
+running=subprocess.check_output(['sudo','-n','docker','ps','--no-trunc','--format','{{.ID}} {{.Image}} {{.Names}}'],text=True)
+assert not running.strip()
+free=shutil.disk_usage('/').free;assert free>1500*1024*1024
+memory=Path('/proc/meminfo').read_text().splitlines()
+available=int(next(line.split()[1] for line in memory if line.startswith('MemAvailable:')));assert available>1000*1024
+version=subprocess.check_output(['sudo','-n','docker','version','--format','{{.Server.Version}}'],text=True).strip();assert version=='20.10.24+dfsg1'
+report={'docker_server_version':version,'disk_free_bytes':free,'mem_available_kib':available,'running_containers':running,
+ 'images':subprocess.check_output(['sudo','-n','docker','image','ls','--no-trunc','--format','{{.ID}} {{.Repository}}:{{.Tag}}'],text=True),
+ 'containers':subprocess.check_output(['sudo','-n','docker','ps','-a','--no-trunc','--format','{{.ID}} {{.Names}} {{.Status}}'],text=True)}
+print(json.dumps(report))
+PY
+"""
+r=guest_access.run(remote,timeout=60)
+(RUN/'guest-preflight-raw.stdout').write_bytes(r.stdout);(RUN/'guest-preflight-raw.stderr').write_bytes(r.stderr)
+assert r.returncode==0,r.stderr.decode()
+guest=json.loads(r.stdout)
+(RUN/'guest-preflight-source.json').write_text(json.dumps(guest,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'preflight':'PASS','source_files':len(source_hashes),'host_free_mib':round(resources['FreePhysicalMemory']/1024),
+ 'guest_free_mib':round(free/1024/1024) if False else round(guest['disk_free_bytes']/1024/1024),
+ 'guest_available_mib':round(guest['mem_available_kib']/1024),'owned_qemu_pid':29768,'target':'expat-build'}))

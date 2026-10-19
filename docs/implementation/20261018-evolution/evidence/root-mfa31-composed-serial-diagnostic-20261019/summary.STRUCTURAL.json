@@ -1,0 +1,49 @@
+{
+  "head": "809eab28c40c112cb6e3c9d8caceebae28683abd",
+  "mode": "serial",
+  "exit": 1,
+  "timed_out": false,
+  "seconds": 1213.125,
+  "cases": 3039,
+  "skips": [
+    {
+      "case": "tests.test_object_storage::test_symlink_cannot_redirect_a_private_document",
+      "message": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+    }
+  ],
+  "known_windows_skip_exact": true,
+  "previous_diagnostic_identities_preserved": true,
+  "sources": 10178,
+  "packages": 89,
+  "sources_packages_python_exact": true,
+  "pip_before": 0,
+  "pip_after": 0,
+  "scope": "Full serial diagnostic, not acceptance. The two original recovery boundary cases fail on new-password login401 at terminalSV. No assertions are changed.",
+  "failures": [
+    {
+      "case": "tests.test_recovery28_review::test_last_eligible_session_version_consumes_once_and_next_request_stays_generic[web.main_web]",
+      "kind": "failure",
+      "numeric_assertions": [
+        "assert 401 == 200"
+      ]
+    },
+    {
+      "case": "tests.test_recovery28_review::test_last_eligible_session_version_consumes_once_and_next_request_stays_generic[api.app]",
+      "kind": "failure",
+      "numeric_assertions": [
+        "assert 401 == 200"
+      ]
+    }
+  ],
+  "passed": 3036,
+  "result": "REJECTED_COMPOSED_SERIAL_TWO_TERMINAL_SESSION_LOGIN_FAILURES",
+  "previous_full_2598_case_ids_preserved": true,
+  "previous_unique_cases": 2598,
+  "added_case_ids": 441,
+  "coverage_gate_exit": 0,
+  "original_xml_sha256": "576ad0867c57a80e318eb8bb7f1de101a097bb69a1329cf63deab18992be47e0",
+  "before_reference": {
+    "path": "prepared-wave123-20261019/broad-serial-start/before.json",
+    "sha256": "dbccfe8d50f8d8bdcd5360e098dec80a9e9f4d4986b2cf14d24b64585b98e32d"
+  }
+}

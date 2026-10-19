@@ -1,0 +1,21 @@
+"""Export bounded native outputs without starting application code."""
+from pathlib import Path
+import sys,tarfile
+root=Path("/expat-output")
+names=["pyexpat.cpython-312-x86_64-linux-gnu.so","build-provenance.json","sbom.json","source-pins.json",
+       "13c5f63.patch","COPYING.expat","small-binding-tests.log","source-preparation.json"]
+paths=[(root/name,"expat-output/"+name) for name in names]
+base=Path("/usr/local/lib/python3.12/lib-dynload")
+paths += [(base/name,"base-reference/"+name) for name in ("pyexpat.cpython-312-x86_64-linux-gnu.so","_elementtree.cpython-312-x86_64-linux-gnu.so")]
+wheelhouse=Path("/wheelhouse")
+wheels=list(wheelhouse.glob("psycopg2-2.9.13-*.whl"));assert len(wheels)==1
+paths.append((wheels[0],"wheelhouse/"+wheels[0].name))
+for name in ("built-wheel.lock","builder-dpkg.tsv","pg-config-version.txt","build-tools.txt",
+             "requirements-container-build.lock","requirements-container-psycopg.lock","requirements-container-apt-metadata.lock"):
+ paths.append((wheelhouse/name,"wheelhouse/"+name))
+assert len(paths)==18
+for path,name in paths:
+ assert path.is_file() and not path.is_symlink() and path.stat().st_size<2000000
+with tarfile.open(fileobj=sys.stdout.buffer,mode="w|") as archive:
+ for path,name in paths:archive.add(path,arcname=name,recursive=False)
+

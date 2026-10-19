@@ -1,0 +1,89 @@
+from pathlib import Path
+from datetime import datetime,timezone
+import hashlib,json,subprocess,sys,tempfile,time
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+OUT=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-validation-20261019')
+CTX=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-context-20261019')
+REMOTE='/var/tmp/metodobase-expat-72c-native-20261019'
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+preflight=json.loads((OUT/'host-preflight-before.json').read_text())
+assert preflight['static_security_proof']['files']['source.json']['sha256']=='a2d9ce8779169a123042c30e40bebfe0066d2e2f9c18689e586985b02781ded4'
+for path,row in preflight['input_hashes'].items():
+ data=Path(path).read_bytes();assert {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}==row
+memory=subprocess.check_output(['powershell','-NoProfile','-NonInteractive','-Command','(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory'],creationflags=subprocess.CREATE_NO_WINDOW)
+assert int(memory.strip())>1500*1024,'Stop: host free RAM below 1500 MiB'
+(OUT/'host-memory-immediate-before-build.json').write_text(json.dumps({'free_mib':round(int(memory.strip())/1024),'captured_utc':datetime.now(timezone.utc).isoformat(),'vm_expanded':False})+'\n',encoding='utf-8')
+def call(command,*,data=None,timeout=60,log):
+ if data is None:
+  result=guest_access.run(command,timeout=timeout)
+ else:
+  with tempfile.TemporaryFile(dir=OUT) as stream:
+   stream.write(data);stream.seek(0)
+   result=guest_access.run(command,stdin=stream,timeout=timeout)
+ (OUT/log).write_bytes(result.stdout+b'\nSTDERR\n'+result.stderr)
+ assert result.returncode==0,(log,result.returncode,result.stderr.decode('utf-8','replace'))
+ return result.stdout
+raw=(CTX/'native-build-context.tar').read_bytes()
+assert hashlib.sha256(raw).hexdigest()=='adee246f9e9e442758767050ffc0410f7aa9f67bd6b132a4510ff60d622ac482'
+call('umask 077; test ! -e '+REMOTE+' && mkdir -m 700 '+REMOTE+' && cat > '+REMOTE+'/native-build-context.tar',data=raw,log='context-transfer-raw.log')
+call('umask 077; test ! -e '+REMOTE+'/context-receipt.json && cat > '+REMOTE+'/context-receipt.json',data=(CTX/'receipt.json').read_bytes(),log='receipt-transfer-raw.log')
+remote="""python3 - <<'PY'
+from pathlib import Path,PurePosixPath
+import hashlib,json,tarfile
+root=Path('"""+REMOTE+"""')
+receipt=json.loads((root/'context-receipt.json').read_text())
+archive=root/'native-build-context.tar'
+assert archive.stat().st_size==184320
+assert hashlib.sha256(archive.read_bytes()).hexdigest()=='adee246f9e9e442758767050ffc0410f7aa9f67bd6b132a4510ff60d622ac482'
+target=root/'context';target.mkdir()
+files={}
+with tarfile.open(archive) as tar:
+ assert len(tar.getmembers())==12 and set(tar.getnames())==set(receipt['files'])
+ for member in tar:
+  name=PurePosixPath(member.name)
+  assert member.isfile() and member.name==name.as_posix() and not name.is_absolute()
+  assert '..' not in name.parts and '\\\\' not in member.name and ':' not in member.name
+  assert member.name not in files and member.size<150000
+  raw=tar.extractfile(member).read()
+  expected=receipt['files'][member.name]
+  info={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+  assert info=={k:expected[k] for k in ('bytes','sha256')}
+  path=target/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw);path.chmod(member.mode)
+  files[member.name]=info
+actual={p.relative_to(target).as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in target.rglob('*') if p.is_file()}
+assert actual==files
+report={'revision':receipt['revision'],'target':'expat-build','archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'files':files,'remote_context_root':str(target),'exact_set':True,'application_code_transferred':False}
+(root/'verified-context.json').write_text(json.dumps(report,indent=2)+'\\n')
+print(json.dumps(report))
+PY
+"""
+verified=call(remote,log='context-verification-raw.log')
+json.loads(verified)
+(OUT/'remote-context-source.json').write_bytes(verified)
+assert lab_control.process_identity(lab_control.state())
+command,env=guest_access.configuration()
+remote_build='set -eu; test ! -e '+REMOTE+'/expat-build.iid; test -z "$(sudo -n docker image ls -q metodobase-lab:expat-sec10-m2-72c44a1)"; sudo -n env DOCKER_BUILDKIT=0 docker build --pull=false --platform=linux/amd64 --target expat-build --iidfile '+REMOTE+'/expat-build.iid --label org.opencontainers.image.revision=72c44a1834d7bd9803b4b8846c6c87e85a53bfd3 -t metodobase-lab:expat-sec10-m2-72c44a1 '+REMOTE+'/context'
+start=time.monotonic()
+with (OUT/'native-build-raw.log').open('xb') as log:
+ process=subprocess.Popen(command+[remote_build],cwd=LAB/'instance',env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
+ identity_command='Get-CimInstance Win32_Process -Filter "ProcessId='+str(process.pid)+'" | Select-Object ProcessId,CreationDate,ExecutablePath,CommandLine | ConvertTo-Json -Compress'
+ p=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',identity_command],capture_output=True,check=True,timeout=20,creationflags=subprocess.CREATE_NO_WINDOW)
+ ident=json.loads(p.stdout)
+ record={'started_utc':datetime.now(timezone.utc).isoformat(),'pid':process.pid,'creation_date':ident['CreationDate'],
+         'executable':ident['ExecutablePath'],'commandline_sha256':hashlib.sha256(ident['CommandLine'].encode()).hexdigest(),
+         'remote_target':'expat-build','remote_root':REMOTE,'image_tag':'metodobase-lab:expat-sec10-m2-72c44a1'}
+ (OUT/'owned-build-ssh-identity.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
+ print(json.dumps({'phase':'NATIVE_BUILD_STARTED','owned_ssh_pid':process.pid,'target':'expat-build','context_files':12}),flush=True)
+ try:exit_code=process.wait(timeout=3600)
+ except subprocess.TimeoutExpired:
+  process.terminate()
+  try:process.wait(timeout=15)
+  except subprocess.TimeoutExpired:process.kill();process.wait(timeout=15)
+  raise
+record.update(finished_utc=datetime.now(timezone.utc).isoformat(),exit_code=exit_code,elapsed_seconds=round(time.monotonic()-start,3))
+(OUT/'native-build-receipt.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'phase':'NATIVE_BUILD_FINISHED','exit_code':exit_code,'elapsed_seconds':record['elapsed_seconds']}),flush=True)
+raise SystemExit(exit_code)
+

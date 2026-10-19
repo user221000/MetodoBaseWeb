@@ -1,0 +1,30 @@
+from pathlib import Path
+import hashlib,io,json,re,sys,tarfile
+LAB=Path(r'F:\MetodoBaseWeb-linux-lab-20261019')
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-validation-20261019')
+sys.path.insert(0,str(LAB/'scripts'))
+import guest_access,lab_control
+assert lab_control.process_identity(lab_control.state())
+assert json.loads((RUN/'native-build-receipt.json').read_text())['exit_code']==0
+identity=json.loads((RUN/'native-image-identity-source.json').read_text())
+image=identity['image_id'];assert re.fullmatch('sha256:[0-9a-f]{64}',image)
+command='sudo -n docker run --rm -i --pull=never --network=none --read-only --cap-drop=ALL --security-opt=no-new-privileges --user=65534:65534 --pids-limit=64 --memory=512m --cpus=1 '+image+' python -I -S -B -'
+with (RUN/'native_export_probe.py').open('rb') as stream:r=guest_access.run(command,stdin=stream,timeout=90)
+(RUN/'native-output-raw.tar').write_bytes(r.stdout)
+(RUN/'native-output-export-raw.stderr').write_bytes(r.stderr)
+assert r.returncode==0,r.stderr.decode()
+target=RUN/'native-outputs';target.mkdir()
+manifest={}
+with tarfile.open(fileobj=io.BytesIO(r.stdout)) as tar:
+ assert len(tar.getmembers())==18
+ for member in tar:
+  name=Path(member.name)
+  assert member.isfile() and not name.is_absolute() and '..' not in name.parts
+  assert '\\' not in member.name and ':' not in member.name and member.size<2000000
+  assert member.name not in manifest
+  data=tar.extractfile(member).read();path=target/name
+  path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+  manifest[member.name]={'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+(RUN/'native-output-manifest-source.json').write_text(json.dumps({'source_image':image,'files':manifest,'archive_bytes':len(r.stdout),'archive_sha256':hashlib.sha256(r.stdout).hexdigest()},indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'output_files':len(manifest),'archive_bytes':len(r.stdout),'archive_sha256':hashlib.sha256(r.stdout).hexdigest(),'output_root':str(target)}))
+

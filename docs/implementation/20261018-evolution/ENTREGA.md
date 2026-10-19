@@ -1,9 +1,9 @@
 # Entrega candidata en curso
 
-Checkpoint 123: 119 requisitos y sus criterios anteriores intactos. MAIN permanece en esquema30. La candidata31 aislada809 compone CIed4, R17b500 y fixtures79 revisados; regresión completa serial con cobertura en ejecución, n2 pendiente.
+Checkpoint124:120requisitos,92originales y119criterios anteriores exactos. MAIN permanece en esquema30. La candidata31aislada6a75 corrigeSEC15; autor14focales verdes, peer y nueva regresión serial pendientes; n2 no iniciado.
 
-QA aceptó 173 casos PostgreSQL y 56 de fixtures en alcances separados. Seguridad aceptó R17 con el mismo driver24 y dos controles. Los fallos anteriores siguen preservados.
+La serial809 roja se conserva:3036pass,2fallos recovery loginMAX y1skipWindows. Conserva2598IDs previos y cobertura requerida; no es aceptación completa.
 
-Expat72 tiene aceptación sólo estática; nuevo build autorizado, aún sin resultado nativo. R25 está en implementación separada con DDL32 exclusivo y revisión de lectura compartida pendiente.
+Expat72 tiene aceptación nativa independiente sólo diagnóstica. Imagen runtimec538(app809+native72) en construcción/pruebas; aún sinfixSV ni aceptación común. R25backend/UI32 avanzan separados conwirev1 fijo y sinfreezeaceptado.
 
-Free: diez clientes, un plan por cliente al día y diez totales por gimnasio al día. Desktop sigue soportado. Sin push, PR, despliegue, cargos ni comunicaciones reales. [Estado](ESTADO.md), [registro](TRAZABILIDAD.md), [validación](VALIDACION.md).
+Free:diez clientes,un plan por cliente al día y diez totales por gimnasio al día. Desktop sigue soportado. Sin push,PR,despliegue,cargos ni comunicaciones reales. [Estado](ESTADO.md),[registro](TRAZABILIDAD.md),[validación](VALIDACION.md).

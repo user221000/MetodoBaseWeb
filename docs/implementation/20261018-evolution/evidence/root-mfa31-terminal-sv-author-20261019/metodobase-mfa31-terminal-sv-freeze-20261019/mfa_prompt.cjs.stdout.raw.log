@@ -1,0 +1,39 @@
+{
+  "scope": "Mounted prompt handlers in minimal RAM DOM; no native modal/keyboard/layout/HTTP31/provider claim",
+  "passed": 8,
+  "total": 8,
+  "results": [
+    {
+      "case": "A sensitive helper opens an explicit first-party prompt then executes exactly once",
+      "passed": true
+    },
+    {
+      "case": "Cancel and Escape never invoke the sensitive business endpoint",
+      "passed": true
+    },
+    {
+      "case": "A double verification click sends one factor request while the response is held",
+      "passed": true
+    },
+    {
+      "case": "Replacing the session while a prompt is visible synchronously destroys its inputs",
+      "passed": true
+    },
+    {
+      "case": "A held factor ACK after account replacement never executes its old intent",
+      "passed": true
+    },
+    {
+      "case": "429 and503 are visible without replay or business execution",
+      "passed": true
+    },
+    {
+      "case": "Enrollment-required state offers account security without executing the action",
+      "passed": true
+    },
+    {
+      "case": "A missing lazy UI module fails closed before any business request",
+      "passed": true
+    }
+  ]
+}

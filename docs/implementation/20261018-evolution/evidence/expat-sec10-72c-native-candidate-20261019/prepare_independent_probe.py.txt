@@ -1,0 +1,116 @@
+from pathlib import Path
+import ast,hashlib,json
+RUN=Path(r'C:\Users\Consu\AppData\Local\Temp\metodobase-expat-72c-native-validation-20261019')
+OLD=RUN.parent/'metodobase-expat-de69-native-validation-20261019/native_independent_probe.py'
+CTX=RUN.parent/'metodobase-expat-72c-native-context-20261019'
+source=OLD.read_text()
+source=source.replace('import hashlib,io,json,os,re,shutil,stat,struct,subprocess,sys,sysconfig,tempfile,zipfile',
+ 'import hashlib,io,json,os,re,shlex,shutil,stat,struct,subprocess,sys,sysconfig,tarfile,tempfile,zipfile')
+runtime_files={name.split('runtime-source/expat-sec10/',1)[1]:row['sha256'] for name,row in json.loads((CTX/'receipt.json').read_text())['files'].items() if name.startswith('runtime-source/expat-sec10/')}
+source=source.replace('EXPECTED_RUNTIME_ADDITIONS = ', 'EXPECTED_EXECUTED_INPUTS = '+repr(runtime_files)+'\nEXPECTED_RUNTIME_ADDITIONS = ',1)
+extra=r'''
+assert tempfile.gettempdir()=="/probe-tmp"
+executed_inputs={name:sha(Path("/tmp/metodobase-expat-sec10")/name) for name in EXPECTED_EXECUTED_INPUTS}
+assert executed_inputs==EXPECTED_EXECUTED_INPUTS
+actual_source={p.relative_to(out/"source").as_posix():sha(p) for p in (out/"source").rglob("*") if p.is_file()}
+assert actual_source==compiled["after"]
+source_before_probe=dict(actual_source)
+archive=Path("/tmp/psf-expat-sec10.tar.xz")
+assert archive.stat().st_size==20829824 and sha(archive)=="c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a"
+original_source={}
+with tarfile.open(archive,mode="r|xz") as tar:
+ for member in tar:
+  if not member.name.startswith("Python-3.12.15/"):continue
+  relative=member.name[len("Python-3.12.15/"):]
+  if relative not in compiled["before"]:continue
+  assert member.isfile() and member.size<2000000 and relative not in original_source
+  original_source[relative]=hashlib.sha256(tar.extractfile(member).read()).hexdigest()
+assert original_source==compiled["before"]
+commands=provenance["compiler_commands"]
+expected_sources=[str(out/"source/Modules"/name) for name in ("pyexpat.c","expat/xmlparse.c","expat/xmlrole.c","expat/xmltok.c")]
+objects=[];object_before={}
+for command,expected_source in zip(commands[:4],expected_sources):
+ assert isinstance(command,list) and all(type(arg) is str and arg and "\0" not in arg for arg in command)
+ assert command[0]=="gcc" and command.count("-c")==command.count("-o")==1
+ assert command.count(expected_source)==1 and command[command.index("-c")+1]==expected_source
+ assert command.count("-DHAVE_EXPAT_CONFIG_H=1")==1
+ assert all("-I"+path in command for path in ["/usr/local/include/python3.12","/usr/local/include/python3.12/internal",str(out/"source/Modules/expat")])
+ assert [arg for arg in command if arg.startswith("-fvisibility=")]==["-fvisibility=hidden"]
+ assert [arg for arg in command if arg.startswith("-ffile-prefix-map=")]==["-ffile-prefix-map=/expat-output=."]
+ assert command[-3:]==["-g0","-ffile-prefix-map=/expat-output=.","-fvisibility=hidden"]
+ obj=Path(command[command.index("-o")+1]);assert command.count(str(obj))==1 and obj.is_relative_to(out/"objects")
+ assert obj.is_file() and not obj.is_symlink() and obj.suffix==".o"
+ raw_obj=obj.read_bytes();assert raw_obj[:6]==b"\x7fELF\x02\x01" and struct.unpack_from("<H",raw_obj,16)[0]==1 and struct.unpack_from("<H",raw_obj,18)[0]==62
+ objects.append(str(obj));object_before[str(obj)]={"sha256":sha(obj),"bytes":len(raw_obj)}
+assert len(set(objects))==4
+link=commands[4]
+assert isinstance(link,list) and all(type(arg) is str and arg and "\0" not in arg for arg in link)
+assert link[0]=="gcc" and "-shared" in link and "-lm" in link and "-c" not in link
+assert link.count("-o")==1 and link[link.index("-o")+1]==str(artifact) and link.count(str(artifact))==1
+assert all(link.count(obj)==1 for obj in objects)
+assert [arg for arg in link if arg.endswith(".o")]==objects
+makefile=Path(sysconfig.get_makefile_filename())
+assert sha(makefile)=="c73faf2fca0de76baeeb272b1e4474fdc49111a46961e88a39e55af4880a5192"
+for key in ["PY_STDMODULE_CFLAGS","PY_CFLAGS_NODIST"]:
+ actual=sysconfig.get_config_var(key);assert provenance["abi"][key]==actual
+ assert [flag for flag in shlex.split(actual) if flag.startswith("-fvisibility=")]==["-fvisibility=hidden"]
+assert provenance["module_visibility_flags_selected"]==["-fvisibility=hidden"]
+assert provenance["base_exports"]==provenance["artifact_exports"]==["PyInit_pyexpat"]
+assert provenance["nm_tool"]["path"]==str(Path(shutil.which("nm")).resolve())
+assert provenance["nm_tool"]["sha256_before_after"]==sha(Path(shutil.which("nm")).resolve())
+artifact_before=sha(artifact)
+'''
+anchor='assert len(provenance["compiler_commands"])==5\n'
+assert source.count(anchor)==1
+source=source.replace(anchor,anchor+extra)
+anchor='assert not new_elf["rpath_or_runpath"]\n'
+assert source.count(anchor)==1
+source=source.replace(anchor,anchor+'assert old_elf["defined_exports"]==new_elf["defined_exports"]==["PyInit_pyexpat"]\nassert old_elf["needed"]==new_elf["needed"]==["libc.so.6"]\n')
+extra=r'''
+assert type(pyexpat.expat_CAPI).__name__=="PyCapsule"
+assert repr(pyexpat.expat_CAPI).startswith('<capsule object "pyexpat.expat_CAPI"')
+assert sha(out/"source/Include/pyexpat.h")==EXPECTED_ORIGINAL_BEFORE["Include/pyexpat.h"]
+utf8_text="\u00e1\u03a9\U0001f40d"
+utf8_xml=("<r><n>"+utf8_text+"</n></r>").encode("utf-8")
+characters=[];parser=pyexpat.ParserCreate();parser.CharacterDataHandler=characters.append
+for byte in utf8_xml:parser.Parse(bytes([byte]),False)
+parser.Parse(b"",True);assert "".join(characters)==utf8_text;cases.append("pyexpat_utf8_multibyte_byte_chunks")
+assert ET.fromstring(utf8_xml).find("n").text==utf8_text;cases.append("elementtree_utf8_multibyte")
+entities=b"<r>&amp;&lt;&gt;&#x3A9;</r>";characters=[]
+parser=pyexpat.ParserCreate();parser.CharacterDataHandler=characters.append;parser.Parse(entities,True)
+assert "".join(characters)=="&<>\u03a9";cases.append("pyexpat_small_predefined_numeric_entities")
+assert ET.fromstring(entities).text=="&<>\u03a9";cases.append("elementtree_small_predefined_numeric_entities")
+assert ET.fromstring(b'<r xmlns="urn:bounded"><n/></r>').tag=="{urn:bounded}r";cases.append("elementtree_small_namespace")
+assert len(cases)==11
+'''
+anchor='assert len(cases)==6 and sha(_elementtree.__file__)==sha(elementtree)\n'
+assert source.count(anchor)==1
+source=source.replace(anchor,anchor+extra)
+extra=r'''
+assert {p.relative_to(out/"source").as_posix():sha(p) for p in (out/"source").rglob("*") if p.is_file()}==source_before_probe
+assert {name:{"sha256":sha(Path(name)),"bytes":Path(name).stat().st_size} for name in objects}==object_before
+assert sha(artifact)==artifact_before and sha(wheel)==wheel_sha
+assert {name:sha(Path("/tmp/metodobase-expat-sec10")/name) for name in EXPECTED_EXECUTED_INPUTS}==executed_inputs
+assert all(sha(path)==digest for path,digest in provenance["interpreter_libpython_elementtree_config_headers_after"].items())
+sbom=json.loads((out/"sbom.json").read_text());assert sbom["bomFormat"]=="CycloneDX"
+component=sbom["components"][0];assert component["version"]=="2.8.5"
+properties={row["name"]:row["value"] for row in component["properties"]}
+assert properties["metodobase:pyexpat-elf-sha256"]==artifact_before
+assert properties["metodobase:patched-source-sha256"]==compiled["after"]["Modules/expat/xmlparse.c"]
+assert component["pedigree"]["commits"][0]["uid"]==pins["upstream_fix_commit"]
+'''
+anchor='result={"scope":'
+assert source.count(anchor)==1
+source=source.replace(anchor,extra+'\n'+anchor)
+anchor='print(json.dumps(result))'
+assert source.count(anchor)==1
+source=source.replace(anchor,'''result.update(status="PASS_NATIVE_DIAGNOSTIC_ONLY",complete_product_acceptance=False,
+ native_probe_pass=True,compiler_trace_complete=True,compiler_commands_count=len(commands),
+ native_objects=object_before,source31_exact_signed_tar=True,source31_unchanged_after_probe=True,
+ executed_input_hashes=executed_inputs,base_export_surface_equal=True,
+ capi={"capsule_name":"pyexpat.expat_CAPI","header_sha256":sha(out/"source/Include/pyexpat.h"),"elementtree_loaded_from_unchanged_base":True},
+ image_id=None,tmpfs="Private exec /probe-tmp only; original /tmp readonly and authenticated tar visible")
+print(json.dumps(result))''')
+ast.parse(source)
+(RUN/'native_independent_probe.py').write_text(source,encoding='utf-8')
+print(json.dumps({'probe_sha256':hashlib.sha256(source.encode()).hexdigest(),'probe_bytes':len(source.encode()),'probe_executed':False,'builder_or_VM_invoked':False}))

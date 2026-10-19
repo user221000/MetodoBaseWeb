@@ -246,3 +246,8 @@ QA173PG:12comandos exit0/checker1730;42UUIDcerradas sinFORCE/cero sesiones/ausen
 ## Checkpoint 123
 
 QA peer79:56/56,58aserciones originales e inversas completas, misma SQLite31/33tablas;10176fuentes89paquetes/Python quietos,pip0. Composición809 conserva4tests exactos y otros10143blobs; preflightCI145 pasa. Broadserial en curso, n2 pendiente. Expat72:41autor+13propios son alcances solapados; PASS_STATIC_ONLY, nuevo build todavía sin resultado.
+
+
+## Checkpoint124
+
+Serial809:3039=3036pass+2fail+1skipWindows;2598IDs preservados y cobertura pasa, fuente10178/89paquetes/Pythonquiet,pips0. SEC15mismo14before10rojos4controles→after14green,8nuevos y6replays;3NodeVMexit0. Peer y nueva fullserial6a75 en curso,n2 pendiente. Native72independiente16XML+19contratos verde, argv registrados ligados a objetos; no nuevosgcc ni falsa prephoto propia.

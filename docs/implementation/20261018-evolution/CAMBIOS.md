@@ -185,3 +185,8 @@ SEC14 añade cabeceras privadas para respuestas de método405 ylector500 de tres
 ## Checkpoint 123
 
 La candidata aislada809 integra fixtures79 después del peer, preservando producto y CI. Expat72 corrige call, visibilidad y gates sin cambiar pines, parche,31inputs ni12locks. Backend/UI R25 comenzaron en ramas separadas; MAIN sólo registra evidencia y estado.
+
+
+## Checkpoint124
+
+SEC15 añade identidadSVmáximo válida y guard409 de capacidad antes de cambiar factor, sin wrap/decremento ni assertions antiguas alteradas. MAIN sólo registra evidencia. Runtimec538 combinaapp809+native72;366Gitblobs contextoconSHA22fc3b52, sin secretos/DB/docs/tests/assetsreferencia. R25router montado ywirev1 fijo, sinproducto32 aceptado.

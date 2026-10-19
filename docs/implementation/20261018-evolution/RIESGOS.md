@@ -127,3 +127,8 @@ Pendientes peer79, regresión serial con cobertura y n2 de la composición,image
 ## Checkpoint 123
 
 Pendientes resultado broadserial/n2 de809, imagen común y validación nativa72. R25 añade mediciones/consentimiento32 bajo revisión; el acceso compartido no puede depender de un GUC falsificable ni exponer sesiones o filas privadas. Siguen configuración/operacionesMFA, políticas, objetivos de carga, pilotos y dictámenes reales pendientes.
+
+
+## Checkpoint124
+
+Pendientes peerSEC15,nueva fullserial/n2, imagen runtime ysourcefixposterior. Native72diagnóstico no cierra54/SCA71/SEC10. R25lector/restore32/freeze e integración pendientes. ConfiguraciónMFA,avisos,custodia,rotación,políticas,objetivos,pilotos ydictámenes siguen sin inventarse.

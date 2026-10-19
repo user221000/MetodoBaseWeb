@@ -104,3 +104,8 @@ La aceptación focal R17 no equivale a métricas distribuidas ni SLO. Conservar 
 ## Checkpoint 123
 
 No interpretar el GUCactor como firma verificable. R25 requiere un lector mínimo con autoridad derivada, consentimiento y locks; probar pool1/restauración y revisar antes de aceptar alternativa. Conservar entitlement profesional de clínica sin impedir medidas personales, retirada ni exportación por ese paywall. La aceptación estática del compilador no equivale a un artefacto nativo aceptado.
+
+
+## Checkpoint124
+
+No arreglar el fallo de recuperación cambiando suassert. Separar identidadválida de capacidad de incrementarSV. Conservar809rojo y repetir fullmatrix con fuente nueva y nombres distintos. Retiropropio es exclusión de permisos y admiteOWNERambiguo sólo sobre user_id persistido propio; no espacio personal ni cartera. Reactivación de vínculo revocado no adopta grants; togglecuenta sin retirar consentimiento no equivale a revocación.
