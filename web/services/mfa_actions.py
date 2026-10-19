@@ -80,7 +80,7 @@ def authorize(db, identity, action, target_id):
         fail(403, "mfa_action_forbidden")
     owner = db.get(Usuario, gym_id, populate_existing=True)
     if (not owner or not owner.activo or owner.deleted_at is not None or owner.team_gym_id
-            or owner.tipo != "gym" or owner.role != UserRole.OWNER):
+            or owner.tipo != "gym" or owner.role != UserRole.OWNER or owner.invitation_token is not None):
         fail(403, "mfa_action_forbidden")
     if action.startswith("billing."):
         verify_permission(identity, "update", "subscription", gym_id)

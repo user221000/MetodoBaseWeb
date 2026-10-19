@@ -86,7 +86,7 @@ def commit(db):
 
 def current_identity(db, user):
     from web.auth import identity_from_user
-    if (user is None or not user.activo or user.deleted_at is not None or user.invitation_token
+    if (user is None or not user.activo or user.deleted_at is not None or user.invitation_token is not None
             or type(user.session_version) is not int or not 0 <= user.session_version < MAX_SV):
         fail(401, "mfa_identity_unavailable")
     identity = identity_from_user(user, db)
@@ -95,7 +95,8 @@ def current_identity(db, user):
     if user.team_gym_id:
         parent = db.get(Usuario, user.team_gym_id, populate_existing=True)
         if (not parent or not parent.activo or parent.deleted_at is not None
-                or parent.tipo != "gym" or parent.role != UserRole.OWNER or parent.team_gym_id):
+                or parent.tipo != "gym" or parent.role != UserRole.OWNER or parent.team_gym_id
+                or parent.invitation_token is not None):
             fail(401, "mfa_identity_unavailable")
     return identity
 
