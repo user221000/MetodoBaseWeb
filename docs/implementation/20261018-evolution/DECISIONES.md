@@ -24,3 +24,8 @@ Pendientes de decisión externa: gracia/reembolsos/impuestos; retención/borrado
 18. El tipo legado no acredita que una cartera de rolOWNER pertenezca al espacio personal. La ampliación propuesta por coordinación se revocó al fallar el control independiente conservado; R14 admite personal noOWNER/miembroválido y mantiene el caso ambiguo para asociación explícita R02/R12. No modificar roles/pruebas ni adoptar historia por cantidad/email/suscripción. Las rutas y derechos de generación anteriores quedan fuera de este lote.
 
 Checkpoint107: selladas la revisión independiente desktop66 (93 controles verdes, payload1215 exacto, Python3.12.15/OpenSSL3.5.9/Expat2.8.5/Qt6.8.3; sin ejecutar Setup) y las revisiones R12V1/V2. QA95 de V1 no cerró sus tres fallos de seguridad; V2 1aac pasó los mismos21 criterios independientes, sin cambiar el driver. Fuentes y paquetes estables; bases propias cerradas. Aceptación limitada al coreV2, sin casts/restore/API ni integración29. Los RAW y manifiestos originales permanecen exactos y se añaden atributos binarios sólo a estas nuevas carpetas para conservarlos en Git.
+
+
+## Checkpoint 108
+
+Checkpoint108 mantiene esquema28MAIN hasta cerrar composición29 y después30. Se acepta30 sólo en alcance índice/lector/migración120, sin SLO. Se acepta seguridadAPI939 sólo en alcance41+26; no sustituyeQA deUI/restore. SEC09 exige evaluar/corregir el ELF efectivo, separado deOS/PyPI. El falloCREATEROLE se corregirá en producto; no se precreará rol ni ampliará el migrador para ocultarlo. Se preserva soporte desktop y decisiones comercialesFree ya respondidas.

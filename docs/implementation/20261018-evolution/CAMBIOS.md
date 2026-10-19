@@ -105,3 +105,8 @@ Contrato R12v2 documentado4d537e4/6b0dc01 y aceptado porseguridad para implement
 Checkpoint106: Dockerbase/bootstrap/liblzma integrado tras seguridad independiente;OS71IDs abiertos. Desktop66 recompilado con3.12.15,ZIP4966896c/Setup5651f418,pendiente payloadindependiente. R34medido200HTTP;prototipo adicional deíndice/lectoraislado,noMAIN. R12núcleo29 enQA/seguridad yAPI/UI/restore aún aislados.
 
 Checkpoint107: selladas la revisión independiente desktop66 (93 controles verdes, payload1215 exacto, Python3.12.15/OpenSSL3.5.9/Expat2.8.5/Qt6.8.3; sin ejecutar Setup) y las revisiones R12V1/V2. QA95 de V1 no cerró sus tres fallos de seguridad; V2 1aac pasó los mismos21 criterios independientes, sin cambiar el driver. Fuentes y paquetes estables; bases propias cerradas. Aceptación limitada al coreV2, sin casts/restore/API ni integración29. Los RAW y manifiestos originales permanecen exactos y se añaden atributos binarios sólo a estas nuevas carpetas para conservarlos en Git.
+
+
+## Checkpoint 108
+
+Checkpoint108 sólo incorpora evidencia/documentación: aceptación independiente del índice30 aún aislado; revisión API29 y reparaciones de cabeceras/correlación en939 aún aisladas; inventario nativo y gate symlink de imagen99c. Nuevo SEC09 sobreOpenSSL vendorizado. No cambia producto enMAIN. Se registra el fallo real debootstrapCREATEROLE sin reinterpretar los ensayos anteriores con administrador.

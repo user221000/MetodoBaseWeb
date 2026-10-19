@@ -1,18 +1,9 @@
-# Entrega candidata
+# Entrega candidata en curso
 
-Checkpoint107: trabajo local en curso sobre104 registros,92 originales intactos. Esquema integrado28, sin release final ni despliegue. [Estado](ESTADO.md), [registro](TRAZABILIDAD.md), [validación](VALIDACION.md).
+Checkpoint108 local, sin despliegue. MAIN permanece en esquema28;105 registros,92 IDs originales preservados. No es entrega final de todo el alcance.
 
-| Alcance | Resultado verificable | Pendiente material |
-| --- | --- | --- |
-| Regresión integrada28 | a753:2360 aprobadas/1skip conocido en serial y n2, mismos IDs y fuentes estables; CIhistory/landing integrado | Composición29/30, runtimeLinux y Actions |
-| Datos/cuenta | Recuperación28,26tablas/20familiasRLS, restore28 y gates aceptados | R12API/restore/UI29 todavía aislados; staging/live |
-| R12 | V1rechazado por3 negativos; coreV2 1aac revisado con mismo21/21verde | Casts/restore, API/PDF/privacidad, UI y revisión de composición29 |
-| Historial/oferta | Historial50/200, cursorHMAC, landing y200HTTP medidos | Índice/lector30 aislados; SLO y demásR34 |
-| Linux | Docker fixes aceptados; imagen99c846bd28b0,55PyPI OSV0;71IDsOS abiertos | Inventario nativo, arranque real/egress/PG/Redis, resolver gateOS |
-| Desktop | Python3.12.15; ZIP/Setup66 aceptados93 controles y1215 archivos idénticos | Setup sin ejecutar; instalación/upgrade/uninstall/firma y análisis nativo |
-| Privacidad/sesiones | Contratos y gates anteriores conservados | Composición exportvínculos, reload/cross-tab, R14/R25/borrado/retención |
-| Secretos | Scan41708e5 conservado,3028archivos y0pendientes en esa fuente | Scan exacto del candidato final |
+La regresión amplia aceptada sigue siendo2360 verdes/1 omisiónWindows en a753b2c, serie y n2. Desktop3.12.15 tiene93 controles independientes de bundle/payload aceptados, sin instalación ni firma. R12/9397569 tiene revisión de seguridad41+26 controles y focal raíz148 verdes; faltan QA de restore/HTTP/navegador real, CI29 e integración. Índice30/6ea19e6 tiene120 controles independientes verdes, aislado hasta29/CI.
 
-ZIP actual: F:/mb-d31215-20261019/dist/MetodoBase_v2.0.0_win32.zip,122441614bytes, SHA2564966896c41e53b1b5df443045a0175626571a4bfd98731e200bcd299353ed353. Setup: C:/Users/Consu/AppData/Local/Temp/metodobase-desktop31215-build66-20261019/inno/compiled/MetodoBaseSetup_v2.0.0.exe,89973261bytes, SHA2565651f4189b7640edced7986db007a4a63f54ba00801658f31fa789587d219363. [Aceptación independiente](evidence/desktop31215-independent-20261019/final-summary.json). Paquetes anteriores conservados; no se ejecutó el instalador.
+Imagen Linux99c conserva71 IDsOS abiertos y el hallazgo SEC09 sobreOpenSSL3.5.8 vendorizado. El gate symlinkLinux pasa1/1; el arranque de producto no se acepta: migración histórica falla42501 bajo migradorNOCREATEROLE. Se conserva rollback y se prepara corrección sin elevar permisos. No hay excepción de riesgo.
 
-La aceptación del núcleo29 y la del paquete desktop tienen alcances separados. No acreditan API29, runtimeLinux, cumplimiento clínico/legal, pilotos o un despliegue. Antes de operación externa se completará candidato exacto, configuración sin secretos, migraciones/backup/restore, transición de workers, rollback y observación. No push,PR,Railway,cargos,mensajes o contactos reales autorizados.
+Free:10 clientes,1 plan por cliente/día y10 planes totales/gym/día; desktop conservado. Ver [estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md). Los bloqueos técnicos y validaciones externas restantes no se presentan como resueltos.
