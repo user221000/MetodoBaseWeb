@@ -13,6 +13,12 @@
 
 FROM python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36 AS base
 
+# Both dependency and runtime stages inherit the verified installer upgrade.
+# Pin its wheel independently; application locks and Windows environments stay separate.
+COPY requirements-container-bootstrap.lock /usr/local/share/metodobase/requirements-container-bootstrap.lock
+RUN python -m pip --isolated install --no-cache-dir --require-hashes --only-binary=:all: \
+    --index-url https://pypi.org/simple -r /usr/local/share/metodobase/requirements-container-bootstrap.lock
+
 # Prevenir bytecode + buffered output
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
