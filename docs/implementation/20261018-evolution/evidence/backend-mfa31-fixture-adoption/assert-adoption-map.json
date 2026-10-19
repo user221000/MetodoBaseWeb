@@ -1,0 +1,44 @@
+{
+  "source_commit": "dab090679a48cb8b064804a13622c415db0a170b",
+  "files": [
+    {
+      "file": "tests/test_team_invitation_contract.py",
+      "original_test_functions": 24,
+      "original_assert_nodes": 101,
+      "original_assert_nodes_AST_identical": 100,
+      "added_assert_nodes": 3,
+      "test_function_names_unchanged": true
+    },
+    {
+      "file": "tests/test_team_entitlement_review.py",
+      "original_test_functions": 3,
+      "original_assert_nodes": 9,
+      "original_assert_nodes_AST_identical": 9,
+      "added_assert_nodes": 0,
+      "test_function_names_unchanged": true
+    },
+    {
+      "file": "tests/test_personal_diary_security_review.py",
+      "original_test_functions": 11,
+      "original_assert_nodes": 66,
+      "original_assert_nodes_AST_identical": 66,
+      "added_assert_nodes": 0,
+      "test_function_names_unchanged": true
+    }
+  ],
+  "approved_status_change": [
+    {
+      "file": "tests/test_team_invitation_contract.py",
+      "function": "test_team_mutations_never_cross_to_another_gym",
+      "assert_source_node": 0,
+      "old_status": 404,
+      "current_status": 403,
+      "exact_parameterized_cases": [
+        "role",
+        "remove",
+        "resend"
+      ]
+    }
+  ],
+  "counting": "One source Assert node expands to exactly3 parameterized expectations.109/110 original team/entitlement nodes remain exact; all original diary Assert nodes remain exact. New checks are additional."
+}

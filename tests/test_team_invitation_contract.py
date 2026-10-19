@@ -13,8 +13,10 @@ from sqlalchemy.pool import StaticPool
 
 @pytest.fixture
 def team_case(monkeypatch):
+    import base64
+    import uuid
     from web import auth
-    from web.auth_deps import get_usuario_actual
+    from web.database import engine as engine_module
     from web.database.engine import get_db
     from web.database.models import Base, Subscription, Usuario, UserRole
     from web.routes import team
@@ -25,9 +27,14 @@ def team_case(monkeypatch):
                            connect_args={'check_same_thread': False})
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, expire_on_commit=False)
+    monkeypatch.setattr(engine_module, '_engine', engine)
+    monkeypatch.setattr(engine_module, '_SessionLocal', factory)
     monkeypatch.setattr(auth, '_get_session', factory)
     monkeypatch.setattr(auth, 'SECRET_KEY', 'synthetic-team-only-signing-key-at-least-32-characters')
-    monkeypatch.setattr(settings, 'get_settings', lambda: SimpleNamespace(BASE_URL='http://127.0.0.1:8765', RESEND_API_KEY=''))
+    configuration = settings.get_settings()
+    monkeypatch.setattr(configuration, 'BASE_URL', 'http://127.0.0.1:8765')
+    monkeypatch.setattr(configuration, 'RESEND_API_KEY', '')
+    monkeypatch.setattr(configuration, 'MFA_ENCRYPTION_KEY', base64.urlsafe_b64encode(b'synthetic-mfa-contract-key-32byte!'[:32]).decode())
     captured = []
     monkeypatch.setattr(email_service, '_send', lambda to, subject, html, attachments=None: captured.append({'to':to, 'subject':subject, 'html':html}) or False)
     principal = {'id':'team-owner','email':'owner@example.invalid','nombre':'Owner','tipo':'gym','role':'owner','team_gym_id':None}
@@ -45,11 +52,17 @@ def team_case(monkeypatch):
                 db.rollback()
                 raise
     app = FastAPI()
+    from web.routes import auth as auth_routes, mfa
+    from tests.mfa31_contract_client import MfaContractClient
+    app.include_router(auth_routes.router, prefix='/api')
+    app.include_router(mfa.router, prefix='/api')
     app.include_router(team.router, prefix='/api')
     app.include_router(team.auth_router, prefix='/api')
     app.dependency_overrides[get_db] = session
-    app.dependency_overrides[get_usuario_actual] = lambda: dict(principal)
-    with TestClient(app, raise_server_exceptions=False) as client:
+    number = int(uuid.uuid4().hex[:4], 16)
+    with TestClient(app, raise_server_exceptions=False, client=(f'127.2.{number // 256}.{number % 256}', 50000)) as raw:
+        client = MfaContractClient(raw, principal, factory, 'SyntheticPassword123!')
+        client.authenticate()
         yield client, factory, principal, captured
     engine.dispose()
 
@@ -169,11 +182,12 @@ def test_existing_personal_email_never_becomes_a_professional_link(team_case):
 
 
 def test_admin_cannot_rotate_an_admin_invitation(team_case):
+    from web import auth
     from web.database.models import Usuario, UserRole
     client, factory, principal, _ = team_case
     invite(team_case, role='admin'); target = member(factory).id
     with factory() as db:
-        db.add(Usuario(id='team-admin', email='admin@example.invalid', nombre='Admin', password_hash='unused', tipo='usuario', role=UserRole.ADMIN, team_gym_id='team-owner', activo=True))
+        db.add(Usuario(id='team-admin', email='admin@example.invalid', nombre='Admin', password_hash=auth.hash_password('SyntheticPassword123!'), tipo='usuario', role=UserRole.ADMIN, team_gym_id='team-owner', activo=True))
         db.commit()
     principal.update(id='team-admin', role='admin', tipo='usuario', team_gym_id='team-owner')
     assert client.post('/api/gym/team/'+target+'/resend-invite').status_code == 403
@@ -312,8 +326,8 @@ def test_detaching_historical_gym_typed_member_never_changes_owner(team_case):
 
 @pytest.mark.parametrize('action',['role','remove','resend'])
 def test_team_mutations_never_cross_to_another_gym(team_case, action):
-    from web.database.models import Usuario, UserRole
-    client, factory, _, _ = team_case
+    from web.database.models import Usuario, UserRole, MfaAuthorization
+    client, factory, principal, _ = team_case
     with factory() as db:
         db.add(Usuario(id='different-gym',email='different-owner@example.invalid',nombre='Other Owner',password_hash='unused',tipo='gym',role=UserRole.OWNER,activo=True))
         db.commit()
@@ -322,10 +336,18 @@ def test_team_mutations_never_cross_to_another_gym(team_case, action):
     if action=='role': response=client.patch('/api/gym/team/different-member/role',json={'role':'admin'})
     elif action=='remove': response=client.delete('/api/gym/team/different-member')
     else: response=client.post('/api/gym/team/different-member/resend-invite')
-    assert response.status_code == 404
+    # Current31 authorizes the exact MFA action before the business lookup.
+    # Foreign and missing IDs remain indistinguishable at that boundary.
+    assert response.status_code == 403
+    assert response.json()['detail']['code'] == 'mfa_action_forbidden'
+    if action=='role': missing=client.patch('/api/gym/team/absent-member/role',json={'role':'admin'})
+    elif action=='remove': missing=client.delete('/api/gym/team/absent-member')
+    else: missing=client.post('/api/gym/team/absent-member/resend-invite')
+    assert missing.status_code == response.status_code and missing.json() == response.json()
     with factory() as db:
         row=db.get(Usuario,'different-member')
         assert row.team_gym_id=='different-gym' and row.role==UserRole.VIEWER and row.invitation_token=='z'*43
+        assert db.query(MfaAuthorization).filter_by(user_id=principal['id'],purpose='action').count() == 0
 
 
 def test_invitation_name_is_scoped_to_persisted_offer_not_input_gym(team_case):
