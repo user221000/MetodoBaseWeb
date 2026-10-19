@@ -21,6 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run_migration(url, *arguments):
+    # These cases freeze R03 acceptance while later heads add explicit schema.
+    if arguments and arguments[0] == 'db_bootstrap.py' and '--revision' not in arguments:
+        arguments = (*arguments, '--revision', '20261018_schema_reconciliation')
     environment = os.environ.copy()
     environment['DATABASE_URL'] = url
     environment['METODOBASE_TEST_DATABASE_URL'] = ''

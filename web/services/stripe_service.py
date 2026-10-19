@@ -28,6 +28,8 @@ from web.settings import get_settings
 from web.database.models import Subscription, Payment, Usuario, StripeWebhookEvent, StripeCustomer, PurchaseIntent
 from web.services.subscription_service import activate_subscription, record_payment, update_subscription_status
 from web.services.billing_integrity import prepare_purchase, price_in_cents
+from web.database.tenant_context import bind_verified_subject
+from web.services.provider_subjects import provider_subject, record_provider_subject
 
 logger = logging.getLogger(__name__)
 
@@ -355,13 +357,24 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
     """
     snapshot = stripe.Subscription.retrieve(subscription_id, expand=[
         "latest_invoice.payment_intent", "latest_invoice.charge", "items.data.price"])
+    if snapshot.get("id") != subscription_id:
+        raise ValueError("Subscription resource mismatch")
     metadata = snapshot.get("metadata") or {}
-    mapped = db.query(Subscription).filter_by(stripe_subscription_id=subscription_id).first()
     intent_id = metadata.get("purchase_intent_id")
     intent = db.query(PurchaseIntent).filter_by(id=intent_id, provider="stripe").first() if intent_id else None
-    owner = intent.subject_id if intent else (mapped.gym_id if mapped else None)
+    owner = intent.subject_id if intent else provider_subject(db, "stripe", "subscription", subscription_id)
+    # An authenticated confirmation can check its own pre-existing mapping;
+    # public callbacks require the persisted minimal association instead.
+    if owner is None and subject_id is not None:
+        owner = str(subject_id)
     if not owner or (subject_id is not None and owner != str(subject_id)):
         raise ValueError("Payment account mismatch")
+    if metadata.get("gym_id") and str(metadata["gym_id"]) != str(owner):
+        raise ValueError("Subscription identity mismatch")
+    bind_verified_subject(db, str(owner))
+    mapped = db.query(Subscription).filter_by(stripe_subscription_id=subscription_id).first()
+    if not intent and (mapped is None or mapped.gym_id != str(owner)):
+        raise ValueError("Legacy purchase requires explicit reconciliation")
     db.query(Usuario).filter_by(id=owner).update({Usuario.id: Usuario.id})
     # The account may have renewed through a different subscription while this
     # request waited for its lock. Re-read the mapping, bypassing the identity
@@ -398,6 +411,10 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
     plan = intent.plan if intent else mapped.plan
     if metadata.get("plan") and metadata["plan"] != plan:
         raise ValueError("Subscription plan mismatch")
+    if intent:
+        record_provider_subject(db, "stripe", "subscription", subscription_id, owner, intent.id)
+        if isinstance(customer_id, str) and customer_id:
+            record_provider_subject(db, "stripe", "customer", customer_id, owner, intent.id)
     status = snapshot.get("status", "incomplete")
     if status == "active":
         items = (snapshot.get("items") or {}).get("data") or []
@@ -580,6 +597,7 @@ def _invoice_subscription_id(db: Session, invoice: dict) -> str:
     reference = invoice.get("subscription") or ((invoice.get("parent") or {}).get("subscription_details") or {}).get("subscription")
     if reference:
         return reference
+    _bind_customer_purchase(db, invoice.get("customer"))
     mapped = db.query(Subscription).filter_by(stripe_customer_id=invoice.get("customer")).first()
     return mapped.stripe_subscription_id if mapped else ""
 
@@ -620,6 +638,7 @@ def _on_invoice_failed(db: Session, invoice: dict) -> str:
 def _on_charge_refunded(db: Session, charge: dict) -> str:
     """Reconcile a full refund without revoking unrelated newer invoice access."""
     customer_id = charge.get("customer")
+    _bind_customer_purchase(db, customer_id)
     mapped = db.query(Subscription).filter_by(stripe_customer_id=customer_id).first()
     if not mapped:
         raise ValueError("Refund subscription mapping unavailable")
@@ -627,6 +646,26 @@ def _on_charge_refunded(db: Session, charge: dict) -> str:
     # An old refund can never overwrite a later paid renewal.
     reconcile_subscription(db, mapped.stripe_subscription_id)
     return "refund:reconciled"
+
+
+def _bind_customer_purchase(db: Session, customer_id: str) -> None:
+    """Resolve signed provider callbacks through the minimal purchase plane.
+
+    Customer alone never grants rights: exactly one persisted subject must own
+    that provider customer; the reconciler subsequently validates subscription,
+    customer, paid invoice and current unrefunded charge. Legacy unbound data
+    remains pending reconciliation rather than using an unscoped table scan.
+    """
+    if not isinstance(customer_id, str) or not customer_id:
+        raise ValueError("Provider customer identity missing")
+    linked = provider_subject(db, "stripe", "customer", customer_id)
+    if linked is not None:
+        bind_verified_subject(db, linked)
+        return
+    owners = db.query(PurchaseIntent.subject_id).filter_by(provider="stripe", provider_customer_id=customer_id).distinct().all()
+    if len(owners) != 1:
+        raise ValueError("Provider customer requires purchase reconciliation")
+    bind_verified_subject(db, owners[0][0])
 
 
 def _get_gym_email_and_name(db: Session, gym_id: str) -> tuple[str, str]:

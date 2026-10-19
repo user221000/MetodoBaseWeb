@@ -44,7 +44,10 @@ def _get_database_url() -> str:
     import os
     url = os.getenv("DATABASE_URL", "")
     if url:
-        return normalize_database_url(url)
+        normalized = normalize_database_url(url)
+        if settings.is_production and not normalized.startswith("postgresql+"):
+            raise RuntimeError("Production requires an explicit PostgreSQL DATABASE_URL")
+        return normalized
 
     # En producción, PostgreSQL es obligatorio — no permitir fallback a SQLite
     if settings.is_production:
@@ -72,6 +75,8 @@ def get_engine():
     global _engine
     if _engine is None:
         init_db()
+    from web.database.tenant_context import configure_tenant_engine
+    configure_tenant_engine(_engine)
     return _engine
 
 
@@ -114,12 +119,16 @@ def init_db() -> None:
             cursor.close()
 
     _SessionLocal = sessionmaker(bind=_engine, autoflush=False, expire_on_commit=False)
+    from web.database.tenant_context import configure_tenant_engine
+    configure_tenant_engine(_engine)
 
 
 def SessionLocal() -> Session:
     """Create a new DB session from the connection pool. Caller must close it."""
     if _SessionLocal is None:
         init_db()
+    from web.database.tenant_context import configure_tenant_engine
+    configure_tenant_engine(_engine)
     return _SessionLocal()
 
 
@@ -127,23 +136,8 @@ def get_db() -> Generator[Session, None, None]:
     """FastAPI dependency: yields a session, commits on success, rollbacks on error."""
     if _SessionLocal is None:
         init_db()
-    db = _SessionLocal()
+    db = SessionLocal()
     try:
-        # Set RLS tenant context on PostgreSQL (SQLite doesn't support RLS)
-        if _engine and "postgresql" in str(_engine.url):
-            try:
-                from web.middleware.tenant import current_tenant
-                tenant_id = current_tenant.get(None)
-                if tenant_id:
-                    # set_config with is_local=true -> scoped to current transaction only
-                    db.execute(
-                        text("SELECT set_config('app.current_tenant', :tenant, true)"),
-                        {"tenant": str(tenant_id)},
-                    )
-                else:
-                    _logger.debug("[DB] No tenant context available for RLS")
-            except Exception as exc:
-                _logger.warning("[DB] Failed to set RLS tenant context: %s", exc)
         yield db
         db.commit()
     except Exception:
@@ -157,20 +151,8 @@ def get_db_readonly() -> Generator[Session, None, None]:
     """FastAPI dependency: yields a read-only session (no auto-commit)."""
     if _SessionLocal is None:
         init_db()
-    db = _SessionLocal()
+    db = SessionLocal()
     try:
-        # Set RLS tenant context on PostgreSQL
-        if _engine and "postgresql" in str(_engine.url):
-            try:
-                from web.middleware.tenant import current_tenant
-                tenant_id = current_tenant.get(None)
-                if tenant_id:
-                    db.execute(
-                        text("SELECT set_config('app.current_tenant', :tenant, true)"),
-                        {"tenant": str(tenant_id)},
-                    )
-            except Exception as exc:
-                _logger.warning("[DB] Failed to set RLS tenant context (readonly): %s", exc)
         yield db
     finally:
         db.close()

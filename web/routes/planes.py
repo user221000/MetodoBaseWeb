@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from web.schemas import PlanRequest
 from web.auth_deps import get_usuario_actual, get_effective_gym_id
 from web.database.engine import get_db, get_db_readonly
+from web.database.tenant_context import tenant_task
 from web.database import repository as repo
 from web.services.permissions import verify_permission
 from web.routes._utils import get_gym_id
@@ -52,6 +53,7 @@ def _get_client_lock(id_cliente: str) -> threading.Lock:
     return threading.Lock()
 
 
+@tenant_task("gym_id")
 def _generar_plan_sync(
     id_cliente: str, plan_numero: int, gym_id: str, tipo_plan: str = "menu_fijo"
 ) -> dict:

@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from api.schemas import PlanRequest
 from api.dependencies import build_cliente_from_dict
 from web.database.engine import get_db
+from web.database.tenant_context import tenant_task
 from web.auth_deps import get_usuario_gym
 from web.database import repository as repo
 from config.constantes import CARPETA_SALIDA, CARPETA_PLANES
@@ -37,6 +38,7 @@ async def listar_catalogo_alimentos():
     }
 
 
+@tenant_task("gym_id")
 def _generar_plan_sync(gym_id: str, id_cliente: str, plan_numero: int) -> dict:
     """
     Función CPU-bound que se ejecuta en un thread executor.

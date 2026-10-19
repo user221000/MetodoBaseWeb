@@ -169,6 +169,8 @@ async def google_login(data: GoogleLoginRequest, request: Request):
             # Auto-crear GymProfile si es gym
             if tipo == "gym":
                 from web.database import repository as _repo
+                from web.database.tenant_context import bind_verified_subject
+                bind_verified_subject(session, uid)
                 _repo.crear_gym_profile(session, uid, {"nombre_negocio": nombre}, initialize_memberships=True)
                 session.commit()
 
@@ -220,6 +222,8 @@ async def registro(data: RegistroRequest):
         from web.database import repository as _repo
 
         with _SASession(_ge()) as _s:
+            from web.database.tenant_context import bind_verified_subject
+            bind_verified_subject(_s, usuario["id"])
             _repo.crear_gym_profile(_s, usuario["id"], {"nombre_negocio": usuario["nombre"]}, initialize_memberships=True)
             _s.commit()
 

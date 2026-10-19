@@ -19,6 +19,8 @@ from sqlalchemy.orm import Session
 from web.database.models import PurchaseIntent, Subscription, StripeWebhookEvent, Usuario
 from web.services.billing_integrity import prepare_purchase
 from web.services.subscription_service import activate_subscription, update_subscription_status, record_payment
+from web.database.tenant_context import bind_verified_subject
+from web.services.provider_subjects import record_provider_subject
 from web.settings import get_settings
 
 
@@ -124,6 +126,11 @@ def reconcile_payment(db: Session, payment_id: str, sdk=None) -> str:
     intent = db.query(PurchaseIntent).filter_by(id=reference, provider="mercadopago").first()
     if not intent:
         raise ValueError("Payment requires purchase reconciliation")
+    if (payment.get("external_reference") != intent.id or
+            str(payment.get("currency_id", "")).lower() != intent.currency or
+            Decimal(str(payment.get("transaction_amount", 0))) * 100 != intent.amount_cents):
+        raise ValueError("Payment identity or amount mismatch")
+    bind_verified_subject(db, intent.subject_id)
     db.query(Usuario).filter_by(id=intent.subject_id).update({Usuario.id: Usuario.id})
     # Fetch again after serializing the subject to prevent a stale fetch waiting
     # behind a newer refund from restoring the old approved state.
@@ -136,6 +143,7 @@ def reconcile_payment(db: Session, payment_id: str, sdk=None) -> str:
             str(payment.get("currency_id", "")).lower() != intent.currency or
             Decimal(str(payment.get("transaction_amount", 0))) * 100 != intent.amount_cents):
         raise ValueError("Payment identity or amount mismatch")
+    record_provider_subject(db, "mercadopago", "payment", str(payment_id), intent.subject_id, intent.id)
     sub = db.query(Subscription).filter_by(gym_id=intent.subject_id).first()
     status = payment.get("status")
     if status == "approved":

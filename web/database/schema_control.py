@@ -9,6 +9,10 @@ from sqlalchemy import inspect
 from web.database.alembic.schema_contract_v1 import schema_signature
 
 ROOT = Path(__file__).resolve().parents[2]
+SCHEMA_CONTRACTS = {
+    "20261018_schema_reconciliation": "20261018_reconciled",
+    "20261018_provider_subjects": "20261018_prepared",
+}
 
 
 def alembic_config() -> Config:
@@ -36,7 +40,7 @@ def verify_legacy_signature(connection) -> None:
         raise RuntimeError("Legacy schema differs from reviewed baseline; reconcile drift before adoption")
 
 
-def verify_runtime_schema(engine, *, require_revision: bool = True) -> None:
+def verify_runtime_schema(engine, *, require_revision: bool = True, expected_revision: str | None = None) -> None:
     """Fail before traffic when migrations or required application columns are missing.
 
     Only isolated unit SQLite fixtures may opt out of revision bookkeeping. They
@@ -47,12 +51,19 @@ def verify_runtime_schema(engine, *, require_revision: bool = True) -> None:
         inspector = inspect(connection)
         if require_revision or connection.dialect.name == "postgresql":
             actual = MigrationContext.configure(connection).get_current_heads()
-            if actual != (expected_head(),):
+            required = expected_revision or expected_head()
+            if actual != (required,):
                 raise RuntimeError("Database revision does not match application; run reviewed migrations")
-            target_path = Path(__file__).parent / "alembic" / "schema_targets" / ("20261018_reconciled_" + connection.dialect.name + ".json")
+            if required not in SCHEMA_CONTRACTS:
+                raise RuntimeError("No frozen schema contract for the requested revision")
+            target_path = Path(__file__).parent / "alembic" / "schema_targets" / (SCHEMA_CONTRACTS[required] + "_" + connection.dialect.name + ".json")
             target = json.loads(target_path.read_text(encoding="utf-8"))["signature"]
             if schema_signature(connection) != target:
                 raise RuntimeError("Database structure differs from the reviewed application schema")
+            if expected_revision is not None:
+                # Explicit historical migration acceptance uses that revision's
+                # frozen model, not the current application's newer metadata.
+                return
         available = set(inspector.get_table_names())
         for table in Base.metadata.sorted_tables:
             if table.name not in available:

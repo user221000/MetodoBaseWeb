@@ -576,13 +576,15 @@ class LicenseActivation(Base):
     __tablename__ = "license_activations"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    gym_id = Column(String(36), ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True, index=True)
+    issued_license_id = Column(Integer, ForeignKey("gym_licenses.id", ondelete="SET NULL"), nullable=True, index=True)
     hardware_id = Column(String(128), nullable=False, unique=True, index=True)
     clave_hash = Column(String(64), nullable=False)  # SHA-256 de la clave
     email = Column(String(120), nullable=False)
     plan = Column(String(30), nullable=False)
     activa = Column(Boolean, default=True)
     revocada = Column(Boolean, default=False)
-    expira = Column(DateTime, nullable=False)
+    expira = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
@@ -744,4 +746,27 @@ class GenerationReservation(Base):
     __table_args__ = (
         UniqueConstraint("user_id", "request_key", name="uq_generation_request_key"),
         CheckConstraint("status IN ('reserved', 'completed', 'released')", name="ck_generation_reservation_status"),
+    )
+
+
+class ProviderSubjectAssociation(Base):
+    """Minimal provider resource identity; contains no entitlement or money.
+
+    Legacy links come only from existing canonical mappings, with provenance.
+    Verified callbacks use this control plane before entering a tenant scope.
+    """
+    __tablename__ = "provider_subject_associations"
+
+    provider = Column(String(20), primary_key=True)
+    resource_type = Column(String(30), primary_key=True)
+    resource_id = Column(String(255), primary_key=True)
+    subject_id = Column(String(36), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
+    provenance = Column(String(30), nullable=False)
+    source_ref = Column(String(255), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    __table_args__ = (
+        CheckConstraint("provider IN ('stripe','mercadopago')", name="ck_provider_subject_provider"),
+        CheckConstraint("resource_type IN ('customer','subscription','payment','preference')", name="ck_provider_subject_resource"),
+        CheckConstraint("provenance IN ('legacy_subscription','legacy_customer','verified_purchase')", name="ck_provider_subject_provenance"),
     )

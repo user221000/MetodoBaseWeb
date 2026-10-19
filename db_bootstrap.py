@@ -16,6 +16,7 @@ def main(argv=()) -> int:
     """Migrate an explicitly configured database and return a blocking exit code."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--adopt-verified-legacy", action="store_true")
+    parser.add_argument("--revision", default="head", help="Reviewed revision for historical rehearsal; releases default to head")
     args = parser.parse_args(argv)
     if not os.environ.get("DATABASE_URL"):
         logger.error("Migration requires explicit DATABASE_URL")
@@ -24,9 +25,11 @@ def main(argv=()) -> int:
         from alembic import command
         from sqlalchemy import inspect, text
         from web.database.engine import get_engine
-        from web.database.schema_control import alembic_config, expected_head, verify_legacy_signature, verify_runtime_schema
+        from web.database.schema_control import alembic_config, expected_head, verify_legacy_signature, verify_runtime_schema, SCHEMA_CONTRACTS
         engine = get_engine()
-        expected_head()
+        target_revision = expected_head() if args.revision == "head" else args.revision
+        if target_revision not in SCHEMA_CONTRACTS:
+            raise RuntimeError("Migration target has no reviewed structural contract")
         config = alembic_config()
         with engine.connect() as connection:
             sqlite = connection.dialect.name == "sqlite"
@@ -51,7 +54,7 @@ def main(argv=()) -> int:
                     config.attributes["connection"] = connection
                     if unversioned:
                         command.stamp(config, "20260402_plan_json")
-                    command.upgrade(config, "head")
+                    command.upgrade(config, target_revision)
                     if sqlite and connection.exec_driver_sql("PRAGMA foreign_key_check").first():
                         raise RuntimeError("Migration would leave invalid foreign keys")
             finally:
@@ -59,8 +62,8 @@ def main(argv=()) -> int:
                     connection.rollback()
                     connection.exec_driver_sql("PRAGMA foreign_keys=ON")
                     connection.commit()
-        verify_runtime_schema(engine)
-        logger.info("Migration completed and verified at revision %s", expected_head())
+        verify_runtime_schema(engine, expected_revision=target_revision)
+        logger.info("Migration completed and verified at revision %s", target_revision)
         return 0
     except Exception as error:
         logger.error("Migration aborted class=%s; database not accepted for release", type(error).__name__)
