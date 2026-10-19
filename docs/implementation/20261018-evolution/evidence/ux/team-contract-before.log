@@ -60,7 +60,7 @@ tests\test_team_invitation_contract.py:178: in test_invite_password_follows_regi
     assert client.post('/api/auth/accept-invite', json={'token':token,'password':'short123'}).status_code == 422
 E   AssertionError: assert 500 == 422
 E    +  where 500 = <Response [500 Internal Server Error]>.status_code
-E    +    where <Response [500 Internal Server Error]> = post('/api/auth/accept-invite', json={'token': 'vyavmYjkIuF_GDutNJd5XRr_sAFFPSiRyDO2fI82DvI', 'password': 'short123'})
+E    +    where <Response [500 Internal Server Error]> = post('/api/auth/accept-invite', json=<synthetic request values redacted>)
 E    +      where post = <starlette.testclient.TestClient object at 0x000001F53B5D57C0>.post
 ------------------------------ Captured log call ------------------------------
 WARNING  web.routes.team:team.py:157 [TEAM] Could not send invitation email to professional@example.invalid (email service not configured)
