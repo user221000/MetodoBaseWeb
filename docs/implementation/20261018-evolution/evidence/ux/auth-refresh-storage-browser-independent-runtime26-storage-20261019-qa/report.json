@@ -1,0 +1,21 @@
+{
+  "scope": "Real browser and synthetic auth/API; only Storage.setItem(refreshB) throws an explicit DOMException after native accessB writes. Fetch is observed and forwarded unchanged. No native quota exhaustion, reload durability or cross-tab atomicity claim.",
+  "checks": [
+    "Native accessB is written before the named refreshB DOMException; the native setter is restored and the partial B-access/A-refresh pair is retained",
+    "With the Storage fault removed, PUT/read/me/export/logout reject before fetch or refresh, retain the partial pair and leave the real persisted client unchanged",
+    "A complete explicit clear followed by real public login restores a consistent pair and authenticated me/export in the intended account, without refresh"
+  ],
+  "pageErrors": [],
+  "blocked": {
+    "consumers": 5,
+    "fetchCalls": 0,
+    "wireRequests": 0,
+    "partialPairPreserved": true
+  },
+  "recovery": {
+    "completeClear": true,
+    "realLogin": true,
+    "consistentPair": true,
+    "authenticatedScopeMatches": true
+  }
+}

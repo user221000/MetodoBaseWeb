@@ -1,0 +1,66 @@
+{
+  "scope": "Current factory, own SQLite25 and own temporary local private-object store; auth/RBAC, logo POST/GET, worker, exact PDF and history real; explicitly named errors/legacy metadata are transport doubles; external requests blocked",
+  "checks": [
+    "Keyboard picker uploads through real authenticated private storage; profile returns private metadata, preview is a Blob, headers are private, no auth is 401, another owner is 404 and persisted Viewer can read but cannot upload",
+    "Replacing a logo revokes the old Blob URL; read-only reload preserves unsaved profile fields and an explicit profile save persists the current account only",
+    "Real corrupt-image upload returns a visible focused error and preserves the stored logo; oversize/SVG client selections issue no upload POST",
+    "Named GET transport negatives cover HTTP 200 HTML, oversized bytes, undecodable image and private 404; no Blob or legacy fallback is shown",
+    "Transport-doubled legacy metadata permits only a same-origin uploads/logos basename; provider URLs, token queries and path traversal never trigger an image fetch",
+    "Historical gym Viewer uses persisted professional team identity to read the parent logo; editing controls are absent and profile fields are disabled",
+    "A real authenticated logo response held across a same-tab account switch is discarded before Blob creation and clears the old profile fields",
+    "A real committed upload delivered after a cross-tab account switch cannot fetch/show its old-account logo; preview URLs and file selection are cleared",
+    "Mismatched profile scope is rejected; pagehide revokes the current preview; no image/file/token query/branding payload is persisted in browser storage",
+    "Current 25-table worker generates two real private PDFs with the saved logo; result/history expose pdf_url/tiene_pdf without physical paths, and the older history row downloads exact original bytes after a newer plan exists"
+  ],
+  "screens": [
+    {
+      "label": "logo-ready-320",
+      "dimensions": {
+        "width": 320,
+        "scrollWidth": 320
+      },
+      "violations": []
+    },
+    {
+      "label": "logo-ready-390",
+      "dimensions": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "violations": []
+    },
+    {
+      "label": "logo-ready-768",
+      "dimensions": {
+        "width": 768,
+        "scrollWidth": 768
+      },
+      "violations": []
+    },
+    {
+      "label": "logo-ready-1440",
+      "dimensions": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "violations": []
+    },
+    {
+      "label": "logo-error-320",
+      "dimensions": {
+        "width": 320,
+        "scrollWidth": 320
+      },
+      "violations": []
+    },
+    {
+      "label": "private-history-390",
+      "dimensions": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "violations": []
+    }
+  ],
+  "pageErrors": []
+}

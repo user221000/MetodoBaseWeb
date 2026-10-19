@@ -1,0 +1,484 @@
+{
+  "scope": "Independent local static YAML/reference/Bash review and exact extracted Node/PG/browser report guards with synthetic reports; no CI/Linux/image/provider execution",
+  "before": {
+    ".github/workflows/ci.yml": "945f62159724b31ee1dfc0ce27e16c5b4e5df5fe71bb947bd393255c6d3f46db",
+    "tests/e2e/privacy_export.cjs": "3cb1412fc9094b0123ba5b41e2f3243a9d6acb65001d2b9d18d6ede98f9a5ab5"
+  },
+  "after": {
+    ".github/workflows/ci.yml": "945f62159724b31ee1dfc0ce27e16c5b4e5df5fe71bb947bd393255c6d3f46db",
+    "tests/e2e/privacy_export.cjs": "3cb1412fc9094b0123ba5b41e2f3243a9d6acb65001d2b9d18d6ede98f9a5ab5"
+  },
+  "script_references": [
+    "tests/check_coverage.py",
+    "tests/check_quality.py",
+    "tests/e2e/auth_refresh.cjs",
+    "tests/e2e/auth_refresh_browser.cjs",
+    "tests/e2e/auth_refresh_race_review.cjs",
+    "tests/e2e/auth_refresh_security_review.cjs",
+    "tests/e2e/auth_refresh_server.py",
+    "tests/e2e/auth_refresh_storage.cjs",
+    "tests/e2e/gym_branding.cjs",
+    "tests/e2e/gym_branding_server.py",
+    "tests/e2e/gym_generation.cjs",
+    "tests/e2e/gym_generation_server.py",
+    "tests/e2e/gym_subscription.cjs",
+    "tests/e2e/privacy_export.cjs",
+    "tests/e2e/privacy_export_server.py",
+    "tests/e2e/responsive_accessibility.cjs",
+    "tests/e2e/subscription.cjs",
+    "tests/e2e/subscription_contract_review.cjs",
+    "tests/e2e/team.cjs",
+    "tests/e2e/team_fullstack.cjs",
+    "tests/e2e/team_fullstack_server.py",
+    "tests/integration_backup_restore_postgres.py",
+    "tests/integration_cleanup_tokens_postgres.py",
+    "tests/integration_gym_caps_http_postgres.py",
+    "tests/integration_gym_quota_migrations.py",
+    "tests/integration_gym_quota_postgres.py",
+    "tests/integration_gym_recovery_review_postgres.py",
+    "tests/integration_individual_generation_recovery_review.py",
+    "tests/integration_individual_publication_edges_review.py",
+    "tests/integration_individual_publication_migrations.py",
+    "tests/integration_individual_publication_postgres.py",
+    "tests/integration_invitation_tenant_postgres.py",
+    "tests/integration_legacy_inventory_postgres.py",
+    "tests/integration_license_postgres.py",
+    "tests/integration_model_utc_postgres.py",
+    "tests/integration_object_storage_sdk.py",
+    "tests/integration_object_store_configuration.py",
+    "tests/integration_object_store_configuration_review.py",
+    "tests/integration_onboarding_postgres.py",
+    "tests/integration_plan_documents_postgres.py",
+    "tests/integration_postgres.py",
+    "tests/integration_privacy_composition_postgres.py",
+    "tests/integration_private_objects_review_postgres.py",
+    "tests/integration_provider_subjects.py",
+    "tests/integration_quota_postgres.py",
+    "tests/integration_redis.py",
+    "tests/integration_schema_migrations.py",
+    "tests/integration_stored_objects_migrations.py",
+    "tests/integration_tenant_activation.py",
+    "tests/integration_timestamp_observation.py",
+    "tests/integration_utc_datetime.py",
+    "tests/integration_utc_datetime_review.py",
+    "tests/prepare_postgres.py",
+    "tests/run_isolated.py",
+    "tests/test_login_desktop.py",
+    "tests/verify_quality_guards.py"
+  ],
+  "bash_blocks": [
+    {
+      "job": "secrets",
+      "step": "Install the reviewed Gitleaks release outside the deliverable",
+      "exit_code": 0
+    },
+    {
+      "job": "frontend-contracts",
+      "step": "Session refresh contracts and independent account-switch reproductions",
+      "exit_code": 0
+    },
+    {
+      "job": "postgres",
+      "step": "Matching PostgreSQL client tools from the official PGDG repository",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "step": "Exercise the same web runtime inside the candidate",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "step": "Reproducible browser tooling and Chromium",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "step": "Browser subscription contracts and accessibility against the candidate",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "step": "Real team authentication and API with an isolated Clinic fixture",
+      "exit_code": 0
+    },
+    {
+      "job": "image",
+      "step": "Generation, private branding, export and refresh with separate real synthetic fixtures",
+      "exit_code": 0
+    }
+  ],
+  "required_pg_reports": [
+    "pytest-postgres-migrations.xml",
+    "pytest-postgres-rls.xml",
+    "pytest-postgres-channels.xml",
+    "pytest-postgres-gym-migrations.xml",
+    "pytest-postgres-object-migrations.xml",
+    "pytest-postgres-objects.xml",
+    "pytest-postgres-legacy-inventory.xml",
+    "pytest-postgres-cleanup.xml",
+    "pytest-postgres-privacy.xml",
+    "pytest-postgres-plan-documents.xml",
+    "pytest-postgres-utc.xml",
+    "pytest-postgres-licenses.xml",
+    "pytest-postgres-quota.xml",
+    "pytest-postgres-individual-migrations.xml",
+    "pytest-postgres-individual-publication.xml",
+    "pytest-postgres-gym-quota.xml",
+    "pytest-postgres-restore.xml"
+  ],
+  "canaries": [
+    {
+      "case": "node-positive",
+      "exit_code": 0,
+      "expected_success": true,
+      "matched": true
+    },
+    {
+      "case": "node-author-missing-fields",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-missing-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-missing-passed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-string-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-string-passed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-boolean-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-fractional",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-unsafe-integer",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-below-minimum",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-author-failed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-missing-fields",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-missing-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-missing-passed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-string-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-string-passed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-boolean-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-fractional",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-unsafe-integer",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-below-minimum",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-storage-failed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-missing-fields",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-missing-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-missing-passed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-string-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-string-passed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-boolean-total",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-fractional",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-unsafe-integer",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-below-minimum",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-security-failed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-root-missing",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-root-non-array",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-root-empty",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-root-too-short",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-root-failed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-root-truthy-string",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-missing-report",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "node-malformed-json",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "pg-positive",
+      "exit_code": 0,
+      "expected_success": true,
+      "matched": true
+    },
+    {
+      "case": "pg-skipped",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "pg-failure",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "pg-error",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "pg-empty",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "pg-malformed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "pg-missing",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-positive",
+      "exit_code": 0,
+      "expected_success": true,
+      "matched": true
+    },
+    {
+      "case": "browser-missing-fields",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-root-list",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-string-checks",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-missing-errors",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-string-errors",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-empty-checks",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-empty-check-name",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-object-check",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-page-error",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-missing",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    },
+    {
+      "case": "browser-malformed",
+      "exit_code": 1,
+      "expected_success": false,
+      "matched": true
+    }
+  ],
+  "canary_count": 58,
+  "all_matched": true,
+  "privacy_batch_delta": "Only optional artifact destination by METODOBASE_EVIDENCE_BATCH; normal default output retained.",
+  "stable_sources": true
+}

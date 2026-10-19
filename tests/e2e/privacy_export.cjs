@@ -4,7 +4,9 @@ const {AxeBuilder}=require('@axe-core/playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const base=process.env.METODOBASE_E2E_URL || 'http://127.0.0.1:8768';
 if(!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(base))throw Error('Only a local synthetic server is allowed');
-const out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/ux');
+const batch=process.env.METODOBASE_EVIDENCE_BATCH;
+const out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/ux',batch?'privacy-export-'+batch:'');
+fs.mkdirSync(out,{recursive:true});
 const report={scope:'Real synthetic app, own SQLite and real auth/scope/export API; only explicitly named error responses are intercepted; all external connections blocked',checks:[],screens:[],pageErrors:[]};
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});

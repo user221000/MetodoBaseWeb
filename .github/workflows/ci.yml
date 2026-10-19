@@ -84,6 +84,27 @@ jobs:
             pytest-storage-sdk.xml
             coverage.xml
             coverage.json
+  frontend-contracts:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Session refresh contracts and independent account-switch reproductions
+        run: |
+          node tests/e2e/auth_refresh.cjs > auth-refresh-contracts.json
+          node tests/e2e/auth_refresh_storage.cjs > auth-refresh-storage.json
+          node tests/e2e/auth_refresh_race_review.cjs > auth-refresh-reproductions.json
+          node tests/e2e/auth_refresh_security_review.cjs > auth-refresh-security.json
+          node -e "const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-session-contracts
+          path: auth-refresh-*.json
+          if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
     needs: quality
@@ -159,6 +180,10 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_stored_objects_migrations.py -q --tb=short --junitxml=pytest-postgres-object-migrations.xml
       - name: Private publication survives uncertain PUT and transaction failures under restricted role
         run: python -X utf8 tests/run_isolated.py tests/integration_private_objects_review_postgres.py -q --tb=short --junitxml=pytest-postgres-objects.xml
+      - name: Legacy inventory remains globally consistent and physically read-only
+        run: python -X utf8 tests/run_isolated.py tests/integration_legacy_inventory_postgres.py -q --tb=short --junitxml=pytest-postgres-legacy-inventory.xml
+      - name: Existing cleanup cutoffs use epoch and UTC units with visible failures
+        run: python -X utf8 tests/run_isolated.py tests/integration_cleanup_tokens_postgres.py -q --tb=short --junitxml=pytest-postgres-cleanup.xml
       - name: Real factory privacy export preserves personal scope and performs no writes
         run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
       - name: Exact historical plan PDF respects viewer scope, revocation and pool reuse
@@ -169,10 +194,23 @@ jobs:
         run: python -X utf8 tests/run_isolated.py tests/integration_license_postgres.py -q --tb=short --junitxml=pytest-postgres-licenses.xml
       - name: Last-credit and subscription GET races across PostgreSQL processes
         run: python -X utf8 tests/run_isolated.py tests/integration_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-quota.xml
+      - name: Individual publication migration preserves legacy ambiguity and the frozen object contract
+        run: python -X utf8 tests/run_isolated.py tests/integration_individual_publication_migrations.py -q --tb=short --junitxml=pytest-postgres-individual-migrations.xml
+      - name: Individual worker commit, quota compensation and process recovery preserve one consumption
+        run: python -X utf8 tests/run_isolated.py tests/integration_individual_publication_postgres.py tests/integration_individual_generation_recovery_review.py tests/integration_individual_publication_edges_review.py tests/integration_individual_process_recovery_review.py -q --tb=short --junitxml=pytest-postgres-individual-publication.xml
       - name: Gym caps, replay and process-crash recovery across both real HTTP adapters
         run: python -X utf8 tests/run_isolated.py tests/integration_gym_caps_http_postgres.py tests/integration_gym_recovery_review_postgres.py tests/integration_gym_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-gym-quota.xml
       - name: Encrypted PostgreSQL and object restoration into an empty owned database
         run: python -X utf8 tests/run_isolated.py tests/integration_backup_restore_postgres.py -q --tb=short --junitxml=pytest-postgres-restore.xml
+      - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
+        run: >-
+          python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'"
+          pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml
+          pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml
+          pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml
+          pytest-postgres-plan-documents.xml pytest-postgres-utc.xml pytest-postgres-licenses.xml
+          pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml
+          pytest-postgres-gym-quota.xml pytest-postgres-restore.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -283,6 +321,36 @@ jobs:
             exit 1
           fi
           node tests/e2e/team_fullstack.cjs
+      - name: Generation, private branding, export and refresh with separate real synthetic fixtures
+        run: |
+          export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
+          export METODOBASE_EVIDENCE_BATCH="ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          browser_fixture_pid=''
+          trap 'if [ -n "${browser_fixture_pid:-}" ]; then kill "$browser_fixture_pid" 2>/dev/null || true; fi' EXIT
+          run_browser_fixture() {
+            local fixture_script="$1" fixture_port="$2" driver="$3" expected_report="$4" minimum_checks="$5"
+            local fixture_log="docs/implementation/20261018-evolution/evidence/ux/ci-${fixture_port}-${driver##*/}-server.log"
+            export METODOBASE_E2E_URL="http://127.0.0.1:${fixture_port}"
+            python -X utf8 "$fixture_script" > "$fixture_log" 2>&1 &
+            browser_fixture_pid=$!
+            local ready=0
+            for attempt in $(seq 1 30); do
+              if curl --fail --silent "${METODOBASE_E2E_URL}/health/ready"; then ready=1; break; fi
+              sleep 1
+            done
+            if [ "$ready" -ne 1 ]; then cat "$fixture_log"; return 1; fi
+            node "$driver"
+            python -c "import json,sys; from pathlib import Path; p=Path(sys.argv[1]); r=json.loads(p.read_text()); assert isinstance(r,dict); checks=r.get('checks'); errors=r.get('pageErrors'); assert isinstance(checks,list) and len(checks)>=int(sys.argv[2]) and all(isinstance(x,str) and x for x in checks); assert isinstance(errors,list) and not errors" "$expected_report" "$minimum_checks"
+            kill "$browser_fixture_pid"
+            wait "$browser_fixture_pid" || true
+            browser_fixture_pid=''
+          }
+          browser_evidence=docs/implementation/20261018-evolution/evidence/ux
+          run_browser_fixture tests/e2e/gym_generation_server.py 8769 tests/e2e/gym_generation.cjs "${browser_evidence}/b2b-generation-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
+          run_browser_fixture tests/e2e/gym_branding_server.py 8770 tests/e2e/gym_branding.cjs "${browser_evidence}/private-branding-${METODOBASE_EVIDENCE_BATCH}/report.json" 10
+          run_browser_fixture tests/e2e/privacy_export_server.py 8768 tests/e2e/privacy_export.cjs "${browser_evidence}/privacy-export-${METODOBASE_EVIDENCE_BATCH}/privacy-export-browser.json" 8
+          run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_browser.cjs "${browser_evidence}/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 9
+          run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_storage_browser_review.cjs "${browser_evidence}/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 3
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -299,7 +367,7 @@ jobs:
         run: docker rm --force metodobase-candidate
   ci-success:
     runs-on: ubuntu-latest
-    needs: [quality, secrets, test-web, test-desktop, postgres, redis, image]
+    needs: [quality, secrets, test-web, frontend-contracts, test-desktop, postgres, redis, image]
     if: always()
     steps:
       - name: Every required gate must succeed
