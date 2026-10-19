@@ -1,0 +1,14 @@
+diff --git a/tests/test_landing_commercial.py b/tests/test_landing_commercial.py
+index d7edbc8..04cef39 100644
+--- a/tests/test_landing_commercial.py
++++ b/tests/test_landing_commercial.py
+@@ -139,4 +139,8 @@ def test_public_view_never_reads_credentials_fetches_private_data_or_writes(land
+     assert landing[0].get('/static/data/landing-example.json').status_code==200
+     assert landing[0].get('/landing.html').status_code==404
+     assert not Path('web/pages/landing.html').exists()
+-    assert Path('web/pages/checkout.html').is_file()
++    # R29 retires the remaining unmounted commercial duplicate as well.
++    assert not Path('web/pages/checkout.html').exists()
++    for path in ['/checkout.html', '/pages/checkout.html', '/web/pages/checkout.html',
++                 '/pages/landing.html', '/web/pages/landing.html']:
++        assert landing[0].get(path).status_code == 404

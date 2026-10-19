@@ -1,0 +1,34 @@
+{
+  "scope": "Independent coordinator SQL review of the frozen experimental R12 prototype; no revision29/API/security acceptance",
+  "head": "c12eb6372af7173c4858924a39b19e34f5684624",
+  "prototype_sql_sha256": "bd97e0b3d100a1fa1f889b33854e860e4f26fcb274d8c2630e8ec069135eb898",
+  "initial_source_count": 557,
+  "sources_stable_initial_and_through_corrected_replay": true,
+  "end_tool_packages": 89,
+  "initial_raw_result": {
+    "testcase": 5,
+    "failure": 2,
+    "error": 0,
+    "skipped": 0
+  },
+  "verified_unique_positive_criteria": 4,
+  "real_product_prototype_negative": {
+    "nodeid": "test_direct_publication_cannot_commit_payload_different_from_exact_source",
+    "observed": "A direct INSERT and commit accepted a different plan_json although Plan and PDF references were exact.",
+    "status": "Open for canonical revision29; backend is implementing DB projection derivation/comparison, hash and schema checks.",
+    "original_driver_sha256": "5cac8ec71a9cfb0946fb8f55b646d546a00db9c6386b258296639e7dc8ef966e"
+  },
+  "harness_errata": {
+    "initial": "Root attempted SET TRANSACTION after tx helper had already issued SELECT set_config; not a product defect.",
+    "correction": "Choose REPEATABLE READ on connection before begin; assertion AST identical. Only that positive rerun, not3 prior positives or real negative.",
+    "prep_only": "First replay helper expected LF while original driver was CRLF; preparation stopped before any test. Original helper preserved in RAW ZIP."
+  },
+  "positives": [
+    "Plan invalidation stays withdrawn after inactive owner reactivates",
+    "StoredObject invalidation stays withdrawn after inactive owner reactivates",
+    "Inactive recipient cannot SELECT FOR SHARE its prior publication",
+    "No-op source update at REPEATABLE READ leaves publication usable"
+  ],
+  "owned_database_scope": "Existing migration fixture allocated separate UUID DB for each run with restricted app role and closed generator teardown; no unrelated database targeted.",
+  "raw_bundle_sha256": "217510b538264efedd815b4faf0c8537b3a7db00ec01eeaf73caaa5c6ed296cb"
+}

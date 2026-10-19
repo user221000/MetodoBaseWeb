@@ -93,3 +93,9 @@ El gate amplio7bde30b pasó2064/1skip en serial y n2; no se suman15posteriores n
 Historial antes ilimitado pasa a summaries50/default,200máximo, cursor HMAC por identidad/perfil y carga explícita de páginas. Boundary privado conserva cabeceras también en errores422/405/500. Integrados21b7ed9/924dd6f/fdfc9cb; seguridad24 y composición36 con recuperación28 aceptadas. R34 no declara todavía mejora de p95 PostgreSQL.
 
 Landing integrada647eda8/1f9bdb1 muestra catálogo canónico B2B/B2C, CTA móvil por audiencia, acceso rápido, ejemplo sintético y FAQ factual; registro inicializa modo correcto. Retirados los dos HTML comerciales huérfanos tras comprobar ausencia de montaje y referencias; RAW originales fuera del entregable y Git preservados. R29/UX-16 verificados localmente por QA y composición20+6; sin publicación ni compras. [QA historial](evidence/history-independent-20261019/final-summary.json),[QA landing](evidence/landing-independent-20261019/final-summary.json).
+
+## Checkpoint105: regresión integrada y candidatos separados
+
+a753b2c corrige únicamente la aserción de un test vecino que esperaba checkout sinuso ya retirado;conserva15nodosAST previos yresto del módulo. Original2fallos preservado;20focales y ambos amplios2360/1skip verdes. No runtime modificado por elfix.
+
+Contrato R12v2 documentado4d537e4/6b0dc01 y aceptado porseguridad para implementar29 aislado;productoMAIN sigue28. Nuevo runtimeLinux fijaCPython3.12.15,pip26.2.1 yliblzma5u2 porfuentes oficiales/digest/hash;build2 yPythonSCA verdes,OS/startup noaceptados todavía. Windows3.12.15 separado tiene83paquetes/OSV0 y45+97tests verdes;artefactosdesktop anteriores permanecen históricos,porreconstruir.

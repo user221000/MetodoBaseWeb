@@ -1,0 +1,41 @@
+...FF                                                                    [100%]
+================================== FAILURES ===================================
+________ test_source_noop_under_repeatable_read_preserves_publication _________
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   psycopg2.errors.ActiveSqlTransaction: SET TRANSACTION ISOLATION LEVEL must be called before any query
+
+The above exception was the direct cause of the following exception:
+C:\Users\Consu\AppData\Local\Temp\metodobase-r12-root-mechanism-review-20261019\test_r12_root_review.py:35: in test_source_noop_under_repeatable_read_preserves_publication
+    db.execute(text('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ'))
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1458: in execute
+    return meth(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\sql\elements.py:533: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1678: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1832: in _execute_context
+    return self._exec_single_context(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1972: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:2342: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\base.py:1953: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\sqlalchemy\engine\default.py:1192: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.InternalError: (psycopg2.errors.ActiveSqlTransaction) SET TRANSACTION ISOLATION LEVEL must be called before any query
+E   
+E   [SQL: SET TRANSACTION ISOLATION LEVEL REPEATABLE READ]
+E   (Background on this error at: https://sqlalche.me/e/21/2j85)
+__ test_direct_publication_cannot_commit_payload_different_from_exact_source __
+C:\Users\Consu\AppData\Local\Temp\metodobase-r12-root-mechanism-review-20261019\test_r12_root_review.py:48: in test_direct_publication_cannot_commit_payload_different_from_exact_source
+    with pytest.raises(DBAPIError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE DBAPIError
+=========================== short test summary info ===========================
+FAILED ::test_source_noop_under_repeatable_read_preserves_publication - sqlal...
+FAILED ::test_direct_publication_cannot_commit_payload_different_from_exact_source
+2 failed, 3 passed in 10.25s

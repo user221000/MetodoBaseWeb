@@ -136,3 +136,15 @@ Historial57: QA74Python y8propios SQL,23VM nuevos,10grupos browser de autor ejec
 Landing55: QA12HTTP,2criterios dinámicos rojos antes/verdes después,8grupos browser de autor una vez y3propios,4pantallas axe AA sin desbordes/erroresJS del alcance. En MAIN1c24d3c,20/20 antes de retirar checkout huérfano y6/6 rutas404 después; sólo ese HTML cambia entre622y621fuentes. RAW fuera del entregable. [QA](evidence/landing-independent-20261019/final-summary.json),[composición](evidence/r29-main-composition-20261019/summary.json).
 
 No gate amplio nuevo, medición posterior PG, Actions ni startup de producto en imagen por estas pruebas. SCA de la primera imagen real es roja y se registraSEC08; reconstrucción corregida/OS/CPython tienen evaluación separada.
+
+## Checkpoint105: gate amplio actual y correcciones de runtime
+
+[Aceptación independiente a753b2c](evidence/qa-integrated28-history-landing-postfix-20261019/final-summary.json):2360passed/1skip,serial588.64s y n2shuffle20261018/275.43s.2361nodeids/resultados iguales;667fuentes/89paquetes idénticos en4fotos,4pipcheck0. TresSQLite readonly integrity ok/26tablas/diario/3camposrecovery. Cobertura100%líneas/ramas sólo nutrition_validation,food_catalog,profile_schemas.6mensajes de deprecación existentes iguales,8avisos n2 por imports repetidos. No nuevoPG/Actions/Linux/performance por este gate.
+
+Originaldd987:2358pass/2fail/1skip;ambos fallos esperaban checkout HTML huérfano ya retirado. [Original](evidence/qa-integrated28-history-landing-20261019/serial-red-review.json) intacto. a753 modifica sólo esa aserción y exige ausencia/404 de rutas públicas;15nodosprevios/restomódulo AST idénticos,20dirigidas verdes. [Fix](evidence/landing-retirement-test-fix-20261019/summary.json). No tests excluidos ni runtime cambiado.
+
+Linuxecae/abd:55inventariados reales/OSV0,pipcheck0. Trivy0.76.0 sobre87OS:exit1,166entradas/73IDs(67CVE+5TEMP+1DSA),sinignore. [Matriz73](evidence/linux-recovery28-image-abd559a/os-audit/triage-matrix/TRIAGE.md):21grupos;2alias del mismoXZfixu2,otros71abiertos. BackportsOpenSSL13 confirmados por fuentes primarias. Candidatobc365c1 sobreMAINa753:build0/900.985s/imagen99c846bd28b0;55PyPI OSV0 yúnico cambioOS liblzma5u1→u2. AuditoríaOS final/startup/independencia aún pendientes.
+
+[Windows3.12.15](evidence/desktop31215-security-20261019/README.md):83paquetes OSV0,pipcheck0;45desktop+97packaging/entrypoints nativos sinfallos/errores/skips,dd987/576fuentes estables. Runtime extraído desdefuente oficialAstral inmutable conAPI/checksum iguales;sin firma acreditada. OpenSSL3.5.9/Expat2.8.5. No bundle/Setup nuevo ni auditoríaDLL nativa.
+
+[R12v2](evidence/r12-contract-security-review-20261019/source.json) aceptado sólo para diseño y autoría29 aislada. [Rootprototipo](evidence/r12-root-mechanism-review-20261019/review-summary.json):4criterios propios positivos y1rojo payload real;1error propio deharness corregido sólo paraesecriterio,original intacto. Autor informa55canónicos verdes traspayload/lockowner;no aceptación independiente29/API. CI57dba41 en revisión independiente,16inertes/13delta/23VM autor más negativos propios aún sin integración.

@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>
+      
+        OpenSSL 3.5 Series Release Notes | OpenSSL Library
+      
+    </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+  
+    
+    
+      
+        
+          <link rel="stylesheet" href="/css/main.365ab85dcfa55e30f6ff8a1600ce255d66095a3a9c6591bf72d13c05160fb84c.css" integrity="sha256-Nlq4Xc&#43;lXjD2/4oWAM4lXWYJWjqcZZG/ctE8BRYPuEw=" crossorigin="anonymous" />
+        
+      
+    
+  
+
+
+
+
+
+  
+    
+      <link rel="stylesheet" href="/css/fontawesome.min.80a5cf80e4ba6d1ff172b4995ad5ce996071022227860700308ed797fbd150ad.css" integrity="sha256-gKXPgOS6bR/xcrSZWtXOmWBxAiInhgcAMI7Xl/vRUK0=" crossorigin="anonymous" />
+    
+  
+
+
+
+  
+    
+      <link rel="stylesheet" href="/css/brands.9c662012d93fb448c96f67697bbee60ae06d6552398ca9487dcc79df4a032eb3.css" integrity="sha256-nGYgEtk/tEjJb2dpe77mCuBtZVI5jKlIfcx530oDLrM=" crossorigin="anonymous" />
+    
+  
+
+
+
+  
+    
+      <link rel="stylesheet" href="/css/solid.40e9c76835b2f8346bf5a2dda24f8a0ec0624a4a2232ad15dad086f44a672772.css" integrity="sha256-QOnHaDWy&#43;DRr9aLdok&#43;KDsBiSkoiMq0V2tCG9EpnJ3I=" crossorigin="anonymous" />
+    
+  
+
+
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 xl:relative">
+  <div class="container mx-auto px-4">
+    
+    <input id="menu-toggle" type="checkbox" class="peer sr-only xl:!hidden " />
+
+    
+    <div class="flex px-8 h-24 items-center justify-between">
+      
+      <a href="/" class="flex items-center space-x-2">
+        <img src="/images/openssl_logo_library.svg" alt="OpenSSL Library logo" class="h-12 w-auto" />
+      </a>
+
+      
+      <label for="menu-toggle" class="xl:hidden p-2 cursor-pointer focus:outline-none" aria-label="Toggle main menu">
+        <i class="fa-solid fa-bars text-2xl"></i>
+      </label>
+
+      
+      <ul class="hidden xl:flex items-center space-x-4 [&>li:last-child>ul]:2xl:left-auto [&>li:last-child>ul]:2xl:right-0">
+        
+        
+          
+            
+            
+              <li>
+                <a href="/search/" class="p-2">
+                  <i class="fa-solid fa-magnifying-glass h-5 w-5"></i>
+                </a>
+              </li>
+
+              
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="/roadmap" class="inline-block py-2 px-3 text-lg hover:underline hover:decoration-dotted hover:underline-offset-4">
+                  Roadmap
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li class="relative group">
+                <a href="/community/" class="inline-flex items-center py-2 px-3 text-lg">
+                  Community
+                  <svg
+                    aria-hidden="true"
+                    class="ml-1 h-4 w-4 transition-transform group-hover:rotate-180"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                    />
+                  </svg>
+                </a>
+
+                <ul
+                  class="absolute left-0 top-full z-50 hidden w-56 rounded-md bg-white
+                        py-2 shadow-lg translate-y-2 opacity-0 transition duration-150
+                        group-hover:block group-hover:translate-y-0 group-hover:opacity-100
+                        focus-within:block focus-within:translate-y-0 focus-within:opacity-100"
+                >
+                  
+                    <li>
+                      <a
+                        href="/community/getting-started/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Getting Started
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="https://openssl-communities.org/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        OpenSSL Communities
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="https://github.com/openssl/openssl/discussions/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        GitHub Discussions
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/community/mailinglists/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Mailing Lists
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/community/support/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Community Support
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/community/conduct/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Code Of Conduct
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/community/thanks/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Thanks
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+
+              
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="https://openssl-corporation.org/solutions/support/" class="inline-block py-2 px-3 text-lg hover:underline hover:decoration-dotted hover:underline-offset-4">
+                  Support
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="https://openssl.foundation/donate/ways-to-give" class="inline-block py-2 px-3 text-lg hover:underline hover:decoration-dotted hover:underline-offset-4">
+                  Sponsor
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li class="relative group">
+                <a href="#" class="inline-flex items-center py-2 px-3 text-lg">
+                  Policies
+                  <svg
+                    aria-hidden="true"
+                    class="ml-1 h-4 w-4 transition-transform group-hover:rotate-180"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                    />
+                  </svg>
+                </a>
+
+                <ul
+                  class="absolute left-0 top-full z-50 hidden w-56 rounded-md bg-white
+                        py-2 shadow-lg translate-y-2 opacity-0 transition duration-150
+                        group-hover:block group-hover:translate-y-0 group-hover:opacity-100
+                        focus-within:block focus-within:translate-y-0 focus-within:opacity-100"
+                >
+                  
+                    <li>
+                      <a
+                        href="/policies/general/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        General
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/policies/technical/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Technical
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/policies/cla/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Contributor Agreements
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/policies/releasestrat"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Release Strategy
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+
+              
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="/source/" class="inline-block py-2 px-3 text-lg hover:underline hover:decoration-dotted hover:underline-offset-4">
+                  Downloads
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li class="relative group">
+                <a href="" class="inline-flex items-center py-2 px-3 text-lg">
+                  Resources
+                  <svg
+                    aria-hidden="true"
+                    class="ml-1 h-4 w-4 transition-transform group-hover:rotate-180"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                    />
+                  </svg>
+                </a>
+
+                <ul
+                  class="absolute left-0 top-full z-50 hidden w-56 rounded-md bg-white
+                        py-2 shadow-lg translate-y-2 opacity-0 transition duration-150
+                        group-hover:block group-hover:translate-y-0 group-hover:opacity-100
+                        focus-within:block focus-within:translate-y-0 focus-within:opacity-100"
+                >
+                  
+                    <li>
+                      <a
+                        href="/news/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        News
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/blog/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Blog
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/faq/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        FAQ
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="https://github.com/openssl/openssl/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        GitHub Repository
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="https://docs.openssl.org"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        OpenSSL Documentation
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="https://docs.openssl.org/3.2/man7/ossl-guide-introduction/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        OpenSSL Guide
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="https://docs.openssl.org/3.2/man7/ossl-guide-migration/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        OpenSSL Migration Guide
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/performance/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Performance benchmarks
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="https://graph.openssl.org/public-dashboards/2f7de83e0880458885dfd5aedbaf72c8"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        OpenSSL Issues and PRs statistics
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+
+              
+            
+          
+        
+          
+            
+            
+              <li class="relative group">
+                <a href="" class="inline-flex items-center py-2 px-3 text-lg">
+                  About
+                  <svg
+                    aria-hidden="true"
+                    class="ml-1 h-4 w-4 transition-transform group-hover:rotate-180"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                    />
+                  </svg>
+                </a>
+
+                <ul
+                  class="absolute left-0 top-full z-50 hidden w-56 rounded-md bg-white
+                        py-2 shadow-lg translate-y-2 opacity-0 transition duration-150
+                        group-hover:block group-hover:translate-y-0 group-hover:opacity-100
+                        focus-within:block focus-within:translate-y-0 focus-within:opacity-100"
+                >
+                  
+                    <li>
+                      <a
+                        href="/about/contact/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Contact
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/about/management/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Management
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/about/committers/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Committers
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/about/sponsors/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        Sponsors
+                      </a>
+                    </li>
+                  
+                    <li>
+                      <a
+                        href="/about/bylaws/"
+                        class="block px-4 py-2 text-base hover:bg-gray-100 focus:bg-gray-100"
+                      >
+                        ByLaws
+                      </a>
+                    </li>
+                  
+                </ul>
+              </li>
+
+              
+            
+          
+        
+      </ul>
+    </div>
+
+    
+    <div class="hidden peer-checked:flex xl:!hidden flex-col space-y-1 fixed inset-x-0 top-24 border-t border-gray-200 bg-white shadow-lg z-40 overflow-y-auto max-h-screen">
+      <ul class="pt-4 pb-6 space-y-1">
+        
+          
+            
+            
+              <li class="px-4 py-2">
+                <a href="/search/" class="inline-flex items-center space-x-2">
+                  <i class="fa-solid fa-magnifying-glass h-5 w-5"></i>
+                  <span class="sr-only">Search</span>
+                </a>
+              </li>
+
+            
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="/roadmap" class="block px-4 py-2 text-base hover:bg-gray-100">
+                  Roadmap
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li>
+                <details class="group">
+                  <summary class="flex items-center justify-between px-4 py-2 text-base cursor-pointer hover:bg-gray-100">
+                    <span>Community</span>
+                    <svg
+                      class="h-4 w-4 transition-transform group-open:rotate-180"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      />
+                    </svg>
+                  </summary>
+
+                  <ul class="pl-6 mt-1 space-y-1">
+                    
+                      <li>
+                        <a href="/community/getting-started/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Getting Started
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="https://openssl-communities.org/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          OpenSSL Communities
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="https://github.com/openssl/openssl/discussions/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          GitHub Discussions
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/community/mailinglists/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Mailing Lists
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/community/support/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Community Support
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/community/conduct/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Code Of Conduct
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/community/thanks/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Thanks
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              </li>
+
+            
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="https://openssl-corporation.org/solutions/support/" class="block px-4 py-2 text-base hover:bg-gray-100">
+                  Support
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="https://openssl.foundation/donate/ways-to-give" class="block px-4 py-2 text-base hover:bg-gray-100">
+                  Sponsor
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li>
+                <details class="group">
+                  <summary class="flex items-center justify-between px-4 py-2 text-base cursor-pointer hover:bg-gray-100">
+                    <span>Policies</span>
+                    <svg
+                      class="h-4 w-4 transition-transform group-open:rotate-180"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      />
+                    </svg>
+                  </summary>
+
+                  <ul class="pl-6 mt-1 space-y-1">
+                    
+                      <li>
+                        <a href="/policies/general/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          General
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/policies/technical/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Technical
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/policies/cla/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Contributor Agreements
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/policies/releasestrat" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Release Strategy
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              </li>
+
+            
+            
+          
+        
+          
+            
+            
+              <li>
+                <a href="/source/" class="block px-4 py-2 text-base hover:bg-gray-100">
+                  Downloads
+                </a>
+              </li>
+            
+          
+        
+          
+            
+            
+              <li>
+                <details class="group">
+                  <summary class="flex items-center justify-between px-4 py-2 text-base cursor-pointer hover:bg-gray-100">
+                    <span>Resources</span>
+                    <svg
+                      class="h-4 w-4 transition-transform group-open:rotate-180"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      />
+                    </svg>
+                  </summary>
+
+                  <ul class="pl-6 mt-1 space-y-1">
+                    
+                      <li>
+                        <a href="/news/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          News
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/blog/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Blog
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/faq/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          FAQ
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="https://github.com/openssl/openssl/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          GitHub Repository
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="https://docs.openssl.org" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          OpenSSL Documentation
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="https://docs.openssl.org/3.2/man7/ossl-guide-introduction/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          OpenSSL Guide
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="https://docs.openssl.org/3.2/man7/ossl-guide-migration/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          OpenSSL Migration Guide
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/performance/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Performance benchmarks
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="https://graph.openssl.org/public-dashboards/2f7de83e0880458885dfd5aedbaf72c8" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          OpenSSL Issues and PRs statistics
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              </li>
+
+            
+            
+          
+        
+          
+            
+            
+              <li>
+                <details class="group">
+                  <summary class="flex items-center justify-between px-4 py-2 text-base cursor-pointer hover:bg-gray-100">
+                    <span>About</span>
+                    <svg
+                      class="h-4 w-4 transition-transform group-open:rotate-180"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.146l3.71-3.914a.75.75 0 111.08 1.04l-4.24 4.47a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      />
+                    </svg>
+                  </summary>
+
+                  <ul class="pl-6 mt-1 space-y-1">
+                    
+                      <li>
+                        <a href="/about/contact/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Contact
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/about/management/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Management
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/about/committers/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Committers
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/about/sponsors/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          Sponsors
+                        </a>
+                      </li>
+                    
+                      <li>
+                        <a href="/about/bylaws/" class="block px-2 py-1 text-sm rounded hover:bg-gray-100">
+                          ByLaws
+                        </a>
+                      </li>
+                    
+                  </ul>
+                </details>
+              </li>
+
+            
+            
+          
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    
+
+
+    <main class="flex-1 flex max-md:flex-col py-10 justify-center container px-4 mx-auto">
+      <div class="px-8 basis-8/12">
+        
+  <header>
+    <h1>OpenSSL 3.5 Series Release Notes</h1>
+    
+    
+    
+  </header><p>The major changes and known issues for the 3.5 branch of the
+OpenSSL toolkit are summarised below. The contents reflect the current
+state of the <a href="/policies/general/glossary/#news"><code>NEWS</code></a> file inside the
+git repository.</p>
+<p>More details can be found in the <a href="https://github.com/openssl/openssl/blob/openssl-3.5/CHANGES.md">ChangeLog</a>.</p>
+<h2 id="major-changes-between-openssl-358-and-openssl-359-29-sep-2026">Major changes between OpenSSL 3.5.8 and OpenSSL 3.5.9 [29 Sep 2026]</h2>
+<p>OpenSSL 3.5.9 is a security patch release.  The most severe CVE fixed
+in this release is High.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>
+<p>Fixed DTLS retransmissions of handshake messages from a stale buffer offset.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-84782">CVE-2026-84782</a>)</p>
+</li>
+<li>
+<p>Fixed excessive memory allocation in relative CRLDP processing.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-35189">CVE-2026-35189</a>)</p>
+</li>
+<li>
+<p>Fixed QUIC unvalidated amplification credit may be over-accounted.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-35191">CVE-2026-35191</a>)</p>
+</li>
+<li>
+<p>Fixed potential CPU DoS via O(n^2) fragment reassembly in QUIC.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-42772">CVE-2026-42772</a>)</p>
+</li>
+<li>
+<p>Fixed a timing side-channel in scalar multiplication for mon-NIST EC curves.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-54872">CVE-2026-54872</a>)</p>
+</li>
+<li>
+<p>Fixed QUIC <code>STREAM</code> fragment metadata DoS.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-54873">CVE-2026-54873</a>)</p>
+</li>
+<li>
+<p>Fixed non-constant-time SM2 scalar multiplication on ARM64 and RISC-V.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-54875">CVE-2026-54875</a>)</p>
+</li>
+<li>
+<p>Fixed out-of-bounds access after <code>SSL_set_SSL_CTX()</code> during a handshake.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-72897">CVE-2026-72897</a>)</p>
+</li>
+<li>
+<p>Fixed QUIC connection-level flow control was not enforced for streams.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-75804">CVE-2026-75804</a>)</p>
+</li>
+<li>
+<p>Fixed a NULL pointer dereference in CMP client revocation response handling.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-75805">CVE-2026-75805</a>)</p>
+</li>
+<li>
+<p>Fixed an unauthenticated and undersized DTLS 1.2 AEAD record causing DoS.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-75806">CVE-2026-75806</a>)</p>
+</li>
+<li>
+<p>Fixed a timing side-channel in SM2 signature generation.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-77696">CVE-2026-77696</a>)</p>
+</li>
+<li>
+<p>Fixed an unbounded <code>RETIRE_CONNECTION_ID</code> backlog in QUIC stack
+implementation.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-84784">CVE-2026-84784</a>)</p>
+</li>
+<li>
+<p>Fixed a bug where <code>EVP_DecryptFinal()</code> incorrectly reported a stale success
+on AES-SIV authentication failure.</p>
+</li>
+</ul>
+<h2 id="major-changes-between-openssl-357-and-openssl-358-25-aug-2026">Major changes between OpenSSL 3.5.7 and OpenSSL 3.5.8 [25 Aug 2026]</h2>
+<p>OpenSSL 3.5.8 is a security patch release.  The most severe CVE fixed
+in this release is Moderate.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>
+<p>Fixed QUIC server being able to trigger double free when processing
+<code>INITIAL</code> packet.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-18798">CVE-2026-18798</a>)</p>
+</li>
+<li>
+<p>Fixed heap buffer overflow in CMS key unwrapping.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-63072">CVE-2026-63072</a>)</p>
+</li>
+<li>
+<p>Fixed invalid pointer dereference in CMP server via crafted <code>protectionAlg</code>.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-63076">CVE-2026-63076</a>)</p>
+</li>
+<li>
+<p>Fixed unbounded memory growth in QUIC server incoming channel queue.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-14456">CVE-2026-14456</a>)</p>
+</li>
+<li>
+<p>Fixed RPK server signature algorithm selection being able to dereference
+a missing certificate.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-14457">CVE-2026-14457</a>)</p>
+</li>
+<li>
+<p>Fixed excessive memory use buffering DTLS records for a future epoch.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-54874">CVE-2026-54874</a>)</p>
+</li>
+<li>
+<p>Fixed untrusted Sender DN being used as a format string in CMP response
+validation.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-63073">CVE-2026-63073</a>)</p>
+</li>
+<li>
+<p>Fixed CMP indefinite cache growth of <code>extraCerts</code>.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-63074">CVE-2026-63074</a>)</p>
+</li>
+<li>
+<p>Fixed QUIC ACK-only packet retention being able to cause memory exhaustion.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-63075">CVE-2026-63075</a>)</p>
+</li>
+<li>
+<p>Fixed possibility of AEAD forgeries with empty ciphertext when using
+<code>EVP_Cipher()</code>.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-75803">CVE-2026-75803</a>)</p>
+</li>
+<li>
+<p>Fixed checking of authentication tags for empty ciphertexts for AEAD ciphers
+in CCM cipher mode.</p>
+</li>
+</ul>
+<h2 id="major-changes-between-openssl-356-and-openssl-357-9-jun-2026">Major changes between OpenSSL 3.5.6 and OpenSSL 3.5.7 [9 Jun 2026]</h2>
+<p>OpenSSL 3.5.7 is a security patch release.  The most severe CVE fixed
+in this release is High.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>
+<p>Fixed heap use-after-free in <code>PKCS7_verify()</code>.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-45447">CVE-2026-45447</a>)</p>
+</li>
+<li>
+<p>Fixed CMS <code>AuthEnvelopedData</code> processing may accept forged messages.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-34182">CVE-2026-34182</a>)</p>
+</li>
+<li>
+<p>Fixed unbounded memory growth in the QUIC <code>PATH_CHALLENGE</code> handler.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-34183">CVE-2026-34183</a>)</p>
+</li>
+<li>
+<p>Fixed NULL pointer dereference in QUIC server initial packet handling.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-42764">CVE-2026-42764</a>)</p>
+</li>
+<li>
+<p>Fixed AES-OCB IV ignored on <code>EVP_Cipher()</code> path.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-45445">CVE-2026-45445</a>)</p>
+</li>
+<li>
+<p>Fixed possible heap buffer overflow in ASN.1 multibyte string conversion.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-7383">CVE-2026-7383</a>)</p>
+</li>
+<li>
+<p>Fixed out-of-bounds read in CMS password-based decryption.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-9076">CVE-2026-9076</a>)</p>
+</li>
+<li>
+<p>Fixed heap buffer over-read in ASN.1 content parsing.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-34180">CVE-2026-34180</a>)</p>
+</li>
+<li>
+<p>Fixed PKCS#12 files with PBMAC1 are accepted with short HMAC keys.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-34181">CVE-2026-34181</a>)</p>
+</li>
+<li>
+<p>Fixed possible NULL dereference in password-dased CMS decryption.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-42766">CVE-2026-42766</a>)</p>
+</li>
+<li>
+<p>Fixed NULL pointer dereference in CRMF <code>EncryptedValue</code> decryption.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-42767">CVE-2026-42767</a>)</p>
+</li>
+<li>
+<p>Fixed multi-<code>RecipientInfo</code> Bleichenbacher Oracle in <code>CMS_decrypt()</code>
+and <code>PKCS7_decrypt()</code>.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-42768">CVE-2026-42768</a>)</p>
+</li>
+<li>
+<p>Fixed trust anchor substitution via <code>cert</code>/<code>issuer</code> typo in CMP
+<code>rootCaKeyUpdate</code>.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-42769">CVE-2026-42769</a>)</p>
+</li>
+<li>
+<p>Fixed FFC-DH peer validation uses attacker-supplied <code>q</code>.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-42770">CVE-2026-42770</a>)</p>
+</li>
+<li>
+<p>Fixed incorrect tag processing for empty messages in AES-GCM-SIV
+and AES-SIV modes.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-45446">CVE-2026-45446</a>)</p>
+</li>
+<li>
+<p>Fixed excessive allocation of the handshake message buffer (aka HollowByte).</p>
+</li>
+</ul>
+<h2 id="major-changes-between-openssl-355-and-openssl-356-7-apr-2026">Major changes between OpenSSL 3.5.5 and OpenSSL 3.5.6 [7 Apr 2026]</h2>
+<p>OpenSSL 3.5.6 is a security patch release. The most severe CVE fixed in this
+release is Moderate.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>
+<p>Fixed incorrect failure handling in RSA KEM RSASVE encapsulation.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-31790">CVE-2026-31790</a>)</p>
+</li>
+<li>
+<p>Fixed loss of key agreement group tuple structure when the <code>DEFAULT</code> keyword
+is used in the server-side configuration of the key-agreement group list.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-2673">CVE-2026-2673</a>)</p>
+</li>
+<li>
+<p>Fixed potential use-after-free in DANE client code.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-28387">CVE-2026-28387</a>)</p>
+</li>
+<li>
+<p>Fixed NULL pointer dereference when processing a delta CRL.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-28388">CVE-2026-28388</a>)</p>
+</li>
+<li>
+<p>Fixed possible NULL dereference when processing CMS KeyAgreeRecipientInfo.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-28389">CVE-2026-28389</a>)</p>
+</li>
+<li>
+<p>Fixed possible NULL dereference when processing CMS
+KeyTransportRecipientInfo.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-28390">CVE-2026-28390</a>)</p>
+</li>
+<li>
+<p>Fixed heap buffer overflow in hexadecimal conversion.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-31789">CVE-2026-31789</a>)</p>
+</li>
+</ul>
+<h2 id="major-changes-between-openssl-354-and-openssl-355-27-jan-2026">Major changes between OpenSSL 3.5.4 and OpenSSL 3.5.5 [27 Jan 2026]</h2>
+<p>OpenSSL 3.5.5 is a security patch release. The most severe CVE fixed in this
+release is High.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>
+<p>Fixed Improper validation of PBMAC1 parameters in PKCS#12 MAC verification.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-11187">CVE-2025-11187</a>)</p>
+</li>
+<li>
+<p>Fixed Stack buffer overflow in CMS <code>AuthEnvelopedData</code> parsing.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-15467">CVE-2025-15467</a>)</p>
+</li>
+<li>
+<p>Fixed NULL dereference in <code>SSL_CIPHER_find()</code> function on unknown cipher ID.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-15468">CVE-2025-15468</a>)</p>
+</li>
+<li>
+<p>Fixed <code>openssl dgst</code> one-shot codepath silently truncates inputs &gt;16 MiB.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-15469">CVE-2025-15469</a>)</p>
+</li>
+<li>
+<p>Fixed TLS 1.3 <code>CompressedCertificate</code> excessive memory allocation.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-66199">CVE-2025-66199</a>)</p>
+</li>
+<li>
+<p>Fixed Heap out-of-bounds write in <code>BIO_f_linebuffer</code> on short writes.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-68160">CVE-2025-68160</a>)</p>
+</li>
+<li>
+<p>Fixed Unauthenticated/unencrypted trailing bytes with low-level OCB
+function calls.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-69418">CVE-2025-69418</a>)</p>
+</li>
+<li>
+<p>Fixed Out of bounds write in <code>PKCS12_get_friendlyname()</code> UTF-8 conversion.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-69419">CVE-2025-69419</a>)</p>
+</li>
+<li>
+<p>Fixed Missing <code>ASN1_TYPE</code> validation in <code>TS_RESP_verify_response()</code>
+function.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-69420">CVE-2025-69420</a>)</p>
+</li>
+<li>
+<p>Fixed NULL Pointer Dereference in <code>PKCS12_item_decrypt_d2i_ex()</code> function.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-69421">CVE-2025-69421</a>)</p>
+</li>
+<li>
+<p>Fixed Missing <code>ASN1_TYPE</code> validation in PKCS#12 parsing.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-22795">CVE-2026-22795</a>)</p>
+</li>
+<li>
+<p>Fixed <code>ASN1_TYPE</code> Type Confusion in the <code>PKCS7_digest_from_attributes()</code>
+function.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2026-22796">CVE-2026-22796</a>)</p>
+</li>
+</ul>
+<h2 id="major-changes-between-openssl-353-and-openssl-354-30-sep-2025">Major changes between OpenSSL 3.5.3 and OpenSSL 3.5.4 [30 Sep 2025]</h2>
+<p>OpenSSL 3.5.4 is a security patch release. The most severe CVE fixed in this
+release is Moderate.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>
+<p>Fix Out-of-bounds read &amp; write in RFC 3211 KEK Unwrap.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-9230">CVE-2025-9230</a>)</p>
+</li>
+<li>
+<p>Fix Timing side-channel in SM2 algorithm on 64 bit ARM.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-9231">CVE-2025-9231</a>)</p>
+</li>
+<li>
+<p>Fix Out-of-bounds read in HTTP client no_proxy handling.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-9232">CVE-2025-9232</a>)</p>
+</li>
+<li>
+<p>Reverted the synthesised <code>OPENSSL_VERSION_NUMBER</code> change for the release
+builds, as it broke some exiting applications that relied on the previous
+3.x semantics, as documented in <code>OpenSSL_version(3)</code>.</p>
+</li>
+</ul>
+<h2 id="major-changes-between-openssl-352-and-openssl-353-16-sep-2025">Major changes between OpenSSL 3.5.2 and OpenSSL 3.5.3 [16 Sep 2025]</h2>
+<p>OpenSSL 3.5.3 is a bug fix release.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>
+<p>Added FIPS 140-3 PCT on DH key generation.</p>
+</li>
+<li>
+<p>Fixed the synthesised <code>OPENSSL_VERSION_NUMBER</code>.</p>
+</li>
+<li>
+<p>Removed PCT on key import in the FIPS provider as it is not required by
+the standard.</p>
+</li>
+</ul>
+<h2 id="major-changes-between-openssl-351-and-openssl-352-5-aug-2025">Major changes between OpenSSL 3.5.1 and OpenSSL 3.5.2 [5 Aug 2025]</h2>
+<p>OpenSSL 3.5.2 is a bug fix release.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>The FIPS provider now performs a PCT on key import for RSA, EC and ECX.</li>
+</ul>
+<h2 id="major-changes-between-openssl-350-and-openssl-351-1-jul-2025">Major changes between OpenSSL 3.5.0 and OpenSSL 3.5.1 [1 Jul 2025]</h2>
+<p>OpenSSL 3.5.1 is a security patch release. The most severe CVE fixed in this
+release is Low.</p>
+<p>This release incorporates the following bug fixes and mitigations:</p>
+<ul>
+<li>Fix x509 application adds trusted use instead of rejected use.
+(<a href="https://openssl-library.org/news/vulnerabilities/#CVE-2025-4575">CVE-2025-4575</a>)</li>
+</ul>
+<h2 id="major-changes-between-openssl-34-and-openssl-350-8-apr-2025">Major changes between OpenSSL 3.4 and OpenSSL 3.5.0 [8 Apr 2025]</h2>
+<p>OpenSSL 3.5.0 is a feature release adding significant new functionality to
+OpenSSL.</p>
+<p>This release incorporates the following potentially significant or incompatible
+changes:</p>
+<ul>
+<li>
+<p>Default encryption cipher for the <code>req</code>, <code>cms</code>, and <code>smime</code> applications
+changed from <code>des-ede3-cbc</code> to <code>aes-256-cbc</code>.</p>
+</li>
+<li>
+<p>The default TLS supported groups list has been changed to include and
+prefer hybrid PQC KEM groups. Some practically unused groups were removed
+from the default list.</p>
+</li>
+<li>
+<p>The default TLS keyshares have been changed to offer X25519MLKEM768 and
+and X25519.</p>
+</li>
+<li>
+<p>All <code>BIO_meth_get_*()</code> functions were deprecated.</p>
+</li>
+</ul>
+<p>This release adds the following new features:</p>
+<ul>
+<li>
+<p>Support for server side QUIC (RFC 9000)</p>
+</li>
+<li>
+<p>Support for 3rd party QUIC stacks including 0-RTT support</p>
+</li>
+<li>
+<p>Support for PQC algorithms (ML-KEM, ML-DSA and SLH-DSA)</p>
+</li>
+<li>
+<p>A new configuration option <code>no-tls-deprecated-ec</code> to disable support for
+TLS groups deprecated in RFC8422</p>
+</li>
+<li>
+<p>A new configuration option <code>enable-fips-jitter</code> to make the FIPS provider
+to use the <code>JITTER</code> seed source</p>
+</li>
+<li>
+<p>Support for central key generation in CMP</p>
+</li>
+<li>
+<p>Support added for opaque symmetric key objects (EVP_SKEY)</p>
+</li>
+<li>
+<p>Support for multiple TLS keyshares and improved TLS key establishment group
+configurability</p>
+</li>
+<li>
+<p>API support for pipelining in provided cipher algorithms</p>
+</li>
+</ul>
+<p>Known issues in 3.5.0</p>
+<ul>
+<li><a href="https://github.com/openssl/openssl/issues/27282">https://github.com/openssl/openssl/issues/27282</a>
+Calling SSL_accept on objects returned from SSL_accept_connection
+results in error.  It is expected that making this call will advance
+the SSL handshake for the passed connection, but currently it does not.
+This can be handled by calling SSL_do_handshake instead.  A fix is planned
+for OpenSSL 3.5.1</li>
+</ul>
+
+
+
+
+      </div>
+        <div class="px-8 basis-4/12">
+          <div class="sticky top-10">
+<div>
+    <span class="font-semibold">more in this section</span>
+    <ul>
+            
+            
+                
+                    <li><a href="/news/changelog/">Changelog</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/fips-cve/">CVEs and the FIPS provider</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/">News</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/openssl-1.1.1-notes/">OpenSSL 1.1.1 Series Release Notes</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/openssl-3.0-notes/">OpenSSL 3.0 Series Release Notes</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/openssl-3.1-notes/">OpenSSL 3.1 Series Release Notes</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/openssl-3.2-notes/">OpenSSL 3.2 Series Release Notes</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/openssl-3.3-notes/">OpenSSL 3.3 Series Release Notes</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/openssl-3.4-notes/">OpenSSL 3.4 Series Release Notes</a></li>
+                
+            
+            
+                
+                    <li class="active">OpenSSL 3.5 Series Release Notes</li>
+                
+            
+            
+                
+                    <li><a href="/news/openssl-3.6-notes/">OpenSSL 3.6 Series Release Notes</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/timeline/">Release and Advisory Timeline</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/secjson/">Security advisory list (json)</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/secadv/">Security advisory list (txt)</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities/">Vulnerabilities</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-0.9.6/">Vulnerabilities 0.9.6</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-0.9.7/">Vulnerabilities 0.9.7</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-0.9.8/">Vulnerabilities 0.9.8</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-1.0.0/">Vulnerabilities 1.0.0</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-1.0.1/">Vulnerabilities 1.0.1</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-1.0.2/">Vulnerabilities 1.0.2</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-1.1.0/">Vulnerabilities 1.1.0</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-1.1.1/">Vulnerabilities 1.1.1</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-3.0/">Vulnerabilities 3.0</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-3.1/">Vulnerabilities 3.1</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-3.2/">Vulnerabilities 3.2</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-3.3/">Vulnerabilities 3.3</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-3.4/">Vulnerabilities 3.4</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-3.5/">Vulnerabilities 3.5</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-3.6/">Vulnerabilities 3.6</a></li>
+                
+            
+            
+                
+                    <li><a href="/news/vulnerabilities-4.0/">Vulnerabilities 4.0</a></li>
+                
+            <li><a href="https://openssl-library.org/news/">Top of News</a></li>
+    </ul>
+</div>
+
+          </div>
+        </div>
+    </main>
+
+    <footer class="bg-neutral-100 text-lg text-neutral-400 pt-2 pb-8">
+  <div class="container px-4 mx-auto flex flex-col gap-4 items-center">
+    <ul class="icons">
+    </ul>
+
+    <ul class="text-center font-light flex flex-wrap max-sm:gap-2 max-sm:flex-col *:px-4.5 sm:divide-x-1 divide-neutral-300">
+          <li><a href="https://openssl.org">OpenSSL.org</a></li>
+          <li><a href="https://openssl-library.org">Library</a></li>
+          <li><a href="https://openssl-mission.org">Mission</a></li>
+          <li><a href="https://openssl-communities.org">Communities</a></li>
+          <li><a href="https://openssl-corporation.org">Corporation</a></li>
+          <li><a href="https://openssl.foundation">Foundation</a></li>
+          <li><a href="https://openssl-projects.org">Projects</a></li>
+          <li><a href="https://openssl-conference.org">Conference</a></li>
+    </ul>
+
+    <div class="py-2 font-light">
+      © 2026 OpenSSL. All rights reserved
+    </div>
+  </div>
+</footer>
+
+
+     <script defer async type="text/javascript" id="mp-loader" src="https://api.transpond.io/tracker?am=MzgyOTE%253D"></script>
+    <script>
+      document.addEventListener('click', function (event) {
+        const target = event.target.closest('a');
+        if (target && target.href) {
+          const url = target.href;
+          const url_path = target.href.replace(window.location.origin, '');
+          const fileExtensions = ['pdf', 'zip', 'jpg', 'png', 'docx', 'xlsx'];
+          const isDownload = target.hasAttribute('download') ||
+                  fileExtensions.some(ext => url.endsWith('.' + ext));
+
+          if (isDownload) {
+            manualTracking(url_path, '', '', '', '', '', '')
+          }
+        }
+      });
+    </script>
+
+
+
+
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+
+
+  </body>
+</html>

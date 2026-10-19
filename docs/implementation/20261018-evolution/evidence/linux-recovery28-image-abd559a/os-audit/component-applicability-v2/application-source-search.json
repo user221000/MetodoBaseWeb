@@ -1,0 +1,25 @@
+{
+  "source_commit": "abd559a9ea3227e6c3bdb141241c11f7196c7682",
+  "command": [
+    "rg",
+    "-n",
+    "-i",
+    "--glob",
+    "*.py",
+    "--glob",
+    "*.sh",
+    "lzma|archive::tar|infocmp|systemd-homed|nsenter|X-mount|acl_get_file|acl_set_file|\\bmount\\b",
+    "config",
+    "core",
+    "src",
+    "api",
+    "web",
+    "utils",
+    "entrypoint.sh",
+    "db_bootstrap.py"
+  ],
+  "exit": 0,
+  "stdout": "web\\storage\\local.py:1:\"\"\"Single-volume transition adapter; the deployment must mount/back up its root.\napi\\app.py:274:        app.mount(\"/static\", StaticFiles(directory=str(static_dir)), name=\"static\")\nweb\\main_web.py:193:        app.mount(\"/static\", StaticFiles(directory=str(_STATIC_DIR)), name=\"static\")\n",
+  "stderr": "",
+  "interpretation": "Only FastAPI static mount() and a documentation word matched. No direct calls to the queried OS/XZ components found in these application paths. Transitive/native/operational reachability remains unproven."
+}

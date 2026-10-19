@@ -1,0 +1,255 @@
+[
+  {
+    "source_package": "acl",
+    "ids": 2,
+    "entries": 2,
+    "scanner_status_entries": {
+      "affected": 2
+    },
+    "open_trixie_ids": 2,
+    "ids_with_tracker_explicit_upstream_fix": 2,
+    "ids_with_newer_debian_fixed_release": 2,
+    "applicability": "libacl está presente. getfacl/setfacl/chacl no existen físicamente. El ID de funciones de biblioteca requiere analizar llamadores y rutas bajo privilegios; el ID de CLI tiene evidencia de componente ausente para revisión."
+  },
+  {
+    "source_package": "apt",
+    "ids": 1,
+    "entries": 2,
+    "scanner_status_entries": {
+      "affected": 2
+    },
+    "open_trixie_ids": 1,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "apt-key no existe físicamente. Debian describe una condición de keyring URI; revisar esa condición antes de aceptar no aplicabilidad. APT sigue presente."
+  },
+  {
+    "source_package": "attr",
+    "ids": 1,
+    "entries": 1,
+    "scanner_status_entries": {
+      "affected": 1
+    },
+    "open_trixie_ids": 1,
+    "ids_with_tracker_explicit_upstream_fix": 1,
+    "ids_with_newer_debian_fixed_release": 1,
+    "applicability": "Solo se inventaría libattr; getfattr/setfattr no existen físicamente. La vulnerabilidad descrita es de esas utilidades. Propuesta de no aplicabilidad pendiente de revisión, conservando el resultado bruto."
+  },
+  {
+    "source_package": "bash",
+    "ids": 1,
+    "entries": 1,
+    "scanner_status_entries": {
+      "affected": 1
+    },
+    "open_trixie_ids": 1,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "La escalada descrita requiere transición entre identidades y shell. Falta demostrar el flujo real y revisar la referencia upstream; no hay cierre por ejecutar como UID 999."
+  },
+  {
+    "source_package": "bzip2",
+    "ids": 1,
+    "entries": 1,
+    "scanner_status_entries": {
+      "affected": 1
+    },
+    "open_trixie_ids": 1,
+    "ids_with_tracker_explicit_upstream_fix": 1,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "La biblioteca está presente; bzip2recover no existe físicamente. El defecto descrito es de esa utilidad. No se aplica una excepción automática."
+  },
+  {
+    "source_package": "coreutils",
+    "ids": 4,
+    "entries": 4,
+    "scanner_status_entries": {
+      "affected": 4
+    },
+    "open_trixie_ids": 4,
+    "ids_with_tracker_explicit_upstream_fix": 2,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "Riesgos de utilidades concretas sobre argumentos/archivos controlados y, en algunos casos, operaciones privilegiadas. Se requieren revisión de llamadas operativas y parches del mantenedor; una nota de baja relevancia no elimina el hallazgo."
+  },
+  {
+    "source_package": "dash",
+    "ids": 2,
+    "entries": 2,
+    "scanner_status_entries": {
+      "affected": 2
+    },
+    "open_trixie_ids": 2,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "Se requieren condiciones del matcher o argumentos de printf/echo y verificar las opciones de compilación. El shell existe en la imagen; no se probaron entradas malformadas."
+  },
+  {
+    "source_package": "diffutils",
+    "ids": 1,
+    "entries": 1,
+    "scanner_status_entries": {
+      "affected": 1
+    },
+    "open_trixie_ids": 1,
+    "ids_with_tracker_explicit_upstream_fix": 1,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "La condición afecta diff3 y su programa diff. Se cita corrección upstream; falta demostrar si ese flujo recibe datos externos en operación."
+  },
+  {
+    "source_package": "gcc-14",
+    "ids": 2,
+    "entries": 6,
+    "scanner_status_entries": {
+      "affected": 6
+    },
+    "open_trixie_ids": 2,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 2,
+    "applicability": "Solo hay bibliotecas de runtime, no el compilador/headers. erase_if puede estar instanciado en consumidores nativos; actualizar libstdc++ no prueba que un binario ya compilado quede corregido. Revisar SBOM/compilación de extensiones y el parche GCC 14."
+  },
+  {
+    "source_package": "glibc",
+    "ids": 21,
+    "entries": 42,
+    "scanner_status_entries": {
+      "affected": 42
+    },
+    "open_trixie_ids": 21,
+    "ids_with_tracker_explicit_upstream_fix": 4,
+    "ids_with_newer_debian_fixed_release": 14,
+    "applicability": "libc6/libc-bin están presentes y CPython depende de libc. Hay condiciones distintas de regex, locale, conversión o APIs por ID. Varias tienen parches o versión Debian posterior; no se extrapola cierre desde un único caso ni desde aislamiento del laboratorio."
+  },
+  {
+    "source_package": "ncurses",
+    "ids": 2,
+    "entries": 8,
+    "scanner_status_entries": {
+      "affected": 8
+    },
+    "open_trixie_ids": 2,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 2,
+    "applicability": "infocmp existe y el HIGH corresponde a esa utilidad. El otro ID involucra tparm/libtinfo. Faltan revisión de entradas y uso; el entorno web sin TTY no demuestra por sí solo ausencia de la ruta."
+  },
+  {
+    "source_package": "pam",
+    "ids": 1,
+    "entries": 4,
+    "scanner_status_entries": {
+      "affected": 4
+    },
+    "open_trixie_ids": 1,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "Se requiere pam_userdb y un servicio que autentique por esa ruta. Hay bibliotecas/PAM; no se verificó la configuración completa de despliegue ni se ejercitó autenticación."
+  },
+  {
+    "source_package": "perl",
+    "ids": 4,
+    "entries": 4,
+    "scanner_status_entries": {
+      "fix_deferred": 2,
+      "affected": 2
+    },
+    "open_trixie_ids": 4,
+    "ids_with_tracker_explicit_upstream_fix": 2,
+    "ids_with_newer_debian_fixed_release": 1,
+    "applicability": "perl-base incluye File::Temp y el motor regex. Archive::Tar y Pod::Text no se encuentran en @INC. Los IDs de esos módulos tienen evidencia de ausencia; los otros requieren revisión. fix_deferred continúa abierto aunque haya parche upstream."
+  },
+  {
+    "source_package": "shadow",
+    "ids": 3,
+    "entries": 6,
+    "scanner_status_entries": {
+      "affected": 6
+    },
+    "open_trixie_ids": 3,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "su/chfn/chsh SUID están presentes; newuidmap está ausente. Revisar configuración de login/btmp/subuid y operaciones administrativas. La ausencia de SSH en la imagen no resuelve automáticamente estos IDs."
+  },
+  {
+    "source_package": "sqlite3",
+    "ids": 4,
+    "entries": 4,
+    "scanner_status_entries": {
+      "affected": 4
+    },
+    "open_trixie_ids": 4,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 2,
+    "applicability": "SQLite real 3.46.1. sqlite3changeset_apply_v3 y sqlite3_zipfile_init no están exportados; apply_v2 y changegroup_add sí. Revisar cada ID: la ausencia del símbolo v3 no permite cerrar otros caminos de Session o bases corruptas."
+  },
+  {
+    "source_package": "systemd",
+    "ids": 7,
+    "entries": 14,
+    "scanner_status_entries": {
+      "affected": 14
+    },
+    "open_trixie_ids": 7,
+    "ids_with_tracker_explicit_upstream_fix": 2,
+    "ids_with_newer_debian_fixed_release": 2,
+    "applicability": "Solo libsystemd0/libudev1 están instaladas desde esta fuente; no hay homed, oomd, journald ni systemd-tmpfiles en las rutas medidas. Evidencia concreta de componente ausente para esos servicios, pendiente de revisión y sin eliminar entradas del scanner."
+  },
+  {
+    "source_package": "sysvinit",
+    "ids": 1,
+    "entries": 1,
+    "scanner_status_entries": {
+      "affected": 1
+    },
+    "open_trixie_ids": 1,
+    "ids_with_tracker_explicit_upstream_fix": 0,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "No hay init en la ruta medida; sulogin sí está presente. Se necesita evaluar el escenario de instalación/recuperación descrito, distinto del CMD web; sin excepción automática."
+  },
+  {
+    "source_package": "tar",
+    "ids": 5,
+    "entries": 5,
+    "scanner_status_entries": {
+      "affected": 5
+    },
+    "open_trixie_ids": 5,
+    "ids_with_tracker_explicit_upstream_fix": 1,
+    "ids_with_newer_debian_fixed_release": 0,
+    "applicability": "tar y rmt están presentes. Deben revisarse extracción/restauración y argumentos con archivos no confiables; no se ejecutaron exploits. Los parches citados y las condiciones se conservan por ID."
+  },
+  {
+    "source_package": "util-linux",
+    "ids": 6,
+    "entries": 54,
+    "scanner_status_entries": {
+      "affected": 54
+    },
+    "open_trixie_ids": 6,
+    "ids_with_tracker_explicit_upstream_fix": 2,
+    "ids_with_newer_debian_fixed_release": 5,
+    "applicability": "mount es SUID 4755; nsenter y login existen. fstab está sin configurar. Los cuatro HIGH requieren hooks/montajes o nsenter privilegiado; el kernel del laboratorio es 6.1, pero el kernel de despliegue futuro no está validado. chfn/chsh son de shadow y Debian indica que no se compilan desde util-linux."
+  },
+  {
+    "source_package": "xz-utils",
+    "ids": 2,
+    "entries": 2,
+    "scanner_status_entries": {
+      "fixed": 2
+    },
+    "open_trixie_ids": 0,
+    "ids_with_tracker_explicit_upstream_fix": 1,
+    "ids_with_newer_debian_fixed_release": 1,
+    "applicability": "DSA y TEMP remiten a la misma GHSA, sin CVE asignado. La extensión Python _lzma enlaza liblzma.so.5. Hay backport estable u2 verificado por APT; el cambio está escrito, aún requiere inventario y nuevo scan de la imagen construida."
+  },
+  {
+    "source_package": "zlib",
+    "ids": 2,
+    "entries": 2,
+    "scanner_status_entries": {
+      "affected": 2
+    },
+    "open_trixie_ids": 2,
+    "ids_with_tracker_explicit_upstream_fix": 2,
+    "ids_with_newer_debian_fixed_release": 1,
+    "applicability": "La biblioteca está presente. Se requieren llamadas concretas a crc32_combine64 o gz* y sus precondiciones. No se asume seguridad porque la aplicación use una API de compresión distinta."
+  }
+]

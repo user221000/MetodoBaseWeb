@@ -1,0 +1,22 @@
+diff --git a/Dockerfile b/Dockerfile
+index a1e2759..c3dbd4a 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -1,6 +1,6 @@
+ # ══════════════════════════════════════════════════════════════════════════════
+ # MetodoBase Web — Dockerfile de producción
+-# Candidato local 2026-10-18: lock con hashes y base fijada por digest.
++# Candidato local 2026-10-19: locks con hashes y base Linux/amd64 fijada por digest.
+ #
+ # Multi-stage build:
+ #   1. Instala dependencias web-only (sin PySide6, sin GUI)
+@@ -11,7 +11,8 @@
+ # Run:     docker run -p 8000:8000 --env-file .env metodobase-web
+ # ══════════════════════════════════════════════════════════════════════════════
+ 
+-FROM python:3.12.13-slim@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36 AS base
++# CPython 3.12.15 includes the September 2026 security fixes for the container target.
++FROM python:3.12.15-slim@sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe AS base
+ 
+ # Both dependency and runtime stages inherit the verified installer upgrade.
+ # Pin its wheel independently; application locks and Windows environments stay separate.

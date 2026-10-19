@@ -1,0 +1,82 @@
+{
+  "accepted": true,
+  "head": "a753b2cdf61a91133bd58c3159b0b35e02167396",
+  "source_count": 667,
+  "package_count": 89,
+  "runs": [
+    {
+      "label": "serial",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "tests/run_isolated.py",
+        "tests",
+        "--ignore=tests/test_login_desktop.py",
+        "--ignore=tests/test_desktop_entrypoints.py",
+        "-q",
+        "--tb=short",
+        "--cov",
+        "--cov-report=xml:F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-postfix-20261019\\qa-integrated28-history-landing-postfix-coverage.xml",
+        "--cov-report=json:F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-postfix-20261019\\qa-integrated28-history-landing-postfix-coverage.json",
+        "--junitxml=F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-postfix-20261019\\qa-integrated28-history-landing-postfix-serial.xml"
+      ],
+      "temporary_test_root": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-test-qa-integrated28-postfix-serial-e8bv2f_5",
+      "seconds": 593.922,
+      "exit": 0,
+      "junit": {
+        "collected": 2361,
+        "passed": 2360,
+        "failures": 0,
+        "errors": 0,
+        "skipped": [
+          {
+            "node": "tests.test_object_storage::test_symlink_cannot_redirect_a_private_document",
+            "message": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+          }
+        ]
+      },
+      "source_stable": true,
+      "packages_stable": true
+    },
+    {
+      "label": "shuffle",
+      "command": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "tests/run_isolated.py",
+        "tests",
+        "--ignore=tests/test_login_desktop.py",
+        "--ignore=tests/test_desktop_entrypoints.py",
+        "--shuffle-seed=20261018",
+        "-q",
+        "-n",
+        "2",
+        "--tb=short",
+        "--junitxml=F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\qa-integrated28-history-landing-postfix-20261019\\qa-integrated28-history-landing-postfix-shuffle.xml"
+      ],
+      "temporary_test_root": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-test-qa-integrated28-postfix-shuffle-6jazck7t",
+      "seconds": 279.0,
+      "exit": 0,
+      "junit": {
+        "collected": 2361,
+        "passed": 2360,
+        "failures": 0,
+        "errors": 0,
+        "skipped": [
+          {
+            "node": "tests.test_object_storage::test_symlink_cannot_redirect_a_private_document",
+            "message": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+          }
+        ]
+      },
+      "source_stable": true,
+      "packages_stable": true
+    }
+  ],
+  "error": null,
+  "scope": "Current integrated web suite with source/locks/installed packages frozen. Serial coverage and two isolated shuffled workers. Fresh metadata-only SQLite and Python socket guard; no PG integrations/provider/image/Linux/desktopGUI/Actions execution.",
+  "only_allowed_skip": "tests.test_object_storage::test_symlink_cannot_redirect_a_private_document",
+  "all_prior_acceptance_evidence": "preserved; no earlier case totals reused or summed"
+}
