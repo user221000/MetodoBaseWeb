@@ -167,9 +167,16 @@ def create_checkout_session(
 
 # ── Customer Portal ──────────────────────────────────────────────────────────
 
-@retry_with_backoff(max_retries=3, circuit=stripe_circuit)
 def create_portal_session(db: Session, gym_id: str, return_url: str) -> dict:
-    """Crea un portal Stripe para que el gym gestione su suscripción."""
+    """Reject invalid input before it can affect the shared provider circuit."""
+    from web.services.return_paths import private_return_path
+    return_url = private_return_path(return_url)
+    return _create_portal_session(db, gym_id, return_url)
+
+
+@retry_with_backoff(max_retries=3, circuit=stripe_circuit)
+def _create_portal_session(db: Session, gym_id: str, return_url: str) -> dict:
+    """Only a valid application return path enters provider retry/circuit."""
     if not _init_stripe():
         raise RuntimeError("Stripe no configurado")
 

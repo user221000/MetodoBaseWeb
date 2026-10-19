@@ -1,0 +1,51 @@
+{
+  "scope": "SEC11 portal return redirect and invalid-input circuit classification; no SSRF or live incident demonstrated",
+  "base": "3c764d8486eb111f1dfa0ff2f238dd2ab0308792",
+  "sources": {
+    "web/services/return_paths.py": {
+      "raw_sha256": "311c49cdb08ba4e4ed6217ede66373355402c1c77f9ad6108933be8a7c687c9d",
+      "git_lf_sha256": "311c49cdb08ba4e4ed6217ede66373355402c1c77f9ad6108933be8a7c687c9d"
+    },
+    "web/services/stripe_service.py": {
+      "raw_sha256": "a1ee637f78bb208adc85c9b4b735e20f9c9cc4193c5e8cbeccdbb1b417f1c1ab",
+      "git_lf_sha256": "c8601ceecd694fd2bce8f666af4c94683a0151747424c67cec23d503627cf4aa"
+    },
+    "tests/test_billing_return_paths.py": {
+      "raw_sha256": "0d5c9974f66a52597a8c2242a54e53e2e6db2a2adcf41ad490823d72ff39e24e",
+      "git_lf_sha256": "0d5c9974f66a52597a8c2242a54e53e2e6db2a2adcf41ad490823d72ff39e24e"
+    }
+  },
+  "proofs": {
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "portal-grant-before-source.py": "fc75fa14053ef66ba7d2403c433b8c496d0345eec7a598ed818dc658f055ca28",
+    "portal-port-before.log": "c4612f98ec23af35f7da4dfe80720cb9d9ad3e35cba02524b75d34a319a4ade1",
+    "portal-port-before.xml": "e55ef9c4c527df0f35de9d59bfc5a877044c51d4224d92dc2de734b0dd46f404",
+    "portal-sequence-after-summary.json": "79b184f0daf38c87784350cec9b0b01e09d2448f13938f7eb64ea5cdf0a04c18",
+    "portal-sequence-after.log": "6380f020f180bddd2f4e46dae74fd8d79073cf78b5d220a2d2a63ed3867807f5",
+    "portal-sequence-after.xml": "8880ff506fe49761b44a3f2b6fec5a82e24524cb6ac512042759313bfa792d90",
+    "portal-standalone-after.log": "c6021652d5e16bb6a7576405ae9eba07b47d80f1bc3fede6c681218c289514ff",
+    "portal-standalone-after.xml": "865db8699039a7e764af6b1f0a25e90ca89894079a4dbe76b8e08f4deb544976",
+    "stripe-service-before-GitLF.py": "f8847d84c35e862e46a21d32f9ebe00ef7f7614dcca788becbfb38c22a7b2d53"
+  },
+  "before": {
+    "cases": 4,
+    "failures": 4,
+    "factories": 2,
+    "description": "new action registry accepted unsafe body, and actual synthetic SDK return_url selected outside origin"
+  },
+  "intermediate": {
+    "passed": 5,
+    "failed": 8,
+    "description": "first WIP validates inside shared circuit; invalid ValueErrors open it. Not an accepted release."
+  },
+  "after": {
+    "cases": 13,
+    "passed": 13,
+    "resets_between_cases": false,
+    "external_transport": "recording SDK port, no network",
+    "source_files_quiet": 843,
+    "packages_quiet": 89
+  },
+  "independent_review": "pending root exact11 and QA/SEC; not claimed complete",
+  "raw_preservation": "This prefix has * -text from creation. Source.py is normal Git text; raw/GitLF hashes are separate."
+}
