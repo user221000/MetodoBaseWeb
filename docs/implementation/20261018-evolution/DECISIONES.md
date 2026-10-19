@@ -118,4 +118,6 @@ No debilitar assertions para corregir carreras de fixtures: congelar sólo setup
 
 ## Checkpoint126
 
+Precisión de autorización: el encargo permite las migraciones locales necesarias para resolver un hallazgo técnico. La restricción «sin nueva DDL» pertenece sólo al contrato de la retirada excepcional de esquema32. Una futura asociación de Google puede requerir una migración revisada; sus sujetos deben provenir de pruebas válidas de identidad. No se puede inventar un `sub` ni reconstruirlo desde un email.
+
 No ampliar RLS ni alterar funciones para satisfacer asserts impropios del observador. Usar verify_runtime_schema congelado y allowlist25FORCE en el futuro worker. Preservar primererror/continuaciónreadonly con prefijos distintos del futuro sucesor. Apagar sólo VM propia por QMP tras cierre de servicios y fotos de identidad. No considerar contraseñas preparadas postrestore como restauradas. ContratoGoogle: separar autoridad criptográfica tokeninfo de asociaciónlocalpor email; no usar mocks imposibles como exploit real.
