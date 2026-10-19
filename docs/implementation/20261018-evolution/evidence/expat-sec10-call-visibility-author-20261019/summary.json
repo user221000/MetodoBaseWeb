@@ -1,0 +1,183 @@
+{
+  "created_utc": "2026-10-19T19:12:40.020696+00:00",
+  "source": "72c44a1834d7bd9803b4b8846c6c87e85a53bfd3",
+  "parent": "de69a85e7903f1a7217b054c0edb269dd5560999",
+  "status": "Frozen static candidate; SEC review required before coordinated rebuild. No repaired native artifact or runtime acceptance.",
+  "findings_in_scope": [
+    "OPS12 empty argv trace caused by spawn vs call",
+    "OPS13 extra ELF exports caused by missing base hidden visibility"
+  ],
+  "preserved_previous_findings": [
+    "OPS08",
+    "OPS09",
+    "OPS10"
+  ],
+  "changed_files": [
+    "runtime-source/expat-sec10/CONTRATO.md",
+    "runtime-source/expat-sec10/rebuild_pyexpat.py",
+    "tests/fixtures/expat_sec10/.gitattributes",
+    "tests/fixtures/expat_sec10/setuptools84-call-source.json",
+    "tests/test_expat_sec10_build_contract.py"
+  ],
+  "offline_tests": 41,
+  "Ruff_exit": 0,
+  "pip_check_exit": 0,
+  "source_files_quiet": 749,
+  "lock_files_quiet": 12,
+  "package_name_version_entries_quiet": 89,
+  "diagnostic_files_quiet": 66,
+  "diagnostic_source_sha256": "ba64804ae9f2ccbcb638d73dfbe68630e295821076f98efaa4dcfdee95502b09",
+  "diagnostic_manifest_sha256": "9a7abd7b4b054144daa059577371507b796b2a2e63344e566a86833fe0c88542",
+  "PSF_source_sha256": "c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a",
+  "inputs31_unchanged": true,
+  "CAPI_config_namespace_versions_patch_and_pins_unchanged": true,
+  "trace_contract": "Record self.call argv and delegate unchanged; require four actual compile calls and one link before publishing future provenance. Offline checks mock effects and are not real compiler argv evidence.",
+  "visibility_contract": "Select only -fvisibility=hidden from two exact-base module flag variables; authenticate installed Makefile; do not replay PGO/LTO or assert full historical reproduction.",
+  "export_contract": "Future nm defined exports must equal exact original [PyInit_pyexpat]; new gate rejects preserved measured DE69 list93.",
+  "limits": [
+    "No corrected native artifact or final image has been built; OPS12/13 native acceptance pending SEC and coordinated rebuild",
+    "Five compiler calls are tested using exact installed method bodies with mocked process/filesystem effects; not a replacement real argv receipt",
+    "Only base hidden visibility is selected; historical PGO/LTO and full-command/ELF hash reproducibility are not asserted",
+    "SEC10, SEC09, SQLite50812, zlib27171, OS71, runtime imports and SCA remain outside this author static acceptance"
+  ],
+  "files": [
+    {
+      "path": "source.json",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\source.json",
+      "bytes": 88719,
+      "sha256": "cc8e4454303047ef835d5ee1a149808ab49986df2380849526a73043fce3396c"
+    },
+    {
+      "path": "preparation-and-preserved-regression.json",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\preparation-and-preserved-regression.json",
+      "bytes": 11488,
+      "sha256": "5d503f128bfd26568bcfbec724440dbda314b9598a937ead213263403045f7f8"
+    },
+    {
+      "path": "tests41.raw.xml",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\frozen-tests41.xml",
+      "bytes": 6918,
+      "sha256": "7aaf7cc34a12fea6692cafd3e0f8405c22906f3c33d1a2db83dd3f466518f1cb"
+    },
+    {
+      "path": "tests41.raw.stdout.log",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\frozen-tests41.stdout.log",
+      "bytes": 101,
+      "sha256": "fe0bec3c868521a257b236bf0fe0991ba4e89604ca6ab88486360af24a92e163"
+    },
+    {
+      "path": "tests41.raw.stderr.log",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\frozen-tests41.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "quality.stdout.log",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\frozen-quality.stdout.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "pip-check.stdout.log",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\frozen-pip-check.stdout.log",
+      "bytes": 31,
+      "sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "first36-tests.stdout.log",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\offline-tests.stdout.log",
+      "bytes": 101,
+      "sha256": "9a654de92190b84ad1925a1b40ade5114bf92f98efcbae7e0db9e283c31a42b3"
+    },
+    {
+      "path": "fixture-initial-error-transcript.txt",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\fixture-generation-initial-error-transcript.txt",
+      "bytes": 538,
+      "sha256": "7a0f2ade6d70f3ef08dcc5c7c492d901e83e9e69dabea40032566d25c5dbbbd0"
+    },
+    {
+      "path": "preimage/DE69-rebuild_pyexpat.py.raw",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\preimage-DE69-rebuild_pyexpat.py.raw",
+      "bytes": 11000,
+      "sha256": "1c92de93dd275e0cdf1c06ce5c6381196a6c0d88a40c6dd30fbbb1854f441623"
+    },
+    {
+      "path": "drivers/frozen_offline_driver.py",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\frozen_offline_driver.py",
+      "bytes": 6845,
+      "sha256": "c8227936c3d472f3a3351fcfff0e28ee441f8591afbe29f0848e61cac786d246"
+    },
+    {
+      "path": "drivers/seal_static.py",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-call-visibility-author-20261019\\seal_static.py",
+      "bytes": 5997,
+      "sha256": "f403ca4c507391cdafe9b7c81d10dc501de31659a5513a75a97d233ef5a058fa"
+    },
+    {
+      "path": "diagnostic-inputs/REVIEW.md",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-de69-native-diagnostic-20261019\\REVIEW.md",
+      "bytes": 2766,
+      "sha256": "7a0912bcd0fd0b7c1174a78d36bd814a1432cf689225f92c2a57658c73791cd1"
+    },
+    {
+      "path": "diagnostic-inputs/call-flags-capture-source.json",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-de69-native-diagnostic-20261019\\call-flags-capture-source.json",
+      "bytes": 4543,
+      "sha256": "c39b483ced590434c845e1aa51e680d07506465692b15169c873a513a2a0e041"
+    },
+    {
+      "path": "diagnostic-inputs/compiler-source-capture-source.json",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-de69-native-diagnostic-20261019\\compiler-source-capture-source.json",
+      "bytes": 14870,
+      "sha256": "0b5ee8994628d4af4f62f54118060f9ed53e87abcb600583428c7d081f4fbaae"
+    },
+    {
+      "path": "diagnostic-inputs/namespace-comparison-source.json",
+      "original_path": "F:\\MetodoBaseWeb-linux-lab-20261019\\evidence\\expat-sec10-de69-native-diagnostic-20261019\\namespace-comparison-source.json",
+      "bytes": 7880,
+      "sha256": "cd7d7070beb51b52525cc3ee81a127f666cb4645de98bb25c8c3d08f4a76b868"
+    },
+    {
+      "path": "candidate/runtime-source/expat-sec10/CONTRATO.md",
+      "original_path": "F:\\mb-expat-call-visibility-20261019\\runtime-source\\expat-sec10\\CONTRATO.md",
+      "bytes": 6041,
+      "sha256": "31d5f685f5e4550f4a4c351cc65e96f0c4ea12a6ae314ce5fc3c68901a8cb4a1"
+    },
+    {
+      "path": "candidate/runtime-source/expat-sec10/rebuild_pyexpat.py",
+      "original_path": "F:\\mb-expat-call-visibility-20261019\\runtime-source\\expat-sec10\\rebuild_pyexpat.py",
+      "bytes": 15034,
+      "sha256": "ce57c205ea22e8756c47640e1da5acd9d9aa54da1873e6b53d22379a3ec60cab"
+    },
+    {
+      "path": "candidate/tests/fixtures/expat_sec10/.gitattributes",
+      "original_path": "F:\\mb-expat-call-visibility-20261019\\tests\\fixtures\\expat_sec10\\.gitattributes",
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "path": "candidate/tests/fixtures/expat_sec10/setuptools84-call-source.json",
+      "original_path": "F:\\mb-expat-call-visibility-20261019\\tests\\fixtures\\expat_sec10\\setuptools84-call-source.json",
+      "bytes": 7821,
+      "sha256": "6dffa081f5954295acb2494b767174041d10dfde5b8515c14c282c547f0c0013"
+    },
+    {
+      "path": "candidate/tests/test_expat_sec10_build_contract.py",
+      "original_path": "F:\\mb-expat-call-visibility-20261019\\tests\\test_expat_sec10_build_contract.py",
+      "bytes": 8572,
+      "sha256": "5957efe6546410427bfb6daa45a5608e5f097cd3c9a52ebea42f198423e72246"
+    },
+    {
+      "path": "candidate/runtime-source/expat-sec10/source-pins.json",
+      "original_path": "F:\\mb-expat-call-visibility-20261019\\runtime-source\\expat-sec10\\source-pins.json",
+      "bytes": 1078,
+      "sha256": "3e1b837516f2bf5f127c56f79f603db4bfe963983d99283e850a185659ffe4bd"
+    },
+    {
+      "path": "candidate/runtime-source/expat-sec10/13c5f63.patch",
+      "original_path": "F:\\mb-expat-call-visibility-20261019\\runtime-source\\expat-sec10\\13c5f63.patch",
+      "bytes": 528,
+      "sha256": "c6c65ee12b494dac2b74e4abb1281a535bb701fcc81880254f13cb77d7a3c2aa"
+    }
+  ]
+}

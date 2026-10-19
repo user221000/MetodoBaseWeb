@@ -1,0 +1,40 @@
+"""One exact maintained ASGI/SQLite command with source/environment/origin fences."""
+import hashlib,importlib.metadata,json,os,subprocess,sys,time
+from pathlib import Path
+ROOT=Path('F:/mb-mfa31-current-fixtures-qa-20261019')
+TEMP=Path(__file__).parent
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-current-fixtures-peer-independent-20261019')
+PRIVATE=TEMP/'private';PRIVATE.mkdir(exist_ok=False)
+HEAD='79dce040a9d79b51c1971bf4a99338a06c2ac659'
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+os.chdir(ROOT);sys.path.insert(0,str(ROOT))
+for key in list(os.environ):
+    upper=key.upper()
+    if upper=='DATABASE_URL' or upper.endswith('_DATABASE_URL') or upper.startswith(('PG','AWS_','S3_','METODOBASE_TEST_','_METODOBASE_TEST','MFA_QA_')) or any(x in upper for x in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','OPENAI_API']):os.environ.pop(key,None)
+os.environ.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+from tests.isolation import prepare_environment,block_external_sockets
+prepare_environment(discard_inherited=True);block_external_sockets()
+git=lambda *a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+names=[n for n in git('ls-files','-co','--exclude-standard','-z').decode().split('\0')if n]
+def photo():
+    return {'head':git('rev-parse','HEAD').decode().strip(),'sources':{n:SHA((ROOT/n).read_bytes())for n in names},'helpers':{p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')},'packages':sorted([d.metadata['Name'],d.version]for d in importlib.metadata.distributions()),'Python_SHA':SHA(Path(sys.executable).read_bytes()),'Python_base_SHA':SHA(Path(sys._base_executable).read_bytes())}
+print(json.dumps({'phase':'before-photo','source_count':len(names)}),flush=True)
+before=photo();assert len(before['packages'])==89
+(OUT/'before.json').write_text(json.dumps(before,indent=2)+'\n')
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-before.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+static=subprocess.run([sys.executable,'-X','utf8',str(TEMP/'review_static.py')],capture_output=True)
+(PRIVATE/'static-review.raw.log').write_bytes(static.stdout+static.stderr);assert static.returncode==0,'Static inverse/source review failed'
+argv=[sys.executable,'-X','utf8','tests/run_isolated.py','tests/test_identity_security.py','tests/test_publication_diary_consumption.py','tests/test_current_publication_fixture_review.py','-q','--tb=short','--junitxml='+str(PRIVATE/'pytest.raw.xml')]
+env=dict(os.environ);env.update(PYTHONPATH=str(TEMP)+os.pathsep+str(ROOT),PYTEST_PLUGINS='qa_current_fence',QA_CURRENT_ROOT=str(ROOT),QA_CURRENT_OUT=str(OUT))
+(OUT/'execution-plan.json').write_text(json.dumps({'source_head':HEAD,'argv_without_env':argv,'maintained_original':54,'new_author_controls':2,'observation_plugin':'No fixture/assertion/product substitutions; SQLite dialect and source origin guards only.','PG':False,'Chrome':False,'external_sockets':'maintained loopback-only blocking; providers disabled, Google/email transport doubles explicit.'},indent=2)+'\n')
+print(json.dumps({'phase':'run-56'}),flush=True);start=time.monotonic()
+with (PRIVATE/'pytest.raw.log').open('wb')as stream:p=subprocess.run(argv,cwd=ROOT,env=env,stdout=stream,stderr=subprocess.STDOUT)
+seconds=time.monotonic()-start
+print(json.dumps({'phase':'pytest-closed','exit':p.returncode,'seconds':seconds}),flush=True)
+after=photo();(OUT/'after.json').write_text(json.dumps(after,indent=2)+'\n');assert before==after
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(OUT/'pip-after.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+assert not git('status','--porcelain').strip()
+result={'pytest_exit':p.returncode,'source_head':HEAD,'source_files':len(names),'packages':89,'before_after_exact':True,'wall_seconds':seconds,'PG_or_Chrome_started':False,'pip_before_after_exit':0,'raw_private':True}
+(OUT/'execution-summary.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result),flush=True)
+raise SystemExit(p.returncode)

@@ -122,3 +122,8 @@ Pendientes: integración y regresión amplia31,173PG eimagen común; instrumenta
 ## Checkpoint122
 
 Pendientes peer79, regresión serial con cobertura y n2 de la composición,imagen común y operacionesMFA. Linux requiere revisar/reconstruir argvreal yvisibilidad antes de aceptación. R25DDL32 aún exclusivo ysinproducto; políticas/países/SLO/pilotos/dictámenes no inventados.
+
+
+## Checkpoint 123
+
+Pendientes resultado broadserial/n2 de809, imagen común y validación nativa72. R25 añade mediciones/consentimiento32 bajo revisión; el acceso compartido no puede depender de un GUC falsificable ni exponer sesiones o filas privadas. Siguen configuración/operacionesMFA, políticas, objetivos de carga, pilotos y dictámenes reales pendientes.

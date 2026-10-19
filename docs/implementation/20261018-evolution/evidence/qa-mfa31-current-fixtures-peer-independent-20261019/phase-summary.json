@@ -1,0 +1,48 @@
+{
+  "decision": "PASS bounded independent fixture review",
+  "source_head": "79dce040a9d79b51c1971bf4a99338a06c2ac659",
+  "parent_head": "bd34893c4b6f806041b0cc6b7f156e9286886748",
+  "maintained_command_executions": 1,
+  "pytest_passed": 56,
+  "pytest_failed": 0,
+  "pytest_errors": 0,
+  "pytest_skipped": 0,
+  "original_cases_replayed": 54,
+  "author_added_controls_replayed": 2,
+  "new_independent_behavioral_cases": 0,
+  "original_assert_nodes_preserved_exact": 58,
+  "inverse_text_and_AST_exact": true,
+  "test_source_paths_changed": 4,
+  "product_or_global_helper_changes": 0,
+  "author_proof_blobs_authenticated_RAW_Git_exact": 30,
+  "Google": "Same cached config object consumed through web.settings re-export; transport remains synthetic and no provider network is contacted.",
+  "local_database_observations": [
+    {
+      "fixture": "tests.current_mfa31_publication_fixtures.link_db",
+      "same_SQLite_database": true,
+      "tables": 33,
+      "verified_revision": "20261019_mfa",
+      "PG_enabled": false
+    },
+    {
+      "fixture": "tests.current_mfa31_publication_fixtures.link_db",
+      "same_SQLite_database": true,
+      "tables": 33,
+      "verified_revision": "20261019_mfa",
+      "PG_enabled": false
+    }
+  ],
+  "authentication": "Actual persisted password, primary reauth, enrollment, TOTP confirmation, password202 and one-use recovery; no positive token minting or new MFA/grant bypass.",
+  "controls": "Both real factories retain factor-backed credentials, but billing portal without exact action grant is403 and no Stripe business port/mail/new-user side effect occurs.",
+  "limitations": "Original negative/ambiguous actor case retains its prior manually minted replacement bearer; identity-only unit cases retain their historical token-level scope. These are replayed scopes, not claims of a full application suite or new global unique criteria.",
+  "source_files": 10176,
+  "packages": 89,
+  "before_after_source_helpers_Python_packages_exact": true,
+  "module_origin_fence": "Own WT for web/api/core/tests/config; Base module web.database.models with32 model tables; own observation plugin explicitly labelled.",
+  "pip_before_after_exit": 0,
+  "PG_connections_or_databases_created": 0,
+  "Chrome_or_provider_services_started": false,
+  "mapping_note": "No repin proposed: actual current-business mapping does not pin test_publication_diary_consumption.py. Root will verify its composed source separately.",
+  "raw_logs_XML": "Private only, public JUnit projection omits logs, properties and secret-bearing body values; full hashes retained.",
+  "scope": "Windows local ASGI/SQLite. No PG rerun, Actions, Linux, deployment, browser, performance/SLO or global suite acceptance."
+}

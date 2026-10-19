@@ -99,3 +99,8 @@ Los canarios offline no son PostgreSQL y los replays no son casos nuevos. Un tar
 ## Checkpoint122
 
 La aceptación focal R17 no equivale a métricas distribuidas ni SLO. Conservar before12rojos ysame-driver24after, separar replays. No actualizar pinsCI por una cautela sin evidencia: publicación_diary no está en source_modules del mapping; comprobar gate real tras integrar79.
+
+
+## Checkpoint 123
+
+No interpretar el GUCactor como firma verificable. R25 requiere un lector mínimo con autoridad derivada, consentimiento y locks; probar pool1/restauración y revisar antes de aceptar alternativa. Conservar entitlement profesional de clínica sin impedir medidas personales, retirada ni exportación por ese paywall. La aceptación estática del compilador no equivale a un artefacto nativo aceptado.

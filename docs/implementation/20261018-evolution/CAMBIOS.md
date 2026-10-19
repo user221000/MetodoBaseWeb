@@ -180,3 +180,8 @@ MAIN sólo registra seis hallazgos y evidencia. CIed4 repara CLI, snapshot y rol
 ## Checkpoint122
 
 SEC14 añade cabeceras privadas para respuestas de método405 ylector500 de tres rutas operativas exactas. Mergeaislado38b integraCIed4;5637 integraR17b500. MAIN sólo registra evidencia/criterios; no producto31 integrado todavía.
+
+
+## Checkpoint 123
+
+La candidata aislada809 integra fixtures79 después del peer, preservando producto y CI. Expat72 corrige call, visibilidad y gates sin cambiar pines, parche,31inputs ni12locks. Backend/UI R25 comenzaron en ramas separadas; MAIN sólo registra evidencia y estado.

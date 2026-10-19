@@ -1,0 +1,52 @@
+{
+  "scope": "Exact source captured from immutable expat-build image; tests execute method bodies only with inert mocked process calls, not a native compiler.",
+  "source_image_id": "sha256:5f85c450c1f1d949a75294a4cd8316f2e745b0c952b05e69082bd0bf9dc5b2d5",
+  "setuptools_version": "84.0.0",
+  "diagnostic_source_sha256": "ba64804ae9f2ccbcb638d73dfbe68630e295821076f98efaa4dcfdee95502b09",
+  "methods": {
+    "UnixCCompiler._compile": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.compilers.C.unix",
+      "qualname": "Compiler._compile",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/unix.py",
+      "module_sha256": "6b6e1b8325dd70dd54146a3fe98e9435e1ada067a9345323f797c861978f8677",
+      "first_source_line": 320,
+      "source": "    def _compile(self, obj, src, ext, cc_args, extra_postargs, pp_opts):\n        compiler_so = compiler_fixup(self.compiler_so, cc_args + extra_postargs)\n        compiler_so_cxx = compiler_fixup(self.compiler_so_cxx, cc_args + extra_postargs)\n        try:\n            if self.detect_language(src) == 'c++':\n                self.call(compiler_so_cxx + cc_args + [src, '-o', obj] + extra_postargs)\n            else:\n                self.call(compiler_so + cc_args + [src, '-o', obj] + extra_postargs)\n        except (subprocess.CalledProcessError, OSError) as msg:\n            raise CompileError(msg)\n",
+      "source_sha256": "d39a6a538c64e6c25ba3355547478436d389c7154dafebb516604d6fa469e1eb"
+    },
+    "UnixCCompiler.link": {
+      "observed_wrapper_type": "function",
+      "module": "setuptools._distutils.compilers.C.unix",
+      "qualname": "Compiler.link",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/unix.py",
+      "module_sha256": "6b6e1b8325dd70dd54146a3fe98e9435e1ada067a9345323f797c861978f8677",
+      "first_source_line": 355,
+      "source": "    def link(\n        self,\n        target_desc,\n        objects: list[str] | tuple[str, ...],\n        output_filename,\n        output_dir: str | None = None,\n        libraries: list[str] | tuple[str, ...] | None = None,\n        library_dirs: list[str] | tuple[str, ...] | None = None,\n        runtime_library_dirs: list[str] | tuple[str, ...] | None = None,\n        export_symbols=None,\n        debug=False,\n        extra_preargs=None,\n        extra_postargs=None,\n        build_temp=None,\n        target_lang=None,\n    ):\n        objects, output_dir = self._fix_object_args(objects, output_dir)\n        fixed_args = self._fix_lib_args(libraries, library_dirs, runtime_library_dirs)\n        libraries, library_dirs, runtime_library_dirs = fixed_args\n\n        lib_opts = gen_lib_options(self, library_dirs, runtime_library_dirs, libraries)\n        if not isinstance(output_dir, (str, type(None))):\n            raise TypeError(\"'output_dir' must be a string or None\")\n        if output_dir is not None:\n            output_filename = os.path.join(output_dir, output_filename)\n\n        if self._need_link(objects, output_filename):\n            ld_args = objects + self.objects + lib_opts + ['-o', output_filename]\n            if debug:\n                ld_args[:0] = ['-g']\n            if extra_preargs:\n                ld_args[:0] = extra_preargs\n            if extra_postargs:\n                ld_args.extend(extra_postargs)\n            self.mkpath(os.path.dirname(output_filename))\n            try:\n                # Select a linker based on context: linker_exe when\n                # building an executable or linker_so (with shared options)\n                # when building a shared library.\n                building_exe = target_desc == base.Compiler.EXECUTABLE\n                target_cxx = target_lang == \"c++\"\n                linker = (\n                    (self.linker_exe_cxx if target_cxx else self.linker_exe)\n                    if building_exe\n                    else (self.linker_so_cxx if target_cxx else self.linker_so)\n                )[:]\n\n                if target_cxx and self.compiler_cxx:\n                    env, linker_ne = _split_env(linker)\n                    aix, linker_na = _split_aix(linker_ne)\n                    _, compiler_cxx_ne = _split_env(self.compiler_cxx)\n                    _, linker_exe_ne = _split_env(self.linker_exe_cxx)\n\n                    params = _linker_params(linker_na, linker_exe_ne)\n                    linker = env + aix + compiler_cxx_ne + params\n\n                linker = compiler_fixup(linker, ld_args)\n\n                self.call(linker + ld_args)\n            except (subprocess.CalledProcessError, OSError) as msg:\n                raise LinkError(msg)\n        else:\n            log.debug(\"skipping %s (up-to-date)\", output_filename)\n",
+      "source_sha256": "5c73d387fa2ffbd17d50c15d837bc2d5f93dba6b6df29ffc72945b5155e2b91c"
+    },
+    "Compiler.call": {
+      "wrapper_type": "function",
+      "qualname": "Compiler.call",
+      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/base.py",
+      "module_sha256": "e9cd70c9c4a71f6da21b461584902d69aac993e0b5af89c4b9c73e83cdf0e0d3",
+      "first_source_line": 1168,
+      "source": "    def call(\n        self,\n        cmd: MutableSequence[bytes | str | os.PathLike[str]],\n        *,\n        env: _ENV | None = None,\n        **kwargs,\n    ) -> None:\n        \"\"\"Run 'cmd' in a subprocess, letting subprocess exceptions propagate.\"\"\"\n        log.info(subprocess.list2cmdline(cmd))\n        subprocess.check_call(cmd, env=macos.inject_ver(env), **kwargs)\n"
+    }
+  },
+  "base_sysconfig": {
+    "CC": "gcc",
+    "CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall",
+    "CFLAGS_NODIST": null,
+    "CONFIGURE_CFLAGS_NODIST": "-fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden",
+    "PY_CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall",
+    "PY_CFLAGS_NODIST": "-fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden -fprofile-use -fprofile-correction -I./Include/internal",
+    "PY_CORE_CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall -fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden -fprofile-use -fprofile-correction -I./Include/internal -I. -I./Include -fPIC -DPy_BUILD_CORE",
+    "PY_STDMODULE_CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall -fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden -fprofile-use -fprofile-correction -I./Include/internal -I. -I./Include -fPIC",
+    "MODULE_PYEXPAT_CFLAGS": "-I./Modules/expat",
+    "MODULE_PYEXPAT_LDFLAGS": "-lm Modules/expat/libexpat.a",
+    "LDSHARED": "gcc -shared",
+    "LDFLAGS": "",
+    "CONFIG_ARGS": "'--build=x86_64-linux-gnu' '--enable-loadable-sqlite-extensions' '--enable-optimizations' '--enable-option-checking=fatal' '--enable-shared' '--with-lto' '--with-ensurepip' 'build_alias=x86_64-linux-gnu'"
+  },
+  "base_Makefile_sha256": "c73faf2fca0de76baeeb272b1e4474fdc49111a46961e88a39e55af4880a5192"
+}

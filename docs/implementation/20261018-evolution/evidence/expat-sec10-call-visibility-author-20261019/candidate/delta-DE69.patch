@@ -1,0 +1,384 @@
+diff --git a/runtime-source/expat-sec10/CONTRATO.md b/runtime-source/expat-sec10/CONTRATO.md
+index 334ff55..dedf2f9 100644
+--- a/runtime-source/expat-sec10/CONTRATO.md
++++ b/runtime-source/expat-sec10/CONTRATO.md
+@@ -2,7 +2,7 @@
+ 
+ Candidato M2 sobre c02. Fuente PSF 3.12.15 exacta y firmada, Expat 2.8.5, más los cinco renglones upstream de `13c5f63a7f1c52c2feee3b16a1134d4fb68e9ea0` en XML_ParseBuffer. No cambia ninguna macro de versión. Los hashes de origen, destino y diff están en source-pins.json.
+ 
+-El primer build nativo D60 se detuvo al compilar `pyexpat.c`: la selección de treinta archivos omitía su include `Modules/clinic/pyexpat.c.h`. La corrección añade ese encabezado sin modificarlo, desde el mismo tar PSF autenticado; sus 29.204 bytes tienen SHA256 `5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb`. Se seleccionan ahora treinta y un archivos, conservando exactamente los treinta anteriores. El hash adicional queda fijado en `source-pins.json`. El fallo y el wheel psycopg generado se conservan por separado. Esta corrección de selección aún no acredita compilación ni imports; necesita revisión independiente y un nuevo build nativo.
++El primer build nativo D60 se detuvo al compilar `pyexpat.c`: la selección de treinta archivos omitía su include `Modules/clinic/pyexpat.c.h`. La corrección añade ese encabezado sin modificarlo, desde el mismo tar PSF autenticado; sus 29.204 bytes tienen SHA256 `5e730198b2e3b644a96b411d5e594654d23146110b880a6ee9961fc919d90acb`. Se seleccionan ahora treinta y un archivos, conservando exactamente los treinta anteriores. El hash adicional queda fijado en `source-pins.json`. El fallo y el wheel psycopg generado se conservan por separado. La etapa DE69 posterior sí compiló y pasó sus comprobaciones pequeñas, pero su aceptación permanece bloqueada por OPS12/OPS13, descritos abajo. No se modifica esa imagen ni su evidencia.
+ 
+ M1 evaluó la release actual 2.9.0. Se conserva el preview fallido: retiró xcsinc.c y añade API de propiedades/contadores64, elimina XML_ATTR_INFO y requiere revisar namespace/exportaciones e integración. Para el alcance focal SEC10 se elige el backport exacto autorizado, conservando headers, expat_config.h, pyexpatns.h y C API.
+ 
+@@ -12,4 +12,18 @@ El build vive en una etapa heredada del builder d038 ya fijado. No instala paque
+ 
+ Antes del build: revisión independiente de patch, fuente/firma/hash, guardas del helper y delta Docker. Durante la futura ventana Linux: compilación, trazas de argv/compiler/sysconfig, ELF64/linkage, seis casos pequeños de pyexpat/ElementTree y rechazo read2049 sobre buffer2048. No se llama XML_ParseBuffer con tamaños nativos incompatibles ni se ejecutan PoC de crash/hugeRAM. Después: pruebas stdlib acotadas y XML-related del producto elegidas sobre fuente final, inventario/54 exactos, SCA runtime/build y OS sin ignores. Los seis smoke checks del builder no sustituyen esas suites.
+ 
+-El SBOM conserva versión2.8.5 con pedigree del commit/diff backport y hash del ELF real cuando exista. Un scanner puede seguir coincidiendo por versión; se documenta el patch, sin ocultar coincidencias ni añadir excepciones. Actualmente no se compiló ni se reparó imagen alguna. SQLite50812, zlib27171, OS71 y SEC09 siguen abiertos.
++El SBOM conserva versión2.8.5 con pedigree del commit/diff backport y hash del ELF real cuando exista. Un scanner puede seguir coincidiendo por versión; se documenta el patch, sin ocultar coincidencias ni añadir excepciones. El nuevo candidato de corrección todavía no se compiló y no acredita una imagen reparada. SQLite50812, zlib27171, OS71 y SEC09 siguen abiertos.
++
++## OPS12: traza real de compilador
++
++El diagnóstico cerrado de DE69 conserva `compiler_commands: []`. Sus fuentes instaladas de setuptools84 muestran que `UnixCCompiler._compile` y `link` llaman a `self.call`, mientras el helper interceptaba `spawn`. El nuevo hook intercepta `call`, copia la secuencia argv recibida antes de delegar y propaga los mismos argumentos, keywords y excepciones. El gate exige exactamente cinco llamadas completas: las cuatro compilaciones de fuentes, con sus outputs y flags seleccionados, y un enlace que consuma esos cuatro objetos. No reconstruye comandos a partir de sysconfig, logs ni nombres de archivos. Una compilación omitida, llamada adicional o traza vacía impide publicar procedencia.
++
++## OPS13: superficie ELF de la base
++
++DE69 exportó93 símbolos frente al único `PyInit_pyexpat` de la base. El Makefile instalado exacto, SHA256 `c73faf2fca0de76baeeb272b1e4474fdc49111a46961e88a39e55af4880a5192`, y sus variables `PY_STDMODULE_CFLAGS`/`PY_CFLAGS_NODIST` contienen `-fvisibility=hidden`; los CFLAGS públicos usados por customize_compiler lo omiten. Se autentica ese Makefile y se deriva únicamente el flag de visibilidad. No se añaden PGO, LTO, flags de profiling ni otros flags internos; tampoco se afirma reproducción del comando histórico completo o del hash del ELF original.
++
++Tras la futura compilación, el `nm` ya presente inspeccionará base y artefacto sin cargarlos. Se registra el hash del ejecutable resuelto y se exige que ambos exporten exactamente `PyInit_pyexpat` antes de los seis checks pequeños. La inspección ELF es un comando separado, no una de las cinco llamadas del compilador. Aún hace falta medir el ELF nuevo durante el rebuild autorizado.
++
++Los controles offline ejecutan los cuerpos exactos capturados de `_compile`, `link` y `Compiler.call` con procesos y filesystem simulados: demuestran causalmente que spawn pierde las cinco llamadas y que call conserva los argv delegados. No ejecutan gcc ni enlazan código. Además prueban trazas incompletas, visibilidad ausente/ambigua y exportaciones adicionales. El fixture identifica imagen, líneas y hashes de los módulos instalados; no se presenta como nueva descarga primaria o nueva firma.
++
++Este delta conserva tar PSF, patch,31 inputs, headers/config/namespace, versiones y CAPI. Atiende OPS12/OPS13 y conserva los fallos y la numeración previa OPS08/09/10. La evidencia DE69 permanece en `expat-sec10-de69-native-diagnostic-20261019`, source SHA256 `ba64804ae9f2ccbcb638d73dfbe68630e295821076f98efaa4dcfdee95502b09`, manifest SHA256 `9a7abd7b4b054144daa059577371507b796b2a2e63344e566a86833fe0c88542`. Se requiere revisión SEC del freeze antes de cualquier rebuild.
+diff --git a/runtime-source/expat-sec10/rebuild_pyexpat.py b/runtime-source/expat-sec10/rebuild_pyexpat.py
+index 04d8fde..22a45ac 100644
+--- a/runtime-source/expat-sec10/rebuild_pyexpat.py
++++ b/runtime-source/expat-sec10/rebuild_pyexpat.py
+@@ -1,15 +1,62 @@
+ """Build only patched pyexpat against this exact base; never rebuild libpython."""
+ from pathlib import Path
+-import argparse,difflib,hashlib,json,os,platform,struct,subprocess,sys,sysconfig,tarfile,urllib.request
++import argparse,difflib,hashlib,json,os,platform,shlex,struct,subprocess,sys,sysconfig,tarfile,urllib.request
+ 
+ HERE=Path(__file__).resolve().parent
+ INSERT=("  if (len > EXPAT_SAFE_PTR_DIFF(parser->m_bufferLim, parser->m_bufferEnd)) {\n"
+         "    parser->m_errorCode = XML_ERROR_INVALID_ARGUMENT;\n"
+         "    return XML_STATUS_ERROR;\n  }\n\n")
+ ANCHOR="  // Detect and avoid integer overflow\n  if ((uint64_t)len > UINT64_MAX - parser->m_parseEndByteIndex)"
+-ABI_KEYS=('SOABI','EXT_SUFFIX','SIZEOF_VOID_P','Py_DEBUG','Py_ENABLE_SHARED','CC','CFLAGS','CCSHARED','LDSHARED','CONFIG_ARGS')
++ABI_KEYS=('SOABI','EXT_SUFFIX','SIZEOF_VOID_P','Py_DEBUG','Py_ENABLE_SHARED','CC','CFLAGS','CCSHARED','LDSHARED','CONFIG_ARGS','PY_STDMODULE_CFLAGS','PY_CFLAGS_NODIST')
+ def digest(data):return hashlib.sha256(data).hexdigest()
+ def pins():return json.loads((HERE/'source-pins.json').read_text())
++def module_visibility(abi):
++    # These are the measured base module flags, not public CFLAGS consumed by
++    # customize_compiler. Select only visibility; do not replay PGO/LTO flags.
++    for key in ('PY_STDMODULE_CFLAGS','PY_CFLAGS_NODIST'):
++        assert isinstance(abi[key],str),'Missing base module flags: '+key
++        flags=[arg for arg in shlex.split(abi[key]) if arg.startswith('-fvisibility=')]
++        assert flags==['-fvisibility=hidden'],'Unexpected base module visibility: '+key
++    return ['-fvisibility=hidden']
++def record_compiler_calls(compiler):
++    commands=[];call=compiler.call
++    def recorded_call(command,**kwargs):
++        assert isinstance(command,(list,tuple)) and command
++        assert all(type(arg) is str and arg and '\0' not in arg for arg in command),'Invalid compiler argv'
++        commands.append(list(command))
++        return call(command,**kwargs)
++    compiler.call=recorded_call
++    return commands
++def require_compiler_trace(commands,source_paths,objects,artifact,compiler,postargs):
++    assert len(commands)==5,'Require four actual compile calls and one actual link call'
++    assert len(source_paths)==len(objects)==len(set(objects))==4
++    assert all(isinstance(cmd,list) and cmd and all(type(arg) is str and arg and '\0' not in arg for arg in cmd) for cmd in commands)
++    for command,source,obj in zip(commands[:4],source_paths,objects):
++        assert command[:len(compiler.compiler_so)]==list(compiler.compiler_so) and compiler.compiler_so
++        assert command.count('-c')==command.count('-o')==1 and command.count(str(source))==1
++        assert command[command.index('-o')+1]==obj and command.count(obj)==1
++        assert [arg for arg in command if arg.startswith('-fvisibility=')]==['-fvisibility=hidden']
++        assert command[-len(postargs):]==postargs
++    link=commands[4]
++    assert compiler.linker_so and link[:len(compiler.linker_so)]==list(compiler.linker_so)
++    assert '-c' not in link and '-shared' in link and '-lm' in link and link.count('-o')==1
++    assert link[link.index('-o')+1]==str(artifact) and link.count(str(artifact))==1
++    assert all(link.count(obj)==1 for obj in objects),'Link must consume the four actual object outputs'
++def parse_defined_exports(text):
++    assert len(text)<1024*1024
++    result=[]
++    for line in text.splitlines():
++        fields=line.split()
++        assert len(fields)==3 and all(c in '0123456789abcdefABCDEF' for c in fields[0]),'Unexpected nm output'
++        assert len(fields[1])==1 and fields[1] not in ('U','u'),'Undefined symbol in defined-only output'
++        result.append(fields[2])
++    assert result and len(set(result))==len(result),'Missing or duplicate ELF exports'
++    return sorted(result)
++def defined_exports(path):
++    checked=subprocess.run(['/usr/bin/nm','-D','--defined-only',str(path)],capture_output=True,text=True,check=True,timeout=15)
++    return parse_defined_exports(checked.stdout)
++def require_base_exports(base_exports,new_exports):
++    assert base_exports==new_exports==['PyInit_pyexpat'],'ELF export surface differs from the exact base'
+ def backport(original,patch,lock):
+     assert digest(original)==lock['source_before_sha256'],'Unexpected original source'
+     assert digest(patch)==lock['patch_sha256'],'Unexpected patch bytes'
+@@ -69,17 +116,24 @@ def build(output,lock,prepared):
+     identities=[Path(sys.executable).resolve(),Path('/usr/local/lib/libpython3.12.so.1.0'),elementtree,Path(sysconfig.get_config_h_filename()),Path(sysconfig.get_makefile_filename())]
+     identities+=sorted(include.rglob('*.h'))
+     base_before={str(p):digest(p.read_bytes()) for p in identities}
++    assert digest(Path(sysconfig.get_makefile_filename()).read_bytes())=='c73faf2fca0de76baeeb272b1e4474fdc49111a46961e88a39e55af4880a5192','Unexpected base Makefile'
++    visibility=module_visibility(abi)
+     # setuptools' compiler helper consumes the installed base sysconfig. No setup
+     # configuration, package install or build-isolation dependency download occurs.
+     from setuptools._distutils.ccompiler import new_compiler
+     from setuptools._distutils.sysconfig import customize_compiler
+-    compiler=new_compiler();customize_compiler(compiler);commands=[];spawn=compiler.spawn
+-    def recorded_spawn(command,**kwargs):commands.append(list(command));return spawn(command,**kwargs)
+-    compiler.spawn=recorded_spawn
++    compiler=new_compiler();customize_compiler(compiler);commands=record_compiler_calls(compiler)
+     source_paths=[source/'Modules'/name for name in ('pyexpat.c','expat/xmlparse.c','expat/xmlrole.c','expat/xmltok.c')]
+-    objects=compiler.compile([str(p) for p in source_paths],output_dir=str(output/'objects'),include_dirs=[str(include),str(include/'internal'),str(source/'Modules/expat')],macros=[('HAVE_EXPAT_CONFIG_H','1')],extra_postargs=['-g0','-ffile-prefix-map='+str(output)+'=.'])
++    postargs=['-g0','-ffile-prefix-map='+str(output)+'=.']+visibility
++    objects=compiler.compile([str(p) for p in source_paths],output_dir=str(output/'objects'),include_dirs=[str(include),str(include/'internal'),str(source/'Modules/expat')],macros=[('HAVE_EXPAT_CONFIG_H','1')],extra_postargs=postargs)
++    assert len(objects)==4 and all(Path(obj).is_file() for obj in objects),'Missing compiled object outputs'
+     artifact=output/('pyexpat'+lock['expected_ext_suffix']);compiler.link_shared_object(objects,str(artifact),libraries=['m'])
++    require_compiler_trace(commands,source_paths,objects,artifact,compiler,postargs)
+     raw=artifact.read_bytes();assert raw[:6]==b'\x7fELF\x02\x01' and int.from_bytes(raw[18:20],'little')==62
++    nm=Path('/usr/bin/nm').resolve(strict=True);nm_before=digest(nm.read_bytes())
++    base_exports=defined_exports(original);new_exports=defined_exports(artifact)
++    require_base_exports(base_exports,new_exports)
++    assert digest(nm.read_bytes())==nm_before
+     base_after={str(p):digest(p.read_bytes()) for p in identities};assert base_before==base_after
+     # Small valid/invalid documents and existing guarded Python APIs only. Never
+     # invoke XML_ParseBuffer with a mismatched native allocation/length.
+@@ -106,7 +160,7 @@ print(json.dumps({'pyexpat':pyexpat.__file__,'expat_version':pyexpat.EXPAT_VERSI
+ """
+     checked=subprocess.run([sys.executable,'-I','-S','-c',smoke,str(output),artifact.name],capture_output=True,text=True,timeout=30)
+     (output/'small-binding-tests.log').write_text(checked.stdout+'\nSTDERR\n'+checked.stderr);assert checked.returncode==0,checked.stderr
+-    result={'compiled_source':prepared,'abi':abi,'compiler_commands':commands,'artifact':artifact.name,'artifact_sha256':digest(raw),'artifact_bytes':len(raw),'interpreter_libpython_elementtree_config_headers_before':base_before,'interpreter_libpython_elementtree_config_headers_after':base_after,'base_quiet':True,'build_tools':{'pip':metadata.version('pip'),'setuptools':metadata.version('setuptools')},'small_binding_tests':json.loads(checked.stdout),'limits':'Compiled artifact/source attestation only; no product startup, OS71/SEC09 closure, broad XML reachability assertion or scanner ignore.'}
++    result={'compiled_source':prepared,'abi':abi,'compiler_commands':commands,'compiler_trace_method':'setuptools84 Compiler.call delegated unchanged; exactly four compile calls and one link call','module_visibility_flags_selected':visibility,'base_exports':base_exports,'artifact_exports':new_exports,'nm_tool':{'path':str(nm),'sha256_before_after':nm_before},'artifact':artifact.name,'artifact_sha256':digest(raw),'artifact_bytes':len(raw),'interpreter_libpython_elementtree_config_headers_before':base_before,'interpreter_libpython_elementtree_config_headers_after':base_after,'base_quiet':True,'build_tools':{'pip':metadata.version('pip'),'setuptools':metadata.version('setuptools')},'small_binding_tests':json.loads(checked.stdout),'limits':'Compiled artifact/source attestation only; reproduces base visibility, not historical PGO/LTO or every compiler flag. No product startup, OS71/SEC09 closure, broad XML reachability assertion or scanner ignore.'}
+     (output/'build-provenance.json').write_text(json.dumps(result,indent=2)+'\n')
+     sbom={'bomFormat':'CycloneDX','specVersion':'1.6','version':1,'components':[{'type':'library','name':'Expat embedded in pyexpat','version':'2.8.5','pedigree':{'commits':[{'uid':lock['upstream_fix_commit'],'url':'https://github.com/libexpat/libexpat/commit/'+lock['upstream_fix_commit']}],'patches':[{'type':'backport','diff':{'url':'13c5f63.patch'}}]},'properties':[{'name':'metodobase:patched-source-sha256','value':lock['source_after_sha256']},{'name':'metodobase:pyexpat-elf-sha256','value':digest(raw)},{'name':'metodobase:patch-target','value':lock['cve']}]}]}
+     (output/'sbom.json').write_text(json.dumps(sbom,indent=2)+'\n')
+diff --git a/tests/fixtures/expat_sec10/.gitattributes b/tests/fixtures/expat_sec10/.gitattributes
+new file mode 100644
+index 0000000..fa1385d
+--- /dev/null
++++ b/tests/fixtures/expat_sec10/.gitattributes
+@@ -0,0 +1 @@
++* -text
+diff --git a/tests/fixtures/expat_sec10/setuptools84-call-source.json b/tests/fixtures/expat_sec10/setuptools84-call-source.json
+new file mode 100644
+index 0000000..1888f48
+--- /dev/null
++++ b/tests/fixtures/expat_sec10/setuptools84-call-source.json
+@@ -0,0 +1,52 @@
++{
++  "scope": "Exact source captured from immutable expat-build image; tests execute method bodies only with inert mocked process calls, not a native compiler.",
++  "source_image_id": "sha256:5f85c450c1f1d949a75294a4cd8316f2e745b0c952b05e69082bd0bf9dc5b2d5",
++  "setuptools_version": "84.0.0",
++  "diagnostic_source_sha256": "ba64804ae9f2ccbcb638d73dfbe68630e295821076f98efaa4dcfdee95502b09",
++  "methods": {
++    "UnixCCompiler._compile": {
++      "observed_wrapper_type": "function",
++      "module": "setuptools._distutils.compilers.C.unix",
++      "qualname": "Compiler._compile",
++      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/unix.py",
++      "module_sha256": "6b6e1b8325dd70dd54146a3fe98e9435e1ada067a9345323f797c861978f8677",
++      "first_source_line": 320,
++      "source": "    def _compile(self, obj, src, ext, cc_args, extra_postargs, pp_opts):\n        compiler_so = compiler_fixup(self.compiler_so, cc_args + extra_postargs)\n        compiler_so_cxx = compiler_fixup(self.compiler_so_cxx, cc_args + extra_postargs)\n        try:\n            if self.detect_language(src) == 'c++':\n                self.call(compiler_so_cxx + cc_args + [src, '-o', obj] + extra_postargs)\n            else:\n                self.call(compiler_so + cc_args + [src, '-o', obj] + extra_postargs)\n        except (subprocess.CalledProcessError, OSError) as msg:\n            raise CompileError(msg)\n",
++      "source_sha256": "d39a6a538c64e6c25ba3355547478436d389c7154dafebb516604d6fa469e1eb"
++    },
++    "UnixCCompiler.link": {
++      "observed_wrapper_type": "function",
++      "module": "setuptools._distutils.compilers.C.unix",
++      "qualname": "Compiler.link",
++      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/unix.py",
++      "module_sha256": "6b6e1b8325dd70dd54146a3fe98e9435e1ada067a9345323f797c861978f8677",
++      "first_source_line": 355,
++      "source": "    def link(\n        self,\n        target_desc,\n        objects: list[str] | tuple[str, ...],\n        output_filename,\n        output_dir: str | None = None,\n        libraries: list[str] | tuple[str, ...] | None = None,\n        library_dirs: list[str] | tuple[str, ...] | None = None,\n        runtime_library_dirs: list[str] | tuple[str, ...] | None = None,\n        export_symbols=None,\n        debug=False,\n        extra_preargs=None,\n        extra_postargs=None,\n        build_temp=None,\n        target_lang=None,\n    ):\n        objects, output_dir = self._fix_object_args(objects, output_dir)\n        fixed_args = self._fix_lib_args(libraries, library_dirs, runtime_library_dirs)\n        libraries, library_dirs, runtime_library_dirs = fixed_args\n\n        lib_opts = gen_lib_options(self, library_dirs, runtime_library_dirs, libraries)\n        if not isinstance(output_dir, (str, type(None))):\n            raise TypeError(\"'output_dir' must be a string or None\")\n        if output_dir is not None:\n            output_filename = os.path.join(output_dir, output_filename)\n\n        if self._need_link(objects, output_filename):\n            ld_args = objects + self.objects + lib_opts + ['-o', output_filename]\n            if debug:\n                ld_args[:0] = ['-g']\n            if extra_preargs:\n                ld_args[:0] = extra_preargs\n            if extra_postargs:\n                ld_args.extend(extra_postargs)\n            self.mkpath(os.path.dirname(output_filename))\n            try:\n                # Select a linker based on context: linker_exe when\n                # building an executable or linker_so (with shared options)\n                # when building a shared library.\n                building_exe = target_desc == base.Compiler.EXECUTABLE\n                target_cxx = target_lang == \"c++\"\n                linker = (\n                    (self.linker_exe_cxx if target_cxx else self.linker_exe)\n                    if building_exe\n                    else (self.linker_so_cxx if target_cxx else self.linker_so)\n                )[:]\n\n                if target_cxx and self.compiler_cxx:\n                    env, linker_ne = _split_env(linker)\n                    aix, linker_na = _split_aix(linker_ne)\n                    _, compiler_cxx_ne = _split_env(self.compiler_cxx)\n                    _, linker_exe_ne = _split_env(self.linker_exe_cxx)\n\n                    params = _linker_params(linker_na, linker_exe_ne)\n                    linker = env + aix + compiler_cxx_ne + params\n\n                linker = compiler_fixup(linker, ld_args)\n\n                self.call(linker + ld_args)\n            except (subprocess.CalledProcessError, OSError) as msg:\n                raise LinkError(msg)\n        else:\n            log.debug(\"skipping %s (up-to-date)\", output_filename)\n",
++      "source_sha256": "5c73d387fa2ffbd17d50c15d837bc2d5f93dba6b6df29ffc72945b5155e2b91c"
++    },
++    "Compiler.call": {
++      "wrapper_type": "function",
++      "qualname": "Compiler.call",
++      "sourcefile": "/opt/psycopg-build-tools/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/base.py",
++      "module_sha256": "e9cd70c9c4a71f6da21b461584902d69aac993e0b5af89c4b9c73e83cdf0e0d3",
++      "first_source_line": 1168,
++      "source": "    def call(\n        self,\n        cmd: MutableSequence[bytes | str | os.PathLike[str]],\n        *,\n        env: _ENV | None = None,\n        **kwargs,\n    ) -> None:\n        \"\"\"Run 'cmd' in a subprocess, letting subprocess exceptions propagate.\"\"\"\n        log.info(subprocess.list2cmdline(cmd))\n        subprocess.check_call(cmd, env=macos.inject_ver(env), **kwargs)\n"
++    }
++  },
++  "base_sysconfig": {
++    "CC": "gcc",
++    "CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall",
++    "CFLAGS_NODIST": null,
++    "CONFIGURE_CFLAGS_NODIST": "-fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden",
++    "PY_CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall",
++    "PY_CFLAGS_NODIST": "-fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden -fprofile-use -fprofile-correction -I./Include/internal",
++    "PY_CORE_CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall -fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden -fprofile-use -fprofile-correction -I./Include/internal -I. -I./Include -fPIC -DPy_BUILD_CORE",
++    "PY_STDMODULE_CFLAGS": "-fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall -fno-semantic-interposition -flto -fuse-linker-plugin -ffat-lto-objects -flto-partition=none -g -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wstrict-prototypes -Werror=implicit-function-declaration -fvisibility=hidden -fprofile-use -fprofile-correction -I./Include/internal -I. -I./Include -fPIC",
++    "MODULE_PYEXPAT_CFLAGS": "-I./Modules/expat",
++    "MODULE_PYEXPAT_LDFLAGS": "-lm Modules/expat/libexpat.a",
++    "LDSHARED": "gcc -shared",
++    "LDFLAGS": "",
++    "CONFIG_ARGS": "'--build=x86_64-linux-gnu' '--enable-loadable-sqlite-extensions' '--enable-optimizations' '--enable-option-checking=fatal' '--enable-shared' '--with-lto' '--with-ensurepip' 'build_alias=x86_64-linux-gnu'"
++  },
++  "base_Makefile_sha256": "c73faf2fca0de76baeeb272b1e4474fdc49111a46961e88a39e55af4880a5192"
++}
+diff --git a/tests/test_expat_sec10_build_contract.py b/tests/test_expat_sec10_build_contract.py
+new file mode 100644
+index 0000000..618a59b
+--- /dev/null
++++ b/tests/test_expat_sec10_build_contract.py
+@@ -0,0 +1,173 @@
++"""Offline OPS12/13 controls; no compiler, ELF loading, VM or native build."""
++from __future__ import annotations
++
++import copy
++import hashlib
++import json
++from pathlib import Path
++import posixpath
++import runpy
++import subprocess
++import textwrap
++from types import SimpleNamespace
++
++import pytest
++
++ROOT = Path(__file__).resolve().parents[1]
++HELPER = runpy.run_path(str(ROOT / 'runtime-source/expat-sec10/rebuild_pyexpat.py'))
++FIXTURE_SHA256 = '6dffa081f5954295acb2494b767174041d10dfde5b8515c14c282c547f0c0013'
++
++
++def installed_source():
++    raw = (ROOT / 'tests/fixtures/expat_sec10/setuptools84-call-source.json').read_bytes()
++    assert hashlib.sha256(raw).hexdigest() == FIXTURE_SHA256
++    value = json.loads(raw)
++    assert value['setuptools_version'] == '84.0.0'
++    return value
++
++
++def inert_compiler():
++    """Run exact captured method bodies with process/file effects replaced."""
++    observed = []
++    def check_call(cmd, **kwargs):
++        observed.append((list(cmd), kwargs))
++    namespace = {'subprocess': SimpleNamespace(check_call=check_call, list2cmdline=subprocess.list2cmdline,
++                    CalledProcessError=subprocess.CalledProcessError),
++        'log': SimpleNamespace(info=lambda *_: None, debug=lambda *_: None),
++        'macos': SimpleNamespace(inject_ver=lambda env: env), 'os': SimpleNamespace(path=posixpath),
++        'compiler_fixup': lambda command, args: list(command),
++        'CompileError': RuntimeError, 'LinkError': RuntimeError,
++        'base': SimpleNamespace(Compiler=SimpleNamespace(EXECUTABLE='executable')),
++        'gen_lib_options': lambda self, dirs, rdirs, libraries: ['-l' + name for name in libraries]}
++    methods = installed_source()['methods']
++    for key in ('Compiler.call', 'UnixCCompiler._compile', 'UnixCCompiler.link'):
++        exec('from __future__ import annotations\n' + textwrap.dedent(methods[key]['source']), namespace)
++    class Compiler:
++        call = namespace['call']
++        _compile = namespace['_compile']
++        link = namespace['link']
++        compiler_so = ['gcc', '-O3', '-fPIC']
++        compiler_so_cxx = ['g++', '-O3', '-fPIC']
++        linker_so = ['gcc', '-shared']
++        linker_so_cxx = ['g++', '-shared']
++        linker_exe = ['gcc']
++        linker_exe_cxx = ['g++']
++        objects = []
++        detect_language = lambda self, src: 'c'
++        _fix_object_args = lambda self, objects, output: (list(objects), output)
++        _fix_lib_args = lambda self, libs, dirs, rdirs: (libs or [], dirs or [], rdirs or [])
++        _need_link = lambda self, objects, output: True
++        mkpath = lambda self, path: None
++    return Compiler(), observed
++
++
++def run_inert_methods(compiler):
++    sources = ['/expat-output/source/Modules/' + name for name in
++               ('pyexpat.c', 'expat/xmlparse.c', 'expat/xmlrole.c', 'expat/xmltok.c')]
++    objects = ['/expat-output/objects/' + str(index) + '.o' for index in range(4)]
++    artifact = '/expat-output/pyexpat.cpython-312-x86_64-linux-gnu.so'
++    postargs = ['-g0', '-ffile-prefix-map=/expat-output=.'] + HELPER['module_visibility'](installed_source()['base_sysconfig'])
++    for source, obj in zip(sources, objects):
++        compiler._compile(obj, source, '.c', ['-c', '-DHAVE_EXPAT_CONFIG_H=1'], postargs, [])
++    compiler.link('shared_object', objects, artifact, libraries=['m'])
++    return sources, objects, artifact, postargs
++
++
++def test_old_spawn_hook_misses_actual_setuptools84_method_path():
++    compiler, observed = inert_compiler()
++    missed = []
++    compiler.spawn = lambda command, **kwargs: missed.append(list(command))
++    run_inert_methods(compiler)
++    assert missed == [] and len(observed) == 5
++
++
++def test_call_hook_records_and_delegates_the_exact_four_compile_and_one_link_argv():
++    compiler, observed = inert_compiler()
++    commands = HELPER['record_compiler_calls'](compiler)
++    sources, objects, artifact, postargs = run_inert_methods(compiler)
++    assert len(commands) == 5 and commands == [command for command, kwargs in observed]
++    assert all(kwargs == {'env': None} for command, kwargs in observed)
++    HELPER['require_compiler_trace'](commands, sources, objects, artifact, compiler, postargs)
++
++
++def test_call_hook_forwards_keywords_and_propagates_actual_delegate_failure():
++    calls = []
++    def failure(command, **kwargs):
++        calls.append((command, kwargs))
++        raise subprocess.CalledProcessError(7, command)
++    compiler = SimpleNamespace(call=failure)
++    commands = HELPER['record_compiler_calls'](compiler)
++    argv, kwargs = ['gcc', '-c', 'synthetic.c'], {'env': {'SYNTHETIC_ONLY': '1'}, 'cwd': '/owned'}
++    with pytest.raises(subprocess.CalledProcessError):
++        compiler.call(argv, **kwargs)
++    assert calls == [(argv, kwargs)] and calls[0][0] is argv and commands == [argv]
++
++
++@pytest.mark.parametrize('argv', [[], 'gcc -c synthetic.c', ['gcc', ''], ['gcc', b'synthetic.c'], ['gcc\0']])
++def test_call_hook_refuses_invalid_argv_before_delegating(argv):
++    delegated = []
++    compiler = SimpleNamespace(call=lambda command, **kwargs: delegated.append(command))
++    commands = HELPER['record_compiler_calls'](compiler)
++    with pytest.raises(AssertionError):
++        compiler.call(argv)
++    assert commands == delegated == []
++
++
++@pytest.mark.parametrize('mode', ['empty', 'missing-compile', 'extra-link', 'shell-string', 'empty-arg',
++    'nul', 'wrong-driver', 'wrong-source', 'wrong-object', 'missing-c', 'missing-visibility',
++    'wrong-visibility', 'wrong-postargs', 'link-missing-object', 'link-wrong-output', 'link-not-shared'])
++def test_five_command_gate_rejects_incomplete_or_substituted_traces(mode):
++    compiler, _ = inert_compiler()
++    commands = HELPER['record_compiler_calls'](compiler)
++    sources, objects, artifact, postargs = run_inert_methods(compiler)
++    commands = copy.deepcopy(commands)
++    if mode == 'empty': commands.clear()
++    elif mode == 'missing-compile': commands.pop(0)
++    elif mode == 'extra-link': commands.append(commands[-1])
++    elif mode == 'shell-string': commands[0] = 'gcc -c synthetic.c'
++    elif mode == 'empty-arg': commands[0][0] = ''
++    elif mode == 'nul': commands[0][0] = 'gcc\0'
++    elif mode == 'wrong-driver': commands[0][0] = 'unreviewed'
++    elif mode == 'wrong-source': commands[0][commands[0].index(sources[0])] = sources[1]
++    elif mode == 'wrong-object': commands[0][commands[0].index('-o') + 1] = objects[1]
++    elif mode == 'missing-c': commands[0].remove('-c')
++    elif mode == 'missing-visibility': commands[0].remove('-fvisibility=hidden')
++    elif mode == 'wrong-visibility': commands[0].append('-fvisibility=default')
++    elif mode == 'wrong-postargs': commands[0][-2] = '-unreviewed'
++    elif mode == 'link-missing-object': commands[-1].remove(objects[0])
++    elif mode == 'link-wrong-output': commands[-1][-1] = 'other.so'
++    elif mode == 'link-not-shared': commands[-1].remove('-shared')
++    with pytest.raises((AssertionError, IndexError)):
++        HELPER['require_compiler_trace'](commands, sources, objects, artifact, compiler, postargs)
++
++
++def test_visibility_selects_only_hidden_from_the_measured_base_flags():
++    abi = installed_source()['base_sysconfig']
++    assert '-flto' in abi['PY_STDMODULE_CFLAGS'] and '-fprofile-use' in abi['PY_CFLAGS_NODIST']
++    assert HELPER['module_visibility'](abi) == ['-fvisibility=hidden']
++
++
++@pytest.mark.parametrize('key', ['PY_STDMODULE_CFLAGS', 'PY_CFLAGS_NODIST'])
++@pytest.mark.parametrize('value', [None, '', '-fvisibility=default', '-fvisibility=hidden -fvisibility=default',
++                                  '-fvisibility=hidden -fvisibility=hidden'])
++def test_missing_or_ambiguous_base_visibility_fails_closed(key, value):
++    abi = dict(installed_source()['base_sysconfig'], **{key: value})
++    with pytest.raises(AssertionError):
++        HELPER['module_visibility'](abi)
++
++
++def test_export_gate_accepts_only_the_original_one_symbol_surface():
++    parse, gate = HELPER['parse_defined_exports'], HELPER['require_base_exports']
++    base = parse('0000000000010000 T PyInit_pyexpat\n')
++    gate(base, base)
++    with pytest.raises(AssertionError):
++        gate(base, parse('0000000000010000 T PyInit_pyexpat\n0000000000020000 T XML_SetHashSalt16Bytes\n'))
++    with pytest.raises(AssertionError):
++        gate(['unreviewed'], ['unreviewed'])
++
++
++@pytest.mark.parametrize('raw', ['', 'not-an-address T PyInit_pyexpat', '0000 U undefined',
++                               '0000 T duplicate\n0001 T duplicate', '0000 T x extra'])
++def test_export_parser_rejects_empty_malformed_or_duplicate_nm_output(raw):
++    with pytest.raises(AssertionError):
++        HELPER['parse_defined_exports'](raw)

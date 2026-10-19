@@ -1,0 +1,12 @@
+{
+  "initial_own": {
+    "passed": 12,
+    "failed": 1,
+    "driver_sha256": "a5eb8db8e507b115c2f3e83cf8f8f0ea04fad2a79d28ff79a0ca4854d6fed2c0"
+  },
+  "original_driver_log_XML_untouched": true,
+  "cause": "The simulated Linux nm path used Windows Path, producing backslashes. Assertion expects Linux POSIX argv, correctly.",
+  "correction": "Use PurePosixPath as the simulated Linux input. All assertions unchanged; product uses Linux Path during native build.",
+  "not_product_failure": true,
+  "author41_not_rerun_for_fixture_only_correction": true
+}

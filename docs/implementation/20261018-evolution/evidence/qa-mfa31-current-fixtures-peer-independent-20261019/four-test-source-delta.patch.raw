@@ -1,0 +1,117 @@
+diff --git a/tests/current_mfa31_publication_fixtures.py b/tests/current_mfa31_publication_fixtures.py
+new file mode 100644
+index 0000000..0faef4e
+--- /dev/null
++++ b/tests/current_mfa31_publication_fixtures.py
+@@ -0,0 +1,34 @@
++"""Opt-in current31 preparation for unchanged publication/diary contracts.
++
++The revision29 fixture remains immutable. Upgrade its SAME isolated SQLite
++database to31 before case seeding or factory startup. Authentication is the
++reviewed real password/enrollment/TOTP/challenge/recovery HTTP sequence; no
++MFA dependency, business endpoint or historical migration helper is replaced.
++"""
++import pytest
++from sqlalchemy import inspect
++
++from tests import integration_client_link_services as historical
++from tests.ci_mfa31.current_link_fixtures import http  # noqa: F401
++from tests.integration_schema_migrations import run_migration
++
++case = historical.case
++
++
++@pytest.fixture(scope="module", params=["sqlite"])
++def link_db(request, tmp_path_factory):
++    """Only the caller's locally owned SQLite; PostgreSQL is not enabled here."""
++    assert request.param == "sqlite"
++    owner = historical.link_db.__wrapped__(request, tmp_path_factory)
++    admin, app = next(owner)
++    try:
++        from web.database.schema_control import expected_head, verify_runtime_schema
++        assert admin.dialect.name == app.dialect.name == "sqlite"
++        run_migration(str(admin.url), "db_bootstrap.py", "--revision", "20261019_mfa")
++        assert expected_head() == "20261019_mfa"
++        verify_runtime_schema(app, expected_revision="20261019_mfa")
++        with app.connect() as db:
++            assert len(inspect(db).get_table_names()) == 33
++        yield admin, app
++    finally:
++        owner.close()
+diff --git a/tests/test_current_publication_fixture_review.py b/tests/test_current_publication_fixture_review.py
+new file mode 100644
+index 0000000..637d537
+--- /dev/null
++++ b/tests/test_current_publication_fixture_review.py
+@@ -0,0 +1,33 @@
++"""Real current31 fixture adoption must keep the privileged action barrier."""
++import pytest
++from sqlalchemy import func, select
++from sqlalchemy.orm import Session
++
++from tests.current_mfa31_publication_fixtures import case, http, link_db  # noqa: F401
++
++
++@pytest.mark.parametrize("link_db", ["sqlite"], indirect=True)
++def test_actual_factor_login_does_not_grant_a_privileged_mutation(http, monkeypatch):
++    from web.database.models import MfaCredential, MfaRecoveryCode, Usuario
++    from web.services import stripe_service
++
++    identities = [http[key] for key in ("gym", "othergym", "person", "other")]
++    with Session(http["admin"]) as db:
++        for identity in identities:
++            factor = db.get(MfaCredential, identity)
++            assert factor.enabled_at is not None and factor.generation == 1
++            assert factor.secret_ciphertext is not None and factor.pending_ciphertext is None
++            codes = db.scalars(select(MfaRecoveryCode).where(MfaRecoveryCode.user_id == identity)).all()
++            assert len(codes) == 8 and sum(code.used_at is not None for code in codes) == 1
++        before = db.scalar(select(func.count()).select_from(Usuario))
++    path = "/api/billing/portal"
++    assert path in http["client_http"].app.openapi()["paths"]
++    ports = []
++    monkeypatch.setattr(stripe_service, "create_portal_session", lambda *args, **kwargs: ports.append(True))
++    response = http["client_http"].post(path, headers=http["headers"]["gym"],
++        json={"return_url": "/dashboard"})
++    assert response.status_code == 403
++    assert response.json()["detail"]["code"] == "mfa_step_up_required"
++    assert http["mail"] == [] and ports == []
++    with Session(http["admin"]) as db:
++        assert db.scalar(select(func.count()).select_from(Usuario)) == before
+diff --git a/tests/test_identity_security.py b/tests/test_identity_security.py
+index e7acfcc..bd56bbd 100644
+--- a/tests/test_identity_security.py
++++ b/tests/test_identity_security.py
+@@ -141,7 +141,7 @@ def test_google_uses_same_member_identity(identity_db, monkeypatch):
+     from config import settings
+     factory, owner_id, member_id, _ = identity_db
+     user = principal(factory, member_id)
+-    monkeypatch.setattr(settings, "Settings", lambda: SimpleNamespace(GOOGLE_CLIENT_ID="synthetic-client-id"))
++    monkeypatch.setattr(settings.get_settings(), "GOOGLE_CLIENT_ID", "synthetic-client-id")
+ 
+     class FakeGoogleClient:
+         def __init__(self, **kwargs):
+@@ -172,7 +172,7 @@ def test_disabled_google_account_is_not_recreated(identity_db, monkeypatch):
+     with factory() as db:
+         db.get(Usuario, member_id).activo = False
+         db.commit()
+-    monkeypatch.setattr(settings, "Settings", lambda: SimpleNamespace(GOOGLE_CLIENT_ID="synthetic-client-id"))
++    monkeypatch.setattr(settings.get_settings(), "GOOGLE_CLIENT_ID", "synthetic-client-id")
+ 
+     class FakeGoogleClient:
+         def __init__(self, **kwargs):
+diff --git a/tests/test_publication_diary_consumption.py b/tests/test_publication_diary_consumption.py
+index 3d8b987..352569d 100644
+--- a/tests/test_publication_diary_consumption.py
++++ b/tests/test_publication_diary_consumption.py
+@@ -5,8 +5,9 @@ from types import SimpleNamespace
+ 
+ import pytest
+ 
+-from tests.integration_client_link_http import http, issued
+-from tests.integration_client_link_services import link_db,case,source
++from tests.integration_client_link_http import issued
++from tests.integration_client_link_services import source
++from tests.current_mfa31_publication_fixtures import http, link_db, case
+ 
+ 
+ def test_explicit_fixed_source_resolves_real_grams_instead_of_empty_consumption():

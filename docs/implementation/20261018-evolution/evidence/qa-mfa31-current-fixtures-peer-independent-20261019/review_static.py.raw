@@ -1,0 +1,66 @@
+"""Independent byte/AST review of four test-only current31 preparation files."""
+import ast,hashlib,json,subprocess
+from pathlib import Path
+ROOT=Path('F:/mb-mfa31-current-fixtures-qa-20261019')
+AUTHOR=Path('F:/mb-mfa31-current-fixtures-20261019')
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-mfa31-current-fixtures-peer-independent-20261019')
+HEAD='79dce040a9d79b51c1971bf4a99338a06c2ac659'
+PFX='docs/implementation/20261018-evolution/evidence/backend-mfa31-current-fixtures-20261019'
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+git=lambda *args:subprocess.check_output(['git','--no-replace-objects',*args],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()==HEAD
+parent=git('rev-parse','HEAD^').decode().strip()
+assert parent=='bd34893c4b6f806041b0cc6b7f156e9286886748'
+blob=lambda ref,path:git('show',ref+':'+path)
+lf=lambda b:b.replace(b'\r\n',b'\n')
+changed=[x for x in git('diff','--name-only',parent,HEAD).decode().splitlines()if not x.startswith('docs/')]
+expected=['tests/current_mfa31_publication_fixtures.py','tests/test_current_publication_fixture_review.py','tests/test_identity_security.py','tests/test_publication_diary_consumption.py']
+assert sorted(changed)==sorted(expected)
+source=AUTHOR/PFX/'source.json'
+assert SHA(source.read_bytes())=='1026f6ef54f0f430e1256c18fa66e11f5dee8e89bc8bc0c9f557afabf1615718'
+manifest=json.loads(source.read_text())
+rows=[]
+for row in manifest['sources']:
+    path=row['path'];raw=(AUTHOR/path).read_bytes();own=(ROOT/path).read_bytes();obj=blob(HEAD,path)
+    assert SHA(raw)==row['raw_sha256'] and SHA(obj)==row['git_lf_sha256']
+    assert lf(raw)==obj and lf(own)==obj
+    rows.append({'path':path,'author_RAW_SHA256':SHA(raw),'own_RAW_SHA256':SHA(own),'Git_LF_SHA256':SHA(obj),'author_RAW_bytes':len(raw),'own_RAW_bytes':len(own),'Git_LF_bytes':len(obj),'normalized_source_exact':True})
+proofs=[]
+for name,row in manifest['proofs'].items():
+    file=(AUTHOR/PFX/name).resolve();assert file.is_relative_to((AUTHOR/PFX).resolve()) and not file.is_symlink()
+    data=file.read_bytes();assert SHA(data)==row['sha256'] and len(data)==row['bytes']
+    assert data==blob(HEAD,PFX+'/'+name)
+    proofs.append({'path':name,'SHA256':SHA(data),'bytes':len(data)})
+inverse=[];original_assert_count=0
+for path in ['tests/test_identity_security.py','tests/test_publication_diary_consumption.py']:
+    before=blob(parent,path).decode();after=blob(HEAD,path).decode()
+    a,b=ast.parse(before),ast.parse(after)
+    old_asserts=[ast.dump(n,include_attributes=False)for n in ast.walk(a)if isinstance(n,ast.Assert)]
+    new_asserts=[ast.dump(n,include_attributes=False)for n in ast.walk(b)if isinstance(n,ast.Assert)]
+    assert old_asserts==new_asserts;original_assert_count+=len(old_asserts)
+    if path.endswith('test_identity_security.py'):
+        new='monkeypatch.setattr(settings.get_settings(), "GOOGLE_CLIENT_ID", "synthetic-client-id")'
+        old='monkeypatch.setattr(settings, "Settings", lambda: SimpleNamespace(GOOGLE_CLIENT_ID="synthetic-client-id"))'
+        assert after.count(new)==2;restored=after.replace(new,old)
+    else:
+        new='from tests.integration_client_link_http import issued\nfrom tests.integration_client_link_services import source\nfrom tests.current_mfa31_publication_fixtures import http, link_db, case'
+        old='from tests.integration_client_link_http import http, issued\nfrom tests.integration_client_link_services import link_db,case,source'
+        assert after.count(new)==1;restored=after.replace(new,old)
+    assert restored==before and ast.dump(ast.parse(restored),include_attributes=False)==ast.dump(a,include_attributes=False)
+    old_functions={n.name:ast.dump(n,include_attributes=False)for n in a.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+    new_functions={n.name:ast.dump(n,include_attributes=False)for n in b.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+    changed_functions=[name for name in old_functions if old_functions[name]!=new_functions[name]]
+    inverse.append({'path':path,'inverse_text_and_AST_exact':True,'original_asserts_unchanged':len(old_asserts),'only_changed_functions':changed_functions})
+assert original_assert_count==58
+preimages=[]
+for row in inverse:
+    path=row['path'];raw=(AUTHOR/PFX/'preimage'/path).read_bytes();assert lf(raw)==blob(parent,path)
+    preimages.append({'path':path,'parent_Git_LF_SHA256':SHA(blob(parent,path)),'preserved_RAW_SHA256':SHA(raw),'normalized_exact':True})
+unchanged=['conftest.py','tests/integration_client_link_services.py','tests/integration_client_link_http.py','tests/ci_mfa31/current_link_fixtures.py','tests/integration_schema_migrations.py','tests/mfa31_contract_client.py','web/services/google_identity.py','web/settings.py','config/settings.py']
+preserved=[]
+for path in unchanged:
+    before,after=blob(parent,path),blob(HEAD,path);assert before==after
+    preserved.append({'path':path,'Git_LF_SHA256':SHA(after),'parent_exact':True})
+data={'decision':'PASS static bounded review','source_head':HEAD,'parent_head':parent,'author_source_manifest_SHA256':SHA(source.read_bytes()),'non_document_delta_exact_four_test_sources':changed,'sources':rows,'author_proof_blobs_RAW_equals_Git':proofs,'original_asserts':58,'inverse':inverse,'preimages':preimages,'historical_and_runtime_unchanged':preserved,'scope':'No product/global conftest changes; real ASGI/SQLite execution pending, no PG or browser.'}
+(OUT/'static-review.json').write_text(json.dumps(data,indent=2)+'\n',encoding='utf8')
+print(json.dumps({'static':'PASS','four_test_sources':len(rows),'original_asserts':original_assert_count,'author_proof_blobs_authenticated':len(proofs)}))

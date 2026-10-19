@@ -1,0 +1,56 @@
+"""Observation-only pytest plugin. No replacement fixtures or endpoint overrides."""
+import json,os,sys
+from pathlib import Path
+import pytest
+ROOT=Path(os.environ['QA_CURRENT_ROOT']).resolve()
+OUT=Path(os.environ['QA_CURRENT_OUT'])
+seen=[];databases=[]
+
+def origins():
+    rows={}
+    for name,module in list(sys.modules.items()):
+        if name.split('.')[0] in {'web','api','core','tests','config'} and getattr(module,'__file__',None):
+            path=Path(module.__file__).resolve()
+            assert path.is_relative_to(ROOT),'Application or maintained test module outside own worktree'
+            rows[name]=str(path.relative_to(ROOT))
+    from web.database.models import Base
+    assert Base.__module__=='web.database.models' and len(Base.metadata.tables)==32
+    (OUT/'module-origins.json').write_text(json.dumps({'application_and_maintained_tests':rows,'explicit_own_plugin':str(Path(__file__).resolve()),'canonical_Base_module':Base.__module__,'model_tables':32},indent=2)+'\n')
+
+def pytest_configure(config):
+    from sqlalchemy import event
+    from sqlalchemy.engine import Dialect
+    @event.listens_for(Dialect,'do_connect')
+    def sqlite_only(dialect,record,cargs,cparams):
+        assert dialect.name=='sqlite','This peer phase authorizes SQLite only'
+    assert not os.environ.get('METODOBASE_TEST_DATABASE_URL')
+    assert not os.environ.get('METODOBASE_TEST_POSTGRES_URL')
+    assert not os.environ.get('METODOBASE_TEST_MIGRATOR_URL')
+
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(session,config,items):
+    assert len(items)==56,('Unexpected current31 focal node count',len(items))
+    ids=[item.nodeid for item in items];assert len(set(ids))==56
+    (OUT/'collected-nodeids.json').write_text(json.dumps(ids,indent=2)+'\n')
+    origins()
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_fixture_setup(fixturedef,request):
+    outcome=yield
+    if fixturedef.argname=='link_db' and fixturedef.func.__module__=='tests.current_mfa31_publication_fixtures':
+        admin,app=outcome.get_result()
+        from sqlalchemy import inspect
+        from web.database.schema_control import verify_runtime_schema
+        assert admin.dialect.name==app.dialect.name=='sqlite' and str(admin.url)==str(app.url)
+        verify_runtime_schema(app,expected_revision='20261019_mfa')
+        with app.connect()as db:count=len(inspect(db).get_table_names())
+        assert count==33
+        databases.append({'fixture':fixturedef.func.__module__+'.link_db','same_SQLite_database':True,'tables':count,'verified_revision':'20261019_mfa','PG_enabled':False})
+        (OUT/'observed-local-fixtures.json').write_text(json.dumps(databases,indent=2)+'\n')
+
+def pytest_runtest_call(item):origins()
+def pytest_runtest_logreport(report):
+    if report.when=='call' or report.failed:
+        seen.append({'nodeid':report.nodeid,'phase':report.when,'outcome':report.outcome})
+        (OUT/'case-outcomes.json').write_text(json.dumps(seen,indent=2)+'\n')
+def pytest_sessionfinish(session,exitstatus):origins()

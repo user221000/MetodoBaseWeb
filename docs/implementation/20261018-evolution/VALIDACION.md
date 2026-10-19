@@ -241,3 +241,8 @@ Se preservan el rechazo CIe0 y el contrato ed4 aceptado independientemente: mism
 ## Checkpoint122
 
 QA173PG:12comandos exit0/checker1730;42UUIDcerradas sinFORCE/cero sesiones/ausenciafreshconn. R17mismo24before12rojos→after24verdes, mismos2boundsverdes; autor84 yreplay24 solapados, noPG. Candidataaislada5637 componeCIed4 yR17b500 exactos; peer79 ybroadcomún pendientes.
+
+
+## Checkpoint 123
+
+QA peer79:56/56,58aserciones originales e inversas completas, misma SQLite31/33tablas;10176fuentes89paquetes/Python quietos,pip0. Composición809 conserva4tests exactos y otros10143blobs; preflightCI145 pasa. Broadserial en curso, n2 pendiente. Expat72:41autor+13propios son alcances solapados; PASS_STATIC_ONLY, nuevo build todavía sin resultado.
