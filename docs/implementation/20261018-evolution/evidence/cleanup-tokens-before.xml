@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="17" skipped="0" tests="17" time="10.647" timestamp="2026-10-18T22:55:19.980408-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_cleanup_tokens" name="test_epoch_and_utc_boundaries_do_not_delete_recent_rows" time="1.022"><failure message="assert 6 == 2&#10; +  where 6 = &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt;()&#10; +    where &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt; = cleanup.cleanup_expired_tokens">tests\test_cleanup_tokens.py:71: in test_epoch_and_utc_boundaries_do_not_delete_recent_rows
+    assert_cleanup_boundaries(cleanup_database)
+tests\test_cleanup_tokens.py:58: in assert_cleanup_boundaries
+    assert cleanup.cleanup_expired_tokens() == 2
+E   assert 6 == 2
+E    +  where 6 = &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt;()
+E    +    where &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt; = cleanup.cleanup_expired_tokens</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_database_failure_rolls_back_and_exposes_only_a_stable_failure[cleanup_expired_tokens]" time="0.692"><failure message="Failed: DID NOT RAISE RuntimeError">tests\test_cleanup_tokens.py:84: in test_database_failure_rolls_back_and_exposes_only_a_stable_failure
+    with caplog.at_level(logging.ERROR, logger=cleanup.__name__), pytest.raises(RuntimeError) as failure:
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RuntimeError</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_database_failure_rolls_back_and_exposes_only_a_stable_failure[cleanup_old_audit_logs]" time="0.665"><failure message="Failed: DID NOT RAISE RuntimeError">tests\test_cleanup_tokens.py:84: in test_database_failure_rolls_back_and_exposes_only_a_stable_failure
+    with caplog.at_level(logging.ERROR, logger=cleanup.__name__), pytest.raises(RuntimeError) as failure:
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RuntimeError</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_expired_tokens--1]" time="0.008"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:46: in cleanup_expired_tokens
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_expired_tokens-True]" time="0.009"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:46: in cleanup_expired_tokens
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_expired_tokens-1.5]" time="0.009"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:46: in cleanup_expired_tokens
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_expired_tokens-30]" time="0.007"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:46: in cleanup_expired_tokens
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_expired_tokens-None]" time="0.008"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:46: in cleanup_expired_tokens
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_old_audit_logs--1]" time="0.009"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:98: in cleanup_old_audit_logs
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_old_audit_logs-True]" time="0.010"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:98: in cleanup_old_audit_logs
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_old_audit_logs-1.5]" time="0.008"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:98: in cleanup_old_audit_logs
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_old_audit_logs-30]" time="0.008"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:98: in cleanup_old_audit_logs
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_invalid_retention_never_opens_database[cleanup_old_audit_logs-None]" time="0.009"><failure message="Failed: Invalid retention must be rejected before connecting">tests\test_cleanup_tokens.py:103: in test_invalid_retention_never_opens_database
+    getattr(cleanup, operation)(days_to_keep=days)
+scripts\cleanup_expired_tokens.py:98: in cleanup_old_audit_logs
+    engine = get_engine()
+             ^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:100: in forbidden
+    pytest.fail('Invalid retention must be rejected before connecting')
+E   Failed: Invalid retention must be rejected before connecting</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_main_reports_failure_without_running_next_destructive_step" time="0.008"><failure message="RuntimeError: private-cleanup-main-marker">tests\test_cleanup_tokens.py:114: in test_main_reports_failure_without_running_next_destructive_step
+    assert cleanup.main() == 1
+           ^^^^^^^^^^^^^^
+scripts\cleanup_expired_tokens.py:153: in main
+    tokens_deleted = cleanup_expired_tokens(days_to_keep=30)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_cleanup_tokens.py:108: in fail
+    raise RuntimeError('private-cleanup-main-marker')
+E   RuntimeError: private-cleanup-main-marker</failure></testcase><testcase classname="tests.test_cleanup_tokens" name="test_main_returns_zero_only_when_both_steps_succeed" time="0.007"><failure message="assert None == 0&#10; +  where None = &lt;function main at 0x0000020CFEEA8C20&gt;()&#10; +    where &lt;function main at 0x0000020CFEEA8C20&gt; = cleanup.main">tests\test_cleanup_tokens.py:122: in test_main_returns_zero_only_when_both_steps_succeed
+    assert cleanup.main() == 0
+E   assert None == 0
+E    +  where None = &lt;function main at 0x0000020CFEEA8C20&gt;()
+E    +    where &lt;function main at 0x0000020CFEEA8C20&gt; = cleanup.main</failure></testcase><testcase classname="tests.integration_cleanup_tokens_postgres" name="test_cleanup_keeps_the_same_cutoff_rows_under_database_timezone[UTC-postgresql]" time="3.711"><failure message="assert 0 == 2&#10; +  where 0 = &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt;()&#10; +    where &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt; = cleanup.cleanup_expired_tokens">tests\integration_cleanup_tokens_postgres.py:24: in test_cleanup_keeps_the_same_cutoff_rows_under_database_timezone
+    assert_cleanup_boundaries(app)
+tests\test_cleanup_tokens.py:58: in assert_cleanup_boundaries
+    assert cleanup.cleanup_expired_tokens() == 2
+E   assert 0 == 2
+E    +  where 0 = &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt;()
+E    +    where &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt; = cleanup.cleanup_expired_tokens</failure></testcase><testcase classname="tests.integration_cleanup_tokens_postgres" name="test_cleanup_keeps_the_same_cutoff_rows_under_database_timezone[America/Mexico_City-postgresql]" time="3.680"><failure message="assert 0 == 2&#10; +  where 0 = &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt;()&#10; +    where &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt; = cleanup.cleanup_expired_tokens">tests\integration_cleanup_tokens_postgres.py:24: in test_cleanup_keeps_the_same_cutoff_rows_under_database_timezone
+    assert_cleanup_boundaries(app)
+tests\test_cleanup_tokens.py:58: in assert_cleanup_boundaries
+    assert cleanup.cleanup_expired_tokens() == 2
+E   assert 0 == 2
+E    +  where 0 = &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt;()
+E    +    where &lt;function cleanup_expired_tokens at 0x0000020CFDB00360&gt; = cleanup.cleanup_expired_tokens</failure></testcase></testsuite></testsuites>

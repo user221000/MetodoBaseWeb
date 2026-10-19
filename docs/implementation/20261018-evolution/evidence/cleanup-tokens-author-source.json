@@ -1,0 +1,48 @@
+{
+  "scope": "Author cleanup reproduction/correction; no production execution, scheduler or new retention policy. Independent review pending.",
+  "source_before_commit": "5fe48b8",
+  "before_product_git_sha256": "7f2284254063fa3989a4db609557850379ba118bb8c197588097fff9de45277c",
+  "after_sources": {
+    "scripts/cleanup_expired_tokens.py": "c36140f36909e74bd0af2c3c8129d911aa0a08e1d09031ea1acdd986c99d2bbb",
+    "tests/test_cleanup_tokens.py": "a7271cdd8442b8f399abc03003e26ac2a992a5937db215d415a17383b6270e1e",
+    "tests/integration_cleanup_tokens_postgres.py": "9188b6c792b310258479f92f490983f9f772b03d4c949e6739f996ee7bac6e3f"
+  },
+  "before": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "17",
+    "skipped": "0",
+    "tests": "17",
+    "time": "10.647",
+    "timestamp": "2026-10-18T22:55:19.980408-06:00",
+    "hostname": "DESKTOP-AKV4LTQ"
+  },
+  "after": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "17",
+    "time": "10.409",
+    "timestamp": "2026-10-18T22:57:06.794028-06:00",
+    "hostname": "DESKTOP-AKV4LTQ"
+  },
+  "runtime": "Windows Python3.12.13 candidate hashed runtime; PostgreSQL17.11 restricted UUID test databases",
+  "timezone": [
+    "UTC",
+    "America/Mexico_City"
+  ],
+  "before_observations": [
+    "SQLite deletes all6 synthetic tokens instead of2",
+    "PostgreSQL returns0 after Float/timestamp operator failure",
+    "Failure paths expose synthetic exception payload and report0"
+  ],
+  "limits": [
+    "Existing30-day token and90-day audit parameters preserved",
+    "No .env/default-target CLI execution",
+    "Snapshot25 historical schemas at time of gate; individual26 under construction",
+    "Tests validate two control-plane tables; do not attest full tenant cleanup or legal retention policy"
+  ],
+  "log_encoding": "UTF-16LE BOM PowerShell redirection",
+  "independent_pending": true
+}

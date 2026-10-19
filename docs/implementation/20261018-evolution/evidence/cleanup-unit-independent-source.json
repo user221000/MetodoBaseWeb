@@ -1,0 +1,33 @@
+{
+  "scope": "Independent SQLite boundary/failure tests and actual CLI subprocesses on explicit own SQLite. NoPG or default-environment cleanup invocation.",
+  "before": {
+    "scripts/cleanup_expired_tokens.py": "c36140f36909e74bd0af2c3c8129d911aa0a08e1d09031ea1acdd986c99d2bbb",
+    "tests/test_cleanup_tokens.py": "a7271cdd8442b8f399abc03003e26ac2a992a5937db215d415a17383b6270e1e",
+    "tests/integration_cleanup_tokens_postgres.py": "9188b6c792b310258479f92f490983f9f772b03d4c949e6739f996ee7bac6e3f",
+    "tests/test_cleanup_tokens_review.py": "2209ad6f208f73e7cfa1309896254b443986bdd5d7048f64a91500044b568cf5"
+  },
+  "after": {
+    "scripts/cleanup_expired_tokens.py": "c36140f36909e74bd0af2c3c8129d911aa0a08e1d09031ea1acdd986c99d2bbb",
+    "tests/test_cleanup_tokens.py": "a7271cdd8442b8f399abc03003e26ac2a992a5937db215d415a17383b6270e1e",
+    "tests/integration_cleanup_tokens_postgres.py": "9188b6c792b310258479f92f490983f9f772b03d4c949e6739f996ee7bac6e3f",
+    "tests/test_cleanup_tokens_review.py": "2209ad6f208f73e7cfa1309896254b443986bdd5d7048f64a91500044b568cf5"
+  },
+  "stable_cleanup_sources": true,
+  "model_before": "fbf0ac578550711c124df57213fdf172217979860537afb1c77d4c13c960e048",
+  "model_after": "fbf0ac578550711c124df57213fdf172217979860537afb1c77d4c13c960e048",
+  "exit_code": 0,
+  "duration_seconds": 11.17,
+  "command": [
+    "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-candidate-web-20261018\\Scripts\\python.exe",
+    "-X",
+    "utf8",
+    "tests/run_isolated.py",
+    "tests/test_cleanup_tokens.py",
+    "tests/test_cleanup_tokens_review.py",
+    "-q",
+    "--tb=short",
+    "--junitxml=F:\\MetodoBaseWeb-execution-20261018\\docs\\implementation\\20261018-evolution\\evidence\\pytest-cleanup-unit-independent.xml"
+  ],
+  "limits": "Backend DDL26/model changes underway; no schema/current-head acceptance. Cleanup touches only two unchanged control-plane models. PG will wait for coherent frozen head.",
+  "product_edited_by_qa": false
+}
