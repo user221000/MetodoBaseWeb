@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-19T04:46:22.034565+00:00",
+  "reviewer": "ops_jobs",
+  "mode": "static_source_review_only",
+  "review_start_commit": "74d66e8b6b1c7613186ad21f4710776fd6321eaf",
+  "snapshot_commit": "74d66e8b6b1c7613186ad21f4710776fd6321eaf",
+  "includes_uncommitted_r07_sources": true,
+  "scope": [
+    "R28",
+    "R34",
+    "legacy_cleanup_units_and_audit_table"
+  ],
+  "application_imports": false,
+  "database_connections": false,
+  "network_calls": false,
+  "emails_sent": false,
+  "load_measurements": false,
+  "tests_executed_by_this_review": [],
+  "source_checks": {
+    "refresh_expires_at_is_float": true,
+    "audit_table_name_matches_script": true,
+    "script_passes_cutoff_datetime_without_timestamp_conversion": true,
+    "script_failure_returns_zero": true,
+    "individual_route_has_single_thread_call_without_reservation_keyword": true,
+    "individual_model_has_no_persisted_marker_or_request_hash": true,
+    "gym_model_has_persisted_marker_request_hash_and_result": true,
+    "repository_links_only_gym_reservation": true,
+    "notification_is_background_task": true,
+    "object_intent_commit_precedes_put_in_source": true
+  },
+  "source_stable_during_machine_checks": true,
+  "changed_during_machine_checks": [],
+  "files": {
+    "web/services/plan_generation.py": {
+      "sha256": "25e8d358e8a15275a924f6dfb546d0766fb43e0325db498f293c1b3d29a48c88",
+      "bytes": 13168,
+      "tracked_at_snapshot": true
+    },
+    "web/services/gym_generation_quota.py": {
+      "sha256": "b0fa583c5a3411638e0b336342b54090e7863b3885c37c45710ce68d3329c423",
+      "bytes": 9036,
+      "tracked_at_snapshot": true
+    },
+    "web/services/generation_quota.py": {
+      "sha256": "ee3f4571dd37172ceb6bc8f4f676578c3afb1c0632ca71b6165adc7529021d95",
+      "bytes": 4015,
+      "tracked_at_snapshot": true
+    },
+    "web/services/private_objects.py": {
+      "sha256": "8b06f590de028370c4ec648b5924092b3995e8a16b15b0cf5f61b94436b3bf10",
+      "bytes": 3905,
+      "tracked_at_snapshot": false
+    },
+    "web/services/plan_notifications.py": {
+      "sha256": "2b242de250b02ff8eb4c008e3ceb51bc9c9b836c6f6b6b8f25a972768c53fe2e",
+      "bytes": 980,
+      "tracked_at_snapshot": false
+    },
+    "web/services/email_service.py": {
+      "sha256": "7572642152b530f29873e3a41779f40da2b9e24443a78783483bb3067b121e7e",
+      "bytes": 10214,
+      "tracked_at_snapshot": true
+    },
+    "web/database/models.py": {
+      "sha256": "beec0baf5c3aef6e88d93959e120188422a7d975b2afe1cda55b8481de8a1fc5",
+      "bytes": 39055,
+      "tracked_at_snapshot": true
+    },
+    "web/database/repository.py": {
+      "sha256": "a803b8e3a3ba0574843d10862a47e727baaddfffcf700c609c0a69ea68af69a6",
+      "bytes": 25478,
+      "tracked_at_snapshot": true
+    },
+    "web/routes/planes.py": {
+      "sha256": "94e01d300ce3a5c1472eebe9acbdd917d81102a298904bacc5b1114f17e06103",
+      "bytes": 10505,
+      "tracked_at_snapshot": true
+    },
+    "web/routes/usuario.py": {
+      "sha256": "b32e890883eeaf30fdedb4b26b7066bc0199a3e952dd61bec30d4c45fddf39f3",
+      "bytes": 29133,
+      "tracked_at_snapshot": true
+    },
+    "api/routes/planes.py": {
+      "sha256": "ddfa13b81ee2a1411cb7ae03af5bbfc9818b1a036bb2486bb283fa3c856b9b66",
+      "bytes": 4556,
+      "tracked_at_snapshot": true
+    },
+    "web/auth.py": {
+      "sha256": "9d1b7aa06d7d096f330d7498782c095a8bb28285cbd1541259684deeaddf2622",
+      "bytes": 21506,
+      "tracked_at_snapshot": true
+    },
+    "web/main_web.py": {
+      "sha256": "32b8dc2541b64a56461999d87f484aa70ba437b9059c7ae4c3d7f15570a7fbe8",
+      "bytes": 19182,
+      "tracked_at_snapshot": true
+    },
+    "api/app.py": {
+      "sha256": "7b76b1ab1e0b2db6843ad3ef5729854b96a065627db93b4ea9337fd909595e72",
+      "bytes": 13948,
+      "tracked_at_snapshot": true
+    },
+    "web/database/utc_datetime.py": {
+      "sha256": "d2e245708bca24e562c22b03bd468439fe5704cdd79dd6ce6e549616903039f0",
+      "bytes": 1761,
+      "tracked_at_snapshot": true
+    },
+    "web/database/tenant_policy.py": {
+      "sha256": "78d1c517fbb6221e031af7ee09ae5c924b3faba9bb5d24b170b60042ffb7b0bd",
+      "bytes": 3553,
+      "tracked_at_snapshot": true
+    },
+    "scripts/cleanup_expired_tokens.py": {
+      "sha256": "58037a8ccf5e0bbcb1109462ab750d85b6f79591cc1c923d5e1d4eff34d3c187",
+      "bytes": 5024,
+      "tracked_at_snapshot": true
+    },
+    "core/generador_planes.py": {
+      "sha256": "e12851474afe04abcdb5d6ec4f890ab77197a76df4341aa86d3293927cc26d68",
+      "bytes": 26228,
+      "tracked_at_snapshot": true
+    },
+    "core/generador_opciones.py": {
+      "sha256": "ca37128c16db8db81ea89f89bbe25eeebe2c3411da3d801609557b63607d8a4d",
+      "bytes": 22706,
+      "tracked_at_snapshot": true
+    },
+    "core/selector_alimentos.py": {
+      "sha256": "1f0b33663704c91fcc54debd2c6ff99c1f6b226ebd59746750b10359d9d025b7",
+      "bytes": 13781,
+      "tracked_at_snapshot": true
+    },
+    "tests/integration_gym_caps_http_postgres.py": {
+      "sha256": "54c98b4412d2d4cc94d8b3ea9b61c1d27b77ac3c0e8302265e465424cd008de2",
+      "bytes": 9728,
+      "tracked_at_snapshot": true
+    },
+    "tests/integration_gym_recovery_review_postgres.py": {
+      "sha256": "88497225422897f8320cf104248c4e0a398cfbd5607e3266f757917ab5ba3601",
+      "bytes": 8482,
+      "tracked_at_snapshot": true
+    },
+    "tests/integration_quota_postgres.py": {
+      "sha256": "6f4d3922e8cd1f3469ebe349acb8903b12ff04df80a1904526a1bd492bb9f4d2",
+      "bytes": 8459,
+      "tracked_at_snapshot": true
+    },
+    "tests/test_billing_integrity.py": {
+      "sha256": "fc39141ae08e89440b6375d27f03bc82e9f411b12b054eb9689c9e26d72ecc63",
+      "bytes": 33161,
+      "tracked_at_snapshot": true
+    },
+    "tests/test_private_objects.py": {
+      "sha256": "a618f61ed32353c3f5d8e2c868cec7be0dd78539bd846e93fb18d981ad501117",
+      "bytes": 5978,
+      "tracked_at_snapshot": false
+    },
+    "tests/integration_private_objects_review_postgres.py": {
+      "sha256": "e769b9d9ea9fede9bbd7903b94160d88b750a34d9ed070a0625c0d941f001ff9",
+      "bytes": 9431,
+      "tracked_at_snapshot": false
+    },
+    "tests/test_gym_generation_security_review.py": {
+      "sha256": "b605b0357da5f095e23d1955e749eb3ecf26186a41e3ed786fdfebfa9ecb5524",
+      "bytes": 2600,
+      "tracked_at_snapshot": true
+    },
+    "web/database/alembic/versions/20260326_1101_add_auth_audit_log_table.py": {
+      "sha256": "6b8d47b7f1d65cc02166bddbe501b2db6b8770112d5af49843535e167ac02b9d",
+      "bytes": 2069,
+      "tracked_at_snapshot": true
+    },
+    "tests/fixtures/schema/stored_objects_20261018_postgresql.sql": {
+      "sha256": "e4069aa280ab79c7ff39faecbe00d472c055fa1301b7d4579033eab9113b1c00",
+      "bytes": 21215,
+      "tracked_at_snapshot": true
+    },
+    "docs/implementation/20261018-evolution/B2B_CUOTAS.md": {
+      "sha256": "733d049448ea6baaf7ff2f2ba147a83634840eac541a1718895044cd8a2f4ee3",
+      "bytes": 5676,
+      "tracked_at_snapshot": true
+    },
+    "docs/implementation/20261018-evolution/ALMACENAMIENTO.md": {
+      "sha256": "e1ea2e7f95c3fb2afb762301abdab703649357602e179a370f8dd6ed9f701e2e",
+      "bytes": 11570,
+      "tracked_at_snapshot": true
+    },
+    "docs/audit/2026-10-18/ROADMAP_PRIORIZADO.md": {
+      "sha256": "bc0058409e6ac2ed1389bdddbe3777933b98e003fe15f0a8b5ab4905f9829baf",
+      "bytes": 17722,
+      "tracked_at_snapshot": true
+    }
+  },
+  "observations": [
+    {
+      "id": "JOBS-01",
+      "kind": "direct_source",
+      "result": "Gym ledger atomically links plan and persisted marker; completion JSON is a later commit.",
+      "sources": [
+        "web/database/repository.py:243",
+        "web/services/gym_generation_quota.py:125"
+      ]
+    },
+    {
+      "id": "JOBS-02",
+      "kind": "direct_source",
+      "result": "No claim/lease/fencing/persistent input snapshot is implemented in the reviewed generation path.",
+      "sources": [
+        "web/services/plan_generation.py:19",
+        "web/database/models.py:786"
+      ]
+    },
+    {
+      "id": "JOBS-03",
+      "kind": "control_flow_inference_not_reproduced",
+      "result": "Individual post-plan-commit exception may release its credit because the plan and individual reservation have no atomic durable publication link.",
+      "sources": [
+        "web/routes/usuario.py:333",
+        "web/services/generation_quota.py:68",
+        "web/database/repository.py:243"
+      ]
+    },
+    {
+      "id": "JOBS-04",
+      "kind": "direct_source",
+      "result": "Pending object intents survive uncertain PUT but have no reservation/job link; age alone cannot establish deletion/refund safety.",
+      "sources": [
+        "web/services/private_objects.py:27",
+        "web/database/models.py:823"
+      ]
+    },
+    {
+      "id": "JOBS-05",
+      "kind": "direct_source",
+      "result": "Notification uses process background task and bool transport result without durable outbox/message state.",
+      "sources": [
+        "web/routes/planes.py:88",
+        "web/services/plan_notifications.py:12",
+        "web/services/email_service.py:40"
+      ]
+    },
+    {
+      "id": "CLEANUP-01",
+      "kind": "direct_source_defect_runtime_not_reproduced",
+      "result": "Refresh epoch Float compared to untyped datetime cutoff in legacy script; proposed gates preserve current cutoff policy in SQLite and PostgreSQL.",
+      "sources": [
+        "scripts/cleanup_expired_tokens.py:49",
+        "scripts/cleanup_expired_tokens.py:62",
+        "web/database/models.py:159",
+        "web/auth.py:617"
+      ]
+    },
+    {
+      "id": "CLEANUP-02",
+      "kind": "disproved_suspicion",
+      "result": "auth_audit_log is the same table in script, model, migration and current fixture; no singular/plural mismatch.",
+      "sources": [
+        "scripts/cleanup_expired_tokens.py:110",
+        "web/database/models.py:628",
+        "web/database/alembic/versions/20260326_1101_add_auth_audit_log_table.py:23"
+      ]
+    },
+    {
+      "id": "CLEANUP-03",
+      "kind": "direct_source_risk_runtime_not_reproduced",
+      "result": "Raw SQL audit datetime bypasses UTCDateTime binder; script errors are converted to zero with exception text/traceback.",
+      "sources": [
+        "scripts/cleanup_expired_tokens.py:114",
+        "scripts/cleanup_expired_tokens.py:136",
+        "web/database/models.py:638"
+      ]
+    }
+  ],
+  "decision": "Keep current HTTP execution pending measured R34; contain individual publication/quota gap, then design reconciliation and persistent outbox before automatic retries. No broker or commercial TTL selected.",
+  "test_contract": "JOBS_EVALUACION.md section Contrato de prueba del corte temporal de cleanup",
+  "owned_deliverables": [
+    "docs/implementation/20261018-evolution/JOBS_EVALUACION.md",
+    "docs/implementation/20261018-evolution/evidence/jobs-static-evaluation-source.json"
+  ],
+  "limitations": [
+    "No application or provider runtime acceptance.",
+    "No production incident inferred.",
+    "No retention or scheduler activation.",
+    "Existing tests read but not rerun.",
+    "Source stability applies only to machine-check interval."
+  ],
+  "document": {
+    "path": "docs/implementation/20261018-evolution/JOBS_EVALUACION.md",
+    "sha256": "d5624ba991cebd9a8a17c55888d93a78caa98f56b062cd99ff11745eca66acc6"
+  }
+}

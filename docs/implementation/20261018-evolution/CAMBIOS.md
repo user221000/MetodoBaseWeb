@@ -39,3 +39,11 @@ Compatibilidad prevista: parámetros opcionales del catálogo para consumidores 
 `5bb5395` adopta UTC en52 columnas de instantes: un datetime con offset se convierte a UTC antes de escribir en TIMESTAMP sin zona. Se conservan dos fechas civiles y todos los resultados históricos. El cambio evita el desfase y vencimiento prematuro reproducidos bajo México; no modifica esquema ni intenta reparar historia.
 
 `4e22852` añade contratos preparatorios del diario con35 pruebas, sin API/persistencia; `bc6804c` prepara IaC con SDK fijado, preservación de variables y guardas de destino/digest. La definición bloquea apply y necesita adopción/import real y prueba del loader/árbol final antes de aplicarse.
+
+`31ad545` permite descargar el PDF exacto de un plan y conserva no-referrer en respuestas privadas; corrige el override global reproducido también en exportación. `93a9e1d` limita logs y telemetría de autenticación/correo a categorías, preserva auditoría local y añade adjunto PDF autorizado por bytes sin abrir archivos en ese camino. Storage25 y correcciones nuevas del wizard permanecen WIP en revisión.
+
+## Checkpoint 0459b0f — Documentos privados y UI revisados
+
+ddaf71a integra UI B2B idempotente, modal y descarte de respuesta al cambiar sesión sobre evidencia snapshot24.74d66e8 integra esquema25 con StoredObject y dos referencias nullable;0459b0f integra publicación/lectura privada, branding, configuración explícita en ambas factories y dependencias fijadas. El PDF exacto y el adjunto por bytes conservan sus lotes previos. Los objetos históricos mantienen referencia nula sin backfill, y un error de proveedor no elige otro backend. Restore25 y recorridos navegador tienen gates independientes. Ninguna infraestructura externa fue creada.
+
+Hallazgos abiertos: SEC02 confirmado con dos casos rojos de refresh en memoria; riesgo individual postcommit deducido, en reproducción. Inventario histórico readonly y corrección cleanup en curso. No se ejecutó una suite completa del head nuevo ni scan posterior a b20e071.

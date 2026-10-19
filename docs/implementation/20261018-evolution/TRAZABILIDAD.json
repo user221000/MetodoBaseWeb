@@ -30,7 +30,8 @@
         "c769667",
         "b81cfc1",
         "e3039c2",
-        "5bb5395"
+        "5bb5395",
+        "ddaf71a"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -49,7 +50,9 @@
         "evidence/pytest-gym-quota-independent.xml",
         "evidence/error-compensation-final-independent-source.json",
         "evidence/model-utc-independent-source.json",
-        "evidence/pytest-model-utc-auth-billing-license-independent.xml"
+        "evidence/pytest-model-utc-auth-billing-license-independent.xml",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -63,7 +66,8 @@
       "observaciones": [
         "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.",
         "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.",
-        "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia."
+        "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia.",
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
       ]
     },
     {
@@ -88,7 +92,8 @@
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -97,7 +102,8 @@
         "evidence/backend-auth-review.md",
         "evidence/security-controls.md",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/qa-r07-composition-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -106,7 +112,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer."
+      ]
     },
     {
       "id": "R03",
@@ -243,7 +251,8 @@
         "166038f88b211c52f0d149ce550880795361707c",
         "e8e0c44",
         "64fe65a",
-        "e3039c2"
+        "e3039c2",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -265,7 +274,9 @@
         "evidence/pytest-web-candidate-containment-final.xml",
         "evidence/web-candidate-containment-shuffle-source.json",
         "evidence/pytest-web-candidate-containment-shuffle.xml",
-        "evidence/qa-b2b-privacy-utc-final-source.json"
+        "evidence/qa-b2b-privacy-utc-final-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -275,7 +286,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
+      ]
     },
     {
       "id": "R06",
@@ -340,14 +353,22 @@
       "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
+      "cambios": [
+        "Descarga PDF por ID exacto con doble predicado plan/cliente, root legacy privado acotado, sin fallback al ultimo; middleware conserva no-referrer explicito.",
+        "Metadatos StoredObject en esquema25 y familia RLS19; publicación pending antes del PUT y ready/referencia/Plan en transacción; consumo privado por ID con integridad, branding privado y configuración explícita en ambos runtimes."
+      ],
       "commits": [
         "abc896f",
-        "9b97068"
+        "9b97068",
+        "31ad545",
+        "74d66e8",
+        "0459b0f"
       ],
       "pruebas": [
         "33 pruebas independientes aprobadas y1 symlink omitida Windows; volumen privado y SDK S3 Stubber. Sin DB/consumidores/proveedor real.",
-        "32 SDK independientes de configuracion explicita (27autor+5seguridad); no runtimemetadata/consumidor aun."
+        "32 SDK independientes de configuracion explicita (27autor+5seguridad); no runtimemetadata/consumidor aun.",
+        "49 independientes:24 PDF+21 middleware+4 composiciones PostgreSQL reales de PDF/privacidad; quince fuentes estables. No prueba hash/procedencia historica legacy.",
+        "DDL25:18 independientes de QA,22 de revisión del coordinador y6 del contrato24 anterior; restore poblado25 independiente. Consumidores:14 independientes backend,48 SDK/config,3 API/equipo y10 grupos navegador/6 pantallas sobre runtime25. Alcances y fuentes separados, sin sumar como suite única."
       ],
       "evidencia": [
         "evidence/storage-volume-author.xml",
@@ -356,15 +377,26 @@
         "evidence/r07-storage-frontend-independent-source.json",
         "evidence/r07-storage-frontend-fix-independent.xml",
         "evidence/security-storage-configuration-source.json",
-        "evidence/security-storage-configuration.xml"
+        "evidence/security-storage-configuration.xml",
+        "evidence/qa-plan-documents-final-source.json",
+        "evidence/storage25-ddl-independent-source.json",
+        "evidence/storage25-root-review.json",
+        "evidence/backend-r07-consumers-review-source.json",
+        "evidence/qa-storage25-restore-final-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/r07-consumer-integration-source.json",
+        "evidence/ux/private-branding-independent-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
-        "ALMACENAMIENTO.md"
+        "ALMACENAMIENTO.md",
+        "DOCUMENTOS.md"
       ],
-      "revisor": "Frontend independiente y coordinador; adaptadores solamente",
-      "bloqueo": "Metadatos/RLS posteriores a R04, consumidores y migracion por implementar; proveedor/volumen persistente, contenedor y retencion pendientes de validacion/decision",
+      "revisor": "Backend, QA y coordinador en revisiones independientes de DDL, consumidores, restore y UI; límites por gate",
+      "bloqueo": "Migración/procedencia histórica, destino durable y proveedor real, imagen Linux y operación/staging pendientes. Inventario histórico readonly en elaboración, sin backfill ni limpieza automática.",
       "observaciones": [
-        "33independientes/1symlinkomitidaWindows; adapters solamente, sin DB/consumidores/proveedorreal."
+        "33independientes/1symlinkomitidaWindows; adapters solamente, sin DB/consumidores/proveedorreal.",
+        "Metadatos25 y consumidores aceptados localmente en74d66e8/0459b0f. La aceptación histórica de adapters sin DB conserva su fecha/alcance; no describe el estado posterior. SDK transport ignora CA/proxy heredados; SCA de resolución54 Linux/53 Windows sin vulnerabilidades conocidas al corte, sin imagen."
       ]
     },
     {
@@ -499,14 +531,17 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "dbb6af5"
+        "dbb6af5",
+        "93a9e1d"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
       ],
       "evidencia": [
         "evidence/backend-auth-review.md",
@@ -514,18 +549,22 @@
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
         "evidence/security-error-privacy-source.json",
-        "evidence/security-error-privacy-after.xml"
+        "evidence/security-error-privacy-after.xml",
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
         "VALIDACION.md",
-        "evidence/security-error-privacy.md"
+        "evidence/security-error-privacy.md",
+        "evidence/auth-telemetry-privacy.md"
       ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": [
-        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes."
+        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.",
+        "SEC02 confirmado en memoria:401 tardío puede reenviar la operación con identidad nueva y refresh tardío puede sobrescribirla. Corrección central en elaboración; no cerrado por las pruebas UI de respuestas200."
       ]
     },
     {
@@ -623,12 +662,15 @@
         "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
       ],
       "commits": [
-        "c45a71c"
+        "c45a71c",
+        "ddaf71a"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
-        "evidence/ux/frontend-independent-review.md"
+        "evidence/ux/frontend-independent-review.md",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -638,7 +680,10 @@
       ],
       "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.",
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
+      ]
     },
     {
       "id": "R14",
@@ -698,12 +743,15 @@
         "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
       ],
       "commits": [
-        "c45a71c"
+        "c45a71c",
+        "ddaf71a"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
-        "evidence/ux/frontend-independent-review.md"
+        "evidence/ux/frontend-independent-review.md",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -713,7 +761,10 @@
       ],
       "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.",
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
+      ]
     },
     {
       "id": "R16",
@@ -733,11 +784,22 @@
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
+      ],
+      "commits": [
+        "93a9e1d"
+      ],
+      "pruebas": [
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
+      ],
+      "evidencia": [
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
+      ],
+      "documentacion": [
+        "evidence/auth-telemetry-privacy.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -762,13 +824,17 @@
       "entorno": "local",
       "cambios": [
         "Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.",
-        "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios."
+        "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios.",
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
       ],
       "commits": [
         "0a0b6d4",
-        "dbb6af5"
+        "dbb6af5",
+        "93a9e1d"
       ],
-      "pruebas": [],
+      "pruebas": [
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
+      ],
       "evidencia": [
         "evidence/redis-dependency-before.log",
         "evidence/redis-final-author.xml",
@@ -776,11 +842,14 @@
         "evidence/redis-final-independent-source.json",
         "evidence/backend-policy-review.md",
         "evidence/security-error-privacy-source.json",
-        "evidence/security-error-privacy-after.xml"
+        "evidence/security-error-privacy-after.xml",
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
       ],
       "documentacion": [
         "REDIS.md",
-        "evidence/security-error-privacy.md"
+        "evidence/security-error-privacy.md",
+        "evidence/auth-telemetry-privacy.md"
       ],
       "revisor": "QA y backend independientes del autor root.",
       "bloqueo": null,
@@ -809,13 +878,16 @@
       "entorno": "local",
       "cambios": [],
       "commits": [
-        "822de09"
+        "822de09",
+        "0459b0f"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/sbom-linux-runtime.json",
         "evidence/sca-linux-runtime-final.log",
-        "evidence/backend-runtime-static-review.json"
+        "evidence/backend-runtime-static-review.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -830,7 +902,9 @@
         "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."
       },
       "observaciones": [
-        "32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime."
+        "32requisitos/13COPY revisados estaticamente backend y seguridad; Dockerfile usa hashes y basepin, desktopmanifest alineado. No imagenfinal ejecutada/SCAimagen; SDKR07 todavia fuera runtime.",
+        "WIP posterior93a9e1d: DDL25(18+10 autor),consumidores privados120 autor,SDK/config candidato,locks y SBOM/SCA54Linux/53Windows sin vulnerabilidades conocidas. Revision independiente/restore25/UIlogos/migracion historica aun en curso; no aceptacion ni imagen/proveedor real.",
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
       ]
     },
     {
@@ -855,24 +929,41 @@
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
+      "cambios": [
+        "Descarga PDF por ID exacto con doble predicado plan/cliente, root legacy privado acotado, sin fallback al ultimo; middleware conserva no-referrer explicito."
+      ],
       "commits": [
-        "e3039c2"
+        "e3039c2",
+        "31ad545",
+        "ddaf71a",
+        "0459b0f"
       ],
       "pruebas": [
-        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.",
+        "49 independientes:24 PDF+21 middleware+4 composiciones PostgreSQL reales de PDF/privacidad; quince fuentes estables. No prueba hash/procedencia historica legacy."
       ],
       "evidencia": [
         "evidence/web-candidate-containment-final-source.json",
         "evidence/pytest-web-candidate-containment-final.xml",
         "evidence/web-candidate-containment-shuffle-source.json",
         "evidence/pytest-web-candidate-containment-shuffle.xml",
-        "evidence/qa-b2b-privacy-utc-final-source.json"
+        "evidence/qa-b2b-privacy-utc-final-source.json",
+        "evidence/qa-plan-documents-final-source.json",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json",
+        "evidence/qa-r07-composition-final-source.json"
       ],
-      "documentacion": [],
+      "documentacion": [
+        "DOCUMENTOS.md"
+      ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard.",
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.",
+        "API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer.",
+        "SEC02 confirmado en memoria:401 tardío puede reenviar la operación con identidad nueva y refresh tardío puede sobrescribirla. Corrección central en elaboración; no cerrado por las pruebas UI de respuestas200."
+      ]
     },
     {
       "id": "R20",
@@ -1173,7 +1264,7 @@
         "R28"
       ],
       "dependencias": [],
-      "estado": "pendiente",
+      "estado": "en_curso",
       "implementacion": "pendiente",
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
@@ -1181,11 +1272,17 @@
       "cambios": [],
       "commits": [],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/jobs-static-evaluation-source.json"
+      ],
+      "documentacion": [
+        "JOBS_EVALUACION.md"
+      ],
+      "revisor": "Operación: revisión estática; coordinación: contrato y límites. No ejecución de carga/job.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía."
+      ]
     },
     {
       "id": "R29",
@@ -1260,14 +1357,17 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Exportacion personal readonly integrada ambosfactories/UI por partes; propietario excluye cartera profesional, UUID preservado, limites bytes y sin persistir descarga en navegador. Contencion de handlers/alertas automaticas sin str/traceback/metadata libre."
+        "Exportacion personal readonly integrada ambosfactories/UI por partes; propietario excluye cartera profesional, UUID preservado, limites bytes y sin persistir descarga en navegador. Contencion de handlers/alertas automaticas sin str/traceback/metadata libre.",
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
       ],
       "commits": [
         "dbb6af5",
-        "e3039c2"
+        "e3039c2",
+        "93a9e1d"
       ],
       "pruebas": [
-        "41 preparatorias+2 composiciones PG restringido reales+8 grupos navegador/5 pantallas independientes;13 seguridad incluidas en25 dirigidos y serial/n2 finales1621 cadauno."
+        "41 preparatorias+2 composiciones PG restringido reales+8 grupos navegador/5 pantallas independientes;13 seguridad incluidas en25 dirigidos y serial/n2 finales1621 cadauno.",
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
       ],
       "evidencia": [
         "evidence/security-controls.md",
@@ -1277,20 +1377,24 @@
         "evidence/pytest-privacy-composition-independent.xml",
         "evidence/ux/privacy-export-independent-source.json",
         "evidence/security-error-privacy-source.json",
-        "evidence/pytest-error-compensation-final-independent.xml"
+        "evidence/pytest-error-compensation-final-independent.xml",
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
         "VALIDACION.md",
         "PRIVACIDAD.md",
-        "evidence/security-error-privacy.md"
+        "evidence/security-error-privacy.md",
+        "evidence/auth-telemetry-privacy.md"
       ],
       "revisor": "QA independiente de servicio/composicion/GUI; coordinador reviso servicio/UI y contencion; autor seguridad separado de autores B2B/UI",
       "bloqueo": "Retencion/borrado legal y de copias sin politica aprobada; cierre de cuenta/consentimientos/tokens/sinks restantes pendientes. Export tecnicamente integrado no sustituye esos criterios.",
       "observaciones": [
         "Dictamen profesional externo no ejecutado ni sustituido por revisión de agentes; tarea técnica local sigue abierta.",
-        "Montado y aceptado localmente tras41preparatorias; documento actualizado despuesdel freeze sin cambiar servicio/router. No snapshot entre paginas ni binarios/desktop/diario local exportados."
+        "Montado y aceptado localmente tras41preparatorias; documento actualizado despuesdel freeze sin cambiar servicio/router. No snapshot entre paginas ni binarios/desktop/diario local exportados.",
+        "SEC02 confirmado en memoria:401 tardío puede reenviar la operación con identidad nueva y refresh tardío puede sobrescribirla. Corrección central en elaboración; no cerrado por las pruebas UI de respuestas200."
       ]
     },
     {
@@ -1372,7 +1476,7 @@
         "R34"
       ],
       "dependencias": [],
-      "estado": "pendiente",
+      "estado": "en_curso",
       "implementacion": "pendiente",
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
@@ -1380,11 +1484,17 @@
       "cambios": [],
       "commits": [],
       "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
+      "evidencia": [
+        "evidence/jobs-static-evaluation-source.json"
+      ],
+      "documentacion": [
+        "JOBS_EVALUACION.md"
+      ],
+      "revisor": "Operación: revisión estática; coordinación: contrato y límites. No ejecución de carga/job.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía."
+      ]
     },
     {
       "id": "R35",
@@ -1606,7 +1716,8 @@
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -1615,7 +1726,8 @@
         "evidence/backend-auth-review.md",
         "evidence/security-controls.md",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/qa-r07-composition-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -1624,7 +1736,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer."
+      ]
     },
     {
       "id": "B07",
@@ -1648,7 +1762,8 @@
         "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -1657,7 +1772,8 @@
         "evidence/backend-auth-review.md",
         "evidence/security-controls.md",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/qa-r07-composition-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -1666,7 +1782,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer."
+      ]
     },
     {
       "id": "B08",
@@ -1804,19 +1922,44 @@
         "R07"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
-      "bloqueo": null,
-      "observaciones": []
+      "cambios": [
+        "Descarga PDF por ID exacto con doble predicado plan/cliente, root legacy privado acotado, sin fallback al ultimo; middleware conserva no-referrer explicito.",
+        "Metadatos StoredObject en esquema25 y familia RLS19; publicación pending antes del PUT y ready/referencia/Plan en transacción; consumo privado por ID con integridad, branding privado y configuración explícita en ambos runtimes."
+      ],
+      "commits": [
+        "31ad545",
+        "74d66e8",
+        "0459b0f"
+      ],
+      "pruebas": [
+        "49 independientes:24 PDF+21 middleware+4 composiciones PostgreSQL reales de PDF/privacidad; quince fuentes estables. No prueba hash/procedencia historica legacy.",
+        "DDL25:18 independientes de QA,22 de revisión del coordinador y6 del contrato24 anterior; restore poblado25 independiente. Consumidores:14 independientes backend,48 SDK/config,3 API/equipo y10 grupos navegador/6 pantallas sobre runtime25. Alcances y fuentes separados, sin sumar como suite única."
+      ],
+      "evidencia": [
+        "evidence/qa-plan-documents-final-source.json",
+        "evidence/storage25-ddl-independent-source.json",
+        "evidence/storage25-root-review.json",
+        "evidence/backend-r07-consumers-review-source.json",
+        "evidence/qa-storage25-restore-final-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/r07-consumer-integration-source.json",
+        "evidence/ux/private-branding-independent-source.json",
+        "evidence/private-runtime-dependency-review.json"
+      ],
+      "documentacion": [
+        "DOCUMENTOS.md",
+        "ALMACENAMIENTO.md"
+      ],
+      "revisor": "Backend, QA y coordinador en revisiones independientes de DDL, consumidores, restore y UI; límites por gate",
+      "bloqueo": "Migración/procedencia histórica, destino durable y proveedor real, imagen Linux y operación/staging pendientes. Inventario histórico readonly en elaboración, sin backfill ni limpieza automática.",
+      "observaciones": [
+        "Metadatos25 y consumidores aceptados localmente en74d66e8/0459b0f. La aceptación histórica de adapters sin DB conserva su fecha/alcance; no describe el estado posterior. SDK transport ignora CA/proxy heredados; SCA de resolución54 Linux/53 Windows sin vulnerabilidades conocidas al corte, sin imagen."
+      ]
     },
     {
       "id": "B12",
@@ -2036,17 +2179,21 @@
         "evidence/A1-containment-source.json",
         "evidence/gym-quota-independent-source.json",
         "evidence/pytest-gym-quota-independent.xml",
-        "evidence/error-compensation-final-independent-source.json"
+        "evidence/error-compensation-final-independent-source.json",
+        "evidence/jobs-static-evaluation-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
         "VALIDACION.md",
-        "B2B_CUOTAS.md"
+        "B2B_CUOTAS.md",
+        "JOBS_EVALUACION.md"
       ],
       "revisor": "QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía."
+      ]
     },
     {
       "id": "B17",
@@ -2077,7 +2224,8 @@
       "commits": [
         "c769667",
         "b81cfc1",
-        "e3039c2"
+        "e3039c2",
+        "ddaf71a"
       ],
       "pruebas": [
         "18 PG independientes +41 worker/nutricion(5PDF reales),6 migraciones y restore24;25 seguimiento compensacion/logs/PDF/caducidad. Serial/n2 finales1621 cadauno,1skip Windows."
@@ -2088,16 +2236,22 @@
         "evidence/quota-a1-snapshot.json",
         "evidence/gym-quota-independent-source.json",
         "evidence/pytest-gym-quota-independent.xml",
-        "evidence/error-compensation-final-independent-source.json"
+        "evidence/error-compensation-final-independent-source.json",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json",
+        "evidence/jobs-static-evaluation-source.json"
       ],
       "documentacion": [
         "CATALOGO.md",
-        "B2B_CUOTAS.md"
+        "B2B_CUOTAS.md",
+        "JOBS_EVALUACION.md"
       ],
       "revisor": "QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue",
       "bloqueo": null,
       "observaciones": [
-        "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas."
+        "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.",
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02.",
+        "Evaluación estática R28/R34: ledger B2B no equivale a job recuperable; mantener HTTP mientras se mide carga. Faltan snapshot durable, claim/fencing, reconciliación y outbox. Riesgo individual postcommit deducido, en reproducción independiente; no declarar incidente probado todavía."
       ]
     },
     {
@@ -2161,24 +2315,30 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
       ],
       "commits": [
-        "166038f88b211c52f0d149ce550880795361707c"
+        "166038f88b211c52f0d149ce550880795361707c",
+        "93a9e1d"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
       ],
       "evidencia": [
         "evidence/backend-auth-review.md",
         "evidence/security-controls.md",
         "evidence/A1-containment.xml",
-        "evidence/A1-containment-source.json"
+        "evidence/A1-containment-source.json",
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
-        "VALIDACION.md"
+        "VALIDACION.md",
+        "evidence/auth-telemetry-privacy.md"
       ],
       "revisor": null,
       "bloqueo": null,
@@ -2205,14 +2365,17 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio."
+        "Contención A1 integrada localmente; ver CAMBIOS.md para comportamiento y límites por criterio.",
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "dbb6af5"
+        "dbb6af5",
+        "93a9e1d"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
       ],
       "evidencia": [
         "evidence/backend-auth-review.md",
@@ -2220,13 +2383,16 @@
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
         "evidence/security-error-privacy-source.json",
-        "evidence/security-error-privacy-after.xml"
+        "evidence/security-error-privacy-after.xml",
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
         "VALIDACION.md",
-        "evidence/security-error-privacy.md"
+        "evidence/security-error-privacy.md",
+        "evidence/auth-telemetry-privacy.md"
       ],
       "revisor": null,
       "bloqueo": null,
@@ -2266,7 +2432,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "WIP posterior93a9e1d: DDL25(18+10 autor),consumidores privados120 autor,SDK/config candidato,locks y SBOM/SCA54Linux/53Windows sin vulnerabilidades conocidas. Revision independiente/restore25/UIlogos/migracion historica aun en curso; no aceptacion ni imagen/proveedor real."
+      ]
     },
     {
       "id": "B22",
@@ -2294,7 +2462,8 @@
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "dbb6af5"
+        "dbb6af5",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -2310,7 +2479,8 @@
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
         "evidence/security-error-privacy-source.json",
-        "evidence/security-error-privacy-after.xml"
+        "evidence/security-error-privacy-after.xml",
+        "evidence/qa-r07-composition-final-source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2321,7 +2491,8 @@
       "revisor": null,
       "bloqueo": null,
       "observaciones": [
-        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes."
+        "Contencion concreta de handlers/tracker automaticos y compensacion verificada con13regresiones. No declara saneados login, email, auth_audit, Sentry o alertas directas; R31 inventaria esos pendientes.",
+        "API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer."
       ]
     },
     {
@@ -2446,19 +2617,40 @@
         "R07"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_revision",
+      "implementacion": "parcial",
+      "validacion": "parcial",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
-      "revisor": null,
-      "bloqueo": null,
-      "observaciones": []
+      "cambios": [
+        "Metadatos StoredObject en esquema25 y familia RLS19; publicación pending antes del PUT y ready/referencia/Plan en transacción; consumo privado por ID con integridad, branding privado y configuración explícita en ambos runtimes."
+      ],
+      "commits": [
+        "74d66e8",
+        "0459b0f"
+      ],
+      "pruebas": [
+        "DDL25:18 independientes de QA,22 de revisión del coordinador y6 del contrato24 anterior; restore poblado25 independiente. Consumidores:14 independientes backend,48 SDK/config,3 API/equipo y10 grupos navegador/6 pantallas sobre runtime25. Alcances y fuentes separados, sin sumar como suite única."
+      ],
+      "evidencia": [
+        "evidence/storage25-ddl-independent-source.json",
+        "evidence/storage25-root-review.json",
+        "evidence/backend-r07-consumers-review-source.json",
+        "evidence/qa-storage25-restore-final-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/r07-consumer-integration-source.json",
+        "evidence/ux/private-branding-independent-source.json",
+        "evidence/private-runtime-dependency-review.json"
+      ],
+      "documentacion": [
+        "ALMACENAMIENTO.md",
+        "DOCUMENTOS.md"
+      ],
+      "revisor": "Backend, QA y coordinador en revisiones independientes de DDL, consumidores, restore y UI; límites por gate",
+      "bloqueo": "Migración/procedencia histórica, destino durable y proveedor real, imagen Linux y operación/staging pendientes. Inventario histórico readonly en elaboración, sin backfill ni limpieza automática.",
+      "observaciones": [
+        "Metadatos25 y consumidores aceptados localmente en74d66e8/0459b0f. La aceptación histórica de adapters sin DB conserva su fecha/alcance; no describe el estado posterior. SDK transport ignora CA/proxy heredados; SCA de resolución54 Linux/53 Windows sin vulnerabilidades conocidas al corte, sin imagen."
+      ]
     },
     {
       "id": "OPS04",
@@ -2529,21 +2721,28 @@
       "entorno": "local",
       "cambios": [
         "Redis: Lua atómico, TTL estable, acciones sensibles503, lecturas fallback acotadas; dependencia5/900 compartida y HMAC de cuenta. Revisión independiente pendiente.",
-        "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios."
+        "Contención aceptada localmente:52QA y69revisión backend; falta Redis real, ingress y alertas de servicios.",
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
       ],
       "commits": [
-        "0a0b6d4"
+        "0a0b6d4",
+        "93a9e1d"
       ],
-      "pruebas": [],
+      "pruebas": [
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
+      ],
       "evidencia": [
         "evidence/redis-dependency-before.log",
         "evidence/redis-final-author.xml",
         "evidence/pytest-redis-final-independent.xml",
         "evidence/redis-final-independent-source.json",
-        "evidence/backend-policy-review.md"
+        "evidence/backend-policy-review.md",
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
       ],
       "documentacion": [
-        "REDIS.md"
+        "REDIS.md",
+        "evidence/auth-telemetry-privacy.md"
       ],
       "revisor": "QA y backend independientes del autor root.",
       "bloqueo": null,
@@ -2570,11 +2769,22 @@
       "validacion": "pendiente",
       "despliegue": "no_desplegado",
       "entorno": "local",
-      "cambios": [],
-      "commits": [],
-      "pruebas": [],
-      "evidencia": [],
-      "documentacion": [],
+      "cambios": [
+        "Logs de autenticacion/auditoria/correo clasificados sin identidad/IP/jti/texto libre; Sentry proyecta eventos/transacciones y bloquea adjuntos/perfiles/canales sin revision; audit local conservado."
+      ],
+      "commits": [
+        "93a9e1d"
+      ],
+      "pruebas": [
+        "106 casos independientes en15.30s, cuatro nuevos: SDK real con integraciones predeterminadas, baggage y envelope finales sin datos privados, propiedad de sesiones lectoras; fuentes23 estables."
+      ],
+      "evidencia": [
+        "evidence/auth-telemetry-independent-source.json",
+        "evidence/pytest-auth-telemetry-independent.xml"
+      ],
+      "documentacion": [
+        "evidence/auth-telemetry-privacy.md"
+      ],
       "revisor": null,
       "bloqueo": null,
       "observaciones": []
@@ -2602,12 +2812,15 @@
         "14fuentes seguimiento congeladas, aislamiento/CI bloqueante preparada, contratos obsoletos sustituidos por comportamiento; Redis real/R04/imagen/CI remota pendientes."
       ],
       "commits": [
-        "e8e0c44"
+        "e8e0c44",
+        "0459b0f"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/r05-followup-frozen-source.json",
-        "evidence/pytest-r05-frozen-candidate.xml"
+        "evidence/pytest-r05-frozen-candidate.xml",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "QA_R05.md"
@@ -2619,7 +2832,9 @@
         "responsable": "Usuario/operación",
         "puede_continuar": "Locks conhash, instalación Windows, SCA resolución, SBOM y CI preparada; no atribuirlos a imagen ejecutada."
       },
-      "observaciones": []
+      "observaciones": [
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
+      ]
     },
     {
       "id": "QA-01",
@@ -2646,7 +2861,8 @@
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
         "e8e0c44",
-        "e3039c2"
+        "e3039c2",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -2663,7 +2879,9 @@
         "evidence/pytest-web-candidate-containment-final.xml",
         "evidence/web-candidate-containment-shuffle-source.json",
         "evidence/pytest-web-candidate-containment-shuffle.xml",
-        "evidence/qa-b2b-privacy-utc-final-source.json"
+        "evidence/qa-b2b-privacy-utc-final-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2673,7 +2891,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
+      ]
     },
     {
       "id": "QA-02",
@@ -2700,7 +2920,8 @@
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
         "e8e0c44",
-        "e3039c2"
+        "e3039c2",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -2717,7 +2938,9 @@
         "evidence/pytest-web-candidate-containment-final.xml",
         "evidence/web-candidate-containment-shuffle-source.json",
         "evidence/pytest-web-candidate-containment-shuffle.xml",
-        "evidence/qa-b2b-privacy-utc-final-source.json"
+        "evidence/qa-b2b-privacy-utc-final-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2727,7 +2950,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
+      ]
     },
     {
       "id": "QA-03",
@@ -2826,13 +3051,19 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
-      "commits": [],
+      "commits": [
+        "0459b0f"
+      ],
       "pruebas": [],
-      "evidencia": [],
+      "evidencia": [
+        "evidence/qa-r07-composition-final-source.json"
+      ],
       "documentacion": [],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "API de generación/PDF ahora usa identidad persistida de equipo y permiso por recurso:3 controles independientes rojos antes/verdes después. Nutriólogo de Clínica consume/repite en ledger del propietario; viewer403 al crear y alcance propio/ajeno al leer."
+      ]
     },
     {
       "id": "QA-06",
@@ -2891,7 +3122,8 @@
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "e8e0c44"
+        "e8e0c44",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -2902,7 +3134,9 @@
         "evidence/qa-r05-frozen-hashes.json",
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
-        "evidence/r05-followup-frozen-source.json"
+        "evidence/r05-followup-frozen-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2912,7 +3146,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
+      ]
     },
     {
       "id": "QA-08",
@@ -2940,7 +3176,8 @@
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
         "e8e0c44",
-        "e3039c2"
+        "e3039c2",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -2957,7 +3194,9 @@
         "evidence/pytest-web-candidate-containment-final.xml",
         "evidence/web-candidate-containment-shuffle-source.json",
         "evidence/pytest-web-candidate-containment-shuffle.xml",
-        "evidence/qa-b2b-privacy-utc-final-source.json"
+        "evidence/qa-b2b-privacy-utc-final-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2967,7 +3206,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
+      ]
     },
     {
       "id": "QA-09",
@@ -2990,14 +3231,18 @@
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
-        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
+        "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real.",
+        "Descarga PDF por ID exacto con doble predicado plan/cliente, root legacy privado acotado, sin fallback al ultimo; middleware conserva no-referrer explicito."
       ],
       "commits": [
         "c45a71c",
-        "e3039c2"
+        "e3039c2",
+        "31ad545",
+        "ddaf71a"
       ],
       "pruebas": [
-        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal."
+        "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.",
+        "49 independientes:24 PDF+21 middleware+4 composiciones PostgreSQL reales de PDF/privacidad; quince fuentes estables. No prueba hash/procedencia historica legacy."
       ],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
@@ -3006,14 +3251,20 @@
         "evidence/pytest-web-candidate-containment-final.xml",
         "evidence/web-candidate-containment-shuffle-source.json",
         "evidence/pytest-web-candidate-containment-shuffle.xml",
-        "evidence/qa-b2b-privacy-utc-final-source.json"
+        "evidence/qa-b2b-privacy-utc-final-source.json",
+        "evidence/qa-plan-documents-final-source.json",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
-        "CATALOGO.md"
+        "CATALOGO.md",
+        "DOCUMENTOS.md"
       ],
       "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
+      ]
     },
     {
       "id": "QA-10",
@@ -3041,7 +3292,8 @@
       ],
       "commits": [
         "166038f88b211c52f0d149ce550880795361707c",
-        "e8e0c44"
+        "e8e0c44",
+        "0459b0f"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -3055,7 +3307,9 @@
         "evidence/repository-comparison.json",
         "evidence/A1-containment.xml",
         "evidence/A1-containment-source.json",
-        "evidence/r05-followup-frozen-source.json"
+        "evidence/r05-followup-frozen-source.json",
+        "evidence/qa-r07-composition-final-source.json",
+        "evidence/private-runtime-dependency-review.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -3065,7 +3319,9 @@
       ],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes."
+      ]
     },
     {
       "id": "UX-01",
@@ -3235,19 +3491,24 @@
         "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
       ],
       "commits": [
-        "c45a71c"
+        "c45a71c",
+        "ddaf71a"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
-        "evidence/ux/frontend-independent-review.md"
+        "evidence/ux/frontend-independent-review.md",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
         "CATALOGO.md"
       ],
       "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
+      ]
     },
     {
       "id": "UX-06",
@@ -3326,19 +3587,24 @@
         "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
       ],
       "commits": [
-        "c45a71c"
+        "c45a71c",
+        "ddaf71a"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
-        "evidence/ux/frontend-independent-review.md"
+        "evidence/ux/frontend-independent-review.md",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
         "CATALOGO.md"
       ],
       "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
+      ]
     },
     {
       "id": "UX-09",
@@ -3363,19 +3629,24 @@
         "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
       ],
       "commits": [
-        "c45a71c"
+        "c45a71c",
+        "ddaf71a"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
-        "evidence/ux/frontend-independent-review.md"
+        "evidence/ux/frontend-independent-review.md",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
         "CATALOGO.md"
       ],
       "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
+      ]
     },
     {
       "id": "UX-10",
@@ -3488,19 +3759,24 @@
         "B2B6recorridos, R13 17estados y5personales con27fuentes estables. TransporteAPI sintético, no sandbox/auth/RLS/lector de pantalla. Seguimiento R11 corrige fixture token y añade auth real."
       ],
       "commits": [
-        "c45a71c"
+        "c45a71c",
+        "ddaf71a"
       ],
       "pruebas": [],
       "evidencia": [
         "evidence/ux/frontend-independent-source.json",
-        "evidence/ux/frontend-independent-review.md"
+        "evidence/ux/frontend-independent-review.md",
+        "evidence/ux/b2b-generation-followup-independent-source.json",
+        "evidence/ux/b2b-generation-pdf-independent-source.json"
       ],
       "documentacion": [
         "CATALOGO.md"
       ],
       "revisor": "QA independiente; root revisó contratos/sinks/destinos B2B.",
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "UI B2B integrada ddaf71a: intención idempotente en memoria, DTO preparado, PDF exacto y descarte al cambiar sesión; QA9 grupos/8 pantallas y4 controles adicionales. Aceptación principal sobre snapshot inmutable24; R07 tiene composición posterior25 separada. La carrera central de refresh401 queda abierta en SEC02."
+      ]
     },
     {
       "id": "UX-14",
@@ -3644,7 +3920,9 @@
       "documentacion": [],
       "revisor": null,
       "bloqueo": null,
-      "observaciones": []
+      "observaciones": [
+        "QA B2B UI24:9grupos/8pantallas y2PDF historicos reales verdes; descubrio modal que intercepta registro y respuesta tardia de alta tras cambio de cuenta. Fix frontend congelado58aa6acc, repeticion independiente pendiente. No cierre global del wizard."
+      ]
     },
     {
       "id": "OPS08",
@@ -3738,6 +4016,43 @@
         "43finales incl3PG procesosUTC/Mexico; normalizacionUTCnaive evita recorte6h. Puente remoto/HMAClegacy pendientes.",
         "UTC modelos adoptado:52 instantes explicitos/2civiles conservadas,16PGindependientes+102auth/billing/licencias verdes; sinDDL ni reescritura de historia."
       ]
+    },
+    {
+      "id": "SEC02",
+      "identificador_original": "SEC02",
+      "fuente": "docs/implementation/20261018-evolution/NUEVOS_HALLAZGOS.md",
+      "seccion": "SEC02 - Refresh tardío cruza una sesión nueva",
+      "problema": "El cliente HTTP puede reenviar un DTO anterior con credenciales de otra sesión o sobrescribir el nuevo par de tokens con un refresh tardío.",
+      "criterio_exacto": "Petición, refresh, reintento y lectura de respuesta quedan ligados a la sesión inicial; cambiar de cuenta aborta operaciones anteriores sin tocar credenciales nuevas ni exponer datos antiguos. Refresh normal y concurrencia conservan un único trabajo y resuelven todos los consumidores. Login/registro públicos no refrescan sesiones. Pruebas antes/después, navegador y revisión independiente.",
+      "prioridad": "P0",
+      "responsable": "Frontend y seguridad; coordinación integra",
+      "tareas": [
+        "R10",
+        "R19",
+        "R31"
+      ],
+      "dependencias": [],
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [],
+      "commits": [],
+      "pruebas": [
+        "Dos casos rojos independientes confirmados con transporte en memoria y tokens sintéticos; no prueba de incidente ni de navegador/servidor."
+      ],
+      "evidencia": [
+        "evidence/ux/auth-refresh-race-before.log",
+        "evidence/ux/auth-refresh-race-before-source.json"
+      ],
+      "documentacion": [
+        "NUEVOS_HALLAZGOS.md",
+        "RIESGOS.md"
+      ],
+      "revisor": "Coordinador reprodujo; corrección frontend en curso, revisión independiente pendiente",
+      "bloqueo": null,
+      "observaciones": []
     }
   ]
 }
