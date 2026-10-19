@@ -1,0 +1,29 @@
+--- accepted-portable
++++ CI2-portable
+@@ -5,7 +5,7 @@
+ """
+ import sys
+ sys.dont_write_bytecode=True
+-import argparse,hashlib,json,os,re,subprocess,threading,time,uuid,tempfile
++import argparse,hashlib,json,os,re,subprocess,threading,uuid,tempfile
+ from html import unescape
+ from pathlib import Path
+ from types import SimpleNamespace
+@@ -19,7 +19,7 @@
+     assert out.is_relative_to(Path(tempfile.gettempdir()).resolve()) and out.is_dir()
+     assert 1024<args.port<65536
+     assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()==args.head
+-    assert not subprocess.check_output(['git','status','--porcelain'],cwd=root).strip()
++    assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=root).strip()
+     os.chdir(root);sys.path.insert(0,str(root))
+     from tests.isolation import prepare_environment,block_external_sockets,validate_postgres_test_url
+     own=prepare_environment(discard_inherited=True).resolve();block_external_sockets()
+@@ -31,7 +31,7 @@
+     origin='http://127.0.0.1:'+str(args.port)
+     os.environ.update(BASE_URL=origin,CORS_ORIGINS=origin,RATE_LIMIT_ENABLED='true')
+     from sqlalchemy import inspect,select,text
+-    from sqlalchemy.orm import Session,sessionmaker
++    from sqlalchemy.orm import Session
+     from tests import integration_schema_migrations as migrations
+     from tests import integration_client_link_services as shared
+     from web.database import engine as database

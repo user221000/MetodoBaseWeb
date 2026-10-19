@@ -62,3 +62,8 @@ UX-18/P1 bloquea exportaciónUI en flujoR12 por interferencia deestado disabled;
 ## Checkpoint 110
 
 CI29 no se acepta con checker vacío, runner falso, replace-ref o export-ignore que suplanten la fuente histórica. Los pins del ejecutable corrigen sólo el primer grupo; verificar árbol/blobs del archivo sigue pendiente. Emisor e8: expiración antigua puede redirigir una recuperación B síncrona; sin fuga o DTO B enviado demostrado. R34 pool1 continúa sin holder identificado. d038 estático no cierra71 IDs OS/13 coincidencias CNA, ni acredita imagen o producción.
+
+
+## Checkpoint 111
+
+Los bypass CI29 anteriores están corregidos y aceptados independientemente; rechazos conservados. CI30 aún pendiente. e8+9eb tiene aceptación focal, no composición. R23 parcial y readonly. Linux imagen/SCA/ProductionSettings/readiness pendiente; no inferir cierre71IDs de triage estático. Pool1 holder desconocido sigue abierto.

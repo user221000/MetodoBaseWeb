@@ -39,3 +39,8 @@ Se integra únicamenteelc4aceptado13, sin ampliar privilegios ni precrearrolglob
 ## Checkpoint 110
 
 Se acepta el recorrido R12ec dentro de su alcance independiente, manteniendo integración condicionada a CI29 correcto. El emisor e8 permanece aislado hasta corregir los mismos tres negativos de Seguridad. Se mantienen separados evidencia estática de contenedor, build real, linkage, firmaAPT y SCA; incluir entorno build y componentes vendorizados en su análisis.
+
+
+## Checkpoint 111
+
+Integrar29/CI aceptado preservando su commit real como ancestor para archivar el runtime histórico sin falsear markers. Conservar restore29 exacto bajo30 y añadir restore30 en lugar de reemplazar assertions. Evidencia RAW no se normaliza; fuente/prosa usa representación Git LF documentada.

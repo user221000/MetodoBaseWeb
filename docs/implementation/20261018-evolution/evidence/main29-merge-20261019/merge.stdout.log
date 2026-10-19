@@ -1,0 +1,1301 @@
+Merge made by the 'ort' strategy.
+ .github/workflows/ci.yml                           |   57 +-
+ api/app.py                                         |    7 +-
+ docs/implementation/20261018-evolution/R12_CI29.md |   17 +
+ .../20261018-evolution/R12_CI_INTEGRIDAD.md        |    7 +
+ .../20261018-evolution/R12_CI_NAVEGADOR.md         |   11 +
+ .../20261018-evolution/R12_EXPORTACION_VINCULOS.md |   52 +
+ .../20261018-evolution/R12_PUBLICACION_CAS_UI.md   |   29 +
+ .../20261018-evolution/R12_UI_CONSUMER.md          |   70 +
+ .../20261018-evolution/R12_UI_READINESS.md         |  128 +
+ .../evidence/backend-r12-api-author.md             |  100 +
+ .../evidence/backend-r12-api-cas-final-source.json | 1912 ++++++
+ .../evidence/backend-r12-api-cas-final.log         |    9 +
+ .../evidence/backend-r12-api-cas-final.xml         |    1 +
+ .../evidence/backend-r12-api-contract-v1.md        |  163 +
+ .../evidence/backend-r12-api-contract-v2-delta.md  |   92 +
+ ...pi-final-client-link29-author-owned-closed.json |    8 +
+ ...i-final-client-link29-author-owned-created.json |    7 +
+ .../evidence/backend-r12-api-final-freeze.json     |  146 +
+ ...inal-postgres-restore-client-link29-author.json |  169 +
+ .../evidence/backend-r12-api-final-source.json     | 1900 ++++++
+ .../evidence/backend-r12-api-final.log             |   11 +
+ .../evidence/backend-r12-api-final.xml             |    1 +
+ .../evidence/backend-r12-api-quality.log           |    1 +
+ .../evidence/backend-r12-canonical-v2-after.log    |    2 +
+ .../evidence/backend-r12-canonical-v2-after.xml    |    1 +
+ ...-r12-canonical-v2-before-renderer-corrected.log |   89 +
+ ...-r12-canonical-v2-before-renderer-corrected.xml |   56 +
+ .../evidence/backend-r12-canonical-v2-before.log   |  115 +
+ .../evidence/backend-r12-canonical-v2-before.xml   |   82 +
+ .../backend-r12-canonical-v2-pg-migration.log      |    2 +
+ .../backend-r12-canonical-v2-pg-migration.xml      |    1 +
+ .../evidence/backend-r12-canonical29-author.md     |   99 +
+ .../evidence/backend-r12-canonical29-freeze.json   |   71 +
+ .../backend-r12-canonical29-owner-lock-after.log   |    2 +
+ .../backend-r12-canonical29-owner-lock-after.xml   |    1 +
+ .../backend-r12-canonical29-storage-schema.log     |    2 +
+ .../backend-r12-canonical29-storage-schema.xml     |    1 +
+ .../evidence/backend-r12-casts-restore-freeze.json |   45 +
+ .../evidence/backend-r12-casts-restore-source.json | 1217 ++++
+ .../evidence/backend-r12-core-v2-author.md         |   72 +
+ .../evidence/backend-r12-core-v2-freeze.json       |   36 +
+ .../evidence/backend-r12-core-v2-gate-source.json  |   73 +
+ .../backend-r12-core29-selective-commit.json       |  131 +
+ .../backend-r12-current-worker-publication.log     |    8 +
+ .../backend-r12-current-worker-publication.xml     |    1 +
+ .../backend-r12-headers-identifiers-after.log      |    8 +
+ .../backend-r12-headers-identifiers-after.xml      |    1 +
+ .../backend-r12-headers-identifiers-before.log     |   42 +
+ .../backend-r12-headers-identifiers-before.xml     |   21 +
+ .../evidence/backend-r12-history28-pin-proof.json  |   26 +
+ .../backend-r12-history28-runtime-after.log        |    2 +
+ .../backend-r12-history28-runtime-after.xml        |    1 +
+ .../backend-r12-history28-runtime-before.log       |   18 +
+ .../backend-r12-history28-runtime-before.xml       |    9 +
+ .../evidence/backend-r12-http-before.log           |  Bin 0 -> 5822 bytes
+ .../evidence/backend-r12-http-before.xml           |   17 +
+ .../evidence/backend-r12-http-canonical-first.log  |   38 +
+ .../evidence/backend-r12-http-canonical-first.xml  |   17 +
+ .../backend-r12-http-canonical-path-after.log      |    8 +
+ .../backend-r12-http-canonical-path-after.xml      |    1 +
+ .../evidence/backend-r12-publication-cas-after.log |    8 +
+ .../evidence/backend-r12-publication-cas-after.xml |    1 +
+ .../backend-r12-publication-cas-before.log         |   16 +
+ .../backend-r12-publication-cas-before.xml         |    7 +
+ .../backend-r12-restore29-all-casts-after.log      |    8 +
+ .../backend-r12-restore29-all-casts-after.xml      |    1 +
+ .../backend-r12-restore29-author-measurement.json  |  169 +
+ .../evidence/backend-r12-restore29-cas-final.log   |    8 +
+ .../evidence/backend-r12-restore29-cas-final.xml   |    1 +
+ .../evidence/backend-r12-restore29-casts-after.log |   11 +
+ .../evidence/backend-r12-restore29-casts-after.xml |    5 +
+ .../evidence/backend-r12-restore29-casts-author.md |   63 +
+ .../backend-r12-restore29-final-source.log         |    8 +
+ .../backend-r12-restore29-final-source.xml         |    1 +
+ .../evidence/backend-r12-restore29-owned-after.log |   11 +
+ .../evidence/backend-r12-restore29-owned-after.xml |    5 +
+ .../backend-r12-restore29-owned-closed.json        |    8 +
+ .../backend-r12-restore29-owned-created.json       |    7 +
+ .../backend-r12-restore29-policy-diagnostic.log    |   11 +
+ .../backend-r12-restore29-policy-diagnostic.xml    |    5 +
+ ...ackend-r12-restore29-security-drift-before.json |   49 +
+ .../backend-r12-restore29-text-columns-after.log   |   11 +
+ .../backend-r12-restore29-text-columns-after.xml   |    5 +
+ .../.gitattributes                                 |    1 +
+ .../historical-ci28/receipt.json                   |    9 +
+ .../historical-ci28/review/historical-ci28.log     |    0
+ .../review/historical-ci28/review.json             |   31 +
+ .../historical-ci28/review/review.json             |   64 +
+ .../current-trust-final/historical-ci28/stderr.log |    0
+ .../current-trust-final/historical-ci28/stdout.log |    1 +
+ .../current-trust-final/historical.log             |    1 +
+ .../current-trust-final/review.json                |  143 +
+ .../evidence-manifest.json                         |  445 ++
+ .../fixture-trust/baseline-before.json             |   11 +
+ .../fixture-trust/review.json                      |   41 +
+ .../fixture-trust/verifier-before.py               |  368 ++
+ .../format-after/member_link_api-after-guard.log   |    0
+ .../format-after/member_link_api-after.json        |   99 +
+ .../format-after/member_link_api-after.stderr.log  |    0
+ .../format-after/member_link_api-before-guard.log  |    1 +
+ .../format-after/member_link_api-before.cjs        |   79 +
+ .../format-after/member_link_api-before.json       |   99 +
+ .../member_link_consumers-after-guard.log          |    0
+ .../format-after/member_link_consumers-after.json  |   71 +
+ .../member_link_consumers-after.stderr.log         |    0
+ .../member_link_consumers-before-guard.log         |    1 +
+ .../format-after/member_link_consumers-before.cjs  |  132 +
+ .../format-after/member_link_consumers-before.json |   71 +
+ .../member_link_context-after-guard.log            |    0
+ .../format-after/member_link_context-after.json    |  111 +
+ .../member_link_context-after.stderr.log           |    0
+ .../member_link_context-before-guard.log           |    1 +
+ .../format-after/member_link_context-before.cjs    |  148 +
+ .../format-after/member_link_context-before.json   |  111 +
+ .../member_link_fragment-after-guard.log           |    0
+ .../format-after/member_link_fragment-after.json   |   67 +
+ .../member_link_fragment-after.stderr.log          |    0
+ .../member_link_fragment-before-guard.log          |    1 +
+ .../format-after/member_link_fragment-before.cjs   |   56 +
+ .../format-after/member_link_fragment-before.json  |   67 +
+ .../format-after/review.json                       |   47 +
+ .../member_link_context-after-guard.log            |    1 +
+ .../format-first/member_link_context-after.json    |  111 +
+ .../member_link_context-after.stderr.log           |    0
+ .../member_link_context-before-guard.log           |    1 +
+ .../format-first/member_link_context-before.cjs    |  148 +
+ .../format-first/member_link_context-before.json   |  111 +
+ .../ci-member-links29-author-20261019/freeze.json  |   67 +
+ .../guard-after/canaries-raw.zip                   |  Bin 0 -> 194248 bytes
+ .../guard-after/historical-ci28/receipt.json       |    9 +
+ .../historical-ci28/review/historical-ci28.log     |    0
+ .../review/historical-ci28/review.json             |   31 +
+ .../guard-after/historical-ci28/review/review.json |   64 +
+ .../guard-after/historical-ci28/stderr.log         |    0
+ .../guard-after/historical-ci28/stdout.log         |    1 +
+ .../guard-after/historical.log                     |    1 +
+ .../guard-after/review.json                        |  844 +++
+ .../inert-before/expected-failure.json             |   11 +
+ .../personal-diary-ui-positive/probe.sh            |   57 +
+ .../personal-diary-ui-positive/stderr.log          |    1 +
+ .../personal-diary-ui-positive/stdout.log          |    0
+ .../inert-before/verifier-before.py                |  365 ++
+ .../inert-before/write_report.py                   |   10 +
+ .../metodobase-ci29-fixture-trust.py               |   47 +
+ ...todobase-ci29-historical-restore-executed-v2.py |   45 +
+ ...todobase-ci29-historical-restore-executed-v3.py |   47 +
+ .../metodobase-ci29-historical-restore-v2.py       |   10 +
+ .../metodobase-ci29-historical-restore-v3.py       |   12 +
+ .../metodobase-ci29-historical-restore.py          |   45 +
+ .../metodobase-ci29-inert-before.py                |   19 +
+ .../metodobase-ci29-prepare.py                     |   58 +
+ .../metodobase-ci29-quality.py                     |   23 +
+ .../metodobase-ci29-report-format-v2.py            |   50 +
+ .../metodobase-ci29-report-format.py               |   46 +
+ .../metodobase-ci29-restore-diagnose.py            |   12 +
+ .../metodobase-ci29-restore-preflight.py           |   25 +
+ .../metodobase-ci29-restore-resources.py           |   11 +
+ .../package-driver.py                              |   77 +
+ .../preparation-errata.json                        |    7 +
+ .../quality/lint.stderr.log                        |    0
+ .../quality/lint.stdout.log                        |    1 +
+ .../quality/new-harness-lint.stderr.log            |    0
+ .../quality/new-harness-lint.stdout.log            |    1 +
+ .../quality/review.json                            |  373 ++
+ .../quality/security.stderr.log                    |    0
+ .../quality/security.stdout.log                    |    1 +
+ .../quality/syntax.stderr.log                      |    0
+ .../quality/syntax.stdout.log                      |    1 +
+ .../restore-after/after-pip.log                    |    1 +
+ .../restore-after/after.json                       | 5300 +++++++++++++++++
+ .../restore-after/before-pip.log                   |    1 +
+ .../restore-after/before.json                      | 5300 +++++++++++++++++
+ .../evidence/postgres-restore-independent.json     |    9 +
+ .../postgres-restore-recovery28-independent.json   |  147 +
+ .../evidence/recovery28-qa-owned-closed.json       |    8 +
+ .../evidence/recovery28-qa-owned-created.json      |    7 +
+ .../restore-after/runner.log                       |    1 +
+ .../restore-after/runner/receipt.json              |    9 +
+ .../restore-after/runner/stderr.log                |    0
+ .../restore-after/runner/stdout.log                |    8 +
+ .../restore-after/summary.json                     |   14 +
+ .../restore-after/tests.xml                        |    1 +
+ .../restore-before/after-pip.log                   |    1 +
+ .../restore-before/after.json                      | 5300 +++++++++++++++++
+ .../restore-before/before-pip.log                  |    1 +
+ .../restore-before/before.json                     | 5300 +++++++++++++++++
+ .../restore-before/resource-check-after.json       |    5 +
+ .../restore-before/runner.log                      |    1 +
+ .../restore-before/runner/receipt.json             |    9 +
+ .../restore-before/runner/stderr.log               |    0
+ .../restore-before/runner/stdout.log               |   12 +
+ .../restore-before/summary.json                    |   14 +
+ .../restore-before/tests.xml                       |    6 +
+ .../restore-preflight/review.json                  |   30 +
+ .../.gitattributes                                 |    1 +
+ .../after-pip.log                                  |    1 +
+ .../after.json                                     | 5816 ++++++++++++++++++
+ .../before-pip.log                                 |    1 +
+ .../before.json                                    | 5816 ++++++++++++++++++
+ .../foreign-chrome-after.json                      |   74 +
+ .../foreign-chrome-before.json                     |   74 +
+ .../independent-db-absence.json                    |    7 +
+ .../manifest.json                                  |  112 +
+ .../metodobase-ci29-portable-browser-run.py        |   40 +
+ .../metodobase-ci29-portable-browser-seal.py       |   38 +
+ .../orchestrator.stderr.log                        |    0
+ .../orchestrator.stdout.log                        |    1 +
+ .../public/01-explicit-acceptance.png              |  Bin 0 -> 50260 bytes
+ .../public/02-real-recipient-publication.png       |  Bin 0 -> 95438 bytes
+ .../public/03-owner-own-external-contexts.png      |  Bin 0 -> 88226 bytes
+ .../public/04-account-switch-cleared.png           |  Bin 0 -> 63409 bytes
+ .../public/browser-result.json                     |  834 +++
+ .../public/database-closure.json                   |    9 +
+ .../public/final-identities.json                   |   83 +
+ .../public/http-trace.jsonl                        |  268 +
+ .../public/receipt.json                            |   24 +
+ .../public/report.json                             |   71 +
+ .../public/startup.json                            |   19 +
+ .../summary.json                                   |   38 +
+ .../.gitattributes                                 |    1 +
+ .../after.json                                     | 5711 ++++++++++++++++++
+ .../before.json                                    | 5711 ++++++++++++++++++
+ .../composition-cherry.log                         |   10 +
+ .../composition-conflicted-verifier.RAW.py         |  437 ++
+ .../composition-continue.log                       |   33 +
+ .../composition-receipt.json                       |   17 +
+ .../full-guard.stderr.log                          |    0
+ .../full-guard.stdout.log                          |    1 +
+ .../guard-canaries-raw.zip                         |  Bin 0 -> 194245 bytes
+ .../guard-historical.log                           |    1 +
+ .../guard-review.json                              |  867 +++
+ .../historical-receipt.json                        |   11 +
+ .../historical-stderr.log                          |    0
+ .../historical-stdout.log                          |    1 +
+ .../manifest.json                                  |  117 +
+ .../metodobase-ci29-archive-compose.py             |   31 +
+ .../metodobase-ci29-final-composition-run.py       |   22 +
+ .../metodobase-ci29-final-composition-seal.py      |   32 +
+ .../pip.log                                        |    1 +
+ .../summary.json                                   |   40 +
+ .../unit.stderr.log                                |    0
+ .../unit.stdout.log                                |    2 +
+ .../unit.xml                                       |    1 +
+ .../.gitattributes                                 |    1 +
+ .../first-run-derived-summary.json                 |  100 +
+ .../freeze.json                                    |  613 ++
+ .../metodobase-ci29-portable-pins-20261019.json    |   21 +
+ .../metodobase-ci29-portable-pins.py               |   27 +
+ ...odobase-ci29-portable-preparation-20261019.json |   23 +
+ .../metodobase-ci29-portable-prepare.py            |   19 +
+ .../lint.stderr.log                                |    0
+ .../lint.stdout.log                                |    1 +
+ .../new-harness-lint.stderr.log                    |    0
+ .../new-harness-lint.stdout.log                    |    1 +
+ .../review.json                                    |  378 ++
+ .../security.stderr.log                            |    0
+ .../security.stdout.log                            |    1 +
+ .../syntax.stderr.log                              |    0
+ .../syntax.stdout.log                              |    1 +
+ .../metodobase-ci29-portable-quality.py            |   23 +
+ ...etodobase-ci29-portable-unit-final-20261019.xml |    1 +
+ ...etodobase-ci29-portable-unit-first-20261019.xml |    1 +
+ .../metodobase-ci29-portable-vm-run-v2.py          |   41 +
+ .../metodobase-ci29-portable-vm-run.py             |   41 +
+ .../auth-refresh-contracts.json                    |  139 +
+ .../auth-refresh-contracts.json.stderr.log         |    0
+ .../auth-refresh-reproductions.json                |   13 +
+ .../auth-refresh-reproductions.json.stderr.log     |    0
+ .../auth-refresh-security.json                     |   60 +
+ .../auth-refresh-security.json.stderr.log          |    0
+ .../auth-refresh-storage.json                      |  111 +
+ .../auth-refresh-storage.json.stderr.log           |    0
+ .../before.json                                    | 5507 ++++++++++++++++++
+ .../guard-0.log                                    |    0
+ .../guard-1.log                                    |    0
+ .../guard-10.log                                   |    0
+ .../guard-11.log                                   |    0
+ .../guard-12.log                                   |    0
+ .../guard-13.log                                   |    1 +
+ .../guard-2.log                                    |    0
+ .../guard-3.log                                    |    0
+ .../guard-4.log                                    |    0
+ .../guard-5.log                                    |    0
+ .../guard-6.log                                    |    0
+ .../guard-7.log                                    |    0
+ .../guard-8.log                                    |    0
+ .../guard-9.log                                    |    0
+ .../member-link-api.json                           |   99 +
+ .../member-link-api.json.stderr.log                |    0
+ .../member-link-consumers.json                     |   71 +
+ .../member-link-consumers.json.stderr.log          |    0
+ .../member-link-context.json                       |  111 +
+ .../member-link-context.json.stderr.log            |    0
+ .../member-link-controls.json                      |   20 +
+ .../member-link-controls.json.stderr.log           |    0
+ .../member-link-export.json                        |  135 +
+ .../member-link-export.json.stderr.log             |    0
+ .../member-link-fragment.json                      |   67 +
+ .../member-link-fragment.json.stderr.log           |    0
+ .../personal-diary-api.json                        |   35 +
+ .../personal-diary-api.json.stderr.log             |    0
+ .../personal-diary-controller.json                 |   79 +
+ .../personal-diary-controller.json.stderr.log      |    0
+ .../personal-diary-logout-ack.json                 |   55 +
+ .../personal-diary-logout-ack.json.stderr.log      |    0
+ .../personal-diary-logout.json                     |   47 +
+ .../personal-diary-logout.json.stderr.log          |    0
+ .../personal-export-controls.json                  |   91 +
+ .../personal-export-controls.json.stderr.log       |    0
+ .../personal-history-contracts.json                |   99 +
+ .../personal-history-contracts.json.stderr.log     |    0
+ .../personal-operation-ambiguity.json              |   16 +
+ .../personal-operation-ambiguity.json.stderr.log   |    0
+ .../personal-operation-contracts.json              |   79 +
+ .../personal-operation-contracts.json.stderr.log   |    0
+ .../after.json                                     | 5515 ++++++++++++++++++
+ .../auth-refresh-contracts.json                    |  139 +
+ .../auth-refresh-contracts.json.stderr.log         |    0
+ .../auth-refresh-reproductions.json                |   13 +
+ .../auth-refresh-reproductions.json.stderr.log     |    0
+ .../auth-refresh-security.json                     |   60 +
+ .../auth-refresh-security.json.stderr.log          |    0
+ .../auth-refresh-storage.json                      |  111 +
+ .../auth-refresh-storage.json.stderr.log           |    0
+ .../before.json                                    | 5515 ++++++++++++++++++
+ .../guard-0.log                                    |    0
+ .../guard-1.log                                    |    0
+ .../guard-10.log                                   |    0
+ .../guard-11.log                                   |    0
+ .../guard-12.log                                   |    0
+ .../guard-13.log                                   |    0
+ .../guard-14.log                                   |    0
+ .../guard-2.log                                    |    0
+ .../guard-3.log                                    |    0
+ .../guard-4.log                                    |    0
+ .../guard-5.log                                    |    0
+ .../guard-6.log                                    |    0
+ .../guard-7.log                                    |    0
+ .../guard-8.log                                    |    0
+ .../guard-9.log                                    |    0
+ .../member-link-api.json                           |   99 +
+ .../member-link-api.json.stderr.log                |    0
+ .../member-link-consumers.json                     |   71 +
+ .../member-link-consumers.json.stderr.log          |    0
+ .../member-link-context.json                       |  111 +
+ .../member-link-context.json.stderr.log            |    0
+ .../member-link-controls.json                      |   20 +
+ .../member-link-controls.json.stderr.log           |    0
+ .../member-link-export.json                        |  135 +
+ .../member-link-export.json.stderr.log             |    0
+ .../member-link-fragment.json                      |   67 +
+ .../member-link-fragment.json.stderr.log           |    0
+ .../personal-diary-api.json                        |   35 +
+ .../personal-diary-api.json.stderr.log             |    0
+ .../personal-diary-controller.json                 |   79 +
+ .../personal-diary-controller.json.stderr.log      |    0
+ .../personal-diary-logout-ack.json                 |   55 +
+ .../personal-diary-logout-ack.json.stderr.log      |    0
+ .../personal-diary-logout.json                     |   47 +
+ .../personal-diary-logout.json.stderr.log          |    0
+ .../personal-export-controls.json                  |   91 +
+ .../personal-export-controls.json.stderr.log       |    0
+ .../personal-history-contracts.json                |   99 +
+ .../personal-history-contracts.json.stderr.log     |    0
+ .../personal-operation-ambiguity.json              |   16 +
+ .../personal-operation-ambiguity.json.stderr.log   |    0
+ .../personal-operation-contracts.json              |   79 +
+ .../personal-operation-contracts.json.stderr.log   |    0
+ .../summary.json                                   |  352 ++
+ .../metodobase-ci29-trust-compose-resume.py        |   19 +
+ .../metodobase-ci29-trust-compose.py               |   21 +
+ .../apply.log                                      |    3 +
+ .../cherry-resumed.log                             |   11 +
+ .../owned-before-0                                 |  491 ++
+ .../owned-before-1                                 |   46 +
+ .../owned-before-2                                 |  405 ++
+ .../owned-ci2.patch                                |  141 +
+ .../receipt.json                                   |   21 +
+ .../tested-sources-RAW.zip                         |  Bin 0 -> 39307 bytes
+ .../wiring-historical.log                          |    1 +
+ .../wiring-review.json                             |  164 +
+ .../.gitattributes                                 |    1 +
+ .../freeze.json                                    |   27 +
+ ...metodobase-ci29-trust-preparation-20261019.json |   10 +
+ .../metodobase-ci29-trust-prepare-v2.py            |   43 +
+ .../metodobase-ci29-trust-prepare.py               |   43 +
+ .../metodobase-ci29-trust-unit-first-20261019.xml  |    1 +
+ .../archive-after-review.json                      |   62 +
+ .../archive-before-review.json                     |   78 +
+ .../archive-final-review.json                      |   73 +
+ .../archive-owned-replacement-setup.json           |    7 +
+ .../ci29-archive-author-20261019/before-exact.zip  |  Bin 0 -> 16067 bytes
+ .../before-source.json                             |   18 +
+ .../current-historical-ci28-receipt.json           |   11 +
+ .../current-historical-ci28-stderr.log             |    0
+ .../current-historical-ci28-stdout.log             |    1 +
+ .../current-historical.log                         |    1 +
+ .../current-review.json                            |  143 +
+ .../current-verify-only.stderr.log                 |    0
+ .../current-verify-only.stdout.log                 |    1 +
+ .../ci29-archive-author-20261019/freeze.json       |   79 +
+ .../ci29-archive-author-20261019/gate-source.json  | 2321 ++++++++
+ .../initial-negative-only-candidate.zip            |  Bin 0 -> 11805 bytes
+ .../own-tests-final.stderr.log                     |    0
+ .../own-tests-final.stdout.log                     |    2 +
+ .../own-tests-final.xml                            |    1 +
+ .../ci29-archive-author-20261019/own-tests.xml     |    1 +
+ .../ci29-archive-author-20261019/pip-check.log     |    1 +
+ .../positive-history-receipt.json                  |   11 +
+ .../positive-history-stderr.log                    |    0
+ .../positive-history-stdout.log                    |    1 +
+ .../qa-final.stderr.log                            |    0
+ .../qa-final.stdout.log                            |    1 +
+ .../ci29-archive-author-20261019/quality.log       |    1 +
+ .../ci29-archive-author-20261019/review.md         |   58 +
+ .../semantic-proof.json                            |   29 +
+ .../.gitattributes                                 |    1 +
+ .../after2/after-source.json                       |  790 +++
+ .../after2/before-source.json                      |  790 +++
+ .../after2/member_link_export.json                 |  135 +
+ .../after2/member_link_export.stderr.log           |    0
+ .../after2/personal_export_controls.json           |   91 +
+ .../after2/personal_export_controls.stderr.log     |    0
+ .../after2/summary.json                            |   23 +
+ .../before17/after-source.json                     |  790 +++
+ .../before17/auth_refresh.json                     |  139 +
+ .../before17/auth_refresh.stderr.log               |    0
+ .../before17/auth_refresh_race_review.json         |   13 +
+ .../before17/auth_refresh_race_review.stderr.log   |    0
+ .../before17/auth_refresh_security_review.json     |   60 +
+ .../auth_refresh_security_review.stderr.log        |    0
+ .../before17/auth_refresh_storage.json             |  111 +
+ .../before17/auth_refresh_storage.stderr.log       |    0
+ .../before17/before-source.json                    |  790 +++
+ .../before17/member_link_api.json                  |   99 +
+ .../before17/member_link_api.stderr.log            |    0
+ .../before17/member_link_consumers.json            |   71 +
+ .../before17/member_link_consumers.stderr.log      |    0
+ .../before17/member_link_context.json              |  111 +
+ .../before17/member_link_context.stderr.log        |    0
+ .../before17/member_link_export.json               |  135 +
+ .../before17/member_link_export.stderr.log         |    0
+ .../before17/member_link_fragment.json             |   67 +
+ .../before17/member_link_fragment.stderr.log       |    0
+ .../before17/personal_diary_api.json               |   35 +
+ .../before17/personal_diary_api.stderr.log         |    0
+ .../before17/personal_diary_controller.json        |   79 +
+ .../before17/personal_diary_controller.stderr.log  |    0
+ .../before17/personal_export_controls.json         |    0
+ .../before17/personal_export_controls.stderr.log   |   11 +
+ .../before17/personal_history.json                 |   99 +
+ .../before17/personal_history.stderr.log           |    0
+ .../before17/personal_logout.json                  |   47 +
+ .../before17/personal_logout.stderr.log            |    0
+ .../before17/personal_logout_ack.json              |   55 +
+ .../before17/personal_logout_ack.stderr.log        |    0
+ .../before17/personal_operation.json               |   79 +
+ .../before17/personal_operation.stderr.log         |    0
+ .../personal_operation_ambiguity_review.json       |   16 +
+ .../personal_operation_ambiguity_review.stderr.log |    0
+ .../before17/summary.json                          |  114 +
+ .../fixture-before.cjs                             |   35 +
+ .../metodobase-r12-node-composition29-20261019.py  |   45 +
+ .../metodobase-r12-node-export-focal-20261019.py   |    9 +
+ ...se-r12-private500-composition-focal-20261019.py |   13 +
+ .../middleware-before-private500.py                |  170 +
+ .../package-driver.py                              |   59 +
+ .../private500_focal123/after-packages.json        |  358 ++
+ .../private500_focal123/after-pip.log              |    1 +
+ .../private500_focal123/after-source.json          |  790 +++
+ .../private500_focal123/before-packages.json       |  358 ++
+ .../private500_focal123/before-pip.log             |    1 +
+ .../private500_focal123/before-source.json         |  790 +++
+ .../private500_focal123/summary.json               |   16 +
+ .../private500_focal123/tests.log                  |    9 +
+ .../private500_focal123/tests.xml                  |    1 +
+ .../review.json                                    |   29 +
+ .../wrapper-before.cjs                             |   48 +
+ .../.gitattributes                                 |    1 +
+ .../after28/after-packages.json                    |  358 ++
+ .../after28/after-pip.log                          |    1 +
+ .../after28/after-source.json                      |  790 +++
+ .../after28/before-packages.json                   |  358 ++
+ .../after28/before-pip.log                         |    1 +
+ .../after28/before-source.json                     |  790 +++
+ .../after28/summary.json                           |   16 +
+ .../after28/tests.log                              |    8 +
+ .../after28/tests.xml                              |    1 +
+ .../before354/after-packages.json                  |  358 ++
+ .../before354/after-pip.log                        |    1 +
+ .../before354/after-source.json                    |  790 +++
+ .../before354/before-packages.json                 |  358 ++
+ .../before354/before-pip.log                       |    1 +
+ .../before354/before-source.json                   |  790 +++
+ .../before354/summary.json                         |   16 +
+ .../before354/tests.log                            |  102 +
+ .../before354/tests.xml                            |   61 +
+ .../http-test-before-page.py                       |  279 +
+ ...etodobase-history30-final-base-test-20261019.py |   81 +
+ .../metodobase-r12-composed-page-focal-20261019.py |    9 +
+ ...dobase-r12-composition29-root-gates-20261019.py |   23 +
+ .../package-driver.py                              |   41 +
+ .../r12-composed-page-headers-20261019/review.json |   19 +
+ .../evidence/r12-export/after-current.json         |  131 +
+ .../evidence/r12-export/after-final-stderr.log     |    0
+ .../evidence/r12-export/after-final.json           |  131 +
+ .../evidence/r12-export/after-first-stderr.log     |    0
+ .../evidence/r12-export/after-first.json           |  123 +
+ .../evidence/r12-export/after32-final.json         |  135 +
+ .../evidence/r12-export/before-stderr.log          |    0
+ .../evidence/r12-export/before.json                |  147 +
+ .../r12-export/matched-before-source-raw.zip       |  Bin 0 -> 15222 bytes
+ .../evidence/r12-export/matched-before-source.json |   17 +
+ .../r12-export/matched31-before-stderr.log         |    0
+ .../evidence/r12-export/matched31-before.json      |  156 +
+ .../evidence/r12-export/owner-scope-before-raw.zip |  Bin 0 -> 7834 bytes
+ .../evidence/r12-export/owner-scope-before.json    |  136 +
+ .../evidence/r12-export/source-freeze.json         |   76 +
+ .../evidence/r12-export/source-tested-raw.zip      |  Bin 0 -> 84934 bytes
+ .../evidence/r12-export/ui-pages-with-export.log   |    8 +
+ .../evidence/r12-export/ui-pages-with-export.xml   |    1 +
+ .../backend-r12-api-contract-v2-delta.md           |   92 +
+ .../evidence/r12-publication-cas/before-raw.zip    |  Bin 0 -> 18698 bytes
+ .../r12-publication-cas/before-source.json         |   12 +
+ .../r12-publication-cas/member_link_api-after.json |   99 +
+ .../member_link_api-before.json                    |  101 +
+ .../member_link_consumers-after.json               |   67 +
+ .../member_link_consumers-before.json              |   68 +
+ .../member_link_consumers-final16.json             |   71 +
+ .../r12-publication-cas/source-freeze.json         |   65 +
+ .../r12-publication-cas/source-tested-raw.zip      |  Bin 0 -> 61342 bytes
+ .../r12-ui/backend-r12-api-contract-v1-frozen.md   |  163 +
+ .../evidence/r12-ui/before-source-raw.zip          |  Bin 0 -> 80750 bytes
+ .../evidence/r12-ui/before-source.json             |   68 +
+ .../r12-ui/browser-final-source-delta.json         |    9 +
+ .../evidence/r12-ui/browser-first-harness-raw.zip  |  Bin 0 -> 3839 bytes
+ .../browser-synthetic-1792411067030/report.json    |    8 +
+ .../invitation-390.json                            |    4 +
+ .../invitation-390.png                             |  Bin 0 -> 46672 bytes
+ .../professional-empty-1440.json                   |    4 +
+ .../professional-empty-1440.png                    |  Bin 0 -> 47340 bytes
+ .../professional-pending-320.json                  |    4 +
+ .../professional-pending-320.png                   |  Bin 0 -> 51895 bytes
+ .../reader-1440.json                               |    4 +
+ .../reader-1440.png                                |  Bin 0 -> 77652 bytes
+ .../reader-320.json                                |    4 +
+ .../browser-synthetic-1792411129336/reader-320.png |  Bin 0 -> 67919 bytes
+ .../browser-synthetic-1792411129336/report.json    |   18 +
+ .../r12-ui/browser-tested-form-before-raw.zip      |  Bin 0 -> 3962 bytes
+ .../evidence/r12-ui/consumer-freeze.json           |  133 +
+ .../evidence/r12-ui/consumer-quality-lint.log      |    1 +
+ .../evidence/r12-ui/consumer-quality-security.log  |    1 +
+ .../evidence/r12-ui/consumer-quality-syntax.log    |    1 +
+ .../evidence/r12-ui/consumer-source-tested-raw.zip |  Bin 0 -> 172619 bytes
+ .../evidence/r12-ui/context-fragment-freeze.json   |   71 +
+ .../r12-ui/context-fragment-source-tested.zip      |  Bin 0 -> 102976 bytes
+ .../evidence/r12-ui/context-source-fence.json      |   10 +
+ .../evidence/r12-ui/context-vm-author.json         |  111 +
+ .../evidence/r12-ui/fragment-vm-author.json        |   67 +
+ .../r12-ui/member-link-consumers-first.json        |   59 +
+ .../r12-ui/member-link-consumers-second.json       |   55 +
+ .../evidence/r12-ui/member_link_api-current.json   |   87 +
+ .../evidence/r12-ui/member_link_api-final-vm.json  |   87 +
+ .../r12-ui/member_link_api-functional-vm.json      |   87 +
+ .../r12-ui/member_link_consumers-current.json      |   55 +
+ .../r12-ui/member_link_consumers-final-vm.json     |   67 +
+ .../r12-ui/member_link_context-current.json        |  111 +
+ .../r12-ui/member_link_context-final-vm.json       |  111 +
+ .../r12-ui/member_link_context-functional-vm.json  |  111 +
+ .../r12-ui/member_link_fragment-current.json       |   67 +
+ .../r12-ui/member_link_fragment-final-vm.json      |   67 +
+ .../r12-ui/member_link_fragment-functional-vm.json |   67 +
+ .../evidence/r12-ui/ui-pages-base28-after.log      |    8 +
+ .../evidence/r12-ui/ui-pages-base28-after.xml      |    1 +
+ .../evidence/r12-ui/ui-pages-base28-final.log      |    8 +
+ .../evidence/r12-ui/ui-pages-base28-final.xml      |    1 +
+ .../evidence/r12-ui/ui-pages-base28.log            |   24 +
+ .../evidence/r12-ui/ui-pages-base28.xml            |    9 +
+ tests/check_member_link_reports.py                 |   56 +
+ tests/ci_member_links29/baseline.json              |   14 +
+ tests/ci_member_links29/ci28-before.yml            |  444 ++
+ tests/client_link_restore_helpers.py               |  163 +
+ tests/e2e/member_link_api.cjs                      |   79 +
+ tests/e2e/member_link_browser.cjs                  |   82 +
+ tests/e2e/member_link_consumers.cjs                |  132 +
+ tests/e2e/member_link_context.cjs                  |  148 +
+ tests/e2e/member_link_controls.cjs                 |   45 +
+ tests/e2e/member_link_export.cjs                   |   46 +
+ tests/e2e/member_link_fragment.cjs                 |   56 +
+ tests/e2e/member_link_postgres_server.py           |  188 +
+ tests/e2e/member_links_ui.cjs                      |   63 +
+ tests/e2e/member_links_ui_server.py                |   41 +
+ tests/e2e/normalize_member_link_report.py          |   24 +
+ tests/e2e/personal_export_context.cjs              |    4 +-
+ tests/e2e/run_member_link_browser.py               |  203 +
+ tests/integration_account_recovery_migrations.py   |    2 +-
+ .../integration_client_link_canonical_postgres.py  |  525 ++
+ .../integration_client_link_canonical_v2_review.py |   58 +
+ tests/integration_client_link_http.py              |  283 +
+ tests/integration_client_link_migrations.py        |  100 +
+ tests/integration_client_link_owner_lock_review.py |   38 +
+ .../integration_client_link_projection_postgres.py |  124 +
+ tests/integration_client_link_publication_cas.py   |   51 +
+ tests/integration_client_link_restore.py           |  365 ++
+ .../integration_client_link_root_review_adapted.py |   64 +
+ tests/integration_client_link_service_races.py     |  100 +
+ tests/integration_client_link_services.py          |  318 +
+ tests/run_reviewed_ci28.py                         |  171 +
+ tests/test_client_link_boundaries.py               |  120 +
+ tests/test_client_link_contract_before.py          |   51 +
+ tests/test_client_link_models.py                   |   64 +
+ tests/test_member_browser_gate.py                  |  101 +
+ tests/test_member_ci_trust.py                      |   32 +
+ tests/test_r12_ui_pages.py                         |   55 +
+ tests/test_reviewed_ci28_archive.py                |  108 +
+ tests/verify_member_links_ci.py                    |  433 ++
+ web/client_link_paths.py                           |   22 +
+ web/client_link_schemas.py                         |   55 +
+ .../member_link_ddl/20261019_postgresql.sql        |  111 +
+ .../alembic/member_link_ddl/20261019_sqlite.sql    |  111 +
+ web/database/alembic/member_link_security_v1.py    |   27 +
+ .../20261019_client_account_links_postgresql.json  | 6151 ++++++++++++++++++++
+ .../20261019_client_account_links_sqlite.json      | 5374 +++++++++++++++++
+ .../versions/20261019_client_account_links.py      |   44 +
+ web/database/member_link_policy_v1.py              |  235 +
+ web/database/member_link_projection_v1.py          |  117 +
+ web/database/member_link_sqlite_v1.py              |   55 +
+ web/database/models.py                             |  122 +
+ web/database/schema_control.py                     |    5 +
+ web/database/tenant_context.py                     |    3 +
+ web/main_web.py                                    |   10 +-
+ web/middleware/security_headers.py                 |   11 +-
+ web/rate_limiter_redis.py                          |    3 +
+ web/routes/client_links.py                         |  222 +
+ web/routes/pages.py                                |   21 +
+ web/routes/privacy.py                              |    2 +
+ web/services/client_link_context.py                |  216 +
+ web/services/client_link_export.py                 |   38 +
+ web/services/client_link_invitations.py            |  183 +
+ web/services/client_link_mail.py                   |   33 +
+ web/services/client_link_plans.py                  |  282 +
+ web/services/client_link_projection.py             |  137 +
+ web/services/privacy_export.py                     |   12 +-
+ web/static/css/vinculos.css                        |   32 +
+ web/static/js/api.js                               |  100 +-
+ web/static/js/usuario-privacidad.js                |   45 +-
+ web/static/js/vinculos-contexto.js                 |   96 +
+ web/static/js/vinculos-invitacion.js               |   53 +
+ web/static/js/vinculos-lectura.js                  |  103 +
+ web/static/js/vinculos-profesional.js              |  109 +
+ web/static/js/vinculos-ui.js                       |   76 +
+ web/templates/accept_client_link.html              |   68 +
+ web/templates/base.html                            |    1 +
+ web/templates/base_usuario.html                    |    2 +
+ web/templates/cliente_vinculacion.html             |   31 +
+ web/templates/clientes.html                        |    5 +
+ web/templates/member_export_section.html           |   24 +
+ web/templates/planes.html                          |    5 +
+ web/templates/usuario_vinculos.html                |   28 +
+ 659 files changed, 121136 insertions(+), 29 deletions(-)
+ create mode 100644 docs/implementation/20261018-evolution/R12_CI29.md
+ create mode 100644 docs/implementation/20261018-evolution/R12_CI_INTEGRIDAD.md
+ create mode 100644 docs/implementation/20261018-evolution/R12_CI_NAVEGADOR.md
+ create mode 100644 docs/implementation/20261018-evolution/R12_EXPORTACION_VINCULOS.md
+ create mode 100644 docs/implementation/20261018-evolution/R12_PUBLICACION_CAS_UI.md
+ create mode 100644 docs/implementation/20261018-evolution/R12_UI_CONSUMER.md
+ create mode 100644 docs/implementation/20261018-evolution/R12_UI_READINESS.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-author.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-cas-final-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-cas-final.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-cas-final.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-contract-v1.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-contract-v2-delta.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-final-client-link29-author-owned-closed.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-final-client-link29-author-owned-created.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-final-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-final-postgres-restore-client-link29-author.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-final-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-final.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-final.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-api-quality.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before-renderer-corrected.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before-renderer-corrected.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-before.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-pg-migration.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical-v2-pg-migration.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-author.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-owner-lock-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-owner-lock-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-storage-schema.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-canonical29-storage-schema.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-casts-restore-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-casts-restore-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-core-v2-author.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-core-v2-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-core-v2-gate-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-core29-selective-commit.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-current-worker-publication.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-current-worker-publication.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-headers-identifiers-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-headers-identifiers-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-headers-identifiers-before.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-headers-identifiers-before.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-history28-pin-proof.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-history28-runtime-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-history28-runtime-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-history28-runtime-before.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-history28-runtime-before.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-http-before.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-http-before.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-http-canonical-first.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-http-canonical-first.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-http-canonical-path-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-http-canonical-path-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-publication-cas-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-publication-cas-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-publication-cas-before.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-publication-cas-before.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-all-casts-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-all-casts-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-author-measurement.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-cas-final.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-cas-final.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-casts-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-casts-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-casts-author.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-final-source.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-final-source.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-owned-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-owned-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-owned-closed.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-owned-created.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-policy-diagnostic.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-policy-diagnostic.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-security-drift-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-text-columns-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/backend-r12-restore29-text-columns-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/historical-ci28/receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/historical-ci28/review/historical-ci28.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/historical-ci28/review/historical-ci28/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/historical-ci28/review/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/historical-ci28/stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/historical-ci28/stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/historical.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/current-trust-final/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/evidence-manifest.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/fixture-trust/baseline-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/fixture-trust/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/fixture-trust/verifier-before.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_api-after-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_api-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_api-after.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_api-before-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_api-before.cjs
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_api-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_consumers-after-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_consumers-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_consumers-after.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_consumers-before-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_consumers-before.cjs
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_consumers-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_context-after-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_context-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_context-after.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_context-before-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_context-before.cjs
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_context-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_fragment-after-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_fragment-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_fragment-after.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_fragment-before-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_fragment-before.cjs
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/member_link_fragment-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-after/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-first/member_link_context-after-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-first/member_link_context-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-first/member_link_context-after.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-first/member_link_context-before-guard.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-first/member_link_context-before.cjs
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/format-first/member_link_context-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/canaries-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/historical-ci28/receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/historical-ci28/review/historical-ci28.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/historical-ci28/review/historical-ci28/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/historical-ci28/review/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/historical-ci28/stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/historical-ci28/stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/historical.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/guard-after/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/inert-before/expected-failure.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/inert-before/personal-diary-ui-positive/probe.sh
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/inert-before/personal-diary-ui-positive/stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/inert-before/personal-diary-ui-positive/stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/inert-before/verifier-before.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/inert-before/write_report.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-fixture-trust.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-historical-restore-executed-v2.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-historical-restore-executed-v3.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-historical-restore-v2.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-historical-restore-v3.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-historical-restore.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-inert-before.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-prepare.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-quality.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-report-format-v2.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-report-format.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-restore-diagnose.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-restore-preflight.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/metodobase-ci29-restore-resources.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/package-driver.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/preparation-errata.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/lint.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/lint.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/new-harness-lint.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/new-harness-lint.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/security.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/security.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/syntax.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/quality/syntax.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/after-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/before-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/evidence/postgres-restore-independent.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/evidence/postgres-restore-recovery28-independent.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/evidence/recovery28-qa-owned-closed.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/evidence/recovery28-qa-owned-created.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/runner.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/runner/receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/runner/stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/runner/stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-after/tests.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/after-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/before-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/resource-check-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/runner.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/runner/receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/runner/stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/runner/stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-before/tests.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-author-20261019/restore-preflight/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/after-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/before-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/foreign-chrome-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/foreign-chrome-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/independent-db-absence.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/manifest.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/metodobase-ci29-portable-browser-run.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/metodobase-ci29-portable-browser-seal.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/orchestrator.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/orchestrator.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/01-explicit-acceptance.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/02-real-recipient-publication.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/03-owner-own-external-contexts.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/04-account-switch-cleared.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/browser-result.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/database-closure.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/final-identities.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/http-trace.jsonl
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/report.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/public/startup.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-browser-author-20261019/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/composition-cherry.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/composition-conflicted-verifier.RAW.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/composition-continue.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/composition-receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/full-guard.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/full-guard.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/guard-canaries-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/guard-historical.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/guard-review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/historical-receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/historical-stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/historical-stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/manifest.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/metodobase-ci29-archive-compose.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/metodobase-ci29-final-composition-run.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/metodobase-ci29-final-composition-seal.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/unit.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/unit.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-composition-author-20261019/unit.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/first-run-derived-summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-pins-20261019.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-pins.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-preparation-20261019.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-prepare.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/lint.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/lint.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/new-harness-lint.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/new-harness-lint.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/security.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/security.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/syntax.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality-20261019/syntax.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-quality.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-unit-final-20261019.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-unit-first-20261019.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm-run-v2.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm-run.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-contracts.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-contracts.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-reproductions.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-reproductions.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-security.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-security.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-storage.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/auth-refresh-storage.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-0.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-1.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-10.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-11.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-12.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-13.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-2.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-3.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-4.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-5.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-6.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-7.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-8.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/guard-9.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-api.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-api.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-consumers.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-consumers.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-context.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-context.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-controls.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-controls.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-export.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-export.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-fragment.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/member-link-fragment.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-api.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-api.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-controller.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-controller.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-logout-ack.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-logout-ack.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-logout.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-diary-logout.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-export-controls.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-export-controls.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-history-contracts.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-history-contracts.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-operation-ambiguity.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-operation-ambiguity.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-operation-contracts.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-20261019/personal-operation-contracts.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-contracts.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-contracts.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-reproductions.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-reproductions.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-security.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-security.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-storage.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/auth-refresh-storage.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-0.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-1.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-10.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-11.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-12.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-13.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-14.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-2.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-3.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-4.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-5.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-6.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-7.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-8.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/guard-9.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-api.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-api.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-consumers.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-consumers.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-context.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-context.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-controls.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-controls.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-export.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-export.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-fragment.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/member-link-fragment.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-api.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-api.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-controller.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-controller.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout-ack.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout-ack.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-diary-logout.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-export-controls.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-export-controls.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-history-contracts.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-history-contracts.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-operation-ambiguity.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-operation-ambiguity.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-operation-contracts.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/personal-operation-contracts.json.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-portable-vm18-after-20261019/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-compose-resume.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-compose.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-composition-20261019/apply.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-composition-20261019/cherry-resumed.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-composition-20261019/owned-before-0
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-composition-20261019/owned-before-1
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-composition-20261019/owned-before-2
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-composition-20261019/owned-ci2.patch
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/metodobase-ci29-trust-composition-20261019/receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/tested-sources-RAW.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/wiring-historical.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-portable-author-20261019/wiring-review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-trust-author-20261019/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-trust-author-20261019/freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-trust-author-20261019/metodobase-ci29-trust-preparation-20261019.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-trust-author-20261019/metodobase-ci29-trust-prepare-v2.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-trust-author-20261019/metodobase-ci29-trust-prepare.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci-member-links29-trust-author-20261019/metodobase-ci29-trust-unit-first-20261019.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/archive-after-review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/archive-before-review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/archive-final-review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/archive-owned-replacement-setup.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/before-exact.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/current-historical-ci28-receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/current-historical-ci28-stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/current-historical-ci28-stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/current-historical.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/current-review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/current-verify-only.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/current-verify-only.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/gate-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/initial-negative-only-candidate.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/own-tests-final.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/own-tests-final.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/own-tests-final.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/own-tests.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/pip-check.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/positive-history-receipt.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/positive-history-stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/positive-history-stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/qa-final.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/qa-final.stdout.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/quality.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/review.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/ci29-archive-author-20261019/semantic-proof.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/after2/after-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/after2/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/after2/member_link_export.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/after2/member_link_export.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/after2/personal_export_controls.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/after2/personal_export_controls.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/after2/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/after-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh_race_review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh_race_review.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh_security_review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh_security_review.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh_storage.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/auth_refresh_storage.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_api.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_api.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_consumers.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_consumers.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_context.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_context.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_export.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_export.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_fragment.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/member_link_fragment.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_diary_api.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_diary_api.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_diary_controller.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_diary_controller.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_export_controls.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_export_controls.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_history.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_history.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_logout.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_logout.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_logout_ack.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_logout_ack.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_operation.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_operation.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_operation_ambiguity_review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/personal_operation_ambiguity_review.stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/before17/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/fixture-before.cjs
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/metodobase-r12-node-composition29-20261019.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/metodobase-r12-node-export-focal-20261019.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/metodobase-r12-private500-composition-focal-20261019.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/middleware-before-private500.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/package-driver.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/after-packages.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/after-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/after-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/before-packages.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/before-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/tests.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/private500_focal123/tests.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-export-fixture-20261019/wrapper-before.cjs
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/.gitattributes
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/after-packages.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/after-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/after-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/before-packages.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/before-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/tests.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/after28/tests.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/after-packages.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/after-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/after-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/before-packages.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/before-pip.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/summary.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/tests.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/before354/tests.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/http-test-before-page.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/metodobase-history30-final-base-test-20261019.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/metodobase-r12-composed-page-focal-20261019.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/metodobase-r12-composition29-root-gates-20261019.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/package-driver.py
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-composed-page-headers-20261019/review.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/after-current.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/after-final-stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/after-final.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/after-first-stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/after-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/after32-final.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/before-stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/matched-before-source-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/matched-before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/matched31-before-stderr.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/matched31-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/owner-scope-before-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/owner-scope-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/source-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/source-tested-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/ui-pages-with-export.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-export/ui-pages-with-export.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/backend-r12-api-contract-v2-delta.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/before-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/member_link_api-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/member_link_api-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/member_link_consumers-after.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/member_link_consumers-before.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/member_link_consumers-final16.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/source-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-publication-cas/source-tested-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/backend-r12-api-contract-v1-frozen.md
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/before-source-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/before-source.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-final-source-delta.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-first-harness-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411067030/report.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/invitation-390.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/invitation-390.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/professional-empty-1440.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/professional-empty-1440.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/professional-pending-320.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/professional-pending-320.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/reader-1440.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/reader-1440.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/reader-320.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/reader-320.png
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-synthetic-1792411129336/report.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/browser-tested-form-before-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/consumer-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/consumer-quality-lint.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/consumer-quality-security.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/consumer-quality-syntax.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/consumer-source-tested-raw.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/context-fragment-freeze.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/context-fragment-source-tested.zip
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/context-source-fence.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/context-vm-author.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/fragment-vm-author.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member-link-consumers-first.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member-link-consumers-second.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_api-current.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_api-final-vm.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_api-functional-vm.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_consumers-current.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_consumers-final-vm.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_context-current.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_context-final-vm.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_context-functional-vm.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_fragment-current.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_fragment-final-vm.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/member_link_fragment-functional-vm.json
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/ui-pages-base28-after.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/ui-pages-base28-after.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/ui-pages-base28-final.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/ui-pages-base28-final.xml
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/ui-pages-base28.log
+ create mode 100644 docs/implementation/20261018-evolution/evidence/r12-ui/ui-pages-base28.xml
+ create mode 100644 tests/check_member_link_reports.py
+ create mode 100644 tests/ci_member_links29/baseline.json
+ create mode 100644 tests/ci_member_links29/ci28-before.yml
+ create mode 100644 tests/client_link_restore_helpers.py
+ create mode 100644 tests/e2e/member_link_api.cjs
+ create mode 100644 tests/e2e/member_link_browser.cjs
+ create mode 100644 tests/e2e/member_link_consumers.cjs
+ create mode 100644 tests/e2e/member_link_context.cjs
+ create mode 100644 tests/e2e/member_link_controls.cjs
+ create mode 100644 tests/e2e/member_link_export.cjs
+ create mode 100644 tests/e2e/member_link_fragment.cjs
+ create mode 100644 tests/e2e/member_link_postgres_server.py
+ create mode 100644 tests/e2e/member_links_ui.cjs
+ create mode 100644 tests/e2e/member_links_ui_server.py
+ create mode 100644 tests/e2e/normalize_member_link_report.py
+ create mode 100644 tests/e2e/run_member_link_browser.py
+ create mode 100644 tests/integration_client_link_canonical_postgres.py
+ create mode 100644 tests/integration_client_link_canonical_v2_review.py
+ create mode 100644 tests/integration_client_link_http.py
+ create mode 100644 tests/integration_client_link_migrations.py
+ create mode 100644 tests/integration_client_link_owner_lock_review.py
+ create mode 100644 tests/integration_client_link_projection_postgres.py
+ create mode 100644 tests/integration_client_link_publication_cas.py
+ create mode 100644 tests/integration_client_link_restore.py
+ create mode 100644 tests/integration_client_link_root_review_adapted.py
+ create mode 100644 tests/integration_client_link_service_races.py
+ create mode 100644 tests/integration_client_link_services.py
+ create mode 100644 tests/run_reviewed_ci28.py
+ create mode 100644 tests/test_client_link_boundaries.py
+ create mode 100644 tests/test_client_link_contract_before.py
+ create mode 100644 tests/test_client_link_models.py
+ create mode 100644 tests/test_member_browser_gate.py
+ create mode 100644 tests/test_member_ci_trust.py
+ create mode 100644 tests/test_r12_ui_pages.py
+ create mode 100644 tests/test_reviewed_ci28_archive.py
+ create mode 100644 tests/verify_member_links_ci.py
+ create mode 100644 web/client_link_paths.py
+ create mode 100644 web/client_link_schemas.py
+ create mode 100644 web/database/alembic/member_link_ddl/20261019_postgresql.sql
+ create mode 100644 web/database/alembic/member_link_ddl/20261019_sqlite.sql
+ create mode 100644 web/database/alembic/member_link_security_v1.py
+ create mode 100644 web/database/alembic/schema_targets/20261019_client_account_links_postgresql.json
+ create mode 100644 web/database/alembic/schema_targets/20261019_client_account_links_sqlite.json
+ create mode 100644 web/database/alembic/versions/20261019_client_account_links.py
+ create mode 100644 web/database/member_link_policy_v1.py
+ create mode 100644 web/database/member_link_projection_v1.py
+ create mode 100644 web/database/member_link_sqlite_v1.py
+ create mode 100644 web/routes/client_links.py
+ create mode 100644 web/services/client_link_context.py
+ create mode 100644 web/services/client_link_export.py
+ create mode 100644 web/services/client_link_invitations.py
+ create mode 100644 web/services/client_link_mail.py
+ create mode 100644 web/services/client_link_plans.py
+ create mode 100644 web/services/client_link_projection.py
+ create mode 100644 web/static/css/vinculos.css
+ create mode 100644 web/static/js/vinculos-contexto.js
+ create mode 100644 web/static/js/vinculos-invitacion.js
+ create mode 100644 web/static/js/vinculos-lectura.js
+ create mode 100644 web/static/js/vinculos-profesional.js
+ create mode 100644 web/static/js/vinculos-ui.js
+ create mode 100644 web/templates/accept_client_link.html
+ create mode 100644 web/templates/cliente_vinculacion.html
+ create mode 100644 web/templates/member_export_section.html
+ create mode 100644 web/templates/usuario_vinculos.html

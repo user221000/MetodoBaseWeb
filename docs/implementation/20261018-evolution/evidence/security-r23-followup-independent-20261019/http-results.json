@@ -1,0 +1,100 @@
+{
+  "scope": "Independent HTTP/SQLite and two own migrated PG UUID databases, restricted app role; no browser/providers",
+  "total": 14,
+  "passed": 14,
+  "results": [
+    {
+      "name": "web.main_web SQLite facts and strict projected scopes",
+      "passed": true
+    },
+    {
+      "name": "web.main_web SQLite forged JWT authority",
+      "passed": true
+    },
+    {
+      "name": "web.main_web SQLite ambiguous personal OWNER",
+      "passed": true
+    },
+    {
+      "name": "web.main_web SQLite all mutable methods denied",
+      "passed": true
+    },
+    {
+      "name": "web.main_web SQLite SQL exception privacy",
+      "passed": true
+    },
+    {
+      "name": "web.main_web SQLite persisted membership revoked",
+      "passed": true
+    },
+    {
+      "name": "api.app SQLite facts and strict projected scopes",
+      "passed": true
+    },
+    {
+      "name": "api.app SQLite forged JWT authority",
+      "passed": true
+    },
+    {
+      "name": "api.app SQLite ambiguous personal OWNER",
+      "passed": true
+    },
+    {
+      "name": "api.app SQLite all mutable methods denied",
+      "passed": true
+    },
+    {
+      "name": "api.app SQLite SQL exception privacy",
+      "passed": true
+    },
+    {
+      "name": "api.app SQLite persisted membership revoked",
+      "passed": true
+    },
+    {
+      "name": "web.main_web PG restricted HTTP scope and pool cleanup",
+      "passed": true
+    },
+    {
+      "name": "api.app PG restricted HTTP scope and pool cleanup",
+      "passed": true
+    }
+  ],
+  "pg_properties": [
+    {
+      "factory": "web.main_web",
+      "database": "metodobase_test_r23_security_2880ed0c8b91",
+      "restricted_nonowner": true,
+      "force_rls": true,
+      "public_pool_empty": true,
+      "other_tenant_explicit": true
+    },
+    {
+      "factory": "api.app",
+      "database": "metodobase_test_r23_security_940ca0872e11",
+      "restricted_nonowner": true,
+      "force_rls": true,
+      "public_pool_empty": true,
+      "other_tenant_explicit": true
+    }
+  ],
+  "owned_database_closure": {
+    "instance_port": 55483,
+    "entries": [
+      {
+        "factory": "web.main_web",
+        "database": "metodobase_test_r23_security_2880ed0c8b91",
+        "created": true,
+        "closed": true
+      },
+      {
+        "factory": "api.app",
+        "database": "metodobase_test_r23_security_940ca0872e11",
+        "created": true,
+        "closed": true
+      }
+    ]
+  },
+  "source_root": "F:\\mb-follow-sec",
+  "synthetic_data_root": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-test-p9u_gdvi\\main"
+}

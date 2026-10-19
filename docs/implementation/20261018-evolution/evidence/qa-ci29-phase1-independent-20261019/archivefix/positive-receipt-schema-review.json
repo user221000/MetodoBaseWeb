@@ -1,0 +1,11 @@
+{
+  "scope": "Pre-execution wrapper review only; no failed positive run or product modification.",
+  "reason": "Actual runner receipt stores scope and CLI stdout stores restore=false; wrapper now authenticates both actual fields rather than expecting a nonexistent receipt key.",
+  "only_replacement": {
+    "before": "and receipt['restore'] is False",
+    "after": "and 'no restore/browser/services' in receipt['scope'] and json.loads((phase/'stdout.log').read_bytes())['restore'] is False"
+  },
+  "inverse_byte_exact": true,
+  "original_sha256": "32a00036c082e161988ca7b6ab6ea41ecf5d59c8406010a19fb71f02fd0118fd",
+  "positive_wrapper_sha256": "92ede1f53b56f368c517af69540388ad4df9445a97e362e521885a5079b8750a"
+}

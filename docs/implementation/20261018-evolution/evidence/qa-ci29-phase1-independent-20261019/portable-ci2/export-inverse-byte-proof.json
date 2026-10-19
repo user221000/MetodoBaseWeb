@@ -1,0 +1,8 @@
+{
+  "before_LF_sha256": "f2422f9e86f008bb910ccb24cfb4d9926017c878efd235df510d48fbcdc488b5",
+  "after_LF_sha256": "287488236fe8cce0fee492145abf5e1b147ad9e038b7b03ada44285c9e6bd0d4",
+  "inverse_replacement_equals_original_byte_for_byte": true,
+  "old_line": "for(const bad of [{...linked(),status:'revoked'},{...linked(),recipient_user_id:'synthetic-foreign'},{...linked(),publication:{id:LINK_B,version:1,published_at:'2026-10-19T12:00:00Z',object_key:'must-not-export'}}])test('Non-contract or revoked member metadata is rejected entirely: '+Object.keys(bad).at(-1),async()=>{\n",
+  "new_line": "for(const [field,bad] of [['status',{...linked(),status:'revoked'}],['recipient_user_id',{...linked(),recipient_user_id:'synthetic-foreign'}],['publication',{...linked(),publication:{id:LINK_B,version:1,published_at:'2026-10-19T12:00:00Z',object_key:'must-not-export'}}]])test('Non-contract or revoked member metadata is rejected entirely: '+field,async()=>{\n",
+  "scope": "Only the three case labels and destructuring; the same bad objects and assertion callback body remain intact."
+}

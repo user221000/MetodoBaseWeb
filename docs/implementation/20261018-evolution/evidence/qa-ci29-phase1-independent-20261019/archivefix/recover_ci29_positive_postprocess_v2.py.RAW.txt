@@ -1,0 +1,20 @@
+import sys
+from pathlib import Path
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-ci29-phase1-independent-20261019/archivefix');sys.path.insert(0,str(OUT))
+from support import *
+phase=TEMP/'positive4433';receipt=json.loads((phase/'historical/receipt.json').read_bytes());printed=json.loads((phase/'stdout.log').read_bytes())
+assert receipt['exit_code']==0 and printed['exit_code']==0 and printed['restore'] is False and receipt['files']==4433
+assert receipt['pinned_tree_blobs_verified'] is True and receipt['replacement_objects_disabled'] is True
+saved=json.loads((OUT/'independently-rehashed-pinned-source4433.json').read_bytes());assert len(saved)==4433
+source=Path(receipt['source_directory']);assert {p.relative_to(source).as_posix() for p in source.rglob('*') if p.is_file()}==set(saved)
+assert all(sha((source/name).read_bytes())==digest for name,digest in saved.items())
+before=json.loads((OUT/'positive4433-before-photo.json').read_bytes());after=json.loads((OUT/'positive4433-after-photo.json').read_bytes());assert before==after
+outputs=[]
+for path in sorted(phase.rglob('*')):
+    if not path.is_file() or 'source' in path.relative_to(phase).parts:continue
+    name='positive4433-'+path.relative_to(phase).as_posix().replace('/','-');target=OUT/name
+    assert target.is_file() and target.read_bytes()==path.read_bytes()
+    outputs.append({'private_original':str(path),'original_sha256':sha(path.read_bytes()),'public_file':name,'public_sha256':sha(target.read_bytes()),'public_is_RAW_exact':True,'existing_output_reused_without_overwrite':True})
+save('positive4433-postprocess-errors.json',{'original_wrapper':{'exception':'TypeError: cannot concat str to bytes','where':'after=photo(mode+after) after actual subprocess0,4433 independent Git blob checks, saved hash map and complete RAW public copies','cause':'Wrapper unpacked ls-tree mode into its phase-label variable, leaving bytes.','exit':1,'driver_sha256':sha((OUT/'run_archive_positive.py').read_bytes())},'first_recovery':{'exception':'FileExistsError','where':'publish(xb) after successful added after-photo, because original wrapper had already published the RAW artifacts','exit':1,'source_path':'C:/Users/Consu/AppData/Local/Temp/recover_ci29_positive_postprocess.py'},'final_recovery':'Reads existing after-photo and authenticates all existing RAW copies; no source/helper edits, output overwrite, runner/extraction/guard rerun.','criteria_changed':False,'source_helpers_packages_before_after_equal':True})
+save('positive4433-result.json',{'head':HEAD,'results':{'actual_runner_exit':0,'actual_historical_guard_exit':0,'original_wrapper_postprocess_exit':1,'first_recovery_postprocess_exit':1,'final_recovery_complete':True,'pinned_files':4433,'independent_complete_blob_rehash':True,'source_commit':'66d9dec0e15dd873038bd248d3883daeeb27d4ca','restore_executed':False,'runner_or_guard_rerun':False},'source_helpers_packages_stable':True,'sources':before['source_count'],'helpers':before['helper_count'],'packages':89,'outputs':outputs,'scope':'Actual pinned source/guard executed once with zero exit; helper postprocess errors recovered using retained artifacts. No PG/browser/restore/Actions.'})
+print(json.dumps({'actual_runner_exit':0,'pinned_blobs':4433,'actual_historical_guard_exit':0,'postprocess_errors_preserved':2,'sources':before['source_count'],'helpers':before['helper_count'],'packages':89,'stable':True}))

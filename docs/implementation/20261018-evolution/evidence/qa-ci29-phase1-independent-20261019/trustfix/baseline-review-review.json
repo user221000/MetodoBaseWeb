@@ -1,0 +1,844 @@
+{
+  "scope": "Local CI29 wiring/parsers/actual marker expressions and owned inert Bash; no Actions/browser/PG/provider execution",
+  "historical_source_pin": "66d9dec0e15dd873038bd248d3883daeeb27d4ca",
+  "historical_exit": 0,
+  "reports": [
+    "pytest-postgres-migrations.xml",
+    "pytest-postgres-rls.xml",
+    "pytest-postgres-channels.xml",
+    "pytest-postgres-gym-migrations.xml",
+    "pytest-postgres-object-migrations.xml",
+    "pytest-postgres-objects.xml",
+    "pytest-postgres-legacy-inventory.xml",
+    "pytest-postgres-cleanup.xml",
+    "pytest-postgres-privacy.xml",
+    "pytest-postgres-plan-documents.xml",
+    "pytest-postgres-utc.xml",
+    "pytest-postgres-licenses.xml",
+    "pytest-postgres-quota.xml",
+    "pytest-postgres-individual-migrations.xml",
+    "pytest-postgres-individual-publication.xml",
+    "pytest-postgres-gym-quota.xml",
+    "pytest-postgres-diary-migrations.xml",
+    "pytest-postgres-diary.xml",
+    "pytest-postgres-restore.xml",
+    "pytest-postgres-recovery-migrations.xml",
+    "pytest-postgres-recovery.xml",
+    "pytest-postgres-member-migrations.xml",
+    "pytest-postgres-member-services.xml",
+    "pytest-postgres-member-http.xml",
+    "pytest-postgres-member-races.xml",
+    "pytest-postgres-member-restore.xml"
+  ],
+  "current_PG_minimum_cases": 60,
+  "VM_minima": {
+    "member_link_context": 26,
+    "member_link_fragment": 15,
+    "member_link_api": 23,
+    "member_link_consumers": 16,
+    "member_link_export": 32
+  },
+  "VM_executions_in_full17": 297,
+  "VM_unique_criteria": 276,
+  "duplicate_legacy_export_executions": 21,
+  "actual_markers": [
+    {
+      "fixture": "personal-diary-ui",
+      "model_target_revision": "20261019_client_account_links",
+      "tables": 29
+    },
+    {
+      "fixture": "personal-history-ui",
+      "model_target_revision": "20261019_client_account_links",
+      "tables": 29
+    },
+    {
+      "fixture": "public-landing",
+      "model_target_revision": "20261019_client_account_links",
+      "tables": 29
+    }
+  ],
+  "unauthorized_delta_canaries": [
+    {
+      "case": "missing-local-guard",
+      "rejected": true
+    },
+    {
+      "case": "missing-history-fetch",
+      "rejected": true
+    },
+    {
+      "case": "missing-restore-fetch",
+      "rejected": true
+    },
+    {
+      "case": "current-runtime-for-historical-restore",
+      "rejected": true
+    },
+    {
+      "case": "missing-current-restore",
+      "rejected": true
+    },
+    {
+      "case": "missing-race-CAS",
+      "rejected": true
+    },
+    {
+      "case": "allow-SQLite-in-PG",
+      "rejected": true
+    },
+    {
+      "case": "missing-report-parser",
+      "rejected": true
+    },
+    {
+      "case": "lower-report-count",
+      "rejected": true
+    },
+    {
+      "case": "missing-new-report",
+      "rejected": true
+    },
+    {
+      "case": "omit-historical-report",
+      "rejected": true
+    },
+    {
+      "case": "missing-VM",
+      "rejected": true
+    },
+    {
+      "case": "lower-VM-minimum",
+      "rejected": true
+    },
+    {
+      "case": "missing-VM-upload",
+      "rejected": true
+    },
+    {
+      "case": "old-fixture-head",
+      "rejected": true
+    },
+    {
+      "case": "old-fixture-tables",
+      "rejected": true
+    },
+    {
+      "case": "changed-process-cleanup",
+      "rejected": true
+    },
+    {
+      "case": "changed-liveness",
+      "rejected": true
+    },
+    {
+      "case": "omit-old-browser",
+      "rejected": true
+    },
+    {
+      "case": "unrelated-job",
+      "rejected": true
+    }
+  ],
+  "references": [
+    "scripts/check_browser_fixture_startup.py",
+    "scripts/check_frontend_report.py",
+    "scripts/scan_secrets.py",
+    "tests/check_coverage.py",
+    "tests/check_member_link_reports.py",
+    "tests/check_quality.py",
+    "tests/e2e/auth_refresh.cjs",
+    "tests/e2e/auth_refresh_browser.cjs",
+    "tests/e2e/auth_refresh_race_review.cjs",
+    "tests/e2e/auth_refresh_security_review.cjs",
+    "tests/e2e/auth_refresh_server.py",
+    "tests/e2e/auth_refresh_storage.cjs",
+    "tests/e2e/auth_refresh_storage_browser_review.cjs",
+    "tests/e2e/gym_branding.cjs",
+    "tests/e2e/gym_branding_server.py",
+    "tests/e2e/gym_generation.cjs",
+    "tests/e2e/gym_generation_server.py",
+    "tests/e2e/gym_subscription.cjs",
+    "tests/e2e/landing.cjs",
+    "tests/e2e/landing_server.py",
+    "tests/e2e/member_link_api.cjs",
+    "tests/e2e/member_link_consumers.cjs",
+    "tests/e2e/member_link_context.cjs",
+    "tests/e2e/member_link_export.cjs",
+    "tests/e2e/member_link_fragment.cjs",
+    "tests/e2e/personal_diary.cjs",
+    "tests/e2e/personal_diary_api.cjs",
+    "tests/e2e/personal_diary_controller.cjs",
+    "tests/e2e/personal_diary_server.py",
+    "tests/e2e/personal_export_context_browser.cjs",
+    "tests/e2e/personal_export_controls.cjs",
+    "tests/e2e/personal_generation.cjs",
+    "tests/e2e/personal_generation_server.py",
+    "tests/e2e/personal_history.cjs",
+    "tests/e2e/personal_history_browser.cjs",
+    "tests/e2e/personal_history_server.py",
+    "tests/e2e/personal_logout.cjs",
+    "tests/e2e/personal_logout_ack.cjs",
+    "tests/e2e/personal_operation.cjs",
+    "tests/e2e/personal_operation_ambiguity_review.cjs",
+    "tests/e2e/privacy_export.cjs",
+    "tests/e2e/privacy_export_server.py",
+    "tests/e2e/responsive_accessibility.cjs",
+    "tests/e2e/subscription.cjs",
+    "tests/e2e/subscription_contract_review.cjs",
+    "tests/e2e/team.cjs",
+    "tests/e2e/team_fullstack.cjs",
+    "tests/e2e/team_fullstack_server.py",
+    "tests/integration_account_recovery_migrations.py",
+    "tests/integration_cleanup_tokens_postgres.py",
+    "tests/integration_client_link_http.py",
+    "tests/integration_client_link_migrations.py",
+    "tests/integration_client_link_publication_cas.py",
+    "tests/integration_client_link_restore.py",
+    "tests/integration_client_link_service_races.py",
+    "tests/integration_client_link_services.py",
+    "tests/integration_gym_caps_http_postgres.py",
+    "tests/integration_gym_quota_migrations.py",
+    "tests/integration_gym_quota_postgres.py",
+    "tests/integration_gym_recovery_review_postgres.py",
+    "tests/integration_individual_generation_recovery_review.py",
+    "tests/integration_individual_process_recovery_review.py",
+    "tests/integration_individual_publication_edges_review.py",
+    "tests/integration_individual_publication_migrations.py",
+    "tests/integration_individual_publication_postgres.py",
+    "tests/integration_invitation_tenant_postgres.py",
+    "tests/integration_legacy_inventory_postgres.py",
+    "tests/integration_license_postgres.py",
+    "tests/integration_model_utc_postgres.py",
+    "tests/integration_object_storage_sdk.py",
+    "tests/integration_object_store_configuration.py",
+    "tests/integration_object_store_configuration_review.py",
+    "tests/integration_onboarding_postgres.py",
+    "tests/integration_password_recovery_postgres.py",
+    "tests/integration_personal_diary_migrations.py",
+    "tests/integration_personal_diary_postgres.py",
+    "tests/integration_personal_diary_security_review.py",
+    "tests/integration_plan_documents_postgres.py",
+    "tests/integration_postgres.py",
+    "tests/integration_privacy_composition_postgres.py",
+    "tests/integration_private_objects_review_postgres.py",
+    "tests/integration_provider_subjects.py",
+    "tests/integration_quota_postgres.py",
+    "tests/integration_redis.py",
+    "tests/integration_schema_migrations.py",
+    "tests/integration_stored_objects_migrations.py",
+    "tests/integration_tenant_activation.py",
+    "tests/integration_timestamp_observation.py",
+    "tests/integration_utc_datetime.py",
+    "tests/integration_utc_datetime_review.py",
+    "tests/prepare_postgres.py",
+    "tests/run_isolated.py",
+    "tests/run_reviewed_ci28.py",
+    "tests/test_desktop_entrypoints.py",
+    "tests/test_desktop_packaging.py",
+    "tests/test_desktop_packaging_ops10.py",
+    "tests/test_desktop_packaging_review.py",
+    "tests/test_desktop_provenance.py",
+    "tests/test_login_desktop.py",
+    "tests/verify_member_links_ci.py",
+    "tests/verify_quality_guards.py"
+  ],
+  "bash_blocks": 72,
+  "current_report_canaries": [
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "positive",
+      "exit": 0,
+      "expected_pass": true
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "missing",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "malformed",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "empty",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "reduced",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "duplicate",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "wrong-module",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "SQLite",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "skip",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "failure",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-migrations.xml",
+      "case": "error",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "positive",
+      "exit": 0,
+      "expected_pass": true
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "missing",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "malformed",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "empty",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "reduced",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "duplicate",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "wrong-module",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "SQLite",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "skip",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "failure",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-services.xml",
+      "case": "error",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "positive",
+      "exit": 0,
+      "expected_pass": true
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "missing",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "malformed",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "empty",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "reduced",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "duplicate",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "wrong-module",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "SQLite",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "skip",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "failure",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-http.xml",
+      "case": "error",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "positive",
+      "exit": 0,
+      "expected_pass": true
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "missing",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "malformed",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "empty",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "reduced",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "duplicate",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "wrong-module",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "SQLite",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "skip",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "failure",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-races.xml",
+      "case": "error",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "positive",
+      "exit": 0,
+      "expected_pass": true
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "missing",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "malformed",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "empty",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "reduced",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "duplicate",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "wrong-module",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "SQLite",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "skip",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "failure",
+      "exit": 1,
+      "expected_pass": false
+    },
+    {
+      "report": "pytest-postgres-member-restore.xml",
+      "case": "error",
+      "exit": 1,
+      "expected_pass": false
+    }
+  ],
+  "current_inert_fixture_cases": [
+    {
+      "fixture": "personal-diary-ui",
+      "case": "positive",
+      "exit": 0,
+      "events": [
+        "start 1402",
+        "driver 1402",
+        "driver 1402",
+        "cleanup 1402"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "wrong-marker",
+      "exit": 1,
+      "events": [
+        "start 129",
+        "cleanup 129"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "old-head",
+      "exit": 1,
+      "events": [
+        "start 1168",
+        "cleanup 1168"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "old-tables",
+      "exit": 1,
+      "events": [
+        "start 612",
+        "cleanup 612"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "missing-report",
+      "exit": 1,
+      "events": [
+        "start 727",
+        "driver 727",
+        "cleanup 727"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "too-few",
+      "exit": 1,
+      "events": [
+        "start 1048",
+        "driver 1048",
+        "cleanup 1048"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "no-screens",
+      "exit": 1,
+      "events": [
+        "start 1604",
+        "driver 1604",
+        "cleanup 1604"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "page-error",
+      "exit": 1,
+      "events": [
+        "start 1021",
+        "driver 1021",
+        "cleanup 1021"
+      ]
+    },
+    {
+      "fixture": "personal-diary-ui",
+      "case": "driver-error",
+      "exit": 7,
+      "events": [
+        "start 633",
+        "driver 633",
+        "cleanup 633"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "positive",
+      "exit": 0,
+      "events": [
+        "start 1571",
+        "driver 1571",
+        "cleanup 1571"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "wrong-marker",
+      "exit": 1,
+      "events": [
+        "start 173",
+        "cleanup 173"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "old-head",
+      "exit": 1,
+      "events": [
+        "start 2016",
+        "cleanup 2016"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "old-tables",
+      "exit": 1,
+      "events": [
+        "start 357",
+        "cleanup 357"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "missing-report",
+      "exit": 1,
+      "events": [
+        "start 1921",
+        "driver 1921",
+        "cleanup 1921"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "too-few",
+      "exit": 1,
+      "events": [
+        "start 216",
+        "driver 216",
+        "cleanup 216"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "no-screens",
+      "exit": 1,
+      "events": [
+        "start 1465",
+        "driver 1465",
+        "cleanup 1465"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "page-error",
+      "exit": 1,
+      "events": [
+        "start 143",
+        "driver 143",
+        "cleanup 143"
+      ]
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "driver-error",
+      "exit": 7,
+      "events": [
+        "start 497",
+        "driver 497",
+        "cleanup 497"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "positive",
+      "exit": 0,
+      "events": [
+        "start 1414",
+        "driver 1414",
+        "cleanup 1414"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "wrong-marker",
+      "exit": 1,
+      "events": [
+        "start 526",
+        "cleanup 526"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "old-head",
+      "exit": 1,
+      "events": [
+        "start 375",
+        "cleanup 375"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "old-tables",
+      "exit": 1,
+      "events": [
+        "start 2004",
+        "cleanup 2004"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "missing-report",
+      "exit": 1,
+      "events": [
+        "start 1966",
+        "driver 1966",
+        "cleanup 1966"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "too-few",
+      "exit": 1,
+      "events": [
+        "start 799",
+        "driver 799",
+        "cleanup 799"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "no-screens",
+      "exit": 1,
+      "events": [
+        "start 1372",
+        "driver 1372",
+        "cleanup 1372"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "page-error",
+      "exit": 1,
+      "events": [
+        "start 433",
+        "driver 433",
+        "cleanup 433"
+      ]
+    },
+    {
+      "fixture": "public-landing",
+      "case": "driver-error",
+      "exit": 7,
+      "events": [
+        "start 846",
+        "driver 846",
+        "cleanup 846"
+      ]
+    }
+  ],
+  "canaries_archive_sha256": "34713283c8dd015016b4c7ba8813ad49fbcabc84f7d71988841eaddd7c655871"
+}

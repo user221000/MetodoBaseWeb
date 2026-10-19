@@ -1,7 +1,7 @@
 # Entrega candidata en curso
 
-Checkpoint110;106 registros y92 IDs originales. MAIN conserva esquema28 con reparación c4 aceptada. La composición R12 aislada con ec029 pasó16/16 criterios de navegadorPG,3/3 canarios y31/31 controles de Seguridad; CI29 aún rechaza bypass pendientes del archivo histórico. Índice30 aceptado120, todavía aislado.
+Checkpoint111:106 registros y92 IDs originales. MAIN esquema29, merge e250d56a5be5c950167b682d49991d29a8dbaa62. R12 y CI29 integrados tras QA/Seguridad independientes. Regresión actual:2464pass+1 omisión Windows por modo, serial/cobertura y n2 shuffle; gate de cobertura aprobado.
 
-El emisor e8 se rechazó por tres continuaciones obsoletas. d038 sólo tiene aceptación estática del arreglo de librerías; imagen, arranque y SCA pendientes. No entrega final ni despliegue. Free:10 clientes, un plan por cliente al día y10 planes totales por gimnasio al día; soporte desktop conservado.
+Índice/restore30 aceptados en sus alcances aislados; navegador30 y CI30 pendientes de aceptación/composición. R23 y fix de expiración tienen aceptación focal aislada, R23 parcial. Linux sigue pendiente de imagen/arranque/SCA; no entrega final ni despliegue. Desktop soportado. Free10 clientes,1 plan/cliente/día y10 totales/gimnasio/día.
 
-Ver [estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md). La evidencia de fuentes anteriores no se presenta como aprobación de la versión actual.
+Ver [estado](ESTADO.md), [validación](VALIDACION.md), [riesgos](RIESGOS.md) y [registro](TRAZABILIDAD.md). Evidencia anterior no acredita una fuente posterior.

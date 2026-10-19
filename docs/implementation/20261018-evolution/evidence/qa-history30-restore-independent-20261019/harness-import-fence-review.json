@@ -1,0 +1,12 @@
+{
+  "original_failure": "historical29-SQLite-result.json",
+  "diagnostic": "original-import-probe.json",
+  "cause_confirmed": "Collecting own test below MAIN loaded MAIN conftest.py, prepending MAIN while tests package was already from WT30. Actual expected_head was29, so direct default check legitimately accepted29 in the wrong source. No product rejection.",
+  "replay_fence": "External Temp test with noconftest/importlib, plus strict all imported project package origins and every Base alias pinned to WT30 before fixture creation and throughout test.",
+  "same_own_assertions_AST": true,
+  "own_test_setup_addition": "        from config.settings import get_settings\n        monkeypatch.setattr(get_settings(),'ENV','development')  # Require real startup revision checks; isolated SQLite testing explicitly opts out.\n",
+  "why_setup_addition": "Factories deliberately opt out of SQLite revision bookkeeping in isolated ENV=testing. This factory test uses ENV=development in process while retaining isolated local storage/providers-off; PostgreSQL always enforces revision independently. No product or maintained criteria changed.",
+  "old_own_test_sha256": "d5a27cdfef8b6e36d83c35e43c1487550aa4b3d0a9687b4c7f1eb69de0ff855c",
+  "replay_own_test_sha256": "84a7a4fbec9f2c593fc9f14929997d950eab67361e0cc4aefdde8ac99994fe43",
+  "Temp_copy_byte_exact": true
+}
