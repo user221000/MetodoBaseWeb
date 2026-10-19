@@ -1,0 +1,24 @@
+F..F..                                                                   [100%]
+================================== FAILURES ===================================
+_ test_admin_parent_noncanonical_never_issues_new_professional_grant[api.app-pending-invitation] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-parent-author-pio61ird\before\test_parent_scope.py:34: in test_admin_parent_noncanonical_never_issues_new_professional_grant
+    assert denied.status_code in {401,403},'A pending/ambiguous source OWNER cannot authorize an admin grant'
+E   AssertionError: A pending/ambiguous source OWNER cannot authorize an admin grant
+E   assert 200 in {401, 403}
+E    +  where 200 = <Response [200 OK]>.status_code
+_ test_admin_parent_noncanonical_never_issues_new_professional_grant[web.main_web-pending-invitation] _
+C:\Users\Consu\AppData\Local\Temp\metodobase-mfa31-parent-author-pio61ird\before\test_parent_scope.py:34: in test_admin_parent_noncanonical_never_issues_new_professional_grant
+    assert denied.status_code in {401,403},'A pending/ambiguous source OWNER cannot authorize an admin grant'
+E   AssertionError: A pending/ambiguous source OWNER cannot authorize an admin grant
+E   assert 200 in {401, 403}
+E    +  where 200 = <Response [200 OK]>.status_code
+============================== warnings summary ===============================
+C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\Consu\AppData\Local\Temp\metodobase-candidate-web-20261018\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED ::test_admin_parent_noncanonical_never_issues_new_professional_grant[api.app-pending-invitation]
+FAILED ::test_admin_parent_noncanonical_never_issues_new_professional_grant[web.main_web-pending-invitation]
+2 failed, 4 passed, 1 warning in 10.71s
