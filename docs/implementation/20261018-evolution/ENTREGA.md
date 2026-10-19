@@ -18,3 +18,5 @@ El primer amplio dd987 falló2tests que esperaban el HTMLcheckout retirado;se co
 Artefactos desktop7bde30b:ZIP122492985bytes SHA256f57a964b11bf547f25e1883b12519516ac513dcd521c2e3306916f80c9779161;Setup89965414bytes SHA25625ed92b1a29b0675a1eecc15dc10a4432ed1046fb7734631ec828164f055d06d. Conservados conPython3.12.13. Preparar3.12.15 no los corrige;no nuevoSetup aún.
 
 Antes de operación externa siguen pendientes candidato exacto completo,digests/config sin secretos,migraciones/backup/restore,transición de workers,rollback yobservación. Migración26 exige drenar workers antiguos. No push,PR,Railway,cargos,mensajes o contactos reales. Dictámenes legales/clínicos ypilotos no se sustituyen con agentes ni resultados sintéticos.
+
+Actualización local: CIhistory/landing52af400 integrado trasQA ycomposición. CandidatoLinuxbc365c1 finalizóauditoríaOS:71IDs abiertos,sólo2aliasXZ corregidos y0hallazgos nuevos;55PyPI siguenOSV0. Docker aún enrevisiónindependiente. QEMUpropioapagadoordenadamente para ventanaPG/desktop,overlayconservado. No startupdeproductoni nuevoSetup.

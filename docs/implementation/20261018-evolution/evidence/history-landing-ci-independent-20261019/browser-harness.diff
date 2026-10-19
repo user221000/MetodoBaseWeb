@@ -1,0 +1,75 @@
+--- accepted-browser-harness
++++ new-composed-CI28-harness
+@@ -1,5 +1,6 @@
+ """Own-fixture browser review for R29/R34; only ports/output directories adapt."""
+ import argparse
++import ast
+ import hashlib
+ import importlib.metadata
+ import json
+@@ -81,7 +82,7 @@
+     parser.add_argument('--own-only', action='store_true')
+     parser.add_argument('--own-checks', type=int, default=3)
+     args = parser.parse_args()
+-    root = Path(r'F:\MetodoBaseWeb-history-ui-20261019' if args.kind == 'history' else r'F:\MetodoBaseWeb-landing-20261019')
++    root = Path(r'F:\MetodoBaseWeb-history-ci-20261019')
+     prefix = 'history-pagination' if args.kind == 'history' else 'landing'
+     stem = 'personal_history' if args.kind == 'history' else 'landing'
+     original_port = 8780 if args.kind == 'history' else 8781
+@@ -106,9 +107,45 @@
+     driver_path = 'tests/e2e/' + stem + ('_browser.cjs' if args.kind == 'history' else '.cjs')
+     with zipfile.ZipFile(archive_path) as archive:
+         fixture_raw = archive.read(fixture_path); driver_raw = archive.read(driver_path)
+-    for path, data in [(fixture_path, fixture_raw), (driver_path, driver_raw)]:
++    historical_fixture_raw = fixture_raw
++    for path, data in [(fixture_path, historical_fixture_raw), (driver_path, driver_raw)]:
+         assert sha(data) == manifest['sources'][path]['raw_sha256']
+-        assert data.replace(b'\r\n', b'\n') == (root / path).read_bytes().replace(b'\r\n', b'\n')
++    fixture_raw = (root / fixture_path).read_bytes()
++    fixture_git = subprocess.check_output(['git', 'show', args.head + ':' + fixture_path], cwd=root)
++    driver_git = subprocess.check_output(['git', 'show', args.head + ':' + driver_path], cwd=root)
++    assert fixture_raw.replace(b'\r\n', b'\n') == fixture_git
++    assert driver_raw.replace(b'\r\n', b'\n') == driver_git
++    assert driver_git == (root / driver_path).read_bytes().replace(b'\r\n', b'\n')
++    old_tree = ast.parse(historical_fixture_raw)
++    current_tree = ast.parse(fixture_raw)
++    target_change = 'No AST change from authenticated author fixture'
++    if ast.dump(old_tree) != ast.dump(current_tree):
++        class RestoreHistoricalTarget(ast.NodeTransformer):
++            imports = 0
++            calls = 0
++            def visit_ImportFrom(self, node):
++                if node.module == 'web.database.schema_control':
++                    assert [(entry.name, entry.asname) for entry in node.names] == [('expected_head', None)]
++                    self.imports += 1
++                    return None
++                return node
++            def visit_Call(self, node):
++                if isinstance(node.func, ast.Name) and node.func.id == 'expected_head':
++                    assert not node.args and not node.keywords
++                    self.calls += 1
++                    return ast.Constant('20261019_personal_diary')
++                return self.generic_visit(node)
++        transform = RestoreHistoricalTarget()
++        restored = transform.visit(current_tree)
++        assert transform.imports == transform.calls == 1
++        assert ast.dump(restored) == ast.dump(old_tree), 'Fixture behavior changed beyond dynamic target marker'
++        target_change = 'Only expected_head import and marker call replace historical revision27 literal'
++    save(out, 'fixture-target28-review.json', {
++        'head': args.head, 'historical_fixture_raw_sha256': sha(historical_fixture_raw),
++        'current_fixture_raw_sha256': sha(fixture_raw), 'current_fixture_git_sha256': sha(fixture_git),
++        'current_driver_git_sha256': sha(driver_git), 'driver_raw_sha256': sha(driver_raw),
++        'fixture_review': target_change, 'driver_assertions_unchanged': True,
++        'scope': 'New composed target28 fixture authenticated against current HEAD; original author snapshot and its target27 acceptance remain intact.'})
+     server_text = fixture_raw.decode('utf8').replace(str(original_port), str(args.port))
+     assert server_text.replace(str(args.port), str(original_port)).encode() == fixture_raw
+     (out / 'server-adapted.py').write_bytes(server_text.encode())
+@@ -165,7 +202,7 @@
+                 except URLError:
+                     pass
+             time.sleep(.1)
+-        assert startup and startup['tables'] == 26 and startup['model_target_revision'] == '20261019_personal_diary'
++        assert startup and startup['tables'] == 26 and startup['model_target_revision'] == '20261019_account_recovery'
+         pids = listeners(args.port); assert len(pids) == 1
+         owned = process(pids[0]); assert owned
+         assert owned['ProcessId'] == server.pid or owned['ParentProcessId'] == server.pid

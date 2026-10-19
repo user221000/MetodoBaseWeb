@@ -99,3 +99,5 @@ Landing integrada647eda8/1f9bdb1 muestra catálogo canónico B2B/B2C, CTA móvil
 a753b2c corrige únicamente la aserción de un test vecino que esperaba checkout sinuso ya retirado;conserva15nodosAST previos yresto del módulo. Original2fallos preservado;20focales y ambos amplios2360/1skip verdes. No runtime modificado por elfix.
 
 Contrato R12v2 documentado4d537e4/6b0dc01 y aceptado porseguridad para implementar29 aislado;productoMAIN sigue28. Nuevo runtimeLinux fijaCPython3.12.15,pip26.2.1 yliblzma5u2 porfuentes oficiales/digest/hash;build2 yPythonSCA verdes,OS/startup noaceptados todavía. Windows3.12.15 separado tiene83paquetes/OSV0 y45+97tests verdes;artefactosdesktop anteriores permanecen históricos,porreconstruir.
+
+52af400 integra CI para23VM dehistorial ydosfixturesactuales (history10,landing8),conguardversionado yprimariasfijadas;QAindependienteycomposiciónaceptadas. Conserva21PG/restore28/7fixtures/162VM anteriores ynoejecutaActions poresteincremento.

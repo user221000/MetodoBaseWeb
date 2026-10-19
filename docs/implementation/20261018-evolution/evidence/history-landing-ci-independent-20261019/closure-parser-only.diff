@@ -1,0 +1,48 @@
+--- original-close-helper
++++ final-close-helper
+@@ -2,6 +2,14 @@
+ from qa_support import *
+ 
+ load=lambda p:json.loads(Path(p).read_text(encoding='utf8'))
++
++def actual_gate(command,label):
++    receipt=OUT/(label+'-receipt.json')
++    if receipt.is_file():
++        previous=load(receipt)
++        assert previous['command']==[str(value) for value in command] and previous['exit']==0
++        return 0
++    return run(command,label).returncode
+ initial=load(OUT/'maintained-before.json')
+ for label in ['maintained-after','node23-before','node23-after','primary-before','primary-after','inert-own-before','inert-own-after']:
+     assert load(OUT/(label+'.json'))==initial
+@@ -26,18 +34,18 @@
+     prior=foreign_after
+     close=load(folder/'owned-process-close.json')
+     assert close['listener_gone'] and close['owned_port_free'] and close['failure'] is None
+-    guard1=run([str(PYTHON),'scripts/check_browser_fixture_startup.py',str(folder/'server.log'),
++    guard1=actual_gate([str(PYTHON),'scripts/check_browser_fixture_startup.py',str(folder/'server.log'),
+                '--fixture',fixture,'--tables','26','--revision','20261019_account_recovery'],kind+'-actual-startup-guard')
+-    guard2=run([str(PYTHON),'scripts/check_frontend_report.py',str(folder/'author-browser/report.json'),
++    guard2=actual_gate([str(PYTHON),'scripts/check_frontend_report.py',str(folder/'author-browser/report.json'),
+                '--format','strings','--minimum',str(checks),'--minimum-screens','4'],kind+'-actual-report-guard')
+-    assert guard1.returncode==guard2.returncode==0
++    assert guard1==guard2==0
+     report=load(folder/'author-browser/report.json')
+     assert report['passed'] is True and report['pageErrors']==[]
+     assert len(report['checks'])==len(set(report['checks']))==checks
+     screens=[]
+     for name in report['screens']:
+         scan=load(folder/'author-browser'/(name+'.json'))
+-        assert scan['overflow'] is False and scan['violations']==[]
++        assert scan['overflow'] is False and scan['axe' if kind=='history' else 'violations']==[]
+         image=folder/'author-browser'/(name+'.png');assert image.is_file() and image.stat().st_size>0
+         screens.append({'name':name,'zero_axe_violations':True,'overflow':False,'png_sha256':sha(image.read_bytes())})
+     network=load(folder/'author-browser/network-guard.json')
+@@ -55,6 +63,7 @@
+         'summary_sha256':sha((folder/'summary.json').read_bytes()),'manifest_sha256':sha((folder/'manifest.json').read_bytes())})
+ final=photo('closure-final');assert final==initial
+ summary={'accepted':True,'head':HEAD,'candidate_base':'a753b2cdf61a91133bd58c3159b0b35e02167396',
++    'qa_closure_observation_correction':load(OUT/'closure-harness-diagnostic.json'),
+     'runtime_delta_from_accepted_main':False,'common_sources':len(initial['sources']),'packages':89,'node_dependency_files':146,
+     'common_source_package_and_dependency_photos_identical':True,'all_pip_checks_exit':0,
+     'maintained':maintained,'primary_cli_own':{'cases':10,'negative':7,'positive':3},

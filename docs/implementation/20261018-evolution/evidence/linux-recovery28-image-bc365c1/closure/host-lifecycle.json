@@ -1,0 +1,56 @@
+{
+  "qemu_pid": 29456,
+  "qmp": {
+    "greeting": {
+      "QMP": {
+        "version": {
+          "qemu": {
+            "micro": 0,
+            "minor": 1,
+            "major": 11
+          },
+          "package": "v11.1.0-12130-ge470268ff4"
+        },
+        "capabilities": [
+          "oob"
+        ]
+      }
+    },
+    "qmp_capabilities": {
+      "return": {},
+      "id": "qmp_capabilities"
+    },
+    "query-status": {
+      "return": {
+        "status": "running",
+        "running": true
+      },
+      "id": "query-status"
+    },
+    "query-memory-size-summary": {
+      "return": {
+        "base-memory": 2147483648,
+        "plugged-memory": 0
+      },
+      "id": "query-memory-size-summary"
+    }
+  },
+  "listeners": [
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 53106,
+      "OwningProcess": 29456
+    },
+    {
+      "LocalAddress": "127.0.0.1",
+      "LocalPort": 53105,
+      "OwningProcess": 29456
+    }
+  ],
+  "action": "read-only status; VM left running for root-coordinated shutdown",
+  "resources": {
+    "vcpus": 2,
+    "memory_mib": 2048,
+    "acceleration": "tcg,thread=multi"
+  }
+}

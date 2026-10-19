@@ -1,0 +1,213 @@
+{
+  "accepted": true,
+  "head": "57dba41a87de4f7a743e6b68c0378f1629b7bb72",
+  "candidate_base": "a753b2cdf61a91133bd58c3159b0b35e02167396",
+  "qa_closure_observation_correction": {
+    "class": "KeyError",
+    "detail": "violations",
+    "original_helper_sha256": "68820bb4a613552aa4847c9bdc701bc052167c03f271b50c6465583b869d4bfc",
+    "final_helper_sha256": "533582ae2e6fe9f2086b2bec92f7a2eef2ebd9b3683ac7e1d7028b321c19db88",
+    "cause": "QA expected a common screenshot key. Original history uses axe, landing uses violations.",
+    "correction": "Read the exact documented field for each unchanged driver; still require empty list and overflow false. Preserve successful actual history guard receipts instead of rerunning. No product, driver, fixture or CI change.",
+    "browser_runs_repeated": false,
+    "test_or_product_failure": false,
+    "original_helper_retained": true
+  },
+  "runtime_delta_from_accepted_main": false,
+  "common_sources": 742,
+  "packages": 89,
+  "node_dependency_files": 146,
+  "common_source_package_and_dependency_photos_identical": true,
+  "all_pip_checks_exit": 0,
+  "maintained": {
+    "head": "57dba41a87de4f7a743e6b68c0378f1629b7bb72",
+    "accepted": true,
+    "sources": 742,
+    "packages": 89,
+    "readonly_node_dependencies": 146,
+    "all_four_photos_identical": true,
+    "delta_cases": 13,
+    "inert_cases": 16,
+    "bash_blocks": 65,
+    "references": 90,
+    "node23_exit": 0,
+    "preserved_pg_report_count": 21,
+    "historical_ci28_marker": {
+      "fixture": "personal-diary-ui",
+      "model_target_revision": "20261019_account_recovery",
+      "tables": 26
+    },
+    "scope": "Full maintained verifier and new Node23 only; no old162VM, browser, PostgreSQL, backend, image or Actions execution."
+  },
+  "primary_cli_own": {
+    "cases": 10,
+    "negative": 7,
+    "positive": 3
+  },
+  "actual_function_own_inert": {
+    "cases": 20,
+    "negative": 18,
+    "positive": 2,
+    "all_owned_children_reaped": true
+  },
+  "historical_preservation": {
+    "head": "57dba41a87de4f7a743e6b68c0378f1629b7bb72",
+    "only_nondocument_delta": [
+      ".github/workflows/ci.yml",
+      "tests/ci_history_landing28/README.md",
+      "tests/ci_history_landing28/ci28-before.yml",
+      "tests/verify_history_landing_ci.py"
+    ],
+    "ci28_snapshot_matches_main_before_extension": true,
+    "historical_verifiers_parsers_restores_unchanged": true,
+    "original_browser_calls_unchanged": [
+      "run_browser_fixture tests/e2e/gym_generation_server.py 8769 tests/e2e/gym_generation.cjs \"${browser_evidence}/b2b-generation-${METODOBASE_EVIDENCE_BATCH}/report.json\" 9",
+      "run_browser_fixture tests/e2e/gym_branding_server.py 8770 tests/e2e/gym_branding.cjs \"${browser_evidence}/private-branding-${METODOBASE_EVIDENCE_BATCH}/report.json\" 10",
+      "run_browser_fixture tests/e2e/privacy_export_server.py 8768 tests/e2e/privacy_export.cjs \"${browser_evidence}/privacy-export-${METODOBASE_EVIDENCE_BATCH}/privacy-export-browser.json\" 8",
+      "run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_browser.cjs \"${browser_evidence}/auth-refresh-browser-${METODOBASE_EVIDENCE_BATCH}/report.json\" 9",
+      "run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_storage_browser_review.cjs \"${browser_evidence}/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json\" 3",
+      "run_browser_fixture tests/e2e/personal_generation_server.py 8773 tests/e2e/personal_generation.cjs \"${browser_evidence}/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json\" 15 named 8",
+      "run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs \"${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json\" 17 named 8 tests/e2e/personal_export_context_browser.cjs \"${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json\" 4 strings 4 personal-diary-ui"
+    ],
+    "actual_fixture_function_sha256": "13d41c998651b051d082006685650b2203bc191e423122a893c928cfccf8ad8d",
+    "pg_job_entire_tree_unchanged": true,
+    "new_browser_calls": [
+      "run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs \"docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json\" 10 strings 4 \"\" \"\" 0 strings 0 personal-history-ui",
+      "run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs \"docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json\" 8 strings 4 \"\" \"\" 0 strings 0 public-landing"
+    ],
+    "scope": "Static preservation; no execution of old fixtures/VM/PG/restore claimed."
+  },
+  "browsers": [
+    {
+      "kind": "history",
+      "checks": 10,
+      "screens": [
+        {
+          "name": "first-1440",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "55756646d2e2aa7c15fcb756af24ed4d87e38b20d27c268a6e5c6adf871eddd6"
+        },
+        {
+          "name": "first-320",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "88ecb93b2ce77152def9b9b284b6697161641a9ae6f3f79ccdee06e0eb6a7a8e"
+        },
+        {
+          "name": "retry-320",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "1f76e76047a36a664f634e1d7c4d2fdba21c5d734943bf865ac580b57001df15"
+        },
+        {
+          "name": "session-discard-390",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "be251c94bf087937062258c9c2cece296545e041cc2fcf7d209848220ccd24ed"
+        }
+      ],
+      "seconds": 17.25,
+      "source_count": 797,
+      "packages": 89,
+      "node_dependency_files": 146,
+      "actual_startup_and_report_guards_exit": [
+        0,
+        0
+      ],
+      "actual_model_target": "20261019_account_recovery",
+      "page_errors": [],
+      "network_guard": {
+        "exactOrigin": "http://127.0.0.1:8780",
+        "maxRedirects": 0,
+        "apiCalls": 12,
+        "routeFetches": 1,
+        "blockedOtherOrigins": 6
+      },
+      "own_listener_pid": 29776,
+      "owned_listener_and_launcher_closed": true,
+      "foreign_listeners_unchanged": true,
+      "shutdown": "Deliberate owner Stop-Process after successful driver; raw launcher exit retained, no graceful-shutdown claim.",
+      "fixture_authentication": {
+        "head": "57dba41a87de4f7a743e6b68c0378f1629b7bb72",
+        "historical_fixture_raw_sha256": "7c561b7613841485aea68c013d1776bba9ab4db1d667b507a5e063f0c1896e8f",
+        "current_fixture_raw_sha256": "41084a751e22baf5463944b494df53dd7887e0e95bc5e2721970315e727345a8",
+        "current_fixture_git_sha256": "41084a751e22baf5463944b494df53dd7887e0e95bc5e2721970315e727345a8",
+        "current_driver_git_sha256": "6cf56b1252f2d7c8ed3d7de0753555621e5afd922478518629a262112b9d03c8",
+        "driver_raw_sha256": "6cf56b1252f2d7c8ed3d7de0753555621e5afd922478518629a262112b9d03c8",
+        "fixture_review": "Only expected_head import and marker call replace historical revision27 literal",
+        "driver_assertions_unchanged": true,
+        "scope": "New composed target28 fixture authenticated against current HEAD; original author snapshot and its target27 acceptance remain intact."
+      },
+      "summary_sha256": "0ee64863f668d5c4f37e20582ff0a5f7b1b5f47c9a26a2de87f83158657016f6",
+      "manifest_sha256": "f735bc9df06380b39e425f32740c485ebc8f725afb89e943e7b20149c51da359"
+    },
+    {
+      "kind": "landing",
+      "checks": 8,
+      "screens": [
+        {
+          "name": "landing-1440",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "1a8b025dbb9ec652bff9a8ffc319f8a3344cb7299482466901267495121b89e5"
+        },
+        {
+          "name": "landing-390",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "6221427098f2734018ac569e8bc81958f9f21a6a14c079dfa69bd6e8bde24747"
+        },
+        {
+          "name": "landing-320",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "1de26a8613fd45bd8e02223c6cfd05542a628e422bc293e974892b9dea27efc4"
+        },
+        {
+          "name": "faq-keyboard-390",
+          "zero_axe_violations": true,
+          "overflow": false,
+          "png_sha256": "3a43df0d41ec34f4d3fc67b107cb59912a2f69039350bcc11d5bcc2dc97c9da2"
+        }
+      ],
+      "seconds": 6.563,
+      "source_count": 814,
+      "packages": 89,
+      "node_dependency_files": 146,
+      "actual_startup_and_report_guards_exit": [
+        0,
+        0
+      ],
+      "actual_model_target": "20261019_account_recovery",
+      "page_errors": [],
+      "network_guard": {
+        "exactOrigin": "http://127.0.0.1:8781",
+        "maxRedirects": 0,
+        "apiCalls": 0,
+        "routeFetches": 0,
+        "blockedOtherOrigins": 6
+      },
+      "own_listener_pid": 25384,
+      "owned_listener_and_launcher_closed": true,
+      "foreign_listeners_unchanged": true,
+      "shutdown": "Deliberate owner Stop-Process after successful driver; raw launcher exit retained, no graceful-shutdown claim.",
+      "fixture_authentication": {
+        "head": "57dba41a87de4f7a743e6b68c0378f1629b7bb72",
+        "historical_fixture_raw_sha256": "77cf6b0670700522994f24c0ef5d6722e88713eff889ad22a0457867055904b3",
+        "current_fixture_raw_sha256": "77cf6b0670700522994f24c0ef5d6722e88713eff889ad22a0457867055904b3",
+        "current_fixture_git_sha256": "77cf6b0670700522994f24c0ef5d6722e88713eff889ad22a0457867055904b3",
+        "current_driver_git_sha256": "8ab33109e055d76ff8d118d0bc3a18980758fe13b724e8298eb008dbcf244ade",
+        "driver_raw_sha256": "c25b645b635bc501f5794e3373ff4530a603dc21fc885cc3ce240bdead725d75",
+        "fixture_review": "No AST change from authenticated author fixture",
+        "driver_assertions_unchanged": true,
+        "scope": "New composed target28 fixture authenticated against current HEAD; original author snapshot and its target27 acceptance remain intact."
+      },
+      "summary_sha256": "11b3dd93fc02acf52306b45a6c53f0b0231147257249aed19a9e293852355cbd",
+      "manifest_sha256": "cc6e92a1594c8fc2375fc9a2913f15a3c01d1f4de2bc55046d8af8fd8f0ad179"
+    }
+  ],
+  "only_evidence_and_owned_temp_written": true,
+  "candidate_source_and_git_unchanged": true,
+  "scope": "Independent local Windows Python/Git Bash/Node and real single-Chrome sequential loopback fixtures, current ORM metadata target28. No migration execution, old17browser/162VM/broad/PG repeat, Linux/Actions/container build/performance/publication acceptance."
+}
