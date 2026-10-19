@@ -1,229 +1,37 @@
-# 📦 Distribución de Método Base v2.0
+# Distribución desktop de Método Base
 
-## Contenido del paquete
+La aplicación desktop soportada usa PySide6. El paquete onedir contiene `MetodoBase.exe`, `_internal/`, `build-manifest.json` y el launcher Windows. Se debe extraer y conservar **todo el directorio**; copiar sólo el EXE rompe sus dependencias. El cliente no requiere Python instalado en el equipo destinatario.
 
-```
-MetodoBase_v2.0/
-├── MetodoBase.exe          ← Ejecutable principal (doble clic para iniciar)
-├── LEEME.md                ← Este archivo
-├── config.env.example      ← Plantilla de configuración (renombrar a .env)
-└── Licencia.txt            ← Términos de uso
-```
+Este repositorio prepara una receta local. No hay todavía aceptación de un ejecutable, instalador o firma del candidato final. Las pruebas Python, los tests sintéticos de empaquetado y una aplicación instalada son comprobaciones diferentes. Consulte [la preparación desktop](docs/implementation/20261018-evolution/DESKTOP_EMPAQUETADO.md).
 
----
+## Uso del paquete Windows
 
-## Requisitos del sistema
+El target declarado es Windows 10/11 x64. Después de validar el artefacto, abra `MetodoBase.exe` o `metodobase_iniciar.bat` desde la carpeta extraída. Se abre una ventana desktop; no necesita iniciar un servidor local ni un navegador. El launcher no instala dependencias y sólo comprueba la presencia del EXE, `_internal` y manifiesto; la verificación de hashes corresponde al proceso de entrega.
 
-| Requisito         | Mínimo          | Recomendado     |
-|-------------------|-----------------|-----------------|
-| Sistema operativo | Windows 10 x64  | Windows 11 x64  |
-| RAM               | 4 GB            | 8 GB            |
-| Espacio en disco  | 300 MB libres   | 1 GB libres     |
-| Procesador        | Intel i3 / Ryzen 3 | Intel i5 / Ryzen 5 |
-| Navegador         | Chrome 90+ / Edge 90+ | Chrome actualizado |
+Los datos se guardan normalmente en `%APPDATA%/MetodoBase`, con `config`, `registros` y `planes`. `METODOBASE_DATA_DIR` permite un destino explícito. Las preferencias de tema usan además el perfil de usuario. No se debe mover ni borrar información de instalaciones antiguas para corregir una ruta. Actualización, recuperación y desinstalación necesitan un respaldo probado y un procedimiento revisado; el instalador preparado conserva los datos locales que no forman parte del payload.
 
-> **Linux:** También funciona en Ubuntu 22.04+ ejecutando `./MetodoBase` desde terminal.
+No se necesita ejecutar el programa como administrador para su trabajo diario. La receta del instalador conserva la elevación durante instalación. Una licencia local válida continúa según su propio contrato; la compatibilidad del puente remoto permanece documentada en [LICENCIAS.md](docs/implementation/20261018-evolution/LICENCIAS.md). Este paquete no concede nuevos derechos ni autoriza activaciones remotas de prueba.
 
----
+## Crear un candidato revisable
 
-## Instalación para usuarios finales (Windows)
+Usar un checkout limpio del commit integrado aprobado y un entorno temporal Python 3.12. Instalar el runtime desktop de la plataforma mediante su lock con hashes y, por separado, `requirements_build.lock`. No instalar herramientas globales ni usar requirements genéricos sin hashes como sustituto del entorno aprobado.
 
-### Paso 1 — Descomprimir
-
-1. Haz clic derecho en `MetodoBase_v2.0.zip`
-2. Selecciona **"Extraer todo..."**
-3. Elige la carpeta de destino, por ejemplo:  
-   `C:\Program Files\MetodoBase\`
-
-### Paso 2 — Primer uso
-
-1. Abre la carpeta `MetodoBase_v2.0/`
-2. Doble clic en **`MetodoBase.exe`**
-3. Si aparece el aviso de Windows Defender → [ver sección Solución de problemas](#firewall)
-4. Se abrirá una ventana de consola y **automáticamente** se abrirá el navegador en  
-   `http://localhost:8000`
-
-### Paso 3 — Configuración inicial (opcional)
-
-Si quieres personalizar el nombre del gym, logo o colores:
-1. Copia `config.env.example` → `.env` en la misma carpeta que el ejecutable
-2. Edita `.env` con tu editor de texto (Bloc de notas, Notepad++, etc.)
-3. Reinicia la aplicación
-
----
-
-## Uso diario
-
-```
-1. Ejecutar MetodoBase.exe
-2. El navegador se abre automáticamente
-3. Al terminar de trabajar → cerrar la ventana de consola (o Ctrl+C)
-```
-
-> Los datos se guardan en `C:\Users\TU_USUARIO\.metodobase\` y **no se borran** al actualizar.
-
----
-
-## Actualización
-
-1. Descarga la nueva versión
-2. Reemplaza `MetodoBase.exe` con el nuevo archivo
-3. Tus datos y configuración se mantienen intactos
-
----
-
-## Solución de problemas{#firewall}
-
-### "Windows protegió tu PC"
-
-Aparece porque la app no tiene certificado de Microsoft ($300+/año).  
-Es normal en software de distribución directa.
-
-**Solución:**
-1. Click en **"Más información"** (texto azul)
-2. Click en **"Ejecutar de todas formas"**
-
-Solo necesitas hacerlo una vez por versión.
-
----
-
-### "El puerto 8000 ya está en uso"
-
-Otro programa usa el mismo puerto.
-
-**Opciones:**
-- Cierra y vuelve a abrir `MetodoBase.exe`
-- O edita `.env` y cambia `PORT=8000` por `PORT=8080`
-
----
-
-### La ventana se cierra inmediatamente
-
-Ejecuta desde consola para ver el error:
-1. Abre **PowerShell** (Win+X → Windows PowerShell)
-2. Navega a la carpeta: `cd "C:\Program Files\MetodoBase"`
-3. Ejecuta: `.\MetodoBase.exe`
-4. Copia el mensaje de error y compártelo con soporte
-
----
-
-### El navegador no se abre solo
-
-Abre manualmente: **[http://localhost:8000](http://localhost:8000)**
-
----
-
-### "Error de base de datos"
-
-Verifica que tienes permisos de escritura en tu perfil:
-- Ejecuta `MetodoBase.exe` como Administrador (clic derecho → Ejecutar como administrador)
-- Si persiste, contacta soporte
-
----
-
-## Datos y privacidad
-
-- Todos los datos se guardan **localmente** en tu PC
-- Directorio de datos: `C:\Users\TU_USUARIO\.metodobase\`
-- No se envía información a ningún servidor externo
-- Los PDFs se guardan en `C:\Users\TU_USUARIO\.metodobase\planes\`
-
----
-
-## Desinstalación
-
-1. Elimina la carpeta de instalación (`C:\Program Files\MetodoBase\`)
-2. **Opcional:** Elimina también los datos del usuario:  
-   `C:\Users\TU_USUARIO\.metodobase\`  
-   ⚠️ Esto borra todos los clientes, planes y PDFs guardados
-
----
-
-## Soporte
-
-| Canal           | Contacto                                                    |
-|-----------------|-------------------------------------------------------------|
-| Email           | soporte@metodobase.mx                                       |
-| WhatsApp        | [+52 744 161 4117](https://wa.me/5217441614117)             |
-| Horario soporte | Lunes a Viernes, 9:00 – 18:00 (hora Ciudad de México)       |
-
----
-
-## Para el instalador (Desarrolladores)
-
-Para crear un instalador `.exe` con Inno Setup:
-
-```bash
-# Desde el repositorio, con Inno Setup instalado:
-iscc setup_installer.iss
-```
-
-El resultado se genera en `Output/setup_metodobase.exe`.
-
----
-
-## Notas de versión — v2.0.0
-
-- ✅ Nueva interfaz web moderna (Tailwind CSS + FastAPI)
-- ✅ Dashboard con KPIs en tiempo real
-- ✅ Wizard de registro de cliente en 3 pasos
-- ✅ Generación de planes nutricionales con Katch-McArdle
-- ✅ PDFs profesionales con branding del gym
-- ✅ Rotación inteligente de alimentos
-- ✅ Compatible con Windows 10/11 y Ubuntu 22.04+
-- 🔧 Interfaz PySide6 legacy disponible en `main.py` (modo avanzado)
-
----
-
-## Firma de código
-
-### Windows — Certificado EV con signtool.exe
+La receta única es:
 
 ```powershell
-# Requisitos: certificado EV en token USB (SafeNet) + Windows SDK
-# 1. Firmar el ejecutable principal
-signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 ^
-  /a "dist\MetodoBase\MetodoBase.exe"
-
-# 2. Firmar el instalador generado por Inno Setup
-signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 ^
-  /a "Output\MetodoBaseSetup_v2.0.0.exe"
-
-# 3. Verificar firma
-signtool verify /pa "dist\MetodoBase\MetodoBase.exe"
+& '<python-temporal-verificado>' build.py --source-commit <SHA-completo-integrado> --zip
 ```
 
-### macOS — Notarización con Apple
+`setup.py build` y `build_all.bat` delegan en esa misma receta y requieren el mismo SHA. Para el batch, fijar `METODOBASE_BUILD_PYTHON` al ejecutable temporal explícito; no busca Python ni compila Inno automáticamente. `build_all.sh` conserva el recorrido nativo Linux/macOS y acepta `METODOBASE_BUILD_PYTHON`. Ningún wrapper reemplaza fuentes, ofusca, borra `.spec` o limpia desde el directorio del llamante.
 
-```bash
-# Requisitos: Xcode CLI tools, Developer ID Application certificate
-# 1. Firmar el .app bundle
-codesign --deep --force --verify --verbose \
-  --sign "Developer ID Application: CONSULTORIA HERNANDEZ" \
-  dist/MetodoBase.app
+La procedencia compara los archivos con los blobs del commit, sin confiar solamente en `git status` o las banderas del índice. Sólo admite bytes exactos o la política LF/CRLF documentada; filtros/encodings personalizados y overrides locales de atributos necesitan revisión y se rechazan. Los manifiestos y el ZIP verifican el conjunto completo. No incorporar `.env`, bases, licencias, perfiles o backups del desarrollador.
 
-# 2. Crear .dmg
-create-dmg \
-  --volname "Método Base" \
-  --window-pos 200 120 \
-  --window-size 600 400 \
-  --icon-size 100 \
-  --icon "MetodoBase.app" 150 190 \
-  --app-drop-link 450 185 \
-  "Output/MetodoBase_v2.0.0.dmg" \
-  "dist/MetodoBase.app"
+`validate_build.py --bundle <directorio>` verifica el manifiesto sin lanzar la aplicación. `--gui-smoke` es un diagnóstico optativo con perfil temporal y Qt offscreen: comprueba bindings, fuentes, tema y ventana de login, y termina antes del flujo de negocio. Sus sockets Python se bloquean; no es aislamiento de red OS ni una prueba completa de producto. El diagnóstico real aún no se ejecutó para el candidato final.
 
-# 3. Notarizar
-xcrun notarytool submit Output/MetodoBase_v2.0.0.dmg \
-  --apple-id "developer@consultoriahernandez.mx" \
-  --team-id "XXXXXXXXXX" \
-  --password "@keychain:AC_PASSWORD" \
-  --wait
+## Instalador y firma
 
-# 4. Grapar el ticket
-xcrun stapler staple Output/MetodoBase_v2.0.0.dmg
-```
+Después del build aprobado, `--prepare-installer` prepara una lista explícita de archivos y un script `installer-entry.iss`, vinculados al commit, versión AST, SHA256 del manifiesto y cabecera PE x64. No ejecuta Inno Setup. `setup_installer.iss` rechaza una compilación directa sin esas entradas; conserva AppId y directorio/modo de actualización existentes, no lanza el programa al terminar ni elimina registros/planes/datos al desinstalar.
 
----
+Todavía faltan compilador Inno fijado/verificado, compilación y comparación del payload, instalación/upgrade/desinstalación en Windows descartable y verificación de firma. No hay certificado ni firma acreditada por esta preparación. Una actualización debe reemplazar el conjunto probado del paquete, con respaldo y compatibilidad verificados; no sólo el EXE.
 
-*Método Base v2.0.0 — Generado el 16/03/2026 — Consultoría Hernández*
+Linux y macOS conservan los recorridos nativos. El `.app` de macOS, frameworks/enlaces, DMG, firma/notarización y las bibliotecas Qt de Linux necesitan ensayos en sus sistemas. Las estructuras sintéticas comprobadas en Windows no acreditan esos binarios. No se ejecutan operaciones de publicación desde estos scripts.

@@ -22,7 +22,7 @@ python3.12 -m venv .venv
 .venv/bin/python -X utf8 tests/run_isolated.py tests -q
 ```
 
-Desktop usa `requirements-test-desktop-windows.lock` o `requirements-test-desktop.lock` para reproducir su entorno de validación. `main.py` inicia la GUI. En Linux sin pantalla se necesita el backend Qt offscreen para sus pruebas. El runtime web de la imagen usa exclusivamente `requirements_web.lock` con hashes; Windows tiene `requirements_web-windows.lock`.
+Desktop usa `requirements-test-desktop-windows.lock` o `requirements-test-desktop.lock` para reproducir su entorno de validación. `main.py` inicia la GUI. El empaquetado usa exclusivamente `build.py --source-commit <SHA-completo-integrado>` y el spec onedir, con tooling fijado por separado; los wrappers delegan en esa receta. Los artefactos y el instalador aún necesitan sus gates nativos: consulte [distribución desktop](README_DISTRIBUCION.md). En Linux sin pantalla se necesita el backend Qt offscreen para sus pruebas. El runtime web de la imagen usa exclusivamente `requirements_web.lock` con hashes; Windows tiene `requirements_web-windows.lock`.
 
 El harness elimina configuración heredada de BD/proveedores, desactiva dotenv/envíos, crea SQLite temporal por worker y restringe sockets a loopback dentro del proceso. No es un sandbox del sistema operativo. Ejecutar siempre mediante `tests/run_isolated.py`; los scripts históricos de auditoría no son el runner vigente. Para paralelismo y orden reproducible:
 

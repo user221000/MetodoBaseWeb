@@ -1,16 +1,26 @@
-; Script de Inno Setup para crear instalador profesional de Método Base
-; Requiere Inno Setup 6.x: https://jrsoftware.org/isinfo.php
-;
-; Uso:
-;   1. Instala Inno Setup
-;   2. Abre este archivo en Inno Setup Compiler
-;   3. Compila (Ctrl+F9)
-;   4. Se genera: Output\MetodoBaseSetup_v1.0.0.exe
+; Compile only the generated installer-entry.iss from build.py preparation.
+; No compiler, installer, upgrade or signature acceptance is asserted by source.
+#ifndef PreparedInputs
+  #error Use build.py --source-commit <full SHA> --prepare-installer first.
+#endif
+#include PreparedInputs
+#ifndef MyAppVersion
+  #error Prepared version from the frozen product source is required.
+#endif
+#ifndef VerifiedSourceCommit
+  #error A verified source commit is required.
+#endif
+#ifndef VerifiedManifestSha256
+  #error A verified bundle manifest is required.
+#endif
+#ifndef VerifiedFilesInclude
+  #error A verified explicit file inventory is required.
+#endif
+#ifndef VerifiedOutputDir
+  #error An explicit preparation output directory is required.
+#endif
 
 #define MyAppName "Método Base"
-#define MyAppVersion "2.0.0"
-#define MyAppPublisher "MetodoBase"
-#define MyAppURL "https://metodobase.com"
 #define MyAppExeName "MetodoBase.exe"
 
 [Setup]
@@ -18,23 +28,23 @@ AppId={{8A2F4E7B-3C9D-4B1A-A5E6-7F8D9C0B2E3A}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
-AppPublisher={#MyAppPublisher}
-AppPublisherURL={#MyAppURL}
-AppSupportURL={#MyAppURL}
-AppUpdatesURL={#MyAppURL}
-
+AppPublisher=MetodoBase
+AppComments=Source {#VerifiedSourceCommit}; manifest {#VerifiedManifestSha256}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
+UsePreviousAppDir=yes
 DisableProgramGroupPage=yes
-
-OutputDir=Output
+OutputDir={#VerifiedOutputDir}
 OutputBaseFilename=MetodoBaseSetup_v{#MyAppVersion}
 Compression=lzma2/ultra
 SolidCompression=yes
-
 PrivilegesRequired=admin
-
+ArchitecturesAllowed=x64compatible
+; Preserve the previous installer registry/directory mode for upgrades.
+ArchitecturesInstallIn64BitMode=
+MinVersion=10.0
 WizardStyle=modern
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
@@ -43,36 +53,12 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "dist\MetodoBase\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+#include VerifiedFilesInclude
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
-[Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
-[UninstallDelete]
-Type: filesandordirs; Name: "{app}\registros"
-Type: filesandordirs; Name: "{app}\planes"
-Type: filesandordirs; Name: "{app}\logs"
-
-[Code]
-function InitializeSetup(): Boolean;
-begin
-  Result := True;
-end;
-
-procedure CurPageChanged(CurPageID: Integer);
-begin
-  if CurPageID = wpWelcome then
-  begin
-    WizardForm.WelcomeLabel2.Caption :=
-      'Este asistente te guiará en la instalación de ' +
-      '{#MyAppName} v{#MyAppVersion}.' + #13#10#13#10 +
-      'Sistema profesional de generación de planes nutricionales ' +
-      'para gimnasios.' + #13#10#13#10 +
-      'Desarrollado por {#MyAppPublisher}';
-  end;
-end;
+; No [Run] auto-start and no [UninstallDelete] of local data. Unknown data
+; under the legacy installation directory is retained, not silently migrated.

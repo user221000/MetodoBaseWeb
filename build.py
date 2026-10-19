@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -66,19 +67,29 @@ def _run(command: list[str], *, cwd: Path = BASE_DIR, env: dict[str, str] | None
         raise BuildError("Packaging command failed") from exc
 
 
+def _git_read(root: Path, *args: str, input_data: bytes | None = None) -> bytes:
+    """Read Git objects without user/global attributes, hooks or content filters."""
+    env = {key: value for key, value in os.environ.items() if not key.upper().startswith("GIT_")}
+    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_ATTR_NOSYSTEM="1", GIT_NO_REPLACE_OBJECTS="1")
+    command = ["git", "--no-optional-locks", "-c", "core.fsmonitor=false", "-c", f"core.hooksPath={os.devnull}",
+               "-c", f"core.attributesFile={os.devnull}", "-c", f"core.excludesFile={os.devnull}",
+               "-c", "core.autocrlf=false", "-c", "core.eol=lf", *args]
+    try:
+        return subprocess.run(command, cwd=root, env=env, input=input_data, check=True,
+                              capture_output=True, timeout=60).stdout
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise BuildError("Controlled Git read failed") from exc
+
+
 def collect_resources(root: Path = BASE_DIR) -> list[tuple[str, str]]:
     """Only supported tracked assets; never broad directories or user config."""
     root = root.absolute()
-    env = {key: value for key, value in os.environ.items() if not key.upper().startswith("GIT_")}
-    try:
-        top = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=root, env=env, check=True, capture_output=True)
-        if Path(top.stdout.decode("utf-8").strip()).resolve() != root.resolve():
-            raise BuildError("Resource root must be the selected worktree root")
-        result = subprocess.run(["git", "ls-files", "-z", "--", *RESOURCE_ROOTS], cwd=root, env=env, check=True, capture_output=True)
-    except (OSError, subprocess.CalledProcessError) as exc:
-        raise BuildError("Tracked resource inventory is unavailable") from exc
+    top = _git_read(root, "rev-parse", "--show-toplevel")
+    if Path(top.decode("utf-8").strip()).resolve() != root.resolve():
+        raise BuildError("Resource root must be the selected worktree root")
+    inventory = _git_read(root, "ls-files", "-z", "--", *RESOURCE_ROOTS)
     resources, selected, folded = [], set(), set()
-    for name in result.stdout.decode("utf-8").split("\0"):
+    for name in inventory.decode("utf-8").split("\0"):
         if not name:
             continue
         relative = Path(name)
@@ -165,6 +176,10 @@ def write_manifest(bundle: Path, target_platform: str | None = None, *, source_c
     if source_commit is not None:
         manifest["source_commit"] = source_commit
         manifest["tooling"] = TOOL_VERSIONS
+        manifest["app_version"] = read_version(BASE_DIR)
+        if manifest["platform"] == "win32":
+            verify_windows_amd64(validate_bundle(bundle, "win32"))
+            manifest["architecture"] = "x86_64"
     target = Path(bundle) / MANIFEST_NAME
     target.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return target
@@ -187,6 +202,76 @@ def verify_manifest(bundle: Path) -> dict:
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise BuildError("Bundle manifest is missing or invalid") from exc
     return manifest
+
+
+def verify_windows_amd64(executable: Path) -> None:
+    """Read the PE machine field; host architecture is not artifact evidence."""
+    with executable.open("rb") as stream:
+        header = stream.read(64)
+        if len(header) != 64 or header[:2] != b"MZ":
+            raise BuildError("Installer source is not a Windows PE executable")
+        offset = struct.unpack_from("<I", header, 60)[0]
+        if offset > executable.stat().st_size - 6:
+            raise BuildError("Invalid PE header offset")
+        stream.seek(offset)
+        pe = stream.read(6)
+        if pe[:4] != b"PE\0\0" or struct.unpack_from("<H", pe, 4)[0] != 0x8664:
+            raise BuildError("This installer contract requires a verified Windows x64 executable")
+
+
+def _inno_string(value: str) -> str:
+    if any(character in value for character in ('"', "\r", "\n", "{", "}")):
+        raise BuildError("Installer input contains unsupported preprocessor characters")
+    return '"' + value + '"'
+
+
+def prepare_installer(bundle: Path, expected_commit: str, output_dir: Path | None = None) -> Path:
+    """Prepare inputs from a verified bundle; never run or install Inno Setup."""
+    source_before = source_snapshot(expected_commit)
+    bundle = Path(bundle).absolute()
+    manifest = verify_manifest(bundle)
+    if (manifest.get("platform") != "win32" or manifest.get("architecture") != "x86_64" or
+            manifest.get("source_commit") != expected_commit or manifest.get("app_version") != read_version(BASE_DIR)):
+        raise BuildError("Installer requires a versioned Windows x64 bundle of the exact source commit")
+    verify_windows_amd64(validate_bundle(bundle, "win32"))
+    output = (output_dir or BASE_DIR / "dist" / "installer-inputs").absolute()
+    if output.resolve().is_relative_to(bundle.resolve()) or _linked(output) or _linked(output.parent):
+        raise BuildError("Installer inputs must be outside the bundle without links")
+    if output.exists():
+        raise BuildError("Use a new installer input directory to preserve previous evidence")
+    files = {**bundle_files(bundle), MANIFEST_NAME: bundle / MANIFEST_NAME}
+    lines = []
+    for name, path in sorted(files.items()):
+        relative = Path(name)
+        destination = "{app}" + ("\\" + str(relative.parent).replace("/", "\\") if relative.parent != Path(".") else "")
+        # {app} is the one intended Inno constant. Source names are literal.
+        source = _inno_string(str(path))
+        suffix = "" if relative.parent == Path(".") else "\\" + relative.parent.as_posix().replace("/", "\\")
+        _inno_string(suffix)
+        lines.append(f'Source: {source}; DestDir: "{destination}"; Flags: ignoreversion')
+    output.mkdir(parents=True)
+    files_path = output / "verified-files.iss"
+    definitions_path = output / "verified-settings.iss"
+    entry_path = output / "installer-entry.iss"
+    files_path.write_text("\n".join(lines) + "\n", encoding="utf-8-sig")
+    definitions = {
+        "MyAppVersion": manifest["app_version"], "VerifiedSourceCommit": expected_commit,
+        "VerifiedManifestSha256": _digest(bundle / MANIFEST_NAME),
+        "VerifiedFilesInclude": str(files_path), "VerifiedOutputDir": str(output / "Output"),
+    }
+    definitions_path.write_text("".join(f"#define {key} {_inno_string(value)}\n" for key, value in definitions.items()), encoding="utf-8-sig")
+    entry_path.write_text(f"#define PreparedInputs {_inno_string(str(definitions_path))}\n#include {_inno_string(str(BASE_DIR / 'setup_installer.iss'))}\n", encoding="utf-8-sig")
+    if source_snapshot(expected_commit) != source_before or verify_manifest(bundle) != manifest:
+        raise BuildError("Sources changed while preparing installer inputs; reject the directory")
+    report = {"source_commit": expected_commit, "app_version": manifest["app_version"], "architecture": "x86_64",
+              "manifest_sha256": _digest(bundle / MANIFEST_NAME), "files": len(files),
+              "compiler_command": ["<verified ISCC.exe path>", str(entry_path)],
+              "compiler_executed": False, "installer_tested": False, "signature_verified": False,
+              "pending": ["Verify a pinned Inno compiler", "Compile and inspect payload against this manifest",
+                          "Discardable Windows install/upgrade/uninstall test", "Authorized signing process"]}
+    report_path = output / "installer-preparation.json"
+    report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    return report_path
 
 
 def create_distribution_zip(bundle: Path, output: Path | None = None) -> Path:
@@ -249,26 +334,90 @@ def check_dependencies() -> None:
             raise BuildError("Build tooling differs from the pinned contract")
 
 
+def _checkout_matches(blob: bytes, working: bytes, attributes: dict[str, str]) -> bool:
+    """Only exact bytes or an explicit UTF-8 LF/CRLF checkout are supported."""
+    if any(attributes.get(name, "unspecified") not in ("unspecified", "unset")
+           for name in ("filter", "ident", "working-tree-encoding")):
+        raise BuildError("Content filters, ident and encoded checkouts require separate review")
+    text = attributes.get("text", "unspecified")
+    eol = attributes.get("eol", "unspecified")
+    if text not in ("unspecified", "set", "unset", "auto") or eol not in ("unspecified", "unset", "lf", "crlf"):
+        raise BuildError("Unsupported committed checkout attributes")
+    if text == "unset" or b"\0" in blob:
+        return working == blob
+    try:
+        blob.decode("utf-8")
+    except UnicodeDecodeError:
+        return working == blob
+    if eol == "lf":
+        return b"\r\n" not in blob and working == blob
+    if eol == "crlf":
+        return b"\r\n" not in blob and working == blob.replace(b"\n", b"\r\n")
+    # Existing historical CRLF blobs are accepted byte-for-byte. New checkout
+    # conversion permits a uniform CRLF rendering of a canonical LF UTF-8 blob.
+    return working == blob or (b"\r\n" not in blob and working == blob.replace(b"\n", b"\r\n"))
+
+
 def source_snapshot(expected_commit: str) -> dict[str, str]:
     if not isinstance(expected_commit, str) or re.fullmatch(r"[a-f0-9]{40}", expected_commit) is None:
         raise BuildError("An explicit frozen source commit is required")
-    env = {key: value for key, value in os.environ.items() if not key.upper().startswith("GIT_")}
-    try:
-        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=BASE_DIR, env=env, check=True, capture_output=True).stdout.decode().strip()
-        status = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"], cwd=BASE_DIR, env=env, check=True, capture_output=True).stdout
-        names = subprocess.run(["git", "ls-files", "-z"], cwd=BASE_DIR, env=env, check=True, capture_output=True).stdout.decode("utf-8").split("\0")
-    except (OSError, subprocess.CalledProcessError) as exc:
-        raise BuildError("Frozen source inventory is unavailable") from exc
-    if head != expected_commit or status.strip():
-        raise BuildError("Build requires the requested commit and a clean worktree")
+    root = BASE_DIR.absolute()
+    top = _git_read(root, "rev-parse", "--show-toplevel").decode("utf-8").strip()
+    if Path(top).resolve() != root.resolve() or _git_read(root, "rev-parse", "HEAD").decode().strip() != expected_commit:
+        raise BuildError("Build requires the requested commit at the exact worktree root")
+    info = Path(_git_read(root, "rev-parse", "--git-path", "info/attributes").decode("utf-8").strip())
+    info = info if info.is_absolute() else root / info
+    if info.exists() and any(line.strip() and not line.lstrip().startswith(b"#") for line in info.read_bytes().splitlines()):
+        raise BuildError("Local info/attributes overrides are unsupported")
+    tree = {}
+    for entry in _git_read(root, "ls-tree", "-rz", "--full-tree", expected_commit).split(b"\0"):
+        if entry:
+            header, name = entry.split(b"\t", 1)
+            mode, kind, oid = header.decode("ascii").split()
+            name = name.decode("utf-8")
+            if kind != "blob" or mode not in ("100644", "100755"):
+                raise BuildError("Non-regular tracked objects require separate review")
+            if Path(name).is_absolute() or ".." in Path(name).parts or "\\" in name or ":" in name:
+                raise BuildError("Unsafe committed source path")
+            tree[name] = (mode, oid)
+    index = {}
+    for entry in _git_read(root, "ls-files", "-s", "-z").split(b"\0"):
+        if entry:
+            header, name = entry.split(b"\t", 1)
+            mode, oid, stage = header.decode("ascii").split()
+            if stage != "0":
+                raise BuildError("Unmerged index cannot be packaged")
+            index[name.decode("utf-8")] = (mode, oid)
+    if index != tree or _git_read(root, "ls-files", "--others", "--exclude-standard", "-z"):
+        raise BuildError("Index or untracked source differs from the requested commit")
+    attributes_raw = _git_read(root, "check-attr", "--source=" + expected_commit, "-z", "--stdin",
+                               "text", "eol", "filter", "working-tree-encoding", "ident",
+                               input_data=b"\0".join(name.encode("utf-8") for name in tree) + b"\0").split(b"\0")
+    attributes = {name: {} for name in tree}
+    for offset in range(0, len(attributes_raw) - 1, 3):
+        name, attribute, value = (part.decode("utf-8") for part in attributes_raw[offset:offset + 3])
+        attributes[name][attribute] = value
+    oids = list(dict.fromkeys(oid for _, oid in tree.values()))
+    data = _git_read(root, "cat-file", "--batch", input_data="".join(oid + "\n" for oid in oids).encode("ascii"))
+    blobs, offset = {}, 0
+    for expected_oid in oids:
+        end = data.index(b"\n", offset)
+        oid, kind, size = data[offset:end].decode("ascii").split()
+        size = int(size)
+        if oid != expected_oid or kind != "blob" or data[end + size + 1:end + size + 2] != b"\n":
+            raise BuildError("Invalid committed object stream")
+        blobs[oid] = data[end + 1:end + 1 + size]
+        offset = end + size + 2
     files = {}
-    for name in names:
-        if name:
-            path = BASE_DIR / name
-            _check_tree_path(path, BASE_DIR)
-            if not path.is_file():
-                raise BuildError("Tracked source is missing")
-            files[name] = _digest(path)
+    for name, (_, oid) in tree.items():
+        path = root / name
+        _check_tree_path(path, root)
+        if not path.is_file():
+            raise BuildError("Tracked source is missing")
+        working = path.read_bytes()
+        if not _checkout_matches(blobs[oid], working, attributes[name]):
+            raise BuildError("Working source bytes differ from the requested commit")
+        files[name] = hashlib.sha256(working).hexdigest()
     return files
 
 
@@ -289,7 +438,12 @@ def build_executable(expected_commit: str) -> Path:
     if source_snapshot(expected_commit) != source_before:
         raise BuildError("Source changed during packaging; candidate rejected")
     validate_bundle(bundle)
+    if sys.platform == "win32":
+        shutil.copyfile(BASE_DIR / "metodobase_iniciar.bat", bundle / "metodobase_iniciar.bat")
     write_manifest(bundle, source_commit=expected_commit)
+    if source_snapshot(expected_commit) != source_before:
+        (bundle / MANIFEST_NAME).unlink(missing_ok=True)
+        raise BuildError("Source changed during final manifest preparation; candidate rejected")
     return bundle
 
 
@@ -298,14 +452,15 @@ def run_tests() -> None:
           "tests/test_generacion_pdf.py", "tests/test_licencia.py", "tests/test_license_offline_security.py", "-q"])
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-commit", required=True, help="Exact integrated frozen commit to package")
     parser.add_argument("--clean", action="store_true", help="Remove only checked build/dist directories")
     parser.add_argument("--no-tests", action="store_true", help="Development only: omit desktop source tests")
     parser.add_argument("--test", action="store_true", help="Run isolated offscreen bundle diagnostic")
     parser.add_argument("--zip", action="store_true", help="Package the complete verified onedir tree")
-    args = parser.parse_args()
+    parser.add_argument("--prepare-installer", action="store_true", help="Prepare verified Inno input files without compiling")
+    args = parser.parse_args(argv)
     try:
         before_tests = source_snapshot(args.source_commit)
         if args.clean:
@@ -319,6 +474,8 @@ def main() -> int:
             _run([sys.executable, str(BASE_DIR / "validate_build.py"), "--bundle", str(bundle), "--gui-smoke"])
         if args.zip:
             print(create_distribution_zip(bundle))
+        if args.prepare_installer:
+            print(prepare_installer(bundle, args.source_commit))
         print(bundle)
         return 0
     except BuildError as exc:

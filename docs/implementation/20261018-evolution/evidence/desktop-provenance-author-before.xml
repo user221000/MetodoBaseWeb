@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="8" time="4.137" timestamp="2026-10-18T23:46:06.701465-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_desktop_provenance" name="test_hidden_working_change_cannot_claim_committed_source[assume-unchanged]" time="0.467"><failure message="Failed: DID NOT RAISE BuildError">tests\test_desktop_provenance.py:44: in test_hidden_working_change_cannot_claim_committed_source
+    with pytest.raises(module.BuildError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE BuildError</failure></testcase><testcase classname="tests.test_desktop_provenance" name="test_hidden_working_change_cannot_claim_committed_source[skip-worktree]" time="0.446"><failure message="Failed: DID NOT RAISE BuildError">tests\test_desktop_provenance.py:44: in test_hidden_working_change_cannot_claim_committed_source
+    with pytest.raises(module.BuildError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE BuildError</failure></testcase><testcase classname="tests.test_desktop_provenance" name="test_normal_frozen_checkout_is_accepted_without_index_mutation" time="0.444" /><testcase classname="tests.test_desktop_provenance" name="test_crlf_checkout_of_utf8_text_is_permitted" time="0.348"><failure message="desktop_provenance_author.BuildError: Build requires the requested commit and a clean worktree">tests\test_desktop_provenance.py:61: in test_crlf_checkout_of_utf8_text_is_permitted
+    assert "main.py" in module.source_snapshot(head)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+build.py:263: in source_snapshot
+    raise BuildError("Build requires the requested commit and a clean worktree")
+E   desktop_provenance_author.BuildError: Build requires the requested commit and a clean worktree</failure></testcase><testcase classname="tests.test_desktop_provenance" name="test_explicit_lf_resource_rejects_crlf" time="0.330" /><testcase classname="tests.test_desktop_provenance" name="test_binary_bytes_are_never_normalized" time="0.349" /><testcase classname="tests.test_desktop_provenance" name="test_committed_filter_is_rejected_without_running_it" time="1.101" /><testcase classname="tests.test_desktop_provenance" name="test_local_attributes_override_is_rejected" time="0.435"><failure message="Failed: DID NOT RAISE BuildError">tests\test_desktop_provenance.py:99: in test_local_attributes_override_is_rejected
+    with pytest.raises(module.BuildError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE BuildError</failure></testcase></testsuite></testsuites>
