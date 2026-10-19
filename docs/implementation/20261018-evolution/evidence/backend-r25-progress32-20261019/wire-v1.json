@@ -1,0 +1,642 @@
+{
+  "protocol": "personal_progress32_wire_v1",
+  "base": "5637b4daed86fa6ce3024c521aafdb6742373b08",
+  "schema_revision": "20261019_personal_progress",
+  "scope": "Synthetic contractual examples, not a completed API/PG/security acceptance receipt. No live data. Fields are fixed for UI preparation; later changes require an additive/versioned adenda.",
+  "auth": {
+    "source": "persisted bearer identity and current SV",
+    "new_mfa_actions": [],
+    "no_extra_grant_for_self_operations_or_withdrawal": true,
+    "professional_reads": "canonical OWNER/ADMIN/NUTRIOLOGO + current persisted catalog progresion_clientes right (currently clinica)",
+    "owner_boundary": "No new personal source/profile capability. Own consent metadata/discovery/withdrawal only remain available with legitimate active identity, including ambiguous usuario/OWNER."
+  },
+  "headers": {
+    "all_r25_statuses": {
+      "Cache-Control": "no-store",
+      "Referrer-Policy": "no-referrer",
+      "X-Content-Type-Options": "nosniff"
+    }
+  },
+  "budgets": {
+    "body_bytes": 8192,
+    "response_bytes": 262144,
+    "source_day_json_bytes": 65536,
+    "measurement_page_max": 100,
+    "data_range_max_days": 62,
+    "export_page_max": 200,
+    "export_collection_bytes": 131072,
+    "export_response_bytes": 1064960
+  },
+  "date_semantics": {
+    "timezone": "America/Mexico_City",
+    "instant_timezone": "UTC",
+    "query_default": "last30civil days through server today",
+    "bounds": "from and through both present or both absent; max62inclusive days; through<=server today",
+    "measured_on": "explicit ISO YYYY-MM-DD <=server today; never epoch/legacy fecha",
+    "consent": "explicit data-date scope, not an expiry/retention policy. Future from/through allowed; ongoing true iff explicit through_date:null. No future data/automatic data is invented.",
+    "reactivation": "revoked/replaced link or withdrawn consent never revives implicitly; same account OFF/ON may regain eligibility if exact link and unwithdrawn grant did not change."
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/usuario/progreso/contexto",
+      "query": {
+        "limit": "1..100 default100",
+        "after": "opaque exact profile id string1..36 from next_after"
+      },
+      "response": {
+        "today": "2026-10-19",
+        "timezone": "America/Mexico_City",
+        "profiles": {
+          "items": [
+            {
+              "id": "00000000-0000-0000-0000-000000000001",
+              "display_name": "Synthetic own profile",
+              "active": true,
+              "can_record": true
+            }
+          ],
+          "next_after": null
+        },
+        "capabilities": {
+          "record_measurements": true,
+          "manage_consent": true,
+          "share_reciprocally": false
+        },
+        "source_profile_required": true
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/usuario/progreso/mediciones/{record_key}",
+      "body": {
+        "expected_version": 0,
+        "source_profile_id": "00000000-0000-0000-0000-000000000001",
+        "measured_on": "2026-10-19",
+        "values": {
+          "peso_kg": 71.5,
+          "grasa_corporal_pct": 21
+        }
+      },
+      "response": {
+        "record_key": "00000000-0000-0000-0000-000000000101",
+        "legacy_id": null,
+        "version": 1,
+        "source_profile_id": "00000000-0000-0000-0000-000000000001",
+        "source_kind": "self_reported",
+        "measured_on": "2026-10-19",
+        "legacy_recording_timestamp": null,
+        "recorded_at": "2026-10-19T12:00:00+00:00",
+        "updated_at": "2026-10-19T12:00:00+00:00",
+        "withdrawn_at": null,
+        "values": {
+          "peso_kg": 71.5,
+          "grasa_corporal_pct": 21.0,
+          "masa_magra_kg": null
+        },
+        "units": {
+          "peso_kg": "kg",
+          "grasa_corporal_pct": "percent",
+          "masa_magra_kg": "kg"
+        },
+        "verification": "self_reported"
+      },
+      "cas": "0 creates exact supplied UUID; N updates same authorized self report; response version N+1 only after ACK; no adoption of legacy row/profile"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usuario/progreso/mediciones/{record_key}",
+      "response": {
+        "record_key": "00000000-0000-0000-0000-000000000101",
+        "legacy_id": null,
+        "version": 1,
+        "source_profile_id": "00000000-0000-0000-0000-000000000001",
+        "source_kind": "self_reported",
+        "measured_on": "2026-10-19",
+        "legacy_recording_timestamp": null,
+        "recorded_at": "2026-10-19T12:00:00+00:00",
+        "updated_at": "2026-10-19T12:00:00+00:00",
+        "withdrawn_at": null,
+        "values": {
+          "peso_kg": 71.5,
+          "grasa_corporal_pct": 21.0,
+          "masa_magra_kg": null
+        },
+        "units": {
+          "peso_kg": "kg",
+          "grasa_corporal_pct": "percent",
+          "masa_magra_kg": "kg"
+        },
+        "verification": "self_reported"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/usuario/progreso/mediciones",
+      "query": {
+        "source_profile_id": "explicit UUID",
+        "from": "ISO date optional paired",
+        "through": "ISO date optional paired",
+        "limit": "1..100",
+        "cursor": "opaque string<=512 from next_after; filter changes409"
+      },
+      "response": {
+        "items": [
+          {
+            "record_key": "00000000-0000-0000-0000-000000000101",
+            "legacy_id": null,
+            "version": 1,
+            "source_profile_id": "00000000-0000-0000-0000-000000000001",
+            "source_kind": "self_reported",
+            "measured_on": "2026-10-19",
+            "legacy_recording_timestamp": null,
+            "recorded_at": "2026-10-19T12:00:00+00:00",
+            "updated_at": "2026-10-19T12:00:00+00:00",
+            "withdrawn_at": null,
+            "values": {
+              "peso_kg": 71.5,
+              "grasa_corporal_pct": 21.0,
+              "masa_magra_kg": null
+            },
+            "units": {
+              "peso_kg": "kg",
+              "grasa_corporal_pct": "percent",
+              "masa_magra_kg": "kg"
+            },
+            "verification": "self_reported"
+          }
+        ],
+        "next_after": null,
+        "from_date": "2026-10-19",
+        "through_date": "2026-10-19",
+        "timezone": "America/Mexico_City"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/usuario/progreso/mediciones/{record_key}/retirar",
+      "body": {
+        "expected_version": 1
+      },
+      "response_semantics": "Same measurement DTO, withdrawn_at UTC, version2; retained owned source not resurrectable by PUT"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usuario/progreso/completados",
+      "query": {
+        "from": "ISO paired",
+        "through": "ISO paired"
+      },
+      "response": {
+        "today": "2026-10-19",
+        "timezone": "America/Mexico_City",
+        "from_date": "2026-10-19",
+        "through_date": "2026-10-19",
+        "basis": "completed_of_registered_snapshots",
+        "items": [
+          {
+            "local_date": "2026-10-19",
+            "registered_snapshots": 1,
+            "completed_snapshots": 0,
+            "ratio": 0.0,
+            "status": "observed"
+          }
+        ]
+      },
+      "empty": "No row means no item. Water-only day has registered0/completed0/ratio:null/status:no_registered_snapshots; no four-meal denominator or clinical adherence."
+    },
+    {
+      "method": "GET",
+      "path": "/api/usuario/progreso/consentimientos",
+      "query": {
+        "limit": "1..100",
+        "after": "exact link UUID from next_after"
+      },
+      "response": {
+        "items": [
+          {
+            "link_id": "00000000-0000-0000-0000-000000000201",
+            "consent": {
+              "id": "00000000-0000-0000-0000-000000000301",
+              "version": 1,
+              "event": "grant",
+              "protocol": "progress_share_v1",
+              "link_version": 2,
+              "source_profile_id": "00000000-0000-0000-0000-000000000001",
+              "categories": {
+                "weight": true,
+                "body_fat": false,
+                "lean_mass": false,
+                "completion": true
+              },
+              "from_date": "2026-10-19",
+              "through_date": null,
+              "ongoing": true,
+              "created_at": "2026-10-19T12:00:00+00:00"
+            },
+            "capabilities": {
+              "withdraw": true
+            }
+          }
+        ],
+        "next_after": null
+      },
+      "scope": "latest own events, even hidden/revoked source, no source lookup; not authority for a new grant"
+    },
+    {
+      "method": "GET",
+      "path": "/api/usuario/vinculos/{link_id}/progreso/consentimiento",
+      "response": {
+        "link_id": "00000000-0000-0000-0000-000000000201",
+        "consent": {
+          "id": "00000000-0000-0000-0000-000000000301",
+          "version": 1,
+          "event": "grant",
+          "protocol": "progress_share_v1",
+          "link_version": 2,
+          "source_profile_id": "00000000-0000-0000-0000-000000000001",
+          "categories": {
+            "weight": true,
+            "body_fat": false,
+            "lean_mass": false,
+            "completion": true
+          },
+          "from_date": "2026-10-19",
+          "through_date": null,
+          "ongoing": true,
+          "created_at": "2026-10-19T12:00:00+00:00"
+        },
+        "version": 1,
+        "effective": true,
+        "capabilities": {
+          "withdraw": true,
+          "grant": true
+        }
+      },
+      "owner_metadata_only_response": {
+        "link_id": "00000000-0000-0000-0000-000000000201",
+        "consent": {
+          "id": "00000000-0000-0000-0000-000000000301",
+          "version": 1,
+          "event": "grant",
+          "protocol": "progress_share_v1",
+          "link_version": 2,
+          "source_profile_id": "00000000-0000-0000-0000-000000000001",
+          "categories": {
+            "weight": true,
+            "body_fat": false,
+            "lean_mass": false,
+            "completion": true
+          },
+          "from_date": "2026-10-19",
+          "through_date": null,
+          "ongoing": true,
+          "created_at": "2026-10-19T12:00:00+00:00"
+        },
+        "version": 1,
+        "effective": null,
+        "capabilities": {
+          "withdraw": true,
+          "grant": false
+        },
+        "scope": "own_consent_metadata_only"
+      },
+      "absent_existing_own_link_response": {
+        "link_id": "00000000-0000-0000-0000-000000000201",
+        "consent": null,
+        "version": 0,
+        "effective": false,
+        "capabilities": {
+          "withdraw": false,
+          "grant": true
+        }
+      },
+      "absent_owner_history": "404 progress_consent_unavailable; no bootstrap/adoption"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/usuario/vinculos/{link_id}/progreso/consentimiento",
+      "body": {
+        "expected_consent_id": null,
+        "expected_version": 0,
+        "expected_link_version": 2,
+        "event": "grant",
+        "protocol": "progress_share_v1",
+        "source_profile_id": "00000000-0000-0000-0000-000000000001",
+        "categories": {
+          "weight": true,
+          "body_fat": false,
+          "lean_mass": false,
+          "completion": true
+        },
+        "from_date": "2026-10-19",
+        "through_date": null,
+        "ongoing": true
+      },
+      "response": {
+        "link_id": "00000000-0000-0000-0000-000000000201",
+        "consent": {
+          "id": "00000000-0000-0000-0000-000000000301",
+          "version": 1,
+          "event": "grant",
+          "protocol": "progress_share_v1",
+          "link_version": 2,
+          "source_profile_id": "00000000-0000-0000-0000-000000000001",
+          "categories": {
+            "weight": true,
+            "body_fat": false,
+            "lean_mass": false,
+            "completion": true
+          },
+          "from_date": "2026-10-19",
+          "through_date": null,
+          "ongoing": true,
+          "created_at": "2026-10-19T12:00:00+00:00"
+        },
+        "version": 1,
+        "effective": true,
+        "capabilities": {
+          "withdraw": true,
+          "grant": true
+        }
+      },
+      "replace": "exact observed expected_consent_id+expected_version+expected_link_version; never silently substitute latest. Only selected categories/date/profile become scope."
+    },
+    {
+      "method": "POST",
+      "path": "/api/usuario/vinculos/{link_id}/progreso/consentimiento/retirar",
+      "body": {
+        "expected_consent_id": "00000000-0000-0000-0000-000000000301",
+        "expected_version": 1
+      },
+      "response": {
+        "link_id": "00000000-0000-0000-0000-000000000201",
+        "consent": {
+          "id": "00000000-0000-0000-0000-000000000302",
+          "version": 2,
+          "event": "withdraw",
+          "protocol": "progress_share_v1",
+          "link_version": 2,
+          "source_profile_id": "00000000-0000-0000-0000-000000000001",
+          "categories": {
+            "weight": true,
+            "body_fat": false,
+            "lean_mass": false,
+            "completion": true
+          },
+          "from_date": "2026-10-19",
+          "through_date": null,
+          "ongoing": true,
+          "created_at": "2026-10-19T12:00:00+00:00"
+        },
+        "version": 2,
+        "effective": false,
+        "capabilities": {
+          "withdraw": false,
+          "grant": false
+        }
+      },
+      "scope": "only prior exact own latest event; no gym/profile tuple from caller, no source visibility or extra MFA required; no history404"
+    },
+    {
+      "method": "GET",
+      "path": "/api/clientes/{client_id}/progreso",
+      "query": {
+        "limit": "1..100",
+        "after": "integer next_after default0"
+      },
+      "response": {
+        "items": [
+          {
+            "record_key": null,
+            "legacy_id": 7,
+            "version": 1,
+            "source_profile_id": "00000000-0000-0000-0000-000000000001",
+            "source_kind": "legacy_unverified",
+            "measured_on": null,
+            "legacy_recording_timestamp": "2026-10-19T12:00:00+00:00",
+            "recorded_at": null,
+            "updated_at": null,
+            "withdrawn_at": null,
+            "values": {
+              "peso_kg": 71.5,
+              "grasa_corporal_pct": 21.0,
+              "masa_magra_kg": null
+            },
+            "units": {
+              "peso_kg": "kg",
+              "grasa_corporal_pct": "percent",
+              "masa_magra_kg": "kg"
+            },
+            "verification": "legacy_requires_review"
+          }
+        ],
+        "next_after": null,
+        "direction": "native_professional_history_only"
+      },
+      "scope": "own canonical gym/client history only; not reciprocal member sharing; unknown legacy measurement date is not plotted as measured_on"
+    },
+    {
+      "method": "GET",
+      "path": "/api/clientes/{client_id}/vinculacion/{link_id}/progreso/contexto",
+      "response": {
+        "link_id": "00000000-0000-0000-0000-000000000201",
+        "link_version": 2,
+        "consent": {
+          "id": "00000000-0000-0000-0000-000000000301",
+          "version": 1,
+          "event": "grant",
+          "protocol": "progress_share_v1",
+          "link_version": 2,
+          "source_profile_id": "00000000-0000-0000-0000-000000000001",
+          "categories": {
+            "weight": true,
+            "body_fat": false,
+            "lean_mass": false,
+            "completion": true
+          },
+          "from_date": "2026-10-19",
+          "through_date": null,
+          "ongoing": true,
+          "created_at": "2026-10-19T12:00:00+00:00"
+        },
+        "today": "2026-10-19",
+        "timezone": "America/Mexico_City",
+        "capabilities": {
+          "read_shared_progress": true
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/clientes/{client_id}/vinculacion/{link_id}/progreso",
+      "query": {
+        "expected_consent_id": "00000000-0000-0000-0000-000000000301",
+        "expected_version": 1,
+        "expected_link_version": 2,
+        "from": "2026-10-19",
+        "through": "2026-10-19",
+        "limit": "1..100",
+        "after": "exact measurement UUID from next_after"
+      },
+      "response": {
+        "link_id": "00000000-0000-0000-0000-000000000201",
+        "link_version": 2,
+        "consent_id": "00000000-0000-0000-0000-000000000301",
+        "consent_version": 1,
+        "from_date": "2026-10-19",
+        "through_date": "2026-10-19",
+        "timezone": "America/Mexico_City",
+        "measurements": {
+          "items": [
+            {
+              "record_key": "00000000-0000-0000-0000-000000000101",
+              "version": 1,
+              "source_kind": "self_reported",
+              "measured_on": "2026-10-19",
+              "recorded_at": "2026-10-19T12:00:00+00:00",
+              "values": {
+                "peso_kg": 71.5
+              },
+              "units": {
+                "peso_kg": "kg"
+              }
+            }
+          ],
+          "next_after": null
+        },
+        "completion": {
+          "basis": "completed_of_registered_snapshots",
+          "items": [
+            {
+              "local_date": "2026-10-19",
+              "registered_snapshots": 1,
+              "completed_snapshots": 0,
+              "ratio": 0.0,
+              "status": "observed"
+            }
+          ]
+        },
+        "categories": {
+          "weight": true,
+          "body_fat": false,
+          "lean_mass": false,
+          "completion": true
+        },
+        "consistency": "live_authorized_read",
+        "cached": false
+      },
+      "scope": "all read predicates repeated under locks; no raw diary/notes/foods/water, no cache or source Session returned"
+    }
+  ],
+  "errors": {
+    "401": [
+      "progress_identity_unavailable"
+    ],
+    "402": [
+      "progress_plan_required"
+    ],
+    "403": [
+      "progress_personal_space_required",
+      "progress_permission_denied",
+      "progress_context_mismatch"
+    ],
+    "404": [
+      "progress_source_unavailable",
+      "progress_consent_unavailable"
+    ],
+    "409": [
+      "progress_context_requires_review",
+      "progress_version_conflict",
+      "progress_version_overflow",
+      "progress_scope_changed",
+      "progress_source_requires_review",
+      "progress_busy",
+      "progress_context_changed"
+    ],
+    "413": [
+      "progress_volume_limit"
+    ],
+    "415": [
+      "progress_invalid_input"
+    ],
+    "422": [
+      "progress_invalid_input"
+    ],
+    "503": [
+      "progress_unconfirmed",
+      "progress_transaction_unavailable",
+      "progress_context_unavailable",
+      "progress_isolation_unavailable"
+    ]
+  },
+  "error_example": {
+    "detail": {
+      "code": "progress_version_conflict",
+      "message": "Consulta el estado autorizado antes de continuar.",
+      "current_version": 2
+    }
+  },
+  "error_semantics": {
+    "current_version": "only when caller already owns authorized current measurement/consent",
+    "foreign_missing": "same opaque response; no identities, SQL or private body echoed",
+    "ack_uncertain": "503 means reload exact retained resource, not definite failure/retry/adoption",
+    "no_truncation": "reject complete request/projection at budgets or corrupt source; never partial misleading data"
+  },
+  "export8": {
+    "endpoint": "GET /api/usuario/privacidad/exportar",
+    "new_cursor": "after_progress_consent (lowercase UUID36)",
+    "same_existing_seven_cursors": true,
+    "dataset": "progress_consents",
+    "dataset_response": {
+      "records": [
+        {
+          "link_id": "00000000-0000-0000-0000-000000000201",
+          "id": "00000000-0000-0000-0000-000000000301",
+          "version": 1,
+          "event": "grant",
+          "protocol": "progress_share_v1",
+          "link_version": 2,
+          "source_profile_id": "00000000-0000-0000-0000-000000000001",
+          "categories": {
+            "weight": true,
+            "body_fat": false,
+            "lean_mass": false,
+            "completion": true
+          },
+          "from_date": "2026-10-19",
+          "through_date": null,
+          "ongoing": true,
+          "created_at": "2026-10-19T12:00:00+00:00"
+        }
+      ],
+      "next_after": null
+    },
+    "scope_additions": {
+      "coverage": "account_persisted_personal_space_active_member_links_and_own_progress_consents",
+      "progress_consents": "own_append_only_scope_metadata",
+      "max_response_bytes": 1064960,
+      "max_collection_bytes": 131072
+    },
+    "no_source_portfolio_fields": [
+      "gym_id",
+      "client_id",
+      "user_id",
+      "recipient",
+      "email",
+      "notes",
+      "diary",
+      "object_descriptor"
+    ],
+    "measurement_additive_fields": [
+      "record_key",
+      "source_kind",
+      "measured_on",
+      "recorded_by_id",
+      "recorded_at",
+      "updated_at",
+      "version",
+      "withdrawn_at"
+    ]
+  }
+}

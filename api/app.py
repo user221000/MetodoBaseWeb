@@ -269,5 +269,8 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIDMiddleware)
     from web.observability.routes import configure_observability
+    from web.routes.personal_progress import router as personal_progress_router
+    app.include_router(personal_progress_router, prefix="/api")
+
     configure_observability(app)
     return app
