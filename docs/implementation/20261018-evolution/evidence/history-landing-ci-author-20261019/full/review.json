@@ -1,0 +1,332 @@
+{
+  "scope": "Local CI delta and inert owned Bash; no backend/browser/Actions/services execution",
+  "historical_verifier_preserved": true,
+  "snapshot_sha256": "ec7938ccb76783666023588147685c0acf84454040f5e94d09a839bd06b18524",
+  "history_vm_minimum": 23,
+  "history_browser_minimum": 10,
+  "landing_browser_minimum": 8,
+  "both_new_fixtures_minimum_screens": 4,
+  "historical_ci28_exit": 0,
+  "unauthorized_delta_canaries": [
+    {
+      "case": "missing-history-node",
+      "rejected": true
+    },
+    {
+      "case": "node-minimum22",
+      "rejected": true
+    },
+    {
+      "case": "history-minimum9",
+      "rejected": true
+    },
+    {
+      "case": "landing-minimum7",
+      "rejected": true
+    },
+    {
+      "case": "history-no-screens",
+      "rejected": true
+    },
+    {
+      "case": "landing-no-marker",
+      "rejected": true
+    },
+    {
+      "case": "old-revision27",
+      "rejected": true
+    },
+    {
+      "case": "omit-old-fixture",
+      "rejected": true
+    },
+    {
+      "case": "changed-pid-liveness",
+      "rejected": true
+    },
+    {
+      "case": "changed-process-cleanup",
+      "rejected": true
+    },
+    {
+      "case": "unrelated-postgres",
+      "rejected": true
+    },
+    {
+      "case": "omit-history-upload",
+      "rejected": true
+    },
+    {
+      "case": "omit-local-guard",
+      "rejected": true
+    }
+  ],
+  "bash_blocks": 65,
+  "references": [
+    "scripts/check_browser_fixture_startup.py",
+    "scripts/check_frontend_report.py",
+    "scripts/scan_secrets.py",
+    "tests/check_coverage.py",
+    "tests/check_quality.py",
+    "tests/e2e/auth_refresh.cjs",
+    "tests/e2e/auth_refresh_browser.cjs",
+    "tests/e2e/auth_refresh_race_review.cjs",
+    "tests/e2e/auth_refresh_security_review.cjs",
+    "tests/e2e/auth_refresh_server.py",
+    "tests/e2e/auth_refresh_storage.cjs",
+    "tests/e2e/auth_refresh_storage_browser_review.cjs",
+    "tests/e2e/gym_branding.cjs",
+    "tests/e2e/gym_branding_server.py",
+    "tests/e2e/gym_generation.cjs",
+    "tests/e2e/gym_generation_server.py",
+    "tests/e2e/gym_subscription.cjs",
+    "tests/e2e/landing.cjs",
+    "tests/e2e/landing_server.py",
+    "tests/e2e/personal_diary.cjs",
+    "tests/e2e/personal_diary_api.cjs",
+    "tests/e2e/personal_diary_controller.cjs",
+    "tests/e2e/personal_diary_server.py",
+    "tests/e2e/personal_export_context_browser.cjs",
+    "tests/e2e/personal_export_controls.cjs",
+    "tests/e2e/personal_generation.cjs",
+    "tests/e2e/personal_generation_server.py",
+    "tests/e2e/personal_history.cjs",
+    "tests/e2e/personal_history_browser.cjs",
+    "tests/e2e/personal_history_server.py",
+    "tests/e2e/personal_logout.cjs",
+    "tests/e2e/personal_logout_ack.cjs",
+    "tests/e2e/personal_operation.cjs",
+    "tests/e2e/personal_operation_ambiguity_review.cjs",
+    "tests/e2e/privacy_export.cjs",
+    "tests/e2e/privacy_export_server.py",
+    "tests/e2e/responsive_accessibility.cjs",
+    "tests/e2e/subscription.cjs",
+    "tests/e2e/subscription_contract_review.cjs",
+    "tests/e2e/team.cjs",
+    "tests/e2e/team_fullstack.cjs",
+    "tests/e2e/team_fullstack_server.py",
+    "tests/integration_account_recovery_migrations.py",
+    "tests/integration_backup_restore_postgres.py",
+    "tests/integration_cleanup_tokens_postgres.py",
+    "tests/integration_gym_caps_http_postgres.py",
+    "tests/integration_gym_quota_migrations.py",
+    "tests/integration_gym_quota_postgres.py",
+    "tests/integration_gym_recovery_review_postgres.py",
+    "tests/integration_individual_generation_recovery_review.py",
+    "tests/integration_individual_process_recovery_review.py",
+    "tests/integration_individual_publication_edges_review.py",
+    "tests/integration_individual_publication_migrations.py",
+    "tests/integration_individual_publication_postgres.py",
+    "tests/integration_invitation_tenant_postgres.py",
+    "tests/integration_legacy_inventory_postgres.py",
+    "tests/integration_license_postgres.py",
+    "tests/integration_model_utc_postgres.py",
+    "tests/integration_object_storage_sdk.py",
+    "tests/integration_object_store_configuration.py",
+    "tests/integration_object_store_configuration_review.py",
+    "tests/integration_onboarding_postgres.py",
+    "tests/integration_password_recovery_postgres.py",
+    "tests/integration_personal_diary_migrations.py",
+    "tests/integration_personal_diary_postgres.py",
+    "tests/integration_personal_diary_security_review.py",
+    "tests/integration_plan_documents_postgres.py",
+    "tests/integration_postgres.py",
+    "tests/integration_privacy_composition_postgres.py",
+    "tests/integration_private_objects_review_postgres.py",
+    "tests/integration_provider_subjects.py",
+    "tests/integration_quota_postgres.py",
+    "tests/integration_recovery28_restore_review.py",
+    "tests/integration_redis.py",
+    "tests/integration_schema_migrations.py",
+    "tests/integration_stored_objects_migrations.py",
+    "tests/integration_tenant_activation.py",
+    "tests/integration_timestamp_observation.py",
+    "tests/integration_utc_datetime.py",
+    "tests/integration_utc_datetime_review.py",
+    "tests/prepare_postgres.py",
+    "tests/run_isolated.py",
+    "tests/test_desktop_entrypoints.py",
+    "tests/test_desktop_packaging.py",
+    "tests/test_desktop_packaging_ops10.py",
+    "tests/test_desktop_packaging_review.py",
+    "tests/test_desktop_provenance.py",
+    "tests/test_login_desktop.py",
+    "tests/verify_history_landing_ci.py",
+    "tests/verify_quality_guards.py"
+  ],
+  "new_inert_fixture_cases": [
+    {
+      "fixture": "personal-history-ui",
+      "case": "positive",
+      "exit": 0,
+      "events": [
+        "start 1410",
+        "driver 1410",
+        "cleanup 1410"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "wrong-marker",
+      "exit": 1,
+      "events": [
+        "start 1845",
+        "cleanup 1845"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "old-revision",
+      "exit": 1,
+      "events": [
+        "start 1994",
+        "cleanup 1994"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "missing-report",
+      "exit": 1,
+      "events": [
+        "start 1447",
+        "driver 1447",
+        "cleanup 1447"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "too-few",
+      "exit": 1,
+      "events": [
+        "start 1310",
+        "driver 1310",
+        "cleanup 1310"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "no-screens",
+      "exit": 1,
+      "events": [
+        "start 292",
+        "driver 292",
+        "cleanup 292"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "page-error",
+      "exit": 1,
+      "events": [
+        "start 55",
+        "driver 55",
+        "cleanup 55"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "personal-history-ui",
+      "case": "driver-error",
+      "exit": 7,
+      "events": [
+        "start 28",
+        "driver 28",
+        "cleanup 28"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "positive",
+      "exit": 0,
+      "events": [
+        "start 659",
+        "driver 659",
+        "cleanup 659"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "wrong-marker",
+      "exit": 1,
+      "events": [
+        "start 855",
+        "cleanup 855"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "old-revision",
+      "exit": 1,
+      "events": [
+        "start 600",
+        "cleanup 600"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "missing-report",
+      "exit": 1,
+      "events": [
+        "start 1854",
+        "driver 1854",
+        "cleanup 1854"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "too-few",
+      "exit": 1,
+      "events": [
+        "start 378",
+        "driver 378",
+        "cleanup 378"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "no-screens",
+      "exit": 1,
+      "events": [
+        "start 320",
+        "driver 320",
+        "cleanup 320"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "page-error",
+      "exit": 1,
+      "events": [
+        "start 164",
+        "driver 164",
+        "cleanup 164"
+      ],
+      "owned_cleanup": true
+    },
+    {
+      "fixture": "public-landing",
+      "case": "driver-error",
+      "exit": 7,
+      "events": [
+        "start 115",
+        "driver 115",
+        "cleanup 115"
+      ],
+      "owned_cleanup": true
+    }
+  ],
+  "raw_archive_sha256": "9b4da0b95f2689057aa62c60e6bdc7b06befc4b272b80d8fbc3ca6b2f7a9520e"
+}

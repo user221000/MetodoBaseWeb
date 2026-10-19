@@ -60,6 +60,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install --require-hashes -r requirements-test.lock
+      - name: History and landing CI delta preserves reviewed CI28 and all acceptance gates
+        run: python -X utf8 tests/verify_history_landing_ci.py --output "$RUNNER_TEMP/history-landing-ci"
       - name: SaaS regression suite in fresh isolated data
         run: python -X utf8 tests/run_isolated.py tests --ignore=tests/test_login_desktop.py --ignore=tests/test_desktop_entrypoints.py -q --tb=short --cov --cov-report=xml --cov-report=json --junitxml=pytest-web.xml
       - name: Required SaaS cases cannot silently become skips
@@ -120,6 +122,10 @@ jobs:
           python scripts/check_frontend_report.py personal-diary-logout.json --format counts --minimum 10
           python scripts/check_frontend_report.py personal-diary-logout-ack.json --format counts --minimum 12
           python scripts/check_frontend_report.py personal-export-controls.json --format counts --minimum 21
+      - name: Bounded private history consumer contracts
+        run: |
+          node tests/e2e/personal_history.cjs > personal-history-contracts.json
+          python scripts/check_frontend_report.py personal-history-contracts.json --format counts --minimum 23
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -129,6 +135,7 @@ jobs:
             personal-operation-*.json
             personal-diary-*.json
             personal-export-controls.json
+            personal-history-contracts.json
           if-no-files-found: error
   test-desktop:
     runs-on: ${{ matrix.os }}
@@ -407,11 +414,16 @@ jobs:
           run_browser_fixture tests/e2e/auth_refresh_server.py 8772 tests/e2e/auth_refresh_storage_browser_review.cjs "${browser_evidence}/auth-refresh-storage-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 3
           run_browser_fixture tests/e2e/personal_generation_server.py 8773 tests/e2e/personal_generation.cjs "${browser_evidence}/personal-plan-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 15 named 8
           run_browser_fixture tests/e2e/personal_diary_server.py 8776 tests/e2e/personal_diary.cjs "${browser_evidence}/diary-ui-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 17 named 8 tests/e2e/personal_export_context_browser.cjs "${browser_evidence}/diary-ui-consumer-fix-browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 4 strings 4 personal-diary-ui
+          run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 10 strings 4 "" "" 0 strings 0 personal-history-ui
+          run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 8 strings 4 "" "" 0 strings 0 public-landing
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: candidate-browser-evidence
-          path: docs/implementation/20261018-evolution/evidence/ux
+          path: |
+            docs/implementation/20261018-evolution/evidence/ux
+            docs/implementation/20261018-evolution/evidence/history-pagination/browser-ci-*
+            docs/implementation/20261018-evolution/evidence/landing/browser-ci-*
       - name: Record candidate identity
         run: docker image inspect metodobase-candidate:${{ github.sha }} --format '{{.Id}}' > candidate-image-id.txt
       - uses: actions/upload-artifact@v4
