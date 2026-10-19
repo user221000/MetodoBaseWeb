@@ -1,0 +1,78 @@
+{
+  "runner": "F:/mb-ci29-archive-fix-20261019/tests/run_reviewed_ci28.py",
+  "runner_sha256": "d88a932df2160b1e6a8532d0312f1baefb566bf3db4a991b4a086759e5f2f58c",
+  "results": [
+    {
+      "case": "unsafe-archive-parent",
+      "passed": true,
+      "owned_files_created": 0
+    },
+    {
+      "case": "unsafe-archive-absolute",
+      "passed": true,
+      "owned_files_created": 0
+    },
+    {
+      "case": "unsafe-archive-backslash",
+      "passed": true,
+      "owned_files_created": 0
+    },
+    {
+      "case": "unsafe-archive-drive",
+      "passed": false,
+      "owned_files_created": 1
+    },
+    {
+      "case": "unsafe-archive-symlink",
+      "passed": true,
+      "owned_files_created": 0
+    },
+    {
+      "case": "unsafe-archive-hardlink",
+      "passed": true,
+      "owned_files_created": 0
+    },
+    {
+      "case": "unsafe-archive-fifo",
+      "passed": true,
+      "owned_files_created": 0
+    },
+    {
+      "case": "existing-destination-never-overwritten",
+      "passed": true
+    },
+    {
+      "case": "local-replace-ref-cannot-substitute-pinned-historical-assertions",
+      "passed": false,
+      "detail": {
+        "receipt": {
+          "pinned_commit": "66d9dec0e15dd873038bd248d3883daeeb27d4ca",
+          "files": 4433,
+          "archive_sha256": "27e1bd1c6b901a8ce523fb736e0e851101c4d5e04987ceb4a844d029512f470f",
+          "source_directory": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-archive-author-x_qd84eg\\archive-before\\replaced-source",
+          "regular_files_only": true
+        },
+        "actual_historical_verifier_sha256": "1646f7c98e144a060007a7dc520bd3afbaf035500ffbb5967c42bff4d63213c4",
+        "true_pinned_verifier_sha256": "39395c9262791dc5c36a33014c0013bb68bb122a1644ba25d9886ed9711353b1",
+        "stub_present": true
+      }
+    },
+    {
+      "case": "user-export-attributes-cannot-omit-pinned-restore-assertions",
+      "passed": false,
+      "detail": {
+        "receipt": {
+          "pinned_commit": "66d9dec0e15dd873038bd248d3883daeeb27d4ca",
+          "files": 4432,
+          "archive_sha256": "afb44291b47b9be850308a8b87824155719ad6e52196168664eb94d5de326975",
+          "source_directory": "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci29-archive-author-x_qd84eg\\archive-before\\attributes-source",
+          "regular_files_only": true
+        },
+        "pinned_restore_fixture_present": false
+      }
+    }
+  ],
+  "passed": 7,
+  "total": 10,
+  "scope": "Only local archive extraction/Git metadata in owned Temp. No PG/browser/Actions; no original Git metadata changed."
+}

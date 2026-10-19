@@ -14,6 +14,7 @@ import io
 import json
 import os
 from pathlib import Path, PurePosixPath
+import re
 import subprocess
 import sys
 import tarfile
@@ -24,6 +25,40 @@ RESTORE_NODES = (
     'tests/integration_backup_restore_postgres.py::test_encrypted_pg_restore_preserves_rows_constraints_and_private_objects',
     'tests/integration_recovery28_restore_review.py::test_revision28_restore_preserves_recovery_and_all_revision26_27_contracts',
 )
+
+
+def canonical_name(raw: str, *, directory: bool = False) -> str:
+    """Use one relative spelling on both Windows and POSIX before any write."""
+    if directory and raw.endswith('/'):
+        raw = raw[:-1]
+    name = PurePosixPath(raw)
+    assert raw and raw == name.as_posix() and not name.is_absolute()
+    assert '..' not in name.parts and '\\' not in raw and ':' not in raw
+    assert not any(ord(char) < 32 or ord(char) == 127 for char in raw)
+    return raw
+
+
+def tree_specification(repository: Path) -> tuple[dict, set[str]]:
+    """Read original object IDs independently of archive attributes/replace refs."""
+    listing = subprocess.check_output(
+        ['git', '--no-replace-objects', 'ls-tree', '-r', '-z', '--long', REVISION], cwd=repository)
+    assert listing and listing.endswith(b'\0'), 'Historical tree listing is incomplete'
+    files = {}
+    directories = set()
+    local_names = set()
+    for record in listing[:-1].split(b'\0'):
+        metadata, separator, raw = record.partition(b'\t')
+        assert separator
+        match = re.fullmatch(rb'(100644|100755) blob ([0-9a-f]{40}) +([0-9]+)', metadata)
+        assert match, 'Historical tree contains an unsupported object or mode'
+        name = canonical_name(raw.decode('utf8'))
+        local = os.path.normcase(name)
+        assert name not in files and local not in local_names, 'Historical tree has aliased names'
+        local_names.add(local)
+        files[name] = (int(match[1], 8) & 0o777, match[2].decode('ascii'), int(match[3]))
+        directories.update(parent.as_posix() for parent in PurePosixPath(name).parents if parent != PurePosixPath('.'))
+    assert not set(files).intersection(directories), 'Historical file/directory collision'
+    return files, directories
 
 
 def validate_restore_environment() -> None:
@@ -46,32 +81,53 @@ def materialize(repository: Path, destination: Path) -> dict:
     """
     repository = repository.resolve(strict=True)
     destination = destination.resolve()
-    subprocess.run(['git', 'merge-base', '--is-ancestor', REVISION, 'HEAD'],
+    subprocess.run(['git', '--no-replace-objects', 'merge-base', '--is-ancestor', REVISION, 'HEAD'],
                    cwd=repository, check=True, capture_output=True)
-    commit = subprocess.check_output(['git', 'rev-parse', REVISION + '^{commit}'],
+    commit = subprocess.check_output(['git', '--no-replace-objects', 'rev-parse', '--verify', REVISION + '^{commit}'],
                                      cwd=repository, text=True).strip()
     assert commit == REVISION
-    archive = subprocess.check_output(['git', 'archive', '--format=tar', REVISION], cwd=repository)
+    expected, directories = tree_specification(repository)
+    # Command-local settings change no repository/user configuration. Archive
+    # must emit blob bytes, including on a Windows autocrlf checkout; never
+    # normalize received bytes to excuse an object-ID mismatch.
+    archive = subprocess.check_output(['git', '--no-replace-objects', '-c', 'tar.umask=0022',
+                                       '-c', 'core.autocrlf=false', '-c', 'core.eol=lf',
+                                       'archive', '--format=tar', REVISION], cwd=repository)
     destination.mkdir(parents=True, exist_ok=False)
-    count = 0
+    seen = set()
+    seen_directories = set()
     with tarfile.open(fileobj=io.BytesIO(archive), mode='r:') as source:
         for entry in source:
-            name = PurePosixPath(entry.name)
-            assert not name.is_absolute() and '..' not in name.parts and '\\' not in entry.name
-            target = (destination / Path(*name.parts)).resolve()
+            name = canonical_name(entry.name, directory=entry.isdir())
+            target = (destination / Path(*PurePosixPath(name).parts)).resolve()
             assert target.is_relative_to(destination)
             if entry.isdir():
+                assert name in directories and name not in seen_directories, 'Unexpected/duplicate historical directory'
+                assert entry.mode == 0o755, 'Historical directory mode differs'
+                seen_directories.add(name)
                 target.mkdir(parents=True, exist_ok=True)
             else:
-                assert entry.isfile(), 'Historical archive contains a non-regular file'
-                target.parent.mkdir(parents=True, exist_ok=True)
+                assert entry.type in {tarfile.REGTYPE, tarfile.AREGTYPE} and entry.sparse is None, 'Historical archive contains a non-regular file'
+                assert name in expected and name not in seen, 'Unexpected/duplicate historical file'
+                mode, oid, size = expected[name]
+                assert entry.mode == mode and entry.size == size, 'Historical archive mode/size differs from tree'
                 stream = source.extractfile(entry)
                 assert stream is not None
-                target.write_bytes(stream.read())
-                count += 1
-    return {'pinned_commit': commit, 'files': count,
+                content = stream.read(size + 1)
+                assert len(content) == size, 'Historical blob is truncated'
+                actual = hashlib.sha1(b'blob ' + str(size).encode('ascii') + b'\0' + content,
+                                      usedforsecurity=False).hexdigest()
+                assert actual == oid, 'Historical blob bytes differ from pinned tree'
+                target.parent.mkdir(parents=True, exist_ok=True)
+                with target.open('xb') as output:
+                    output.write(content)
+                target.chmod(mode)
+                seen.add(name)
+    assert seen == set(expected), 'Historical archive omitted pinned tree files'
+    return {'pinned_commit': commit, 'files': len(seen),
             'archive_sha256': hashlib.sha256(archive).hexdigest(),
-            'source_directory': str(destination), 'regular_files_only': True}
+            'source_directory': str(destination), 'regular_files_only': True,
+            'pinned_tree_blobs_verified': True, 'replacement_objects_disabled': True}
 
 
 def main() -> int:

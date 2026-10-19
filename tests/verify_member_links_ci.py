@@ -29,7 +29,7 @@ WORKFLOW_SHA = '7077a47e2d5255695117d07d8b42fe1fff33876141abbb67375e3154de0b45c8
 BASELINE_SHA = 'fddb39ddbf9dc59460464192b44a2833a9546625ad492f49c1e7cab1f4f5198c'
 PINNED_CURRENT_GATES = {
     'tests/check_member_link_reports.py': 'd617301259208f8fc8da91ddd6f8bdbdc43a35a4cdfb059d94f4de60513e8e62',
-    'tests/run_reviewed_ci28.py': 'ae535aab4f27b0ea2f76da4ef6068129c2a7520326012c77c1142a1a6cea14e6',
+    'tests/run_reviewed_ci28.py': '58cf6c165d155d13120c3fe2ea50f1fac26960a3456c438418de45a2e040bbed',
     'tests/e2e/member_link_postgres_server.py': '307d95b8f4644b462b036863ac22f65c03772f900f4fbe5d6425550d1d9347fc',
     'tests/e2e/member_link_browser.cjs': '90c826948d84ed1b2556ffa395e8911f5520490a082c904a0c9a191a6bccbce8',
     'tests/e2e/normalize_member_link_report.py': 'd415ec90669856e6613840a3c09da7c1881a37ea96da9f5b51b0d01bd715eaab',
