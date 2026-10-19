@@ -341,11 +341,26 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         start_time = time.perf_counter()
         
         # Obtener respuesta
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:
+            # The outer generic handler will emit 500. Preserve no exception,
+            # traceback, body or concrete request identity in this store.
+            self._record(request, start_time, 500)
+            raise
         
         # Calcular latencia
         latency_ms = (time.perf_counter() - start_time) * 1000
         
+        self._record(request, start_time, response.status_code)
+
+        # Agregar headers de timing
+        response.headers["X-Response-Time"] = f"{latency_ms:.2f}ms"
+        return response
+
+    def _record(self, request: Request, start_time: float, status_code: int):
+        """Record one completed or failed request with its declared route only."""
+        latency_ms = (time.perf_counter() - start_time) * 1000
         # Never retain a concrete path, forwarded header or client address.
         # Router metadata is available only after a route has been resolved.
         route = request.scope.get("route")
@@ -359,13 +374,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             timestamp=time.time(),
             path=route_path,
             method=request.method if request.method in _METHODS else "OTHER",
-            status_code=response.status_code,
+            status_code=status_code,
             latency_ms=round(latency_ms, 2),
         )
         
         self.store.record(metric)
-        
-        # Agregar headers de timing
-        response.headers["X-Response-Time"] = f"{latency_ms:.2f}ms"
-        
-        return response
