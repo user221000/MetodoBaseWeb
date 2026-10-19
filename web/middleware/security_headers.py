@@ -17,6 +17,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, JSONResponse
 from web.client_link_paths import is_member_link_private
+from web.progress_paths import is_progress_private
 
 import inspect
 import logging
@@ -98,6 +99,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             or request.url.path.startswith("/api/usuario/diario/")
         )
         primary_api = request.url.path in _PRIMARY_API_PATHS
+        progress_api = is_progress_private(request.url.path)
         operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}
         
         try:
@@ -108,6 +110,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                     and not diary_api
                     and not request.url.path.startswith("/api/auth/mfa/")
                     and not primary_api
+                    and not progress_api
                     and not operations):
                 raise
             # Generic handlers live outside response middleware. Reuse the
@@ -162,6 +165,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 recovery_api
                 or diary_api
                 or primary_api
+                or progress_api
                 or operations
                 or request.url.path.startswith("/api/auth/mfa/")
                 or request.url.path == "/api/usuario/historial"
@@ -174,7 +178,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if operations or primary_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
+        if operations or primary_api or progress_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
             response.headers["Cache-Control"] = "no-store"
         
         if operations:
