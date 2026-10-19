@@ -27,6 +27,15 @@ ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT = ROOT / 'tests/ci_member_links29'
 WORKFLOW_SHA = '7077a47e2d5255695117d07d8b42fe1fff33876141abbb67375e3154de0b45c8'
 BASELINE_SHA = 'fddb39ddbf9dc59460464192b44a2833a9546625ad492f49c1e7cab1f4f5198c'
+PINNED_CURRENT_GATES = {'tests/check_member_link_reports.py': 'd617301259208f8fc8da91ddd6f8bdbdc43a35a4cdfb059d94f4de60513e8e62', 'tests/run_reviewed_ci28.py': 'ae535aab4f27b0ea2f76da4ef6068129c2a7520326012c77c1142a1a6cea14e6'}
+EXPECTED_CURRENT_REPORTS = {
+    'pytest-postgres-member-migrations.xml': (5, ('tests.integration_client_link_migrations',)),
+    'pytest-postgres-member-services.xml': (16, ('tests.integration_client_link_services',)),
+    'pytest-postgres-member-http.xml': (34, ('tests.integration_client_link_http',)),
+    'pytest-postgres-member-races.xml': (4, ('tests.integration_client_link_service_races',
+                                            'tests.integration_client_link_publication_cas')),
+    'pytest-postgres-member-restore.xml': (1, ('tests.integration_client_link_restore',)),
+}
 REVISION = '20261019_client_account_links'
 PREVIOUS = '20261019_account_recovery'
 WIRING_STEP = {
@@ -63,7 +72,14 @@ def normalized(path: Path) -> bytes:
     return path.read_bytes().replace(b'\r\n', b'\n')
 
 
+def authenticate_current_gates() -> None:
+    # Independent literals bind executable helpers before they are imported/run.
+    for name, digest in PINNED_CURRENT_GATES.items():
+        assert hashlib.sha256(normalized(ROOT / name)).hexdigest() == digest, name
+
+
 def baseline() -> dict:
+    authenticate_current_gates()
     raw = normalized(SNAPSHOT / 'ci28-before.yml')
     assert hashlib.sha256(raw).hexdigest() == WORKFLOW_SHA, 'Historical workflow changed'
     metadata = normalized(SNAPSHOT / 'baseline.json')
@@ -205,7 +221,9 @@ def delta_cases(workflow: dict, old: dict) -> list[dict]:
 
 
 def report_canaries(out: Path) -> list[dict]:
+    authenticate_current_gates()
     from tests.check_member_link_reports import REPORTS
+    assert REPORTS == EXPECTED_CURRENT_REPORTS and len(REPORTS) == 5
     rows = []
     modes = ['positive', 'missing', 'malformed', 'empty', 'reduced', 'duplicate',
              'wrong-module', 'SQLite', 'skip', 'failure', 'error']
@@ -237,6 +255,7 @@ def report_canaries(out: Path) -> list[dict]:
             (directory / 'stderr.log').write_bytes(result.stderr)
             assert (result.returncode == 0) == positive, (target, mode)
             rows.append({'report': target, 'case': mode, 'exit': result.returncode, 'expected_pass': positive})
+    assert len(rows) == 55, 'Current report probes were reduced'
     return rows
 
 
