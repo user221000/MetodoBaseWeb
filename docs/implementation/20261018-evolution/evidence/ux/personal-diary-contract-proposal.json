@@ -1,0 +1,128 @@
+{
+  "requirement": "R14",
+  "state": "Personal scope approved by root; DTO/date/food snapshot preparation exists in new modules only. Persistence, API/UI integration and schema review remain open.",
+  "existing": {
+    "source": [
+      "web/templates/usuario_mi_plan.html",
+      "web/templates/usuario_historial.html"
+    ],
+    "storage": "mb_daily_DATE, mb_water_DATE, mb_meals_DATE and mb_meals_done_DATE in localStorage without an account owner",
+    "day": "new Date().toISOString().slice(0,10) currently chooses UTC",
+    "progress": "renderPlan currently derives daily goal progress from menu kcal before any consumed food is recorded",
+    "server": "No diary API or persistence model exists; ClientProgress is for body measurements and must not absorb meals or water"
+  },
+  "ownership_proposed": {
+    "frontend_finish": [
+      "web/routes/usuario_diary.py",
+      "web/services/personal_diary_service.py",
+      "web/personal_diary_schemas.py",
+      "web/static/js/personal-diary.js",
+      "web/templates/usuario_mi_plan.html",
+      "web/templates/usuario_historial.html",
+      "tests/test_personal_diary_contract.py",
+      "tests/e2e/personal_diary.cjs"
+    ],
+    "integration_after_r11_checkpoint": [
+      "web/static/js/api.js",
+      "web/main_web.py",
+      "web/routes/usuario.py: only expose the authorized source plan ID if necessary"
+    ],
+    "backend_agreement_required": [
+      "web/database/models.py",
+      "schema revision and migrations",
+      "RLS policy matrix",
+      "schema_control expected revision and target table count"
+    ],
+    "current_schema_gate": "R04 preparation is frozen at 23 tables; B2B generation reservation is scheduled as table 24. Diary and object metadata follow as tables 25/26 according to the actual reviewed order; no fixed new revision is assumed."
+  },
+  "authority": {
+    "owner": "Only authenticated persisted usuario.id",
+    "context": "personal; a professional tipo usuario retains this separate space",
+    "request_authority_fields": "No user_id, gym_id, tenant, sharing permissions or timezone supplied by a client",
+    "sharing": "No gym/client access is granted; explicit R12 linkage and consent remain separate",
+    "date": "ISO local_date, server-derived today in America/Mexico_City; timezone included in every response and persisted record",
+    "legacy_browser_data": "No automatic import or attribution of old localStorage keys whose owner is unknown"
+  },
+  "persistence_proposed": {
+    "table": "personal_daily_logs",
+    "fields": [
+      "id UUID",
+      "user_id FK usuarios",
+      "local_date DATE",
+      "timezone",
+      "water_ml integer",
+      "source_plan_id nullable FK planes_generados ON DELETE SET NULL",
+      "meal_selections JSON",
+      "resolved_food_snapshot JSON",
+      "completed_meals JSON",
+      "version integer",
+      "created_at UTC",
+      "updated_at UTC"
+    ],
+    "invariants": [
+      "UNIQUE(user_id, local_date)",
+      "water_ml between 0 and 20000",
+      "version at least 1",
+      "source plan belongs to the authenticated personal user",
+      "resolved snapshot survives deletion of source plan"
+    ],
+    "isolation": "RLS subject equals user_id; transaction middleware already scopes /api/usuario/ to canonical personal identity",
+    "concurrency": "Conditional version update and unique first-insert arbitration; conflicting writes return 409 rather than silently replacing a newer device's state"
+  },
+  "api_proposed": {
+    "GET /api/usuario/diario/today": "Canonical server today, timezone and persisted or explicit empty day",
+    "GET /api/usuario/diario?start=YYYY-MM-DD&end=YYYY-MM-DD": "Authenticated bounded calendar range with saved summaries",
+    "GET /api/usuario/diario/{local_date}": "One explicit day, including version and stable record ID if persisted",
+    "PATCH /api/usuario/diario/{local_date}": "Discriminated operation water/meal/completion plus strict expected_version. A meal update replaces only that meal, preserving earlier meals and their individual plan source/snapshot.",
+    "food_input": "Source plan ID, meal and bounded option indices; vegetables require an explicit include_vegetables boolean. Food labels, portions and nutritional totals are derived from the authorized persisted source.",
+    "truth": "Menu generation never records consumption. Explicit food save records selected consumed foods; completion count is labelled independently from tracked kcal",
+    "http": "No-store responses; malformed input, invalid day, expired session, conflict and storage failures are distinguishable and never produce a saved toast"
+  },
+  "ui_states": [
+    "Loading: consumption controls wait for canonical diary state",
+    "Empty: no records today; consumed kcal zero even when a complete menu exists",
+    "Saved: canonical server response and explicit date/timezone shown",
+    "Unsaved: failed mutation preserves the form and offers retry without claiming persistence",
+    "Conflict: explain newer change and offer reload before replacing it",
+    "Date rollover: refresh server today on focus and before save; do not write a previous day's open form into a new day silently",
+    "Plan changed: do not reinterpret saved option indices under another plan; retain snapshot and require an explicit food update",
+    "History: bounded month fetch, loading/error/empty separated, timezone consistent with the diary"
+  ],
+  "validation_required": [
+    "Two authenticated devices load the same saved water/food/completion state",
+    "Logout and relogin preserve database history without relying on browser data",
+    "Switch between two accounts in one browser never displays or writes the other account's day",
+    "Professional membership and its revocation preserve the independent diary",
+    "Other user's source plan is rejected; forged owner, tenant or nutritional totals rejected",
+    "Mexico City 23:59 to 00:00 and UTC date difference yield the correct local_date",
+    "Concurrent first insert and stale version writes preserve one accepted version and reject the stale mutation",
+    "Calendar uses the persisted range instead of old mb_daily keys; source plan deletion retains resolved snapshot",
+    "API failures do not close a form as saved or leave a false progress state",
+    "Keyboard, focus, labels, contrast and 320/390/768/1440 responsive regression checks"
+  ],
+  "remaining_decisions": [
+    "Exact schema revision scheduling and ownership after R04 preparation gate",
+    "Whole-day single source_plan_id versus per-meal source plan snapshots for changing menus within one day; avoid silently replacing already recorded consumption",
+    "Authorized manual import, export and retention are later explicit work, not inferred from old browser storage"
+  ],
+  "environment": "Local synthetic validation only; no provider, production account, deployment or real email",
+  "preparation": {
+    "files": [
+      "web/personal_diary_schemas.py",
+      "web/services/personal_diary_service.py",
+      "tests/test_personal_diary_values.py"
+    ],
+    "source_sha256": {
+      "web/personal_diary_schemas.py": "3bb08f210536dfafcaf5162f36be08a371603fd89bf4fdedc5e2b33ce10052b2",
+      "web/services/personal_diary_service.py": "2aa6887b4f6298b5dc9763312dd4c57d37c163950885fdebde469e3969b48b2a",
+      "tests/test_personal_diary_values.py": "034929e4ff42cf54f75c56d880b942122c5af926154e8101c723296ae3f9ef7e"
+    },
+    "validation": "27 pure value tests pass: Mexico midnight/UTC difference, strict authority-free input, own-plan food snapshot, explicit vegetables, finite/corrupt numeric data, future write and bounded date ranges",
+    "evidence": [
+      "personal-diary-values-before.log",
+      "personal-diary-values-after.log",
+      "personal-diary-values-after.xml"
+    ],
+    "limit": "No active endpoint, table, migration, DB CAS, synchronization, logout history or UI integration yet; these pure tests do not close R14."
+  }
+}

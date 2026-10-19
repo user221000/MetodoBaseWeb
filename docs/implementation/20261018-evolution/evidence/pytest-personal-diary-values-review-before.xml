@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="8" time="1.574" timestamp="2026-10-18T21:57:31.656967-06:00" hostname="DESKTOP-AKV4LTQ"><testcase classname="tests.test_personal_diary_values_review" name="test_corrupt_legacy_source_is_a_structured_domain_error[deep-json]" time="0.250"><failure message="RecursionError: maximum recursion depth exceeded while decoding a JSON array from a unicode string">tests\test_personal_diary_values_review.py:22: in test_corrupt_legacy_source_is_a_structured_domain_error
+    resolve_consumed_meal(source(raw), "personal-review", "desayuno", MealSelection(proteinas=0))
+web\services\personal_diary_service.py:111: in resolve_consumed_meal
+    source = json.loads(plan_record.plan_json)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\json\__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\json\decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\Consu\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\json\decoder.py:354: in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+E   RecursionError: maximum recursion depth exceeded while decoding a JSON array from a unicode string</failure></testcase><testcase classname="tests.test_personal_diary_values_review" name="test_corrupt_legacy_source_is_a_structured_domain_error[not-json]" time="0.008" /><testcase classname="tests.test_personal_diary_values_review" name="test_corrupt_legacy_source_is_a_structured_domain_error[[]]" time="0.008" /><testcase classname="tests.test_personal_diary_values_review" name="test_corrupt_legacy_source_is_a_structured_domain_error[null]" time="0.008" /><testcase classname="tests.test_personal_diary_values_review" name="test_legacy_food_without_macros_resolves_catalog_and_snapshot_is_independent" time="0.083" /><testcase classname="tests.test_personal_diary_values_review" name="test_unknown_legacy_food_without_verified_macros_does_not_become_zero_consumption" time="0.007" /><testcase classname="tests.test_personal_diary_values_review" name="test_deleted_own_plan_cannot_resolve_new_consumption" time="0.007" /><testcase classname="tests.test_personal_diary_values_review" name="test_calendar_exact_inclusive_limit_and_datetime_rejection" time="0.017" /></testsuite></testsuites>
