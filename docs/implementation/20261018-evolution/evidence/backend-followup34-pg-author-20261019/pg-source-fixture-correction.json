@@ -1,0 +1,9 @@
+{
+  "before_sha256": "64e4c78b6410f154f6dfa1cda133cdc276b361ce4175aea11bd879e510a927ca",
+  "after_sha256": "5b459539521f8bfcb753fac1288c2f21bc677f9f59212ecc059a0219e1515b42",
+  "all_previous_assertions_preserved": 33,
+  "added_control_assertions": 1,
+  "cause": "Second-connection INSERT requires Usuario FK KEY SHARE while request holds FOR UPDATE; cannot schedule that writer synchronously inside snapshot callback",
+  "correction": "Preseed old Plan; concurrent non-key date UPDATE after snapshot, before real Event INSERT; same 409/cause_changed and zero Task/Event assertions",
+  "first_run": "18pass/1harnessfailure; owned blocked query cancelled after UUID/PID/birth verification; no backend termination or forced DROP"
+}

@@ -34,6 +34,8 @@ def populate_followup34(admin):
             db.add(Cliente(id_cliente="restore-task-"+label, gym_id=OWNER, nombre="Synthetic task "+label))
         db.commit()
     with tenant_scope(OWNER), Session(admin) as db:
+        from web.database.tenant_context import bind_verified_subject
+        bind_verified_subject(db, OWNER)  # Explicit fixture subject, not an HTTP-authentication claim.
         for label in ("assigned", "unassigned", "completed", "cancelled"):
             client = "restore-task-"+label
             source = sources(db, OWNER, [client])[client]

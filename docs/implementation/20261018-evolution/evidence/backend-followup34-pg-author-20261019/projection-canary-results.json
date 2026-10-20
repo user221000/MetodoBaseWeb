@@ -1,0 +1,84 @@
+{
+  "after_service_sha256": "13a9d7af04db4b1b241f849002ee84036b0374631a0e203895e2830ca151123c",
+  "before_service_sha256": "01f1e0c29dc575146b852c4dc8156293cca251aadf94388267f98c00895a53f8",
+  "canary_v1_sha256": "fa49f5232d3be2990cbac3f1ff472f827e5ef73b436a8f8c08826bf8e2163456",
+  "canary_v2_sha256": "befb20d3dd1958d14127720c44db8bb69d6c8f597a334417a13741ba74ba680a",
+  "invitation_token_note": "Read only for canonical null eligibility; no claim of a global privacy or retention fix.",
+  "minimum_fields": [
+    "id",
+    "activo",
+    "deleted_at",
+    "invitation_token",
+    "session_version",
+    "tipo",
+    "role",
+    "team_gym_id"
+  ],
+  "runs": {
+    "lock-projection-after": {
+      "cases": [
+        {
+          "class": "",
+          "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[api.app]",
+          "properties": {
+            "lock_projection_columns": "[\"SELECT USUARIOS.ID, USUARIOS.TIPO, USUARIOS.ROLE, USUARIOS.TEAM_GYM_ID, USUARIOS.INVITATION_TOKEN, USUARIOS.ACTIVO, USUARIOS.SESSION_VERSION, USUARIOS.DELETED_AT \\n\"]",
+            "moved_loaded_fields": "[[\"activo\", \"deleted_at\", \"id\", \"invitation_token\", \"role\", \"session_version\", \"team_gym_id\", \"tipo\"]]"
+          },
+          "status": "PASS"
+        },
+        {
+          "class": "",
+          "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[web.main_web]",
+          "properties": {
+            "lock_projection_columns": "[\"SELECT USUARIOS.ID, USUARIOS.TIPO, USUARIOS.ROLE, USUARIOS.TEAM_GYM_ID, USUARIOS.INVITATION_TOKEN, USUARIOS.ACTIVO, USUARIOS.SESSION_VERSION, USUARIOS.DELETED_AT \\n\"]",
+            "moved_loaded_fields": "[[\"activo\", \"deleted_at\", \"id\", \"invitation_token\", \"role\", \"session_version\", \"team_gym_id\", \"tipo\"]]"
+          },
+          "status": "PASS"
+        }
+      ],
+      "raw_xml_sha256": "380afd200e161202159a3ddcfeb327e1d5620cca9f1f4077a1db7097e88a8c48"
+    },
+    "lock-projection-before": {
+      "cases": [
+        {
+          "class": "",
+          "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[api.app]",
+          "properties": {},
+          "status": "FAIL"
+        },
+        {
+          "class": "",
+          "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[web.main_web]",
+          "properties": {},
+          "status": "FAIL"
+        }
+      ],
+      "raw_xml_sha256": "daf279f29066c4be842bc3f130d12a439b74bd83611edb36f105e0305399101e"
+    },
+    "lock-projection-telemetry-before": {
+      "cases": [
+        {
+          "class": "",
+          "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[api.app]",
+          "properties": {
+            "lock_projection_columns": "[\"SELECT USUARIOS.ID, USUARIOS.EMAIL, USUARIOS.PASSWORD_HASH, USUARIOS.NOMBRE, USUARIOS.APELLIDO, USUARIOS.TIPO, USUARIOS.ROLE, USUARIOS.TEAM_GYM_ID, USUARIOS.INVITED_BY, USUARIOS.INVITATION_TOKEN, USUARIOS.INVITATION_EXPIRES, USUARIOS.INVITATION_ROLE, USUARIOS.ACTIVO, USUARIOS.SESSION_VERSION, USUARIOS.PASSWORD_RESET_HASH, USUARIOS.PASSWORD_RESET_EXPIRES_AT, USUARIOS.PASSWORD_RESET_SESSION_VERSION, USUARIOS.DELETED_AT, USUARIOS.FECHA_REGISTRO \\n\"]",
+            "moved_loaded_fields": "[[\"activo\", \"apellido\", \"deleted_at\", \"email\", \"fecha_registro\", \"id\", \"invitation_expires\", \"invitation_role\", \"invitation_token\", \"invited_by\", \"nombre\", \"password_hash\", \"password_reset_expires_at\", \"password_reset_hash\", \"password_reset_session_version\", \"role\", \"session_version\", \"team_gym_id\", \"tipo\"]]"
+          },
+          "status": "FAIL"
+        },
+        {
+          "class": "",
+          "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[web.main_web]",
+          "properties": {
+            "lock_projection_columns": "[\"SELECT USUARIOS.ID, USUARIOS.EMAIL, USUARIOS.PASSWORD_HASH, USUARIOS.NOMBRE, USUARIOS.APELLIDO, USUARIOS.TIPO, USUARIOS.ROLE, USUARIOS.TEAM_GYM_ID, USUARIOS.INVITED_BY, USUARIOS.INVITATION_TOKEN, USUARIOS.INVITATION_EXPIRES, USUARIOS.INVITATION_ROLE, USUARIOS.ACTIVO, USUARIOS.SESSION_VERSION, USUARIOS.PASSWORD_RESET_HASH, USUARIOS.PASSWORD_RESET_EXPIRES_AT, USUARIOS.PASSWORD_RESET_SESSION_VERSION, USUARIOS.DELETED_AT, USUARIOS.FECHA_REGISTRO \\n\"]",
+            "moved_loaded_fields": "[[\"activo\", \"apellido\", \"deleted_at\", \"email\", \"fecha_registro\", \"id\", \"invitation_expires\", \"invitation_role\", \"invitation_token\", \"invited_by\", \"nombre\", \"password_hash\", \"password_reset_expires_at\", \"password_reset_hash\", \"password_reset_session_version\", \"role\", \"session_version\", \"team_gym_id\", \"tipo\"]]"
+          },
+          "status": "FAIL"
+        }
+      ],
+      "raw_xml_sha256": "097de6e6ebfd2d85f870b3f7c40374130344cadc5765783e655ac884e20e4f21"
+    }
+  },
+  "scope": "Unnecessary SQL/ORM hydration of cross-context identity columns during a permitted cancellation; no HTTP disclosure asserted.",
+  "semantic_asserts_unchanged": 6
+}
