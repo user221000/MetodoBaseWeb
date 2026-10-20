@@ -3,15 +3,14 @@
 The backend reports only two booleans. Export, delivery, clinical review and
 human activation measurements are deliberately outside these facts.
 """
-from datetime import datetime, timedelta, timezone
 import importlib
 import uuid
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import event
 from sqlalchemy.orm import Session
-
 
 FACTORIES = ["web.main_web", "api.app"]
 
@@ -19,9 +18,9 @@ FACTORIES = ["web.main_web", "api.app"]
 def seed(owner, *, foreign=False, inactive=False, deleted_client=False,
          deleted_plan=False, crossed=False):
     from web.database.engine import get_engine
-    from web.database.models import Cliente, PlanGenerado, Usuario, UserRole
+    from web.database.models import Cliente, PlanGenerado, UserRole, Usuario
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     gym = str(uuid.uuid4()) if foreign or crossed else owner["id"]
     client_id = str(uuid.uuid4())
     with Session(get_engine()) as db:
