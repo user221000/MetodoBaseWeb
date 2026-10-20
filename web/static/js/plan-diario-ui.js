@@ -90,7 +90,7 @@
       finally{if(ticket===epoch&&!invalid){busy=false;controls();}}
     });
     window.addEventListener('metodobase-session-changed',()=>invalidate());window.addEventListener('pagehide',()=>invalidate());
-    window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token'].includes(event.key))invalidate();});
+    window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))invalidate();});
     return{setSource,invalidate,check,current,
       setCatalog(ids){check();known=ids;if(source){menu=PlanDayData.menu(source.plan,known);if(items.children.length){items.replaceChildren();status.textContent='Catálogo confirmado. Vuelve a preparar el borrador con tus porciones elegidas.';}}},
       selection(meal){check();return JSON.parse(JSON.stringify(chosen[meal]||{}));},

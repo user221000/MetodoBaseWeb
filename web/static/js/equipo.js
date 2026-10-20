@@ -83,7 +83,7 @@
       message(failure(error)+(uncertain?' El resultado es incierto. Consulta el equipo antes de iniciar otra acción.':''));if(!state)document.getElementById('team-loading').textContent='No se pudo consultar el equipo. Usa Consultar equipo para reintentar.';}
     finally{if(current(ticket))setBusy(false);}
   }
-  window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('storage',function(event){if(!event.key || ['mb_token','mb_refresh_token'].includes(event.key))current(epoch);});window.addEventListener('pagehide',invalidate);
+  window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('storage',function(event){if(!event.key || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))current(epoch);});window.addEventListener('pagehide',invalidate);
   (async function() {
     var ticket=epoch;
     try {

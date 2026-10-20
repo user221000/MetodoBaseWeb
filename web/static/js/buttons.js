@@ -13,30 +13,22 @@
   const handlers = {
     /**
      * Acción: Cerrar sesión
-     * Limpia localStorage y redirige a home
+     * Espera el cierre por cookie y distingue la revocación incierta.
      */
-    'logout': function(event, button) {
-      const token = localStorage.getItem('mb_token');
-      const tipo = localStorage.getItem('mb_tipo');
-      
-      // Intentar logout en servidor (fire and forget, keepalive para que no se aborte al navegar)
-      if (token) {
-        fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token },
-          keepalive: true
-        }).catch(() => {}); // Ignorar errores, siempre limpiamos local
-      }
-      
-      // Limpiar localStorage
-      localStorage.removeItem('mb_token');
-      localStorage.removeItem('mb_refresh_token');
-      localStorage.removeItem('mb_tipo');
-      localStorage.removeItem('mb_nombre');
-      localStorage.removeItem('mb_email');
-      
-      // Redirigir al login correcto según tipo
-      window.location.replace(tipo === 'usuario' ? '/login-usuario' : '/login-gym');
+    'logout': async function(event, button) {
+      button=button||document.getElementById('btn-logout')||document.querySelector('[data-action="logout"]');if(!button)return;
+      if(button.disabled)return;button.disabled=true;
+      let notice=document.getElementById('browser-logout-status');
+      if(!notice){notice=document.createElement('p');notice.id='browser-logout-status';notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');notice.tabIndex=-1;button.after(notice);}
+      notice.textContent='Cerrando sesión…';
+      try{const result=await Api.auth.logout();
+        if(result.state!=='closed_local'){notice.textContent='La sesión cambió. Vuelve a abrir la cuenta actual antes de cerrarla.';notice.focus();return;}
+        if(result.context)Api.session.check(result.context);
+        if(result.server_confirmed){window.location.replace('/login-gym');return;}
+        notice.textContent='El acceso local se descartó. No pudimos confirmar la revocación en el servidor.';
+        const link=document.createElement('a');link.href='/login-gym';link.textContent='Volver al acceso';notice.append(document.createTextNode(' '),link);notice.focus();
+      }catch{notice.textContent='No se pudo confirmar el cierre. Vuelve a abrir el acceso antes de continuar.';notice.focus();}
+      finally{button.disabled=false;}
     },
 
     /**

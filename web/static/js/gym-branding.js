@@ -176,7 +176,7 @@
       if (!invalidated && expected === epoch) { error.textContent = failure.message || 'No se pudo actualizar el perfil.'; error.style.display = 'block'; error.focus(); }
     } finally { if (!invalidated && expected === epoch) { busy = false; controls(); } }
   });
-  window.addEventListener('storage', event => { if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) invalidate(); });
+  window.addEventListener('storage', event => { if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) invalidate(); });
   window.addEventListener('pagehide', invalidate);
   window.addEventListener('pageshow', event => { if (event.persisted) invalidate(); });
   window.GymBranding = { verifyAccount: () => verify(epoch), canUpdate, isActive: () => !invalidated };

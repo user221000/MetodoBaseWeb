@@ -83,7 +83,7 @@
       } finally { clearTimeout(timer); }
     }
     const storageChanged = event => {
-      if (event.key === null || ['mb_token','mb_refresh_token'].includes(event.key)) invalidate();
+      if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) invalidate();
     };
     window.addEventListener('storage', storageChanged);
     window.addEventListener('pagehide', () => invalidate(), {once:true});

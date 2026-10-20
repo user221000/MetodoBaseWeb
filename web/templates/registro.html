@@ -162,6 +162,7 @@
     </div>
   </div>
 
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1"></script>
   <script nonce="{{ request.state.csp_nonce }}">
     var params = new URLSearchParams(window.location.search);
     setTipo(params.get('tipo') === 'gym' ? 'gym' : 'usuario');
@@ -207,43 +208,30 @@
       btn.textContent = 'Creando cuenta...';
 
       try {
-        var res = await fetch('/api/auth/registro', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        await Api.session.ready;
+        var data = await Api.auth.registro({
             email: form.email.value.trim(),
             password: pw1,
             nombre: form.nombre.value.trim(),
             apellido: form.apellido.value.trim(),
             tipo: form.tipo.value,
-          }),
         });
-        var data = await res.json();
-        if (res.ok) {
-          localStorage.setItem('mb_token', data.token);
-          if (data.refresh_token) localStorage.setItem('mb_refresh_token', data.refresh_token);
-          localStorage.setItem('mb_tipo', data.tipo);
-          localStorage.setItem('mb_nombre', data.nombre);
-          localStorage.setItem('mb_email', data.email);
+          var context=Api.session.accepted(data);
+          form.password.value='';form.confirm_password.value='';
           successMsg.textContent = '¡Cuenta creada! Redirigiendo...';
           successMsg.style.display = 'block';
           var dest = data.tipo === 'gym' ? '/configuracion' : '/mi-plan';
-          setTimeout(function() { window.location.href = dest; }, 1200);
-        } else {
-          var det = data.detail;
-          if (Array.isArray(det)) det = det.map(function(e){ return e.msg || JSON.stringify(e); }).join(' · ');
-          else if (typeof det !== 'string') det = 'Error al crear la cuenta.';
-          errorMsg.textContent = det || 'Error al crear la cuenta.';
-          errorMsg.style.display = 'block';
-        }
+          Api.session.check(context);window.location.replace(dest);
       } catch (err) {
-        errorMsg.textContent = 'Error de conexión.';
+        errorMsg.textContent = err.code==='browser_session_unconfirmed'?'No pudimos confirmar la creación. Puede haberse aplicado; inicia sesión o recupera el acceso antes de repetirla.':err.message||'No se pudo confirmar la creación de la cuenta.';
         errorMsg.style.display = 'block';
       } finally {
         btn.disabled = false;
         btn.textContent = 'Crear Cuenta →';
       }
     });
+    window.addEventListener('metodobase-session-changed',function(){var form=document.getElementById('registroForm');form.password.value='';form.confirm_password.value='';});
+    window.addEventListener('pagehide',function(){var form=document.getElementById('registroForm');form.reset();});
   </script>
 </body>
 </html>

@@ -191,7 +191,7 @@
 
   </div>
 
-  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1"></script>
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-login.js?v={{ static_version }}"></script>
   <script nonce="{{ request.state.csp_nonce }}">
     MfaLogin.mount({audience:"gym",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});

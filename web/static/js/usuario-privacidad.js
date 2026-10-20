@@ -189,7 +189,7 @@
     catch(error){if(ticket===epoch && !invalid){try{check(context,ticket);}catch(sessionError){invalidate(sessionError);return;}if(sessionCodes.includes(error.code))invalidate(error);else fail(error);}}
     finally{if(ticket===epoch && !invalid){busy=false;controls();}}
   });
-  window.addEventListener('storage',function(event){if(event.key==='mb_token' || event.key==='mb_refresh_token' || event.key===null)invalidate(changed());});
+  window.addEventListener('storage',function(event){if(event.key==='mb_token' || event.key==='mb_refresh_token' || event.key==='mb_session_epoch' || event.key===null)invalidate(changed());});
   window.addEventListener('metodobase-session-changed',function(event){invalidate({code:event.detail && event.detail.code});});
   window.addEventListener('pagehide',function(){epoch++;invalid=true;pageContext=null;busy=false;discard(true);controls();});
   window.addEventListener('pageshow',function(event){if(event.persisted)invalidate(changed());});

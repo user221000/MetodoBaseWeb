@@ -13,6 +13,14 @@
   if (hasToken) { requestForm.hidden = true; confirmForm.hidden = false; }
   else if (token) { token = ''; status.textContent = 'El enlace no está disponible. Solicita uno nuevo.'; }
   const clearPasswords = () => { password.value = ''; confirmation.value = ''; };
+  function invalidateAccountViews() {
+    let epoch;try{epoch=crypto.randomUUID();}catch{return false;}
+    let stored=false;
+    try{localStorage.setItem('mb_session_epoch',epoch);stored=localStorage.getItem('mb_session_epoch')===epoch;}catch{/* No credential or persistence fallback. */}
+    try{const channel=new BroadcastChannel('metodobase.browser-session.v1');channel.postMessage({epoch});channel.close();}catch{/* Storage events still notify supported tabs. */}
+    window.dispatchEvent(new Event('metodobase-session-changed'));return stored;
+  }
+  const notificationWarning=' No se pudo avisar de forma fiable a todas las pestañas. Cierra las vistas anteriores antes de continuar.';
   window.addEventListener('pagehide', () => { token = ''; clearPasswords(); });
   async function post(path, body) {
     const response = await fetch('/api/auth/password-reset/' + path, {
@@ -46,12 +54,14 @@
       const {response, data} = await post('confirm', {token, new_password: password.value, confirm_password: confirmation.value});
       status.textContent = response.ok ? data.message :
         (data.detail?.message || 'No pudimos confirmar el cambio. Intenta iniciar sesión con la nueva contraseña o pide otro enlace.');
+      if((response.ok||response.status===503)&&!invalidateAccountViews())status.textContent+=notificationWarning;
       if (response.ok || response.status === 400 || response.status === 503) {
         token = ''; clearPasswords(); confirmForm.hidden = true; requestForm.hidden = !response.ok ? false : true;
       }
     } catch (_) {
       token = ''; clearPasswords(); confirmForm.hidden = true; requestForm.hidden = false;
       status.textContent = 'No pudimos confirmar el cambio. Intenta iniciar sesión con la nueva contraseña o pide otro enlace.';
+      if(!invalidateAccountViews())status.textContent+=notificationWarning;
     } finally { button.disabled = false; }
   });
 })();
