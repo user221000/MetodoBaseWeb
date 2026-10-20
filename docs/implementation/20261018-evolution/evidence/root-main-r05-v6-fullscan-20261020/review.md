@@ -1,0 +1,3 @@
+# Current web tree: full secret scan remains RED1
+
+The actual Mainb0fa scan uses verified Gitleaks8.30.1 with unchanged rules and15324 stable files:54180 raw findings,54179 finite classifications and one remaining blocking finding, effective exit1. All223 locations from the preceding scan are resolved by independently reviewed V6. The single newly observed location is in a peer source receipt and remains unapproved at this seal. No global CI or R05 PASS. Complete report, file maps and logs remain private with protected DACL before payload and full ZIP readback. Historical RED1603/11016/753/223 results retain their original sources.
