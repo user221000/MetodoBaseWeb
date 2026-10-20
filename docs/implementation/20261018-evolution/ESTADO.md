@@ -1,58 +1,41 @@
 # Estado de implementación
 
-Checkpoint132 local: esquema33 y128 requisitos (92 originales+36 añadidos).
-Se conservan íntegros los127 criterios previos. Free:10 clientes activos,
+Checkpoint133 local: esquema33 y128 requisitos (92 originales y36 añadidos).
+Todos los criterios anteriores se conservan exactos. Free:10 clientes activos,
 1 plan por cliente al día y10 planes totales por gimnasio al día. Desktop sigue
-soportado. El workspace de referencia permanece intacto. Sin push,PR,despliegue,
-cargos ni comunicaciones reales.
+soportado. Workspace de referencia intacto; sin push,PR,despliegue,cargos oenvíos.
 
-Google33 ysu UI están integrados desde3587. La corrección8a5e deQA-17 amplía el
-manejo de colisiones a los flush previos al commit. Rollback confirmado409;
-incierto503. No añade retry ni adopta cuentas. Autor:4casos verdes tras2FAIL y
-2PASS iniciales,58regresiones verdes. Peer sobre la fuente exacta:12SQLite y
-11PostgreSQL PASS,0errores/skips. Los mismos dos canarios HTTP entre procesos
-devuelven200+409; cuenta,binding,perfil ycinco plantillas únicos. Tres UUID
-temporales cerrados y ausentes. Evidencia original RED yreplay preservados.
-[Corrección](evidence/root-google33-conflict-author-20261019/review.md),
-[peer](evidence/security-google33-conflict-independent-20261019/review.md).
+Google33 ysu UI están integrados. QA-17 tiene corrección8a5e aceptada focalmente:
+autor4casos y58regresiones; peer12SQLite y11PG PASS. La carrera HTTP canónica
+conserva200+409 yuna cuenta,binding,perfil ycinco plantillas. Rollback incierto
+sigue503,sin adopción oretry. Continuidad Google-only histórica,recuperación
+total,alertas,custodia yvalidación externa siguen abiertas.
 
-La revisión33 anterior retiene sus fases ylimitaciones, sin sumar replays
-solapados. El esquema tiene35tablasORM/36físicas/26familiasFORCE,26funciones y
-12triggers. Su UI tiene evidencia de autor49VM,8SSR y148regresiones. QA actual
-prepara PG/CI yframing frontend:708comprobacionesoffline verdes; los primeros
-fallos Node siguen conservados. Broad actual,browser integrado eimagen final
-siguen pendientes. No se reatribuye el broad31 o el artefacto31 aesta versión.
-Google-only histórico sin sub conocido,pérdida total de factores,claim real,
-alertas ycustodia siguen abiertos.
-[Revisión33](evidence/security-google33-independent-20261019/review.md).
+CI33 integrado desdec86 con composición explícitaR05v2. QA verificó193canarios
+de workflow,157bloquesBash,110casosR05/49críticos ycontroles de binding/delta.
+ROOT repitió verify-only enMAIN con exit0. Se conservan20reportes/240IDs33 y
+5reportes/38IDs32. Los902offline y240PG verdes anteriores pertenecen ac86/v1;
+52UUID propias quedaron ausentes y0sesiones comprobadas tras la pausa. Sus
+testigos distinguen engine de negocio de sondeos auxiliares. Broad,Chrome,
+Actions,Linux eimagen actual todavía requieren validación propia.
+[Composición](evidence/qa-ci33-main-r05v2-composition-20261020/phase-summary.json).
 
-R05v2 está integrado:689archivos y45.910pins finitos, conservando ZIPv1 yel
-algoritmo anterior. Los155archivos nuevos tienen revisión independienteSEC
-de14.557ocurrencias/14.516pins y113controles; QA revisa el binding separado.
-Autor110pruebas mantenidas PASS. El escaneo real sobre4f4ed7 sigue RED:
-44.433hallazgos brutos,42.830clasificados y1.603bloqueantes nuevos. Estos
-requieren su propio triage; no hay PASS global. Los archivos de evidencia
-añadidos después no se atribuyen al árbol escaneado. CI33/PG240 retienenv1
-hasta componer yverificar sus pins explícitamente.
-[Autorv2](evidence/root-r05-reviewed-v2-author-20261019/review.md),
-[peer nuevo](evidence/security-r05-new-locations-independent-20261019/review.md).
+R05v2 instalado:689archivos y45.910pins finitos,con ZIPv1 yalgoritmo conservados.
+SEC revisó14.557ocurrencias nuevas/14.516pins y113controles; QA verificó el
+binding separado. El escaneo real4f4ed7 sigueRED:44.433hallazgos brutos,
+42.830clasificados y1.603bloqueantes nuevos. Su triage continúa; no hayPASSglobal.
+Las evidencias añadidas después no se reatribuyen al árbol escaneado.
 
-R23backend34 se desarrolla aislado conTask/Event durables,CAS,idempotencia,
-responsables autorizados,historia ydeclaraciones de revisión. El wirev1 fijo
-tiene ACK técnico de coordinación. Mecanismos,HTTP ylímite SQLite avanzan;
-PG34,consumidor UI34 e integración siguen pendientes. No se infieren cobros,
-contactos automáticos,renovaciones ni retención clínica. R27,R31,R33 ylos demás
-criterios técnicos continúan. Retención/países,volumen/SLO,entrevistas yrevisión
-profesional requieren datos oparticipación real.
+Backend34 yUI34 siguen aislados. QA-18 registra12canarias8PASS4RED originales;
+la reparación41dc5 tiene replay de autor12PASS yespera revisión independiente.
+Backend valida PG34 yrestore34 con lease55483; fallos de seed/harness se
+conservan por separado. UI34 tiene72casos propios y15SSR/HTTP de autor verdes;
+Chrome,accesibilidad yrevisión integrada están pendientes. No se infieren cobros,
+renovaciones,contactos automáticos odictámenes clínicos.
 
-VM yRedis6388 propios siguen apagados. PostgreSQL55483 quedó transferido de
-seguridad aQA para validación actual con bases propias ycierres comprobados.
-La imagen ydesktop final se prepararán desde la fuente estable posterior.
+R33 tiene precursor de dominio yguardas de ambos constructores con revisión
+independiente;persistencia/API35 avanzan fuera deMAIN. PostgreSQL35,desktop y
+UI nutricional siguen pendientes. R27,R31 yel resto del alcance continúan.
+Retención/países,volumen/SLO,piloto yrevisión profesional necesitan datos o
+participación real. VM yRedis6388 propios permanecen apagados.
 [Registro](TRAZABILIDAD.md),[validación](VALIDACION.md).
-
-QA recuperó PG33 c86:20reportes/240casos PASS, sin nuevos casos ni rerun.
-52UUID ausentes y0sesiones comprobados tras pausa. Mantienev1 ylas limitaciones
-del engine auxiliar; integraciónCI ypinv2 en curso. Backend tomaPG55483 para34.
-QA-18 queda abierto:12canarias8PASS4RED sobre80b9; fuente34 sigue aislada.
-[PG recuperado](evidence/qa-ci33-PG240-recovery-independent-20261019/phase-summary.json),
-[QA-18](evidence/security-followup34-independent-20261019/review.md).

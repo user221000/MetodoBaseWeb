@@ -227,3 +227,7 @@ Sólo dos paths de producto R05: nuevo ZIPv2 ybinding de tres literales. Inversa
 ## Checkpoint132
 
 Se incorpora sólo evidencia yregistro; ningún producto34 oCIc86 cambiaMAIN en este checkpoint.
+
+## Checkpoint133
+
+CI33 integrado conservando la cadena completa de c86 ysu delta original de82 fuentes desdeCOMMON3587. La composición con MAIN132/R05v2 modifica sólo el verifier respecto a c86:pinLF del módulo,pinRAW del ZIPc5eb ybase d8 explícitos; el guard de producto separa docs yel gateR05 sigue escaneándolos completos. QA110R05/49críticos PASS,9binding ycontroles de documento/3rechazos de producto,lock,target; verificador final193canarios workflow y157bloquesBash PASS,también replay ROOT enMAIN. Conserva20reportes/240IDs actuales33,5reportes/38IDs históricos32 ylos oráculos110/49. Offline902 yPG240 anteriores corresponden a c86/R05v1; no se reatribuyen aesta composición. No broad actual,Actions,Chrome,imagen oLinux aceptados por esta fase;R05global sigueRED.

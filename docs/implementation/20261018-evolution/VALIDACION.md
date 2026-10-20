@@ -288,3 +288,7 @@ Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disju
 ## Checkpoint132
 
 QA recuperó sin rerun los20reportes/240IDs únicos PG33 sobrec86:240PASS0FAIL/error/skip. 52UUID propias ausentes y0sesiones confirmados en conexión nueva tras la pausa; DROP ordinario ysin terminate. 1114fuentes/92distribuciones/8084archivos instalados ybinarios exactos. Los testigos distinguen engine de negocio de15sondeos auxiliares poscaso; no se atribuye su engine al negocio. Fuentesc86/R05v1; composiciónMAINv2, broad,Chrome,imagen,Linux yActions no demostrados por esta fase. QA-18: Canaria propia SHA c3a4aa36cf432a32898c93f4c4fef6a8a0d63f479ff8ac883f48eba9379073ce:12casos,8PASS4RED,0errores/skips. Replay75SQLite del autor PASS, no PostgreSQL34 ejecutado en ese sello.
+
+## Checkpoint133
+
+CI33 integrado conservando la cadena completa de c86 ysu delta original de82 fuentes desdeCOMMON3587. La composición con MAIN132/R05v2 modifica sólo el verifier respecto a c86:pinLF del módulo,pinRAW del ZIPc5eb ybase d8 explícitos; el guard de producto separa docs yel gateR05 sigue escaneándolos completos. QA110R05/49críticos PASS,9binding ycontroles de documento/3rechazos de producto,lock,target; verificador final193canarios workflow y157bloquesBash PASS,también replay ROOT enMAIN. Conserva20reportes/240IDs actuales33,5reportes/38IDs históricos32 ylos oráculos110/49. Offline902 yPG240 anteriores corresponden a c86/R05v1; no se reatribuyen aesta composición. No broad actual,Actions,Chrome,imagen oLinux aceptados por esta fase;R05global sigueRED.
