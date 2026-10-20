@@ -280,3 +280,7 @@ Clasificador finito v1:110 pruebas del autor (49 nuevas+61 anteriores) y171 del 
 ## Checkpoint130
 
 QA-17 tiene replay independiente12SQLite/11PG verde. QA CI33 cerró708 comprobacionesoffline y prepara PG real y framing actual de frontend. Sus fallos Node originales se conservan; broad33, browser eimagen final no están aceptados. Candidato8012 cubre14.557 ocurrencias/14.516pins únicos/155archivos del informe17c9, ahora sin ubicaciones pendientes de triage. Registrov1 instalado intacto; revisión independiente nueva en curso. No es escaneo nuevo ni PASS global. Los nueve digests de configuración prueban productor puro y recibos, sin reconstruir valores privados. La evidencia originalSEC33 ylos replaysFalse/True se conservan sin sumar conjuntos solapados.
+
+## Checkpoint131
+
+Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita.

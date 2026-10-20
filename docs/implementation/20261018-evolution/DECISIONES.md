@@ -140,3 +140,7 @@ Componer fuentes33 antes deQA integrada yconservar el ancestry real de506 paraCI
 ## Checkpoint130
 
 QA-17 es clasificación de conflicto concurrente, sin adopción de cuenta ni credenciales al perdedor. Ampliar el catch a toda la escritura; no convertir rollback incierto en409 ni añadir reintentos. El triageR05 nuevo requiere peer antes de instalarv2.
+
+## Checkpoint131
+
+Aceptar solamente ubicaciones con revisión independiente finita. El resto permanece bloqueante; no ampliar por patrón ni confiar en Match/Secret/Line. Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita.

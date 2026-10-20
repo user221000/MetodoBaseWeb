@@ -357,7 +357,10 @@
         "7cf4e6c",
         "52af40007eed53d32d0dca06b06b44dcbf7c64f3",
         "2273616eb218adfdd30680e111da50a4599a8c53",
-        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -437,7 +440,9 @@
         "evidence/security-r05-registry-independent-20261019/source.json",
         "evidence/security-gitleaks-triage-independent-20261019/manifest.json",
         "evidence/qa-ci33-offline-preparation-20261019/source.json",
-        "evidence/prepared-wave129-20261019/current-r05-candidate-summary.json"
+        "evidence/prepared-wave129-20261019/current-r05-candidate-summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -467,7 +472,8 @@
         "Checkpoint127: Serial y n2 de506 cerrados: cada modo3056PASS+1skipWindows exacto,3057IDs únicos y3047anteriores preservados,10208fuentes/89paquetes/Python quietos,pip0/0. Gate real de cobertura serial100%líneas/branches en3módulos críticos. Fullgitleaks de UI:exit1,31566raw,2pins existentes,31564restantes; sólo2nuevos fingerprints metadata verificados FP,31562previos sin clasificar. Scanner119 acotado no equivale a gitleaks global.",
         "Checkpoint128: MAIN incorpora fuentes revisadas31/32. Las dos regresiones completas y cobertura siguen atribuidas sólo a de506/esquema31; no se trasladan a32. CI vigente31 es histórico y requiere evolución coherente para33. Triage root del informe gitleaks original:31.282 ubicaciones checksum candidatas y282 pendientes; Seguridad las revisa independientemente, sin cambio de scanner ni allowlist. No hay un nuevo escaneo global verde.",
         "Checkpoint129: Clasificador finito v1:110 pruebas del autor (49 nuevas+61 anteriores) y171 del peer;10 escaneos reales y2 rechazos previos. Registro de31.394 pins únicos/534 archivos para31.564 ocurrencias antiguas revisadas. Último escaneo completo, fuente17c9:42.830 hallazgos brutos,28.273 clasificados y14.557 bloqueantes. Triage nuevo candidato:14.479 checksums/78 pendientes, sin ampliar el registro ni aceptar el gate global. El árbol33 actual requiere un nuevo escaneo completo. Borrador CI33 inactivo5993:205 canarios históricos y26 guardias propias verdes; QA actual33 continúa. de506 es ancestro auténtico de3587.",
-        "Checkpoint130: Candidato8012 cubre14.557 ocurrencias/14.516pins únicos/155archivos del informe17c9, ahora sin ubicaciones pendientes de triage. Registrov1 instalado intacto; revisión independiente nueva en curso. No es escaneo nuevo ni PASS global. Los nueve digests de configuración prueban productor puro y recibos, sin reconstruir valores privados."
+        "Checkpoint130: Candidato8012 cubre14.557 ocurrencias/14.516pins únicos/155archivos del informe17c9, ahora sin ubicaciones pendientes de triage. Registrov1 instalado intacto; revisión independiente nueva en curso. No es escaneo nuevo ni PASS global. Los nueve digests de configuración prueban productor puro y recibos, sin reconstruir valores privados.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -3778,7 +3784,10 @@
       "commits": [
         "e8e0c44",
         "0459b0f",
-        "6d33b9e"
+        "6d33b9e",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.",
@@ -3819,7 +3828,9 @@
         "evidence/linux-runtime28-native-20261019/native-openssl-sec09/evidence-manifest.json",
         "evidence/linux-runtime28-native-20261019/symlink-gate/summary.json",
         "evidence/linux-runtime28-native-20261019/runtime-red-frozen/evidence-manifest.json",
-        "evidence/security-migrator-role-independent-20261019/source.json"
+        "evidence/security-migrator-role-independent-20261019/source.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "QA_R05.md",
@@ -3842,7 +3853,8 @@
         "SeguimientoR21: c6fda6a falló85/1528 estables.40 patrones compactos no contemplabanCRLF; autor10 probes wrapper y seguridad2340 nuevos canarios de cinco codificaciones.45 pares del mapa initial y45 del reporte c6 verificados contra sus blobs; segunda extensión seguridad1575 específicos verdes. Config finalRAW14d11479/LF42bf8058; scan completo próximo commit pendiente, no se atribuye limpio todavía.",
         "Checkpoint107: Nuevo ZIP/Setup desktop de fuente66 revisado independientemente:93 verdes y payload exacto1215; sin ejecutar Setup ni cambiar HKCU. Artefactos históricos3.12.13 permanecen conservados.",
         "Checkpoint108: Imagen99c conserva71IDsOS abiertos y nueva coincidencia por versión de OpenSSL vendorizadoSEC09. No excepción ni imagen corregida. Gate realLinux de symlink1/1; runtime falló42501 al crear rolglobal histórico y se conserva antes de corregir.",
-        "Checkpoint109: QEMU/red/proxies/SSHcerrados;IPv4restauradosemánticamente,IPv6sólofilter/builtinsvacíosinicializados. PG55484transferidoyluegoapagadoSECconpropiedadverificada. NoigualdadbyteabyteIPv6niaceptaciónruntimecorregido."
+        "Checkpoint109: QEMU/red/proxies/SSHcerrados;IPv4restauradosemánticamente,IPv6sólofilter/builtinsvacíosinicializados. PG55484transferidoyluegoapagadoSECconpropiedadverificada. NoigualdadbyteabyteIPv6niaceptaciónruntimecorregido.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -3872,7 +3884,10 @@
         "e8e0c44",
         "e3039c2",
         "0459b0f",
-        "6d33b9e"
+        "6d33b9e",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -3907,7 +3922,9 @@
         "evidence/web-candidate-protocol26-shuffle-independent-source.json",
         "evidence/qa-integrated27-final-20261019/evidence-manifest.json",
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
-        "evidence/qa-integrated28-history-landing-postfix-20261019/final-summary.json"
+        "evidence/qa-integrated28-history-landing-postfix-20261019/final-summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -3921,7 +3938,8 @@
         "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.",
         "CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.",
         "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
-        "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados."
+        "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -4207,7 +4225,10 @@
         "e8e0c44",
         "0459b0f",
         "6d33b9e",
-        "52af40007eed53d32d0dca06b06b44dcbf7c64f3"
+        "52af40007eed53d32d0dca06b06b44dcbf7c64f3",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -4239,7 +4260,9 @@
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
         "evidence/qa-integrated28-history-landing-postfix-20261019/final-summary.json",
         "evidence/history-landing-ci-independent-20261019/final-summary.json",
-        "evidence/history-landing-main-ci-review-20261019/summary.json"
+        "evidence/history-landing-main-ci-review-20261019/summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -4254,7 +4277,8 @@
         "CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.",
         "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
         "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados.",
-        "CI local integrado; sin ejecuciónGitHubActions/Linux por esta revisión. CierreQA KeyError de clave screenshot corregido en helper separado con originales intactos;sin replay ni cambios decriterio."
+        "CI local integrado; sin ejecuciónGitHubActions/Linux por esta revisión. CierreQA KeyError de clave screenshot corregido en helper separado con originales intactos;sin replay ni cambios decriterio.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -4287,7 +4311,10 @@
         "e3039c2",
         "0459b0f",
         "6d33b9e",
-        "00d2114"
+        "00d2114",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -4323,7 +4350,9 @@
         "evidence/qa-integrated27-final-20261019/evidence-manifest.json",
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
         "evidence/ci-diary-independent-20261019/evidence-manifest.json",
-        "evidence/ci-diary-independent-20261019/ci-diary-independent-source.json"
+        "evidence/ci-diary-independent-20261019/ci-diary-independent-source.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -4336,7 +4365,8 @@
       "observaciones": [
         "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.",
         "CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.",
-        "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes."
+        "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -4438,7 +4468,10 @@
         "166038f88b211c52f0d149ce550880795361707c",
         "e8e0c44",
         "0459b0f",
-        "6d33b9e"
+        "6d33b9e",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -4488,7 +4521,9 @@
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
         "evidence/desktop31215-independent-20261019/final-summary.json",
         "evidence/linux-runtime28-native-20261019/native-openssl-sec09/evidence-manifest.json",
-        "evidence/linux-runtime28-native-20261019/symlink-gate/summary.json"
+        "evidence/linux-runtime28-native-20261019/symlink-gate/summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -4508,7 +4543,8 @@
         "R21 checkpoint2f8b7f9:1490 archivos estables/294 coincidencias, scan fallido conservado.293 huellas públicas verificadas; dos UUID sintéticos repetidos en un log/XML saneados con constancia sin alterar manifests históricos.43 grupos path AND whole-line exactos,187regex;1445 canarios independientes verdes y11 wrapper. Próximo scan completo de commit exacto pendiente, no usar b20e071 como pase actual.",
         "SeguimientoR21: c6fda6a falló85/1528 estables.40 patrones compactos no contemplabanCRLF; autor10 probes wrapper y seguridad2340 nuevos canarios de cinco codificaciones.45 pares del mapa initial y45 del reporte c6 verificados contra sus blobs; segunda extensión seguridad1575 específicos verdes. Config finalRAW14d11479/LF42bf8058; scan completo próximo commit pendiente, no se atribuye limpio todavía.",
         "Checkpoint107: Se preservan los scans originales y se vincula inventario83 al bundle desktop sin repetir SCA. La revisión de artefacto93 es acotada y no cierra LinuxOS71 ni el scan final de secretos de fuente actual.",
-        "Checkpoint108: El inventario nativo detecta superficie fuera de la SCA de distribucionesPyPI;SEC09 requiere corrección y nueva evidencia por artefacto. Gate realLinuxsymlink1/1 sin skip; no startup ni suiteLinux completa."
+        "Checkpoint108: El inventario nativo detecta superficie fuera de la SCA de distribucionesPyPI;SEC09 requiere corrección y nueva evidencia por artefacto. Gate realLinuxsymlink1/1 sin skip; no startup ni suiteLinux completa.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {

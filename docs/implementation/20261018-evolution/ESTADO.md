@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Checkpoint130 local: esquema33 y127 requisitos (92 originales+35 añadidos).
+Checkpoint131 local: esquema33 y127 requisitos (92 originales+35 añadidos).
 Se conservan íntegros los126 criterios previos. Free:10 clientes activos,
 1 plan por cliente al día y10 planes totales por gimnasio al día. Desktop sigue
 soportado. El workspace de referencia permanece intacto. Sin push,PR,despliegue,
@@ -26,14 +26,16 @@ Google-only histórico sin sub conocido,pérdida total de factores,claim real,
 alertas ycustodia siguen abiertos.
 [Revisión33](evidence/security-google33-independent-20261019/review.md).
 
-R05v1 instalado permanece intacto:31.394pins/534archivos;110pruebas del autor,
-171delpeer. El último escaneo completo17c9 sigue RED:42.830hallazgos brutos,
-28.273clasificados y14.557bloqueantes. Su triage nuevo tiene14.557ocurrencias
-candidatas/14.516pins/155archivos,0ubicaciones pendientes de análisis. Esto
-requiere revisión independiente antes de ampliar el registro. No es un escaneo
-nuevo ni PASS global. Las derivaciones CRLF no son ejecuciónRAW reconstruida;
-los digests de configuración prueban productor yrecibos sin revelar valores.
-[Candidatos](evidence/root-r05-new-locations-candidate-20261019/review.md).
+R05v2 está integrado:689archivos y45.910pins finitos, conservando ZIPv1 yel
+algoritmo anterior. Los155archivos nuevos tienen revisión independienteSEC
+de14.557ocurrencias/14.516pins y113controles; QA revisa el binding separado.
+Autor110pruebas mantenidas PASS. El escaneo real sobre4f4ed7 sigue RED:
+44.433hallazgos brutos,42.830clasificados y1.603bloqueantes nuevos. Estos
+requieren su propio triage; no hay PASS global. Los archivos de evidencia
+añadidos después no se atribuyen al árbol escaneado. CI33/PG240 retienenv1
+hasta componer yverificar sus pins explícitamente.
+[Autorv2](evidence/root-r05-reviewed-v2-author-20261019/review.md),
+[peer nuevo](evidence/security-r05-new-locations-independent-20261019/review.md).
 
 R23backend34 se desarrolla aislado conTask/Event durables,CAS,idempotencia,
 responsables autorizados,historia ydeclaraciones de revisión. El wirev1 fijo

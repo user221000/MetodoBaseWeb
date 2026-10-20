@@ -161,3 +161,7 @@ Implementación33 yUI integradas localmente en3587. Los8 criterios originales de
 ## Checkpoint130
 
 Candidato8012 cubre14.557 ocurrencias/14.516pins únicos/155archivos del informe17c9, ahora sin ubicaciones pendientes de triage. Registrov1 instalado intacto; revisión independiente nueva en curso. No es escaneo nuevo ni PASS global. Los nueve digests de configuración prueban productor puro y recibos, sin reconstruir valores privados. Revisión completa de fuente3587 conservada, incluidos dos framingSSR rojos y carreraQA-17. El fix8a5e tiene replay propio independiente verde. Los canarios de adopción previos se preservan. Aceptación global33 y continuidad legacy aún abiertas.
+
+## Checkpoint131
+
+Persisten1.603hallazgos del último escaneo real yse requiere scan final de artefacto estable. Ninguna ubicación nueva se presume falsa positiva. El cierre de PG240 yla recuperación de agentes tras cuota se auditan antes de reutilizarPG55483; no se reejecuta a ciegas.

@@ -1,9 +1,10 @@
 # Entrega candidata en curso
 
-Checkpoint130 integra la correcciónGoogle8a5e ysu peer12SQLite/11PG verde.
-127requisitos;126criterios previos exactos. CI/broad/browser actual siguen en
-curso. R05 tiene14.557candidatos revisándose, sin ampliarv1 ni PASS global.
-R23backend34 avanza aislado; faltan UI34,PG34 eintegración. Imagen ydesktop final,
-R27,R31,R33 yotros criterios siguen pendientes. Free10clientes/1plancliente/día/
-10totalgym/día;desktop soportado. Sin publicación ni despliegue.
+Checkpoint131 integra R05v2 con revisión independiente finita yconserva127
+requisitos ytodos sus criterios. El escaneo4f4ed7 sigue bloqueado por1.603
+hallazgos nuevos; no hay aceptación global. CI33/PG240 terminó con exit0 en
+su fuente c86/v1 yQA audita IDs,testigos ycierre antes de integrarlo. Esquema
+MAIN33;backend/UI34 ycontrato nutricional35 siguen aislados. Imagen,desktop
+final ycriterios R27/R31/R33 pendientes. Free10clientes/1plancliente/día/
+10totalgym/día;desktop soportado. Sin publicación odespliegue.
 [Estado](ESTADO.md),[registro](TRAZABILIDAD.md).
