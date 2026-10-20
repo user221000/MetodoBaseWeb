@@ -1,9 +1,9 @@
 # Entrega candidata en curso
 
-Checkpoint133 integraCI33 ysu composición revisada conR05v2.128requisitos,
-todos sus criterios preservados. Verificador193workflow/157Bash PASS;902offline
-y240PG se conservan atribuidos ac86/v1. MAIN sigue en esquema33. Backend/UI34,
-QA-18,contrato35,R27/R31,broad,Chrome,imagen ydesktop final continúan abiertos.
-R05global sigueRED1.603hallazgos. Free10clientes/1plancliente/día/10totalgym/día;
-desktop soportado. Sin publicación odespliegue.
-[Estado](ESTADO.md),[registro](TRAZABILIDAD.md).
+Checkpoint134 conserva128requisitos ytodos los criterios. MAIN continúa en33
+conCI33/R05v2. QA-18 tienepeerSQLite12+16PASS en41dc5,pendiente integración34
+yproyección posterior. Nutrición35 tiene162SQLite deautor ypeer separado del
+núcleo puro; UI,desktop,PG35 ypeerintegrado siguen encurso. R05globalRED1603,
+R27/R31,pruebas actuales de navegador,broad,imagen ydesktop final abiertos.
+Free10clientes/1plancliente/día/10totalgym/día;desktop soportado.
+Sin publicación odespliegue. [Estado](ESTADO.md),[registro](TRAZABILIDAD.md).

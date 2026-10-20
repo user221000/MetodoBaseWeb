@@ -1,0 +1,63 @@
+"""Direct real SQLite driver diagnostics; synthetic PG metadata explicitly labelled."""
+from pathlib import Path
+from types import SimpleNamespace
+import json,sqlite3,sys,uuid
+ROOT=Path('F:/mb-qa-followup34-sqlfix-20261020');sys.path.insert(0,str(ROOT))
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-followup34-sqlfix-peer-independent-20261020'
+from web.services import followup_tasks as service
+from sqlalchemy.exc import IntegrityError,OperationalError
+from fastapi import HTTPException
+rows=[]
+def constraint(label,original,expected):
+    value=service._constraint_conflict(IntegrityError('private-driver-control',None,original));assert value==expected
+    rows.append({'case':label,'expected':expected,'actual':value,'passed':True,'native_SQLite_code':getattr(original,'sqlite_errorcode',None)})
+def busy(label,original,expected):
+    wrapped=OperationalError('private-driver-control',None,original)
+    try:service.classify_error(wrapped)
+    except HTTPException as exc:
+        assert expected=='followup_busy'and exc.status_code==409 and exc.detail['code']==expected
+    except OperationalError as exc:assert expected is None and exc is wrapped
+    else:raise AssertionError('Error was silently accepted')
+    rows.append({'case':label,'expected':expected,'passed':True,'native_SQLite_code':getattr(original,'sqlite_errorcode',None)})
+db=sqlite3.connect(':memory:')
+try:
+    db.execute('CREATE TABLE followup_tasks(gym_id TEXT,client_id TEXT,cause TEXT,UNIQUE(gym_id,client_id,cause))')
+    db.execute("INSERT INTO followup_tasks VALUES('a','b','c')")
+    try:db.execute("INSERT INTO followup_tasks VALUES('a','b','c')")
+    except sqlite3.IntegrityError as exc:constraint('actual_SQLite_known_unique',exc,'followup_open_task_exists')
+    db.execute('CREATE TABLE other_constraint(id INTEGER UNIQUE)');db.execute('INSERT INTO other_constraint VALUES(1)')
+    try:db.execute('INSERT INTO other_constraint VALUES(1)')
+    except sqlite3.IntegrityError as exc:constraint('actual_SQLite_unrelated_unique_unknown',exc,None)
+    for ordinal,message,expected in [(1,'Follow-up source changed','followup_cause_changed'),(2,'Follow-up source changed extra',None)]:
+        table='trigger_control_'+str(ordinal);db.execute('CREATE TABLE '+table+'(id INTEGER)')
+        db.execute('CREATE TRIGGER q'+str(ordinal)+' BEFORE INSERT ON '+table+" BEGIN SELECT RAISE(ABORT,'"+message+"'); END")
+        try:db.execute('INSERT INTO '+table+' VALUES(1)')
+        except sqlite3.IntegrityError as exc:constraint('actual_SQLite_trigger_'+str(ordinal),exc,expected)
+    try:db.execute('SELECT * FROM unrelated_blocked_missing_table')
+    except sqlite3.OperationalError as exc:busy('actual_SQLITE_ERROR1_despite_locked_substring',exc,None)
+finally:db.close()
+uri='file:qa-typed-'+uuid.uuid4().hex+'?mode=memory&cache=shared';one=sqlite3.connect(uri,uri=True);two=sqlite3.connect(uri,uri=True)
+try:
+    one.execute('CREATE TABLE shared_control(id INTEGER)');one.commit();one.execute('BEGIN IMMEDIATE');one.execute('INSERT INTO shared_control VALUES(1)')
+    try:two.execute('SELECT * FROM shared_control').fetchall()
+    except sqlite3.OperationalError as exc:
+        assert exc.sqlite_errorcode&255==sqlite3.SQLITE_LOCKED
+        busy('actual_SQLITE_LOCKED_extended_sharedcache',exc,'followup_busy')
+finally:one.rollback();two.close();one.close()
+busy('arbitrary_locked_message_without_driver_type',Exception('database is locked'),None)
+for label,code in [('boolean_code',True),('float_code',5.0)]:
+    original=sqlite3.OperationalError('unrelated message');original.sqlite_errorcode=code;busy('synthetic_SQLite_'+label,original,None)
+constraint('string_lookalike_not_driver_constraint',Exception('UNIQUE constraint failed: followup_tasks.gym_id, followup_tasks.client_id, followup_tasks.cause'),None)
+class PgMetadataError(Exception):
+    def __init__(self,code,constraint_name=None,message_primary=None):
+        self.pgcode=code;self.diag=SimpleNamespace(constraint_name=constraint_name,message_primary=message_primary)
+for label,original,expected in [
+    ('synthetic_PG23505_known',PgMetadataError('23505','uq_followup_open_cause'),'followup_open_task_exists'),
+    ('synthetic_PG23505_unknown_name',PgMetadataError('23505','other_constraint'),None),
+    ('synthetic_PG23514_known_source',PgMetadataError('23514',message_primary='Follow-up cause absent'),'followup_cause_changed'),
+    ('synthetic_PG23514_unknown_primary',PgMetadataError('23514',message_primary='other locked constraint'),None)]:constraint(label,original,expected)
+busy('synthetic_PG55P03_typed_metadata',PgMetadataError('55P03'),'followup_busy')
+busy('synthetic_PG57014_is_not_a_lock_conflict',PgMetadataError('57014'),None)
+assert len(rows)==16
+(OUT/'own-typed-driver-controls.json').write_text(json.dumps({'passed':len(rows),'cases':rows,'actual_SQLite':6,'synthetic_metadata_and_string_controls':10,'PG_executed':False,'no_live_HTTP_business_replay_in_these_controls':True},indent=2)+'\n',encoding='utf8')
+print(json.dumps({'own_direct_driver_controls':len(rows),'passed':len(rows),'PG':False}))

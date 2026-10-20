@@ -1,0 +1,79 @@
+"""Replay the exact original12 canary; own metadata plugin only, SQLite only."""
+from pathlib import Path
+import contextlib,csv,hashlib,importlib.metadata,importlib.util,io,json,os,subprocess,sys,time
+ROOT=Path('F:/mb-qa-followup34-sqlfix-20261020');TEMP=Path(__file__).parent
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-followup34-sqlfix-peer-independent-20261020'
+PRIVATE=TEMP/'private';PRIVATE.mkdir(exist_ok=False)
+sid=next(csv.reader(io.StringIO(subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True))))[1]
+subprocess.run(['icacls',str(PRIVATE),'/inheritance:r','/grant:r','*'+sid+':(OI)(CI)F','*S-1-5-18:(OI)(CI)F'],capture_output=True,check=True)
+HEAD='41dc5ae6e9c02d9b846685428df1fc722aa4cca7';SHA=lambda b:hashlib.sha256(b).hexdigest()
+os.chdir(ROOT);sys.path.insert(0,str(ROOT));sys.dont_write_bytecode=True
+for key in list(os.environ):
+    upper=key.upper()
+    if upper=='DATABASE_URL'or upper.endswith('_DATABASE_URL')or upper.startswith(('PG','METODOBASE_TEST_','_METODOBASE_TEST','CI33_','AWS_','S3_','FOLLOWUP34_'))or any(v in upper for v in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','GOOGLE_CLIENT','OPENAI_API']):os.environ.pop(key,None)
+os.environ.update(PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+from tests.isolation import prepare_environment,block_external_sockets
+prepare_environment(discard_inherited=True);block_external_sockets()
+receipts=PRIVATE/'SQL-error-receipts';receipts.mkdir();os.environ['SEC_FOLLOWUP34_RECEIPTS']=str(receipts)
+git=lambda *a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()==HEAD
+names=[n for n in git('ls-files','-z').decode().split('\0')if n and not n.startswith('docs/')]
+path='docs/implementation/20261018-evolution/evidence/security-followup34-independent-20261019/canaries/test_security_followup34_sql_errors_peer.py'
+canary=git('show','e318ae52df86e0119dc8e4bbc1f793a3bbc7b1ee:'+path)
+assert SHA(canary)=='c3a4aa36cf432a32898c93f4c4fef6a8a0d63f479ff8ac883f48eba9379073ce'
+repo=PRIVATE/'canary-repo';repo.mkdir();target=repo/'test_security_followup34_sql_errors_peer.py';target.write_bytes(canary)
+assert target.read_bytes()==canary
+def packages():
+    result=[]
+    for dist in importlib.metadata.distributions():
+        rows=[];missing=[]
+        for relative in sorted(dist.files or [],key=str):
+            if Path(relative).suffix in {'.pyc','.pyo'}:continue
+            path=Path(dist.locate_file(relative))
+            if path.is_file():rows.append(str(relative)+'\0'+SHA(path.read_bytes()))
+            else:missing.append(str(relative))
+        result.append({'name':dist.metadata['Name'],'version':dist.version,'installed_files':len(rows),'installed_files_sha256':SHA('\n'.join(rows).encode()),'missing_record_files':missing})
+    return sorted(result,key=lambda r:(r['name'].casefold(),r['version']))
+def photo():return {'source_head':git('rev-parse','HEAD').decode().strip(),'sources':{n:SHA((ROOT/n).read_bytes())for n in names},'packages':packages(),'Python':{str(p):SHA(p.read_bytes())for p in {Path(sys.executable),Path(sys._base_executable),*Path(sys._base_executable).parent.glob('python*.dll')}if p.is_file()},'own_helpers':{p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')},'exact_canary_SHA256':SHA(target.read_bytes())}
+before=photo();assert len(before['packages'])==92
+(OUT/'before.json').write_text(json.dumps(before,indent=2)+'\n')
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(PRIVATE/'pip-before.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+import pytest
+class Observations:
+    def check(self):
+        rows={}
+        for name,module in list(sys.modules.items()):
+            if name.split('.')[0]in {'web','api','core','tests','scripts','config'}and getattr(module,'__file__',None):
+                p=Path(module.__file__).resolve();assert p.is_relative_to(ROOT),'Mixed application/maintained test origin';rows[name]=str(p.relative_to(ROOT))
+        from web.database.models import Base
+        from web.database.schema_control import expected_head
+        assert Base.__module__=='web.database.models'and expected_head()=='20261019_followup_tasks'
+        (OUT/'module-origins.json').write_text(json.dumps({'modules':rows,'canonical_Base':Base.__module__,'model_tables':len(Base.metadata.tables),'source_revision':expected_head(),'original_external_canary':{'path':str(target),'SHA256':SHA(target.read_bytes())},'maintained_conftest':str(ROOT/'conftest.py')},indent=2)+'\n')
+    def pytest_configure(self,config):
+        from sqlalchemy import event
+        from sqlalchemy.engine import Dialect
+        @event.listens_for(Dialect,'do_connect')
+        def sqlite_only(dialect,record,args,params):assert dialect.name=='sqlite','No PostgreSQL authorized in this peer'
+    def pytest_collection_modifyitems(self,session,config,items):
+        assert len(items)==12
+        (OUT/'collected-nodeids.json').write_text(json.dumps([i.nodeid for i in items],indent=2)+'\n');self.check()
+    def pytest_runtest_call(self,item):self.check()
+    def pytest_sessionfinish(self,session,exitstatus):self.check()
+spec=importlib.util.spec_from_file_location('qa_actual_maintained_conftest',ROOT/'conftest.py');conftest=importlib.util.module_from_spec(spec);spec.loader.exec_module(conftest)
+argv=['-q','--tb=short','--noconftest','--import-mode=importlib','--rootdir',str(ROOT),'--basetemp',str(PRIVATE/'pytest-data'),'--junitxml',str(PRIVATE/'original12.raw.xml'),str(target)]
+start=time.monotonic()
+with (PRIVATE/'original12.raw.log').open('w',encoding='utf8')as stream:
+    with contextlib.redirect_stdout(stream),contextlib.redirect_stderr(stream):exitcode=pytest.main(argv,plugins=[conftest,Observations()])
+elapsed=time.monotonic()-start
+print(json.dumps({'original12_exit':int(exitcode),'seconds':elapsed}),flush=True)
+assert exitcode==0,'Exact original canary failed; RAW retained, no automatic rerun'
+env=dict(os.environ)
+with (PRIVATE/'typed-controls.raw.log').open('xb')as stream:p=subprocess.run([sys.executable,'-X','utf8','-B',str(TEMP/'typed_controls.py')],cwd=ROOT,env=env,stdout=stream,stderr=subprocess.STDOUT)
+assert p.returncode==0,'Own direct-driver controls failed'
+after=photo();assert before==after
+(OUT/'after.json').write_text(json.dumps(after,indent=2)+'\n')
+pip=subprocess.run([sys.executable,'-m','pip','check'],capture_output=True);(PRIVATE/'pip-after.raw.log').write_bytes(pip.stdout+pip.stderr);assert pip.returncode==0
+assert target.read_bytes()==canary
+assert not git('status','--porcelain','--untracked-files=no').strip()
+(OUT/'execution-summary.json').write_text(json.dumps({'source_head':HEAD,'original_canary_SHA256':SHA(canary),'original12_exit':int(exitcode),'original12_seconds':elapsed,'own_typed_controls_exit':0,'source_packages_helpers_Python_quiet':True,'sources':len(names),'distributions':92,'installed_nonbytecode_files':sum(r['installed_files']for r in before['packages']),'pip':[0,0],'PG_or_Chrome':False,'maintained_sources_changed':False},indent=2)+'\n')
+print('Exact original12 and own direct-driver controls passed; no PG',flush=True)

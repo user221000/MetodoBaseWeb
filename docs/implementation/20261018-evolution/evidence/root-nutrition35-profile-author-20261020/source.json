@@ -1,0 +1,578 @@
+{
+  "product_head": "55a3f4f9b1c1d03937bae78a5cee4f1d1b6379af",
+  "products": {
+    "api/dependencies.py": "ef37d880e15d6a437d107bc3fd71010eec43ff1f8bff175f16a787d1d0ed2b7f",
+    "api/routes/clientes.py": "3d7f72a1224a3bd85deb43c78e80f87bb7225ccfc0e1f13e4e853fe82d6a108d",
+    "api/routes/planes.py": "e33fb1552ad2bec28c5dc26a2a911c1f4999398948ff94d72b32f7cfb0a9a995",
+    "docs/implementation/20261018-evolution/RESTRICCIONES_NUTRICIONALES35_PROPUESTA.md": "7ddc8d9f771ed6695c7655d9a0617689ac44d8b850e6f9ee03e4fcce2dab85d4",
+    "web/database/models.py": "eb21a0d537f464763d051220282ce9e3006c57a8eb6ae798afe290a4afac5355",
+    "web/database/repository.py": "e7a8fcfe244abd095d1870d621ddb1dbc0f47e511e19ab6c719d6adf3151df60",
+    "web/database/schema_control.py": "272dc00112079e7fe9928a1a04778d87e479029dd96172ff3cf24b08380c8fad",
+    "web/profile_schemas.py": "1b9728114d847ab426ef7d13746bd2ebe8f5a96cbf5a3fd9a9dc87d4389f2ccb",
+    "web/routes/clientes.py": "6dc63254e6d83f6840082b9be643d361225dcc2856bd7a215e6524209752be38",
+    "web/routes/planes.py": "9d37dd7f15f6fbe6437009d207ab32f520267acb3bb2c61940cd30526a9f2808",
+    "web/routes/usuario.py": "b2e802d15fcb263d7860563dd9c14cba2fffcd266396a24631b24c6876a59ab2",
+    "web/services/generation_quota.py": "c35a991830122e1f271c3d5b703745bf1b8d85712f488bbfe2c426c53c607ccc",
+    "web/services/gym_generation_quota.py": "63bc36abf9ddf0991cda05e9a9f6097240b8cffd0a3225bdf2e2c15e8a7c62c7",
+    "web/services/plan_generation.py": "0a1ee87b09c2bffde7cd251af8f675670de0597bd4ead2054c5055c0424a0939",
+    "web/services/privacy_export.py": "ec758b18d403c70d80c47f71797b17f45b5778f717e26d498b3bc05507fc071e",
+    "docs/implementation/20261018-evolution/NUTRICION35_WIRE.json": "dd39f10cad4f9fac10b4d078236ee7bb9758fc9059bb9bee8083703f09394471",
+    "tests/capture_nutrition35_targets.py": "bb18cbdcbe305493b85d5652f5772a3b8f86b45442740e7ba7529001a33fb616",
+    "tests/test_nutrition35_http.py": "e2a56e8075ca9623b96daf11f86e9b7d53d590dfde1fa0559f4dfddc36fe98e6",
+    "tests/test_nutrition35_migrations.py": "ed7430e5d03ca4f16c21b600baa0516d0b7ba234b328893addda8ccbbc351230",
+    "tests/test_nutrition35_profile_contract.py": "1737cd4130b708d08f159eff5d3fa6138e3600814ee76de6b08f5abe6d471c38",
+    "web/database/alembic/schema_targets/20261019_followup_tasks_postgresql.json": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880",
+    "web/database/alembic/schema_targets/20261020_nutrition_profile_sqlite.json": "7f55ba7397466c46de549c2f3c5d4da0f2f53469c8828e9a4c45ca99aa2d7e2d",
+    "web/database/alembic/versions/20261020_nutrition_profile.py": "61456758c9282a73bad5e65d48e73f62fe1c5ea4f566750471f16840f7c037fb",
+    "web/nutrition_http.py": "d3112b28346b64a30124e19f1045a06070a1ecac0396e7fec80651dbfde5abce",
+    "web/services/nutrition_profiles.py": "3bfb3107260af8058fcd34eff2773e34264faced486d69694cf691ce3b8d9344"
+  },
+  "original_members": [
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/after.json",
+      "bytes": 100447,
+      "digest": "f799183d717cd36dc7842030f9832dea59a9e21598cb0ca46199d013ec105bee"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/before.json",
+      "bytes": 100447,
+      "digest": "f799183d717cd36dc7842030f9832dea59a9e21598cb0ca46199d013ec105bee"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/domain-and-existing-safety.xml",
+      "bytes": 8921,
+      "digest": "1aa2f52e09768a45e689d079f98b84578826b89654dff318a1b281f808859b44"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/pip.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/pip.stdout",
+      "bytes": 31,
+      "digest": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/pytest.stdout",
+      "bytes": 101,
+      "digest": "36844003d806a7ab6aa8095d60a6bb538c02e8048139dfdfb052a9b935288497"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-domain-20261019/result.json",
+      "bytes": 662,
+      "digest": "ed41e52f03902571b17a459093e4d0871603e19fc1bef20e8cc7055a94778ced"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-before-20261020/after.json",
+      "bytes": 101892,
+      "digest": "bee661f9ece2edef051bacd7d045f52d0cd048f99a82259a719b174a4fb186bd"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-before-20261020/before.json",
+      "bytes": 101892,
+      "digest": "bee661f9ece2edef051bacd7d045f52d0cd048f99a82259a719b174a4fb186bd"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-before-20261020/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-before-20261020/pytest.stdout",
+      "bytes": 22733,
+      "digest": "41cafefbd0020d85064c9f2ca9d2b66a1a1f6aff966a68444e4cf83d45d1143c"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-before-20261020/pytest.xml",
+      "bytes": 22808,
+      "digest": "3c950f21dd907f39aa736bd58a1bb52877b1a887356590550708b3f9c5b647c8"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-before-20261020/result.json",
+      "bytes": 600,
+      "digest": "1383bd8fece19a43ea854ae295f99e742d6a9c4866f04c46e9816af8b0b73f6a"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-after-20261020/after.json",
+      "bytes": 101892,
+      "digest": "701fe04b0cefa4bfe3d37e20c63fa5760bba56ff0980d3ee3d48398ea5de3058"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-after-20261020/before.json",
+      "bytes": 101892,
+      "digest": "701fe04b0cefa4bfe3d37e20c63fa5760bba56ff0980d3ee3d48398ea5de3058"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-after-20261020/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-after-20261020/pytest.stdout",
+      "bytes": 101,
+      "digest": "55672855d58c485f29eadfc2ab9b7e4592ca829acb4850603d400df21b1e62f5"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-after-20261020/pytest.xml",
+      "bytes": 10489,
+      "digest": "0fee29042cc7d329f1af3e3c10c47395d8d1e8fc6683eed2817d0d04e86bbe46"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-after-20261020/result.json",
+      "bytes": 681,
+      "digest": "6f7c6e17ee6067b017f63d2fc800ce3dd74bfde0f5c4887608c41fe5c1cf8781"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-final-20261020/after.json",
+      "bytes": 101892,
+      "digest": "259d0322fb2827a0537518a7d8a6671c3396cb660dbf8031ca15ed1584cb1b4d"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-final-20261020/before.json",
+      "bytes": 101892,
+      "digest": "259d0322fb2827a0537518a7d8a6671c3396cb660dbf8031ca15ed1584cb1b4d"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-final-20261020/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-final-20261020/pytest.stdout",
+      "bytes": 182,
+      "digest": "ed571257a6fdaa66c8e26a478543f7ef3b33ad8bbb90dc9f721e113993268026"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-final-20261020/pytest.xml",
+      "bytes": 12478,
+      "digest": "a7299c1e2cc48e27ca546abd16c8b75af2c3a2e41dd61846af2646f96966bd9e"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-final-20261020/result.json",
+      "bytes": 681,
+      "digest": "9b56600dc31cfb9cd60245548cdafa78c0be3dddf88ac0f59472bad9775e62cc"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-profile-schema-20261020/after.json",
+      "bytes": 101892,
+      "digest": "b9494f030142cc03e2920f2c16deece713d7568ed879091afe03982fbea3a8d9"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-profile-schema-20261020/before.json",
+      "bytes": 101892,
+      "digest": "b9494f030142cc03e2920f2c16deece713d7568ed879091afe03982fbea3a8d9"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-profile-schema-20261020/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-profile-schema-20261020/pytest.stdout",
+      "bytes": 746,
+      "digest": "c9e7a6aa288e4158fbaf85dc7db50ce2426181c58397d2f46345c39c3a28cf53"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-profile-schema-20261020/pytest.xml",
+      "bytes": 37707,
+      "digest": "34db59cb8603ffd08e2ec0080c0f3f99d0f9323c63b782043179903677215054"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-profile-schema-20261020/result.json",
+      "bytes": 821,
+      "digest": "93ce00d14ec81bfaab8f346eee2868986b4181ffeaf48359c092f014da0919d6"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-http-20261020/after.json",
+      "bytes": 102983,
+      "digest": "ad9733500cb05fafac6e5ee73e7272d4df57df45b46e488d5f648867d2044198"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-http-20261020/before.json",
+      "bytes": 102983,
+      "digest": "ad9733500cb05fafac6e5ee73e7272d4df57df45b46e488d5f648867d2044198"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-http-20261020/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-http-20261020/pytest.stdout",
+      "bytes": 2671,
+      "digest": "27937fd59e8a52de4c68dddae2bff07556e507f43889da8096c83f38826f9aa1"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-http-20261020/pytest.xml",
+      "bytes": 30252,
+      "digest": "54075c68c725578c83bf112f0dc4fb6ca1fac145802b8d6a578d1a0a8f0d2bec"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-http-20261020/result.json",
+      "bytes": 684,
+      "digest": "e08b79a1281481d2640cfd791d4044e0f10c93edbb1a3c2396dc255c1981d0a2"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-personal-framing-20261020/after.json",
+      "bytes": 102983,
+      "digest": "8a39695b9da58247a75f5a4ca1bdd17f223033c00d909b58171d70669b5ce5bc"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-personal-framing-20261020/before.json",
+      "bytes": 102983,
+      "digest": "8a39695b9da58247a75f5a4ca1bdd17f223033c00d909b58171d70669b5ce5bc"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-personal-framing-20261020/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-personal-framing-20261020/pytest.stdout",
+      "bytes": 691,
+      "digest": "5fca1fba973a832a2093eccbfa29f25aaf34d19ad77ef6ee34c8a33af7a9d98a"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-personal-framing-20261020/pytest.xml",
+      "bytes": 3976,
+      "digest": "5e92aeb9e742290ffc0d974a79f24156264c57aa735f51a8daea3ebfa529e111"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-personal-framing-20261020/result.json",
+      "bytes": 716,
+      "digest": "58903aa4c3f407a28c94e96887d8479d2ee26da8e2d144dc000f02d1661f0479"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-integration-final-20261020/after.json",
+      "bytes": 102983,
+      "digest": "d842bd76c74499ff478d21ce03a59e7fd85f11d9b9427ce61a73a9938bf79df8"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-integration-final-20261020/before.json",
+      "bytes": 102983,
+      "digest": "d842bd76c74499ff478d21ce03a59e7fd85f11d9b9427ce61a73a9938bf79df8"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-integration-final-20261020/pytest.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-integration-final-20261020/pytest.stdout",
+      "bytes": 864,
+      "digest": "3029f188d003671f270607612d061a1ffe26d717bd14c2b4fc4d49f2f2c77c66"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-integration-final-20261020/pytest.xml",
+      "bytes": 41372,
+      "digest": "b7e06469d36757d25fb3dcb6e01849591b4f02c7c64df4eae690e61ee9f31cd2"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-boundary-integration-final-20261020/result.json",
+      "bytes": 904,
+      "digest": "34c48002bb0eca2bcd32f9d6c8bae18804eb01e03d6a0a3667e96a4f3e95ef17"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-personal-framing-20261020/receipt.json",
+      "bytes": 736,
+      "digest": "1643ac1e77b795cb49929a90ff84d04deccf8559c6f982ddd76b1b23dcd0a8c6"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-personal-framing-20261020/test-before.py",
+      "bytes": 8810,
+      "digest": "b36605eccc9be827e9486f19404a0d81945e5e5f5080cf0bc03f42b38d1a096c"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/full.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/full.stdout",
+      "bytes": 1113,
+      "digest": "938d961a3072b324e726a7b2ab55a5eda2c07fceed2ca24afb4b31578df5cb0b"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/imports.stderr",
+      "bytes": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/imports.stdout",
+      "bytes": 41,
+      "digest": "28229e10c3e50a836bd1b6ab41d3fbac78f10dc646eeac936dbb564bf1cdc0a0"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/before/tests/capture_nutrition35_targets.py",
+      "bytes": 2623,
+      "digest": "ef739d426032fc283e1e151f3fed1c76df0ff073595843c9d9caafd3acfe8aeb"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/before/tests/test_nutrition35_http.py",
+      "bytes": 9142,
+      "digest": "8d124e03e4162cc70462adea0017ff591da94996c34cd0fc9c1f57d788849ec5"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/before/tests/test_nutrition35_migrations.py",
+      "bytes": 6865,
+      "digest": "558829ff7fb8c17d3aa841b1ead68cf3d0246592bba191641fbb7042d90150de"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/before/tests/test_nutrition35_profile_contract.py",
+      "bytes": 3614,
+      "digest": "111a9d2134f888f5d0b1bdef1de6161d50766351a682ceac697408dc5df2a90a"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/before/web/nutrition_http.py",
+      "bytes": 1901,
+      "digest": "d3112b28346b64a30124e19f1045a06070a1ecac0396e7fec80651dbfde5abce"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/before/web/services/nutrition_profiles.py",
+      "bytes": 5571,
+      "digest": "178d2b1df0368a7905b9a9918bd7220e908b2e587413ef6849f6768497000bb1"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-style-20261020/before/web/database/alembic/versions/20261020_nutrition_profile.py",
+      "bytes": 3214,
+      "digest": "7b3bf9e0ab7cf52dbe59553f601b9401392c8bd3d4513bf853a21b1ea44058f0"
+    },
+    {
+      "path": "phases/metodobase-nutrition35-profile-freeze-20261020/receipt.json",
+      "bytes": 3330,
+      "digest": "78753231c2ead3d426cf84f3e6bcdff3ed4d2f8cadb201ee7c4cd3cf48fe55ee"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-domain-run-20261019.py",
+      "bytes": 2440,
+      "digest": "f9c60ae2533d93791220e219ec4437a7f436f58c1d7a99db43e893d3028e36c5"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-boundary-phase-20261020.py",
+      "bytes": 2374,
+      "digest": "bf8c2718180d91c9a14508476d11c8cb8458274de4505ec23be2e1363fb3f09c"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-boundary-phase-v2-20261020.py",
+      "bytes": 2417,
+      "digest": "04e68cb56f1e0b49ceb115018da8cb842b8c8c0288cc00cfff67e9b821b0f8a9"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-phase-tools-20261020.py",
+      "bytes": 1676,
+      "digest": "fd0b8159f37717369a2142eb69e8d78930f939453ae62f69db2d97c143d0dce7"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-personal-framing-20261020.py",
+      "bytes": 2247,
+      "digest": "71d6cd2aa6b0c338a6cb7582c00bfd69d9002a9d44e17d54bfbaf6e4d4831b97"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-source-scope-erratum-20261020.json",
+      "bytes": 635,
+      "digest": "acbab5a823575ddd40d3dd78d74a5282a45a952542e4dafd0bc9a35d539a793e"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-style-20261020.py",
+      "bytes": 1280,
+      "digest": "73b04a76e898c0acc459db28314cd6a599b0d9524b2f48c07bc28bdfbbcedc3c"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-profile-freeze-20261020.py",
+      "bytes": 1946,
+      "digest": "a4e77e051b98fa7c7ba94021302e90be25650274687c35f86739fd2bf13ef6e7"
+    },
+    {
+      "path": "drivers/metodobase-nutrition35-author-seal-20261020.py",
+      "bytes": 9856,
+      "digest": "6feb0fb90f89e9a7d589bc943b174aa0bfb05c196c7bdcd6b76cfe0ac843c74c"
+    },
+    {
+      "path": "product/api/dependencies.py",
+      "bytes": 6363,
+      "digest": "ef37d880e15d6a437d107bc3fd71010eec43ff1f8bff175f16a787d1d0ed2b7f"
+    },
+    {
+      "path": "product/api/routes/clientes.py",
+      "bytes": 6922,
+      "digest": "3d7f72a1224a3bd85deb43c78e80f87bb7225ccfc0e1f13e4e853fe82d6a108d"
+    },
+    {
+      "path": "product/api/routes/planes.py",
+      "bytes": 4800,
+      "digest": "e33fb1552ad2bec28c5dc26a2a911c1f4999398948ff94d72b32f7cfb0a9a995"
+    },
+    {
+      "path": "product/docs/implementation/20261018-evolution/RESTRICCIONES_NUTRICIONALES35_PROPUESTA.md",
+      "bytes": 6091,
+      "digest": "7ddc8d9f771ed6695c7655d9a0617689ac44d8b850e6f9ee03e4fcce2dab85d4"
+    },
+    {
+      "path": "product/web/database/models.py",
+      "bytes": 64116,
+      "digest": "eb21a0d537f464763d051220282ce9e3006c57a8eb6ae798afe290a4afac5355"
+    },
+    {
+      "path": "product/web/database/repository.py",
+      "bytes": 26739,
+      "digest": "e7a8fcfe244abd095d1870d621ddb1dbc0f47e511e19ab6c719d6adf3151df60"
+    },
+    {
+      "path": "product/web/database/schema_control.py",
+      "bytes": 6624,
+      "digest": "272dc00112079e7fe9928a1a04778d87e479029dd96172ff3cf24b08380c8fad"
+    },
+    {
+      "path": "product/web/profile_schemas.py",
+      "bytes": 2949,
+      "digest": "1b9728114d847ab426ef7d13746bd2ebe8f5a96cbf5a3fd9a9dc87d4389f2ccb"
+    },
+    {
+      "path": "product/web/routes/clientes.py",
+      "bytes": 6337,
+      "digest": "6dc63254e6d83f6840082b9be643d361225dcc2856bd7a215e6524209752be38"
+    },
+    {
+      "path": "product/web/routes/planes.py",
+      "bytes": 10677,
+      "digest": "9d37dd7f15f6fbe6437009d207ab32f520267acb3bb2c61940cd30526a9f2808"
+    },
+    {
+      "path": "product/web/routes/usuario.py",
+      "bytes": 30374,
+      "digest": "b2e802d15fcb263d7860563dd9c14cba2fffcd266396a24631b24c6876a59ab2"
+    },
+    {
+      "path": "product/web/services/generation_quota.py",
+      "bytes": 7456,
+      "digest": "c35a991830122e1f271c3d5b703745bf1b8d85712f488bbfe2c426c53c607ccc"
+    },
+    {
+      "path": "product/web/services/gym_generation_quota.py",
+      "bytes": 9163,
+      "digest": "63bc36abf9ddf0991cda05e9a9f6097240b8cffd0a3225bdf2e2c15e8a7c62c7"
+    },
+    {
+      "path": "product/web/services/plan_generation.py",
+      "bytes": 13979,
+      "digest": "0a1ee87b09c2bffde7cd251af8f675670de0597bd4ead2054c5055c0424a0939"
+    },
+    {
+      "path": "product/web/services/privacy_export.py",
+      "bytes": 14882,
+      "digest": "ec758b18d403c70d80c47f71797b17f45b5778f717e26d498b3bc05507fc071e"
+    },
+    {
+      "path": "product/docs/implementation/20261018-evolution/NUTRICION35_WIRE.json",
+      "bytes": 2476,
+      "digest": "dd39f10cad4f9fac10b4d078236ee7bb9758fc9059bb9bee8083703f09394471"
+    },
+    {
+      "path": "product/tests/capture_nutrition35_targets.py",
+      "bytes": 2624,
+      "digest": "bb18cbdcbe305493b85d5652f5772a3b8f86b45442740e7ba7529001a33fb616"
+    },
+    {
+      "path": "product/tests/test_nutrition35_http.py",
+      "bytes": 9171,
+      "digest": "e2a56e8075ca9623b96daf11f86e9b7d53d590dfde1fa0559f4dfddc36fe98e6"
+    },
+    {
+      "path": "product/tests/test_nutrition35_migrations.py",
+      "bytes": 6811,
+      "digest": "ed7430e5d03ca4f16c21b600baa0516d0b7ba234b328893addda8ccbbc351230"
+    },
+    {
+      "path": "product/tests/test_nutrition35_profile_contract.py",
+      "bytes": 3644,
+      "digest": "1737cd4130b708d08f159eff5d3fa6138e3600814ee76de6b08f5abe6d471c38"
+    },
+    {
+      "path": "product/web/database/alembic/schema_targets/20261019_followup_tasks_postgresql.json",
+      "bytes": 260858,
+      "digest": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880"
+    },
+    {
+      "path": "product/web/database/alembic/schema_targets/20261020_nutrition_profile_sqlite.json",
+      "bytes": 214567,
+      "digest": "7f55ba7397466c46de549c2f3c5d4da0f2f53469c8828e9a4c45ca99aa2d7e2d"
+    },
+    {
+      "path": "product/web/database/alembic/versions/20261020_nutrition_profile.py",
+      "bytes": 3214,
+      "digest": "61456758c9282a73bad5e65d48e73f62fe1c5ea4f566750471f16840f7c037fb"
+    },
+    {
+      "path": "product/web/nutrition_http.py",
+      "bytes": 1901,
+      "digest": "d3112b28346b64a30124e19f1045a06070a1ecac0396e7fec80651dbfde5abce"
+    },
+    {
+      "path": "product/web/services/nutrition_profiles.py",
+      "bytes": 5580,
+      "digest": "3bfb3107260af8058fcd34eff2773e34264faced486d69694cf691ce3b8d9344"
+    }
+  ],
+  "public_original_members_exact": true,
+  "XML_publication": "Explicit structural projections; original XML/diagnostics remain private and hash-bound.",
+  "withheld": [
+    {
+      "path": "phases/metodobase-nutrition35-boundary-before-20261020/pytest.stdout",
+      "bytes": 22733,
+      "digest": "41cafefbd0020d85064c9f2ca9d2b66a1a1f6aff966a68444e4cf83d45d1143c",
+      "reason": "Publication guard refused original; retained only in protected private archive."
+    }
+  ],
+  "private_archive": {
+    "basename": "nutrition35-originals.zip",
+    "digest": "95ec1ea606de83eec054ae2469c121cd03937209e6cfff8af2288bd5e1dc0efb",
+    "members": 98
+  },
+  "archive_ACL_before_payload": {
+    "mode": "verify",
+    "verified_before_payload": true,
+    "directory_inheritance_off": true,
+    "explicit_aces": 2,
+    "owner_current_user": true,
+    "file_inheritance_off": true,
+    "files": [
+      "nutrition35-originals.zip"
+    ],
+    "allow_only": [
+      "CURRENT_USER",
+      "SYSTEM"
+    ],
+    "schema": 1,
+    "utc": "2026-10-20T02:19:45.8083592Z"
+  },
+  "archive_ACL_final": {
+    "mode": "final",
+    "verified_before_payload": false,
+    "directory_inheritance_off": true,
+    "explicit_aces": 2,
+    "owner_current_user": true,
+    "file_inheritance_off": true,
+    "files": [
+      "nutrition35-originals.zip"
+    ],
+    "allow_only": [
+      "CURRENT_USER",
+      "SYSTEM"
+    ],
+    "schema": 1,
+    "utc": "2026-10-20T02:19:46.3018746Z"
+  },
+  "original_phase_directory_ACL_at_creation_attested": false,
+  "publisher_source": {
+    "MAIN_commit": "e006516fe99ec0da65c4a0f563b8c5736e541b50",
+    "path": "tests/ci_google33/publish.py",
+    "digest": "ee0820ff6f4758ddf87af2202979a8ddba8c81e4a79a516fae0f42ede1221df9"
+  },
+  "initial_profile_schema_photo_scope": "Tracked sources only; untracked35 modules were missing. Final162 uses complete cached+untracked source paths."
+}

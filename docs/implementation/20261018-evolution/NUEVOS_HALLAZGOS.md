@@ -121,3 +121,7 @@ QA-17 (P2): El alta Google de gimnasio puede producir 200+503 en una colisión c
 ## Checkpoint132
 
 QA-18 (P2): El candidato Backend34 devuelve409 followup_busy ante IntegrityError desconocido durante flush y ante SQLITE_ERROR=1 de tabla inexistente cuyo nombre contiene blocked. Falla la clasificación de disponibilidad; no se confirma bypass de autorización, explotación remota ni fuga de datos. Criterio: En ambas factories, los mismos canarios HTTP autenticados deben devolver503 followup_unconfirmed para errores de integridad desconocidos y SQLITE_ERROR real de tabla inexistente, con independencia de palabras como blocked en su nombre. Sólo conflictos de constraint, trigger o bloqueo conocidos, identificados mediante códigos y diagnósticos cerrados del driver, pueden producir409; un rollback incierto conserva503. Mantener cabeceras privadas, opacidad, ausencia de ACK y Task/Event parciales, sin retry, readback o adopción automática; una petición explícita posterior al fallo puede aplicar una sola operación. Preservar los controles de bloqueo SQLite real409 y tabla faltante sin ese fragmento503 y repetir las doce canarias originales sin rebajar aserciones.
+
+## Checkpoint134
+
+QA-18: fuente41dc5 aceptada focalmente porQA independiente con la misma canaria original c3a4:12/12PASS, desde4FAIL/8PASS anteriores, sin modificar asserts. Dieciséis controles propios directos PASS (seisSQLite reales y diezmetadatos sintéticos), sinPostgreSQL. No cubre la proyecciónUsuario posterior ni aceptación global34; el producto34 aún no está enMAIN.

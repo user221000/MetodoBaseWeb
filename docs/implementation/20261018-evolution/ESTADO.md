@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Checkpoint133 local: esquema33 y128 requisitos (92 originales y36 añadidos).
+Checkpoint134 local: esquema33 y128 requisitos (92 originales y36 añadidos).
 Todos los criterios anteriores se conservan exactos. Free:10 clientes activos,
 1 plan por cliente al día y10 planes totales por gimnasio al día. Desktop sigue
 soportado. Workspace de referencia intacto; sin push,PR,despliegue,cargos oenvíos.
@@ -27,7 +27,7 @@ binding separado. El escaneo real4f4ed7 sigueRED:44.433hallazgos brutos,
 Las evidencias añadidas después no se reatribuyen al árbol escaneado.
 
 Backend34 yUI34 siguen aislados. QA-18 registra12canarias8PASS4RED originales;
-la reparación41dc5 tiene replay de autor12PASS yespera revisión independiente.
+la reparación41dc5 tiene peerQA12originales+16propiosPASS,sóloSQLite. Proyección posterior e integración34 siguen pendientes.
 Backend valida PG34 yrestore34 con lease55483; fallos de seed/harness se
 conservan por separado. UI34 tiene72casos propios y15SSR/HTTP de autor verdes;
 Chrome,accesibilidad yrevisión integrada están pendientes. No se infieren cobros,
@@ -39,3 +39,11 @@ UI nutricional siguen pendientes. R27,R31 yel resto del alcance continúan.
 Retención/países,volumen/SLO,piloto yrevisión profesional necesitan datos o
 participación real. VM yRedis6388 propios permanecen apagados.
 [Registro](TRAZABILIDAD.md),[validación](VALIDACION.md).
+
+Candidato35 aislado55a3:162SQLitePASS para perfil/cuota/publicación. Revisión
+SEC del dominio/constructoresd5:79+24PASS; no cubre todaAPI35. UI35 ydesktop
+continúan;PG35 ypeerintegrado pendientes. Se conserva un objetoPENDING
+cuando cambia el perfil trasPDF; no se afirma ceroefectosdurables.
+[Autor35](evidence/root-nutrition35-profile-author-20261020/review.md),
+[peer puro](evidence/security-nutrition35-pure-independent-20261019/source.json),
+[QA-18 peer](evidence/qa-followup34-sqlfix-peer-independent-20261020/phase-summary.json).

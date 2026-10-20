@@ -231,3 +231,7 @@ Se incorpora sólo evidencia yregistro; ningún producto34 oCIc86 cambiaMAIN en 
 ## Checkpoint133
 
 CI33 integrado conservando la cadena completa de c86 ysu delta original de82 fuentes desdeCOMMON3587. La composición con MAIN132/R05v2 modifica sólo el verifier respecto a c86:pinLF del módulo,pinRAW del ZIPc5eb ybase d8 explícitos; el guard de producto separa docs yel gateR05 sigue escaneándolos completos. QA110R05/49críticos PASS,9binding ycontroles de documento/3rechazos de producto,lock,target; verificador final193canarios workflow y157bloquesBash PASS,también replay ROOT enMAIN. Conserva20reportes/240IDs actuales33,5reportes/38IDs históricos32 ylos oráculos110/49. Offline902 yPG240 anteriores corresponden a c86/R05v1; no se reatribuyen aesta composición. No broad actual,Actions,Chrome,imagen oLinux aceptados por esta fase;R05global sigueRED.
+
+## Checkpoint134
+
+Sólo evidencia/control,sin incorporar aún productos34/35. Candidato35 fuente55a3 tiene162casosSQLitePASS con perfiles/DTO/persistencia/cuota/PDFreal yguard final; ambasfactories gimnasio ypersonal sóloSaaS. Contratos anteriores intactos; downgrade no borra declaraciones. Cambio de restricciones durantePDF deja ceroPlan/READY,reserva liberada yobjetoPENDING explícito para reconciliación. Un fallo de framing personal404 yla foto parcial inicial137 se preservan; final162 enumera fuentes nuevas. SECfad3 acepta sólo dominio/constructoresd5:79replay y24propiosPASS,no integración35. UI ydesktop avanzan enWTpropias;PG35/peerintegrado pendientes,no aprobación clínica ni MAIN/despliegue.
