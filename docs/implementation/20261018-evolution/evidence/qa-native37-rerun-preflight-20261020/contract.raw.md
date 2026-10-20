@@ -1,0 +1,35 @@
+# Reensayo nativo web37 después de QA-29
+
+Este contrato prepara un ensayo nuevo. No abre PostgreSQL ni Chrome y no convierte el intento anterior en PASS. La fase original `bd9a2cc8` mantiene sus 15 grupos MFA aprobados, cero de 18 nuevos completados y cierre manual tras timeout, con sus RAW y recibos originales inmutables. El arreglo de notificaciones es la única diferencia de producto: `9fd6432a491efd5906e52619cce31acac1356192`, aceptado por peer offline. Se enlazan todos los archivos de runtime con Main `8d6b18521c719ff789ebd32c493457b6810b2b48`; las diferencias de esta WT son pruebas y evidencia.
+
+Los originales `native37_account_notifications_qa.cjs`, `native37_postgres_server_qa.py` y `run_native37_qa.py` quedan intactos. Los tres derivados V2 tienen una inversa completa documentada. El driver cambia únicamente la espera textual no alcanzada del grupo 14 a «El resultado es incierto», que corresponde al aviso real; conserva las aserciones de un solo envío, DTO opaco, ausencia de autoresend y consulta explícita. Añade un observador privado de pageErrors que registra clase y frames limitados a pathname, línea y columna de fuentes conocidas del mismo origen. Descarta mensajes, query, fragmento y frames externos; no sustituye ni debilita `pageErrors == []`.
+
+La causa del timeout de salida previo no se identificó: listener cerrado y seis sesiones idle no indican qué tarea retuvo el proceso. El fixture V2 agrega sólo observaciones privadas de etapas de shutdown y frames acotados de tareas/hilos, sin locals, SQL, parámetros ni valores. No altera runtime, política de cancelación, pool o espera45s. El launcher exige exit0 y `close.normal_owned_context_closed == true`; si vuelve a agotar45s, conserva inventario/foto y recibo REJECTED con recurso propio retenido para revisión. No mata procesos, cancela SQL ni ejecuta DROP como fallback. El monitor de observación sólo cancela su propia tarea al salir de la observación.
+
+## Recursos y ACK
+
+Se propone una UUID nueva: una en esta fase y dos acumuladas entre ambos intentos. No está creada ni existe lease activo. Root debe autorizar explícitamente CREATE sobre PG55483 después de validar este freeze; Chrome necesita otro ACK posterior a startup y dos lecturas frescas de RAM física libre >=2.4GiB. El listener propio será `127.0.0.1:8802`, sin tocar el ajeno8776. No Redis, VM, desktop, instalación, proveedor o envío real.
+
+Se conserva sin cambios la primitiva `tests/account_security37_owned.py`: planned fsync antes de CREATE, OID/owner/nacimiento inmediatos, base exclusiva, cero sesiones antes de DROP normal y ausencia desde conexión nueva. El runtime usa `get_engine` y rol restringido no owner, con superuser/bypass/createdb/createrole/membership todos false, schema `20261020_account_security`, 41 ORM/42 físicas, FORCE32 e índice30 exacto. Pool5/overflow0 es propio de este fixture HTTP concurrente; no prueba pool1, capacidad ni cura de R34. El perfil privado permanece readonly con hash `1526482e15f5e31a4248868e77a609af536f6dfbbf2b04959e7b14d521519f02`.
+
+El nuevo TASK debe ser un directorio Temp fresco cuyo nombre empiece `metodobase-account37-author-pg-`, con DACL de usuario actual y SYSTEM antes del payload; incluye `private` y `leases`. TEMP/TMP del servidor conservan el Temp auténtico. Los perfiles Node/Chrome permanecen privados. PID+nacimiento+imagen+argumentos y generación del padre identifican procesos propios; no basta un ParentPID numérico. No FORCE DROP, cancelación de sesiones ajenas ni terminación por puerto. Cualquier retención bloquea la aceptación y requiere el procedimiento operativo de Root.
+
+## Lista finita de ejecución
+
+Se preparan tres drivers seriales, stop al primer fallo y sin retry automático: `mfa_ui_browser`11 y `mfa_personal_browser`4 mediante `browser_native_compat37_qa.cjs`, después `native37_account_notifications_qa_v2`18. Los primeros15 son replay histórico, no casos nuevos. Los originales MFA, su companion37 y todos sus cuerpos de aserción permanecen exactos. No se elimina una condición de Storage, cookie, autoridad, MFA, epoch, ACK, layout o pageErrors.
+
+Los 18 grupos y sus oráculos son exactamente los enumerados en `QA_NATIVE37_CONTRATO.md`: cinco por rol para navegación/contexto, preferencia, proveedor desactivado/métricas, confirmación pública de contacto y contraseña+MFA con revocación; luego pérdida de ACK de preferencia, ACK tardío de preferencia, ACK tardío de password, pérdida de ACK de emisión de contacto, GIS SDK local, pagehide/atrás, exportación propia y layout de ambos roles. La única espera textual cambiada corresponde al grupo14. Las cuatro cuentas nuevas y actores MFA fijos se vuelven a sembrar en una base nueva; no se reutiliza el estado anterior.
+
+Autenticación, MFA, cookies, autorización y persistencia son reales. El correo sólo sustituye transporte después del commit y guarda el enlace de propósito en archivos privados; jamás hay endpoint público para emitir el proof. La respuesta local no prueba entrega. Se declaran el doble SDK GIS, frontera Stripe del replay y los casos de entrega retenida/perdida o denial explícito del contrato original. No principal/GUC overrides, JWTStorage, adopción de B por tab invalidado, API fake ni cambio de reloj.
+
+## Entradas y cierre transitivo
+
+Launcher Windows: `python -B -X utf8 tests/e2e/run_native37_qa_v2.py --private-root <TASK nuevo> --pg-config <JSON privado> --dependencies <node_modules readonly> --node <node.exe> --chrome <chrome.exe>`.
+
+Fixture: `python -B -X utf8 tests/e2e/native37_postgres_server_qa_v2.py --pg-config <JSON privado> --private <TASK/private> --port 8802`.
+
+El manifest mantenido `tests/e2e/native37_transitive_qa.json` fija cada entrada directa, helper JS, lectura dinámica del companion, helper Python/migrador y árbol completo de runtime, con hashes RAW/Git y clasificación de alcance. Incluye `mobile_heading37_qa.cjs`, que sí se importa por el grupo18. El driver separado `mobile_heading37_geometry.cjs` se lista sólo como procedencia del gate geométrico anterior; no se presenta como import necesario ni como nueva ejecución. `browser_native_compat31.cjs` se conserva como procedencia histórica; el ejecutable actual es el companion37.
+
+El fixture usa helpers de test que importan pytest. Es un fixture ejecutado en host WEB92; no se instalará pytest en una imagen de producción ni se atribuirá la fixture host a un contenedor. Node/playwright-core/axe-core son los157 archivos readonly existentes. Antes/después se fijan fuente completa, 92 distribuciones, alcance8084 de archivos instalados, Python/base, Node/Chrome, perfil/PGtools, helpers privados y pip0. Los marcadores y close receipts reales, no metadata fabricada, gobiernan aceptación.
+
+Todo payload, stderr, stack observado, mail, JWT, factor, proof, descarga y snapshot con datos permanece privado. La publicación usa proyecciones escaneadas y hashes; capturas enmascaradas e inspección visual sólo de secciones medidas. El scope de axe no acredita WCAG global. El ensayo no afirma Actions, Linux, imagen, deployment, proveedor, capacidad, p95 o SLO.
