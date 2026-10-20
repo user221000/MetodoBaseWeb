@@ -4,11 +4,11 @@ import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
-from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from sqlalchemy.orm import Session
 
 from web.auth_deps import get_usuario_actual
+from web.browser_session import BrowserAuthRoute
 from web.database.engine import SessionLocal
 from web.middleware.rate_limiter import get_client_identifier
 from web.services import mfa_service as service
@@ -68,7 +68,7 @@ class StepUp(Factor):
     idempotency_key: str | None = Field(None, min_length=1, max_length=200)
 
 
-class MfaRoute(APIRoute):
+class MfaRoute(BrowserAuthRoute):
     def get_route_handler(self):
         original = super().get_route_handler()
 
