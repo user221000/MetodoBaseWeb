@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from tests import followup34_http as fixtures
+from tests import nutrition35_fixtures as fixtures
 
 followup_db = fixtures.followup_db
 followup_http = fixtures.followup_http

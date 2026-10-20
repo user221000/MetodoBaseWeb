@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from tests import followup34_http as http_fixtures
+from tests import nutrition35_fixtures as http_fixtures
 from web.database import followup_task_repository as repo
 from web.database.models import (
     Cliente,
