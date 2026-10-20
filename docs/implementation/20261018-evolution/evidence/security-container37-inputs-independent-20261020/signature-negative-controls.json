@@ -1,0 +1,28 @@
+{
+  "scope": "Offline negative controls using separately authenticated public keyrings; no network or global keyring",
+  "rows": [
+    {
+      "case": "APT-with-PSF-authority",
+      "exit": 2,
+      "wrong_authority_rejected": true,
+      "missing_public_keys": [
+        "6ED0E7B82643E131",
+        "762F67A0B2C39DE4",
+        "78DBA3BC47EF2265"
+      ],
+      "stdout_sha256": "e93ef587fc54c2c0bbbc57a83b89975b57d5d36ae5900a0792c5f566f23c181e",
+      "stderr_sha256": "c71891b433022b89849383e1f76e70b0366e8313d271fdab492062b1b7cc8059"
+    },
+    {
+      "case": "PSF-with-Debian-authority",
+      "exit": 2,
+      "wrong_authority_rejected": true,
+      "missing_public_keys": [
+        "A821E680E5FA6305"
+      ],
+      "stdout_sha256": "daaf68b59d067e8bef4e8eba48b038e70f162107c0af799ebad49786169272b5",
+      "stderr_sha256": "de185e6326bd562f5be127053d99ac1263c84463ad97d248ddc11f57371792fa"
+    }
+  ],
+  "PSF_export_sha256": "5b8126dbc5e5d412a5873a65888ad297f6d1c390917d161a90d5828a8abd1c4b"
+}
