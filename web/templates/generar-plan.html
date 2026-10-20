@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Generar Plan{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/nutrition35.css?v={{ static_version }}"><script nonce="{{ request.state.csp_nonce }}" src="/static/js/nutrition35.js?v={{ static_version }}"></script>{% endblock %}
 
 {% block content %}
 
@@ -123,6 +124,7 @@
       <p class="text-xs text-muted" style="margin-top:4px;">1 = básico, 5 = máxima variedad</p>
     </div>
 
+    <section class="nutrition35" aria-labelledby="nutrition-generation-title"><h3 id="nutrition-generation-title">Declaración de esta ficha</h3><p id="nutrition-generation-message" role="status" aria-live="polite">Consulta la declaración antes de generar. Un error no significa ausencia de alergias.</p><button id="nutrition-generation-refresh" type="button">Consultar declaración de esta ficha</button><p><a href="/clientes">Editar explícitamente la declaración en Clientes</a>. Las exclusiones de alimentos se guardan por separado.</p></section>
     <!-- Preferencias de alimentos (exclusiones) -->
     <div class="input-group">
       <label class="input-label">Preferencias de alimentos</label>
@@ -370,6 +372,7 @@
           <option value="intensa">Actividad intensa</option>
         </select>
       </div>
+      {% with nutrition_key='new-client' %}{% include '_nutrition35_fields.html' %}{% endwith %}
       <p id="new-client-status" role="status" tabindex="-1" style="margin-top:16px;overflow-wrap:anywhere"></p>
       <a id="new-client-history" class="btn btn-secondary hidden" href="/clientes" target="_blank" rel="noopener">Consultar clientes (otra pestaña)</a>
     </div>
@@ -497,10 +500,21 @@ let _accountContext = null;
 let _generationSessionDiscarded = false;
 let _clientCreationBusy = false;
 let _clientCreationState = 'idle';
+const nutritionGeneration = Nutrition35.create({api:Api.nutrition, onView:state=>{
+  const message=document.getElementById('nutrition-generation-message');
+  try { if(state.phase==='ready') Nutrition35.renderSummary(message,state.declaration); else { message.textContent=state.message; message.setAttribute('role',['error','uncertain','invalidated'].includes(state.phase)?'alert':'status'); } } catch { /* The gate below retains the block. */ }
+  let allowed=false; try { nutritionGeneration.requireAutomation(); allowed=true; } catch { /* Unknown or review never becomes no restrictions. */ }
+  document.getElementById('s2-generar').disabled=_generationBusy||!allowed;
+  document.getElementById('nutrition-generation-refresh').disabled=state.busy||state.phase==='invalidated';
+},onInvalidated:()=>{if(!_generationSessionDiscarded)discardGenerationSession();}});
+const nutritionNewClient = Nutrition35.mount(document.getElementById('nutrition35-new-client'), {api:Api.nutrition,onView:state=>{document.getElementById('s1-registrar').disabled=state.busy||state.phase!=='ready'||_clientCreationState!=='idle';},onInvalidated:()=>{if(!_generationSessionDiscarded)discardGenerationSession();}});
+document.getElementById('nutrition-generation-refresh').addEventListener('click',()=>{if(_cliente_sel)nutritionGeneration.load(_cliente_sel.id_cliente);});
 
 function discardGenerationSession() {
   _generationEpoch++;
   _generationSessionDiscarded = true;
+  nutritionGeneration.invalidate();
+  nutritionNewClient.invalidate();
   _operation = null;
   _plan_result = null;
   _cliente_sel = null;
@@ -633,6 +647,7 @@ function seleccionarCliente(c) {
   if (_generationBusy || _generationSessionDiscarded) return;
   if (_operation && _operation.request.id_cliente !== c.id_cliente) return;
   _cliente_sel = c;
+  nutritionGeneration.load(c.id_cliente);
 
   // Poblar step-2
   document.getElementById('s2-nombre').textContent  = c.nombre;
@@ -660,9 +675,10 @@ document.getElementById('s1-btn-nuevo').addEventListener('click', async () => {
   try { await verifyGenerationAccount(epoch); } catch { return; }
   modalNuevo.classList.add('active');
   const locked = ['uncertain', 'created'].includes(_clientCreationState);
-  modalNuevo.querySelectorAll('input, select').forEach(field => { field.value = ''; field.disabled = locked; });
+  modalNuevo.querySelectorAll('input, select').forEach(field => { if (field.id && field.id.startsWith('nutrition35-')) return; field.value = ''; field.disabled = locked; });
   document.getElementById('s1-registrar').disabled = locked;
   if (!locked) {
+    nutritionNewClient.load(null);
     document.getElementById('new-client-status').textContent = '';
     document.getElementById('new-client-history').classList.add('hidden');
     document.getElementById('n-nombre').focus();
@@ -673,7 +689,8 @@ document.getElementById('s1-btn-nuevo').addEventListener('click', async () => {
 function cerrarModalNuevo(force = false) {
   if (_clientCreationBusy && force !== true) return;
   modalNuevo.classList.remove('active');
-  modalNuevo.querySelectorAll('input, select').forEach(field => { field.value = ''; });
+  nutritionNewClient.reset();
+  modalNuevo.querySelectorAll('input, select').forEach(field => { if (field.id && field.id.startsWith('nutrition35-')) return; field.value = ''; });
   if (!_generationSessionDiscarded) document.getElementById('s1-btn-nuevo').focus();
 }
 document.getElementById('s1-cancelar-nuevo').addEventListener('click', () => cerrarModalNuevo());
@@ -695,6 +712,7 @@ document.addEventListener('keydown', (e) => {
 });
 document.getElementById('s1-registrar').addEventListener('click', async () => {
   if (_clientCreationBusy || _generationSessionDiscarded || _clientCreationState !== 'idle') return;
+  try { nutritionNewClient.payload(document.getElementById('nutrition35-new-client-confirm').checked); } catch(error) { Toast.error(Nutrition35.messages[error.code]||Nutrition35.messages.nutrition_state_unavailable); return; }
   for (const field of modalNuevo.querySelectorAll('input, select')) { if (!field.reportValidity()) return; }
   const nombre  = document.getElementById('n-nombre').value.trim();
   const peso    = parseFloat(document.getElementById('n-peso').value);
@@ -723,7 +741,7 @@ document.getElementById('s1-registrar').addEventListener('click', async () => {
   modalNuevo.querySelector('[role="dialog"]').setAttribute('aria-busy', 'true');
   ['s1-cancelar-nuevo', 'modal-nuevo-close'].forEach(id => document.getElementById(id).disabled = true);
   document.getElementById('s1-registrar').disabled = true;
-  modalNuevo.querySelectorAll('input, select').forEach(field => { field.disabled = true; });
+  modalNuevo.querySelectorAll('input, select').forEach(field => { if (field.id && field.id.startsWith('nutrition35-')) return; field.disabled = true; });
   status.textContent = 'Registrando cliente. Esta acción se enviará una sola vez...';
   status.focus();
   let attempted = false;
@@ -732,14 +750,14 @@ document.getElementById('s1-registrar').addEventListener('click', async () => {
     await verifyGenerationAccount(epoch);
     attempted = true;
     const created = await Promise.race([
-      Api.clientes.crear(payload),
+      nutritionNewClient.save(payload),
       new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Sin confirmación del alta.')), 60000); }),
     ]);
     await verifyGenerationAccount(epoch);
     if (!created || created.success !== true || typeof created.id_cliente !== 'string' || !created.id_cliente) throw new Error('El servidor no confirmó el alta.');
     _clientCreationState = 'created';
     status.textContent = 'Cliente registrado. Cargando sus datos...';
-    const fullClient = await Api.clientes.obtener(created.id_cliente);
+    const fullClient = await nutritionNewClient.load(created.id_cliente);
     await verifyGenerationAccount(epoch);
     if (!fullClient || fullClient.id_cliente !== created.id_cliente || typeof fullClient.nombre !== 'string') throw new Error('No se pudieron cargar los datos del cliente.');
     _clientCreationState = 'idle';
@@ -767,7 +785,7 @@ document.getElementById('s1-registrar').addEventListener('click', async () => {
       ['s1-cancelar-nuevo', 'modal-nuevo-close'].forEach(id => document.getElementById(id).disabled = false);
       const locked = _clientCreationState !== 'idle';
       document.getElementById('s1-registrar').disabled = locked;
-      modalNuevo.querySelectorAll('input, select').forEach(field => { field.disabled = locked; });
+      modalNuevo.querySelectorAll('input, select').forEach(field => { if (field.id && field.id.startsWith('nutrition35-')) return; field.disabled = locked; });
     }
   }
 });
@@ -779,6 +797,7 @@ document.getElementById('s2-back').addEventListener('click', () => { if (!_gener
 // ── STEP 2 → 3: Generar plan ──────────────────────────────────
 document.getElementById('s2-generar').addEventListener('click', async () => {
   if (!_cliente_sel || _generationBusy) return;
+  try { nutritionGeneration.requireAutomation(); } catch(error) { document.getElementById('nutrition-generation-message').textContent=Nutrition35.messages[error.code]||Nutrition35.messages.nutrition_state_unavailable; return; }
   for (const field of document.querySelectorAll('#step-2 input, #step-2 select')) {
     if (!field.reportValidity()) return;
   }
@@ -805,6 +824,10 @@ document.getElementById('s2-generar').addEventListener('click', async () => {
 
 function generationProblem(error) {
   const messages = {
+    nutrition_professional_review_required: Nutrition35.messages.nutrition_professional_review_required,
+    nutrition_profile_invalid_input: Nutrition35.messages.nutrition_profile_invalid_input,
+    nutrition_restrictions_invalid: Nutrition35.messages.nutrition_restrictions_invalid,
+    nutrition_restrictions_changed: Nutrition35.messages.nutrition_restrictions_changed,
     generation_in_progress: 'Esta solicitud sigue en proceso. Consulta el historial o reintenta la misma solicitud para consultar su estado.',
     generation_result_pending: 'El plan puede estar publicado y su respuesta sigue pendiente. Consulta el historial; el reintento conserva la misma solicitud.',
     generation_failed: 'Esta solicitud no pudo completarse. Su clave no ejecutará otra generación. Consulta el historial antes de preparar otra solicitud.',
@@ -835,6 +858,7 @@ async function runGenerationOperation() {
   let timer;
   try {
     await verifyGenerationAccount(epoch);
+    nutritionGeneration.requireAutomation();
     if (!operation.prepared) {
       document.getElementById('s3-progress').textContent = 'Guardando los datos del cliente...';
       const updated = await Api.clientes.actualizar(operation.request.id_cliente, operation.profile);
@@ -872,16 +896,16 @@ async function runGenerationOperation() {
     document.getElementById('s3-skeleton').classList.add('hidden');
     document.getElementById('s3-resultado').classList.add('hidden');
     document.getElementById('s3-recovery').classList.remove('hidden');
-    document.getElementById('s3-recovery-message').textContent = operation.prepared
+    document.getElementById('s3-recovery-message').textContent = Object.prototype.hasOwnProperty.call(Nutrition35.messages,error.code) ? Nutrition35.messages[error.code] : operation.prepared
       ? generationProblem(error)
       : 'No se pudo confirmar la actualización del cliente. No se envió la generación. Puedes reintentar esta preparación o revisar los datos. ' + error.message;
-    document.getElementById('s3-retry').hidden = ['generation_failed', 'generation_result_unavailable', 'idempotency_conflict', 'generation_unavailable'].includes(error.code);
+    document.getElementById('s3-retry').hidden = ['generation_failed', 'generation_result_unavailable', 'idempotency_conflict', 'generation_unavailable', 'nutrition_professional_review_required', 'nutrition_profile_invalid_input', 'nutrition_restrictions_invalid', 'nutrition_restrictions_changed', 'nutrition_state_unavailable', 'nutrition_unsaved_changes'].includes(error.code);
     document.getElementById('s3-recovery-title').focus();
   } finally {
     clearTimeout(timer);
     if (epoch === _generationEpoch) {
       _generationBusy = false;
-      document.getElementById('s2-generar').disabled = false;
+      try { nutritionGeneration.requireAutomation(); document.getElementById('s2-generar').disabled=false; } catch { document.getElementById('s2-generar').disabled=true; }
       document.getElementById('s3-retry').disabled = false;
       document.getElementById('s3-review').disabled = false;
     }
@@ -911,7 +935,7 @@ async function prepareAnotherOperation(otherClient = false) {
   } catch (error) {
     if (epoch === _generationEpoch) document.getElementById('s3-download-status').textContent = error.message;
   } finally {
-    if (epoch === _generationEpoch) { _generationBusy = false; document.getElementById('s2-generar').disabled = false; }
+    if (epoch === _generationEpoch) { _generationBusy = false; try { nutritionGeneration.requireAutomation(); document.getElementById('s2-generar').disabled=false; } catch { document.getElementById('s2-generar').disabled=true; } }
   }
 }
 document.getElementById('s3-review').addEventListener('click', () => prepareAnotherOperation());

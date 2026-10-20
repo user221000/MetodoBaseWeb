@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Clientes{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/nutrition35.css?v={{ static_version }}"><script nonce="{{ request.state.csp_nonce }}" src="/static/js/nutrition35.js?v={{ static_version }}"></script>{% endblock %}
 
 {% block content %}
 
@@ -218,6 +219,7 @@
       </div>
 
       <!-- ── Suscripción ── -->
+      {% with nutrition_key='client' %}{% include '_nutrition35_fields.html' %}{% endwith %}
       <div id="seccion-suscripcion-cliente">
       <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent-purple);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:6px;">
         <img src="/static/img/icon-subscription.svg" alt="" style="width:18px;height:18px"> Suscripción
@@ -416,6 +418,11 @@
 /* ── Clientes Page ─────────────────────────────────────────── */
 
 let _clientes = [];
+const _nutritionClient = Nutrition35.mount(document.getElementById('nutrition35-client'), {
+  api: Api.nutrition,
+  onView: state => { document.getElementById('btn-guardar-cliente').disabled = state.busy || state.phase !== 'ready'; },
+  onInvalidated: () => { _clientes=[]; document.getElementById('form-cliente').reset(); document.getElementById('field-id').value=''; document.getElementById('modal-cliente').classList.add('hidden'); },
+});
 // URL param overrides localStorage (when coming from dashboard drawer "ver todos")
 const _urlFilter = new URLSearchParams(window.location.search).get('filter') || '';
 let _filtroSuscripcion = _urlFilter || localStorage.getItem('mb_last_subs_filter') || '';
@@ -681,6 +688,8 @@ document.getElementById('modal-cliente').addEventListener('click', (e) => {
 });
 
 function abrirModalNuevo() {
+  if (_nutritionClient.view().busy && _nutritionClient.view().phase === 'saving') return;
+  _nutritionClient.load(null);
   document.getElementById('client-form-error').hidden = true;
   document.getElementById('modal-title').textContent = 'Nuevo Cliente';
   document.getElementById('form-cliente').reset();
@@ -698,6 +707,8 @@ function abrirModalNuevo() {
 }
 
 function abrirModalEditar(c) {
+  if (_nutritionClient.view().busy && _nutritionClient.view().phase === 'saving') return;
+  _nutritionClient.load(c.id_cliente);
   document.getElementById('client-form-error').hidden = true;
   document.getElementById('modal-title').textContent = 'Editar Cliente';
   document.getElementById('field-id').value   = c.id_cliente ?? '';
@@ -722,6 +733,7 @@ function abrirModalEditar(c) {
 }
 
 function cerrarModal() {
+  if (!_nutritionClient.reset()) return;
   document.getElementById('modal-cliente').classList.add('hidden');
   DialogFocus.close(document.getElementById('modal-cliente'));
 }
@@ -754,22 +766,22 @@ document.getElementById('form-cliente').addEventListener('submit', async (e) => 
 
   try {
     if (id) {
-      await Api.clientes.actualizar(id, payload);
+      await _nutritionClient.save(payload);
       Toast.success('¡Cliente actualizado correctamente!');
     } else {
-      const res = await Api.clientes.crear(payload);
-      Toast.success(`¡Cliente "${payload.nombre}" creado! Kcal: ${res.macros?.kcal_objetivo ?? '—'}`);
+      await _nutritionClient.save(payload);
+      Toast.success('Cliente registrado. No se generó un plan.');
     }
     cerrarModal();
     await actualizarContadores();
     await cargarClientes('', _filtroSuscripcion);
   } catch (err) {
     const message = document.getElementById('client-form-error');
-    message.textContent = 'No se pudo guardar el cliente. ' + err.message;
+    message.textContent = _nutritionClient.view().message || 'No se pudo confirmar el guardado. Consulta la declaración antes de continuar.';
     message.hidden = false;
     message.scrollIntoView({block:'nearest'});
   } finally {
-    btn.disabled = false;
+    btn.disabled = _nutritionClient.view().busy || _nutritionClient.view().phase !== 'ready';
     btn.innerHTML = 'Guardar Cliente';
   }
 });

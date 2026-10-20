@@ -38,6 +38,9 @@
       }
     }
     function classify(error) {
+      if (error.code === 'nutrition_professional_review_required') return ['nutrition_review', 'El perfil requiere revisión profesional. La generación automática está bloqueada en todos los planes, incluido Pro.'];
+      if (error.code === 'nutrition_restrictions_changed') return ['nutrition_changed', 'Las restricciones cambiaron. Consulta el perfil antes de preparar otra solicitud. Este error no confirma una devolución de cupo.'];
+      if (['nutrition_profile_invalid_input','nutrition_restrictions_invalid','nutrition_state_unavailable','nutrition_unsaved_changes'].includes(error.code)) return ['nutrition_invalid', 'No se pudo validar la declaración actual. Guarda los cambios explícitamente y consulta el perfil antes de generar.'];
       if (['generation_in_progress'].includes(error.code)) return ['pending', 'La solicitud sigue pendiente. Puedes consultar tu historial o volver a consultar esta misma solicitud.'];
       if (['generation_reconciliation_required', 'generation_result_unavailable'].includes(error.code)) return ['reconciliation', 'No se pudo confirmar el resultado. Consulta el historial; evita iniciar otra generación mientras se revisa.'];
       if (error.code === 'generation_failed') return ['failed', 'Esta solicitud no pudo completarse. Revisa tu perfil antes de iniciar otra generación.'];
@@ -59,6 +62,7 @@
       let timer;
       try {
         await verify(ticket); check(ticket);
+        if (options.beforeGenerate) { await options.beforeGenerate(); check(ticket); }
         const response = await Promise.race([
           Api.usuario.generarPlan(current.key, context),
           new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('No se confirmó la respuesta.')), options.timeoutMs || 90000); }),

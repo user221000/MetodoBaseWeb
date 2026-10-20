@@ -737,6 +737,40 @@ const Api = (() => {
     window.addEventListener('metodobase-session-changed',discard);window.addEventListener('pagehide',discard);
   }
 
+  // Nutrition35 is additive and purpose-closed. Exact access means a 401 never
+  // rotates/replays a health declaration or substitutes another session.
+  function _nutritionInput(){return _mfaError('nutrition_profile_invalid_input');}
+  function _nutritionFields(value,keys){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||keys.some(k=>!Object.hasOwn(value,k)))throw _nutritionInput();}
+  function _nutritionDeclaration(value){
+    _nutritionFields(value,['version','allergies','professional_review_requested']);
+    if(value.version!==1||typeof value.professional_review_requested!=='boolean')throw _nutritionInput();
+    const a=value.allergies;_nutritionFields(a,['version','status','foods','other_reported']);
+    if(a.version!==1||!['not_reported','none_reported','reported'].includes(a.status)||typeof a.other_reported!=='boolean'||!Array.isArray(a.foods)||a.foods.length>250||new Set(a.foods).size!==a.foods.length||a.foods.some(v=>typeof v!=='string'||!v.length||v.length>128||/[\p{C}]/u.test(v))||(a.status==='reported')!==!!(a.foods.length||a.other_reported))throw _nutritionInput();
+    return value;
+  }
+  function _nutritionBody(body,personal=false){
+    const allowed=['edad','peso_kg','estatura_cm','sexo','grasa_corporal_pct','objetivo','nivel_actividad','notas','alimentos_excluidos','restricciones_nutricionales',...(personal?[]:['nombre','telefono','fecha_suscripcion','fecha_fin_suscripcion','plan_suscripcion_id','plan_numero','tipo_plan'])];
+    if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!allowed.includes(k)))throw _nutritionInput();
+    if(body.restricciones_nutricionales!==undefined&&body.restricciones_nutricionales!==null)_nutritionDeclaration(body.restricciones_nutricionales);
+    const encoded=JSON.stringify(body,(_k,value)=>{if((typeof value==='number'&&!Number.isFinite(value))||['undefined','function','symbol','bigint'].includes(typeof value))throw _nutritionInput();return value;});
+    if(new TextEncoder().encode(encoded).byteLength>32768)throw _nutritionInput();return JSON.parse(encoded);
+  }
+  async function _nutritionRequest(path,body,handle,method='GET'){
+    const context=_mfaContext(handle);
+    try{const result=await request(method,path,body,{},true,{snapshot:context.snapshot,pair:context.pair});_mfaContext(handle);return result;}
+    catch(error){_mfaContext(handle);throw error;}
+  }
+  const nutrition={
+    capture:mfa.capture,check:mfa.check,session:mfa.context,verify:mfa.verify,
+    client:(key,handle)=>_nutritionRequest('/api/clientes/'+encodeURIComponent(_followupId(key)),null,handle),
+    create:(body,handle)=>_nutritionRequest('/api/clientes',_nutritionBody(body),handle,'POST'),
+    update:(key,body,handle)=>_nutritionRequest('/api/clientes/'+encodeURIComponent(_followupId(key)),_nutritionBody(body),handle,'PUT'),
+    personal:handle=>_nutritionRequest('/api/usuario/perfil',null,handle),
+    savePersonal:(body,handle)=>_nutritionRequest('/api/usuario/perfil',_nutritionBody(body,true),handle,'PUT'),
+    catalog:handle=>_nutritionRequest('/api/alimentos/catalogo',null,handle),
+    personalCatalog:handle=>_nutritionRequest('/api/usuario/catalogo-alimentos',null,handle),
+  };
+
   const billing = {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
@@ -1105,6 +1139,6 @@ const Api = (() => {
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
     accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
   };
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, clearTokens, saveTokens };
 })();
 
