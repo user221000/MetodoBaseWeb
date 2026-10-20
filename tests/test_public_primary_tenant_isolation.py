@@ -4,8 +4,10 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from tests.notifications36_http import followup_db as followup_db
-from tests.notifications36_http import notification_http as notification_http
+from tests import notifications36_http as current
+
+followup_db = current.followup_db
+notification_http = current.notification_http
 
 
 def test_registration_and_password_login_use_the_new_subject(notification_http, monkeypatch):
@@ -47,7 +49,7 @@ def test_registration_and_password_login_use_the_new_subject(notification_http, 
 
 def test_primary_isolation_is_finite_and_browser_admission_remains_first(notification_http, monkeypatch):
     from web.database.models import Usuario
-    from web.middleware.tenant import TenantMiddleware, _PUBLIC_PRIMARY_POSTS
+    from web.middleware.tenant import _PUBLIC_PRIMARY_POSTS, TenantMiddleware
 
     case = notification_http
     calls = []
