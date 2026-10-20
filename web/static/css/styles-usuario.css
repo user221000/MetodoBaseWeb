@@ -2133,12 +2133,12 @@ textarea.u-form-input {
 /* ── Mobile Responsive ────────────────────────────────────────────────────── */
 .u-mobile-menu-btn {
   display: none;
-  position: fixed;
-  top: 18px;
-  left: 18px;
+  /* A flow row also protects the preserved MFA island outside main. */
+  position: relative;
+  margin: 16px 0 0 16px;
   z-index: 200;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--u-radius-sm);
   background: var(--u-bg-card);
   border: 1px solid var(--u-border);
@@ -2180,7 +2180,7 @@ textarea.u-form-input {
 
   .u-mobile-menu-btn { display: flex; }
 
-  .u-main { padding: 70px 16px 48px; }
+  .u-main { padding: 10px 16px 48px; }
 
   .u-hero-title { font-size: 1.5rem; }
 
