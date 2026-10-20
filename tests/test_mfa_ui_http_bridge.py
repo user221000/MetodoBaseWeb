@@ -4,14 +4,14 @@ No listening socket, browser, PostgreSQL migration, provider or public fixture
 endpoint. Bodies containing ephemeral MFA material stay in private process RAM.
 """
 import base64
-from datetime import datetime, timezone
 import importlib
 import json
-from pathlib import Path
 import queue
 import subprocess
 import threading
 import uuid
+from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -21,9 +21,10 @@ from fastapi.testclient import TestClient
 @pytest.mark.parametrize("scenario", ["lifecycle", "late-ack"])
 def test_real_ui_mfa_modules_against_current31(monkeypatch, test_gym_user, factory, scenario):
     from sqlalchemy.orm import Session
+
     from web.auth import hash_password
     from web.database.engine import get_engine
-    from web.database.models import Usuario, UserRole
+    from web.database.models import UserRole, Usuario
     from web.services import mfa_service, stripe_service
     from web.services.mfa_crypto import totp
     from web.settings import get_settings
@@ -34,7 +35,9 @@ def test_real_ui_mfa_modules_against_current31(monkeypatch, test_gym_user, facto
                         port_calls.append(True) or {"url": "https://billing.stripe.com/synthetic-no-provider"})
     monkeypatch.setattr(get_settings(), "MFA_ENCRYPTION_KEY",
                         base64.urlsafe_b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes).decode())
-    now = datetime.now(timezone.utc)
+    browser_origin = "https://testserver"
+    monkeypatch.setattr(get_settings(), "BASE_URL", browser_origin)
+    now = datetime.now(UTC)
     actual = mfa_service.instant
     monkeypatch.setattr(mfa_service, "instant", lambda value=None: actual(now if value is None else value))
     other_id = str(uuid.uuid4())
@@ -48,15 +51,16 @@ def test_real_ui_mfa_modules_against_current31(monkeypatch, test_gym_user, facto
     app = importlib.import_module(factory).create_app()
     source_ip = "127.2." + str(int(uuid.uuid4().hex[:2], 16)) + "." + str(int(uuid.uuid4().hex[:2], 16))
     root = Path(__file__).resolve().parents[1]
-    with TestClient(app, raise_server_exceptions=False, client=(source_ip, 50000)) as client:
+    with TestClient(app, base_url=browser_origin, raise_server_exceptions=False,
+                    client=(source_ip, 50000)) as client:
         primary = client.post("/api/auth/login", json={"email": test_gym_user["email"], "password": "test123"})
         assert primary.status_code == 200
         replacement = client.post("/api/auth/login", json={"email": other_email, "password": password})
         assert replacement.status_code == 200
         boot = {"pair": primary.json(), "other": replacement.json(), "other_id": other_id,
                 "actor_id": test_gym_user["id"], "email": test_gym_user["email"],
-                "password": "test123", "scenario": scenario}
-        process = subprocess.Popen(["node", "tests/e2e/mfa_http_worker.cjs"], cwd=root,
+                "password": "test123", "scenario": scenario, "origin": browser_origin}
+        process = subprocess.Popen(["node", "tests/e2e/browser_mfa_http_worker31.cjs"], cwd=root,
                                    stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                    stderr=subprocess.DEVNULL, text=True, encoding="utf8",
                                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
