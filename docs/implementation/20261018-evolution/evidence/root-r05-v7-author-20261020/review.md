@@ -1,0 +1,3 @@
+# Finite V7 author selected acceptance
+
+On author sourceb6ca75/75 selected cases pass:11 scanner safety,49 generic guards and15 V7 cases, zero failures, errors or skips. The904-record/57262-pin artifact preserves all903 V6 records and adds the one independently traced checksum from reportcbf619. Only three loader literals change. Every historical dataset and V5/V6 test stays unchanged; their source-specific phases remain explicit. Source1374 and92 distributions remain stable and Ruff passes the two changed Python modules. Independent actual artifact review, Main integration and a new current full scan are pending. This does not declare global CI or R05 acceptance.
