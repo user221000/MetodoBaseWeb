@@ -15,7 +15,7 @@
   function kit(root,codes,context,loginUrl,api=Api.mfa){
     let active=true,values=codes.slice();
     function clear(){if(!active)return;active=false;values.fill('');values=[];root.replaceChildren();window.removeEventListener('metodobase-session-changed',clear);window.removeEventListener('pagehide',clear);window.removeEventListener('storage',storage);}
-    function storage(event){if(event.key===null||['mb_token','mb_refresh_token'].includes(event.key))clear();}
+    function storage(event){if(event.key===null||['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))clear();}
     function check(){if(!active)throw cancelled();api.check(context);}
     window.addEventListener('metodobase-session-changed',clear);window.addEventListener('pagehide',clear);window.addEventListener('storage',storage);
     try{
@@ -78,7 +78,7 @@
       check();const ticket=epoch,body={enrollment_id:enrollment.id,code};busy=true;options.onInputsClear?.();if(dead||ticket!==epoch)return false;emit('saving','Confirmando el factor; todavía no hay un cambio confirmado…');if(dead||ticket!==epoch)return false;
       try{const reply=await api.confirm(body,context);check(ticket);if(reply?.enabled!==true)throw bad();return finishKit(reply,ticket);}
       catch(error){failure(error,ticket);return false;}}
-    window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('pagehide',invalidate);window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token'].includes(event.key))invalidate();});
+    window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('pagehide',invalidate);window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))invalidate();});
     return{load,mutate,confirm,invalidate,discard(){if(!dead&&!busy){clear();emit('ready','Semilla descartada de esta vista. Consulta el estado antes de iniciar otro cambio.');}},check,
       get enabled(){return status?.enabled===true;},get active(){return!dead;}};
   }
@@ -115,6 +115,7 @@
     function clear(){clearInputs();seed.replaceChildren();confirmation.hidden=true;recoveryView?.clear();recoveryView=null;kitRoot.replaceChildren();}
     const controller=createAccount({onClear:clear,onInputsClear:clearInputs,onState(update){
       state.textContent=update.message;
+      if(update.state==='invalidated')get('mfa-account-summary').textContent='';
       const unavailable=['loading','saving','invalidated','unconfirmed'].includes(update.state);
       form.hidden=update.state==='invalidated';for(const control of root.querySelectorAll('input,select,button'))control.disabled=update.busy||update.state==='invalidated';
       get('mfa-account-google').hidden=['invalidated','unconfirmed'].includes(update.state);get('mfa-account-google').inert=update.busy;

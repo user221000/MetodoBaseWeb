@@ -146,7 +146,8 @@
 <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Scripts globales -->
-<script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/session-shell.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/buttons.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/components.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/insights.js?v={{ static_version }}"></script>
@@ -199,13 +200,13 @@
 
 <script nonce="{{ request.state.csp_nonce }}">
   (function() {
-    const nombre = localStorage.getItem('mb_nombre') || '';
-    const tipo   = localStorage.getItem('mb_tipo')   || '—';
-    const el_nombre = document.getElementById('sb-nombre');
-    const el_tipo   = document.getElementById('sb-tipo');
-    const el_avatar = document.getElementById('sb-avatar');
-    if (el_nombre) el_nombre.textContent = nombre || 'Mi cuenta';
-    if (el_tipo)   el_tipo.textContent = tipo === 'gym' ? 'Gimnasio' : 'Usuario';
+    function renderIdentity(me){
+      const name=document.getElementById('sb-nombre'),role=document.getElementById('sb-tipo');
+      if(name)name.textContent=me?.nombre||'Mi cuenta';
+      if(role)role.textContent=me?(me.team_gym_id?'Equipo · Acceso profesional':me.tipo==='gym'?'Gimnasio':'Usuario'):'';
+    }
+    SessionIdentity.ready.then(()=>renderIdentity(Api.session.identity()));
+    window.addEventListener('metodobase-session-changed',()=>renderIdentity(null));
     // Avatar is now an icon, no initials needed
   })();
 
@@ -247,18 +248,13 @@
     }
   })();
 
-  // Sidebar client count
-  (function() {
-    const token = localStorage.getItem('mb_token');
-    if (!token) return;
-    const badge = document.getElementById('sb-total-clientes');
-    if (!badge) return;
-    fetch('/api/clientes?limite=1', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    }).then(r => r.ok ? r.json() : null)
-      .then(d => { if (d && d.total != null) badge.textContent = d.total; })
-      .catch(() => {});
+  // Read-only count after the authoritative cookie/identity bootstrap.
+  (async function(){
+    const badge=document.getElementById('sb-total-clientes');if(!badge)return;
+    window.addEventListener('metodobase-session-changed',()=>{badge.textContent='';});
+    try{await SessionIdentity.ready;if(!Api.getToken())return;const context=Api.session.capture();const data=await Api.session.clientCount();Api.session.check(context);if(data&&data.total!=null)badge.textContent=data.total;}catch{/* Unavailable is not a zero. */}
   })();
+
 </script>
 
 {% block scripts %}{% endblock %}

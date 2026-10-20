@@ -73,7 +73,7 @@
       return self;
     }
     window.addEventListener('storage', event => {
-      if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) invalidate();
+      if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) invalidate();
     });
     window.addEventListener('metodobase-session-changed', event => invalidate(
       Object.assign(changed(), {code:sessionCodes.has(event.detail?.code) ? event.detail.code : 'session_changed'})));

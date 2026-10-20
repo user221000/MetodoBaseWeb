@@ -541,7 +541,7 @@ function discardGenerationSession() {
   irAStep(3);
 }
 window.addEventListener('storage', (event) => {
-  if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) discardGenerationSession();
+  if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) discardGenerationSession();
 });
 window.addEventListener('pagehide', () => { _generationEpoch++; _operation = null; _plan_result = null; _cliente_sel = null; });
 window.addEventListener('pageshow', (event) => { if (event.persisted) discardGenerationSession(); });
@@ -1124,7 +1124,7 @@ document.getElementById('s3-whatsapp').addEventListener('click', () => {
   const prot = Math.round(macros.proteina_g || 0);
   const carbs = Math.round(macros.carbs_g || 0);
   const grasa = Math.round(macros.grasa_g || 0);
-  const gymName = localStorage.getItem('mb_nombre') || 'Tu Nutriólogo';
+  const gymName = Api.session.identity()?.nombre || 'Tu Nutriólogo';
   const hoy = new Date().toLocaleDateString('es-MX', {day:'numeric',month:'long',year:'numeric'});
   const mensaje = [
     `¡Hola ${nombre}! 👋`,
@@ -1204,14 +1204,9 @@ async function s2LoadCatalog() {
   const epoch = _generationEpoch;
   try {
     await verifyGenerationAccount(epoch);
-    const res = await fetch('/api/alimentos/catalogo', {
-      headers: {'Authorization': 'Bearer ' + (localStorage.getItem('mb_token') || '')}
-    });
-    if (res.ok) {
-      const data = await res.json();
-      await verifyGenerationAccount(epoch);
-      _s2CatalogoAlimentos = data.categorias || {};
-    }
+    const data=await Api.clientes.catalogo();
+    await verifyGenerationAccount(epoch);
+    _s2CatalogoAlimentos=data.categorias||{};
   } catch { /* El catálogo no habilita acciones cuando la identidad deja de ser válida. */ }
 }
 

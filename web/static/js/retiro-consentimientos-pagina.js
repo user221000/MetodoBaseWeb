@@ -54,6 +54,6 @@
   byId('clear').addEventListener('click',() => { discard('Consulta cancelada y datos de esta pantalla borrados. No cambia tu sesión habitual.'); email.focus(); });
   window.addEventListener('pagehide',() => discard('Consulta descartada al salir de la página.'));
   window.addEventListener('metodobase-session-changed',() => discard('La cuenta del navegador cambió. Verifica de nuevo los datos para esta consulta.'));
-  window.addEventListener('storage',event => { if (event.key === null || ['mb_token','mb_refresh_token'].includes(event.key)) discard('La cuenta del navegador cambió. Verifica de nuevo los datos para esta consulta.'); });
+  window.addEventListener('storage',event => { if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) discard('La cuenta del navegador cambió. Verifica de nuevo los datos para esta consulta.'); });
   email.disabled = false; byId('clear').disabled = false; showFactor(); render(page.view());
 })();

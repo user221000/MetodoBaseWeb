@@ -858,8 +858,7 @@
     let saludo = 'Buenas noches';
     if (h >= 5 && h < 12) saludo = 'Buenos días';
     else if (h >= 12 && h < 19) saludo = 'Buenas tardes';
-    const nombre = localStorage.getItem('mb_nombre') || '';
-    if (saludoEl) saludoEl.textContent = nombre ? `${saludo}, ${nombre}` : saludo;
+    SessionIdentity.ready.then(()=>{const nombre=Api.session.identity()?.nombre||'';if(saludoEl&&saludoEl.isConnected)saludoEl.textContent=nombre?`${saludo}, ${nombre}`:saludo;});
     if (fechaEl) {
       fechaEl.textContent = now.toLocaleDateString('es-MX', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -981,13 +980,9 @@
 
   async function cargarCatalogoAlimentos() {
     try {
-      const res = await fetch('/api/alimentos/catalogo', {
-        headers: {'Authorization': 'Bearer ' + (localStorage.getItem('mb_token') || '')}
-      });
-      if (res.ok) {
-        const data = await res.json();
-        _catalogoAlimentos = data.categorias || {};
-      }
+      await Api.session.ready;const context=Api.session.capture();
+      const data=await Api.clientes.catalogo();Api.session.check(context);
+      _catalogoAlimentos=data.categorias||{};
     } catch(e) { console.warn('Catálogo no disponible:', e.message); }
   }
 

@@ -149,7 +149,7 @@
           (document.activeElement===document.body || document.activeElement===null))refresh.focus({preventScroll:true});
     }
   });
-  window.addEventListener('storage',event=>{if(event.key===null || ['mb_token','mb_refresh_token'].includes(event.key))controller.invalidate();});
+  window.addEventListener('storage',event=>{if(event.key===null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))controller.invalidate();});
   window.addEventListener('metodobase-session-changed',()=>controller.invalidate());
   window.addEventListener('pagehide',()=>controller.invalidate());
   window.addEventListener('pageshow',event=>{if(event.persisted)controller.invalidate();});

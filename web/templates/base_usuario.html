@@ -126,22 +126,18 @@
 <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- Scripts -->
-<script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/session-shell.js?v={{ static_version }}"></script>
 
 <script nonce="{{ request.state.csp_nonce }}">
 (function() {
-  // Populate user name
-  var nombre = localStorage.getItem('mb_nombre') || '';
-  var el = document.getElementById('sb-nombre');
-  if (el) el.textContent = nombre || 'Mi cuenta';
-
-  // Avatar initials
-  var av = document.getElementById('sb-avatar');
-  if (av && nombre) {
-    var parts = nombre.trim().split(' ');
-    var initials = parts.map(function(p){ return p[0]; }).join('').substring(0,2).toUpperCase();
-    if (initials) av.textContent = initials;
+  function renderIdentity(me){
+    var name=document.getElementById('sb-nombre'),avatar=document.getElementById('sb-avatar');
+    if(name)name.textContent=me?.nombre||'Mi cuenta';
+    if(avatar)avatar.textContent=me?.nombre?me.nombre.trim().split(' ').map(part=>part[0]).join('').substring(0,2).toUpperCase():'';
   }
+  SessionIdentity.ready.then(()=>renderIdentity(Api.session.identity()));
+  window.addEventListener('metodobase-session-changed',()=>renderIdentity(null));
 
   // Active sidebar link
   var path = window.location.pathname;
@@ -192,10 +188,10 @@
       if (!result || result.state !== 'closed_local') {
         notice.textContent = 'La sesión cambió. Se conserva la cuenta actual.'; changed(notice.textContent,'session_changed'); notice.focus(); return;
       }
-      Api.usuario.validarContexto(result.context);
+      if(result.context)Api.session.check(result.context);
       if (result.server_confirmed) {
         notice.textContent = 'Sesión cerrada en este navegador.';
-        Api.usuario.validarContexto(result.context);
+        if(result.context)Api.session.check(result.context);
         window.location.replace('/login-usuario');
       } else {
         notice.textContent = 'La sesión se cerró en este navegador. No pudimos confirmar la revocación en el servidor.';

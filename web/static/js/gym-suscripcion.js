@@ -122,7 +122,7 @@
       });
     } catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}body.replaceChildren(); state.textContent = 'No pudimos consultar los pagos. ' + failure(error); }
   }
-  window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('storage',function(event){if(!event.key || ['mb_token','mb_refresh_token'].includes(event.key))current(epoch);});window.addEventListener('pagehide',invalidate);
+  window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('storage',function(event){if(!event.key || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))current(epoch);});window.addEventListener('pagehide',invalidate);
   (async function() {
     var ticket=epoch;
     render();
