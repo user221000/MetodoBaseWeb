@@ -1,0 +1,15 @@
+{
+  "status": "PREPARATION_EXPECTATION_REJECTED_4_PASS_2_FAIL",
+  "own_case_executions": 6,
+  "passed": 4,
+  "failed": 2,
+  "new_confirmed_product_defects": 0,
+  "failed_case": "test_rejected_migration_and_duplicate_cookie_leave_exact_proof_unconsumed",
+  "causal_source": "web/auth.py::rotar_refresh_token",
+  "cause": "After correct migration and rotation, deliberately replaying the already revoked legacy refresh invokes the documented reuse response: revoke every refresh for B and increment B session_version. The final QA assertion incorrectly expected the current B refresh to remain valid.",
+  "preserved_prior_assertions": "Closed-body rejection and duplicate-cookie rejection did not consume their exact proof. Current proof rotated normally before the deliberate replay.",
+  "correction_plan": "Preserve this original; assert new B proof validity before reuse, then access and refresh invalidity after reuse while A survives. Replay only two affected factory cases.",
+  "runtime_changes": 0,
+  "raw_originals_private": true,
+  "scope": "Actual restricted PG35. No native browser, load, performance, providers, deployment or Actions."
+}
