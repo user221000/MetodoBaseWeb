@@ -1,0 +1,16 @@
+"""Run immutable34 SQL/privacy assertions against an actual35 database.
+
+The accepted34 tests keep their original migration fixture and source. This
+current-schema companion changes only fixture composition, with no principal,
+MFA, assertion, SQL-driver or business-service substitutions.
+"""
+from tests import test_followup34_lock_projection as projection34
+from tests import test_followup34_sql_error_classification as sql34
+from tests import test_nutrition35_http as http35
+
+followup_db = http35.followup_db
+followup_http = http35.followup_http
+isolated_SQL_error_receipts = sql34.isolated_SQL_error_receipts
+test_moved_assignee_lock_never_fetches_other_context_contact_fields = projection34.test_moved_assignee_lock_never_fetches_other_context_contact_fields
+test_actual_SQLite_BUSY_is_a_conflict_without_partial_operation = sql34.test_actual_SQLite_BUSY_is_a_conflict_without_partial_operation
+test_unknown_SQL_failure_never_claims_an_ordinary_conflict = sql34.test_unknown_SQL_failure_never_claims_an_ordinary_conflict

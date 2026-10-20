@@ -1,0 +1,34 @@
+"""Literal SEC21/22 assertions composed with actual current35 PostgreSQL fixtures.
+
+Only imports are adapted; historical canaries and assertion bodies are unchanged.
+"""
+import pytest
+
+from tests import integration_nutrition35_postgres as pg35
+from tests import test_nutrition35_private_error_boundary as original0
+from tests import test_nutrition35_private_error_boundary as original1
+from tests import test_nutrition35_write_error_boundary as original2
+from tests import test_nutrition35_write_error_boundary as original3
+from tests import test_nutrition35_write_error_boundary as original4
+from tests import test_security_nutrition35_error_privacy_peer as original5
+from tests import test_security_nutrition35_error_privacy_peer as original6
+from tests import test_security_nutrition35_http_peer as original7
+
+test_read_query_validation_retains_detail_and_gains_private_headers = original0.test_read_query_validation_retains_detail_and_gains_private_headers
+test_unexpected_failure_logs_class_without_exception_values = original1.test_unexpected_failure_logs_class_without_exception_values
+test_client_write_routes_redact_all_invalid_envelopes = original2.test_client_write_routes_redact_all_invalid_envelopes
+test_personal_write_route_redacts_every_invalid_envelope = original3.test_personal_write_route_redacts_every_invalid_envelope
+test_read_queries_methods_and_route_neighbors_preserve_validation_contract = original4.test_read_queries_methods_and_route_neighbors_preserve_validation_contract
+test_nonobject_declaration_envelope_is_not_reflected = original5.test_nonobject_declaration_envelope_is_not_reflected
+test_object_declaration_validation_control_is_private = original6.test_object_declaration_validation_control_is_private
+test_unexpected_profile_failure_keeps_private_error_headers = original7.test_unexpected_profile_failure_keeps_private_error_headers
+
+followup_db = pg35.followup_db
+followup_http = pg35.followup_http
+personal35_http = pg35.personal35_http
+
+
+@pytest.fixture(autouse=True)
+def pool_cleanup_after_case(followup_db):
+    yield
+    pg35.blank_pool(followup_db[1])

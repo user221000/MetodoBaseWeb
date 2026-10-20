@@ -1,15 +1,42 @@
 """Serialize gym quota decisions before CPU work, shared by every worker."""
-from datetime import datetime, timezone
 import hashlib
 import json
 import logging
 import uuid
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 from sqlalchemy import exists
 
-from web.database.models import Cliente, GymGenerationReservation, PlanGenerado, Subscription, Usuario
+from web.database.models import (
+    Cliente,
+    GymGenerationReservation,
+    PlanGenerado,
+    Subscription,
+    Usuario,
+)
 from web.services.quota_calendar import quota_calendar, utc_storage_boundary
+
+
+@dataclass(frozen=True, slots=True)
+class CommittedGymGeneration:
+    """Stable HTTP handoff values, exposed only after the reservation commits.
+
+    An expired ORM row would reacquire a connection when its status or ID is
+    read, retaining it while the independent worker needs the same pool. This
+    view contains no live Session; the stored replay body is excluded from repr.
+    """
+    id: str
+    status: str
+    result_json: str | None = dataclass_field(repr=False)
+
+
+def _handoff(reservation, stable_result):
+    if stable_result:
+        return CommittedGymGeneration(reservation.id, reservation.status, reservation.result_json)
+    return reservation
 
 
 def _fail(code, message, *, status=403, **extra):
@@ -77,8 +104,14 @@ def _usage(db, gym_id, window, client_id=None, *, monthly=False):
     return reservations.count() + historical.count()
 
 
-def reserve_gym_generation(db, gym_id: str, payload: dict, request_key: str | None = None, *, now=None):
-    """Commit one reservation, or replay a completed identical request."""
+def reserve_gym_generation(db, gym_id: str, payload: dict, request_key: str | None = None, *, now=None, stable_result: bool = False):
+    """Commit a reservation or exact replay; HTTP requests use a stable view.
+
+    With stable_result=True, capture values inside the owning transaction and
+    return them only after confirmed commit, without another SELECT or checkout.
+    Legacy application callers retain the existing tracked ORM return contract.
+    No worker work or automatic retry occurs before this function returns.
+    """
     key = request_key if request_key is not None else str(uuid.uuid4())
     if not isinstance(key, str) or not 1 <= len(key) <= 128:
         _fail('invalid_idempotency_key', 'Clave de solicitud invalida.', status=400)
@@ -93,13 +126,16 @@ def reserve_gym_generation(db, gym_id: str, payload: dict, request_key: str | No
             client = db.query(Cliente.id).filter_by(id_cliente=previous.client_id, gym_id=gym_id, deleted_at=None).first()
             if not plan or not client:
                 _fail('generation_result_unavailable', 'El plan solicitado ya no esta disponible.', status=410)
+            result = _handoff(previous, stable_result)
             db.commit()
-            return previous
+            return result
         _fail('generation_result_pending' if previous.persisted_at else ('generation_failed' if previous.status == 'released' else 'generation_in_progress'),
             'La solicitud ya fue recibida. Consulta el historial antes de iniciar otra.', status=409)
     client_id = payload.get('id_cliente')
     if not db.query(Cliente.id).filter_by(id_cliente=client_id, gym_id=gym_id, activo=True, deleted_at=None).first():
         _fail('client_unavailable', 'Cliente no encontrado.', status=404)
+    from web.services.nutrition_profiles import require_client_automation
+    require_client_automation(db, gym_id, client_id)
     window = quota_calendar(now)
     plan, limits = _current_plan(db, gym_id)
     dimensions = [
@@ -118,8 +154,11 @@ def reserve_gym_generation(db, gym_id: str, payload: dict, request_key: str | No
         request_hash=fingerprint, period=window.month, local_date=window.local_date, timezone=window.timezone,
         catalog_plan=plan, status='reserved', created_at=stamp, updated_at=stamp)
     db.add(reservation)
+    if stable_result:
+        db.flush()
+    result = _handoff(reservation, stable_result)
     db.commit()
-    return reservation
+    return result
 
 
 def complete_gym_generation(db, gym_id: str, reservation_id: str, result: dict) -> dict:

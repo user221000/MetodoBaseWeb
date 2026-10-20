@@ -20,6 +20,8 @@ from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
 from web.database.models import Cliente, PlanGenerado, UserSubscription, Subscription
 from web.profile_schemas import NutritionProfileUpdate
+from web.nutrition_http import NutritionRoute
+from web.services.nutrition_profiles import NUTRITION_ERRORS, capture_profile, encode_declaration, public_error
 
 try:
     from src.alimentos_base import ALIMENTOS_BASE as _ALIMENTOS_BASE
@@ -27,7 +29,7 @@ except Exception:
     _ALIMENTOS_BASE = {}
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Usuario Individual"])
+router = APIRouter(tags=["Usuario Individual"], route_class=NutritionRoute)
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────
@@ -98,6 +100,7 @@ async def get_perfil(
         "nivel_actividad": cliente.nivel_actividad,
         "notas": cliente.notas,
         "alimentos_excluidos": excluidos,
+        "restricciones_nutricionales": capture_profile(cliente).declaration_payload(),
     }
 
 
@@ -131,6 +134,8 @@ async def update_perfil(
         cliente.notas = data.notas
     if data.alimentos_excluidos is not None:
         cliente.alimentos_excluidos = json.dumps(data.alimentos_excluidos)
+    if data.restricciones_nutricionales is not None:
+        cliente.nutrition_restrictions_json = encode_declaration(data.restricciones_nutricionales)
 
     db.commit()
     return {"message": "Perfil actualizado correctamente"}
@@ -293,7 +298,7 @@ async def generar_plan_usuario(
         reserve_generation, finish_generation, compensate_individual_generation_failure, reconciliation_required,
         read_individual_plan_result,
     )
-    reservation = reserve_generation(db, user_id, idempotency_key)
+    reservation = reserve_generation(db, user_id, idempotency_key, client_id=cliente.id_cliente)
     reservation_id = reservation.id
     if reservation.status == "completed":
         record = read_individual_plan_result(db, user_id, reservation.plan_id)
@@ -320,6 +325,10 @@ async def generar_plan_usuario(
             "opciones",
             individual_reservation_id=reservation_id,
         )
+    except NUTRITION_ERRORS as error:
+        compensate_individual_generation_failure(db, reservation_id, user_id)
+        status, detail = public_error(error)
+        raise HTTPException(status, detail) from None
     except ValueError as e:
         compensate_individual_generation_failure(db, reservation_id, user_id)
         raise HTTPException(400, {"code": "generation_unavailable", "message": "No fue posible generar un plan con estos datos y exclusiones. Revisa tu perfil."}) from e

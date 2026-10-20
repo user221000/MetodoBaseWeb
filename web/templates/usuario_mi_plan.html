@@ -1,6 +1,8 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mi Plan{% endblock %}
 {% block head %}
+<link rel="stylesheet" href="/static/css/nutrition35.css?v={{ static_version }}">
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/nutrition35.js?v={{ static_version }}"></script>
 <link rel="stylesheet" href="/static/css/plan-diario.css?v=r24-1">
 <style nonce="{{ request.state.csp_nonce }}">
 .u-veg-chip { color: var(--u-green); }
@@ -176,6 +178,7 @@
 </div>
 
 <!-- ── 4. ONBOARDING CARD ─────────────────────────────────── -->
+<section class="nutrition35" aria-labelledby="personal-nutrition-title"><h2 id="personal-nutrition-title">Declaración de mi perfil</h2><p id="personal-nutrition-summary" role="status" aria-live="polite">Declaración sin consultar. No se presume ausencia de alergias.</p><a href="/mi-perfil">Consultar o editar explícitamente mi declaración</a><p>Una alergia reportada o una solicitud de revisión profesional bloquea la generación automática, también en Pro. No se interpretan notas ni exclusiones como declaraciones de alergia.</p></section>
 <section id="personal-operation" class="u-card" aria-label="Estado de la generación" hidden>
   <p id="personal-operation-message" role="status" aria-live="polite" tabindex="-1"></p>
   <div style="display:flex;flex-wrap:wrap;gap:12px;">
@@ -402,12 +405,13 @@
   /* ── Load profile ── */
   var perfil = null;
   var ultimoPlan = null;
-  var personal = PersonalPlanOperation.create({onState: operationState, onResult: function(data) {
+  var personal = PersonalPlanOperation.create({beforeGenerate:function(){if(!perfil||!Object.prototype.hasOwnProperty.call(perfil,'restricciones_nutricionales'))throw Nutrition35.error('nutrition_state_unavailable');Nutrition35.assertAutomated(perfil.restricciones_nutricionales);},onState: operationState, onResult: function(data) {
     ultimoPlan = data; renderPlan(data);
   }, onInvalidated: clearPersonalView});
 
   function clearPersonalView() {
     perfil = null; ultimoPlan = null;
+    document.getElementById('personal-nutrition-summary').textContent='La sesión cambió. La declaración se descartó.';
     if (diario) diario.invalidate();
     if (shopping) shopping.invalidate();
     excluirExcluidos = []; excluirCatalogoLoaded = false;
@@ -432,6 +436,7 @@
   }
   function operationState(update) {
     var active = update.state === 'idle';
+    if (active) { try { if(!perfil)throw Nutrition35.error('nutrition_state_unavailable');Nutrition35.assertAutomated(perfil.restricciones_nutricionales); } catch { active=false; } }
     ['btn-generar','btn-generar-empty'].forEach(function(id) {
       var button = document.getElementById(id); if (button) button.disabled = !active;
     });
@@ -474,6 +479,8 @@
   try {
     var data = await personal.read(function(context) { return Api.usuario.perfil(context); });
     perfil = Object.assign({}, perfil, data);
+    try { Nutrition35.renderSummary(document.getElementById('personal-nutrition-summary'),perfil.restricciones_nutricionales); } catch { /* Preserve the visible block; beforeGenerate also checks it. */ }
+    operationState({state:personal.state,message:''});
   } catch(e) {
     if (!personal.active) return;
     personal.invalidate(new Error('No se pudo consultar tu perfil. Vuelve a abrir esta página para intentarlo.')); return;

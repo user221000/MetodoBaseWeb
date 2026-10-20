@@ -122,6 +122,7 @@ def obtener_cliente(db: Session, gym_id: str, id_cliente: str) -> Optional[dict]
 def crear_cliente(db: Session, gym_id: str, data: dict) -> dict:
     """Crea un cliente asignándolo al gym."""
     from web.services.gym_generation_quota import check_gym_client_capacity
+    from web.services.nutrition_profiles import encode_declaration
     check_gym_client_capacity(db, gym_id)
     c = Cliente(
         gym_id=gym_id,
@@ -140,6 +141,8 @@ def crear_cliente(db: Session, gym_id: str, data: dict) -> dict:
         notas=data.get("notas"),
         plantilla_tipo=data.get("plantilla_tipo", "general"),
         alimentos_excluidos=json.dumps(data["alimentos_excluidos"]) if data.get("alimentos_excluidos") else None,
+        nutrition_restrictions_json=encode_declaration(data["restricciones_nutricionales"])
+            if data.get("restricciones_nutricionales") is not None else None,
         fecha_suscripcion=data.get("fecha_suscripcion"),
         fecha_fin_suscripcion=data.get("fecha_fin_suscripcion"),
     )
@@ -170,6 +173,10 @@ def actualizar_cliente(db: Session, gym_id: str, id_cliente: str, data: dict) ->
     if "alimentos_excluidos" in data:
         val = data["alimentos_excluidos"]
         c.alimentos_excluidos = json.dumps(val) if val else None
+
+    if data.get("restricciones_nutricionales") is not None:
+        from web.services.nutrition_profiles import encode_declaration
+        c.nutrition_restrictions_json = encode_declaration(data["restricciones_nutricionales"])
 
     db.flush()
     logger.info("[DB] Cliente actualizado: %s", id_cliente)
@@ -430,6 +437,7 @@ def obtener_usuario_por_email(db: Session, email: str) -> Optional[Usuario]:
 # ── Serialización ────────────────────────────────────────────────────────────
 
 def _cliente_to_dict(c: Cliente) -> dict:
+    nutrition_declaration = _nutrition_declaration(c)
     _fecha_reg = c.fecha_registro.isoformat() if c.fecha_registro else None
     _ultimo = c.ultimo_plan.isoformat() if c.ultimo_plan else None
     _fecha_sub = c.fecha_suscripcion.isoformat() if c.fecha_suscripcion else None
@@ -456,10 +464,17 @@ def _cliente_to_dict(c: Cliente) -> dict:
         "notas": c.notas,
         "plantilla_tipo": c.plantilla_tipo,
         "alimentos_excluidos": json.loads(c.alimentos_excluidos) if c.alimentos_excluidos else [],
+        "restricciones_nutricionales": nutrition_declaration,
         "fecha_suscripcion": _fecha_sub,
         "fecha_fin_suscripcion": _fecha_fin_sub,
         "dias_restantes": c.dias_restantes,
     }
+
+
+def _nutrition_declaration(client) -> dict:
+    """Expose only an authorized profile's validated declared facts."""
+    from web.services.nutrition_profiles import capture_profile
+    return capture_profile(client).declaration_payload()
 
 
 def _plan_to_dict(p: PlanGenerado) -> dict:

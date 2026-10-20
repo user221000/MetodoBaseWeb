@@ -1,5 +1,6 @@
 """CAPA 4: Construcción de planes nutricionales completos."""
 from core.food_catalog import FoodCatalog, FoodRestrictionError
+from core.nutrition_restrictions import generation_catalog
 from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS, CATEGORIAS as _DEFAULT_CATEGORIES
 import os
 from datetime import datetime
@@ -178,7 +179,9 @@ class ConstructorPlanNuevo:
         """
         # ── Una sola vez: seeds, ajuste calórico, distribución, rotación ──
         # Each helper receives the same immutable request snapshot, including fallbacks.
-        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        catalogo = generation_catalog(
+            cliente.nutrition_restrictions, _DEFAULT_FOODS, _DEFAULT_CATEGORIES, catalogo,
+        )
         alimentos_base = catalogo.alimentos
         bloque = 1 if plan_numero <= 3 else 2
         seed_base, seed_variacion = generar_seed_bloques(cliente, gym_id="default")

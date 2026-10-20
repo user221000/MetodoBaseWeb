@@ -1,6 +1,6 @@
 {% extends "base_usuario.html" %}
 {% block title %}Optimiza tu plan{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/css/privacy-export.css?v={{ static_version }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/privacy-export.css?v={{ static_version }}"><link rel="stylesheet" href="/static/css/nutrition35.css?v={{ static_version }}"><script nonce="{{ request.state.csp_nonce }}" src="/static/js/nutrition35.js?v={{ static_version }}"></script>{% endblock %}
 
 {% block content %}
 
@@ -97,6 +97,7 @@
     </div>
   </div>
 
+  {% with nutrition_key='personal' %}{% include '_nutrition35_fields.html' %}{% endwith %}
   <!-- Notas -->
   <div class="u-card u-card-mb">
     <h3 class="u-card-title">📝 Notas para tu profesional</h3>
@@ -212,6 +213,11 @@
   }
 
   var excluidos = [];
+  var nutritionPersonal = Nutrition35.mount(document.getElementById('nutrition35-personal'), {
+    api: Api.nutrition, kind: 'personal',
+    onView: function(state) { document.getElementById('btn-guardar').disabled = state.busy || state.phase !== 'ready'; },
+    onInvalidated: function() { excluidos=[]; document.querySelectorAll('#form-perfil input, #form-perfil textarea, #form-perfil select').forEach(function(el) { el.value=''; el.checked=false; }); document.getElementById('excluidos-tags').replaceChildren(); document.getElementById('catalogo-container').replaceChildren(); },
+  });
   var CAT_LABELS = {
     proteina: '🥩 Proteínas',
     carbs: '🍞 Carbohidratos',
@@ -261,11 +267,8 @@
 
   async function loadCatalogo() {
     try {
-      var res = await fetch('/api/usuario/catalogo-alimentos', {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-      });
-      if (!res.ok) throw new Error('Error cargando catálogo');
-      var catalogo = await res.json();
+      var catalogo = await nutritionPersonal.readCatalog();
+      nutritionPersonal.check();
       var container = document.getElementById('catalogo-container');
       var html = '';
       var order = ['proteina', 'carbs', 'grasa', 'verdura', 'fruta'];
@@ -303,11 +306,8 @@
 
   // Load current profile
   try {
-    var res = await fetch('/api/usuario/perfil', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('mb_token') }
-    });
-    if (res.ok) {
-      var p = await res.json();
+    var p = await nutritionPersonal.load();
+    if (p) {
       document.getElementById('field-nombre').value = p.nombre || '';
       document.getElementById('field-email').value = p.email || '';
       document.getElementById('field-edad').value = p.edad || '';
@@ -353,26 +353,12 @@
     };
 
     try {
-      var res = await fetch('/api/usuario/perfil', {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('mb_token'),
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        var err = await res.json().catch(function() { return {}; });
-        throw new Error(err.detail || 'Error guardando perfil');
-      }
-      var isComplete = computeCompleteness() >= 80;
-      showToast(isComplete
-        ? '✅ Plan actualizado · Ve a Mi Plan para regenerarlo'
-        : '✅ Datos guardados · Completa tu perfil para un plan más preciso');
+      await nutritionPersonal.save(payload);
+      showToast('Perfil guardado. No se generó ningún plan.');
     } catch(e) {
-      showToast('❌ ' + e.message, 'error');
+      showToast(nutritionPersonal.view().message || 'No se pudo confirmar el guardado. Consulta el estado antes de continuar.', 'error');
     } finally {
-      btn.disabled = false;
+      btn.disabled = nutritionPersonal.view().busy || nutritionPersonal.view().phase !== 'ready';
       btn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Actualizar mi plan';
     }
   });

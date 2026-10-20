@@ -71,6 +71,18 @@ async def dashboard(request: Request):
     return template_response(templates, request, "dashboard.html", {"request": request})
 
 
+@router.get('/seguimiento', response_class=HTMLResponse)
+@router.get('/seguimiento/', response_class=HTMLResponse)
+@router.get('/clientes/{client_id}/seguimiento', response_class=HTMLResponse)
+@router.get('/clientes/{client_id}/seguimiento/', response_class=HTMLResponse)
+async def followup_tasks_page(request: Request, client_id: str | None = None):
+    """Public inert shell; dedicated API revalidates scope and capabilities."""
+    response = template_response(templates, request, 'seguimiento.html',
+                                 {'request': request, 'client_id': client_id})
+    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+    return response
+
+
 @router.get("/clientes", response_class=HTMLResponse)
 async def clientes(request: Request):
     return template_response(templates, request, "clientes.html", {"request": request})

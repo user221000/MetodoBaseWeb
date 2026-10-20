@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import uuid
 
+from core.nutrition_restrictions import NutritionRestrictions
+
 
 @dataclass
 class ClienteEvaluacion:
@@ -41,6 +43,9 @@ class ClienteEvaluacion:
     kcal_proteína: float | None = None
     kcal_grasa: float | None = None
     kcal_carbs: float | None = None
+
+    # Captured declared health context: never include it in repr or diagnostics.
+    nutrition_restrictions: NutritionRestrictions | None = field(default=None, repr=False)
     
     def __repr__(self) -> str:
         return (f"ClienteEvaluacion(id={self.id_cliente}, nombre={self.nombre}, "

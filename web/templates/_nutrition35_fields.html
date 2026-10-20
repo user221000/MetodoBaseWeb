@@ -1,0 +1,14 @@
+<section class="nutrition35" id="nutrition35-{{ nutrition_key }}" data-nutrition-key="{{ nutrition_key }}" aria-labelledby="nutrition35-{{ nutrition_key }}-title">
+  <h3 id="nutrition35-{{ nutrition_key }}-title">Declaración sobre alergias y revisión profesional</h3>
+  <p>Es una declaración de la persona, sin aprobación clínica. La lista identifica alimentos del catálogo; no valida ingredientes, alérgenos ni contaminación cruzada. Las exclusiones de alimentos se guardan por separado.</p>
+  <p id="nutrition35-{{ nutrition_key }}-message" role="status" aria-live="polite">Declaración todavía sin consultar. No se presume ausencia de alergias.</p>
+  <button type="button" id="nutrition35-{{ nutrition_key }}-refresh">Consultar declaración actual</button>
+  <label class="nutrition35-check"><input id="nutrition35-{{ nutrition_key }}-edit" type="checkbox" autocomplete="off" disabled> Modificar explícitamente esta declaración</label>
+  <label for="nutrition35-{{ nutrition_key }}-status">Lo que la persona declara sobre alergias</label>
+  <select id="nutrition35-{{ nutrition_key }}-status" disabled><option value="">Estado sin consultar</option><option value="not_reported">Sin declaración registrada</option><option value="none_reported">Declara no tener alergias</option><option value="reported">Reporta alergias</option></select>
+  <div id="nutrition35-{{ nutrition_key }}-foods-field" hidden><label for="nutrition35-{{ nutrition_key }}-search">Buscar alimento declarado en el catálogo</label><input id="nutrition35-{{ nutrition_key }}-search" type="search" autocomplete="off" disabled><div id="nutrition35-{{ nutrition_key }}-foods" class="nutrition35-foods" role="group" aria-label="Alimentos declarados, sin inferencia de ingredientes"></div><label class="nutrition35-check"><input id="nutrition35-{{ nutrition_key }}-other" type="checkbox" autocomplete="off" disabled> Reporta otra alergia que esta lista no representa</label></div>
+  <label class="nutrition35-check"><input id="nutrition35-{{ nutrition_key }}-review" type="checkbox" autocomplete="off" disabled> Solicita revisión profesional antes de la generación automática</label>
+  <p>Una alergia reportada o esta solicitud bloquea la generación automática en todos los planes, incluido Pro. Guardar o editar estos datos no registra contacto con un profesional ni autoriza clínicamente un plan.</p>
+  <label class="nutrition35-check"><input id="nutrition35-{{ nutrition_key }}-confirm" type="checkbox" autocomplete="off" disabled> Revisé y confirmo guardar el cambio de declaración con este perfil</label>
+  <p>Si no cambias la declaración, se omite del guardado. El servidor conserva la declaración existente; este formulario no ofrece una garantía de exclusión mutua frente a otros editores.</p>
+</section>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>Tareas de seguimiento — Método Base</title>
+  <link rel="stylesheet" href="/static/css/seguimiento-tareas.css?v={{ static_version }}">
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}" defer></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/seguimiento-tareas.js?v={{ static_version }}" defer></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/seguimiento-pagina.js?v={{ static_version }}" defer></script>
+</head>
+<body><main class="tasks-page" id="tasks-page"{% if client_id %} data-client-id="{{ client_id }}"{% endif %}>
+  <a class="tasks-skip" href="#tasks-heading">Ir a las tareas</a>
+  <nav aria-label="Espacio profesional"><a href="/equipo/inicio">Espacio profesional</a><a href="/seguimiento">Todas mis tareas autorizadas</a>{% if client_id %}<a href="/clientes">Clientes</a>{% endif %}</nav>
+  <header><p class="tasks-eyebrow">Método Base · trabajo del equipo</p><h1 id="tasks-heading" tabindex="-1">Tareas de seguimiento</h1><p>Organiza revisiones de fichas y sus fuentes. Las tareas se crean, editan y completan únicamente al confirmar una acción.</p></header>
+  <p class="tasks-note">Una fecha de membresía es un dato administrativo: no confirma deuda, cobro ni renovación. Marcar una revisión completada registra una declaración de quien actúa; no acredita contacto, entrega ni un resultado clínico.</p>
+  <p id="tasks-status" role="status" aria-live="polite">Verificando acceso…</p>
+  <p id="tasks-error" class="tasks-error" role="alert" hidden></p>
+  <p id="tasks-scope"></p>
+  <div class="tasks-actions"><button type="button" id="tasks-refresh">Consultar tareas</button><button type="button" id="tasks-reconsult" hidden>Consultar la tarea de esta operación</button></div>
+  <section id="tasks-candidates-section" aria-labelledby="tasks-candidates-heading" hidden>
+    <h2 id="tasks-candidates-heading">Causas actuales de esta ficha</h2><p>Consultar causas no crea tareas. El servidor comprueba de nuevo los hechos al guardar.</p>
+    <button type="button" id="tasks-candidates-refresh">Consultar causas de esta ficha</button><div id="tasks-candidates" class="tasks-grid"></div>
+  </section>
+  <section aria-labelledby="tasks-list-heading">
+    <h2 id="tasks-list-heading">Tareas autorizadas</h2>
+    <form id="tasks-query"><label for="tasks-filter">Estado</label><select id="tasks-filter"><option value="open">Abiertas</option><option value="completed">Revisiones marcadas completadas</option><option value="cancelled">Canceladas</option></select><button type="submit">Consultar este estado</button></form>
+    <p id="tasks-list-source"></p><div id="tasks-list" class="tasks-grid"></div><button id="tasks-more" type="button" hidden>Consultar la siguiente página de tareas</button>
+  </section>
+  <section id="tasks-detail-section" aria-labelledby="tasks-detail-heading" hidden><h2 id="tasks-detail-heading" tabindex="-1">Detalle de la tarea</h2><div id="tasks-detail"></div><div id="tasks-detail-actions" class="tasks-actions"></div>
+    <div id="tasks-history"></div><button id="tasks-history-more" type="button" hidden>Consultar los siguientes eventos</button>
+  </section>
+  <section id="tasks-metrics-section" aria-labelledby="tasks-metrics-heading" hidden>
+    <h2 id="tasks-metrics-heading">Estado y declaraciones registradas</h2><p>El estado actual y los eventos del periodo usan sólo clientes actualmente activos. Las cifras no demuestran retención, contacto, pagos ni efectos de una intervención.</p>
+    <form id="tasks-metrics-query"><div><label for="tasks-from">Desde</label><input id="tasks-from" type="date" required></div><div><label for="tasks-through">Hasta, inclusive</label><input id="tasks-through" type="date" required></div><button type="submit">Consultar cifras del periodo</button></form>
+    <div id="tasks-metrics"></div>
+  </section>
+  <dialog id="tasks-dialog" aria-labelledby="tasks-form-title" aria-describedby="tasks-form-meaning">
+    <form id="tasks-command" novalidate>
+      <h2 id="tasks-form-title" tabindex="-1">Confirmar acción</h2><p id="tasks-form-summary"></p>
+      <p id="tasks-form-meaning">Se guarda una acción interna del equipo. No se envían mensajes, no se cobra ni se confirma una renovación o un resultado clínico.</p>
+      <div id="tasks-step-field"><label for="tasks-step">Próximo paso</label><select id="tasks-step"></select></div>
+      <div id="tasks-assignee-field"><label for="tasks-assignee">Responsable</label><select id="tasks-assignee"><option value="__choose__">Elige un responsable o Sin asignar</option><option value="">Sin asignar</option></select><p>La lista muestra sólo una página de personas actualmente disponibles. No se elige a nadie automáticamente.</p><div class="tasks-actions"><button type="button" id="tasks-assignees">Consultar responsables</button><button type="button" id="tasks-assignees-more" hidden>Consultar la siguiente página de responsables</button></div></div>
+      <div id="tasks-reason-field" hidden><label for="tasks-reason">Motivo de cancelación</label><select id="tasks-reason"><option value="">Elige un motivo</option><option value="created_in_error">Creada por error</option><option value="no_longer_applicable">Ya no corresponde</option><option value="duplicate">Duplicada</option></select></div>
+      <label class="tasks-agreement"><input id="tasks-confirm" type="checkbox"> Revisé esta intención y confirmo registrarla.</label>
+      <p id="tasks-form-error" class="tasks-error" role="alert" hidden></p><div class="tasks-actions"><button type="submit" id="tasks-submit">Confirmar y guardar</button><button type="button" class="secondary" id="tasks-cancel">Volver sin guardar</button></div>
+    </form>
+  </dialog>
+  <noscript>Activa JavaScript para consultar tu acceso y preparar acciones. Esta página no incluye datos de clientes ni tareas en su HTML inicial.</noscript>
+</main></body></html>

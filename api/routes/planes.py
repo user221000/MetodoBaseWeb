@@ -21,9 +21,11 @@ from web.auth_deps import get_usuario_actual
 from web.database import repository as repo
 from web.routes._utils import get_gym_id
 from web.services.permissions import verify_permission
+from web.nutrition_http import NutritionRoute
+from web.services.nutrition_profiles import NUTRITION_ERRORS, public_error
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Planes"])
+router = APIRouter(tags=["Planes"], route_class=NutritionRoute)
 
 
 @router.get("/alimentos/catalogo")
@@ -59,7 +61,7 @@ async def generar_plan(
     verify_permission(usuario, "create", "plan")
     gym_id = get_gym_id(usuario)
     from web.services.gym_generation_quota import reserve_gym_generation, complete_gym_generation, compensate_generation_failure
-    reservation = reserve_gym_generation(db, gym_id, data.model_dump(), request_key)
+    reservation = reserve_gym_generation(db, gym_id, data.model_dump(), request_key, stable_result=True)
     if reservation.status == "completed":
         return json.loads(reservation.result_json)
     reservation_id = reservation.id
@@ -71,6 +73,10 @@ async def generar_plan(
         resultado = complete_gym_generation(db, gym_id, reservation_id, resultado)
         logger.info("Plan generado para cliente: %s (gym: %s)", data.id_cliente, gym_id)
         return resultado
+    except NUTRITION_ERRORS as error:
+        compensate_generation_failure(db, gym_id, reservation_id)
+        status, detail = public_error(error)
+        raise HTTPException(status, detail) from None
     except ValueError:
         compensate_generation_failure(db, gym_id, reservation_id)
         raise HTTPException(status_code=422, detail={"code": "generation_unavailable",

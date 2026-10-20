@@ -19,9 +19,10 @@ from web.subscription_guard import check_daily_registration_limit
 from web.services.permissions import verify_permission
 from web.routes._utils import get_gym_id
 from web.constants import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ERR_CLIENTE_NO_ENCONTRADO
+from web.nutrition_http import NutritionRoute
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Clientes"])
+router = APIRouter(tags=["Clientes"], route_class=NutritionRoute)
 
 
 @router.get("/clientes", summary="Listar clientes activos")

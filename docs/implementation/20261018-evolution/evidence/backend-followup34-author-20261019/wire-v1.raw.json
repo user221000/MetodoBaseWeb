@@ -1,0 +1,360 @@
+{
+  "status": "WIRE34_V1_ROOT_FINAL_DTO_REVIEW_PENDING_RUNTIME_UNPROVED",
+  "criterion": {
+    "R23": "Extender dashboard existente: lista priorizada por causa, proximo paso y responsable; distinguir cobro real de fecha de membresia; acciones medibles",
+    "UX17": "Registrar y etiquetar hechos reales; no equiparar clic/plan/PDF con contacto, entrega o retencion"
+  },
+  "inputs": {
+    "frontend_proposal": "F:/mb-followup-actions-ui-20261019/docs/implementation/20261018-evolution/SEGUIMIENTO_TAREAS_UI_PROPUESTA.md",
+    "frontend_raw_sha256": "77f179d0158f64169577f68bb55bc2dcb4aebb128de49bb13f6677fd201948ce",
+    "backend33_frozen": "bfbfcefd9f970893af6c306438f654a6df65e9c0",
+    "new_worktree": "Only from COMMON33 HEAD after root announces it"
+  },
+  "scope": {
+    "no_pii_or_health_free_text": true,
+    "no_outbound_contact_or_payment": true,
+    "no_reciprocal_personal_access": true,
+    "no_new_prices_or_catalog_entitlement": true,
+    "no_automatic_task_creation_completion_or_reopening": true,
+    "no_personal_export_dataset_change": true
+  },
+  "roles": {
+    "permissions_new_explicit": {
+      "manage:followup_task": [
+        "owner",
+        "admin"
+      ],
+      "read:followup_assigned": [
+        "nutriologo"
+      ],
+      "update:followup_assigned": [
+        "nutriologo"
+      ]
+    },
+    "managers": "Canonical professional OWNER or ADMIN with current active/nondeleted/invitationNULL identity, parent and SV; full task scope only own effective gym.",
+    "nutriologo": "Canonical persistent membership and explicit new permissions; WHERE assignee_id=actor.id in EVERY list/detail/history/write; only completion of its assigned open task. No read:stats, aggregate gym metrics, assignee list, editing or reassignment.",
+    "deny": [
+      "viewer",
+      "personal_without_team",
+      "ambiguous_usuario_OWNER",
+      "unknown_role",
+      "inactive_or_deleted_actor_or_parent",
+      "pending_invitation",
+      "stale_SV"
+    ],
+    "mfa_recommendation": "No new step-up action: ordinary operational tasks alter neither team membership/RBAC nor billing. Existing full MFA login and mandatory team/billing grants remain unchanged. Any stronger new step-up policy requires an explicit root matrix, not a hardcoded bypass."
+  },
+  "data34": {
+    "FollowupTask": [
+      "id UUID",
+      "gym_id FK usuarios RESTRICT",
+      "client_id legacy1..36 composite FK gym/client RESTRICT",
+      "cause immutable enum",
+      "cause_evidence_hash SHA256 immutable",
+      "observed_at UTC typed",
+      "source_scalar_snapshot bounded fields only",
+      "priority_at_creation 1..4",
+      "next_step enum",
+      "assignee_id nullable FK usuarios RESTRICT",
+      "status open|completed|cancelled",
+      "version strict1..INT32MAX",
+      "created_by/created_at/updated_at",
+      "completed_by/completed_at/outcome nullable",
+      "cancelled_by/cancelled_at/reason nullable"
+    ],
+    "FollowupTaskEvent": [
+      "id UUID",
+      "gym_id+task_id composite FK RESTRICT",
+      "version unique per task",
+      "actor_id persistent FK RESTRICT",
+      "actor_role_at_action closed enum",
+      "event created|updated|completed|cancelled",
+      "typed scalar before/after fields only",
+      "request_key lowercaseUUID",
+      "request_hash SHA256 canonical actor+gym+method+resource+body",
+      "occurred_at server UTC typed",
+      "result fields sufficient for operation ACK; no password/token/contact/body dump"
+    ],
+    "uniqueness": "One OPEN task per gym/client/cause (partial unique index). Terminal task never reopens; new explicit creation when cause is again/currently present makes a new task ID.",
+    "append_projection": "Projection + one attributable immutable event in same transaction. Version increments exactly once; no-op edit rejected. Direct DML must not bypass immutable identity/history or terminal transitions. Final PG/SQLite invariants and function/trigger counts require the mechanism review before API acceptance; no assertion of already-proved parity.",
+    "no_legacy_backfill": "No tasks/actors/events inferred from AuditLog, plan dates or membership dates.",
+    "anticipated_counts_not_verified": {
+      "head": 34,
+      "application_tables": 37,
+      "physical_including_alembic": 38,
+      "force_rls_families": 28
+    },
+    "rollback": "Empty34 downgrade can return exact33; nonempty operational history refuses destructive downgrade and requires reviewed restore. Targets22-33 and prior assertion sources immutable.",
+    "retention": "RESTRICT/append-only is current integrity, not a promise of indefinite retention or implemented deletion. Inventory: own task references client/accounts/source timestamps and scalar event history/request hash; future R31 scoped purge must cover both new tables+FK subjects, backups/exports under explicit authority. Current app cannot destroy history; no purge endpoint or retention duration introduced."
+  },
+  "enums": {
+    "causes": [
+      "no_saved_plan",
+      "no_plan_in_window",
+      "plan_date_missing",
+      "membership_date_passed"
+    ],
+    "next_steps": [
+      "review_client_record",
+      "review_plan_history",
+      "review_membership_date"
+    ],
+    "allowed_steps": "membership_date_passed permits review_client_record/review_membership_date; plan causes permit review_client_record/review_plan_history.",
+    "states": [
+      "open",
+      "completed",
+      "cancelled"
+    ],
+    "completion_outcomes": [
+      "review_recorded"
+    ],
+    "cancel_reasons": [
+      "created_in_error",
+      "no_longer_applicable",
+      "duplicate"
+    ],
+    "meaning": "review_recorded is an actor declaration persisted by the app. It is not a provider-confirmed contact, delivery, clinical benefit, renewal, payment or retention outcome. No in_progress in v1."
+  },
+  "source_authority": {
+    "new_task": "Client active/nondeleted with exact gym ownership; server recomputes current cause and evidence hash under the authorised transaction. Client-supplied cause/hash is a stale-view guard, never authority.",
+    "cause_snapshot": "Only count/last authorised plan timestamp and administrative membership date needed for the selected cause, with observed_at. Source Plan writes need not all lock Usuario; snapshot is true at the observation query, not a promise that a cause remains true at commit or forever.",
+    "live_task": "Task remains a task if its cause disappears; fresh GET reports cause_currently_present. No automatic completion. Inactive/deleted/foreign source is excluded from normal work DTO/complete; explicit archive/cancellation of hidden source would need separately reviewed authority.",
+    "assignee": "Canonical current gym owner or active/nondeleted accepted ADMIN/NUTRIOLOGO member of same gym, invitationNULL; never viewer or other gym. Empty string invitation state is not NULL.",
+    "assignee_ineligible": "Keep historical assignment; return eligible:false without contact lookup. Block completion until there is a current eligible responsible; managers may explicitly reassign. No automatic reassignment.",
+    "reactivation_semantics": "Eligibility is current, not a new membership epoch. OFF->ON or rejoining same UUID may make the persisted assignment eligible again. Do not misuse session_version as employment generation or promise permanent invalidation without an additional approved durable mechanism."
+  },
+  "transaction": {
+    "locks": "Discover current task/assignee as hints; lock actor, canonical gym/parent and required old/new assignee Usuario IDs in total order NOWAIT. Re-read/revalidate required set, then Cliente and task in consistent order. Abort whole transaction with409 busy if set changed/contended; no partial retry or later Usuario acquisition.",
+    "cas": "PATCH/complete/cancel require observed task ID and strict expected_version; exact version under task lock. At MAX reject409 before any event. Unique open-task constraint handles concurrent creation.",
+    "session": "New owned function-scoped Session, no auto-commit finalizer. GET no DML/commit. Writer commits projection+event once; ACK and cleanup must complete before success. Reuse accepted cleanup semantics; close/rollback/ACK uncertainty =>503 opaque, no automatic readback/retry.",
+    "rls": "ENABLE/FORCE two new families for effective gym. Double gym/client predicates in application and exact recipient predicates for Nutri. No SECURITY DEFINER, BYPASS, new role, global stats grant or GUC treated as actor signature. Security review must distinguish tenant RLS from route-level per-assignee RBAC.",
+    "projection": "Event is sole write primitive: immutable typed event INSERT invokes atomic Task projection; exact event guard blocks direct projection changes; one event/version and source identity immutable. Deferrable Event->Task FK resolves initial insertion within sameTX. No background projection gap."
+  },
+  "wire": {
+    "read_paths": [
+      "GET /api/seguimiento/contexto",
+      "GET /api/seguimiento/responsables?limit=20&after=...",
+      "GET /api/seguimiento/tareas?status=open&limit=50&after=...",
+      "GET /api/seguimiento/tareas/{task_id}",
+      "GET /api/seguimiento/tareas/{task_id}/historial?limit=20&after_version=0",
+      "GET /api/seguimiento/metricas?from=YYYY-MM-DD&through=YYYY-MM-DD",
+      "GET /api/seguimiento/clientes/{client_id}/candidatos"
+    ],
+    "write_paths": {
+      "POST /api/seguimiento/tareas": {
+        "client_id": "legacy1..36",
+        "cause": "no_plan_in_window",
+        "cause_evidence_hash": "sha25664",
+        "next_step": "review_plan_history",
+        "assignee_id": "existing_user_id_or_null",
+        "expected_active_task_id": null,
+        "confirm": true
+      },
+      "PATCH /api/seguimiento/tareas/{task_id}": {
+        "expected_version": 1,
+        "next_step": "review_plan_history",
+        "assignee_id": "existing_user_id_or_null",
+        "confirm": true
+      },
+      "POST /api/seguimiento/tareas/{task_id}/completar": {
+        "expected_version": 2,
+        "outcome": "review_recorded",
+        "confirm": true
+      },
+      "POST /api/seguimiento/tareas/{task_id}/cancelar": {
+        "expected_version": 2,
+        "reason": "no_longer_applicable",
+        "confirm": true
+      }
+    },
+    "strict": "Bodies extra-forbid, no body actor/gym/role/timestamps, integers reject bool/float, confirm strictly true. New task/event/request IDs canonical lowercaseUUID; legacy client/assignee IDs remain valid1..36 strings. Mutations require Idempotency-Key lowercaseUUID.",
+    "task_example": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "version": 2,
+      "client": {
+        "id": "legacy-client-1",
+        "display_name": "Synthetic client"
+      },
+      "cause": "no_plan_in_window",
+      "priority": 2,
+      "source": {
+        "observed_at": "2026-10-19T18:00:00Z",
+        "last_plan_at": "2026-08-01T18:00:00Z",
+        "membership_end": null,
+        "plan_count": 1
+      },
+      "cause_currently_present": true,
+      "next_step": "review_plan_history",
+      "responsible": {
+        "id": "synthetic-worker",
+        "display_name": "Synthetic worker",
+        "eligible": true
+      },
+      "status": "open",
+      "created_at": "2026-10-19T18:00:00Z",
+      "updated_at": "2026-10-19T18:01:00Z",
+      "capabilities": {
+        "edit": false,
+        "complete": true,
+        "cancel": false,
+        "history": true
+      },
+      "outcome": null,
+      "cancel_reason": null
+    },
+    "lists": "items,next_after,as_of,scope,limit. Tasks created_at DESC/id DESC; history version ASC with after_version; assignees ID ASC. Default/max50/100,20/50,20/50. No Nutri global counts.",
+    "bounds": "JSON stream <=8192 bytes before parse; one mutation/event, typed snapshot <=4096bytes; list/history response <=131072UTF8; stats+per-cause summary <=524288UTF8; metrics <=16384UTF8. Reject whole overflow, never truncate a task/result. Read metrics max62 civil days, exact ISO (no epoch numeric), America/Mexico_City bounds into UTC; no SLA/debt threshold invented.",
+    "idempotency": "Unique gym+actor+request_key across new task operations. Same key+same canonical method/path/body => durable applied operation ACK after current reauthorisation, no second version/event. Different input =>409 key_reused. Old access/role/team cannot replay a former grant. Stored result contains only scalar operation fields, no display names/PII.",
+    "fresh_mutation_response": {
+      "ack": true,
+      "operation": {
+        "id": "event_uuid",
+        "request_key": "request_uuid",
+        "replayed": false,
+        "applied_version": 2,
+        "occurred_at": "2026-10-19T18:01:00Z"
+      },
+      "task": "authorised task snapshot at commit"
+    },
+    "replay_response": {
+      "ack": true,
+      "operation": {
+        "id": "same_event_uuid",
+        "request_key": "same_request_uuid",
+        "replayed": true,
+        "applied_version": 2,
+        "occurred_at": "original_server_timestamp"
+      },
+      "task": null,
+      "read_required": true
+    },
+    "errors": {
+      "401": "existing session/identity invalid",
+      "403 followup_forbidden": "role/capability forbidden",
+      "404 followup_task_unavailable": "foreign and missing indistinguishable",
+      "409 followup_version_conflict": "confirmed CAS mismatch no write",
+      "409 followup_cause_changed": "source no longer matches observed cause",
+      "409 followup_open_task_exists": "another open task no adoption",
+      "409 followup_assignee_unavailable": "invalid current assignee",
+      "409 followup_key_reused": "different canonical input",
+      "409 followup_busy": "lock contention/set change no partial retry",
+      "409 followup_version_exhausted": "counter atMAX",
+      "422 followup_invalid_input": "closed DTO/no change/invalid dates",
+      "413 followup_body_limit": "preparse body cap",
+      "503 followup_unconfirmed": "commit/cleanup uncertain, may have persisted",
+      "503 followup_unavailable": "read/whole-result budget failure, no fake zero"
+    },
+    "headers": "Exact APIs and optional canonical slash redirect plus /seguimiento and slash: fixed first-party CSP, no-store and no-referrer on every status/method, including opaque500; neighbours and Google/GIS/retirement unchanged.",
+    "context_example": {
+      "scope": "gym",
+      "timezone": "America/Mexico_City",
+      "today": "2026-10-19",
+      "as_of": "2026-10-19T18:00:00Z",
+      "capabilities": {
+        "read_tasks": true,
+        "create_task": true,
+        "manage_tasks": true,
+        "read_assignees": true,
+        "read_metrics": true,
+        "complete_assigned": false
+      },
+      "limits": {
+        "tasks": 100,
+        "history": 50,
+        "assignees": 50,
+        "report_days": 62
+      }
+    },
+    "candidate_example": {
+      "client": {
+        "id": "legacy-client-1",
+        "display_name": "Synthetic client"
+      },
+      "observed_at": "2026-10-19T18:00:00Z",
+      "candidates": [
+        {
+          "cause": "no_saved_plan",
+          "priority": 1,
+          "cause_evidence_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "observed_at": "2026-10-19T18:00:00Z",
+          "next_steps": [
+            "review_client_record",
+            "review_plan_history"
+          ],
+          "open_task": null
+        }
+      ]
+    },
+    "candidate_authority": "Managers obtain exact cause/hash from this authenticated endpoint or additive cause_candidates on statistics. Contact/client-list entry first fetches this endpoint. UI never calculates or fabricates a hash. Hash covers canonical relevant persisted facts (not observed_at, now, as_of or cutoff); writer checks current presence and matching facts again in its TX.",
+    "historical_identity": "Responsible or history actor is {id:historical reference,display_name:null,eligible:false} when no longer an eligible same-gym professional. Never fetch current name/contact from its new context. Null responsible means no assignee. Current eligibility may return if the same account requalifies; no employment epoch promised.",
+    "history_item": {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "version": 2,
+      "kind": "completed",
+      "occurred_at": "2026-10-19T18:01:00Z",
+      "actor": {
+        "id": "historical-user",
+        "display_name": null,
+        "eligible": false
+      },
+      "next_step": "review_plan_history",
+      "responsible": {
+        "id": "historical-user",
+        "display_name": null,
+        "eligible": false
+      },
+      "status": "completed",
+      "outcome": "review_recorded",
+      "cancel_reason": null
+    },
+    "pagination": "Tasks newest created_at DESC,id DESC; history version ASC (cursor uses original created_at? see correction below); assignees id ASC. Exact cursor schemas are opaque canonical base64url JSON [UTC-created-at,uuid] for tasks; history uses bounded decimal after_version >=0 (no cursor authority); assignees uses legacy ID after. Every query repeats gym and Nutri assignee predicates. items,next_after,as_of,scope,limit; max100/50/50. No total counts in Nutri lists.",
+    "strict_canonical": "Read at most8192 stream bytes before decoding strict UTF8 and JSON; reject duplicate keys at every depth, NaN/Infinity, extra fields, invalid types/bools as integers, non-NFC resource identifiers and controls. Canonical request hash is SHA256 UTF8 sorted-key compact JSON of persisted actor ID+gym ID+uppercase method+exact canonical route+validated complete body. Object key order/JSON escape spelling do not change the hash. No automatic retry or readback after uncertain ACK.",
+    "metrics_example": {
+      "as_of": "2026-10-19T18:00:00Z",
+      "timezone": "America/Mexico_City",
+      "scope": "gym",
+      "range": {
+        "from": "2026-10-01",
+        "through": "2026-10-19",
+        "inclusive": true
+      },
+      "state_now": {
+        "open": 4,
+        "unassigned": 1
+      },
+      "event_period": {
+        "created": 6,
+        "completed_declarations": 2,
+        "cancelled": 0,
+        "assignment_changes": 3
+      },
+      "sources": {
+        "state": "followup_tasks",
+        "events": "followup_task_events"
+      },
+      "coverage": "current_active_clients_only",
+      "meaning": "actor_declarations_not_contact_delivery_payment_or_retention"
+    }
+  },
+  "dashboard_addition": {
+    "existing_readonly_stats": "Keep existing cause priority1..4, plans/ledger/PDF source metrics and payment_evidence=unavailable. Never equate fecha_fin_suscripcion with debt or SaaS invoice with client payment.",
+    "additive_summary": "A single bounded query for visible candidate client IDs adds per_cause_tasks[] with cause,task_id,version,next_step,responsible,current status; max4 per client. responsibility=per_cause_tasks. Legacy responsible:null is deprecated/not interpreted as no assigned task. No N+1 or unbounded second fetch; strict consumer/contract changes explicit.",
+    "new_metrics": "Managers only with existing read:stats and new manage capability. state_now(open/unassigned) versus event_period(created/completed_declarations/cancelled/assignment_changes). Every counter reports as_of/range/scope/source/coverage. No click counts, retention or medical ratios; completion actor and assigned responsible distinct, no inferred work by the assignee.",
+    "source_coverage": "Only current authorised nondeleted active clients; hidden sources never leak via totals. No personal diary/progress/notes/cache enters this module."
+  },
+  "acceptance_before_integration": [
+    "Freeze COMMON33-based source; reproduce missing34 endpoints with real primary+MFA login where active, both factories. Never mint positive acceptance bearer or create_all fake head.",
+    "Preserve33 and22-32 targets/fixtures/asserts; empty/populated33->34, repeat, drift, interruption full rollback, nonempty downgrade refusal.",
+    "PG actual NOSUPER/NOBYPASS/NOOWNER, two gyms, two Nutri: list/detail/history/write and totals cannot cross tenant or assignee; viewer/personal/ambiguous OWNER deny; own canonical OWNER and ADMIN work.",
+    "Concurrent create one open task, edit versus complete/cancel, same/different key, stale observed version, source/assignee change, R11 lock-order contention, reset/logout/SV and parentOFF; no deadlock or partial events.",
+    "ACK before/after commit, close before/after cleanup, rollback/invalidate failure, pool1/reuse/context restoration; exact replay has one durable event/version, no false rollback or success.",
+    "READ operations have zero DML/commit, response/body/cursor/date/enum bounds, all error headers including405/429/500 and neighbouring routes.",
+    "Separate populated restore34 preserving all complete33 criteria plus assigned/unassigned/completed/cancelled tasks, immutable history/keys, unavailable assignee, RLS/trigger signatures and restored authorised replay/cross-scope negatives.",
+    "Independent security of SQL invariants/per-assignee route authority and QA/backend/UI composition before R23 completion claim. Function/trigger counts fixed from actual DDL, no assumed no-functions claim.",
+    "All newly owned Session scopes close/invalidate before headers and restore tenant ContextVar in success/error; never retag ambient Session, never engine.dispose. Actual PG handoff pending; no runtime RLS/force/function counts asserted yet."
+  ],
+  "root_signature_points": [
+    "Final DTO names/examples and explicit candidate endpoint/history after_version submitted before frontend consumer. ROOT architectural approval already received; runtime/QA/SEC/UI remain independent gates."
+  ],
+  "base": "3587b3b3eee3a58367624472d7c0683baa8f10e0"
+}

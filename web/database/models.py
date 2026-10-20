@@ -307,6 +307,7 @@ class Cliente(Base):
     notas = Column(Text)
     plantilla_tipo = Column(String(30), default="general")
     alimentos_excluidos = Column(Text, nullable=True)  # JSON list of excluded foods
+    nutrition_restrictions_json = Column(Text, nullable=True)
 
     # ── Suscripción a nivel cliente ──
     fecha_suscripcion = Column(DateTime, nullable=True)       # Cuándo se suscribió / pagó
@@ -331,6 +332,8 @@ class Cliente(Base):
         Index("ix_clientes_gym_nombre", "gym_id", "nombre"),
         Index("ix_clientes_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
         CheckConstraint("sexo IN ('M', 'F', 'Otro') OR sexo IS NULL", name="ck_cliente_sexo"),
+        CheckConstraint("nutrition_restrictions_json IS NULL OR length(nutrition_restrictions_json) BETWEEN 2 AND 16384",
+                        name="ck_cliente_nutrition_declaration_bound"),
     )
 
 
@@ -1168,3 +1171,17 @@ class ClientPlanPublication(Base):
         Index('uq_client_publication_current', 'link_id', unique=True,
               postgresql_where=text("status='published'"), sqlite_where=text("status='published'")),
     )
+
+
+# Frozen, typed revision34 ledger shares its physical definition with migration34.
+from web.database.followup_schema_v1 import task_table, event_table  # noqa: E402
+
+
+class FollowupTask(Base):
+    """Current projection; only the append-only event trigger may advance it."""
+    __table__ = task_table(Base.metadata, UTCDateTime)
+
+
+class FollowupTaskEvent(Base):
+    """Durable operation declaration, not evidence of contact or payment."""
+    __table__ = event_table(Base.metadata, UTCDateTime)
