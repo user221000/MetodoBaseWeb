@@ -437,6 +437,7 @@ def obtener_usuario_por_email(db: Session, email: str) -> Optional[Usuario]:
 # ── Serialización ────────────────────────────────────────────────────────────
 
 def _cliente_to_dict(c: Cliente) -> dict:
+    nutrition_declaration = _nutrition_declaration(c)
     _fecha_reg = c.fecha_registro.isoformat() if c.fecha_registro else None
     _ultimo = c.ultimo_plan.isoformat() if c.ultimo_plan else None
     _fecha_sub = c.fecha_suscripcion.isoformat() if c.fecha_suscripcion else None
@@ -463,7 +464,7 @@ def _cliente_to_dict(c: Cliente) -> dict:
         "notas": c.notas,
         "plantilla_tipo": c.plantilla_tipo,
         "alimentos_excluidos": json.loads(c.alimentos_excluidos) if c.alimentos_excluidos else [],
-        "restricciones_nutricionales": _nutrition_declaration(c),
+        "restricciones_nutricionales": nutrition_declaration,
         "fecha_suscripcion": _fecha_sub,
         "fecha_fin_suscripcion": _fecha_fin_sub,
         "dias_restantes": c.dias_restantes,
