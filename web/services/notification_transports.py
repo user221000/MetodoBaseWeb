@@ -64,7 +64,11 @@ class ProviderReadPort:
         if currency!="mxn" or due!=reference.expected_amount:raise ValueError("Invoice amount mismatch")
         charge=invoice.get("charge")
         if isinstance(charge,str):charge=sdk.Charge.retrieve(charge)
-        paid_flag=invoice.get("paid") is True and invoice.get("status")=="paid"
+        # Preserve the provider's assertion before combining it with state;
+        # bool coercion must not turn paid=True/status=open into an unpaid fact.
+        paid_flag=invoice.get("paid")
+        if type(paid_flag) is not bool or (invoice.get("status")=="paid")!=paid_flag:
+            raise ValueError("Contradictory invoice payment state")
         refunded=False
         if paid_flag:
             if (not isinstance(charge,dict) or charge.get("customer")!=reference.customer_id or charge.get("currency")!="mxn"

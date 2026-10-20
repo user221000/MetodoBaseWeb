@@ -39,7 +39,7 @@ def test_period_end_is_not_arrears_and_repeated_observation_has_stable_fingerpri
     assert qualifies(row,"account_period_end",NOW)
     assert not qualifies(row,"confirmed_payment_issue",NOW)
     assert source().fingerprint()==source().fingerprint()
-    assert source().fingerprint()!=source(amount_remaining=5000).fingerprint()
+    assert source().fingerprint()!=source(amount_paid=5000,amount_remaining=5000).fingerprint()
 
 
 @pytest.mark.parametrize("change",[{"amount_due":True},{"amount_paid":-1},{"currency":"usd"},

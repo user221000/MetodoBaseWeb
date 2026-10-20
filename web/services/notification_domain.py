@@ -45,6 +45,20 @@ def secret_hash(purpose,token):
     return hashlib.sha256((purpose+"\0"+token).encode("ascii")).hexdigest()
 
 
+def _coherent_stripe_invoice(amount_due:int,amount_paid:int,amount_remaining:int,paid:bool,invoice_status:str)->bool:
+    """Admit reviewed invoice balances in integer minor currency units.
+
+    Unmodelled overpayments and contradictory payment flags remain unconfirmed.
+    Neither observation nor a persisted fact may repair money by guessing.
+    """
+    amounts=(amount_due,amount_paid,amount_remaining)
+    if any(type(value) is not int or not 0<=value<=2147483647 for value in amounts):
+        return False
+    if type(paid) is not bool or (invoice_status=="paid")!=paid:
+        return False
+    return amount_paid+amount_remaining==amount_due
+
+
 @dataclass(frozen=True)
 class BillingSnapshot:
     provider:str
@@ -76,6 +90,9 @@ class BillingSnapshot:
             raise ValueError("Invalid money unit")
         if type(self.paid) is not bool or type(self.refunded) is not bool:
             raise ValueError("Invalid payment flags")
+        if self.provider=="stripe" and not _coherent_stripe_invoice(self.amount_due,self.amount_paid,
+                self.amount_remaining,self.paid,self.invoice_status):
+            raise ValueError("Unconfirmed invoice monetary state")
         if (self.period_start is None)!=(self.period_end is None):raise ValueError("Partial period")
         for value in (self.period_start,self.period_end,self.due_at):
             if value is not None:instant(value)
@@ -95,6 +112,8 @@ class BillingSnapshot:
 def qualifies(fact,purpose,now):
     now=instant(now)
     if fact is None or aware(fact.created_at)>now or aware(fact.fresh_until)<=now:return False
+    if fact.provider=="stripe" and not _coherent_stripe_invoice(fact.amount_due,fact.amount_paid,
+            fact.amount_remaining,fact.paid,fact.invoice_status):return False
     if fact.subscription_status in {"canceled","paused","incomplete","incomplete_expired","unknown"} or fact.refunded:return False
     if purpose=="account_period_end":
         return fact.period_end is not None and fact.paid and fact.subscription_status=="active" and now<aware(fact.period_end)<=now+timedelta(days=7)
