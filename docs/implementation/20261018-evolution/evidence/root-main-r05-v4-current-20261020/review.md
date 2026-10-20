@@ -1,0 +1,3 @@
+# Finite v4 on actual Main
+
+Main663d integrates four exact reviewed implementation/fixture paths. Config and immutable v3 remain unchanged; all web runtime files and537 user untracked files are preserved. Actual Main runs162/162 focused tests in one phase,2117 source files and92 package versions/Python/Node stable. Separate author125+37 phases and their initial157/5 fixture failure remain intact. Independent data/loader11016 replay and fixture37 review are source-bound peers, not a new scanner execution. The last actual full scan remains historical405 RED11016. An actual full scan of the integrated current tree is still required. No global R05,CI,native,Desktop or deployment acceptance.
