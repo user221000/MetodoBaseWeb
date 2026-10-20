@@ -255,8 +255,10 @@ def verify_current_sources():
                 and hashlib.sha256(git_source(receipt['source_commit'], name)).hexdigest() == receipt['raw_git_sha256'],
                 'An approved ROOT import changed')
     registry = verify_reviewed_registry_v2()
-    changed = subprocess.check_output(['git', '--no-replace-objects', 'diff', '--name-only', COMPOSITION_BASE_COMMIT], cwd=ROOT).decode().splitlines()
-    require(all(name.startswith(('tests/', 'docs/implementation/20261018-evolution/evidence/qa-ci33-'))
+    # Product/dependency drift is separate from the complete R05 documentation scan.
+    changed = subprocess.check_output(['git', '--no-replace-objects', 'diff', '--name-only',
+        COMPOSITION_BASE_COMMIT, '--', '.', ':(exclude)docs/**'], cwd=ROOT).decode().splitlines()
+    require(all(name.startswith('tests/')
                 or name == '.github/workflows/ci.yml' or name in imports for name in changed), 'CI33 delta changed product, dependencies or historical targets')
     assertions = verify_contract_mappings()
     from tests.isolation import block_external_sockets, prepare_environment
