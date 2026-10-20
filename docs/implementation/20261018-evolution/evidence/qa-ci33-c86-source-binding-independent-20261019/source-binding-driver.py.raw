@@ -1,0 +1,53 @@
+"""Offline full delta binding. Does not modify the sealed PG240 recovery."""
+from pathlib import Path
+import hashlib,json,subprocess,sys
+ROOT=Path('F:/mb-qa-ci33-20261019');sys.path.insert(0,str(ROOT))
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-ci33-c86-source-binding-independent-20261019')
+PG=OUT.parent/'qa-ci33-PG240-recovery-independent-20261019'
+COMMON='3587b3b3eee3a58367624472d7c0683baa8f10e0';HEAD='c86d1a25fcd0b0befcb4b473c4144917122109fb'
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+git=lambda *a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert not OUT.exists();OUT.mkdir();(OUT/'.gitattributes').write_bytes(b'* -text\n')
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+def blob(ref,path):
+    raw=git('ls-tree','-z',ref,'--',path)
+    if not raw:return None
+    line=raw.rstrip(b'\0');meta,name=line.split(b'\t',1);mode,kind,oid=meta.decode().split()
+    assert name.decode()==path and kind=='blob' and mode=='100644'
+    value=git('cat-file','blob',oid)
+    return {'mode':mode,'Git_blob_OID':oid,'bytes':len(value),'SHA256':SHA(value)}
+tokens=git('diff','--find-renames','--name-status','-z',COMMON,HEAD).decode().rstrip('\0').split('\0')
+rows=[];docs=[];i=0
+while i<len(tokens):
+    status=tokens[i];i+=1;old=tokens[i];i+=1
+    if status.startswith(('R','C')):new=tokens[i];i+=1
+    else:new=old
+    row={'status':status,'before_path':old,'after_path':new}
+    if old.startswith('docs/')and new.startswith('docs/'):docs.append(row);continue
+    row.update(before=blob(COMMON,old),after=blob(HEAD,new))
+    if row['after']is not None:
+        actual=(ROOT/new).read_bytes();row['own_RAW_SHA256']=SHA(actual);row['own_RAW_bytes']=len(actual)
+        row['RAW_equals_Git_blob']=SHA(actual)==row['after']['SHA256']
+        row['CRLF_to_LF_equals_Git_blob']=SHA(actual.replace(b'\r\n',b'\n'))==row['after']['SHA256']
+        assert row['RAW_equals_Git_blob']or row['CRLF_to_LF_equals_Git_blob']
+    rows.append(row)
+assert len(rows)==82,len(rows)
+chain=[];ref=HEAD
+while ref!=COMMON:
+    commit=git('cat-file','commit',ref);parents=[line[7:].decode()for line in commit.splitlines()if line.startswith(b'parent ')]
+    assert len(parents)==1
+    chain.append({'commit':ref,'tree':git('rev-parse',ref+'^{tree}').decode().strip(),'parent':parents[0],'commit_object_SHA256':SHA(commit)})
+    ref=parents[0]
+assert len(chain)==3 and [row['commit']for row in chain]==[HEAD,'2b2fbf2fe0e648bd719397270cdb213a290f6bbd','7fdeb3f9e5269036014a0c3ac2d6fd0e073ea4cb']
+def write(name,value):(OUT/name).write_bytes((json.dumps(value,indent=2)+'\n').encode())
+write('full-source-delta82.json',{'COMMON':COMMON,'source_HEAD':HEAD,'logical_non_document_delta_entries':82,'rename_entries_count_once':True,'all_non_document_changes_included':True,'rows':rows,'document_entries_count_separate':len(docs),'document_entries':docs,'chain_newest_first':chain,'COMMON_tree':git('rev-parse',COMMON+'^{tree}').decode().strip(),'source_tree':git('rev-parse',HEAD+'^{tree}').decode().strip()})
+links={name:{'SHA256':SHA((PG/name).read_bytes()),'bytes':(PG/name).stat().st_size}for name in ['manifest.json','phase-summary.json','fresh-closure-receipt.json','lease-chronology-audit.json']}
+write('PG240-sealed-proof-binding.json',{'sealed_prefix':str(PG),'source_commit':HEAD,'files':links,'source_commit_is_c86_not_later_MAIN_R05v2':True,'new_SQL_or_suites_executed':0,'PG55483_lease_released':True,'proof_commit':'No commit created by QA; MAIN registration/commit belongs to coordinator.'})
+(OUT/'source-binding-driver.py.raw').write_bytes(Path(__file__).read_bytes())
+from tests.ci_google33.publish import scan
+for path in OUT.iterdir():
+    if path.is_file():scan(path.read_bytes())
+write('secret-scan.json',{'files_scanned':len(list(OUT.iterdir())),'findings':0,'source_blobs_not_copied_only_hashes':True})
+entries={p.name:{'bytes':p.stat().st_size,'SHA256':SHA(p.read_bytes())}for p in OUT.iterdir()if p.is_file()}
+write('manifest.json',{'source_commit':HEAD,'attributes':'* -text before writes','entries':entries,'count':len(entries)})
+print(json.dumps({'source_commit':HEAD,'delta_entries':82,'commits':3,'manifest_SHA256':SHA((OUT/'manifest.json').read_bytes()),'source_binding_SHA256':SHA((OUT/'full-source-delta82.json').read_bytes()),'closure_receipt_SHA256':links['fresh-closure-receipt.json']['SHA256'],'entries':len(entries)}))

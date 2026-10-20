@@ -223,3 +223,7 @@ Google33: corrección8a5e integra QA-17 con peer12SQLite+11PG PASS. La carrera H
 ## Checkpoint131
 
 Sólo dos paths de producto R05: nuevo ZIPv2 ybinding de tres literales. Inversa RAW/AST exacta;sin nuevas excepciones de algoritmo. Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita.
+
+## Checkpoint132
+
+Se incorpora sólo evidencia yregistro; ningún producto34 oCIc86 cambiaMAIN en este checkpoint.
