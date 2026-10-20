@@ -1,0 +1,31 @@
+<section class="notifications36" data-notifications36 data-notification-context="{{ notification_context }}" aria-labelledby="notifications-title">
+  <header class="notification-heading"><h1 id="notifications-title">Recordatorios de mi cuenta{% if notification_context == 'gym' %} de gimnasio{% endif %}</h1>
+    <p>Administra tus propias preferencias de correo y consulta las intenciones registradas.</p></header>
+  <aside class="notification-notice" aria-label="Disponibilidad de envíos"><strong>Los envíos están desactivados.</strong>
+    <p>Guardar una preferencia o registrar una intención no envía correo ni activa una automatización. Los mensajes de seguridad y las invitaciones conservan sus propios controles.</p></aside>
+  <div class="notification-actions"><button type="button" class="notification-button" data-notification-refresh>Consultar estado actual</button>
+    <button type="button" class="notification-button" data-notification-retry hidden>Reintentar la misma intención</button></div>
+  <p data-notification-status role="status" aria-live="polite" aria-atomic="true" tabindex="-1">Consulta tus preferencias.</p>
+  <p class="notification-caption" data-notification-time>Sin consulta confirmada</p>
+  <section aria-labelledby="notification-preferences-title"><h2 id="notification-preferences-title">Preferencias propias</h2>
+    <p>Están desactivadas si no registraste una declaración. Un cambio de contacto puede invalidar la autorización: la declaración guardada por sí sola no acredita que se pueda enviar.</p>
+    <p>Intervalos elegibles: 24 horas, 72 horas o 7 días. Barreras técnicas actuales: al menos 24 horas y hasta 3 intentos de envío en 7 días; no garantizan una frecuencia de entrega.</p>
+    <div class="notification-grid" data-notification-preferences></div></section>
+  <section aria-labelledby="notification-source-title"><h2 id="notification-source-title">Fuente y registro manual de intenciones</h2>
+    <p data-notification-source>Fuente desconocida. No acredita una incidencia de pago ni una deuda.</p>
+    <p>Las fechas de clientes y la falta de un registro no prueban mora. La fuente puede caducar o cambiar; el servidor la revalida antes de admitir una intención.</p>
+    <label class="notification-check"><input type="checkbox" data-notification-observe-confirm> Confirmo solicitar una consulta del proveedor.</label>
+    <button type="button" class="notification-button" data-notification-observe disabled>Solicitar consulta del proveedor</button>
+    <p class="notification-caption">La consulta puede estar desactivada. No se ejecuta al abrir esta pantalla ni al actualizar la lista.</p>
+    <div class="notification-grid" data-notification-queue></div></section>
+  <section aria-labelledby="notification-outbox-title"><h2 id="notification-outbox-title">Intenciones registradas</h2>
+    <p>«Aceptada» sólo acredita aceptación por el proveedor, no entrega al buzón. Un resultado incierto no se reenvía. Detener una intención no retira un envío que ya estaba en vuelo.</p>
+    <ul class="notification-outbox" data-notification-outbox></ul>
+    <button type="button" class="notification-button" data-notification-next hidden>Consultar siguiente página</button>
+    <p class="notification-caption">Hasta 20 por página, por orden de identificador. «Consultar estado actual» vuelve a la primera página.</p></section>
+  <section aria-labelledby="notification-metrics-title"><h2 id="notification-metrics-title">Hechos observados</h2>
+    <p>Los avances entre periodos pagados verificados no prueban que un correo causó una renovación. No se mide entrega ni efecto clínico.</p>
+    <form class="notification-range" data-notification-metrics-form><label>Desde<input type="date" required data-notification-from></label><label>Hasta<input type="date" required data-notification-through></label><button type="submit" class="notification-button" disabled>Consultar métricas</button></form>
+    <p class="notification-caption">Fechas civiles de America/Mexico_City, máximo 62 días hasta la fecha del servidor.</p>
+    <div data-notification-metrics></div></section>
+</section>

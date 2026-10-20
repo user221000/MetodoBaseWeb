@@ -88,6 +88,20 @@ async def clientes(request: Request):
     return template_response(templates, request, "clientes.html", {"request": request})
 
 
+@router.get('/recordatorios', response_class=HTMLResponse)
+@router.get('/recordatorios/', response_class=HTMLResponse)
+@router.get('/mis-recordatorios', response_class=HTMLResponse)
+@router.get('/mis-recordatorios/', response_class=HTMLResponse)
+async def notification_preferences_page(request: Request):
+    """Inert own-account shell; every API read revalidates persisted authority."""
+    personal = request.url.path.rstrip('/') == '/mis-recordatorios'
+    response = template_response(templates, request,
+                                 'usuario_recordatorios.html' if personal else 'recordatorios.html',
+                                 {'request': request, 'notification_context': 'personal' if personal else 'gym'})
+    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+    return response
+
+
 @router.get("/generar-plan", response_class=HTMLResponse)
 async def generar_plan(request: Request):
     return template_response(templates, request, "generar-plan.html", {"request": request})
