@@ -1,0 +1,38 @@
+{
+  "archive_framing": {
+    "correction": "One identical framing preimage matched two glob patterns. Deduplicated by exact archive member path and verified identical bytes; no canary/result/source data changed.",
+    "duplicate_preimage_preserved_ref": "preservation/ui27-canary-archive-duplicate-34eed",
+    "duplicate_preimage_sha256": "c902db12657263ac75de52f105afaea013816f15de833aff76801a49dda9472b",
+    "unique_members": 13
+  },
+  "base": "b27f967a5a9e8bba8cc4abf9d80a52110e13b08f",
+  "canary": "tests/test_registration_bearer_ui27_canary.py",
+  "canary_sha256": "438b01057159b85fdbe1e1558befdcc2bbaba93d661a75f6a8ac57aabb7b6f55",
+  "finding": "api.app public legacy registration with an unrelated valid existing manager Bearer returns opaque500/ValueError after one new independent identity row persists. Manager owner/team metadata remains intact. Same canary web.main_web returns200 and independent OWNER. No JWT, email values or exception text are included in public evidence.",
+  "framing": "Removing inherited manager Authorization only for the new UI public setup changes its same focused bridge1RED to1PASS. Existing frontend public registration sends noBearer. This framing correction does not resolve the candidate legacy backend defect.",
+  "integration": "Keep this candidate commit separate from the subsequent UI27 product commit. It contains a deliberately failing canary until ROOT backend correction; do not declare CI green on its inclusion.",
+  "proofs_sha256": "eff9220261d80ebd0d9eda323d59cfdde2d513b264c93287d33b0f65e773a2fc",
+  "results": [
+    {
+      "factory": "api.app",
+      "http_status": "500",
+      "name": "test_public_registration_ignores_unrelated_valid_bearer_without_partial_account[api.app]",
+      "new_rows_after_response": "1",
+      "passed": false
+    },
+    {
+      "factory": "web.main_web",
+      "http_status": "200",
+      "name": "test_public_registration_ignores_unrelated_valid_bearer_without_partial_account[web.main_web]",
+      "new_rows_after_response": "1",
+      "passed": true
+    }
+  ],
+  "source_sha256": {
+    "api/app.py": "77dc5d17403066da4db91652aed176577c1472e9d12cca391ceb647fda4cc424",
+    "tests/followup34_http.py": "7b7b055d3ca47377d815f60019dfa71e417d756c8d64ccefa8a265762acd4936",
+    "tests/notifications36_http.py": "3e1bfd05d43e74b2bb7f551447b8d74e9a0797a3f72360ed78b8feb0d6368229",
+    "web/routes/auth.py": "2433cc5288786df90f13191c866bc76bd9c71f8e1b66afb638cc33aa75d507c4"
+  },
+  "status": "Candidate QA-26, ROOT owns backend evaluation/fix; preserved RED, never attributed as UI27 PASS"
+}
