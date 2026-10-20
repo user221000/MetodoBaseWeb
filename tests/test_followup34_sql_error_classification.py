@@ -9,8 +9,8 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from tests import followup34_http as http_fixtures
-from tests.followup34_http import candidate
+from tests import nutrition35_fixtures as http_fixtures
+from tests.nutrition35_fixtures import candidate
 from web.database.models import FollowupTask, FollowupTaskEvent
 
 followup_db = http_fixtures.followup_db

@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from tests.followup34_http import followup_db, followup_http, candidate, create, PASSWORD
+from tests.nutrition35_fixtures import followup_db, followup_http, candidate, create, PASSWORD
 from web.database.models import FollowupTask, FollowupTaskEvent, Usuario
 
 
