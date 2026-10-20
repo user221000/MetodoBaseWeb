@@ -172,3 +172,7 @@ SEC19 sólo se cierra tras la repeticiónPG independiente ybinding exacto aMAIN.
 ## Checkpoint141
 
 La aceptación R31 actual se limita al gate HTTP integrado; el rechazo nativo se conserva y obliga reparar QA-27 antes de repetir. QA-26 identifica registro y QA-27 invalidación DOM; sus RAW nominales anteriores permanecen intactos. Notificaciones36 y cuenta37 siguen aislados. No se amplía la exclusión tenant por prefijo ni se reduce pageErrors. Sólo web.
+
+## Checkpoint142
+
+Separar diagnósticoChrome2 deaceptación15; conservar el rechazo previo. QA-26 ycuenta37 tienenpeer independiente SQLite, sinatribuirPGpeer ounaUIinexistente. V3delescáner amplíaúnicamenteubicaciones finitas yconservav2;26fuentesoriginalesnodisponiblesnoreconstruidas. NoDesktop nioperacioneslive.

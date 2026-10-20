@@ -1,0 +1,144 @@
+{
+  "scope": "Own VM consumer-boundary/Storage/DOM tests only; no browser/server/provider or reload atomicity claim",
+  "passed": 21,
+  "total": 21,
+  "results": [
+    {
+      "case": "Stable canonical identity prepares and explicitly repeats a part without persisting export data",
+      "passed": true
+    },
+    {
+      "case": "A legitimate same-subject refresh rotation retains the canonical export context",
+      "passed": true
+    },
+    {
+      "case": "Helper-to-consumer replacement creates no old-account Blob or download",
+      "passed": true
+    },
+    {
+      "case": "Replacement after canonical verification resolves is fenced for first",
+      "passed": true
+    },
+    {
+      "case": "Replacement after canonical verification resolves is fenced for repeat",
+      "passed": true
+    },
+    {
+      "case": "Persisted role change before action discards cached private state",
+      "passed": true
+    },
+    {
+      "case": "Persisted team_gym_id change before action discards cached private state",
+      "passed": true
+    },
+    {
+      "case": "Persisted session_version change before action discards cached private state",
+      "passed": true
+    },
+    {
+      "case": "Canonical subject change after export DTO resolves is rejected before Blob construction",
+      "passed": true
+    },
+    {
+      "case": "metodobase-session-changed synchronously discards prepared cache, counters and Blob URLs",
+      "passed": true
+    },
+    {
+      "case": "storage synchronously discards prepared cache, counters and Blob URLs",
+      "passed": true
+    },
+    {
+      "case": "pagehide synchronously discards prepared cache, counters and Blob URLs",
+      "passed": true
+    },
+    {
+      "case": "Session event during a pending export cannot be undone by its late response/finally",
+      "passed": true
+    },
+    {
+      "case": "Synchronous blob reentry revokes temporary private output and never clicks a download",
+      "passed": true
+    },
+    {
+      "case": "Synchronous url reentry revokes temporary private output and never clicks a download",
+      "passed": true
+    },
+    {
+      "case": "Synchronous append reentry revokes temporary private output and never clicks a download",
+      "passed": true
+    },
+    {
+      "case": "Context failure while repeating never retains a cached private file",
+      "passed": true
+    },
+    {
+      "case": "Pre-click replacement during controls invalidates first without rejection, request or false loading status",
+      "passed": true
+    },
+    {
+      "case": "Pre-click storage during controls invalidates first without rejection, request or false loading status",
+      "passed": true
+    },
+    {
+      "case": "Pre-click replacement during controls invalidates repeat without rejection, request or false loading status",
+      "passed": true
+    },
+    {
+      "case": "Pre-click storage during controls invalidates repeat without rejection, request or false loading status",
+      "passed": true
+    }
+  ],
+  "browser_compatibility": {
+    "companion": "browser_export_compat31",
+    "wrapper": "current33_export_controls",
+    "wrapper_sha256": "5e268c1cb0aefdf4d5d5bafd25aa480d8c5366f9af49dbebd99349c01b268b88",
+    "dependencies": [
+      {
+        "path": "personal_export_controls.cjs",
+        "sha256": "075a84f27dfc95bbfe452e70e02b36b74474e27656f9c51f286ec8c7056045ce"
+      },
+      {
+        "path": "personal_export_context.cjs",
+        "sha256": "090d5d3b4410c88c328d5532a73cf166ef7fab59d8249540c19184a3c744c67f"
+      }
+    ],
+    "expanded_source_sha256": "9b5008965fddc478bf5c5579b133439ce69b24f5c48b23c873a2d64932f8a1b8",
+    "compiled_source_sha256": "a82edd823843637e25211dced0c5c23cafac799d67e8af341d38cb18c6dd626b",
+    "original_assertion_calls": 35,
+    "business_assertions_preserved": 26,
+    "changed_transport_assertions": [
+      {
+        "before": "assert.deepEqual([...e.values.keys()].sort(),[...legacy.keys(),'mb_token','mb_refresh_token'].sort())",
+        "after": "assert.deepEqual([...e.values.keys()].sort(),[...legacy.keys(),'mb_session_epoch'].sort())"
+      }
+    ],
+    "changes": [
+      {
+        "before": "Api.saveTokens(",
+        "after": "__browserInvalidate(",
+        "count": 2,
+        "reason": "External completed account boundary invalidates RAM synchronously; no forged cookie ACK."
+      },
+      {
+        "before": "e.api.saveTokens(",
+        "after": "e.invalidate(",
+        "count": 2,
+        "reason": "External completed account boundary invalidates RAM synchronously."
+      },
+      {
+        "before": "[...legacy.keys(),'mb_token','mb_refresh_token'].sort()",
+        "after": "[...legacy.keys(),'mb_session_epoch'].sort()",
+        "count": 1,
+        "reason": "Only the nonsecret epoch persists; credential absence is additionally asserted in intact()."
+      },
+      {
+        "before": "if(key==='mb_token'){const error=Error('SYNTHETIC PRIVATE STORAGE')",
+        "after": "if(key==='mb_session_epoch'){const error=Error('SYNTHETIC PRIVATE STORAGE')",
+        "count": 1,
+        "reason": "Deny the actual persistent session fence, rather than a credential key no longer read."
+      }
+    ],
+    "expected_cases": 21,
+    "scope": "Actual current API and export consumer with VM DOM/Blob/Storage/Lock/cookie doubles. RAM observer is not Storage; no native browser, server, or PG acceptance."
+  }
+}

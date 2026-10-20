@@ -1,0 +1,77 @@
+{
+  "contract": "account-security37-v1",
+  "scope": "web service only; no desktop, provider delivery, account adoption or new commercial rights",
+  "schema": "20261020_account_security",
+  "predecessor": "20261020_notifications",
+  "authenticated_status": {
+    "method": "GET",
+    "path": "/api/account/security",
+    "response": {
+      "email_verified": "boolean: timestamp exists, stored contact epoch equals current notification_contact_version, timestamp not in future",
+      "email_verified_at": "ISO timestamp only when current contact is confirmed, otherwise null",
+      "verification_lifetime_seconds": 1800,
+      "password_change_reauthentication": "primary_and_current_factor_if_enabled"
+    },
+    "authority": "persisted current Bearer identity; no account/tenant selector accepted"
+  },
+  "all_mutating_requests": {
+    "method": "POST",
+    "headers": {"X-MetodoBase-Browser": "1", "Origin": "exact configured canonical BASE_URL origin", "Content-Type": "application/json"},
+    "body_limit_bytes": 8192,
+    "input": "strict closed JSON objects; duplicate keys and nonfinite values rejected; never reflect values or unknown keys",
+    "admission": "before optional tenant/Bearer authentication; no query; one slash redirect boundary remains private",
+    "csrf": "existing authenticated CSRF applies in SaaS; only exact email/confirm and its single slash are purpose-proof public exemptions",
+    "failure_fields": "422 may contain detail.fields listing only known schema field names; messages never contain supplied values"
+  },
+  "email_request": {
+    "method": "POST", "path": "/api/account/security/email/request", "body": {},
+    "authority": "persisted current Bearer, own current contact and epoch under account locks",
+    "response_provider_ack": {"email_verified": false, "delivery": "provider_accepted", "expires_in_seconds": 1800},
+    "response_already_confirmed": {"email_verified": true, "delivery": "not_required"},
+    "provider_ack": "existing Resend SDK accepted identifier only; not proof of delivery or domain verification",
+    "proof": "256 random bits; only purpose SHA-256, issued_at, expires_at, SV and contact epoch persisted; resend replaces old proof and has a durable 60 second barrier",
+    "transport": "only after confirmed issue commit and Session close; uncertain commit never triggers mail; no token/URL/recipient in public response",
+    "client": "await Api.session.ready; use browser session coordinator; no automatic retry or refresh after uncertain outcome"
+  },
+  "email_confirm": {
+    "method": "POST", "path": "/api/account/security/email/confirm", "body": {"token": "43 ASCII URL-safe characters"},
+    "response": {"code": "account_email_confirmed", "email_verified": true},
+    "authority": "purpose-only proof; new Session under empty tenant context; foreign Bearer irrelevant and never adopted; single-use conditional consume under lock",
+    "effects": "only contact timestamp/epoch, clearing pending contact proof and classified audit event; no login, token pair, MFA, cookie, SV, role, gym or entitlement mutation",
+    "public_page": "/auth/verify-email#token=...; GET never consumes; fragment enters RAM then history URL is cleaned before interaction; explicit submit only; no Api bootstrap, Storage, PII, external assets or auth cookies",
+    "client": "public confirmation uses credentials:omit and does not mutate a session; no Web Lock or session invalidation needed"
+  },
+  "password_change": {
+    "method": "POST", "path": "/api/account/security/password",
+    "body": {
+      "reauthentication_token": "existing /api/auth/mfa/reauth 43 character primary proof",
+      "new_password": "canonical validate_new_password policy",
+      "confirm_password": "same canonical value",
+      "code": "optional current six digit TOTP; exactly one factor when active",
+      "recovery_code": "optional current unused 22 character recovery code; alternative to code"
+    },
+    "primary": "existing password or explicitly linked Google reauthentication protocol; current signed access, persisted SV, personal factor generation and unexpired one-use proof must match",
+    "factor": "current active factor required even after primary reauth; no email/MFA substitution; no factor input accepted when disabled",
+    "transaction": "canonical hash, SV increment without overflow, refresh revocation, consumed primary proof, old password reset/contact proof clearing and obsolete pending enrollment clearing commit together; every old authentication authorization is invalid by SV; active MFA and recovery continuity preserved",
+    "response": {"code": "account_password_changed", "reauthenticate": true, "sessions_revoked": true},
+    "browser": "REVOKING path: committed success expires refresh cookie; never emits a new pair or adopts another identity",
+    "client": "MUST use the SAME metodobase.browser-session.v1 Web Lock through full response parsing and Set-Cookie. Successful change clears current RAM/sensitive DOM and publishes invalidation; then direct user to login. Uncertain response must clear local access and publish invalidation without asserting server success; no automatic retry, refresh, readback using old identity or token pair fabrication. Freeze all input intent before awaiting lock."
+  },
+  "failures": {
+    "400": "account_email_unavailable for unusable, expired, replayed, stale-SV or stale-contact proof; no account details",
+    "401": "current persisted identity/access unavailable; existing MFA errors preserved",
+    "403_415": "finite canonical browser admission rejected before optional auth; no refresh cookie mutation",
+    "409": "account_security_busy or exhausted session/contact version; never reset counters",
+    "413_422": "bounded/closed invalid input; known field names only",
+    "429": "persisted resend barrier or sensitive IP/subject budgets; no token in limiter keys",
+    "503": "account_security_unconfirmed, account_email_delivery_unconfirmed or account_security_service_unavailable; durable effects may have committed after lost ACK; no success or delivery claim"
+  },
+  "invariants": [
+    "Existing users and verified Google bindings are not backfilled as email-confirmed.",
+    "A to B to A contact changes advance existing schema36 epoch and invalidate both pending proof and confirmed status.",
+    "Confirmation does not activate/deactivate accounts or gate existing login/rights. Introducing a commercial activation policy requires a separate reviewed decision.",
+    "No email change endpoint is introduced.",
+    "Schema targets22 through36 and accepted historical fixtures remain unchanged.",
+    "No real outbound mail is sent by tests; PostgreSQL37 and browser UI acceptance remain separate pending gates."
+  ]
+}

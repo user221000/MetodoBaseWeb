@@ -193,3 +193,7 @@ R31 UI tienepeer26PASS local; nativos/CI antiguos dependen deStorage yfixtures31
 ## Checkpoint141
 
 Nativo actual rechazado por accesos DOM tras invalidación. Registro público API puede persistir una identidad antes de responder500 con Bearer ajeno. R05 global RED1603 y CI/broad/imagen/restore actuales pendientes; PG37 y consumo UI pendiente. Retención, países, SLO y piloto conservan decisiones externas pendientes.
+
+## Checkpoint142
+
+Nativo15actual,peerPG37/restore,UI27/UI37,CI/broad/imagen/escaneoactualpendientes. MAINcontinúa35, porloquecorrecciónQA-26ycandidatos36/37aúnnoestánintegrados. Retención,países,SLOypilotoconservandecisionesexternaspendientes.

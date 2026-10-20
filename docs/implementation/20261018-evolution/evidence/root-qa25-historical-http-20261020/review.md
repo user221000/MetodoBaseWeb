@@ -1,0 +1,3 @@
+# QA-25: fases históricas preservadas
+
+La fase aa3231 ejecutó108 casos:104 notificaciones PASS y4 MFA FAIL antes de RPC por framing CRLF. El driver esperaba113 por incluir por error cinco casos DDL no seleccionados por su glob; no fueron ejecutados. No son fallos del runtime MFA. Tras normalización sólo en memoria c9, b27 repite4/4 puentes MFA HTTP PASS. Los RAW y los conteos iniciales se conservan; no se reatribuyen a la fuente actual5ffc. El gate posterior MAIN8144/b17 pasa110 contratos e incluye los4 MFA sobre esquema35; es una evidencia separada. No hay aceptación nativa, PostgreSQL o despliegue en estas dos fases. Sólo web.
