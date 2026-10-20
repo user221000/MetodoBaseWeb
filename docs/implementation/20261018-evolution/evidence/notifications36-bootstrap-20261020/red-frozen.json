@@ -1,0 +1,54 @@
+{
+  "base": "cd423ab0961898ce94fd2574cb4d6452cf8338b3",
+  "driver": "tests/e2e/notifications36_bootstrap.cjs",
+  "driver_sha256": "ed3b590d6462f6425e9eb49d62c24fd1e341ff88c1a9215e9a769126bff9f044",
+  "product_sha256": "06079d1fe28e400e24945b615b965fe1ff7ebe712f7c10724da724b8722de5fc",
+  "exit": 1,
+  "bootstrap_typeerrors": 6,
+  "positive_api_shape_controls": 2,
+  "report": {
+    "scope": "Actual classic lexical Api and notifications36 in one VM, minimal DOM and typed transport doubles. No Chrome, HTTP, PostgreSQL, provider or native-layout acceptance.",
+    "passed": 2,
+    "total": 8,
+    "results": [
+      {
+        "case": "gym default-call uses lexical Api without an injected API option",
+        "passed": false,
+        "error_class": "TypeError"
+      },
+      {
+        "case": "gym DOMContentLoaded uses lexical Api without an injected API option",
+        "passed": false,
+        "error_class": "TypeError"
+      },
+      {
+        "case": "gym ready-complete uses lexical Api without an injected API option",
+        "passed": false,
+        "error_class": "TypeError"
+      },
+      {
+        "case": "personal default-call uses lexical Api without an injected API option",
+        "passed": false,
+        "error_class": "TypeError"
+      },
+      {
+        "case": "personal DOMContentLoaded uses lexical Api without an injected API option",
+        "passed": false,
+        "error_class": "TypeError"
+      },
+      {
+        "case": "personal ready-complete uses lexical Api without an injected API option",
+        "passed": false,
+        "error_class": "TypeError"
+      },
+      {
+        "case": "gym actual closed API rejects invalid context and coerced CAS before transport",
+        "passed": true
+      },
+      {
+        "case": "personal actual closed API rejects invalid context and coerced CAS before transport",
+        "passed": true
+      }
+    ]
+  }
+}

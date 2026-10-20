@@ -99,7 +99,7 @@
   }
   return Object.freeze({view,load,invalidate,savePreference,queue,cancel,page,readMetrics,observe(confirmed){if(confirmed!==true)throw Object.assign(invalid(),{code:'notification_invalid_input'});return start('observe',null,{});},retry(){if(!state.retry)return false;return send();}});
  }
- function mount(element,{api=root.Api.notifications36}={}){
+ function mount(element,{api=Api.notifications36}={}){
   const get=id=>element.querySelector('[data-notification-'+id+']'),context=element.dataset.notificationContext;let controller;
   const text=(tag,value,parent)=>{const node=document.createElement(tag);node.textContent=value;parent.append(node);return node;};
   function action(label,run,parent){const button=text('button',label,parent);button.type='button';button.className='notification-button';button.addEventListener('click',()=>attempt(run));return button;}
