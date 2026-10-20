@@ -866,19 +866,39 @@ const Api = (() => {
     if(Object.keys(body).some(key=>!keys.includes(key))||!_mfaBearer(body.reauthentication_token)||typeof body.new_password!=='string'||typeof body.confirm_password!=='string'||body.new_password!==body.confirm_password||Array.from(body.new_password).length<12||new TextEncoder().encode(body.new_password).length>72||/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(body.new_password)||(body.code!==undefined&&!/^\d{6}$/.test(body.code))||(body.recovery_code!==undefined&&!/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))||(body.code!==undefined&&body.recovery_code!==undefined))throw _accountError('account_security_invalid_input');
     return body;
   }
+  function _accountUnauthorized(context) {
+    // A late rejection belongs to its captured access, never a newer actor.
+    _assertPair(context.snapshot,context.pair);
+    _invalidateSession();throw _sessionChanged();
+  }
+  async function _accountAuthority(handle,run) {
+    const context=_mfaContext(handle);
+    try{const value=await run();_mfaContext(handle);return value;}
+    catch(error){_mfaContext(handle);if(error.status===401)_accountUnauthorized(context);throw error;}
+  }
   async function _accountPost(path,body,context) {
     let response,encoded=JSON.stringify(body);body=null;
     const csrf=typeof document!=='undefined'?document.querySelector?.('meta[name="csrf-token"]')?.content:null;
     const headers={'Content-Type':'application/json','Accept':'application/json','X-MetodoBase-Browser':'1',Authorization:'Bearer '+context.pair.token};
     if(typeof csrf==='string'&&csrf&&csrf.length<=512&&!/[\r\n]/.test(csrf))headers['X-CSRF-Token']=csrf;
     try{const pending=fetch(API_BASE+path,{method:'POST',headers,body:encoded,credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});encoded=null;response=await pending;}catch{encoded=null;throw _accountError('account_security_unconfirmed');}
+    if(response.status===401)_accountUnauthorized(context);
     let data;try{data=await response.json();}catch{throw _accountError('account_security_unconfirmed',response.status>=500?response.status:null);}
     if(!response.ok){const detail=data?.detail,known=['reauthentication_token','new_password','confirm_password','code','recovery_code'];throw _accountError(typeof detail?.code==='string'?detail.code:'account_security_rejected',response.status,Array.isArray(detail?.fields)?detail.fields.filter(key=>known.includes(key)):[]);}
     return data;
   }
   const accountSecurity=Object.freeze({
-    context:()=>mfa.context(),check:handle=>mfa.check(handle),verify:handle=>mfa.verify(handle),factorStatus:handle=>mfa.status(handle),reauth:(body,handle)=>mfa.reauth(body,handle),
-    status:handle=>{const context=_mfaContext(handle);return request('GET','/api/account/security',null,{},true,{snapshot:context.snapshot,pair:context.pair});},
+    async context(){
+      await _readyPromise;const handle=mfa.capture();
+      return _accountAuthority(handle,async()=>{
+        const me=await _mfaRequest('/api/auth/me',null,handle,'GET');_mfaContext(handle);
+        if(!me||typeof me.id!=='string'||!me.id||typeof me.role!=='string'||!Number.isSafeInteger(me.session_version))throw _mfaError();
+        _mfaContexts.get(handle).subject=JSON.stringify([me.id,me.role,me.team_gym_id||null,me.session_version]);
+        return {handle,me};
+      });
+    },
+    check:handle=>mfa.check(handle),verify:handle=>_accountAuthority(handle,()=>mfa.verify(handle)),factorStatus:handle=>_accountAuthority(handle,()=>mfa.status(handle)),reauth:(body,handle)=>mfa.reauth(body,handle),
+    status:handle=>{const context=_mfaContext(handle);return _accountAuthority(handle,()=>request('GET','/api/account/security',null,{},true,{snapshot:context.snapshot,pair:context.pair}));},
     async requestEmail(handle){
       const context=_mfaContext(handle);
       return _withCookieLock(context.snapshot,async()=>{
