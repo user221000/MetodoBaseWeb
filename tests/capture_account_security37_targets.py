@@ -17,25 +17,31 @@ def main():
     from tests.integration_schema_migrations import run_migration
     from tests.isolation import block_external_sockets, prepare_environment
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dialect", choices=("sqlite",), default="sqlite")
-    parser.parse_args()
+    parser.add_argument("--dialect", choices=("sqlite", "postgresql"), default="sqlite")
+    dialect = parser.parse_args().dialect
     directory = prepare_environment(discard_inherited=True)
     block_external_sockets()
     migration = importlib.import_module("web.database.alembic.versions.20261020_account_security")
-    path = ROOT / "web/database/alembic/schema_targets/20261020_account_security_sqlite.json"
+    path = ROOT / ("web/database/alembic/schema_targets/20261020_account_security_" + dialect + ".json")
     if path.exists():
         raise RuntimeError("Never overwrite a captured target")
-    with owned_database("sqlite", directory / "capture37") as (url, engine):
+    if dialect == "postgresql":
+        from tests.account_security37_owned import owned_database as pg_lease
+        lease = pg_lease
+    else:
+        lease = owned_database
+    with lease(dialect, directory / "capture37") as (url, engine):
         run_migration(url, "db_bootstrap.py", "--revision", migration.down_revision)
         with engine.begin() as connection:
-            connection.exec_driver_sql("BEGIN IMMEDIATE")
+            if dialect == "sqlite":
+                connection.exec_driver_sql("BEGIN IMMEDIATE")
             migration.verify(connection, migration.down_revision)
             with Operations.context(MigrationContext.configure(connection)):
                 migration.create_columns()
             value = migration.signature(connection)
         with path.open("xb") as stream:
             stream.write((json.dumps(value, sort_keys=True, indent=2) + "\n").encode())
-        print(json.dumps({"dialect": "sqlite", "tables": len(value["signature"]["tables"]), "target": path.name}))
+        print(json.dumps({"dialect": dialect, "tables": len(value["signature"]["tables"]), "target": path.name}))
 
 
 if __name__ == "__main__":
