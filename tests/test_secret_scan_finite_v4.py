@@ -13,6 +13,16 @@ ROOT = Path(__file__).resolve().parents[1]
 POINTS = [('tests/test_client_link_models.py', 23, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/history-independent-20261019/browser57-own3/server.log', 1, 'generic-api-key'), ('docs/implementation/20261018-evolution/SESION_NAVEGADOR_R31_SNAPSHOT.json', 173, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020/verifier-before.raw.txt', 73, 'generic-api-key'), ('docs/implementation/20261018-evolution/SESION_NAVEGADOR_R31_CI_MAP.json', 9641, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/ux/team-freeze-source.json', 11, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/backend-r12-api-cas-final-source.json', 16, 'generic-api-key')]
 
 
+def source_bytes(name):
+    if name == "docs/implementation/20261018-evolution/evidence/ux/team-freeze-source.json":
+        with zipfile.ZipFile(ROOT/"tests/data/r05_v4_historical_team_manifest.zip") as archive:
+            assert archive.namelist() == ["historical-team-freeze-source.RAW.json"]
+            raw = archive.read("historical-team-freeze-source.RAW.json")
+        assert hashlib.sha256(raw).hexdigest() == "6d09df84a1e84268b824d9f39f346b9a61f622647db6478b4839442bee964947"
+        return raw
+    return (ROOT/name).read_bytes()
+
+
 def registry(name):
     with zipfile.ZipFile(io.BytesIO((ROOT/name).read_bytes())) as archive:
         return json.loads(archive.read("reviewed-locations.json"))
@@ -21,7 +31,7 @@ def registry(name):
 @pytest.mark.parametrize("name,number,rule", POINTS)
 @pytest.mark.parametrize("mutation", [None, "adjacent_payload", "copied_path", "other_rule", "wrong_source_digest"])
 def test_new_v4_categories_are_exact_file_and_physical_rule_pins(tmp_path, name, number, rule, mutation):
-    original = (ROOT/name).read_bytes()
+    original = source_bytes(name)
     target = tmp_path/name
     target.parent.mkdir(parents=True)
     target.write_bytes(original.decode("utf-8-sig").encode())
