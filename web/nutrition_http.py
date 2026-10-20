@@ -7,6 +7,14 @@ from fastapi.routing import APIRoute
 from web.services.nutrition_profiles import NUTRITION_ERRORS, public_error
 
 HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
+_PROFILE_WRITES = frozenset({
+    ("POST", "/clientes"),
+    ("POST", "/api/clientes"),
+    ("PUT", "/clientes/{id_cliente}"),
+    ("PUT", "/api/clientes/{id_cliente}"),
+    ("PUT", "/usuario/perfil"),
+    ("PUT", "/api/usuario/perfil"),
+})
 
 
 class NutritionRoute(APIRoute):
@@ -24,7 +32,11 @@ class NutritionRoute(APIRoute):
             try:
                 response = await original(request)
             except RequestValidationError as error:
-                if (request.url.path.rstrip("/").endswith("/perfil")
+                # A rejected envelope can itself contain health facts. Select
+                # profile writes by their declared/mounted route templates,
+                # regardless of body type or router-prefix implementation.
+                if ((request.method, self.path) in _PROFILE_WRITES
+                        or request.url.path.rstrip("/").endswith("/perfil")
                         or isinstance(error.body, dict) and "restricciones_nutricionales" in error.body):
                     return JSONResponse({"detail": {"code": "nutrition_profile_invalid_input",
                         "message": "Revisa los datos del perfil."}}, status_code=422, headers=HEADERS)
