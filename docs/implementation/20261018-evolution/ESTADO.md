@@ -1,10 +1,10 @@
 # Estado de implementación
 
-Checkpoint138 local: esquema35 y139 requisitos (92 originales y47 añadidos).
+Checkpoint139 local: esquema35 y140 requisitos (92 originales y48 añadidos).
 
-MAIN integra localmente seguimiento34 y perfil nutricional35. Los108 archivos de código y pruebas coinciden con la rama revisada fdaa. El único conflicto fue de atributos de evidencia, resuelto por unión finita. Once archivos RAW con CRLF se conservan intactos mediante atributos específicos. El esquema es35 y el target PostgreSQL5bae parte de34d1. Se preservan139 criterios y537 archivos untracked previos. Las sesiones R31 y notificaciones36 siguen aisladas; desktop queda fuera del trabajo y la entrega. Las pruebas anteriores siguen ligadas a sus commits y entornos. Faltan validación de MAIN, CI, Chrome, imagen y despliegue actuales. R05 global sigue RED1603.
+MAIN conserva esquema35 y140 requisitos (92 originales y48 añadidos), con139 criterios anteriores exactos. Tras integrar seguimiento34 y perfil nutricional35, el árbol c4f9 pasa75/75 contratos dirigidos, sin errores o skips y con fuentes/Python/92 distribuciones estables. Los hallazgos focales QA-20/21/22/23 y SEC20/21/22 quedan verificados localmente con peer; SEC19 conserva pendiente la revisión independiente de PostgreSQL; esto no cierra R19, R31 o R33 completos. Servidor R31 aún aislado: SEC24 reparado y106/106 pruebas independientes pasan. Frontend bee520 y sus companions siguen aislados; la exportación actual pasa108 ejecuciones con49 casos distintos, sin afirmar navegador nativo. QA prepara revisión y E2E; frontend migra fixtures nativos. Backend mantiene leasePG exclusivo para36: restore y últimos bordes aún pendientes. R05 global sigue RED1603 en4f4, sin nuevo escaneo global. CI, broad, Chrome, imagen y despliegue actuales pendientes. Sólo servicio web; desktop fuera del trabajo y entrega por instrucción expresa.
 
-Free:10 clientes activos,1 plan por cliente al día y10 planes totales por gimnasio al día. La copia de referencia permanece intacta. No hubo push, PR, despliegue, cargos o envíos.
+Free:10 clientes activos,1 plan por cliente al día y10 planes totales por gimnasio al día. La copia de referencia y537 archivos untracked previos se preservan; sin push, PR, despliegue, cargos o envíos.
 
 [Registro](TRAZABILIDAD.md), [validación](VALIDACION.md).
 
@@ -27,3 +27,7 @@ Sólo servicio web.139requisitos (92originales+47añadidos),136criterios anterio
 ## Checkpoint138
 
 MAIN integra localmente seguimiento34 y perfil nutricional35. Los108 archivos de código y pruebas coinciden con la rama revisada fdaa. El único conflicto fue de atributos de evidencia, resuelto por unión finita. Once archivos RAW con CRLF se conservan intactos mediante atributos específicos. El esquema es35 y el target PostgreSQL5bae parte de34d1. Se preservan139 criterios y537 archivos untracked previos. Las sesiones R31 y notificaciones36 siguen aisladas; desktop queda fuera del trabajo y la entrega. Las pruebas anteriores siguen ligadas a sus commits y entornos. Faltan validación de MAIN, CI, Chrome, imagen y despliegue actuales. R05 global sigue RED1603.
+
+## Checkpoint139
+
+MAIN conserva esquema35 y140 requisitos (92 originales y48 añadidos), con139 criterios anteriores exactos. Tras integrar seguimiento34 y perfil nutricional35, el árbol c4f9 pasa75/75 contratos dirigidos, sin errores o skips y con fuentes/Python/92 distribuciones estables. Los hallazgos focales QA-20/21/22/23 y SEC20/21/22 quedan verificados localmente con peer; SEC19 conserva pendiente la revisión independiente de PostgreSQL; esto no cierra R19, R31 o R33 completos. Servidor R31 aún aislado: SEC24 reparado y106/106 pruebas independientes pasan. Frontend bee520 y sus companions siguen aislados; la exportación actual pasa108 ejecuciones con49 casos distintos, sin afirmar navegador nativo. QA prepara revisión y E2E; frontend migra fixtures nativos. Backend mantiene leasePG exclusivo para36: restore y últimos bordes aún pendientes. R05 global sigue RED1603 en4f4, sin nuevo escaneo global. CI, broad, Chrome, imagen y despliegue actuales pendientes. Sólo servicio web; desktop fuera del trabajo y entrega por instrucción expresa.

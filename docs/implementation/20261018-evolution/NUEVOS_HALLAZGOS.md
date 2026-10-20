@@ -221,3 +221,11 @@ El POST público de exclusión por capacidad funciona en la API pero recibe403 C
 Criterio: Permitir que la exclusión pública anónima por capacidad de propósito único complete en ambas factories sin sesión o cookies, con JSON estricto, límite de frecuencia, hash/expiración/versión de capacidad y autoridad disable-only intactos. Una exención CSRF, si es necesaria, debe ser exacta para POST /api/notificaciones/excluir y su alias de una barra, configurable con default vacío; no ampliar prefixes o vecinos. GET/prefetch no muta, bearer ajeno no cambia el sujeto y capacidad vieja no afecta preferencias nuevas. Probar el mismo caso anónimo original y vecinos403, errores privados y ausencia de otros efectos, con revisión independiente.
 
 Autor informa reparación exactaCSRF y17/17SQLite con controles de época/migración; actualizador de factory/config predeterminado acotado. No aceptación PG36, peer, entrega de correo o despliegue.
+
+## Checkpoint139
+
+### SEC24
+
+El candidato de transporte browser rechazaba Origin inválido con403 pero, en la API, TenantMiddleware podía consultar primero un bearer auténtico. SaaS ya excluía /api/auth/. No se observó bypass de autenticación ni consumo o cambio de prueba/cookie.
+
+Criterio: La admisión estricta de las operaciones finitas del transporte browser debe ocurrir antes de cualquier consulta de bearer, SQL, verificación de proveedor o efecto de autenticación, incluso si la solicitud lleva un bearer válido. Rechazar Origin, header browser, contenido, query, método o alias no admitidos con error público privado y sin modificar refresh cookie, prueba o estado de sesión. Mantener rutas finitas y el comportamiento de APIlegacy sin header, vecinos y contexto tenant/finally, sin excluir un prefijo global ni convertir cookie en autoridad general. Repetir la misma canaria independiente689a, controles de SQL/verificador cero y límites antes/después en ambas factories, con revisión independiente. No presentar esta consulta previa como auth bypass o como un contador SQL observado si la aserción anterior lo impidió.

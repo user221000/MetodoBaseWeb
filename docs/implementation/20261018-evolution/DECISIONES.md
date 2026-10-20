@@ -160,3 +160,7 @@ Mantener verificaciones antiguas en su fuente auténtica yusar composición35 ex
 ## Checkpoint137
 
 La cookie refresh es autoridad sólo para renovar/cerrar, nunca recurso privado. El headerbrowser opt-in conserva APIlegacy; invalidOrigin no muta refreshcookie, CSRFcookie existente es independiente. Locks del navegador deben conservar intención capturada antes del primerawait y mantenerse duranteSetCookie/JSON. Añadidos36 decontacto yexenciónCSRF exacta requierenpeer/PG antes de aceptar. Continúa alcance sóloSaaS; no cambios desktop.
+
+## Checkpoint139
+
+La verificación focal local se separa de despliegue y cierre de tareas mayores. R31 conserva APIlegacy y se prueba con cookie/RAM; los tests que exigíanJWTStorage se mantienen históricos y se mapean a criterios actuales, sin simular credenciales enStorage. No basta cambiar comandosCI: preparar fixtures nativos y verificar el navegador real. LeasePG36 exclusivoBackend; Chrome todavía no concedido aQA.

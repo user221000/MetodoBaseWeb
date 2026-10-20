@@ -181,3 +181,7 @@ SEC21 refleja declaración rechazada en422 para bodylista; requiere erroracotado
 ## Checkpoint137
 
 SEC21/22 yQA23 tienen reparación ypeerfocal; no integradosMAIN. R31 requiere cierre extremo aextremo ycompatibilidadCI, sin reponerJWTStorage para obtenerPASS. SEC23ABAcontacto yQA-24optoutanónimo son candidatos36 todavía sinpeer/PG. Retención/países,SLO,piloto,proveedorcorreo yvalidaciónprofesional permanecen sin resolución externa. No aceptación global ni despliegue.
+
+## Checkpoint139
+
+SEC24 tenía consultaBearer previa al rechazoOrigin enAPI; reparación y106 controles independientes cierran focalmente el candidato, pendiente integración. Los nativos antiguos inyectanJWTStorage y requieren nueva composición, sin etiquetarlosPASS. Restore36 reveló deriva deCHECK antes/despuésdump y no se acepta todavía. Retención, países, SLO acordado, piloto y revisión profesional requieren evidencia o participación externa.
