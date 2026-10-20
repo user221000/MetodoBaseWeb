@@ -1,0 +1,35 @@
+{
+  "previous_source": "01b95411c597c535031ce3893406fb770d4c026c1baa1cee72340c8430064e05",
+  "corrected_source": "a84169fc43c9b096e47a10610d28b9b521e8d7dcb000939ba86a965d1737d753",
+  "textual_inverse_exact": true,
+  "selection": "one affected function x two factories only",
+  "changes": [
+    [
+      "c=browser;_,registered=wire.account(c);old=registered.json()['refresh_token']",
+      "c=browser;actor_A=c['raw'].get('/api/auth/me').json()['id'];_,registered=wire.account(c);old=registered.json()['refresh_token']"
+    ],
+    [
+      "wire.pair(rotated);current=wire.cookie(c)",
+      "renewed=wire.pair(rotated);current=wire.cookie(c)"
+    ],
+    [
+      "stale=wire.post(c,'/api/auth/browser/migrate',{'refresh_token':old})",
+      "assert auth.verificar_refresh_token(current) is not None\n    stale=wire.post(c,'/api/auth/browser/migrate',{'refresh_token':old})"
+    ],
+    [
+      "assert auth.verificar_refresh_token(current) is not None\n\ndef test_MFA_202",
+      "assert auth.verificar_refresh_token(current) is None\n    assert auth.verificar_token(renewed) is None\n    me_A=c['raw'].get('/api/auth/me');assert me_A.status_code==200 and me_A.json()['id']==actor_A\n\ndef test_MFA_202"
+    ]
+  ],
+  "product_changes": 0,
+  "original_results_preserved": true,
+  "DACL_before_payload": true,
+  "planned_UUID_count": 1,
+  "no_connections_opened": true,
+  "status": "PASS_2_CORRECTED_EXPECTATION_FACTORY_REPLAYS",
+  "inverse_scope": "Exact LF-normalized text after four listed QA-only framing corrections; original CRLF bytes are preserved privately and bound by SHA.",
+  "effective_accepted_own_cases_across_phases": 6,
+  "executions_across_phases": 8,
+  "runtime_changes": 0,
+  "scope": "4 unaffected original passes plus the 2 corrected-expectation passes. Not eight unique cases or a new native-browser claim."
+}
