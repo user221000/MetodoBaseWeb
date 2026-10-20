@@ -1,0 +1,11 @@
+Adenda independiente a la entrega original de 11.015 candidatos y un punto bloqueante. Esa entrega y su ZIP permanecen intactos. La adenda propone clasificar exclusivamente el punto restante del informe fijo 405: team-freeze-source.json, línea 11, generic-api-key.
+
+La evidencia nueva es histórica y concreta. Las dos llamadas originales y sus dos salidas coinciden exactamente con las líneas físicas de los JSONL originales. Cada salida está enlazada con su call_id y contiene exit_code=0. El productor original asigna files mediante SHA-256 de Path(p).read_bytes() para 24 rutas concretas, incluida auth-guard.js. Su salida registra el SHA-256 del artefacto completo, que coincide con los bytes conservados del artefacto 405. El QA de otra sesión comprueba ese mismo hash y vuelve a calcular los 24 hashes; termina correctamente 130,434 segundos después del productor.
+
+Esto acredita la procedencia de un checksum. Los bytes RAW históricos de auth-guard.js siguen sin localizarse, recomputarse ni reconstruirse; no ejecuté las llamadas históricas. La copia del cuerpo Python coincide con el cuerpo inline original, sin el LF terminal sintético añadido sólo para el parser de esta revisión.
+
+El clasificador real de Git 405 acepta el punto exacto y rechaza diez controles: ruta, línea, regla, hash RAW, hash de línea, rango, un byte real cambiado en la copia privada, escalar alterado, artefacto alterado y algoritmo del productor alterado. El informe original conserva su resultado anterior; no se transforma retrospectivamente en un escaneo aprobado.
+
+La composición v4 propuesta se comprobó sólo en memoria: 877 rutas únicas y 56.285 pins, con 236 registros actuales, 85 reemplazos explícitos y 641 registros v3 conservados con bytes canónicos iguales. El ZIP v3 histórico permanece intacto. No hay objeción al plan si la implementación real mantiene estos valores y limita el cambio del loader a los tres literales de ruta, digest y versión del motivo. Esta revisión todavía no acepta un dataset o loader v4 real ni un resultado global R05.
+
+Todo el trabajo se limita a lecturas históricas y pruebas finitas privadas. No hubo cambios Main, scanner, configuración o registros, ni ejecución de Desktop, proveedores, SQL, Chromium o VM.

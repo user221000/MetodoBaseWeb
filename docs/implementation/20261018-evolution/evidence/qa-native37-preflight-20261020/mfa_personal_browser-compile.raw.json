@@ -1,0 +1,34 @@
+{
+  "parsed": true,
+  "browser_session_composition": {
+    "companion": "browser_native_compat31",
+    "historical_driver": "mfa_personal_browser.cjs",
+    "historical_driver_sha256": "7be0264c9923196637b1c5bea3ff7a5b7eb982a9767309f85f0be29640a2867d",
+    "historical_compilation_lf_sha256": "b4f2fbbe0df2016ed589b9fc39aaf24bdb43bc5d58d5b5cb9f4dce7322867aab",
+    "compilation_eol": "CRLF is normalized to LF in memory only; historical RAW bytes and business assertion calls are retained.",
+    "compiled_driver_sha256": "512aebe609ad4dc84a6e9cc3a3e13474eb405054f48182d5e3806f159fc74110",
+    "session_helper_sha256": "8e94959897264123b09d949a6d3e97266ecaf6cf2069ce0184f12fde7a4e5e01",
+    "assertion_calls_preserved_before_normative_changes": 10,
+    "normative": [],
+    "changes": [
+      {
+        "kind": "Every new browser context rejects credential/identity Storage writes.",
+        "count": 1,
+        "reason": "Every new browser context rejects credential/identity Storage writes."
+      },
+      {
+        "kind": "private_output_framing",
+        "count": 1,
+        "reason": "NATIVE31_BROWSER_OUTPUT explicitly selects a fresh absolute target under the launcher-owned private/ACL parent. Existing no-overwrite assertions remain. Full inverse of this exact initializer is verified.",
+        "before": "const out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/personal-'+batch)",
+        "after": "const out=path.resolve(process.env.NATIVE31_BROWSER_OUTPUT||path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/personal-'+batch))"
+      },
+      {
+        "kind": "Historical dialect/revision scope is not retargeted silently; actual37 producer witness remains separate.",
+        "count": 1,
+        "reason": "Historical dialect/revision scope is not retargeted silently; actual37 producer witness remains separate."
+      }
+    ],
+    "scope": "Native composition only. Driver outcomes and current37 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption."
+  }
+}

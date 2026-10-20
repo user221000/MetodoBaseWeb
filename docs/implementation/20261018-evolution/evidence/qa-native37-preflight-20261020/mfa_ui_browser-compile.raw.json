@@ -1,0 +1,70 @@
+{
+  "parsed": true,
+  "browser_session_composition": {
+    "companion": "browser_native_compat31",
+    "historical_driver": "mfa_ui_browser.cjs",
+    "historical_driver_sha256": "ae2f09d14d2f2532a7e61e1d116bc567dd79c95c3fa5743165c07eac44ef6d7c",
+    "historical_compilation_lf_sha256": "763d722add3d0219447a6a61da5f45ff6bbc4da0914b2f4a18ca903091bb4228",
+    "compilation_eol": "CRLF is normalized to LF in memory only; historical RAW bytes and business assertion calls are retained.",
+    "compiled_driver_sha256": "21937c39c7ee8f9b63c41fa187b422ee5ecf4845b9fe040c4ba423f309319d54",
+    "session_helper_sha256": "8e94959897264123b09d949a6d3e97266ecaf6cf2069ce0184f12fde7a4e5e01",
+    "assertion_calls_preserved_before_normative_changes": 23,
+    "normative": [
+      {
+        "before": "assert.equal(await page.evaluate(async()=> (await Api.auth.me()).id),'synthetic-mfa-ui-other');",
+        "after": "assert.equal(await page.evaluate(async()=>{try{await Api.auth.me();return 'unexpected_authenticated';}catch(error){return error.code;}}),'session_changed');const preservedB=await context.request.get(base+'/api/auth/me',{headers:{Authorization:'Bearer '+pairB.token}});assert.equal(preservedB.status(),200);assert.equal((await preservedB.json()).id,'synthetic-mfa-ui-other');",
+        "reason": "R31 forbids automatic adoption by an invalidated tab; preserve B authority and no old kit separately."
+      }
+    ],
+    "changes": [
+      {
+        "kind": "Every new browser context rejects credential/identity Storage writes.",
+        "count": 1,
+        "reason": "Every new browser context rejects credential/identity Storage writes."
+      },
+      {
+        "kind": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption.",
+        "count": 1,
+        "reason": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption."
+      },
+      {
+        "kind": "Public setup boundary remains usable after old tab invalidation; next explicit login opens a fresh page.",
+        "count": 1,
+        "reason": "Public setup boundary remains usable after old tab invalidation; next explicit login opens a fresh page."
+      },
+      {
+        "kind": "Late confirm cannot adopt B into old tab; independent actual B Bearer proves B survived.",
+        "count": 1,
+        "reason": "Late confirm cannot adopt B into old tab; independent actual B Bearer proves B survived."
+      },
+      {
+        "kind": "Deny the current nonsecret persistent fence instead of the retired credential read.",
+        "count": 1,
+        "reason": "Deny the current nonsecret persistent fence instead of the retired credential read."
+      },
+      {
+        "kind": "Actual epoch Storage boundary.",
+        "count": 1,
+        "reason": "Actual epoch Storage boundary."
+      },
+      {
+        "kind": "private_output_framing",
+        "count": 1,
+        "reason": "NATIVE31_BROWSER_OUTPUT explicitly selects a fresh absolute target under the launcher-owned private/ACL parent. Existing no-overwrite assertions remain. Full inverse of this exact initializer is verified.",
+        "before": "const out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/browser-'+batch)",
+        "after": "const out=path.resolve(process.env.NATIVE31_BROWSER_OUTPUT||path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/browser-'+batch))"
+      },
+      {
+        "kind": "Historical dialect/revision scope is not retargeted silently; actual37 producer witness remains separate.",
+        "count": 1,
+        "reason": "Historical dialect/revision scope is not retargeted silently; actual37 producer witness remains separate."
+      },
+      {
+        "kind": "argument_framing",
+        "count": 1,
+        "reason": "The external-epoch callback receives no unused credential pair; private proof stays in Node fixture RAM."
+      }
+    ],
+    "scope": "Native composition only. Driver outcomes and current37 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption."
+  }
+}
