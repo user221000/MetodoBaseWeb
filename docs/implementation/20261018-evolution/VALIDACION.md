@@ -296,3 +296,7 @@ CI33 integrado conservando la cadena completa de c86 ysu delta original de82 fue
 ## Checkpoint134
 
 QA-18: fuente41dc5 aceptada focalmente porQA independiente con la misma canaria original c3a4:12/12PASS, desde4FAIL/8PASS anteriores, sin modificar asserts. Dieciséis controles propios directos PASS (seisSQLite reales y diezmetadatos sintéticos), sinPostgreSQL. No cubre la proyecciónUsuario posterior ni aceptación global34; el producto34 aún no está enMAIN. Candidato35 fuente55a3 tiene162casosSQLitePASS con perfiles/DTO/persistencia/cuota/PDFreal yguard final; ambasfactories gimnasio ypersonal sóloSaaS. Contratos anteriores intactos; downgrade no borra declaraciones. Cambio de restricciones durantePDF deja ceroPlan/READY,reserva liberada yobjetoPENDING explícito para reconciliación. Un fallo de framing personal404 yla foto parcial inicial137 se preservan; final162 enumera fuentes nuevas. SECfad3 acepta sólo dominio/constructoresd5:79replay y24propiosPASS,no integración35. UI ydesktop avanzan enWTpropias;PG35/peerintegrado pendientes,no aprobación clínica ni MAIN/despliegue.
+
+## Checkpoint135
+
+Backend34 autor81f190:91SQLitePASS/5PGdeselected;28IDs PG distintos,5 migraciones y1restore poblado con67aserciones históricas conservadas. Doce UUID propias cerradas sinFORCE y ausencia fresca. La revisión SEC posterior confirma4RED (SEC20/QA-21), no aceptación global. Desktop queda excluido del trabajo futuro; sus100casos son sólo autor histórico0d20. QA no ejecutó su revisión Desktop. Las pruebas SaaS35 yQA-20 continúan aisladas.

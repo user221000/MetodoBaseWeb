@@ -1,9 +1,9 @@
 # Estado de implementación
 
-Checkpoint134 local: esquema33 y128 requisitos (92 originales y36 añadidos).
+Checkpoint135 local: esquema33 y133 requisitos (92 originales y41 añadidos).
 Todos los criterios anteriores se conservan exactos. Free:10 clientes activos,
-1 plan por cliente al día y10 planes totales por gimnasio al día. Desktop sigue
-soportado. Workspace de referencia intacto; sin push,PR,despliegue,cargos oenvíos.
+1 plan por cliente al día y10 planes totales por gimnasio al día. Por instrucción
+expresa posterior, el trabajo continúa únicamente en el servicio web. Workspace de referencia intacto; sin push,PR,despliegue,cargos oenvíos.
 
 Google33 ysu UI están integrados. QA-17 tiene corrección8a5e aceptada focalmente:
 autor4casos y58regresiones; peer12SQLite y11PG PASS. La carrera HTTP canónica
@@ -47,3 +47,9 @@ cuando cambia el perfil trasPDF; no se afirma ceroefectosdurables.
 [Autor35](evidence/root-nutrition35-profile-author-20261020/review.md),
 [peer puro](evidence/security-nutrition35-pure-independent-20261019/source.json),
 [QA-18 peer](evidence/qa-followup34-sqlfix-peer-independent-20261020/phase-summary.json).
+
+## Checkpoint135
+
+Decisión expresa del usuario al reanudar: «continua con todos estos cambios pero ya no trabajes en la version desktop, trabaja unicamente en la version de el servicio web». Desde este checkpoint el trabajo y la entrega se limitan al SaaS. Se detienen desarrollo, QA, empaquetado e instalador desktop. Código y evidencias previos se conservan; no se eliminan funciones existentes ni se integra el candidato Desktop35. QA confirmó que todavía no había ejecutado pruebas ni creado ramas o artefactos de esa revisión. Las validaciones Windows del servicio web y el núcleo compartido siguen dentro del alcance. Esta decisión sustituye la instrucción anterior de continuar el desarrollo desktop; no declara resueltos sus defectos.
+
+Backend34 autor cerrado, SEC reproduce4RED enPG paraSEC20/QA-21 y corrige enWT propia. QA independiente API35 yUI35 siguen en curso. MAIN conserva esquema33; no integraDesktop35 ni producto34/35. QA-20 parcialAPI confirmado y en reparación. Próximo: repetir canarios originales, recapturar34 si cambia trigger ycapturarPG35 después del handoff exclusivo.

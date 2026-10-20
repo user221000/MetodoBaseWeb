@@ -125,3 +125,47 @@ QA-18 (P2): El candidato Backend34 devuelve409 followup_busy ante IntegrityError
 ## Checkpoint134
 
 QA-18: fuente41dc5 aceptada focalmente porQA independiente con la misma canaria original c3a4:12/12PASS, desde4FAIL/8PASS anteriores, sin modificar asserts. Dieciséis controles propios directos PASS (seisSQLite reales y diezmetadatos sintéticos), sinPostgreSQL. No cubre la proyecciónUsuario posterior ni aceptación global34; el producto34 aún no está enMAIN.
+
+## Checkpoint135
+
+Decisión expresa del usuario al reanudar: «continua con todos estos cambios pero ya no trabajes en la version desktop, trabaja unicamente en la version de el servicio web». Desde este checkpoint el trabajo y la entrega se limitan al SaaS. Se detienen desarrollo, QA, empaquetado e instalador desktop. Código y evidencias previos se conservan; no se eliminan funciones existentes ni se integra el candidato Desktop35. QA confirmó que todavía no había ejecutado pruebas ni creado ramas o artefactos de esa revisión. Las validaciones Windows del servicio web y el núcleo compartido siguen dentro del alcance. Esta decisión sustituye la instrucción anterior de continuar el desarrollo desktop; no declara resueltos sus defectos.
+
+### SEC19
+
+La consulta de locks de autoridad de seguimiento carga nombre, email y password_hash de un responsable histórico que ahora pertenece a otro contexto, aunque el DTO omite su nombre.
+
+Criterio: Consultar para autoridad únicamente los campos de elegibilidad necesarios bajo los locks originales; no hidratar contacto ni credenciales del responsable ajeno. Los atributos diferidos deben fallar de forma cerrada. Conservar permiso, aislamiento, orden de locks, clasificación de errores, respuestas y DTO. Repetir los mismos canarios HTTP/SQL y de carga ORM en ambas factories; validar el cambio con revisión independiente y PostgreSQL restringido. No atribuir una fuga HTTP al sobreacceso interno observado.
+
+Estado: Dos RED reales SQLite/ORM pasan tras proyección de ocho campos; seis aserciones conservadas. Fuente producto81f190/service13a9. Peer PostgreSQL pendiente. El nombre informal Sec18projection de comunicaciones previas corresponde a SEC19; SEC18 existente conserva su identidad.
+
+### SEC20
+
+Con NutriB no asignado, bloquear sólo UsuarioC responsable de una tarea ajena cambia la respuesta a409 mientras un ID inexistente conserva404; el hint incorpora C al lockset antes del filtro de asignación.
+
+Criterio: En ambas factories, una tarea fuera de la asignación autorizada debe conservar la misma denegación opaca que un ID inexistente, incluso al mantener bloqueada únicamente la cuenta del responsable ajeno. Aplicar el predicado de asignación antes de incorporar identidades sensibles al hint o lockset, revalidando autoridad y estados persistidos sin ampliar permisos. Mantener CAS, locks necesarios, historial e idempotencia y repetir las cuatro canarias originales junto con QA-21 en PostgreSQL con rol restringido. No inferir exposición de DTO o modificación autorizada por este oracle de contención.
+
+Estado: Revisión independiente sobre f848/producto81f190: dos RED por oracle, auth y MFA reales. No hay parche integrado ni aceptación global.
+
+### QA-19
+
+El diálogo Qt de edición llama a GestorBDClientes.actualizar_cliente, método inexistente en la preimagen55a3, por lo que no confirma ni guarda la edición.
+
+Criterio: La edición real del diálogo Qt debe persistir los cambios de perfil mediante un método existente y aceptar sólo el guardado confirmado, sin incrementar el contador de planes. La misma canaria con diálogo y gestor de la preimagen exacta debe fallar antes y pasar después de la corrección. Conservar formulario y datos ante un fallo de escritura.
+
+Estado: Hallazgo confirmado antes del recorte de alcance. Candidato0d20 aislado y evidencia cf0b conservados; no se integra ni continúa su revisión. Resolución de alcance no_aplicable a la entrega SaaS por decisión expresa del usuario, sin afirmar cierre técnico.
+
+### QA-20
+
+PUT /api/clientes/{id_cliente} con sólo peso sobre un perfil inicialmente vacío devuelve400 client_update_failed en api.app por AttributeError.lower de objetivoNULL, mientras web.main_web guarda200.
+
+Criterio: El contrato de perfil progresivo debe aceptar una actualización parcial válida en ambas factories sin exigir, rellenar o calcular con datos no declarados. Persistir únicamente los campos enviados y conservar la declaración nutricional y los campos omitidos. Rechazar entradas inválidas sin aplicar parcialmente los otros campos. Conservar pertenencia, permisos, cabeceras privadas y validación completa antes de generar; repetir las mismas canarias antes/después y obtener revisión independiente.
+
+Estado: Frontend confirmó1RED api/1controlSaaS en55a3. ROOT reprodujo en54e511 dos RED y seis controles con el framing de declaración desconocida corregido explícitamente. Reparación aislada en curso, sin integración MAIN.
+
+### QA-21
+
+El SELECT FOR SHARE del cliente y el trigger34 esperan ante FOR UPDATE externo; la canaria PostgreSQL acaba503 tras statement_timeout700ms en lugar del409 inmediato de contención conocido.
+
+Criterio: Usar adquisición NOWAIT de los locks compartidos del cliente tanto en servicio como en el guard PostgreSQL, conservando el orden y las invariantes de causa/cliente. Con la misma fila retenida por otra conexión propia, ambas factories deben devolver409 followup_busy dentro del umbral original, sin esperar al statement_timeout, sin ACK ni Task/Event parcial y sin retry automático. SQLSTATE57014 y los fallos desconocidos siguen503. Preservar targets22–33, conservar el target34 anterior y recapturar únicamente la firma34 afectada si cambia el trigger. Repetir los mismos cuatro canarios originales compartidos con SEC20 y las regresiones afectadas.
+
+Estado: Dos RED reales PG sobre81f190; app4flagsfalse/noowner/FORCE28/pool1. Primera UUID propia cerrada por DROP normal,0sesiones y ausencia fresca. Parche y nuevo target34 pendientes, target35 todavía no capturado.

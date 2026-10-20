@@ -169,3 +169,7 @@ Persisten1.603hallazgos del último escaneo real yse requiere scan final de arte
 ## Checkpoint132
 
 El candidato Backend34 devuelve409 followup_busy ante IntegrityError desconocido durante flush y ante SQLITE_ERROR=1 de tabla inexistente cuyo nombre contiene blocked. Falla la clasificación de disponibilidad; no se confirma bypass de autorización, explotación remota ni fuga de datos. La reproducción deQA-18 permanece abierta hasta corrección yreplay independiente. QA recuperó sin rerun los20reportes/240IDs únicos PG33 sobrec86:240PASS0FAIL/error/skip. 52UUID propias ausentes y0sesiones confirmados en conexión nueva tras la pausa; DROP ordinario ysin terminate. 1114fuentes/92distribuciones/8084archivos instalados ybinarios exactos. Los testigos distinguen engine de negocio de15sondeos auxiliares poscaso; no se atribuye su engine al negocio. Fuentesc86/R05v1; composiciónMAINv2, broad,Chrome,imagen,Linux yActions no demostrados por esta fase.
+
+## Checkpoint135
+
+SEC19 conserva riesgo de hidratación innecesaria hasta revisión independiente; SEC20 yQA-21 están reproducidos enPG y requieren reparación antes de integración34. QA-20 bloquea el guardado progresivo delAPI en perfil vacío. Responsable:backend/seguridad/coordinación. Desktop tiene excepción expresa de alcance para la entrega actual; no se afirma que el defectoQA-19 haya desaparecido.

@@ -1,0 +1,868 @@
+{
+  "migration-seed-after": {
+    "after_sha256": "16b35d8548c9da59a0c661335ea8d9fa7eb66fc4d2f342dd46b9ea6b08edadab",
+    "before_sha256": "16b35d8548c9da59a0c661335ea8d9fa7eb66fc4d2f342dd46b9ea6b08edadab",
+    "cases": [
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_nonempty_history_refuses_destructive_downgrade[postgresql]",
+        "status": "PASS"
+      }
+    ],
+    "counts": {
+      "PASS": 1
+    },
+    "packages": 92,
+    "pip_after": 0,
+    "pip_before": 0,
+    "quiet": true,
+    "raw_xml_sha256": "052bd4ef27edf277fa19282a4a4e3fa203fca6b21b353f40b984367b6e922a2b",
+    "receipt": {
+      "exit_code": 0,
+      "mode": "migration-seed",
+      "own_databases_all_absent": true,
+      "package_count": 92,
+      "pip_after": 0,
+      "pip_before": 0,
+      "quiet": true,
+      "schema_target_pg_sha256": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880",
+      "seconds": 12.981165409088135,
+      "source_count": 1069
+    },
+    "source_count": 1069
+  },
+  "migrations-first": {
+    "after_sha256": "97baf281aec956269910f7f1f577a831641d9d4b26bc674ea59af2931ec6219d",
+    "before_sha256": "97baf281aec956269910f7f1f577a831641d9d4b26bc674ea59af2931ec6219d",
+    "cases": [
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_exact33_rows_upgrade_repeat_and_empty34_downgrade[postgresql-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_exact33_rows_upgrade_repeat_and_empty34_downgrade[postgresql-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_predecessor_drift_refuses_any34_ddl[postgresql]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_mid34_install_failure_rolls_back_both_tables[postgresql]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_nonempty_history_refuses_destructive_downgrade[postgresql]",
+        "status": "FAIL"
+      }
+    ],
+    "counts": {
+      "FAIL": 1,
+      "PASS": 4
+    },
+    "packages": 92,
+    "pip_after": 0,
+    "pip_before": 0,
+    "quiet": true,
+    "raw_xml_sha256": "209111b5b76eb241fd3ab49142827180b2fb6bdf429db4aefc0493ac376d1390",
+    "receipt": {
+      "exit_code": 1,
+      "mode": "migrations",
+      "own_databases_all_absent": true,
+      "package_count": 92,
+      "pip_after": 0,
+      "pip_before": 0,
+      "quiet": true,
+      "schema_target_pg_sha256": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880",
+      "seconds": 57.767831563949585,
+      "source_count": 1068
+    },
+    "source_count": 1068
+  },
+  "restore-first": {
+    "after_sha256": "09d4856ce75c2acb842ecc6f8f64cb6909d7737c3abbc632422e218d3464e6f6",
+    "before_sha256": "09d4856ce75c2acb842ecc6f8f64cb6909d7737c3abbc632422e218d3464e6f6",
+    "cases": [
+      {
+        "class": "tests.integration_followup34_restore",
+        "name": "test_revision34_restore_preserves_followup_tasks_and_all_revision26_27_28_29_30_31_32_33_contracts",
+        "status": "PASS"
+      }
+    ],
+    "counts": {
+      "PASS": 1
+    },
+    "packages": 92,
+    "pip_after": 0,
+    "pip_before": 0,
+    "quiet": true,
+    "raw_xml_sha256": "2f9c2d34137074f6cf0cdcf8a38ee3b72c21e420ba01462749ee40fbfb1713ad",
+    "receipt": {
+      "exit_code": 0,
+      "mode": "restore",
+      "own_databases_all_absent": true,
+      "package_count": 92,
+      "pip_after": 0,
+      "pip_before": 0,
+      "quiet": true,
+      "schema_target_pg_sha256": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880",
+      "seconds": 40.539533853530884,
+      "source_count": 1070
+    },
+    "source_count": 1070
+  },
+  "services-first": {
+    "after_sha256": "0e31bf56fe3d33da329af9a1b79cac6c2a880fad116fb70504c1241f5eb92ec0",
+    "before_sha256": "0e31bf56fe3d33da329af9a1b79cac6c2a880fad116fb70504c1241f5eb92ec0",
+    "cases": [
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_full_operational_workflow_on_restricted_pool1[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_full_operational_workflow_on_restricted_pool1[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_commit_ack_failure_and_explicit_replay_preserve_one_event[api.app-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_commit_ack_failure_and_explicit_replay_preserve_one_event[api.app-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_commit_ack_failure_and_explicit_replay_preserve_one_event[web.main_web-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_commit_ack_failure_and_explicit_replay_preserve_one_event[web.main_web-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_cleanup_errors_are_visible_before_headers_and_release_checkout[api.app-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_cleanup_errors_are_visible_before_headers_and_release_checkout[api.app-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_cleanup_errors_are_visible_before_headers_and_release_checkout[web.main_web-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_cleanup_errors_are_visible_before_headers_and_release_checkout[web.main_web-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_dual_cleanup_errors_are_visible_and_checkout_limit_is_explicit[api.app-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_dual_cleanup_errors_are_visible_and_checkout_limit_is_explicit[api.app-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_dual_cleanup_errors_are_visible_and_checkout_limit_is_explicit[web.main_web-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_dual_cleanup_errors_are_visible_and_checkout_limit_is_explicit[web.main_web-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_force_rls_blank_foreign_history_and_projection_denials[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_force_rls_blank_foreign_history_and_projection_denials[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_real_account_lock_denies_without_consuming_key_then_explicit_retry[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_real_account_lock_denies_without_consuming_key_then_explicit_retry[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_source_changes_after_service_snapshot_are_denied_by_actual_trigger[api.app]",
+        "status": "FAIL"
+      }
+    ],
+    "counts": {
+      "FAIL": 1,
+      "PASS": 18
+    },
+    "packages": 92,
+    "pip_after": 0,
+    "pip_before": 0,
+    "quiet": true,
+    "raw_xml_sha256": "c3f45b76fadcef30fc6e84be9e71006710bab430a9fe99f167ed1f0110e79d9c",
+    "receipt": {
+      "exit_code": 1,
+      "mode": "services",
+      "own_databases_all_absent": true,
+      "package_count": 92,
+      "pip_after": 0,
+      "pip_before": 0,
+      "quiet": true,
+      "schema_target_pg_sha256": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880",
+      "seconds": 320.2935211658478,
+      "source_count": 1069
+    },
+    "source_count": 1069
+  },
+  "services-projection-after": {
+    "after_sha256": "09d4856ce75c2acb842ecc6f8f64cb6909d7737c3abbc632422e218d3464e6f6",
+    "before_sha256": "09d4856ce75c2acb842ecc6f8f64cb6909d7737c3abbc632422e218d3464e6f6",
+    "cases": [
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_full_operational_workflow_on_restricted_pool1[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_full_operational_workflow_on_restricted_pool1[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_real_account_lock_denies_without_consuming_key_then_explicit_retry[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_real_account_lock_denies_without_consuming_key_then_explicit_retry[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_source_changes_after_service_snapshot_are_denied_by_actual_trigger[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_source_changes_after_service_snapshot_are_denied_by_actual_trigger[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_concurrent_same_key_has_one_ack_and_one_busy_or_replay[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_concurrent_same_key_has_one_ack_and_one_busy_or_replay[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_moved_assignee_locks_load_eligibility_only[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_moved_assignee_locks_load_eligibility_only[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_nutri_role_is_assigned_only_with_real_mfa_on_pool1[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_nutri_role_is_assigned_only_with_real_mfa_on_pool1[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_other_real_mfa_owner_gets_foreign_missing_opaque_denial[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_other_real_mfa_owner_gets_foreign_missing_opaque_denial[web.main_web]",
+        "status": "PASS"
+      }
+    ],
+    "counts": {
+      "PASS": 14
+    },
+    "packages": 92,
+    "pip_after": 0,
+    "pip_before": 0,
+    "quiet": true,
+    "raw_xml_sha256": "c2525b41f7309823a65b769b0b5438ffc2a84f74eddd6681f3173a5f2dc9822c",
+    "receipt": {
+      "exit_code": 0,
+      "mode": "services-projection",
+      "own_databases_all_absent": true,
+      "package_count": 92,
+      "pip_after": 0,
+      "pip_before": 0,
+      "quiet": true,
+      "schema_target_pg_sha256": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880",
+      "seconds": 56.50408339500427,
+      "source_count": 1070
+    },
+    "source_count": 1070
+  },
+  "services-tail-after": {
+    "after_sha256": "851c3d17b0f2dcc673f4e0facdebbb3d9ed7b3f0e879f48a731b8ac107d6a712",
+    "before_sha256": "851c3d17b0f2dcc673f4e0facdebbb3d9ed7b3f0e879f48a731b8ac107d6a712",
+    "cases": [
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_source_changes_after_service_snapshot_are_denied_by_actual_trigger[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_source_changes_after_service_snapshot_are_denied_by_actual_trigger[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_concurrent_same_key_has_one_ack_and_one_busy_or_replay[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_postgres",
+        "name": "test_concurrent_same_key_has_one_ack_and_one_busy_or_replay[web.main_web]",
+        "status": "PASS"
+      }
+    ],
+    "counts": {
+      "PASS": 4
+    },
+    "packages": 92,
+    "pip_after": 0,
+    "pip_before": 0,
+    "quiet": true,
+    "raw_xml_sha256": "2e62c896bd8c6545b66de3656dd8c5169f0efaf2dbdaf15362d1d2b57c972a8c",
+    "receipt": {
+      "exit_code": 0,
+      "mode": "services-tail",
+      "own_databases_all_absent": true,
+      "package_count": 92,
+      "pip_after": 0,
+      "pip_before": 0,
+      "quiet": true,
+      "schema_target_pg_sha256": "a33dfac87bf379975bbcbfcbb733bc7bd978b7ce122c596d2a8d8710efd14880",
+      "seconds": 26.498791694641113,
+      "source_count": 1069
+    },
+    "source_count": 1069
+  },
+  "sqlite-final34": {
+    "after_sha256": "205704485c4a81531837de8485efd043c4157f34a1ea177acd2bad90a2b53031",
+    "before_sha256": "205704485c4a81531837de8485efd043c4157f34a1ea177acd2bad90a2b53031",
+    "cases": [
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_full_mfa_context_and_create_edit_complete_history_replay[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_full_mfa_context_and_create_edit_complete_history_replay[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_same_key_different_body_stale_cas_and_duplicate_open_do_not_write[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_same_key_different_body_stale_cas_and_duplicate_open_do_not_write[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_nutri_only_its_assigned_scope_no_stats_or_management[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_nutri_only_its_assigned_scope_no_stats_or_management[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_moved_assignee_and_actor_history_never_discloses_new_context_name[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_moved_assignee_and_actor_history_never_discloses_new_context_name[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_read_has_no_dml_or_commit_and_stats_evidence_is_server_generated[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_http",
+        "name": "test_read_has_no_dml_or_commit_and_stats_evidence_is_server_generated[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_strict_stream_duplicate_keys_utf8_bools_and_body_limit[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_strict_stream_duplicate_keys_utf8_bools_and_body_limit[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_validation_methods_redirect_errors_and_adjacent_paths_remain_separate[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_validation_methods_redirect_errors_and_adjacent_paths_remain_separate[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_commit_failure_never_publishes_ack_and_explicit_replay_is_one_operation[api.app-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_commit_failure_never_publishes_ack_and_explicit_replay_is_one_operation[api.app-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_commit_failure_never_publishes_ack_and_explicit_replay_is_one_operation[web.main_web-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_commit_failure_never_publishes_ack_and_explicit_replay_is_one_operation[web.main_web-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_owned_session_cleanup_failure_is_visible_before_headers[api.app-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_owned_session_cleanup_failure_is_visible_before_headers[api.app-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_owned_session_cleanup_failure_is_visible_before_headers[web.main_web-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_owned_session_cleanup_failure_is_visible_before_headers[web.main_web-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_generic_outer_500_is_opaque_and_private[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_generic_outer_500_is_opaque_and_private[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_no_auth_is_private_without_broadening_primary_login_page[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_no_auth_is_private_without_broadening_primary_login_page[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_early_local_bucket_429_is_private_before_route_execution[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_early_local_bucket_429_is_private_before_route_execution[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_read_failure_is_visible_unavailable_never_successful_zero_metrics[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_boundaries",
+        "name": "test_read_failure_is_visible_unavailable_never_successful_zero_metrics[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_evidence_hash_does_not_move_with_observation_clock_but_tracks_relevant_facts",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_range_uses_mexico_civil_day_not_environment_timezone",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_civil_date_never_accepts_epoch_or_datetime[0_0]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_civil_date_never_accepts_epoch_or_datetime[True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_civil_date_never_accepts_epoch_or_datetime[0_1]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_civil_date_never_accepts_epoch_or_datetime[2026-1-01]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_civil_date_never_accepts_epoch_or_datetime[2026-02-30]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_civil_date_never_accepts_epoch_or_datetime[2026-10-19T00:00:00Z]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_cursor_roundtrip_is_strict_and_not_an_authority_claim",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_edit_rejects_type_coercion_and_untrusted_actor[changes0]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_edit_rejects_type_coercion_and_untrusted_actor[changes1]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_edit_rejects_type_coercion_and_untrusted_actor[changes2]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_edit_rejects_type_coercion_and_untrusted_actor[changes3]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_domain",
+        "name": "test_creation_requires_explicit_null_absence_and_confirm",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_event_atomically_creates_and_advances_exact_projection",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_rewrite_or_delete_cannot_bypass_history[task_update]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_rewrite_or_delete_cannot_bypass_history[task_delete]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_rewrite_or_delete_cannot_bypass_history[event_update]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_rewrite_or_delete_cannot_bypass_history[event_delete]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_invalid_create_has_neither_event_nor_projection[change0]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_invalid_create_has_neither_event_nor_projection[change1]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_invalid_create_has_neither_event_nor_projection[change2]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_invalid_create_has_neither_event_nor_projection[change3]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_invalid_create_has_neither_event_nor_projection[change4]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_invalid_create_has_neither_event_nor_projection[change5]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_terminal_event_is_one_use_and_never_reopens",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_cause_unique_open_and_closed_recurrence_is_explicit",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_request_collision_rolls_back_without_extra_projection",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_noncanonical_keys_or_absent_cause_are_rejected[change0]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_noncanonical_keys_or_absent_cause_are_rejected[change1]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_noncanonical_keys_or_absent_cause_are_rejected[change2]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_mechanisms",
+        "name": "test_direct_noncanonical_keys_or_absent_cause_are_rejected[change3]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_two_identical_explicit_keys_have_one_durable_operation[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_two_identical_explicit_keys_have_one_durable_operation[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_concurrent_edit_and_complete_have_one_cas_winner[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_concurrent_edit_and_complete_have_one_cas_winner[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_new_plan_invalidates_observed_no_plan_cause_without_creating_task[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_new_plan_invalidates_observed_no_plan_cause_without_creating_task[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_other_canonical_owner_gets_identical_foreign_missing_denial[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_races",
+        "name": "test_other_canonical_owner_gets_identical_foreign_missing_denial[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_exact33_rows_upgrade_repeat_and_empty34_downgrade[sqlite-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_exact33_rows_upgrade_repeat_and_empty34_downgrade[sqlite-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_predecessor_drift_refuses_any34_ddl[sqlite]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_mid34_install_failure_rolls_back_both_tables[sqlite]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.integration_followup34_migrations",
+        "name": "test_nonempty_history_refuses_destructive_downgrade[sqlite]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_client_ssr_privacy",
+        "name": "test_client_task_shell_route_shape_is_private_on_every_method[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_client_ssr_privacy",
+        "name": "test_client_task_shell_route_shape_is_private_on_every_method[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[api.app-integrity-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[api.app-schema_plain-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[api.app-schema_blocked-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[api.app-integrity-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[api.app-schema_blocked-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[web.main_web-integrity-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[web.main_web-schema_plain-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[web.main_web-schema_blocked-False]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[web.main_web-integrity-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_unknown_SQL_failure_never_claims_an_ordinary_conflict[web.main_web-schema_blocked-True]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_actual_SQLite_BUSY_is_a_conflict_without_partial_operation[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_sql_error_classification",
+        "name": "test_actual_SQLite_BUSY_is_a_conflict_without_partial_operation[web.main_web]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_lock_projection",
+        "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[api.app]",
+        "status": "PASS"
+      },
+      {
+        "class": "tests.test_followup34_lock_projection",
+        "name": "test_moved_assignee_lock_never_fetches_other_context_contact_fields[web.main_web]",
+        "status": "PASS"
+      }
+    ],
+    "counts": {
+      "PASS": 91
+    },
+    "packages": 92,
+    "pip_after": 0,
+    "pip_before": 0,
+    "quiet": true,
+    "raw_xml_sha256": "eb5333665b29663f68fdd6a1c119a64fddd7e2a2a018f4a19d411799d29715d2",
+    "receipt": {
+      "duration_seconds": 181.10849595069885,
+      "exit_code": 0,
+      "head_after": "81f19009df3ba7b34872cedde68a98d42f99cbb9",
+      "head_before": "81f19009df3ba7b34872cedde68a98d42f99cbb9",
+      "package_count": 92,
+      "pip_after": 0,
+      "pip_before": 0,
+      "quiet": true,
+      "scope": "91 directed current34 SQLite cases expected (75 original + 2 ROOT exact-shell + 12 typed-error + 2 lock-projection); PostgreSQL deselected; no PostgreSQL connection or config read",
+      "source_count": 1070
+    },
+    "source_count": 1070
+  }
+}
