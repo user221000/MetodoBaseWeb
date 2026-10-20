@@ -809,6 +809,53 @@ const Api = (() => {
     personalCatalog:handle=>_nutritionRequest('/api/usuario/catalogo-alimentos',null,handle),
   };
 
+  // Own notification36 operations use the existing exact-access RAM fence.
+  // Consent/queue/cancel never request a new MFA grant or refresh a session.
+  let _notificationOperations=new WeakMap();
+  const _notificationPurposes=['account_period_end','confirmed_payment_issue'];
+  function _notificationInvalid(){return _mfaError('notification_invalid_input');}
+  function _notificationFields(value,fields){if(!value||Object.prototype.toString.call(value)!=='[object Object]'||Object.keys(value).length!==fields.length||fields.some(key=>!Object.hasOwn(value,key)))throw _notificationInvalid();}
+  function _notificationVersion(value,zero=false){if(!Number.isSafeInteger(value)||value<(zero?0:1)||value>2147483647)throw _notificationInvalid();}
+  function _notificationContext(value){if(!['gym','personal'].includes(value))throw _notificationInvalid();return value;}
+  function _notificationPurpose(value){if(!_notificationPurposes.includes(value))throw _notificationInvalid();return value;}
+  function _notificationUUID(value){if(typeof value!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value))throw _notificationInvalid();return value;}
+  async function _notificationRequest(path,handle,body=null,method='GET',key=null){
+    const context=_mfaContext(handle);
+    try{const value=await request(method,path,body,key?{'Idempotency-Key':key}:{},true,{snapshot:context.snapshot,pair:context.pair});_mfaContext(handle);return value;}
+    catch(error){_mfaContext(handle);throw error;}
+  }
+  function _notificationPath(context,path){return '/api/notificaciones'+path+'?context='+_notificationContext(context);}
+  const notifications36={
+    check:mfa.check,session:mfa.context,verify:mfa.verify,
+    context:(context,handle)=>_notificationRequest(_notificationPath(context,'/contexto'),handle),
+    preferences:(context,handle)=>_notificationRequest(_notificationPath(context,'/preferencias'),handle),
+    candidates:(context,handle)=>_notificationRequest(_notificationPath(context,'/candidatos'),handle),
+    outbox:(context,handle,after=null)=>_notificationRequest(_notificationPath(context,'/outbox')+'&limit=20'+(after===null?'':'&after='+_notificationUUID(after)),handle),
+    metrics:(context,handle,range=null)=>{
+      const params=new URLSearchParams();if(range!==null){_notificationFields(range,['from','through']);try{_progressRange(params,range);}catch{throw _notificationInvalid();}}
+      return _notificationRequest(_notificationPath(context,'/metricas')+(params.size?'&'+params:''),handle);
+    },
+    operation(kind,context,target,body,handle){
+      _mfaContext(handle);let path,method;
+      if(kind==='preference'){
+        path='/preferencias/'+_notificationPurpose(target);method='PUT';_notificationFields(body,['expected_version','enabled','interval_hours','confirm']);
+        _notificationVersion(body.expected_version,true);if(typeof body.enabled!=='boolean'||![24,72,168].includes(body.interval_hours))throw _notificationInvalid();
+      }else if(kind==='observe'){if(target!==null)throw _notificationInvalid();path='/observar';method='POST';_notificationFields(body,[]);}
+      else if(kind==='queue'){
+        if(target!==null)throw _notificationInvalid();path='/outbox';method='POST';_notificationFields(body,['purpose','preference_id','expected_preference_version','fact_id','source_hash','confirm']);
+        _notificationPurpose(body.purpose);_notificationUUID(body.preference_id);_notificationUUID(body.fact_id);_notificationVersion(body.expected_preference_version);
+        if(typeof body.source_hash!=='string'||!/^[0-9a-f]{64}$/.test(body.source_hash))throw _notificationInvalid();
+      }else if(kind==='cancel'){path='/outbox/'+_notificationUUID(target)+'/cancelar';method='POST';_notificationFields(body,['expected_version','confirm']);_notificationVersion(body.expected_version);}
+      else throw _notificationInvalid();
+      if(kind!=='observe'&&body.confirm!==true)throw _notificationInvalid();
+      const encoded=JSON.stringify(body);if(new TextEncoder().encode(encoded).byteLength>8192)throw _notificationInvalid();
+      const operation=Object.freeze({kind});_notificationOperations.set(operation,{path:_notificationPath(context,path),method,body:JSON.parse(encoded),key:_notificationUUID(crypto.randomUUID()),handle});return operation;
+    },
+    send(operation){const value=_notificationOperations.get(operation);if(!value)throw _notificationInvalid();_mfaContext(value.handle);return _notificationRequest(value.path,value.handle,value.body,value.method,value.key);},
+    discard(operation){_notificationOperations.delete(operation);},
+  };
+  if(typeof window.addEventListener==='function')for(const event of ['metodobase-session-changed','pagehide'])window.addEventListener(event,()=>{_notificationOperations=new WeakMap();});
+
   const billing = {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
@@ -1182,6 +1229,6 @@ const Api = (() => {
   };
   const session=Object.freeze({get ready(){return _readyPromise;},identity:()=>getToken()&&_metadata?Object.freeze({..._metadata}):null,capture:()=>Object.freeze(_snapshot()),check:context=>{_assertSnapshot(context);},accepted:data=>{const value=_delivered.get(data);if(!value)throw _sessionChanged();_assertPair(value.snapshot,value.pair);return Object.freeze({...value.snapshot});},clientCount:async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/clientes?limite=1',null,{},true,{snapshot,pair});}});
   _readyPromise=_bootstrap();_readyPromise.catch(()=>{});
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, session, getToken, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, session, getToken, clearTokens, saveTokens };
 })();
 
