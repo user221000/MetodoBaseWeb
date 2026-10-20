@@ -1,0 +1,17 @@
+from pathlib import Path
+import hashlib,json,os,subprocess,sys
+ROOT=Path('F:/mb-qa-ci33-20261019');sys.path.insert(0,str(ROOT))
+TEMP=Path(__file__).parent;OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020'
+from tests.ci_google33.run_postgres import private_directory
+private=private_directory(TEMP/'private')
+env=dict(os.environ,PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+for key in list(env):
+    if key.upper().startswith(('PG','METODOBASE_TEST_','_METODOBASE_TEST','CI33_'))or key.upper()=='DATABASE_URL'or key.upper().endswith('_DATABASE_URL'):env.pop(key,None)
+raw=(ROOT/'tests/verify_google33_ci.py').read_bytes();(OUT/'verifier-before.raw.txt').write_bytes(raw)
+argv=[sys.executable,'-X','utf8','-B','tests/verify_google33_ci.py','--verify-only','--output',str(private/'before-guard')]
+result=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True)
+(private/'before-verifier.raw.log').write_bytes(result.stdout+result.stderr)
+assert result.returncode==1 and b'CI33 delta changed product, dependencies or historical targets' in result.stderr
+value={'merge_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip(),'base_MAIN':'d8d828e22634e168f1500b8a38805883d768063f','CI_source':'c86d1a25fcd0b0befcb4b473c4144917122109fb','preserved_proof_commit':'b3d0aaab563fa42ca77e05d65f6c139cb7c3f1d1','merge_clean':True,'verifier_before_exit':result.returncode,'cause':'Old COMMON3587 delta allowlist correctly refuses new reviewed MAIN source/docs; needs explicit composition base and registry v2 binding.','RAW_log_SHA256':hashlib.sha256((private/'before-verifier.raw.log').read_bytes()).hexdigest(),'original_verifier_RAW_SHA256':hashlib.sha256(raw).hexdigest(),'new_PG_or_Chrome':False,'no_FULL902_or_PG240_rerun':True}
+(OUT/'before-composition-receipt.json').write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
+print(json.dumps(value))

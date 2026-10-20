@@ -1,0 +1,79 @@
+Display projection only, not an applyable patch. RAW private hash is recorded separately.
+diff --git a/tests/verify_google33_ci.py b/tests/verify_google33_ci.py
+index f52aa4b7..85a7a4e4 100644
+--- a/tests/verify_google33_ci.py
++++ b/tests/verify_google33_ci.py
+@@ -20,6 +20,10 @@ from pathlib import Path
+ ROOT = Path(__file__).resolve().parents[1]
+ sys.path.insert(0, str(ROOT))
+ REPORT_CHECKER_SHA256 = '8e2a207bb859c1eb9d162cf74c58582a529c28346ee1f62b5561d440f7dbcd43'
++COMPOSITION_BASE_COMMIT = 'd8d828e22634e168f1500b8a38805883d768063f'
++R05_MODULE_LF_SHA256 = '833be93b2ed4b8e48a093591844eea68d504a138e50a97c1bd9b62f843aa9ae2'
++R05_V2_DATA_PATH = 'scripts/data/reviewed_scan_locations_v2.zip'
++R05_V2_DATA_RAW_SHA256 = 'c5ebf029fad80a13b36fb27e5ffd676a1a8234208f25328c4c2c2246ca680d91'
+ TRUSTED_SOURCES = {
+     "tests/check_google33_r05.py": "944d15f6e552531c8402b8fed4a367a515758ff81b397d5ab312183be59fad3d",
+     "tests/check_google33_reports.py": "8e2a207bb859c1eb9d162cf74c58582a529c28346ee1f62b5561d440f7dbcd43",
+@@ -162,6 +166,38 @@ def git_source(revision, name):
+     return subprocess.check_output(['git', '--no-replace-objects', 'show', revision + ':' + name], cwd=ROOT).replace(b'\r\n', b'\n')
+
+
++def verify_reviewed_registry_v2():
++    """Bind the accepted MAIN registry without treating its focal tests as a scan."""
++    result = subprocess.run(['git', '--no-replace-objects', 'merge-base', '--is-ancestor',
++        COMPOSITION_BASE_COMMIT, 'HEAD'], cwd=ROOT, capture_output=True, check=False)
++    require(result.returncode == 0, 'Reviewed MAIN composition base is not an ancestor')
++    module_name = 'scripts/reviewed_scan_locations.py'
++    for name, expected, text_source in [(module_name, R05_MODULE_LF_SHA256, True),
++            (R05_V2_DATA_PATH, R05_V2_DATA_RAW_SHA256, False)]:
++        path = ROOT / name
++        require(path.is_file() and not path.is_symlink() and path.resolve() == path.absolute(),
++                'Reviewed registry source is missing or aliased')
++        current = path.read_bytes()
++        accepted = subprocess.check_output(['git', '--no-replace-objects', 'show',
++            COMPOSITION_BASE_COMMIT + ':' + name], cwd=ROOT)
++        if text_source:
++            current = current.replace(b'\r\n', b'\n')
++            accepted = accepted.replace(b'\r\n', b'\n')
++        require(hashlib.sha256(current).hexdigest() == expected
++                and hashlib.sha256(accepted).hexdigest() == expected,
++                'Reviewed registry v2 differs from its accepted complete source bytes')
++    assignments = {}
++    for node in ast.parse(normalized(ROOT / module_name)).body:
++        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
++            if node.targets[0].id in {'_REVIEW_DATA_PATH', '_REVIEW_DATA_DIGEST'}:
++                assignments[node.targets[0].id] = ast.literal_eval(node.value)
++    require(assignments == {'_REVIEW_DATA_PATH': R05_V2_DATA_PATH,
++            '_REVIEW_DATA_DIGEST': R05_V2_DATA_RAW_SHA256}, 'Reviewed registry data binding differs')
++    return {'version': 2, 'composition_base': COMPOSITION_BASE_COMMIT,
++            'module_LF_SHA256': R05_MODULE_LF_SHA256, 'data_RAW_SHA256': R05_V2_DATA_RAW_SHA256,
++            'global_secret_scan_claimed': False}
++
++
+ def functions(raw):
+     return {n.name: n for n in ast.parse(raw).body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+
+@@ -218,8 +254,11 @@ def verify_current_sources():
+         require(hashlib.sha256(normalized(ROOT / name)).hexdigest() == receipt['normalized_sha256']
+                 and hashlib.sha256(git_source(receipt['source_commit'], name)).hexdigest() == receipt['raw_git_sha256'],
+                 'An approved ROOT import changed')
+-    changed = subprocess.check_output(['git', 'diff', '--name-only', '3587b3b3eee3a58367624472d7c0683baa8f10e0'], cwd=ROOT).decode().splitlines()
+-    require(all(name.startswith(('tests/', 'docs/implementation/20261018-evolution/evidence/qa-ci33-'))
++    registry = verify_reviewed_registry_v2()
++    # Product/dependency drift is separate from the complete R05 documentation scan.
++    changed = subprocess.check_output(['git', '--no-replace-objects', 'diff', '--name-only',
++        COMPOSITION_BASE_COMMIT, '--', '.', ':(exclude)docs/**'], cwd=ROOT).decode().splitlines()
++    require(all(name.startswith('tests/')
+                 or name == '.github/workflows/ci.yml' or name in imports for name in changed), 'CI33 delta changed product, dependencies or historical targets')
+     assertions = verify_contract_mappings()
+     from tests.isolation import block_external_sockets, prepare_environment
+@@ -230,7 +269,8 @@ def verify_current_sources():
+     require(expected_head() == '20261019_google_subjects' and len(Base.metadata.tables) == 35, 'Current33 source ORM/revision differs')
+     return {'immutable_CI30_helpers': len(baseline['helpers23_sha256']), 'adapter_inverse_frames': 35,
+             'current_source_revision': expected_head(), 'ORM_tables_source_only': 35,
+-            'Google_original_assertions': assertions, 'PostgreSQL_executed': False}
++            'Google_original_assertions': assertions, 'PostgreSQL_executed': False,
++            'reviewed_registry': registry}
+
+
+ def main():

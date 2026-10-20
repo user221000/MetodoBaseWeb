@@ -1,0 +1,96 @@
+{
+  "source_head": "5063a47e4e022cbad22fc71557dc4890b281e998",
+  "commands": [
+    {
+      "label": "pip-before",
+      "exit": 0,
+      "seconds": 0.8910000000032596,
+      "argv": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-google33-author-aamidzkr\\venv\\Scripts\\python.exe",
+        "-m",
+        "pip",
+        "check"
+      ]
+    },
+    {
+      "label": "verifier-after",
+      "exit": 0,
+      "seconds": 33.17200000002049,
+      "argv": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-google33-author-aamidzkr\\venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/verify_google33_ci.py",
+        "--verify-only",
+        "--output",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci33-main-r05v2-composition-20261020\\private\\verifier-after"
+      ]
+    },
+    {
+      "label": "R05-110",
+      "exit": 0,
+      "seconds": 5.311999999976251,
+      "argv": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-google33-author-aamidzkr\\venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/run_isolated.py",
+        "tests/test_secret_scan_reviewed_locations.py",
+        "tests/test_secret_scan_fragment_pins.py",
+        "tests/test_secret_scan_safety.py",
+        "-q",
+        "--tb=short",
+        "--basetemp=C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci33-main-r05v2-composition-20261020\\private\\R05-data",
+        "--junitxml=C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci33-main-r05v2-composition-20261020\\private\\R05-full110.xml"
+      ]
+    },
+    {
+      "label": "R05-checker",
+      "exit": 0,
+      "seconds": 0.14100000000325963,
+      "argv": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-google33-author-aamidzkr\\venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tests/check_google33_r05.py",
+        "--report",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci33-main-r05v2-composition-20261020\\private\\R05-full110.xml"
+      ]
+    },
+    {
+      "label": "binding-controls",
+      "exit": 0,
+      "seconds": 1.5929999999934807,
+      "argv": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-google33-author-aamidzkr\\venv\\Scripts\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-ci33-main-r05v2-composition-20261020\\probe_binding.py"
+      ]
+    },
+    {
+      "label": "pip-after",
+      "exit": 0,
+      "seconds": 0.75,
+      "argv": [
+        "C:\\Users\\Consu\\AppData\\Local\\Temp\\metodobase-google33-author-aamidzkr\\venv\\Scripts\\python.exe",
+        "-m",
+        "pip",
+        "check"
+      ]
+    }
+  ],
+  "before_after_exact": true,
+  "sources": 1115,
+  "distributions": 92,
+  "installed_files": 8084,
+  "PG_cases": 0,
+  "Chrome": false,
+  "FULL902_reexecuted": false,
+  "PG240_reexecuted": false,
+  "R05_original_110_only": true
+}

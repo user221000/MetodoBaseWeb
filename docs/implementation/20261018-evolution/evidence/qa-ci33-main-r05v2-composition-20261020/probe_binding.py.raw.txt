@@ -1,0 +1,50 @@
+"""Independent finite binding controls, with no source writes or services."""
+from pathlib import Path
+from unittest.mock import patch
+import hashlib,json,subprocess,sys
+ROOT=Path('F:/mb-qa-ci33-20261019');sys.path.insert(0,str(ROOT))
+OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020'
+from tests import verify_google33_ci as gate
+DATA=(ROOT/gate.R05_V2_DATA_PATH).resolve();MODULE=(ROOT/'scripts/reviewed_scan_locations.py').resolve()
+original=Path.read_bytes;good=original(DATA);rows=[]
+def attempt(label,substitutions=None,ancestor=None,expect=False):
+    def read(path):return (substitutions or {}).get(path.resolve(),original(path))
+    failure=None;result=None
+    with patch.object(Path,'read_bytes',read):
+        try:
+            if ancestor is None:result=gate.verify_reviewed_registry_v2()
+            else:
+                with patch.object(gate,'COMPOSITION_BASE_COMMIT',ancestor):result=gate.verify_reviewed_registry_v2()
+        except ValueError as exc:failure=str(exc)
+    assert (failure is None)==expect,(label,failure)
+    rows.append({'case':label,'expected_accept':expect,'accepted':failure is None,'passed':True,'rejection':failure})
+attempt('actual_v2_and_exact_MAIN_ancestry',expect=True)
+v1=(ROOT/'scripts/data/reviewed_scan_locations_v1.zip').read_bytes()
+old_module=subprocess.check_output(['git','show','c86d1a25fcd0b0befcb4b473c4144917122109fb:scripts/reviewed_scan_locations.py'],cwd=ROOT)
+attempt('v1_archive_substitution',{DATA:v1})
+attempt('paired_v1_module_and_archive_substitution',{DATA:v1,MODULE:old_module})
+attempt('appended_archive_bytes',{DATA:good+b'\x00'})
+attempt('single_archive_bit_changed',{DATA:bytes([good[0]^1])+good[1:]})
+assert b'\r\n'in good,'Binary normalization control needs actual CRLF bytes'
+attempt('raw_ZIP_CRLF_normalized_must_reject',{DATA:good.replace(b'\r\n',b'\n')})
+attempt('old_c86_ancestry_is_not_accepted_MAIN_binding',ancestor='c86d1a25fcd0b0befcb4b473c4144917122109fb')
+attempt('nonexistent_ancestry_ref',ancestor='0'*40)
+old_symlink=Path.is_symlink
+with patch.object(Path,'is_symlink',lambda path:path.resolve()==DATA or old_symlink(path)):
+    try:gate.verify_reviewed_registry_v2()
+    except ValueError:rows.append({'case':'aliased_registry_data_rejected','passed':True})
+    else:raise AssertionError('Aliased data accepted')
+from tests.check_google33_reports import required_reports
+for schema,expected_reports,expected_cases in [('33',20,240),('32',5,38)]:
+    required=required_reports(schema);assert len(required)==expected_reports and sum(map(len,required.values()))==expected_cases
+preserved=['tests/check_google33_r05.py','tests/ci_google33/r05-critical49.json','tests/ci_google33/r05-full110.json','tests/ci_google33/current33-report-nodeids.json','tests/ci_google33/historical32-report-nodeids.json','tests/check_google33_reports.py','tests/ci_google33/workflow.py','.github/workflows/ci.yml']
+bindings={}
+for name in preserved:
+    old=subprocess.check_output(['git','show','c86d1a25fcd0b0befcb4b473c4144917122109fb:'+name],cwd=ROOT)
+    now=(ROOT/name).read_bytes().replace(b'\r\n',b'\n');assert old.replace(b'\r\n',b'\n')==now
+    bindings[name]=hashlib.sha256(now).hexdigest()
+for name in ['tests/test_secret_scan_reviewed_locations.py','tests/test_secret_scan_fragment_pins.py','tests/test_secret_scan_safety.py']:
+    old=subprocess.check_output(['git','show','d8d828e22634e168f1500b8a38805883d768063f:'+name],cwd=ROOT)
+    assert old.replace(b'\r\n',b'\n')==(ROOT/name).read_bytes().replace(b'\r\n',b'\n')
+(OUT/'binding-controls.json').write_text(json.dumps({'cases':rows,'passed':len(rows),'actual_archive_CRLF_sequences':good.count(b'\r\n'),'unchanged_criteria_oracles_checker_recipe_and_workflow':bindings,'current33_reports_IDs':[20,240],'historical32_reports_IDs':[5,38],'no_PG_Chrome_or_business_requests':True,'global_scan_remains_separate_and_blocking':True},indent=2)+'\n',encoding='utf8')
+print(json.dumps({'binding_controls_passed':len(rows),'oracles_preserved':len(bindings),'PG_cases_executed':0}))

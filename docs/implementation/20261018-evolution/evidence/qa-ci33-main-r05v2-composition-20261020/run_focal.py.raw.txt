@@ -1,0 +1,34 @@
+"""Freeze composed sources then only verify-only/R05 full110 and binding controls."""
+from pathlib import Path
+import hashlib,json,os,subprocess,sys,time
+ROOT=Path('F:/mb-qa-ci33-20261019');sys.path.insert(0,str(ROOT));os.chdir(ROOT)
+TEMP=Path(__file__).parent;PRIVATE=TEMP/'private';OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020'
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+from tests.ci_google33.run_postgres import photo
+CONF=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json')
+config=json.loads(CONF.read_text(encoding='utf-8-sig'));pg_bin=Path(config['METODOBASE_TEST_PG_BIN'])
+env=dict(os.environ,PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+for key in list(env):
+    upper=key.upper()
+    if upper=='DATABASE_URL'or upper.endswith('_DATABASE_URL')or upper.startswith(('PG','METODOBASE_TEST_','_METODOBASE_TEST','CI33_','AWS_','S3_'))or any(part in upper for part in ['STRIPE','MERCADOPAGO','RESEND','SMTP','SENTRY','GOOGLE_CLIENT','OPENAI_API']):env.pop(key,None)
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip()
+before=photo(ROOT,pg_bin);helpers={p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')}
+assert len(before['packages'])==92
+(OUT/'before.json').write_text(json.dumps(before,indent=2)+'\n')
+def run(label,argv):
+    start=time.monotonic()
+    with (PRIVATE/(label+'.raw.log')).open('xb')as raw:p=subprocess.run(argv,cwd=ROOT,env=env,stdout=raw,stderr=subprocess.STDOUT)
+    result={'label':label,'exit':p.returncode,'seconds':time.monotonic()-start,'argv':argv}
+    print(json.dumps({'label':label,'exit':p.returncode}),flush=True)
+    return result
+rows=[]
+rows.append(run('pip-before',[sys.executable,'-m','pip','check']));assert rows[-1]['exit']==0
+rows.append(run('verifier-after',[sys.executable,'-X','utf8','-B','tests/verify_google33_ci.py','--verify-only','--output',str(PRIVATE/'verifier-after')]));assert rows[-1]['exit']==0
+rows.append(run('R05-110',[sys.executable,'-X','utf8','-B','tests/run_isolated.py','tests/test_secret_scan_reviewed_locations.py','tests/test_secret_scan_fragment_pins.py','tests/test_secret_scan_safety.py','-q','--tb=short','--basetemp='+str(PRIVATE/'R05-data'),'--junitxml='+str(PRIVATE/'R05-full110.xml')]));assert rows[-1]['exit']==0
+rows.append(run('R05-checker',[sys.executable,'-X','utf8','-B','tests/check_google33_r05.py','--report',str(PRIVATE/'R05-full110.xml')]));assert rows[-1]['exit']==0
+rows.append(run('binding-controls',[sys.executable,'-X','utf8','-B',str(TEMP/'probe_binding.py')]));assert rows[-1]['exit']==0
+after=photo(ROOT,pg_bin);assert before==after and helpers=={p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')}
+(OUT/'after.json').write_text(json.dumps(after,indent=2)+'\n')
+rows.append(run('pip-after',[sys.executable,'-m','pip','check']));assert rows[-1]['exit']==0
+(OUT/'execution-summary.json').write_text(json.dumps({'source_head':head,'commands':rows,'before_after_exact':True,'sources':len(before['sources']),'distributions':len(before['packages']),'installed_files':sum(p['installed_files']for p in before['packages']),'PG_cases':0,'Chrome':False,'FULL902_reexecuted':False,'PG240_reexecuted':False,'R05_original_110_only':True},indent=2)+'\n')
+print(json.dumps({'complete':True,'source_head':head,'R05_passed':110,'no_PG':True,'before_after_quiet':True}),flush=True)

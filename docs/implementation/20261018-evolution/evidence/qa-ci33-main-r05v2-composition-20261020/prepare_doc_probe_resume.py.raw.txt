@@ -1,0 +1,13 @@
+from pathlib import Path
+import hashlib,json
+TEMP=Path(__file__).parent
+OUT=Path('F:/mb-qa-ci33-20261019/docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020')
+raw=(TEMP/'doc_scope_controls.py').read_bytes();(OUT/'doc-scope-probe-v1.raw.txt').write_bytes(raw)
+text=raw.decode();old="results=[check('tracked_doc_delta_new_source_guard_accepts',True)]"
+new="prior=(PRIVATE/'tracked_doc_delta_new_source_guard_accepts.raw.log').read_bytes(); observed=json.loads(prior.splitlines()[0]); assert observed['accepted']is True; results=[{'case':'tracked_doc_delta_new_source_guard_accepts','accepted':True,'expected_accept':True,'passed':True,'prior_RAW_SHA256':SHA(prior),'reused_original_run_not_reexecuted':True}]"
+assert text.count(old)==1
+text=text.replace(old,new).replace('alembic/targets/20261019_google_subjects_postgresql.json','alembic/schema_targets/20261019_google_subjects_postgresql.json').replace("'documentation-source-guard-'+opt.phase+'.json'","'documentation-source-guard-'+opt.phase+'-resume.json'")
+(TEMP/'doc_scope_controls_v2.py').write_text(text,encoding='utf8')
+value={'failure':'Own probe assumed targets/ instead of maintained schema_targets/ before its three negative controls; no product test failed.','original_driver_SHA256':hashlib.sha256(raw).hexdigest(),'document_positive_already_passed_and_RAW_preserved':True,'new_controls_only':3,'additional_tool_preparation_errors':['PowerShell rejected an inline Python quoting command before Python executed; no writes.','Attempt to invoke the not-yet-created v2 script failed before execution.'],'tool_error_RAW':'Only conversation tool results exist; no invented on-disk RAW logs.'}
+(OUT/'doc-scope-preparation-refusal.json').write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
+print('Resume prepared; original positive is not rerun')

@@ -1,0 +1,31 @@
+"""Only verifier on final MAIN132 composition; do not rerun R05 or PG."""
+from pathlib import Path
+import hashlib,json,os,subprocess,sys
+ROOT=Path('F:/mb-qa-ci33-20261019');sys.path.insert(0,str(ROOT))
+TEMP=Path(__file__).parent;PRIVATE=TEMP/'private';OUT=ROOT/'docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020'
+from tests.ci_google33.run_postgres import photo
+cfg=json.loads(Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json').read_text(encoding='utf-8-sig'))
+env=dict(os.environ,PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+for key in list(env):
+    if key.upper()=='DATABASE_URL'or key.upper().endswith('_DATABASE_URL')or key.upper().startswith(('PG','METODOBASE_TEST_','_METODOBASE_TEST','CI33_')):env.pop(key,None)
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+before=photo(ROOT,Path(cfg['METODOBASE_TEST_PG_BIN']));helpers={p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')}
+(OUT/'final-before.json').write_text(json.dumps(before,indent=2)+'\n')
+argv=[sys.executable,'-X','utf8','-B','tests/verify_google33_ci.py','--verify-only','--output',str(PRIVATE/'verifier-final')]
+with (PRIVATE/'verifier-final.raw.log').open('xb')as raw:result=subprocess.run(argv,cwd=ROOT,env=env,stdout=raw,stderr=subprocess.STDOUT)
+assert result.returncode==0,'Final verifier failed; original RAW retained'
+after=photo(ROOT,Path(cfg['METODOBASE_TEST_PG_BIN']));assert before==after and helpers=={p.name:SHA(p.read_bytes())for p in TEMP.glob('*.py')}
+(OUT/'final-after.json').write_text(json.dumps(after,indent=2)+'\n')
+main='0cff974332a2527149acf3cff7b7462fd0f91e85';head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip()
+product=subprocess.check_output(['git','diff','--name-only',main,head,'--','web','api','core','config','scripts','requirements*.lock'],cwd=ROOT).decode().splitlines();assert product==[]
+proof=json.loads((ROOT/'docs/implementation/20261018-evolution/evidence/qa-ci33-c86-source-binding-independent-20261019/full-source-delta82.json').read_bytes())
+preserved=[]
+for row in proof['rows']:
+    if row['after']is None:continue
+    name=row['after_path'];data=subprocess.check_output(['git','show',head+':'+name],cwd=ROOT)
+    if name=='tests/verify_google33_ci.py':continue
+    assert SHA(data)==row['after']['SHA256'];preserved.append(name)
+assert len(preserved)==81
+locks=[name for name in before['sources']if name.endswith('.lock')and'node_modules'not in name];assert len(locks)==8
+(OUT/'final-source-preservation.json').write_text(json.dumps({'final_source_head':head,'MAIN132':main,'all_runtime_scripts_requirements_exact_MAIN132':True,'unchanged_c86_delta_files':preserved,'unchanged_c86_count':81,'only_c86_source_adjusted':'tests/verify_google33_ci.py','complete_82_source_inventory_retained':True,'locks8':{name:before['sources'][name]for name in locks},'final_before_after_exact':True,'source_count':len(before['sources']),'distributions':len(before['packages']),'installed_files':sum(p['installed_files']for p in before['packages']),'PG_or_Chrome':False,'R05_110_source_scope':'Actual run on5063; final verifier-only change affects docs/source boundary, all R05 business code/tests/oracles exact. No110/902/240 rerun.'},indent=2)+'\n')
+print(json.dumps({'final_source_head':head,'verifier_exit':0,'c86_sources_preserved':81,'R05_110_rerun':False,'PG':False,'sources_quiet':True}))

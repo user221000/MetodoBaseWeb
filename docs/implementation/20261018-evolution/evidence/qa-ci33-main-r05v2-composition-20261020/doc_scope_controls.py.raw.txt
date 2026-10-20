@@ -1,0 +1,37 @@
+"""Real tracked doc/product/lock/target deltas in a separate disposable WT."""
+from pathlib import Path
+import argparse,hashlib,json,os,subprocess,sys
+args=argparse.ArgumentParser();args.add_argument('--phase',choices=['before','after'],required=True);opt=args.parse_args()
+ROOT=Path('F:/mb-qa-ci33-doc-guard-probe-20261020');SOURCE=Path('F:/mb-qa-ci33-20261019')
+TEMP=Path(__file__).parent;PRIVATE=TEMP/'private';OUT=SOURCE/'docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020'
+SHA=lambda b:hashlib.sha256(b).hexdigest()
+env=dict(os.environ,PYTHONUTF8='1',PYTHONDONTWRITEBYTECODE='1',PYTHON_DOTENV_DISABLED='1')
+for key in list(env):
+    if key.upper()=='DATABASE_URL'or key.upper().endswith('_DATABASE_URL')or key.upper().startswith(('PG','METODOBASE_TEST_','_METODOBASE_TEST','CI33_')):env.pop(key,None)
+def check(label,expected):
+    code="import sys,json; from pathlib import Path; sys.path.insert(0,str(Path.cwd())); from tests import verify_google33_ci as gate; result={};\ntry:\n result={'accepted':True,'source':gate.verify_current_sources()}\nexcept ValueError as exc:\n result={'accepted':False,'error':str(exc)}\nprint(json.dumps(result))"
+    run=subprocess.run([sys.executable,'-X','utf8','-B','-c',code],cwd=ROOT,env=env,capture_output=True)
+    (PRIVATE/(label+'.raw.log')).write_bytes(run.stdout+run.stderr);assert run.returncode==0
+    result=json.loads(run.stdout);assert result['accepted']is expected,(label,result)
+    return {'case':label,'accepted':result['accepted'],'expected_accept':expected,'passed':True,'rejection':result.get('error'),'RAW_log_SHA256':SHA(run.stdout+run.stderr)}
+doc=ROOT/'docs/implementation/20261018-evolution/ESTADO.md'
+if opt.phase=='before':
+    original=doc.read_bytes();assert b'own QA future checkpoint documentation guard probe'not in original
+    doc.write_bytes(original+b'\n<!-- own QA future checkpoint documentation guard probe -->\n')
+    result=check('tracked_doc_delta_old_guard_rejects',False)
+    data={'phase':'before','probe_worktree':str(ROOT),'source_commit':'5063a47e4e022cbad22fc71557dc4890b281e998','tracked_document':str(doc.relative_to(ROOT)),'original_RAW_SHA256':SHA(original),'probe_RAW_SHA256':SHA(doc.read_bytes()),'result':result,'only_separate_probe_WT_modified':True}
+else:
+    (ROOT/'tests/verify_google33_ci.py').write_bytes((SOURCE/'tests/verify_google33_ci.py').read_bytes())
+    results=[check('tracked_doc_delta_new_source_guard_accepts',True)]
+    names=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
+    lock=next(name for name in names if name.endswith('.lock')and not name.startswith('docs/')and'web'in name)
+    target='web/database/alembic/targets/20261019_google_subjects_postgresql.json'
+    assert (ROOT/target).is_file()
+    for label,name in [('product_drift_still_rejected','web/settings.py'),('lock_drift_still_rejected',lock),('historical_current_target_drift_still_rejected',target)]:
+        path=ROOT/name;original=path.read_bytes();path.write_bytes(original+b'\n')
+        try:results.append(check(label,False))
+        finally:path.write_bytes(original)
+        assert path.read_bytes()==original
+    data={'phase':'after','probe_worktree':str(ROOT),'results':results,'PG_or_business_calls':0,'original110_assertions_not_edited':True,'global_R05_docs_scan_unchanged':True,'extra_probe_source_files_restored_exact':True}
+(OUT/('documentation-source-guard-'+opt.phase+'.json')).write_text(json.dumps(data,indent=2)+'\n',encoding='utf8')
+print(json.dumps({'phase':opt.phase,'controls_passed':len(data.get('results',[data.get('result')]))}))

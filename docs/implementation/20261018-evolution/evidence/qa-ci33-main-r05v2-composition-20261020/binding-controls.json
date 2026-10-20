@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "case": "actual_v2_and_exact_MAIN_ancestry",
+      "expected_accept": true,
+      "accepted": true,
+      "passed": true,
+      "rejection": null
+    },
+    {
+      "case": "v1_archive_substitution",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "rejection": "Reviewed registry v2 differs from its accepted complete source bytes"
+    },
+    {
+      "case": "paired_v1_module_and_archive_substitution",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "rejection": "Reviewed registry v2 differs from its accepted complete source bytes"
+    },
+    {
+      "case": "appended_archive_bytes",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "rejection": "Reviewed registry v2 differs from its accepted complete source bytes"
+    },
+    {
+      "case": "single_archive_bit_changed",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "rejection": "Reviewed registry v2 differs from its accepted complete source bytes"
+    },
+    {
+      "case": "raw_ZIP_CRLF_normalized_must_reject",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "rejection": "Reviewed registry v2 differs from its accepted complete source bytes"
+    },
+    {
+      "case": "old_c86_ancestry_is_not_accepted_MAIN_binding",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "rejection": "Reviewed registry v2 differs from its accepted complete source bytes"
+    },
+    {
+      "case": "nonexistent_ancestry_ref",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "rejection": "Reviewed MAIN composition base is not an ancestor"
+    },
+    {
+      "case": "aliased_registry_data_rejected",
+      "passed": true
+    }
+  ],
+  "passed": 9,
+  "actual_archive_CRLF_sequences": 4,
+  "unchanged_criteria_oracles_checker_recipe_and_workflow": {
+    "tests/check_google33_r05.py": "944d15f6e552531c8402b8fed4a367a515758ff81b397d5ab312183be59fad3d",
+    "tests/ci_google33/r05-critical49.json": "945f2ba07ddd6c975c6194130c1ba3435e93bbc449d7b1a724fbac5a9d8638ee",
+    "tests/ci_google33/r05-full110.json": "75f614af3405eae405b658fa385dd310b7de31ad46e31be33b1d852652a4f494",
+    "tests/ci_google33/current33-report-nodeids.json": "bfe56b94eb761db950ef1da66eba4e6e7c175af960ea117e0258256811a8fc0b",
+    "tests/ci_google33/historical32-report-nodeids.json": "4bcfd2d3f323e6aaf8ab944d7de62c1872817b6e1a8e82d809a15528fb8bb5af",
+    "tests/check_google33_reports.py": "8e2a207bb859c1eb9d162cf74c58582a529c28346ee1f62b5561d440f7dbcd43",
+    "tests/ci_google33/workflow.py": "9110aebfdea0ea5f2ff6d6c8bc43825e153fb24bcb0c4507969167efed75bbc2",
+    ".github/workflows/ci.yml": "e7f6b2902cf648cbdbeb0403bdff8a549a0a9cf4026019dd4ebb25c87f5aa168"
+  },
+  "current33_reports_IDs": [
+    20,
+    240
+  ],
+  "historical32_reports_IDs": [
+    5,
+    38
+  ],
+  "no_PG_Chrome_or_business_requests": true,
+  "global_scan_remains_separate_and_blocking": true
+}
