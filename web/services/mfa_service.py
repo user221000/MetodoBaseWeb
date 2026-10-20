@@ -355,6 +355,33 @@ def admit_google_reauthentication(db, expected, *, now=None):
     commit(db)
 
 
+def consume_account_reauthentication(db, expected, access, proof_token, *, code=None, recovery_code=None, now=None):
+    """No COMMIT: caller owns the atomic password mutation and proof use.
+
+    Reuse the existing primary proof and current personal factor. No new MFA
+    purpose, token format, bypass, session pair or separate identity lookup.
+    """
+    configuration()
+    user, identity = lock_actor(db, expected)
+    _require_session_capacity(user)
+    now = instant(now)
+    _locked_access(access, user, identity, now)
+    row = credential(db, user.id)
+    proof = _find_proof(db, proof_token, "reauth", now, user=user, access=access)
+    if row is None or row.generation != proof.generation:
+        fail(400, "mfa_proof_unavailable")
+    if row.enabled_at:
+        verify_factor(db, row, code=code, recovery_code=recovery_code,
+                      purpose="password", now=now, proof=proof)
+    elif code is not None or recovery_code is not None:
+        fail(422, "mfa_invalid_input")
+    proof.consumed_at = now
+    # A pre-change enrollment invitation is also an obsolete security proof.
+    # Keep the active factor/recovery methods intact for the next login.
+    row.pending_id = row.pending_ciphertext = row.pending_expires_at = None
+    return user
+
+
 def enroll(db, expected, access, proof_token, *, code=None, recovery_code=None, now=None):
     key = configuration()
     user, _ = lock_actor(db, expected)

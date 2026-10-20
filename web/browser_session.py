@@ -14,13 +14,16 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 
+from web.account_security_paths import POSTS as ACCOUNT_POSTS
+
 logger = logging.getLogger(__name__)
 HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
 HEADER = "x-metodobase-browser"
 PRIMARY = frozenset({"/api/auth/login", "/api/auth/google", "/api/auth/registro", "/api/auth/accept-invite"})
 REVOKING = frozenset({"/api/auth/mfa/enroll/confirm", "/api/auth/mfa/recovery-codes/regenerate",
-                     "/api/auth/mfa/revoke", "/api/auth/google/link/confirm", "/api/auth/google/link/unlink"})
-COOKIE_POSTS = PRIMARY | REVOKING | frozenset({
+                     "/api/auth/mfa/revoke", "/api/auth/google/link/confirm", "/api/auth/google/link/unlink",
+                     "/api/account/security/password"})
+COOKIE_POSTS = PRIMARY | REVOKING | ACCOUNT_POSTS | frozenset({
     "/api/auth/refresh", "/api/auth/browser/migrate", "/api/auth/browser/logout",
     "/api/auth/mfa/login/verify", "/api/auth/mfa/reauth", "/api/auth/mfa/enroll",
     "/api/auth/mfa/step-up", "/api/auth/google/link/start",

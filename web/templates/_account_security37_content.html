@@ -1,0 +1,32 @@
+<section class="account-security37" data-account-security37 data-login-url="{{ account_login_url }}" data-google-client-id="{{ google_client_id or '' }}" aria-labelledby="account37-title">
+  <h1 id="account37-title">Seguridad de mi cuenta</h1>
+  <p>Confirma tu correo de contacto y cambia tu contraseña con una verificación de identidad vigente.</p>
+  <p data-account37-status role="status" aria-live="polite" aria-atomic="true" tabindex="-1">Consultando el estado de tu cuenta…</p>
+  <button type="button" data-account37-refresh>Consultar estado</button>
+  <section aria-labelledby="account37-contact-title">
+    <h2 id="account37-contact-title">Correo de contacto</h2>
+    <p data-account37-email>Estado aún no disponible.</p>
+    <p>La confirmación acredita control del correo actual. No inicia sesión, no sustituye tu segundo factor ni cambia tu plan.</p>
+    <button type="button" data-account37-email-request disabled>Solicitar enlace de confirmación</button>
+    <p>Solicitarlo reemplaza el enlace anterior. El nuevo enlace dura 30 minutos. La aceptación del proveedor no acredita entrega.</p>
+  </section>
+  <section aria-labelledby="account37-password-title">
+    <h2 id="account37-password-title">Cambiar contraseña</h2>
+    <p data-account37-factor>Consultando el segundo factor…</p>
+    <p id="account37-policy">Usa al menos 12 caracteres y como máximo 72 bytes UTF-8. Al confirmar el cambio se cierran las sesiones anteriores y deberás iniciar sesión de nuevo.</p>
+    <form data-account37-form>
+      <label for="account37-current">Contraseña actual</label><input id="account37-current" data-account37-current type="password" autocomplete="current-password" maxlength="128">
+      <label for="account37-new">Nueva contraseña</label><input id="account37-new" data-account37-new type="password" autocomplete="new-password" aria-describedby="account37-policy" required>
+      <label for="account37-confirm">Repite la nueva contraseña</label><input id="account37-confirm" data-account37-confirm type="password" autocomplete="new-password" required>
+      <fieldset data-account37-factor-fields hidden><legend>Verificación con el factor actual</legend>
+        <label for="account37-method">Método</label><select id="account37-method" data-account37-method><option value="totp">Aplicación autenticadora</option><option value="recovery_code">Código de recuperación</option></select>
+        <label for="account37-proof">Código del método elegido</label><input id="account37-proof" data-account37-proof type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false">
+      </fieldset>
+      <label class="account37-check"><input data-account37-explicit type="checkbox">Confirmo el cambio de contraseña y el cierre de las sesiones anteriores.</label>
+      <button data-account37-submit type="submit" disabled>Verificar contraseña actual y cambiar</button>
+      <p>Si usas una cuenta de Google vinculada, también puedes verificar tu identidad con ella para confirmar este mismo cambio.</p>
+      <div data-account37-google></div><p data-account37-google-status role="status"></p>
+      <button data-account37-google-cancel type="button" hidden>Cancelar verificación con Google</button>
+    </form>
+  </section>
+</section>

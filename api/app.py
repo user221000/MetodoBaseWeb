@@ -231,6 +231,9 @@ def create_app() -> FastAPI:
     from web.routes import notifications
     app.include_router(notifications.router, prefix="/api")
     app.include_router(notifications.public_router)
+    from web.routes import account_security
+    app.include_router(account_security.router, prefix="/api")
+    app.include_router(account_security.public_router)
     app.include_router(planes_routes.router, prefix="/api")
     app.include_router(licencias_routes.router, prefix="/api")
     app.include_router(pagos_routes.router, prefix="/api")
