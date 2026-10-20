@@ -25,7 +25,7 @@
       const integer = value => Number.isSafeInteger(value) && value >= 0;
       if (!body || !Array.isArray(body.items) || body.items.length>limit || typeof body.has_more!=='boolean' ||
           !Number.isFinite(Date.parse(body.as_of)) || !integer(body.window_days) || body.window_days<1 ||
-          body.payment_evidence!=='unavailable' || body.responsibility!=='not_recorded' ||
+          body.payment_evidence!=='unavailable' || !['not_recorded','per_cause_tasks'].includes(body.responsibility) ||
           !body.capabilities || typeof body.capabilities.prepare_plan!=='boolean' || typeof body.capabilities.review_client!=='boolean' ||
           !body.metrics || !['plans_saved','generation_operations_completed','pdf_metadata_ready'].every(name=>integer(body.metrics[name]))) throw new Error('No se pudo verificar el seguimiento recibido.');
       const seen = new Set();
@@ -38,9 +38,20 @@
             (row.elapsed_days!==null && !integer(row.elapsed_days)) ||
             (row.membership_end!==null && (typeof row.membership_end!=='string' || !Number.isFinite(Date.parse(row.membership_end))))) throw new Error('No se pudo verificar el seguimiento recibido.');
         seen.add(row.id_cliente);
+        let tasks=null;
+        if(body.responsibility==='per_cause_tasks'){
+          if(body.task_coverage!=='current_open_tasks_by_cause'||!Array.isArray(row.per_cause_tasks)||row.per_cause_tasks.length>4||!Array.isArray(row.cause_candidates)||row.cause_candidates.length>4)throw new Error('No se pudo verificar el seguimiento recibido.');
+          const used=new Set();tasks=row.per_cause_tasks.map(value=>{
+            if(!value||typeof value.id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value.id)||!integer(value.version)||value.version<1||value.version>2147483647||!Object.hasOwn(causes,value.cause)||used.has(value.cause)||value.status!=='open'||!['review_client_record','review_plan_history','review_membership_date'].includes(value.next_step)||!value.capabilities||!['edit','cancel','complete','history'].every(k=>typeof value.capabilities[k]==='boolean'))throw new Error('No se pudo verificar el seguimiento recibido.');
+            used.add(value.cause);const person=value.responsible;
+            if(person!==null&&(!person||typeof person.id!=='string'||!person.id||person.id.length>36||typeof person.eligible!=='boolean'||(person.eligible?(typeof person.display_name!=='string'||!person.display_name||person.display_name.length>200):person.display_name!==null)))throw new Error('No se pudo verificar el seguimiento recibido.');
+            return {id:value.id,cause:value.cause,next_step:value.next_step,responsible:person===null?null:{id:person.id,eligible:person.eligible,display_name:person.display_name}};
+          });
+          const candidates=new Set();for(const value of row.cause_candidates){if(!value||!row.causes.includes(value.cause)||candidates.has(value.cause)||!integer(value.priority)||value.priority<1||value.priority>4||typeof value.cause_evidence_hash!=='string'||!/^[0-9a-f]{64}$/.test(value.cause_evidence_hash)||!Number.isFinite(Date.parse(value.observed_at))||!Array.isArray(value.next_steps)||value.next_steps.length!==2||!value.next_steps.every(s=>s==='review_client_record'||s===(value.cause==='membership_date_passed'?'review_membership_date':'review_plan_history')))throw new Error('No se pudo verificar el seguimiento recibido.');candidates.add(value.cause);}
+        }
         return {id_cliente:row.id_cliente,nombre:row.nombre,causes:[...row.causes],priority:row.priority,
           last_plan_at:row.last_plan_at,elapsed_days:row.elapsed_days,membership_end:row.membership_end,
-          prepare:body.capabilities.prepare_plan,review:body.capabilities.review_client};
+          prepare:body.capabilities.prepare_plan,review:body.capabilities.review_client,tasks};
       });
       return {items, metrics:{...body.metrics},asOf:body.as_of,windowDays:body.window_days,hasMore:body.has_more};
     }
@@ -69,8 +80,8 @@
       try {
         check(own); await verify(own); check(own);
         const row=state.items.find(item=>item.id_cliente===id);
-        if (!row || !((action==='prepare' && row.prepare) || (action==='review' && row.review))) return;
-        check(own); go(action==='prepare' ? '/generar-plan?id='+encodeURIComponent(id) : '/clientes');
+        if (!row || !((action==='prepare' && row.prepare) || (action==='review' && row.review) || (action==='tasks' && row.tasks!==null))) return;
+        check(own); go(action==='tasks'?'/clientes/'+encodeURIComponent(id)+'/seguimiento':action==='prepare' ? '/generar-plan?id='+encodeURIComponent(id) : '/clientes');
       } catch(error) {
         if(own!==ticket || state.invalid)return;
         if(sessionCodes.has(error.code))invalidate();
@@ -104,7 +115,8 @@
       item.append(text('h3',row.nombre),text('p',row.causes.map(name=>causes[name]).join(' · ')));
       item.append(text('p',row.last_plan_at ? 'Último plan guardado: '+new Date(row.last_plan_at).toLocaleString('es-MX')+' ('+row.elapsed_days+' días transcurridos).' : 'No hay una fecha de plan verificable.'));
       if(row.membership_end)item.append(text('p','Fin de membresía registrado: '+row.membership_end.replace('T',' ')+'. No confirma cobro.'));
-      item.append(text('p','Responsable: no asignado; el sistema no registra una asignación.'));
+      if(row.tasks===null)item.append(text('p','Responsabilidad: no disponible en esta respuesta.'));
+      else for(const cause of row.causes){const task=row.tasks.find(t=>t.cause===cause);item.append(text('p',causes[cause]+': '+(task?'Responsable: '+(task.responsible===null?'Sin asignar':task.responsible.eligible?task.responsible.display_name:'Ya no disponible')+'. Próximo paso: '+({review_client_record:'revisar ficha',review_plan_history:'revisar historial de planes',review_membership_date:'revisar fecha administrativa'})[task.next_step]+'.':'Sin tarea abierta registrada en esta consulta.')));}
       item.append(text('p',row.causes[0]==='membership_date_passed' ? 'Próximo paso: revisar la fecha administrativa con el cliente.' : 'Próximo paso: revisar la ficha y el historial antes de decidir si hace falta otro plan.'));
       const actions=document.createElement('div');actions.className='followup-actions';
       for(const [action,label,allowed] of [['review','Abrir clientes',row.review],['prepare','Revisar cliente y preparar plan',row.prepare]])if(allowed){
@@ -112,6 +124,7 @@
         button.setAttribute('aria-label',label+' — '+row.nombre);
         button.addEventListener('click',()=>controller.navigate(row.id_cliente,action,url=>location.assign(url)));actions.append(button);
       }
+      if(row.tasks!==null){const button=text('button','Consultar causas y preparar tarea');button.type='button';button.className='btn btn-outline btn-sm';button.setAttribute('aria-label','Consultar tareas de '+row.nombre);button.addEventListener('click',()=>controller.navigate(row.id_cliente,'tasks',url=>location.assign(url)));actions.append(button);}
       item.append(actions);list.append(item);
     }
   }

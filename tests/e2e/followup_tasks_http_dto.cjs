@@ -1,0 +1,5 @@
+/* Validate real SQLite HTTP34 DTOs using the maintained consumer parsers. */
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const sandbox=vm.createContext({Date,TextEncoder});vm.runInContext(fs.readFileSync('web/static/js/seguimiento-tareas.js','utf8'),sandbox);const moduleApi=sandbox.SeguimientoTareas;
+let input='';process.stdin.setEncoding('utf8');process.stdin.on('data',chunk=>{input+=chunk;assert.ok(input.length<524288);});
+process.stdin.on('end',()=>{const v=JSON.parse(input);moduleApi.context(v.context);moduleApi.page(v.list,v.context.scope);moduleApi.task(v.task);moduleApi.candidates(v.candidates,v.client);moduleApi.history(v.history,v.context.scope,0);moduleApi.metrics(v.metrics);moduleApi.ack(v.created,{kind:'created',client:v.client,cause:'no_saved_plan',version:0,id:null},v.command);moduleApi.ack(v.replayed,{kind:'created',client:v.client,cause:'no_saved_plan',version:0,id:null},v.command);console.log(JSON.stringify({passed:true,parsers:8,scope:'Real SQLite TestClient HTTP DTOs into actual JavaScript validators; no Chrome/PG/provider acceptance'}));});

@@ -652,6 +652,125 @@ const Api = (() => {
     },
   };
 
+  // Wire34: purpose-closed, exact-access operations. Nothing in the public
+  // handle contains the key, request body, credentials or resource identity.
+  let _followupOperations = new WeakMap();
+  const _followupCauses = ['no_saved_plan','no_plan_in_window','plan_date_missing','membership_date_passed'];
+  const _followupSteps = ['review_client_record','review_plan_history','review_membership_date'];
+  const _followupInvalid = () => _mfaError('followup_invalid_input');
+  function _followupId(value, uuid=false) {
+    if (typeof value!=='string' || !value.length || value.length>36 || value.normalize('NFC')!==value || /[\p{C}/?#]/u.test(value) ||
+        (uuid && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value))) throw _followupInvalid();
+    return value;
+  }
+  function _followupVersion(value, zero=false) {
+    if(!Number.isSafeInteger(value)||value<(zero?0:1)||value>2147483647)throw _followupInvalid();
+    return value;
+  }
+  function _followupFields(body, fields) {
+    if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).length!==fields.length||fields.some(k=>!Object.hasOwn(body,k)))throw _followupInvalid();
+  }
+  function _followupCommand(kind,body) {
+    const fields={created:['client_id','cause','cause_evidence_hash','next_step','assignee_id','expected_active_task_id','confirm'],
+      updated:['expected_version','next_step','assignee_id','confirm'],completed:['expected_version','outcome','confirm'],cancelled:['expected_version','reason','confirm']}[kind];
+    if(!fields)throw _followupInvalid();_followupFields(body,fields);
+    if(body.confirm!==true)throw _followupInvalid();
+    if(kind==='created'){
+      _followupId(body.client_id);
+      if(!_followupCauses.includes(body.cause)||typeof body.cause_evidence_hash!=='string'||!/^[0-9a-f]{64}$/.test(body.cause_evidence_hash)||body.expected_active_task_id!==null)throw _followupInvalid();
+    }else _followupVersion(body.expected_version);
+    if(kind==='created'||kind==='updated'){
+      if(!_followupSteps.includes(body.next_step))throw _followupInvalid();
+      if(kind==='created'&&body.next_step!=='review_client_record'&&body.next_step!==(body.cause==='membership_date_passed'?'review_membership_date':'review_plan_history'))throw _followupInvalid();
+      if(body.assignee_id!==null)_followupId(body.assignee_id);
+    }
+    if(kind==='completed'&&body.outcome!=='review_recorded')throw _followupInvalid();
+    if(kind==='cancelled'&&!['created_in_error','no_longer_applicable','duplicate'].includes(body.reason))throw _followupInvalid();
+    const encoded=JSON.stringify(body);if(new TextEncoder().encode(encoded).byteLength>8192)throw _followupInvalid();
+    return JSON.parse(encoded);
+  }
+  async function _followupRequest(path,body,handle,method='GET',key=null) {
+    const value=_mfaContext(handle);
+    try {
+      const result=await request(method,path,body,key===null?{}:{'Idempotency-Key':key},true,{snapshot:value.snapshot,pair:value.pair});
+      _mfaContext(handle);return result;
+    }catch(error){_mfaContext(handle);throw error;}
+  }
+  function _followupCursor(value) {
+    if(typeof value!=='string'||!value.length||value.length>256||!/^[A-Za-z0-9_-]+$/.test(value))throw _followupInvalid();return value;
+  }
+  const followup = {
+    capture:mfa.capture,check:mfa.check,session:mfa.context,verify:mfa.verify,
+    contexto: handle => _followupRequest('/api/seguimiento/contexto',null,handle),
+    candidates: (client,handle) => _followupRequest('/api/seguimiento/clientes/'+encodeURIComponent(_followupId(client))+'/candidatos',null,handle),
+    tasks(handle,{status='open',after=null}={}) {
+      if(!['open','completed','cancelled'].includes(status))throw _followupInvalid();
+      return _followupRequest('/api/seguimiento/tareas?'+new URLSearchParams({status,limit:'50',...(after===null?{}:{after:_followupCursor(after)})}),null,handle);
+    },
+    task:(id,handle)=>_followupRequest('/api/seguimiento/tareas/'+_followupId(id,true),null,handle),
+    history(id,handle,{afterVersion=0}={}) {
+      return _followupRequest('/api/seguimiento/tareas/'+_followupId(id,true)+'/historial?'+new URLSearchParams({limit:'20',after_version:String(_followupVersion(afterVersion,true))}),null,handle);
+    },
+    assignees:(handle,after=null)=>_followupRequest('/api/seguimiento/responsables?limit=20'+(after===null?'':'&after='+encodeURIComponent(_followupId(after))),null,handle),
+    metrics(handle,range=null) {
+      const params=new URLSearchParams();if(range!==null){_followupFields(range,['from','through']);_progressRange(params,range);}
+      return _followupRequest('/api/seguimiento/metricas'+(params.size?'?'+params:''),null,handle);
+    },
+    prepare(kind,id,body,handle) {
+      _mfaContext(handle);const command=_followupCommand(kind,body);
+      if(kind==='created'?id!==null:!_followupId(id,true))throw _followupInvalid();
+      const path='/api/seguimiento/tareas'+(kind==='created'?'':'/'+id+({completed:'/completar',cancelled:'/cancelar'}[kind]||''));
+      const key=crypto.randomUUID();_followupId(key,true);const operation=Object.freeze({kind});
+      _followupOperations.set(operation,{handle,command,key,path,method:kind==='updated'?'PATCH':'POST',sent:false});return operation;
+    },
+    async send(operation) {
+      const value=_followupOperations.get(operation);if(!value||value.sent)throw _followupInvalid();
+      _mfaContext(value.handle);value.sent=true;
+      const result=await _followupRequest(value.path,value.command,value.handle,value.method,value.key);
+      if(!result?.operation||result.operation.request_key!==value.key)throw _mfaError('followup_invalid_response');
+      return result;
+    },
+    discard: operation => _followupOperations.delete(operation),
+  };
+  if(typeof window.addEventListener==='function'){
+    const discard=()=>{_followupOperations=new WeakMap();};
+    window.addEventListener('metodobase-session-changed',discard);window.addEventListener('pagehide',discard);
+  }
+
+  // Nutrition35 is additive and purpose-closed. Exact access means a 401 never
+  // rotates/replays a health declaration or substitutes another session.
+  function _nutritionInput(){return _mfaError('nutrition_profile_invalid_input');}
+  function _nutritionFields(value,keys){if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==keys.length||keys.some(k=>!Object.hasOwn(value,k)))throw _nutritionInput();}
+  function _nutritionDeclaration(value){
+    _nutritionFields(value,['version','allergies','professional_review_requested']);
+    if(value.version!==1||typeof value.professional_review_requested!=='boolean')throw _nutritionInput();
+    const a=value.allergies;_nutritionFields(a,['version','status','foods','other_reported']);
+    if(a.version!==1||!['not_reported','none_reported','reported'].includes(a.status)||typeof a.other_reported!=='boolean'||!Array.isArray(a.foods)||a.foods.length>250||new Set(a.foods).size!==a.foods.length||a.foods.some(v=>typeof v!=='string'||!v.length||v.length>128||/[\p{C}]/u.test(v))||(a.status==='reported')!==!!(a.foods.length||a.other_reported))throw _nutritionInput();
+    return value;
+  }
+  function _nutritionBody(body,personal=false){
+    const allowed=['edad','peso_kg','estatura_cm','sexo','grasa_corporal_pct','objetivo','nivel_actividad','notas','alimentos_excluidos','restricciones_nutricionales',...(personal?[]:['nombre','telefono','fecha_suscripcion','fecha_fin_suscripcion','plan_suscripcion_id','plan_numero','tipo_plan'])];
+    if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!allowed.includes(k)))throw _nutritionInput();
+    if(body.restricciones_nutricionales!==undefined&&body.restricciones_nutricionales!==null)_nutritionDeclaration(body.restricciones_nutricionales);
+    const encoded=JSON.stringify(body,(_k,value)=>{if((typeof value==='number'&&!Number.isFinite(value))||['undefined','function','symbol','bigint'].includes(typeof value))throw _nutritionInput();return value;});
+    if(new TextEncoder().encode(encoded).byteLength>32768)throw _nutritionInput();return JSON.parse(encoded);
+  }
+  async function _nutritionRequest(path,body,handle,method='GET'){
+    const context=_mfaContext(handle);
+    try{const result=await request(method,path,body,{},true,{snapshot:context.snapshot,pair:context.pair});_mfaContext(handle);return result;}
+    catch(error){_mfaContext(handle);throw error;}
+  }
+  const nutrition={
+    capture:mfa.capture,check:mfa.check,session:mfa.context,verify:mfa.verify,
+    client:(key,handle)=>_nutritionRequest('/api/clientes/'+encodeURIComponent(_followupId(key)),null,handle),
+    create:(body,handle)=>_nutritionRequest('/api/clientes',_nutritionBody(body),handle,'POST'),
+    update:(key,body,handle)=>_nutritionRequest('/api/clientes/'+encodeURIComponent(_followupId(key)),_nutritionBody(body),handle,'PUT'),
+    personal:handle=>_nutritionRequest('/api/usuario/perfil',null,handle),
+    savePersonal:(body,handle)=>_nutritionRequest('/api/usuario/perfil',_nutritionBody(body,true),handle,'PUT'),
+    catalog:handle=>_nutritionRequest('/api/alimentos/catalogo',null,handle),
+    personalCatalog:handle=>_nutritionRequest('/api/usuario/catalogo-alimentos',null,handle),
+  };
+
   const billing = {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
@@ -1020,6 +1139,6 @@ const Api = (() => {
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
     accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
   };
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, clearTokens, saveTokens };
 })();
 
