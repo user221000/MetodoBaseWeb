@@ -185,3 +185,7 @@ SEC21/22 yQA23 tienen reparación ypeerfocal; no integradosMAIN. R31 requiere ci
 ## Checkpoint139
 
 SEC24 tenía consultaBearer previa al rechazoOrigin enAPI; reparación y106 controles independientes cierran focalmente el candidato, pendiente integración. Los nativos antiguos inyectanJWTStorage y requieren nueva composición, sin etiquetarlosPASS. Restore36 reveló deriva deCHECK antes/despuésdump y no se acepta todavía. Retención, países, SLO acordado, piloto y revisión profesional requieren evidencia o participación externa.
+
+## Checkpoint140
+
+R31 UI tienepeer26PASS local; nativos/CI antiguos dependen deStorage yfixtures31/33. Notificaciones36 mantiene puertos cerrados hasta revisiónQA/SEC/UI; su tolerancia a incertidumbre nunca prueba envío o causalidad. Retención, países, SLO acordado, piloto yrevisión profesional mantienen sus decisiones externas pendientes.

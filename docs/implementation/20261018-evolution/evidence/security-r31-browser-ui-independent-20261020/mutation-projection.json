@@ -1,0 +1,54 @@
+{
+  "total_mutations": 4,
+  "rejected": 4,
+  "product_unchanged": true,
+  "rows": [
+    {
+      "mutation": "unobserved-epoch",
+      "source_sha256": "f349e86c88d882dc52cc6311312dae4c5948eca7fd55b02a30282ea856904898",
+      "returncode": 1,
+      "total": 26,
+      "failed": 3,
+      "failed_cases": [
+        "A epoch-read-only boundary rejects a late private JSON result",
+        "A delayed refresh cannot adopt its token after an unseen epoch change",
+        "Denied epoch storage never exposes a raw exception or retains usable access"
+      ],
+      "seconds": 0.188
+    },
+    {
+      "mutation": "cookie-body-by-reference",
+      "source_sha256": "103b220b4e7df1c30c1cfeded3a2ea10bab324147e9b1177a994b6ff2e2ea6ba",
+      "returncode": 1,
+      "total": 26,
+      "failed": 1,
+      "failed_cases": [
+        "A cookie body is copied before joining the shared lock queue"
+      ],
+      "seconds": 0.172
+    },
+    {
+      "mutation": "refresh-visible-in-json",
+      "source_sha256": "5cbfdb6a9feff2070d6d5cf312b10f09015d3644658ec811173cfef8cf6ba3d7",
+      "returncode": 1,
+      "total": 26,
+      "failed": 1,
+      "failed_cases": [
+        "A legacy-shaped bootstrap response is rejected without a Storage fallback"
+      ],
+      "seconds": 0.172
+    },
+    {
+      "mutation": "fabricated-ack",
+      "source_sha256": "a68586cea496c265a265b2fc7773ecfff30675a63f81e6fd7e99a68d1925a604",
+      "returncode": 1,
+      "total": 26,
+      "failed": 2,
+      "failed_cases": [
+        "An acknowledgement cannot be fabricated through public saveTokens",
+        "A genuine primary acknowledgement is single-use"
+      ],
+      "seconds": 0.203
+    }
+  ]
+}

@@ -164,3 +164,7 @@ La cookie refresh es autoridad sólo para renovar/cerrar, nunca recurso privado.
 ## Checkpoint139
 
 La verificación focal local se separa de despliegue y cierre de tareas mayores. R31 conserva APIlegacy y se prueba con cookie/RAM; los tests que exigíanJWTStorage se mantienen históricos y se mapean a criterios actuales, sin simular credenciales enStorage. No basta cambiar comandosCI: preparar fixtures nativos y verificar el navegador real. LeasePG36 exclusivoBackend; Chrome todavía no concedido aQA.
+
+## Checkpoint140
+
+SEC19 sólo se cierra tras la repeticiónPG independiente ybinding exacto aMAIN. Conservar cada gate ligado a su commit;108export no son108casos únicos. Nuevos companions nativos sustituyen únicamente framing de sesión/esquema de forma explícita; originales permanecen históricos. No presentar compilación comoChrome ni aceptación del proveedor comoentrega. LeasePG exclusivoQA; sin leaseChrome todavía.

@@ -1,0 +1,131 @@
+{
+  "preflight": {
+    "source_head": "be33fb17cb7a25fdbf8ff4f6a58e46d939301f04",
+    "targets": {
+      "20261019_followup_tasks_postgresql.json": {
+        "RAW_sha256": "218e2a1c2ccb3331c07be5efe3294d496437d2fe3ed8e53c62164758fde6b13b",
+        "Git_LF_sha256": "d1ebbaf5e9fdd41e1347f108d8f4ebcf4d8f7a88832d3fc8fef0b1faaf5ada80",
+        "exact_base7011": true
+      },
+      "20261020_nutrition_profile_postgresql.json": {
+        "RAW_sha256": "c43e592725b3fe8f11be3047043798748efc55979fadcac714e4fcd131d2bfcb",
+        "Git_LF_sha256": "5bae07fed35877c11a890189c36b84023f5345d408ec650a9818e037f580a72e",
+        "exact_base7011": true
+      }
+    },
+    "original_source_sha256": "75c4fdba46765f829df5a2a1c8079ebc6f7b0d3d4a7fcb09ae04db3defaaa15f",
+    "profile_sha256": "1526482e15f5e31a4248868e77a609af536f6dfbbf2b04959e7b14d521519f02",
+    "planned_database_count": 1,
+    "exclusive_port": 55483,
+    "fixture": "tests.integration_nutrition35_postgres.followup_db + followup_http",
+    "no_connections_opened": true,
+    "DACL_before_payload": true
+  },
+  "original_function_imported_directly_without_wrapper_or_assertion_edit": true,
+  "original_module_SOURCE_sha256": "75c4fdba46765f829df5a2a1c8079ebc6f7b0d3d4a7fcb09ae04db3defaaa15f",
+  "companion_sha256": "91e5678569cec890c030564fcaf6040bbb504b354dd02fed4c42494d0fd94886",
+  "witnesses": [
+    {
+      "factory": "api.app",
+      "PG": {
+        "dialect": "postgresql",
+        "flags4_and_membership": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "FORCE_RLS_tables": 28,
+        "physical_tables": 38,
+        "head": "20261020_nutrition_profile",
+        "pool_size": 1,
+        "max_overflow": 0,
+        "factory": "api.app"
+      },
+      "loaded_field_names": [
+        [
+          "activo",
+          "deleted_at",
+          "id",
+          "invitation_token",
+          "role",
+          "session_version",
+          "team_gym_id",
+          "tipo"
+        ]
+      ],
+      "observed_minimal_lock_SELECT_count": 1,
+      "no_contact_field_fetched_or_hydrated": true
+    },
+    {
+      "factory": "web.main_web",
+      "PG": {
+        "dialect": "postgresql",
+        "flags4_and_membership": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "FORCE_RLS_tables": 28,
+        "physical_tables": 38,
+        "head": "20261020_nutrition_profile",
+        "pool_size": 1,
+        "max_overflow": 0,
+        "factory": "web.main_web"
+      },
+      "loaded_field_names": [
+        [
+          "activo",
+          "deleted_at",
+          "id",
+          "invitation_token",
+          "role",
+          "session_version",
+          "team_gym_id",
+          "tipo"
+        ]
+      ],
+      "observed_minimal_lock_SELECT_count": 1,
+      "no_contact_field_fetched_or_hydrated": true
+    }
+  ],
+  "owned_leases": [
+    {
+      "plan_id": "de50286469aa44139a6e3320a0272bcc",
+      "database": "metodobase_test_followup34_de50286469aa44139a6e3320a0272bcc",
+      "planned_at": "2026-10-20T04:28:59.696548+00:00",
+      "launcher_pid": 26372,
+      "launcher_birth": 134369441343531284,
+      "state": "closed_absent",
+      "initial_creation": "exclusive_xb_before_CREATE",
+      "control_backend_pid": 8364,
+      "postmaster_start": "2026-10-19T00:12:10.912976-06:00",
+      "server_host": "127.0.0.1/32",
+      "server_port": 55483,
+      "oid": 794579,
+      "created_at": "2026-10-20T04:29:00.079477+00:00",
+      "launcher_birth_after_create": 134369441343531284,
+      "sessions_before_drop": 0,
+      "closed_at": "2026-10-20T04:29:18.550437+00:00",
+      "absence_verified": "fresh_control_connection",
+      "private_owner_identity_sha256": "aceef09b860284ec5e2890250bec9982290b796522aa8995a29195125d0012c1",
+      "private_original_sha256": "2559ff3aedac52ac2784d8873dc473e957db2e49db343bd8044eeca2e6513e0e"
+    }
+  ],
+  "fresh_independent_observer": {
+    "fresh_exact_names_absent": true,
+    "fresh_exact_names_sessions": 0,
+    "normal_DROP_without_FORCE_or_foreign_cancellation": true,
+    "databases": [
+      "metodobase_test_followup34_de50286469aa44139a6e3320a0272bcc"
+    ]
+  },
+  "no_global_role_HBA_or_foreign_resource_mutation": true,
+  "limits": [
+    "No native browser, provider, Actions, Linux or SLO claim.",
+    "2 original criteria replayed, not new global unique cases."
+  ]
+}
