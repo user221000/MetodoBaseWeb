@@ -1,0 +1,5 @@
+# Integrated finite scanner and portable native authority: current focused acceptance
+
+On Main924e the exact265 finite scanner cases and82 portable-authority cases pass347/347 in one selection, with zero failures, errors or skips. One portability peer invokes a further57 literal cases inside a fresh tree without Git, repository, network or process transport; those are not added to347. Source1358,Python92 distributions and Node are unchanged before/after. Ruff passes all12 affected modules.
+
+The current v5 loader retains877 old records and adds20 reviewed files/753 physical locations; its algorithm changes only three version literals. Twelve approved container inputs and the web runtime stay byte exact. The verifier authenticates21 original Git object frames through pinned commit/tree paths. Private originals, JUnit, drivers and complete hash maps are archived with protected DACL before payload and complete readback. No actual new full secret scan, image build, PostgreSQL, browser or global CI acceptance is claimed.
