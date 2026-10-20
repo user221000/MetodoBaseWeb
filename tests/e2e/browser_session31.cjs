@@ -4,7 +4,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const source=fs.readFileSync(process.env.BROWSER31_SOURCE||'web/static/js/api.js','utf8');
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return{promise,resolve,reject};};
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function world({cookie='A',legacy=null,sessionLegacy=null,locks=true,denied=false,denyWrite=false,epoch=null,legacyReply=false}={}){
+function world({cookie='A',legacy=null,sessionLegacy=null,locks=true,denied=false,denyWrite=false,epoch=null,legacyReply=false,storageFault=null}={}){
   const shared=new Map(),tabs=[],calls=[],writes=[],channels=[],errors=[],lockRequests=[];let tail=Promise.resolve(),held=0,maxHeld=0,sequence=0;
   if(epoch!==null)shared.set('mb_session_epoch',epoch);
   if(legacy){shared.set('mb_token','old-access');shared.set('mb_refresh_token',legacy);shared.set('mb_nombre','Old identity');shared.set('mb_email','old@example.invalid');shared.set('mb_tipo','gym');}
@@ -19,6 +19,9 @@ function world({cookie='A',legacy=null,sessionLegacy=null,locks=true,denied=fals
     const sandbox={TextEncoder,URL,URLSearchParams,FormData,File,Blob,AbortController,queueMicrotask,Promise,Map,Set,WeakMap,WeakSet,Object,Array,JSON,Number,String,Date,Error,RegExp,Event,CustomEvent:class extends Event{constructor(name,options={}){super(name);this.detail=options.detail;}},crypto:crypto.webcrypto,navigator:{...(locks?{locks:lock}:{})},BroadcastChannel:Channel,localStorage:storage(shared,true),sessionStorage:storage(sessionMap,false),location:{pathname:'/clientes',href:'https://example.invalid/clientes',origin:'https://example.invalid'},setTimeout,clearTimeout,console:{warn(){},error(){},log(){}}};
     sandbox.window=sandbox;sandbox.addEventListener=(type,fn)=>{if(!listeners.has(type))listeners.set(type,[]);listeners.get(type).push(fn);};sandbox.removeEventListener=(type,fn)=>listeners.set(type,(listeners.get(type)||[]).filter(v=>v!==fn));sandbox.dispatchEvent=dispatch;
     sandbox.document={get cookie(){throw Error('HttpOnly is not JS authority');},set cookie(_value){throw Error('No JS cookies');}};
+    if(storageFault)for(const store of['localStorage','sessionStorage'])for(const operation of['getItem','setItem','removeItem']){
+      const original=sandbox[store][operation];sandbox[store][operation]=(...args)=>{storageFault({store,operation,key:args[0],phase:'before'});const result=original(...args);storageFault({store,operation,key:args[0],phase:'after'});return result;};
+    }
     sandbox.fetch=async(path,options={})=>{
       const call={path,options,body:typeof options.body==='string'?JSON.parse(options.body):options.body??null,held};calls.push(call);
       if(hook){const answer=await hook(call);if(answer)return answer;}
