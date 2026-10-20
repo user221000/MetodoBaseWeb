@@ -1,5 +1,10 @@
 # Entrega candidata en curso
 
-Checkpoint128 integra localmente esquema32 desde2273616 con fuentes exactas y126 criterios conservados. MFA/progreso/consentimientos/exportación/retiro conectados; revisión focal de retiro:79SQLite/30PG y8HTTP, con browser219 separado. CI/regresión amplia vigente, artefacto final y Google33 siguen pendientes. [Estado](ESTADO.md), [registro](TRAZABILIDAD.md).
-
-Histórico31:3056PASS+1skipWindows serial y n2, cobertura crítica100%; imagenf74parcial. Gitleaks todavía sin aceptación global:31.282 checksum candidatos/282pendientes en revisión independiente, sin nuevo scan verde. Free10clientes/1plancliente/día/10totalgym/día; desktop soportado. No publicación ni despliegue.
+Checkpoint131 integra R05v2 con revisión independiente finita yconserva127
+requisitos ytodos sus criterios. El escaneo4f4ed7 sigue bloqueado por1.603
+hallazgos nuevos; no hay aceptación global. CI33/PG240 terminó con exit0 en
+su fuente c86/v1 yQA audita IDs,testigos ycierre antes de integrarlo. Esquema
+MAIN33;backend/UI34 ycontrato nutricional35 siguen aislados. Imagen,desktop
+final ycriterios R27/R31/R33 pendientes. Free10clientes/1plancliente/día/
+10totalgym/día;desktop soportado. Sin publicación odespliegue.
+[Estado](ESTADO.md),[registro](TRAZABILIDAD.md).

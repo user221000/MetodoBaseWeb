@@ -1,15 +1,51 @@
 # Estado de implementación
 
-Checkpoint128 local: MAIN incorpora esquema32 desde la candidata revisada2273616. Se conservan126 requisitos,92 originales y34 nuevos, con126 criterios exactos. Free:10 clientes activos,1plan por cliente al día y10totales por gimnasio al día; desktop soportado. Workspace de referencia intacto. Sin push,PR,despliegue,cargos ni comunicaciones reales.
+Checkpoint131 local: esquema33 y127 requisitos (92 originales+35 añadidos).
+Se conservan íntegros los126 criterios previos. Free:10 clientes activos,
+1 plan por cliente al día y10 planes totales por gimnasio al día. Desktop sigue
+soportado. El workspace de referencia permanece intacto. Sin push,PR,despliegue,
+cargos ni comunicaciones reales.
 
-La integración conecta MFA31, mediciones/progreso32, lector con consentimiento explícito, octava sección de exportación y retiro público con primaria+factor nuevos por operación. Cada fuente integrada coincide byte a byte con227; Dockerfile y locks no cambian. La misma fuente local aún requiere CI y regresión amplia vigente, imagen y matriz común; no se trasladan los resultados amplios31 a32. [Equivalencia](evidence/prepared-wave128-20261019/source-equivalence.json).
+Google33 ysu UI están integrados desde3587. La corrección8a5e deQA-17 amplía el
+manejo de colisiones a los flush previos al commit. Rollback confirmado409;
+incierto503. No añade retry ni adopta cuentas. Autor:4casos verdes tras2FAIL y
+2PASS iniciales,58regresiones verdes. Peer sobre la fuente exacta:12SQLite y
+11PostgreSQL PASS,0errores/skips. Los mismos dos canarios HTTP entre procesos
+devuelven200+409; cuenta,binding,perfil ycinco plantillas únicos. Tres UUID
+temporales cerrados y ausentes. Evidencia original RED yreplay preservados.
+[Corrección](evidence/root-google33-conflict-author-20261019/review.md),
+[peer](evidence/security-google33-conflict-independent-20261019/review.md).
 
-Retiro: QA219 cerró45VM,8SSR y8HTTP propios,13grupos Chrome y9capturas sin fallos axe/overflow/JS. Los mismos8HTTP pasaron227; Chrome se atribuye sólo219 y se documenta el delta único _execute. Seguridad227:79SQLite y30PG PASS, casos originales75/26 intactos y4controles nuevos por dialecto. El modelo original libera checkout; si también invalidate falla antes de liberar persiste checkout1,503/contexto restaurado, límite explícito. Tres UUID PG y todos los procesos propios del browser cerrados. [QA](evidence/qa-retirement32-review227-20261019/review.json), [Seguridad](evidence/security-retirement-owned-cleanup-independent-20261019/source.json).
+La revisión33 anterior retiene sus fases ylimitaciones, sin sumar replays
+solapados. El esquema tiene35tablasORM/36físicas/26familiasFORCE,26funciones y
+12triggers. Su UI tiene evidencia de autor49VM,8SSR y148regresiones. QA actual
+prepara PG/CI yframing frontend:708comprobacionesoffline verdes; los primeros
+fallos Node siguen conservados. Broad actual,browser integrado eimagen final
+siguen pendientes. No se reatribuye el broad31 o el artefacto31 aesta versión.
+Google-only histórico sin sub conocido,pérdida total de factores,claim real,
+alertas ycustodia siguen abiertos.
+[Revisión33](evidence/security-google33-independent-20261019/review.md).
 
-Histórico31de506: serial y n2 cerraron3056PASS+1skipWindows exacto por modo; cobertura crítica serial100%. Estas pruebas no representan toda la integración32. Imagen31f74 conserva sello parcial y VM propia apagada; el próximo artefacto corresponde a la fuente final revisada33.
+R05v2 está integrado:689archivos y45.910pins finitos, conservando ZIPv1 yel
+algoritmo anterior. Los155archivos nuevos tienen revisión independienteSEC
+de14.557ocurrencias/14.516pins y113controles; QA revisa el binding separado.
+Autor110pruebas mantenidas PASS. El escaneo real sobre4f4ed7 sigue RED:
+44.433hallazgos brutos,42.830clasificados y1.603bloqueantes nuevos. Estos
+requieren su propio triage; no hay PASS global. Los archivos de evidencia
+añadidos después no se atribuyen al árbol escaneado. CI33/PG240 retienenv1
+hasta componer yverificar sus pins explícitamente.
+[Autorv2](evidence/root-r05-reviewed-v2-author-20261019/review.md),
+[peer nuevo](evidence/security-r05-new-locations-independent-20261019/review.md).
 
-SEC17 Google permanece en implementación33: asociación issuer/sub, alta nueva vacía sin adoptar cuentas por correo, enlace/desenlace explícitos, verificador de producción y consumidor UI. Sus revisiones y composición siguen pendientes. Google-only con sub histórico desconocido y pérdida total de factores no se dan por recuperados.
+R23backend34 se desarrolla aislado conTask/Event durables,CAS,idempotencia,
+responsables autorizados,historia ydeclaraciones de revisión. El wirev1 fijo
+tiene ACK técnico de coordinación. Mecanismos,HTTP ylímite SQLite avanzan;
+PG34,consumidor UI34 e integración siguen pendientes. No se infieren cobros,
+contactos automáticos,renovaciones ni retención clínica. R27,R31,R33 ylos demás
+criterios técnicos continúan. Retención/países,volumen/SLO,entrevistas yrevisión
+profesional requieren datos oparticipación real.
 
-Gitleaks sigue sin aceptación global: del informe original se prepararon31.282 clasificaciones candidatas de checksum y282 ubicaciones pendientes; Seguridad revisa por ubicación y con falsificación adversarial. No cambian scanner ni exclusiones. Checksums derivados GitLF→CRLF no son RAW de una ejecución reconstruida. [Triage preparado](evidence/root-gitleaks-checksum-triage-prepared-20261019/summary.json).
-
-Siguiente acción: completar/revisar33 y su UI, componer con esta integración, evolucionar CI vigente sin borrar fixtures históricos, ejecutar regresión y preparar el artefacto final. Continuar pendientes de roadmap sin inventar decisiones comerciales, participantes, proveedores reales ni producción. [Registro](TRAZABILIDAD.md), [validación](VALIDACION.md).
+VM yRedis6388 propios siguen apagados. PostgreSQL55483 quedó transferido de
+seguridad aQA para validación actual con bases propias ycierres comprobados.
+La imagen ydesktop final se prepararán desde la fuente estable posterior.
+[Registro](TRAZABILIDAD.md),[validación](VALIDACION.md).

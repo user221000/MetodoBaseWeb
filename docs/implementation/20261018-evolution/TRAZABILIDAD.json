@@ -125,7 +125,8 @@
         "166038f88b211c52f0d149ce550880795361707c",
         "0459b0f",
         "34d8fb1",
-        "2273616eb218adfdd30680e111da50a4599a8c53"
+        "2273616eb218adfdd30680e111da50a4599a8c53",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
@@ -144,7 +145,9 @@
         "evidence/individual-process-recovery-independent-source.json",
         "evidence/security-mfa31-canonical-final-independent-20261019/source.json",
         "evidence/root-google-subject-contract-review-20261019/source.json",
-        "evidence/security-google-subject-association-independent-20261019/source.json"
+        "evidence/security-google-subject-association-independent-20261019/source.json",
+        "evidence/backend-google-subject33-20261019/review.md",
+        "evidence/google-link-ui/source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -163,7 +166,9 @@
         "Checkpoint118: SEC13 corregido y aceptado enbackend440:6parent+4NULL estrictamente verdes; actor/OWNER requieren invitation_token IS NULL bajo los mismos locks. Composición913 sólo verificada estáticamente. No se afirma origen legítimo de estados ambiguos.",
         "Checkpoint126: Posiblehallazgonuevo enlacedeidentidadGoogleestáenrevisión independiente; noeselcriteriopreviodetransformaciónderol. Rootregistrófuentes/docsoficiales sincredencialesniproveedorreal. Noautovincularsubniinferirbackfill aquí.",
         "Checkpoint127: SEC17 confirmado por revisión independiente sobre345:4canarios rojos y4controles verdes en ambas factories, con respuesta válida Google modelada y asociación local por email. No se demuestra bypass criptográfico ni explotación live. Asociación issuer/sub33, enlace explícito con primaria local+factor y alta nueva sin adoptar cuentas están en implementación separada.",
-        "Checkpoint128: Integración local32 de la fuente227, sin desplegar. SEC17 Google permanece en implementación33 y revisión pendiente; no se considera cerrada la asociación por correo."
+        "Checkpoint128: Integración local32 de la fuente227, sin desplegar. SEC17 Google permanece en implementación33 y revisión pendiente; no se considera cerrada la asociación por correo.",
+        "Checkpoint129: MAIN integra Google33 por issuer/sub, alta nueva vacía y enlace/desenlace explícitos. SEC17 revisa la composición3587. La coincidencia de correo no adopta una cuenta existente. La continuidad Google-only con sub histórico desconocido y la pérdida total de factores siguen pendientes.",
+        "Checkpoint130: Google33: corrección8a5e integra QA-17 con peer12SQLite+11PG PASS. La carrera HTTP original mantiene200+409 y cuenta única. No cierra continuidad Google-only histórica ni recuperación total."
       ]
     },
     {
@@ -192,7 +197,8 @@
         "b81cfc1",
         "5bb5395",
         "34d8fb1",
-        "5d0e668157f956a4d3ebc785ff3c7ee81fe59664"
+        "5d0e668157f956a4d3ebc785ff3c7ee81fe59664",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [],
       "evidencia": [
@@ -216,7 +222,9 @@
         "evidence/security-migrator-role-independent-20261019/source.json",
         "evidence/linux-runtime28-native-20261019/runtime-red-frozen/evidence-manifest.json",
         "evidence/qa-bootstrap-outcome-logging-independent-20261019/source.json",
-        "evidence/qa-runtime31-c538-acl-independent-public-20261019/source.json"
+        "evidence/qa-runtime31-c538-acl-independent-public-20261019/source.json",
+        "evidence/backend-google-subject33-20261019/proofs/freeze.json",
+        "evidence/prepared-wave129-20261019/source-equivalence.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -236,7 +244,8 @@
         "Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.",
         "Checkpoint108: EnsayoLinux conSettingsproduction y migratorNOSUPER/NOCREATEROLE encuentra fallo real42501:revisiónc4 intentaCREATEROLEmetodobase_app en instancia fresca. Rollback sin tablas/alembic/rolglobal; producto sinstartup aceptado. Backend prepara delta mínimo sin elevar permisos ni precrear rol para ocultarlo.",
         "Checkpoint109: Reparaciónhistóricac4 integrada5d0e668 trasSEC:11regresionesoriginales+2propiasverdes. Sólo se retiranCREATEROLE/GRANTglobales;34contratosinmutables. Migra conownerNOCREATEROLE sin crearrolglobal y conservaACLexistentes. Imagen99c anterior siguefallida42501;replayLinuxcorregidopendiente.",
-        "Checkpoint125: OPS14 confirmado: Alembic silenciaba db_bootstrap. Fix474 conserva validadores/transacciones y logging opaco;36autor/3peer verdes. La matriz independiente de ACL de PostgreSQL confirma guard29→30 correcto; el DEFAULT FUNCTIONS adicional era deriva del harness."
+        "Checkpoint125: OPS14 confirmado: Alembic silenciaba db_bootstrap. Fix474 conserva validadores/transacciones y logging opaco;36autor/3peer verdes. La matriz independiente de ACL de PostgreSQL confirma guard29→30 correcto; el DEFAULT FUNCTIONS adicional era deriva del harness.",
+        "Checkpoint129: Se integró la fuente33. El autor bfbf validó35 tablas ORM,36 físicas,26 familias FORCE,26 funciones y12 triggers firmados. La composición conserva59 rutas Alembic previas. Esto no atribuye aMAIN una migración o runtime que aún no ejecutó."
       ]
     },
     {
@@ -320,8 +329,8 @@
         "R05"
       ],
       "dependencias": [],
-      "estado": "en_revision",
-      "implementacion": "en_curso",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
       "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
@@ -347,7 +356,11 @@
         "5ba98c6",
         "7cf4e6c",
         "52af40007eed53d32d0dca06b06b44dcbf7c64f3",
-        "2273616eb218adfdd30680e111da50a4599a8c53"
+        "2273616eb218adfdd30680e111da50a4599a8c53",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -422,7 +435,14 @@
         "evidence/root-mfa31-reviewed-serial-20261019/source.json",
         "evidence/root-mfa31-reviewed-parallel-20261019/source.json",
         "evidence/progress-retirement-ui/secret-scan-summary.json",
-        "evidence/root-gitleaks-checksum-triage-prepared-20261019/summary.json"
+        "evidence/root-gitleaks-checksum-triage-prepared-20261019/summary.json",
+        "evidence/root-r05-finite-reviewed-author-20261019/source.json",
+        "evidence/security-r05-registry-independent-20261019/source.json",
+        "evidence/security-gitleaks-triage-independent-20261019/manifest.json",
+        "evidence/qa-ci33-offline-preparation-20261019/source.json",
+        "evidence/prepared-wave129-20261019/current-r05-candidate-summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -450,7 +470,10 @@
         "Checkpoint123: CI ed4 y los 173 nodos PG permanecen exactos tras la composición 809eab2. El preflight real verifica 145 controles workflow y source pins sin repin. Regresión serial con cobertura en ejecución; no resultado adelantado.",
         "Checkpoint125: QA-16: primer helper9b14 aceptado focalmente SQLite35/PG34,19asserts e inversa conservados. Segundohelper9ab dio51 verdes deautor, pero2keywords rojos delpeer; sucesord012 preserva firma y pasa57IDs peer distintos. Comúnde506 sóloalembic.ini ytests:preflight145workflow/205parser/173PGIDs/23helpers,4grupos/5módulos. Serial única inició21:07UTC,n2pendiente.",
         "Checkpoint127: Serial y n2 de506 cerrados: cada modo3056PASS+1skipWindows exacto,3057IDs únicos y3047anteriores preservados,10208fuentes/89paquetes/Python quietos,pip0/0. Gate real de cobertura serial100%líneas/branches en3módulos críticos. Fullgitleaks de UI:exit1,31566raw,2pins existentes,31564restantes; sólo2nuevos fingerprints metadata verificados FP,31562previos sin clasificar. Scanner119 acotado no equivale a gitleaks global.",
-        "Checkpoint128: MAIN incorpora fuentes revisadas31/32. Las dos regresiones completas y cobertura siguen atribuidas sólo a de506/esquema31; no se trasladan a32. CI vigente31 es histórico y requiere evolución coherente para33. Triage root del informe gitleaks original:31.282 ubicaciones checksum candidatas y282 pendientes; Seguridad las revisa independientemente, sin cambio de scanner ni allowlist. No hay un nuevo escaneo global verde."
+        "Checkpoint128: MAIN incorpora fuentes revisadas31/32. Las dos regresiones completas y cobertura siguen atribuidas sólo a de506/esquema31; no se trasladan a32. CI vigente31 es histórico y requiere evolución coherente para33. Triage root del informe gitleaks original:31.282 ubicaciones checksum candidatas y282 pendientes; Seguridad las revisa independientemente, sin cambio de scanner ni allowlist. No hay un nuevo escaneo global verde.",
+        "Checkpoint129: Clasificador finito v1:110 pruebas del autor (49 nuevas+61 anteriores) y171 del peer;10 escaneos reales y2 rechazos previos. Registro de31.394 pins únicos/534 archivos para31.564 ocurrencias antiguas revisadas. Último escaneo completo, fuente17c9:42.830 hallazgos brutos,28.273 clasificados y14.557 bloqueantes. Triage nuevo candidato:14.479 checksums/78 pendientes, sin ampliar el registro ni aceptar el gate global. El árbol33 actual requiere un nuevo escaneo completo. Borrador CI33 inactivo5993:205 canarios históricos y26 guardias propias verdes; QA actual33 continúa. de506 es ancestro auténtico de3587.",
+        "Checkpoint130: Candidato8012 cubre14.557 ocurrencias/14.516pins únicos/155archivos del informe17c9, ahora sin ubicaciones pendientes de triage. Registrov1 instalado intacto; revisión independiente nueva en curso. No es escaneo nuevo ni PASS global. Los nueve digests de configuración prueban productor puro y recibos, sin reconstruir valores privados.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -1249,7 +1272,8 @@
         "9401b5e",
         "b6cdaac",
         "f8ceaa1",
-        "66d9dec0e15dd873038bd248d3883daeeb27d4ca"
+        "66d9dec0e15dd873038bd248d3883daeeb27d4ca",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [
         "Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.",
@@ -1349,7 +1373,8 @@
         "Checkpoint123: Seguridad confirmó de69 con parser ELF propio:1→93exports, argvvacío y _compile/link→call. Nuevo72c44a1 preserva31inputs y corrige call/visibilidad/gates. Autor41 y propios13 (replays separados), PASS_STATIC_ONLY. Nuevo build autorizado tras revisión; aceptación nativa aún pendiente.",
         "Checkpoint124: 72c target nativo aceptado sólo como diagnóstico por Ops y Seguridad:5argv registrados ligados a4ELF,base/new1export,31PSF,218base,libpq170011/OpenSSL3.5.7. SEC ejecutó16XML+19contratos una vez, sin nuevosgcc;recuentos87→97→135. Runtime completo c538(app809+native72) enbuild/diagnóstico, no54/startup/SCA acreditados.",
         "Checkpoint125: Runtimec538 se construyó:54metadata+54imports/355fuentesexactas,ELF0f618 y5argv/1export medidos. Primer startup producción rojo y rollback total; no health/ready/worker acreditados. QA matriz2DB/4roles confirmó deriva DEFAULT FUNCTIONS, guardcorrecto. f74(app6a75+native72+logger474) preparado366Gitblobs/TARa644; build/startup pendientes del margen RAM. OpenSSL sistema3.5.7 y cryptography4.0.3 son mediciones distintas; noSCA71/globalSEC10.",
-        "Checkpoint126: Imagen f74 construida una vez:147.922s exit0, digestdc8fab52ffd440399baba71923aba008d54ebfbcf503d149b933b15f9ada62e3.54metadata/imports/355fuentes/USERreal999:999/218base/11XML/native0f618/5argv/1export medidos. Migración31,health200/ready200/Dockerhealthy/PID1sinMIGRATOR observados. Config.Env inicialsíconservaURL:dockerexec noheredaunsetdePID1. WorkerINCOMPLETO:2criteriosdelobservador eranmásampliosquecontrato (prefijomfa_ y19funcsuniversal;25FORCE/20funcsobservadas). Sin cambio producto ni replay; selloPARTIAL. SQL/Redis/appcerrados,UUID/2rolespropiosausentes/viejosintactos,VMownOFFporQMP."
+        "Checkpoint126: Imagen f74 construida una vez:147.922s exit0, digestdc8fab52ffd440399baba71923aba008d54ebfbcf503d149b933b15f9ada62e3.54metadata/imports/355fuentes/USERreal999:999/218base/11XML/native0f618/5argv/1export medidos. Migración31,health200/ready200/Dockerhealthy/PID1sinMIGRATOR observados. Config.Env inicialsíconservaURL:dockerexec noheredaunsetdePID1. WorkerINCOMPLETO:2criteriosdelobservador eranmásampliosquecontrato (prefijomfa_ y19funcsuniversal;25FORCE/20funcsobservadas). Sin cambio producto ni replay; selloPARTIAL. SQL/Redis/appcerrados,UUID/2rolespropiosausentes/viejosintactos,VMownOFFporQMP.",
+        "Checkpoint129: Los locks web/test/desktop incorporan las tres dependencias de verificación Google del autor33:google-auth2.62.0,pyasn1 0.6.4 ypyasn1-modules0.4.2. Entorno propio92; WEB89 permanece intacto. Dockerfile no cambia. Imagen,SBOM ySCA final vigentes siguen pendientes; el artefacto31 no se reatribuye."
       ]
     },
     {
@@ -1388,7 +1413,8 @@
         "754d56d",
         "6d33b9e",
         "00d2114",
-        "2273616eb218adfdd30680e111da50a4599a8c53"
+        "2273616eb218adfdd30680e111da50a4599a8c53",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [
         "1621pass/1skip serial182.54s y n2shuffle111.34s seed20261018;387Python/deps+55frontend estables e identicas. Unico skip symlinkWindows; no Linux/imagen/Redisreal.",
@@ -1450,7 +1476,9 @@
         "evidence/root-mfa31-reviewed-serial-20261019/source.json",
         "evidence/root-mfa31-reviewed-parallel-20261019/source.json",
         "evidence/qa-retirement32-review219-20261019/review.json",
-        "evidence/qa-retirement32-review227-20261019/review.json"
+        "evidence/qa-retirement32-review227-20261019/review.json",
+        "evidence/backend-google-subject33-20261019/review.md",
+        "evidence/google-link-ui/proofs.json"
       ],
       "documentacion": [
         "DOCUMENTOS.md",
@@ -1479,7 +1507,9 @@
         "Checkpoint125: Serial6a75 cerró3047:3045PASS+1setupERROR+1skipWindows conocido; ambos antiguos recoveryMAX pasan. No Timeout ni causa retrospectiva del error confirmada; gate real100%líneas/ramas en3módulos. Amboshelpers ylogger aceptados focalmente. Comúnde506 conserva10176otrasentradas y sóloalembic.ini deproducción; preflight145/205/173/23quieto yserial3057esperados inició21:07UTC. n2pendiente.",
         "Checkpoint126: Serialde506única con cobertura continúa;3057previstos y3047IDsanteriores requeridos. N2noiniciado. Restore32separadonoesregresiónamplia31. Sin nuevasbroads durantepresiónRAM:OpscerróVMpropia yQARestoreesperóguard1.8GiB antesCREATE.",
         "Checkpoint127: Dos modos completos de506 PASS con la misma omisión histórica Windows de symlink. Duraciones1358.688s serial/621.156s n2 son diagnósticas, noSLO. No atribuir a estas ejecuciones PostgreSQL/Redis/Chrome/Linux/desktop/Actions ni nueva composición32.",
-        "Checkpoint128: QA independiente en219:45VM+8SSR+8HTTP,13grupos Chrome/9capturas,0axe/overflow/pageerrors.8HTTP idénticos repetidos en227 tras delta único _execute. Chrome permanece atribuido219; móduloASTfuera_execute exacto.344fuentes runtime/89metadata/binarios/drivers quietos,pips0; servidor/listener y9generaciones Node/Chrome propios ausentes."
+        "Checkpoint128: QA independiente en219:45VM+8SSR+8HTTP,13grupos Chrome/9capturas,0axe/overflow/pageerrors.8HTTP idénticos repetidos en227 tras delta único _execute. Chrome permanece atribuido219; móduloASTfuera_execute exacto.344fuentes runtime/89metadata/binarios/drivers quietos,pips0; servidor/listener y9generaciones Node/Chrome propios ausentes.",
+        "Checkpoint129: Se integran backend33 yUI Google con evidencia acotada del autor:49 casos VM nuevos,8SSR y148 regresiones. SEC revisa3587; sus8 criterios de asociación pasan. El primer focal80 conserva78PASS+2RED por expectativa SSR anterior404 frente a página200. QA adapta sólo ese framing y conserva las comprobaciones de privacidad. HTTP/browser integrado,broad33 eimagen todavía no están aceptados.",
+        "Checkpoint130: QA-17 tiene replay independiente12SQLite/11PG verde. QA CI33 cerró708 comprobacionesoffline y prepara PG real y framing actual de frontend. Sus fallos Node originales se conservan; broad33, browser eimagen final no están aceptados."
       ]
     },
     {
@@ -1663,16 +1693,17 @@
         "R23"
       ],
       "dependencias": [],
-      "estado": "pendiente",
-      "implementacion": "pendiente",
-      "validacion": "pendiente",
+      "estado": "en_curso",
+      "implementacion": "en_curso",
+      "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
       "commits": [
         "ba4deb4",
         "0e4bc07",
-        "3643c3ee361abecba4d32ae98c1b87da99fb9d77"
+        "3643c3ee361abecba4d32ae98c1b87da99fb9d77",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [],
       "evidencia": [
@@ -1685,7 +1716,9 @@
         "evidence/qa-r23-focus-independent-20261019/final-summary.json",
         "evidence/qa-r23-ci-independent-20261019/final-summary.json",
         "evidence/prepared-wave115-20261019/metodobase-main-r23-merge-finish-20261019/receipt.json",
-        "evidence/main-r23-r24-regression-20261019/summary.json"
+        "evidence/main-r23-r24-regression-20261019/summary.json",
+        "evidence/prepared-wave129-20261019/backend-wire34-proposal.json",
+        "evidence/followup-tasks-ui/manifest.json"
       ],
       "documentacion": [
         "ESTADISTICAS_DISPONIBILIDAD.md",
@@ -1702,7 +1735,9 @@
         "Checkpoint113: Aceptación parcial aislada:53HTTP+50R12unit+2PG ambasfactories+4HTTPpropios+118Node+8freshR23+16freshR12.768 foco antes1/3, después3/3 y30Node; reflow/axe sección0errores observados. Faltan responsables persistidos/eventos atribuibles y resultados; no cerrar por pantalla.",
         "Checkpoint114: QA CI573 aceptado:29reports/33workflow/55+24+12parser/27inert/80Bash/118refs,87mantenidas+35propias+8freshreal. R23 sigue parcial por responsables/eventos persistidos faltantes; no Actions/imagen/SLO.",
         "Checkpoint115: R23/expiry/CI573 integrado3643 tras QA y Seguridad; familia readonly y hechos con fecha/fuente. Sigue parcial por responsables/eventos persistidos; no Actions/imagen/SLO.",
-        "Checkpoint117: Amplia MAINeea8 compuesta conR24/SEC11 verde2597+1cada modo; noCLI/imagen/SLO por esa suite. Responsables/eventos persistidos siguen pendientes."
+        "Checkpoint117: Amplia MAINeea8 compuesta conR24/SEC11 verde2597+1cada modo; noCLI/imagen/SLO por esa suite. Responsables/eventos persistidos siguen pendientes.",
+        "Checkpoint129: Diseño aprobado con propuestas UI77f179 ybackend844beab. No hay backend34 ni consumidor34 integrados. Backend implementa enWT propia desde3587: tareas/eventos durables,causa,próximo paso,responsable actual,CAS,idempotencia,historia y métricas de declaraciones guardadas. Nutri sólo accede a sus asignadas sin stats globales. Sin cobro inferido,contacto automático ni texto sanitario libre. El código yDDL34 requieren QA/SEC.",
+        "Checkpoint130: Backend34 integra el fix8a5e y avanza con mecanismos, HTTP y límites SQLite; router montado en ambas factories sólo enWT34. Wirev1 33bfe88f fijado con ACK técnico de coordinación; aún sin backend/UI34 integrados o PG34 ejecutado."
       ]
     },
     {
@@ -2043,7 +2078,8 @@
         "6d33b9e",
         "6abe08c",
         "7bde30b1877f3b4471ef5a75c47839ceaec209a9",
-        "2273616eb218adfdd30680e111da50a4599a8c53"
+        "2273616eb218adfdd30680e111da50a4599a8c53",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [
         "41 preparatorias+2 composiciones PG restringido reales+8 grupos navegador/5 pantallas independientes;13 seguridad incluidas en25 dirigidos y serial/n2 finales1621 cadauno.",
@@ -2136,7 +2172,8 @@
         "Checkpoint125: Exportación8 aislada y cabecerasSEC16 revisadas. Seguridad demostró parentOFF dejaownlist/withdraw401 hastaON; grantno retiradovuelvea serlegible. No hay endpointpúblicodeOFF demostrado. Diseño de retiroconpruebaprimaria/MFAfresca acotada sinJWT estádocumentado, aúnnoimplementado. Países/retención yborrado siguenabiertos.",
         "Checkpoint126: Retiroexcepcionalenimplementación conpasswordreal+factoractivo en cadaoperación/página,sinJWT/challenge/grant niDDL;Google-only/pérdidatotal noresueltos. ContratoGoogleestático separado:transportetokeninfofijoyaudverified,porlotantonobypassfirmademostrado; faltaasociaciónsubenGooglelogin/reauthporEmail requiereSECreviewdinámica. No cerrarderechosdeprivacidadporrestore.",
         "Checkpoint127: Retiro exige primaria password fresca y factor activo por cada operación/página; Google-only y pérdida total no resueltos. Metadata mínima propia/CAS/latest/appendwithdraw, admisión durable separada, factor+evento+audit en unaACK,503sinretry/readback. HallazgoSEC18 es robustez bajo inyección compuesta, sin evidencia de fuga/bypass/explotación. Registro no cierra derechos globales de privacidad.",
-        "Checkpoint128: Retiro público conectado y revisado acotadamente; no cierra recuperación Google-only/lostallfactor, retención, borrado ni controles globales. Mantiene límites, CAS, factor fresco, estados409/503 veraces y ausencia de tokens/storage nuevos. No se expande sesión general ni se atribuye explotación al fallo compuesto de recursos."
+        "Checkpoint128: Retiro público conectado y revisado acotadamente; no cierra recuperación Google-only/lostallfactor, retención, borrado ni controles globales. Mantiene límites, CAS, factor fresco, estados409/503 veraces y ausencia de tokens/storage nuevos. No se expande sesión general ni se atribuye explotación al fallo compuesto de recursos.",
+        "Checkpoint129: Las pruebas e intentos de la nueva UI Google se mantienen enRAM. Esto no resuelve la exposición legacy global deStorage,retención,borrado o acceso de soporte. El clasificador finito no acepta secretos nuevos. La historia de tareas prevista exige inventario ypurga bajoR31; no se inventa una política legal de conservación."
       ]
     },
     {
@@ -2162,7 +2199,8 @@
       "entorno": "local",
       "cambios": [],
       "commits": [
-        "2273616eb218adfdd30680e111da50a4599a8c53"
+        "2273616eb218adfdd30680e111da50a4599a8c53",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [],
       "evidencia": [
@@ -2204,7 +2242,8 @@
         "Checkpoint125: SEC15 terminalSV41peerverde. Amboshelpers sólofixtures, noendpointsniDDL;9b14SQLite35/PG34yd01257peer aceptados acotadamente. Alertasporcambiodefactor/custodia/rotación/proveedoresGoogleRedisMail/pérdidatotal continúanpendientes.",
         "Checkpoint126: Investigaciónestática deGoogleasociaciónemail/sub pendiente de4canarios+4controlesindependientes. DocsGoogle recomiendansub ypruebaadicionalpara emailthirdpartyverifiedsinhd; nosuponerinvalideztokeninfo. RetiroparentOFFnuevo passwordonlyfailclosedGoogle,noalterarautogeneralaún. Alertas/custodia/rotación/proveedores/lostallfactorcontinúanpendientes.",
         "Checkpoint127: SEC17 asociaciónGoogle por email confirmada, corrección33 separada en curso sin backfill de sub desde correo. Dos tablas de identidad/intent separadas de pagos; verificador de producción y alta/enlace/desenlace explícitos requieren cierre y revisión. No se amplían login general ni autoridad parental para retiro. Alertas/custodia/proveedores/lostallfactor continúan pendientes.",
-        "Checkpoint128: MFA31 revisado se integra con32, incluidos MAX_SV/fixtures/privacy y UI. Google33 aún aislado: issuer/sub, verificador de producción, enlace/desenlace y UI en curso; aceptación de alertas/custodia/proveedores/recuperación total sigue pendiente."
+        "Checkpoint128: MFA31 revisado se integra con32, incluidos MAX_SV/fixtures/privacy y UI. Google33 aún aislado: issuer/sub, verificador de producción, enlace/desenlace y UI en curso; aceptación de alertas/custodia/proveedores/recuperación total sigue pendiente.",
+        "Checkpoint129: Google33 verifica firmaRSA conJWKS fijo yauth_time auténtico,asociaciónsub persistida yprueba local con factor existente. Conserva loginMFA completo ygrants administrativos. Configuración real delclaim,continuidad Google-only histórica,recuperación total,alertas ycustodia siguen pendientes. No hay fallback aiat o correo."
       ]
     },
     {
@@ -3745,7 +3784,10 @@
       "commits": [
         "e8e0c44",
         "0459b0f",
-        "6d33b9e"
+        "6d33b9e",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "Candidato26 serial independiente:1813 passed/1 skipped/3 warnings,232.55s;519 fuentes y paquetes estables. Skip único symlink Windows. n2shuffle seed20261018 en curso sobre la misma foto; no atribuirle aún aprobación.",
@@ -3786,7 +3828,9 @@
         "evidence/linux-runtime28-native-20261019/native-openssl-sec09/evidence-manifest.json",
         "evidence/linux-runtime28-native-20261019/symlink-gate/summary.json",
         "evidence/linux-runtime28-native-20261019/runtime-red-frozen/evidence-manifest.json",
-        "evidence/security-migrator-role-independent-20261019/source.json"
+        "evidence/security-migrator-role-independent-20261019/source.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "QA_R05.md",
@@ -3809,7 +3853,8 @@
         "SeguimientoR21: c6fda6a falló85/1528 estables.40 patrones compactos no contemplabanCRLF; autor10 probes wrapper y seguridad2340 nuevos canarios de cinco codificaciones.45 pares del mapa initial y45 del reporte c6 verificados contra sus blobs; segunda extensión seguridad1575 específicos verdes. Config finalRAW14d11479/LF42bf8058; scan completo próximo commit pendiente, no se atribuye limpio todavía.",
         "Checkpoint107: Nuevo ZIP/Setup desktop de fuente66 revisado independientemente:93 verdes y payload exacto1215; sin ejecutar Setup ni cambiar HKCU. Artefactos históricos3.12.13 permanecen conservados.",
         "Checkpoint108: Imagen99c conserva71IDsOS abiertos y nueva coincidencia por versión de OpenSSL vendorizadoSEC09. No excepción ni imagen corregida. Gate realLinux de symlink1/1; runtime falló42501 al crear rolglobal histórico y se conserva antes de corregir.",
-        "Checkpoint109: QEMU/red/proxies/SSHcerrados;IPv4restauradosemánticamente,IPv6sólofilter/builtinsvacíosinicializados. PG55484transferidoyluegoapagadoSECconpropiedadverificada. NoigualdadbyteabyteIPv6niaceptaciónruntimecorregido."
+        "Checkpoint109: QEMU/red/proxies/SSHcerrados;IPv4restauradosemánticamente,IPv6sólofilter/builtinsvacíosinicializados. PG55484transferidoyluegoapagadoSECconpropiedadverificada. NoigualdadbyteabyteIPv6niaceptaciónruntimecorregido.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -3839,7 +3884,10 @@
         "e8e0c44",
         "e3039c2",
         "0459b0f",
-        "6d33b9e"
+        "6d33b9e",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -3874,7 +3922,9 @@
         "evidence/web-candidate-protocol26-shuffle-independent-source.json",
         "evidence/qa-integrated27-final-20261019/evidence-manifest.json",
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
-        "evidence/qa-integrated28-history-landing-postfix-20261019/final-summary.json"
+        "evidence/qa-integrated28-history-landing-postfix-20261019/final-summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -3888,7 +3938,8 @@
         "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.",
         "CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.",
         "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
-        "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados."
+        "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -4174,7 +4225,10 @@
         "e8e0c44",
         "0459b0f",
         "6d33b9e",
-        "52af40007eed53d32d0dca06b06b44dcbf7c64f3"
+        "52af40007eed53d32d0dca06b06b44dcbf7c64f3",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -4206,7 +4260,9 @@
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
         "evidence/qa-integrated28-history-landing-postfix-20261019/final-summary.json",
         "evidence/history-landing-ci-independent-20261019/final-summary.json",
-        "evidence/history-landing-main-ci-review-20261019/summary.json"
+        "evidence/history-landing-main-ci-review-20261019/summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -4221,7 +4277,8 @@
         "CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.",
         "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
         "El primer serial dd987 dio2358pass/2fail/1skip por una aserción que conservaba checkout huérfano ya retirado. Originales intactos; a753 cambia sólo ese test, sin runtime ni pérdida de casos. CI nuevo y Linux/Actions separados.",
-        "CI local integrado; sin ejecuciónGitHubActions/Linux por esta revisión. CierreQA KeyError de clave screenshot corregido en helper separado con originales intactos;sin replay ni cambios decriterio."
+        "CI local integrado; sin ejecuciónGitHubActions/Linux por esta revisión. CierreQA KeyError de clave screenshot corregido en helper separado con originales intactos;sin replay ni cambios decriterio.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -4254,7 +4311,10 @@
         "e3039c2",
         "0459b0f",
         "6d33b9e",
-        "00d2114"
+        "00d2114",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -4290,7 +4350,9 @@
         "evidence/qa-integrated27-final-20261019/evidence-manifest.json",
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
         "evidence/ci-diary-independent-20261019/evidence-manifest.json",
-        "evidence/ci-diary-independent-20261019/ci-diary-independent-source.json"
+        "evidence/ci-diary-independent-20261019/ci-diary-independent-source.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -4303,7 +4365,8 @@
       "observaciones": [
         "Gate CI R07 prepara SDK real fijado, migración/restore25 y composición PG con cero skips obligatorios; YAML/39 referencias/6 bloques Bash y canarios JUnit revisados localmente. No ejecución remota ni imagen. Los locks añaden sólo6 dependencias SDK;53 pins Windows instalados con hashes.",
         "CI WIP prepara Node33/Storage26/seguridad13/root2, cuatro browser fixtures reales separados y17 reportes PG obligatorios sin vacío/skip/failure/error. QA58 canarios independientes y8 Bash: guard inicial aceptaba campos ausentes, corregido con tipos/mínimos. Sólo ruta de proceso añadida después,57 referencias, mismos guards exactos. Validación estática local; sin GitHub/Linux/imagen.",
-        "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes."
+        "CI6d33b9e fija Node33/Storage26/seguridad13/root2,17 JUnit PostgreSQL obligatorios y cinco fixtures navegador separados. Workflow b3574782:58 referencias,8 Bash y guards idénticos a los58 canarios independientes previos. Sólo validación local/estática; GitHub/Linux/imagen/Redis real siguen pendientes.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -4405,7 +4468,10 @@
         "166038f88b211c52f0d149ce550880795361707c",
         "e8e0c44",
         "0459b0f",
-        "6d33b9e"
+        "6d33b9e",
+        "4f4ed767804f05f8763d32bce67a8e604acc3518",
+        "f4ba470f344517b33f7e0cecea6932fff06eafce",
+        "f008fe99604978cc92f47e97e0113e0332fda256"
       ],
       "pruebas": [
         "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
@@ -4455,7 +4521,9 @@
         "evidence/qa-integrated27-final-20261019/qa-integrated27-final-source.json",
         "evidence/desktop31215-independent-20261019/final-summary.json",
         "evidence/linux-runtime28-native-20261019/native-openssl-sec09/evidence-manifest.json",
-        "evidence/linux-runtime28-native-20261019/symlink-gate/summary.json"
+        "evidence/linux-runtime28-native-20261019/symlink-gate/summary.json",
+        "evidence/root-r05-reviewed-v2-author-20261019/review.md",
+        "evidence/security-r05-new-locations-independent-20261019/review.md"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -4475,7 +4543,8 @@
         "R21 checkpoint2f8b7f9:1490 archivos estables/294 coincidencias, scan fallido conservado.293 huellas públicas verificadas; dos UUID sintéticos repetidos en un log/XML saneados con constancia sin alterar manifests históricos.43 grupos path AND whole-line exactos,187regex;1445 canarios independientes verdes y11 wrapper. Próximo scan completo de commit exacto pendiente, no usar b20e071 como pase actual.",
         "SeguimientoR21: c6fda6a falló85/1528 estables.40 patrones compactos no contemplabanCRLF; autor10 probes wrapper y seguridad2340 nuevos canarios de cinco codificaciones.45 pares del mapa initial y45 del reporte c6 verificados contra sus blobs; segunda extensión seguridad1575 específicos verdes. Config finalRAW14d11479/LF42bf8058; scan completo próximo commit pendiente, no se atribuye limpio todavía.",
         "Checkpoint107: Se preservan los scans originales y se vincula inventario83 al bundle desktop sin repetir SCA. La revisión de artefacto93 es acotada y no cierra LinuxOS71 ni el scan final de secretos de fuente actual.",
-        "Checkpoint108: El inventario nativo detecta superficie fuera de la SCA de distribucionesPyPI;SEC09 requiere corrección y nueva evidencia por artefacto. Gate realLinuxsymlink1/1 sin skip; no startup ni suiteLinux completa."
+        "Checkpoint108: El inventario nativo detecta superficie fuera de la SCA de distribucionesPyPI;SEC09 requiere corrección y nueva evidencia por artefacto. Gate realLinuxsymlink1/1 sin skip; no startup ni suiteLinux completa.",
+        "Checkpoint131: Registro finito R05v2 integrado desde4f4ed7:689archivos/45.910pins, unión disjunta de534/31.394 anteriores y155/14.516 nuevos. SECf008 verifica14.557ocurrencias nuevas y113controles; QA verifica separadamente el binding exacto de tres literales. Autor110casos mantenidos PASS, Ruff/pip0 yfuente quieta. ZIPv1 yalgoritmo conservados. Escaneo real sobre4f4ed7:12.793archivos,44.433hallazgos brutos,42.830clasificados y1.603bloqueantes; salida1, sin aceptación global. Los archivos de evidencia posteriores no se reatribuyen al árbol escaneado. CI33 c86 ysu PG240 conservanv1 hasta composición explícita."
       ]
     },
     {
@@ -6812,8 +6881,8 @@
         "R31",
         "R32"
       ],
-      "estado": "en_revision",
-      "implementacion": "en_curso",
+      "estado": "en_curso",
+      "implementacion": "en_revision",
       "validacion": "en_curso",
       "despliegue": "no_desplegado",
       "entorno": "local",
@@ -6821,14 +6890,17 @@
         "Hallazgo confirmado acotadamente; corrección y aceptación independiente pendientes."
       ],
       "commits": [
-        "fb488e809415fd84c487ec3e2cdca90d987befd3"
+        "fb488e809415fd84c487ec3e2cdca90d987befd3",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [
         "8casos independientes:4canarios de asociación fallan y4controles de rechazo pasan; sin proveedor real, bypass de firma ni bypass del segundo factor."
       ],
       "evidencia": [
         "evidence/security-google-subject-association-independent-20261019/source.json",
-        "evidence/security-google-subject-association-independent-20261019/review.md"
+        "evidence/security-google-subject-association-independent-20261019/review.md",
+        "evidence/backend-google-subject33-20261019/review.md",
+        "evidence/google-link-ui/source.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -6838,7 +6910,9 @@
       "revisor": "Seguridad independiente del autor",
       "bloqueo": null,
       "observaciones": [
-        "MAIN permanece en esquema30. No atribuir aceptación global ni despliegue."
+        "MAIN permanece en esquema30. No atribuir aceptación global ni despliegue.",
+        "Checkpoint129: Implementación33 yUI integradas localmente en3587. Los8 criterios originales del primer peer pasan con transporteJWT/JWKS normalizado yasserts AST exactos. PeerPG,ataques,QAHTTP/browser yCI siguen en curso; no se declara cierre global.",
+        "Checkpoint130: Revisión completa de fuente3587 conservada, incluidos dos framingSSR rojos y carreraQA-17. El fix8a5e tiene replay propio independiente verde. Los canarios de adopción previos se preservan. Aceptación global33 y continuidad legacy aún abiertas."
       ]
     },
     {
@@ -6872,7 +6946,8 @@
       "commits": [
         "6147f9300989f4115cf8d270025a3805926d32b1",
         "2273616eb218adfdd30680e111da50a4599a8c53",
-        "67743467c13b657f947a9a93310d0b49582a3752"
+        "67743467c13b657f947a9a93310d0b49582a3752",
+        "3587b3b3eee3a58367624472d7c0683baa8f10e0"
       ],
       "pruebas": [
         "SQLite73PASS/2rojos yPG24PASS/2rojos; cero errores/skips. Modelo de inyección a Session, no fallo real de driver observado ni explotación. Dos UUID propias cerradas sin sesiones/FORCE con ausencia fresca."
@@ -6893,7 +6968,61 @@
       "bloqueo": null,
       "observaciones": [
         "MAIN permanece en esquema30. No atribuir aceptación global ni despliegue.",
-        "Checkpoint128: Corrección227 integrada: close de Session nueva en finally e invalidate sólo si falla close, sin dispose global ni retag ambiental. Inversa de route a219 exacta. Autor6SQLite, peer79SQLite/30PG, QA8HTTP idénticos; modelos de invalidate imposible antes/después documentados sin ocultar checkout1 en fallo irrecuperable."
+        "Checkpoint128: Corrección227 integrada: close de Session nueva en finally e invalidate sólo si falla close, sin dispose global ni retag ambiental. Inversa de route a219 exacta. Autor6SQLite, peer79SQLite/30PG, QA8HTTP idénticos; modelos de invalidate imposible antes/después documentados sin ocultar checkout1 en fallo irrecuperable.",
+        "Checkpoint129: Cleanup227 sigue byte a byte exacto en3587 yMAIN.33 no rebaja ni reatribuye los79SQLite/30PG y8HTTP históricos del retiro. No se promete checkout0 si también invalidate falla antes de liberar."
+      ]
+    },
+    {
+      "id": "QA-17",
+      "identificador_original": "QA-17",
+      "fuente": "docs/implementation/20261018-evolution/evidence/security-google33-independent-20261019/source.json",
+      "seccion": "Hallazgo nuevo checkpoint130",
+      "problema": "El alta Google de gimnasio puede producir 200+503 en una colisión concurrente de issuer/sub porque el flush del perfil queda fuera del manejo estrecho de IntegrityError. Confirm puede anticipar una colisión con autoflush=True. Se conserva una cuenta y no hay credenciales del perdedor; falla la clasificación pública del conflicto.",
+      "criterio_exacto": "En ambas factories, dos procesos HTTP reales con sesiones propias, pool1 y autoflush=False que intenten alta gym para el mismo issuer/sub y contactos diferentes producen un único200 y un409 google_link_conflict, sin credenciales para el perdedor y con una sola cuenta, binding, perfil y cinco plantillas canónicas. Las colisiones de constraint previas al commit en alta y confirm, incluido autoflush=True al confirmar, requieren rollback confirmado antes del409; rollback incierto conserva503. Mantener atomicidad, ausencia de adopción o reintentos, restauración del contexto y cierre de sesiones propias. Repetir los mismos canarios y conservar verificación de identidad del proveedor.",
+      "prioridad": "P2",
+      "responsable": "Coordinación, backend, seguridad y QA",
+      "tareas": [
+        "R02",
+        "R19",
+        "R32"
+      ],
+      "dependencias": [
+        "R02",
+        "R03",
+        "R32"
+      ],
+      "estado": "en_revision",
+      "implementacion": "en_revision",
+      "validacion": "verificado",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [
+        "Frontera de IntegrityError sobre toda la escritura de alta/confirm; rollback confirmado409, incierto503, sin retry o adopción. Integración local de fuente8a5e y evidencias originales/fijas."
+      ],
+      "commits": [
+        "0bf1d0a8c5a3470173faa36b094076843b76dd6f",
+        "8a5e5dc235e96a47488befb743fc02a24b491939",
+        "41d8c39cedc4fafcde22a5c75a2a333a21040960",
+        "b792cbcec58dd1441167c328e78682dc435dfa17"
+      ],
+      "pruebas": [
+        "Autor: baseline2FAIL+2PASS; mismos4casos4PASS,58regresionesPASS y replayframing4PASS (solapados). Peer:12SQLite+11PG PASS,0errors/skips;2HTTP canónicos200+409,4carrerasFalse+4True ycontrato33. Tres UUID del peer cerrados/ausentes con0sesiones yDROPnormal."
+      ],
+      "evidencia": [
+        "evidence/security-google33-independent-20261019/review.md",
+        "evidence/root-google33-conflict-author-20261019/source.json",
+        "evidence/security-google33-conflict-independent-20261019/review.md"
+      ],
+      "documentacion": [
+        "ESTADO.md",
+        "VALIDACION.md",
+        "GOOGLE_IDENTIDAD_ASOCIACION.md",
+        "NUEVOS_HALLAZGOS.md"
+      ],
+      "revisor": "Seguridad independiente del autor: replay exacto sobre8a5e",
+      "bloqueo": null,
+      "observaciones": [
+        "Aceptación focal local. Wiring de los canarios mantenidos y broad/CI actual siguen en curso; no se declara aceptación global Google33 ni despliegue."
       ]
     }
   ]

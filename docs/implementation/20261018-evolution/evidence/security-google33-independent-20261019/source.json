@@ -1,0 +1,92 @@
+{
+  "reviewed_commit": "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+  "worktree": "F:\\mb-security-google33-peer-20261019",
+  "product_changes": false,
+  "verdict": "RED source QA-17 requires focal fix and identical replay; no global Google33 acceptance",
+  "finding": "QA-17 canonical gym onboarding subject collision returns 503 instead of 409",
+  "canonical_HTTP_factories": 2,
+  "canonical_actual_statuses": [
+    200,
+    503
+  ],
+  "canonical_expected_statuses": [
+    200,
+    409
+  ],
+  "state_atomicity_and_no_losing_credentials_observed": true,
+  "phase_results": {
+    "sqlite": {
+      "exit": 1,
+      "cases": 80,
+      "outcomes": {
+        "passed": 78,
+        "failure": 2,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_author92_WEB89_bothPython_quiet": true,
+      "source_files": 845
+    },
+    "own-sqlite": {
+      "exit": 0,
+      "cases": 44,
+      "outcomes": {
+        "passed": 44,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_packages_Python_quiet": true
+    },
+    "pg-functional": {
+      "exit": 1,
+      "cases": 64,
+      "outcomes": {
+        "passed": 62,
+        "failure": 2,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_packages_Python_quiet": true,
+      "private_profile_bytes_unchanged": true,
+      "recorded_own_UUIDs_cumulative": 2,
+      "all_closed_absent": true
+    },
+    "pg-migration-restore": {
+      "exit": 0,
+      "cases": 15,
+      "outcomes": {
+        "passed": 15,
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_packages_Python_quiet": true,
+      "private_profile_bytes_unchanged": true,
+      "recorded_own_UUIDs_cumulative": 13,
+      "all_closed_absent": true
+    },
+    "pg-final-races": {
+      "exit": 1,
+      "cases": 7,
+      "outcomes": {
+        "passed": 5,
+        "failure": 2,
+        "error": 0,
+        "skipped": 0
+      },
+      "source_packages_Python_quiet": true,
+      "private_profile_bytes_unchanged": true,
+      "recorded_own_UUIDs_cumulative": 15,
+      "all_closed_absent": true
+    }
+  },
+  "phase_counts_are_not_unique_sum": true,
+  "original_eight_business_assertions_preserved": true,
+  "owned_UUIDs_closed_absent": 15,
+  "new_SQL_during_seal": false,
+  "author92_WEB89_sources_bothPython_quiet": true,
+  "pip_final_exit_each": 0,
+  "scanner119_function_AST_sha256": "de7b3ab300984a2e66686fea8e81b3cf1b48d9b2a055ab9f9fd620007d55cf3f",
+  "legacy_unknown_sub_lost_factors_and_live_GIS_not_accepted": true
+}

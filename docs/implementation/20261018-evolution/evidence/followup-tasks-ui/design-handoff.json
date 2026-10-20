@@ -1,0 +1,26 @@
+{
+  "status": "Design draft reviewed by ROOT; consumer not authorized until signed wire34",
+  "base": "a02a9ac04e0c619f6754bc86d89680d1a6bf95a0",
+  "future_common33_anchor": "3587b3b3eee3a58367624472d7c0683baa8f10e0",
+  "future_requirement": "Preserve Google a02 semantics and R05 delta; no composition or runtime changes in this draft",
+  "proposal_sha256": "77f179d0158f64169577f68bb55bc2dcb4aebb128de49bb13f6677fd201948ce",
+  "backend_convergence_not_frozen_wire": {
+    "namespace": "/api/seguimiento separated from /estadisticas",
+    "permissions": "OWNER/ADMIN manage; NUTRIOLOGO assigned-only with dedicated permission; no global stats",
+    "storage_proposed": "task CAS projection plus append-only events, backend-owned",
+    "uniqueness_proposed": "one open/in_progress task per gym/client/cause; no implicit reopen",
+    "idempotency_proposed": "UUID header plus exact actor/method/resource/body hash; replay snapshot operation_result distinct from latest",
+    "unavailable_assignee": "Historical minimum responsible with eligible:false; manager must reassign explicitly; no contact lookup or auto-assign",
+    "completion": "Declared action recorded by actor, no assertion of contact/delivery/payment/retention"
+  },
+  "new_tests": 0,
+  "reason": "Documentation/inventory only; no endpoint34, no invented product failure or API acceptance",
+  "resources": "No Chrome, services, PG, VM or shared dependencies touched",
+  "pending": [
+    "Signed routes/DTO/enums/errors/capabilities/cursors/ACK semantics",
+    "Backend34 authoring and independent review",
+    "Consumer implementation from approved common base",
+    "Separate HTTP/browser/SEC reviews"
+  ],
+  "secret_scan": "Not rerun for this design-only phase; existing global red gate remains open, no allowlist change"
+}
