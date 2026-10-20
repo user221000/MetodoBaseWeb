@@ -1,0 +1,66 @@
+diff --git b/web/static/css/account-security37.css a/web/static/css/account-security37.css
+index a08b52fa..c67bb531 100644
+--- b/web/static/css/account-security37.css
++++ a/web/static/css/account-security37.css
+@@ -4,4 +4,4 @@
+ .account-security37 fieldset{min-width:0;margin:0;padding:.75rem;display:grid;gap:.65rem}.account-security37 [hidden]{display:none!important}
+ .account-security37 button{max-width:100%;min-height:2.75rem;padding:.65rem 1rem;white-space:normal;font:inherit;cursor:pointer}.account-security37 button:disabled{cursor:default;opacity:.6}
+ .account-security37 :focus-visible{outline:3px solid #3685d6;outline-offset:3px}.account-security37 [role=status]{min-height:1.5em}.account37-check{display:flex;gap:.6rem;align-items:flex-start}.account37-check input{flex:none;margin-top:.3rem}
+-@media(max-width:480px){.account-security37 h1{font-size:1.65rem}}
++@media(max-width:480px){.main-content:has(.account-security37),.u-main:has(.account-security37){padding-top:4rem}.account-security37 h1{font-size:1.65rem}}
+diff --git b/web/static/css/styles-usuario.css a/web/static/css/styles-usuario.css
+index d642d66b..991e5d00 100644
+--- b/web/static/css/styles-usuario.css
++++ a/web/static/css/styles-usuario.css
+@@ -2133,12 +2133,12 @@ textarea.u-form-input {
+ /* ── Mobile Responsive ────────────────────────────────────────────────────── */
+ .u-mobile-menu-btn {
+   display: none;
+-  /* A flow row also protects the preserved MFA island outside main. */
+-  position: relative;
+-  margin: 16px 0 0 16px;
++  position: fixed;
++  top: 18px;
++  left: 18px;
+   z-index: 200;
+-  width: 44px;
+-  height: 44px;
++  width: 42px;
++  height: 42px;
+   border-radius: var(--u-radius-sm);
+   background: var(--u-bg-card);
+   border: 1px solid var(--u-border);
+@@ -2180,7 +2180,7 @@ textarea.u-form-input {
+ 
+   .u-mobile-menu-btn { display: flex; }
+ 
+-  .u-main { padding: 10px 16px 48px; }
++  .u-main { padding: 70px 16px 48px; }
+ 
+   .u-hero-title { font-size: 1.5rem; }
+ 
+diff --git b/web/static/css/styles.css a/web/static/css/styles.css
+index 747532aa..13dd9285 100644
+--- b/web/static/css/styles.css
++++ a/web/static/css/styles.css
+@@ -1820,9 +1820,9 @@ input[type="number"].input, input[type="search"].input {
+ /* ── Hamburger menu ─────────────────────────────────────────── */
+ .mobile-menu-btn {
+   display: none;
+-  /* Reserve its own row, including when the MFA island is outside main. */
+-  position: relative;
+-  margin: 16px 0 0 16px;
++  position: fixed;
++  top: 16px;
++  left: 16px;
+   z-index: 1001;
+   background: var(--accent-primary);
+   color: var(--bg-primary);
+@@ -2376,6 +2376,7 @@ a, button, .btn, .kpi-card, .feed-item {
+ .dialog-focus-open { overscroll-behavior: contain; }
+ .time-tab, .sub-btn-reset, .modal-close { min-height: 44px; }
+ @media (max-width: 768px) {
++  .main-content { padding-top: 80px; }
+   .sidebar { max-width: calc(100vw - 64px); }
+   .page-header { flex-wrap: wrap; gap: 16px; }
+   .page-header > button { width: 100%; justify-content: center; }
