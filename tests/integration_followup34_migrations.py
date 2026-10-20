@@ -83,6 +83,8 @@ def test_nonempty_history_refuses_destructive_downgrade(followup_database):
         db.flush();db.add(Cliente(id_cliente="client-a",gym_id="gym-a",nombre="Synthetic"));db.commit()
     from web.database.tenant_context import tenant_scope
     with tenant_scope("gym-a"),Session(engine) as db:
+        from web.database.tenant_context import bind_verified_subject
+        bind_verified_subject(db, "gym-a")  # Seed actor was just persisted above.
         value=creation(assignee_id=None)
         db.add(FollowupTaskEvent(**value));db.commit()
     columns,rows=snapshot(engine)

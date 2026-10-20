@@ -11,6 +11,7 @@ from datetime import datetime
 from fastapi import HTTPException
 from sqlalchemy import Integer, cast, or_, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.orm import load_only
 
 from web.database import followup_task_repository as repo
 from web.database.followup_schema_v1 import SNAPSHOT
@@ -83,7 +84,13 @@ def authority(db, expected, *, lock=False, extra=()):
         fail(401, "followup_identity_unavailable")
     gym = hint.team_gym_id if hint.team_gym_id else hint.id
     ids = sorted({hint.id, gym, *(identifier for identifier in extra if identifier)})
-    query = select(Usuario).where(Usuario.id.in_(ids)).order_by(Usuario.id).execution_options(populate_existing=True)
+    # Locks require eligibility only. In particular, a historical assignee
+    # outside this gym must never hydrate its current name/contact/credential.
+    query = select(Usuario).options(load_only(
+        Usuario.id, Usuario.activo, Usuario.deleted_at, Usuario.invitation_token,
+        Usuario.session_version, Usuario.tipo, Usuario.role, Usuario.team_gym_id,
+        raiseload=True,
+    )).where(Usuario.id.in_(ids)).order_by(Usuario.id).execution_options(populate_existing=True)
     if db.get_bind().dialect.name == "postgresql":
         query = query.with_for_update(nowait=True, read=not lock)
     users = {u.id: u for u in db.scalars(query).all()}
