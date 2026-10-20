@@ -19,6 +19,7 @@ from starlette.responses import Response, JSONResponse
 from web.client_link_paths import is_member_link_private
 from web.progress_paths import is_progress_private
 from web.followup_paths import is_followup_private
+from web.nutrition_paths import is_nutrition_private
 
 import inspect
 import logging
@@ -119,6 +120,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS or request.url.path in _GOOGLE_LINK_PAGES
         progress_api = is_progress_private(request.url.path)
         followup_api = is_followup_private(request.url.path)
+        nutrition_api = is_nutrition_private(request.url.path)
         export_api = request.url.path in _PRIVATE_EXPORT_PATHS
         operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}
         
@@ -132,6 +134,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                     and not primary_api
                     and not progress_api
                     and not followup_api
+                    and not nutrition_api
                     and not export_api
                     and not operations):
                 raise
@@ -200,6 +203,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 or primary_api
                 or progress_api
                 or followup_api
+                or nutrition_api
                 or export_api
                 or operations
                 or request.url.path.startswith("/api/auth/mfa/")
@@ -213,7 +217,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if operations or primary_api or progress_api or followup_api or export_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
+        if operations or primary_api or progress_api or followup_api or nutrition_api or export_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
             response.headers["Cache-Control"] = "no-store"
         
         if operations:
