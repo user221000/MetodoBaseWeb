@@ -1,0 +1,28 @@
+{
+  "factories": [
+    "api.app",
+    "web.main_web"
+  ],
+  "SEC20": {
+    "expected_missing_and_unassigned": [
+      404,
+      404
+    ],
+    "actual_missing_and_unassigned": [
+      404,
+      409
+    ],
+    "blocked_row": "Only other synthetic assignee UsuarioC",
+    "actor": "Real authenticated full-MFA NutriB samegym, Task assignedC",
+    "no_foreign_gym_or_profile_disclosure_claim": true
+  },
+  "QA-21": {
+    "expected_nowait_code": 409,
+    "actual_timeout_code": 503,
+    "statement_timeout_ms": 700,
+    "assertion_failed_before_elapsed_threshold": true,
+    "blocked_row": "Own synthetic Cliente FOR UPDATE",
+    "SQLSTATE57014_must_not_be_reclassified_as_lock409": true
+  },
+  "limits": "First original assertions fail before some postchecks; app engine disposed and owned DB normalDROP0sessions/freshabsence confirmed. Further structural postconditions follow in author validation."
+}
