@@ -1,7 +1,7 @@
 # Estado de implementación
 
-Checkpoint131 local: esquema33 y127 requisitos (92 originales+35 añadidos).
-Se conservan íntegros los126 criterios previos. Free:10 clientes activos,
+Checkpoint132 local: esquema33 y128 requisitos (92 originales+36 añadidos).
+Se conservan íntegros los127 criterios previos. Free:10 clientes activos,
 1 plan por cliente al día y10 planes totales por gimnasio al día. Desktop sigue
 soportado. El workspace de referencia permanece intacto. Sin push,PR,despliegue,
 cargos ni comunicaciones reales.
@@ -49,3 +49,10 @@ VM yRedis6388 propios siguen apagados. PostgreSQL55483 quedó transferido de
 seguridad aQA para validación actual con bases propias ycierres comprobados.
 La imagen ydesktop final se prepararán desde la fuente estable posterior.
 [Registro](TRAZABILIDAD.md),[validación](VALIDACION.md).
+
+QA recuperó PG33 c86:20reportes/240casos PASS, sin nuevos casos ni rerun.
+52UUID ausentes y0sesiones comprobados tras pausa. Mantienev1 ylas limitaciones
+del engine auxiliar; integraciónCI ypinv2 en curso. Backend tomaPG55483 para34.
+QA-18 queda abierto:12canarias8PASS4RED sobre80b9; fuente34 sigue aislada.
+[PG recuperado](evidence/qa-ci33-PG240-recovery-independent-20261019/phase-summary.json),
+[QA-18](evidence/security-followup34-independent-20261019/review.md).

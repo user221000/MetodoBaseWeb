@@ -1,0 +1,83 @@
+{
+  "policy_RAW_SHA256": "2d042170f9628193c67bc2446575cb7d024fd466404e348809246aed95ebdf4b",
+  "closed_operator_call_arguments": {
+    "_source": [
+      [
+        "IS"
+      ],
+      [
+        "IS NOT DISTINCT FROM"
+      ]
+    ],
+    "_qualifies": [
+      [
+        "strftime('%Y-%m-%d %H:%M:%f','now')",
+        "strftime('%Y-%m-%d %H:%M:%f','now','-30 days')"
+      ],
+      [
+        "(clock_timestamp() AT TIME ZONE 'UTC')",
+        "(clock_timestamp() AT TIME ZONE 'UTC') - interval '30 days'"
+      ]
+    ],
+    "_immutable": [
+      [
+        "IS"
+      ],
+      [
+        "IS NOT DISTINCT FROM"
+      ]
+    ],
+    "_transition": [
+      [
+        "IS NOT"
+      ],
+      [
+        "IS DISTINCT FROM"
+      ]
+    ],
+    "_projection": [
+      [
+        "IS"
+      ],
+      [
+        "IS"
+      ],
+      [
+        "IS NOT DISTINCT FROM"
+      ]
+    ]
+  },
+  "SNAPSHOT_literal_column_names": [
+    "gym_id",
+    "client_id",
+    "cause",
+    "cause_evidence_hash",
+    "observed_at",
+    "plan_count",
+    "last_plan_at",
+    "membership_end",
+    "priority_at_creation",
+    "next_step",
+    "assignee_id",
+    "status",
+    "version",
+    "created_by",
+    "created_at",
+    "updated_at",
+    "completed_by",
+    "completed_at",
+    "outcome",
+    "cancelled_by",
+    "cancelled_at",
+    "cancel_reason"
+  ],
+  "no_request_imports_in_policy": true,
+  "analysis": "Seven reported B608 MEDIUM/LOW diagnostics correspond to invoker-trigger/RLS DDL assembled from fixed local helpers, operators, literal table names and the frozen SNAPSHOT tuple. HTTP data remains ORM-bound; no request string feeds these DDL fragments. No Bandit suppression or baseline change made.",
+  "PG_counts_runtime_unproved": {
+    "anticipated_FORCE": 28,
+    "anticipated_functions": 29,
+    "anticipated_triggers": 15
+  },
+  "GUC_not_authenticated_actor_signature": true,
+  "SECURITY_INVOKER_not_definer": true
+}
