@@ -1,0 +1,53 @@
+{
+  "scope": "Actual current37 authenticated HTTP on SQLite, no principal override or server/Chrome/PG/provider",
+  "observations": [
+    {
+      "factory": "api.app",
+      "revision": "20261020_account_security",
+      "ORM": 41,
+      "physical": 42,
+      "dialect": "sqlite",
+      "stats": {
+        "status": 200,
+        "headers": {
+          "cache-control": "no-store, max-age=0",
+          "referrer-policy": "strict-origin-when-cross-origin"
+        }
+      },
+      "profile": {
+        "status": 404,
+        "headers": {
+          "cache-control": "no-store",
+          "referrer-policy": "no-referrer"
+        }
+      },
+      "real_registration_login_and_principal": true,
+      "no_dependency_override": true,
+      "no_PG_Chrome_or_provider": true
+    },
+    {
+      "factory": "web.main_web",
+      "revision": "20261020_account_security",
+      "ORM": 41,
+      "physical": 42,
+      "dialect": "sqlite",
+      "stats": {
+        "status": 200,
+        "headers": {
+          "cache-control": "no-store, max-age=0",
+          "referrer-policy": "strict-origin-when-cross-origin"
+        }
+      },
+      "profile": {
+        "status": 200,
+        "headers": {
+          "cache-control": "no-store",
+          "referrer-policy": "no-referrer"
+        }
+      },
+      "real_registration_login_and_principal": true,
+      "no_dependency_override": true,
+      "no_PG_Chrome_or_provider": true
+    }
+  ]
+}
