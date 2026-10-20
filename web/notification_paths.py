@@ -3,7 +3,8 @@ import re
 
 _EXACT=frozenset({"/api/notificaciones/contexto","/api/notificaciones/preferencias",
     "/api/notificaciones/candidatos","/api/notificaciones/outbox","/api/notificaciones/metricas",
-    "/api/notificaciones/observar","/api/notificaciones/excluir","/notificaciones/excluir"})
+    "/api/notificaciones/observar","/api/notificaciones/excluir","/notificaciones/excluir",
+    "/recordatorios","/mis-recordatorios"})
 _RESOURCE=re.compile(r"/api/notificaciones/(?:preferencias/[^/]+|outbox/[^/]+/cancelar)\Z")
 
 

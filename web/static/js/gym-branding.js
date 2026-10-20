@@ -17,6 +17,11 @@
   const status = document.getElementById('logo-upload-status');
   const errorBox = document.getElementById('logo-error');
   const save = document.getElementById('btn-guardar');
+  const fieldNodes = Object.fromEntries(Object.keys(fields).map(id => [id, document.getElementById(id)]));
+  const planGrid = document.getElementById('planes-grid');
+  const planLoading = document.getElementById('planes-loading');
+  const successMessage = document.getElementById('successMsg');
+  const errorMessage = document.getElementById('errorMsg');
   const types = ['image/png', 'image/jpeg', 'image/webp'];
   const maxBytes = 2 * 1024 * 1024;
   let epoch = 0, context = null, current = null, invalidated = false;
@@ -34,20 +39,21 @@
     picker.disabled = input.disabled = busy || invalidated || !canUpdate();
     reload.disabled = busy || invalidated;
     save.disabled = busy || invalidated || !profileLoaded || !canUpdate();
-    Object.keys(fields).forEach(id => { document.getElementById(id).disabled = busy || invalidated || !profileLoaded || !canUpdate(); });
+    Object.values(fieldNodes).forEach(field => { field.disabled = busy || invalidated || !profileLoaded || !canUpdate(); });
     section.setAttribute('aria-busy', String(busy));
   }
   function fail(message) {
     errorBox.textContent = message; errorBox.hidden = false; errorBox.focus();
   }
   function invalidate() {
+    if (invalidated) return;
     epoch++; invalidated = true; busy = false; context = current = null;
     profileLoaded = false; clearPreview(); input.value = '';
-    Object.keys(fields).forEach(id => { document.getElementById(id).value = ''; });
-    document.getElementById('planes-grid').replaceChildren();
-    document.getElementById('planes-loading').textContent = 'La sesión cambió. Abre de nuevo la configuración.';
-    document.getElementById('successMsg').style.display = 'none';
-    document.getElementById('errorMsg').style.display = 'none';
+    Object.values(fieldNodes).forEach(field => { field.value = ''; });
+    planGrid.replaceChildren();
+    planLoading.textContent = 'La sesión cambió. Abre de nuevo la configuración.';
+    successMessage.style.display = 'none';
+    errorMessage.style.display = 'none';
     placeholder.textContent = 'Vista previa no disponible';
     status.textContent = 'La sesión cambió. Abre de nuevo la configuración desde tu cuenta.';
     errorBox.hidden = true; controls();
@@ -121,7 +127,7 @@
       await verify(expected);
       const profile = await Api.gym.getProfile();
       await verify(expected); validateProfile(profile);
-      if (!profileLoaded) Object.entries(fields).forEach(([id, name]) => { document.getElementById(id).value = typeof profile[name] === 'string' ? profile[name] : ''; });
+      if (!profileLoaded) Object.entries(fields).forEach(([id, name]) => { fieldNodes[id].value = typeof profile[name] === 'string' ? profile[name] : ''; });
       profileLoaded = true;
       await preview(profile, expected);
     } catch (error) {
@@ -159,10 +165,10 @@
   reload.addEventListener('click', load);
   save.addEventListener('click', async () => {
     if (busy || invalidated || !profileLoaded || !canUpdate()) return;
-    for (const id of Object.keys(fields)) if (!document.getElementById(id).reportValidity()) return;
+    for (const field of Object.values(fieldNodes)) if (!field.reportValidity()) return;
     const expected = epoch, payload = {};
-    Object.entries(fields).forEach(([id, name]) => { payload[name] = document.getElementById(id).value.trim(); });
-    const success = document.getElementById('successMsg'), error = document.getElementById('errorMsg');
+    Object.entries(fields).forEach(([id, name]) => { payload[name] = fieldNodes[id].value.trim(); });
+    const success = successMessage, error = errorMessage;
     success.style.display = error.style.display = 'none'; busy = true; controls();
     try {
       await verify(expected);
@@ -177,6 +183,7 @@
     } finally { if (!invalidated && expected === epoch) { busy = false; controls(); } }
   });
   window.addEventListener('storage', event => { if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) invalidate(); });
+  window.addEventListener('metodobase-session-changed', invalidate);
   window.addEventListener('pagehide', invalidate);
   window.addEventListener('pageshow', event => { if (event.persisted) invalidate(); });
   window.GymBranding = { verifyAccount: () => verify(epoch), canUpdate, isActive: () => !invalidated };

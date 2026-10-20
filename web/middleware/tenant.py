@@ -16,6 +16,14 @@ from starlette.requests import Request
 
 logger = logging.getLogger(__name__)
 
+# These public operations establish their own verified subject. An unrelated
+# Bearer may not bind their database work to a previously signed-in account.
+_PUBLIC_PRIMARY_POSTS = frozenset({
+    "/api/auth/registro", "/api/auth/registro/",
+    "/api/auth/login", "/api/auth/login/",
+    "/api/auth/google", "/api/auth/google/",
+})
+
 # Context var para tenant actual (usado por RLS en PostgreSQL via get_db())
 
 
@@ -48,7 +56,9 @@ class TenantMiddleware(BaseHTTPMiddleware):
             except HTTPException as error:
                 return JSONResponse({"detail": error.detail}, status_code=error.status_code,
                                     headers={**(error.headers or {}), **HEADERS})
-        excluded = any(path.startswith(item) for item in self.exclude_paths)
+        excluded = (request.method == "POST" and path in _PUBLIC_PRIMARY_POSTS) or any(
+            path.startswith(item) for item in self.exclude_paths
+        )
         tenant_id = None if excluded else await self._extract_tenant(request)
         token = current_tenant.set(tenant_id or "")
         request.state.tenant_id = tenant_id
