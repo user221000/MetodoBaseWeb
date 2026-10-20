@@ -13,6 +13,7 @@ from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
+
 from web.account_security_paths import POSTS as ACCOUNT_POSTS
 
 logger = logging.getLogger(__name__)
