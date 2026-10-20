@@ -125,6 +125,33 @@ class NutritionRestrictions:
         return cls(AllergyDeclaration.from_payload(allergies, known_foods),
                    _food_tuple(excluded_foods, known_foods), professional_review_requested)
 
+    @classmethod
+    def from_declaration(
+        cls, value: object, known_foods: Collection[str], *, excluded_foods: object = (),
+    ) -> NutritionRestrictions:
+        """Parse the closed profile declaration without duplicating exclusions.
+
+        A missing legacy declaration remains unknown. An explicit declaration
+        requires all version1 fields; neither a clinical approval nor notes are
+        accepted. Exclusions retain their existing independent profile field.
+        """
+        if value is None:
+            return cls.from_profile(known_foods, excluded_foods=excluded_foods)
+        if (type(value) is not dict
+                or set(value) != {"version", "allergies", "professional_review_requested"}
+                or type(value["version"]) is not int or value["version"] != 1
+                or value["allergies"] is None):
+            _invalid()
+        return cls.from_profile(
+            known_foods, allergies=value["allergies"], excluded_foods=excluded_foods,
+            professional_review_requested=value["professional_review_requested"],
+        )
+
+    def declaration_payload(self) -> dict[str, Any]:
+        """Return fresh declared facts; exclusions have a separate wire field."""
+        return {"version": 1, "allergies": self.allergies.as_dict(),
+                "professional_review_requested": self.professional_review_requested}
+
     def require_automated_generation(self) -> None:
         """Fail before quota use, CPU, PDF or publication for declared reviews.
 
@@ -158,3 +185,32 @@ class NutritionRestrictions:
                 "Las restricciones cambiaron. Revisa el perfil antes de preparar otro plan."
             )
         current.require_automated_generation()
+
+
+def generation_catalog(
+    restrictions: object,
+    foods: Mapping[str, Mapping[str, Any]],
+    categories: Mapping[str, Sequence[str]],
+    catalog: FoodCatalog | None = None,
+) -> FoodCatalog:
+    """Enforce a constructor's declaration before seeds, CPU or filesystem work.
+
+    A supplied catalog cannot bypass a review or restore the client's excluded
+    foods. The resulting snapshot preserves the supplied catalog's exclusions
+    and any stricter filtering. Legacy clients with no declaration keep the
+    existing catalog contract. No caller-owned data is changed.
+    """
+    if restrictions is not None:
+        if type(restrictions) is not NutritionRestrictions:
+            _invalid()
+        restrictions.require_automated_generation()
+        if set(restrictions.excluded_foods).difference(foods):
+            _invalid()
+    selected = catalog if catalog is not None else FoodCatalog.from_data(foods, categories)
+    if restrictions is None or not restrictions.excluded_foods:
+        return selected
+    exclusions = frozenset(restrictions.excluded_foods)
+    filtered = FoodCatalog.from_data(
+        selected.alimentos, selected.categorias, exclusions.intersection(selected.alimentos),
+    )
+    return FoodCatalog(filtered.alimentos, filtered.categorias, selected.excluidos | exclusions)

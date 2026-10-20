@@ -50,3 +50,18 @@ No se modifica la cadena Alembic ni los contratos22–34 para este precursor.
 API/UI, PostgreSQL, desktop, carrera de publicación y revisión independiente
 siguen pendientes. La prueba local del precursor y regresiones existentes no
 constituye revisión clínica ni aceptación integrada deR33.
+
+La segunda fase local conecta ambos constructores del motor a la declaración
+capturada de `ClienteEvaluacion`. El guard se ejecuta antes de seeds, ajustes,
+rotación y filesystem; un catálogo suministrado no lo evita. Las exclusiones
+del perfil se combinan con las del catálogo sin restaurar alimentos ni alterar
+datos compartidos. La declaración queda fuera de repr. Diez regresiones de esa
+frontera fallan antes y pasan después; la fase final tiene79 casos verdes,
+incluidos dos planes reales que conservan ambas listas de exclusiones. No es
+todavía persistencia, API, UI o aceptación de desktop.
+
+El objeto de perfil propuesto `restricciones_nutricionales` contiene exactamente
+`version: 1`, `allergies` (la declaración cerrada anterior) y
+`professional_review_requested` booleano estricto. No repite exclusiones. Los
+métodos puros `from_declaration` y `declaration_payload` validan esa forma y
+devuelven copias independientes; no añaden campos de aprobación profesional.

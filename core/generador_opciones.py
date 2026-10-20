@@ -13,6 +13,7 @@ Diferencias vs ConstructorPlanNuevo:
 """
 
 from core.food_catalog import FoodCatalog, FoodRestrictionError
+from core.nutrition_restrictions import generation_catalog
 from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS, CATEGORIAS as _DEFAULT_CATEGORIES
 import random
 from typing import List, Dict
@@ -393,7 +394,9 @@ class ConstructorPlanConOpciones:
     ) -> Dict:
         """Construye plan con opciones múltiples."""
         # The request catalog also constrains emergency/alternative selections.
-        catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
+        catalogo = generation_catalog(
+            cliente.nutrition_restrictions, _DEFAULT_FOODS, _DEFAULT_CATEGORIES, catalogo,
+        )
         alimentos_base = catalogo.alimentos
         categorias = catalogo.categorias
         logger.info("[OPCIONES] Generando plan con opciones para %s", cliente.nombre)
