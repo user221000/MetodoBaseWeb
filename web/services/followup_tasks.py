@@ -293,7 +293,7 @@ def mutate(db, expected, kind, command, request_key, path, *, identifier=None, n
         fail(401, "followup_identity_unavailable")
     gym_hint = actor_hint.team_gym_id or actor_hint.id
     bind_verified_subject(db, gym_hint)
-    manager_hint = has_permission(actor_hint, "manage", "followup_task", gym_hint)
+    manager_hint = _eligible(actor_hint, gym_hint) and has_permission(actor_hint, "manage", "followup_task", gym_hint)
     # Restrict discovery before deriving any other account's lock. Hints only
     # narrow access; authority still revalidates the locked persistent context.
     hint = repo.task(db, gym_hint, actor_hint.id, manager_hint, identifier) if identifier else None
