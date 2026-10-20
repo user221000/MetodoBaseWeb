@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "candidate_revision": "20261020_nutrition_profile",
+  "state": "local SQLite author validation; not integrated MAIN or deployed",
+  "profile_field": "restricciones_nutricionales",
+  "closed_shape": {
+    "version": 1,
+    "allergies": {
+      "version": 1,
+      "status": "not_reported | none_reported | reported",
+      "foods": "catalog food ID array; maximum 250; unique canonical sorted on server",
+      "other_reported": "strict boolean"
+    },
+    "professional_review_requested": "strict boolean"
+  },
+  "invariants": [
+    "not_reported preserves unknown; none_reported is a person's declaration without clinical assurance",
+    "reported requires at least one known food ID or other_reported true",
+    "all other statuses require empty foods and other_reported false",
+    "any reported allergy or professional_review_requested true prevents automated generation at every subscription tier",
+    "no approval flag, free text, ingredient inference, allergen taxonomy or cross-contact guarantee",
+    "existing alimentos_excluidos remains separate and always enforced",
+    "omission or null in partial update preserves the persisted declaration",
+    "explicit changes submit one complete valid object; saving is explicit",
+    "declaration values and their derived digest are not analytics, logs, browser storage or followup task data"
+  ],
+  "gym_factories": ["web.main_web", "api.app"],
+  "gym_read": "GET /api/clientes/{id_cliente}",
+  "gym_create": "POST /api/clientes",
+  "gym_update": "PUT /api/clientes/{id_cliente}",
+  "gym_generation": "POST /api/generar-plan",
+  "personal_factory": "web.main_web",
+  "personal_read": "GET /api/usuario/perfil",
+  "personal_update": "PUT /api/usuario/perfil",
+  "personal_generation": "POST /api/usuario/generar-plan",
+  "authorization": "Existing identity/tenant/role checks; no new client-supplied authority or review bypass",
+  "public_errors": {
+    "nutrition_profile_invalid_input": 422,
+    "nutrition_restrictions_invalid": 422,
+    "nutrition_professional_review_required": 422,
+    "nutrition_restrictions_changed": 409
+  },
+  "uncertainty": "Existing compensation or publication uncertainty retains its 503 contract; never infer refund from an unknown outcome",
+  "privacy": "no-store/no-referrer; validation errors never echo declaration values",
+  "pending": ["PostgreSQL35", "UI35", "desktop persistence and UI", "independent integrated QA/security", "actual professional validation"]
+}

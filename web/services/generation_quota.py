@@ -53,13 +53,15 @@ def require_publishable_generation(db: Session, user_id: str, reservation_id: st
     return reservation
 
 
-def reserve_generation(db: Session, user_id: str, request_key: str | None) -> GenerationReservation:
+def reserve_generation(db: Session, user_id: str, request_key: str | None, *, client_id: str | None = None) -> GenerationReservation:
     """Commit one quota credit before generation, or return its completed result.
 
     The authenticated individual owns the account. Account-row write locking
     serializes quota reset, check, increment and request-key creation across
     processes. An interrupted reserved request remains visible for reconciliation
     and cannot silently start a second generation.
+    Generation adapters supply client_id to validate the current declaration
+    before debiting. Legacy quota-only callers do not generate a plan here.
     """
     key = request_key or str(uuid.uuid4())
     if not 1 <= len(key) <= 128:
@@ -72,6 +74,9 @@ def reserve_generation(db: Session, user_id: str, request_key: str | None) -> Ge
             return existing
         raise HTTPException(409, {"code": "generation_in_progress" if existing.status == "reserved" else "generation_failed",
                                   "message": "La solicitud ya fue recibida. Consulta su estado antes de iniciar otra."})
+    if client_id is not None:
+        from web.services.nutrition_profiles import require_client_automation
+        require_client_automation(db, user_id, client_id)
     sub = get_individual_subscription(db, user_id)
     db.flush()
     # The locked projection defines the period being debited. Reading the clock

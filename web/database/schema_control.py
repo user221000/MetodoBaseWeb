@@ -24,6 +24,7 @@ SCHEMA_CONTRACTS = {
     "20261019_personal_progress": "20261019_personal_progress",
     "20261019_google_subjects": "20261019_google_subjects",
     "20261019_followup_tasks": "20261019_followup_tasks",
+    "20261020_nutrition_profile": "20261020_nutrition_profile",
 }
 
 

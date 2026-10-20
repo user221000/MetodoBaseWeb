@@ -100,6 +100,8 @@ def reserve_gym_generation(db, gym_id: str, payload: dict, request_key: str | No
     client_id = payload.get('id_cliente')
     if not db.query(Cliente.id).filter_by(id_cliente=client_id, gym_id=gym_id, activo=True, deleted_at=None).first():
         _fail('client_unavailable', 'Cliente no encontrado.', status=404)
+    from web.services.nutrition_profiles import require_client_automation
+    require_client_automation(db, gym_id, client_id)
     window = quota_calendar(now)
     plan, limits = _current_plan(db, gym_id)
     dimensions = [

@@ -31,6 +31,8 @@ def build_cliente_from_dict(data: dict) -> ClienteEvaluacion:
     Si grasa_corporal_pct es None se asume 20% para que el motor no falle.
     """
     from core.motor_nutricional import MotorNutricional
+    from core.nutrition_restrictions import NutritionRestrictions
+    from src.alimentos_base import ALIMENTOS_BASE
 
     grasa = data.get("grasa_corporal_pct") or 20.0
 
@@ -43,6 +45,10 @@ def build_cliente_from_dict(data: dict) -> ClienteEvaluacion:
         grasa_corporal_pct=float(grasa),
         nivel_actividad=data.get("nivel_actividad"),
         objetivo=data.get("objetivo"),
+        nutrition_restrictions=NutritionRestrictions.from_declaration(
+            data.get("restricciones_nutricionales"), ALIMENTOS_BASE,
+            excluded_foods=data["alimentos_excluidos"] if data.get("alimentos_excluidos") is not None else [],
+        ),
     )
 
     if data.get("id_cliente"):

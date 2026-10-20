@@ -15,9 +15,10 @@ from web.database.engine import get_db
 from web.auth_deps import get_usuario_gym
 from web.database import repository as repo
 from config.constantes import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ERR_CLIENTE_NO_ENCONTRADO
+from web.nutrition_http import NutritionRoute
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Clientes"])
+router = APIRouter(tags=["Clientes"], route_class=NutritionRoute)
 
 
 @router.get("/clientes", summary="Listar clientes")

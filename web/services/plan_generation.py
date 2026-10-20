@@ -58,6 +58,7 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
     from web.dependencies import build_cliente_from_dict
     from web.database.engine import get_engine
     from web.database.models import Cliente, GymProfile
+    from web.services.nutrition_profiles import capture_profile, lock_current_restrictions
     from sqlalchemy.orm import Session as SASession
 
     # Leer cliente desde SA (con aislamiento multi-tenant)
@@ -71,6 +72,8 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
         ).first()
         if not c:
             raise ValueError(f"Cliente '{id_cliente}' no encontrado")
+        restrictions = capture_profile(c)
+        restrictions.require_automated_generation()
         row = {
             "nombre": c.nombre, "telefono": c.telefono, "email": c.email,
             "edad": c.edad, "sexo": c.sexo, "peso_kg": c.peso_kg,
@@ -78,13 +81,12 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
             "masa_magra_kg": c.masa_magra_kg, "nivel_actividad": c.nivel_actividad,
             "objetivo": c.objetivo, "id_cliente": c.id_cliente,
             "plantilla_tipo": c.plantilla_tipo,
+            "restricciones_nutricionales": restrictions.declaration_payload(),
+            "alimentos_excluidos": list(restrictions.excluded_foods),
         }
 
         # Per-client food exclusions
         import json as _json
-        _excluidos_raw = c.alimentos_excluidos
-
-        excluidos_cliente = set(_json.loads(_excluidos_raw)) if _excluidos_raw else set()
 
         # Obtener perfil del gym para personalizar el PDF
         from pathlib import Path as _P
@@ -129,9 +131,8 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
 
     # Safety exclusions apply to every subscription tier. No shared references
     # are modified, including requests without exclusions running in parallel.
-    from core.food_catalog import FoodCatalog
     from src.alimentos_base import ALIMENTOS_BASE, CATEGORIAS
-    catalogo = FoodCatalog.from_data(ALIMENTOS_BASE, CATEGORIAS, excluidos_cliente)
+    catalogo = restrictions.catalog(ALIMENTOS_BASE, CATEGORIAS)
 
     comidas = ["desayuno", "almuerzo", "comida", "cena"]
 
@@ -240,6 +241,7 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
         if individual_reservation_id is not None:
             from web.services.generation_quota import require_publishable_generation
             require_publishable_generation(session, gym_id, individual_reservation_id)
+        lock_current_restrictions(session, gym_id, id_cliente, restrictions)
         object_id = mark_object_ready(session, gym_id, descriptor, "plan_pdf")
         plan_id = repo.registrar_plan(session, gym_id, id_cliente, {
             "tmb": getattr(cliente, "tmb", 0),
