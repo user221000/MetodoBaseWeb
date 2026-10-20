@@ -5,12 +5,14 @@ BUILD_VERSION: v6-TEMPLATEFIX-20260401
 Extracted from web/main_web.py (god function) for maintainability.
 """
 # BUILD MARKER: v6-20260401-2130-TEMPLATEFIX
+from pathlib import Path
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from pathlib import Path
-from web.template_compat import template_response
+
 from core.plan_catalog import get_individual_plan_catalog, get_plan_catalog
+from web.template_compat import template_response
 
 _TMPL_DIR = Path(__file__).resolve().parent.parent / "templates"
 
@@ -18,6 +20,7 @@ templates = Jinja2Templates(directory=str(_TMPL_DIR))
 
 # csrf_token is injected from main_web.py at startup (overrides this default)
 from web.middleware.csrf import get_csrf_token as _csrf_token_fn
+
 templates.env.globals["csrf_token"] = _csrf_token_fn
 
 router = APIRouter(include_in_schema=False)

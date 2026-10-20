@@ -16,7 +16,9 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.notifications36_http import followup_db as followup_db, notification_http as notification_http
+from tests.notifications36_http import followup_db, notification_http
+
+__all__ = ["followup_db", "notification_http"]
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -70,6 +72,7 @@ def test_exclusion_stays_public_minimal_and_bootstrap_free(factory):
 def test_actual_controller_MFA_cookie_preference_replay_and_session_fence(notification_http, monkeypatch, scenario):
     from sqlalchemy import func, select
     from sqlalchemy.orm import Session
+
     from web.database.models import NotificationOutbox, NotificationPreference
     from web.services import mfa_service
     from web.services.mfa_crypto import totp
