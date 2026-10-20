@@ -1,0 +1,9 @@
+# Independent single residual proposal
+
+The real V6 scan at b0fa556346a0097cd8a4372d586184a100758737 remains RED1:54,180raw/54,179classified/one remaining,effective exit1,stable source. Its exact original report is bound by the SHA in summary.json. No new scan, Main edit, active registry change or global-pass claim occurred here.
+
+The single physical receipt line48 is a SHA256 value under the decoded finite_inputs_before_after map. Its named key points to the token-format causal evidence JSON. That complete evidence file is read from the named Git commit and independently compared with current Main RAW bytes; its recomputed SHA equals the scalar. The receipt is likewise whole-byte authenticated against Git/current Main/report inventory, with exact physical line digest, rule and structural scalar pointer. Duplicate JSON keys are rejected; the unique encoded leaf key and actual physical scalar are checked, not scanner Secret/Match text or a checksum-looking shape. Two named Git preimages are preserved privately.
+
+One proposed finite anchor classifies with the unchanged anchored class when that one proposed map is explicitly supplied;15semantic authority mutations and seven physical/classifier mutations fail. The actual active V6 loader still rejects the point. The903V6records/57,261pins stay intact and disjoint. This is a one-file/one-pin proposal for independent Root review, not V7 acceptance.
+
+The compact public ZIP contains exactly proposal.json. Its data bytes equal the reviewed original producer bundle; the immutable executed producer, original two-member bundle, full raw scan, both source preimages and all controls remain private. The producer is neither required nor executed by consuming this proposal. Public metadata does not expose a full source map. Both scanners/readback cover the data ZIP and all aggregates; private originals were protected before payload and read back in full.
