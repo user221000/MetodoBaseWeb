@@ -288,6 +288,31 @@ def obtener_historial_planes(
 
 # ── Estadísticas ─────────────────────────────────────────────────────────────
 
+def _onboarding_facts(db: Session, gym_id: str) -> dict[str, bool]:
+    """Read current tenant-owned preparation facts independently of KPI dates.
+
+    A saved plan proves its association with an active client, never export,
+    delivery or receipt. Deleted rows and cross-gym legacy associations prove
+    no step. Browser state is not consulted or persisted.
+    """
+    client = db.query(Cliente.id_cliente).filter(
+        Cliente.gym_id == gym_id,
+        Cliente.activo.is_(True),
+        Cliente.deleted_at.is_(None),
+    ).first()
+    plan = db.query(PlanGenerado.id).join(Cliente, and_(
+        Cliente.id_cliente == PlanGenerado.id_cliente,
+        Cliente.gym_id == PlanGenerado.gym_id,
+    )).filter(
+        PlanGenerado.gym_id == gym_id,
+        PlanGenerado.deleted_at.is_(None),
+        Cliente.gym_id == gym_id,
+        Cliente.activo.is_(True),
+        Cliente.deleted_at.is_(None),
+    ).first()
+    return {"client_registered": client is not None, "plan_saved": plan is not None}
+
+
 def obtener_estadisticas(
     db: Session,
     gym_id: str,
@@ -364,6 +389,7 @@ def obtener_estadisticas(
     ]
 
     return {
+        "onboarding": _onboarding_facts(db, gym_id),
         "total_clientes": total_clientes,
         "clientes_nuevos": clientes_nuevos,
         "planes_periodo": planes_periodo,

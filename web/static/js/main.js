@@ -53,6 +53,7 @@ async function initDashboard() {
   } catch (err) {
     console.error('[dashboard] error:', err);
     showKPISkeletons(false);
+    updateOnboarding(null);
     Toast.error('No se pudieron cargar las estadísticas');
   }
 }
@@ -189,38 +190,32 @@ function updateOnboarding(stats) {
   const section = document.getElementById('onboarding-section');
   if (!section) return;
 
-  const totalClientes = stats.total_clientes || 0;
-  const totalPlanes = stats.planes_periodo || 0;
-  const hasClients = totalClientes > 0;
-  const hasPlans = totalPlanes > 0;
-  const hasExported = hasPlans;
+  const facts = stats && stats.onboarding;
+  const confirmed = facts && typeof facts.client_registered === 'boolean'
+    && typeof facts.plan_saved === 'boolean'
+    && (!facts.plan_saved || facts.client_registered);
 
   const steps = [
-    { done: hasClients, id: 1 },
-    { done: hasPlans, id: 2 },
-    { done: hasExported, id: 3 },
+    { done: !!confirmed && facts.client_registered, id: 1 },
+    { done: !!confirmed && facts.plan_saved, id: 2 },
   ];
 
   const completedCount = steps.filter(s => s.done).length;
 
-  // Hide onboarding if all steps complete AND user has seen it
-  if (completedCount === 3) {
-    if (localStorage.getItem('mb_onboarding_complete') === '1') {
-      section.style.display = 'none';
-      return;
-    }
-    localStorage.setItem('mb_onboarding_complete', '1');
-  }
-
-  // Always show for incomplete or newly completed
+  // A plan and a browser flag cannot confirm export or delivery.
   section.style.display = 'block';
+  section.setAttribute('aria-busy', 'false');
 
   // Update progress bar
-  const pct = Math.round((completedCount / 3) * 100);
   const pctEl = document.getElementById('onboarding-pct');
   const barEl = document.getElementById('onboarding-bar-fill');
-  if (pctEl) pctEl.textContent = pct + '%';
-  if (barEl) barEl.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = confirmed
+    ? completedCount + ' de 2 pasos de preparación confirmados'
+    : 'No se pudo confirmar la preparación. Vuelve a consultar el dashboard.';
+  if (barEl) {
+    barEl.hidden = !confirmed;
+    barEl.style.width = (completedCount / 2 * 100) + '%';
+  }
 
   // Update step states
   let firstIncomplete = true;
@@ -231,7 +226,7 @@ function updateOnboarding(stats) {
     stepEl.classList.remove('completed', 'current');
     if (step.done) {
       stepEl.classList.add('completed');
-    } else if (firstIncomplete) {
+    } else if (confirmed && firstIncomplete) {
       stepEl.classList.add('current');
       firstIncomplete = false;
     }
@@ -240,10 +235,10 @@ function updateOnboarding(stats) {
   // Wire onboarding action: step 1 opens the modal
   const action1 = document.getElementById('ob-action-1');
   if (action1) {
-    action1.addEventListener('click', () => {
+    action1.onclick = () => {
       const btn = document.getElementById('btn-generar-plan');
       if (btn) btn.click();
-    });
+    };
   }
 }
 

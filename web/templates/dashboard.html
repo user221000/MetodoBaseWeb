@@ -367,17 +367,17 @@
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
      ONBOARDING CHECKLIST — Guided activation for new users
-     Shows only when user has incomplete setup steps
+     Persisted preparation facts; delivery remains an explicit next action
 ═══════════════════════════════════════════════════════════════════════════ -->
-<section class="onboarding-checklist chart-container" id="onboarding-section">
+<section class="onboarding-checklist chart-container" id="onboarding-section" aria-busy="true" aria-labelledby="onboarding-title">
   <div class="onboarding-header">
     <div>
-      <h3 class="chart-title" style="margin:0 0 4px;">Activa tu primer cliente en 3 pasos</h3>
-      <p style="color:var(--text-muted);font-size:.82rem;margin:0;">Toma menos de 5 minutos. Cada paso desbloquea el siguiente.</p>
+      <h3 class="chart-title" id="onboarding-title" style="margin:0 0 4px;">Prepara el primer plan de tu cliente</h3>
+      <p style="color:var(--text-muted);font-size:.82rem;margin:0;">Puedes continuar después: consultamos los clientes y planes guardados de esta cuenta.</p>
     </div>
     <div class="onboarding-progress">
-      <span id="onboarding-pct" class="onboarding-pct">0%</span>
-      <div class="onboarding-bar"><div class="onboarding-bar-fill" id="onboarding-bar-fill" style="width:0%"></div></div>
+      <span id="onboarding-pct" class="onboarding-pct" role="status">Consultando preparación…</span>
+      <div class="onboarding-bar" aria-hidden="true"><div class="onboarding-bar-fill" id="onboarding-bar-fill" style="width:0%"></div></div>
     </div>
   </div>
   <ol class="onboarding-steps" id="onboarding-steps">
@@ -387,7 +387,7 @@
       </div>
       <div class="ob-step-info">
         <span class="ob-step-title">Registra tu primer cliente</span>
-        <span class="ob-step-desc">Nombre, peso y objetivo — listo en 30 segundos</span>
+        <span class="ob-step-desc">Registra sus datos y revisa los campos que faltan antes de generar.</span>
       </div>
       <button class="btn btn-primary btn-sm ob-step-action" id="ob-action-1" type="button">Crear cliente →</button>
     </li>
@@ -396,22 +396,14 @@
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
       </div>
       <div class="ob-step-info">
-        <span class="ob-step-title">Genera un plan nutricional</span>
-        <span class="ob-step-desc">Calorías, macros y menú completo — generados al instante</span>
+        <span class="ob-step-title">Guarda un plan asociado a tu cliente</span>
+        <span class="ob-step-desc">Selecciona al cliente, revisa sus restricciones y confirma la generación.</span>
       </div>
       <a href="/generar-plan" class="btn btn-outline btn-sm ob-step-action" id="ob-action-2">Generar plan</a>
     </li>
-    <li class="onboarding-step" id="ob-step-3" data-step="export">
-      <div class="ob-step-check" id="ob-check-3">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-      </div>
-      <div class="ob-step-info">
-        <span class="ob-step-title">Descarga o envía el plan</span>
-        <span class="ob-step-desc">PDF profesional listo para imprimir o enviar al cliente</span>
-      </div>
-      <a href="/planes" class="btn btn-outline btn-sm ob-step-action" id="ob-action-3">Ver planes</a>
-    </li>
   </ol>
+  <p>Después, abre el plan guardado, revisa el PDF y descárgalo para compartirlo con tu cliente. Guardar un plan no confirma su descarga, envío ni recepción.</p>
+  <p><a href="/planes" class="btn btn-outline btn-sm" id="ob-action-3">Revisar planes y descargar PDF</a></p>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
