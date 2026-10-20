@@ -30,7 +30,7 @@ _PROFILE = ("id", "id_cliente", "nombre", "telefono", "email", "edad", "sexo",
     "peso_kg", "estatura_cm", "grasa_corporal_pct", "masa_magra_kg", "nivel_actividad",
     "objetivo", "fecha_registro", "ultimo_plan", "total_planes_generados", "activo",
     "deleted_at", "notas", "plantilla_tipo", "alimentos_excluidos", "fecha_suscripcion",
-    "fecha_fin_suscripcion")
+    "fecha_fin_suscripcion", "nutrition_restrictions_json")
 _PLAN = ("id", "id_cliente", "fecha_generacion", "tmb", "get_total", "kcal_objetivo",
     "kcal_real", "proteina_g", "carbs_g", "grasa_g", "objetivo", "nivel_actividad",
     "deleted_at", "peso_en_momento", "grasa_en_momento", "desviacion_maxima_pct",

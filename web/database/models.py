@@ -307,6 +307,7 @@ class Cliente(Base):
     notas = Column(Text)
     plantilla_tipo = Column(String(30), default="general")
     alimentos_excluidos = Column(Text, nullable=True)  # JSON list of excluded foods
+    nutrition_restrictions_json = Column(Text, nullable=True)
 
     # ── Suscripción a nivel cliente ──
     fecha_suscripcion = Column(DateTime, nullable=True)       # Cuándo se suscribió / pagó
@@ -331,6 +332,8 @@ class Cliente(Base):
         Index("ix_clientes_gym_nombre", "gym_id", "nombre"),
         Index("ix_clientes_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
         CheckConstraint("sexo IN ('M', 'F', 'Otro') OR sexo IS NULL", name="ck_cliente_sexo"),
+        CheckConstraint("nutrition_restrictions_json IS NULL OR length(nutrition_restrictions_json) BETWEEN 2 AND 16384",
+                        name="ck_cliente_nutrition_declaration_bound"),
     )
 
 

@@ -17,6 +17,19 @@ class NutritionValidationMixin(BaseModel):
 
     model_config = ConfigDict(allow_inf_nan=False, extra="forbid")
 
+    restricciones_nutricionales: dict | None = None
+
+    @field_validator("restricciones_nutricionales", mode="before")
+    @classmethod
+    def validate_declared_restrictions(cls, value):
+        """Validate explicit user declarations, without a clinical approval flag."""
+        if value is None:
+            return None
+        from core.nutrition_restrictions import NutritionRestrictions
+        from src.alimentos_base import ALIMENTOS_BASE
+
+        return NutritionRestrictions.from_declaration(value, ALIMENTOS_BASE).declaration_payload()
+
     @field_validator("edad", "peso_kg", "estatura_cm", "grasa_corporal_pct", check_fields=False)
     @classmethod
     def validate_measurements(cls, value, info: ValidationInfo):
