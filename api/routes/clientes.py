@@ -115,7 +115,13 @@ def actualizar_cliente(
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_usuario_gym),
 ):
-    """Actualiza los datos de un cliente existente (merge parcial)."""
+    """Persist submitted profile fields for this gym, including incomplete ones.
+
+    Progressive onboarding does not require or invent the remaining engine
+    inputs. The generation use case validates the complete persisted profile
+    and computes its macros. This update neither generates plans nor consumes
+    quota; the request session owns its transaction.
+    """
     gym_id = usuario["id"]
     existing = repo.obtener_cliente(db, gym_id, id_cliente)
     if not existing:
@@ -123,19 +129,6 @@ def actualizar_cliente(
 
     try:
         update_dict = {k: v for k, v in data.model_dump().items() if v is not None}
-        
-        # Recalcular macros si hay cambios en datos antropométricos
-        if any(k in update_dict for k in ("peso_kg", "estatura_cm", "grasa_corporal_pct", "nivel_actividad", "objetivo")):
-            merged = {**existing, **update_dict}
-            cliente_calc = build_cliente_from_dict(merged)
-            update_dict.update({
-                "tmb": cliente_calc.tmb,
-                "get_total": cliente_calc.get_total,
-                "kcal_objetivo": cliente_calc.kcal_objetivo,
-                "proteina_g": cliente_calc.proteina_g,
-                "carbs_g": cliente_calc.carbs_g,
-                "grasa_g": cliente_calc.grasa_g,
-            })
         
         updated = repo.actualizar_cliente(db, gym_id, id_cliente, update_dict)
         if not updated:
