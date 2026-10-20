@@ -261,3 +261,7 @@ QA-28: Un401 de recurso en seguridad de cuenta37 conserva la credencial RAM y/o 
 Criterio: Un401 de recurso debe retirar la autoridad local capturada y limpiar sus proyecciones, sin refresh, replay automatico, adopcion de actor ni afirmacion de revocacion global. Una respuesta tardia de A nunca retira B ni sobrescribe un epoch externo. Preservar403/422 corregibles y401 de reautenticacion primaria incorrecta, captura del cuerpo antes de await, WebLock hasta respuesta y frontera local antes de liberarlo cuando corresponda. Repetir seis HTTP reales originales en ambas factories, doce VM RED y bordes independientes, sin modificar primitives globales MFA/R31.
 
 SeisHTTP ydoceVM RED independientes preservados. Correccion focal yrevision en curso; no defecto de autorizacion backend demostrado.
+
+## Checkpoint144
+
+QA-28 verificado localmente:1e01/12b4 y revisión independiente28e. Todos los RED se conservan, incluidos cuatro GET retenidos hastaJSON en el candidato intermedio. Fix final retira alheader401 con fence exacto; MFAglobal/reauthcorrigible intactos. La corrección de checkoutLF y los parsers de evidencia son framing, no defectos de producto ni criterios nuevos.
