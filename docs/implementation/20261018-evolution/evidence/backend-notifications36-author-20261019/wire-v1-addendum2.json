@@ -1,0 +1,11 @@
+{
+  "wire_v1_sha256": "4e3e55f764d74da17cc08946c32ac956ec9b2a4143126f327c1b55110e365f27",
+  "version": 1,
+  "addendum": 2,
+  "public_DTO_fields_changed": false,
+  "source_semantics": "A provider/persisted period or status contradiction appends an unknown canonical observation. A failed read with a still-eligible prior typed observation appends a supersession marker by copying only prior typed quantities/reference and setting canonical status unknown. It is not a new invoice, balance, payment, delivery or provider verification. Without a prior eligible observation, failure503 creates no invented source.",
+  "acknowledgement": "Failed observation returns503 after durable supersession and owned-session cleanup; commit/close uncertain also503. Explicit same-key replay may ACK the recorded unknown observation with read_required=true. No automatic retry/readback.",
+  "metrics": "Select latest observation per invoice/payment before eligibility filtering, so later unknown/canceled/refunded evidence cannot leave an older paid event counted. Count only distinct verified paid active period advances; no email causality.",
+  "schema_delta36": "Monotonic contact epoch metadata and four new tables; text literals in live-lease CHECK are explicitly TEXT to preserve exact pg_dump/restore signature. No historical target/normalizer is weakened. Authorized ROOT predecessor34/35 imports recorded separately.",
+  "operations": "No production scheduler or send CLI is enabled. Explicit worker functions accept only a caller-authorized subject/context/outbox; transports default closed. Synthetic ports alone are used for author validation."
+}

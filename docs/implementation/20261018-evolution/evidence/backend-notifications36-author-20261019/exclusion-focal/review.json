@@ -1,0 +1,155 @@
+{
+  "scope": "Author focal only; no independent acceptance or live send/security incident claimed.",
+  "criteria": {
+    "SEC23": "SQL contact A-to-B-to-A must not revive previous opt-in/outbox/exclusion; current metadata epoch invalidates without rewriting history.",
+    "QA-24": "Anonymous disable-only POST works in Web via exact CSRF exemption; adjacent routes remain protected, GET confirmation never mutates."
+  },
+  "before": "3PASS/3FAIL: foreign real bearer2 controls pass, API anonymous1 control passes, Web anonymous1 red and SQL contact2 red.",
+  "after": "12 exclusion/epoch/scope cases +5 SQLite migration cases passed. PG runtime already passed corresponding cases but is sealed separately at final freeze.",
+  "source_preimage_provenance": "Product preimages retained directly. Canary bytes recovered via full inverse; SHA exactly equals immutable before source manifest. Recovery is disclosed rather than described as a separately retained RAW preimage.",
+  "runs": {
+    "exclusion-scope-first": {
+      "receipt": {
+        "PG": false,
+        "code": 1,
+        "packages": 92,
+        "pip": [
+          0,
+          0
+        ],
+        "quiet": true,
+        "scope": [
+          "tests/test_notifications36_exclusion_scope.py"
+        ],
+        "seconds": 26.15600000001723,
+        "sources": 1104
+      },
+      "cases": [
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_foreign_real_login_does_not_select_or_disable_its_own_preference[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_foreign_real_login_does_not_select_or_disable_its_own_preference[web.main_web]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_missing_malformed_and_unknown_capability_leave_no_rows[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_missing_malformed_and_unknown_capability_leave_no_rows[web.main_web]",
+          "outcome": "failure"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_contact_roundtrip_permanently_invalidates_old_exclusion[api.app]",
+          "outcome": "failure"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_contact_roundtrip_permanently_invalidates_old_exclusion[web.main_web]",
+          "outcome": "failure"
+        }
+      ],
+      "raw": {
+        "exclusion-scope-first.xml": "ede27cf5b94c522874b78bc3449746a8eb391203e3e37f4dd4c8c4772b1998dc",
+        "exclusion-scope-first.private.raw.log": "6ce1192a16055fa3cab502f028690729665ff6427efd7856c796688f861e7bed",
+        "exclusion-scope-first-source-before.json": "2ce71fd448d2d69b31acb217fd7652ace86b02371dea2528d8628c201c6e3fde",
+        "exclusion-scope-first-source-after.json": "2ce71fd448d2d69b31acb217fd7652ace86b02371dea2528d8628c201c6e3fde"
+      }
+    },
+    "epoch-csrf-ddl-after": {
+      "receipt": {
+        "PG": false,
+        "code": 0,
+        "packages": 92,
+        "pip": [
+          0,
+          0
+        ],
+        "quiet": true,
+        "scope": [
+          "tests/test_notifications36_exclusion_scope.py",
+          "tests/integration_notifications36_migrations.py"
+        ],
+        "seconds": 81.79700000002049,
+        "sources": 1104
+      },
+      "cases": [
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_foreign_real_login_does_not_select_or_disable_its_own_preference[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_foreign_real_login_does_not_select_or_disable_its_own_preference[web.main_web]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_missing_malformed_and_unknown_capability_leave_no_rows[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_missing_malformed_and_unknown_capability_leave_no_rows[web.main_web]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_contact_roundtrip_permanently_invalidates_old_exclusion[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_contact_roundtrip_permanently_invalidates_old_exclusion[web.main_web]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_manual_increment_only_revokes_and_rejects_reset_jump_or_fraction[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_manual_increment_only_revokes_and_rejects_reset_jump_or_fraction[web.main_web]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_exhausted_epoch_rejects_email_before_sqlite_after_trigger[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_exhausted_epoch_rejects_email_before_sqlite_after_trigger[web.main_web]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_anonymous_slash_exclusion_does_not_exempt_adjacent_web_routes[api.app]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.test_notifications36_exclusion_scope::test_anonymous_slash_exclusion_does_not_exempt_adjacent_web_routes[web.main_web]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.integration_notifications36_migrations::test_exact35_rows_repeat_and_empty36_downgrade[sqlite-False]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.integration_notifications36_migrations::test_exact35_rows_repeat_and_empty36_downgrade[sqlite-True]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.integration_notifications36_migrations::test_predecessor_drift_refuses_new_tables[sqlite]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.integration_notifications36_migrations::test_interrupted_install_preserves35_rows_schema_and_revision[sqlite]",
+          "outcome": "pass"
+        },
+        {
+          "id": "tests.integration_notifications36_migrations::test_nonempty_history_refuses_destructive_rollback[sqlite]",
+          "outcome": "pass"
+        }
+      ],
+      "raw": {
+        "epoch-csrf-ddl-after.xml": "de9a221a098a549d5cc30ce61b2471c502c5cf1f0311cffaef2ba41da9be2cec",
+        "epoch-csrf-ddl-after.private.raw.log": "265978740ee2b77e5f238c7d8b740a9a69bac38cfa4694278738d86a84757b53",
+        "epoch-csrf-ddl-after-source-before.json": "dc2e2117d89fb317e45d2b933760d79ced0dc1556ca8618b369aea0255761e45",
+        "epoch-csrf-ddl-after-source-after.json": "dc2e2117d89fb317e45d2b933760d79ced0dc1556ca8618b369aea0255761e45"
+      }
+    }
+  }
+}

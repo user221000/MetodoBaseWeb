@@ -25,6 +25,7 @@ SCHEMA_CONTRACTS = {
     "20261019_google_subjects": "20261019_google_subjects",
     "20261019_followup_tasks": "20261019_followup_tasks",
     "20261020_nutrition_profile": "20261020_nutrition_profile",
+    "20261020_notifications": "20261020_notifications",
 }
 
 
@@ -97,6 +98,10 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
                 from web.database.followup_policy import signature as followup_signature
                 if followup_signature(connection) != contract["followup_security"]:
                     raise RuntimeError("Database follow-up projection/history differs from the reviewed contract")
+            if "notification_security" in contract:
+                from web.database.notification_policy import signature as notification_signature
+                if notification_signature(connection) != contract["notification_security"]:
+                    raise RuntimeError("Database notification authority differs from the reviewed contract")
             if expected_revision is not None:
                 # Explicit historical migration acceptance uses that revision's
                 # frozen model, not the current application's newer metadata.

@@ -1,0 +1,337 @@
+{
+  "version": 1,
+  "status": "local_contract_pending_independent_review",
+  "examples": "synthetic; no provider delivery or product enablement claimed",
+  "base": "/api/notificaciones",
+  "auth": {
+    "source": "existing persisted session identity and complete MFA login when applicable",
+    "context_query_required": [
+      "personal",
+      "gym"
+    ],
+    "gym": "canonical OWNER only; no ADMIN billing grant added",
+    "personal": "canonical nonOWNER personal subject; no profile adoption",
+    "writes": "No extra step-up action: consent/queue/cancel affect only own account. Existing billing/team step-up remains unchanged."
+  },
+  "privacy": {
+    "all_statuses": "exact API route shapes and /notificaciones/excluir, including trailing slash, use no-store/no-referrer and fixed first-party CSP",
+    "contact": "No contact, invoice ID, amount, user/gym selector, raw provider payload or exclusion capability in authenticated DTOs."
+  },
+  "inputs": {
+    "json": "UTF-8 strict; unique keys; finite numbers; <=8192 bytes while streaming; unknown fields rejected",
+    "idempotency": "One lowercase UUID Idempotency-Key on authenticated PUT/POST. Exact actor/context/method/path/canonical body bound; replay is operation ACK snapshot with read_required=true, never current state. Explicit caller retry only. Exclusion POST has no key/header or account selector.",
+    "version": "Strict integer <=2147483647; virtual preference0; mutation requires exact observed version.",
+    "uuid": "lowercase UUID36; source_hash lowercase SHA25664",
+    "interval_hours": [
+      24,
+      72,
+      168
+    ],
+    "outbox_list": {
+      "limit_default": 20,
+      "limit_maximum": 50,
+      "after": "optional lowercase outbox UUID; ascending UUID keyset"
+    },
+    "metrics": {
+      "from": "optional ISO civil date YYYY-MM-DD",
+      "through": "required if from supplied; inclusive; <=today server",
+      "range_max_days": 62,
+      "timezone": "America/Mexico_City"
+    }
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/contexto",
+      "response": {
+        "context": "gym",
+        "purposes": [
+          "account_period_end",
+          "confirmed_payment_issue"
+        ],
+        "channels": [
+          "email"
+        ],
+        "delivery_enabled": false,
+        "frequency": {
+          "minimum_hours": 24,
+          "maximum_handoffs_7d": 3
+        },
+        "timezone": "America/Mexico_City"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/preferencias",
+      "response": {
+        "items": [
+          {
+            "id": "11111111-1111-4111-8111-111111111111",
+            "context": "gym",
+            "purpose": "confirmed_payment_issue",
+            "channel": "email",
+            "version": 1,
+            "enabled": true,
+            "interval_hours": 24,
+            "updated_at": "2026-10-20T12:00:00Z"
+          },
+          {
+            "id": null,
+            "context": "gym",
+            "purpose": "account_period_end",
+            "channel": "email",
+            "version": 0,
+            "enabled": false,
+            "interval_hours": 24,
+            "updated_at": null
+          }
+        ]
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/preferencias/{purpose}",
+      "request": {
+        "expected_version": 0,
+        "enabled": true,
+        "interval_hours": 24,
+        "confirm": true
+      },
+      "response": {
+        "preference": {
+          "id": "11111111-1111-4111-8111-111111111111",
+          "context": "gym",
+          "purpose": "confirmed_payment_issue",
+          "channel": "email",
+          "version": 1,
+          "enabled": true,
+          "interval_hours": 24,
+          "updated_at": "2026-10-20T12:00:00Z"
+        },
+        "replayed": false,
+        "read_required": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/observar",
+      "request": {},
+      "response": {
+        "observed": true,
+        "fact_id": "22222222-2222-4222-8222-222222222222",
+        "replayed": false,
+        "read_required": true
+      },
+      "availability": "default503 notification_disabled; port must be explicitly composed offline/approved separately"
+    },
+    {
+      "method": "GET",
+      "path": "/candidatos",
+      "response": {
+        "context": "gym",
+        "observed_at": "2026-10-20T12:00:00Z",
+        "source_state": "verified",
+        "candidates": [
+          {
+            "purpose": "confirmed_payment_issue",
+            "eligible": true,
+            "fact_id": "22222222-2222-4222-8222-222222222222",
+            "source_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "preference": {
+              "id": "11111111-1111-4111-8111-111111111111",
+              "context": "gym",
+              "purpose": "confirmed_payment_issue",
+              "channel": "email",
+              "version": 1,
+              "enabled": true,
+              "interval_hours": 24,
+              "updated_at": "2026-10-20T12:00:00Z"
+            }
+          }
+        ]
+      },
+      "note": "Always two purpose entries. source_state unknown supplies null fact_id/source_hash and eligible=false, never confirmed debt."
+    },
+    {
+      "method": "POST",
+      "path": "/outbox",
+      "request": {
+        "purpose": "confirmed_payment_issue",
+        "preference_id": "11111111-1111-4111-8111-111111111111",
+        "expected_preference_version": 1,
+        "fact_id": "22222222-2222-4222-8222-222222222222",
+        "source_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "confirm": true
+      },
+      "response": {
+        "outbox": {
+          "id": "33333333-3333-4333-8333-333333333333",
+          "context": "gym",
+          "purpose": "confirmed_payment_issue",
+          "channel": "email",
+          "state": "pending",
+          "version": 1,
+          "attempt_count": 0,
+          "created_at": "2026-10-20T12:00:01Z",
+          "updated_at": "2026-10-20T12:00:01Z",
+          "capabilities": {
+            "cancel": true
+          }
+        },
+        "replayed": false,
+        "read_required": false
+      },
+      "replay_response": {
+        "operation_result": {
+          "id": "33333333-3333-4333-8333-333333333333"
+        },
+        "replayed": true,
+        "read_required": true
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/outbox",
+      "response": {
+        "items": [
+          {
+            "id": "33333333-3333-4333-8333-333333333333",
+            "context": "gym",
+            "purpose": "confirmed_payment_issue",
+            "channel": "email",
+            "state": "pending",
+            "version": 1,
+            "attempt_count": 0,
+            "created_at": "2026-10-20T12:00:01Z",
+            "updated_at": "2026-10-20T12:00:01Z",
+            "capabilities": {
+              "cancel": true
+            }
+          }
+        ],
+        "next_after": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/outbox/{id}/cancelar",
+      "request": {
+        "expected_version": 1,
+        "confirm": true
+      },
+      "response": {
+        "outbox": {
+          "id": "33333333-3333-4333-8333-333333333333",
+          "context": "gym",
+          "purpose": "confirmed_payment_issue",
+          "channel": "email",
+          "state": "suppressed",
+          "version": 2,
+          "attempt_count": 0,
+          "created_at": "2026-10-20T12:00:01Z",
+          "updated_at": "2026-10-20T12:00:01Z",
+          "capabilities": {
+            "cancel": false
+          }
+        },
+        "replayed": false,
+        "read_required": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/metricas",
+      "response": {
+        "from": "2026-10-20",
+        "through": "2026-10-20",
+        "timezone": "America/Mexico_City",
+        "outbox_states": {
+          "pending": 1
+        },
+        "verified_paid_period_advances": 0,
+        "attribution": "observed_facts_only_no_email_causality"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/excluir",
+      "request_schema": {
+        "token": "43-character ASCII base64url capability; fragment only, no account/contact selector"
+      },
+      "response": {
+        "success": true
+      },
+      "semantics": "Uniform ACK for unavailable/expired/stale capability; exact current preference may only be disabled. Inactive user allowed, missing/deleted user never substituted."
+    },
+    {
+      "method": "GET",
+      "path": "/notificaciones/excluir",
+      "outside_api_prefix": true,
+      "response": "Minimal HTML, first-head nonce fragment cleanup, explicit POST button; GET never reads account state or changes data."
+    }
+  ],
+  "errors": {
+    "shape": {
+      "detail": {
+        "code": "notification_conflict",
+        "message": "No se pudo confirmar esta operaci?n de notificaciones."
+      }
+    },
+    "codes": {
+      "401": [
+        "notification_identity_unavailable"
+      ],
+      "403": [
+        "notification_context_forbidden"
+      ],
+      "404": [
+        "notification_unavailable",
+        "notification_source_unavailable"
+      ],
+      "409": [
+        "notification_conflict",
+        "notification_source_changed",
+        "notification_version_exhausted"
+      ],
+      "413": [
+        "notification_body_limit",
+        "notification_volume_limit"
+      ],
+      "415": [
+        "notification_invalid_input"
+      ],
+      "422": [
+        "notification_invalid_input"
+      ],
+      "429": [
+        "notification_frequency_limited",
+        "notification_backlog_limited"
+      ],
+      "503": [
+        "notification_disabled",
+        "notification_unconfirmed"
+      ]
+    },
+    "outside_handler": "Existing factory opaque500 retained; private headers applied. Auth/rate middleware may use existing error DTOs; no assertion of global body format."
+  },
+  "worker": {
+    "public_execution_endpoint": false,
+    "scheduler": false,
+    "default_enabled": false,
+    "states": [
+      "pending",
+      "leased",
+      "sending",
+      "retry_wait",
+      "accepted",
+      "suppressed",
+      "failed",
+      "uncertain"
+    ],
+    "accepted": "Provider accepted ID only, never delivered.",
+    "retry": "Only explicit definite not-sent, max3 handoffs; 60/300 seconds minimum plus24h and3/7d conservative frequency barrier. Unknown/timeouts never automatically resent.",
+    "handoff": "Authority/preference/contact/source/frequency revalidated under locks before committed sending. Confirmed in-flight handoff is not recalled by opt-out.",
+    "capability": "Random256-bit token, hashed purpose/protocol/expiry;30d technical expiry; preference/contact change invalidates. No authenticated response returns token."
+  },
+  "operational_limits": "24h+3/7d,15min source freshness,60s lease,100 open intents and30d exclusion expiry are internal technical safeguards, not commercial/retention policy. No live sends/cargos/provider verification claimed."
+}

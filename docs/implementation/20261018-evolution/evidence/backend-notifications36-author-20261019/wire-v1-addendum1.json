@@ -1,0 +1,12 @@
+{
+  "wire_v1_sha256": "4e3e55f764d74da17cc08946c32ac956ec9b2a4143126f327c1b55110e365f27",
+  "version": 1,
+  "addendum": 1,
+  "scope": "No public DTO fields changed. Root approved narrow fixes QA-24 and SEC23; independent review remains pending.",
+  "csrf": "Only Web configures exact_exempt_paths /api/notificaciones/excluir and trailing slash; default empty for other users of CSRFMiddleware. Token256bit JSON body, purpose, expiry, rate and disable-only authority remain required; adjacent routes remain protected. No global CSRF exemption.",
+  "contact_epoch": "New purpose36 metadata Usuario.notification_contact_version starts0. Email change automatically increments exactly1 in SQLite/PG. Direct manual+1 only revokes historical eligibility; no decrease/reset/jump. A-to-B-to-A increments2. MAX rejects before changing email. Preference and Outbox capture epoch; source hash includes it; queue/handoff/exclusion compare current epoch under User lock. No append-only event is rewritten and no general auth, session, role, entitlement or contact is granted.",
+  "declaration_vs_authority": "Preference.enabled is the historical explicit declaration. Contact/epoch change blocks eligibility; a new confirmed opt-in with current preference CAS is required for future handoff. No auto-reactivation from account or contact toggles.",
+  "implementation_difference": "SQLite has no trusted trigger-origin marker. AFTER UPDATE OF email writes OLD+1 without email in the internal UPDATE, so it does not recurse. BEFORE guard permits only same or+1 and rejects exhausted/type-invalid values. PG BEFORE trigger assigns OLD+1. Both allow conservative manual+1 invalidation; neither accepts caller data as a proof of identity.",
+  "transaction": "Writes require READ COMMITTED on PostgreSQL. Revalidation locks persisted Subscription/association/purchase FOR SHARE NOWAIT after sorted User locks. Provider I/O occurs after closing the prior transaction. Existing inventory READ ONLY REPEATABLE READ is unchanged.",
+  "operational": "No PostgreSQL runtime result attributed yet; ROOT handoff received but SQLite checks precede connections."
+}
