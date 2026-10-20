@@ -1,0 +1,168 @@
+{
+  "gate": {
+    "phase": "red-http-final",
+    "source_head": "c91a18bbb7a21cc92616574280ec61959fd8caa5",
+    "returncode": 1,
+    "seconds": 39.375,
+    "total": 6,
+    "passed": 0,
+    "failed": 6,
+    "errors": 0,
+    "skipped": 0,
+    "quiet": true,
+    "source_count": 1170,
+    "distribution_count": 92,
+    "pip_before": 0,
+    "pip_after": 0,
+    "source_sha256": "58e25b1f54af4ed11d13dc6fdacad507004c7401f3446ebad6a09a368fe0b553",
+    "xml_sha256": "4c52d59ee4d23009328e78a5f72becadd51fed0c767f7b98600a9189fdadd4f1",
+    "rows": [
+      {
+        "name": "test_actual_persisted_401_retires_UI_actor_without_refresh[api.app-status]",
+        "class": "tests.test_security_account37_unauthorized_ui_peer",
+        "result": "failed"
+      },
+      {
+        "name": "test_actual_persisted_401_retires_UI_actor_without_refresh[api.app-email]",
+        "class": "tests.test_security_account37_unauthorized_ui_peer",
+        "result": "failed"
+      },
+      {
+        "name": "test_actual_persisted_401_retires_UI_actor_without_refresh[api.app-password]",
+        "class": "tests.test_security_account37_unauthorized_ui_peer",
+        "result": "failed"
+      },
+      {
+        "name": "test_actual_persisted_401_retires_UI_actor_without_refresh[web.main_web-status]",
+        "class": "tests.test_security_account37_unauthorized_ui_peer",
+        "result": "failed"
+      },
+      {
+        "name": "test_actual_persisted_401_retires_UI_actor_without_refresh[web.main_web-email]",
+        "class": "tests.test_security_account37_unauthorized_ui_peer",
+        "result": "failed"
+      },
+      {
+        "name": "test_actual_persisted_401_retires_UI_actor_without_refresh[web.main_web-password]",
+        "class": "tests.test_security_account37_unauthorized_ui_peer",
+        "result": "failed"
+      }
+    ]
+  },
+  "safe_outcomes": [
+    {
+      "case": "test_actual_persisted_401_retires_UI_actor_without_refresh[api.app-status]",
+      "type": "result",
+      "passed": false,
+      "operation": "status",
+      "real_MFA_cookie": true,
+      "persisted_SV_revoked": true,
+      "target_HTTP_status": 401,
+      "checks": {
+        "actual_target_401": true,
+        "returned_false": true,
+        "access_retired": false,
+        "actor_context_disabled": false,
+        "email_projection_removed": true,
+        "factor_projection_removed": true,
+        "no_refresh_retry": true,
+        "only_epoch_persisted": true
+      }
+    },
+    {
+      "case": "test_actual_persisted_401_retires_UI_actor_without_refresh[api.app-email]",
+      "type": "result",
+      "passed": false,
+      "operation": "email",
+      "real_MFA_cookie": true,
+      "persisted_SV_revoked": true,
+      "target_HTTP_status": 401,
+      "checks": {
+        "actual_target_401": true,
+        "returned_false": true,
+        "access_retired": false,
+        "actor_context_disabled": false,
+        "email_projection_removed": false,
+        "factor_projection_removed": false,
+        "no_refresh_retry": true,
+        "only_epoch_persisted": true
+      }
+    },
+    {
+      "case": "test_actual_persisted_401_retires_UI_actor_without_refresh[api.app-password]",
+      "type": "result",
+      "passed": false,
+      "operation": "password",
+      "real_MFA_cookie": true,
+      "persisted_SV_revoked": true,
+      "target_HTTP_status": 401,
+      "checks": {
+        "actual_target_401": true,
+        "returned_false": true,
+        "access_retired": false,
+        "actor_context_disabled": false,
+        "email_projection_removed": false,
+        "factor_projection_removed": false,
+        "no_refresh_retry": true,
+        "only_epoch_persisted": true
+      }
+    },
+    {
+      "case": "test_actual_persisted_401_retires_UI_actor_without_refresh[web.main_web-status]",
+      "type": "result",
+      "passed": false,
+      "operation": "status",
+      "real_MFA_cookie": true,
+      "persisted_SV_revoked": true,
+      "target_HTTP_status": 401,
+      "checks": {
+        "actual_target_401": true,
+        "returned_false": true,
+        "access_retired": false,
+        "actor_context_disabled": false,
+        "email_projection_removed": true,
+        "factor_projection_removed": true,
+        "no_refresh_retry": true,
+        "only_epoch_persisted": true
+      }
+    },
+    {
+      "case": "test_actual_persisted_401_retires_UI_actor_without_refresh[web.main_web-email]",
+      "type": "result",
+      "passed": false,
+      "operation": "email",
+      "real_MFA_cookie": true,
+      "persisted_SV_revoked": true,
+      "target_HTTP_status": 401,
+      "checks": {
+        "actual_target_401": true,
+        "returned_false": true,
+        "access_retired": false,
+        "actor_context_disabled": false,
+        "email_projection_removed": false,
+        "factor_projection_removed": false,
+        "no_refresh_retry": true,
+        "only_epoch_persisted": true
+      }
+    },
+    {
+      "case": "test_actual_persisted_401_retires_UI_actor_without_refresh[web.main_web-password]",
+      "type": "result",
+      "passed": false,
+      "operation": "password",
+      "real_MFA_cookie": true,
+      "persisted_SV_revoked": true,
+      "target_HTTP_status": 401,
+      "checks": {
+        "actual_target_401": true,
+        "returned_false": true,
+        "access_retired": false,
+        "actor_context_disabled": false,
+        "email_projection_removed": false,
+        "factor_projection_removed": false,
+        "no_refresh_retry": true,
+        "only_epoch_persisted": true
+      }
+    }
+  ]
+}

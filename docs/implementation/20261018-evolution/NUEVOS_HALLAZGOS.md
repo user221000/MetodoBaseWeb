@@ -253,3 +253,11 @@ Criterio: La ruta pública de registro debe derivar la identidad sólo del regis
 La invalidación de sesión elimina el DOM privado mientras callbacks de configuración/branding/perfil/privacidad conservan búsquedas de nodos o continúan una inicialización; diagnóstico nativo separado observa cuatro TypeError.
 
 Criterio: Tras invalidación local o externa, los consumidores privados deben detenerse, limpiar su RAM y tolerar la eliminación del DOM sin TypeError, lectura tardía, envío o readopción de actor. Capturar referencias propias y verificar vigencia antes de usar nodos o continuar await; cubrir las cuatro ubicaciones observadas, personalización y pagehide. Preservar pageErrors==[] y todas las aserciones de negocio del navegador original; verificar reparación focal y después repetir navegador con fuente actual y revisión independiente.
+
+## Checkpoint143
+
+QA-28: Un401 de recurso en seguridad de cuenta37 conserva la credencial RAM y/o proyecciones del actor anterior; incluye status, requestEmail, changePassword y aliases context/factorStatus/verify.
+
+Criterio: Un401 de recurso debe retirar la autoridad local capturada y limpiar sus proyecciones, sin refresh, replay automatico, adopcion de actor ni afirmacion de revocacion global. Una respuesta tardia de A nunca retira B ni sobrescribe un epoch externo. Preservar403/422 corregibles y401 de reautenticacion primaria incorrecta, captura del cuerpo antes de await, WebLock hasta respuesta y frontera local antes de liberarlo cuando corresponda. Repetir seis HTTP reales originales en ambas factories, doce VM RED y bordes independientes, sin modificar primitives globales MFA/R31.
+
+SeisHTTP ydoceVM RED independientes preservados. Correccion focal yrevision en curso; no defecto de autorizacion backend demostrado.

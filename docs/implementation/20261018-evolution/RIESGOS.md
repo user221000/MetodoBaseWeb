@@ -197,3 +197,15 @@ Nativo actual rechazado por accesos DOM tras invalidación. Registro público AP
 ## Checkpoint142
 
 Nativo15actual,peerPG37/restore,UI27/UI37,CI/broad/imagen/escaneoactualpendientes. MAINcontinúa35, porloquecorrecciónQA-26ycandidatos36/37aúnnoestánintegrados. Retención,países,SLOypilotoconservandecisionesexternaspendientes.
+
+## Checkpoint143
+
+La rama principal local integra notificaciones36 y su UI27, la coherencia monetaria SEC25 y el aislamiento de tenant en rutas primarias QA-26. Los30 archivos de producto del merge a387 coinciden con la composicion revisada ab1b. El gate actual pasa78/78 casos HTTP reales sobre ambas factories API y SaaS; fuentes1268, Python,92 versiones instaladas y Node permanecen estables. La preparacion inicial selecciono un archivo inexistente: cero casos y exit4; su booleano de intencion no constituye ejecucion HTTP. Se conserva ese RAW separado.
+
+QA repitio los15 grupos originales de navegador MFA sobre PostgreSQL35 y runtime exacto a MAIN2709:11 profesionales y4 personales, pageErrors=[],12 capturas y cero violaciones axe en el alcance comprobado. Una UUID cerro normalmente y los21 procesos propios cerraron con identidad comprobada; el pool nativo era5/0, sin atribucion pool1. La reparacion DOM QA-27 queda verificada localmente en esa fuente. El intento anterior rechazado y su diagnostico permanecen intactos. Los cambios posteriores36 tienen el gate HTTP separado; no se afirma navegador nativo36 o37. La superposicion movil del boton de menu sigue en UX-09/R13.
+
+Cuenta37 sigue aislada. Seguridad confirma QA-28: tras un401 real de recurso, la UI conserva acceso en RAM o proyecciones de la cuenta. Se preservan seis HTTP RED y doce canarias VM RED, incluidos aliases de identidad/MFA. ROOT reprodujo los mismos fallos y prepara un cambio acotado al namespace de cuenta, con fence del actor capturado y sin refresh/retry; reautenticacion primaria incorrecta no implica retirar sesion. La revision independiente de esa correccion, PG peer, restore37, CI y navegador37 siguen en curso.
+
+R05v3 ya esta integrado con125 casos actuales y146 de revision independiente. El nuevo escaneo real del arbol405 es RED:53203 alertas,42187 clasificadas por ubicaciones finitas y11016 pendientes en236 archivos. El resultado historico RED1603 se conserva; no representa el resultado actual. Seguridad preparo una propuesta de11015 puntos y dejo uno sin preimagen historica; ninguna ampliacion v4 esta aceptada o integrada. CI37 tiene solo preparacion estructural4353 NodeIDs,43 modulos480 casos afectados y30 controles; no CI global verde.
+
+Se conservan los144 criterios anteriores y los92 originales; se agrega QA-28, total145. Los537 archivos untracked permanecen intactos. Free mantiene10 clientes,1 plan por cliente al dia y10 planes totales al dia por gimnasio, mensual20 sin cambio. El trabajo actual es exclusivamente del servicio web. Sin push, PR, despliegue, cobros o envios reales.
