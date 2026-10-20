@@ -27,7 +27,7 @@
     window.addEventListener('pagehide', discard, {once:true});
     window.addEventListener('metodobase-session-changed', discard);
     window.addEventListener('storage', event => {
-      if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) discard();
+      if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) discard();
     });
   })();
   </script>
@@ -35,7 +35,7 @@
   <meta name="referrer" content="no-referrer">
   <title>Aceptar vínculo — Método Base</title>
   <link rel="stylesheet" href="/static/css/vinculos.css">
-  <script src="/static/js/api.js" defer></script>
+  <script src="/static/js/api.js?v={{ static_version }}-r31browser1" defer></script>
   <script src="/static/js/vinculos-contexto.js" defer></script>
   <script src="/static/js/vinculos-ui.js" defer></script>
   <script src="/static/js/vinculos-invitacion.js" defer></script>

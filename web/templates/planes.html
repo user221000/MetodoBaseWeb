@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     retry.classList.add('hidden');
   }
   window.addEventListener('storage', (event) => {
-    if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) invalidateSession();
+    if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) invalidateSession();
   });
   window.addEventListener('pagehide', invalidateSession);
   async function verifyAccount() {

@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from web.auth_deps import get_effective_gym_id, get_usuario_actual
+from web.browser_session import BrowserAuthRoute
 from web.database.engine import get_db
 from web.database.models import GymProfile, Usuario, UserRole
 from web.services import team_invitation_service as invitations
@@ -37,7 +38,7 @@ def _no_store(response: Response):
 
 
 router = APIRouter(prefix="/gym/team", tags=["Team Management"], dependencies=[Depends(_no_store)])
-auth_router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(_no_store)])
+auth_router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(_no_store)], route_class=BrowserAuthRoute)
 
 
 class TeamInviteRequest(BaseModel):

@@ -2,9 +2,9 @@
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.routing import APIRoute
 
 from web.auth_deps import get_usuario_actual
+from web.browser_session import BrowserAuthRoute
 from web.google_link_schemas import LinkConfirm, LinkStart, Unlink
 from web.routes.mfa import access, parse
 from web.database.engine import SessionLocal
@@ -33,7 +33,7 @@ def session():
         service.fail(503,"google_link_unconfirmed")
 
 
-class LinkRoute(APIRoute):
+class LinkRoute(BrowserAuthRoute):
     def get_route_handler(self):
         original=super().get_route_handler()
         async def handle(request):

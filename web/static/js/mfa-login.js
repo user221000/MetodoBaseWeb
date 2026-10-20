@@ -43,7 +43,7 @@
     async function primary(kind,payload){
       if(dead||busy||phase!=='primary')return false;
       const ticket=++epoch;
-      try{context=api.capture();check(ticket);busy=true;view('Comprobando tus datos de acceso…');check(ticket);return await consumePrimary(kind,payload,ticket);}
+      try{if(options.ready)await options.ready;if(dead||ticket!==epoch)return false;context=api.capture();check(ticket);busy=true;view('Comprobando tus datos de acceso…');check(ticket);return await consumePrimary(kind,payload,ticket);}
       catch(error){failure(error,ticket);return false;}
     }
     async function verify(value){
@@ -55,9 +55,9 @@
       try{options.onClear?.();check(ticket);view('Verificando el factor; el acceso aún no está confirmado…');check(ticket);const data=await api.loginVerify(body,context);check(ticket);await finish(data,ticket);busy=false;return true;}
       catch(error){failure(error,ticket);return false;}
     }
-    const notify=()=>{if(!committing)invalidate();};
+    const notify=()=>{if(committing)return;if(api.isPrimaryBoundary?.(context)){try{api.check(context);return;}catch{/* The exact owner must still be valid. */}}invalidate();};
     window.addEventListener('metodobase-session-changed',notify);window.addEventListener('pagehide',invalidate);
-    window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token'].includes(event.key))invalidate();});
+    window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))invalidate();});
     return{primary,verify,cancel,invalidate,
       async retryDestination(){if(dead||busy||!committed||phase!=='destination_error')return false;const ticket=epoch;busy=true;
         try{check(ticket);view('Acceso confirmado. Consultando el destino de esta cuenta…');check(ticket);await options.onAuthenticated?.(context);check(ticket);phase='confirmed';busy=false;return true;}
@@ -71,9 +71,9 @@
   function mount(options){
     const get=id=>document.getElementById(id),form=get('loginForm'),factor=get('mfa-login-factor'),panel=get('mfa-login-panel'),status=get('mfa-login-status');
     const googleBox=get('googleBtnContainer'),googleError=get('googleErrorMsg'),button=get('submitBtn'),error=get('errorMsg');
-    const initialLabel=button.textContent;let googleTicket=null,googleEpoch=0,googleRender=0,renderGoogle=null;
+    const initialLabel=button.textContent;let googleTicket=null,googleEpoch=0,googleRender=0,renderGoogle=null,bootReady=false;
     const clear=()=>{form.password.value='';get('mfa-login-code').value='';get('mfa-login-recovery').value='';};
-    const controller=create({audience:options.audience,onClear:clear,onView(update){
+    const controller=create({audience:options.audience,ready:Api.session.ready,onClear:clear,onView(update){
       googleTicket=null;googleEpoch++;
       panel.hidden=update.phase==='primary';factor.hidden=update.phase!=='factor';form.hidden=['factor','google','confirmed','destination_error'].includes(update.phase);googleBox.hidden=update.phase!=='primary';googleBox.inert=update.busy;
       for(const control of form.querySelectorAll('input,button'))control.disabled=update.busy||update.phase==='invalidated';
@@ -97,6 +97,8 @@
     get('mfa-login-cancel').addEventListener('click',()=>{googleTicket=null;googleEpoch++;controller.cancel();form.email.focus();});
     get('mfa-login-reopen').addEventListener('click',()=>window.location.reload());
     get('mfa-login-destination').addEventListener('click',()=>controller.retryDestination());
+    button.disabled=true;googleBox.hidden=true;status.textContent='Verificando la sesión del navegador…';
+    Api.session.ready.then(()=>{if(!controller.active)return;bootReady=true;button.disabled=false;status.textContent='';googleBox.hidden=false;if(renderGoogle)renderGoogle();}).catch(error=>{button.disabled=true;googleBox.hidden=true;status.textContent=error.message;status.setAttribute('role','alert');status.focus();});
     document.querySelector('.pwd-toggle')?.addEventListener('click',event=>{const field=get('pwdField');field.type=field.type==='password'?'text':'password';event.currentTarget.setAttribute('aria-pressed',String(field.type==='text'));event.currentTarget.setAttribute('aria-label',field.type==='text'?'Ocultar contraseña':'Mostrar contraseña');});
     const interval=setInterval(()=>controller.expire(),1000);window.addEventListener('pagehide',()=>clearInterval(interval),{once:true});
     if(!options.googleClientId){googleBox.textContent='Google no está configurado. Puedes usar tu contraseña.';return controller;}
@@ -106,7 +108,7 @@
       const attempt=googleTicket;if(!attempt||attempt.epoch!==googleEpoch||response.state!==attempt.state||controller.phase!=='google')return;googleTicket=null;
       try{Api.mfa.check(attempt.context);}catch{controller.invalidate();return;}
       await controller.completeGoogle({credential:response.credential,tipo:options.audience},attempt.flow);
-    }});renderGoogle=()=>{googleBox.replaceChildren();const buttonState='mfa-login-'+(++googleRender);google.accounts.id.renderButton(googleBox,{theme:'filled_black',size:'large',shape:'rectangular',text:'continue_with',width:Math.min(400,googleBox.offsetWidth||300),locale:'es',state:buttonState,click_listener:()=>{
+    }});renderGoogle=()=>{if(!bootReady)return;googleBox.replaceChildren();const buttonState='mfa-login-'+(++googleRender);google.accounts.id.renderButton(googleBox,{theme:'filled_black',size:'large',shape:'rectangular',text:'continue_with',width:Math.min(400,googleBox.offsetWidth||300),locale:'es',state:buttonState,click_listener:()=>{
       if(controller.phase!=='primary'||!controller.active)return;try{const context=Api.mfa.capture(),flow=controller.beginGoogle();if(flow===null)return;googleTicket={epoch:googleEpoch,context,state:buttonState,flow};}catch{controller.invalidate();}
     }});};renderGoogle();};document.head.appendChild(script);return controller;
   }

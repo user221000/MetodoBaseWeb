@@ -1,4 +1,4 @@
-/* Persisted identity decides the interface. Local account type is only a cache. */
+/* Resolve cookie bootstrap before identity, permissions or navigation. */
 (function () {
   'use strict';
   var path = location.pathname;
@@ -7,13 +7,14 @@
   var current = null;
   var ready = new Promise(function(resolve) {
     async function resolveIdentity() {
-      if (!localStorage.getItem('mb_token')) { location.replace(path.startsWith('/mi-') ? '/login-usuario' : '/login-gym'); resolve(null); return; }
       try {
+        await Api.session.ready;
+        if (!Api.getToken()) { location.replace(path.startsWith('/mi-') ? '/login-usuario' : '/login-gym'); resolve(null); return; }
+        var context=Api.session.capture();
         var me = await Api.auth.me();
+        Api.session.check(context);
         if (!me || typeof me.tipo !== 'string' || typeof me.role !== 'string') throw new Error('No se pudo confirmar el acceso de tu cuenta.');
         current = me;
-        localStorage.setItem('mb_tipo', me.tipo);
-        if (me.nombre) localStorage.setItem('mb_nombre', me.nombre);
         var professional = !!me.team_gym_id && ['admin','nutriologo','viewer'].includes(me.role);
         var owner = !me.team_gym_id && me.tipo === 'gym' && me.role === 'owner';
         var personal = !me.team_gym_id && me.tipo === 'usuario';
@@ -61,4 +62,5 @@
     controls.forEach(function(control) { var hide=!can(control.dataset.permission); if (control.hidden !== hide) control.hidden=hide; });
   }
   window.SessionIdentity = {ready:ready, can:can};
+  window.addEventListener('metodobase-session-changed',function(){current=null;applyPermissions(document);});
 })();

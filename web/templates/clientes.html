@@ -821,13 +821,9 @@ const _CAT_ICONS = {proteina:'🥩',carbs:'🍚',grasa:'🥑',verdura:'🥦',fru
 
 async function cargarCatalogoAlimentos() {
   try {
-    const res = await fetch('/api/alimentos/catalogo', {
-      headers: {'Authorization': 'Bearer ' + (localStorage.getItem('mb_token') || '')}
-    });
-    if (res.ok) {
-      const data = await res.json();
-      _catalogoAlimentos = data.categorias || {};
-    }
+    await Api.session.ready;const context=Api.session.capture();
+    const data=await Api.clientes.catalogo();Api.session.check(context);
+    _catalogoAlimentos=data.categorias||{};
   } catch(e) { console.warn('Catálogo no disponible:', e.message); }
 }
 

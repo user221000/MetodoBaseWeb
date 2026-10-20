@@ -1,7 +1,7 @@
 /**
  * api.js — Cliente HTTP para MetodoBase API
- * Incluye token Bearer en cada petición.
- * Auto-refresh: si recibe 401, intenta renovar con refresh token antes de redirigir.
+ * Access sólo en RAM. Refresh sólo mediante cookie HttpOnly del mismo origen.
+ * Los namespaces de acceso exacto mantienen su política sin refresh/replay.
  */
 
 const API_BASE = '';  // mismo origen
@@ -21,24 +21,22 @@ const Api = (() => {
     finally { _notifyingSession = false; }
   }
 
-  function getToken() {
-    return localStorage.getItem('mb_token') || '';
+  const _epochKey='mb_session_epoch',_lockName='metodobase.browser-session.v1';
+  let _epoch=null,_invalidated=false,_hidden=false,_metadata=null,_readyState='pending',_readyPromise;
+  let _channel=null;
+  let _retainedLogin=null;
+  const _acknowledged=new WeakMap();
+  const _delivered=new WeakMap();
+  let _credentials={pair:{token:'',refresh:''},revision:0,trusted:false};
+  function getToken(){
+    if(_readyState!=='ready'||_invalidated||_hidden||!_credentials.trusted)return '';
+    try{return _currentCredentials().pair.token;}catch{return '';}
   }
-
-  function getRefreshToken() {
-    return localStorage.getItem('mb_refresh_token') || '';
-  }
-
-  function _readPair() {
-    try { return { token: getToken(), refresh: getRefreshToken() }; }
-    catch (error) { throw _failStorage(error); }
-  }
+  function _readEpoch(){try{return localStorage.getItem(_epochKey);}catch(error){throw _failStorage(error);}}
+  function _readPair(){return _currentCredentials().pair;}
   function _samePair(left, right) {
     return left.token === right.token && left.refresh === right.refresh;
   }
-  let _credentials = { pair: { token: '', refresh: '' }, revision: 0, trusted: false };
-  try { _credentials.pair = _readPair(); _credentials.trusted = true; }
-  catch { /* The API remains available for explicit recovery; authenticated I/O stays blocked. */ }
   function _storageError(cause) {
     const error = new Error('No se pudo verificar el almacenamiento de la sesión. Vuelve a iniciar sesión.', cause ? { cause } : undefined);
     error.code = 'session_storage_error';
@@ -48,23 +46,23 @@ const Api = (() => {
     return error;
   }
   function _failStorage(cause) {
-    _credentials = { ..._credentials, revision: _credentials.revision + 1, trusted: false };
+    _metadata=null;
+    _credentials = { pair:{token:'',refresh:''}, revision: _credentials.revision + 1, trusted: false };
     _notifySessionChanged();
     if (_storageErrors.has(cause)) return cause;
     return _storageError(cause);
   }
   function _requireTrusted() {
+    if(_hidden||_invalidated)throw _sessionChanged();
     if (!_credentials.trusted) throw _storageError();
   }
   function _currentCredentials() {
-    const pair = _readPair();
-    if (!_samePair(pair, _credentials.pair)) {
-      _credentials = { pair, revision: _credentials.revision + 1, trusted: _credentials.trusted };
-      _notifySessionChanged();
-    }
+    _requireTrusted();
+    if(_readEpoch()!==_epoch){_invalidateSession();throw _sessionChanged();}
     return _credentials;
   }
   function _snapshot() {
+    if(_readyState!=='ready')throw _browserError('browser_session_not_ready');
     _requireTrusted();
     return { revision: _currentCredentials().revision };
   }
@@ -83,81 +81,102 @@ const Api = (() => {
     if (!_samePair(_assertSnapshot(snapshot), pair)) throw _sessionChanged();
   }
   function _tokenPair(data) {
-    if (!data || typeof data.token !== 'string' || !data.token || typeof data.refresh_token !== 'string' || !data.refresh_token) {
-      throw new Error('El servidor no confirmó las credenciales de la sesión.');
-    }
-    return { token: data.token, refresh: data.refresh_token };
+    if(!data||data.session_mode!=='browser'||typeof data.token!=='string'||!data.token||data.token.length>8192||/[^\x21-\x7e]/.test(data.token)||Object.hasOwn(data,'refresh_token')||(Object.hasOwn(data,'access_token')&&data.access_token!==data.token))throw _browserError('browser_protocol_invalid');
+    return {token:data.token,refresh:''};
   }
   function saveTokens(data) {
-    const pair = _tokenPair(data);
-    _persistPair(pair, _currentCredentials());
+    const ack=_acknowledged.get(data);if(!ack)throw _browserError('browser_protocol_invalid');
+    _acknowledged.delete(data);_assertSnapshot(ack.snapshot);
+    const nextRevision=_credentials.revision+1;_persistPair(ack.pair,_currentCredentials());
+    _assertPair({revision:nextRevision},ack.pair);_remember(data);
   }
   function clearTokens() {
-    _persistPair({ token: '', refresh: '' }, _currentCredentials(), true);
+    _publishBoundary();
   }
   function _persistPair(next, source, remove = false, rotation = false) {
-    const observed = _readPair();
-    if (_credentials !== source || !_samePair(observed, source.pair)) {
-      _currentCredentials(); throw _sessionChanged();
+    if(_currentCredentials()!==source)throw _sessionChanged();
+    _credentials={pair:remove?{token:'',refresh:''}:next,revision:source.revision+(rotation?0:1),trusted:true};
+    if(!rotation)_notifySessionChanged();
+  }
+  function _browserError(code){return Object.assign(new Error(({browser_locks_unavailable:'Este navegador no permite coordinar la sesión de forma segura. Usa un navegador actualizado con Web Locks habilitado.',browser_protocol_invalid:'El servidor no confirmó el modo seguro de sesión del navegador. Vuelve a abrir la página cuando el servicio esté actualizado.',browser_session_not_ready:'La sesión todavía se está verificando. Espera a que termine la consulta.',browser_session_unconfirmed:'No se pudo confirmar la sesión. No repetiremos la operación automáticamente.'})[code]||'No se pudo verificar la sesión del navegador.'),{code});}
+  function _remember(data){_metadata=Object.freeze(Object.fromEntries(['id','tipo','nombre','email','role','team_gym_id'].filter(key=>typeof data[key]==='string'||data[key]===null).map(key=>[key,data[key]])));}
+  function _invalidateSession(){if(_invalidated)return;_invalidated=true;_metadata=null;_credentials={pair:{token:'',refresh:''},revision:_credentials.revision+1,trusted:_credentials.trusted};_notifySessionChanged();}
+  function _publishBoundary(handle=null,silent=false){
+    _currentCredentials();const next=crypto.randomUUID();_epoch=next;_metadata=null;_credentials={pair:{token:'',refresh:''},revision:_credentials.revision+1,trusted:true};
+    try{localStorage.setItem(_epochKey,next);if(localStorage.getItem(_epochKey)!==next)throw _storageError();}catch(error){throw _failStorage(error);}
+    if(handle){if(!_mfaContexts.has(handle))throw _sessionChanged();_mfaContexts.set(handle,{snapshot:{revision:_credentials.revision},pair:_credentials.pair});}
+    try{_channel?.postMessage({epoch:next});}catch{/* Storage events plus synchronous epoch checks remain authoritative. */}
+    const previous=_retainedLogin;_retainedLogin=handle?{handle,value:_mfaContexts.get(handle)}:null;
+    try{if(!silent)_notifySessionChanged();}finally{_retainedLogin=previous;}
+    return {revision:_credentials.revision};
+  }
+  async function _withCookieLock(snapshot,run){
+    if(typeof navigator==='undefined'||typeof navigator.locks?.request!=='function')throw _browserError('browser_locks_unavailable');
+    try{return await navigator.locks.request(_lockName,{mode:'exclusive'},async()=>{_assertSnapshot(snapshot);return run();});}
+    catch(error){if(['SecurityError','NotSupportedError'].includes(error.name)&&typeof error.code!=='string')throw _browserError('browser_locks_unavailable');throw error;}
+  }
+  function _captureCookieBody(body){
+    try{const encoded=JSON.stringify(body,(_key,value)=>{if((typeof value==='number'&&!Number.isFinite(value))||['undefined','function','symbol','bigint'].includes(typeof value))throw Error('invalid');return value;});if(!body||Array.isArray(body)||typeof body!=='object'||new TextEncoder().encode(encoded).byteLength>32768)throw Error('invalid');return JSON.parse(encoded);}catch{throw _browserError('browser_auth_invalid_input');}
+  }
+  async function _cookieFetch(path,body,bearer=null){
+    let response,encoded=JSON.stringify(body);body=null;
+    try{const pending=fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-MetodoBase-Browser':'1',...(bearer?{Authorization:'Bearer '+bearer}:{})},body:encoded,credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});encoded=null;response=await pending;}catch{encoded=null;throw _browserError('browser_session_unconfirmed');}
+    let data;try{data=await response.json();}catch{throw _browserError('browser_session_unconfirmed');}
+    if(!response.ok){const detail=data?.detail,error=Object.assign(new Error(typeof detail==='string'?detail:detail?.message||'No se pudo confirmar la sesión.'),{status:response.status,code:detail?.code||null,retryAfter:response.headers.get('Retry-After')||null});throw error;}
+    return {status:response.status,data};
+  }
+  function _takeLegacy(){
+    let saved=null,failed=null;
+    for(const name of ['localStorage','sessionStorage']){
+      let store;try{store=window[name];const access=store.getItem('mb_token'),refresh=store.getItem('mb_refresh_token');if(refresh){if(typeof refresh!=='string'||refresh.length>8192||/[^\x21-\x7e]/.test(refresh)||(saved&&saved!==refresh))failed=_browserError('browser_protocol_invalid');else saved=refresh;}void access;}catch(error){failed=error;}
+      if(store)for(const key of ['mb_token','mb_refresh_token','mb_nombre','mb_email','mb_tipo'])try{store.removeItem(key);}catch(error){failed=error;}
     }
-    const attempt = { pair: source.pair, revision: source.revision + (rotation ? 0 : 1), trusted: false };
-    _credentials = attempt;
-    try {
-      if (remove) localStorage.removeItem('mb_token');
-      else localStorage.setItem('mb_token', next.token);
-      if (_credentials !== attempt || !_samePair(_readPair(), { token: next.token, refresh: source.pair.refresh })) {
-        throw _sessionChanged();
-      }
-      if (remove) localStorage.removeItem('mb_refresh_token');
-      else localStorage.setItem('mb_refresh_token', next.refresh);
-      if (_credentials !== attempt || !_samePair(_readPair(), next)) throw _sessionChanged();
-      _credentials = { pair: next, revision: attempt.revision, trusted: true };
-      if (!rotation) _notifySessionChanged();
-    } catch (error) {
-      // A newer explicit complete recovery wins; no rollback or compensating writes.
-      if (_credentials !== attempt && _credentials.trusted) throw _sessionChanged();
-      throw _failStorage(error);
-    }
+    if(failed){saved=null;throw failed.code==='browser_protocol_invalid'?failed:_failStorage(failed);}return saved;
+  }
+  async function _bootstrap(){
+    let legacy=null;
+    try{
+      legacy=_takeLegacy();_epoch=_readEpoch();
+      if(_epoch===null){_epoch=crypto.randomUUID();localStorage.setItem(_epochKey,_epoch);}
+      if(typeof _epoch!=='string'||!/^([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/.test(_epoch))throw _storageError();
+      if(localStorage.getItem(_epochKey)!==_epoch)throw _storageError();_credentials.trusted=true;
+      if(typeof BroadcastChannel==='function')try{_channel=new BroadcastChannel(_lockName);_channel.onmessage=event=>{if(event.data&&Object.keys(event.data).length===1&&typeof event.data.epoch==='string'&&event.data.epoch!==_epoch)_invalidateSession();};}catch{/* Storage events and epoch comparisons still fence every private operation. */}
+      const snapshot={revision:_credentials.revision};
+      await _withCookieLock(snapshot,async()=>{
+        let current=snapshot;
+        if(legacy)current=_publishBoundary(null,true);
+        try{const pending=_cookieFetch(legacy?'/api/auth/browser/migrate':'/api/auth/refresh',legacy?{refresh_token:legacy}:{});legacy=null;const reply=await pending;_assertSnapshot(current);const pair=_tokenPair(reply.data);_persistPair(pair,_credentials,false,true);_remember(reply.data);}
+        catch(error){_assertSnapshot(current);if(error.status!==401||error.code!=='browser_session_unavailable')throw error;}
+      });
+      _currentCredentials();_readyState='ready';return Object.freeze({authenticated:!!_credentials.pair.token});
+    }catch(error){legacy=null;_metadata=null;_credentials={..._credentials,pair:{token:'',refresh:''}};_readyState='error';if(['SecurityError','QuotaExceededError','InvalidStateError'].includes(error.name)&&typeof error.code!=='string')throw _failStorage(error);throw error;}
   }
   if (typeof window.addEventListener === 'function') {
     window.addEventListener('storage', event => {
-      if (event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) {
-        try {
-          _credentials = { pair: _readPair(), revision: _credentials.revision + 1, trusted: _credentials.trusted };
-          _notifySessionChanged();
-        } catch { /* Read failure already made the credential state untrusted. */ }
-      }
+      if(event.key===null||event.key===_epochKey||['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))_invalidateSession();
     });
+    window.addEventListener('pagehide',()=>{_hidden=true;_invalidateSession();});
+    window.addEventListener('pageshow',event=>{if(event.persisted)_invalidateSession();});
   }
 
   function getLoginUrl() {
-    var tipo = localStorage.getItem('mb_tipo');
-    return tipo === 'usuario' ? '/login-usuario' : '/login-gym';
+    return location.pathname.startsWith('/mi-')?'/login-usuario':'/login-gym';
   }
 
   async function _doRefresh(snapshot, source) {
     _assertPair(snapshot, source);
-    if (!source.refresh) return false;
-    try {
-      const res = await fetch(API_BASE + '/api/auth/refresh', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: source.refresh }),
-        cache: 'no-store',
-      });
-      _assertPair(snapshot, source);
-      if (!res.ok) return false;
-      const data = await res.json();
-      _assertPair(snapshot, source);
-      const next = _tokenPair(data);
-      // Only this confirmed rotation may preserve the logical session revision.
-      _persistPair(next, _credentials, false, true);
-      return true;
-    } catch (error) {
-      if (error.code === 'session_changed' || error.code === 'session_storage_error') throw error;
-      _assertPair(snapshot, source);
-      return false;
-    }
+    return _withCookieLock(snapshot,async()=>{
+      try{
+        _assertPair(snapshot,source);const reply=await _cookieFetch('/api/auth/refresh',{});_assertPair(snapshot,source);
+        _persistPair(_tokenPair(reply.data),_credentials,false,true);return true;
+      }catch(error){
+        if(['session_changed','session_storage_error'].includes(error.code))throw error;
+        _assertPair(snapshot,source);
+        if(error.status===401&&error.code==='browser_session_unavailable')_expire(snapshot,source);
+        // Invalidate before unlocking: a queued tab must not rotate an uncertain cookie.
+        _publishBoundary();throw error;
+      }
+    });
   }
 
   function _expire(snapshot, pair) {
@@ -198,6 +217,7 @@ const Api = (() => {
   async function _authenticatedFetch(path, options, snapshot, exactPair = null) {
     async function send(pair) {
       _assertPair(snapshot, pair);
+      if(!pair.token)throw Object.assign(new Error('No hay un acceso confirmado. Inicia sesión para continuar.'),{code:'session_expired'});
       const headers = { ...options.headers };
       if (pair.token) headers.Authorization = `Bearer ${pair.token}`;
       else delete headers.Authorization;
@@ -224,16 +244,18 @@ const Api = (() => {
   }
 
   async function request(method, path, body = null, extraHeaders = {}, authenticated = true, policy = null) {
+    const encodedBody=body===null?null:JSON.stringify(body),capturedHeaders={...extraHeaders};
+    if(authenticated)await _readyPromise;
     const snapshot = authenticated ? (policy?.snapshot || _snapshot()) : null;
     const opts = {
       method,
       headers: {
         'Content-Type': 'application/json',
-        ...extraHeaders,
+        ...capturedHeaders,
       },
       ...(policy ? {cache:'no-store',referrerPolicy:'no-referrer'} : {}),
     };
-    if (body !== null) opts.body = JSON.stringify(body);
+    if (encodedBody !== null) opts.body = encodedBody;
 
     let res;
     try {
@@ -241,7 +263,7 @@ const Api = (() => {
     } catch (networkErr) {
       if (networkErr.code === 'session_expired') throw networkErr;
       if (authenticated) { if (policy?.pair) _assertPair(snapshot, policy.pair); else _assertSnapshot(snapshot); }
-      if (networkErr.code === 'session_changed') throw networkErr;
+      if (['session_changed','session_storage_error','browser_locks_unavailable','browser_protocol_invalid','browser_session_unconfirmed'].includes(networkErr.code)) throw networkErr;
       throw new Error('Error de red: no se pudo conectar al servidor.');
     }
 
@@ -282,6 +304,7 @@ const Api = (() => {
   // ── Clientes ──────────────────────────────────────────────────────────────
 
   const clientes = {
+    catalogo: async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/alimentos/catalogo',null,{},true,{snapshot,pair});},
     listar: (q = '', limite = 300, filter = '') => {
       const params = new URLSearchParams();
       if (q) params.set('q', q);
@@ -336,12 +359,13 @@ const Api = (() => {
       `/api/descargar-pdf/${encodeURIComponent(id_cliente)}`, 'ultimo_plan.pdf'),
 
     _descargar: async (path, filename) => {
+      await _readyPromise;
       const snapshot = _snapshot();
       const context = await planes.contexto();
       _assertSnapshot(snapshot);
       let invalidated = false;
       const invalidate = (event) => {
-        if (event.type === 'pagehide' || event.key === null || ['mb_token', 'mb_refresh_token'].includes(event.key)) invalidated = true;
+        if (event.type === 'pagehide' || event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) invalidated = true;
       };
       window.addEventListener('storage', invalidate);
       window.addEventListener('pagehide', invalidate);
@@ -386,6 +410,7 @@ const Api = (() => {
 
   const stats = {
     contexto: async () => {
+      await _readyPromise;
       const snapshot = _snapshot();
       const me = await auth.me();
       _assertSnapshot(snapshot);
@@ -418,6 +443,7 @@ const Api = (() => {
 
   const auth = {
     loginGym: async (email, password) => {
+      await _readyPromise;
       const handle = mfa.capture();
       const data = await mfa.primaryPassword({ email, password }, handle);
       mfa.check(handle);
@@ -425,6 +451,7 @@ const Api = (() => {
       return data;
     },
     loginUsuario: async (email, password) => {
+      await _readyPromise;
       const handle = mfa.capture();
       const data = await mfa.primaryPassword({ email, password }, handle);
       mfa.check(handle);
@@ -432,29 +459,22 @@ const Api = (() => {
       return data;
     },
     registro: async (payload) => {
-      const snapshot = _snapshot();
-      const data = await request('POST', '/api/auth/registro', payload, {}, false);
-      _assertSnapshot(snapshot);
-      saveTokens(data);
-      return data;
+      return _browserAccount('/api/auth/registro',payload);
     },
-    me:     () => request('GET',  '/api/auth/me'),
+    me: async () => {await _readyPromise;const snapshot=_snapshot(),data=await request('GET','/api/auth/me');_assertSnapshot(snapshot);_remember(data);return data;},
     logout: async () => {
-      const snapshot = _snapshot();
-      let serverConfirmed = false;
       try {
-        const result = await request('POST', '/api/auth/logout');
-        serverConfirmed = !!result && result.success === true;
+        await _readyPromise;const snapshot=_snapshot();
+        return await _withCookieLock(snapshot,async()=>{
+          const closed=_publishBoundary();let serverConfirmed=false;
+          try{const reply=await _cookieFetch('/api/auth/browser/logout',{});_assertSnapshot(closed);if(reply.status!==200||reply.data?.success!==true||reply.data.session_mode!=='browser'||typeof reply.data.server_confirmed!=='boolean')throw _browserError('browser_protocol_invalid');serverConfirmed=reply.data.server_confirmed;}
+          catch(error){_assertSnapshot(closed);if(error.code==='session_changed'||error.code==='session_storage_error')throw error;}
+          return {state:'closed_local',server_confirmed:serverConfirmed,context:Object.freeze(closed)};
+        });
       } catch (error) {
-        if (error.code === 'session_storage_error') throw error;
-        // A failed POST is not proof of server revocation. A newer session wins.
+        if(error.code==='session_changed')return {state:'session_changed',server_confirmed:false};
+        _invalidateSession();return {state:'closed_local',server_confirmed:false,context:null};
       }
-      if (_currentCredentials().revision !== snapshot.revision) return {state:'session_changed',server_confirmed:false};
-      clearTokens();
-      _requireTrusted();
-      const closed = _currentCredentials();
-      if (closed.pair.token || closed.pair.refresh) return {state:'session_changed',server_confirmed:false};
-      return {state:'closed_local',server_confirmed:serverConfirmed,context:Object.freeze({revision:closed.revision})};
     },
   };
 
@@ -476,7 +496,7 @@ const Api = (() => {
     if (allowChallenge && reply.status === 202) {
       if (!data || data.mfa_required !== true || !_mfaBearer(data.challenge) || !_mfaExpiry(data.expires_at) ||
           !Array.isArray(data.methods) || data.methods.length !== 2 || !['totp','recovery_code'].every(name=>data.methods.includes(name)) ||
-          Object.keys(data).some(key=>!['mfa_required','challenge','expires_at','methods'].includes(key))) throw _mfaError();
+          data.session_mode!=='browser'||Object.keys(data).some(key=>!['mfa_required','challenge','expires_at','methods','session_mode'].includes(key))) throw _mfaError();
       return data;
     }
     if (reply.status !== 200 || !data || data.mfa_required === true) throw _mfaError();
@@ -484,16 +504,32 @@ const Api = (() => {
     return data;
   }
   async function _mfaPublic(path, body, handle, allowChallenge) {
-    _mfaContext(handle);
+    body=_captureCookieBody(body);
+    await _readyPromise;const context=_mfaContext(handle);
     try {
-      const value = await request('POST', path, body, {}, false, {includeStatus:true});
-      _mfaContext(handle);return _mfaReply(value,allowChallenge);
+      return await _withCookieLock(context.snapshot,async()=>{
+        _mfaContext(handle);const snapshot=_publishBoundary(handle);
+        const reply=await _cookieFetch(path,body);_mfaContext(handle);
+        const data=_mfaReply(reply,allowChallenge);
+        if(reply.status===200)_acknowledged.set(data,{snapshot,pair:_tokenPair(data)});
+        return data;
+      });
     } catch(error) { _mfaContext(handle);throw error; }
   }
+  async function _browserAccount(path,body){
+    body=_captureCookieBody(body);
+    await _readyPromise;const snapshot=_snapshot();
+    return _withCookieLock(snapshot,async()=>{
+      const started=_publishBoundary(),reply=await _cookieFetch(path,body);_assertSnapshot(started);
+      if(reply.status!==200)throw _browserError('browser_protocol_invalid');
+      const data=reply.data;_acknowledged.set(data,{snapshot:started,pair:_tokenPair(data)});saveTokens(data);_delivered.set(data,{snapshot:_snapshot(),pair:_credentials.pair});return data;
+    });
+  }
   async function _mfaRequest(path, body, handle, method='POST') {
+    if(method==='POST')body=_captureCookieBody(body);
     const context = _mfaContext(handle);
     try {
-      const value = await request(method,path,body,{},true,{snapshot:context.snapshot,pair:context.pair});
+      const value = method==='POST'?await _withCookieLock(context.snapshot,async()=>{_mfaContext(handle);const reply=await _cookieFetch(path,body,context.pair.token);_mfaContext(handle);return reply.data;}):await request(method,path,body,{},true,{snapshot:context.snapshot,pair:context.pair});
       _mfaContext(handle);return value;
     } catch(error) { _mfaContext(handle);throw error; }
   }
@@ -519,19 +555,21 @@ const Api = (() => {
       const finish=error=>{if(settled)return;settled=true;clearTimeout(timer);if(error){script.remove();reject(error);}else resolve(window.MfaUI);};
       const timer=setTimeout(()=>finish(_mfaError('mfa_ui_unavailable')),15000);
       style.rel='stylesheet';style.href='/static/css/mfa.css';document.head.appendChild(style);
-      script.src='/static/js/mfa-ui.js';script.nonce=document.querySelector('script[nonce]')?.nonce || '';
+      script.src='/static/js/mfa-ui.js?v=r31browser1';script.nonce=document.querySelector('script[nonce]')?.nonce || '';
       script.onload=()=>finish(typeof window.MfaUI?.authorize==='function'?null:_mfaError('mfa_ui_unavailable'));
       script.onerror=()=>finish(_mfaError('mfa_ui_unavailable'));document.head.appendChild(script);
     }).catch(error=>{_mfaUILoad=null;throw error;});
     return _mfaUILoad;
   }
   const mfa = {
+    isPrimaryBoundary:handle=>!!handle&&_retainedLogin?.handle===handle,
     capture() {
       const snapshot=_snapshot(),pair=_assertSnapshot(snapshot),handle=Object.freeze({revision:snapshot.revision});
       _mfaContexts.set(handle,{snapshot,pair});return handle;
     },
     check(handle) { _mfaContext(handle); },
     async context() {
+      await _readyPromise;
       const handle=mfa.capture(),me=await _mfaRequest('/api/auth/me',null,handle,'GET');_mfaContext(handle);
       if (!me || typeof me.id!=='string' || !me.id || typeof me.role!=='string' || !Number.isSafeInteger(me.session_version)) throw _mfaError();
       _mfaContexts.get(handle).subject=JSON.stringify([me.id,me.role,me.team_gym_id||null,me.session_version]);
@@ -612,7 +650,7 @@ const Api = (() => {
   // ── Billing ────────────────────────────────────────────────────────────────
 
   if (typeof window.addEventListener === 'function') {
-    const discardMfa=()=>{_mfaContexts=new WeakMap();_mfaOperations=new WeakMap();_mfaGrants=new WeakMap();};
+    const discardMfa=()=>{_mfaContexts=new WeakMap();_mfaOperations=new WeakMap();_mfaGrants=new WeakMap();if(_retainedLogin&&!_invalidated&&!_hidden&&_retainedLogin.value.snapshot.revision===_credentials.revision&&_samePair(_retainedLogin.value.pair,_credentials.pair))_mfaContexts.set(_retainedLogin.handle,_retainedLogin.value);};
     window.addEventListener('metodobase-session-changed',discardMfa);
     window.addEventListener('pagehide',discardMfa);
   }
@@ -814,6 +852,7 @@ const Api = (() => {
     uploadLogo: (file) => gym._logoRequest('POST', file),
 
     _logoRequest: async (method, file = null) => {
+      await _readyPromise;
       const snapshot = _snapshot();
       const formData = file ? new FormData() : null;
       if (file) formData.append('file', file);
@@ -866,6 +905,7 @@ const Api = (() => {
   }
   const usuario = {
     contexto: async () => {
+      await _readyPromise;
       const snapshot = _snapshot();
       const me = await auth.me();
       _assertSnapshot(snapshot);
@@ -958,6 +998,7 @@ const Api = (() => {
   // Receiving a link does not make either of those spaces available.
   const vinculos = {
     contexto: async () => {
+      await _readyPromise;
       const snapshot = _snapshot();
       const me = await auth.me();
       _assertSnapshot(snapshot);
@@ -1137,8 +1178,10 @@ const Api = (() => {
     remove: (id) => mfa.perform('DELETE', '/api/gym/team/' + encodeURIComponent(id), {}),
     resend: (id) => mfa.perform('POST', '/api/gym/team/' + encodeURIComponent(id) + '/resend-invite', {}),
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
-    accept: (token, password) => request('POST', '/api/auth/accept-invite', {token,password}, {}, false),
+    accept: (token, password) => _browserAccount('/api/auth/accept-invite',{token,password}),
   };
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, clearTokens, saveTokens };
+  const session=Object.freeze({get ready(){return _readyPromise;},identity:()=>getToken()&&_metadata?Object.freeze({..._metadata}):null,capture:()=>Object.freeze(_snapshot()),check:context=>{_assertSnapshot(context);},accepted:data=>{const value=_delivered.get(data);if(!value)throw _sessionChanged();_assertPair(value.snapshot,value.pair);return Object.freeze({...value.snapshot});},clientCount:async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/clientes?limite=1',null,{},true,{snapshot,pair});}});
+  _readyPromise=_bootstrap();_readyPromise.catch(()=>{});
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, session, getToken, clearTokens, saveTokens };
 })();
 

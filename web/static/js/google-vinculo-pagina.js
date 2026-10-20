@@ -55,7 +55,7 @@
   });
   function invalidate(){googleTicket=null;controller.invalidate();box.replaceChildren();get('error').textContent='';get('error').hidden=true;}
   window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('pagehide',invalidate);
-  window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token'].includes(event.key))invalidate();});
+  window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))invalidate();});
   const timer=setInterval(()=>controller.expire(),1000);window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
   get('load').disabled=false;get('cancel').disabled=false;chooseFactor();render(controller.view());
   if(!clientId)get('provider-title').textContent='Google no está configurado. Puedes consultar o desvincular vínculos existentes con una prueba local válida.';
