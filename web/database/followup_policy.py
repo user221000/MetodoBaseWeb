@@ -127,7 +127,7 @@ def _postgres(c):
           PERFORM 1 FROM public.usuarios WHERE id=ANY(ARRAY[NEW.actor_id,NEW.gym_id,NEW.assignee_id,hint.assignee_id]) ORDER BY id FOR UPDATE NOWAIT;
           IF ({actor}) IS NOT TRUE OR (NEW.kind<>'cancelled' AND ({_assignee()}) IS NOT TRUE)
               THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up eligibility changed'; END IF;
-          PERFORM 1 FROM public.clientes WHERE id_cliente=NEW.client_id AND gym_id=NEW.gym_id AND activo AND deleted_at IS NULL FOR SHARE;
+          PERFORM 1 FROM public.clientes WHERE id_cliente=NEW.client_id AND gym_id=NEW.gym_id AND activo AND deleted_at IS NULL FOR SHARE NOWAIT;
           IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up client denied'; END IF;
           SELECT * INTO prior FROM public.followup_tasks WHERE id=NEW.task_id AND gym_id=NEW.gym_id FOR UPDATE NOWAIT;
           IF prior.assignee_id IS DISTINCT FROM hint.assignee_id THEN RAISE EXCEPTION USING ERRCODE='55P03',MESSAGE='Follow-up lock set changed'; END IF;

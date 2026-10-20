@@ -293,9 +293,12 @@ def mutate(db, expected, kind, command, request_key, path, *, identifier=None, n
         fail(401, "followup_identity_unavailable")
     gym_hint = actor_hint.team_gym_id or actor_hint.id
     bind_verified_subject(db, gym_hint)
-    hint = db.scalar(select(Task).where(Task.id == identifier, Task.gym_id == gym_hint)) if identifier else None
+    manager_hint = has_permission(actor_hint, "manage", "followup_task", gym_hint)
+    # Restrict discovery before deriving any other account's lock. Hints only
+    # narrow access; authority still revalidates the locked persistent context.
+    hint = repo.task(db, gym_hint, actor_hint.id, manager_hint, identifier) if identifier else None
     old_assignee = hint.assignee_id if hint else None
-    extra = (old_assignee, getattr(command, "assignee_id", None))
+    extra = (old_assignee, getattr(command, "assignee_id", None) if manager_hint else None)
     user, gym, manager, users = authority(db, expected, lock=True, extra=extra)
     if kind != "completed":
         _require_manager(manager)
@@ -312,7 +315,7 @@ def mutate(db, expected, kind, command, request_key, path, *, identifier=None, n
     client_id = command.client_id if kind == "created" else hint.client_id if hint and hint.gym_id == gym else None
     client_query = select(Cliente).where(Cliente.id_cliente == client_id, *repo.eligible(gym)).execution_options(populate_existing=True)
     if db.get_bind().dialect.name == "postgresql":
-        client_query = client_query.with_for_update(read=True)
+        client_query = client_query.with_for_update(nowait=True, read=True)
     if db.scalar(client_query) is None:
         fail(404, "followup_task_unavailable")
     source = repo.sources(db, gym, [client_id]).get(client_id)
