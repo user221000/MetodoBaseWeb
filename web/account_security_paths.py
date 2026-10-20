@@ -4,10 +4,11 @@ POSTS = frozenset({
     "/api/account/security/password",
 })
 PRIVATE = POSTS | frozenset({"/api/account/security", "/auth/verify-email"})
+_SHELLS = frozenset({"/cuenta/seguridad", "/mi-seguridad"})
 
 
 def is_account_security_private(path):
-    return path in PRIVATE or (path.endswith("/") and path[:-1] in PRIVATE)
+    return path in PRIVATE or (path.endswith("/") and path[:-1] in PRIVATE) or path.rstrip("/") in _SHELLS
 
 
 def is_account_security_post(path):

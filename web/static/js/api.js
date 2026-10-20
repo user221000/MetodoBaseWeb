@@ -856,6 +856,50 @@ const Api = (() => {
   };
   if(typeof window.addEventListener==='function')for(const event of ['metodobase-session-changed','pagehide'])window.addEventListener(event,()=>{_notificationOperations=new WeakMap();});
 
+  // Own account37 operations. Removing this block restores the previous API RAW.
+  const _accountClosures=new WeakMap();
+  function _accountError(code='account_security_invalid_response',status=null,fields=[]) {
+    return Object.assign(new Error('No se pudo confirmar esta operación de seguridad.'),{code,status,fields});
+  }
+  function _accountBody(value) {
+    let body;try{body=_captureCookieBody(value);}catch{throw _accountError('account_security_invalid_input');}const keys=['reauthentication_token','new_password','confirm_password','code','recovery_code'];
+    if(Object.keys(body).some(key=>!keys.includes(key))||!_mfaBearer(body.reauthentication_token)||typeof body.new_password!=='string'||typeof body.confirm_password!=='string'||body.new_password!==body.confirm_password||Array.from(body.new_password).length<12||new TextEncoder().encode(body.new_password).length>72||/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(body.new_password)||(body.code!==undefined&&!/^\d{6}$/.test(body.code))||(body.recovery_code!==undefined&&!/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))||(body.code!==undefined&&body.recovery_code!==undefined))throw _accountError('account_security_invalid_input');
+    return body;
+  }
+  async function _accountPost(path,body,context) {
+    let response,encoded=JSON.stringify(body);body=null;
+    const csrf=typeof document!=='undefined'?document.querySelector?.('meta[name="csrf-token"]')?.content:null;
+    const headers={'Content-Type':'application/json','Accept':'application/json','X-MetodoBase-Browser':'1',Authorization:'Bearer '+context.pair.token};
+    if(typeof csrf==='string'&&csrf&&csrf.length<=512&&!/[\r\n]/.test(csrf))headers['X-CSRF-Token']=csrf;
+    try{const pending=fetch(API_BASE+path,{method:'POST',headers,body:encoded,credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});encoded=null;response=await pending;}catch{encoded=null;throw _accountError('account_security_unconfirmed');}
+    let data;try{data=await response.json();}catch{throw _accountError('account_security_unconfirmed',response.status>=500?response.status:null);}
+    if(!response.ok){const detail=data?.detail,known=['reauthentication_token','new_password','confirm_password','code','recovery_code'];throw _accountError(typeof detail?.code==='string'?detail.code:'account_security_rejected',response.status,Array.isArray(detail?.fields)?detail.fields.filter(key=>known.includes(key)):[]);}
+    return data;
+  }
+  const accountSecurity=Object.freeze({
+    context:()=>mfa.context(),check:handle=>mfa.check(handle),verify:handle=>mfa.verify(handle),factorStatus:handle=>mfa.status(handle),reauth:(body,handle)=>mfa.reauth(body,handle),
+    status:handle=>{const context=_mfaContext(handle);return request('GET','/api/account/security',null,{},true,{snapshot:context.snapshot,pair:context.pair});},
+    async requestEmail(handle){
+      const context=_mfaContext(handle);
+      return _withCookieLock(context.snapshot,async()=>{
+        _mfaContext(handle);const data=await _accountPost('/api/account/security/email/request',{},context);_mfaContext(handle);
+        if(!data||!((data.email_verified===true&&data.delivery==='not_required')||(data.email_verified===false&&data.delivery==='provider_accepted'&&data.expires_in_seconds===1800))||Object.keys(data).some(key=>!['email_verified','delivery','expires_in_seconds'].includes(key)))throw _accountError();
+        return data;
+      });
+    },
+    async changePassword(value,handle){
+      let body=_accountBody(value);value=null;const context=_mfaContext(handle);
+      try{return await _withCookieLock(context.snapshot,async()=>{
+        _mfaContext(handle);let state='changed';
+        try{const pending=_accountPost('/api/account/security/password',body,context);body=null;const data=await pending;_mfaContext(handle);
+          if(!data||data.code!=='account_password_changed'||data.reauthenticate!==true||data.sessions_revoked!==true||Object.keys(data).some(key=>!['code','reauthenticate','sessions_revoked'].includes(key)))throw _accountError();
+        }catch(error){body=null;_mfaContext(handle);if(error.status&&error.status<500)throw error;state='unconfirmed';}
+        _mfaContext(handle);const closed=_publishBoundary(),result=Object.freeze({state,server_confirmed:state==='changed'});_assertSnapshot(closed);_accountClosures.set(result,closed);return result;
+      });}finally{body=null;}
+    },
+    checkClosed(result){const closed=_accountClosures.get(result);if(!closed)throw _sessionChanged();_assertSnapshot(closed);},
+  });
+
   const billing = {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
@@ -1229,6 +1273,6 @@ const Api = (() => {
   };
   const session=Object.freeze({get ready(){return _readyPromise;},identity:()=>getToken()&&_metadata?Object.freeze({..._metadata}):null,capture:()=>Object.freeze(_snapshot()),check:context=>{_assertSnapshot(context);},accepted:data=>{const value=_delivered.get(data);if(!value)throw _sessionChanged();_assertPair(value.snapshot,value.pair);return Object.freeze({...value.snapshot});},clientCount:async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/clientes?limite=1',null,{},true,{snapshot,pair});}});
   _readyPromise=_bootstrap();_readyPromise.catch(()=>{});
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, session, getToken, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, accountSecurity, session, getToken, clearTokens, saveTokens };
 })();
 

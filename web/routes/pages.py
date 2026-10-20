@@ -91,6 +91,22 @@ async def clientes(request: Request):
     return template_response(templates, request, "clientes.html", {"request": request})
 
 
+@router.get('/cuenta/seguridad', response_class=HTMLResponse)
+@router.get('/cuenta/seguridad/', response_class=HTMLResponse)
+@router.get('/mi-seguridad', response_class=HTMLResponse)
+@router.get('/mi-seguridad/', response_class=HTMLResponse)
+async def account_security_page(request: Request):
+    """Inert own-account security shell; the API derives current authority."""
+    from config.settings import Settings
+    personal = request.url.path.rstrip('/') == '/mi-seguridad'
+    response = template_response(templates, request,
+        'usuario_seguridad37.html' if personal else 'cuenta_seguridad37.html',
+        {'request': request, 'google_client_id': Settings().GOOGLE_CLIENT_ID,
+         'account_login_url': '/login-usuario' if personal else '/login-gym'})
+    response.headers.update({'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+    return response
+
+
 @router.get('/recordatorios', response_class=HTMLResponse)
 @router.get('/recordatorios/', response_class=HTMLResponse)
 @router.get('/mis-recordatorios', response_class=HTMLResponse)

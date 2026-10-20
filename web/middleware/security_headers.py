@@ -38,6 +38,7 @@ _GOOGLE_LINK_PATHS = frozenset({
     "/api/auth/google/link/unlink", "/api/auth/google/link/unlink/",
 })
 _GOOGLE_LINK_PAGES = frozenset({"/cuenta/google", "/cuenta/google/"})
+_ACCOUNT_SECURITY_PAGES = frozenset({"/cuenta/seguridad", "/cuenta/seguridad/", "/mi-seguridad", "/mi-seguridad/"})
 _RETIREMENT_PRIVATE_PATHS = frozenset({
     "/api/auth/progress-retirement/metadata", "/api/auth/progress-retirement/metadata/",
     "/api/auth/progress-retirement/withdraw", "/api/auth/progress-retirement/withdraw/",
@@ -172,7 +173,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         
         # ─── CSP (with per-request nonce) ────────────────────────────────────
         if self.csp_enabled:
-            if request.url.path in _GOOGLE_LINK_PAGES:
+            if request.url.path in _GOOGLE_LINK_PAGES or request.url.path in _ACCOUNT_SECURITY_PAGES:
                 # Only this new first-party page needs GIS. No CDN, wildcard,
                 # arbitrary downstream policy or change to existing login pages.
                 response.headers["Content-Security-Policy"] = (
