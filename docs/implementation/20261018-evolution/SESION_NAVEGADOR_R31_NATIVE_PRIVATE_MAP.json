@@ -1,0 +1,397 @@
+{
+  "base": "4233a9992abe3b815a2fc487ee20ebb4030e383f",
+  "compositions": [
+    {
+      "assertion_calls_preserved_before_normative_changes": 10,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage.",
+          "reason": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage."
+        },
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "76f3339b867f761a31d0a758452fb9865c822c646c6dbb1f20d6781e01634079",
+      "historical_driver": "mfa31_image.cjs",
+      "historical_driver_sha256": "2eb72f7272e733a2c3f662c5803495a0a31686fc661c96ce343d34995e1e9cd1",
+      "normative": [],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 23,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "count": 1,
+          "kind": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption.",
+          "reason": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption."
+        },
+        {
+          "count": 1,
+          "kind": "Public setup boundary remains usable after old tab invalidation; next explicit login opens a fresh page.",
+          "reason": "Public setup boundary remains usable after old tab invalidation; next explicit login opens a fresh page."
+        },
+        {
+          "count": 1,
+          "kind": "Late confirm cannot adopt B into old tab; independent actual B Bearer proves B survived.",
+          "reason": "Late confirm cannot adopt B into old tab; independent actual B Bearer proves B survived."
+        },
+        {
+          "count": 1,
+          "kind": "Deny the current nonsecret persistent fence instead of the retired credential read.",
+          "reason": "Deny the current nonsecret persistent fence instead of the retired credential read."
+        },
+        {
+          "count": 1,
+          "kind": "Actual epoch Storage boundary.",
+          "reason": "Actual epoch Storage boundary."
+        },
+        {
+          "after": "const out=path.resolve(process.env.NATIVE31_BROWSER_OUTPUT||path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/browser-'+batch))",
+          "before": "const out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/browser-'+batch)",
+          "count": 1,
+          "kind": "private_output_framing",
+          "reason": "NATIVE31_BROWSER_OUTPUT explicitly selects a fresh absolute target under the launcher-owned private/ACL parent. Existing no-overwrite assertions remain. Full inverse of this exact initializer is verified."
+        },
+        {
+          "count": 1,
+          "kind": "Historical dialect/revision scope is not retargeted silently; actual35 producer witness remains separate.",
+          "reason": "Historical dialect/revision scope is not retargeted silently; actual35 producer witness remains separate."
+        },
+        {
+          "count": 1,
+          "kind": "argument_framing",
+          "reason": "The external-epoch callback receives no unused credential pair; private proof stays in Node fixture RAM."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "f0f2f13931158bdd7a53092c72a42ae7e68a1e134c633f47ded5fc2bb18d2bac",
+      "historical_driver": "mfa_ui_browser.cjs",
+      "historical_driver_sha256": "763d722add3d0219447a6a61da5f45ff6bbc4da0914b2f4a18ca903091bb4228",
+      "normative": [
+        {
+          "after": "assert.equal(await page.evaluate(async()=>{try{await Api.auth.me();return 'unexpected_authenticated';}catch(error){return error.code;}}),'session_changed');const preservedB=await context.request.get(base+'/api/auth/me',{headers:{Authorization:'Bearer '+pairB.token}});assert.equal(preservedB.status(),200);assert.equal((await preservedB.json()).id,'synthetic-mfa-ui-other');",
+          "before": "assert.equal(await page.evaluate(async()=> (await Api.auth.me()).id),'synthetic-mfa-ui-other');",
+          "reason": "R31 forbids automatic adoption by an invalidated tab; preserve B authority and no old kit separately."
+        }
+      ],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 10,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "after": "const out=path.resolve(process.env.NATIVE31_BROWSER_OUTPUT||path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/personal-'+batch))",
+          "before": "const out=path.resolve(__dirname,'../../docs/implementation/20261018-evolution/evidence/mfa-ui31/personal-'+batch)",
+          "count": 1,
+          "kind": "private_output_framing",
+          "reason": "NATIVE31_BROWSER_OUTPUT explicitly selects a fresh absolute target under the launcher-owned private/ACL parent. Existing no-overwrite assertions remain. Full inverse of this exact initializer is verified."
+        },
+        {
+          "count": 1,
+          "kind": "Historical dialect/revision scope is not retargeted silently; actual35 producer witness remains separate.",
+          "reason": "Historical dialect/revision scope is not retargeted silently; actual35 producer witness remains separate."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "b8b5457fd40c5d88cab54079db7e25686290937af10cf9e7425eff6e21379a7f",
+      "historical_driver": "mfa_personal_browser.cjs",
+      "historical_driver_sha256": "b4f2fbbe0df2016ed589b9fc39aaf24bdb43bc5d58d5b5cb9f4dce7322867aab",
+      "normative": [],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 29,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage.",
+          "reason": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage."
+        },
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "count": 2,
+          "kind": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption.",
+          "reason": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption."
+        },
+        {
+          "count": 1,
+          "kind": "Setup legacy proof migrates once under actual origin WebLock/cookie HTTP; only unrelated legacy canary is stored.",
+          "reason": "Setup legacy proof migrates once under actual origin WebLock/cookie HTTP; only unrelated legacy canary is stored."
+        },
+        {
+          "count": 1,
+          "kind": "ROOT frozen fixture35 contract; concrete revision37 ORM/38 physical inclAlembic, no permissive schema comparison.",
+          "reason": "ROOT frozen fixture35 contract; concrete revision37 ORM/38 physical inclAlembic, no permissive schema comparison."
+        },
+        {
+          "count": 1,
+          "kind": "ROOT frozen fixture35 contract; concrete revision37 ORM/38 physical inclAlembic, no permissive schema comparison.",
+          "reason": "ROOT frozen fixture35 contract; concrete revision37 ORM/38 physical inclAlembic, no permissive schema comparison."
+        },
+        {
+          "count": 2,
+          "kind": "argument_framing",
+          "reason": "The external-epoch callback receives no unused credential pair; private proof stays in Node fixture RAM."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "cb77924cbb1f7ae5bd201b520c1f19cdf2dff8ddd453cb0d99508e1520940c10",
+      "historical_driver": "dashboard_followup31_browser.cjs",
+      "historical_driver_sha256": "78e015281dd8e33fd167e3eba16a3bdd85c78cb83764b9adde4b99ade6461972",
+      "normative": [
+        {
+          "after": "assert.equal(startup.runtime_revision,'20261020_nutrition_profile');",
+          "before": "assert.equal(startup.runtime_revision,'20261019_mfa');",
+          "reason": "Explicit current35 producer witness required; historical31 driver is retained untouched."
+        },
+        {
+          "after": "assert.equal(startup.model_tables,37);assert.equal(startup.actual_tables,38);",
+          "before": "assert.equal(startup.model_tables,32);assert.equal(startup.actual_tables,33);",
+          "reason": "Explicit current35 producer witness required; historical31 driver is retained untouched."
+        }
+      ],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 53,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage.",
+          "reason": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage."
+        },
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "count": 1,
+          "kind": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption.",
+          "reason": "External epoch invalidates the receiving tab synchronously; no fabricated cookie ACK or actor adoption."
+        },
+        {
+          "count": 1,
+          "kind": "Use the same actor current actual login access; enrollment revoked the original bootstrap proof.",
+          "reason": "Use the same actor current actual login access; enrollment revoked the original bootstrap proof."
+        },
+        {
+          "count": 1,
+          "kind": "argument_framing",
+          "reason": "The external-epoch callback receives no unused credential pair; private proof stays in Node fixture RAM."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "3049b93b477e89aeef130df2640d5a942484c1a5af4bfdd8b7213c18b822085c",
+      "historical_driver": "daily_plan31_browser.cjs",
+      "historical_driver_sha256": "317895b8cae48ac6d0f586f2fa3ccc2b05e1041837e6bbd7b71606d6a4ebed6e",
+      "normative": [],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 39,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage.",
+          "reason": "Actual MFA enrollment/factors retained; form login waits current browser bootstrap and uses no credential Storage."
+        },
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "count": 1,
+          "kind": "Private helper reads current access RAM only.",
+          "reason": "Private helper reads current access RAM only."
+        },
+        {
+          "count": 1,
+          "kind": "Private helper waits cookie bootstrap.",
+          "reason": "Private helper waits cookie bootstrap."
+        },
+        {
+          "count": 1,
+          "kind": "Current R33 export includes the existing eighth progress_consents collection.",
+          "reason": "Current R33 export includes the existing eighth progress_consents collection."
+        },
+        {
+          "count": 1,
+          "kind": "Current R33 export includes the existing eighth progress_consents collection.",
+          "reason": "Current R33 export includes the existing eighth progress_consents collection."
+        },
+        {
+          "count": 1,
+          "kind": "Current report label follows R33 dataset contract.",
+          "reason": "Current report label follows R33 dataset contract."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "0e13a54be8df4b65bce281546d87f14ad9d5173acb7c9511ce89ebd626137176",
+      "historical_driver": "member_link31_browser.cjs",
+      "historical_driver_sha256": "ce49258340e40f1800aa1405d1460e9cc59cf4f6a05171257282bc0479b009b4",
+      "normative": [
+        {
+          "after": "assert.equal(Object.keys(data.manifest.collections).length,8)",
+          "before": "assert.equal(Object.keys(data.manifest.collections).length,7)",
+          "reason": "Current8 dataset contract, not a removal of privacy/export checks."
+        },
+        {
+          "after": "assert.deepEqual(Object.keys(data.collections).sort(),['generation_requests','measurements','member_links','personal_diary','plans','profiles','progress_consents','purchases'])",
+          "before": "assert.deepEqual(Object.keys(data.collections).sort(),['generation_requests','measurements','member_links','personal_diary','plans','profiles','purchases'])",
+          "reason": "Current8 dataset contract, not a removal of privacy/export checks."
+        }
+      ],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 21,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "count": 1,
+          "kind": "legacy_setup_migration",
+          "reason": "Actual legacy Node-RAM proof migrates through cookie HTTP under native WebLock; no access/refresh/type/name initialization in browser Storage."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "860cb8491feb429ad2dfa83b9e4f6e6bacc054a6de3b78f9add8a10c8694c821",
+      "historical_driver": "subscription.cjs",
+      "historical_driver_sha256": "d07adba7b92cbc721ad2984fa944bd00dffc4daffd8ff0ae61884edbc4beddf6",
+      "normative": [],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 8,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "count": 1,
+          "kind": "legacy_setup_migration",
+          "reason": "Actual legacy Node-RAM proof migrates through cookie HTTP under native WebLock; no access/refresh/type/name initialization in browser Storage."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "338f7e1984c3c389ff4db2497de3ae134973e3966da2a6bc14f2b6f55954345d",
+      "historical_driver": "subscription_contract_review.cjs",
+      "historical_driver_sha256": "b0858e6ce88cee7565a363c2a5b3930f47170ed30106d605c955038204a11ac5",
+      "normative": [],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    },
+    {
+      "assertion_calls_preserved_before_normative_changes": 21,
+      "changes": [
+        {
+          "count": 1,
+          "kind": "Every new browser context rejects credential/identity Storage writes.",
+          "reason": "Every new browser context rejects credential/identity Storage writes."
+        },
+        {
+          "count": 1,
+          "kind": "legacy_setup_migration",
+          "reason": "Actual legacy Node-RAM proof migrates through cookie HTTP under native WebLock; no access/refresh/type/name initialization in browser Storage."
+        },
+        {
+          "count": 1,
+          "kind": "Presentation role override retains an actual canonical id/session tuple, rather than an incomplete auth/me fixture.",
+          "reason": "Presentation role override retains an actual canonical id/session tuple, rather than an incomplete auth/me fixture."
+        },
+        {
+          "count": 1,
+          "kind": "Explicit step-up response double only for this already intercepted billing presentation scenario; no MFA acceptance claim.",
+          "reason": "Explicit step-up response double only for this already intercepted billing presentation scenario; no MFA acceptance claim."
+        },
+        {
+          "count": 1,
+          "kind": "MFA31 already requires explicit readback before retry after502 uncertainty. Original two-request/same-key/body assertions remain exact.",
+          "reason": "MFA31 already requires explicit readback before retry after502 uncertainty. Original two-request/same-key/body assertions remain exact."
+        },
+        {
+          "count": 1,
+          "kind": "Explicit readback releases the prior uncertain intention before choosing the existing separate provider/key; no automatic retry.",
+          "reason": "Explicit readback releases the prior uncertain intention before choosing the existing separate provider/key; no automatic retry."
+        }
+      ],
+      "companion": "browser_native_compat31",
+      "compiled_driver_sha256": "8599fc539246cb23589ca8327d0604db3ee62fb32877cd6d946f3e1051eb0165",
+      "historical_driver": "gym_subscription.cjs",
+      "historical_driver_sha256": "99418da9253a5362327f1fdcee6e64f1a8e37ac8c73c04a4c38de1d872590c59",
+      "normative": [],
+      "scope": "Native composition only. Driver outcomes and current35 producer witness govern execution acceptance; --compile-only proves parsing/inventory, never Chrome/HTTP/PG/layout. External epoch cases do not claim new actor adoption.",
+      "session_helper_sha256": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924"
+    }
+  ],
+  "current35_contract": {
+    "FORCE_families_PostgreSQL": 28,
+    "actual_tables": 38,
+    "eighth_export_collection": "progress_consents",
+    "export_collections": 8,
+    "model_tables": 37,
+    "revision": "20261020_nutrition_profile"
+  },
+  "offline_validation": {
+    "actual_browser_cases_executed": 0,
+    "driver_compilation": 9,
+    "framing": "First helper VM7/9 used direct realm objects; Playwright evaluate serializes/clones values. Fake page evaluate now structured-clones input/output; same assertions9/9, no helper-product correction for this fixture change. gym compilation first matched2 retry snippets; anchors were narrowed to exact existing first/provider contexts, all original assertion calls remain.",
+    "native_helper_VM_cases_passed": 9,
+    "source_quiet": true
+  },
+  "pending": "Independent native source-frozen fixture35/Chrome/HTTP acceptance after ROOT lease. Remaining historical/transitive native drivers still require explicit composition; no global CI green claim.",
+  "preexisting_MFA31_framing": "gym502 uncertainty requires explicit state readback before retry/provider change; same original request count/key/body assertions remain exact, product unchanged.",
+  "presentation_scope": "subscription and contract review use real persisted initial principal and cookie migration. gym_subscription keeps existing intercepted billing and role presentation; explicitly adds a scoped step-up response double and canonical me fields. No real MFA/grant acceptance for that presentation double. Existing current35 real MFA drivers remain separate.",
+  "private_output_contract": {
+    "absolute_new_target": true,
+    "applies_to": [
+      "mfa_ui_browser",
+      "mfa_personal_browser"
+    ],
+    "binding": "Optional regular nonsymlink witness path; only basename/SHA are added, payload is not copied. Typed schema/roles/RLS validation remains launcher-owned.",
+    "environment": "NATIVE31_BROWSER_OUTPUT",
+    "launcher_precondition": "Launcher creates/private-ACL parent before execution; driver target remains nonexistent. Existing no-overwrite assertion and output-framing inverse are preserved.",
+    "producer_witness_environment": "NATIVE31_PRODUCER_WITNESS",
+    "required_for_execution": true
+  },
+  "proofs_sha256": "76202a6da66373bb8f5479aa5f6466ced9765066a39f95f1cfeb530f92412e58",
+  "separate_actual_gate": "ROOT reported4 real ASGI MFA bridge cases PASS on8878d64 with e020 worker/test. This commit does not modify those worker/Python bytes; no rerun or reattribution of helper/native code is claimed.",
+  "sources": {
+    "tests/e2e/browser_native_compat31.cjs": "e3ad1752ca487f49b9be6a3a4d88008e01740735467f63078191a990152149c8",
+    "tests/e2e/browser_native_session31.cjs": "3b1ae4ff8e934f15ac09d14ecac70de58cc37672c9ae6a71d2be769c2ae4d924",
+    "tests/e2e/browser_native_setup_contract31.cjs": "3a51627dc2901aba7b4bd18791542e082b56f44d0b35d54332f86d3b0c37dad1"
+  }
+}
