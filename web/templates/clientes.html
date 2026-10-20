@@ -640,6 +640,11 @@ function renderTabla(clientes) {
     progressLink.className = 'btn btn-sm btn-secondary';
     progressLink.textContent = 'Consultar progreso';
     tr.querySelector('td:last-child').appendChild(progressLink);
+    const tasksLink = document.createElement('a');
+    tasksLink.href = '/clientes/' + encodeURIComponent(c.id_cliente) + '/seguimiento';
+    tasksLink.className = 'btn btn-sm btn-secondary';
+    tasksLink.textContent = 'Consultar tareas';
+    tr.querySelector('td:last-child').appendChild(tasksLink);
     tbody.appendChild(tr);
   });
 }
