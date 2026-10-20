@@ -5,6 +5,9 @@ Detecta gym_id del JWT y configura contexto para aislamiento de datos.
 RLS activation happens inside get_db() which reads the ContextVar set here.
 """
 import logging
+from fastapi import HTTPException
+from fastapi.responses import JSONResponse
+from web.browser_session import HEADERS, admit, browser_request, is_browser_session_private
 from web.database.tenant_context import current_tenant
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -35,6 +38,15 @@ class TenantMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # Skip para rutas públicas
         path = request.url.path
+        # Browser admission must precede even the optional Bearer lookup. The
+        # API and SaaS have different public exclusions; neither may perform
+        # authentication I/O for a rejected cookie-transport request.
+        if browser_request(request) and is_browser_session_private(path):
+            try:
+                admit(request)
+            except HTTPException as error:
+                return JSONResponse({"detail": error.detail}, status_code=error.status_code,
+                                    headers={**(error.headers or {}), **HEADERS})
         excluded = any(path.startswith(item) for item in self.exclude_paths)
         tenant_id = None if excluded else await self._extract_tenant(request)
         token = current_tenant.set(tenant_id or "")
