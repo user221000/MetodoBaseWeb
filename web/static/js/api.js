@@ -876,6 +876,19 @@ const Api = (() => {
     try{const value=await run();_mfaContext(handle);return value;}
     catch(error){_mfaContext(handle);if(error.status===401)_accountUnauthorized(context);throw error;}
   }
+  async function _accountGet(path,handle) {
+    const context=_mfaContext(handle);
+    return _accountAuthority(handle,async()=>{
+      let response;
+      try{response=await fetch(API_BASE+path,{method:'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+context.pair.token},cache:'no-store',referrerPolicy:'no-referrer'});}
+      catch{throw _accountError('account_security_unconfirmed');}
+      _mfaContext(handle);if(response.status===401)_accountUnauthorized(context);
+      let data;try{data=await response.json();}catch{throw _accountError('account_security_unconfirmed');}
+      _mfaContext(handle);
+      if(!response.ok)throw _accountError(typeof data?.detail?.code==='string'?data.detail.code:'account_security_rejected',response.status);
+      return data;
+    });
+  }
   async function _accountPost(path,body,context) {
     let response,encoded=JSON.stringify(body);body=null;
     const csrf=typeof document!=='undefined'?document.querySelector?.('meta[name="csrf-token"]')?.content:null;
@@ -891,14 +904,16 @@ const Api = (() => {
     async context(){
       await _readyPromise;const handle=mfa.capture();
       return _accountAuthority(handle,async()=>{
-        const me=await _mfaRequest('/api/auth/me',null,handle,'GET');_mfaContext(handle);
+        const me=await _accountGet('/api/auth/me',handle);_mfaContext(handle);
         if(!me||typeof me.id!=='string'||!me.id||typeof me.role!=='string'||!Number.isSafeInteger(me.session_version))throw _mfaError();
         _mfaContexts.get(handle).subject=JSON.stringify([me.id,me.role,me.team_gym_id||null,me.session_version]);
         return {handle,me};
       });
     },
-    check:handle=>mfa.check(handle),verify:handle=>_accountAuthority(handle,()=>mfa.verify(handle)),factorStatus:handle=>_accountAuthority(handle,()=>mfa.status(handle)),reauth:(body,handle)=>mfa.reauth(body,handle),
-    status:handle=>{const context=_mfaContext(handle);return _accountAuthority(handle,()=>request('GET','/api/account/security',null,{},true,{snapshot:context.snapshot,pair:context.pair}));},
+    check:handle=>mfa.check(handle),
+    async verify(handle){const previous=_mfaContext(handle).subject,me=await _accountGet('/api/auth/me',handle);if(previous&&previous!==JSON.stringify([me.id,me.role,me.team_gym_id||null,me.session_version]))throw _sessionChanged();},
+    factorStatus:handle=>_accountGet('/api/auth/mfa/status',handle),reauth:(body,handle)=>mfa.reauth(body,handle),
+    status:handle=>_accountGet('/api/account/security',handle),
     async requestEmail(handle){
       const context=_mfaContext(handle);
       return _withCookieLock(context.snapshot,async()=>{
