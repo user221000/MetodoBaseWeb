@@ -66,7 +66,7 @@ def test_v4_composition_preserves_641_records_and_85_replaced_versions_in_v3():
     old_raw = (ROOT/"scripts/data/reviewed_scan_locations_v3.zip").read_bytes()
     assert hashlib.sha256(old_raw).hexdigest() == "000a1c7afbc1847e7489459bef68b20bbaeaa387e227abe05c7b2073383fbaa4"
     old = {row["path"]: row for row in registry("scripts/data/reviewed_scan_locations_v3.zip")["files"]}
-    current = {row["path"]: row for row in registry(review._REVIEW_DATA_PATH)["files"]}
+    current = {row["path"]: row for row in registry("scripts/data/reviewed_scan_locations_v4.zip")["files"]}
     retained = {name for name in old if current[name] == old[name]}
     replaced = set(old)-retained
     assert len(retained) == 641 and len(replaced) == 85 and len(set(current)-set(old)) == 151
@@ -75,7 +75,7 @@ def test_v4_composition_preserves_641_records_and_85_replaced_versions_in_v3():
 
 
 def test_v4_has_only_unique_finite_locations_and_the_same_scanner_config():
-    data = registry(review._REVIEW_DATA_PATH)
+    data = registry("scripts/data/reviewed_scan_locations_v4.zip")
     assert data["schema"] == 1 and data["version"] == "8.30.1"
     assert data["config_digest"] == hashlib.sha256((ROOT/".gitleaks.toml").read_bytes()).hexdigest()
     assert len(data["files"]) == len({row["path"] for row in data["files"]}) == 877

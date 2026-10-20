@@ -14,8 +14,8 @@ import zipfile
 import zlib
 from pathlib import Path, PurePosixPath
 
-_REVIEW_DATA_PATH = "scripts/data/reviewed_scan_locations_v4.zip"
-_REVIEW_DATA_DIGEST = "6fe9473bbe1ab1902853b8f2b29d92f43972de81ce67612b3afc2c624f74cb13"
+_REVIEW_DATA_PATH = "scripts/data/reviewed_scan_locations_v5.zip"
+_REVIEW_DATA_DIGEST = "5b847d2d632721d043199ec5658b48e96dc6796712b4692e1a79b68fa3b932f6"
 _REVIEW_MEMBER = "reviewed-locations.json"
 _LIMIT = 16 * 1024 * 1024
 _HEX = re.compile(r"[0-9a-f]{64}\Z")
@@ -86,7 +86,7 @@ class ReviewedLocations:
             return None
         return {"file": name, "line": start, "rule": rule,
             "file_sha256": record["source_digest"], "physical_line_sha256": pin,
-            "reason": "finite independently reviewed non-credential evidence; registry v4"}
+            "reason": "finite independently reviewed non-credential evidence; registry v5"}
 
 
 def load_reviewed_locations(snapshot: Path, source_hashes: dict[str, str],
