@@ -19,7 +19,7 @@ def dataset(name):
 
 def test_all_v4_records_remain_exact_and_only_twenty_paths_are_added():
     old = dataset("scripts/data/reviewed_scan_locations_v4.zip")
-    current = dataset(review._REVIEW_DATA_PATH)
+    current = dataset("scripts/data/reviewed_scan_locations_v5.zip")
     before = {r["path"]: r for r in old["files"]}
     after = {r["path"]: r for r in current["files"]}
     assert len(before) == 877 and len(after) == 897
