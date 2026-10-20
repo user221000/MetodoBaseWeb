@@ -68,7 +68,7 @@ async def generar_plan(
     verify_permission(usuario, "create", "plan")
     gym_id = get_gym_id(usuario)
     from web.services.gym_generation_quota import reserve_gym_generation, complete_gym_generation, compensate_generation_failure
-    reservation = reserve_gym_generation(db, gym_id, data.model_dump(), request_key)
+    reservation = reserve_gym_generation(db, gym_id, data.model_dump(), request_key, stable_result=True)
     if reservation.status == "completed":
         return json.loads(reservation.result_json)
     reservation_id = reservation.id

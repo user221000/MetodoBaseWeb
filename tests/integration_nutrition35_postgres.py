@@ -42,9 +42,6 @@ from tests.test_nutrition35_http import (
     test_worker_rechecks_a_new_declaration_and_compensates_the_reservation as _worker,
 )
 from tests.test_nutrition35_migrations import (
-    test_database_rejects_oversized_or_empty_declarations as _bounds,
-)
-from tests.test_nutrition35_migrations import (
     test_drift_or_interrupted_DDL_cannot_advance_the_revision as _drift,
 )
 from tests.test_nutrition35_migrations import (
@@ -139,7 +136,24 @@ def test_interruption_and_predecessor_drift_are_atomic(database35):
 
 
 def test_actual_database_declaration_bounds(database35):
-    _bounds(database35)
+    # Preserve the SQLite test's business assertions, with a PostgreSQL boolean
+    # seed. The original SQLite helper deliberately retains its own SQL shape.
+    from sqlalchemy.exc import IntegrityError
+
+    url, engine = database35
+    run_migration(url, "db_bootstrap.py", "--revision", REVISION)
+    with Session(engine) as db:
+        db.add(Usuario(id="bound35", email="bound35@example.invalid", nombre="Synthetic", password_hash="synthetic",
+                       tipo="gym", role=UserRole.OWNER))
+        db.flush()
+        db.add(Cliente(gym_id="bound35", id_cliente="BOUND35", nombre="Synthetic", activo=True))
+        db.commit()
+    for invalid in ("", "{", "x"*16385):
+        with pytest.raises(IntegrityError), engine.begin() as c:
+            c.execute(text("UPDATE clientes SET nutrition_restrictions_json=:v WHERE id_cliente=:i"),
+                      {"v": invalid, "i": "BOUND35"})
+    with engine.connect() as c:
+        assert c.scalar(text("SELECT nutrition_restrictions_json FROM clientes WHERE id_cliente='BOUND35'")) is None
 
 
 def test_target_adds_only_bounded_nullable_declaration_to_unchanged_security():
@@ -200,6 +214,36 @@ def test_declared_facts_remain_hidden_without_the_owning_tenant(followup_http):
         assert db.scalar(query) is None
     with tenant_scope(case["user"]), Session(case["engine"]) as db:
         assert db.scalar(query) == encode_declaration(payload)
+    blank_pool(case["engine"])
+
+
+@pytest.mark.parametrize("expire", [True, False], ids=["expiring-session", "production-session"])
+def test_request_handoff_does_not_retain_a_checkout_before_worker(followup_http, monkeypatch, record_property, expire):
+    """Observe an actual HTTP/worker handoff under both session configurations."""
+    case = followup_http
+    from tests.test_nutrition35_http import VALID, _new_plan
+
+    assert case["raw"].put("/api/clientes/"+case["profile"], json=VALID).status_code == 200
+    case["factory"].configure(expire_on_commit=expire)
+    module = importlib.import_module("api.routes.planes" if case["factory_name"] == "api.app" else "web.routes.planes")
+    original = module._generar_plan_sync
+    checkouts = []
+
+    def observed(*args, **kwargs):
+        checkouts.append(case["engine"].pool.checkedout())
+        return original(*args, **kwargs)
+
+    # Bound only this fixture's own QueuePool wait; this does not alter its
+    # size, SQL locks, role, business assertions or original worker behavior.
+    monkeypatch.setattr(case["engine"].pool, "_timeout", 0.3)
+    monkeypatch.setattr(module, "_generar_plan_sync", observed)
+    result = _new_plan(case)
+    record_property("expire_on_commit", expire)
+    record_property("request_checkouts_at_worker_entry", json.dumps(checkouts))
+    assert checkouts == [0]
+    assert result.status_code == 200
+    with Session(case["admin"]) as db:
+        assert db.scalar(select(PlanGenerado.id).where(PlanGenerado.gym_id == case["user"])) == result.json()["plan_id"]
     blank_pool(case["engine"])
 
 
