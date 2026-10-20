@@ -26,6 +26,7 @@ SCHEMA_CONTRACTS = {
     "20261019_followup_tasks": "20261019_followup_tasks",
     "20261020_nutrition_profile": "20261020_nutrition_profile",
     "20261020_notifications": "20261020_notifications",
+    "20261020_account_security": "20261020_account_security",
 }
 
 

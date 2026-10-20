@@ -22,6 +22,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 from web.database.utc_datetime import UTCDateTime
+from web.database.account_security_schema_v1 import columns as account_security_columns
 
 
 # ── RBAC Enums ────────────────────────────────────────────────────────────────
@@ -110,6 +111,9 @@ class Usuario(Base):
     notification_contact_version = Column(Integer,
         CheckConstraint("notification_contact_version BETWEEN 0 AND 2147483647", name="ck_usuario_notification_contact_version"),
         nullable=False, server_default="0")
+    (email_verified_at, email_verified_contact_version, email_verification_hash,
+     email_verification_issued_at, email_verification_expires_at,
+     email_verification_session_version, email_verification_contact_version) = account_security_columns()
     password_reset_hash = Column(String(64), nullable=True)
     password_reset_expires_at = Column(UTCDateTime, nullable=True)
     password_reset_session_version = Column(Integer, nullable=True)
@@ -131,6 +135,7 @@ class Usuario(Base):
     __table_args__ = (
         CheckConstraint("tipo IN ('gym', 'usuario', 'admin')", name="ck_usuario_tipo"),
         UniqueConstraint('password_reset_hash',name='uq_usuario_password_reset_hash'),
+        Index("ix_usuarios_email_verification_hash", "email_verification_hash", unique=True),
         CheckConstraint("(password_reset_hash IS NULL AND password_reset_expires_at IS NULL AND password_reset_session_version IS NULL) OR (password_reset_hash IS NOT NULL AND length(password_reset_hash) = 64 AND password_reset_expires_at IS NOT NULL AND password_reset_session_version IS NOT NULL AND password_reset_session_version >= 0)", name="ck_usuario_reset_state"),
         Index("ix_usuarios_deleted", "deleted_at", sqlite_where=text("deleted_at IS NULL")),
         # NOTE: team_gym_id already has index=True on the column definition
