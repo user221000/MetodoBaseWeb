@@ -11,6 +11,7 @@ async function installStorageGuard(context){
   const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(['mb_token','mb_refresh_token','mb_nombre','mb_email','mb_tipo'].includes(key))throw new Error('Credential or identity Storage write forbidden by current browser fixture');return original.call(this,key,value);};
  });
 }
+async function createContext(browser,options){const context=await browser.newContext(options);await installStorageGuard(context);return context;}
 async function invalidate(page){
  // This models an external completed boundary/public reset, not a new actor ACK.
  await page.evaluate(()=>{const epoch=crypto.randomUUID();localStorage.setItem('mb_session_epoch',epoch);if(typeof BroadcastChannel==='function'){const channel=new BroadcastChannel('metodobase.browser-session.v1');channel.postMessage({epoch});channel.close();}dispatchEvent(new StorageEvent('storage',{key:'mb_session_epoch',newValue:epoch}));});
@@ -46,4 +47,4 @@ async function formLogin(page,base,email,password,audience){
  // Destination bootstrap may rotate access; callers retain only this RAM access.
  return{...data,token:state.access};
 }
-module.exports={ready,installStorageGuard,invalidate,migrate,formLogin,apiLogin:legacy.exports.apiLogin,erase:legacy.exports.erase};
+module.exports={ready,installStorageGuard,createContext,invalidate,migrate,formLogin,apiLogin:legacy.exports.apiLogin,erase:legacy.exports.erase};
