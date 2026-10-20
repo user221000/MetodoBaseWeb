@@ -265,3 +265,29 @@ SeisHTTP ydoceVM RED independientes preservados. Correccion focal yrevision en c
 ## Checkpoint144
 
 QA-28 verificado localmente:1e01/12b4 y revisión independiente28e. Todos los RED se conservan, incluidos cuatro GET retenidos hastaJSON en el candidato intermedio. Fix final retira alheader401 con fence exacto; MFAglobal/reauthcorrigible intactos. La corrección de checkoutLF y los parsers de evidencia son framing, no defectos de producto ni criterios nuevos.
+
+## Checkpoint145
+
+### QA-29
+
+El montaje predeterminado de recordatorios usa window.Api aunque api.js declara una constante léxica Api; la página real falla al iniciar sin una API inyectada.
+
+Aceptación: Montar recordatorios con la API real de scripts clásicos, sin crear window.Api ni inyectar options.api. Cubrir llamada predeterminada, DOMContentLoaded y documento completo para gimnasio y personal, sin escrituras iniciales ni refresh automático. Mantener cancelación por pagehide, fence del epoch y páginas sin widget. Conservar canarias RED, repetirlas tras la corrección y comprobar el recorrido nativo actual sin pageErrors, sin relajar negocio ni contratos de sesión.
+
+### QA-30
+
+El parser del lock de contenedor omite google-auth[pyjwt] y su contrato acepta un contador float equivalente al entero; inventario56 no coincide con requisitos realmente instalables.
+
+Aceptación: Reconocer y canonicalizar todos los requisitos fijados, incluidos extras, preservando nombres, versiones y hashes de cada bloque y rechazando duplicados o entradas ambiguas. Derivar el catálogo completo y su distribución nativa explícita; exigir type(count) is int y correspondencia exacta entre nombres/versiones/conteo del contrato. Preservar el candidato56 rechazado y sus controles literales, preparar un companion explícito para el catálogo corregido y exigir revisión independiente. Validar después la imagen realmente construida y su inventario instalado, sin sustituir esa ejecución por el contrato estático.
+
+El servicio web integra esquema37, seguridad de cuenta y sesiones R31, notificaciones36/UI27, la reparación móvil de tres CSS y el catálogo finito de escaneo v4. El último cambio de producto288df corrige un operando del montaje de recordatorios: usa la constante léxica Api que declara api.js. API, backend y primitivas de sesión permanecen exactos. QA-29 conserva6 canarias del autor y4 propias TypeError antes; después pasan8+6 y36 comprobaciones mantenidas,50 ejecuciones seleccionadas offline. La aceptación nativa sigue pendiente.
+
+El primer navegador37 sí ejecutó15 grupos MFA originales (11profesionales y4personales), con pageErrors vacíos en ese alcance. La nueva selección18 se detuvo en el primer grupo de recordatorios:0 grupos nuevos completos,Timeout y un TypeError sin stack capturado. El gate combinado33 quedó rechazado y se conserva íntegro. El cierre normal excedió45 segundos: se cerró únicamente el proceso propio verificado, se confirmó cero sesiones, DROP ordinario y ausencia fresca de la UUID. No se afirma normal_server_exit. QA prepara el nuevo freeze con el fix y un observer privado; aún no inició otro PG/Chrome.
+
+La superposición del menú móvil pasa de16/16RED a16/16PASS con las mismas canarias Chrome geométricas y DOM inerte declarado, sin SQL. Las tres CSS integradascd423 coinciden con autor78aa y revisión3c257; scripts y plantillas no cambian. Esto prueba esa geometría, no accesibilidad completa ni todos los flujos nativos.
+
+V4 está integrado663d:877 rutas,56285 pins,641 registros v3 exactos y85 sustituciones explícitas cuyo historial se conserva. ROOT verifica11016 ubicaciones antiguas con475 negativos; Seguridad repite11016 positivos,1652 mutaciones de archivo y4 controles de anclaje. La fixture contiene sólo los bytes originales del manifiesto histórico, sin recuperar ni reconstruir auth-guard. Su peer pasa37/37. El primer gate del autor fue157PASS/5fallos de fixture; tras la corrección pasó37/37, y MAINactual pasa162/162. Son pruebas y replay del informe405, no un nuevo escaneo global. El último escaneo real sigue RED11016; el nuevo árbol y la alerta literal de identidad del test bootstrap necesitan escaneo y clasificación finita.
+
+CI se limita al SaaS y excluye cinco pruebas de licencia offline desktop, además de sus seis módulos explícitos. La ejecución amplia anterior se canceló antes de esos casos; no es un PASS. La colección actual deOps tiene4722 IDs:4716 runtime37 y6 físicas35 separadas; el verificador33 se ejecuta sobre fuente histórica auténtica, sin reconstruir imagen antigua. Serial/cobertura, paralelo, PostgreSQL/Redis/navegador e imagen actual conservan sus gates pendientes. QA-30 documenta que el inventario56 omitía google-auth con extras y aceptaba float: parser independiente deriva57 distribuciones runtime. Se corrige antes de construir; firmas APT/PSF offline no sustituyen imagen, SCA o ejecución.
+
+El registro conserva145 criterios exactos y añade QA-29 yQA-30:147 IDs, incluidos92 originales. Los537 archivos untracked siguen intactos. Free aprobado:10 clientes,1 plan por cliente al día,10 planes totales diarios por gimnasio; mensual20 sin cambio. Trabajo exclusivo del servicio web. Sin push, PR, despliegue, cobros ni envíos reales. Decisiones externas de retención, países, SLO y piloto siguen abiertas sin repetir consultas.
