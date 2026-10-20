@@ -1,7 +1,7 @@
 /* Current browser transport companion for the preserved private ASGI/UI bridge. */
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),Module=require('node:module'),assert=require('node:assert/strict'),vm=require('node:vm');
-const file=path.join(__dirname,'mfa_http_worker.cjs'),original=fs.readFileSync(file,'utf8');
+const file=path.join(__dirname,'mfa_http_worker.cjs'),rawOriginal=fs.readFileSync(file,'utf8'),original=rawOriginal.replace(/\r\n/g,'\n');
 const framing=fs.readFileSync(path.join(__dirname,'browser_compat31.cjs'),'utf8');
 const {balanced}=vm.runInNewContext(framing.slice(framing.indexOf('function skipString('),framing.indexOf('const fixtureName='))+'\n({balanced})',{assert});
 let source=original;
@@ -24,5 +24,5 @@ assert.equal(source.split(late).length,2);source=source.replace(late,current);
 // Preserve every lifecycle/business assertion. Only late-ACK adoption is superseded.
 function assertions(value){return[...value.matchAll(/\bassert\.[A-Za-z]+\(/g)].map(match=>value.slice(match.index,balanced(value,value.indexOf('(',match.index))));}
 const lifecycleBefore=assertions(original.slice(end).replace(late,'')),lifecycleAfter=assertions(source.slice(source.indexOf(' let seed=null')).replace(current,''));assert.deepEqual(lifecycleAfter,lifecycleBefore);
-if(process.argv.includes('--compile-only')){new vm.Script(source,{filename:file});console.log(JSON.stringify({scope:'Companion compilation and preserved lifecycle assertion inventory only; actual backend HTTP not executed',preserved_lifecycle_assertion_calls:lifecycleBefore.length,late_ack:'Old tab stays RAM-empty; independent existing actor proof is verified without adopting it.',parsed:true}));}
+if(process.argv.includes('--compile-only')){new vm.Script(source,{filename:file});const digest=value=>require('node:crypto').createHash('sha256').update(value).digest('hex');console.log(JSON.stringify({scope:'Companion compilation and preserved lifecycle assertion inventory only; actual backend HTTP not executed',historical_driver_sha256:digest(rawOriginal),historical_compilation_lf_sha256:digest(original),compiled_driver_sha256:digest(source),compilation_eol:'CRLF is normalized to LF in memory only; historical RAW bytes and business assertion calls are retained.',preserved_lifecycle_assertion_calls:lifecycleBefore.length,late_ack:'Old tab stays RAM-empty; independent existing actor proof is verified without adopting it.',parsed:true}));}
 else{const candidate=new Module(file,module);candidate.filename=file;candidate.paths=module.paths;candidate._compile(source,file);}
