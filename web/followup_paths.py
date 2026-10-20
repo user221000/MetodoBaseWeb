@@ -12,4 +12,4 @@ _CLIENT_SHELL = re.compile(r"/clientes/[^/]+/seguimiento\Z")
 
 def is_followup_private(path):
     candidate = path.removesuffix("/")
-    return candidate in _STATIC or bool(_TASK.fullmatch(candidate) or _CANDIDATE.fullmatch(candidate) or _CLIENT_SHELL.fullmatch(candidate))
+    return candidate in _STATIC or bool(_TASK.fullmatch(candidate) or _CANDIDATE.fullmatch(candidate) or _CLIENT_SHELL.fullmatch(path.rstrip("/")))
