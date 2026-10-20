@@ -166,7 +166,10 @@
 
 <script nonce="{{ request.state.csp_nonce }}">
 (async function() {
-
+  var profileForm = document.getElementById('form-perfil');
+  var profileSave = document.getElementById('btn-guardar');
+  var excludedTags = document.getElementById('excluidos-tags');
+  var catalogContainer = document.getElementById('catalogo-container');
 
   function computeCompleteness() {
     var required = [
@@ -215,8 +218,8 @@
   var excluidos = [];
   var nutritionPersonal = Nutrition35.mount(document.getElementById('nutrition35-personal'), {
     api: Api.nutrition, kind: 'personal',
-    onView: function(state) { document.getElementById('btn-guardar').disabled = state.busy || state.phase !== 'ready'; },
-    onInvalidated: function() { excluidos=[]; document.querySelectorAll('#form-perfil input, #form-perfil textarea, #form-perfil select').forEach(function(el) { el.value=''; el.checked=false; }); document.getElementById('excluidos-tags').replaceChildren(); document.getElementById('catalogo-container').replaceChildren(); },
+    onView: function(state) { profileSave.disabled = state.busy || state.phase !== 'ready'; },
+    onInvalidated: function() { excluidos=[]; profileForm.querySelectorAll('input,textarea,select').forEach(function(el) { el.value=''; el.checked=false; }); excludedTags.replaceChildren(); catalogContainer.replaceChildren(); },
   });
   var CAT_LABELS = {
     proteina: '🥩 Proteínas',
@@ -300,13 +303,15 @@
         });
       });
     } catch(err) {
-      document.getElementById('catalogo-container').innerHTML = '<p class="u-excl-error">No se pudo cargar el catálogo de alimentos.</p>';
+      if (nutritionPersonal.view().phase === 'invalidated') return;
+      if (catalogContainer.isConnected) catalogContainer.innerHTML = '<p class="u-excl-error">No se pudo cargar el catálogo de alimentos.</p>';
     }
   }
 
   // Load current profile
   try {
     var p = await nutritionPersonal.load();
+    if (nutritionPersonal.view().phase === 'invalidated') return;
     if (p) {
       document.getElementById('field-nombre').value = p.nombre || '';
       document.getElementById('field-email').value = p.email || '';
@@ -325,6 +330,7 @@
   } catch(err) {}
 
   await loadCatalogo();
+  if (nutritionPersonal.view().phase === 'invalidated') return;
 
   // Live progress on any field change
   ['field-edad', 'field-peso', 'field-estatura', 'field-sexo', 'field-grasa',
@@ -334,7 +340,7 @@
   });
 
   // Save profile
-  document.getElementById('form-perfil').addEventListener('submit', async function(e) {
+  profileForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     var btn = document.getElementById('btn-guardar');
     btn.disabled = true;
