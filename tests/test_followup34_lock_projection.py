@@ -1,7 +1,7 @@
 from sqlalchemy import event, inspect
 from sqlalchemy.orm import Session
 import uuid
-from tests.followup34_http import followup_db,followup_http,create
+from tests.nutrition35_fixtures import followup_db,followup_http,create
 from web.database.models import Usuario
 
 
