@@ -219,7 +219,8 @@ let _planes = [];
     _planes = res.planes || [];
     renderPlanes(_planes);
   } catch (e) {
-    document.getElementById('planes-loading').textContent = '⚠️ Error cargando planes: ' + e.message;
+    const loading = document.getElementById('planes-loading');
+    if (GymBranding.isActive() && loading) loading.textContent = '⚠️ Error cargando planes: ' + e.message;
   }
 })();
 

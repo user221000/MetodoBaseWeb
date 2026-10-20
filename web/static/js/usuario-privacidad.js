@@ -8,6 +8,7 @@
   var uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var status=document.getElementById('privacy-status'),errorBox=document.getElementById('privacy-error');
   var start=document.getElementById('privacy-start'),next=document.getElementById('privacy-next'),again=document.getElementById('privacy-again'),restart=document.getElementById('privacy-restart');
+  var progress=document.getElementById('privacy-progress'),counts=document.getElementById('privacy-counts'),contentWarning=document.getElementById('privacy-content-warning');
   var state=null,lastFile=null,busy=false,failed=false,urls=new Map(),pageContext=null,epoch=0,invalid=false;
   var sessionCodes=['session_changed','session_expired','session_storage_error'];
   function changed(){return Object.assign(new Error('La sesión cambió. Vuelve a abrir tus datos desde la cuenta actual.'),{code:'session_changed'});}
@@ -76,9 +77,9 @@
     next.hidden=!received || state.complete;next.textContent=failed ? 'Volver a intentar esta parte' : 'Descargar siguiente parte';
     again.hidden=!lastFile;restart.hidden=!received || state.complete;
     [start,next,again,restart].forEach(function(button){button.disabled=busy || invalid || !pageContext;});
-    section.setAttribute('aria-busy',String(busy));document.getElementById('privacy-progress').hidden=!busy;
-    document.getElementById('privacy-counts').hidden=!received;
-    document.getElementById('privacy-content-warning').hidden=!state || state.contentReview===0;
+    section.setAttribute('aria-busy',String(busy));progress.hidden=!busy;
+    counts.hidden=!received;
+    contentWarning.hidden=!state || state.contentReview===0;
     names.forEach(function(name){section.querySelector('[data-export-count="'+name+'"]').textContent=state ? state.counts[name].toLocaleString('es-MX') : '0';});
     if(!invalid && pageContext){try{contextApi.validarContexto(pageContext);}catch(error){invalidate(error);}}
   }

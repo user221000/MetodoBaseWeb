@@ -1,0 +1,115 @@
+{
+  "after_passed": 6,
+  "base": "8144cf6a261e4506207f4f824e2300686d8f805e",
+  "before_passed": 0,
+  "behavior": "Branding captures its own controls, invalidates once and listens to current session event. Privacy uses its own captured controls after detachment. Settings catch ignores invalidated/retired page. Personal initialization/catch stops after invalidation and uses its own captured view references. No global shell rollback, restored private DOM, auto retry or new authority.",
+  "cause": "session-shell removes main after session invalidation; consumers subsequently looked up detached controls globally. Branding also missed same-document session events, so its own RAM could remain active until a later event.",
+  "final_gate": {
+    "Node_commands": [
+      {
+        "command": [
+          "node",
+          "tests/e2e/session_dom_detachment31.cjs"
+        ],
+        "passed": 6,
+        "total": 6
+      },
+      {
+        "command": [
+          "node",
+          "tests/e2e/browser_session31.cjs"
+        ],
+        "passed": 55,
+        "total": 55
+      },
+      {
+        "command": [
+          "node",
+          "tests/e2e/session_shell31.cjs"
+        ],
+        "passed": 6,
+        "total": 6
+      },
+      {
+        "command": [
+          "node",
+          "tests/e2e/browser_export_compat31.cjs",
+          "progress_export"
+        ],
+        "passed": 38,
+        "total": 38
+      },
+      {
+        "command": [
+          "node",
+          "tests/e2e/browser_export_compat31.cjs",
+          "current33_export_controls"
+        ],
+        "passed": 21,
+        "total": 21
+      },
+      {
+        "command": [
+          "node",
+          "tests/e2e/browser_export_compat31.cjs",
+          "current33_member_link_export"
+        ],
+        "passed": 32,
+        "total": 32
+      },
+      {
+        "command": [
+          "node",
+          "tests/e2e/browser_export_compat31.cjs",
+          "current33_export_context"
+        ],
+        "passed": 17,
+        "total": 17
+      },
+      {
+        "command": [
+          "node",
+          "tests/e2e/nutrition35_dom.cjs"
+        ],
+        "passed": 10,
+        "total": 10
+      }
+    ],
+    "Node_executions": 185,
+    "SSR_affected_shells_both_factories_passed": 4,
+    "base": "8144cf6a261e4506207f4f824e2300686d8f805e",
+    "distributions": 92,
+    "pip_check": true,
+    "scope": "No browser, native pageErrors replay, layout/axe, provider, backend/DB mutation test or PostgreSQL acceptance. Export4 commands108 executions contain49 unique names, not108 independent criteria.",
+    "seconds": 20.907,
+    "source_files": 1220,
+    "source_start_end_equal": true,
+    "sources": {
+      "tests/e2e/session_dom_detachment31.cjs": "f603b3d545c1765c79254c1174272bb313b6b344cb89dfa358922aa18968eec9",
+      "web/static/js/gym-branding.js": "2f60de9949192c6cae96fc75ab65e05f6949ac87248eb7109b71c03a1544fa3e",
+      "web/static/js/usuario-privacidad.js": "2d89f953473f961269e39682590bf1831e16ecdcd8f332fd1eb717dcbae29ce1",
+      "web/templates/configuracion.html": "57cc603ef4f04b421abec08af3bc6cff7bb94e20c45e560847b4bcacd3c40990",
+      "web/templates/usuario_perfil.html": "4d4ba60943d43c6491f02c90f425efbc8cb93343606730a603de60d3d9cfbd1b"
+    }
+  },
+  "fixed_paths": [
+    "web/static/js/gym-branding.js",
+    "web/static/js/usuario-privacidad.js",
+    "web/templates/configuracion.html",
+    "web/templates/usuario_perfil.html"
+  ],
+  "framing_v1": "First author gate expected progress_export17/current33_export_context38 in reversed order. Actual source metadata requires38/17. The38 business cases passed; count framing rejected publication. Corrected command/count map; no assertion or product changed. V1 RAW kept.",
+  "independent_observation_commit": "be778fecfcea65f9dd8f50a45e847177b0a01ac1",
+  "independent_pending": "QA repeats its same native2-scenario diagnostic and full15 MFA groups after composition/ROOTlease. Author6VM and4SSR do not establish zero native pageErrors, layout/axe or native15 acceptance. Four observed native errors are not asserted to be the two original errors.",
+  "preservation": "API/session-shell/backend/native drivers and their business assertions/pageErrors[] remain byte-exact to base. CandidateQA26 and UI27 commits are separate and not part of this fix.",
+  "proofs_sha256": "efa36cbbc1c3d355ef59d2b16ae0e53ad3c0a647aef6abe6b5b414133e523723",
+  "same_canary_cases": 6,
+  "scanner119": "Retained exact scan routine from checkpoint119 applied recursively to proof archive; no global R05/Gitleaks claim.",
+  "sources": {
+    "tests/e2e/session_dom_detachment31.cjs": "f603b3d545c1765c79254c1174272bb313b6b344cb89dfa358922aa18968eec9",
+    "web/static/js/gym-branding.js": "2f60de9949192c6cae96fc75ab65e05f6949ac87248eb7109b71c03a1544fa3e",
+    "web/static/js/usuario-privacidad.js": "2d89f953473f961269e39682590bf1831e16ecdcd8f332fd1eb717dcbae29ce1",
+    "web/templates/configuracion.html": "57cc603ef4f04b421abec08af3bc6cff7bb94e20c45e560847b4bcacd3c40990",
+    "web/templates/usuario_perfil.html": "4d4ba60943d43c6491f02c90f425efbc8cb93343606730a603de60d3d9cfbd1b"
+  }
+}
