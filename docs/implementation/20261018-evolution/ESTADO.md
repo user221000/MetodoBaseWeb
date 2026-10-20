@@ -1,6 +1,6 @@
 # Estado de implementación
 
-Checkpoint135 local: esquema33 y133 requisitos (92 originales y41 añadidos).
+Checkpoint136 local: esquema33 y136 requisitos (92 originales y44 añadidos).
 Todos los criterios anteriores se conservan exactos. Free:10 clientes activos,
 1 plan por cliente al día y10 planes totales por gimnasio al día. Por instrucción
 expresa posterior, el trabajo continúa únicamente en el servicio web. Workspace de referencia intacto; sin push,PR,despliegue,cargos oenvíos.
@@ -53,3 +53,7 @@ cuando cambia el perfil trasPDF; no se afirma ceroefectosdurables.
 Decisión expresa del usuario al reanudar: «continua con todos estos cambios pero ya no trabajes en la version desktop, trabaja unicamente en la version de el servicio web». Desde este checkpoint el trabajo y la entrega se limitan al SaaS. Se detienen desarrollo, QA, empaquetado e instalador desktop. Código y evidencias previos se conservan; no se eliminan funciones existentes ni se integra el candidato Desktop35. QA confirmó que todavía no había ejecutado pruebas ni creado ramas o artefactos de esa revisión. Las validaciones Windows del servicio web y el núcleo compartido siguen dentro del alcance. Esta decisión sustituye la instrucción anterior de continuar el desarrollo desktop; no declara resueltos sus defectos.
 
 Backend34 autor cerrado, SEC reproduce4RED enPG paraSEC20/QA-21 y corrige enWT propia. QA independiente API35 yUI35 siguen en curso. MAIN conserva esquema33; no integraDesktop35 ni producto34/35. QA-20 parcialAPI confirmado y en reparación. Próximo: repetir canarios originales, recapturar34 si cambia trigger ycapturarPG35 después del handoff exclusivo.
+
+## Checkpoint136
+
+Sólo servicio web. Se conservan133criterios previos yse añadenQA-22,SEC21,QA-23. QA-20 tienepeer24PASS; UI34/35 están congeladas con pruebas deautor sinChrome. SEC20/QA-21 reparados en rama aislada; finalhint1afa validado5SQLite yROOTpeer4PGPASS. PG35target5bae capturado contra34d1:únicocolumnacheck yseguridad exacta; faseROOTf7c34casos=29PASS5FAIL,0errores/skips, 1109fuentes/92dists/4540Python-METADATA quietos,pip0/0,8UUID normalescerradas y ausencia fresca. Los fallos son seedbooleanoPG ycuatrohandsoffTimeoutError con expiraciónORM de la fixture; no atribuir el fallo al runtimeFalse sin reproducir. QA-22fixe0ca tieneautor10PASS y8replaysPGROOT; SEC21 sigue4RED/2controles yreparación pendiente. La nueva composición explícita defixtures35 conserva54NodeIDs y54PASS, sin tocar loshelpershistóricos; UIyhintconsumidores adicionales pendientes. R27 inicia36aislado;R31sesiónbrowser en implementación;R16emailverify siguependiente. MAIN todavía33,R05globalRED1603;no despliegue ni desktop.

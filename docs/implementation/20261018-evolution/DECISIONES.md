@@ -152,3 +152,7 @@ Separar deriva de producto ydocumentación en el guardCI; escanear documentació
 ## Checkpoint135
 
 Decisión expresa del usuario al reanudar: «continua con todos estos cambios pero ya no trabajes en la version desktop, trabaja unicamente en la version de el servicio web». Desde este checkpoint el trabajo y la entrega se limitan al SaaS. Se detienen desarrollo, QA, empaquetado e instalador desktop. Código y evidencias previos se conservan; no se eliminan funciones existentes ni se integra el candidato Desktop35. QA confirmó que todavía no había ejecutado pruebas ni creado ramas o artefactos de esa revisión. Las validaciones Windows del servicio web y el núcleo compartido siguen dentro del alcance. Esta decisión sustituye la instrucción anterior de continuar el desarrollo desktop; no declara resueltos sus defectos.
+
+## Checkpoint136
+
+Mantener verificaciones antiguas en su fuente auténtica yusar composición35 explícita sin cambiar aserciones oNodeIDs. Preservar errores deharness yRAW, no ampliar pool ni cambiar expiración para ocultar la retención. El target34d1 sustituyea33 sólo porNOWAIT del trigger; a33 y22–33 permanecen históricos exactos. No verificación de email simulada enR31.

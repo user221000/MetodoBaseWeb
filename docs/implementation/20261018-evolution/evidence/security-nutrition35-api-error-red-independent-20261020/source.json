@@ -1,0 +1,53 @@
+{
+  "reviewed_commit": "f7c11d103c0a10c9896a1193106e7b889369e91c",
+  "role": "independent peer; no product edits",
+  "verdict": "RED malformed declaration envelope reflects submitted health input",
+  "cases": 6,
+  "passed": 2,
+  "failed": 4,
+  "errors": 0,
+  "skips": 0,
+  "canary_SHA256": "21b224280ef10843f4076d6107649f11318e1428259441f26a72941216a2b2ca",
+  "auth": "real password and MFA through maintained identity fixtures; no identity override",
+  "factories": [
+    "api.app",
+    "web.main_web"
+  ],
+  "runtime": "SQLite target35, no PostgreSQL SQL or profile reads",
+  "source_packages92_bothPython_Node_quiet": true,
+  "pip_check_before_after": 0,
+  "global_acceptance": false,
+  "third_party_disclosure_or_auth_bypass_claimed": false,
+  "bindings": [
+    {
+      "path": "web/nutrition_http.py",
+      "RAW_SHA256": "61af1dff1033d3dbd60de5153b7de69b38065a3eeec43b5d763326ccaa074f71",
+      "bytes": 1942,
+      "CRLF_count": 41
+    },
+    {
+      "path": "web/routes/clientes.py",
+      "RAW_SHA256": "1a66bf8e11469a558b1df092b255d6db5794a6657b14b259ae54834725308a2c",
+      "bytes": 6487,
+      "CRLF_count": 150
+    },
+    {
+      "path": "api/routes/clientes.py",
+      "RAW_SHA256": "19e22dc7ef694f3d52b1dc59425f43f213157b04e23b13cb3299518dfe4593e3",
+      "bytes": 6722,
+      "CRLF_count": 163
+    },
+    {
+      "path": "web/middleware/security_headers.py",
+      "RAW_SHA256": "85acdbc87f6bfff6f1009e9928f9dee719c948a40330bd4fc159215586aa57e9",
+      "bytes": 11944,
+      "CRLF_count": 0
+    },
+    {
+      "path": "tests/test_security_nutrition35_error_privacy_peer.py",
+      "RAW_SHA256": "21b224280ef10843f4076d6107649f11318e1428259441f26a72941216a2b2ca",
+      "bytes": 1943,
+      "CRLF_count": 0
+    }
+  ]
+}

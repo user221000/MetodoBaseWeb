@@ -173,3 +173,7 @@ El candidato Backend34 devuelve409 followup_busy ante IntegrityError desconocido
 ## Checkpoint135
 
 SEC19 conserva riesgo de hidratación innecesaria hasta revisión independiente; SEC20 yQA-21 están reproducidos enPG y requieren reparación antes de integración34. QA-20 bloquea el guardado progresivo delAPI en perfil vacío. Responsable:backend/seguridad/coordinación. Desktop tiene excepción expresa de alcance para la entrega actual; no se afirma que el defectoQA-19 haya desaparecido.
+
+## Checkpoint136
+
+SEC21 refleja declaración rechazada en422 para bodylista; requiere erroracotado porruta antes de integrar35. QA-23 investiga retenciónpool con ORMexpirable; no se declara impacto enFalse. QA-22ya tieneparche,peerPGfocal pendiente desello. Responsables seguridad/coordinación. Riesgos legales/retención/proveedor/piloto permanecen externos; transporteStorage no resuelto aún.

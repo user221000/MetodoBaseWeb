@@ -1,0 +1,46 @@
+{
+  "product_path": "web/database/repository.py",
+  "test_path": "tests/test_nutrition35_corrupt_reads.py",
+  "before_sha256": "26142771fa1ac6cc07f6987d73c0baeb6d1ad7666ddfbb2f52e7cd8bd2ee9c24",
+  "after_sha256": "5fa7f997c52f812d81d294501e53f5711a8dbc4e040c649737c05922f85a5549",
+  "inverse_entire_RAW_bytes_exact": true,
+  "inverse_entire_module_AST_exact": true,
+  "line_endings_preserved": true,
+  "strict_decoder_and_DTO_shape_unchanged": true,
+  "legitimate_exclusion_order_not_replaced_by_normalized_snapshot": true,
+  "change": "Validate the existing nutrition snapshot before serializing any raw exclusion JSON; reuse the same validated declaration once.",
+  "role": "QA-22 author fix; independent root/security peer required",
+  "original_canary_sha256": "4bf14db727f7781c5e0e8e1b462f3784ca665652e16eeaa94759d55f9c55d247",
+  "source_commit": "e0ca16da9cddf70d339bb7e53dbd992d07162ba3",
+  "source_freeze": {
+    "web/database/repository.py": {
+      "RAW_sha256": "5fa7f997c52f812d81d294501e53f5711a8dbc4e040c649737c05922f85a5549",
+      "Git_blob_sha256": "659e46e229b2af18df7a93d648511af151b395e33e5475376e2580eac51b3d55",
+      "RAW_EQUALS_GIT": false,
+      "CRLF_to_LF_only": true,
+      "executed_RAW_matches_frozen_commit_normalized": true
+    },
+    "tests/test_nutrition35_corrupt_reads.py": {
+      "RAW_sha256": "b21d5de7e8a0db555cdb1d66a60fc1789658f1e38a8ccbe4c2e1d1b4463bfe98",
+      "Git_blob_sha256": "b21d5de7e8a0db555cdb1d66a60fc1789658f1e38a8ccbe4c2e1d1b4463bfe98",
+      "RAW_EQUALS_GIT": true,
+      "CRLF_to_LF_only": false,
+      "executed_RAW_matches_frozen_commit_normalized": true
+    }
+  },
+  "new_maintained_before": {
+    "tests": 8,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "after_original_2_plus_maintained_8": {
+    "tests": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "same_original_2_before_red_proof_prefix": "qa-nutrition35-saas-independent-20261020",
+  "immutable_original_canary_sha256": "4bf14db727f7781c5e0e8e1b462f3784ca665652e16eeaa94759d55f9c55d247",
+  "independent_acceptance_pending": true
+}

@@ -1,11 +1,6 @@
 # Entrega candidata en curso
 
-Checkpoint135:133requisitos, los128criterios previos exactos. Trabajo y entrega
-limitados al servicio web por instrucción expresa del usuario. Desktop35 ysu
-evidencia quedan conservados en rama aislada, sin integración ni revisión futura.
+Checkpoint136 conserva136requisitos y133criterios anteriores exactos.
+Sólo servicio web. Se conservan133criterios previos yse añadenQA-22,SEC21,QA-23. QA-20 tienepeer24PASS; UI34/35 están congeladas con pruebas deautor sinChrome. SEC20/QA-21 reparados en rama aislada; finalhint1afa validado5SQLite yROOTpeer4PGPASS. PG35target5bae capturado contra34d1:únicocolumnacheck yseguridad exacta; faseROOTf7c34casos=29PASS5FAIL,0errores/skips, 1109fuentes/92dists/4540Python-METADATA quietos,pip0/0,8UUID normalescerradas y ausencia fresca. Los fallos son seedbooleanoPG ycuatrohandsoffTimeoutError con expiraciónORM de la fixture; no atribuir el fallo al runtimeFalse sin reproducir. QA-22fixe0ca tieneautor10PASS y8replaysPGROOT; SEC21 sigue4RED/2controles yreparación pendiente. La nueva composición explícita defixtures35 conserva54NodeIDs y54PASS, sin tocar loshelpershistóricos; UIyhintconsumidores adicionales pendientes. R27 inicia36aislado;R31sesiónbrowser en implementación;R16emailverify siguependiente. MAIN todavía33,R05globalRED1603;no despliegue ni desktop.
 
-MAIN continúa en esquema33 conCI33/R05v2. Backend34 tiene evidencia de autor,
-pero revisión independiente confirmaSEC20 yQA-21; corrección en curso. API35,
-UI35 yQA-20 permanecen aislados yrequieren aceptación integrada. R05 global
-sigueRED1603. R27,R31,imagen,broad y navegador actuales siguen abiertos.
-Free10clientes/1plancliente/día/10totalgym/día. Sin publicación ni despliegue.
+[Registro](TRAZABILIDAD.md),[validación](VALIDACION.md).

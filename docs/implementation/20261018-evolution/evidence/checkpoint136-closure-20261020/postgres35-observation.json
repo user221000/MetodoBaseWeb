@@ -1,0 +1,39 @@
+{
+  "source": "f7c11d103c0a10c9896a1193106e7b889369e91c",
+  "pass": 29,
+  "fail": 5,
+  "errors": 0,
+  "skip": 0,
+  "sources": 1109,
+  "packages": 92,
+  "installed_python_metadata_files": 4540,
+  "environment_quiet": true,
+  "owned_databases_including_capture": 8,
+  "closed_normal_fresh_zero_sessions": true,
+  "capture": {
+    "new35_target_sha256": "5bae07fed35877c11a890189c36b84023f5345d408ec650a9818e037f580a72e",
+    "old34_target_sha256": "d1ebbaf5e9fdd41e1347f108d8f4ebcf4d8f7a88832d3fc8fef0b1faaf5ada80",
+    "only_schema_difference": [
+      {
+        "default": null,
+        "name": "nutrition_restrictions_json",
+        "nullable": true,
+        "type": "TEXT",
+        "type_attributes": {
+          "collation": null,
+          "length": null
+        }
+      },
+      {
+        "name": "ck_cliente_nutrition_declaration_bound",
+        "sql": "nutrition_restrictions_json IS NULL OR length(nutrition_restrictions_json) >= 2 AND length(nutrition_restrictions_json) <= 16384"
+      }
+    ],
+    "all_other_signature_and_security_components_exact": true,
+    "lease_count": 1,
+    "normal_drop_and_fresh_absence": true,
+    "sessions_before_drop": 0
+  },
+  "failures": "One SQLite-specific boolean seed reused on PostgreSQL; four generation HTTP responses500/TimeoutError with pool1 and expire_on_commit=True. Causality review pending, production factory uses False.",
+  "global_acceptance": false
+}

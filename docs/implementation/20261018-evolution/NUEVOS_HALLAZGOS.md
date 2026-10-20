@@ -169,3 +169,29 @@ El SELECT FOR SHARE del cliente y el trigger34 esperan ante FOR UPDATE externo; 
 Criterio: Usar adquisición NOWAIT de los locks compartidos del cliente tanto en servicio como en el guard PostgreSQL, conservando el orden y las invariantes de causa/cliente. Con la misma fila retenida por otra conexión propia, ambas factories deben devolver409 followup_busy dentro del umbral original, sin esperar al statement_timeout, sin ACK ni Task/Event parcial y sin retry automático. SQLSTATE57014 y los fallos desconocidos siguen503. Preservar targets22–33, conservar el target34 anterior y recapturar únicamente la firma34 afectada si cambia el trigger. Repetir los mismos cuatro canarios originales compartidos con SEC20 y las regresiones afectadas.
 
 Estado: Dos RED reales PG sobre81f190; app4flagsfalse/noowner/FORCE28/pool1. Primera UUID propia cerrada por DROP normal,0sesiones y ausencia fresca. Parche y nuevo target34 pendientes, target35 todavía no capturado.
+
+## Checkpoint136
+
+### QA-22
+
+La lectura de exclusiones alimentarias persistidas con JSON malformado devuelve500 en ambas factories porque _cliente_to_dict ejecuta json.loads antes de la validación nutricional cerrada.
+
+Criterio: Validar la declaración y las exclusiones persistidas antes de serializar el perfil. Ante JSON truncado, forma incorrecta o valores inválidos, GET detalle/listado y generación deben devolver el error nutricional público422, con no-store/no-referrer y sin reflejar los hechos rechazados. No reinterpretar corrupción como lista vacía ni información desconocida, no modificar la persistencia y no reservar cuota, generar Plan u objeto. Conservar listas legítimas y su orden, DTO y permisos; repetir las mismas dos canarias independientes y los controles añadidos, con peer posterior al parche.
+
+QA independiente:83 mantenidos PASS;18 propios con16PASS y2RED. Autor e0ca valida antes de json.loads: mismos2 pasan y8mantenidos pasan,10ejecuciones finales. ROOT repite8enPG35 y todos pasan dentro de su fase global29/34; sello del peer pendiente.
+
+### SEC21
+
+NutritionRoute sanea errores sólo cuando el body es dict con restricciones_nutricionales; POST/PUT de clientes con una lista que contiene esa declaración refleja los valores rechazados en422.
+
+Criterio: Las escrituras de perfil nutricional deben rechazar cuerpos de forma inválida sin reflejar declaraciones o datos de salud en la respuesta, incluidos arrays, objetos anidados, escalares y cadenas. Seleccionar el error público acotado por la superficie de escritura autorizada y conservar validación estricta, códigos y cabeceras privadas; no aceptar arrays ni degradar validación. Mantener contratos de lectura/paginación y rutas vecinas. Repetir las seis canarias independientes originales en ambas factories, controles propios y revisión independiente del parche. No afirmar fuga a terceros o bypass por la reflexión autenticada observada.
+
+SEC independiente sobref7c:4RED+2controlesPASS,0errores/skips; canaria21b224 byte exacta, sinPG. Corrección focal en ramaSEC en curso; no integrada ni aceptada.
+
+### QA-23
+
+Cuatro casos HTTP de generación PostgreSQL con pool1 y expire_on_commit=True devuelven500/TimeoutError antes de la guarda worker o publicación, mientras el contrato esperaba422/409. La fábrica productiva usa expire_on_commit=False; no se atribuye allí el mismo fallo.
+
+Criterio: Confirmar y resolver la retención de checkout entre la reserva durable confirmada y el worker de generación, preservando el contrato con pool1 y ambas configuraciones de expiración admitidas. La lectura del resultado de reserva no debe abrir una transacción innecesaria que bloquee al worker. Mantener atomicidad, idempotencia, cuota, tenant y clasificación veraz de commit o compensación inciertos; no aumentar el pool, poner expire=False en la prueba ni cambiar expectativas para ocultar el fallo. Repetir los mismos cuatro casos PG y controles de handoff y replay, distinguiendo explícitamente defectos del harness de cambios de producto y revisando independientemente la corrección.
+
+ROOT fasef7c:34casos,29PASS5FAIL0E/skip. Un fallo adicional de seed booleano es harness y se conserva separado. Causa probable lectura ORM expirada tras commit; confirmación con telemetría propia y corrección pendientes.
