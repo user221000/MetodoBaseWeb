@@ -1,0 +1,153 @@
+"""Recover an already-finished CI33 PG240 phase. No pytest, CREATE or DROP."""
+from pathlib import Path
+from datetime import UTC,datetime,timedelta
+from urllib.parse import urlsplit
+import hashlib,json,os,shutil,subprocess,sys,time,xml.etree.ElementTree as ET
+ROOT=Path('F:/mb-qa-ci33-20261019')
+RUN=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-ci33-PG240-v1-20261019')
+TEMP=Path(__file__).parent
+OUT=Path('F:/MetodoBaseWeb-execution-20261018/docs/implementation/20261018-evolution/evidence/qa-ci33-PG240-recovery-independent-20261019')
+CONF=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json')
+HEAD='c86d1a25fcd0b0befcb4b473c4144917122109fb'
+SHA=lambda raw:hashlib.sha256(raw).hexdigest()
+read=lambda path:json.loads(path.read_bytes())
+def write(path,value):
+    with path.open('x',encoding='utf8')as f:json.dump(value,f,indent=2);f.write('\n')
+os.chdir(ROOT);sys.path.insert(0,str(ROOT));sys.dont_write_bytecode=True
+git=lambda *a:subprocess.check_output(['git','--no-replace-objects',*a],cwd=ROOT)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain').strip()
+from tests.ci_google33.run_postgres import private_directory,photo,role_catalog
+PRIVATE=private_directory(TEMP/'private')
+launch=read(RUN/'launcher-summary.json');summary=read(RUN/'private/runtime-summary.json')
+assert launch['source_commit']==HEAD and launch['exit']==0 and launch['required_caseIDs']==240 and launch['required_reports']==20
+assert summary['passed_nodes']==240 and summary['reports']==20 and summary['schema']=='33'
+assert summary['postdrop_absence_fresh']is True and summary['executed_FORCE']is False and summary['backend_termination']is False
+assert read(RUN/'private/run-status.json')=={'failures':[],'sources_packages_binaries_quiet':True,'roles_quiet':True,'pip_after':0}
+before=read(RUN/'private/before.json');after=read(RUN/'private/after.json');assert before==after
+assert len(before['sources'])==1114 and len(before['packages'])==92 and sum(row['installed_files']for row in before['packages'])==8084
+assert all(SHA(Path(path).read_bytes())==digest for path,digest in before['Python'].items())
+assert str(Path(sys.executable).resolve()).casefold() in {str(Path(path).resolve()).casefold() for path in before['Python']}
+guard=SHA((ROOT/'tests/ci_google33/resource_guard.py').read_bytes())
+leases=[];events=[];nonce=set();launchers={}
+for path in sorted((RUN/'private/guard-leases').glob('*.json')):
+    value=read(path);name=value['database']
+    assert path.name==name+'.json' and value['state']=='closed_fresh_absent' and value['created']is True
+    assert value['sessions_before_drop']==0 and value['executed_FORCE']is False and value['backend_termination']is False
+    assert value['guard_sha256']==guard and type(value['oid'])is int and value['oid']>0
+    identity=value['launcher'];assert set(identity)=={'pid','creation_filetime'} and identity['pid']>0 and identity['creation_filetime']>0
+    history=[json.loads(line)for line in path.with_suffix('.events.jsonl').read_text().splitlines()]
+    assert [row['state']for row in history]==['exclusive_before_CREATE','created_exact_OID','zero_sessions_before_ordinary_DROP','closed_fresh_absent']
+    assert history[0]['oid']is None and all(row['oid']==value['oid']for row in history[1:])
+    times=[datetime.fromisoformat(row['at'])for row in history];assert times==sorted(times)
+    born=datetime(1601,1,1,tzinfo=UTC)+timedelta(microseconds=identity['creation_filetime']//10)
+    assert born<=times[0]
+    for row in history:
+        assert row['launcher']==identity and row['guard_sha256']==guard and row['executable_sha256']in before['Python'].values()
+        nonce.add(row['run_nonce'])
+    leases.append(value);events.append({'database':name,'states':[r['state']for r in history],'oid':value['oid'],'PID_birth':identity,'before_CREATE_at':history[0]['at'],'after_DROP_at':history[-1]['at'],'ordinary_DROP':True,'zero_sessions_before_DROP':True,'original_requested_FORCE':value['original_requested_FORCE'],'lease_SHA256':SHA(path.read_bytes()),'journal_SHA256':SHA(path.with_suffix('.events.jsonl').read_bytes())})
+    launchers[identity['pid']]=identity['creation_filetime']
+names=[row['database']for row in leases];assert len(names)==len(set(names))==summary['closed_leases']==52 and len(nonce)==1
+secondary=[]
+for directory in (RUN/'private').glob('metodobase-google33-author-*/leases'):
+    for path in directory.glob('lease-*.json'):
+        value=read(path);assert value['database']in names and value['state']=='closed_absent' and value['sessions_before_drop']==0 and value['absence_verified']=='fresh_control_connection'
+        primary=next(row for row in leases if row['database']==value['database'])
+        assert primary['oid']==value['oid'] and primary['owner']==value['expected_owner'] and primary['launcher']=={'pid':value['launcher_pid'],'creation_filetime':value['launcher_birth']}
+        secondary.append(value['database'])
+assert len(secondary)==50 and len(set(secondary))==50
+command="$rows=@(); Get-CimInstance Win32_Process -Filter \"Name = 'python.exe' or Name = 'pythonw.exe' or Name = 'pg_dump.exe' or Name = 'pg_restore.exe'\" | ForEach-Object { $qaCmd=$_.CommandLine; $rows += [pscustomobject]@{pid=$_.ProcessId; parent_pid=$_.ParentProcessId; birth_filetime=$_.CreationDate.ToFileTimeUtc(); ci33_runner=($qaCmd -like '*tests/ci_google33/run_postgres.py*' -or $qaCmd -like '*tests\\ci_google33\\run_postgres.py*' -or $qaCmd -like '*metodobase-ci33-PG240-v1-driver-20261019.py*') } }; ConvertTo-Json -InputObject $rows -Compress"
+p=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,timeout=30);assert p.returncode==0
+processes=json.loads(p.stdout.decode('utf-8-sig'));assert not any(row['ci33_runner']for row in processes)
+active_matching=[row for row in processes if launchers.get(row['pid'])==row['birth_filetime']];assert active_matching==[]
+write(OUT/'postpause-process-audit.json',{'observed_at':datetime.now(UTC).isoformat(),'matching_original_UUID_launcher_generations':active_matching,'CI33_runner_active':False,'reused_numeric_PIDs_not_treated_as_owned':[row for row in processes if row['pid']in launchers and row['birth_filetime']!=launchers[row['pid']]],'no_processes_killed':True})
+write(OUT/'lease-chronology-audit.json',{'primary_leases':events,'secondary_native_leases_matched':len(secondary),'nonce_count':len(nonce),'guard_SHA256':guard,'no_lease_files_modified':True})
+assert SHA(CONF.read_bytes())==launch['profile_sha256']=='1526482e15f5e31a4248868e77a609af536f6dfbbf2b04959e7b14d521519f02'
+cfg=json.loads(CONF.read_text(encoding='utf-8-sig'))
+from tests.isolation import validate_postgres_test_url
+url=validate_postgres_test_url(cfg['METODOBASE_TEST_MIGRATOR_URL']);assert urlsplit(url).port==55483
+expected_roles=read(RUN/'private/roles-before.json');assert expected_roles==read(RUN/'private/roles-after.json')
+assert [list(row)for row in role_catalog(cfg)]==expected_roles
+import psycopg2
+dsn=url.replace('postgresql+psycopg2://','postgresql://',1)
+control=psycopg2.connect(dsn,connect_timeout=5)
+try:
+    with control.cursor()as db:
+        db.execute('SELECT pg_backend_pid(),backend_start FROM pg_stat_activity WHERE pid=pg_backend_pid()');pid,birth=db.fetchone()
+        db.execute('SELECT datname FROM pg_database WHERE datname=ANY(%s)',(names,));remaining=db.fetchall()
+        db.execute('SELECT datname,pid FROM pg_stat_activity WHERE datname=ANY(%s)',(names,));sessions=db.fetchall()
+        assert remaining==sessions==[]
+finally:control.close()
+assert control.closed
+fresh=psycopg2.connect(dsn,connect_timeout=5);fresh.autocommit=True
+try:
+    with fresh.cursor()as db:
+        deadline=time.monotonic()+3
+        while True:
+            db.execute('SELECT pid FROM pg_stat_activity WHERE pid=%s AND backend_start=%s',(pid,birth));old=db.fetchall()
+            if old==[]:break
+            assert time.monotonic()<deadline;time.sleep(0.05)
+        db.execute('SELECT datname FROM pg_database WHERE datname=ANY(%s)',(names,));assert db.fetchall()==[]
+        db.execute('SELECT datname,pid FROM pg_stat_activity WHERE datname=ANY(%s)',(names,));assert db.fetchall()==[]
+finally:fresh.close()
+assert fresh.closed
+receipt={'source_commit':HEAD,'checked_at':datetime.now(UTC).isoformat(),'original_phase':str(RUN),'exact_owned_UUIDs':52,'all_52_absent_fresh_connection':True,'all_52_zero_sessions':True,'prior_control_PID_and_backend_start_absent':True,'own_control_connections_explicitly_closed':True,'ordinary_DROP_recorded_for_each':True,'new_DDL_or_DROP_executed':False,'FORCE_or_backend_termination':False,'global_roles_HBA_or_config_changes':False,'roles_catalog_matches_original_before_after':True,'driver_or_owned_native_PID_birth_active':False,'PG55483_released_for_coordinator':True}
+write(OUT/'fresh-closure-receipt.json',receipt)
+print(json.dumps({'phase':'PG_LEASE_RELEASED','owned_UUIDs':52,'remaining':0,'sessions':0,'new_DDL':False}),flush=True)
+# Everything below is offline inspection, hashing and strict report validation.
+from tests.check_google33_reports import required_reports
+required=required_reports('33');assert len(required)==20 and sum(map(len,required.values()))==240
+reports=[];identities=set();provenance={};transition=0
+for name,expected in required.items():
+    raw=ET.parse(RUN/'private'/name).getroot();cases=list(raw.iter('testcase'))
+    actual={(row.get('classname'),row.get('name'))for row in cases}
+    assert len(cases)==len(actual)==len(expected) and actual==expected and not identities.intersection(actual)
+    assert all(not any(row.tag in {'failure','error','skipped'}for row in case)for case in cases)
+    identities.update(actual)
+    witnesses=read(RUN/'private'/name.replace('.xml','.witnesses.json'))
+    for row in witnesses['cases']:
+        for origin in row['measurement_sources']:provenance[origin]=provenance.get(origin,0)+1
+        if '_migrations'in row['identity'][0]:transition+=1
+    reports.append({'name':name,'passed':len(cases),'failures':0,'errors':0,'skips':0,'witnesses':len(witnesses['cases']),'raw_SHA256':SHA((RUN/'private'/name).read_bytes())})
+assert len(identities)==240
+for label,directory in [('RAW',RUN/'private'),('public',RUN/'public')]:
+    p=subprocess.run([sys.executable,'-X','utf8','-B','tests/check_google33_reports.py','--schema','33','--directory',str(directory)],cwd=ROOT,capture_output=True)
+    (OUT/('checker-'+label+'.log')).write_bytes(p.stdout+p.stderr);assert p.returncode==0
+publication=read(RUN/'public/publication.json');assert len(publication['files'])==41 and publication['private_raw_uploaded']is False
+from tests.ci_google33.publish import scan
+public=OUT/'public';public.mkdir()
+for row in publication['files']:
+    assert row['path']in {*(required.keys()),*(n.replace('.xml','.witnesses.json')for n in required),'runtime-summary.json'}
+    original=RUN/'private'/row['path'];projected=RUN/'public'/row['path']
+    assert SHA(original.read_bytes())==row['raw_sha256'] and SHA(projected.read_bytes())==row['public_sha256'] and projected.stat().st_size==row['bytes']
+    scan(projected.read_bytes());shutil.copyfile(projected,public/row['path'])
+scan((RUN/'public/publication.json').read_bytes());shutil.copyfile(RUN/'public/publication.json',public/'publication.json')
+write(OUT/'report-audit.json',{'reports':reports,'exact_unique_IDs':240,'strict_checker_RAW_and_public_exit':0,'measurement_provenance_counts':provenance,'migration_transition_cases':transition,'auxiliary_probe_not_mislabelled_as_business_fixture':True,'no_tests_reexecuted':True})
+print(json.dumps({'phase':'reports_authenticated','reports':20,'passed_IDs':240,'RAW_and_public_checker_exit':0}),flush=True)
+now=photo(ROOT,Path(cfg['METODOBASE_TEST_PG_BIN']))
+write(OUT/'recovery-environment-photo.json',now)
+quiet=now==after
+write(OUT/'environment-audit.json',{'original_before_after_exact':before==after,'recovery_matches_original_after':quiet,'sources':len(before['sources']),'distributions':len(before['packages']),'installed_nonbytecode_files':sum(row['installed_files']for row in before['packages']),'original_Python_and_PostgreSQL_binaries_exact':True,'profile_SHA256':launch['profile_sha256'],'profile_still_exact':SHA(CONF.read_bytes())==launch['profile_sha256'],'original_roles_before_after_equal':True})
+assert quiet,'Current environment differs after pause; original before/after retained; no test rerun'
+for path in (RUN/'private/before.json',RUN/'private/after.json',RUN/'launcher-summary.json',RUN/'private/run-status.json'):
+    scan(path.read_bytes());shutil.copyfile(path,OUT/('original-'+path.name))
+for name in ['pip-before.raw.log','pip-after.raw.log']:
+    data=(RUN/'private'/name).read_bytes();scan(data);(OUT/name).write_bytes(data)
+private_inventory={str(path.relative_to(RUN/'private')):{'bytes':path.stat().st_size,'SHA256':SHA(path.read_bytes())}for path in (RUN/'private').rglob('*')if path.is_file()}
+write(PRIVATE/'original-private-file-inventory.json',private_inventory)
+write(OUT/'private-artifact-binding.json',{'RAW_tree':str(RUN/'private'),'private_files':len(private_inventory),'full_private_inventory_SHA256':SHA((PRIVATE/'original-private-file-inventory.json').read_bytes()),'inventory_remains_private':True,'original_before_SHA256':SHA((RUN/'private/before.json').read_bytes()),'original_after_SHA256':SHA((RUN/'private/after.json').read_bytes()),'no_RAW_logs_dumps_or_factor_objects_uploaded':True})
+modules={}
+for name,module in list(sys.modules.items()):
+    if name.split('.')[0]in{'tests','web','api','core'}and getattr(module,'__file__',None):
+        path=Path(module.__file__).resolve();assert path.is_relative_to(ROOT);modules[name]=str(path.relative_to(ROOT))
+write(OUT/'recovery-module-origins.json',modules)
+assert not git('status','--porcelain').strip()
+shutil.copyfile(Path(__file__),OUT/'recover.py.raw')
+result={'decision':'PASS recovered original c86 PG240 scope','source_commit':HEAD,'original_schema':'33','original_commands':20,'original_unique_exact_caseIDs':240,'original_failed':0,'original_errors':0,'original_skips':0,'original_closed_UUID_leases':52,'fresh_postpause_absence_and_zero_sessions':True,'new_tests_or_PG_cases_executed':0,'new_UUIDs_created_or_dropped':0,'strict_report_checks_reexecuted_only':2,'original_source_count':1114,'original_distributions':92,'original_installed_files':8084,'original_before_after_and_recovery_environment_exact':True,'original_pip_exit':[0,0],'R05_scope':'Original c86 uses R05v1. No attribution to subsequent v2 or MAIN composition.','case_origin_scope':'240 maintained current33 identities, including the declared root4/SEC2; replay scopes are not new independent unique behavior cases.','witness_provenance_counts':provenance,'measurement_caveat':'Postcase restricted auxiliary probes remain labelled; they do not establish that every business operation used that engine.','original_elapsed_seconds':launch['elapsed'],'timing_scope':'Diagnostic Windows execution; no latency/capacity/SLO claim.','no_historical32_PG38_Chrome_VM_image_Actions_or_Linux_execution':True,'coordinator_can_transfer_PG55483_lease':True,'original_RAW_preserved_unmodified':True}
+write(OUT/'phase-summary.json',result)
+scanned=0
+for path in OUT.rglob('*'):
+    if path.is_file():scan(path.read_bytes());scanned+=1
+write(OUT/'secret-scan.json',{'files_scanned':scanned,'current_maintained_scanner':'tests/ci_google33/publish.py scan','token_two_and_three_parts_factor_and_nested_archives':True,'findings':0})
+entries={str(path.relative_to(OUT)):{'bytes':path.stat().st_size,'SHA256':SHA(path.read_bytes())}for path in OUT.rglob('*')if path.is_file()}
+write(OUT/'manifest.json',{'source_commit':HEAD,'attributes':'* -text created before evidence','entries':entries,'count':len(entries),'phase_summary_SHA256':SHA((OUT/'phase-summary.json').read_bytes())})
+print(json.dumps({'decision':result['decision'],'phase_summary_SHA256':SHA((OUT/'phase-summary.json').read_bytes()),'manifest_SHA256':SHA((OUT/'manifest.json').read_bytes()),'entries':len(entries),'original_passed':240,'owned_UUIDs_closed':52}),flush=True)
