@@ -193,7 +193,7 @@
   <div class="u-onboarding-icon">🎯</div>
   <div class="u-onboarding-body">
     <h3 class="u-onboarding-title">Cuéntanos sobre ti para generar tu plan</h3>
-    <p class="u-onboarding-text">Solo necesitamos 3 datos (peso, estatura, objetivo) para calcular tu plan nutricional en segundos.</p>
+    <p class="u-onboarding-text">Completa los campos requeridos y revisa tus restricciones en el perfil. Puedes guardar tus datos y continuar después.</p>
   </div>
   <a href="/mi-perfil" class="u-btn u-btn-primary">Configurar mi plan →</a>
 </div>
@@ -491,8 +491,8 @@
   if (!perfilCompleto) {
     document.getElementById('loading-plan').style.display = 'none';
     document.getElementById('onboarding-card').style.display = 'flex';
-    // Show quick actions with just generate + profile (value-first: let them see what awaits)
-    document.getElementById('quick-actions').style.display = '';
+    // Profile is the available next action; these controls have no listeners yet.
+    document.getElementById('quick-actions').style.display = 'none';
     return;
   }
 
