@@ -156,6 +156,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         exempt_methods: Optional[Sequence[str]] = None,
         cookie_secure: bool = True,
         cookie_samesite: str = "strict",
+        exact_exempt_paths: Optional[Sequence[str]] = None,
     ):
         super().__init__(app)
         
@@ -164,6 +165,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         
         self.secret_key = secret_key
         self.exempt_paths = tuple(exempt_paths or [])
+        self.exact_exempt_paths = frozenset(exact_exempt_paths or [])
         self.exempt_methods = frozenset(exempt_methods or self.SAFE_METHODS)
         self.cookie_secure = cookie_secure
         self.cookie_samesite = cookie_samesite
@@ -176,6 +178,8 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         
         # Rutas exentas
         path = request.url.path
+        if path in self.exact_exempt_paths:
+            return True
         for exempt_path in self.exempt_paths:
             if path.startswith(exempt_path):
                 return True

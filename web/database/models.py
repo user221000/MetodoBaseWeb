@@ -106,6 +106,10 @@ class Usuario(Base):
     activo = Column(Boolean, nullable=False, default=True)
     # Incremented transactionally on logout/revocation; legacy tokens use zero.
     session_version = Column(Integer, nullable=False, default=0, server_default="0")
+    # Purpose36 revocation metadata; never primary/auth/session authority.
+    notification_contact_version = Column(Integer,
+        CheckConstraint("notification_contact_version BETWEEN 0 AND 2147483647", name="ck_usuario_notification_contact_version"),
+        nullable=False, server_default="0")
     password_reset_hash = Column(String(64), nullable=True)
     password_reset_expires_at = Column(UTCDateTime, nullable=True)
     password_reset_session_version = Column(Integer, nullable=True)
@@ -1185,3 +1189,25 @@ class FollowupTask(Base):
 class FollowupTaskEvent(Base):
     """Durable operation declaration, not evidence of contact or payment."""
     __table__ = event_table(Base.metadata, UTCDateTime)
+
+
+# Revision36 notification metadata never stores recipient contacts or payloads.
+from web.database.notification_schema_v1 import (  # noqa: E402
+    preference_table, fact_table, outbox_table, attempt_table,
+)
+
+
+class NotificationPreference(Base):
+    __table__ = preference_table(Base.metadata, UTCDateTime)
+
+
+class NotificationBillingFact(Base):
+    __table__ = fact_table(Base.metadata, UTCDateTime)
+
+
+class NotificationOutbox(Base):
+    __table__ = outbox_table(Base.metadata, UTCDateTime)
+
+
+class NotificationAttempt(Base):
+    __table__ = attempt_table(Base.metadata, UTCDateTime)

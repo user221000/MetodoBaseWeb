@@ -161,6 +161,7 @@ def create_app() -> FastAPI:
         CSRFMiddleware,
         secret_key=settings.SECRET_KEY,
         exempt_paths=["/api/billing/webhook", "/api/billing/mp/webhook", "/api/auth/"],
+        exact_exempt_paths=["/api/notificaciones/excluir", "/api/notificaciones/excluir/"],
         cookie_secure=settings.is_production,
     )
 
@@ -232,6 +233,9 @@ def create_app() -> FastAPI:
     app.include_router(followup_router, prefix="/api")
     from web.routes import followup_tasks
     app.include_router(followup_tasks.router, prefix="/api")
+    from web.routes import notifications
+    app.include_router(notifications.router, prefix="/api")
+    app.include_router(notifications.public_router)
     app.include_router(web_gym_profile_router.router, prefix="/api", dependencies=_api_auth)
 
     # Usuario individual routes
