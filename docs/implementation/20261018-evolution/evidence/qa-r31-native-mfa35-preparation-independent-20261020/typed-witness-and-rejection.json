@@ -1,0 +1,73 @@
+{
+  "status": "REJECTED_QA_LAUNCHER_PRECONDITION_BEFORE_ANY_CHROME",
+  "actual_native_groups": 0,
+  "schema_witness": {
+    "fixture": "native-browser-mfa35-restricted-PG",
+    "dialect": "postgresql",
+    "expected_runtime_revision": "20261020_nutrition_profile",
+    "actual_alembic_revision": "20261020_nutrition_profile",
+    "metadata_table_count": 37,
+    "physical_table_count": 38,
+    "FORCE_RLS_tables": 28,
+    "role_flags_and_owner_membership": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "application_role_restricted_nonowner": true,
+    "history_order_index": {
+      "dialect": "postgresql",
+      "name": "ix_planes_gym_cliente_history",
+      "columns": [
+        "gym_id",
+        "id_cliente",
+        "fecha_generacion",
+        "id"
+      ],
+      "unique": false,
+      "valid": true,
+      "ready": true,
+      "key_columns": 4,
+      "all_columns": 4,
+      "indoption": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "predicate": "deleted_at IS NULL",
+      "method": "btree",
+      "collations": [
+        "pg_catalog.default",
+        "pg_catalog.default",
+        null,
+        null
+      ],
+      "operator_classes": [
+        "pg_catalog.text_ops",
+        "pg_catalog.text_ops",
+        "pg_catalog.timestamp_ops",
+        "pg_catalog.int4_ops"
+      ]
+    },
+    "fixture_pool_size": 5,
+    "fixture_max_overflow": 0
+  },
+  "root_Popen_identity": {
+    "pid": 21084,
+    "birth": 134369455006786320
+  },
+  "actual_fixture_identity": {
+    "pid": 11016,
+    "process_birth": 134369455006951686
+  },
+  "cause": "Launcher required the venv redirector Popen PID to equal the actual Python worker PID. Startup and owned lease identify a different worker. The next phase will prove the actual parent-generation chain rather than assume equality. No browser or business test ran.",
+  "runtime_or_assertion_changes": 0,
+  "normal_server_exit": 0,
+  "UUID_absence": true,
+  "zero_sessions_before_DROP": true,
+  "own_port8802_closed": true,
+  "foreign8776_and_browsers_preserved": true
+}

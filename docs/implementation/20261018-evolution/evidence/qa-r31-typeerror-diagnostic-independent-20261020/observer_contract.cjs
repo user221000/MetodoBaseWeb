@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict');process.env.QA_OBSERVER_UNIT='1';
+const{safePath,frames,errorRecord}=require('./observe.cjs');
+assert.equal(safePath('http://127.0.0.1:8802/mi-perfil?proof=synthetic-private-query#fragment'),'/mi-perfil');
+assert.equal(safePath('https://foreign.example.invalid/static/js/api.js?private=sentinel'),'[opaque]');
+assert.equal(safePath('http://127.0.0.1:8802/private-opaque-subject'),'[opaque]');
+const error={name:'TypeError',stack:'TypeError: synthetic-private-message\n    at f (http://127.0.0.1:8802/static/js/api.js?proof=synthetic-private-query#fragment:42:7)'};
+const actual=errorRecord(error,{url:()=> 'http://127.0.0.1:8802/mi-perfil?proof=synthetic-private-query'},'personal');
+assert.deepEqual(actual.frames,[{script_path:'/static/js/api.js',line:42,column:7}]);
+assert.equal(JSON.stringify(actual).includes('synthetic-private'),false);
+assert.equal(frames('Message\n'+Array(30).fill(' at f (http://127.0.0.1:8802/mi-perfil:2:3)').join('\n')).length,10);
+console.log(JSON.stringify({scope:'Private observer boundary only; no browser/auth/HTTP executed',total:6,passed:6}));

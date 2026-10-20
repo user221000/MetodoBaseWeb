@@ -168,3 +168,7 @@ La verificación focal local se separa de despliegue y cierre de tareas mayores.
 ## Checkpoint140
 
 SEC19 sólo se cierra tras la repeticiónPG independiente ybinding exacto aMAIN. Conservar cada gate ligado a su commit;108export no son108casos únicos. Nuevos companions nativos sustituyen únicamente framing de sesión/esquema de forma explícita; originales permanecen históricos. No presentar compilación comoChrome ni aceptación del proveedor comoentrega. LeasePG exclusivoQA; sin leaseChrome todavía.
+
+## Checkpoint141
+
+La aceptación R31 actual se limita al gate HTTP integrado; el rechazo nativo se conserva y obliga reparar QA-27 antes de repetir. QA-26 identifica registro y QA-27 invalidación DOM; sus RAW nominales anteriores permanecen intactos. Notificaciones36 y cuenta37 siguen aislados. No se amplía la exclusión tenant por prefijo ni se reduce pageErrors. Sólo web.

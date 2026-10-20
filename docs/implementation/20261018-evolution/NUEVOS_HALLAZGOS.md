@@ -229,3 +229,27 @@ Autor informa reparación exactaCSRF y17/17SQLite con controles de época/migrac
 El candidato de transporte browser rechazaba Origin inválido con403 pero, en la API, TenantMiddleware podía consultar primero un bearer auténtico. SaaS ya excluía /api/auth/. No se observó bypass de autenticación ni consumo o cambio de prueba/cookie.
 
 Criterio: La admisión estricta de las operaciones finitas del transporte browser debe ocurrir antes de cualquier consulta de bearer, SQL, verificación de proveedor o efecto de autenticación, incluso si la solicitud lleva un bearer válido. Rechazar Origin, header browser, contenido, query, método o alias no admitidos con error público privado y sin modificar refresh cookie, prueba o estado de sesión. Mantener rutas finitas y el comportamiento de APIlegacy sin header, vecinos y contexto tenant/finally, sin excluir un prefijo global ni convertir cookie en autoridad general. Repetir la misma canaria independiente689a, controles de SQL/verificador cero y límites antes/después en ambas factories, con revisión independiente. No presentar esta consulta previa como auth bypass o como un contador SQL observado si la aserción anterior lo impidió.
+
+## Checkpoint141 SEC25
+
+Snapshot de factura contradictorio (paid mayor que due con remaining positivo, o paidTrue/open) podía calificar como deuda y programar recordatorio en candidato36.
+
+Criterio: Aceptar deuda sólo con importe entero acotado y coherencia due=paid+remaining, estado y paid compatibles; contradicción o ausencia produce unknown y no nuevo envío. Aplicar la misma validación a snapshots nuevos y hechos persistidos. Preservar canaria original RED, contratos coherentes, fuentes Stripe/MP, RLS y ausencia de cargos/envío real; repetir ambosfactories y revisión independiente, sin atribuir aceptación del proveedor como entrega.
+
+## Checkpoint141 QA-25
+
+Dos companions R31 asumían finales LF y fallaban al compilar fuentes RAW CRLF antes de invocar HTTP o Chrome; no eran regresión del runtime MFA.
+
+Criterio: Conservar los originales RAW y sus hashes; normalizar EOL exclusivamente en la copia en memoria usada por el companion. Mantener aserciones de negocio y de ciclo de sesión, informar hash RAW y de compilación por separado, repetir controles LF/CRLF y puentes MFA contra HTTP real en ambasfactories. No presentar compilación como navegador nativo.
+
+## Checkpoint141 QA-26
+
+Registro público legacy con Bearer válido ajeno devuelve500 en API después de persistir una identidad nueva; el mismo caso SaaS devuelve200. La cuenta manager original conserva su autoridad.
+
+Criterio: La ruta pública de registro debe derivar la identidad sólo del registro actual y no heredar contexto tenant de un Bearer ajeno. Completar una cuenta independiente con200 sin adopción de autoridad ajena o dejar cero identidad parcial cuando se rechace por ese contexto. Preservar la admisión browser antes de cualquier consulta, vecinos protegidos y reset finally; usar rutas y métodos finitos, sin exención global de prefijo. Repetir canaria original y controles en ambasfactories con revisión independiente.
+
+## Checkpoint141 QA-27
+
+La invalidación de sesión elimina el DOM privado mientras callbacks de configuración/branding/perfil/privacidad conservan búsquedas de nodos o continúan una inicialización; diagnóstico nativo separado observa cuatro TypeError.
+
+Criterio: Tras invalidación local o externa, los consumidores privados deben detenerse, limpiar su RAM y tolerar la eliminación del DOM sin TypeError, lectura tardía, envío o readopción de actor. Capturar referencias propias y verificar vigencia antes de usar nodos o continuar await; cubrir las cuatro ubicaciones observadas, personalización y pagehide. Preservar pageErrors==[] y todas las aserciones de negocio del navegador original; verificar reparación focal y después repetir navegador con fuente actual y revisión independiente.

@@ -189,3 +189,7 @@ SEC24 tenía consultaBearer previa al rechazoOrigin enAPI; reparación y106 cont
 ## Checkpoint140
 
 R31 UI tienepeer26PASS local; nativos/CI antiguos dependen deStorage yfixtures31/33. Notificaciones36 mantiene puertos cerrados hasta revisiónQA/SEC/UI; su tolerancia a incertidumbre nunca prueba envío o causalidad. Retención, países, SLO acordado, piloto yrevisión profesional mantienen sus decisiones externas pendientes.
+
+## Checkpoint141
+
+Nativo actual rechazado por accesos DOM tras invalidación. Registro público API puede persistir una identidad antes de responder500 con Bearer ajeno. R05 global RED1603 y CI/broad/imagen/restore actuales pendientes; PG37 y consumo UI pendiente. Retención, países, SLO y piloto conservan decisiones externas pendientes.
