@@ -195,3 +195,29 @@ Cuatro casos HTTP de generación PostgreSQL con pool1 y expire_on_commit=True de
 Criterio: Confirmar y resolver la retención de checkout entre la reserva durable confirmada y el worker de generación, preservando el contrato con pool1 y ambas configuraciones de expiración admitidas. La lectura del resultado de reserva no debe abrir una transacción innecesaria que bloquee al worker. Mantener atomicidad, idempotencia, cuota, tenant y clasificación veraz de commit o compensación inciertos; no aumentar el pool, poner expire=False en la prueba ni cambiar expectativas para ocultar el fallo. Repetir los mismos cuatro casos PG y controles de handoff y replay, distinguiendo explícitamente defectos del harness de cambios de producto y revisando independientemente la corrección.
 
 ROOT fasef7c:34casos,29PASS5FAIL0E/skip. Un fallo adicional de seed booleano es harness y se conserva separado. Causa probable lectura ORM expirada tras commit; confirmación con telemetría propia y corrección pendientes.
+
+## Checkpoint137
+
+### SEC22
+
+Una excepción inesperada al leer el perfil autenticado devuelve500 genérico sin Cache-Control en ambas factories. Fronteras de405, slash y422 también necesitan la política privada finita.
+
+Criterio: Conservar un500 opaco ante fallos inesperados de perfil o generación, con no-store/no-referrer y sin texto de excepción, declaración, traceback o valores privados en respuesta o logs. Aplicar cabeceras privadas también en405,422 y alias de una barra de las rutas reales de clientes, perfil personal y generación, manteniendo códigos, contrato de lectura/paginación, CSP existente y vecinos fuera del matcher. Repetir las dos canarias independientes originales y controles de logs y límites; otro agente debe revisar el parche. No afirmar filtración a terceros o bypass por la ausencia observada de cabeceras.
+
+Autor d474 conserva500/headers y sanea logs; ROOTpeer12HTTP originales y17PGprivacidadPASS en scopes separados, con seis originalesSEC21 y controles propios. MAIN sigue33; integración pendiente.
+
+### SEC23
+
+En el candidato36, cambiar Usuario.email de A a B y de vuelta a A sin nuevo consentimiento permite que una capacidad antigua de exclusión vuelva a coincidir con el hash de contacto y desactive una preferencia. Reproducción SQL, sin ruta HTTP vigente de cambio de email.
+
+Criterio: Un cambio real de contacto debe invalidar de forma monotónica las capacidades, el consentimiento aplicable y el handoff pendientes ligados al contacto anterior, incluso ante A→B→A. Conservar los eventos append-only y exigir nueva autorización explícita para el contacto actual; no reactivar por coincidencia de hash. Verificar la época actual bajo lock antes de exclusión o envío, y capturarla en preferencias/outbox/fuente. Impedir decremento, reset, fracción, NULL, saltos y overflow; un incremento manual conservador sólo puede invalidar. Probar incrementos automáticos y el mismo A→B→A original en SQLite y PostgreSQL restringido, con migración, aislamiento, rollback y revisión independiente. No presentar este SQL como explotación HTTP.
+
+Autor informa2RED→2PASS con0→1→2 automático, más17/17SQLite de exclusión/época/migraciones; canariaac49732d recuperada por inversa completa SHAigual a foto original. PG36 ypeer pendientes; columna metadata nueva36, targets22–35 intactos.
+
+### QA-24
+
+El POST público de exclusión por capacidad funciona en la API pero recibe403 CSRF previo al router en SaaS; la página pública usa credentials:omit y no puede completar la operación anónima.
+
+Criterio: Permitir que la exclusión pública anónima por capacidad de propósito único complete en ambas factories sin sesión o cookies, con JSON estricto, límite de frecuencia, hash/expiración/versión de capacidad y autoridad disable-only intactos. Una exención CSRF, si es necesaria, debe ser exacta para POST /api/notificaciones/excluir y su alias de una barra, configurable con default vacío; no ampliar prefixes o vecinos. GET/prefetch no muta, bearer ajeno no cambia el sujeto y capacidad vieja no afecta preferencias nuevas. Probar el mismo caso anónimo original y vecinos403, errores privados y ausencia de otros efectos, con revisión independiente.
+
+Autor informa reparación exactaCSRF y17/17SQLite con controles de época/migración; actualizador de factory/config predeterminado acotado. No aceptación PG36, peer, entrega de correo o despliegue.

@@ -156,3 +156,7 @@ Decisión expresa del usuario al reanudar: «continua con todos estos cambios pe
 ## Checkpoint136
 
 Mantener verificaciones antiguas en su fuente auténtica yusar composición35 explícita sin cambiar aserciones oNodeIDs. Preservar errores deharness yRAW, no ampliar pool ni cambiar expiración para ocultar la retención. El target34d1 sustituyea33 sólo porNOWAIT del trigger; a33 y22–33 permanecen históricos exactos. No verificación de email simulada enR31.
+
+## Checkpoint137
+
+La cookie refresh es autoridad sólo para renovar/cerrar, nunca recurso privado. El headerbrowser opt-in conserva APIlegacy; invalidOrigin no muta refreshcookie, CSRFcookie existente es independiente. Locks del navegador deben conservar intención capturada antes del primerawait y mantenerse duranteSetCookie/JSON. Añadidos36 decontacto yexenciónCSRF exacta requierenpeer/PG antes de aceptar. Continúa alcance sóloSaaS; no cambios desktop.

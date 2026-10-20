@@ -177,3 +177,7 @@ SEC19 conserva riesgo de hidratación innecesaria hasta revisión independiente;
 ## Checkpoint136
 
 SEC21 refleja declaración rechazada en422 para bodylista; requiere erroracotado porruta antes de integrar35. QA-23 investiga retenciónpool con ORMexpirable; no se declara impacto enFalse. QA-22ya tieneparche,peerPGfocal pendiente desello. Responsables seguridad/coordinación. Riesgos legales/retención/proveedor/piloto permanecen externos; transporteStorage no resuelto aún.
+
+## Checkpoint137
+
+SEC21/22 yQA23 tienen reparación ypeerfocal; no integradosMAIN. R31 requiere cierre extremo aextremo ycompatibilidadCI, sin reponerJWTStorage para obtenerPASS. SEC23ABAcontacto yQA-24optoutanónimo son candidatos36 todavía sinpeer/PG. Retención/países,SLO,piloto,proveedorcorreo yvalidaciónprofesional permanecen sin resolución externa. No aceptación global ni despliegue.
