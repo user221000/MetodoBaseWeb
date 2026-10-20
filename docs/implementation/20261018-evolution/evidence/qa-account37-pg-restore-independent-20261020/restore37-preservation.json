@@ -1,0 +1,59 @@
+{
+  "historical36_RAW_sha256": "51bed479dbbbc77e8f928ba9707429581c89facdcdeb6f9dd69b5f3824b31faf",
+  "historical36_LF_sha256": "92ef86d7b5f1e68a4d1f4f5e26b7cd56a8733d6f2d43200aeab5772f663e113a",
+  "new37_raw_sha256": "4a7c313029498c77f000f88ef2021448de60a5996164b091cf20b6950846b869",
+  "original_assert_count": 75,
+  "full_text_inverse_after_documented_CRLF_to_LF": true,
+  "full_AST_inverse": true,
+  "additive_changes": [
+    {
+      "before": "def owned_databases(tmp_path):",
+      "after": "def owned_databases(tmp_path, monkeypatch):"
+    },
+    {
+      "before": "from tests.notifications36_fixtures import owned_database",
+      "after": "from tests.account_security37_owned import owned_database\n    from tests.account37_qa_restore_helpers import private_backup_temporaries\n    private_backup_temporaries(monkeypatch, tmp_path)"
+    },
+    {
+      "before": "def test_revision36_restore_preserves_notifications_and_all_revision26_through35_contracts(",
+      "after": "def test_revision37_restore_preserves_contact_and_all_revision26_through36_contracts("
+    },
+    {
+      "before": "\"--revision\", \"20261020_notifications\"",
+      "after": "\"--revision\", \"20261020_account_security\""
+    },
+    {
+      "before": "== \"20261020_notifications\"",
+      "after": "== \"20261020_account_security\""
+    },
+    {
+      "before": "expected_revision=\"20261020_notifications\"",
+      "after": "expected_revision=\"20261020_account_security\""
+    },
+    {
+      "before": "        # END NOTIFICATIONS36 WITNESS\n        original_rows = snapshot(source)",
+      "after": "        # END NOTIFICATIONS36 WITNESS\n        # BEGIN QA37 ADDITIVE POPULATED CONTACT\n        from tests.account37_qa_restore_helpers import (populate_contact37, reject_plain_contact37,\n            historical33_tables37, assert_encrypted_contact37, verify_restored_contact37)\n        historical33_tables = historical33_tables37\n        contact37_expected = populate_contact37(source_url, source, monkeypatch)\n        # END QA37 ADDITIVE POPULATED CONTACT\n        original_rows = snapshot(source)\n        # BEGIN QA37 PRE-BACKUP PURPOSE MATERIAL\n        reject_plain_contact37(original_rows, contact37_expected)\n        # END QA37 PRE-BACKUP PURPOSE MATERIAL"
+    },
+    {
+      "before": "        backup_seconds = time.monotonic() - start",
+      "after": "        backup_seconds = time.monotonic() - start\n        # BEGIN QA37 ENCRYPTED ARTIFACT CHECK\n        assert_encrypted_contact37(manifest_path, contact37_expected)\n        # END QA37 ENCRYPTED ARTIFACT CHECK"
+    },
+    {
+      "before": "        signature_hash = hashlib.sha256(json.dumps(original_signature, sort_keys=True).encode()).hexdigest()",
+      "after": "        # BEGIN QA37 RESTORED CONTACT AUTHORITY\n        contact37_proof = verify_restored_contact37(target, restricted_target, contact37_expected, snapshot)\n        # END QA37 RESTORED CONTACT AUTHORITY\n        signature_hash = hashlib.sha256(json.dumps(original_signature, sort_keys=True).encode()).hexdigest()"
+    },
+    {
+      "before": "            \"tables\": len(original_signature[\"tables\"]), \"schema_signature_sha256\": signature_hash,",
+      "after": "            \"tables\": len(original_signature[\"tables\"]), \"schema_signature_sha256\": signature_hash,\n            # BEGIN QA37 MEASUREMENT\n            \"current_revision\": \"20261020_account_security\", \"restored_contact37\": contact37_proof,\n            \"historical_measurement_labels_preserved_verbatim\": True,\n            # END QA37 MEASUREMENT"
+    },
+    {
+      "before": "output / \"postgres-restore-followup34-author.json\"",
+      "after": "output / \"postgres-restore-current37-independent.json\""
+    },
+    {
+      "before": "\"\"\"Separate36 populated notification restore; historical26-35 sources remain immutable.\n\nPreserves complete26-34 criteria and adds declaration35/contact36/outbox witnesses.",
+      "after": "\"\"\"Current37 populated contact restore; historical26-36 sources remain immutable.\n\nPreserves the complete36 oracle and adds contact37 proof/epoch witnesses."
+    }
+  ],
+  "original_history_modified": false
+}

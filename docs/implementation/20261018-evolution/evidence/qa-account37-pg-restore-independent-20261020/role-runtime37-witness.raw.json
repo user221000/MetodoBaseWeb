@@ -1,0 +1,51 @@
+{
+  "revision": "20261020_account_security",
+  "physical": 42,
+  "ORM": 41,
+  "FORCE_RLS": 32,
+  "role_flags_and_owner_membership": [
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "nonowner": true,
+  "pool_size": 1,
+  "max_overflow": 0,
+  "history_index": {
+    "dialect": "postgresql",
+    "name": "ix_planes_gym_cliente_history",
+    "columns": [
+      "gym_id",
+      "id_cliente",
+      "fecha_generacion",
+      "id"
+    ],
+    "unique": false,
+    "valid": true,
+    "ready": true,
+    "key_columns": 4,
+    "all_columns": 4,
+    "indoption": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "predicate": "deleted_at IS NULL",
+    "method": "btree",
+    "collations": [
+      "pg_catalog.default",
+      "pg_catalog.default",
+      null,
+      null
+    ],
+    "operator_classes": [
+      "pg_catalog.text_ops",
+      "pg_catalog.text_ops",
+      "pg_catalog.timestamp_ops",
+      "pg_catalog.int4_ops"
+    ]
+  }
+}
