@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "scope": "SaaS web only; legacy JSON auth remains when the browser header is absent",
+  "browser_request": {
+    "header": {"X-MetodoBase-Browser": "1"},
+    "method": "POST",
+    "origin": "exact configured BASE_URL origin; one Origin header; no query",
+    "content_type": ["application/json", "application/json;charset=utf-8"],
+    "credentials": "same-origin",
+    "redirect": "error",
+    "cache": "no-store",
+    "referrerPolicy": "no-referrer"
+  },
+  "pair_response": {
+    "status": 200,
+    "token": "existing access token, RAM only",
+    "session_mode": "browser",
+    "refresh_token": "ABSENT",
+    "access_token_alias": "retained only if already present; equal to token",
+    "metadata": "existing fields retained"
+  },
+  "mfa_202": {"status": 202, "session_mode": "browser", "existing_fields": ["mfa_required", "challenge", "expires_at", "methods"], "tokens": "ABSENT", "old_cookie": "expired"},
+  "ack_without_pair": "existing body unchanged; successful credential revocation can expire refresh cookie",
+  "refresh": {"path": "/api/auth/refresh", "body": {}, "proof": "cookie only; no body or Bearer fallback"},
+  "migration": {"path": "/api/auth/browser/migrate", "body": {"refresh_token": "one legacy RAM proof, bounded at 8192"}, "effect": "existing rotation into cookie transport"},
+  "logout": {"path": "/api/auth/browser/logout", "body": {}, "proof": "cookie only; never general resource authority", "response": {"success": true, "server_confirmed": "true only after confirmed existing revocation; false for absent or invalid cookie", "session_mode": "browser"}},
+  "errors": {
+    "anonymous": {"status": 401, "code": "browser_session_unavailable"},
+    "uncertain": {"status": 503, "code": "browser_session_unconfirmed"},
+    "invalid_origin": {"status": 403, "code": "browser_origin_invalid", "effect": "no auth/provider I/O; no refresh cookie mutation (existing CSRF cookie remains independent)"},
+    "private_headers": {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+    "uncertainty": "no automatic write replay, adoption, or confirmed revocation claim"
+  },
+  "cookie": {"https_name": "__Host-mb_refresh", "http_dev_name": "mb_refresh_dev", "HttpOnly": true, "SameSite": "Strict", "Path": "/", "Domain": "ABSENT", "Secure": "true for HTTPS; HTTP only nonproduction loopback", "expiry": "existing verified refresh expiry; no extension beyond minted proof"},
+  "browser_coordination": {
+    "web_lock": "metodobase.browser-session.v1",
+    "lock_scope": "all cookie-capable operations through full response processing",
+    "unsupported_locks": "fail closed without authenticated I/O or credential Storage fallback",
+    "epoch_storage_key": "mb_session_epoch",
+    "epoch_contents": "random nonsecret UUID only",
+    "cross_tab": "invalidate RAM and sensitive DOM; do not adopt changed identity",
+    "legacy": "read once into RAM, immediately remove credential and metadata keys from localStorage/sessionStorage; migrate only through dedicated endpoint",
+    "public_recovery": "fragment proof in RAM with credentials omit; no authenticated bootstrap"
+  },
+  "resource_authority": "unchanged access Bearer and persisted identity/version/RBAC/tenant/MFA checks; cookie alone cannot read private resources",
+  "schema_change": false,
+  "validation_status": "contract agreed; implementation and independent integration gates pending"
+}

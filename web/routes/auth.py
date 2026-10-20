@@ -11,12 +11,13 @@ from sqlalchemy.orm import Session
 
 from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
+from web.browser_session import BrowserAuthRoute
 from web.account_values import normalize_account_email
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
-router = APIRouter(tags=["Auth"])
+router = APIRouter(tags=["Auth"], route_class=BrowserAuthRoute)
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────
@@ -197,7 +198,12 @@ async def registro(data: RegistroRequest):
 @router.post("/auth/refresh")
 async def refresh_token(request: Request):
     """Rota un refresh token: devuelve nuevo par access + refresh."""
+    from web import browser_session
     from web.auth import rotar_refresh_token
+
+    if browser_session.browser_request(request):
+        await browser_session.body(request)
+        return browser_session.rotate(request, browser_session.cookie_proof(request))
 
     body = await request.json()
     old_refresh = body.get("refresh_token", "")
@@ -210,6 +216,36 @@ async def refresh_token(request: Request):
         "token": result["access_token"],
         "refresh_token": result["refresh_token"],
     }
+
+
+@router.post("/auth/browser/migrate")
+async def migrate_browser_session(request: Request):
+    """Rotate one legacy proof into HttpOnly transport; never store it again."""
+    from web import browser_session
+    if not browser_session.browser_request(request):
+        browser_session.failure(403, "browser_origin_invalid")
+    data = await browser_session.body(request, migration=True)
+    return browser_session.rotate(request, data.refresh_token)
+
+
+@router.post("/auth/browser/logout")
+async def logout_browser_session(request: Request):
+    """Cookie proof authorizes only revocation, with truthful confirmation."""
+    from web import browser_session
+    from web.auth import revocar_refresh_tokens_usuario, verificar_refresh_token
+    if not browser_session.browser_request(request):
+        browser_session.failure(403, "browser_origin_invalid")
+    await browser_session.body(request)
+    proof = browser_session.cookie_proof(request)
+    identity = verificar_refresh_token(proof) if proof else None
+    confirmed = False
+    if identity:
+        revocar_refresh_tokens_usuario(identity["id"])
+        confirmed = True
+    response = JSONResponse({"success": True, "server_confirmed": confirmed, "session_mode": "browser"},
+                            headers=browser_session.HEADERS)
+    browser_session.expire_cookie(response)
+    return response
 
 
 @router.post("/auth/logout")

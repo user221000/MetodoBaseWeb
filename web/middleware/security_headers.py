@@ -19,6 +19,7 @@ from starlette.responses import Response, JSONResponse
 from web.client_link_paths import is_member_link_private
 from web.progress_paths import is_progress_private
 from web.followup_paths import is_followup_private
+from web.browser_session import is_browser_session_private
 
 import inspect
 import logging
@@ -116,7 +117,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             request.url.path == "/api/usuario/diario"
             or request.url.path.startswith("/api/usuario/diario/")
         )
-        primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS or request.url.path in _GOOGLE_LINK_PAGES
+        primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS or request.url.path in _GOOGLE_LINK_PAGES or is_browser_session_private(request.url.path)
         progress_api = is_progress_private(request.url.path)
         followup_api = is_followup_private(request.url.path)
         export_api = request.url.path in _PRIVATE_EXPORT_PATHS
