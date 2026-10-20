@@ -1,0 +1,3 @@
+# DOM retirement after session invalidation on MAIN
+
+Four product paths are Git-byte-exact to reviewed c822. API, server and schema35 remain unchanged. The actual integrated2709 product passes37 Node cases:6same-detachment canaries,21export controls and10nutrition DOM. Source1220/Python/92 distributions/Node versions and binary remain stable. Whole installed dependency files were not photographed. Independent QA6RED-to6PASS,6own and21export, plus a separate actual2-scenario SQLite Chrome diagnostic with pageErrors=[] are recorded byQA, not executed by this gate. The earlier11-group native attempt remains rejected and the full15 native gate is still pending. No36/37, Desktop, deployment or global acceptance.
