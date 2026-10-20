@@ -4,11 +4,12 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import subprocess
 from pathlib import Path
 
 from packaging.requirements import InvalidRequirement, Requirement
 from packaging.utils import canonicalize_name
+
+from tests.ci_web37.git_recipe import NATIVE_FILES, load, object_id
 
 ROOT = Path(__file__).resolve().parents[2]
 RECIPE_SOURCE = "72c44a1834d7bd9803b4b8846c6c87e85a53bfd3"
@@ -70,12 +71,15 @@ def verify_current_lock(web, container, contract):
 
 
 def verify():
+    proof = load()
     manifest = json.loads((ROOT / "tests/ci_web37/container-inputs.json").read_bytes())
-    if manifest["native_recipe_source"] != RECIPE_SOURCE:
+    source_names = set(NATIVE_FILES) - {"requirements-container.lock"}
+    if manifest["native_recipe_source"] != RECIPE_SOURCE or set(manifest["source_files"]) != source_names:
         raise ValueError("Native recipe source differs")
     for name, pin in manifest["source_files"].items():
-        original = subprocess.check_output(["git", "--no-replace-objects", "show", RECIPE_SOURCE + ":" + name], cwd=ROOT)
-        if hashlib.sha256(original).hexdigest() != pin["raw_sha256"]:
+        original = proof.blob(RECIPE_SOURCE, name)
+        if (hashlib.sha256(original).hexdigest() != pin["raw_sha256"]
+                or object_id("blob", original) != pin["blob"]):
             raise ValueError("Original native recipe Git source differs")
         if name != "Dockerfile" and (ROOT / name).read_bytes().replace(b"\r\n", b"\n") != original:
             raise ValueError("An unchanged native recipe source differs")
