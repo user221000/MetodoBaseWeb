@@ -4,6 +4,7 @@ Rows and authority stay inside the owned Session. Responses are bounded inert
 values captured before commit, returned only after ACK and route cleanup.
 """
 import logging
+import sqlite3
 import uuid
 from datetime import datetime
 
@@ -361,12 +362,11 @@ def mutate(db, expected, kind, command, request_key, path, *, identifier=None, n
             "task": _dtos(db, [task], gym, user.id, manager, now)[0]})
     except IntegrityError as error:
         rollback(db)
-        name = getattr(getattr(error.orig, "diag", None), "constraint_name", None)
-        if name == "uq_followup_open_cause" or "followup_tasks.gym_id, followup_tasks.client_id, followup_tasks.cause" in str(error.orig):
-            fail(409, "followup_open_task_exists")
-        if "Follow-up source changed" in str(error.orig) or "Follow-up cause absent" in str(error.orig):
-            fail(409, "followup_cause_changed")
-        fail(409, "followup_busy")
+        conflict = _constraint_conflict(error)
+        if conflict is not None:
+            fail(409, conflict)
+        logger.error("Follow-up write unconfirmed class=%s", type(error.orig).__name__)
+        fail(503, "followup_unconfirmed")
     try:
         db.commit()
     except Exception as error:
@@ -376,7 +376,32 @@ def mutate(db, expected, kind, command, request_key, path, *, identifier=None, n
     return result
 
 
+def _constraint_conflict(error):
+    """Only typed driver diagnostics for the two closed constraint conflicts."""
+    original = error.orig
+    code = getattr(original, "pgcode", None)
+    diagnostics = getattr(original, "diag", None)
+    if code == "23505" and getattr(diagnostics, "constraint_name", None) == "uq_followup_open_cause":
+        return "followup_open_task_exists"
+    source_messages = {"Follow-up source changed", "Follow-up cause absent"}
+    if code == "23514" and getattr(diagnostics, "message_primary", None) in source_messages:
+        return "followup_cause_changed"
+    if isinstance(original, sqlite3.IntegrityError):
+        code = getattr(original, "sqlite_errorcode", None)
+        if code == sqlite3.SQLITE_CONSTRAINT_UNIQUE and str(original) == (
+                "UNIQUE constraint failed: followup_tasks.gym_id, followup_tasks.client_id, followup_tasks.cause"):
+            return "followup_open_task_exists"
+        if code == sqlite3.SQLITE_CONSTRAINT_TRIGGER and str(original) in source_messages:
+            return "followup_cause_changed"
+    return None
+
+
 def classify_error(error):
-    if isinstance(error, DBAPIError) and (getattr(error.orig, "pgcode", None) == "55P03" or "locked" in str(error.orig).lower()):
-        fail(409, "followup_busy")
+    if isinstance(error, DBAPIError):
+        original = error.orig
+        sqlite_code = getattr(original, "sqlite_errorcode", None)
+        sqlite_busy = (isinstance(original, sqlite3.Error) and type(sqlite_code) is int
+            and sqlite_code & 255 in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED))
+        if getattr(original, "pgcode", None) == "55P03" or sqlite_busy:
+            fail(409, "followup_busy")
     raise error
