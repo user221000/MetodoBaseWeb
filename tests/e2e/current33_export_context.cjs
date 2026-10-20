@@ -1,0 +1,14 @@
+/* Current33 eight-dataset fixture; original17 callbacks/asserts stay exact. */
+const fs=require('node:fs'),path=require('node:path'),Module=require('node:module');
+let source=fs.readFileSync(path.join(__dirname,'personal_export_context.cjs'),'utf8');
+const pairs=[[
+ "'personal_diary','member_links'];", "'personal_diary','member_links','progress_consents'];"
+],[
+ "coverage:'account_persisted_personal_space_and_active_member_link_metadata'",
+ "progress_consents:'own_append_only_scope_metadata',coverage:'account_persisted_personal_space_active_member_links_and_own_progress_consents'"
+]];
+for(const [before,after]of pairs){if(source.split(before).length!==2)throw Error('Historical fixture framing drift');source=source.replace(before,after);}
+const transformed=source;
+for(const [before,after]of [...pairs].reverse())source=source.replace(after,before);
+if(source!==fs.readFileSync(path.join(__dirname,'personal_export_context.cjs'),'utf8'))throw Error('Full fixture inverse drift');
+const testModule=new Module(__filename,module);testModule.filename=__filename;testModule.paths=module.paths;testModule._compile(transformed,__filename);
