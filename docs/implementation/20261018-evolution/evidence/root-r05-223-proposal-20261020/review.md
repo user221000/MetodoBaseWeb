@@ -1,0 +1,5 @@
+# Six-file223 proposal, independent review pending
+
+Every current remaining finding is bound to its captured whole file, exact physical line, scanner rule and structural JSON scalar pointer.219 values are recomputed from115 named Git preimages, with166 explicit LF-to-CRLF witnesses and53 Git-exact values; four values hash the exact named dependency blocks in the declared web-lock source. Their block offsets and full original Git lock identity are retained. The package-block parser is independent and requires all57 physical active headers, including extras.
+
+The proposal ZIP contains the complete finite records/witnesses and the executed producer as data. ROOT does not rely on scanner Match/Secret text. All223 classifications replay with the actual unchanged byte-pinned classifier and223 invalid-pointer controls; six physical files remain unchanged. No active registry, rules, assertions or runtime changes here. Independent semantic review and actual v6 artifact review are pending; the last real full scan remains RED223. Complete raw sources and helper provenance remain private, protected before payload and read back in full.
