@@ -13,3 +13,7 @@ El registro separado Bandit22 queda aprobado sólo para sus fuentes/contexto/30d
 Serial847 conserva4725PASS/60FAIL/1skip Windows; companions actuales Google/retención pasan70/70 y lookup16/16, sin modificar los originales ni convertir847 en PASS. Ops prepara fases históricas V5peer60/V6autor48 con transporte Git autenticado y n2 actual, sin retarget ni eliminación de criterios. PostgreSQL429 está preparado/coleccionado en29 grupos con26 controles offline, todavía sin SQL; añade35R22,31seguridad y9QA26 a354 previos. La lectura real de VM devolvió guest con3.50GiB libres, memoria/cache72/nonce correctos y apagado QMP normal; no hubo upload/build. Imagen57, inventario instalado, SBOM/SCA, Redis y CI amplio actual siguen pendientes. Retención, países, SLO, piloto, revisión profesional nutricional y custodia/recuperación externa conservan decisiones o participación reales pendientes.
 
 [Registro](TRAZABILIDAD.md), [validación](VALIDACION.md).
+
+## Checkpoint149 — 2026-10-21
+
+Candidato local713bd antes de rediseño. V7fullscan y75seleccionados aceptados en su fuente, CI amplio yPG429 sinaceptación global. Nueva ampliación web UX-21/R36 en ramas aisladas. No declarar release, imagen57, rutinas, rediseño ni35grupos verificados hasta integración y pruebas actuales.

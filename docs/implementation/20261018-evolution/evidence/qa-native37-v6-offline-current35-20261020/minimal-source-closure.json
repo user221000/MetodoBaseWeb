@@ -1,0 +1,720 @@
+{
+  "source_commit": "8d0cf5de0034d1bba85e0cf5a7bc238aa0f388b6",
+  "helper_counts": {
+    "new18": 17,
+    "r22addon2": 15,
+    "all20": 18,
+    "current35": 22
+  },
+  "helpers": [
+    {
+      "path": "alembic.ini",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "db_bootstrap.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/__init__.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/account_security37_owned.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/browser_native_session31.cjs",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/mfa31_login.cjs",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/mobile_heading37_qa.cjs",
+      "required_for": [
+        "new18",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_account_notifications_qa_v4.cjs",
+      "required_for": [
+        "new18",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_environment_qa.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_onboarding_r22_qa_v5.cjs",
+      "required_for": [
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_progress_qa.cjs",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_session_qa.cjs",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_token_framing_qa.cjs",
+      "required_for": [
+        "new18",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/run_native37_qa_v6.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/integration_provider_subjects.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/integration_schema_migrations.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/isolation.py",
+      "required_for": [
+        "new18",
+        "r22addon2",
+        "all20",
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/native37_mfa_compat_qa_v6.cjs",
+      "required_for": [
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/mfa_ui_browser.cjs",
+      "required_for": [
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/mfa_personal_browser.cjs",
+      "required_for": [
+        "current35"
+      ]
+    },
+    {
+      "path": "tests/e2e/browser_compat31.cjs",
+      "required_for": [
+        "current35"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "db_bootstrap.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.engine",
+      "names": [
+        "normalize_database_url"
+      ],
+      "line": 24
+    },
+    {
+      "source": "db_bootstrap.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.settings",
+      "names": [
+        "get_settings"
+      ],
+      "line": 25
+    },
+    {
+      "source": "db_bootstrap.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.schema_control",
+      "names": [
+        "alembic_config",
+        "expected_head",
+        "verify_legacy_signature",
+        "verify_runtime_schema",
+        "SCHEMA_CONTRACTS"
+      ],
+      "line": 67
+    },
+    {
+      "source": "tests/account_security37_owned.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.isolation",
+      "names": [
+        "validate_postgres_test_url"
+      ],
+      "line": 40
+    },
+    {
+      "source": "tests/e2e/browser_native_session31.cjs",
+      "kind": "literal_source_read",
+      "target": "tests/e2e/mfa31_login.cjs",
+      "line": 4
+    },
+    {
+      "source": "tests/e2e/native37_account_notifications_qa_v4.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/native37_session_qa.cjs",
+      "line": 4
+    },
+    {
+      "source": "tests/e2e/native37_account_notifications_qa_v4.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/mobile_heading37_qa.cjs",
+      "line": 4
+    },
+    {
+      "source": "tests/e2e/native37_account_notifications_qa_v4.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/native37_token_framing_qa.cjs",
+      "line": 5
+    },
+    {
+      "source": "tests/e2e/native37_account_notifications_qa_v4.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/native37_progress_qa.cjs",
+      "line": 6
+    },
+    {
+      "source": "tests/e2e/native37_onboarding_r22_qa_v5.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/native37_session_qa.cjs",
+      "line": 4
+    },
+    {
+      "source": "tests/e2e/native37_onboarding_r22_qa_v5.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/native37_progress_qa.cjs",
+      "line": 4
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.models",
+      "names": [
+        "Base"
+      ],
+      "line": 38
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.isolation",
+      "names": [
+        "block_external_sockets",
+        "prepare_environment",
+        "validate_postgres_test_url"
+      ],
+      "line": 58
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.account_security37_owned",
+      "names": [
+        "owned_database",
+        "process_birth"
+      ],
+      "line": 81
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.integration_schema_migrations",
+      "names": [
+        "run_migration"
+      ],
+      "line": 82
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.integration_provider_subjects",
+      "names": [
+        "application_engine"
+      ],
+      "line": 83
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.models",
+      "names": [
+        "Base",
+        "Cliente",
+        "PlanGenerado",
+        "Subscription",
+        "UserRole",
+        "Usuario"
+      ],
+      "line": 84
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.engine",
+      "names": [
+        "get_engine"
+      ],
+      "line": 100
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.schema_control",
+      "names": [
+        "expected_head",
+        "verify_runtime_schema"
+      ],
+      "line": 104
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.alembic.history_index_contract_v1",
+      "names": [
+        "expected_history_index",
+        "history_index_signature"
+      ],
+      "line": 105
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.auth",
+      "names": [
+        "hash_password"
+      ],
+      "line": 121
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.services",
+      "names": [
+        "email_service",
+        "stripe_service"
+      ],
+      "line": 168
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.services",
+      "names": [
+        "account_security"
+      ],
+      "line": 172
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.main_web",
+      "names": [
+        "create_app"
+      ],
+      "line": 207
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.auth",
+      "names": [
+        "verify_password"
+      ],
+      "line": 296
+    },
+    {
+      "source": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.models",
+      "names": [
+        "MfaCredential"
+      ],
+      "line": 297
+    },
+    {
+      "source": "tests/e2e/native37_session_qa.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_native_session31.cjs",
+      "line": 4
+    },
+    {
+      "source": "tests/e2e/native37_session_qa.cjs",
+      "kind": "literal_source_read",
+      "target": "tests/e2e/mfa31_login.cjs",
+      "line": 5
+    },
+    {
+      "source": "tests/e2e/run_native37_qa_v6.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.e2e",
+      "names": [
+        "native37_environment_qa"
+      ],
+      "line": 146
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.integration_schema_migrations",
+      "names": [
+        "migration_database",
+        "run_migration",
+        "ROOT"
+      ],
+      "line": 20
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.alembic.schema_contract_v1",
+      "names": [
+        "schema_signature"
+      ],
+      "line": 21
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.models",
+      "names": [
+        "Subscription",
+        "StripeCustomer",
+        "UserSubscription",
+        "GymLicense"
+      ],
+      "line": 25
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.isolation",
+      "names": [
+        "validate_postgres_test_url"
+      ],
+      "line": 57
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.tenant_context",
+      "names": [
+        "configure_tenant_engine"
+      ],
+      "line": 69
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.tenant_policy",
+      "names": [
+        "verify_application_database_role"
+      ],
+      "line": 70
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.models",
+      "names": [
+        "ProviderSubjectAssociation",
+        "Subscription",
+        "UserSubscription",
+        "LicenseActivation"
+      ],
+      "line": 91
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.services.stripe_service",
+      "names": [
+        "_on_invoice_paid",
+        "_on_charge_refunded",
+        "_on_subscription_deleted"
+      ],
+      "line": 92
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.tenant_context",
+      "names": [
+        "tenant_scope"
+      ],
+      "line": 150
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.models",
+      "names": [
+        "ProviderSubjectAssociation"
+      ],
+      "line": 151
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.services.provider_subjects",
+      "names": [
+        "record_provider_subject"
+      ],
+      "line": 152
+    },
+    {
+      "source": "tests/integration_provider_subjects.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.services.stripe_service",
+      "names": [
+        "_bind_customer_purchase"
+      ],
+      "line": 153
+    },
+    {
+      "source": "tests/integration_schema_migrations.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "tests.isolation",
+      "names": [
+        "validate_postgres_test_url"
+      ],
+      "line": 17
+    },
+    {
+      "source": "tests/integration_schema_migrations.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.alembic.schema_contract_v1",
+      "names": [
+        "schema_signature"
+      ],
+      "line": 18
+    },
+    {
+      "source": "tests/integration_schema_migrations.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.models",
+      "names": [
+        "GymSettings",
+        "GymLicense"
+      ],
+      "line": 133
+    },
+    {
+      "source": "tests/integration_schema_migrations.py",
+      "kind": "Python_AST_ImportFrom",
+      "module": "web.database.repository",
+      "names": [
+        "_crear_planes_default"
+      ],
+      "line": 178
+    },
+    {
+      "source": "tests/e2e/native37_mfa_compat_qa_v6.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/mfa31_login.cjs",
+      "line": 10
+    },
+    {
+      "source": "tests/e2e/native37_mfa_compat_qa_v6.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_native_session31.cjs",
+      "line": 10
+    },
+    {
+      "source": "tests/e2e/native37_mfa_compat_qa_v6.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_native_session31.cjs",
+      "line": 73
+    },
+    {
+      "source": "tests/e2e/native37_mfa_compat_qa_v6.cjs",
+      "kind": "literal_source_read",
+      "target": "tests/e2e/browser_compat31.cjs",
+      "line": 7
+    },
+    {
+      "source": "tests/e2e/native37_mfa_compat_qa_v6.cjs",
+      "kind": "literal_source_read",
+      "target": "tests/e2e/browser_native_session31.cjs",
+      "line": 75
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_harness31.cjs",
+      "line": 28
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_harness31.cjs",
+      "line": 29
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_harness31.cjs",
+      "line": 30
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_harness31.cjs",
+      "line": 31
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_harness31.cjs",
+      "line": 32
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_harness31.cjs",
+      "line": 33
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_relative_require",
+      "target": "tests/e2e/browser_harness31.cjs",
+      "line": 35
+    },
+    {
+      "source": "tests/e2e/browser_compat31.cjs",
+      "kind": "literal_source_read",
+      "target": "tests/e2e/mfa_api.cjs",
+      "line": 9
+    }
+  ],
+  "dynamic_literal_reads": {
+    "MFA_finite_names": [
+      "mfa_ui_browser",
+      "mfa_personal_browser"
+    ],
+    "MFA_source_framing": [
+      "browser_compat31.cjs balanced/skipString slice",
+      "browser_native_session31.cjs",
+      "mfa31_login.cjs"
+    ],
+    "launcher_selections": {
+      "current35": [
+        "mfa_ui_browser11",
+        "mfa_personal_browser4",
+        "native37_account_notifications_qa_v4:18",
+        "native37_onboarding_r22_qa_v5:2"
+      ]
+    },
+    "migration": "db_bootstrap.py with explicit37; alembic.ini and accepted web/database/alembic source tree",
+    "source_manifest": "native37_transitive_qa_v6.json",
+    "external_dependencies": [
+      "Pinned readonly playwright-core",
+      "Pinned readonly axe-core/axe.min.js",
+      "Existing readonly WEB92 Python environment, including pytest for host migration helpers"
+    ],
+    "application_substrate": "Main962d API/web/core/config/src/utils runtime444 plus root bootstrap/scripts, authentic assets/fonts/static materialized in sparse WT",
+    "private_generated_inputs": [
+      "metadata.private.json",
+      "startup.json",
+      "local mail/control/ACK files"
+    ],
+    "no_rejected_payloads_or_V1_V2_V3_sources_required": true
+  },
+  "static_seed_conclusion": {
+    "shared_UUID_proposed": true,
+    "legacy_MFA_fixed_accounts": 2,
+    "dedicated_account_notification_actors": 4,
+    "dedicated_R22_actors": 2,
+    "MFA_personal_users": "Actual registration with generated unique emails; no seeded alias",
+    "finalizers_byte_unchanged_V5": true,
+    "one_shot_executed_or_accepted": false
+  },
+  "platform": "Windows host launcher only; no production-image or Linux claim"
+}

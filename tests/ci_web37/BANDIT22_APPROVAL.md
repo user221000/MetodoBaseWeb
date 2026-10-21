@@ -22,7 +22,9 @@ inputs y catálogo57. La comprobación estática no demuestra aislamiento del SO
 seguridad de ejecución compartida, runtime de imagen ni cierre SCA/CVE.
 
 ```text
-python -B -X utf8 tests/ci_web37/run_web.py --suite registry-controls --private <privado-nuevo-absoluto> --output <publico-nuevo-absoluto>
+python -B -X utf8 tests/run_isolated.py tests/test_ci_web37_bandit_registry.py tests/test_security_bandit22_peer.py -q
+python -B -X utf8 tests/ci_web37/quality.py lint
+python -B -X utf8 tests/ci_web37/quality.py syntax
 python -B -X utf8 tests/ci_web37/quality.py security
 ```
 

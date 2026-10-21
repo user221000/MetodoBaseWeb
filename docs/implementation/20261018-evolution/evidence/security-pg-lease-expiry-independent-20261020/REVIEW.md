@@ -1,0 +1,5 @@
+# Independent PG lease-expiry control
+
+The original frozen controller accepted an ACK once before the loop. When its expiry passed during the first inert child, the next child still started. The literal initial-ACK assignment and complete per-child loop AST reproduced this RED with two passing controls: a still-valid ACK permits two children, and an already-expired ACK permits none. All SQL, subprocess, witness and journal ports were inert. This is a scheduling control, not a physical PostgreSQL test.
+
+The minimal candidate revalidates the same finite contract immediately before each selected phase and records that returned ACK digest in START. The unchanged original canary now passes: one child completes its ordinary finalization, then the expired permit refuses the next child. Both original controls pass. No currently running child is cancelled at expiry. No original fixture, assertion, role, schema witness or ownership primitive changed. A separately issued real Root ACK and runtime lease remain necessary; this proof grants neither. Original sources, observations, producer, delta and closed archive are private under DACL established before payload.

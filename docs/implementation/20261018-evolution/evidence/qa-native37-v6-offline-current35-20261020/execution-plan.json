@@ -1,0 +1,37 @@
+{
+  "status": "PROPOSAL_NOT_AUTHORIZATION",
+  "selection": "current35",
+  "expected_groups": [
+    15,
+    18,
+    2
+  ],
+  "serial_actual_commands": [
+    "node tests/e2e/native37_mfa_compat_qa_v6.cjs mfa_ui_browser",
+    "node tests/e2e/native37_mfa_compat_qa_v6.cjs mfa_personal_browser",
+    "node tests/e2e/native37_account_notifications_qa_v4.cjs",
+    "node tests/e2e/native37_onboarding_r22_qa_v5.cjs"
+  ],
+  "launcher": "python -B -X utf8 tests/e2e/run_native37_qa_v6.py --selection current35 --private-root NEW_OWN_PRIVATE --pg-config EXISTING_PRIVATE_PROFILE",
+  "new_UUIDs_if_authorized": 1,
+  "schema": "20261020_account_security",
+  "ORM": 41,
+  "physical": 42,
+  "FORCE_RLS": 32,
+  "role_flags_and_membership": [
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "pool": [
+    5,
+    0
+  ],
+  "own_listener": 8802,
+  "requires_source_preflight_SQL_ACK_then_startup_two_RAM_Chrome_ACK": true,
+  "no_current_PG_or_Chrome_lease_claimed": true,
+  "normal_DROP_0sessions_freshabsence_and_PIDbirth_generation_closure_required": true,
+  "stop_on_first_failure_no_automatic_retry": true
+}
