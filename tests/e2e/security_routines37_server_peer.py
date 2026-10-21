@@ -13,6 +13,7 @@ import socket
 import sqlite3
 import subprocess
 import sys
+import threading
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -82,6 +83,94 @@ def retire(private, actor_key):
     print(json.dumps({"retired_own_actor": True, "HTTP_auth_override": False, "changed_rows": 1}))
 
 
+def validate_stop_request(value, identity):
+    if (not isinstance(value, dict) or set(value) != {"action", "pid", "generation", "source_commit"}
+            or value["action"] != "stop" or type(value["pid"]) is not int
+            or value["pid"] <= 0 or value["pid"] != identity["pid"]
+            or value["generation"] != identity["generation"]
+            or value["source_commit"] != identity["source_commit"]):
+        raise ValueError("Private stop request does not match this fixture instance")
+
+
+class PrivateStop:
+    """One private filename, one exact instance; cleanup never rechecks expiry."""
+
+    def __init__(self, private, identity, server):
+        self.path = private / "stop-request.private.json"
+        self.identity = dict(identity)
+        self.server = server
+        self.done = threading.Event()
+        self.thread = threading.Thread(target=self.watch, name="routine-own-stop", daemon=False)
+        self.accepted = False
+        self.request_sha256 = None
+        self.refused = 0
+        self.last_error_class = None
+
+    def watch(self):
+        previous = None
+        while not self.done.wait(0.05):
+            if not self.path.exists():
+                continue
+            try:
+                if (self.path.is_symlink() or not self.path.is_file()
+                        or getattr(self.path.lstat(), "st_file_attributes", 0) & 0x400
+                        or self.path.stat().st_size > 4096):
+                    raise ValueError("Unexpected private stop-file framing")
+                with self.path.open("rb") as input_file:
+                    raw = input_file.read(4097)
+                if len(raw) > 4096:
+                    raise ValueError("Oversize private stop file")
+                current = digest(raw)
+                if current == previous:
+                    continue
+                previous = current
+                validate_stop_request(json.loads(raw), self.identity)
+                self.accepted = True
+                self.request_sha256 = current
+                self.server.should_exit = True
+                return
+            except (OSError, ValueError, TypeError) as error:
+                self.refused += 1
+                self.last_error_class = type(error).__name__
+
+    def close(self):
+        self.done.set()
+        if self.thread.ident is not None:
+            self.thread.join(timeout=5)
+        if self.thread.is_alive():
+            raise RuntimeError("Own private stop watcher did not join")
+
+
+def run_owned_server(server, engine, private, identity):
+    control = PrivateStop(private, identity, server)
+    returned, disposed, joined = False, False, False
+    try:
+        control.thread.start()
+        server.run()
+        returned = True
+    finally:
+        failure_type = sys.exc_info()[0]
+        try:
+            control.close()
+            joined = True
+        finally:
+            failure_type = failure_type or sys.exc_info()[0]
+            try:
+                engine.dispose()
+                disposed = True
+            finally:
+                failure_type = failure_type or sys.exc_info()[0]
+                receipt = {**identity, "server_started": server.started is True,
+                           "stop_request_accepted": control.accepted, "stop_request_sha256": control.request_sha256,
+                           "stop_refusals": control.refused, "stop_last_error_class": control.last_error_class,
+                           "normal_return": returned, "owned_engine_disposed": disposed, "watcher_stopped_joined": joined,
+                           "error_class": failure_type.__name__ if failure_type is not None else None}
+                receipt["normal_shutdown_accepted"] = (
+                    receipt["server_started"] and control.accepted and returned and disposed and joined and failure_type is None)
+                write(private / "fixture-closed.private.json", receipt)
+    return receipt
+
+
 def serve(private, source):
     from tests.isolation import block_external_sockets, prepare_environment
 
@@ -142,13 +231,15 @@ def serve(private, source):
         db.commit()
     runtime = {p.relative_to(ROOT).as_posix(): digest(p.read_bytes()) for part in product
                for p in (ROOT / part).rglob("*") if p.is_file() and p.suffix in {".py", ".js", ".css", ".html", ".json"}}
-    write(private / "metadata.private.json", {"origin": base, "source_commit": source,
+    identity = {"source_commit": source, "pid": os.getpid(), "generation": uuid.uuid4().hex}
+    write(private / "metadata.private.json", {"origin": base, **identity,
           "sqlite_database": str(database), "actors": actors, "fixture": "new-routines37-SaaS-SQLite",
           "historical_PG_or_33_fixture_retargeted": False})
     write(private / "runtime-source.private.json", runtime)
-    write(private / "startup.private.json", {"source_commit": source, "factory": "web.main_web",
+    write(private / "startup.private.json", {**identity, "factory": "web.main_web",
           "revision": REVISION, "ORM_tables": 41, "physical_tables": 42, "dialect": "sqlite",
-          "foreign_keys_clean": True, "port": PORT, "pid": os.getpid(), "runtime_files": len(runtime),
+          "foreign_keys_clean": True, "port": PORT, "runtime_files": len(runtime),
+          "stop_request_filename": "stop-request.private.json", "listener_readiness_proved": False,
           "auth_dependency_overrides": 0, "external_providers": "off, sockets guarded", "PG_RLS_claimed": False})
     import uvicorn
 
@@ -157,11 +248,9 @@ def serve(private, source):
     app = create_app()
     if app.dependency_overrides:
         raise ValueError("No authentication or product API dependency override is permitted")
-    try:
-        uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning", access_log=False)
-    finally:
-        engine.dispose()
-        write(private / "fixture-closed.private.json", {"normal_return": True, "owned_engine_disposed": True})
+    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=PORT,
+                                         log_level="warning", access_log=False))
+    run_owned_server(server, engine, private, identity)
 
 
 def main():
