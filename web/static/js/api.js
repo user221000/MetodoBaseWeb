@@ -160,7 +160,8 @@ const Api = (() => {
   }
 
   function getLoginUrl() {
-    return location.pathname.startsWith('/mi-')?'/login-usuario':'/login-gym';
+    const path = location.pathname;
+    return path.startsWith('/mi-') || path === '/mis-rutinas' || path === '/mis-rutinas/' ? '/login-usuario' : '/login-gym';
   }
 
   async function _doRefresh(snapshot, source) {

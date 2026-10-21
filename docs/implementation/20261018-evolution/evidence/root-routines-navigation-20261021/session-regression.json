@@ -1,0 +1,227 @@
+{
+  "scope": "Actual api.js in independent VM realms, deterministic WebLock/HttpOnly-cookie/Storage/network doubles; no real browser or backend acceptance",
+  "passed": 55,
+  "total": 55,
+  "results": [
+    {
+      "case": "Bootstrap is asynchronous and exposes access in RAM only",
+      "passed": true
+    },
+    {
+      "case": "Legacy access, refresh and identity metadata are purged before network",
+      "passed": true
+    },
+    {
+      "case": "Cookie refresh uses empty JSON, browser marker and explicit same-origin credentials",
+      "passed": true
+    },
+    {
+      "case": "No cookie is anonymous without an eager redirect",
+      "passed": true
+    },
+    {
+      "case": "Legacy server JSON refresh is rejected with no persistence fallback",
+      "passed": true
+    },
+    {
+      "case": "Web Locks unavailable fails closed before authentication I/O",
+      "passed": true
+    },
+    {
+      "case": "Storage denied fails closed before authentication I/O",
+      "passed": true
+    },
+    {
+      "case": "Denied Web Lock permission fails closed without auth I/O",
+      "passed": true
+    },
+    {
+      "case": "Readable storage with denied writes still fails closed before authentication I/O",
+      "passed": true
+    },
+    {
+      "case": "Malformed persisted nonsecret epoch is unavailable rather than a default authenticated state",
+      "passed": true
+    },
+    {
+      "case": "A legacy migration proof is bounded and purged before rejection",
+      "passed": true
+    },
+    {
+      "case": "Legacy sessionStorage proof is migrated once after immediate purge",
+      "passed": true
+    },
+    {
+      "case": "All ordinary protected calls await bootstrap",
+      "passed": true
+    },
+    {
+      "case": "An ordinary write captures its explicit body before waiting for bootstrap",
+      "passed": true
+    },
+    {
+      "case": "Cookie auth captures its explicit body before waiting for the shared lock",
+      "passed": true
+    },
+    {
+      "case": "Same-origin tabs serialize bootstrap cookie rotations",
+      "passed": true
+    },
+    {
+      "case": "Two tabs renew with the current cookie under one lock without changing the epoch",
+      "passed": true
+    },
+    {
+      "case": "Ordinary401 rotates once with the current cookie and retains logical context",
+      "passed": true
+    },
+    {
+      "case": "Purpose-closed nutrition401 never rotates or retries",
+      "passed": true
+    },
+    {
+      "case": "Another tab account switch invalidates RAM and an in-flight old actor result",
+      "passed": true
+    },
+    {
+      "case": "An invalidated tab cannot revoke the newly selected account cookie",
+      "passed": true
+    },
+    {
+      "case": "Cookie lock remains held until login JSON and logout follows its SetCookie",
+      "passed": true
+    },
+    {
+      "case": "Pagehide discards late200 without releasing a still-pending cookie lock",
+      "passed": true
+    },
+    {
+      "case": "Uncertain logout clears local access and never claims server revocation",
+      "passed": true
+    },
+    {
+      "case": "MFA202 clears old access and never adopts the old browser cookie",
+      "passed": true
+    },
+    {
+      "case": "Failed login leaves RAM empty and performs no fallback refresh",
+      "passed": true
+    },
+    {
+      "case": "Successful auth body metadata stays in RAM and epoch channel contains no identity",
+      "passed": true
+    },
+    {
+      "case": "Missed cross-tab notification still fences at the next private I/O",
+      "passed": true
+    },
+    {
+      "case": "Refresh uncertainty invalidates every tab and cannot trigger another automatic cookie write",
+      "passed": true
+    },
+    {
+      "case": "An uncertain refresh invalidates queued tabs while its cookie lock is still held",
+      "passed": true
+    },
+    {
+      "case": "No session credential is written to persistent browser storage",
+      "passed": true
+    },
+    {
+      "case": "Actual MFA primary controller preserves its own boundary and confirms only a current handle",
+      "passed": true
+    },
+    {
+      "case": "Actual MFA challenge then final factor consumes browser wire without refresh JSON",
+      "passed": true
+    },
+    {
+      "case": "A queued logout fences an older primary before it can set a cookie afterward",
+      "passed": true
+    },
+    {
+      "case": "Actual MFA controller cannot report a pending primary as authenticated after logout",
+      "passed": true
+    },
+    {
+      "case": "Invitation browser reply preserves canonical access alias only in RAM and fences delivery",
+      "passed": true
+    },
+    {
+      "case": "Pagehide also rejects late202 and retains the lock through challenge JSON consumption",
+      "passed": true
+    },
+    {
+      "case": "Cookie-less ordinary private calls fail without another bootstrap or bearer substitution",
+      "passed": true
+    },
+    {
+      "case": "A fresh auth delivery cannot be accepted after a later local account change",
+      "passed": true
+    },
+    {
+      "case": "MFA reauth cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "MFA enroll cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "MFA confirm cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "MFA regenerate cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "MFA revoke cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "Google link start cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "Google link confirm cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "Google unlink cookie-capable transport is exact-access, browser-marked and serialized",
+      "passed": true
+    },
+    {
+      "case": "stats current consumer context is fenced by another tab account switch",
+      "passed": true
+    },
+    {
+      "case": "personal current consumer context is fenced by another tab account switch",
+      "passed": true
+    },
+    {
+      "case": "links current consumer context is fenced by another tab account switch",
+      "passed": true
+    },
+    {
+      "case": "progress current consumer context is fenced by another tab account switch",
+      "passed": true
+    },
+    {
+      "case": "MFA current consumer context is fenced by another tab account switch",
+      "passed": true
+    },
+    {
+      "case": "Google current consumer context is fenced by another tab account switch",
+      "passed": true
+    },
+    {
+      "case": "followup current consumer context is fenced by another tab account switch",
+      "passed": true
+    },
+    {
+      "case": "nutrition current consumer context is fenced by another tab account switch",
+      "passed": true
+    }
+  ]
+}

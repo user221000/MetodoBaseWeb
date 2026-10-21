@@ -2,6 +2,7 @@
 (function () {
   'use strict';
   var path = location.pathname;
+  var personalRoutine = path === '/mis-rutinas' || path === '/mis-rutinas/';
   var publicPages = ['/', '/login-gym', '/login-usuario', '/registro', '/auth/accept-invite'];
   if (publicPages.includes(path)) return;
   var current = null;
@@ -9,7 +10,7 @@
     async function resolveIdentity() {
       try {
         await Api.session.ready;
-        if (!Api.getToken()) { location.replace(path.startsWith('/mi-') ? '/login-usuario' : '/login-gym'); resolve(null); return; }
+        if (!Api.getToken()) { location.replace(path.startsWith('/mi-') || personalRoutine ? '/login-usuario' : '/login-gym'); resolve(null); return; }
         var context=Api.session.capture();
         var me = await Api.auth.me();
         Api.session.check(context);
@@ -18,8 +19,8 @@
         var professional = !!me.team_gym_id && ['admin','nutriologo','viewer'].includes(me.role);
         var owner = !me.team_gym_id && me.tipo === 'gym' && me.role === 'owner';
         var personal = !me.team_gym_id && me.tipo === 'usuario';
-        var gymPage = ['/dashboard','/clientes','/planes','/suscripciones','/configuracion','/generar-plan','/equipo','/equipo/inicio'].includes(path);
-        var personalPage = ['/mi-plan','/mi-perfil','/mi-historial','/mi-suscripcion'].includes(path);
+        var gymPage = ['/dashboard','/clientes','/planes','/suscripciones','/configuracion','/generar-plan','/equipo','/equipo/inicio','/rutinas','/rutinas/'].includes(path);
+        var personalPage = ['/mi-plan','/mi-perfil','/mi-historial','/mi-suscripcion','/mis-rutinas','/mis-rutinas/'].includes(path);
         if (professional && path === '/dashboard') { location.replace('/equipo/inicio'); resolve(me); return; }
         if (personal && gymPage) { location.replace('/mi-plan'); resolve(me); return; }
         if (owner && personalPage) { location.replace('/dashboard'); resolve(me); return; }

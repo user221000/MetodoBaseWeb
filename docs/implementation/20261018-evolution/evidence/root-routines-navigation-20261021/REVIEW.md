@@ -1,0 +1,1 @@
+Real auth-guard.js and api.js executed in Node VM realms. Before source comes from Git1af48fed and yields8failures/8controls. Corrected source passes16/16 and existing RAM session suite55/55. This is no native-browser or backend acceptance. Independent review remains pending.

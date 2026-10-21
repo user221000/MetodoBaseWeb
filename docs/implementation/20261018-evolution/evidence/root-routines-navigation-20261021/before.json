@@ -1,0 +1,79 @@
+{
+  "scope": "VM auth navigation and actual RAM API expiration",
+  "passed": 8,
+  "total": 16,
+  "rows": [
+    {
+      "case": "Anonymous personal routine shell selects personal login: /mis-rutinas",
+      "passed": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   '/login-gym'\n-   '/login-usuario'\n  ]\n"
+    },
+    {
+      "case": "Owner is returned to gym from personal routine shell: /mis-rutinas",
+      "passed": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   '/dashboard'\n- ]\n"
+    },
+    {
+      "case": "Anonymous personal routine shell selects personal login: /mis-rutinas/",
+      "passed": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n+   '/login-gym'\n-   '/login-usuario'\n  ]\n"
+    },
+    {
+      "case": "Owner is returned to gym from personal routine shell: /mis-rutinas/",
+      "passed": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   '/dashboard'\n- ]\n"
+    },
+    {
+      "case": "Anonymous gym routine shell selects gym login: /rutinas",
+      "passed": true
+    },
+    {
+      "case": "Personal account is returned to its portal from gym routine shell: /rutinas",
+      "passed": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   '/mi-plan'\n- ]\n"
+    },
+    {
+      "case": "Anonymous gym routine shell selects gym login: /rutinas/",
+      "passed": true
+    },
+    {
+      "case": "Personal account is returned to its portal from gym routine shell: /rutinas/",
+      "passed": false,
+      "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ []\n- [\n-   '/mi-plan'\n- ]\n"
+    },
+    {
+      "case": "Valid context keeps routine navigation: /rutinas owner",
+      "passed": true
+    },
+    {
+      "case": "Valid context keeps routine navigation: /rutinas/ viewer",
+      "passed": true
+    },
+    {
+      "case": "Valid context keeps routine navigation: /mis-rutinas member",
+      "passed": true
+    },
+    {
+      "case": "Valid context keeps routine navigation: /mis-rutinas/ viewer",
+      "passed": true
+    },
+    {
+      "case": "Actual API expiration chooses context login: /mis-rutinas",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/login-gym'\n- '/login-usuario'\n          ^\n"
+    },
+    {
+      "case": "Actual API expiration chooses context login: /mis-rutinas/",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/login-gym'\n- '/login-usuario'\n          ^\n"
+    },
+    {
+      "case": "Actual API expiration chooses context login: /rutinas",
+      "passed": true
+    },
+    {
+      "case": "Actual API expiration chooses context login: /rutinas/",
+      "passed": true
+    }
+  ]
+}
