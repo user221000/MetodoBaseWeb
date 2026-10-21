@@ -24,6 +24,13 @@ CSS de componente consume `--mb-*` con fallback a las variables existentes; pale
 
 ## Contenido y límites
 
+El contador tiene `role="timer"` y `aria-live="off"`; los mensajes de inicio,
+pausa y fin conservan un `status` separado con anuncios corteses. Esto evita
+convertir cada actualización visual del reloj en una notificación automática.
+Se sigue la semántica de [WAI-ARIA 1.2](https://www.w3.org/TR/wai-aria-1.2/#timer)
+y [ARIA in HTML](https://www.w3.org/TR/html-aria/#el-output). Las pruebas de rol
+y región viva no equivalen a una prueba ejecutada con lector de pantalla.
+
 Ejemplo orientativo de organización para adultos sanos principiantes: empezar con una serie, considerar dos sólo con técnica y recuperación adecuadas, 8–12 repeticiones, carga manejable, sin exigir fallo; calentamiento suave y práctica del movimiento. Parar ante dolor y pedir orientación ante lesiones, síntomas o condiciones de salud. No diagnóstico, tratamiento, personalización, prescripción nutricional ni promesa de resultados.
 
 La división PPL tres días no se presenta como cumplimiento de la recomendación de trabajar cada gran grupo al menos dos días por semana ni como sustituto del ejercicio aeróbico. Las fuentes respaldan principios generales, no una validación individual de este catálogo. Consultadas el 21-10-2026:
