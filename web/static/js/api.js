@@ -164,6 +164,15 @@ const Api = (() => {
     return path.startsWith('/mi-') || path === '/mis-rutinas' || path === '/mis-rutinas/' ? '/login-usuario' : '/login-gym';
   }
 
+  function _rejectUnauthorized(snapshot, access) {
+    // Confirmed rejection retires this exact local access. A later login or
+    // even a same-revision refresh belongs to another captured credential.
+    const current = _assertSnapshot(snapshot);
+    if (typeof access !== 'string' || !access || current.token !== access) throw _sessionChanged();
+    _invalidateSession();
+    throw _sessionChanged();
+  }
+
   async function _doRefresh(snapshot, source) {
     _assertPair(snapshot, source);
     return _withCookieLock(snapshot,async()=>{
@@ -1307,7 +1316,7 @@ const Api = (() => {
     info: (token) => request('POST', '/api/auth/invite-info', {token}, {}, false),
     accept: (token, password) => _browserAccount('/api/auth/accept-invite',{token,password}),
   };
-  const session=Object.freeze({get ready(){return _readyPromise;},identity:()=>getToken()&&_metadata?Object.freeze({..._metadata}):null,capture:()=>Object.freeze(_snapshot()),check:context=>{_assertSnapshot(context);},accepted:data=>{const value=_delivered.get(data);if(!value)throw _sessionChanged();_assertPair(value.snapshot,value.pair);return Object.freeze({...value.snapshot});},clientCount:async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/clientes?limite=1',null,{},true,{snapshot,pair});}});
+  const session=Object.freeze({get ready(){return _readyPromise;},identity:()=>getToken()&&_metadata?Object.freeze({..._metadata}):null,capture:()=>Object.freeze(_snapshot()),check:context=>{_assertSnapshot(context);},rejectUnauthorized:_rejectUnauthorized,accepted:data=>{const value=_delivered.get(data);if(!value)throw _sessionChanged();_assertPair(value.snapshot,value.pair);return Object.freeze({...value.snapshot});},clientCount:async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/clientes?limite=1',null,{},true,{snapshot,pair});}});
   _readyPromise=_bootstrap();_readyPromise.catch(()=>{});
   return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, accountSecurity, session, getToken, clearTokens, saveTokens };
 })();

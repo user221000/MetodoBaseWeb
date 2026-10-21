@@ -44,6 +44,7 @@
     if(!token)throw Object.assign(Error('Inicia sesión para consultar el catálogo.'),{status:401});
     const response=await fetcher('/api/rutinas/catalogo?context='+scope,{method:'GET',headers:{Accept:'application/json',Authorization:'Bearer '+token},credentials:'omit',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});
     api.session.check(context);
+    if(response.status===401)api.session.rejectUnauthorized(context,token);
     const raw=await response.text();api.session.check(context);
     if(new TextEncoder().encode(raw).byteLength>131072)throw invalid();
     let value;try{value=JSON.parse(raw);}catch{throw invalid();}
