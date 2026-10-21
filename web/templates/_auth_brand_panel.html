@@ -1,0 +1,20 @@
+<div class="showcase mb-auth-showcase">
+  <a class="mb-auth-brand" href="/"><span class="mb-brand-mark" aria-hidden="true">MB</span><span>Método <strong>Base</strong></span></a>
+  <div class="showcase-content">
+    <p class="mb-auth-eyebrow">{% if auth_audience == 'gym' %}Tu negocio, en su espacio{% else %}Tu constancia tiene un lugar{% endif %}</p>
+    <p class="mb-auth-headline">{% if auth_audience == 'gym' %}Más claridad.<br>Mejor dirección.{% else %}Tu plan.<br>Tu propio ritmo.{% endif %}</p>
+    <p class="mb-auth-description">{% if auth_audience == 'gym' %}Perfiles, planes y seguimiento para organizar el trabajo con tus clientes y tu equipo.{% else %}Consulta tus planes, registra lo que consumes y vuelve a tus avances, con fecha y fuente visibles.{% endif %}</p>
+    <ol class="mb-auth-process" aria-label="Dentro de tu cuenta">
+      {% if auth_audience == 'gym' %}
+      <li><span>01</span><div><strong>Organiza tus clientes</strong><p>Una cartera con permisos para cada integrante.</p></div></li>
+      <li><span>02</span><div><strong>Trabaja con tus planes</strong><p>Generación, historial y PDF cuando esté disponible.</p></div></li>
+      <li><span>03</span><div><strong>Revisa el siguiente paso</strong><p>Hechos registrados y tareas de seguimiento.</p></div></li>
+      {% else %}
+      <li><span>01</span><div><strong>Un perfil propio</strong><p>Tu información personal, separada del negocio.</p></div></li>
+      <li><span>02</span><div><strong>Un día a la vez</strong><p>Planes y consumo registrado por fecha.</p></div></li>
+      <li><span>03</span><div><strong>Avances que puedes consultar</strong><p>Medidas reales y consentimiento explícito para compartir.</p></div></li>
+      {% endif %}
+    </ol>
+  </div>
+  <p class="mb-auth-foot">MÉTODO BASE <span>Nutrición con estructura.</span></p>
+</div>

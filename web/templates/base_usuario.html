@@ -6,16 +6,14 @@
   <meta name="csrf-token" content="{{ csrf_token(request) }}">
   <title>{% block title %}Mi Plan{% endblock %} — Método Base</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous" />
 
   <!-- User theme: standalone light-mode stylesheet -->
   <link rel="stylesheet" href="/static/css/styles-usuario.css?v={{ static_version }}" />
 
   {% block head %}{% endblock %}
+  <link rel="stylesheet" href="/static/css/design-system.css?v={{ static_version }}">
 </head>
-<body>
+<body class="mb-app mb-app--personal">
 
 <!-- ── Auth Guard ─────────────────────────────────────────── -->
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/auth-guard.js?v={{ static_version }}"></script>
@@ -61,6 +59,13 @@
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
       Progreso
+    </a>
+
+    <a href="/mis-rutinas" class="u-nav-item" data-page="mis-rutinas">
+      <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 8v8m12-8v8M3 10v4m18-4v4M6 12h12"/>
+      </svg>
+      Mis rutinas
     </a>
 
     <a href="/mis-vinculos" class="u-nav-item" data-page="mis-vinculos">Mis vínculos con gimnasios</a>
@@ -116,11 +121,15 @@
 </aside>
 
 <!-- ── Mobile hamburger ───────────────────────────────────── -->
-<button class="u-mobile-menu-btn" id="btn-hamburger" aria-label="Abrir menú" aria-controls="main-sidebar" aria-expanded="false">☰</button>
+<div class="mb-mobile-bar">
+  <a class="mb-mobile-brand" href="/mi-plan">Método <span>Base</span></a>
+  <button class="u-mobile-menu-btn" id="btn-hamburger" aria-label="Abrir menú" aria-controls="main-sidebar" aria-expanded="false">☰</button>
+</div>
 <div class="u-sidebar-overlay" id="sidebar-overlay"></div>
 
 <!-- ── Main Content ───────────────────────────────────────── -->
 <main class="u-main">
+  <div class="mb-workspace-topbar"><span class="mb-workspace-label">Método Base / TU ESPACIO PERSONAL</span><a href="/mi-seguridad">Mi cuenta</a></div>
   {% block content %}{% endblock %}
 </main>
 

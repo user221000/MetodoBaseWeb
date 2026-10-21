@@ -4,9 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login Usuario — Método Base</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/styles-auth.css?v=20260402" />
   <style>
     /* Usuario theme: teal accent */
@@ -19,103 +16,15 @@
     }
   </style>
   <link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
+  <link rel="stylesheet" href="/static/css/design-system.css?v={{ static_version }}">
 </head>
-<body>
+<body class="mb-auth">
   <div class="split-layout">
 
     <!-- ── LEFT: Personal Plan Showcase ── -->
-    <div class="showcase">
-      <div class="showcase-bg showcase-bg--purple"></div>
-      <div class="showcase-grid-bg"></div>
+    {% set auth_audience = 'personal' %}
+    {% include '_auth_brand_panel.html' %}
 
-      <div class="showcase-content anim-slide-left">
-        <div class="showcase-label">
-          <span class="dot"></span>
-          Así se ve tu plan personalizado
-        </div>
-        <p class="showcase-subtitle">
-          Tu nutrición, ajustada a tu cuerpo y tus metas.
-        </p>
-
-        <div class="plan-mockup">
-          <div class="plan-topbar">
-            <div class="plan-topbar-left">
-              <div class="plan-topbar-dot" style="background:var(--auth-accent);"></div>
-              <span class="plan-topbar-title">Mi Plan Nutricional</span>
-            </div>
-            <span style="font-size:.68rem;color:var(--text-muted);">Semana 3 de 12</span>
-          </div>
-          <div class="plan-body">
-            <!-- Profile card -->
-            <div class="profile-card">
-              <div class="profile-avatar">AL</div>
-              <div class="profile-info">
-                <p class="profile-name">Andrea López</p>
-                <p class="profile-meta">Pérdida de grasa · Meta: -5kg en 12 semanas</p>
-              </div>
-              <span class="profile-badge">Activo</span>
-            </div>
-
-            <!-- Macros -->
-            <div class="macros-grid">
-              <div class="macro-card">
-                <p class="macro-label">Calorías</p>
-                <p class="macro-value" style="color:var(--auth-accent);">1,850</p>
-              </div>
-              <div class="macro-card">
-                <p class="macro-label">Proteína</p>
-                <p class="macro-value" style="color:var(--auth-accent-dark);">120g</p>
-              </div>
-              <div class="macro-card">
-                <p class="macro-label">Carbos</p>
-                <p class="macro-value" style="color:var(--accent-green);">185g</p>
-              </div>
-            </div>
-
-            <!-- Day preview -->
-            <div class="plan-day">
-              <div class="plan-day-header">
-                <span class="plan-day-title">Lunes</span>
-                <span class="plan-day-kcal">1,850 kcal</span>
-              </div>
-              <div class="meal-row">
-                <div class="meal-icon" style="background:var(--auth-glow-soft);color:var(--auth-accent-dark);">🌅</div>
-                <span class="meal-name">Avena con fruta y proteína</span>
-                <span class="meal-kcal">420 kcal</span>
-              </div>
-              <div class="meal-row">
-                <div class="meal-icon" style="background:rgba(52,211,153,0.06);color:var(--accent-green);">🥗</div>
-                <span class="meal-name">Ensalada de pollo con quinoa</span>
-                <span class="meal-kcal">550 kcal</span>
-              </div>
-              <div class="meal-row">
-                <div class="meal-icon" style="background:var(--auth-glow-soft);color:var(--auth-accent);">🍽</div>
-                <span class="meal-name">Salmón con verduras al vapor</span>
-                <span class="meal-kcal">620 kcal</span>
-              </div>
-              <div class="meal-row">
-                <div class="meal-icon" style="background:rgba(255,255,255,0.04);color:var(--text-secondary);">🍎</div>
-                <span class="meal-name">Snacks: yogurt + almendras</span>
-                <span class="meal-kcal">260 kcal</span>
-              </div>
-            </div>
-
-            <!-- Progress -->
-            <div class="progress-section">
-              <div class="progress-header">
-                <span class="progress-title">Vas por buen camino</span>
-                <span class="progress-value">25%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width:25%;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── RIGHT: Login Sidebar ── -->
     <div class="sidebar-login">
       <div class="anim-fade-right">
         <a href="/" class="back-link">← Volver al inicio</a>

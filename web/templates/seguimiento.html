@@ -7,8 +7,9 @@
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1" defer></script>
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/seguimiento-tareas.js?v={{ static_version }}" defer></script>
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/seguimiento-pagina.js?v={{ static_version }}" defer></script>
+  <link rel="stylesheet" href="/static/css/design-system.css?v={{ static_version }}">
 </head>
-<body><main class="tasks-page" id="tasks-page"{% if client_id %} data-client-id="{{ client_id }}"{% endif %}>
+<body class="mb-standalone"><main class="tasks-page" id="tasks-page"{% if client_id %} data-client-id="{{ client_id }}"{% endif %}>
   <a class="tasks-skip" href="#tasks-heading">Ir a las tareas</a>
   <nav aria-label="Espacio profesional"><a href="/equipo/inicio">Espacio profesional</a><a href="/seguimiento">Todas mis tareas autorizadas</a>{% if client_id %}<a href="/clientes">Clientes</a>{% endif %}</nav>
   <header><p class="tasks-eyebrow">Método Base · trabajo del equipo</p><h1 id="tasks-heading" tabindex="-1">Tareas de seguimiento</h1><p>Organiza revisiones de fichas y sus fuentes. Las tareas se crean, editan y completan únicamente al confirmar una acción.</p></header>

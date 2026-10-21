@@ -4,119 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login Socio Comercial — Método Base</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/styles-auth.css?v=20260331" />
   <!-- Gym theme: yellow accent (defaults in styles-auth.css) -->
   <link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
+  <link rel="stylesheet" href="/static/css/design-system.css?v={{ static_version }}">
 </head>
-<body>
+<body class="mb-auth">
   <div class="split-layout">
 
     <!-- ── LEFT: Dashboard Showcase ── -->
-    <div class="showcase">
-      <div class="showcase-bg"></div>
-      <div class="showcase-grid-bg"></div>
+    {% set auth_audience = 'gym' %}
+    {% include '_auth_brand_panel.html' %}
 
-      <div class="showcase-content anim-slide-left">
-        <div class="showcase-label">
-          <span class="dot"></span>
-          Así se ve tu panel de control
-        </div>
-        <p class="showcase-subtitle">
-          Tu negocio, ordenado. Tus clientes, retenidos.
-        </p>
-
-        <div class="dash-mockup">
-          <div class="dash-topbar">
-            <div class="dash-topbar-left">
-              <div class="dash-topbar-dot" style="background:var(--auth-accent);"></div>
-              <span class="dash-topbar-title">Método Base — Dashboard</span>
-            </div>
-            <div class="dash-topbar-nav">
-              <span class="active">Dashboard</span>
-              <span>Clientes</span>
-              <span>Planes</span>
-            </div>
-          </div>
-          <div class="dash-body">
-            <!-- KPIs -->
-            <div class="kpi-row">
-              <div class="kpi-card">
-                <p class="kpi-label">Clientes activos</p>
-                <p class="kpi-value" style="color:var(--auth-accent);">127</p>
-                <p class="kpi-change kpi-up">↑ 12%</p>
-              </div>
-              <div class="kpi-card">
-                <p class="kpi-label">Ingresos / Mes</p>
-                <p class="kpi-value" style="color:var(--accent-green);">$48,500</p>
-                <p class="kpi-change kpi-up">↑ 8.3%</p>
-              </div>
-              <div class="kpi-card">
-                <p class="kpi-label">Planes generados</p>
-                <p class="kpi-value" style="color:var(--accent-purple);">312</p>
-                <p class="kpi-change kpi-up">↑ 24%</p>
-              </div>
-            </div>
-
-            <!-- Client earnings table -->
-            <div class="clients-panel">
-              <div class="clients-header">
-                <h3>Top Clientes del Mes</h3>
-                <span id="preview-month"></span>
-              </div>
-              <div class="client-row">
-                <div class="client-avatar" style="background:linear-gradient(135deg,var(--auth-accent),var(--auth-accent-dark));color:var(--bg-primary);">MR</div>
-                <div class="client-info">
-                  <p class="client-name">María Rodríguez</p>
-                  <p class="client-plan">Plan Premium · 2,340 kcal</p>
-                </div>
-                <div class="client-earning">
-                  <p class="client-earning-value">$2,800</p>
-                  <p class="client-earning-label">este mes</p>
-                </div>
-              </div>
-              <div class="client-row">
-                <div class="client-avatar" style="background:linear-gradient(135deg,var(--accent-purple),var(--accent-purple));color:var(--text-primary);">CL</div>
-                <div class="client-info">
-                  <p class="client-name">Carlos López</p>
-                  <p class="client-plan">Plan Básico · 1,800 kcal</p>
-                </div>
-                <div class="client-earning">
-                  <p class="client-earning-value">$1,500</p>
-                  <p class="client-earning-label">este mes</p>
-                </div>
-              </div>
-              <div class="client-row">
-                <div class="client-avatar" style="background:linear-gradient(135deg,var(--accent-green),var(--accent-green));color:var(--bg-primary);">AG</div>
-                <div class="client-info">
-                  <p class="client-name">Ana García</p>
-                  <p class="client-plan">Plan Premium · 2,100 kcal</p>
-                </div>
-                <div class="client-earning">
-                  <p class="client-earning-value">$2,800</p>
-                  <p class="client-earning-label">este mes</p>
-                </div>
-              </div>
-              <div class="client-row">
-                <div class="client-avatar" style="background:var(--auth-glow);color:var(--auth-accent);">JM</div>
-                <div class="client-info">
-                  <p class="client-name">Jorge Martínez</p>
-                  <p class="client-plan">Plan Deportivo · 3,200 kcal</p>
-                </div>
-                <div class="client-earning">
-                  <p class="client-earning-value">$3,100</p>
-                  <p class="client-earning-label">este mes</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── RIGHT: Login Sidebar ── -->
     <div class="sidebar-login">
       <div class="anim-fade-right">
         <a href="/" class="back-link">← Volver al inicio</a>
@@ -127,6 +26,7 @@
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
         </div>
+        <p class="mb-page-eyebrow" id="preview-month">Panel de negocio</p>
         <h1 class="sidebar-title">Tu Panel de Gestión</h1>
         <p class="sidebar-subtitle">Clientes, planes y pagos. Todo en un solo lugar.</p>
 

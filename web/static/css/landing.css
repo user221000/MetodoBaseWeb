@@ -1,6 +1,6 @@
 /* Public offer only. Native links/details; no auth, storage or external fonts. */
 * { box-sizing:border-box; }
-html { scroll-behavior:smooth; scroll-padding-top:20px; }
+html { scroll-behavior:smooth; scroll-padding-top:20px; background:#0c1117; }
 body.landing-page { margin:0;background:#0c1117;color:#edf2f7;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6; }
 .landing-page a { color:#f7cd67;text-underline-offset:4px; }
 .landing-page a:hover { text-decoration-thickness:2px; }
@@ -72,3 +72,65 @@ body.landing-page { margin:0;background:#0c1117;color:#edf2f7;font-family:system
   .landing-page .example { padding:20px; }
 }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+
+/* Movimiento: editorial hierarchy, exact existing palette, no remote assets. */
+body.landing-page {font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif;line-height:1.65;}
+.landing-page :is(h1,h2) {font-family:"Arial Narrow","Segoe UI",sans-serif;font-weight:850;letter-spacing:-.055em;}
+.landing-page h1 {font-size:clamp(2.85rem,5.9vw,5.5rem);line-height:1.01;max-width:13ch;}
+.landing-page h1 em {font-style:normal;color:#f7cd67;}
+.landing-page h2 {font-size:clamp(1.8rem,3.2vw,3rem);line-height:1.12;max-width:24ch;}
+.landing-page h3 {letter-spacing:-.025em;line-height:1.3;}
+.landing-page .wrap {max-width:1320px;padding-inline:48px;}
+.landing-page .topbar {min-height:100px;padding-block:18px;}
+.landing-page .brand {display:flex;align-items:center;gap:12px;font-size:1.35rem;letter-spacing:-.055em;font-weight:850;}
+.landing-page .brand .brand-name {color:#edf2f7;}
+.landing-page .brand .brand-mark {display:grid;place-items:center;width:40px;height:42px;flex:none;background:#f7cd67;color:#0c1117;border-radius:5px;font-size:.9rem;letter-spacing:-.12em;padding-right:3px;}
+.landing-page .quick-links {gap:12px 24px;font-size:.875rem;}
+.landing-page .quick-links a {display:flex;align-items:center;min-height:44px;color:#bcc8d5;text-decoration:none;}
+.landing-page .quick-links a:hover {color:#f7cd67;}
+.landing-page .hero {position:relative;isolation:isolate;grid-template-columns:1.35fr 1fr;align-items:center;gap:72px;padding-block:80px 96px;}
+.landing-page .hero::after {content:"";z-index:-1;position:absolute;inset:32px 0 0 52%;background:linear-gradient(115deg,transparent 40%,rgb(247 205 103 / 4%) 40% 68%,transparent 68%);pointer-events:none;}
+.landing-page .eyebrow {display:flex;align-items:center;gap:10px;color:#f7cd67;font-size:.66rem;letter-spacing:.18em;font-weight:750;margin-bottom:22px;}
+.landing-page .eyebrow::before {content:"";display:block;width:24px;height:2px;background:#f7cd67;flex:none;}
+.landing-page .lead {font-size:1.04rem;max-width:46ch;margin-top:26px;line-height:1.8;}
+.landing-page .actions {margin-top:32px;}
+.landing-page .button {min-height:50px;padding:13px 20px;border-radius:6px;font-size:.84rem;font-weight:750;line-height:1.4;}
+.landing-page .button:hover {background:#edf2f7;border-color:#edf2f7;}
+.landing-page .button.secondary {background:transparent;border-color:#8293a5;}
+.landing-page .button.secondary:hover {background:transparent;border-color:#f7cd67;color:#f7cd67;}
+.landing-page .small {font-size:.8rem;}
+.landing-page .example {border-color:#354251;border-top:4px solid #f7cd67;border-radius:12px;background:#121d28;padding:30px;box-shadow:0 24px 72px rgb(0 0 0 / 16%);}
+.landing-page .example .tag {font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:#7de5d3;border:1px solid #354251;border-radius:4px;padding:6px 9px;margin-bottom:24px;background:transparent;}
+.landing-page .example h2 {font-size:1.8rem;max-width:none;}
+.landing-page .example ul {margin-top:24px;}
+.landing-page .example li {padding-block:16px;font-size:.9rem;align-items:center;}
+.landing-page .example li strong {color:#f7cd67;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.landing-page .section {padding-block:72px;}
+.landing-page .section-intro {max-width:68ch;margin-top:20px;line-height:1.8;}
+.landing-page .steps {counter-reset:steps;list-style:none;gap:24px;margin-top:40px;padding:0;}
+.landing-page .steps li {padding:26px;border:1px solid #354251;border-radius:10px;background:#121d28;}
+.landing-page .steps li::before {counter-increment:steps;content:"0" counter(steps);display:block;font-size:2.6rem;line-height:1;font-weight:850;letter-spacing:-.08em;color:#f7cd67;margin-bottom:28px;}
+.landing-page .steps p {margin-top:12px;font-size:.88rem;}
+.landing-page .plans {margin-top:36px;}
+.landing-page .plan {padding:28px 22px;border-color:#354251;border-radius:10px;min-width:0;}
+.landing-page .plan:first-child {border-color:#354251;border-top:3px solid #f7cd67;}
+.landing-page .plan h3 {font-size:1rem;color:#f7cd67;font-weight:750;}
+.landing-page .price {font-size:clamp(1.65rem,2.2vw,2.3rem);font-weight:850;letter-spacing:-.05em;margin-top:22px;line-height:1.1;}
+.landing-page .price .unit {font-size:.8rem;letter-spacing:0;margin-top:9px;}
+.landing-page dl {margin:24px 0 30px;}
+.landing-page dt {font-size:.76rem;line-height:1.6;}
+.landing-page dd {margin-top:5px;font-size:.9rem;font-weight:650;}
+.landing-page .plan .button {font-size:.76rem;padding-inline:12px;}
+.landing-page .personal-plans {max-width:800px;}
+.landing-page .catalog-note {font-size:.8rem;margin-top:26px;line-height:1.8;}
+.landing-page .faq {gap:0 48px;margin-top:36px;}
+.landing-page summary {font-size:.95rem;min-height:44px;line-height:1.5;}
+.landing-page .data-note {background:#121d28;border:1px solid #354251;border-left:3px solid #7de5d3;border-radius:10px;padding:30px;margin-top:40px;}
+.landing-page footer {padding-block:32px 44px;border-top:1px solid #354251;font-size:.78rem;}
+@media(max-width:1100px) {.landing-page .wrap{padding-inline:32px}.landing-page .hero{gap:32px;padding-block:64px}}
+@media(max-width:768px) {
+ .landing-page .wrap{padding-inline:20px}.landing-page .topbar{align-items:center;gap:16px;min-height:88px}.landing-page .brand{gap:8px;font-size:1.1rem}.landing-page .brand .brand-mark{width:32px;height:36px;font-size:.75rem}
+ .landing-page .quick-links{flex-direction:column;gap:0;font-size:.875rem}.landing-page .quick-links a{min-height:44px;max-width:18ch}
+ .landing-page .hero{grid-template-columns:1fr;padding-block:44px;gap:40px}.landing-page h1{font-size:clamp(2.8rem,9vw,4.6rem);max-width:15ch}.landing-page .lead{margin-top:22px;font-size:.95rem}.landing-page .actions{flex-direction:column;margin-top:26px}.landing-page .actions .button{width:100%}
+ .landing-page .steps,.landing-page .faq{grid-template-columns:1fr}.landing-page .steps{gap:16px;margin-top:28px}.landing-page .plans{grid-template-columns:1fr}.landing-page .section{padding-block:44px}.landing-page .example,.landing-page .steps li,.landing-page .data-note{padding:24px}.landing-page .plan{padding:28px}.landing-page .plan .button{font-size:.84rem}.landing-page .price{font-size:2.5rem}
+}
