@@ -1,0 +1,137 @@
+{
+  "original_source": "8d0cf5de0034d1bba85e0cf5a7bc238aa0f388b6",
+  "boundaries": [
+    {
+      "original": "tests/e2e/native37_postgres_server_qa_v6.py",
+      "companion": "tests/e2e/native35_postgres_server_v7.py",
+      "changes": [
+        {
+          "label": "admit_before_environment",
+          "before": "    # Keep the authentic global Temp root for the immutable37 lease guard.",
+          "after": "    from tests.e2e.native35_guard_v7 import (\n        PrivateStop,\n        private_json,\n        require_ack,\n        stop_receipt,\n    )\n    require_ack(private.parent, \"sql\")\n    preflight = private_json(private.parent / \"native-preflight.json\", 8 * 1024 * 1024)\n    # Keep the authentic global Temp root for the immutable37 lease guard."
+        },
+        {
+          "label": "early_identity_and_true_states",
+          "before": "    fixture_birth = process_birth()\n    try:",
+          "after": "    fixture_birth = process_birth()\n    identity = {\"pid\": os.getpid(), \"process_birth\": fixture_birth, \"generation\": uuid.uuid4().hex, \"source_commit\": preflight[\"source_head\"]}\n    with (private / \"native35-instance.private.json\").open(\"xb\") as receipt:\n        receipt.write((json.dumps(identity) + \"\\n\").encode())\n    server_started = server_returned = watcher_joined = False\n    stop_guard = None\n    server_error_class = None\n    try:\n        require_ack(private.parent, \"sql\")"
+        },
+        {
+          "label": "startup_generation",
+          "before": "            startup = {\"fixture\": \"native-browser-account37-restricted-PG\",",
+          "after": "            startup = {**identity, \"fixture\": \"native-browser-account37-restricted-PG\","
+        },
+        {
+          "label": "new_private_stop",
+          "before": "            watcher_done = threading.Event()",
+          "after": "            stop_guard = PrivateStop(private, os.getpid(), identity[\"generation\"], identity[\"source_commit\"], fixture_birth, lambda: (os.getpid(), process_birth()))\n            watcher_done = threading.Event()"
+        },
+        {
+          "label": "no_exists_authority",
+          "before": "                    if (private / \"stop\").exists():",
+          "after": "                    if stop_guard.inspect():"
+        },
+        {
+          "label": "true_run_return",
+          "before": "            try:\n                server.run()\n                shutdown_checkpoint(\"server-run-returned\")",
+          "after": "            try:\n                server_started = True\n                server.run()\n                server_returned = True\n                shutdown_checkpoint(\"server-run-returned\")"
+        },
+        {
+          "label": "true_watcher_join",
+          "before": "                assert not watcher.is_alive()\n                (private / \"module-origins-after.json\")",
+          "after": "                assert not watcher.is_alive()\n                watcher_joined = True\n                (private / \"module-origins-after.json\")"
+        },
+        {
+          "label": "opaque_run_failure",
+          "before": "    finally:\n        if runtime is not None:",
+          "after": "    except BaseException as error:\n        server_error_class = type(error).__name__\n        raise\n    finally:\n        if runtime is not None:"
+        },
+        {
+          "label": "truthful_closed_receipt",
+          "before": "        (private / \"close.json\").write_text(json.dumps({\"fixture\": \"native-browser-account37-restricted-PG\",",
+          "after": "        (private / \"close.json\").write_text(json.dumps({**identity, **stop_receipt(closed, server_started, server_returned, watcher_joined, stop_guard, server_error_class), \"fixture\": \"native-browser-account37-restricted-PG\","
+        }
+      ]
+    },
+    {
+      "original": "tests/e2e/run_native37_qa_v6.py",
+      "companion": "tests/e2e/run_native35_qa_v7.py",
+      "changes": [
+        {
+          "label": "explicit_new_profile",
+          "before": "PROFILE=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-qa-pg55483-private-ok6hrpyq/env.json')",
+          "after": "PROFILE=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-test-ci37-pg-cluster-private-20261021-v1/env.private.json')"
+        },
+        {
+          "label": "new_guard_import",
+          "before": "sys.path.insert(0,str(ROOT))",
+          "after": "sys.path.insert(0,str(ROOT))\nfrom tests.e2e.native35_guard_v7 import (\n    OwnedWorker,\n    admitted_phase,\n    private_json,\n    require_ack,\n    require_chrome_phase,\n    verify_listener,\n)"
+        },
+        {
+          "label": "explicit_current35_only",
+          "before": "parser.add_argument('--selection',choices=tuple(SELECTIONS),default='all20')",
+          "after": "parser.add_argument('--selection',choices=['current35'],required=True)"
+        },
+        {
+          "label": "initial_finite_SQL_ACK",
+          "before": "    expected_groups=selection_contract(args.selection,preflight,sql_ack)",
+          "after": "    expected_groups=selection_contract(args.selection,preflight,sql_ack)\n    require_ack(TASK,\"sql\")"
+        },
+        {
+          "label": "retain_worker_handle",
+          "before": "    server=None;server_result=None;failure=None;server_identity=None;produced=None;stop_timeout=False",
+          "after": "    server=None;server_result=None;failure=None;server_identity=None;produced=None;stop_timeout=False\n    worker_handle=None;fixture_args=None"
+        },
+        {
+          "label": "guard_fixture_admission",
+          "before": "        server=subprocess.Popen([sys.executable,'-B','-X','utf8','tests/e2e/native37_postgres_server_qa_v6.py','--pg-config',str(PROFILE),'--private',str(P),'--port','8802'],cwd=ROOT,env=env,stdout=server_out,stderr=server_err)",
+          "after": "        fixture_args=[sys.executable,'-B','-X','utf8','tests/e2e/native35_postgres_server_v7.py','--pg-config',str(PROFILE),'--private',str(P),'--port','8802']\n        server=admitted_phase(lambda:require_ack(TASK,'sql'),lambda:subprocess.Popen(fixture_args,cwd=ROOT,env=env,stdout=server_out,stderr=server_err))"
+        },
+        {
+          "label": "retain_actual_worker_generation",
+          "before": "        produced=json.loads((P/'startup.json').read_bytes());witness(produced)",
+          "after": "        produced=json.loads((P/'startup.json').read_bytes());witness(produced)\n        assert produced['source_commit']==preflight['source_head']\n        worker_handle=OwnedWorker(produced,fixture_args,server.pid,sys._base_executable)"
+        },
+        {
+          "label": "new_worker_argv_name",
+          "before": "assert 'tests/e2e/native37_postgres_server_qa_v6.py' in actual[0]['CommandLine'].replace('\\\\','/')",
+          "after": "assert 'tests/e2e/native35_postgres_server_v7.py' in actual[0]['CommandLine'].replace('\\\\','/')"
+        },
+        {
+          "label": "actual_owned_listener",
+          "before": "        put('readiness.json',",
+          "after": "        put('actual-owned-listener.json',verify_listener(produced['pid']))\n        put('readiness.json',"
+        },
+        {
+          "label": "initial_finite_Chrome_ACK",
+          "before": "        assert ack['startup_sha256']==sha((P/'startup.json').read_bytes())",
+          "after": "        assert ack['startup_sha256']==sha((P/'startup.json').read_bytes())\n        require_chrome_phase(TASK)"
+        },
+        {
+          "label": "guard_each_driver_admission",
+          "before": "                child=subprocess.Popen(command,cwd=ROOT,env=browser_env,stdout=output,stderr=error)",
+          "after": "                child=admitted_phase(lambda:require_chrome_phase(TASK),lambda command=command,browser_env=browser_env:subprocess.Popen(command,cwd=ROOT,env=browser_env,stdout=output,stderr=error))"
+        },
+        {
+          "label": "bound_cleanup_without_expiry",
+          "before": "            if server.poll() is None:(P/'stop').write_bytes(b'owned stop request\\n')",
+          "after": "            if server.poll() is None:\n                if worker_handle is None:\n                    pending_identity=private_json(P/'native35-instance.private.json')\n                    assert pending_identity['source_commit']==preflight['source_head']\n                    worker_handle=OwnedWorker(pending_identity,fixture_args,server.pid,sys._base_executable)\n                worker_handle.request_stop(P)"
+        },
+        {
+          "label": "deadline_remains_RED_with_normal_cleanup_only",
+          "before": "                stop_timeout=True",
+          "after": "                stop_timeout=True\n                if failure is None:failure='OwnedStopDeadlineExceeded'\n                while server.poll() is None:time.sleep(.25)\n                server_result=server.returncode"
+        },
+        {
+          "label": "deadline_no_false_retained_claim",
+          "before": "    if stop_timeout:\n        inventory('retained-after-timeout')\n        retained=fingerprint_snapshot('retained-after-timeout',lib);lib.pipcheck(ROOT,TASK,'retained-after-timeout')\n        stable={key:before[key]==retained[key] for key in before}\n        assert all(stable.values())\n        put('phase-retained-timeout-summary.json',{'verdict':'REJECTED','normal_server_exit':False,\n            'server_stop_timeout':True,'manual_cleanup_required':True,'owned_resource_retained':True,\n            'no_termination_DROP_cancellation_performed':True,'reports':reports,'stable':stable})\n        print(json.dumps({'phase':'REJECTED_retained_own_server_timeout','no_automatic_retry':True}),flush=True)\n        return 1\n",
+          "after": "    if stop_timeout:\n        put('stop-deadline-preserved-REJECTED.json',{'acceptance_refused_at_original45second_deadline':True,'normal_return_eventually_observed':True,'no_force_signal_or_retry':True})\n"
+        },
+        {
+          "label": "truthful_complete_close",
+          "before": "    assert close['normal_owned_context_closed'] is True",
+          "after": "    assert close['normal_owned_context_closed'] is True\n    assert close['normal_shutdown_accepted'] is True\n    assert close['source_commit']==preflight['source_head']\n    if worker_handle is not None:worker_handle.close()"
+        }
+      ]
+    }
+  ]
+}
