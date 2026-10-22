@@ -4673,19 +4673,19 @@ Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: 
 
 Dependencias: sin dependencia declarada
 
-Cambios: Checkpoint157: migración local parcial y controles finitos.
+Cambios: Checkpoint157: migración local parcial y controles finitos.; Checkpoint158: workspace E/F y rutas de proceso; CI child TEMP y preparación portable57 integrados, sin aceptar todavía la migración completa.
 
-Commits: pendiente
+Commits: 4445adbb, 548c4555, 4bcd1576, 90ddb304, 8d249780, 52209d6b
 
-Pruebas: 32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; peer32SHAfull. CopiasE de entornos/herramientas verificadas. RoamingCOMPLETE separado3files/51111B porRoot conACKnuevo/strictabsence/fullreadbackE. Lote4175en_curso sin resultados aún.
+Pruebas: 32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; peer32SHAfull. CopiasE de entornos/herramientas verificadas. RoamingCOMPLETE separado3files/51111B porRoot conACKnuevo/strictabsence/fullreadbackE. Lote4175en_curso sin resultados aún.; Root5 childTEMP Main90ddb PASS; Main18 CI57 offline PASS y Root8 preparación real Main90ddb PASS; calidad E10 Main52209 cinco comandos0,1623fuentes/10dists/1441RECORD quietos. V3 17+11autor/6peer, todavía no aplicadoC.
 
-Evidencia: evidence/migration-c-to-e-checkpoint157-20261022/summary.json; evidence/migration-c-to-e-checkpoint157-20261022/REVIEW.md
+Evidencia: evidence/migration-c-to-e-checkpoint157-20261022/summary.json; evidence/migration-c-to-e-checkpoint157-20261022/REVIEW.md; evidence/portable-web-continuity-checkpoint158-20261022/summary.json; evidence/portable-web-continuity-checkpoint158-20261022/REVIEW.md
 
 Documentación: MIGRACION_C_E.md; NUEVOS_HALLAZGOS.md
 
 Revisión: pendiente
 
-Bloqueo: "Lote4175en_curso sin resultado aún; reparar9worktrees tras copias; fijar entornos/rutas y reanudar backlog/gates web."
+Bloqueo: "Migración restante en curso: raízNative2 aún activa, controladorV3 por revisar/aplicar, verificación agregada y9worktrees por reparar; gates web amplios y validaciones externas pendientes."
 
 Observaciones: Progreso parcial; Cfree2.255→3.462GB decimal observado, no igualar a bytes lógicos. RAW históricosCstringsintactos;9worktrees pendientes tras allcopied. Sólo web.
 

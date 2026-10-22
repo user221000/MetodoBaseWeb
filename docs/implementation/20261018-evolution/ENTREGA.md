@@ -98,3 +98,11 @@ QA-40 yQA-41 quedan verificados localmente en alcance finito:41a14autor+9peer yf
 Producto Main7023a370 sin cambios;137/quality,PG53,Native35 e imagen144/59 conservan sus fuentes y entornos anteriores. Siguen pendientes broad serial/n2/cobertura/fullscan, nueva generación/perfilPG E ycompanionsB13/R07, imagen final/SBOM/SCA vigente yRedis/carga. Pendientes externos: proveedores/custodia,retención/borrado integral,soporte,procedencia demo/cohortes,revisión legal/nutricional ypiloto5+5. Sin servicios nuevos,push,PR,despliegue,cargos ni envíos reales.
 
 Detalle y evidencia: [MIGRACION_C_E.md](MIGRACION_C_E.md), [summary](evidence/migration-c-to-e-checkpoint157-20261022/summary.json).
+
+## Checkpoint158 — continuidad parcial E/F
+
+El workspace E ya configura Python web E y temporales/cachés E en terminales nuevos del repositorio F; AGENTS.md registra las rutas. Se preservan variables globales e instalaciones compartidas. El inventario adicional de nombres en Documents/Downloads y entradas directas Local/Roaming no halló candidatos:7lstat/90nombres/3reparse omitidos, profundidad3, sin escaneo universal de C.
+
+El motor optimizado059e1a pasa17originales+11propios+6peer en fases distintas; Win55a y admisión4207 permanecen exactos. Root leyó delta/peer y preservó el MasterACK anterior mediante rename para parar sólo entre raíces, sin cortar la copia en vuelo. V3 no se ha aplicado a C y su controlador sigue pendiente. La primera raíz Native2 aún no está aceptada. Los32orígenes y Roaming del checkpoint157 conservan sus resultados. No se reescriben RAW ni se anticipa reparación de9worktrees.
+
+Root5CIchildTEMP pasa enMain90ddb; CI57 nuevo integrado enMain8d249 pasa18controles offline, y Root prepara realmente Main90ddb con493context/480APP/57dists/12inputs y8controles propios. CalidadMain52209 conTool10E pasa cinco comandos,1623fuentes/10dists/1441RECORD quietos,28Bandit/0pendientes/0errores,9negativos y6positivos. Es continuidad local comprobada, sin serial/n2 completo, SQL, VM, Docker o imagen real nuevos. [Resumen158](evidence/portable-web-continuity-checkpoint158-20261022/summary.json), [revisión](evidence/portable-web-continuity-checkpoint158-20261022/REVIEW.md).
