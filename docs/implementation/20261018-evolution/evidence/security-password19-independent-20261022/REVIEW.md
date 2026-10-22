@@ -1,0 +1,9 @@
+# Independent B19 offline password-policy review
+
+Accepted for the frozen c1226371 local change. Twelve independent cases passed using real SQLite37 migrations and both HTTP factories where mounted. They cover exact whole-value matching, preserved absent padded and Unicode values, changed-file rejection after an earlier success, one bounded read, legacy login without the setting-time corpus, six SaaS invitation validation shapes across canonical and slash paths, fixed private422 responses without DML, and the preserved API-factory404 boundary.
+
+An independent offline reconstruction read the retained public primary source:100000 UTF8/LF entries, one empty entry omitted,99999 sorted unique full SHA256 digests,3199968 bytes. The reconstructed payload and MIT license match the frozen distribution byte for byte. Commit metadata and pinned URLs are consistent; the remote origin and commit signature were not independently fetched or cryptographically reverified in this phase. All54 author archive members read back. The source's current private root has exactly two protected full-control principals and retains its historical before-payload receipt.
+
+The reader authenticates a bounded fresh byte snapshot on each setting-time validation, and missing, oversized or changed files fail closed with the fixed public message. No trimming, case folding, substring or normalization rule is added. Invitation sanitization is finite to POST accept-invite and its one-slash alias; no new API route is mounted. Static packaging paths retain the new web data, but no container image was built or inspected here.
+
+No new defect was confirmed. The author's pre-fix common-password and invitation-reflection failures remain historical; this peer did not silently rerun or rewrite them. Twelve own cases and the provenance reconstruction do not assert a new global NIST compliance, complete CI/release acceptance, PostgreSQL, provider or production-policy rollout.
