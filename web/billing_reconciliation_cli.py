@@ -5,15 +5,20 @@ import logging
 from pathlib import Path
 
 
+class ReconciliationArgumentParser(argparse.ArgumentParser):
+    def error(self, _message):
+        raise ValueError("Invalid reconciliation arguments")
+
+
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Reconcile only resources from a private operator manifest")
+    parser = ReconciliationArgumentParser(description="Reconcile only resources from a private operator manifest")
     parser.add_argument("--manifest", required=True)
     parser.add_argument("--apply", action="store_true", help="Read provider truth and commit; default is local plan only")
     parser.add_argument("--max-items", type=int, default=25)
     parser.add_argument("--deadline-seconds", type=float, default=60)
     parser.add_argument("--cursor")
-    args = parser.parse_args(argv)
     try:
+        args = parser.parse_args(argv)
         from web.services.billing_reconciliation import MAX_MANIFEST_BYTES, run
         with Path(args.manifest).open("rb") as source:
             manifest = source.read(MAX_MANIFEST_BYTES + 1)
