@@ -88,7 +88,10 @@ class ReadOnlyProviders:
         try:
             options = RequestOptions(connection_timeout=timeout, max_retries=0)
             sdk = mercadopago.SDK(self.settings.MERCADOPAGO_ACCESS_TOKEN, request_options=options)
-            return getattr(sdk.payment(), operation)(value, request_options=options)
+            result = getattr(sdk.payment(), operation)(value, request_options=options)
+            if not isinstance(result, dict) or result.get("status") != 200:
+                raise RetryableRead("Provider unavailable")
+            return result
         except Exception as error:  # noqa: BLE001 -- SDK errors can contain credentials/provider payloads.
             logger.warning("reconciliation_provider_unavailable class=%s", type(error).__name__)
             raise RetryableRead("Provider unavailable") from None

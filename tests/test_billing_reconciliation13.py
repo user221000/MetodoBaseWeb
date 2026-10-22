@@ -501,3 +501,54 @@ def test_manifest_hundred_resource_bound_and_page_limit(billing_case):
     document["resources"].append({**original, "resource_id": case.subscription + 100})
     with pytest.raises(ValueError):
         service.run(json.dumps(document).encode(), factory=lambda: pytest.fail("Over-budget selection opened DB"))
+
+
+@pytest.mark.parametrize("source", ["stripe_checkout", "stripe_elements", "mp_preference"])
+@pytest.mark.parametrize("changed_read", [1, 2], ids=["first-canonical-read", "locked-canonical-read"])
+def test_selected_intent_cannot_drift_to_another_purchase_by_same_actor(billing_case, source, changed_read):
+    case = billing_case
+    reader = ProviderFacts(case)
+    other = str(uuid.uuid4())
+    is_mp = source == "mp_preference"
+    provider = "mercadopago" if is_mp else "stripe"
+    with case.factory() as db:
+        intent = db.get(PurchaseIntent, case.intent)
+        intent.provider = provider
+        intent.operation = "preference" if is_mp else "checkout" if source == "stripe_checkout" else "elements"
+        intent.provider_reference_id = "pref_b13" if is_mp else "cs_b13" if source == "stripe_checkout" else case.reference
+        if is_mp:
+            sub = db.get(Subscription, case.subscription)
+            sub.provider, sub.provider_payment_id = provider, case.payment
+            sub.stripe_subscription_id = sub.stripe_customer_id = None
+        db.add(PurchaseIntent(id=other, subject_id=case.subject, provider=provider, operation="preference" if is_mp else "elements",
+            plan="pro_usuario", amount_cents=case.amount, currency="mxn", request_key=uuid.uuid4().hex,
+            status="provider_created", provider_reference_id="pref_other" if is_mp else case.reference,
+            provider_customer_id=case.customer))
+        db.commit()
+    count = [0]
+    original = reader.get if is_mp else reader.subscription
+    def drift(reference, **kwargs):
+        count[0] += 1
+        response = original(reference, **kwargs)
+        if count[0] == changed_read:
+            snapshot = response["response"] if is_mp else response
+            snapshot["metadata"]["purchase_intent_id"] = other
+            if is_mp:
+                snapshot["external_reference"] = other
+        return response
+    if is_mp:
+        reader.get = drift
+    else:
+        reader.subscription = drift
+    before = facts(case)
+    result = apply(case, reader, manifest(case, kind="purchase_intent", provider=provider))
+    assert result["manual"] == 1 and result["reconciled"] == 0 and facts(case) == before
+    with case.factory() as db:
+        assert db.get(PurchaseIntent, other).status == "provider_created"
+
+
+def test_selected_elements_intent_accepts_its_own_resource(billing_case):
+    case = billing_case
+    result = apply(case, ProviderFacts(case), manifest(case, kind="purchase_intent"))
+    assert result["reconciled"] == 1 and result["manual"] == 0
+    assert facts(case)["subscription"][1] == "active"

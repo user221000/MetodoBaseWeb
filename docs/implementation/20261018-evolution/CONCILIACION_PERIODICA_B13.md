@@ -28,6 +28,8 @@ Stripe usa suscripción persistida o recupera el Checkout Session exacto del int
 
 MercadoPago distingue preferenceID de paymentID. Una preferencia de intent persistido busca sólo `external_reference=intent.id` con limit11/offset0; requiere paging completo y máximo10resultados. Cero es pendiente; dos o más IDs son ambiguos y no se elige por orden/status. Únicamente un resultado con referencia exacta puede pasar a `get`/conciliador, que revalida ID, intent, subject, moneda, importe y fecha actuales bajo lock. Sin referencia persistida, datos legacy ambiguos o recursos no reconciliables no se crean/adivinan cobros ni derechos: se reporta manual.
 
+Cuando el manifiesto selecciona una PurchaseIntentA, cada lectura canónica de suscripción/pago queda vinculada a esa misma A, además del sujeto y recurso. Checkout/searchA no autorizan reparar una intenciónB del mismo actor. La comprobación se repite en la segunda lectura bajo lock y un desvío revierte el recurso completo. Se conserva el canario independiente Root1196 con2RED de este borde y2controles legítimosPASS; su archivo literal no se modifica.
+
 El replay conserva derechos, periodo, cuotas consumidas, Payment y procedencia. Los `updated_at` operativos que ya actualizan los servicios compartidos pueden cambiar; no se modificaron esas tres funciones para forzar igualdad temporal.
 
 ## Programación externa y fuentes

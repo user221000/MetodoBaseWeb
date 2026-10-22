@@ -175,7 +175,44 @@ def _payment_search(reader, intent):
     return _payment_id(values[0].get("id"))
 
 
+class SelectedIntentReads:
+    """Every canonical read must remain within the exact selected purchase.
+
+    Matching only its actor would allow checkout/search for A to reconcile B
+    belonging to that same actor. The guard is repeated on the fresh read
+    under the existing reconciler's account lock, not just on discovery.
+    """
+    def __init__(self, reader, intent_id):
+        self.reader = reader
+        self.intent_id = intent_id
+
+    def subscription(self, reference, *, expand):
+        snapshot = self.reader.subscription(reference, expand=expand)
+        metadata = snapshot.get("metadata") or {}
+        if snapshot.get("id") != reference or metadata.get("purchase_intent_id") != self.intent_id:
+            raise ManualReconciliation("Resource unavailable for automatic reconciliation")
+        return snapshot
+
+    def charge(self, reference):
+        return self.reader.charge(reference)
+
+    def payment(self):
+        return self
+
+    def get(self, reference):
+        result = self.reader.payment().get(reference)
+        if result.get("status") != 200:
+            raise RetryableRead("Provider unavailable")
+        snapshot = result.get("response") or {}
+        metadata = snapshot.get("metadata") or {}
+        if (str(snapshot.get("id")) != str(reference) or snapshot.get("external_reference") != self.intent_id
+                or metadata.get("purchase_intent_id") not in {None, self.intent_id}):
+            raise ManualReconciliation("Resource unavailable for automatic reconciliation")
+        return result
+
+
 def _apply(db, item, row, reference, reader):
+    canonical = SelectedIntentReads(reader, row.id) if isinstance(row, PurchaseIntent) else reader
     if item["provider"] == "stripe":
         from web.services.stripe_service import reconcile_subscription
         if isinstance(row, PurchaseIntent) and row.operation == "checkout" and row.status in {"pending", "provider_created"}:
@@ -185,7 +222,7 @@ def _apply(db, item, row, reference, reader):
         elif isinstance(row, PurchaseIntent) and row.operation not in {"checkout", "elements"}:
             raise ManualReconciliation("Resource unavailable for automatic reconciliation")
         try:
-            reconcile_subscription(db, reference, item["subject_id"], fetch_subscription=reader.subscription, fetch_charge=reader.charge)
+            reconcile_subscription(db, reference, item["subject_id"], fetch_subscription=canonical.subscription, fetch_charge=canonical.charge)
         except ValueError:
             raise ManualReconciliation("Resource unavailable for automatic reconciliation") from None
         return "reconciled"
@@ -197,7 +234,7 @@ def _apply(db, item, row, reference, reader):
         if reference is None:
             return "pending"
     try:
-        reconcile_payment(db, _payment_id(reference), sdk=reader)
+        reconcile_payment(db, _payment_id(reference), sdk=canonical)
     except ValueError:
         raise ManualReconciliation("Resource unavailable for automatic reconciliation") from None
     return "reconciled"
