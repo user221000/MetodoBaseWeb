@@ -100,6 +100,11 @@ def pytest_gate(private, environment, suite):
         selectors = [SMOKE_SELECTORS[5], "-p", "tests.ci_web37.composition", "--web37-current-fixtures"]
     if suite == "controls":
         selectors = list(CONTROL_SELECTORS)
+    if suite == "storage-sdk":
+        selectors = ["tests/integration_object_store_configuration.py",
+                     "tests/integration_object_store_configuration_review.py",
+                     "tests/integration_object_storage_sdk.py", "-p", "tests.ci_web37.composition",
+                     "--web37-current-fixtures", "-p", "tests.ci_web37.scope"]
     if suite == "node-controls":
         selectors = ["tests/test_ci_web37_node_current.py", "-p", "tests.ci_web37.composition",
                      "--web37-current-fixtures", "-p", "tests.ci_web37.scope"]
@@ -280,9 +285,41 @@ def current_node_gate(private, environment):
             "native_browser_executed": False, "read_Git_transports": "finite_RAW_fixtures_no_child_process"}
 
 
+def additional_node_gate(private, environment):
+    from core.routine_catalog import get_routine_program
+    from tests.ci_web37.node_current import require_additional_sources, validate_additional
+    mapping = json.loads((ROOT / "tests/ci_web37/node-routines-onboarding.json").read_bytes())
+    commands = require_additional_sources(ROOT, mapping)
+    catalogue = private / "current-generic-catalogue.json"
+    write(catalogue, {"version": 1, "scope": "gym", "program": get_routine_program()})
+    environment = dict(environment, ROUTINE_CATALOG_FIXTURE=str(catalogue))
+    environment.pop("ROUTINES_AUTH_GUARD_SOURCE", None)
+    results = []
+    for index, entry in enumerate(commands):
+        path = private / ("node-additional-" + str(index + 1) + ".private.json")
+        argv = [shutil.which("node"), "--require", str(ROOT / "tests/e2e/ci_web37_offline.cjs"), entry["script"]]
+        code = execute(argv, ROOT, environment, path, timeout=300)
+        passed, valid = 0, False
+        if code == 0:
+            try:
+                passed = validate_additional(path.read_bytes(), entry, ROOT)
+                valid = True
+            except (ValueError, TypeError):
+                valid = False
+        results.append({"command": entry["script"], "exit": code, "cases": passed,
+                        "exact_original_criteria": valid})
+    require_additional_sources(ROOT, mapping)
+    write(private / "node-additional-observation.json", results)
+    return {"commands": len(results), "executions": sum(row["cases"] for row in results),
+            "legacy51_and_current13_repeated": 0, "bound_direct_transitive_files": len(mapping["input_files"]),
+            "accepted": all(row["exit"] == 0 and row["exact_original_criteria"] for row in results),
+            "native_browser_executed": False, "source_bound_counter_pair": 2,
+            "read_Git_transports": "finite_RAW_fixture_no_child_process"}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
-    parser.add_argument("--suite", choices=("serial", "parallel", "node", "node-current", "node-controls", "pg-controls", "pg-lease-controls", "r05-history-controls", "r05-history", "r31-current", "image-controls", "legacy-current", "registry-controls", "release-controls",
+    parser.add_argument("--suite", choices=("serial", "parallel", "node", "node-current", "node-routines-onboarding", "storage-sdk", "node-controls", "pg-controls", "pg-lease-controls", "r05-history-controls", "r05-history", "r31-current", "image-controls", "legacy-current", "registry-controls", "release-controls",
                                           "history35", "smoke", "control", "controls"), required=True)
     parser.add_argument("--private", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -324,6 +361,8 @@ def main():
             observation = r05_history_gate(private, environment)
         elif args.suite == "node-current":
             observation = current_node_gate(private, environment)
+        elif args.suite == "node-routines-onboarding":
+            observation = additional_node_gate(private, environment)
         elif args.suite == "node":
             observation = node_gate(private, environment)
         else:
