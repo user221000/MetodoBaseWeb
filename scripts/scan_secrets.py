@@ -38,6 +38,40 @@ def _assert_windows_acl(control: int, entries: list, sid: str) -> None:
         raise OSError("Private DACL principals, full-control rights or inheritance differ")
 
 
+def _set_windows_private_acl(path: Path, sid: str) -> None:
+    """Replace the fresh directory DACL; grants alone retain explicit ACEs."""
+    import ctypes
+    from ctypes import wintypes
+
+    api = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    pointer = ctypes.c_void_p
+    api.ConvertStringSecurityDescriptorToSecurityDescriptorW.argtypes = [
+        wintypes.LPCWSTR, wintypes.DWORD, ctypes.POINTER(pointer), pointer]
+    api.ConvertStringSecurityDescriptorToSecurityDescriptorW.restype = wintypes.BOOL
+    api.GetSecurityDescriptorDacl.argtypes = [pointer, ctypes.POINTER(wintypes.BOOL),
+        ctypes.POINTER(pointer), ctypes.POINTER(wintypes.BOOL)]
+    api.GetSecurityDescriptorDacl.restype = wintypes.BOOL
+    api.SetNamedSecurityInfoW.argtypes = [wintypes.LPWSTR, wintypes.DWORD, wintypes.DWORD,
+        pointer, pointer, pointer, pointer]
+    api.SetNamedSecurityInfoW.restype = wintypes.DWORD
+    kernel.LocalFree.argtypes = [pointer]
+    kernel.LocalFree.restype = pointer
+    descriptor, acl = pointer(), pointer()
+    if not api.ConvertStringSecurityDescriptorToSecurityDescriptorW(
+            f"D:P(A;OICI;FA;;;{sid})(A;OICI;FA;;;SY)", 1, ctypes.byref(descriptor), None):
+        raise OSError("Cannot construct private DACL")
+    try:
+        present, defaulted = wintypes.BOOL(), wintypes.BOOL()
+        if (not api.GetSecurityDescriptorDacl(descriptor, ctypes.byref(present),
+                ctypes.byref(acl), ctypes.byref(defaulted)) or not present or not acl
+                or api.SetNamedSecurityInfoW(str(path), 1, 0x80000004,
+                    None, None, acl, None) != 0):
+            raise OSError("Cannot establish private DACL")
+    finally:
+        kernel.LocalFree(descriptor)
+
+
 def _verify_private_boundary(path: Path, sid: str | None) -> None:
     if os.name != "nt":
         if path.stat().st_mode & 0o777 != 0o700 or path.stat().st_uid != os.getuid():
@@ -108,8 +142,7 @@ def _private_evidence(requested: Path | None) -> Path:
             identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"],
                 capture_output=True, text=True, check=True).stdout
             sid = next(csv.reader(io.StringIO(identity)))[1]
-            subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r",
-                "*" + sid + ":(OI)(CI)F", "*S-1-5-18:(OI)(CI)F"], capture_output=True, check=True)
+            _set_windows_private_acl(path, sid)
         else:
             path.chmod(0o700)
         _verify_private_boundary(path, sid)
