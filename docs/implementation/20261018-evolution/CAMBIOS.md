@@ -387,3 +387,7 @@ B19/B20 integrados y82replays de composición aceptados. Nuevo bloqueo de contra
 ## Checkpoint156 — 2026-10-22
 
 Integrados B13 y R07/B11 como herramientas explícitas del operador, sin nuevos endpoints ni DDL. QA36–39 verificadas localmente con fallos previos preservados. El CLI de archivos históricos pasa a formar parte de lint/syntax/SAST mantenidos; sus dos diagnósticos LOW B404/B603 son invocación Git fija revisada, sin shell ni argumentos privados. No se añadió baseline/ignore ni aceptación de riesgo real.
+
+## Checkpoint157 — 2026-10-22
+
+Sólo documentación de progreso y tres criterios nuevos: R37 en_curso, QA-40/41 verificados localmente en sus scopes finitos;159criterios anteriores y92IDs intactos. Herramientas de migración viven en E y no se incorporan como runtime de aplicación. Main7023a370 permanece sin cambios de producto. Primer32orígenes C retirados bajo autorización Root; lote4175en_curso sin resultados. Roaming retirado porRoot en operación separadaCOMPLETE3files/51111B. No se reescriben RAW históricos ni se añaden cambios desktop.

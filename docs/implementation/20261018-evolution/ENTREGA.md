@@ -1,12 +1,14 @@
 # Entrega candidata en curso
 
-Checkpoint156 local:159 criterios exactos, incluidos92 originales;58 verificados por fuente y alcance. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes diarios totales y20 mensuales. Rediseño deportivo conservando la paleta de landing y panel Push/Pull/Legs implementados y verificados localmente.
+Checkpoint157 local:162 criterios exactos, incluidos los159 anteriores y92 IDs originales;60 verificados por fuente y alcance. Sólo servicio web. Free:10clientes,1plan por cliente al día,10planes diarios totales y20mensuales. Por instrucción del usuario, se migra el proyecto de C a E y se continúa en E/F para retomar el backlog web.
 
-Main08d26370 integra conciliación B13 y apply histórico R07/B11, revisados por agentes distintos del autor y Root. Gate conjunto137/137 PASS,0fallos/errores/skips en69.03s, fuente/WEB92/Node quietos. Conserva74 casos B13 (48autor+6CLI+10Root+10seguridad),48 R07 (39autor+9peer) y15 regresiones billing. QA36–39 formalizan selección exacta, ownership de Session, fuente Git propia y errores CLI privados. Se conservan RED previos; los58 criterios locales no significan cierre global ni despliegue.
+Migración parcial:32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; Artifact verificó32destinos con SHA completo y ausencia de sus fuentes. C libre observado2.255→3.462GB decimales. El lote4175restante acaba de iniciar,sin resultados disponibles. BaseE,WEB92,quality10 nuevo offline y herramientas/launcher están copiados y verificados; Root retiró Roaming conACKnuevo,COMPLETE3files/51111B,strictabsence yfullreadback fresco E, separado deCTemp. Reparar9worktrees C tras todas las copias. No eliminar instalaciones compartidas ni reescribir RAW históricos; usar mapping operativo E/F.
 
-B13 y R07/B11 permanecen en revisión para PostgreSQL y operación real. No se programó cron, adoptaron archivos reales ni consultaron proveedores. B19/B20 conservan82/82 integrados previos y sus límites; imagen144/59, PG53 y Native35 mantienen fuentes anteriores. Se prepara CI57 portable y TEMP privado en F sólo para el proceso hijo, sin alterar aislamiento ni entorno global.
+QA-40 yQA-41 quedan verificados localmente en alcance finito:41a14autor+9peer yfirst32real32peer;34ad3literalesRoot+7peer. El outside8782 fue sintéticoE,C0.608RED1P2F se conserva; d8metadata0P3F rechazado por mock evadido(Path.lstat→os.stat), sin atribuirlo a un fallo real FS. Artifact fij? los26 archivos del peer mediante freeze.json SHA6c149f636d4a343b9460f308ee58bfa506541741a4df19f616e4772654f16946; resultado7/7 SHA57dd340c5835ed93770dac48d53e3fdfead6e073b4caff9c267ca1a8d0551260. WinAPI55aigual608 y capacidad8193 anterior, sin nuevo stress.
 
-Pendientes locales: gates amplios serial/n2/cobertura de fuente final, fullscan completo, composición PostgreSQL nueva, imagen final, SBOM/SCA vigente y Redis/carga. Se recupera espacio con respaldos RAW verificados y sparse de Docs propios cerrados; VM apagada, originales del usuario y servicios ajenos intactos. Pendientes externos: proveedores/custodia, retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional y piloto5+5. Sin push, PR, despliegue, cargos ni envíos reales.
+Producto Main7023a370 sin cambios;137/quality,PG53,Native35 e imagen144/59 conservan sus fuentes y entornos anteriores. Siguen pendientes broad serial/n2/cobertura/fullscan, nueva generación/perfilPG E ycompanionsB13/R07, imagen final/SBOM/SCA vigente yRedis/carga. Pendientes externos: proveedores/custodia,retención/borrado integral,soporte,procedencia demo/cohortes,revisión legal/nutricional ypiloto5+5. Sin servicios nuevos,push,PR,despliegue,cargos ni envíos reales.
+
+Detalle y evidencia: [MIGRACION_C_E.md](MIGRACION_C_E.md), [summary](evidence/migration-c-to-e-checkpoint157-20261022/summary.json).
 
 ## Observaciones históricas por fuente
 
@@ -83,3 +85,16 @@ Main08d26370 integra conciliación B13 y apply histórico R07/B11, revisados por
 B13 y R07/B11 permanecen en revisión para PostgreSQL y operación real. No se programó cron, adoptaron archivos reales ni consultaron proveedores. B19/B20 conservan82/82 integrados previos y sus límites; imagen144/59, PG53 y Native35 mantienen fuentes anteriores. Se prepara CI57 portable y TEMP privado en F sólo para el proceso hijo, sin alterar aislamiento ni entorno global.
 
 Pendientes locales: gates amplios serial/n2/cobertura de fuente final, fullscan completo, composición PostgreSQL nueva, imagen final, SBOM/SCA vigente y Redis/carga. Se recupera espacio con respaldos RAW verificados y sparse de Docs propios cerrados; VM apagada, originales del usuario y servicios ajenos intactos. Pendientes externos: proveedores/custodia, retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional y piloto5+5. Sin push, PR, despliegue, cargos ni envíos reales.
+
+
+## Checkpoint157
+
+Checkpoint157 local:162 criterios exactos, incluidos los159 anteriores y92 IDs originales;60 verificados por fuente y alcance. Sólo servicio web. Free:10clientes,1plan por cliente al día,10planes diarios totales y20mensuales. Por instrucción del usuario, se migra el proyecto de C a E y se continúa en E/F para retomar el backlog web.
+
+Migración parcial:32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; Artifact verificó32destinos con SHA completo y ausencia de sus fuentes. C libre observado2.255→3.462GB decimales. El lote4175restante acaba de iniciar,sin resultados disponibles. BaseE,WEB92,quality10 nuevo offline y herramientas/launcher están copiados y verificados; Root retiró Roaming conACKnuevo,COMPLETE3files/51111B,strictabsence yfullreadback fresco E, separado deCTemp. Reparar9worktrees C tras todas las copias. No eliminar instalaciones compartidas ni reescribir RAW históricos; usar mapping operativo E/F.
+
+QA-40 yQA-41 quedan verificados localmente en alcance finito:41a14autor+9peer yfirst32real32peer;34ad3literalesRoot+7peer. El outside8782 fue sintéticoE,C0.608RED1P2F se conserva; d8metadata0P3F rechazado por mock evadido(Path.lstat→os.stat), sin atribuirlo a un fallo real FS. Artifact fij? los26 archivos del peer mediante freeze.json SHA6c149f636d4a343b9460f308ee58bfa506541741a4df19f616e4772654f16946; resultado7/7 SHA57dd340c5835ed93770dac48d53e3fdfead6e073b4caff9c267ca1a8d0551260. WinAPI55aigual608 y capacidad8193 anterior, sin nuevo stress.
+
+Producto Main7023a370 sin cambios;137/quality,PG53,Native35 e imagen144/59 conservan sus fuentes y entornos anteriores. Siguen pendientes broad serial/n2/cobertura/fullscan, nueva generación/perfilPG E ycompanionsB13/R07, imagen final/SBOM/SCA vigente yRedis/carga. Pendientes externos: proveedores/custodia,retención/borrado integral,soporte,procedencia demo/cohortes,revisión legal/nutricional ypiloto5+5. Sin servicios nuevos,push,PR,despliegue,cargos ni envíos reales.
+
+Detalle y evidencia: [MIGRACION_C_E.md](MIGRACION_C_E.md), [summary](evidence/migration-c-to-e-checkpoint157-20261022/summary.json).

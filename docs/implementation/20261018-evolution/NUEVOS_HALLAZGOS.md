@@ -409,3 +409,21 @@ Problema: argparse procesaba int/float fuera de la frontera opaca del CLI y refl
 Criterio: Rechazar argumentos de consola inválidos sin reflejar valores, rutas ni detalle interno en stdout/stderr; devolver64 con el JSON fijo reconciliation_invalid_input. Mantener --help con salida0 sin abrir manifiesto ni importar base de datos y conservar canarios independientes literales RED/PASS.
 
 Revisión: Seguridad independiente conservó2RED/1control; autor preservó5RED/1help y6PASS. Root revisó el fix y ejecutó literalmente los3 de seguridad dentro del gate137. Son fases distintas, sin sumar replays como nuevos criterios.
+
+## Checkpoint157 — 2026-10-22
+
+### QA-40 — Identidad del destino durante copia/ACL/readback
+
+Problema: La herramienta8782 permitía sustituir la identidad destino entre create/ACL/reopen y sobrescribir un outside sintético en E. No afectó fuentes C: C0. El resultado RED original permanece intacto.
+
+Criterio: Mantener la identidad CREATE_NEW del destino desde la instalación y lectura de su DACL hasta escritura, fsync, SHA completo y retirada fuente; conservar el mismo HANDLE/FD y no reabrir por ruta para escribir payload. Conservar la sustitución de identidad sintética original, validar rechazos y ciclo normal/error con revisión independiente, sin atribuir el outside de E a datos reales C ni inferir aceptación de todas las raíces.
+
+Revisión:41a14autorPASS y9peerPASS en fases separadas; first32real32Rootaceptadas y32peerfullreadback. El peer no repitió literalmente la sustitución8782; observó los mismos descriptores/identidades y errores acotados. No se afirma ausencia global de carreras ni aceptación de4207raíces.
+
+### QA-41 — Ausencia estricta y propagación de errores de metadatos
+
+Problema:608usaba os.path.lexists y convertía PermissionError/OSError31 de os.lstat simulado en False:1PASS/2FAIL. No es evidencia de fallo real del sistema de archivos.
+
+Criterio: Decidir ausencia mediante os.lstat directo y devolver False sólo ante FileNotFoundError; propagar PermissionError y cualquier otro OSError. Conservar los canarios literales con os.lstat simulado, su RED original y los intentos de transporte rechazados; verificar las tres ramas y el ciclo finito de la herramienta sin afirmar un fallo real del sistema de archivos ni trasladar capacidad histórica a una fuente nueva.
+
+Revisión:34adstrictos.lstat pasa3Rootliterales y7peer pequeños E. d8metadata0PASS/3FAIL/0mockcalls quedó rechazado porque Path.lstat invocó os.stat; no aceptar sus booleanos de no acceso FS ni atribuir C. WinAPI55aigual608; capacidad8193de fuente anterior no reejecutada. SHAarchivo sellado Artifact pendiente; resultados/review/freeze concretos sí disponibles. Evidencia [curada](evidence/migration-c-to-e-checkpoint157-20261022/summary.json), sin reescribir RAW.

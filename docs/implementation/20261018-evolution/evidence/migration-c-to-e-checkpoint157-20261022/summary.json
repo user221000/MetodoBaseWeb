@@ -1,0 +1,208 @@
+{
+  "checkpoint": 157,
+  "date": "2026-10-22",
+  "scope": "Servicio web exclusivamente; migración local parcial C→E y continuidad E/F.",
+  "application_HEAD": "7023a370e52b0d420c7bc1fa1bbbd6ba2b53dbb9",
+  "application_code_changed": false,
+  "ledger_before": 159,
+  "original_IDs": 92,
+  "ledger_after": 162,
+  "verified_local_after": 60,
+  "new_IDs": [
+    "R37",
+    "QA-40",
+    "QA-41"
+  ],
+  "migration": {
+    "inventory_base_from_Root_coordination": {
+      "roots": 4207,
+      "regular_files": 438581,
+      "logical_bytes": 24415403485
+    },
+    "first32": {
+      "accepted_roots": 32,
+      "regular_files": 206,
+      "logical_bytes": 1206712194,
+      "peer_readback_roots": 32,
+      "peer_has_no_historical_source_payload_after_retirement": true
+    },
+    "remaining_roots": 4175,
+    "C_free_bytes_before": 2255372288,
+    "C_free_bytes_after": 3462336512,
+    "free_space_is_observation_not_logical_byte_equality": true,
+    "complete": false,
+    "base_WEB92_quality10_portable_tools_ready": true,
+    "Roaming_retirement": {
+      "completed_by_Root": true,
+      "files": 3,
+      "bytes": 51111,
+      "fresh_lstat_absence_and_full_target_readback": true,
+      "separate_from_CTemp_4207_inventory": true
+    },
+    "bulk4175": {
+      "state": "en_curso",
+      "results_not_yet_available": true,
+      "bundle_prefix": "34ad362a",
+      "Root_controller_prefix": "4797407c",
+      "peer_controller_prefix": "73f21403"
+    },
+    "C_worktrees_pending_repair_after_all_copies": 9,
+    "shared_C_installations_not_to_be_deleted": true,
+    "historical_RAW_C_paths_not_rewritten": true
+  },
+  "QA40": {
+    "old_bundle": "8782bd265c4831e46aa18b129d29f8b7c85130043dc92d0f36ad65cd74dc8b57",
+    "defect": "Sustitución de identidad destino después de ACL antes de reopen; outside sintético E sobrescrito.",
+    "real_C_affected": 0,
+    "accepted_bundle": "41a503cc08d01c4ee8033a775034d26a005bd4874176c72f619daad2dd1395a3",
+    "author": {
+      "passed": 14,
+      "failed": 0
+    },
+    "independent": {
+      "passed": 9,
+      "failed": 0
+    },
+    "first32_real": {
+      "accepted": 32,
+      "peer_readback": 32
+    },
+    "phases_are_not_one_suite": true,
+    "old_literal_red_preserved_not_claimed_replayed": true,
+    "global_race_or_full_inventory_acceptance": false
+  },
+  "QA41": {
+    "old_bundle": "608cc21deb99085e0139b6b851bc8e43bd35a352403674531e8ead985fb5f502",
+    "old_mock_gate": {
+      "passed": 1,
+      "failed": 2
+    },
+    "defect": "os.path.lexists traducía PermissionError/OSError31 a False en os.lstat simulado.",
+    "rejected_d8": {
+      "passed": 0,
+      "failed": 3,
+      "mock_calls_per_case": 0,
+      "reason": "Path.lstat usó os.stat en este Python y evadió el os.lstat simulado; metadata no aceptada, sin C.",
+      "no_real_filesystem_access_boolean_not_accepted_as_evidence": true
+    },
+    "accepted_bundle": "34ad362a511ba0d440f84899b4d805f8561b5aef88801f3b0dd3b1b68055a569",
+    "root_literal": {
+      "passed": 3,
+      "failed": 0,
+      "mock_calls_per_case": 1
+    },
+    "independent_finite": {
+      "passed": 7,
+      "failed": 0
+    },
+    "strict_absence": "os.lstat; sólo FileNotFoundError devuelve False; otros errores se propagan.",
+    "no_real_filesystem_failure_claimed": true,
+    "WinAPI_55a_bytes_unchanged_from_608": true,
+    "capacity8193_is_previous_author_source_not_rerun_or_new_stress": true,
+    "independent_freeze_SHA256": "6c149f636d4a343b9460f308ee58bfa506541741a4df19f616e4772654f16946",
+    "independent_result_SHA256": "57dd340c5835ed93770dac48d53e3fdfead6e073b4caff9c267ca1a8d0551260"
+  },
+  "environments": {
+    "base_WEB92": "Copias completas verificadas; sólo cfg activo WEB92 ajustado a E;92 RECORD intactos.",
+    "quality10": "Entorno E nuevo offline desde10 RECORD de WEB92; no reparación ni igualdad con Tool10 C incompleto83archivos de causa desconocida.",
+    "portable_tools": "PG17 bin/lib/share, Node y uv; launcher sólo proceso; sin arrancar servicios.",
+    "launcher_limitations": [
+      "WindowsPowerShell5.1 omite argumentos nativos vacíos.",
+      "LICENSE Node no localizado en candidatos fuente.",
+      "OpsCI observó rechazo de invocación directa por ExecutionPolicy del host; mantener política global y usar entorno E explícito o hijo powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass sólo para ese proceso confiable. Los10PASS conservan comandos hijos exactos, sin afirmar & directo universal."
+    ]
+  },
+  "prior_gates": "137/quality,PG53,Native35,imagen144/59 conservan sus fuentes y entornos anteriores; no reejecutados ni trasladados a este checkpoint.",
+  "remaining": [
+    "Migrar4175raíces restantes con control y presupuesto propios.",
+    "Reparar9worktrees C tras todas las copias y adaptar rutas operativas mediante mapping.",
+    "Conservar recibos Roaming COMPLETE separados del loteCTemp.",
+    "Nuevo PostgreSQL E/perfil/generación y companions B13/R07.",
+    "Gates amplios serial/n2/cobertura y fullscan completos de fuente final.",
+    "Imagen final,SBOM/SCA con DB vigente y Redis/carga.",
+    "Validaciones externas de proveedores,custodia,retención,soporte,procedencia,demo/cohortes,legal/nutrición y piloto5+5."
+  ],
+  "evidence_policy": "Resumen curado a partir de metadatos locales exactos; no copia ni reescritura RAW y no nueva ejecución de gates.",
+  "sources": {
+    "qa40_red": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\peer-ops27-8782-20261022\\destination-identity-race-result.json",
+      "sha256": "f025a6230a377c80cb343b2794fb135f9fc4b382213454a08e11be24d879e7d1"
+    },
+    "qa40_author14": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\fixture-report-cb772a087b3344d3821e75ea5f1c5b8b\\result.json",
+      "sha256": "46ffe6dfc284a6227de774330c5771ea9a56472d8b6413221dae95c10fc12941"
+    },
+    "qa40_peer9": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\peer-ops27-41a503-20261022\\independent-result.json",
+      "sha256": "f8f24309a30f0e332b1e033e6a101b71058475bff50670e156aff9874d0d5611"
+    },
+    "first32_root": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\root-first32-41a503-v1\\summary.json",
+      "sha256": "031d0a4bf9c5fca3698b2c236a95633dc68d969c15b7f370097000dc52a184e6"
+    },
+    "first32_peer": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\peer-ops27-first32-readback-20261022\\verification-v2.json",
+      "sha256": "6aef2c56bac647be608137da739e8730922a6a9e351f6bde20da49ada7e25508"
+    },
+    "qa41_red608": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\native-v2\\peer-ops27-608cc21d-20261022\\metadata-error-result.json",
+      "sha256": "6c14f0a853dbde54d6632c185a756c7b212b81d838cfe047e2d0ad9222d91817"
+    },
+    "qa41_rejected_d8": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\native-v2\\root-metadata-error-d8bcc2-v1\\metadata-error-result.json",
+      "sha256": "a5c11d19ae431f18c632ddecc368faea8a3e2b08ad4ca8889b86387c053a64fc"
+    },
+    "qa41_rejected_d8_manifest": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\native-v2\\root-frozen-d8bcc2-v1\\manifest.json",
+      "sha256": "9b034cf25a1afd1f4bf50dab15ebff08ee5f0fd2c93d3bb5c4aa1842dd97214b"
+    },
+    "qa41_root34ad": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\native-v2\\root-metadata-error-34ad-v1\\metadata-error-result.json",
+      "sha256": "0dc91440d4afca2b54371c213bd03e4bfc8d15e6e0a7b002e66bbd96253286ff"
+    },
+    "qa41_peer7": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\native-v2\\peer-ops27-native-functional-20261022\\functional-result.json",
+      "sha256": "57dd340c5835ed93770dac48d53e3fdfead6e073b4caff9c267ca1a8d0551260"
+    },
+    "qa41_peer_review": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\native-v2\\peer-ops27-native-functional-20261022\\review.json",
+      "sha256": "2739c129c84c10439564c425795e0941c77a8bc830d1c67e259cce2b16a3ae71"
+    },
+    "qa41_peer_freeze": {
+      "private_path": "E:\\MetodoBaseWorkspace\\migration-20261022\\native-v2\\peer-ops27-native-functional-20261022\\freeze.json",
+      "sha256": "6c149f636d4a343b9460f308ee58bfa506541741a4df19f616e4772654f16946"
+    },
+    "base_web92_copy": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\env-copy-backend-20261022\\public-summary.json",
+      "sha256": "c400fe0a66776a7dd6023e650a3ceacc21cfff50310636ab379430073eba23d4"
+    },
+    "quality10_new": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\quality10-assemble-backend-20261022\\public-summary.json",
+      "sha256": "f13635de45aaf714b47c106fc00bab452ccd9d827712f41cc8718ab93d3554a5"
+    },
+    "portable_tools": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\portable-tools-backend-20261022\\public-summary.json",
+      "sha256": "6961f7d688c7d899c23f1bc8d5668c1efdb3cc7b2a5a3954ca3acae138f14d37"
+    },
+    "appdata_copy": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\appdata-copy-backend-20261022\\public-summary.json",
+      "sha256": "5c87e11ba7643146d95f49f973a27e6fb14889b847e137e18e16ec26f2fb5db2"
+    },
+    "original_request_copy": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\original-request-copy-backend-20261022\\public-summary.json",
+      "sha256": "4c720e2b0d275597d271ce3a6016adec0b8c22408bcc1c1e85d627b1efba78a4"
+    },
+    "appdata_retire_prepare": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\appdata-retirement-prepare-backend-20261022\\execution-result.json",
+      "sha256": "99f608c6abb29e0ce9e990d9aa402697dbb66a7109642623edd2a6ad8a763793"
+    },
+    "appdata_retire_root": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\appdata-retirement-prepare-backend-20261022\\root-execution-result-v1.json",
+      "sha256": "a2ac91fa1b179a98c21f616960bc6860c377f5f4cdc82c1a2348040e7b32ee94"
+    },
+    "appdata_retire_root_review": {
+      "private_path": "E:\\MetodoBaseWorkspace\\evidence\\appdata-retirement-prepare-backend-20261022\\root-review-v1.json",
+      "sha256": "39b8de74203f4bd4896b20ba294f6811ddbfc926627196fdfb5ac68a2d99c875"
+    }
+  }
+}

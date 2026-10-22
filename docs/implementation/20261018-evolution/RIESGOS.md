@@ -303,3 +303,7 @@ QA33global sigueabierto hastaescaneoactualcompleto;loscontadores antiguosnoacred
 ## Checkpoint154 — 2026-10-22
 
 La DB Trivy observada venció el20 de octubre; no se declara SCA vigente. Un guard de disco de cierre detectó menos de2GiB tras el probe; se detuvo trabajo y se apagó la VM normalmente, con evidencia del fallo. Se exige presupuesto nuevo para el siguiente candidato/SCA. El respaldo RAW y Git sparse de tres Docs cerrados no modifica los537 archivos históricos del usuario.
+
+## Checkpoint157 — 2026-10-22
+
+R37 sigue abierto:32/4207raíces aceptadas;4175pendientes,9worktrees requieren reparar rutas tras allcopied y el perfil/generaciónPG E debe revisarse antes de SQL. LibresC2.255→3.462GB observados no prueban espacio físico equivalente al tamaño lógico. QA-40/41 mitigados sólo en alcance finito; archivos inusuales/ADS/reparse/aliases internos y grupos diferidos requieren su control explícito, no inferir migración completa por capacidad8193. El intento d8metadata fue rechazado y se conserva. Tool10C83archivos incompleto sigue sin causa demostrada; E10nuevo desde92 no lo repara retroactivamente. No retirar instalaciones compartidas ni attachmentC administrado por la app. Permanecen broad/fullscan,Epg,imagen/SCA DBvigente yRedis/carga, además de validaciones externas. Ver MIGRACION_C_E.md.

@@ -1,0 +1,33 @@
+# Migración C → E y continuidad E/F
+
+## Instrucción y criterio R37
+
+Por instrucción expresa del usuario, trasladar los archivos del proyecto y entornos activos que ocupan C a E, continuar el trabajo en E/F y retomar el backlog exclusivamente del servicio web. Esta decisión no reabre desarrollo, QA ni empaquetado desktop; conservar archivos históricos de desktop en un traslado no constituye trabajo de producto desktop.
+
+Criterio añadido R37: Migrar a E los archivos del proyecto y sus entornos activos que ocupan C, continuar el trabajo en E/F y retomar el backlog exclusivamente web. Preservar bytes, evidencia RAW histórica, permisos y trazabilidad; no eliminar instalaciones compartidas ni recursos ajenos. Retirar cada origen sólo tras copia y verificación completas y autorización operativa exacta; reparar rutas y worktrees antes de reanudar las validaciones pendientes.
+
+Estado en_curso. No hay aceptación de migración completa, despliegue ni cierre global del backlog. Fuente del mandato: instrucción de sesión del usuario conservada por coordinación; este documento fija su criterio de ejecución y no inventa una cita literal nueva.
+
+## Avance parcial comprobado
+
+El primer lote41a aceptó32raíces reales de4207 inventariadas:206archivos de438581 y1,206,712,194bytes lógicos de24,415,403,485. Quedan4175raíces de esa base. El espacio libre observado en C pasó de2,255,372,288 a3,462,336,512bytes (2.255→3.462GB decimales). Los bytes lógicos y el espacio físico liberado son medidas distintas; hardlinks y asignación impiden igualarlos por suposición.
+
+Root verificó copia completa, fsync, SHA completo del destino y segundo SHA fuente antes de retirar cada origen por handle. Artifact leyó posteriormente los206archivos E completos y verificó ausencia lstat/lexists de las32fuentes exactas, sin mutar fuente/destino. Ese peer compara contra el checkpoint de copia; no acredita lectura independiente del contenido C histórico después de su retirada.
+
+Base Python3.12.13 y WEB92 están copiados y verificados en E; los92 RECORD permanecen iguales y sólo se ajustó pyvenv.cfg del clon activo. Scripts conserva sus bytes históricos con referencias C: usar Epython -m, sin activar esos wrappers. quality10 E es un entorno nuevo offline con10versiones/RECORD de WEB92: el origen Tool10 C se observó incompleto,83archivos, causa desconocida, y no se reparó ni se presenta como clon íntegro. PostgreSQL17 bin/lib/share, Node y uv también se copiaron y leyeron completos; sin cluster/config global ni arranque. El launcher sólo configura el proceso (TEMP/TMP/TMPDIR,caches,PATH portable,datos E y limpieza de COVERAGE_*). No modifica variables User/Machine. No se afirma que invocarlo directamente con & funcione bajo todas las políticas: OpsCI observó un rechazo por ExecutionPolicy del host. Se conserva la política global; usar paths E y variables sólo del proceso, o lanzar el script confiable en un hijo powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass. La excepción se limita a ese proceso. Los10controles previos del launcher conservan sus comandos exactos, ya ejecutados en procesos hijos con esa opción; no se presentan como prueba de invocación directa bajo la política del host. WindowsPowerShell5.1 omite argumentos nativos vacíos y no se localizó LICENSE de Node; límites explícitos del recibo.
+
+Los datos Roaming MetodoBase se copiaron a E/appdata/MetodoBase:3archivos/51,111B, DACL2, SHA completo e identidades ligadas a su plan. Después Root leyó el código716c/plan6f1b, emitió un ACK nuevo y ejecutó la retirada real: COMPLETE, ausencia lstat estricta en C y fullreadback fresco del destino E. Este origen Roaming se registra separado del inventarioCTemp4207. La solicitud original se copió a E/inputs/original-request-20261018.txt,36,051B; su attachment C administrado por la aplicación no se elimina. Las instalaciones compartidas de Python/Node/PG/uv en C y el PostgreSQL ajeno quedan fuera de retirada.
+
+## QA-40 y QA-41: alcance de las reparaciones
+
+8782 permitía sustituir el archivo destino entre CREATE_NEW/ACL/reopen y sobrescribir un outside sintético E. El canario conservado tiene C0.41a mantiene el descriptor original durante ACL/escritura/fsync/readback/retirada;14controles autor y9independientes pasan en fases separadas. El lote real32 y su peer32 tienen aprobación propia. No se afirma que el canario exacto original se repitió ni ausencia global de carreras.
+
+608 traducía PermissionError y OSError31 de os.lstat simulado a False mediante os.path.lexists:1PASS/2FAIL conservados. El intento d8 de usar Path.lstat quedó rechazado:0PASS/3FAIL,0llamadas del mock porque este Python lo despacha por os.stat; sus campos real_filesystem_access:false no son evidencia aceptada y no hubo C.34ad llama os.lstat directamente y sólo captura FileNotFoundError: los3canarios Root literales y7peer pequeños pasan. La biblioteca WinAPI55a permanece idéntica a608; la prueba previa8193handles mantiene su fuente y no se repitió ni demuestra migración8193completa. El SHA del archivo sellado Artifact sigue pendiente; resultados, freeze y review locales sí están disponibles.
+
+## Continuación y límites
+
+El lote restante4175acaba de iniciar bajo34ad y controladorRoot4797407c/peer73f21403 con MasterRoot nuevo exacto; no hay resultados disponibles y permanece en_curso. Completarlo con sus presupuestos y ACK propios, manteniendo planes/mapas/journals protegidos. Reparar los9worktrees con rutas C sólo después de todas las copias y verificar identidad Git. No reescribir rutas C embebidas en RAW históricos: conservar bytes y añadir mapping para uso operativo nuevo en E/F. No crear junctions para simular que C sigue activo.
+
+Tras cerrar copias y rutas, fijar fuente y entornos finales, revisar una generación/perfil PostgreSQL E nueva y ejecutar los companions B13/R07 autorizados. Siguen pendientes gates amplios serial/n2/cobertura/fullscan, imagen final, SBOM/SCA con DB vigente y Redis/carga.137/quality,PG53,Native35 e imagen144/59 conservan fuentes y entornos anteriores; esta migración no los reejecuta ni los traslada a la fuente actual por declaración documental. Continúan las validaciones externas de proveedores/custodia/retención/soporte/procedencia/legal/nutrición/piloto5+5. Sin push, PR, despliegue, cobros o envíos reales.
+
+Evidencia curada y SHA de metadatos privados: [summary.json](evidence/migration-c-to-e-checkpoint157-20261022/summary.json), [revisión](evidence/migration-c-to-e-checkpoint157-20261022/REVIEW.md). Los RAW anteriores permanecen intactos.

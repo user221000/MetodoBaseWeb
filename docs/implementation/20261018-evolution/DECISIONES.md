@@ -290,3 +290,10 @@ ApplyR07 se implementa sólo sobre fixtures mientras falten procedencia y quiesc
 ## Checkpoint156 — 2026-10-22
 
 La programación de conciliación pertenece al operador y no se instala automáticamente. La selección de compras es autoridad operativa exacta, no permite reparar otra compra del mismo sujeto. Una Session activa prestada se rechaza sin asumir su cleanup. Git heredado del entorno no es autoridad de fuente del CLI R07. Los dos diagnósticos LOW de subprocess se adjudican al código fijo d8e18ddbc02a70603c840ecd2a1afd09d07f6874388fd2165c217613e4d730ef: ejecutable absoluto confiable, argv literal, shellFalse, timeout5, env limpio, stderrDEVNULL y uso exclusivo CLI. Se conserva la propuesta original approvedFalse y el SAST MED/HIGH existente; no se amplía registry22 ni se suprimen reglas generales.
+
+## Checkpoint157 — 2026-10-22
+
+La instrucción del usuario traslada proyecto/entornos a E y continúa trabajo en E/F; se conserva alcance web exclusivo. Copia verificada no equivale a autorización global de borrado: cada retirada necesita plan/ACK exactos y lectura completa, mientras instalaciones compartidas C y recursos ajenos permanecen fuera. Rutas C de RAW históricos son evidencia inmutable; usar mapping, no reescritura. quality10E es nuevo offline desde WEB92, no reparación del C83archivos incompleto de causa desconocida. Reparar9worktrees sólo después de todas las copias. El checkpoint no reejecuta gates anteriores ni habilita servicios.
+
+
+Launcher: OpsCI observó que la invocación directa fue rechazada por ExecutionPolicy del host. No se cambia la política global: usar rutas/variables de proceso E explícitas o un hijo powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass para el script confiable, sólo en ese proceso. Los10PASS anteriores conservan comandos hijos exactos y no prueban que & directo funcione bajo toda política.
