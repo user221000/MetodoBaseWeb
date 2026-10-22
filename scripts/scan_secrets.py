@@ -3,15 +3,18 @@
 Gitleaks must be installed externally and verified against its release checksum.
 Only tracked and unignored candidate files are copied. The sanitized report
 contains locations/rules and source hashes, never matches, secrets or author
-metadata. An exit of 1 means findings; other scanner errors remain failures.
+metadata. Exit1 alone cannot distinguish findings from a partial/error scan.
 Historical Git objects and ignored local files are outside this tree scan.
 """
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
+import io
 import json
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -22,6 +25,60 @@ except ModuleNotFoundError:  # Direct `python scripts/scan_secrets.py` invocatio
     from reviewed_scan_locations import load_reviewed_locations
 
 ROOT = Path(__file__).resolve().parents[1]
+_CAPTURE_LIMIT = 4 * 1024 * 1024
+_COMPLETE = re.compile(r"\S+ INF scanned ~([1-9][0-9]*) bytes "
+    r"\([0-9]+(?:\.[0-9]{2})? (?:bytes|KB|MB|GB)\) in (?:[0-9]+(?:\.[0-9]+)?(?:ns|µs|ms|s|m|h))+")
+
+
+def _private_evidence(requested: Path | None) -> Path:
+    """A fresh private boundary precedes diagnostic/report/snapshot payloads."""
+    if requested is not None:
+        if not requested.is_absolute() or requested.exists() or requested.resolve().is_relative_to(ROOT.resolve()):
+            raise ValueError("Scanner evidence requires a fresh absolute path outside the deliverable")
+        requested.mkdir(parents=True, mode=0o700)
+        path = requested
+    else:
+        path = Path(tempfile.mkdtemp(prefix="metodobase-secrets-evidence-"))
+        if path.resolve().is_relative_to(ROOT.resolve()):
+            raise ValueError("Scanner evidence must be outside the deliverable")
+    try:
+        if os.name == "nt":
+            identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"],
+                capture_output=True, text=True, check=True).stdout
+            sid = next(csv.reader(io.StringIO(identity)))[1]
+            subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r",
+                "*" + sid + ":(OI)(CI)F", "*S-1-5-18:(OI)(CI)F"], capture_output=True, check=True)
+            boundary = subprocess.run(["icacls", str(path)], capture_output=True, check=True).stdout
+            (path / "boundary-before-payload.private.txt").write_bytes(boundary)
+        else:
+            path.chmod(0o700)
+            if path.stat().st_mode & 0o777 != 0o700:
+                raise OSError("Private boundary differs")
+    except (OSError, subprocess.SubprocessError, IndexError, StopIteration):
+        raise RuntimeError("Private scanner evidence boundary failed; output withheld") from None
+    return path
+
+
+def _capture(path: Path, value: bytes | str | None) -> bool:
+    raw = value.encode("utf8") if isinstance(value, str) else value or b""
+    if not isinstance(raw, bytes):
+        raise RuntimeError("Secret scanner returned invalid diagnostics; output withheld")
+    path.write_bytes(raw[:_CAPTURE_LIMIT])
+    return len(raw) <= _CAPTURE_LIMIT
+
+
+def _require_complete(stderr: bytes | str | None, findings: int) -> int:
+    """Only the exact successful8.30.1 summary may establish completion."""
+    try:
+        text = stderr.decode("utf8") if isinstance(stderr, bytes) else stderr
+        lines = text.splitlines() if isinstance(text, str) else []
+        summary = _COMPLETE.fullmatch(lines[0]) if len(lines) == 2 else None
+        suffix = (f"WRN leaks found: {findings}" if findings else "INF no leaks found")
+        if summary is None or re.fullmatch(r"\S+ " + re.escape(suffix), lines[1]) is None:
+            raise ValueError("Missing complete summary")
+        return int(summary.group(1))
+    except (UnicodeError, ValueError):
+        raise RuntimeError("Secret scanner did not prove complete execution; output withheld") from None
 
 # Gitleaks 8.30.1 can return a partial Match/Secret at its 100000-byte
 # fragment boundary. These two public build manifests were independently
@@ -104,9 +161,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gitleaks", required=True, type=Path)
     parser.add_argument("--report", required=True, type=Path)
+    parser.add_argument("--private-evidence", type=Path,
+                        help="Fresh absolute diagnostic directory outside the deliverable; defaults to private Temp")
     args = parser.parse_args()
     tool = args.gitleaks.resolve(strict=True)
     report = args.report.resolve()
+    private = _private_evidence(args.private_evidence)
     environment = {key: value for key, value in os.environ.items()
         if not key.upper().startswith("GITLEAKS_")}
     version = subprocess.run([str(tool), "version"], check=True, capture_output=True,
@@ -118,7 +178,7 @@ def main() -> int:
     paths = sorted({value.decode("utf-8") for value in result.stdout.split(b"\0") if value})
     source_hashes = {}
     encoding_transforms = {}
-    with tempfile.TemporaryDirectory(prefix="metodobase-secrets-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="metodobase-secrets-", dir=private) as temporary:
         workspace = Path(temporary)
         snapshot = workspace / "snapshot"
         snapshot.mkdir()
@@ -150,17 +210,31 @@ def main() -> int:
         raw_report = workspace / "raw-redacted.json"
         empty_ignore = workspace / "empty.gitleaksignore"
         empty_ignore.write_text("", encoding="utf-8")
-        scan = subprocess.run([str(tool), "dir", str(snapshot), "--config", str(snapshot / ".gitleaks.toml"),
-            "--redact=100", "--no-banner", "--no-color", "--log-level=error",
-            "--ignore-gitleaks-allow", "--gitleaks-ignore-path", str(empty_ignore),
-            "--max-decode-depth=5", "--max-archive-depth=0",
-            "--report-format=json", "--report-path", str(raw_report), "--timeout=120"],
-            check=False, capture_output=True, cwd=workspace, env=environment, timeout=135)
+        try:
+            scan = subprocess.run([str(tool), "dir", str(snapshot), "--config", str(snapshot / ".gitleaks.toml"),
+                "--redact=100", "--no-banner", "--no-color", "--log-level=info",
+                "--ignore-gitleaks-allow", "--gitleaks-ignore-path", str(empty_ignore),
+                "--max-decode-depth=5", "--max-archive-depth=0",
+                "--report-format=json", "--report-path", str(raw_report), "--timeout=0"],
+                check=False, capture_output=True, cwd=workspace, env=environment, timeout=600)
+        except subprocess.TimeoutExpired as error:
+            _capture(private / "scan.stdout.private.log", error.output)
+            _capture(private / "scan.stderr.private.log", error.stderr)
+            if raw_report.is_file():
+                (private / "raw-redacted.private.json").write_bytes(raw_report.read_bytes())
+            raise RuntimeError("Secret scanner timed out before complete execution; output withheld") from None
+        stdout_complete = _capture(private / "scan.stdout.private.log", scan.stdout)
+        stderr_complete = _capture(private / "scan.stderr.private.log", scan.stderr)
+        if raw_report.is_file():
+            (private / "raw-redacted.private.json").write_bytes(raw_report.read_bytes())
+        if not stdout_complete or not stderr_complete:
+            raise RuntimeError("Secret scanner diagnostic limit exceeded; output withheld")
         if scan.returncode not in {0, 1} or not raw_report.is_file():
             raise RuntimeError(f"Secret scanner failed; exit={scan.returncode}; output withheld")
         raw = json.loads(raw_report.read_text(encoding="utf-8"))
         if not isinstance(raw, list) or bool(raw) != (scan.returncode == 1):
             raise RuntimeError("Secret scanner returned inconsistent findings; output withheld")
+        scanned_bytes = _require_complete(scan.stderr, len(raw))
         findings = []
         classified = []
         for item in raw:
@@ -184,6 +258,7 @@ def main() -> int:
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(json.dumps({"tool": "gitleaks", "version": version,
         "binary_sha256": hashlib.sha256(tool.read_bytes()).hexdigest(),
+        "scan_complete": True, "scanned_bytes": scanned_bytes,
         "scope": "tracked and unignored deliverable tree; no git history or ignored files",
         "exit_code": scan.returncode, "effective_exit_code": 2 if changed else (1 if findings else 0),
         "source_stable": not changed, "changed_files": changed,
