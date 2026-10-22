@@ -232,9 +232,9 @@ def test_source_drift_during_PUT_refuses_ready_and_keeps_original_as_changed_by_
 
 
 def test_journal_chain_damage_and_exclusive_second_operator_refuse(case):
-    with service.Journal(case.journal, case.bundle.binding), pytest.raises((OSError, service.ApplyError)):
-        with service.Journal(case.journal, case.bundle.binding):
-            pytest.fail('second journal owner')
+    with (service.Journal(case.journal, case.bundle.binding), pytest.raises((OSError, service.ApplyError)),
+            service.Journal(case.journal, case.bundle.binding)):
+        pytest.fail('second journal owner')
     raw = bytearray(case.journal.read_bytes())
     raw[25] ^= 1
     case.journal.write_bytes(raw)
