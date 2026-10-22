@@ -1,0 +1,47 @@
+{
+  "outcome": "PASS_AUTHOR_LOCAL_PENDING_INDEPENDENT_REVIEW_AND_POSTGRESQL",
+  "source": "7b7d6e760b00669ee01f8199c876623ea4944288",
+  "web_only": true,
+  "product_files": [
+    "web/billing_reconciliation_cli.py",
+    "web/services/billing_reconciliation.py",
+    "web/services/billing_reconciliation_providers.py",
+    "web/services/stripe_service.py"
+  ],
+  "accepted_new_tests": 46,
+  "accepted_unchanged_original_tests": 15,
+  "accepted_phases": 2,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "source_files_quiet_during_gates": 6,
+  "documentation_only_addendum_after_gates": true,
+  "web92_records_quiet": 92,
+  "interpreter_quiet": true,
+  "original_billing_module_unchanged": true,
+  "root_literal_canary_source_unchanged": true,
+  "ruff_four_new_files_full": 0,
+  "ruff_stripe_existing_critical": 0,
+  "provider_API_calls_real": 0,
+  "cron_installed": false,
+  "selection_fix": "Every canonical payment/subscription read for a selected PurchaseIntent must retain that exact intent, including the locked second read; same actor alone is insufficient.",
+  "limits": {
+    "manifest_bytes": 65536,
+    "manifest_resources": 100,
+    "page_max_items": 100,
+    "SDK_read_budget": 300,
+    "SDK_timeout_seconds_max": 5,
+    "SDK_automatic_retries": 0,
+    "admission_deadline_seconds_max": 120
+  },
+  "limitations": [
+    "New46 use migrated SQLite37; original15 preserve their create_all SQLite fixtures; neither establishes PostgreSQL RLS/GUC/locks.",
+    "Provider SDK boundaries are offline doubles; no real or sandbox checkout/payment was queried.",
+    "The deadline bounds admission, not hard termination of transport, commit or cleanup.",
+    "Independent Root literal4 have separate custody and are excluded from author totals and RAW results.",
+    "Independent security peer, current PostgreSQL, CI broad, image, deployment and operational scheduling remain pending.",
+    "Earlier PG53, Native35 and image receipts retain their earlier sources; they are not acceptance of B13.",
+    "Existing shared services may update operational updated_at on replay; business rights/quota/Payment/provenance remain idempotent.",
+    "Legacy full-file Ruff diagnostics outside this finite delta are not claimed clean."
+  ]
+}
