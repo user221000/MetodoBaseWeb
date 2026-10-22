@@ -61,6 +61,22 @@ def environment_photo():
             "Node_installed_files": files}
 
 
+def child_environment(private, *, private_as_temp=False):
+    environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONUTF8="1", PYTHON_DOTENV_DISABLED="1",
+                       COVERAGE_FILE=str(private / ".coverage"))
+    # VM test author knobs cannot silently select an earlier API source.
+    environment.pop("BROWSER31_SOURCE", None)
+    environment.pop("SEC_BROWSER_SOURCE", None)
+    environment.pop("_METODOBASE_TEST_ROOT", None)
+    environment.update(_METODOBASE_TEST_ROOT=str(private / "metodobase-test-data"),
+                       METODOBASE_TEST_DATABASE_URL="", METODOBASE_TEST_REDIS_URL="")
+    if private_as_temp:
+        # A fresh Python child resolves tempfile only after receiving this env.
+        # The controller's environment and cached tempfile directory stay intact.
+        environment.update(TEMP=str(private), TMP=str(private), TMPDIR=str(private))
+    return environment
+
+
 def execute(argv, source, environment, raw_path, *, timeout=None):
     with raw_path.open("xb") as raw:
         child = subprocess.Popen(argv, cwd=source, env=environment, stdout=raw, stderr=subprocess.STDOUT)
@@ -324,6 +340,8 @@ def main():
     parser.add_argument("--private", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--replay-manifest", type=Path)
+    parser.add_argument("--private-as-child-temp", action="store_true",
+                        help="Use the fresh private boundary as TEMP/TMP/TMPDIR in children only")
     args = parser.parse_args()
     from web.database.schema_control import expected_head
     if expected_head() != "20261020_account_security":
@@ -336,14 +354,13 @@ def main():
         (private / "dacl-before-payload.private.txt").write_bytes(acl)
     else:
         assert private.stat().st_mode & 0o777 == 0o700
-    environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONUTF8="1", PYTHON_DOTENV_DISABLED="1",
-                       COVERAGE_FILE=str(private / ".coverage"))
-    # VM test author knobs cannot silently select an earlier API source.
-    environment.pop("BROWSER31_SOURCE", None)
-    environment.pop("SEC_BROWSER_SOURCE", None)
-    environment.pop("_METODOBASE_TEST_ROOT", None)
-    environment.update(_METODOBASE_TEST_ROOT=str(private / "metodobase-test-data"),
-                       METODOBASE_TEST_DATABASE_URL="", METODOBASE_TEST_REDIS_URL="")
+    environment = child_environment(private, private_as_temp=args.private_as_child_temp)
+    if args.private_as_child_temp:
+        write(private / "child-temp-contract.private.json", {
+            "TEMP": environment["TEMP"], "TMP": environment["TMP"], "TMPDIR": environment["TMPDIR"],
+            "test_root": environment["_METODOBASE_TEST_ROOT"], "basetemp": str(private / "pytest-data"),
+            "private_boundary_verified_before_payload": True, "controller_environment_changed": False,
+        })
     if node_directory():
         environment["NODE_PATH"] = str(node_directory())
     before = environment_photo()
@@ -353,7 +370,8 @@ def main():
         verify_manifest(ROOT, replay)
     write(private / "before.json", before)
     pip_before = execute([sys.executable, "-m", "pip", "check"], ROOT, environment, private / "pip-before.private.log")
-    result = {"accepted": False, "suite": args.suite}
+    result = {"accepted": False, "suite": args.suite,
+              "private_as_child_temp": args.private_as_child_temp}
     try:
         if pip_before != 0:
             raise ValueError("Dependency consistency failed before execution")
