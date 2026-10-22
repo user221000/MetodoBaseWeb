@@ -73,6 +73,7 @@ def test_original_isolation_pytest_and_sqlite_use_the_private_child_temp(tmp_pat
     with (private / "pytest.private.log").open("xb") as log:
         completed = subprocess.run([sys.executable, "-B", "-X", "utf8", "tests/run_isolated.py",
             str(probe), "-q", "--basetemp=" + str(private / "pytest-data"),
+            "--rootdir=" + str(private), "--confcutdir=" + str(private),
             "--junitxml=" + str(private / "pytest.xml"), "-p", "no:cacheprovider"],
             cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, timeout=30, check=False)
     assert completed.returncode == 0
