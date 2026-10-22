@@ -1,6 +1,7 @@
 """Finite native35 V7 admission, truthful stop and immutable oracle controls."""
 import ast
 import hashlib
+import importlib.util
 import json
 import subprocess
 import sys
@@ -93,6 +94,62 @@ def test_browser_readmission_requires_SQL_then_Chrome_and_stops_on_expired_SQL(m
     with pytest.raises(ValueError):
         guard.require_chrome_phase("unused")
     assert seen == ["sql"]
+
+
+@pytest.mark.parametrize("expired", [True, False])
+def test_actual_new_launcher_refuses_expired_before_fake_SQL_fixture_and_has_valid_control(tmp_path, monkeypatch, expired):
+    file = ROOT / "tests/e2e/run_native35_qa_v7.py"
+    spec = importlib.util.spec_from_file_location("new_native35_admission", file)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    task = tmp_path / "metodobase-account37-author-pg-new-v7-purecanary"
+    (task / "private").mkdir(parents=True)
+    (task / "leases").mkdir()
+    head = "a" * 40
+    preflight = {"schema": "native35-v7", "product_source": guard.SOURCE, "source_head": head,
+                 "selection": "current35", "expected_groups": [15, 18, 2],
+                 "profile_path": str(guard.PROFILE), "profile_sha256": guard.PROFILE_SHA,
+                 "source_RAW_sha256": {}, "packages": [], "installed_map_sha256": guard.digest(b"{}")}
+    preflight_path = task / "native-preflight.json"
+    preflight_path.write_text(json.dumps(preflight), encoding="utf8")
+    expiry = datetime.now(UTC) + timedelta(hours=-1 if expired else 1)
+    ack = {"scope": "native35-v7-sql", "source_head": head, "product_source": guard.SOURCE,
+           "selection": "current35", "expected_groups": [15, 18, 2], "UUIDs": 1,
+           "preflight_sha256": guard.digest(preflight_path.read_bytes()), "profile_sha256": guard.PROFILE_SHA,
+           "launcher_sha256": guard.digest(file.read_bytes()),
+           "fixture_sha256": guard.digest((ROOT / "tests/e2e/native35_postgres_server_v7.py").read_bytes()),
+           "guard_sha256": guard.digest(Path(guard.__file__).read_bytes()),
+           "granted": True, "expires_at_UTC": expiry.isoformat()}
+    (task / "native-sql-ack.json").write_text(json.dumps(ack), encoding="utf8")
+    attempts = []
+
+    def fake_popen(*_args, **_kwargs):
+        attempts.append("fixture marker only")
+        raise RuntimeError("No actual child")
+
+    class FakeSocket:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def bind(self, _address):
+            return None
+
+    library = SimpleNamespace(__file__=str(ROOT / "tests/e2e/native37_environment_qa.py"), pipcheck=lambda *_args: None)
+    import tests.e2e
+    monkeypatch.setitem(sys.modules, "tests.e2e.native37_environment_qa", library)
+    monkeypatch.setattr(tests.e2e, "native37_environment_qa", library, raising=False)
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(check_output=lambda *_args, **_kwargs: head, Popen=fake_popen))
+    monkeypatch.setattr(module, "socket", SimpleNamespace(socket=FakeSocket))
+    monkeypatch.setattr(module, "fingerprint_snapshot", lambda *_args: {"head": head, "source": {}, "packages": [], "installed": {}})
+    monkeypatch.setattr(module, "inventory", lambda *_args: {"processes": [], "listeners": []})
+    monkeypatch.setattr(module, "put", lambda *_args: None)
+    monkeypatch.setattr(sys, "argv", [str(file), "--private-root", str(task), "--pg-config", str(guard.PROFILE), "--selection", "current35"])
+    with pytest.raises(ValueError if expired else AssertionError):
+        module.main()
+    assert attempts == ([] if expired else ["fixture marker only"])
 
 
 def fixture_controls(tmp_path, monkeypatch):
