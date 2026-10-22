@@ -3,6 +3,7 @@ import ast
 import hashlib
 import importlib.util
 import json
+import shutil
 import subprocess
 import sys
 from datetime import UTC, datetime, timedelta
@@ -355,7 +356,9 @@ def test_derived_harness_has_exact_full_inverse_and_original22_RAW_are_unchanged
 
 @pytest.mark.parametrize("driver", ["mfa_ui_browser", "mfa_personal_browser"])
 def test_original_MFA_compiler_only_preserves_business_oracles(driver):
-    result = subprocess.run(["C:/Program Files/nodejs/node.exe", "tests/e2e/native37_mfa_compat_qa_v6.cjs",
+    node = shutil.which("node")
+    assert node is not None, "Node is required for the native compiler control"
+    result = subprocess.run([node, "tests/e2e/native37_mfa_compat_qa_v6.cjs",
                              driver, "--compile-only"], cwd=ROOT, capture_output=True, check=True)
     value = json.loads(result.stdout)
     assert value["parsed"] is True
@@ -366,6 +369,8 @@ def test_original_MFA_compiler_only_preserves_business_oracles(driver):
 @pytest.mark.parametrize("driver", ["native37_account_notifications_qa_v4.cjs", "native37_onboarding_r22_qa_v5.cjs"])
 def test_original18_and2_syntax_only_not_an_unsupported_compile_flag(driver):
     # These two scripts have no --compile-only branch. --check never executes them.
-    result = subprocess.run(["C:/Program Files/nodejs/node.exe", "--check", "tests/e2e/" + driver],
+    node = shutil.which("node")
+    assert node is not None, "Node is required for the native syntax control"
+    result = subprocess.run([node, "--check", "tests/e2e/" + driver],
                             cwd=ROOT, capture_output=True, check=True)
     assert result.stdout == result.stderr == b""
