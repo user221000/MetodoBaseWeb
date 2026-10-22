@@ -1,14 +1,16 @@
 # Estado de implementación
 
-Checkpoint152 local: esquema37 y153requisitos (92originales+61añadidos). Los152criterios anteriores permanecen exactos y537archivos untracked históricos conservan suSHA. Producto50325: rediseño integral con paleta original de landing y panel Push/Pull/Legs integrados. Free10clientes/1plan porcliente al día/10totales porgimnasio al día/mensual20. Trabajo exclusivo del servicio web.
+Checkpoint153 local: esquema37 y155requisitos;153criterios anteriores exactos,92originales conservados y537untracked históricos conSHAintacto. Sólo servicio web. Free10clientes/1plan porcliente al día/10totales porgimnasio al día/mensual20.
 
-QA-33 impide aceptar el fullscanV8 deMain25d como completo: wrapper0/raw1/43532clasificadas/0restantes/15615archivosquietos no prueban finalización. El wrapper descartaba diagnósticos y confundía hallazgos con errores/parciales de Gitleaks. Canario independiente del fullscan:12RED/1control autor y timeout real con exit1; corrección aislada bajo revisión, después requiere escaneo completo actual. La causa exacta de esa corrida no se afirma. RAW y contadores originales conservados en archivo privado con readback11miembros y recibo público. Resultados históricos conservan su fuente; exit0 del wrapper por sí solo es insuficiente para acreditar completitud.
+Rediseño yPPL integrados con la paleta original. NativeV2b008/producto50325 completó35grupos en4fases11+4+18+2,32capturas y0pageErrors;37criterios PPL/16capturas/2PDF previos conservados. UnaUUID37cerró normal/0sessions/ausenciafresca,ownChrome0restantes yfuentes1419/WEB92/Node3paquetes157archivos quietos. PrimerV1REJECTED0drivers porpublicación Rootnoatómica delACK, cierre normal yChromeajeno preservados. Publishercorregidoatómico sin tocar lector/plazos. UX-21 yQA-35 verificados localmente por esas fuentes; no globalWCAG/lector real/despliegue.
 
-Rediseño/PPL mantienen sus gates:89HTTP/SQLite/contratos y37criterios nativos independientes,16capturas/0pageErrors/axe/overflow,2PDF completos,login real+MFA/cambioB/SV401/403. UX-22 verificado local;UX-21 espera35flujos actuales yR36 replayPostgreSQL focal. PostgreSQL legado429 aceptado por fases323+106/29fases/69UUID;71UUID entre intentos cerradas normalmente, sin sesiones y ausencia fresca. No atribuir ese PG al nuevo catálogoPPL.
+R30 integrado: APIprivada gym/personal de hechos propios observados,sinDDL/colector/UI/globalreporter. RuntimeMain195 esGit exacto59b/144; paleta/templatesJSvisuals50325 sin cambios. Autor113IDs porfases;QAindependiente43finales=27puros+8SQLite+8HTTP ambasfactories;Root59dominio=27QA+32originales,fuentes1291/92RECORD/interpreterquiet/pip0. QA-34coherenciahelper reparado yverificado local;noAPIdata-bypass niprocedencia real. R30 completo sigue abierto:PG53focalpreparándose/CIglobal/baseline real/piloto/entrevistas/autoridad decohortesglobales.
 
-Native35 v7 inició1UUID pero0drivers/0Chrome propios: Root publicó el ACK de Chrome de forma no atómica y el lector pudo verlo vacío; fase rechazada antes de los casos. Cierre normal de fixture observado; auditoría complementaria en curso por Chrome ajeno nuevo, sin tocarlo. Root corrige sólo su publisher por escritura privada cerrada+fsync+rename, conserva el rechazo y prepara una nueva fase después del cierre. No se relajan lector, oráculos o plazos originales.
+QA-33 corrección completa integrada: parser exige completitud positiva/coherencia/stdoutvacío,retieneRAWprivado/timeoutexterno600/interno0.72IDs distintos45autor+27peer;Root45separados. Doscontroles binarios pequeños0/1hallazgo completos. Productor inicial4ACErechazado ypreservado;replaysnuevos45v3+2nativev2 bajo2ACEantespayload/después,ZIP174+73+5readback ySECac8aceptados. FullscanMain25d43532 continúaNOaceptado como completo. Falta fullscanMainactualconguard corregido,despuésdecomposiciónfinal;CIserial/n2/coberturapendientes.
 
-R30 candidato e6852cfd aislado:113IDs autor distintos verdes por fases y peer independiente offline en curso. Sin DDL/colector/UI/cohorte global ni baseline real. CI final,imagen57/SBOM/SCA,Redis/carga y decisiones externas siguen pendientes; no hay despliegue,push,PR,cargos ni envíos reales.
+RootcápsulasR05:232objetosGitauténticos/123assertions históricos60+48+15 y40controlesPASS;sin.git/child/network enreplays. No esCIactual ni escaneoglobal. PGlegado429 porfases323+106 sigue ligado9955/c717, no incluyeR30/PPL.
+
+Imagen57 nueva sepreparaoffline para144/59:483blobs/470app esperados,12pinsnativos y57distribuciones;VMOFF,no build/SBOM/SCA. DiscoF2.30GiBrequierepresupuesto adicionalantesVM,sin borrarhistórico ni537archivos. PG53 yCI finalpreparaciónoffline;Redis/carga ydecisionesexternas pendientes. Sinpush,PR,despliegue,cargos nienvíos reales.
 
 ## Observaciones históricas (no estado actual)
 
@@ -193,3 +195,18 @@ Rediseño/PPL mantienen sus gates:89HTTP/SQLite/contratos y37criterios nativos i
 Native35 v7 inició1UUID pero0drivers/0Chrome propios: Root publicó el ACK de Chrome de forma no atómica y el lector pudo verlo vacío; fase rechazada antes de los casos. Cierre normal de fixture observado; auditoría complementaria en curso por Chrome ajeno nuevo, sin tocarlo. Root corrige sólo su publisher por escritura privada cerrada+fsync+rename, conserva el rechazo y prepara una nueva fase después del cierre. No se relajan lector, oráculos o plazos originales.
 
 R30 candidato e6852cfd aislado:113IDs autor distintos verdes por fases y peer independiente offline en curso. Sin DDL/colector/UI/cohorte global ni baseline real. CI final,imagen57/SBOM/SCA,Redis/carga y decisiones externas siguen pendientes; no hay despliegue,push,PR,cargos ni envíos reales.
+
+
+## Checkpoint153
+
+Checkpoint153 local: esquema37 y155requisitos;153criterios anteriores exactos,92originales conservados y537untracked históricos conSHAintacto. Sólo servicio web. Free10clientes/1plan porcliente al día/10totales porgimnasio al día/mensual20.
+
+Rediseño yPPL integrados con la paleta original. NativeV2b008/producto50325 completó35grupos en4fases11+4+18+2,32capturas y0pageErrors;37criterios PPL/16capturas/2PDF previos conservados. UnaUUID37cerró normal/0sessions/ausenciafresca,ownChrome0restantes yfuentes1419/WEB92/Node3paquetes157archivos quietos. PrimerV1REJECTED0drivers porpublicación Rootnoatómica delACK, cierre normal yChromeajeno preservados. Publishercorregidoatómico sin tocar lector/plazos. UX-21 yQA-35 verificados localmente por esas fuentes; no globalWCAG/lector real/despliegue.
+
+R30 integrado: APIprivada gym/personal de hechos propios observados,sinDDL/colector/UI/globalreporter. RuntimeMain195 esGit exacto59b/144; paleta/templatesJSvisuals50325 sin cambios. Autor113IDs porfases;QAindependiente43finales=27puros+8SQLite+8HTTP ambasfactories;Root59dominio=27QA+32originales,fuentes1291/92RECORD/interpreterquiet/pip0. QA-34coherenciahelper reparado yverificado local;noAPIdata-bypass niprocedencia real. R30 completo sigue abierto:PG53focalpreparándose/CIglobal/baseline real/piloto/entrevistas/autoridad decohortesglobales.
+
+QA-33 corrección completa integrada: parser exige completitud positiva/coherencia/stdoutvacío,retieneRAWprivado/timeoutexterno600/interno0.72IDs distintos45autor+27peer;Root45separados. Doscontroles binarios pequeños0/1hallazgo completos. Productor inicial4ACErechazado ypreservado;replaysnuevos45v3+2nativev2 bajo2ACEantespayload/después,ZIP174+73+5readback ySECac8aceptados. FullscanMain25d43532 continúaNOaceptado como completo. Falta fullscanMainactualconguard corregido,despuésdecomposiciónfinal;CIserial/n2/coberturapendientes.
+
+RootcápsulasR05:232objetosGitauténticos/123assertions históricos60+48+15 y40controlesPASS;sin.git/child/network enreplays. No esCIactual ni escaneoglobal. PGlegado429 porfases323+106 sigue ligado9955/c717, no incluyeR30/PPL.
+
+Imagen57 nueva sepreparaoffline para144/59:483blobs/470app esperados,12pinsnativos y57distribuciones;VMOFF,no build/SBOM/SCA. DiscoF2.30GiBrequierepresupuesto adicionalantesVM,sin borrarhistórico ni537archivos. PG53 yCI finalpreparaciónoffline;Redis/carga ydecisionesexternas pendientes. Sinpush,PR,despliegue,cargos nienvíos reales.

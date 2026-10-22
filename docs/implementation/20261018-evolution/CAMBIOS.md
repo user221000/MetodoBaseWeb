@@ -371,3 +371,7 @@ Producto50325 permaneceexacto. Integrados harness/recibos nativos yfinitoV8 para
 ## Checkpoint152 — 2026-10-21
 
 Nuevo QA-33 y calificación explícita del fullscanV8 no acreditado. Producto50325 exacto; corrección del escáner y R30 siguen aislados.152criterios anteriores y537untrackedSHA intactos.
+
+## Checkpoint153 — 2026-10-21
+
+R30API yhelper integrados;QA34sólo validación de consecuencias derivables. QA33parser/frontera y72controles integrados,fullscanactualpendiente. NativeV7harness/proofs sin cambiar producto;NodecompilerdescubreNode yrechazaausencia,mismosasserts.12proofQA33restauradosbyteexactRAWautorconatributos finitos. Único conflictoR30documental:se aplicó creación13998709antesactualizaciónc368,producto no cambió.

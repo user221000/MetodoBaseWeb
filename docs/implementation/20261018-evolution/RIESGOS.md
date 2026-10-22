@@ -295,3 +295,7 @@ Foco móvil/impresión/sesión delpanel comprobados en16capturas;35flujos actual
 ## Checkpoint152 — 2026-10-21
 
 QA-33 puede producir falsoPASS al clasificar todos los hallazgos de un escaneo parcial. Bloquea aceptación de seguridad completa hasta corregir/revisar/repetir el gate actual. Los diagnósticos descartados impiden atribuir la causa exacta de la corrida25d. Root detectó además una carrera de publicación del ACK propio; se conserva el rechazo y se corrige sólo la publicación, sin ampliar el plazo ni aceptar el intento como navegador ejecutado.
+
+## Checkpoint153 — 2026-10-21
+
+QA33global sigueabierto hastaescaneoactualcompleto;loscontadores antiguosnoacreditancompletitud. Error depermisos delproductorOpsse corrigióenrootnuevo,pasado4ACEpreservado yrechazadoenesaspecto,sin afirmación de exposición. PGreadonly/RLS deR30aúnsinpruebareal;SQLite/lectura deSQLAlchemy no sustituyenPG. F2.30GiBestrecho:ningunaVMhasta revisar presupuesto/espacio propio,sinprune/custodiahistórica.

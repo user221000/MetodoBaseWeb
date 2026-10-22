@@ -440,3 +440,19 @@ Native: evidence/security-routines-native37-execution-20261021,RAWprivado82miemb
 Checkpoint152: hallazgo nuevo QA-33. El fullscanV8 deMain25d terminó wrapper0/raw1/43532clasificadas/0restantes/15615archivosquietos, pero el wrapper descartó los diagnósticos y no acreditó finalización. Resultado conservado, NOaceptado como gate completo. Canario Ops12RED/1control confirma falsoPASS de reporte parcial no vacío; binario real8.30.1 usa exit1 en timeout. Corrección aislada en revisión, sin cambiar reglas ni registros finitos. Producto50325 y validaciones previas de rediseño/PPL permanecen ligados a su fuente; no son invalidadas por esta limitación del escáner.
 
 Native35primer intento v7 rechazado antesdeChrome por publicación Rootnoatómica del ACK;0drivers/1UUID,cierre normal y auditoría complementaria pendientes de sellado. No corresponde a un fallo de producto. R30e685 autor113IDs verdes por fases,peer offline en curso; no aceptaciónMain.
+
+## Checkpoint153 — 2026-10-21
+
+Checkpoint153 local: esquema37 y155requisitos;153criterios anteriores exactos,92originales conservados y537untracked históricos conSHAintacto. Sólo servicio web. Free10clientes/1plan porcliente al día/10totales porgimnasio al día/mensual20.
+
+Rediseño yPPL integrados con la paleta original. NativeV2b008/producto50325 completó35grupos en4fases11+4+18+2,32capturas y0pageErrors;37criterios PPL/16capturas/2PDF previos conservados. UnaUUID37cerró normal/0sessions/ausenciafresca,ownChrome0restantes yfuentes1419/WEB92/Node3paquetes157archivos quietos. PrimerV1REJECTED0drivers porpublicación Rootnoatómica delACK, cierre normal yChromeajeno preservados. Publishercorregidoatómico sin tocar lector/plazos. UX-21 yQA-35 verificados localmente por esas fuentes; no globalWCAG/lector real/despliegue.
+
+R30 integrado: APIprivada gym/personal de hechos propios observados,sinDDL/colector/UI/globalreporter. RuntimeMain195 esGit exacto59b/144; paleta/templatesJSvisuals50325 sin cambios. Autor113IDs porfases;QAindependiente43finales=27puros+8SQLite+8HTTP ambasfactories;Root59dominio=27QA+32originales,fuentes1291/92RECORD/interpreterquiet/pip0. QA-34coherenciahelper reparado yverificado local;noAPIdata-bypass niprocedencia real. R30 completo sigue abierto:PG53focalpreparándose/CIglobal/baseline real/piloto/entrevistas/autoridad decohortesglobales.
+
+QA-33 corrección completa integrada: parser exige completitud positiva/coherencia/stdoutvacío,retieneRAWprivado/timeoutexterno600/interno0.72IDs distintos45autor+27peer;Root45separados. Doscontroles binarios pequeños0/1hallazgo completos. Productor inicial4ACErechazado ypreservado;replaysnuevos45v3+2nativev2 bajo2ACEantespayload/después,ZIP174+73+5readback ySECac8aceptados. FullscanMain25d43532 continúaNOaceptado como completo. Falta fullscanMainactualconguard corregido,despuésdecomposiciónfinal;CIserial/n2/coberturapendientes.
+
+RootcápsulasR05:232objetosGitauténticos/123assertions históricos60+48+15 y40controlesPASS;sin.git/child/network enreplays. No esCIactual ni escaneoglobal. PGlegado429 porfases323+106 sigue ligado9955/c717, no incluyeR30/PPL.
+
+Imagen57 nueva sepreparaoffline para144/59:483blobs/470app esperados,12pinsnativos y57distribuciones;VMOFF,no build/SBOM/SCA. DiscoF2.30GiBrequierepresupuesto adicionalantesVM,sin borrarhistórico ni537archivos. PG53 yCI finalpreparaciónoffline;Redis/carga ydecisionesexternas pendientes. Sinpush,PR,despliegue,cargos nienvíos reales.
+
+RootsQA33old4ACE ysu2RED1control no se aceptan como2. [Adenda](evidence/qa33-twoace-producer-replacement-20261021/ADENDA.md) conserva originales yreemplazos2ACE. Root59scopeprivado decía31originales porerrata;JUnit32 yproyección pública corregida sinreescribirRAW. Primer sellador de cápsulasRootfalló en alias deencoding, no ejecutótests ni completópayload;versiónv2selló447miembros/readback ylosoriginales permanecen.

@@ -357,3 +357,21 @@ Aceptación: Exigir evidencia positiva de finalización completa del escáner fi
 Checkpoint152: hallazgo nuevo QA-33. El fullscanV8 deMain25d terminó wrapper0/raw1/43532clasificadas/0restantes/15615archivosquietos, pero el wrapper descartó los diagnósticos y no acreditó finalización. Resultado conservado, NOaceptado como gate completo. Canario Ops12RED/1control confirma falsoPASS de reporte parcial no vacío; binario real8.30.1 usa exit1 en timeout. Corrección aislada en revisión, sin cambiar reglas ni registros finitos. Producto50325 y validaciones previas de rediseño/PPL permanecen ligados a su fuente; no son invalidadas por esta limitación del escáner.
 
 [Evidencia](evidence/root-main-r05-v8-completion-unproven-20261021/summary.json). Los controles reales y el canario no prueban la causa exacta del fullscan25d. Corrección todavía aislada; no hay escaneo corregido aceptado.
+
+## Checkpoint153 — 2026-10-21
+
+### QA-34 — Coherencia del helper provisional
+
+El helper de baseline provisional aceptaba, después de recalcular su hash, madurez incompatible con el ancla semanal, publicaciones contradictorias y un ancla posterior al corte civil exclusivo. No se reprodujo como defecto de las lecturas reales ni bypass de autorización.
+
+Aceptación: Rechazar en el helper las contradicciones derivables del ancla semanal y del período: publicaciones anteriores al ancla o ausencia de su publicación si la semana está visible, D30 maduro con D7 inmaduro, madurez imposible respecto de los extremos civiles convertidos a UTC y ancla posterior a through. Conservar incertidumbre del instante dentro de la semana, ancla anterior a from, as_of inclusivo, corte civil exclusivo y semanas con cambio de horario. Preservar canarios3RED/1control y1RED/2controles, verificar corrección con revisión independiente y no afirmar procedencia, baseline real, importador o completitud semántica poblacional.
+
+Verificado local con3RED/1control y1RED/2controles preservados,QA43finales yRoot59dominio. [Revisión](REVISION_QA_R30_V1.md).
+
+### QA-35 — Admisión y cierre Native finitos
+
+El controlador NativeV6 original admitía su fixture ante un ACK SQL vencido; el canario puro preservó1RED/1control sin ejecutar SQL o procesos.
+
+Aceptación: Rechazar ACK ausente, ambiguo, vencido o no ligado a fuente, perfil y selección antes de iniciar SQL y cada driver; exigir admisión separada para Chrome y startup real37. Conservar los22 helpers originales, aserciones y plazos; usar companions con inversas finitas y shutdown ligado a PID, generación y fuente propios. Verificar esquema/rol/pool/index reales, cierre normal y ausencia fresca de la UUID propia. Preservar canario original RED y cualquier intento rechazado; publicar ACK completo de forma atómica y no convertir cierre tardío o evidencia parcial en PASS.
+
+58controles yNative35por4fases sobre50325aceptados;V1REJECTED se conserva. [Evidencia](evidence/security-native35-v7-v2-current35-20261021/result.json).

@@ -29,3 +29,7 @@ Rediseño ypanel integrados;37/37NativefocalPASS,gates89HTTP/contratos ycalidad5
 ## Checkpoint152 — 2026-10-21
 
 Rediseño y panel integrados y verificados por sus fuentes; no hay entrega de producción. QA-33 deja el fullscanV8 no aceptado como completo aunque el wrapper antiguo devolviera0. R30 aislado bajo peer; CI/imagen/Redis/carga pendientes.153criterios y537untracked históricos conservados.
+
+## Checkpoint153 — 2026-10-21
+
+155requisitos y537untrackedSHAconservados. UX21/QA34/QA35verificadoslocalporfuente;R36esperaPGfocal. R30integrado59runtime,sinbaseline real. QA33fix/producer2ACErevisados,fullscanactual/CI/imagen57/SBOM/SCA/Redis/carga pendientes. Native35sobre50325yPG429legacy conservan susatribuciones,sin despliegue.

@@ -41,3 +41,7 @@ El directorio de salida debe ser nuevo. Leer el JSON de resultados y exigir `com
 ## Checkpoint151 — 2026-10-21
 
 Aceptación autenticada independiente focal50325:3loginsUIpassword+MFA,4contextos×4anchuras16capturas,37criterios y2PDF;0pageErrors/axe/overflow. Rootvioowner390/personal1440 yQA cuatrovistasrepresentativas. Evidencia security-routines-native37-execution-20261021. Los35flujos anteriores completos siguen enrefreeze,no se atribuyen a estas16capturas.
+
+## Checkpoint153 — 2026-10-21
+
+Los35flujos autenticados pendientes del rediseño completaron4fases11+4+18+2,b008/producto50325,32capturas/0pageErrors ycierrespropiosquietos. Rootvioaccount1440conmáscarasdecredencialesdeliberadas ynotificaciones320scoped;no es una captura wholepage niWCAGglobal. UX-21verificado localporfuente. R30añadeAPI,misma paleta/CSS/templates/JSvisual.

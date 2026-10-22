@@ -274,3 +274,7 @@ Se aceptan2UUID legítimas QA37:fixturemódulo37 ypredecesor36dañado solapadas.
 ## Checkpoint152 — 2026-10-21
 
 Un código0 del wrapper antiguo no acredita que Gitleaks terminó. Se requiere resumen positivo completo con coherencia exacta y rechazo de todo diagnóstico inesperado, retención privada antes del payload, timeout externo y peer. No variar reglas/umbrales/allowlist para ocultar parciales. Root debe publicar los ACK de recursos por rename atómico de un archivo privado cerrado y verificado; el lector y los oráculos actuales permanecen intactos.
+
+## Checkpoint153 — 2026-10-21
+
+No presentar analítica deunaunidad observada0/1 como retención poblacional,primerusoever,lectura oentrega. Baselineprovisionalunreviewed/targetsnull/source_revisionnull. R30 exigePGpropio de53IDs/1UUID,pool5/max0;no reatribuir429legacy. Productores actuales usan frontera2ACE semántica antespayload;no cambiarhelperhistórico ni retroatribuir exclusividad aroot4. CItransporta11asserts safetyoriginales yexcluye sóloREDNativeV6exacto conreemplazoV7obligatorio;originalesRAW intactos.
