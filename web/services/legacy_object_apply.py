@@ -52,7 +52,7 @@ def canonical(value):
 
 def source_binding(commit):
     root = inventory.REPO_ROOT
-    return {'commit': commit, 'files_sha256': digest(canonical({name: digest((root / name).read_bytes())
+    return {'commit': commit, 'files_sha256': digest(canonical({name: digest(_bounded(root / name))
         for name in SOURCE_PATHS}))}
 
 
@@ -218,7 +218,7 @@ class Journal:
                 fcntl.flock(self.stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             _private(self.path)
             raw = self.stream.read(MAX_DOCUMENT + 1)
-            if len(raw) > MAX_DOCUMENT or raw and not raw.endswith(b'\n'):
+            if len(raw) > MAX_DOCUMENT or len(raw.splitlines()) > 2000 or raw and not raw.endswith(b'\n'):
                 raise ApplyError('journal_incomplete_or_changed')
             self.rows, self.chain, self.planned = [], '0' * 64, {}
             for line in raw.splitlines():

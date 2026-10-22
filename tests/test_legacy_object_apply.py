@@ -412,3 +412,29 @@ def test_typed_inventory_and_review_binding_fail_before_any_apply(case, change):
     with pytest.raises(service.ApplyError):
         service.Bundle(case.manifest, case.inv, case.roots, case.configuration, source_check=cli_source_check)
     assert status(case) == (None, [], 0) and not case.journal.exists()
+
+
+def test_source_binding_refuses_oversized_file_without_unbounded_allocation(tmp_path, monkeypatch):
+    path = tmp_path / 'source.py'
+    path.write_bytes(b'x' * (service.MAX_DOCUMENT + 1))
+    monkeypatch.setattr(inventory, 'REPO_ROOT', tmp_path)
+    monkeypatch.setattr(service, 'SOURCE_PATHS', ('source.py',))
+    with pytest.raises(service.ApplyError, match='artifact_budget_exceeded'):
+        service.source_binding('a' * 40)
+
+
+def test_oversized_record_count_journal_refuses_before_database(case):
+    previous, records = '0' * 64, []
+    for index in range(2001):
+        data = {'event': 'header', 'binding': case.bundle.binding} if index == 0 else {'event': 'probe'}
+        row = {'previous': previous, 'data': data}
+        row['sha256'] = service.digest(service.canonical(row))
+        previous = row['sha256']
+        records.append(service.canonical(row))
+    case.journal.write_bytes(b'\n'.join(records) + b'\n')
+    case.journal.chmod(0o600)
+    statements = []
+    event.listen(case.engine, 'before_cursor_execute', lambda *_args: statements.append(True))
+    with pytest.raises(service.ApplyError, match='journal_incomplete_or_changed'):
+        execute(case)
+    assert statements == []
