@@ -106,6 +106,7 @@ def test_actual_new_launcher_refuses_expired_before_fake_SQL_fixture_and_has_val
     (task / "private").mkdir(parents=True)
     (task / "leases").mkdir()
     head = "a" * 40
+    monkeypatch.setattr(guard, "source_context", lambda: head)
     preflight = {"schema": "native35-v7", "product_source": guard.SOURCE, "source_head": head,
                  "selection": "current35", "expected_groups": [15, 18, 2],
                  "profile_path": str(guard.PROFILE), "profile_sha256": guard.PROFILE_SHA,
@@ -164,6 +165,7 @@ def fixture_controls(tmp_path, monkeypatch):
     (task / "private/startup.json").write_bytes(b'{"synthetic":true}')
     preflight = {"schema": "native35-v7", "product_source": guard.SOURCE, "source_head": "a" * 40,
                  "profile_path": str(guard.PROFILE), "profile_sha256": guard.PROFILE_SHA}
+    monkeypatch.setattr(guard, "source_context", lambda: preflight["source_head"])
     (task / "native-preflight.json").write_text(json.dumps(preflight), encoding="utf8")
     expected = {"scope": "native35-v7-sql", "source_head": preflight["source_head"], "product_source": guard.SOURCE,
                 "selection": "current35", "expected_groups": [15, 18, 2], "UUIDs": 1,
@@ -188,7 +190,7 @@ def test_actual_file_bound_ACK_reader_accepts_pinned_control(tmp_path, monkeypat
     assert result == guard.digest((task / ("native-" + phase + "-ack.json")).read_bytes())
 
 
-@pytest.mark.parametrize("fault", ["fixture", "launcher", "preflight", "startup", "profile-path", "expiry"])
+@pytest.mark.parametrize("fault", ["fixture", "launcher", "preflight", "startup", "profile-path", "expiry", "source-head"])
 def test_actual_file_bound_ACK_reader_refuses_drift(tmp_path, monkeypatch, fault):
     task, helpers = fixture_controls(tmp_path, monkeypatch)
     if fault in {"fixture", "launcher"}:
@@ -205,6 +207,8 @@ def test_actual_file_bound_ACK_reader_refuses_drift(tmp_path, monkeypatch, fault
         value = json.loads((task / "native-preflight.json").read_bytes())
         value["profile_path"] += ".unapproved"
         (task / "native-preflight.json").write_text(json.dumps(value), encoding="utf8")
+    elif fault == "source-head":
+        monkeypatch.setattr(guard, "source_context", lambda: "b" * 40)
     else:
         value = json.loads((task / "native-chrome-ack.json").read_bytes())
         value["expires_at_UTC"] = NOW.isoformat()

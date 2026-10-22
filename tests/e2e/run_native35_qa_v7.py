@@ -175,6 +175,8 @@ def main():
             time.sleep(.2)
         produced=json.loads((P/'startup.json').read_bytes());witness(produced)
         assert produced['source_commit']==preflight['source_head']
+        assert produced['runtime_raw_sha256']==preflight['startup_runtime_RAW_sha256']
+        assert produced['python_packages']==preflight['packages']
         worker_handle=OwnedWorker(produced,fixture_args,server.pid,sys._base_executable)
         assert birth(produced['pid'])==produced['process_birth']
         chain_inventory=inventory('startup-process-chain');histories.append(chain_inventory)

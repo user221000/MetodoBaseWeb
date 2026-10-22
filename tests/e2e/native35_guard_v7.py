@@ -68,6 +68,13 @@ def validate_ack(value, expected, now=None):
     return value
 
 
+def source_context():
+    head = subprocess.check_output(["git", "--no-replace-objects", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    subprocess.run(["git", "--no-replace-objects", "diff", "--quiet", SOURCE, "--",
+                    "web", "api", "core", "config", "utils", "src", "static", "fonts"], cwd=ROOT, check=True)
+    return head
+
+
 def require_ack(task, phase, now=None):
     if phase not in {"sql", "chrome"}:
         raise ValueError("Unknown native35 admission phase")
@@ -75,6 +82,7 @@ def require_ack(task, phase, now=None):
     preflight_path = task / "native-preflight.json"
     preflight = private_json(preflight_path, 8 * 1024 * 1024)
     if (preflight["schema"] != "native35-v7" or preflight["product_source"] != SOURCE
+            or preflight["source_head"] != source_context()
             or preflight["profile_path"] != str(PROFILE)
             or preflight["profile_sha256"] != PROFILE_SHA
             or digest(PROFILE.read_bytes()) != PROFILE_SHA):

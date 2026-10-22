@@ -89,7 +89,7 @@
         {
           "label": "retain_actual_worker_generation",
           "before": "        produced=json.loads((P/'startup.json').read_bytes());witness(produced)",
-          "after": "        produced=json.loads((P/'startup.json').read_bytes());witness(produced)\n        assert produced['source_commit']==preflight['source_head']\n        worker_handle=OwnedWorker(produced,fixture_args,server.pid,sys._base_executable)"
+          "after": "        produced=json.loads((P/'startup.json').read_bytes());witness(produced)\n        assert produced['source_commit']==preflight['source_head']\n        assert produced['runtime_raw_sha256']==preflight['startup_runtime_RAW_sha256']\n        assert produced['python_packages']==preflight['packages']\n        worker_handle=OwnedWorker(produced,fixture_args,server.pid,sys._base_executable)"
         },
         {
           "label": "new_worker_argv_name",
