@@ -1,0 +1,9 @@
+# Independent B20 signing-key rotation review
+
+Accepted for the coordinated SECRET_KEY cutover procedure and its local technical rehearsal. No runtime or token-format change is introduced. The old key must remain retired even if application code is rolled back: the independent sequential worker-generation model proves that an old worker accepts old access and can rotate an unrevoked old refresh again. This is not a multiprocess or load-balancer rehearsal.
+
+The seven independent controls ran against 74342-era runtime and preserve that scope. They exercise cached auth and constructed CSRF keys, mixed-generation refresh behavior, unchanged short access lifetime, MFA-key separation and cursor invalidation. The original author twelve v1 were not repeated. The twelve final author tests were independently replayed only after materializing the exact be769f67 v3 test and runbook blobs; their first cutover rebuilds each real factory and middleware and renews CSRF through /login-usuario. Both phases passed with unchanged source, Python92 and157 Node physical files.
+
+The first author's v1 runbook mistakenly named OAuth middleware and its initial test only changed Settings/auth cache in a live app. Root corrected this to CSRF and added the actual factory rebuild. Root's v2 failed two cases at nonexistent GET /login; v3 uses canonical /login-usuario. These are retained author phases, not product failures. No independent seven are relabeled as a v3 execution.
+
+Reviewed key consumers include init_auth's cached key, real CSRFMiddleware construction, rate-limit HMAC, history cursors and the independent MFA encryption key. Existing token issuer, audience, version, type and expiry validation remain unchanged. No real keys were read or rotated; no production cutover, provider, PostgreSQL, Chrome, release or separate OS-worker acceptance is claimed. Root owns final operational coordination and old-worker retirement.
