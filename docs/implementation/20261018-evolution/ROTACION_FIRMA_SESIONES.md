@@ -21,7 +21,7 @@ Guardar salida y JUnit en un directorio privado preparado antes de ejecutar. Reg
 2. Sustituir `SECRET_KEY` en el gestor del entorno y arrancar todos los workers con la imagen fijada. `init_auth()` captura la clave: editar una variable sin renovar el proceso no demuestra una rotación.
 3. Conservar un token access y pruebas refresh sintéticos anteriores. Comprobar401 de recurso, refresh JSON y refresh cookie anteriores, sin credenciales en salida pública. Comprobar después login nuevo, identidad persistida, rotación refresh y MFA con un factor previamente enrolado. Una denegación de origen/CSRF por sí sola no demuestra rechazo criptográfico.
 4. Verificar reautenticación y manejo de401 en el navegador. Las operaciones que quedaron con resultado ambiguo deben consultar su identificador/idempotencia existente antes de volver a generarlas.
-5. Revisar cookies de sesión OAuth y cursores firmados: los anteriores pueden necesitar reiniciar su recorrido/paginación. Las claves HMAC de limitación por cuenta cambian; observar la nueva ventana sin vaciar Redis ni imprimir sus claves.
+5. Renovar las páginas/formularios para obtener tokens CSRF firmados por los nuevos workers: el middleware captura su clave al construirse. Revisar también cursores firmados; los anteriores pueden necesitar reiniciar la paginación. Las claves HMAC de limitación por cuenta cambian; observar la nueva ventana sin vaciar Redis ni imprimir sus claves.
 6. Registrar hora, generaciones retiradas/nuevas, identificador de versión del secreto, commit/digest y resultados sintéticos. Las contraseñas y el ciphertext MFA permanecen sujetos a sus mecanismos independientes.
 
 ## Recuperación y reversión
