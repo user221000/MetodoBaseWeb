@@ -282,3 +282,7 @@ No presentar analítica deunaunidad observada0/1 como retención poblacional,pri
 ## Checkpoint154 — 2026-10-22
 
 Rotación de firma mediante corte coordinado y reautenticación; no exige inventar otro formato de token. Revertir código conserva la clave nueva: restaurar la anterior puede resucitar tokens. Las claves MFA son independientes. B19 usa un corpus público local fijado por hash, sin transmitir contraseñas. B13 se implementa como una pasada bounded por selección privada de recursos persistidos, invocable por scheduler externo y sin crear cobros.
+
+## Checkpoint155 — 2026-10-22
+
+ApplyR07 se implementa sólo sobre fixtures mientras falten procedencia y quiescencia reales. El manifiesto de un operador y su hash son una declaración auditable; por sí solos no prueban quién era dueño histórico ni que todos los escritores se detuvieron. Descriptor estable/journal/CAS no autorizan adoptar archivos. La recuperación de espacio es una fase separada que escribe respaldos enC; sus presupuestos no modifican los guards de build/probe/CI/SCA.

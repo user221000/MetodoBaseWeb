@@ -472,3 +472,7 @@ CI:126helpers integrados y job desktop retirado;5536 casos sólo coleccionados. 
 Continúan externas la política de retención/borrado integral, acceso de soporte, revisión legal/nutricional, custodia/recuperación, proveedores y participación real del piloto. No se realizó push, PR, despliegue, cargo ni envío real.
 
 Reconciliación documental: [revisión Root](evidence/root-reconciliacion155-reviewed-20261022/REVISION_ROOT.md). Las primeras12 pruebas de rotación sobre74342 se ejecutaron antes del commit con bytes registrados; v2 conservó2 fallos por ruta inexistente y10PASS. v3 be769f67 usa la página canónica y12PASS; no modifica el runtime ni prueba procesos OS separados.
+
+## Checkpoint155 — 2026-10-22
+
+GateRoot82 enMain26befe05:82/82 PASS,0F/E/skip; no equivalen a82 criterios nuevos. [Resultado](evidence/root-main-auth82-integrated-20261022/summary.json). Archivo privado4719a57cfb611966dedd0ce058c241e19a7a0b6819eaca44a44790889750f25d,16miembros/readback completo, raíz y archivo2principales antespayload. B19peer reconstruyó corpus/licencia exactos; B20peer conserva7canariosfuente74342 y12v3be769 por separado. No hubo PG/Chrome/proveedor real. Se preservaron12preimágenes CRLF de fixturesCI antes de restaurar sus bytesGit exactos; causa del cambio físico no establecida, ninguna aserción cambió.

@@ -1,16 +1,14 @@
 # Entrega candidata en curso
 
-Checkpoint154 local:155 requisitos, incluidos los92 originales; todos los criterios exactos y los537 archivos untracked históricos conservan su SHA. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes totales por gimnasio al día y20 mensuales.
+Checkpoint155 local:155 criterios exactos, incluidos92 originales;54 verificados por fuente. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes totales diarios por gimnasio y20 mensuales. Rediseño y panel Push/Pull/Legs ya implementados y verificados localmente.
 
-Rediseño y panel Push/Pull/Legs implementados con la paleta original. Se aceptan24 cierres locales de estados desactualizados, total54 criterios verificados por fuente; no implica cierre de tareas padre ni despliegue. El panel ya tiene37 criterios de navegador,16 capturas/2PDF y su composición PostgreSQL dentro dePG53. Native35 anterior conserva4 fases y32 capturas con0pageErrors.
+Main26befe05 integra B19 y B20 con revisión independiente. Gate integrado82/82 PASS,0fallos/errores/skips y entorno quieto:SQLite37 y ambas factories. Contraseñas nuevas usan corpus local autenticado de99999 hashes, sin consultas externas; login existente conserva compatibilidad. El ensayo de rotación reconstruye middleware CSRF y comprueba login/MFA y rechazo de tokens anteriores. La rotación real/custodia no se ejecutó. PRIVACIDAD vigente enaf83bf6e.
 
-PG53 focal terminado:53/53 PASS, una UUID37, rol restringido/pool5 y limpieza normal con ausencia fresca. R30 continúa abierto por baseline real, procedencia/separación demo y piloto5+5. Imagen144/59 construida y probe real de57 dependencias/470 fuentes; digest383c6e87. No hubo arranque de aplicación ni SBOM/SCA; la DB de vulnerabilidades existente está vencida. VM apagada normalmente.
+B13, conciliación periódica acotada de pagos, continúa en implementación. R07/B11 añade apply histórico con journal/descriptor estable/CAS y fixtures; la asignación de objetos reales requiere procedencia y ventana operativa aprobadas. No hay nuevos endpoints públicos ni operaciones sobre datos reales.
 
-B19 en rama aislada:51 casos nuevos y7 regresiones PASS; revisión independiente pendiente. B20 tiene runbook y12 casos PASS incluyendo reconstrucción CSRF; peer pendiente. B13, CLI periódico de conciliación acotada, en implementación. Estos cambios preceden el freeze final.
+CI7ddb8b25 integra14 cambios preparados y16proofs;4jobs cambiados y15literalmenteiguales, sinDesktop. Fullscan completo actual, serial/n2/cobertura, imagen del candidato final, SBOM/SCA vigente y Redis/carga siguen pendientes. Se recupera espacio mediante respaldo RAW y Git sparse de Docs propios cerrados; VM apagada y servicios ajenos intactos. Imagen144/59 yPG53 anteriores conservan su atribución, sin presentarse como evidencia del código B19 posterior.
 
-CI:126helpers integrados y job desktop retirado;5536 casos sólo coleccionados. Serial/n2/cobertura, fullscan completo actual, imagen del candidato final, SBOM/SCA y Redis/carga siguen pendientes. Se recuperaron0.723GiB de tres worktrees cerrados mediante Git sparse, con respaldo RAW verificado de17265 archivos; se prepara espacio adicional sin eliminar historia ni tocar archivos del usuario.
-
-Continúan externas la política de retención/borrado integral, acceso de soporte, revisión legal/nutricional, custodia/recuperación, proveedores y participación real del piloto. No se realizó push, PR, despliegue, cargo ni envío real.
+Retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional, proveedores/custodia y piloto5+5 conservan pendientes externos. Sin push, PR, despliegue, cargos ni envíos reales.
 
 ## Observaciones históricas por fuente
 
@@ -63,3 +61,16 @@ B19 en rama aislada:51 casos nuevos y7 regresiones PASS; revisión independiente
 CI:126helpers integrados y job desktop retirado;5536 casos sólo coleccionados. Serial/n2/cobertura, fullscan completo actual, imagen del candidato final, SBOM/SCA y Redis/carga siguen pendientes. Se recuperaron0.723GiB de tres worktrees cerrados mediante Git sparse, con respaldo RAW verificado de17265 archivos; se prepara espacio adicional sin eliminar historia ni tocar archivos del usuario.
 
 Continúan externas la política de retención/borrado integral, acceso de soporte, revisión legal/nutricional, custodia/recuperación, proveedores y participación real del piloto. No se realizó push, PR, despliegue, cargo ni envío real.
+
+
+## Checkpoint155 — 2026-10-22
+
+Checkpoint155 local:155 criterios exactos, incluidos92 originales;54 verificados por fuente. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes totales diarios por gimnasio y20 mensuales. Rediseño y panel Push/Pull/Legs ya implementados y verificados localmente.
+
+Main26befe05 integra B19 y B20 con revisión independiente. Gate integrado82/82 PASS,0fallos/errores/skips y entorno quieto:SQLite37 y ambas factories. Contraseñas nuevas usan corpus local autenticado de99999 hashes, sin consultas externas; login existente conserva compatibilidad. El ensayo de rotación reconstruye middleware CSRF y comprueba login/MFA y rechazo de tokens anteriores. La rotación real/custodia no se ejecutó. PRIVACIDAD vigente enaf83bf6e.
+
+B13, conciliación periódica acotada de pagos, continúa en implementación. R07/B11 añade apply histórico con journal/descriptor estable/CAS y fixtures; la asignación de objetos reales requiere procedencia y ventana operativa aprobadas. No hay nuevos endpoints públicos ni operaciones sobre datos reales.
+
+CI7ddb8b25 integra14 cambios preparados y16proofs;4jobs cambiados y15literalmenteiguales, sinDesktop. Fullscan completo actual, serial/n2/cobertura, imagen del candidato final, SBOM/SCA vigente y Redis/carga siguen pendientes. Se recupera espacio mediante respaldo RAW y Git sparse de Docs propios cerrados; VM apagada y servicios ajenos intactos. Imagen144/59 yPG53 anteriores conservan su atribución, sin presentarse como evidencia del código B19 posterior.
+
+Retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional, proveedores/custodia y piloto5+5 conservan pendientes externos. Sin push, PR, despliegue, cargos ni envíos reales.

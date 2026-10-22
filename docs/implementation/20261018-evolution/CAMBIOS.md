@@ -379,3 +379,7 @@ R30API yhelper integrados;QA34sólo validación de consecuencias derivables. QA3
 ## Checkpoint154 — 2026-10-22
 
 Se reconcilian estados de24 criterios con evidencia ya aceptada y criterio inmutable. No se rehacen funcionalidades terminadas ni se trasladan resultados entre fuentes. Se integraron126 helpersCI y se retiró el job desktop; las siguientes composiciones esperan B19/B13/B20. Arquitectura actualizada al esquema37. [PG53](evidence/security-pg53-r30-ppl-independent-20261021/result.json) y [imagen144/59](evidence/image57-r30-real-build-probe-20261022/summary.json) conservan sus límites.
+
+## Checkpoint155 — 2026-10-22
+
+B19/B20 integrados y82replays de composición aceptados. Nuevo bloqueo de contraseñas completas y422privado de invitación; sin cambiar login existente. B20 aporta procedimiento y tests, sin runtime/tokenformat nuevo. PRIVACIDAD actualizada. CIweb/Node/PG/Historical31 actualizados como preparación, sin declarar ejecución remota ni global verde.
