@@ -4,7 +4,7 @@ from dataclasses import asdict
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from sqlalchemy import event
+from sqlalchemy import event, select
 from sqlalchemy.orm import Session
 
 from tests import test_legacy_object_apply as author
@@ -97,7 +97,7 @@ def test_canonical_tenant_drift_during_put_never_attaches_published_bytes(case, 
             if drift == 'owner-deleted':
                 db.get(Usuario, 'apply-a').deleted_at = datetime.now(UTC)
             else:
-                db.get(Cliente, 'client-a').gym_id = 'apply-b'
+                db.scalar(select(Cliente).where(Cliente.id_cliente == 'client-a')).gym_id = 'apply-b'
             db.commit()
     monkeypatch.setattr(case.store, 'put', change_authority)
     with pytest.raises(service.ApplyError):
@@ -107,8 +107,8 @@ def test_canonical_tenant_drift_during_put_never_attaches_published_bytes(case, 
     assert case.original.read_bytes() == case.data and current_tenant.get() == ''
     with Session(case.engine) as db:
         assert db.get(Usuario, 'apply-b').activo is True
-        assert db.get(Cliente, 'client-b').gym_id == 'apply-b'
-        assert db.get(Cliente, 'client-b').total_planes_generados == 0
+        foreign = db.scalar(select(Cliente).where(Cliente.id_cliente == 'client-b'))
+        assert foreign.gym_id == 'apply-b' and foreign.total_planes_generados == 0
 
 
 def test_a_valid_journal_hash_chain_cannot_authorize_another_tenants_descriptor(case, monkeypatch):
