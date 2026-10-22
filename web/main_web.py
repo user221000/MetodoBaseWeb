@@ -243,6 +243,8 @@ def create_app() -> FastAPI:
     from web.routes import routines
     app.include_router(routines.router, prefix="/api")
     app.include_router(routines.pages_router)
+    from web.routes import product_analytics
+    app.include_router(product_analytics.router, prefix="/api")
     app.include_router(web_gym_profile_router.router, prefix="/api", dependencies=_api_auth)
 
     # Usuario individual routes

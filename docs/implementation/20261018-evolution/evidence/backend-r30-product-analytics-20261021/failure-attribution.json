@@ -1,0 +1,32 @@
+{
+  "historical_assertions_modified": 0,
+  "historical_helpers_targets_modified": 0,
+  "http_fault_injection": {
+    "after": "same4 pass in final",
+    "assertion_count": 2,
+    "before": "2 failures +2 controls",
+    "preimage_canary_sha256": "205414d0697a3910f455375ea7312941c9573da012ca7151609823cb2d92ea62",
+    "preimage_route_sha256": "c780ed7ec4bfb2222925b1042e043355b5315a309b375b375a52429f81bd0be0",
+    "same_assertion_AST": true,
+    "scope": "Synthetic internal HTTPException500 detail forwarding; no SQL exploitation or observed real-user disclosure"
+  },
+  "initial48": "48 pass, source/pip before-after not captured for that first run; no quiet claim retroactively added",
+  "own_harness_errors": [
+    {
+      "cause": "SaaS unsafe POST without bearer reached existing CSRF403 on second loop; expected405 was incomplete",
+      "count": 1,
+      "phase": "phase2"
+    },
+    {
+      "cause": "Bearer present first POST was exempt from CSRF and405; expected403 was incomplete",
+      "count": 1,
+      "phase": "phase3"
+    },
+    {
+      "cause": "Isolated launcher disabled rate middleware; intentional429 required instance enabled=True",
+      "count": 2,
+      "phase": "final"
+    }
+  ],
+  "seal_v1_erratum": "Inverse harness counted if inside elif; partial public projection preserved privately at partial-seal-v1, original driver retained; no product or test delta"
+}

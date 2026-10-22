@@ -49,6 +49,7 @@ _RETIREMENT_PRIVATE_PATHS = frozenset({
 _PRIVATE_EXPORT_PATHS = frozenset({
     "/api/usuario/privacidad/exportar", "/api/usuario/privacidad/exportar/",
 })
+_PRODUCT_ANALYTICS_PATHS = frozenset({"/api/analytics/producto", "/api/analytics/producto/"})
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """
@@ -128,6 +129,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         notification_api = is_notification_private(request.url.path)
         account_security_api = is_account_security_private(request.url.path)
         export_api = request.url.path in _PRIVATE_EXPORT_PATHS
+        product_analytics_api = request.url.path in _PRODUCT_ANALYTICS_PATHS
         operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}
         
         try:
@@ -144,6 +146,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                     and not notification_api
                     and not account_security_api
                     and not export_api
+                    and not product_analytics_api
                     and not operations):
                 raise
             # Generic handlers live outside response middleware. Reuse the
@@ -184,7 +187,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                     "frame-src https://accounts.google.com/gsi/; img-src 'self' data:; "
                     "form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
                 )
-            elif account_security_api or notification_api or followup_api or request.url.path in {"/auth/reset-password", "/auth/accept-client-link"} or request.url.path.startswith("/api/auth/mfa/") or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS:
+            elif product_analytics_api or account_security_api or notification_api or followup_api or request.url.path in {"/auth/reset-password", "/auth/accept-client-link"} or request.url.path.startswith("/api/auth/mfa/") or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS:
                 # Fixed first-party policy for the public recovery form. Never
                 # accept an arbitrary policy supplied by a downstream handler.
                 response.headers["Content-Security-Policy"] = (
@@ -215,6 +218,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 or notification_api
                 or account_security_api
                 or export_api
+                or product_analytics_api
                 or operations
                 or request.url.path.startswith("/api/auth/mfa/")
                 or request.url.path == "/api/usuario/historial"
@@ -227,7 +231,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), usb=()"
         )
-        if account_security_api or operations or primary_api or progress_api or followup_api or nutrition_api or notification_api or export_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
+        if product_analytics_api or account_security_api or operations or primary_api or progress_api or followup_api or nutrition_api or notification_api or export_api or is_member_link_private(request.url.path) or diary_api or request.url.path.startswith("/api/auth/mfa/"):
             response.headers["Cache-Control"] = "no-store"
         
         if operations:
