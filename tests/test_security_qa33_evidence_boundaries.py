@@ -56,3 +56,54 @@ def test_default_boundary_is_outside_source_and_before_any_payload(tmp_path, mon
     assert private.name.startswith("metodobase-secrets-evidence-")
     assert not private.is_relative_to(tmp_path)
     assert not (private / "scan.stdout.private.log").exists()
+
+
+def test_only_protected_User_and_SYSTEM_full_control_is_private():
+    scanner._assert_windows_acl(0x9004, [(0, 3, 0x1F01FF, "S-1-5-21-123"),
+        (0, 3, 0x1F01FF, "S-1-5-18")], "S-1-5-21-123")
+
+
+@pytest.mark.parametrize("fault", ["unprotected", "no-DACL", "extra-principal", "wrong-user", "inherited",
+    "deny-ACE", "insufficient-rights", "duplicate-user", "Boolean-mask", "float-flags", "Boolean-control"])
+def test_inherited_broad_or_untyped_DACL_never_establishes_privacy(fault):
+    control = 0x9004
+    entries = [(0, 3, 0x1F01FF, "S-1-5-21-123"), (0, 3, 0x1F01FF, "S-1-5-18")]
+    if fault == "unprotected":
+        control = 0x8004
+    elif fault == "no-DACL":
+        control = 0x9000
+    elif fault == "extra-principal":
+        entries.append((0, 3, 0x1F01FF, "S-1-1-0"))
+    elif fault == "wrong-user":
+        entries[0] = (0, 3, 0x1F01FF, "S-1-5-21-456")
+    elif fault == "inherited":
+        entries[0] = (0, 0x13, 0x1F01FF, entries[0][3])
+    elif fault == "deny-ACE":
+        entries[0] = (1, 3, 0x1F01FF, entries[0][3])
+    elif fault == "insufficient-rights":
+        entries[0] = (0, 3, 0x120089, entries[0][3])
+    elif fault == "duplicate-user":
+        entries[1] = entries[0]
+    elif fault == "Boolean-mask":
+        entries[0] = (0, 3, True, entries[0][3])
+    elif fault == "float-flags":
+        entries[0] = (0, 3.0, 0x1F01FF, entries[0][3])
+    else:
+        control = True
+    with pytest.raises(OSError):
+        scanner._assert_windows_acl(control, entries, "S-1-5-21-123")
+
+
+def test_failed_semantic_boundary_verification_writes_no_payload(tmp_path, monkeypatch):
+    root = tmp_path / "source"
+    root.mkdir()
+    requested = tmp_path / "new-private"
+    monkeypatch.setattr(scanner, "ROOT", root)
+
+    def fail_boundary(*args):
+        raise OSError("synthetic semantic ACL refusal")
+
+    monkeypatch.setattr(scanner, "_verify_private_boundary", fail_boundary)
+    with pytest.raises(RuntimeError, match="boundary failed; output withheld"):
+        scanner._private_evidence(requested)
+    assert requested.is_dir() and list(requested.iterdir()) == []

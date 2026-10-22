@@ -30,6 +30,67 @@ _COMPLETE = re.compile(r"\S+ INF scanned ~([1-9][0-9]*) bytes "
     r"\([0-9]+(?:\.[0-9]{2})? (?:bytes|KB|MB|GB)\) in (?:[0-9]+(?:\.[0-9]+)?(?:ns|µs|ms|s|m|h))+")
 
 
+def _assert_windows_acl(control: int, entries: list, sid: str) -> None:
+    if (type(control) is not int or control & 0x1004 != 0x1004 or len(entries) != 2
+            or {row[3] for row in entries} != {sid, "S-1-5-18"}
+            or any(type(value) is not int for row in entries for value in row[:3])
+            or any(row[:3] != (0, 3, 0x1F01FF) for row in entries)):
+        raise OSError("Private DACL principals, full-control rights or inheritance differ")
+
+
+def _verify_private_boundary(path: Path, sid: str | None) -> None:
+    if os.name != "nt":
+        if path.stat().st_mode & 0o777 != 0o700 or path.stat().st_uid != os.getuid():
+            raise OSError("Private boundary differs")
+        return
+    import ctypes
+    from ctypes import wintypes
+    import struct
+
+    api = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    pointer = ctypes.c_void_p
+    api.GetNamedSecurityInfoW.argtypes = [wintypes.LPWSTR, wintypes.DWORD, wintypes.DWORD,
+        pointer, pointer, ctypes.POINTER(pointer), pointer, ctypes.POINTER(pointer)]
+    api.GetNamedSecurityInfoW.restype = wintypes.DWORD
+    api.GetSecurityDescriptorControl.argtypes = [pointer, ctypes.POINTER(wintypes.WORD), ctypes.POINTER(wintypes.DWORD)]
+    api.GetSecurityDescriptorControl.restype = wintypes.BOOL
+    api.GetAclInformation.argtypes = [pointer, pointer, wintypes.DWORD, wintypes.DWORD]
+    api.GetAclInformation.restype = wintypes.BOOL
+    api.GetAce.argtypes = [pointer, wintypes.DWORD, ctypes.POINTER(pointer)]
+    api.GetAce.restype = wintypes.BOOL
+    api.ConvertSidToStringSidW.argtypes = [pointer, ctypes.POINTER(wintypes.LPWSTR)]
+    api.ConvertSidToStringSidW.restype = wintypes.BOOL
+    kernel.LocalFree.argtypes = [pointer]
+    kernel.LocalFree.restype = pointer
+    descriptor, acl = pointer(), pointer()
+    if api.GetNamedSecurityInfoW(str(path), 1, 4, None, None, ctypes.byref(acl), None,
+                                 ctypes.byref(descriptor)) != 0:
+        raise OSError("Cannot verify private DACL")
+    try:
+        control, revision = wintypes.WORD(), wintypes.DWORD()
+        information = (wintypes.DWORD * 3)()
+        if (not acl or not api.GetSecurityDescriptorControl(descriptor, ctypes.byref(control), ctypes.byref(revision))
+                or not api.GetAclInformation(acl, information, ctypes.sizeof(information), 2)):
+            raise OSError("Cannot inspect private DACL")
+        entries = []
+        for index in range(information[0]):
+            ace = pointer()
+            if not api.GetAce(acl, index, ctypes.byref(ace)):
+                raise OSError("Cannot inspect private ACE")
+            kind, flags, size, mask = struct.unpack("<BBHI", ctypes.string_at(ace, 8))
+            text = wintypes.LPWSTR()
+            if size < 16 or not api.ConvertSidToStringSidW(pointer(ace.value + 8), ctypes.byref(text)):
+                raise OSError("Cannot inspect private principal")
+            try:
+                entries.append((kind, flags, mask, text.value))
+            finally:
+                kernel.LocalFree(ctypes.cast(text, pointer))
+        _assert_windows_acl(control.value, entries, sid)
+    finally:
+        kernel.LocalFree(descriptor)
+
+
 def _private_evidence(requested: Path | None) -> Path:
     """A fresh private boundary precedes diagnostic/report/snapshot payloads."""
     if requested is not None:
@@ -42,18 +103,19 @@ def _private_evidence(requested: Path | None) -> Path:
         if path.resolve().is_relative_to(ROOT.resolve()):
             raise ValueError("Scanner evidence must be outside the deliverable")
     try:
+        sid = None
         if os.name == "nt":
             identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"],
                 capture_output=True, text=True, check=True).stdout
             sid = next(csv.reader(io.StringIO(identity)))[1]
             subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r",
                 "*" + sid + ":(OI)(CI)F", "*S-1-5-18:(OI)(CI)F"], capture_output=True, check=True)
-            boundary = subprocess.run(["icacls", str(path)], capture_output=True, check=True).stdout
-            (path / "boundary-before-payload.private.txt").write_bytes(boundary)
         else:
             path.chmod(0o700)
-            if path.stat().st_mode & 0o777 != 0o700:
-                raise OSError("Private boundary differs")
+        _verify_private_boundary(path, sid)
+        if os.name == "nt":
+            boundary = subprocess.run(["icacls", str(path)], capture_output=True, check=True).stdout
+            (path / "boundary-before-payload.private.txt").write_bytes(boundary)
     except (OSError, subprocess.SubprocessError, IndexError, StopIteration):
         raise RuntimeError("Private scanner evidence boundary failed; output withheld") from None
     return path
@@ -229,6 +291,8 @@ def main() -> int:
             (private / "raw-redacted.private.json").write_bytes(raw_report.read_bytes())
         if not stdout_complete or not stderr_complete:
             raise RuntimeError("Secret scanner diagnostic limit exceeded; output withheld")
+        if scan.stdout not in {b"", ""}:
+            raise RuntimeError("Secret scanner returned unexpected stdout; output withheld")
         if scan.returncode not in {0, 1} or not raw_report.is_file():
             raise RuntimeError(f"Secret scanner failed; exit={scan.returncode}; output withheld")
         raw = json.loads(raw_report.read_text(encoding="utf-8"))

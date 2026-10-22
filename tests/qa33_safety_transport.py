@@ -30,6 +30,7 @@ def scenario(*args, **kwargs):
             raw = Path(command[command.index("--report-path") + 1])
             count = len(json.loads(raw.read_bytes()))
             last = f"WRN leaks found: {count}" if count else "INF no leaks found"
+            reply.stdout = b""
             reply.stderr = "6:47PM INF scanned ~37 bytes (37 bytes) in 1ms\n6:47PM " + last + "\n"
         return reply
 

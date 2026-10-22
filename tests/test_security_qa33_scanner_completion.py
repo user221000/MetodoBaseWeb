@@ -48,7 +48,7 @@ def scenario(tmp_path, monkeypatch, *, stderr, finding=True, classified=True, ti
                 "RuleID": "generic-api-key", "Secret": CANARY, "Match": CANARY,
                 "Fingerprint": "source.py:generic-api-key:1"}] if finding else []
         Path(command[command.index("--report-path") + 1]).write_text(json.dumps(raw), encoding="utf8")
-        return subprocess.CompletedProcess(command, 1 if finding else 0, stdout=CANARY.encode(), stderr=stderr.encode())
+        return subprocess.CompletedProcess(command, 1 if finding else 0, stdout=b"", stderr=stderr.encode())
 
     monkeypatch.setattr(scanner.subprocess, "run", run)
     return report, seen
