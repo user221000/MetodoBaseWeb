@@ -3,6 +3,7 @@ from pathlib import Path
 import argparse, ast, copy, hashlib, io, json, os, struct, subprocess, sys, unittest, zipfile
 from types import SimpleNamespace
 from unittest.mock import patch
+import tempfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tests.ci_image57 import authority,context,probe,run,source_proof
@@ -84,6 +85,27 @@ def merkle_fixture(folder):
     return path,commit,records,blobs['Dockerfile'],objects,close
 
 class Offline57(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        """Pytest/unittest imports get one private scope; explicit CLI stays owned."""
+        global ARTIFACT,SERIAL
+        super().setUpClass()
+        if ARTIFACT is not None:
+            return
+        previous_artifact,previous_serial=ARTIFACT,SERIAL
+        # The empty tempfile parent contains no diagnostic payload. Authenticate
+        # the fresh child boundary before tests can use directory() or write.
+        temporary=tempfile.TemporaryDirectory(prefix='metodobase-ci57-offline-')
+        cls.addClassCleanup(temporary.cleanup)
+        def restore():
+            global ARTIFACT,SERIAL
+            ARTIFACT,SERIAL=previous_artifact,previous_serial
+        # unittest runs cleanups even when a later setUpClass operation fails.
+        # Restore globals before cleaning the owned temporary tree.
+        cls.addClassCleanup(restore)
+        ARTIFACT=authority.private_directory(Path(temporary.name)/'artifacts',ROOT)
+        SERIAL=0
+
     def test_01_original_byte_authorities(self):
         for name in authority.PINS:self.assertTrue(authority.raw(name))
         from tests.ci_web37.git_recipe import load
