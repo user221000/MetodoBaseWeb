@@ -247,6 +247,7 @@ def validate_report(value):
         if cohort["population_units"] != 0:
             raise AnalyticsInput("Missing anchor")
     elif (civil(cohort["anchor_week"]).weekday() != 0 or cohort["population_units"] != 1
+            or civil(cohort["anchor_week"]) > last
             or civil(cohort["anchor_week"]) > cutoff.astimezone(ZoneInfo(ZONE)).date()):
         raise AnalyticsInput("Invalid anchor week")
     if cohort["population_units"] == 0 and any(row["saved_publications"] for row in weeks):
