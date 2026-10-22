@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -18,7 +20,7 @@ from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
 from web.auth_deps import get_effective_gym_id, get_usuario_actual
-from web.browser_session import BrowserAuthRoute
+from web.browser_session import BrowserAuthRoute, HEADERS
 from web.database.engine import get_db
 from web.database.models import GymProfile, Usuario, UserRole
 from web.services import team_invitation_service as invitations
@@ -37,8 +39,30 @@ def _no_store(response: Response):
     response.headers["Referrer-Policy"] = "no-referrer"
 
 
+class InvitationAuthRoute(BrowserAuthRoute):
+    """Keep legacy invitation validation from reflecting a password or proof."""
+    def get_route_handler(self):
+        original = super().get_route_handler()
+
+        async def handle(request: Request):
+            try:
+                return await original(request)
+            except RequestValidationError as error:
+                if request.method != "POST" or request.url.path not in {
+                    "/api/auth/accept-invite", "/api/auth/accept-invite/",
+                }:
+                    raise
+                fields = sorted({item["loc"][1] for item in error.errors()
+                    if len(item["loc"]) > 1 and item["loc"][0] == "body"
+                    and item["loc"][1] in {"token", "password"}})
+                return JSONResponse({"detail": {"code": "invitation_invalid_input",
+                    "message": "Revisa la invitación y usa una contraseña poco común de al menos 12 caracteres y hasta 72 bytes UTF-8.",
+                    "fields": fields}}, status_code=422, headers=HEADERS)
+        return handle
+
+
 router = APIRouter(prefix="/gym/team", tags=["Team Management"], dependencies=[Depends(_no_store)])
-auth_router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(_no_store)], route_class=BrowserAuthRoute)
+auth_router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(_no_store)], route_class=InvitationAuthRoute)
 
 
 class TeamInviteRequest(BaseModel):
