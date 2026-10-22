@@ -341,11 +341,11 @@ def _stripe_period(snapshot: dict, key: str):
     return datetime.fromtimestamp(value, tz=timezone.utc) if value else None
 
 
-def _verified_invoice_charge(invoice: dict, customer_id: str, expected_amount: int) -> bool:
+def _verified_invoice_charge(invoice: dict, customer_id: str, expected_amount: int, *, fetch_charge=None) -> bool:
     """Require captured, current, unrefunded MXN evidence for this customer."""
     charge = invoice.get("charge")
     if isinstance(charge, str):
-        charge = stripe.Charge.retrieve(charge)
+        charge = (fetch_charge or stripe.Charge.retrieve)(charge)
     if not isinstance(charge, dict) or not isinstance(charge.get("id"), str):
         return False
     return (charge.get("paid") is True and charge.get("captured") is True and
@@ -354,15 +354,19 @@ def _verified_invoice_charge(invoice: dict, customer_id: str, expected_amount: i
             charge.get("customer") == customer_id)
 
 
-def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | None = None) -> dict:
+def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | None = None,
+                           *, fetch_subscription=None, fetch_charge=None) -> dict:
     """Fetch current provider truth and reconcile B2B/B2C in one transaction.
 
     Ownership comes from a persisted purchase or existing provider mapping.
     Active paid access requires expected MXN/month price, paid invoice and an
     unrefunded charge. Fetching current state prevents old events overwriting a
     newer provider state. Caller commits; provider errors remain retryable.
+    Optional keyword-only callbacks are synchronous read capabilities for the
+    bounded administrative job; defaults preserve the existing SDK calls.
     """
-    snapshot = stripe.Subscription.retrieve(subscription_id, expand=[
+    retrieve = fetch_subscription or stripe.Subscription.retrieve
+    snapshot = retrieve(subscription_id, expand=[
         "latest_invoice.payment_intent", "latest_invoice.charge", "items.data.price"])
     if snapshot.get("id") != subscription_id:
         raise ValueError("Subscription resource mismatch")
@@ -401,7 +405,7 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
             return {"status": "superseded", "plan": current.plan, "activated": False}
     # Resolve the account first, then fetch again under its transaction lock.
     # A request that waited for a refund/cancellation must observe fresh state.
-    snapshot = stripe.Subscription.retrieve(subscription_id, expand=[
+    snapshot = retrieve(subscription_id, expand=[
         "latest_invoice.payment_intent", "latest_invoice.charge", "items.data.price"])
     metadata = snapshot.get("metadata") or {}
     if snapshot.get("id") != subscription_id:
@@ -442,7 +446,7 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
         elif (str(invoice.get("currency", "")).lower() != "mxn" or
               invoice.get("amount_paid", 0) < price_in_cents(plan)):
             status = "incomplete"
-        elif not _verified_invoice_charge(invoice, customer_id, price_in_cents(plan)):
+        elif not _verified_invoice_charge(invoice, customer_id, price_in_cents(plan), fetch_charge=fetch_charge):
             status = "unpaid"
     if status == "active":
         mapped = activate_subscription(db, owner, plan, stripe_customer_id=customer_id,

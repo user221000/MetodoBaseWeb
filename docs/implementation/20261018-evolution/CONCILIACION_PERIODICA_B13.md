@@ -1,0 +1,39 @@
+# Conciliación periódica B13 por manifiesto operativo
+
+`python -m web.billing_reconciliation_cli --manifest /ruta/privada/selection.json` ejecuta una página de planificación local: no construye SDK, no consulta proveedores ni escribe datos. `--apply` permite únicamente lecturas de los proveedores existentes y aplicación de sus hechos mediante los conciliadores actuales. No crea/cobra/cancela operaciones remotas, concede por redirect, fabrica eventos en inbox ni añade rutas públicas, servicios instalados o migraciones.
+
+El manifiesto es autorización operativa confiable del CLI, preparada por quien opera el servicio y guardada en un directorio privado. Selecciona sujetos UUID canónicos existentes y claves primarias concretas ya persistidas; no descubre cuentas por correo ni enumera tablas globalmente. Formato cerrado, máximo64KiB/100recursos, sin duplicados, claves repetidas ni valores no finitos:
+
+```json
+{"version":1,"resources":[{"subject_id":"00000000-0000-0000-0000-000000000001","kind":"subscription","resource_id":123,"provider":"stripe"}]}
+```
+
+`kind` es `subscription` con PK entero positivo o `purchase_intent` con PK UUID; proveedor es `stripe` o `mercadopago`. El ejemplo es ilustrativo: cada sujeto/recurso debe corresponder al inventario autorizado real. Un ID ajeno/inexistente o un mapping incompatible produce revisión manual sin consultar proveedor ni adoptar el recurso. No se reactiva ni modifica identidad, rol o pertenencia de cuentas. La verdad comercial puede reconciliarse para una cuenta desactivada, cuya identidad continúa desactivada y sin acceso.
+
+## Páginas, límites y resultado
+
+`--max-items` admite1–100, default25. `--cursor` es selección SHA-256 canónica+offset acotado; cambiar orden/sujetos/recursos/proveedor invalida el cursor antes de abrir Session. Diferencias de formato del mismo JSON no cambian la selección. No es un bearer público ni una autorización nueva. La salida JSON contiene sólo contadores, modo, completitud del recorrido y cursor; no IDs de sujetos/recursos, contactos, claves, hechos del proveedor ni SQL.
+
+`--deadline-seconds` admite1–120, default60. El presupuesto permite hasta300lecturas del SDK, con timeout positivo de hasta5segundos por lectura y cero reintentos automáticos. El deadline controla admisión de cada recurso/lectura: no mata una llamada, COMMIT ni finalizador en curso. El timeout de transporte usa la semántica connect/read del SDK, no una garantía de duración total ante un proveedor que envíe datos continuamente. En PostgreSQL se fijan `statement_timeout=5000` y `lock_timeout=1000` transaccionales después de vincular tenant. Su aceptación real requiere replay PostgreSQL posterior; pruebas SQLite no acreditan esas GUC/RLS ni contención física PG.
+
+Resultados: `planned` es recurso local resoluble; `reconciled` significa COMMIT y cierre confirmados, no nuevo cobro; `pending` es checkout abierto/sin pago encontrado, sin activación inventada; `manual` es hecho sin autoridad suficiente o ambiguo; `retryable` es fallo de lectura/presupuesto durante el recurso; `unconfirmed` incluye fallo desconocido/COMMIT/rollback/cierre; `deferred` es admisión agotada antes del recurso. `complete` sólo indica recorrido de la selección, no que todos sus pagos estén resueltos.
+
+Salida0 indica página sin incidencias,3 requiere revisión manual,75 exige reintentar y2 indica incertidumbre. Entrada inválida retorna64 opaco. Ante `retryable`/`unconfirmed`, el cursor conserva el mismo recurso y no se inicia otro. Nunca se afirma éxito por un ACK perdido aunque el servidor haya persistido; no hay compensación de una transacción que puede haberse confirmado. Un siguiente recorrido vuelve a leer verdad vigente y conserva idempotencia comercial.
+
+## Hechos aplicados y aislamiento
+
+Cada recurso abre Session propia bajo ContextVar vacío; después vincula el sujeto del manifiesto confiable antes de cualquier consulta. Comprueba su identidad persistida y filtra recurso por sujeto+PK+proveedor. Los conciliadores mantienen sus locks, segunda lectura fresca bajo lock, comprobaciones de importe/moneda/periodo, ownership y proveedor que financia el derecho actual. Rollback/cierre propios preceden al resultado; un fallo de cleanup invalida sólo la Session propia y no declara éxito. Se restaura el ContextVar del llamador. No se dispone del pool global.
+
+Stripe usa suscripción persistida o recupera el Checkout Session exacto del intent, verifica id/object/mode/metadata de intent/sujeto/plan/customer y resuelve la suscripción. Un checkout pagado por sí solo nunca concede: `reconcile_subscription` sigue exigiendo precio mensualMXN, invoice pagada y charge actual capturado/no reembolsado. Se añadieron sólo dos callbacks síncronos opcionales de lectura, `fetch_subscription`/`fetch_charge`; las llamadas por defecto de webhooks conservan sus SDK y locks originales.
+
+MercadoPago distingue preferenceID de paymentID. Una preferencia de intent persistido busca sólo `external_reference=intent.id` con limit11/offset0; requiere paging completo y máximo10resultados. Cero es pendiente; dos o más IDs son ambiguos y no se elige por orden/status. Únicamente un resultado con referencia exacta puede pasar a `get`/conciliador, que revalida ID, intent, subject, moneda, importe y fecha actuales bajo lock. Sin referencia persistida, datos legacy ambiguos o recursos no reconciliables no se crean/adivinan cobros ni derechos: se reporta manual.
+
+El replay conserva derechos, periodo, cuotas consumidas, Payment y procedencia. Los `updated_at` operativos que ya actualizan los servicios compartidos pueden cambiar; no se modificaron esas tres funciones para forzar igualdad temporal.
+
+## Programación externa y fuentes
+
+El operador puede programar este mismo comando con cron/runner existente, por ejemplo cada15minutos, sin instalar un daemon nuevo. Debe mantener el manifiesto y cursor en su directorio privado, impedir ejecuciones solapadas, persistir `next_cursor` de forma atómica y volver a inicio sólo cuando `complete=true`. Ante incertidumbre/reintento conserva ese cursor; ante manual revisa el inventario/autorización sin fabricar asociaciones. Usar las variables de entorno de despliegue existentes y una cuenta de aplicación restringida; no poner credenciales en argumentos/cron/logs. No se instaló ni activó cron, ni se consultó un proveedor real para esta entrega.
+
+SDK local inspeccionado: Stripe11.6.0 y MercadoPago3.6.0 del WEB92, sin instalaciones ni cambios. Clientes propios por lectura y configuración global Stripe intacta. Fuentes primarias consultadas2026-10-21: [Checkout Session retrieve](https://docs.stripe.com/api/checkout/sessions/retrieve), [StripeClient11.6.0 y opciones por cliente](https://github.com/stripe/stripe-python/blob/v11.6.0/stripe/_stripe_client.py), [RequestsClient11.6.0/timeout](https://github.com/stripe/stripe-python/blob/v11.6.0/stripe/_http_client.py), [Payment search/get del SDK oficialMP](https://github.com/mercadopago/sdk-python/blob/master/mercadopago/resources/payment.py), [RequestOptions oficialMP](https://github.com/mercadopago/sdk-python/blob/master/mercadopago/config/request_options.py). No se actualizó la versión API Stripe existente `2024-06-20` ni se usó `.v1`, ausente en el SDK11.6.0 instalado.
+
+La validación autor usa SQLite37 y SDK dobles: webhook perdido→reparación→replay; fallo/timeout; sujeto/recurso/ref/customer ajenos; descubrimiento ambiguo/acotado; cancelación sin reiniciar cuota; plan0SDK/0DML; presupuesto/cursor; ACK perdido/rollback/cierre; opciones SDK propias y defaults Stripe existentes. Un primer caso oversized generó un ID pytest mayor al límite de entorno Windows; se conserva RAW y se acotó sólo el identificador del test, sin cambiar bytes/aserciones. Resultados finales y recibos se adjuntan tras freeze; revisión independiente y replay PG actual pendientes. No se atribuyen gates Native35/PG53/imagen anteriores a esta fuente nueva.
