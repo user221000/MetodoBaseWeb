@@ -363,3 +363,7 @@ V7 ya integrado resuelve la última ubicación pendiente del escaneo anterior. S
 ## Checkpoint150 — 2026-10-21
 
 Integrados607PPL,955QA32,6f130rediseño y50325semántica timer. La paleta se unifica con la landing y se reemplazan métricas ficticias de login y promesa no medida de60segundos por texto factual. Se conservan formularios/IDs/handlers/CSRF y derechos. Catálogo nuevo sólolectura/noDDL/nocuotas/noCliente-bootstrap; estado de semana/temporizador sóloRAM. Validación actual89 y gates estáticos focales; Native aún pendiente.
+
+## Checkpoint151 — 2026-10-21
+
+Producto50325 permaneceexacto. Integrados harness/recibos nativos yfinitoV8 para5checksums,ZIPV7originalintacto. Nuevas pruebas usan clasificador real ymutaciones negativas. PGcorrige presupuesto de fixtureQA,no producto ni aserciones originales. R30sóloWTaislada/noMain.

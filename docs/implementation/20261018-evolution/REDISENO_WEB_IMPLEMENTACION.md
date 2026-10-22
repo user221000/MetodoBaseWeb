@@ -37,3 +37,7 @@ node tests/e2e/visual_redesign_browser.cjs
 ```
 
 El directorio de salida debe ser nuevo. Leer el JSON de resultados y exigir `complete` y todos los `cases[].passed`; el transporte del harness conserva también los resultados rojos. `--baseline` renderiza Git713; `METODOBASE_VISUAL_CASES=landing` limita un replay focal sin alterar aserciones. Los archivos existentes conservan CRLF de checkout y GitLF mediante stage finito con `core.autocrlf=true --renormalize`; los nuevos declaran LF y la evidencia conserva sus bytes.
+
+## Checkpoint151 — 2026-10-21
+
+Aceptación autenticada independiente focal50325:3loginsUIpassword+MFA,4contextos×4anchuras16capturas,37criterios y2PDF;0pageErrors/axe/overflow. Rootvioowner390/personal1440 yQA cuatrovistasrepresentativas. Evidencia security-routines-native37-execution-20261021. Los35flujos anteriores completos siguen enrefreeze,no se atribuyen a estas16capturas.

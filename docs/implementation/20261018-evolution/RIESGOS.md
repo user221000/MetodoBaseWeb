@@ -287,3 +287,7 @@ Rediseño y rutinas pueden afectar navegación, reflow, foco e invalidación de 
 ## Checkpoint150 — 2026-10-21
 
 Riesgo de foco invisible en menús móviles, impresión y ciclo de sesión tras rediseño: QA nativa independiente preparada con16capturas y flujos reales. Fuente50325congelada hasta esa validación. Tool81 incompleto yclusterTemp antiguo no arrancable se preservan; reemplazos de pruebas aislados verifican sus propias versiones/identidades. No hay evidencia para atribuir una causa común. Owners: coordinación, QA/seguridad yoperación; estado en_curso.
+
+## Checkpoint151 — 2026-10-21
+
+Foco móvil/impresión/sesión delpanel comprobados en16capturas;35flujos actuales yPostgreSQLfocal pendientes.353pytestPASS primerintentoREJECTEDporbudget se conserva;429válidos porfases. Tool10/Tool81 incompletos hoy,sincausa demostrada. No reescribir esos entornos para aparentar quietud; preparar otro aislado si hacefalta un gate nuevo.

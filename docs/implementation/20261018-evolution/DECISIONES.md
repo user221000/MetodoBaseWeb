@@ -266,3 +266,7 @@ La nueva solicitud autoriza implementar rutinas genéricas y rediseñar toda la 
 ## Checkpoint150 — 2026-10-21
 
 El catálogo PPL es general y común a todos los planes, sin seguimiento persistido ni prescripción individual. El401 nuevo usa retiro local del token exacto; no cambia el mecanismo global MFA ni adopta cuentas nuevas. Se fija semántica timer/liveoff y estadospolite conforme W3C. Se conserva el clusterPG histórico dañado y se crea uno de pruebas nuevo propio55483; ningún dato/servicio general se modifica. No se atribuye causa a la pérdida de archivos Temp.
+
+## Checkpoint151 — 2026-10-21
+
+Se aceptan2UUID legítimas QA37:fixturemódulo37 ypredecesor36dañado solapadas. No reciclarBD ni omitir canario para forzar68;planfull69. Aceptación porfases323+106 conIDsdisjuntos ymisma fuente runtime,no one-shotinventado. NativePPL usa SaaSreal/SQLite37;Native35requierevencimiento antesSQL/cadafase ystop propio. Nodeinventario correcto=3paquetes/157archivos. R30sólohechospropiosobservados,sinDDL/colector/globalreporter ytargetsnull hasta baseline real.

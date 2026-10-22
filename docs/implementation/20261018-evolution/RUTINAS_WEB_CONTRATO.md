@@ -44,3 +44,7 @@ La división PPL tres días no se presenta como cumplimiento de la recomendació
 Pruebas de autor dirigidas: HTTP real sobre SQLite37 y ambas factories, registro/contraseña/enrolamiento/TOTP/challenge/recovery existentes, roles persistidos, revocación y padre, ausencia de DML, proyección mínima y fallo de cierre. Node puro usa el catálogo Python real, calendario circular, pausa/reinicio, transporte, sesión cambiada y arranque con `const Api` léxico tanto en DOMContentLoaded como documento completo. Dobles sólo en pruebas puras de transporte/temporizador; no se simula identidad de aceptación HTTP.
 
 Sin PostgreSQL, navegador, Redis, VM, proveedor ni envío. Responsive real 320/390/768/1440, impresión real, composición de diseño global, QA y Seguridad independientes quedan para la ventana que coordine ROOT. No se atribuye esa aceptación al autor ni se repiten suites históricas completas para este catálogo de lectura.
+
+## Checkpoint151 — 2026-10-21
+
+QA independiente50325 pasa37criterios nativos reales:16capturas/0pageErrors/axe/overflow,2PDFcompletos,403/401/cambiocuenta ytimer;fuente/herramientasquietas,cierrepropionormal. [Evidencia](evidence/security-routines-native37-execution-20261021/result.json). CubreSQLite37/SaaSreal,noPG/lector real;PGfocal queda siguiente.

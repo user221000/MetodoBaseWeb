@@ -21,3 +21,7 @@ Candidato local713bd antes de rediseño. V7fullscan y75seleccionados aceptados e
 ## Checkpoint150 — 2026-10-21
 
 Producto local50325 integrado, candidato todavía en revisión nativa/operativa. Rediseño+PPL+QA32 presentes y89seleccionadosPASS, calidad estática actualPASS. Imagen sólocontexto:479RAW/12inputs/57catálogo; sin imagen construida/SBOM/SCA. PG429enprogreso y35native/Redis/CIactual pendientes. Los152requisitos preservan todos loscriteriosprevios y537untracked SHA intactos. Nada publicado ni desplegado.
+
+## Checkpoint151 — 2026-10-21
+
+Rediseño ypanel integrados;37/37NativefocalPASS,gates89HTTP/contratos ycalidad50325 conservados porfuente. PG429porfases/69UUIDaceptadas/71creadasycerradas,sin nuevoR36. R05V8integrado95PASS+peer57,fullscanactualpendiente. No imagen/SBOM/SCA/CIglobalactual nidespliegue.152criterios y537untrackedSHA intactos.
