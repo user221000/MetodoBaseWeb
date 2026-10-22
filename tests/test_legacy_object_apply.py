@@ -1,5 +1,7 @@
 """Synthetic operator apply against a real migrated37 SQLite copy, no provider."""
+import inspect
 import json
+import os
 import shutil
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -11,6 +13,7 @@ from sqlalchemy.orm import Session
 from tests import account_security37_fixtures
 from web.database.models import (
     Cliente,
+    GymProfile,
     PlanGenerado,
     StoredObject,
     UserRole,
@@ -67,6 +70,7 @@ def case(account37_engine, tmp_path):
         'source': service.source_binding(), 'destination_sha256': service.destination_binding(configuration),
         'entries': [{'entry_sha256': service.entry_key(entry), 'apply': True,
             'provenance_reference': 'synthetic-generated-here-not-an-operational-approval'} for entry in records[1:-1]]}))
+    manifest.chmod(0o600)
     bundle = service.Bundle(manifest, inv, roots, configuration)
     now = datetime.now(UTC)
     approval = private / 'approval.json'
@@ -74,6 +78,7 @@ def case(account37_engine, tmp_path):
         'entries': [service.entry_key(entry) for entry in bundle.selected], 'issued_at': now.isoformat(),
         'expires_at': (now + timedelta(hours=1)).isoformat(),
         'quiescence_reference': 'synthetic-single-test-writer-not-production-attestation'}))
+    approval.chmod(0o600)
     value = SimpleNamespace(engine=engine, bundle=bundle, approval=approval, journal=private / 'journal.jsonl',
         store=LocalObjectStore(configuration.local_root), original=original, data=data, row_id=row_id, private=private,
         manifest=manifest, inv=inv, roots=roots, configuration=configuration, now=now)
@@ -92,7 +97,7 @@ def status(case):
     with Session(case.engine) as db:
         return (db.get(PlanGenerado, case.row_id).pdf_object_id,
             [(row.id, row.status) for row in db.scalars(select(StoredObject))],
-            db.get(Cliente, 'client-a').total_planes_generados)
+            db.scalar(select(Cliente).where(Cliente.id_cliente == 'client-a')).total_planes_generados)
 
 
 def test_plan_has_no_DML_no_journal_and_no_provider_call(case, monkeypatch):
@@ -273,3 +278,109 @@ def test_CLI_fixed_opaque_error_never_reflects_arguments_or_inherited_applicatio
     assert result.out == '' and marker not in result.err
     assert json.loads(result.err) == {'complete': False, 'status': 503, 'code': 'legacy_apply_unavailable'}
     assert status(case) == (None, [], 0)
+
+
+def test_ready_and_reference_rollback_together_on_failure_inside_final_transaction(case, monkeypatch):
+    original = service._attach
+    def refuse(*args):
+        original(*args)
+        raise ObjectUnavailable('inert-before-final-commit')
+    monkeypatch.setattr(service, '_attach', refuse)
+    with pytest.raises(ObjectUnavailable):
+        execute(case)
+    assert status(case)[0] is None and status(case)[1][0][1] == 'pending'
+    monkeypatch.setattr(service, '_attach', original)
+    assert execute(case)['applied'] == 1
+
+
+def test_foreign_owner_pending_metadata_is_not_adopted_or_overwritten(case, monkeypatch):
+    original = case.store.put
+    monkeypatch.setattr(case.store, 'put', lambda *_a, **_k: (_ for _ in ()).throw(ObjectUnavailable()))
+    with pytest.raises(ObjectUnavailable):
+        execute(case)
+    with Session(case.engine) as db:
+        db.scalar(select(StoredObject)).gym_id = 'apply-b'
+        db.commit()
+    monkeypatch.setattr(case.store, 'put', original)
+    with pytest.raises(service.ApplyError, match='pending_descriptor_changed'):
+        execute(case)
+    with Session(case.engine) as db:
+        assert db.scalar(select(StoredObject)).gym_id == 'apply-b'
+    assert status(case)[0] is None
+
+
+def test_private_boundary_precedes_payload_and_rejects_extra_principals_or_public_mode(tmp_path):
+    from web.services import legacy_object_apply_boundary as boundary
+    private = boundary.create_private_directory(tmp_path / 'guarded')
+    assert list(private.iterdir()) == []
+    boundary.verify(private, directory=True)
+    if os.name == 'nt':
+        source = inspect.getsource(boundary._windows)
+        assert source.count('(A;OICI;FA;;;SY)') == 1
+        source = source.replace('(A;OICI;FA;;;SY)', '(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)')
+        scope = {name: getattr(boundary, name) for name in ('csv', 'io', 'subprocess')}
+        exec(compile(source, '<synthetic-third-ACE>', 'exec'), scope)
+        with pytest.raises(OSError):
+            scope['_windows'](private, create=True)
+    else:
+        private.chmod(0o755)
+    with pytest.raises(OSError):
+        boundary.verify(private, directory=True)
+
+
+def test_logo_reencoding_keeps_source_digest_separate_and_preserves_business_timestamp(case):
+    from io import BytesIO
+
+    from PIL import Image, PngImagePlugin
+    target = case.roots.logo / 'brand.png'
+    metadata = PngImagePlugin.PngInfo()
+    metadata.add_text('Synthetic-private-comment', 'not-for-normalized-output')
+    stream = BytesIO()
+    Image.new('RGB', (4, 4), 'red').save(stream, format='PNG', pnginfo=metadata)
+    target.write_bytes(stream.getvalue())
+    with Session(case.engine) as db:
+        profile = GymProfile(gym_id='apply-a', logo_url='/static/uploads/logos/brand.png')
+        db.add(profile)
+        db.flush()
+        profile_id, stamp = profile.id, profile.updated_at
+        db.commit()
+    case.inv.unlink()
+    with inventory.readonly_inventory_connection(case.engine) as connection:
+        inventory.write_inventory(connection, case.roots, case.inv)
+    records = [json.loads(line) for line in case.inv.read_text(encoding='utf8').splitlines()]
+    mapping = json.loads(case.manifest.read_bytes())
+    mapping['inventory_sha256'] = service.digest(case.inv.read_bytes())
+    mapping['entries'] = [{'entry_sha256': service.entry_key(entry), 'apply': True,
+        'provenance_reference': 'synthetic-logo-created-in-this-test'} for entry in records[1:-1]]
+    case.manifest.write_bytes(service.canonical(mapping))
+    case.bundle = service.Bundle(case.manifest, case.inv, case.roots, case.configuration)
+    approval = json.loads(case.approval.read_bytes())
+    approval.update(binding=case.bundle.binding, entries=[service.entry_key(entry) for entry in case.bundle.selected])
+    case.approval.write_bytes(service.canonical(approval))
+    assert execute(case)['applied'] == 2
+    with Session(case.engine) as db:
+        profile = db.get(GymProfile, profile_id)
+        assert profile.updated_at == stamp
+        stored = db.get(StoredObject, profile.logo_object_id)
+        assert stored.sha256 != service.digest(target.read_bytes()) and stored.status == 'ready'
+    assert target.read_bytes() == stream.getvalue()
+    assert execute(case)['applied'] == 2
+
+
+def test_CLI_actual_plan_then_apply_and_replay_use_explicit_DB_and_private_storage(case, monkeypatch, capsys):
+    from scripts.apply_legacy_objects import main
+    storage = case.private / 'storage.json'
+    storage.write_bytes(service.canonical({'backend': 'local', 'local_root': str(case.configuration.local_root)}))
+    storage.chmod(0o600)
+    monkeypatch.setenv('LEGACY_APPLY_DATABASE_URL', str(case.engine.url))
+    args = ['--manifest', str(case.manifest), '--inventory', str(case.inv), '--storage', str(storage),
+        '--pdf-root', str(case.roots.pdf), '--logo-root', str(case.roots.logo),
+        '--expected-database', str(case.engine.url.database)]
+    assert main(args) == 0
+    result = capsys.readouterr()
+    assert json.loads(result.out)['mode'] == 'plan' and result.err == '' and status(case) == (None, [], 0)
+    assert main([*args, '--apply', '--approval', str(case.approval), '--journal', str(case.journal)]) == 0
+    assert json.loads(capsys.readouterr().out)['applied'] == 1
+    first = status(case)
+    assert main([*args, '--apply', '--approval', str(case.approval), '--journal', str(case.journal)]) == 0
+    assert json.loads(capsys.readouterr().out)['applied'] == 1 and status(case) == first

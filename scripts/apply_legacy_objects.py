@@ -73,12 +73,13 @@ def main(argv=None):
         configuration = ObjectStoreConfiguration(**values)
         bundle = apply.Bundle(args.manifest, args.inventory, InventoryRoots(args.pdf_root, args.logo_root),
             configuration, storage_path=args.storage)
-        if args.apply:
-            apply.Admission(bundle, args.approval, seconds=args.deadline_seconds)
+        admission = apply.Admission(bundle, args.approval, seconds=args.deadline_seconds) if args.apply else None
         raw_url = os.environ.get(args.url_env, '')
         if not raw_url:
             raise apply.ApplyError('explicit_database_required')
         engine = create_target(raw_url, args.expected_database, readonly=not args.apply)
+        if admission is not None:
+            admission.check()
         store = build_object_store(configuration) if args.apply else None
         result = apply.run(engine, bundle, approval=args.approval if args.apply else None,
             journal=args.journal, store=store, seconds=args.deadline_seconds)
