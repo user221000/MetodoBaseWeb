@@ -104,6 +104,9 @@ tres tests incorporados.
 La evidencia privada recibió DACL protegida antes del primer payload y tiene
 archivo RAW de 166 miembros con lectura de retorno idéntica. La proyección
 pública usa scanner119, controles JWT/HMAC/credenciales y hashes de archivos.
+El `diff --check` focal de producto, tests y texto es limpio. El diff completo
+señala los CRLF de la preimagen RAW del dominio, conservados con `-text` para
+no alterar su identidad; no se presenta ese diff histórico como limpio.
 Ver [manifest.json](evidence/qa-r30-independent-20261021/manifest.json),
 [freeze.json](evidence/qa-r30-independent-20261021/freeze.json) y
 [atribución](evidence/qa-r30-independent-20261021/failure-attribution.json).

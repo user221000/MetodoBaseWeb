@@ -1,0 +1,45 @@
+diff --git a/web/product_analytics_domain.py b/web/product_analytics_domain.py
+index f01e5695..4411a128 100644
+--- a/web/product_analytics_domain.py
++++ b/web/product_analytics_domain.py
+@@ -247,13 +247,25 @@ def validate_report(value):
+         if cohort["population_units"] != 0:
+             raise AnalyticsInput("Missing anchor")
+     elif (civil(cohort["anchor_week"]).weekday() != 0 or cohort["population_units"] != 1
++            or civil(cohort["anchor_week"]) > last
+             or civil(cohort["anchor_week"]) > cutoff.astimezone(ZoneInfo(ZONE)).date()):
+         raise AnalyticsInput("Invalid anchor week")
+     if cohort["population_units"] == 0 and any(row["saved_publications"] for row in weeks):
+         raise AnalyticsInput("Observed publications require an anchor")
++    if cohort["anchor_week"] is not None:
++        anchor_day = civil(cohort["anchor_week"])
++        for row in weeks:
++            week = civil(row["week_start"])
++            if ((week < anchor_day and row["saved_publications"] != 0)
++                    or (week == anchor_day and row["saved_publications"] < 1)):
++                raise AnalyticsInput("Weekly publications contradict the retained anchor")
++        # Only bounds are known: never infer an exact anchor from its week.
++        # A civil week can cross an offset change; elapsed windows start in UTC.
++        earliest = datetime.combine(anchor_day, time.min, ZoneInfo(ZONE)).astimezone(UTC)
++        latest = datetime.combine(anchor_day + timedelta(days=7), time.min, ZoneInfo(ZONE)).astimezone(UTC)
+     if _iso_input(cohort["evaluated_at"]) != boundaries(first, last, now)[2]:
+         raise AnalyticsInput("Invalid observation cutoff")
+-    for key in ("observed_repeat_publication_d7", "observed_repeat_publication_d30"):
++    for key, window_end in (("observed_repeat_publication_d7", 14), ("observed_repeat_publication_d30", 37)):
+         row = cohort[key]
+         _keys(row, "mature denominator numerator ratio")
+         if type(row["mature"]) is not bool or type(row["denominator"]) is not int or row["denominator"] != cohort["population_units"]:
+@@ -264,6 +276,13 @@ def validate_report(value):
+                 raise AnalyticsInput("Invalid observed ratio")
+         elif row["numerator"] is not None or row["ratio"] is not None:
+             raise AnalyticsInput("Immature values must be unknown")
++        if cohort["anchor_week"] is not None and (
++                (row["mature"] and cutoff < earliest + timedelta(days=window_end))
++                or (not row["mature"] and cutoff >= latest + timedelta(days=window_end))):
++            raise AnalyticsInput("Maturity contradicts the retained anchor week")
++    if (cohort["observed_repeat_publication_d30"]["mature"]
++            and not cohort["observed_repeat_publication_d7"]["mature"]):
++        raise AnalyticsInput("Later window maturity requires the earlier window")
+     if value["coverage"] != coverage(scope) or value["business_baseline"] != {"status": "not_measured", "targets": None}:
+         raise AnalyticsInput("Unknown coverage or invented baseline")
+     candidate = {key: item for key, item in value.items() if key != "result_hash"}
