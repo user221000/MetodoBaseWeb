@@ -33,8 +33,11 @@ GIT_EXECUTABLE = Path(shutil.which('git') or '').resolve()
 def source_check():
     if not GIT_EXECUTABLE.is_file():
         raise apply.ApplyError('source_tool_unavailable')
+    environment = {key: value for key, value in os.environ.items() if not key.upper().startswith('GIT_')}
+    environment.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull,
+        GIT_NO_LAZY_FETCH='1', GIT_TERMINAL_PROMPT='0', GIT_OPTIONAL_LOCKS='0')
     head = subprocess.check_output([str(GIT_EXECUTABLE), '--no-replace-objects', 'rev-parse', 'HEAD'],
-        cwd=ROOT, timeout=5, stderr=subprocess.DEVNULL).decode().strip()
+        cwd=ROOT, timeout=5, stderr=subprocess.DEVNULL, shell=False, env=environment).decode().strip()
     if not re.fullmatch('[a-f0-9]{40}', head):
         raise apply.ApplyError('source_tool_unavailable')
     return apply.source_binding(head)
