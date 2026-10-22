@@ -22,7 +22,7 @@ OPERATIONAL = (
     "scripts/implementation_registry.py", "scripts/cleanup_expired_tokens.py",
     "scripts/check_frontend_report.py", "scripts/check_followup_fixture.py",
     "scripts/check_browser_fixture_startup.py", "scripts/backup_restore.py",
-    "scripts/backup_daily.py",
+    "scripts/backup_daily.py", "scripts/apply_legacy_objects.py",
 )
 
 
