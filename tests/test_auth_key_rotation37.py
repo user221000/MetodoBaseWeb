@@ -68,10 +68,10 @@ def test_cutover_rejects_old_access_and_both_refresh_transports_then_allows_new_
     with TestClient(application, raise_server_exceptions=False) as renewed:
         renewed.cookies.update(raw.cookies)
         # A non-exempt HTML path exercises real CSRF before route dispatch.
-        blocked = renewed.post('/login', json={}, headers={'X-CSRF-Token': old_csrf})
+        blocked = renewed.post('/login-usuario', json={}, headers={'X-CSRF-Token': old_csrf})
         assert blocked.status_code == 403
         assert blocked.json()['detail'] == 'CSRF token invalid or expired'
-        page = renewed.get('/login')
+        page = renewed.get('/login-usuario')
         assert page.status_code == 200
         new_csrf = renewed.cookies.get('_csrf')
         from web.middleware.csrf import verify_csrf_token
