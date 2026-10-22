@@ -375,3 +375,37 @@ El controlador NativeV6 original admitía su fixture ante un ACK SQL vencido; el
 Aceptación: Rechazar ACK ausente, ambiguo, vencido o no ligado a fuente, perfil y selección antes de iniciar SQL y cada driver; exigir admisión separada para Chrome y startup real37. Conservar los22 helpers originales, aserciones y plazos; usar companions con inversas finitas y shutdown ligado a PID, generación y fuente propios. Verificar esquema/rol/pool/index reales, cierre normal y ausencia fresca de la UUID propia. Preservar canario original RED y cualquier intento rechazado; publicar ACK completo de forma atómica y no convertir cierre tardío o evidencia parcial en PASS.
 
 58controles yNative35por4fases sobre50325aceptados;V1REJECTED se conserva. [Evidencia](evidence/security-native35-v7-v2-current35-20261021/result.json).
+
+## Checkpoint156 — 2026-10-22
+
+### QA-36 — Selección exacta de compra en conciliación
+
+Problema: El nuevo trabajo privado seleccionaba la compra A, pero una lectura canónica podía describir la compra B del mismo sujeto y reparar un recurso fuera de la selección operativa.
+
+Criterio: Cuando se selecciona una PurchaseIntent, cada lectura canónica de suscripción o pago, incluida la segunda lectura bajo lock, debe conservar exactamente esa intención además de sujeto y recurso. Un desvío debe revertir el recurso completo, conservar revisión manual y no modificar derechos de otra compra. Mantener controles legítimos de ambos proveedores y conservar el canario literal RED/PASS.
+
+Revisión: Root independiente: cuatro canarios literales, dos RED/1196 y cuatro PASS/7b7; final10/cdda y137/Main. Autor añadió cambios entre primera/segunda lectura para Stripe y MercadoPago.
+
+### QA-37 — Ownership de Session del trabajo de conciliación
+
+Problema: Un puerto de fábrica deliberadamente incorrecto que devolvía una Session prestada con transacción activa podía provocar rollback/cierre de trabajo del llamador al rechazarla.
+
+Criterio: Construir la Session bajo contexto neutral y asumir ownership sólo después de verificar que no tiene transacción activa. Rechazar una Session prestada activa sin rollback, close o invalidate de esa instancia, conservar el cursor y restaurar el ContextVar del llamador. Las Session propias deben seguir cerrándose antes de confirmar resultado. Conservar canarios plan/apply RED/PASS y controles de contexto y avance finito.
+
+Revisión: Root independiente: seis canarios literales, dos RED/6758 y cuatro controles PASS; final10/cdda y137/Main. El defecto se refiere al puerto mal configurado, sin afirmar fallo de SessionLocal por defecto o de HTTP.
+
+### QA-38 — Autoridad de fuente del CLI de archivos históricos
+
+Problema: El CLI nuevo heredaba GIT_DIR y aceptaba como HEAD otro valor de un namespace sintético aunque sus archivos no cambiaran. La reproducción no ejecutó DB ni PUT.
+
+Criterio: Obtener la identidad de fuente del checkout propio mediante ejecutable Git absoluto y argumentos fijos, sin shell, con timeout acotado y stderr privado; eliminar autoridad GIT_* heredada y fijar configuración/prompt/locks. Conservar canario literal con namespace sintético RED y control legítimo, sin atribuir esa fixture a historia real ni a la aplicación HTTP.
+
+Revisión: Seguridad autora conservó1RED/1control en09ab; Backend independiente repitió39 originales y9 propios. Root leyó source_check y ejecutó los dos canarios enMain137. No se afirma procedencia de archivos históricos reales.
+
+### QA-39 — Privacidad de errores de argumentos de conciliación
+
+Problema: argparse procesaba int/float fuera de la frontera opaca del CLI y reflejaba valores inválidos en stderr con salida2, en contra del contrato de entrada inválida64.
+
+Criterio: Rechazar argumentos de consola inválidos sin reflejar valores, rutas ni detalle interno en stdout/stderr; devolver64 con el JSON fijo reconciliation_invalid_input. Mantener --help con salida0 sin abrir manifiesto ni importar base de datos y conservar canarios independientes literales RED/PASS.
+
+Revisión: Seguridad independiente conservó2RED/1control; autor preservó5RED/1help y6PASS. Root revisó el fix y ejecutó literalmente los3 de seguridad dentro del gate137. Son fases distintas, sin sumar replays como nuevos criterios.

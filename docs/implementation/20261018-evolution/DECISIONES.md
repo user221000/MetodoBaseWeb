@@ -286,3 +286,7 @@ Rotación de firma mediante corte coordinado y reautenticación; no exige invent
 ## Checkpoint155 — 2026-10-22
 
 ApplyR07 se implementa sólo sobre fixtures mientras falten procedencia y quiescencia reales. El manifiesto de un operador y su hash son una declaración auditable; por sí solos no prueban quién era dueño histórico ni que todos los escritores se detuvieron. Descriptor estable/journal/CAS no autorizan adoptar archivos. La recuperación de espacio es una fase separada que escribe respaldos enC; sus presupuestos no modifican los guards de build/probe/CI/SCA.
+
+## Checkpoint156 — 2026-10-22
+
+La programación de conciliación pertenece al operador y no se instala automáticamente. La selección de compras es autoridad operativa exacta, no permite reparar otra compra del mismo sujeto. Una Session activa prestada se rechaza sin asumir su cleanup. Git heredado del entorno no es autoridad de fuente del CLI R07. Los dos diagnósticos LOW de subprocess se adjudican al código fijo d8e18ddbc02a70603c840ecd2a1afd09d07f6874388fd2165c217613e4d730ef: ejecutable absoluto confiable, argv literal, shellFalse, timeout5, env limpio, stderrDEVNULL y uso exclusivo CLI. Se conserva la propuesta original approvedFalse y el SAST MED/HIGH existente; no se amplía registry22 ni se suprimen reglas generales.

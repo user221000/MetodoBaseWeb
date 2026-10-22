@@ -383,3 +383,7 @@ Se reconcilian estados de24 criterios con evidencia ya aceptada y criterio inmut
 ## Checkpoint155 — 2026-10-22
 
 B19/B20 integrados y82replays de composición aceptados. Nuevo bloqueo de contraseñas completas y422privado de invitación; sin cambiar login existente. B20 aporta procedimiento y tests, sin runtime/tokenformat nuevo. PRIVACIDAD actualizada. CIweb/Node/PG/Historical31 actualizados como preparación, sin declarar ejecución remota ni global verde.
+
+## Checkpoint156 — 2026-10-22
+
+Integrados B13 y R07/B11 como herramientas explícitas del operador, sin nuevos endpoints ni DDL. QA36–39 verificadas localmente con fallos previos preservados. El CLI de archivos históricos pasa a formar parte de lint/syntax/SAST mantenidos; sus dos diagnósticos LOW B404/B603 son invocación Git fija revisada, sin shell ni argumentos privados. No se añadió baseline/ignore ni aceptación de riesgo real.

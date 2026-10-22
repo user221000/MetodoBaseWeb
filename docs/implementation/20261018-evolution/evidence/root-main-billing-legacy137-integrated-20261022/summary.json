@@ -1,0 +1,38 @@
+{
+  "exit": 0,
+  "tests": 137,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "environment_quiet": true,
+  "source_commit": "08d263707d2c2e69c882cc57a1db1cb2bb185e9f",
+  "modules": [
+    "tests/test_billing_reconciliation13.py",
+    "tests/test_billing_reconciliation13_cli.py",
+    "tests/test_billing_reconciliation13_selection_peer.py",
+    "tests/test_billing_reconciliation13_session_peer.py",
+    "tests/test_security_b13_boundaries_peer.py",
+    "tests/test_security_b13_cli_privacy_peer.py",
+    "tests/test_legacy_object_apply.py",
+    "tests/test_legacy_object_apply_source.py",
+    "tests/test_legacy_object_apply_peer.py"
+  ],
+  "original_selectors": [
+    "tests/test_billing_integrity.py::test_confirm_paid_snapshot_then_cancellation_updates_both_tables",
+    "tests/test_billing_integrity.py::test_provider_evidence_never_grants_unpaid_or_wrong_product",
+    "tests/test_billing_integrity.py::test_cannot_confirm_another_subject_purchase",
+    "tests/test_billing_integrity.py::test_old_active_event_after_cancellation_uses_current_provider_state",
+    "tests/test_billing_integrity.py::test_invoice_without_verified_charge_does_not_grant_access",
+    "tests/test_billing_integrity.py::test_unexpanded_charge_is_retrieved_and_refund_is_checked",
+    "tests/test_billing_integrity.py::test_old_refund_after_renewal_preserves_current_paid_access",
+    "tests/test_billing_integrity.py::test_stale_mapping_before_lock_cannot_cancel_new_purchase",
+    "tests/test_billing_integrity.py::test_old_stripe_cancellation_cannot_revoke_current_mp_purchase"
+  ],
+  "scope": "Integrated bounded reconciliation and legacy object apply with SQLite37 and offline providers; no actual provider, PostgreSQL, historical data apply, full CI or deployment",
+  "private_archive_SHA256": "1af9fd804a3f9eff98808dc1c43ced1dcbd954b6d944d008ee71aeeda9cc899c",
+  "private_archive_members": 21,
+  "full_readback": true,
+  "private_root_and_archive_two_principals_before_payload": true,
+  "distinct_new_criteria_claimed": false,
+  "real_services_or_secrets_mutated": false
+}

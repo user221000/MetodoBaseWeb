@@ -476,3 +476,7 @@ Reconciliación documental: [revisión Root](evidence/root-reconciliacion155-rev
 ## Checkpoint155 — 2026-10-22
 
 GateRoot82 enMain26befe05:82/82 PASS,0F/E/skip; no equivalen a82 criterios nuevos. [Resultado](evidence/root-main-auth82-integrated-20261022/summary.json). Archivo privado4719a57cfb611966dedd0ce058c241e19a7a0b6819eaca44a44790889750f25d,16miembros/readback completo, raíz y archivo2principales antespayload. B19peer reconstruyó corpus/licencia exactos; B20peer conserva7canariosfuente74342 y12v3be769 por separado. No hubo PG/Chrome/proveedor real. Se preservaron12preimágenes CRLF de fixturesCI antes de restaurar sus bytesGit exactos; causa del cambio físico no establecida, ninguna aserción cambió.
+
+## Checkpoint156 — 2026-10-22
+
+Main08d26370:137/137 PASS,0F/E/skip,69.03s, fuentes/WEB92/Node quietos. [Resultado](evidence/root-main-billing-legacy137-integrated-20261022/summary.json). RAW privado1af9fd804a3f9eff98808dc1c43ced1dcbd954b6d944d008ee71aeeda9cc899c,21miembros/readback total, raíz y ZIP2principales antespayload. Los74 B13 incluyen10 canarios de seguridad; los48 R07 incluyen9 de peer. No son137 criterios nuevos ni PG/proveedor/fullCI. ArchivoRoot10 previoa248c5e7d6d36f8b71c39af1b16967df069eff680cc2fc32d0bca2b99bbcdc10 conserva44miembros y cuatro fases originales con4RED previos.

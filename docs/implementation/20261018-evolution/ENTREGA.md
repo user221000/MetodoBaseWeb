@@ -1,14 +1,12 @@
 # Entrega candidata en curso
 
-Checkpoint155 local:155 criterios exactos, incluidos92 originales;54 verificados por fuente. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes totales diarios por gimnasio y20 mensuales. Rediseño y panel Push/Pull/Legs ya implementados y verificados localmente.
+Checkpoint156 local:159 criterios exactos, incluidos92 originales;58 verificados por fuente y alcance. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes diarios totales y20 mensuales. Rediseño deportivo conservando la paleta de landing y panel Push/Pull/Legs implementados y verificados localmente.
 
-Main26befe05 integra B19 y B20 con revisión independiente. Gate integrado82/82 PASS,0fallos/errores/skips y entorno quieto:SQLite37 y ambas factories. Contraseñas nuevas usan corpus local autenticado de99999 hashes, sin consultas externas; login existente conserva compatibilidad. El ensayo de rotación reconstruye middleware CSRF y comprueba login/MFA y rechazo de tokens anteriores. La rotación real/custodia no se ejecutó. PRIVACIDAD vigente enaf83bf6e.
+Main08d26370 integra conciliación B13 y apply histórico R07/B11, revisados por agentes distintos del autor y Root. Gate conjunto137/137 PASS,0fallos/errores/skips en69.03s, fuente/WEB92/Node quietos. Conserva74 casos B13 (48autor+6CLI+10Root+10seguridad),48 R07 (39autor+9peer) y15 regresiones billing. QA36–39 formalizan selección exacta, ownership de Session, fuente Git propia y errores CLI privados. Se conservan RED previos; los58 criterios locales no significan cierre global ni despliegue.
 
-B13, conciliación periódica acotada de pagos, continúa en implementación. R07/B11 añade apply histórico con journal/descriptor estable/CAS y fixtures; la asignación de objetos reales requiere procedencia y ventana operativa aprobadas. No hay nuevos endpoints públicos ni operaciones sobre datos reales.
+B13 y R07/B11 permanecen en revisión para PostgreSQL y operación real. No se programó cron, adoptaron archivos reales ni consultaron proveedores. B19/B20 conservan82/82 integrados previos y sus límites; imagen144/59, PG53 y Native35 mantienen fuentes anteriores. Se prepara CI57 portable y TEMP privado en F sólo para el proceso hijo, sin alterar aislamiento ni entorno global.
 
-CI7ddb8b25 integra14 cambios preparados y16proofs;4jobs cambiados y15literalmenteiguales, sinDesktop. Fullscan completo actual, serial/n2/cobertura, imagen del candidato final, SBOM/SCA vigente y Redis/carga siguen pendientes. Se recupera espacio mediante respaldo RAW y Git sparse de Docs propios cerrados; VM apagada y servicios ajenos intactos. Imagen144/59 yPG53 anteriores conservan su atribución, sin presentarse como evidencia del código B19 posterior.
-
-Retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional, proveedores/custodia y piloto5+5 conservan pendientes externos. Sin push, PR, despliegue, cargos ni envíos reales.
+Pendientes locales: gates amplios serial/n2/cobertura de fuente final, fullscan completo, composición PostgreSQL nueva, imagen final, SBOM/SCA vigente y Redis/carga. Se recupera espacio con respaldos RAW verificados y sparse de Docs propios cerrados; VM apagada, originales del usuario y servicios ajenos intactos. Pendientes externos: proveedores/custodia, retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional y piloto5+5. Sin push, PR, despliegue, cargos ni envíos reales.
 
 ## Observaciones históricas por fuente
 
@@ -74,3 +72,14 @@ B13, conciliación periódica acotada de pagos, continúa en implementación. R0
 CI7ddb8b25 integra14 cambios preparados y16proofs;4jobs cambiados y15literalmenteiguales, sinDesktop. Fullscan completo actual, serial/n2/cobertura, imagen del candidato final, SBOM/SCA vigente y Redis/carga siguen pendientes. Se recupera espacio mediante respaldo RAW y Git sparse de Docs propios cerrados; VM apagada y servicios ajenos intactos. Imagen144/59 yPG53 anteriores conservan su atribución, sin presentarse como evidencia del código B19 posterior.
 
 Retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional, proveedores/custodia y piloto5+5 conservan pendientes externos. Sin push, PR, despliegue, cargos ni envíos reales.
+
+
+## Checkpoint156
+
+Checkpoint156 local:159 criterios exactos, incluidos92 originales;58 verificados por fuente y alcance. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes diarios totales y20 mensuales. Rediseño deportivo conservando la paleta de landing y panel Push/Pull/Legs implementados y verificados localmente.
+
+Main08d26370 integra conciliación B13 y apply histórico R07/B11, revisados por agentes distintos del autor y Root. Gate conjunto137/137 PASS,0fallos/errores/skips en69.03s, fuente/WEB92/Node quietos. Conserva74 casos B13 (48autor+6CLI+10Root+10seguridad),48 R07 (39autor+9peer) y15 regresiones billing. QA36–39 formalizan selección exacta, ownership de Session, fuente Git propia y errores CLI privados. Se conservan RED previos; los58 criterios locales no significan cierre global ni despliegue.
+
+B13 y R07/B11 permanecen en revisión para PostgreSQL y operación real. No se programó cron, adoptaron archivos reales ni consultaron proveedores. B19/B20 conservan82/82 integrados previos y sus límites; imagen144/59, PG53 y Native35 mantienen fuentes anteriores. Se prepara CI57 portable y TEMP privado en F sólo para el proceso hijo, sin alterar aislamiento ni entorno global.
+
+Pendientes locales: gates amplios serial/n2/cobertura de fuente final, fullscan completo, composición PostgreSQL nueva, imagen final, SBOM/SCA vigente y Redis/carga. Se recupera espacio con respaldos RAW verificados y sparse de Docs propios cerrados; VM apagada, originales del usuario y servicios ajenos intactos. Pendientes externos: proveedores/custodia, retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional y piloto5+5. Sin push, PR, despliegue, cargos ni envíos reales.
