@@ -367,3 +367,7 @@ Integrados607PPL,955QA32,6f130rediseño y50325semántica timer. La paleta se uni
 ## Checkpoint151 — 2026-10-21
 
 Producto50325 permaneceexacto. Integrados harness/recibos nativos yfinitoV8 para5checksums,ZIPV7originalintacto. Nuevas pruebas usan clasificador real ymutaciones negativas. PGcorrige presupuesto de fixtureQA,no producto ni aserciones originales. R30sóloWTaislada/noMain.
+
+## Checkpoint152 — 2026-10-21
+
+Nuevo QA-33 y calificación explícita del fullscanV8 no acreditado. Producto50325 exacto; corrección del escáner y R30 siguen aislados.152criterios anteriores y537untrackedSHA intactos.

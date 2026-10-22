@@ -345,3 +345,15 @@ UX-21 y R36 añaden el rediseño integral y las rutinas solicitadas expresamente
 QA-32: retiro local exacto ante401 del catálogo, antes del cuerpo, con fences de snapshot/token y controles de rotación/cuenta nueva. Corregido955, peer9dfa12HTTP+23Node/3mutantes; focal local verificado.
 
 UX-22: contador output con status implícito. Corrección503 añade sólo role=timer y aria-live=off, conserva región polite;1RED/1control→2PASS. Fuente W3C y canario64390 preservados, sin afirmar lector real ni navegador completado.
+
+## Checkpoint152 — 2026-10-21
+
+### QA-33 — Finalización del escáner no acreditada
+
+El wrapper aceptaba exit1 y una lista coherente de hallazgos sin verificar finalización; Gitleaks usa exit1 también para errores y escaneos parciales. Descartaba sus diagnósticos, permitiendo aprobar una lista parcial completamente clasificada.
+
+Aceptación: Exigir evidencia positiva de finalización completa del escáner fijado y coherencia exacta entre resumen, reporte y código de salida antes de clasificar o aceptar el gate. Rechazar errores, cancelación, timeout, omisiones, diagnósticos inesperados, resúmenes ausentes/duplicados y salidas ambiguas aunque todos los hallazgos parciales estén clasificados. Conservar RAW privado de diagnósticos y reporte con frontera verificada antes del payload, timeout externo acotado y mensajes públicos sin valores. Preservar originales y controles literales; demostrar el falso PASS antes y su rechazo después, repetir controles reales positivos/timeout y revisión independiente. Ejecutar posteriormente el escaneo completo del árbol actual; no presentar los contadores del wrapper antiguo como prueba de finalización.
+
+Checkpoint152: hallazgo nuevo QA-33. El fullscanV8 deMain25d terminó wrapper0/raw1/43532clasificadas/0restantes/15615archivosquietos, pero el wrapper descartó los diagnósticos y no acreditó finalización. Resultado conservado, NOaceptado como gate completo. Canario Ops12RED/1control confirma falsoPASS de reporte parcial no vacío; binario real8.30.1 usa exit1 en timeout. Corrección aislada en revisión, sin cambiar reglas ni registros finitos. Producto50325 y validaciones previas de rediseño/PPL permanecen ligados a su fuente; no son invalidadas por esta limitación del escáner.
+
+[Evidencia](evidence/root-main-r05-v8-completion-unproven-20261021/summary.json). Los controles reales y el canario no prueban la causa exacta del fullscan25d. Corrección todavía aislada; no hay escaneo corregido aceptado.

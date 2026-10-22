@@ -270,3 +270,7 @@ El catálogo PPL es general y común a todos los planes, sin seguimiento persist
 ## Checkpoint151 — 2026-10-21
 
 Se aceptan2UUID legítimas QA37:fixturemódulo37 ypredecesor36dañado solapadas. No reciclarBD ni omitir canario para forzar68;planfull69. Aceptación porfases323+106 conIDsdisjuntos ymisma fuente runtime,no one-shotinventado. NativePPL usa SaaSreal/SQLite37;Native35requierevencimiento antesSQL/cadafase ystop propio. Nodeinventario correcto=3paquetes/157archivos. R30sólohechospropiosobservados,sinDDL/colector/globalreporter ytargetsnull hasta baseline real.
+
+## Checkpoint152 — 2026-10-21
+
+Un código0 del wrapper antiguo no acredita que Gitleaks terminó. Se requiere resumen positivo completo con coherencia exacta y rechazo de todo diagnóstico inesperado, retención privada antes del payload, timeout externo y peer. No variar reglas/umbrales/allowlist para ocultar parciales. Root debe publicar los ACK de recursos por rename atómico de un archivo privado cerrado y verificado; el lector y los oráculos actuales permanecen intactos.

@@ -25,3 +25,7 @@ Producto local50325 integrado, candidato todavía en revisión nativa/operativa.
 ## Checkpoint151 — 2026-10-21
 
 Rediseño ypanel integrados;37/37NativefocalPASS,gates89HTTP/contratos ycalidad50325 conservados porfuente. PG429porfases/69UUIDaceptadas/71creadasycerradas,sin nuevoR36. R05V8integrado95PASS+peer57,fullscanactualpendiente. No imagen/SBOM/SCA/CIglobalactual nidespliegue.152criterios y537untrackedSHA intactos.
+
+## Checkpoint152 — 2026-10-21
+
+Rediseño y panel integrados y verificados por sus fuentes; no hay entrega de producción. QA-33 deja el fullscanV8 no aceptado como completo aunque el wrapper antiguo devolviera0. R30 aislado bajo peer; CI/imagen/Redis/carga pendientes.153criterios y537untracked históricos conservados.
