@@ -1,8 +1,10 @@
 """Exercise signing-key cutover on the unchanged real schema37 auth paths."""
+import importlib
 import uuid
 from datetime import datetime, timezone
 
 import pytest
+from fastapi.testclient import TestClient
 
 from tests import account_security37_http
 from tests.followup34_http import PASSWORD
@@ -15,7 +17,7 @@ account_http = account_security37_http.account_http
 
 
 def rotate_worker(monkeypatch):
-    """Simulate a restarted worker's settings and cached auth signing key."""
+    """Change synthetic settings and cached signing state; not a worker restart."""
     from web.settings import get_settings
     key = 'synthetic-rotation37-new-signing-key-' + uuid.uuid4().hex
     monkeypatch.setattr(get_settings(), 'SECRET_KEY', key)
@@ -56,23 +58,42 @@ def test_cutover_rejects_old_access_and_both_refresh_transports_then_allows_new_
     _, cookie_name, _ = browser_session.configuration()
     old_cookie = raw.cookies.get(cookie_name)
     assert old_cookie
+    old_csrf = raw.cookies.get('_csrf')
+    assert old_csrf
     rotate_worker(monkeypatch)
 
-    assert raw.get('/api/auth/me', headers={'Authorization': 'Bearer ' + old_access}).status_code == 401
-    assert raw.post('/api/auth/refresh', json={'refresh_token': old_refresh}).status_code == 401
-    expired = raw.post('/api/auth/refresh', json={}, headers=browser_headers(raw))
-    assert expired.status_code == 401
-    assert old_cookie not in expired.text and old_refresh not in expired.text
-    assert expired.headers['cache-control'] == 'no-store'
+    # Build the actual factory again: CSRF captures its key when middleware is
+    # constructed. Mutating auth globals on the original app cannot prove this.
+    application = importlib.import_module(case['factory_name']).create_app()
+    with TestClient(application, raise_server_exceptions=False) as renewed:
+        renewed.cookies.update(raw.cookies)
+        # A non-exempt HTML path exercises real CSRF before route dispatch.
+        blocked = renewed.post('/login', json={}, headers={'X-CSRF-Token': old_csrf})
+        assert blocked.status_code == 403
+        assert blocked.json()['detail'] == 'CSRF token invalid or expired'
+        page = renewed.get('/login')
+        assert page.status_code == 200
+        new_csrf = renewed.cookies.get('_csrf')
+        from web.middleware.csrf import verify_csrf_token
+        assert new_csrf != old_csrf and verify_csrf_token(new_csrf, auth.SECRET_KEY)
+        assert not verify_csrf_token(old_csrf, auth.SECRET_KEY)
+        # These auth routes have their own explicit browser admission. Their
+        # 401s below are token rejection, not the HTML CSRF denial above.
+        assert renewed.get('/api/auth/me', headers={'Authorization': 'Bearer ' + old_access}).status_code == 401
+        assert renewed.post('/api/auth/refresh', json={'refresh_token': old_refresh}).status_code == 401
+        expired = renewed.post('/api/auth/refresh', json={}, headers=browser_headers(renewed))
+        assert expired.status_code == 401
+        assert old_cookie not in expired.text and old_refresh not in expired.text
+        assert expired.headers['cache-control'] == 'no-store'
 
-    fresh = raw.post('/api/auth/login', json=credentials, headers=browser_headers(raw))
-    assert fresh.status_code == 200 and fresh.json()['session_mode'] == 'browser'
-    assert raw.cookies.get(cookie_name) != old_cookie
-    current = raw.get('/api/auth/me', headers={'Authorization': 'Bearer ' + fresh.json()['token']})
-    assert current.status_code == 200 and current.json()['id'] == before.json()['id']
-    assert current.json()['session_version'] == before.json()['session_version']
-    refreshed = raw.post('/api/auth/refresh', json={}, headers=browser_headers(raw))
-    assert refreshed.status_code == 200 and refreshed.json()['session_mode'] == 'browser'
+        fresh = renewed.post('/api/auth/login', json=credentials, headers=browser_headers(renewed))
+        assert fresh.status_code == 200 and fresh.json()['session_mode'] == 'browser'
+        assert renewed.cookies.get(cookie_name) != old_cookie
+        current = renewed.get('/api/auth/me', headers={'Authorization': 'Bearer ' + fresh.json()['token']})
+        assert current.status_code == 200 and current.json()['id'] == before.json()['id']
+        assert current.json()['session_version'] == before.json()['session_version']
+        refreshed = renewed.post('/api/auth/refresh', json={}, headers=browser_headers(renewed))
+        assert refreshed.status_code == 200 and refreshed.json()['session_mode'] == 'browser'
 
 
 def test_key_only_rollback_resurrects_a_token_so_application_rollback_must_keep_new_key(account_http, monkeypatch):
