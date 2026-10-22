@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
-from sqlalchemy import event, select
+from sqlalchemy import event, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from tests import account_security37_fixtures
@@ -552,3 +552,34 @@ def test_selected_elements_intent_accepts_its_own_resource(billing_case):
     result = apply(case, ProviderFacts(case), manifest(case, kind="purchase_intent"))
     assert result["reconciled"] == 1 and result["manual"] == 0
     assert facts(case)["subscription"][1] == "active"
+
+
+@pytest.mark.parametrize("apply_mode", [False, True], ids=["plan", "apply"])
+def test_active_borrowed_session_is_rejected_without_any_finalizer(billing_case, monkeypatch, apply_mode):
+    case = billing_case
+    borrowed = case.factory()
+    rollback, close, invalidate = borrowed.rollback, borrowed.close, borrowed.invalidate
+    calls = []
+    def record(name, operation):
+        def invoke():
+            calls.append(name)
+            return operation()
+        return invoke
+    monkeypatch.setattr(borrowed, "rollback", record("rollback", rollback))
+    monkeypatch.setattr(borrowed, "close", record("close", close))
+    monkeypatch.setattr(borrowed, "invalidate", record("invalidate", invalidate))
+    token = current_tenant.set(case.foreign)
+    try:
+        borrowed.execute(update(Usuario).where(Usuario.id == case.foreign).values(nombre="Pending caller work"))
+        assert borrowed.in_transaction()
+        result = service.run(manifest(case), apply=apply_mode, factory=lambda: borrowed,
+            reader_factory=lambda *_: pytest.fail("Borrowed active Session reached the provider"))
+        assert result["unconfirmed"] == 1 and result["next_cursor"] and not result["complete"]
+        assert result["provider_reads"] == 0 and result["reconciled"] == result["planned"] == 0
+        assert calls == [] and borrowed.in_transaction()
+        assert borrowed.scalar(select(Usuario.nombre).where(Usuario.id == case.foreign)) == "Pending caller work"
+        assert current_tenant.get() == case.foreign
+    finally:
+        rollback()
+        close()
+        current_tenant.reset(token)

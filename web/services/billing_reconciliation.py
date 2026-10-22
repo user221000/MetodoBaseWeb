@@ -243,11 +243,12 @@ def _apply(db, item, row, reference, reader):
 def _one(item, *, factory, apply, reader_factory, budget):
     token = current_tenant.set("")
     scope = None
-    db, committed, outcome = None, False, "unconfirmed"
+    db, owned, committed, outcome = None, False, False, "unconfirmed"
     try:
         db = factory()
         if db.in_transaction():
             raise RuntimeError("Reconciliation requires an owned fresh Session")
+        owned = True
         scope = current_tenant.set(item["subject_id"])
         bind_verified_subject(db, item["subject_id"])
         if db.get_bind().dialect.name == "postgresql":
@@ -274,7 +275,7 @@ def _one(item, *, factory, apply, reader_factory, budget):
         logger.error("reconciliation_unconfirmed class=%s", type(error).__name__)
         outcome = "unconfirmed"
     finally:
-        if db is not None:
+        if owned:
             try:
                 if not committed:
                     db.rollback()
