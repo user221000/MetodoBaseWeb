@@ -427,3 +427,32 @@ Problema:608usaba os.path.lexists y convertía PermissionError/OSError31 de os.l
 Criterio: Decidir ausencia mediante os.lstat directo y devolver False sólo ante FileNotFoundError; propagar PermissionError y cualquier otro OSError. Conservar los canarios literales con os.lstat simulado, su RED original y los intentos de transporte rechazados; verificar las tres ramas y el ciclo finito de la herramienta sin afirmar un fallo real del sistema de archivos ni trasladar capacidad histórica a una fuente nueva.
 
 Revisión:34adstrictos.lstat pasa3Rootliterales y7peer pequeños E. d8metadata0PASS/3FAIL/0mockcalls quedó rechazado porque Path.lstat invocó os.stat; no aceptar sus booleanos de no acceso FS ni atribuir C. WinAPI55aigual608; capacidad8193de fuente anterior no reejecutada. SHAarchivo sellado Artifact pendiente; resultados/review/freeze concretos sí disponibles. Evidencia [curada](evidence/migration-c-to-e-checkpoint157-20261022/summary.json), sin reescribir RAW.
+
+
+## Checkpoint159 — 2026-10-22
+
+### QA-42 — Bootstrap privado CI57 al importar desde pytest
+
+Problema: El módulo CI57 inicializaba ARTIFACT sólo en __main__; pytest importaba los18 unittest y test05 fallaba en directory con NoneType.
+
+Criterio: Permitir ejecutar los18 controles CI57 originales tanto mediante pytest como por CLI explícito sin alterar métodos, aserciones, directory ni main. Si ARTIFACT es None, crear ámbito temporal privado antes del payload y restaurar ARTIFACT/SERIAL mediante cleanups incluso al fallar setUpClass; no reemplazar ni borrar una raíz CLI ya provista. Conservar el RED original, inversa literal y revisión independiente; no presentar estas fixtures como construcción o aceptación de imagen.
+
+Revisión: Autor18pytest/18CLI y3bootstrap en fases; peer6 propios PASS con inversa completa/WinAPI DACL real; RootMain21 PASS18.860s,21IDs únicos,12fuentes seleccionadas quietas. REDtest05 real preservado. Replays de los18 no son criterios adicionales.
+
+### QA-43 — Identidad admitida del plan antes de ATTEMPT, ACK y apply
+
+Problema: El controlador366 permitía que una sustitución sintética de la raíz entre lstat y prepare alcanzara apply con un plan de identidad no admitida;1RED/1control en E, sin C.
+
+Criterio: Revalidar la identidad original admitida y el ámbito exacto del plan retornado por prepare antes de persistir ATTEMPT, emitir ACK por raíz o ejecutar apply. Rechazar sustitución de inode/identidad o raíz ajena conservando los orígenes y sin apply para la sustitución. Preservar los dos canarios literales RED/PASS, el archivo de12 criterios originales y la revisión independiente; las fixtures E no acreditan ejecución real41a/34ad ni retirada C.
+
+Revisión: Binding literal source366:1PASS/1FAIL; source2b22:2PASS/0FAIL y12 originales PASS. Root repite12+2 sobreeeaa con mismos cuerpos; peer7 actual valida además sustitución/expiración. Son fases finitas E, sin ACK ni ejecución realC.
+
+### QA-44 — COMPLETE debe ser el estado terminal del journal validado
+
+Problema: El controlador2b22 aceptaba un journal íntegro por hash con COMPLETE histórico seguido por TARGET_CREATED; peer conservó1RED en E, sin pérdida C observada.
+
+Criterio: Exigir que la última fila del journal completo validado sea COMPLETE y conserve los campos y valores verdaderos requeridos por el protocolo antes de aceptar un resultado previo, reanudarlo o declarar cierre. Un COMPLETE histórico seguido de otro evento no concede autoridad terminal. Mantener la validación de cadena, recibos e identidades; conservar el RED literal y reparar sólo la guarda necesaria con inversa exacta, sin atribuir cierre real4207 o ejecución C a las fixtures.
+
+Revisión: Root cambia una guarda2b22→eeaa con resto de bytes exacto, motor059/Win55a intactos. Replays Root12+2 PASS y peer7 PASS incluido el mismo RED terminal→PASS. Resultado actual C/Root1 y verificación agregada siguen pendientes.
+
+Evidencia [curada](evidence/checkpoint159-web-continuity-20261022/summary.json); no se incluyen payloads negativos privados.

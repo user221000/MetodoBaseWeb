@@ -106,3 +106,18 @@ El workspace E ya configura Python web E y temporales/cachés E en terminales nu
 El motor optimizado059e1a pasa17originales+11propios+6peer en fases distintas; Win55a y admisión4207 permanecen exactos. Root leyó delta/peer y preservó el MasterACK anterior mediante rename para parar sólo entre raíces, sin cortar la copia en vuelo. V3 no se ha aplicado a C y su controlador sigue pendiente. La primera raíz Native2 aún no está aceptada. Los32orígenes y Roaming del checkpoint157 conservan sus resultados. No se reescriben RAW ni se anticipa reparación de9worktrees.
 
 Root5CIchildTEMP pasa enMain90ddb; CI57 nuevo integrado enMain8d249 pasa18controles offline, y Root prepara realmente Main90ddb con493context/480APP/57dists/12inputs y8controles propios. CalidadMain52209 conTool10E pasa cinco comandos,1623fuentes/10dists/1441RECORD quietos,28Bandit/0pendientes/0errores,9negativos y6positivos. Es continuidad local comprobada, sin serial/n2 completo, SQL, VM, Docker o imagen real nuevos. [Resumen158](evidence/portable-web-continuity-checkpoint158-20261022/summary.json), [revisión](evidence/portable-web-continuity-checkpoint158-20261022/REVIEW.md).
+
+
+## Checkpoint159 — continuidad web y guardas finitas
+
+Se añaden QA-42, QA-43 y QA-44:165criterios/63verificados locales, con162criterios y estados anteriores y92IDs originales intactos. R37 permanece en_curso; sólo web.
+
+CI57 ya integrado enMain6d81/b7c4: Rootpytest21 PASS18.860s,21JUnit únicos y12fuentes seleccionadas quietas. Autor18pytest/18CLI/3bootstrap y peer6 se conservan como fases, no como criterios duplicados. Los18métodos, directory y main son literales.
+
+Controlador: el binding366 dejó1RED/1control enE;2b22 pasa los2canarios literales y12originales. OtroRED peer mostró COMPLETE histórico no terminal; Root reparó una guarda2b22→eeaa, repitió12+2 y OpsCI pasó7propios incluido eseRED literal. Motor059/Win55a intactos. No se emitió ACK nuevo ni se ejecutóV3 sobreC.
+
+Siguen aceptadas sólo32/4207raícesCTemp y Roaming separado. Native2/Root1 no está aceptada. El readbackRoot1 tiene9canariosREADY,sin auditoría real; el agregado está preparado con20+5fixturesE y freeze8fba,sin configuración/ejecuciónreal4207. Reparación9worktrees y gates amplios/imagen/SBOM/SCA/Redis siguen pendientes. No servicios, SQL, VM, envíos, cargos o despliegue nuevos.
+
+Root completó la configuración local del workspace E: METODOBASE_DATA_DIR apunta a E/appdata/MetodoBase; PYTHONUSERBASE, PYCACHE, NOUSERSITE y directorios UV se fijan por proceso junto a temporales y cachés. SHA actual c3811866; la preimagen 5ef66 del checkpoint158 se conserva sin reasignar su autoridad. El recibo acredita configuración y existencia del directorio, no arranque de aplicación o servicio; no cambia variables Windows User/Machine ni añade un criterio.
+
+[Resumen159](evidence/checkpoint159-web-continuity-20261022/summary.json), [revisión159](evidence/checkpoint159-web-continuity-20261022/REVIEW.md).
