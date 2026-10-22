@@ -14,6 +14,7 @@ from tests.e2e.native35_guard_v7 import (
     require_chrome_phase,
     verify_listener,
 )
+
 PROFILE=Path('C:/Users/Consu/AppData/Local/Temp/metodobase-test-ci37-pg-cluster-private-20261021-v1/env.private.json')
 NODE=Path('C:/Program Files/nodejs/node.exe');CHROME=Path('C:/Program Files/Google/Chrome/Application/chrome.exe')
 DEPS=Path('F:/MetodoBaseWeb-execution-20261018/tests/e2e/node_modules')
