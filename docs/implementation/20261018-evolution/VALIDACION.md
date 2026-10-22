@@ -510,3 +510,17 @@ Siguen aceptadas sólo32/4207raícesCTemp y Roaming separado. Native2/Root1 no e
 Root completó la configuración local del workspace E: METODOBASE_DATA_DIR apunta a E/appdata/MetodoBase; PYTHONUSERBASE, PYCACHE, NOUSERSITE y directorios UV se fijan por proceso junto a temporales y cachés. SHA actual c3811866; la preimagen 5ef66 del checkpoint158 se conserva sin reasignar su autoridad. El recibo acredita configuración y existencia del directorio, no arranque de aplicación o servicio; no cambia variables Windows User/Machine ni añade un criterio.
 
 [Resumen159](evidence/checkpoint159-web-continuity-20261022/summary.json), [revisión159](evidence/checkpoint159-web-continuity-20261022/REVIEW.md).
+
+## Checkpoint160 — Root1 aceptada y PG27 preparado
+
+Se añade únicamente QA-45: 166 criterios, 64 verificados locales; los 165 criterios y estados previos y los 92 IDs originales permanecen intactos. R37 continúa en_curso y el alcance sigue siendo sólo web.
+
+Root1 cerró normalmente y el auditor independiente 290618 leyó 38.169 archivos/1.625.941.057 bytes/43.960 entradas en E, verificó DACL2, identidades, atributos y tiempos, estabilidad de directorios, recibos/journal y ausencia lstat final C. No leyó payload C. El maestro Native2 terminó exit1 esperado por el desarme en frontera; la raíz tiene resultado accepted y COMPLETE terminal. La auditoría independiente terminó exit0 en 253.691 s. Con el primer lote de 32 quedan aceptadas 33/4207 raíces, 38.375 archivos y 2.832.653.251 bytes lógicos; Roaming es un resultado separado. V3 real inició tras esa verificación, sin anticipar cierre del resto ni agregado 4207.
+
+El falso rechazo ef717 por size de directorios se preserva. Un witness E con churn real tenía asignación 393216 en origen y 0 en destino, con los mismos archivos/bytes. Fix 290618: tres controles del witness MFT (una aceptación y dos rechazos de integridad de archivo), nueve controles originales literales y cuatro peer pasan en fases separadas. No se modificaron motores, controladores, planes o recibos anteriores. La aceptación de Root1 no cierra R37.
+
+PG27 local f095 y Linux Main986 se integraron como preparación: autor local 6, peer inicial 14/16 y followup EOL 2/2; autor Linux 8 sintéticos y 6 Windows; peer Linux 33/34 literal, I04 CRLF preservado, followup GitLF 1/1 y dos controles adicionales. Root Main f095 pasó 6 y plan inerte. Root Main986 conservó 13 PASS/1 ERROR por YAML ausente en BaseE; el único test YAML pasó después en quality10 con PyYAML 6.0.3, 157 fuentes y 18 archivos YAML quietos. El primer followup se rechazó antes del test por framing CRLF y permanece preservado. Ninguna aserción cambió. Los 509 IDs y 71 UUID son inventario y presupuesto futuros, no ejecución SQL, Linux o Actions aceptada.
+
+Nueve reparaciones Git sólo tienen plan y 23 controles sintéticos; requieren cierre global, agregado y nueva autorización Root. Serial/n2/cobertura/fullscan, PG actual, imagen/SBOM/SCA, Redis y validaciones externas siguen pendientes. Runtime, rediseño y PPL exactos 7023; sin nuevos endpoints, producto desktop, despliegue, cobros o envíos reales.
+
+[Resumen160](evidence/checkpoint160-web-continuity-20261022/summary.json), [revisión160](evidence/checkpoint160-web-continuity-20261022/REVIEW.md).

@@ -456,3 +456,15 @@ Criterio: Exigir que la última fila del journal completo validado sea COMPLETE 
 Revisión: Root cambia una guarda2b22→eeaa con resto de bytes exacto, motor059/Win55a intactos. Replays Root12+2 PASS y peer7 PASS incluido el mismo RED terminal→PASS. Resultado actual C/Root1 y verificación agregada siguen pendientes.
 
 Evidencia [curada](evidence/checkpoint159-web-continuity-20261022/summary.json); no se incluyen payloads negativos privados.
+
+## Checkpoint160 — 2026-10-22
+
+### QA-45 — Asignación de directorios y readback de payload
+
+Problema: El auditor independiente ef717 comparaba size del directorio destino contra el plan del origen. Un directorio E con churn real conservaba asignación 393216 y su copia tenía 0, con inventario y payload iguales; el predicado producía un falso rechazo. No se observó pérdida de datos por este defecto del auditor.
+
+Criterio: Comparar tamaño y SHA como integridad de payload para archivos, sin exigir que el tamaño nativo de asignación de un directorio destino coincida con el del origen. Para directorios conservar inventario completo, identidades del destino, atributos, creation/mtime y permisos; su tamaño y demás metadatos nativos deben permanecer estables durante el readback. Conservar el falso rechazo literal ef717, la reparación finita 290618, los nueve controles originales y la revisión independiente. No alterar motores ni recibos anteriores y no atribuir la auditoría de una raíz al cierre de las 4207 admitidas.
+
+Revisión: RED literal ef717 preservado. Fix 290618 pasa tres controles del witness MFT, nueve controles originales literales y cuatro peer independientes en fases separadas. Root revisó el delta; la auditoría real autorizada Root1 pasó con 38.169 archivos/1.625.941.057 bytes/43.960 entradas, salida 0 y ausencia lstat final C, sin payload C. R37 sigue en_curso; no se atribuye cierre 4207, PG o CI global.
+
+[Resumen160](evidence/checkpoint160-web-continuity-20261022/summary.json), [revisión160](evidence/checkpoint160-web-continuity-20261022/REVIEW.md).

@@ -1,5 +1,15 @@
 # Entrega candidata en curso
 
+Checkpoint160: 166 criterios y 64 verificados locales por fuente/alcance; 165 criterios y estados anteriores y 92 IDs originales intactos. Sólo servicio web. Free: 10 clientes, 1 plan por cliente al día, 10 planes diarios totales y 20 mensuales.
+
+Migración parcial aceptada: 33/4207 raíces CTemp, 38.375 archivos y 2.832.653.251 bytes lógicos, más Roaming separado. Root1 pasó auditoría independiente completa; V3 real inició después. Faltan cierre del resto, agregado4207 y reparación autorizada de nueve worktrees. QA-45 corrige el falso rechazo del auditor por asignación de directorios, sin modificar motores o recibos históricos.
+
+PG27 local y Linux están integrados como preparación con resultados y rechazos acotados preservados. 509 identidades y 71 UUID son inventario/presupuesto, no un gate PG ejecutado. Runtime/rediseño/PPL conservan 7023. Siguen pendientes serial/n2/cobertura/fullscan, PG actual E/Linux, imagen/SBOM/SCA vigente, Redis y decisiones externas. Sin push, PR, despliegue, cargos o envíos reales.
+
+[Resumen160](evidence/checkpoint160-web-continuity-20261022/summary.json), [revisión160](evidence/checkpoint160-web-continuity-20261022/REVIEW.md).
+
+## Entrega histórica del checkpoint157 y actualizaciones posteriores
+
 Checkpoint157 local:162 criterios exactos, incluidos los159 anteriores y92 IDs originales;60 verificados por fuente y alcance. Sólo servicio web. Free:10clientes,1plan por cliente al día,10planes diarios totales y20mensuales. Por instrucción del usuario, se migra el proyecto de C a E y se continúa en E/F para retomar el backlog web.
 
 Migración parcial:32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; Artifact verificó32destinos con SHA completo y ausencia de sus fuentes. C libre observado2.255→3.462GB decimales. El lote4175restante acaba de iniciar,sin resultados disponibles. BaseE,WEB92,quality10 nuevo offline y herramientas/launcher están copiados y verificados; Root retiró Roaming conACKnuevo,COMPLETE3files/51111B,strictabsence yfullreadback fresco E, separado deCTemp. Reparar9worktrees C tras todas las copias. No eliminar instalaciones compartidas ni reescribir RAW históricos; usar mapping operativo E/F.

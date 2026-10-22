@@ -171,6 +171,7 @@ Los 92 IDs se conservan; los solapamientos no representan defectos independiente
 | [QA-42](#qa-42) | P1 | Coordinación y arquitectura; Backend y datos; QA y operación independientes | R05, R37 | verificado | verificado | local |
 | [QA-43](#qa-43) | P1 | Coordinación y arquitectura; Backend y datos; QA y operación independientes | R37 | verificado | verificado | local |
 | [QA-44](#qa-44) | P1 | Coordinación y arquitectura; Backend y datos; QA y operación independientes | R37 | verificado | verificado | local |
+| [QA-45](#qa-45) | P1 | QA y operación independientes; Coordinación y arquitectura | R37 | verificado | verificado | local |
 
 ## R01
 
@@ -4676,19 +4677,19 @@ Estado: en_curso; implementación: en_curso; validación: en_curso; despliegue: 
 
 Dependencias: sin dependencia declarada
 
-Cambios: Checkpoint157: migración local parcial y controles finitos.; Checkpoint158: workspace E/F y rutas de proceso; CI child TEMP y preparación portable57 integrados, sin aceptar todavía la migración completa.; Checkpoint159: CI57 pytest21 integrado y guardas del controladorV3 verificadas en E; migración real sigue en curso.; Checkpoint159: workspace E completa datos/userbase/pycache/UV por proceso; SHA c3811866 y preimagen5ef66 preservada.
+Cambios: Checkpoint157: migración local parcial y controles finitos.; Checkpoint158: workspace E/F y rutas de proceso; CI child TEMP y preparación portable57 integrados, sin aceptar todavía la migración completa.; Checkpoint159: CI57 pytest21 integrado y guardas del controladorV3 verificadas en E; migración real sigue en curso.; Checkpoint159: workspace E completa datos/userbase/pycache/UV por proceso; SHA c3811866 y preimagen5ef66 preservada.; Checkpoint160: Root1 real cerró y pasó readback independiente; V3 real inició tras verificar 33 raíces previas. PG27 local y Linux integrados sólo como preparación.
 
 Commits: 4445adbb, 548c4555, 4bcd1576, 90ddb304, 8d249780, 52209d6b
 
-Pruebas: 32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; peer32SHAfull. CopiasE de entornos/herramientas verificadas. RoamingCOMPLETE separado3files/51111B porRoot conACKnuevo/strictabsence/fullreadbackE. Lote4175en_curso sin resultados aún.; Root5 childTEMP Main90ddb PASS; Main18 CI57 offline PASS y Root8 preparación real Main90ddb PASS; calidad E10 Main52209 cinco comandos0,1623fuentes/10dists/1441RECORD quietos. V3 17+11autor/6peer, todavía no aplicadoC.; RootMain21 CI57 PASS; peerbootstrap6 PASS. Binding366RED1/1→2b22PASS2; Rooteeaa12+2 y peer7PASS. Root1readback sóloREADY9; agregado20+5fixturesE,noejecuciónreal.; Root configuration-only v2 confirma directorio datos E existente y variables de terminales nuevos; no arranque ni cambios User/Machine.
+Pruebas: 32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; peer32SHAfull. CopiasE de entornos/herramientas verificadas. RoamingCOMPLETE separado3files/51111B porRoot conACKnuevo/strictabsence/fullreadbackE. Lote4175en_curso sin resultados aún.; Root5 childTEMP Main90ddb PASS; Main18 CI57 offline PASS y Root8 preparación real Main90ddb PASS; calidad E10 Main52209 cinco comandos0,1623fuentes/10dists/1441RECORD quietos. V3 17+11autor/6peer, todavía no aplicadoC.; RootMain21 CI57 PASS; peerbootstrap6 PASS. Binding366RED1/1→2b22PASS2; Rooteeaa12+2 y peer7PASS. Root1readback sóloREADY9; agregado20+5fixturesE,noejecuciónreal.; Root configuration-only v2 confirma directorio datos E existente y variables de terminales nuevos; no arranque ni cambios User/Machine.; Root1: 43960 entradas, 38169 archivos y 1625941057 bytes leídos completos en E; DACL2, identidades, metadatos, journal/recibos y ausencia lstat final C verificados. Auditor 290618 terminó exit0 en 253.691 s; no leyó payload C. Sumado a first32: 33/4207 raíces, 38375 archivos y 2832653251 bytes lógicos aceptados. Roaming sigue separado.; QA-45: falso rechazo literal ef717 preservado; tres controles del witness MFT pasan tras fix (asignación aceptada, tamaño de archivo y corrupción SHA rechazados). Fases separadas: nueve originales literales PASS y cuatro controles peer PASS. No se suman como criterios nuevos.; PG27 preparado: autor local seis controles, peer inicial 14/16 y followup EOL 2/2; Linux autor ocho sintéticos y seis Windows, peer 33/34 literal con I04 físico Windows preservado, followup GitLF 1/1 y dos controles adicionales. Root Main f095 seis más plan inerte; Main986 inicial 13PASS/1ERROR por YAML ausente en BaseE y followup único YAML en quality10 PASS. Sin ejecutar 509 casos PG ni crear 71 UUID.
 
-Evidencia: evidence/migration-c-to-e-checkpoint157-20261022/summary.json; evidence/migration-c-to-e-checkpoint157-20261022/REVIEW.md; evidence/portable-web-continuity-checkpoint158-20261022/summary.json; evidence/portable-web-continuity-checkpoint158-20261022/REVIEW.md; evidence/checkpoint159-web-continuity-20261022/summary.json; evidence/checkpoint159-web-continuity-20261022/REVIEW.md
+Evidencia: evidence/migration-c-to-e-checkpoint157-20261022/summary.json; evidence/migration-c-to-e-checkpoint157-20261022/REVIEW.md; evidence/portable-web-continuity-checkpoint158-20261022/summary.json; evidence/portable-web-continuity-checkpoint158-20261022/REVIEW.md; evidence/checkpoint159-web-continuity-20261022/summary.json; evidence/checkpoint159-web-continuity-20261022/REVIEW.md; evidence/checkpoint160-web-continuity-20261022/summary.json; evidence/checkpoint160-web-continuity-20261022/REVIEW.md
 
 Documentación: MIGRACION_C_E.md; NUEVOS_HALLAZGOS.md
 
 Revisión: pendiente
 
-Bloqueo: "Sólo32raícesCTemp aceptadas; Native2/Root1 aún sin cierre aceptado/readback independiente. V3 sin ACK nuevo ni ejecución C; agregado4207 y reparación9worktrees/gates web pendientes."
+Bloqueo: "Migración parcial: 33/4207 raíces aceptadas; V3 real iniciada y resto pendiente al corte. Faltan cierre global, agregado4207, reparación de nueve worktrees y gates actuales web/PG/imagen/Redis."
 
 Observaciones: Progreso parcial; Cfree2.255→3.462GB decimal observado, no igualar a bytes lógicos. RAW históricosCstringsintactos;9worktrees pendientes tras allcopied. Sólo web.
 
@@ -4831,3 +4832,31 @@ Revisión: Root y peers independientes: ArtifactCI57 u OpsCI controller, según 
 Bloqueo: no registrado
 
 Observaciones: Verificación local finita. No fullCI, imagen, ejecuciónV3/C, Root1 aceptada ni migración completa.
+
+## QA-45
+
+Fuente: [Checkpoint160 QA-45](NUEVOS_HALLAZGOS.md).
+
+Problema: El auditor independiente ef717 comparaba size del directorio destino contra el plan del origen. Un directorio E con churn real conservaba asignación 393216 y su copia tenía 0, con inventario y payload iguales; el predicado producía un falso rechazo. No se observó pérdida de datos por este defecto del auditor.
+
+Criterio original: Comparar tamaño y SHA como integridad de payload para archivos, sin exigir que el tamaño nativo de asignación de un directorio destino coincida con el del origen. Para directorios conservar inventario completo, identidades del destino, atributos, creation/mtime y permisos; su tamaño y demás metadatos nativos deben permanecer estables durante el readback. Conservar el falso rechazo literal ef717, la reparación finita 290618, los nueve controles originales y la revisión independiente. No alterar motores ni recibos anteriores y no atribuir la auditoría de una raíz al cierre de las 4207 admitidas.
+
+Estado: verificado; implementación: verificado; validación: verificado; despliegue: no_desplegado; entorno: local.
+
+Dependencias: sin dependencia declarada
+
+Cambios: Excluir size sólo de igualdad directorio contra plan; exigir estabilidad del size propio destino durante readback.
+
+Commits: pendiente
+
+Pruebas: RED literal ef717 con directorio E 393216→0 y mismos dos archivos/12288 bytes. Auditor 290618: tres controles del witness MFT, nueve originales literales y cuatro peer, en fases separadas. Auditoría real Root1 aceptada: 38169 archivos/1625941057 bytes/43960 entradas; no cierre global4207.
+
+Evidencia: evidence/checkpoint160-web-continuity-20261022/summary.json; evidence/checkpoint160-web-continuity-20261022/REVIEW.md
+
+Documentación: NUEVOS_HALLAZGOS.md; MIGRACION_C_E.md
+
+Revisión: Root revisó el delta; Artifact hizo cuatro controles independientes y revisión finita del auditor 290618.
+
+Bloqueo: no registrado
+
+Observaciones: Verificación del auditor y de Root1 en su alcance; motores, controladores, RAW y recibos anteriores intactos. R37 permanece en_curso.
