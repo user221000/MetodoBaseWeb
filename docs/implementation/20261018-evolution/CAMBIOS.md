@@ -359,3 +359,7 @@ Serial847 conserva4725PASS/60FAIL/1skip Windows; companions actuales Google/rete
 ## Checkpoint149 — 2026-10-21
 
 V7 ya integrado resuelve la última ubicación pendiente del escaneo anterior. Se documenta el resultado real de Main y la corrección del verificadorR24 en rama aislada. En curso: sistema visual web coherente con landing y panel de rutinas generalizadas; todavía no integrados. No hay cambio de esquema37, cobro, cuota ni despliegue.
+
+## Checkpoint150 — 2026-10-21
+
+Integrados607PPL,955QA32,6f130rediseño y50325semántica timer. La paleta se unifica con la landing y se reemplazan métricas ficticias de login y promesa no medida de60segundos por texto factual. Se conservan formularios/IDs/handlers/CSRF y derechos. Catálogo nuevo sólolectura/noDDL/nocuotas/noCliente-bootstrap; estado de semana/temporizador sóloRAM. Validación actual89 y gates estáticos focales; Native aún pendiente.

@@ -339,3 +339,9 @@ Serial847 conserva4725PASS/60FAIL/1skip Windows; companions actuales Google/rete
 QA-31: caducidad del ACK por fase del controlador PostgreSQL. La autorización se comprobaba al inicio, permitiendo un hijo nuevo después del vencimiento. El canario puro original y el corregido se conservan en evidence/security-pg-lease-expiry-independent-20261020/. Corrección aislada e256, integración y runtime pendientes.
 
 UX-21 y R36 añaden el rediseño integral y las rutinas solicitadas expresamente por el usuario; ver REDISENO_WEB_Y_RUTINAS.md. No modifican ningún criterio anterior.
+
+## Checkpoint150 — 2026-10-21
+
+QA-32: retiro local exacto ante401 del catálogo, antes del cuerpo, con fences de snapshot/token y controles de rotación/cuenta nueva. Corregido955, peer9dfa12HTTP+23Node/3mutantes; focal local verificado.
+
+UX-22: contador output con status implícito. Corrección503 añade sólo role=timer y aria-live=off, conserva región polite;1RED/1control→2PASS. Fuente W3C y canario64390 preservados, sin afirmar lector real ni navegador completado.

@@ -283,3 +283,7 @@ Serial847 conserva4725PASS/60FAIL/1skip Windows; companions actuales Google/rete
 ## Checkpoint149 — 2026-10-21
 
 Rediseño y rutinas pueden afectar navegación, reflow, foco e invalidación de sesión. Mitigación: contratos DOM conservados, autorización API revalidada, pruebas por roles y navegador a320/390/768/1440, revisión independiente. Responsable: frontend/backend con coordinación yQA/seguridad. Estado: en_curso. El catálogo es educativo y general, sin predicción de resultados ni prescripción individual.
+
+## Checkpoint150 — 2026-10-21
+
+Riesgo de foco invisible en menús móviles, impresión y ciclo de sesión tras rediseño: QA nativa independiente preparada con16capturas y flujos reales. Fuente50325congelada hasta esa validación. Tool81 incompleto yclusterTemp antiguo no arrancable se preservan; reemplazos de pruebas aislados verifican sus propias versiones/identidades. No hay evidencia para atribuir una causa común. Owners: coordinación, QA/seguridad yoperación; estado en_curso.

@@ -262,3 +262,7 @@ Serial847 conserva4725PASS/60FAIL/1skip Windows; companions actuales Google/rete
 ## Checkpoint149 — 2026-10-21
 
 La nueva solicitud autoriza implementar rutinas genéricas y rediseñar toda la plataforma web conservando los colores de la landing. Se adopta un catálogo común de sólo lectura sin nueva tabla, sin cuotas ni prescripción personal. Se conserva FastAPI/Jinja/CSS/JS. Las pruebas y entregas desktop siguen fuera del alcance. Los ACKOct20 están expirados y no se reutilizan.
+
+## Checkpoint150 — 2026-10-21
+
+El catálogo PPL es general y común a todos los planes, sin seguimiento persistido ni prescripción individual. El401 nuevo usa retiro local del token exacto; no cambia el mecanismo global MFA ni adopta cuentas nuevas. Se fija semántica timer/liveoff y estadospolite conforme W3C. Se conserva el clusterPG histórico dañado y se crea uno de pruebas nuevo propio55483; ningún dato/servicio general se modifica. No se atribuye causa a la pérdida de archivos Temp.
