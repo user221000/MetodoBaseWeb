@@ -17,9 +17,12 @@ from scripts.scan_secrets import _private_evidence
 from tests.billing13_legacy_apply37_pg_contract import (
     MODULE,
     build_contract,
+    check_generation,
     phase,
+    private_workspace,
     require_ack,
     source_pins,
+    temporary_root,
 )
 from tests.ci_web37.evidence import boundary_before_payload, seal, write
 
@@ -33,11 +36,12 @@ def main():
     parser.add_argument('--pg-generation', type=Path)
     parser.add_argument('--lease-ack', type=Path)
     args = parser.parse_args()
-    workspace = Path('E:/MetodoBaseWorkspace')
+    workspace = private_workspace()
+    temporary = temporary_root()
     if (any(not path.is_absolute() or not path.resolve().is_relative_to(workspace) or path.exists()
             for path in (args.private, args.output))
-            or Path(tempfile.gettempdir()).resolve() != workspace / 'tmp'):
-        parser.error('Fresh E private/output and process TEMP/TMP E/tmp are required')
+            or Path(tempfile.gettempdir()).resolve() != temporary):
+        parser.error('Fresh private/output and exact process TEMP boundary are required')
     if not args.plan_only and any(path is None for path in (args.pg_profile, args.pg_generation, args.lease_ack)):
         parser.error('New explicit source/profile/generation-bound Root ACK is required')
     private = _private_evidence(args.private)
@@ -50,15 +54,16 @@ def main():
         'PostgreSQL_executed': False, 'case_count': 27, 'UUID_budget': 1,
         'legacy429_or53_replayed': False, 'Desktop': False, 'Chrome': False, 'VM': False, 'Redis': False,
         'real_provider_calls': False}
-    leases = environment = None
+    leases = environment = quiet_before = pg_before = roles_before = pg_bin = None
     try:
         if args.plan_only:
             result['accepted'] = True
         else:
+            from tests.ci_google33.run_postgres import photo, role_catalog
             from tests.ci_web37.pg_lease import profile
             from tests.ci_web37.reports import require_exact_junit
             from tests.ci_web37.run_postgres import audit_leases
-            from tests.ci_web37.run_web import execute
+            from tests.ci_web37.run_web import environment_photo, execute
             contract = build_contract(args.pg_profile, args.pg_generation)
             require_ack(args.lease_ack, contract)
             write(private / 'lease-contract.json', contract)
@@ -69,13 +74,25 @@ def main():
                         or any(name in upper for name in ('STRIPE', 'MERCADOPAGO', 'SMTP', 'RESEND', 'SENTRY', 'GOOGLE_CLIENT', 'OPENAI_API'))):
                     environment.pop(key, None)
             environment.update(profile(args.pg_profile, expected_sha256=contract['profile_sha256']))
-            lease_root = _private_evidence(workspace / 'tmp' / ('metodobase-account37-author-pg-b13-r07-' + uuid.uuid4().hex))
+            quiet_before = environment_photo()
+            write(private / 'environment-before.json', quiet_before)
+            result['pip_before'] = execute([sys.executable, '-m', 'pip', 'check'], ROOT, environment, private / 'pip-before.private.log')
+            if result['pip_before'] != 0:
+                raise ValueError('Dependency consistency failed before the new PG27 phase')
+            pg_bin = Path(environment['METODOBASE_TEST_PG_BIN']).resolve(strict=True)
+            pg_before = photo(ROOT, pg_bin)
+            write(private / 'PG-before.json', pg_before)
+            require_ack(args.lease_ack, contract)
+            check_generation(contract, environment)  # Process identity before the first SQL/role query.
+            roles_before = role_catalog(environment)
+            write(private / 'roles-before.private.json', roles_before)
+            lease_root = _private_evidence(temporary / ('metodobase-account37-author-pg-b13-r07-' + uuid.uuid4().hex))
             leases = lease_root / 'leases'
             leases.mkdir()
             (private / 'witnesses').mkdir()
             journal = private / 'execution-journal'
             journal.mkdir()
-            environment.update(_METODOBASE_TEST_ROOT=str(workspace / 'tmp' / ('metodobase-test-b13-r07-' + uuid.uuid4().hex)),
+            environment.update(_METODOBASE_TEST_ROOT=str(temporary / ('metodobase-test-b13-r07-' + uuid.uuid4().hex)),
                 METODOBASE_TEST_REDIS_URL='', ACCOUNT37_PRIVATE_LEASES=str(leases), B13_R07_PG_PRIVATE=str(private),
                 B13_R07_PG_PROFILE=str(args.pg_profile.resolve()), B13_R07_PG_GENERATION=str(args.pg_generation.resolve()),
                 B13_R07_PG_ACK=str(args.lease_ack.resolve()))
@@ -103,6 +120,23 @@ def main():
             except Exception as error:  # noqa: BLE001 -- retain own lease; no FORCE/terminate/foreign cleanup.
                 (private / 'cleanup-error.private.log').write_text(traceback.format_exc(), encoding='utf8')
                 result.update(accepted=False, cleanup_error_class=type(error).__name__)
+        if quiet_before is not None:
+            quiet_after = environment_photo()
+            write(private / 'environment-after.json', quiet_after)
+            result['pip_after'] = execute([sys.executable, '-m', 'pip', 'check'], ROOT, environment, private / 'pip-after.private.log')
+            result['source_packages_binaries_quiet'] = quiet_before == quiet_after
+            result['accepted'] = result['accepted'] and quiet_before == quiet_after and result.get('pip_before') == result['pip_after'] == 0
+            if pg_before is not None and roles_before is not None:
+                try:
+                    check_generation(contract, environment)
+                    pg_after, roles_after = photo(ROOT, pg_bin), role_catalog(environment)
+                    write(private / 'PG-after.json', pg_after)
+                    write(private / 'roles-after.private.json', roles_after)
+                    result['PG_binaries_sources_packages_roles_quiet'] = pg_before == pg_after and roles_before == roles_after
+                    result['accepted'] = result['accepted'] and result['PG_binaries_sources_packages_roles_quiet']
+                except Exception as error:  # noqa: BLE001 -- uncertain generation/role/readback cannot be accepted.
+                    (private / 'quiet-error.private.log').write_text(traceback.format_exc(), encoding='utf8')
+                    result.update(accepted=False, quiet_error_class=type(error).__name__)
         after = source_pins()
         write(private / 'sources-after.json', after)
         result['selected_sources_quiet'] = before == after

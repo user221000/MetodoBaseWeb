@@ -1,6 +1,6 @@
 # Handoff finito a OpsCI: PG27 después de429/53
 
-El candidato local sólo prepara27 IDs/1UUID con guardas Windows/E y perfil/generación/ACK nuevos de Root. **No funciona aún como transporte Linux ni se ejecutó GitHub Actions/PG.** La integración CI es una dependencia explícita del gate final, no una prueba aprobada. Main/workflow no se modificaron por este lote.
+El candidato local prepara27 IDs/1UUID con guardas Windows/E y perfil/generación/ACK nuevos de Root. El delta separado `PG_B13_R07_CI_TRANSPORTE.md` prepara el transporte Linux finito y el paso CI; **no se ejecutó Linux, GitHub Actions ni PG**. Su ejecución física sigue siendo dependencia del gate final, no una prueba aprobada.
 
 Puntos fuente actuales: `.github/workflows/ci.yml`, job PG actual37, bootstrap de cluster PG17.11 y dos ACK separados; luego `run_postgres.py`429 y `run_postgres53.py`53, seguidos del stop propio con `if: always()`. Mantener sus fuentes, inventarios y contratos intactos.
 

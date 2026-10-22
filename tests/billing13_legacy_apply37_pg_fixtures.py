@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from tests import test_billing_reconciliation13 as original_billing
 from tests.account37_qa_pg_fixtures import assert_blank_pool, witness
+from tests.billing13_legacy_apply37_pg_contract import private_workspace
 from web.database.models import (
     Cliente,
     PlanGenerado,
@@ -39,7 +40,7 @@ manifest = original_billing.manifest
 
 def record(name, value):
     root = Path(os.environ['B13_R07_PG_PRIVATE']).resolve(strict=True)
-    assert root.is_relative_to(Path('E:/MetodoBaseWorkspace'))
+    assert root.is_relative_to(private_workspace())
     target = root / 'witnesses'
     with (target / (name + '-' + uuid.uuid4().hex + '.json')).open('x', encoding='utf8') as stream:
         json.dump(value, stream, default=str, sort_keys=True, indent=2)
@@ -66,12 +67,13 @@ def pg37(tmp_path_factory):
         check_generation,
         checked_runtime,
     )
+    from tests.billing13_legacy_apply37_pg_generation import creation_generation_guard
     from tests.integration_provider_subjects import application_engine
     from tests.integration_schema_migrations import run_migration
     contract, profile = checked_runtime()
     os.environ.update(profile)
     check_generation(contract, profile)  # First SQL; fresh Root ACK required above.
-    with owned_database('postgresql', tmp_path_factory.mktemp('billing13-objects37')) as (url, admin):
+    with creation_generation_guard(contract, profile), owned_database('postgresql', tmp_path_factory.mktemp('billing13-objects37')) as (url, admin):
         check_generation(contract, profile, engine=admin)
         run_migration(url, 'db_bootstrap.py', '--revision', '20261020_account_security')
         app = application_engine(url, admin)
@@ -140,7 +142,7 @@ def billing_case(pg37):
 @pytest.fixture
 def object_case(pg37, tmp_path):
     from scripts.apply_legacy_objects import source_check
-    assert tmp_path.resolve().is_relative_to(Path('E:/MetodoBaseWorkspace'))
+    assert tmp_path.resolve().is_relative_to(private_workspace())
     subject, foreign, client, foreign_client = (str(uuid.uuid4()) for _ in range(4))
     with Session(pg37.admin) as db:
         for identity in (subject, foreign):
@@ -170,7 +172,7 @@ def object_case(pg37, tmp_path):
     records = [json.loads(line) for line in inv.read_text(encoding='utf8').splitlines()]
     configuration = ObjectStoreConfiguration(backend='local', local_root=tmp_path / 'objects')
     mapping = private / 'mapping.json'
-    mapping.write_bytes(objects.canonical({'format': 1, 'inventory_sha256': objects.digest(inv.read_bytes()),
+    write_private(mapping, objects.canonical({'format': 1, 'inventory_sha256': objects.digest(inv.read_bytes()),
         'source': source_check(), 'destination_sha256': objects.destination_binding(configuration),
         'entries': [{'entry_sha256': objects.entry_key(entry),
             'apply': entry['kind'] == 'plan_pdf' and entry['row_id'] == row_id,
@@ -178,7 +180,7 @@ def object_case(pg37, tmp_path):
     bundle = objects.Bundle(mapping, inv, roots, configuration, source_check=source_check)
     now = datetime.now(UTC)
     approval = private / 'approval.json'
-    approval.write_bytes(objects.canonical({'approved': True, 'binding': bundle.binding,
+    write_private(approval, objects.canonical({'approved': True, 'binding': bundle.binding,
         'entries': [objects.entry_key(entry) for entry in bundle.selected], 'issued_at': now.isoformat(),
         'expires_at': (now + timedelta(hours=1)).isoformat(),
         'quiescence_reference': 'synthetic-single-writer-not-a-real-maintenance-attestation'}))
@@ -200,3 +202,11 @@ def object_status(case):
         return (db.get(PlanGenerado, case.row_id).pdf_object_id,
             [(row.id, row.status) for row in db.scalars(select(StoredObject).where(StoredObject.gym_id == case.subject))],
             db.scalar(select(Cliente).where(Cliente.id_cliente == case.client)).total_planes_generados)
+
+
+def write_private(path, raw):
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, 'wb') as stream:
+        stream.write(raw)
+        stream.flush()
+        os.fsync(stream.fileno())

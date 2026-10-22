@@ -824,7 +824,11 @@ jobs:
           /usr/lib/postgresql/17/bin/pg_dump --version
           /usr/lib/postgresql/17/bin/pg_restore --version
         ) > "$RUNNER_TEMP/ci37-pg-apt-private/install.private.log" 2>&1
-    - name: CI-only fresh loopback cluster and separately source-bound429/53 authorizations
+    - name: CI-only fresh loopback cluster and separately source-bound429/53/27 authorizations
+      env:
+        TEMP: ${{ runner.temp }}
+        TMP: ${{ runner.temp }}
+        TMPDIR: ${{ runner.temp }}
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci37-pg-launch-private"
         python -B -X utf8 - > "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" 2>&1 <<'PY'
@@ -835,8 +839,10 @@ jobs:
         from tests.ci_web37.prepare_collection import source_photo
         from tests.ci_web37.pg_lease import contract as contract429,digest
         from tests.ci_web37.pg53 import contract as contract53
+        from tests.billing13_legacy_apply37_pg_contract import build_contract as contract27,ci_generation
         from tests.ci_web37.pg_plan import phases
         assert os.environ.get('GITHUB_ACTIONS')=='true' and os.name=='posix' and os.geteuid()!=0
+        os.umask(0o077)
         root=Path.cwd().resolve();assert root==Path(os.environ['GITHUB_WORKSPACE']).resolve()
         source=source_photo();assert re.fullmatch('[0-9a-f]{40}',os.environ['GITHUB_SHA'])
         assert source['HEAD']==os.environ['GITHUB_SHA']
@@ -879,6 +885,7 @@ jobs:
                 cursor.execute("SELECT count(*) FROM pg_auth_members WHERE member=(SELECT oid FROM pg_roles WHERE rolname='metodobase_test_app')")
                 assert cursor.fetchone()==(0,)
                 cursor.execute("SELECT count(*) FROM pg_database WHERE datname LIKE 'metodobase_test_account37_%'");assert cursor.fetchone()==(0,)
+                cursor.execute('SELECT pg_postmaster_start_time()');postmaster_start=cursor.fetchone()[0].isoformat()
         finally:control.close()
         profile=private/'profile.private.json'
         profile.write_text(json.dumps({'METODOBASE_TEST_MIGRATOR_URL':'postgresql+psycopg2://metodobase_test_admin:'+password+'@127.0.0.1:55483/metodobase_test_integration',
@@ -889,14 +896,34 @@ jobs:
             ack={'approved':True,'scope':value['schema'],'contract_sha256':digest(value),'expires_at_UTC':(datetime.now(UTC)+timedelta(hours=4)).isoformat()}
             (private/('ack'+label+'.private.json')).write_text(json.dumps(ack,indent=2)+'\n',encoding='utf8')
             (private/('contract'+label+'.private.json')).write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
+        generation=private/'generation27.private.json'
+        generation.write_text(json.dumps(ci_generation(identity,postmaster_start),indent=2)+'\n',encoding='utf8')
+        value=contract27(profile,generation)
+        ack={'approved':True,'scope':value['schema'],'contract_sha256':digest(value),'expires_at_UTC':(datetime.now(UTC)+timedelta(hours=4)).isoformat()}
+        (private/'ack27.private.json').write_text(json.dumps(ack,indent=2)+'\n',encoding='utf8')
+        (private/'contract27.private.json').write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
         assert source_photo()==source
-        print(json.dumps({'scope':'fresh_ephemeral_GitHub_Actions_TEST_cluster_only','profile_and_two_source_bound_ACKs_ready':True,'port':55483,'planned_UUIDs':70,'max_concurrent_UUIDs':2}))
+        print(json.dumps({'scope':'fresh_ephemeral_GitHub_Actions_TEST_cluster_only','profile_and_three_source_bound_ACKs_ready':True,'port':55483,'planned_UUIDs':71,'required_identities':509,'max_concurrent_UUIDs':2}))
         PY
         printf '%s\n' '{"ci37_pg_bootstrap_ready":true}'
     - name: Actual37 complete429 business and physical gates;69 UUID budget including restore
       run: python -B -X utf8 tests/ci_web37/run_postgres.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack429.private.json" --private "$RUNNER_TEMP/ci37-pg429-private" --output "$RUNNER_TEMP/ci37-pg-public/429"
     - name: Separate original53 routine and R30 PostgreSQL criteria; one UUID and pool5
       run: python -B -X utf8 tests/ci_web37/run_postgres53.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack53.private.json" --private "$RUNNER_TEMP/ci37-pg53-private" --output "$RUNNER_TEMP/ci37-pg-public/53"
+    - name: Separate actual27 B13 and R07 PostgreSQL criteria; one owned UUID and pool1
+      env:
+        TEMP: ${{ runner.temp }}
+        TMP: ${{ runner.temp }}
+        TMPDIR: ${{ runner.temp }}
+      run: |
+        python -B -X utf8 tests/ci_web37/run_postgres_b13_r07.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation27.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack27.private.json" --private "$RUNNER_TEMP/ci37-pg27-private" --output "$RUNNER_TEMP/ci37-pg-public/27"
+        python -B -X utf8 - <<'PY'
+        import json,os
+        from pathlib import Path
+        from tests.billing13_legacy_apply37_pg_contract import require_executed_summary
+        value=json.loads((Path(os.environ['RUNNER_TEMP'])/'ci37-pg-public/27/summary.json').read_bytes())
+        require_executed_summary(value)
+        PY
     - name: Stop only the fresh owned CI cluster normally after identity readback
       if: always()
       run: |
@@ -921,6 +948,12 @@ jobs:
         print(json.dumps({'owned_CI_cluster_stopped_or_never_started':True,'forced_stop':False}))
         PY
         printf '%s\n' '{"ci37_owned_pg_cluster_closed":true}'
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: current37-billing13-legacy-apply-postgres27-required-summary
+        path: ${{ runner.temp }}/ci37-pg-public/27/summary.json
+        if-no-files-found: error
     - uses: actions/upload-artifact@v4
       if: always()
       with:
