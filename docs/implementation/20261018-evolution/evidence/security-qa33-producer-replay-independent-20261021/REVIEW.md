@@ -1,0 +1,9 @@
+# New producer evidence: independent read-only contrast
+
+This is a new phase after peer44a26b02; that proof and its2RED+1control remain unchanged. The old Ops roots retain their four ACE rejection. No old report is retroactively assigned a two-principal boundary.
+
+The replacement producer scripts are authenticated by the closed five-member producer archive. Both call the current production _private_evidence and its semantic two-principal readback before boundary observations, source/package photographs or payload logs. Current direct semantic readback passes on the producer root and both new execution roots. Their saved boundary-before-payload observations contain exactly User+SYSTEM. All six reviewed source blobs remain byte identical fromb3b1846a to4d3568c3; the change is in the external evidence producer.
+
+Independent read-only checks verify every174author-replay and73native-replay archive member against the closed manifest and retained bytes, plus all5producer members. The new author JUnit has45cases without failure/error/skip, exact before/after photographs. Both retained small native cases have empty stdout and exact successful summary/counts0and1, stable source, matching sanitized counts and unchanged control timeout framing. This peer executes no new test, native scanner, SQL, Chrome or service while checking those replacements. These are Ops executions under Root's separate small-control lease, distinct from our own earlier27controls.
+
+The finite evidence-publication defect is resolved for the new roots only. Original roots/receipts/canary and assertions are preserved. This does not establish a complete project scan, release, image/SCA, deployment, provider or desktop acceptance. Own compact raw readback evidence remains in the protected private namespace and only aggregate projections are published.
