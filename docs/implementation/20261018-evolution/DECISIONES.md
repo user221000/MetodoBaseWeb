@@ -278,3 +278,7 @@ Un código0 del wrapper antiguo no acredita que Gitleaks terminó. Se requiere r
 ## Checkpoint153 — 2026-10-21
 
 No presentar analítica deunaunidad observada0/1 como retención poblacional,primerusoever,lectura oentrega. Baselineprovisionalunreviewed/targetsnull/source_revisionnull. R30 exigePGpropio de53IDs/1UUID,pool5/max0;no reatribuir429legacy. Productores actuales usan frontera2ACE semántica antespayload;no cambiarhelperhistórico ni retroatribuir exclusividad aroot4. CItransporta11asserts safetyoriginales yexcluye sóloREDNativeV6exacto conreemplazoV7obligatorio;originalesRAW intactos.
+
+## Checkpoint154 — 2026-10-22
+
+Rotación de firma mediante corte coordinado y reautenticación; no exige inventar otro formato de token. Revertir código conserva la clave nueva: restaurar la anterior puede resucitar tokens. Las claves MFA son independientes. B19 usa un corpus público local fijado por hash, sin transmitir contraseñas. B13 se implementa como una pasada bounded por selección privada de recursos persistidos, invocable por scheduler externo y sin crear cobros.

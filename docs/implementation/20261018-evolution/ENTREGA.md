@@ -1,5 +1,20 @@
 # Entrega candidata en curso
 
+Checkpoint154 local:155 requisitos, incluidos los92 originales; todos los criterios exactos y los537 archivos untracked históricos conservan su SHA. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes totales por gimnasio al día y20 mensuales.
+
+Rediseño y panel Push/Pull/Legs implementados con la paleta original. Se aceptan24 cierres locales de estados desactualizados, total54 criterios verificados por fuente; no implica cierre de tareas padre ni despliegue. El panel ya tiene37 criterios de navegador,16 capturas/2PDF y su composición PostgreSQL dentro dePG53. Native35 anterior conserva4 fases y32 capturas con0pageErrors.
+
+PG53 focal terminado:53/53 PASS, una UUID37, rol restringido/pool5 y limpieza normal con ausencia fresca. R30 continúa abierto por baseline real, procedencia/separación demo y piloto5+5. Imagen144/59 construida y probe real de57 dependencias/470 fuentes; digest383c6e87. No hubo arranque de aplicación ni SBOM/SCA; la DB de vulnerabilidades existente está vencida. VM apagada normalmente.
+
+B19 en rama aislada:51 casos nuevos y7 regresiones PASS; revisión independiente pendiente. B20 tiene runbook y12 casos PASS incluyendo reconstrucción CSRF; peer pendiente. B13, CLI periódico de conciliación acotada, en implementación. Estos cambios preceden el freeze final.
+
+CI:126helpers integrados y job desktop retirado;5536 casos sólo coleccionados. Serial/n2/cobertura, fullscan completo actual, imagen del candidato final, SBOM/SCA y Redis/carga siguen pendientes. Se recuperaron0.723GiB de tres worktrees cerrados mediante Git sparse, con respaldo RAW verificado de17265 archivos; se prepara espacio adicional sin eliminar historia ni tocar archivos del usuario.
+
+Continúan externas la política de retención/borrado integral, acceso de soporte, revisión legal/nutricional, custodia/recuperación, proveedores y participación real del piloto. No se realizó push, PR, despliegue, cargo ni envío real.
+
+## Observaciones históricas por fuente
+
+
 Trabajo y entrega exclusivamente del servicio web, esquema37 y147 requisitos (92 originales y55 añadidos), con criterios y537 archivos untracked conservados exactos. Free mantiene10 clientes,1 plan por cliente al día,10 planes totales por gimnasio al día y mensual20 sin cambio. Sin trabajo desktop, push, PR, despliegue, cobros ni envíos reales.
 
 R22 tiene aceptación nativa focal V5:2/2 grupos sobre PostgreSQL37 y Chrome,8 capturas, cero pageErrors/axe scoped/overflow, finalizador de los dos actores alcanzado, servidor y launcher exit0, una UUID quinta acumulada con DROP normal/cero sesiones/ausencia fresca y14 procesos propios cerrados. Los15 MFA y18 account/notifications previos conservan sus fuentes y límites; no se afirma aceptación combinada actual de35. V4 sigue rechazado pese a completar su driver18: falló addon y cierre45s, finalizador no alcanzado; su recuperación manual permanece explícita. El diagnóstico de cabeceras preserva no-store/referrer general para estadísticas y no-referrer para perfil; sólo se corrigió el helper de prueba, sin cambiar la política de producto.
@@ -33,3 +48,18 @@ Rediseño y panel integrados y verificados por sus fuentes; no hay entrega de pr
 ## Checkpoint153 — 2026-10-21
 
 155requisitos y537untrackedSHAconservados. UX21/QA34/QA35verificadoslocalporfuente;R36esperaPGfocal. R30integrado59runtime,sinbaseline real. QA33fix/producer2ACErevisados,fullscanactual/CI/imagen57/SBOM/SCA/Redis/carga pendientes. Native35sobre50325yPG429legacy conservan susatribuciones,sin despliegue.
+
+
+## Checkpoint154 — 2026-10-22
+
+Checkpoint154 local:155 requisitos, incluidos los92 originales; todos los criterios exactos y los537 archivos untracked históricos conservan su SHA. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes totales por gimnasio al día y20 mensuales.
+
+Rediseño y panel Push/Pull/Legs implementados con la paleta original. Se aceptan24 cierres locales de estados desactualizados, total54 criterios verificados por fuente; no implica cierre de tareas padre ni despliegue. El panel ya tiene37 criterios de navegador,16 capturas/2PDF y su composición PostgreSQL dentro dePG53. Native35 anterior conserva4 fases y32 capturas con0pageErrors.
+
+PG53 focal terminado:53/53 PASS, una UUID37, rol restringido/pool5 y limpieza normal con ausencia fresca. R30 continúa abierto por baseline real, procedencia/separación demo y piloto5+5. Imagen144/59 construida y probe real de57 dependencias/470 fuentes; digest383c6e87. No hubo arranque de aplicación ni SBOM/SCA; la DB de vulnerabilidades existente está vencida. VM apagada normalmente.
+
+B19 en rama aislada:51 casos nuevos y7 regresiones PASS; revisión independiente pendiente. B20 tiene runbook y12 casos PASS incluyendo reconstrucción CSRF; peer pendiente. B13, CLI periódico de conciliación acotada, en implementación. Estos cambios preceden el freeze final.
+
+CI:126helpers integrados y job desktop retirado;5536 casos sólo coleccionados. Serial/n2/cobertura, fullscan completo actual, imagen del candidato final, SBOM/SCA y Redis/carga siguen pendientes. Se recuperaron0.723GiB de tres worktrees cerrados mediante Git sparse, con respaldo RAW verificado de17265 archivos; se prepara espacio adicional sin eliminar historia ni tocar archivos del usuario.
+
+Continúan externas la política de retención/borrado integral, acceso de soporte, revisión legal/nutricional, custodia/recuperación, proveedores y participación real del piloto. No se realizó push, PR, despliegue, cargo ni envío real.

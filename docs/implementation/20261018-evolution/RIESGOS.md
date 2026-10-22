@@ -299,3 +299,7 @@ QA-33 puede producir falsoPASS al clasificar todos los hallazgos de un escaneo p
 ## Checkpoint153 — 2026-10-21
 
 QA33global sigueabierto hastaescaneoactualcompleto;loscontadores antiguosnoacreditancompletitud. Error depermisos delproductorOpsse corrigióenrootnuevo,pasado4ACEpreservado yrechazadoenesaspecto,sin afirmación de exposición. PGreadonly/RLS deR30aúnsinpruebareal;SQLite/lectura deSQLAlchemy no sustituyenPG. F2.30GiBestrecho:ningunaVMhasta revisar presupuesto/espacio propio,sinprune/custodiahistórica.
+
+## Checkpoint154 — 2026-10-22
+
+La DB Trivy observada venció el20 de octubre; no se declara SCA vigente. Un guard de disco de cierre detectó menos de2GiB tras el probe; se detuvo trabajo y se apagó la VM normalmente, con evidencia del fallo. Se exige presupuesto nuevo para el siguiente candidato/SCA. El respaldo RAW y Git sparse de tres Docs cerrados no modifica los537 archivos históricos del usuario.

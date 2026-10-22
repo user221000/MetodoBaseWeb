@@ -375,3 +375,7 @@ Nuevo QA-33 y calificación explícita del fullscanV8 no acreditado. Producto503
 ## Checkpoint153 — 2026-10-21
 
 R30API yhelper integrados;QA34sólo validación de consecuencias derivables. QA33parser/frontera y72controles integrados,fullscanactualpendiente. NativeV7harness/proofs sin cambiar producto;NodecompilerdescubreNode yrechazaausencia,mismosasserts.12proofQA33restauradosbyteexactRAWautorconatributos finitos. Único conflictoR30documental:se aplicó creación13998709antesactualizaciónc368,producto no cambió.
+
+## Checkpoint154 — 2026-10-22
+
+Se reconcilian estados de24 criterios con evidencia ya aceptada y criterio inmutable. No se rehacen funcionalidades terminadas ni se trasladan resultados entre fuentes. Se integraron126 helpersCI y se retiró el job desktop; las siguientes composiciones esperan B19/B13/B20. Arquitectura actualizada al esquema37. [PG53](evidence/security-pg53-r30-ppl-independent-20261021/result.json) y [imagen144/59](evidence/image57-r30-real-build-probe-20261022/summary.json) conservan sus límites.

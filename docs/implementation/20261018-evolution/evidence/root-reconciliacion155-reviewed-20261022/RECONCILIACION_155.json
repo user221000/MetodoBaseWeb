@@ -1,0 +1,3051 @@
+{
+  "fecha": "2026-10-21",
+  "alcance": "Reconciliación documental independiente de155criterios. Main sólo lectura; sin pruebas nuevas, SQL, servicios, navegador, red ni escáneres.",
+  "fuente_registro": {
+    "repo": "F:\\MetodoBaseWeb-execution-20261018",
+    "commit": "29c583830d3afc8aaf7f65bac58cbb4250b08a40",
+    "ruta": "docs/implementation/20261018-evolution/TRAZABILIDAD.json",
+    "sha256_raw": "c2ee35f709b40cf1b33c3ec217f2daa0328ff402db428c4b8769b520137ba7fe",
+    "criterios": 155,
+    "texto_criterio_modificado": false
+  },
+  "runtime_aplicacion": "59b64e029e06e1cdff69f7f4702aa8d664b65f66",
+  "head_documental_observado": "87889d83df65a4f0504075741479d38ff6a4d189",
+  "decisiones_usuario": {
+    "producto": "sólo servicio web",
+    "free": {
+      "clientes": 10,
+      "planes_cliente_dia": 1,
+      "planes_gym_dia": 10,
+      "planes_mes": 20
+    }
+  },
+  "definiciones": {
+    "A": "Afirmación/estado antiguo no describe implementación o evidencia local integrada.",
+    "B": "Trabajo local no suministrado por gates planeados; puede depender primero de contrato/política. No autoriza inventar requisitos.",
+    "C": "Decisión, configuración real o validación externa; no se cierra con mocks ni broad.",
+    "G": "Gate local ya planeado; no es por sí mismo ausencia de implementación.",
+    "V": "Conservar verificado anterior sin nueva ejecución ni ampliación de alcance.",
+    "X": "Parte o totalidad histórica desktop fuera de alcance.",
+    "verificado": "Aceptación local del criterio acotado, nunca despliegue/entrega externa/cumplimiento global.",
+    "registro29:ID": "Criterio y referencias originales inmutables en fuente_registro, requisitos cuyo id coincide. No se reejecutaron sus pruebas en esta revisión."
+  },
+  "resumen": {
+    "estado_registrado": {
+      "en_revision": 72,
+      "en_curso": 37,
+      "verificado": 30,
+      "pendiente": 16
+    },
+    "estado_propuesto": {
+      "en_revision": 94,
+      "verificado": 54,
+      "en_curso": 6,
+      "pendiente": 1
+    },
+    "cambios_estado": [
+      "R02",
+      "R05",
+      "R06",
+      "R10",
+      "R12",
+      "R20",
+      "R23",
+      "R24",
+      "R25",
+      "R27",
+      "R32",
+      "R33",
+      "R34",
+      "B01",
+      "B02",
+      "B03",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "B09",
+      "B14",
+      "B15",
+      "B17",
+      "B21",
+      "B22",
+      "B23",
+      "OPS02",
+      "OPS06",
+      "QA-05",
+      "QA-06",
+      "UX-01",
+      "UX-02",
+      "UX-03",
+      "UX-04",
+      "UX-06",
+      "UX-07",
+      "UX-10",
+      "UX-11",
+      "UX-12",
+      "UX-15",
+      "UX-17",
+      "SEC02",
+      "SEC08",
+      "SEC09",
+      "SEC10",
+      "SEC11",
+      "SEC12",
+      "SEC13",
+      "UX-19",
+      "SEC14",
+      "SEC15",
+      "OPS14",
+      "QA-16",
+      "SEC16",
+      "UX-20",
+      "SEC17",
+      "SEC18",
+      "QA-17",
+      "QA-18",
+      "SEC23",
+      "QA-24",
+      "QA-29",
+      "R36"
+    ],
+    "por_clasificacion": {
+      "A": 107,
+      "C": 61,
+      "G": 50,
+      "B": 13,
+      "V": 30,
+      "X": 2
+    }
+  },
+  "referencias": {
+    "CAT": {
+      "alcance": "Catálogo web canónico 10/1/10/20; fronteras y derechos efectivos",
+      "rutas": [
+        "core/plan_catalog.py",
+        "core/subscription_policy.py",
+        "tests/test_catalog_contract.py",
+        "tests/test_catalog_policy_review.py"
+      ]
+    },
+    "AUTH": {
+      "alcance": "Access corto, refresh/SV y autoridad persistida; lectura de fuente, sin nueva ejecución",
+      "rutas": [
+        "web/auth.py",
+        "web/auth_deps.py",
+        "tests/test_identity_security.py"
+      ]
+    },
+    "RBAC": {
+      "alcance": "Permisos y actor/equipo persistidos",
+      "rutas": [
+        "web/services/permissions.py",
+        "tests/test_rbac_permissions.py"
+      ]
+    },
+    "TENANT": {
+      "alcance": "Contexto por transacción y binding sujeto; testigos reales por criterio, no sólo banderas",
+      "rutas": [
+        "web/database/tenant_context.py",
+        "docs/implementation/20261018-evolution/evidence/ops-ci37-pg106-accepted-phases-20261021/closure429-phases-summary.json"
+      ]
+    },
+    "SCHEMA": {
+      "alcance": "Head37, capturas y restauración actuales; no staging de cliente",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/qa-account37-pg-restore-independent-20261020/final-phase-summary.json",
+        "docs/implementation/20261018-evolution/evidence/ops-ci37-pg106-accepted-phases-20261021/runtime106-summary.json"
+      ]
+    },
+    "BILLING": {
+      "alcance": "Suscripción unificada, intent durable y verdad del proveedor; sin cobros reales en revisión",
+      "rutas": [
+        "web/services/billing_integrity.py",
+        "web/services/subscription_service.py",
+        "web/services/stripe_service.py",
+        "web/services/mercadopago_service.py",
+        "tests/test_billing_integrity.py",
+        "tests/test_billing_consolidation.py"
+      ]
+    },
+    "QUOTA": {
+      "alcance": "Reserva/compensación/idempotencia personal y gimnasio; prueba cuota concurrente no equivale a prueba RLS",
+      "rutas": [
+        "web/services/generation_quota.py",
+        "web/services/gym_generation_quota.py",
+        "tests/integration_quota_postgres.py"
+      ]
+    },
+    "OBJECTS": {
+      "alcance": "Puerto privado e inventario histórico readonly; no apply aceptado",
+      "rutas": [
+        "web/services/private_objects.py",
+        "web/services/legacy_object_inventory.py",
+        "scripts/inventory_legacy_objects.py"
+      ]
+    },
+    "PRIVACY": {
+      "alcance": "Export propio y retiro parcial; documento de privacidad contiene afirmaciones anteriores al runtime actual",
+      "rutas": [
+        "web/routes/privacy.py",
+        "web/services/privacy_export.py",
+        "web/services/progress_retirement.py",
+        "docs/implementation/20261018-evolution/PRIVACIDAD.md"
+      ]
+    },
+    "BROWSER": {
+      "alcance": "RAM, cookie HttpOnly, Web Lock, epoch y migración que borra tokens legacy",
+      "rutas": [
+        "web/static/js/api.js",
+        "web/browser_session.py",
+        "docs/implementation/20261018-evolution/evidence/security-native35-v7-v2-current35-20261021/result.json"
+      ]
+    },
+    "ACCOUNT": {
+      "alcance": "Cuenta37, verificación contacto, contraseña y recuperación: aceptación local no acredita entrega externa",
+      "rutas": [
+        "web/routes/account_security.py",
+        "web/services/account_security.py",
+        "web/account_values.py",
+        "docs/implementation/20261018-evolution/evidence/backend-account-security37-pg-author-20261020/gates.json",
+        "docs/implementation/20261018-evolution/evidence/qa-account37-pg-restore-independent-20261020/final-phase-summary.json"
+      ]
+    },
+    "MFA": {
+      "alcance": "MFA primario/step-up y recuperación existentes; no nueva autoridad por email",
+      "rutas": [
+        "web/services/mfa_service.py",
+        "docs/implementation/20261018-evolution/CUENTA_SEGURIDAD37.md",
+        "docs/implementation/20261018-evolution/evidence/security-native35-v7-v2-current35-20261021/driver-phases.json"
+      ]
+    },
+    "DIARY": {
+      "alcance": "Diario por sujeto/fecha civil, CAS y memoria UI; localStorage no es fuente de historial",
+      "rutas": [
+        "web/services/personal_diary_persistence.py",
+        "web/routes/personal_diary.py",
+        "web/static/js/usuario-diario.js",
+        "docs/implementation/20261018-evolution/evidence/qa-diary27-independent/qa-diary27-final-source.json"
+      ]
+    },
+    "PLANUI": {
+      "alcance": "Menú/porciones, consumo registrado y operación con resultado incierto explícito",
+      "rutas": [
+        "web/static/js/plan-diario-datos.js",
+        "web/static/js/usuario-plan-operacion.js",
+        "web/static/js/usuario-progreso.js"
+      ]
+    },
+    "LINKS": {
+      "alcance": "Vínculo explícito/publicación/lectura del plan sin adopción de cuenta",
+      "rutas": [
+        "web/routes/client_links.py",
+        "web/services/client_link_plans.py",
+        "docs/implementation/20261018-evolution/evidence/qa-r12-composition29-independent-20261019/final-summary.json"
+      ]
+    },
+    "ONBOARDING": {
+      "alcance": "Onboarding22: hechos persistidos, acciones realizables y fases PG35 + navegador2 actuales",
+      "rutas": [
+        "tests/test_onboarding22_facts.py",
+        "tests/test_security_onboarding22_peer.py",
+        "docs/implementation/20261018-evolution/evidence/ops-ci37-pg106-accepted-phases-20261021/runtime106-summary.json",
+        "docs/implementation/20261018-evolution/evidence/security-native35-v7-v2-current35-20261021/driver-phases.json"
+      ]
+    },
+    "FOLLOWUP": {
+      "alcance": "Seguimiento34: hechos/causas, autoridad, CAS, fecha y siguiente acción",
+      "rutas": [
+        "web/routes/followup.py",
+        "web/services/followup_service.py"
+      ]
+    },
+    "PROGRESS": {
+      "alcance": "Progreso32 persistido y consentimiento específico; no diagnóstico clínico",
+      "rutas": [
+        "web/static/js/usuario-progreso.js",
+        "docs/implementation/20261018-evolution/evidence/qa-r25-ui-after-review-20261019/review.json"
+      ]
+    },
+    "NUTRITION": {
+      "alcance": "Declaración estructurada35 y exclusiones: validación profesional externa permanece abierta",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/qa-nutrition35-saas-independent-20261020/phase-summary.json",
+        "docs/implementation/20261018-evolution/evidence/root-nutrition35-pg-and-web-peer-20261020/summary.json"
+      ]
+    },
+    "NOTIFY": {
+      "alcance": "Preferencias/outbox36, exclusión pública, epoch ABA y deuda coherente; ACK proveedor no es entrega",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/security-notifications36-fixed-independent-20261020/joint-fixed-own-31-result.json",
+        "docs/implementation/20261018-evolution/evidence/root-notifications36-postgresql-peer-20261020/summary.json",
+        "docs/implementation/20261018-evolution/evidence/ops-ci37-pg106-accepted-phases-20261021/runtime106-summary.json"
+      ]
+    },
+    "NATIVE35": {
+      "alcance": "Actual35 grupos en fases11/4/18/2,32capturas,0pageErrors; una UUID cerrada normal; no one-shot pytest ni 5+5 humano",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/security-native35-v7-v2-current35-20261021/result.json",
+        "docs/implementation/20261018-evolution/evidence/security-native35-v7-v2-current35-20261021/driver-phases.json"
+      ]
+    },
+    "PG429": {
+      "alcance": "429 IDs aceptados por29fases,323+106; no one-shot ni cobertura R30/PPL nuevo",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/ops-ci37-pg106-accepted-phases-20261021/closure429-phases-summary.json",
+        "docs/implementation/20261018-evolution/evidence/ops-ci37-pg106-accepted-phases-20261021/runtime106-summary.json"
+      ]
+    },
+    "PG53": {
+      "alcance": "Actual V3:30 autorPPL+12peerPPL+11R30,53IDs exactos,1UUID normal cerrada/0sesiones/ausencia fresca; uno catálogo puro; no todos HTTP",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/security-pg53-r30-ppl-independent-20261021/REVIEW.md",
+        "docs/implementation/20261018-evolution/evidence/security-pg53-r30-ppl-independent-20261021/result.json",
+        "docs/implementation/20261018-evolution/evidence/security-pg53-r30-ppl-independent-20261021/phases.json"
+      ]
+    },
+    "R30": {
+      "alcance": "Analítica observada R30 y helper provisional; sin baseline real ni procedencia/cohortes globales",
+      "rutas": [
+        "docs/implementation/20261018-evolution/ANALITICA_PRODUCTO_R30_V1.md",
+        "docs/implementation/20261018-evolution/REVISION_QA_R30_V1.md",
+        "docs/implementation/20261018-evolution/evidence/qa-r30-independent-20261021/freeze.json"
+      ]
+    },
+    "CI": {
+      "alcance": "Jobs web Python3.11/3.12 e integración companions; broad actual, cobertura y n2 siguen siendo gates separados",
+      "rutas": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    "IMAGE": {
+      "alcance": "Docker/locks son preparación; build57/SBOM/SCA/digest/rollback actual siguen en curso; host Linux ya existe",
+      "rutas": [
+        "Dockerfile",
+        ".github/workflows/ci.yml",
+        "docs/implementation/20261018-evolution/ARQUITECTURA_ACTUAL.md"
+      ]
+    },
+    "UI": {
+      "alcance": "Rediseño UX21 y geometría móvil aceptados; no certificación global WCAG ni lector de pantalla",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/web-redesign-20261021",
+        "docs/implementation/20261018-evolution/evidence/qa-r22-mobile-layout-independent-20261020/final-summary.json"
+      ]
+    },
+    "LEASE": {
+      "alcance": "Control finito ACK por fase, RED preservado; integración fuente no sustituye ejecución CI real",
+      "rutas": [
+        "docs/implementation/20261018-evolution/evidence/security-pg-lease-expiry-independent-20261020/REVIEW.md",
+        "docs/implementation/20261018-evolution/evidence/security-pg-lease-expiry-independent-20261020/result.json"
+      ]
+    },
+    "DOCS": {
+      "alcance": "Arquitectura actualizada por Root; privacidad y notas históricas requieren reconciliación, no borrado",
+      "rutas": [
+        "docs/implementation/20261018-evolution/ARQUITECTURA_ACTUAL.md",
+        "docs/implementation/20261018-evolution/PRIVACIDAD.md",
+        "docs/implementation/20261018-evolution/HIGIENE.md"
+      ]
+    }
+  },
+  "criterios": [
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R01",
+        "BILLING",
+        "QUOTA",
+        "CAT"
+      ],
+      "bloqueo_actual": "Compra y cuota están implementadas; quedan sandbox real, reconciliación periódica B13 y gates de candidato.",
+      "accion_siguiente": "Completar B13 y gates ya previstos; validar transiciones con proveedor autorizado sin conceder derechos por redirect.",
+      "id": "R01",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "8369f70e37d9dae3da7e89b382a728132c70fd1a72b70e3fc02426ad016c148a",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R02",
+        "AUTH",
+        "RBAC",
+        "TENANT",
+        "PG429"
+      ],
+      "bloqueo_actual": "Identidad/rol/equipo persistidos ya se revalidan; queda matriz final y procedimiento de continuidad Google legacy sin sub conocido.",
+      "accion_siguiente": "Consolidar evidencia de matriz actual y resolver recuperación legacy sin vinculación por email.",
+      "id": "R02",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "3ac49f906a5b64466ec4f76ba90644326f6e34ce063fbe2b0125a28ca6c5f229",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R03",
+        "SCHEMA",
+        "PG429"
+      ],
+      "bloqueo_actual": "Head37/restauración local aceptados; inventario/adopción/staging y predeploy real permanecen externos.",
+      "accion_siguiente": "Ensayar backup/adopción y fail-deploy sobre entorno autorizado; no crear otro esquema.",
+      "id": "R03",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "b6a8c26869aae0f12282c3372898229057c56e2ba03c01d9737a24e74ce30b5f",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R04",
+        "TENANT",
+        "PG429",
+        "PG53"
+      ],
+      "bloqueo_actual": "Main ya integra contexto/RLS; testigos32FORCE y rol restringido existen. Falta adopción del entorno desplegado y gate final.",
+      "accion_siguiente": "Referenciar testigos actuales y comprobar privilegios de staging al desplegar.",
+      "id": "R04",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "c2e9691362824bc901bf543df7222a81ae353d6ddb896c56aeb653a194f4a0ef",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R05",
+        "CI",
+        "PG429"
+      ],
+      "bloqueo_actual": "Fixtures/compañeros actuales integrados; broad serial/n2/cobertura y escáner completo del entregable vigente aún no aceptados.",
+      "accion_siguiente": "Terminar gates actuales; conservar RED históricos y no convertir colección en ejecución.",
+      "id": "R05",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "2f4ecfef6c521a698c16c180c45d2abbdbe2c7c0b2a5d51bd70c7c159a99349d",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R06",
+        "NUTRITION"
+      ],
+      "bloqueo_actual": "Declaración/exclusiones35 ya implementadas y probadas; revisión nutricional profesional sigue pendiente.",
+      "accion_siguiente": "Solicitar validación profesional del alcance real antes de ampliar promesas clínicas.",
+      "id": "R06",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "27da5901229e43a4410fb3a7038389b9072b1fc834782097b4bc223508b1c90a",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R07",
+        "OBJECTS"
+      ],
+      "bloqueo_actual": "Inventario histórico readonly y acceso privado existen; faltan apply con journal/CAS/quiescence/procedencia y validación de destino durable real.",
+      "accion_siguiente": "Definir procedencia y coordinación; implementar apply aislado y después probar redeploy con proveedor autorizado.",
+      "id": "R07",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "a4ac7fab2642ef98df3dbfc018f41af2f4d07825df34384a3b45155bc9138c04",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R08",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "Restore sintético37 sí existe; proveedor de copias, conservación y RPO/RTO acordados no están validados operativamente.",
+      "accion_siguiente": "Aprobar política y ensayar recuperación real con los objetivos acordados.",
+      "id": "R08",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "f98ae61478aeded1ea1af034109e7e10d5a300dfba8251d9c56f56afc201500e",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R09",
+        "CAT",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Decisión comercial ya tomada: Free10/1/10/mensual20 y sólo web; faltan coherencia de precios/proveedor y gate final.",
+      "accion_siguiente": "Retirar dudas5vs10/desktop del bloqueo; verificar precios y sandbox existentes.",
+      "id": "R09",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "7b4c0fa52233bb70a202eb6f5a277568a746382fab83a20e2fbb5f60dc641f6b",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:R10",
+        "AUTH",
+        "BROWSER",
+        "NATIVE35",
+        "PG429"
+      ],
+      "bloqueo_actual": "Sin bloqueo técnico local para el criterio acotado de duración/revocación persistida; no acredita despliegue ni política legal completa.",
+      "accion_siguiente": "Actualizar estado local y conservar evidencia por contrato de sesión.",
+      "id": "R10",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "1f359dfb2c69cd552d149ca1623ed74cadfd6980c55557b4566ec3a479baa07a",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R11",
+        "AUTH",
+        "MFA",
+        "ACCOUNT",
+        "PG429"
+      ],
+      "bloqueo_actual": "Invitación de propósito único y pertenencia están implementadas; entrega real de correo/provisionamiento operativo sigue sin validar.",
+      "accion_siguiente": "Reusar flujo existente y validar correo recibido en entorno autorizado.",
+      "id": "R11",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "129a77e2b8b0688974134cfc4dfbf9e36f1eb3b6c944b591efade5c1d50b61af",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R12",
+        "LINKS",
+        "TENANT",
+        "PG429"
+      ],
+      "bloqueo_actual": "Vínculo explícito, publicación y lector ya integrados; afirmaciones de API/UI ausentes son históricas.",
+      "accion_siguiente": "Reconciliar referencias de backend/consumidor y cerrar aceptación local con sus límites; no reimplementar vínculos.",
+      "id": "R12",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "3433c90fcbcdd4c9dea50ab7cba11f277fc918a7c76a3a2596799faf74592978",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R13",
+        "UI",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Rediseño/reflow y acciones ya tienen evidencia; falta consolidar alcance por superficie y validación asistiva real donde se prometa.",
+      "accion_siguiente": "Vincular evidencia por ancho/superficie; no declarar WCAG global por axe/geometría.",
+      "id": "R13",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "7a5424774af91ca003d6aad72aaeb7ef6b1af4e970230ec0030142e54554f23b",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:R14",
+        "DIARY",
+        "BROWSER",
+        "LINKS"
+      ],
+      "bloqueo_actual": "Persistencia por sujeto/fecha y fences de sesión ya existen; bloqueo que describe diario local o inexistente está obsoleto.",
+      "accion_siguiente": "Reconciliar evidencia de diario27, sincronización y logout con R31; no crear otra persistencia.",
+      "id": "R14",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "f8b5dcb98cf248de2dc2a70511237f1addbfc4c49827c40f4020d1c39cf2e2f7",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R15",
+        "PLANUI",
+        "BILLING",
+        "ONBOARDING"
+      ],
+      "bloqueo_actual": "Consumo real, CTA de perfil y estado de pago veraz están implementados; aceptación comercial con proveedor permanece externa.",
+      "accion_siguiente": "Consolidar contratos de UI existentes y completar sandbox sin afirmar pago por redirect.",
+      "id": "R15",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "b60a95912e6c6bcebada655a8ac6fb3ced4f34a39526e6b48acdfa2772ebe518",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R16",
+        "ACCOUNT",
+        "MFA",
+        "NOTIFY",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Cuenta37/recuperación/verificación están implementadas; ACK del proveedor no acredita correo recibido ni entregabilidad.",
+      "accion_siguiente": "Validar envío/recepción observables con configuración autorizada; conservar no enumeración y pruebas de un uso.",
+      "id": "R16",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "59e7677cb873af0b4627efef8390d78bda6a67e94d4f0ef7efb073aba44a8706",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R17",
+        "CI"
+      ],
+      "bloqueo_actual": "Salvaguardas locales existen; faltan Redis real, carga multiworker y alertas operativas del candidato.",
+      "accion_siguiente": "Ejecutar gates Redis/carga ya previstos y acordar alertas con operación.",
+      "id": "R17",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "dfb34ed53c6e54e75287ca098030b745549fdb32da8befc797edb3bedd9a37f1",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R18",
+        "IMAGE",
+        "CI"
+      ],
+      "bloqueo_actual": "Host Linux/locks/receta existen; imagen57 actual aún necesita build, inventario, SBOM/SCA y digest exactos.",
+      "accion_siguiente": "Terminar fase imagen ya planificada con presupuesto de disco y sin atribuir resultado histórico al candidato.",
+      "id": "R18",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "108fc630f8302289e4ec2e1de0f0844616133aa5d5f00c7f6185c8f4b2c0dd9d",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R19",
+        "CI",
+        "IMAGE",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Flujos y harness existen; falta recorrido integrado en artefacto actual con sandbox de proveedor.",
+      "accion_siguiente": "Construir candidato y completar gates de release previstos.",
+      "id": "R19",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "b51da56055b38ae02079092b96068e180ff4b7b318ed44271a20c4423eb91719",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "B"
+      ],
+      "evidencia": [
+        "registro29:R20",
+        "DOCS",
+        "PRIVACY"
+      ],
+      "bloqueo_actual": "Arquitectura fue actualizada; PRIVACIDAD.md conserva afirmaciones falsas sobre localStorage, MFA, consentimientos y diario.",
+      "accion_siguiente": "Actualizar inventario/finalidades y límites a41ORM/42físicas; preservar historia sin presentar notas antiguas como runtime actual.",
+      "id": "R20",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "890ab05d2a4629c0e05ae2c6885fd36e98e0ea5b55fe751f5251a012a784afae",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G"
+      ],
+      "evidencia": [
+        "registro29:R21",
+        "CI",
+        "DOCS"
+      ],
+      "bloqueo_actual": "Higiene y guardias existen; falta escaneo completo aceptado del árbol entregable actual QA33.",
+      "accion_siguiente": "Terminar escaneo previsto con DACL correcta; no borrar archivos históricos ajenos ni trabajar desktop.",
+      "id": "R21",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "2111f7751fdd3e416240f895d2432eb7c874de8913a3c49693aef65aa820d906",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R22",
+        "ONBOARDING",
+        "NATIVE35",
+        "PG429",
+        "R30"
+      ],
+      "bloqueo_actual": "Navegador2R22 y PG35 ya pasaron; siguen pendientes piloto5dueños+5socios y procedencia/separación durable de demo.",
+      "accion_siguiente": "Retirar bloqueos nativo/PG vencidos; acordar clasificación demo sin backfill inventado y preparar piloto autorizado.",
+      "id": "R22",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "484f20ecc1e5401a93b3623a4a9af5650eb1782067f9439db7929a29a73e034e",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R23",
+        "FOLLOWUP",
+        "PG429"
+      ],
+      "bloqueo_actual": "Seguimiento34/causas/siguiente acción y fechas veraces ya están implementados; falta aceptación operativa del recorrido.",
+      "accion_siguiente": "Consolidar evidencia y observar uso real sin añadir otro dashboard por estado viejo.",
+      "id": "R23",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "a3d3b636ca14b071529e4803064a1268f2450c04d3b38c7d3d0ccf678fe2cab8",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R24",
+        "DIARY",
+        "PLANUI"
+      ],
+      "bloqueo_actual": "Porciones/opciones autorizadas, consumo y borrador de compras existen; no hay aprobación profesional para promesas clínicas adicionales.",
+      "accion_siguiente": "Reconciliar evidencia de consumidor y validar contenido profesional donde aplique.",
+      "id": "R24",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "f3c9b443e51af42016288674dab223e2694d4c9d14777b6c09e81f245eee1c92",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R25",
+        "PROGRESS",
+        "PG429"
+      ],
+      "bloqueo_actual": "Progreso32 persistido y consentimientos específicos están integrados; no se puede prometer diagnóstico ni eficacia clínica.",
+      "accion_siguiente": "Retirar pendiente de implementación; delimitar validación profesional/uso real.",
+      "id": "R25",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "4f61f4c73ad6b44b49bd787ac82f216bf0c9cd75e350ada79ea018f9fb142d22",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R26",
+        "CAT",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Licencia, cuota y periodo real del proveedor se distinguen de membresía del cliente; falta sandbox operacional.",
+      "accion_siguiente": "Validar cambios/renovación/cancelación con proveedor sin rehacer la proyección existente.",
+      "id": "R26",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "2dfa1c4ce2812f0269c442580f5ae64ced18813863a11e78ab068ed781e0378b",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R27",
+        "NOTIFY",
+        "PG429",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Preferencias/outbox/exclusión y guards36/SEC25 ya están aceptados localmente; entrega y medición de negocio reales faltan.",
+      "accion_siguiente": "Actualizar validación local y verificar canal real sin equiparar ACK a entrega ni a efecto causal.",
+      "id": "R27",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "9afafde65098d991112b8e853354ccc0e2963df28d4b991ccc7aeaf1d3a0ae53",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_curso",
+      "clasificacion": [
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R28",
+        "QUOTA"
+      ],
+      "bloqueo_actual": "Reservas/replay no son una cola general durable de generación; el criterio condiciona la inversión a métricas.",
+      "accion_siguiente": "Medir carga y decidir necesidad antes de implementar jobs/reintentos/UI adicionales.",
+      "id": "R28",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "f0eedba2e8b7614bfecef82757bcf77a04a2489104ce6c8e2feaecb83e3ffe17",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:R29"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "R29",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "5020f4c93df22b29838bee74133bdacaff6f1d274d15505d3b5cd837f8009913",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R30",
+        "R30",
+        "PG53"
+      ],
+      "bloqueo_actual": "API/lectura observada/helper provisional y PG11R30 ya validados; no existe baseline poblacional real ni decisión basada en piloto.",
+      "accion_siguiente": "Reemplazar bloqueo PG pendiente por validación externa de baseline/experimentos; no inventar cohortes globales.",
+      "id": "R30",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "b2cd1021e7bfd9c551a84d19a86604bb37cd973d3857f04ccc0141a059644e59",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R31",
+        "PRIVACY",
+        "BROWSER",
+        "PROGRESS",
+        "NOTIFY"
+      ],
+      "bloqueo_actual": "RAM/cookie, export y consentimientos/retiros específicos existen; faltan cierre/purga integral, acceso de soporte y política legal de retención/copias.",
+      "accion_siguiente": "Actualizar inventario y definir política; implementar borrado y soporte acotados y probar supresión según política aprobada.",
+      "id": "R31",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "8c024b05bc123b396101ccf729cd77c957e879dd66d30b152de1dc084d2484ba",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R32",
+        "MFA",
+        "ACCOUNT",
+        "NATIVE35",
+        "PG429"
+      ],
+      "bloqueo_actual": "MFA/step-up/recuperación actuales implementados; pérdida total de factores y continuidad Google legacy requieren procedimiento verificable/custodia.",
+      "accion_siguiente": "Conservar autoridad primaria y resolver procedimiento sin adoptar cuentas por correo ni backfill.",
+      "id": "R32",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "2cd942646294e0d8fd479811d11ae283e8186fb80e5a3daa32875464ed11e717",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R33",
+        "NUTRITION"
+      ],
+      "bloqueo_actual": "Estructura35/exclusiones en todos los planes existe; validación profesional y contenido clínico siguen externos.",
+      "accion_siguiente": "Obtener revisión profesional del alcance antes de automatización clínica.",
+      "id": "R33",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "c07abdd33c1498aee3d179be94e626944ab82927a23724d5d1327e534d5ee7f4",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R34",
+        "CI",
+        "PG429"
+      ],
+      "bloqueo_actual": "Índices/pool tienen fixes; capacidad y p95 actuales con Redis/carga no están probados ni SLO aprobados.",
+      "accion_siguiente": "Completar carga ya prevista y acordar SLO con evidencia del candidato.",
+      "id": "R34",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "60fb6691f327982cd79d05f9d02b63d18941403b4ff53312fb62d3f91d15da12",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_curso",
+      "clasificacion": [
+        "C"
+      ],
+      "evidencia": [
+        "registro29:R35",
+        "BROWSER",
+        "R30"
+      ],
+      "bloqueo_actual": "PWA es condicional a retención/rendimiento y beneficio medido; no hay decisión que autorice caché privada/offline.",
+      "accion_siguiente": "Decidir después de métricas/política de caché; no implementar PWA por inercia.",
+      "id": "R35",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "9dfd5dc2257ec692b470710e5dad48e0959156ac756de9e6758ae0df7d886c2e",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B01",
+        "BILLING",
+        "CAT"
+      ],
+      "bloqueo_actual": "Derechos dependen de verdad canónica persistida; falta sandbox y operación periódica B13.",
+      "accion_siguiente": "Consolidar evidencia y completar B13/sandbox sin otorgar permisos por callback aislado.",
+      "id": "B01",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "1cc853ff699889e0838ff77e8361db52329dfd8c8ecaa00d8fa449036f85d390",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B02",
+        "BILLING",
+        "CAT"
+      ],
+      "bloqueo_actual": "Subscription única por Usuario y proyección individual ya existen; pendiente no refleja implementación. Quedan sandbox y conciliación legacy.",
+      "accion_siguiente": "Referenciar consolidación y pruebas actuales; resolver casos legacy sin duplicar modelo comercial.",
+      "id": "B02",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "0c73491ed63994ab3a61b9dcd6e1f289696331fcf896e7aa1356170355b84a4d",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B03",
+        "QUOTA",
+        "CAT"
+      ],
+      "bloqueo_actual": "Reserva atómica personal/gym, periodos, fallo y replay implementados; pendiente de implementación es obsoleto.",
+      "accion_siguiente": "Vincular pruebas concurrentes/periodo y gates actuales; conservar resultado incierto sin reembolso supuesto.",
+      "id": "B03",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "fb423c3827452c820b4cbea3ffc7cc3317053a90b6bfc2160cc34ffcf92826a1",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B04",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "Migraciones/head37 y roles locales ya aceptados; staging/adopción real siguen pendientes.",
+      "accion_siguiente": "Completar ensayo de entorno autorizado y fail-deploy con backup.",
+      "id": "B04",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "890d0023b740fe664f85a518a14989d3ebb321338b6230ce34180b3d2f8be11d",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B05",
+        "TENANT",
+        "PG429",
+        "PG53"
+      ],
+      "bloqueo_actual": "Hooks por transacción/jobs y binding de sujeto están integrados; RLS restringida ya tiene testigos actuales.",
+      "accion_siguiente": "Retirar pendiente técnico y comprobar configuración real al desplegar; no crear otra factory tenant.",
+      "id": "B05",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "5d9a85c33f7382fd98a5978ed0e2588a25899f3bdad2d16b076645e116dfe6ff",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B06",
+        "AUTH",
+        "RBAC",
+        "PG429"
+      ],
+      "bloqueo_actual": "Identidad persistida y SV aplican a caminos actuales; continuidad legacy Google sin sub requiere procedimiento separado.",
+      "accion_siguiente": "Consolidar matriz final y resolver legacy sin asociación por email.",
+      "id": "B06",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "a0f703dbd97a8105c9da3b4d3217e2310ceaa72c95b261818b8a216a25fa74f5",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B07",
+        "RBAC",
+        "TENANT",
+        "PG429"
+      ],
+      "bloqueo_actual": "Matriz de permisos/recursos implementada; no hay contraejemplo nuevo demostrado por esta revisión.",
+      "accion_siguiente": "Completar gate final de matriz existente, respetando ámbito personal propio de VIEWER.",
+      "id": "B07",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "46c6b445a2c1f05e9b0691806904fe03212db41f1d36d028485e345151eb50fd",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B08",
+        "AUTH",
+        "BROWSER",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Access corto, refresh/SV y elegibilidad persistida inmediata ya implementados; no depende de caché obsoleta.",
+      "accion_siguiente": "Reconciliar estado con R10 y evidencia local; conservar gate final sin otro mecanismo de auth.",
+      "id": "B08",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "bbdd521228885460385bb59c0359462bd97bb9abedf83930bce0f74ba3a1c5ed",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B09",
+        "NUTRITION"
+      ],
+      "bloqueo_actual": "Validador/declaración/exclusiones35 existen; revisión nutricional externa sigue abierta.",
+      "accion_siguiente": "Validar profesionalmente el contenido permitido; no prometer manejo clínico no aprobado.",
+      "id": "B09",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "206983ea092975f4f8cab8b380a0d2f086eb3a5800d35b74b4b9959f83021dc4",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B10",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "Restauraciones37 sintéticas aceptadas; proveedor/copias/retención/cifrado/RPO/RTO reales no aprobados.",
+      "accion_siguiente": "Acordar y ensayar política operativa real.",
+      "id": "B10",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "bc8bdf22672f51a481971e40b40c2c557da4a7425e76696cc14ca3f59af06d5c",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B11",
+        "OBJECTS"
+      ],
+      "bloqueo_actual": "Almacenamiento privado implementado; faltan apply histórico seguro y validación de durabilidad/redeploy del proveedor.",
+      "accion_siguiente": "Completar R07 y probar destino real sin afirmar migración por inventario readonly.",
+      "id": "B11",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "68b54896a761c6b751e921a5d498695e41d862eaaa7baee87b6a64e509c3e335",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B12",
+        "CI"
+      ],
+      "bloqueo_actual": "Fallbacks locales implementados; coordinación Redis4workers/carga/recuperación requiere gate real previsto.",
+      "accion_siguiente": "Ejecutar fase Redis/load y revisar límites/alertas por cuenta/IP.",
+      "id": "B12",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "dd7feede8a578c3eb977eabcef701b622eeb05624ca715a97d04ffd93833a660",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_curso",
+      "clasificacion": [
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B13",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Firma/inbox/retry están implementados; búsqueda scripts/services/routes sólo halla conciliadores invocados desde callbacks, no reconciliación periódica.",
+      "accion_siguiente": "Implementar job/CLI periódico reutilizando conciliadores, con identidad/locks/idempotencia y ensayo sandbox; no inventar derechos legacy.",
+      "id": "B13",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "4376e61278a44c617f658167f1547f0cfc19bfe7ecc9d01117116921a8a6ee9f",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B14",
+        "BILLING",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "IDs nullable/compras MP múltiples tienen modelo y migración; falta aceptación de casos reales en sandbox.",
+      "accion_siguiente": "Referenciar migración y probar escenarios de proveedor autorizados sin imponer unicidad artificial.",
+      "id": "B14",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "4c3e4f58c1726bfb51a68a78542170fc044639d95bb50cb548da099c3eb90e8e",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B15",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Verdad actual del proveedor en callback implementada; reconciliación periódica independiente falta B13.",
+      "accion_siguiente": "Completar B13 y validar estados/transiciones sandbox.",
+      "id": "B15",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "984943f5814423162ddbf2856c8f9d05f890042f8b8b40a81f2e2a2ef0f4c8b5",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B16",
+        "BILLING"
+      ],
+      "bloqueo_actual": "PurchaseIntent durable/idempotencia y recuperación tras proveedor están implementados; conciliación programada/casos legacy siguen abiertos.",
+      "accion_siguiente": "Reusar intent y conciliadores existentes en B13, sin crear segundo checkout.",
+      "id": "B16",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "06938965bbd5cf1d153b9a1d83e2bcf02214fb06c3adf95c186c6c066f80095c",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_curso",
+      "clasificacion": [
+        "A",
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B17",
+        "QUOTA"
+      ],
+      "bloqueo_actual": "Reserva durable no equivale a job general/reintento/cola; inversión pendiente de medición R28.",
+      "accion_siguiente": "Medir y decidir alcance de jobs antes de ampliar arquitectura.",
+      "id": "B17",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "d206950eefa3e68fbff25a14b3d7089393977fd56e093227ac192c442f131fe1",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:B18",
+        "ONBOARDING",
+        "SCHEMA",
+        "PG429"
+      ],
+      "bloqueo_actual": "Plantillas por defecto con unicidad/upsert y onboarding actual existen; bloqueo de duplicación previo está obsoleto.",
+      "accion_siguiente": "Consolidar evidencia de migración y lecturas sin duplicados.",
+      "id": "B18",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "4d09761ae954aaece80d9d08d0cf623e4eec6dd8decbbc0e9f045cc89b8f9809",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_curso",
+      "clasificacion": [
+        "A",
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B19",
+        "ACCOUNT",
+        "MFA",
+        "PG429"
+      ],
+      "bloqueo_actual": "Política compartida/MFA/recuperación/verificación existen; validate_new_password no compara corpus comprometido. Entrega/custodia reales abiertas.",
+      "accion_siguiente": "Añadir bloqueo de contraseñas comprometidas con fuente/config revisadas; mantener límites bcrypt y flows actuales, después validar canal real.",
+      "id": "B19",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "9c840b4888d0e4560cc25f41603ea9c3ee34d354f608336a71e556c9d11b1c2c",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_curso",
+      "clasificacion": [
+        "A",
+        "B",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B20",
+        "AUTH",
+        "BROWSER",
+        "DOCS"
+      ],
+      "bloqueo_actual": "Exposición por localStorage fue corregida; no se encontró runbook técnico completo de rotación SECRET_KEY/cutover/revocación/rollback. Sin exploit XSS confirmado.",
+      "accion_siguiente": "Definir y ensayar rotación mínima con audiencias y revocación existentes; el criterio no exige kid/keyring ni formato nuevo. Completar gates de sinks.",
+      "id": "B20",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "e114ed0ae561302f4f3529b09baae6f86bb4af1c0f08d9dfed97bda412450ced",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B21",
+        "IMAGE",
+        "CI"
+      ],
+      "bloqueo_actual": "Locks/receta Linux existen; falta ejecutar imagen57 exacta/SBOM/SCA/rollback actual.",
+      "accion_siguiente": "Completar fase imagen prevista, sin aceptar digest histórico.",
+      "id": "B21",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "53942bee1e7997542615d6b99c92edf6be16ad1c916539434a2f837095a71506",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G"
+      ],
+      "evidencia": [
+        "registro29:B22",
+        "CI",
+        "AUTH"
+      ],
+      "bloqueo_actual": "Existen DTO/errores por familia; esta lectura no demuestra uniformidad global ni un500 detail nuevo.",
+      "accion_siguiente": "Reconciliar inventario de contrato/error/request-id con gates actuales antes de cerrar; no inventar framework nuevo.",
+      "id": "B22",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "1b68ebef0b8050cc51329a3e86e373396231a2d92fc613bd32670cd144095b57",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:B23",
+        "NUTRITION"
+      ],
+      "bloqueo_actual": "Catálogo inmutable/request y exclusiones sin fallback ya implementados; revisión profesional pendiente.",
+      "accion_siguiente": "Consolidar evidencia35 y revisión profesional, sin ampliar promesas clínicas.",
+      "id": "B23",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "fe23d5fc5eaabaab7c7156c3ae1d82bbf4d95af4f07dc1b7e872da596254c9db",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:OPS01",
+        "SCHEMA",
+        "CI"
+      ],
+      "bloqueo_actual": "Migraciones/rollback seguro local existen; staging/predeploy y tráfico real no validados.",
+      "accion_siguiente": "Ensayar flujo real autorizado tras backup y artefacto exacto.",
+      "id": "OPS01",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "b323e1112c3964904819c73b3f50ff0148b68fd2d3127caff22bd56e44ec8710",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:OPS02",
+        "TENANT",
+        "PG429",
+        "PG53"
+      ],
+      "bloqueo_actual": "Rol restringido/FORCE32 y negativos por criterio ya existen; pendiente no significa ausencia de RLS.",
+      "accion_siguiente": "Actualizar estado local y comprobar privilegios del entorno destino.",
+      "id": "OPS02",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "fdb1c91498907d585ab26511309dd5d3deacea203b3fcdb1ab782c7101cd9026",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "B",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:OPS03",
+        "OBJECTS"
+      ],
+      "bloqueo_actual": "Puerto durable privado existe; apply histórico y conservación/redeploy reales siguen abiertos.",
+      "accion_siguiente": "Completar R07/B11 según procedencia/política aprobada.",
+      "id": "OPS03",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "6da7a5d1be0ae3b5cb519c77b21960bdb596b105952e7438d277822afacfc730",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:OPS04",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "Restauración sintética37 aceptada; RPO24h/RTO4h no son objetivos operativos aprobados por esta prueba.",
+      "accion_siguiente": "Acordar objetivos y ensayar recuperación de backups reales.",
+      "id": "OPS04",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "8c3cccb53b233b7a7db46f4508c5baed52819a018bb924bcb058a0d228f6e4bf",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:OPS05",
+        "CI"
+      ],
+      "bloqueo_actual": "Redis multiworker, degradación, recuperación y alertas actuales siguen como gate operativo previsto.",
+      "accion_siguiente": "Ejecutar fase Redis/carga sin atribuir fallback local a coordinación real.",
+      "id": "OPS05",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "94f733711602534a93642cff937263ea19c4025b50b1c7965cb2161d40f1f0ff",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:OPS06",
+        "ACCOUNT",
+        "MFA",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Invitación/recuperación/verificación seguras ya existen y pasan localmente; recepción real de correo pendiente.",
+      "accion_siguiente": "Validar proveedor/dominio/recepción observables con cuentas autorizadas.",
+      "id": "OPS06",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "0c29ebe6729ae39942cd832d0255b509adeaa3f835e7e986300053da9a382e04",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:OPS07",
+        "IMAGE",
+        "CI"
+      ],
+      "bloqueo_actual": "Host Linux/VM y builds históricos existen; falta imagen57 actual/digest/SBOM/SCA/rollback, limitado por presupuesto de disco actual.",
+      "accion_siguiente": "Retirar petición obsoleta de habilitar virtualización; completar build/gates del candidato ya planificados.",
+      "id": "OPS07",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "2723f8b7fdcceab2c266a8704cf69921d7cf66109e1ca76751e16a2e4a59486f",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-01",
+        "CI",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "CI contiene matriz3.11/3.12 y jobs web separados; faltan ejecuciones limpias/broad e imagen real del candidato.",
+      "accion_siguiente": "Completar gates actuales; no declarar ausencia de matriz ni reactivar desktop.",
+      "id": "QA-01",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "2395454c2f7159be4d077b34a450b1082bcd9cef480971ba3c2e291b78e70c34",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-02",
+        "PG429",
+        "PG53",
+        "LEASE"
+      ],
+      "bloqueo_actual": "Aislamiento, UUID/normalDROP/ausencia fresca ya tienen ejecuciones reales; falta CI completo actual.",
+      "accion_siguiente": "Conservar presupuestos propios y completar controlador/gate CI sin reutilizar ACK.",
+      "id": "QA-02",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "ab6105d4dd31e34ad6f3e73701340ead8b8dc139d50d19c65cf7754c405ce68a",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-03",
+        "SCHEMA",
+        "CI"
+      ],
+      "bloqueo_actual": "Migraciones/snapshots37/restores están aceptados localmente; staging y CI final pendientes.",
+      "accion_siguiente": "Reconciliar referencias de esquema37 y terminar gates previstos.",
+      "id": "QA-03",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "ef8653b862be15cb3b45c3bc26c436f1450ac6ee1cb3d7bb99ead63b4c1b904e",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-04",
+        "AUTH",
+        "RBAC",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "Enum/identidad canónica y migración de roles existen; aceptación final de matriz actual por gate.",
+      "accion_siguiente": "Vincular pruebas actuales y evitar alterar tokens/roles por intuición.",
+      "id": "QA-04",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "fc5fb9c681dc3b7dab27ee0a5c68574ee6425f0c2d2f5aff8033830b75582c90",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-05",
+        "TENANT",
+        "PG429",
+        "PG53"
+      ],
+      "bloqueo_actual": "PostgreSQL con rol restringido y dos sujetos ya tiene evidencias reales; estado pendiente técnico obsoleto.",
+      "accion_siguiente": "Consolidar negativos por familia y ejecutar sólo gate global ya previsto.",
+      "id": "QA-05",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "92a73a216d00d1c8bf94c8c89b22a88bab4277ed9f85b5127c13a7bf1f130c63",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-06",
+        "CAT"
+      ],
+      "bloqueo_actual": "Límites canónicos10/1/10/20 y fronteras de catálogo están implementados/probados; desktop fuera del alcance.",
+      "accion_siguiente": "Referenciar contratos actuales y completar CI; retirar dudas comerciales ya resueltas.",
+      "id": "QA-06",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "0bb758f738a3d8e3eda2bef48200495637cb0f2aed1e052c8c9315e2d4266b6c",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-07",
+        "CI",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Cobertura/lint/E2E y escaneo del artefacto vigente requieren gates actuales completos.",
+      "accion_siguiente": "Terminar broad/coverage/imagen, preservando fallos reales sin atribuir PASS por colección.",
+      "id": "QA-07",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "7324c2c6fecafe2bc7a0113498389708f0a3fcaf2f8aec7dc4891159c53f0b99",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-08",
+        "CI",
+        "PG429"
+      ],
+      "bloqueo_actual": "Históricos seriales/companions no sustituyen serial+n2 aleatorio del árbol actual.",
+      "accion_siguiente": "Completar broad ya previsto; conservar resultados RED anteriores y skips explícitos.",
+      "id": "QA-08",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "27bb114f7968391fc06b08554039574dcd306ef952af088b08f7b2a3fb0a4cfd",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "G",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:QA-09",
+        "CI",
+        "IMAGE",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Release completo requiere candidato construido y sandbox real; preparación de harness no lo prueba.",
+      "accion_siguiente": "Completar gates previstos con artefacto/digest exactos.",
+      "id": "QA-09",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "09b473412f94486eb1c9acb5d9ac4d73f2521d4f08cba2181232a45c457074f1",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-10",
+        "CI"
+      ],
+      "bloqueo_actual": "Controles UTF8/permissions/F821/sintaxis locales existen; aceptación CI actual completa pendiente.",
+      "accion_siguiente": "Reusar controles vigentes y terminar CI; no tratar entorno sin pip como pip0.",
+      "id": "QA-10",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "41629d45e091ca89999891bb2d92841b88522cf1d09679d17d6f48b1f0fadde3",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:UX-01",
+        "BILLING"
+      ],
+      "bloqueo_actual": "UI distingue pago confirmado y pendiente; sandbox proveedor real permanece externo.",
+      "accion_siguiente": "Completar validación comercial existente sin redirect como prueba de pago.",
+      "id": "UX-01",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "3b4fc4f4efdca112b49b3a86b0fc19dae0dc22480142ccbb3b6260fb1a328402",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:UX-02",
+        "NUTRITION"
+      ],
+      "bloqueo_actual": "Promesas/restricciones estructuradas35 ya corregidas; validación profesional pendiente.",
+      "accion_siguiente": "Mantener alcance real y obtener revisión profesional.",
+      "id": "UX-02",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "d782cc36b6dfdd80b1282127bf0da63459b2cf7e392be7389354aa96581d58d0",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-03",
+        "DIARY",
+        "BROWSER"
+      ],
+      "bloqueo_actual": "La reproducción de localStorage/logout ya no describe runtime: servidor por sujeto/fecha, CAS y memoria de UI.",
+      "accion_siguiente": "Registrar corrección local con evidencia diario27 y sesión; no afirmar backup legal ni borrado integral.",
+      "id": "UX-03",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "ab53554fbf5c9f27cc4b00a69fa2fdd581d3bdf89d0679060e037137dead50a8",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-04",
+        "DIARY"
+      ],
+      "bloqueo_actual": "Fecha civil/zona explícita en servidor y límites de calendario sustituyen toISOString UTC como autoridad.",
+      "accion_siguiente": "Registrar corrección local y referencias de fronteras de fecha.",
+      "id": "UX-04",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "fe774dde7741f4a2ea8a2d1a210b7e88314f6de0ebf7e449fdd7a2b64bf372ce",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:UX-05",
+        "UI"
+      ],
+      "bloqueo_actual": "Reflow/rediseño ya aceptados por superficies/anchos concretos; no certificación asistiva global.",
+      "accion_siguiente": "Consolidar pruebas de cada superficie y mantener límites de evidencia.",
+      "id": "UX-05",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "3c18b059c05ab7e97d8dfd2ae19134cab0c0f9e220143eae22b68f11f9a69b86",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:UX-06",
+        "RBAC",
+        "MFA",
+        "ACCOUNT",
+        "PG429"
+      ],
+      "bloqueo_actual": "Gestión de equipo/invitación absoluta/sesión efectiva/permisos existen; pendiente vacío es obsoleto. Entrega real/comercial no validada.",
+      "accion_siguiente": "Referenciar implementación existente y validar entrega/provisionamiento autorizado, sin rehacer RBAC.",
+      "id": "UX-06",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "bf24a8ca7c324b1ede8afa7916506add29dc5f63c0dbc8b0ff0af90460b041e7",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-07",
+        "LINKS",
+        "TENANT",
+        "PG429"
+      ],
+      "bloqueo_actual": "Relación/publicación/lector/PDF/revocación explícitos ya integrados; no existe el vacío descrito originalmente.",
+      "accion_siguiente": "Reconciliar evidencia de composición29 y actual; no añadir adopción de cuenta ni generación implícita.",
+      "id": "UX-07",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "ac2f9a16e710395f7d7c50ccc3881a17f30c2b844f6ec85ebacdacc71c7ac55a",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-08",
+        "UI",
+        "BROWSER"
+      ],
+      "bloqueo_actual": "Manejo Enter/foco por consumidor ya corregido en UI actual; falta reconciliar evidencia granular del defecto histórico.",
+      "accion_siguiente": "Vincular controles nativos existentes por superficie sin introducir controller global nuevo.",
+      "id": "UX-08",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "fd3b46d365c3a557aa18fd97f9f5bd43f8356b79a753ffbaf185e142d9afb8c5",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:UX-09",
+        "UI"
+      ],
+      "bloqueo_actual": "Labels/foco/contraste tienen controles de rediseño; lector de pantalla real y certificación completa no se ejecutaron.",
+      "accion_siguiente": "Preservar alcance observado y planificar validación asistiva sólo si se promete.",
+      "id": "UX-09",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "a488f4aed02b8b3e84d3dac40559fded5d388f881e06721f9cc140c6218e3897",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-10",
+        "PLANUI",
+        "DIARY"
+      ],
+      "bloqueo_actual": "Adherencia usa comidas realmente guardadas; menú/objetivo no genera100% por sí solo.",
+      "accion_siguiente": "Registrar fuente única de consumo y canarios existentes, sin inventar ingestión real.",
+      "id": "UX-10",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "9ffcd04d248fe3a338f60b86f313279bbcb167c07aebf586a1e2bf4ade20a6ee",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-11",
+        "ONBOARDING",
+        "NATIVE35",
+        "PG429"
+      ],
+      "bloqueo_actual": "CTA de perfil y siguiente acción realizable corregidos, con fasesPG16+19 y nativo2actuales.",
+      "accion_siguiente": "Registrar cierre local del CTA, sin atribuir a nativo generación/cuota/envío no ejercidos.",
+      "id": "UX-11",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "2251da9e8c76b3b817de76028dbb35a2c5f5e27a6ec773c2e4d9e6609348bf56",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-12",
+        "PLANUI",
+        "BROWSER"
+      ],
+      "bloqueo_actual": "Generación ya muestra errores clasificados y estado incierto con mismo intent/contexto; pendiente de implementación es viejo.",
+      "accion_siguiente": "Reconciliar canarios de operación y gates actuales; no borrar intento ambiguo ni reintentar automáticamente.",
+      "id": "UX-12",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "c59f73bfa334e87f9c68a90d2ee0d5e916424bf4dfe2da3f88901a29b3254f5a",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:UX-13",
+        "BILLING",
+        "CAT"
+      ],
+      "bloqueo_actual": "Precios/cuota/periodo proveedor y membresía separados en UI; sandbox operacional pendiente.",
+      "accion_siguiente": "Validar estados reales con proveedor autorizado.",
+      "id": "UX-13",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "12a6d08a539888b14cd55906ed02045621efd21598126bb0bb17edc4d22977f8",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-14",
+        "ONBOARDING",
+        "SCHEMA",
+        "PG429"
+      ],
+      "bloqueo_actual": "Unicidad/upsert de defaults y onboarding real ya implementados; no pendiente de feature.",
+      "accion_siguiente": "Consolidar evidencia de migración y ausencia de duplicados.",
+      "id": "UX-14",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "cfedf69dbe888beb37bfd340a053cc17fca0ba359ffc3830ac375aa6b14ef502",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-15",
+        "ACCOUNT",
+        "MFA",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Gestión/recuperación/validación compartida y errores accesibles existen; actual18cuenta/notificaciones aceptado.",
+      "accion_siguiente": "Registrar cierre local del recorrido; recepción real permanece R16/OPS06, sin afirmar entrega.",
+      "id": "UX-15",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "42452ecaaff65a04c7ca7688fef37a3266a42824928ac10a3cbea2786b2975f1",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:UX-16"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "UX-16",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "e4092ac9a95ca952837234e603f6011f8e652f7cc860e5a66f2b26da596f54bf",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:UX-17",
+        "ONBOARDING",
+        "R30"
+      ],
+      "bloqueo_actual": "Checklist veraz y primer plan/siguiente acción existen; medición de uso/entrega real y piloto no están sustituidos por hechos locales.",
+      "accion_siguiente": "Actualizar implementación y medir aceptación piloto sin inventar recibo de entrega.",
+      "id": "UX-17",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "a55a525d64a3da2e7cc3932953868048b2f6f49da465d642bd87b59a61c60506",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:OPS08",
+        "IMAGE",
+        "CI"
+      ],
+      "bloqueo_actual": "Inventario/preparación IaC readonly existen; paquete/digest/costes y apply de staging no aceptados.",
+      "accion_siguiente": "Completar preparación revisable; realizar apply sólo con autorización y entorno concretos.",
+      "id": "OPS08",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "c27ad006c48bd7bad942c564b69bd34eafe88e19c3bc001599b9517adf3d0c03",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "C",
+        "X"
+      ],
+      "evidencia": [
+        "registro29:SEC01",
+        "AUTH",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Puente remoto/autoridad y campos comerciales legacy siguen abiertos; compatibilidad hardware offline es desktop excluido.",
+      "accion_siguiente": "Delimitar continuidad web de licencias emitidas y resolver autoridad/procedencia, sin nuevo trabajo desktop.",
+      "id": "SEC01",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "adb64d058dcef08b0521cade8a69fb4683169a0b27c7e048988e144359e12abe",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC02",
+        "BROWSER",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Aislamiento por snapshot/token/WebLock/epoch y concurrencia actuales sustituyen limitación antigua de instancia/localStorage.",
+      "accion_siguiente": "Registrar cierre local con fences y canarios existentes, sin afirmar borrado legal ni revocación global desde401.",
+      "id": "SEC02",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "8bdbdb30debc5d65da60adbb1691e73d3cbaef550efadd6b85ea1c026d2ec215",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:OPS09"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "OPS09",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "93c7a0f5c7b891df8d5928789f45c37599a746d90509d8f3bf87856f9eacaebe",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC03"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC03",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "1b5884871e05f5bdfd66840d3150625afa10cbe6cb77a979e871e040663a7d01",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:OPS10"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "OPS10",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "1ebd723fa848770730ba2852cc78a9eae3ef19fa63d66d940d5a3e16499f906b",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC04"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC04",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "261b8ca78c8841a3729ce19f901e2e3a41bf3706c4abf16f517c7b678026d87d",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC05"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC05",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "47fa09442c5340204a0650d48f5b7a2078470d15268b8155b5e4dd8065223956",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC06"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC06",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "1c129e6e84b1f9d99be9cd905b8d52c1904b221392e1fbbf6c0d4b7ec7037867",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-11"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-11",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "ee25a8a44a7115f8503a7419c477cdd6b68cf1f3881c954ae79fddd3d10a71d2",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC07"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC07",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "a654c612ea14147fd186aa0d1cc69cde1d8b4e11341da44d7992c3491ef28065",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:SEC08",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Escaneo/triage histórico no verifica dependencias del artefacto57 actual.",
+      "accion_siguiente": "Completar inventario/SBOM/SCA del digest actual; desktop fuera del alcance.",
+      "id": "SEC08",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "2e4ee3df907666ee279f57dfae8c8005fbc0fa74c1dec0772f8a3b9ecc32d6c6",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:SEC09",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Proveniencia/libpq y receta revisadas; imagen57 exacta aún no escaneada/identificada.",
+      "accion_siguiente": "Revalidar librería efectiva y SCA en build previsto.",
+      "id": "SEC09",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "d35815081a81b13a0b19b8871d9a94ac85a8ae4ad59566f27f30fe79c890d243",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:UX-18"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "UX-18",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "d49be2416e14bdf721fb365ea849b0c59087824098ade6553d9849bc29370248",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:SEC10",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Expat fuente/nativo previamente aceptados; falta captura de versión/lib efectiva en imagen actual.",
+      "accion_siguiente": "Completar gate57 con símbolos/headers/procedencia; no reutilizar resultado histórico como actual.",
+      "id": "SEC10",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "09a6e3181bade9c184d350a7b8695eef0ea1bb67efb3fd0db43c3e959cb2b4de",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC11",
+        "BILLING"
+      ],
+      "bloqueo_actual": "Return paths canónicos antes del proveedor revisados con originales/controles independientes; no bloqueo técnico local restante para ese criterio.",
+      "accion_siguiente": "Registrar cierre granular; no inferir cobro ni disponibilidad global de proveedor.",
+      "id": "SEC11",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "dee186445d238f1ee20d0f0991005cd5f7d951eb4f2b8b949f43d830995aba0b",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC12",
+        "MFA",
+        "PG429"
+      ],
+      "bloqueo_actual": "Alias exactos/cuerpo/idempotencia MFA se corrigieron con mismos5canarios; integración31 ya presente.",
+      "accion_siguiente": "Actualizar estado local conservando admisión finita y prueba de un uso.",
+      "id": "SEC12",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "a66eafe1db8d247eff03794360a0782ddadade85c9e7b5fb44fc6ce707c90382",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC13",
+        "MFA",
+        "PG429"
+      ],
+      "bloqueo_actual": "Elegibilidad persistida NULL/locks/emisión-consumo revisadas con originales y controles; Main31 ya integrado.",
+      "accion_siguiente": "Actualizar estado local sin ampliar autoridad ni omitir parent elegible.",
+      "id": "SEC13",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "413358546f277ad0ebc57af690ec8107ebcf3208f832a84da6f8ed32bf7a5b24",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-12",
+        "CI",
+        "PG429"
+      ],
+      "bloqueo_actual": "Los16callbacks literales y peers fueron aceptados; integración completa actual requiere gate CI vigente.",
+      "accion_siguiente": "Retirar afirmaciones de no integración antigua y terminar CI, sin reemplazar callbacks.",
+      "id": "QA-12",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "236b74eba57216e0f1242794089bc0d7b5054d92a01d6b15a0bfe397c7cc55bb",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-19",
+        "MFA"
+      ],
+      "bloqueo_actual": "Resumen de factores se limpia tras ACK/contexto y controles independientes revisados; estado general quedó viejo.",
+      "accion_siguiente": "Actualizar estado local con canarios originales y composición actual.",
+      "id": "UX-19",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "2348e2625cca033d587fe7b8635a84697e41cd41dfe35bddad815444b618a422",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-13",
+        "CI"
+      ],
+      "bloqueo_actual": "CLI173/guardias reales tienen evidencia histórica; falta composición CI actual.",
+      "accion_siguiente": "Conservar aserciones literales y verificar gate actual, sin repetir campañas aisladas sin necesidad.",
+      "id": "QA-13",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "936780469959474ab3b11e160a17b16f1789edbbef9e783a32ad4a4a996fbcb1",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-14",
+        "CI",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "Snapshots/fingerprint/guardias actuales preparados y aceptados por alcance; falta cierre CI global.",
+      "accion_siguiente": "Completar gate actual manteniendo targets históricos inmutables.",
+      "id": "QA-14",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "45c33f6a2938465d41f0c77ebd3c054398ca2a458224dbe47dbfaea234cac540",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-15",
+        "PG429",
+        "PG53",
+        "CI"
+      ],
+      "bloqueo_actual": "Testigos rol/app5false/FORCE32 reales existen; aún no toda selección requerida de CI actual está aceptada.",
+      "accion_siguiente": "Consolidar testigos por módulo y gate final, no crear evidencia de RLS sólo por flags.",
+      "id": "QA-15",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "045a95407b94910b578f364f0fdf03566283a84e25d9591d728cb5a0bddc73e2",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:OPS11",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Fuente/nativo Expat previamente revisados; prueba histórica no verifica el binario de imagen57 actual.",
+      "accion_siguiente": "Revalidar versión/cabeceras/procedencia en artefacto actual durante build previsto.",
+      "id": "OPS11",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "2db988094029c42384be70c1bc7f2d54b77107715d3f01070b75304720653839",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:OPS12",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Argumentos de compilación y diagnóstico histórico existen; falta correspondencia con imagen57 exacta.",
+      "accion_siguiente": "Capturar argumentos/headers/libs del build actual; no recompilar por intuición fuera del gate.",
+      "id": "OPS12",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "9bf7e2e3052028702eb936fa8c8ff61c4a81c4aa5a002d4d5f4cd27397f97dc0",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:OPS13",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Exports mínimos y parche nativo histórico aceptados; binario actual todavía no capturado.",
+      "accion_siguiente": "Verificar símbolos/lib cargada y regresiones en imagen57 real.",
+      "id": "OPS13",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "50d3aeb35fdd25e790c38aa5d1ebc00d28777732959129c9b87578d71f9857d6",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC14",
+        "AUTH"
+      ],
+      "bloqueo_actual": "Rutas observabilidad reales y errores privados opacos revisados después del parche; bloqueo de Main30 es histórico.",
+      "accion_siguiente": "Registrar cierre local de headers/errores, sin afirmar Redis/alertas operativas.",
+      "id": "SEC14",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "e5d8aa4b9c4d26f0f7ee3104cf3c02c515a82fb8443e07318faacd0b55be50d0",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC15",
+        "MFA",
+        "ACCOUNT"
+      ],
+      "bloqueo_actual": "SV terminal permite lecturas/verificar pero rechaza incremento antes de consumir; peer original y controles aceptados.",
+      "accion_siguiente": "Actualizar estado local con alcance terminal, sin reset de SV.",
+      "id": "SEC15",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "939b6026f794a1fb278f4de7e696e4fc4302b6d513fd61bdade49cca770f37b0",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:OPS14",
+        "SCHEMA"
+      ],
+      "bloqueo_actual": "Validación ya verificada: CLI sólo anuncia éxito tras verificar esquema y falla opaco; estado general quedó viejo.",
+      "accion_siguiente": "Promover estado local con evidencia original y restauraciones37 actuales.",
+      "id": "OPS14",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "c97830d54e2e7843903e1be258f3232ac468e6abc534bae4b503757c506172d9",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:QA-16",
+        "MFA",
+        "PG429"
+      ],
+      "bloqueo_actual": "validacion ya verificado; fixture de reloj/contrato estricto y restauración de setup conservan el criterio. Main31 ya integrado.",
+      "accion_siguiente": "Actualizar estado local y eliminar bloqueo de integración antiguo.",
+      "id": "QA-16",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "14081d480d4cfa85f3af251e359ec3c435ca1f1e0d810ec13df9e5ff05f95a78",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC16",
+        "PRIVACY"
+      ],
+      "bloqueo_actual": "validacion ya verificado: headers de export/slash/errores privados aceptados; no bloqueo restante granular.",
+      "accion_siguiente": "Promover estado local sin equiparar export con borrado integral.",
+      "id": "SEC16",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "f3e5dc0dd450304d1f72a3fa48d3228745099f02f4eae07c406e1dcdf70fca41",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:UX-20",
+        "PROGRESS",
+        "UI"
+      ],
+      "bloqueo_actual": "validacion ya verificado; layout/unidades/scroll/fecha reparados e integrados. Bloqueo Main30 es histórico.",
+      "accion_siguiente": "Actualizar estado local con revisión de tabla existente.",
+      "id": "UX-20",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "03b77343a2e19dd28bf714fd305d142d6055ec0718eb1e9d898da19de33eca7b",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "C"
+      ],
+      "evidencia": [
+        "registro29:SEC17",
+        "AUTH",
+        "MFA",
+        "ACCOUNT",
+        "PG429"
+      ],
+      "bloqueo_actual": "Issuer/sub sin adopción por correo y link explícito implementados; continuidad de usuarios Google legacy sin sub requiere procedimiento separado.",
+      "accion_siguiente": "Consolidar aceptación exacta de link y delimitar recuperación legacy, sin backfill/adopción por email.",
+      "id": "SEC17",
+      "estado_registrado": "en_curso",
+      "criterio_sha256_utf8": "250412ec69684a185d4789b08657e30b27a812cd1d333327511f89295ce419a9",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC18",
+        "PRIVACY",
+        "PG429"
+      ],
+      "bloqueo_actual": "validacion ya verificado: invalidación/cierre propios sin dispose global aceptados y composición actual existente.",
+      "accion_siguiente": "Actualizar estado local de cleanup; no ampliar a cierre integral de cuenta.",
+      "id": "SEC18",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "bc7b30a202d67d0192390268e30b889452c17c9c9f3ceb2d06bf03efb0d9394f",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:QA-17",
+        "AUTH",
+        "PG429"
+      ],
+      "bloqueo_actual": "validacion ya verificado; conflicto Google/rollback incierto opaco y atomicidad se revisaron; Main actual incluye reparación.",
+      "accion_siguiente": "Actualizar estado local sin extrapolar a recuperación Google legacy externa.",
+      "id": "QA-17",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "e72eaeb1b4026b1fdc8920dc527c4f5eda76a92c3b88c4e9a89e1da8fced2e1f",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:QA-18",
+        "FOLLOWUP",
+        "PG429"
+      ],
+      "bloqueo_actual": "Clasificación SQLite/SQL desconocido y fallo503 ya corregidos/revisados e integrados; texto Main35/R31 pendiente es viejo.",
+      "accion_siguiente": "Actualizar estado con canarios originales y composición actual.",
+      "id": "QA-18",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "bf928a1f5283b7b5b2c38523000237f515421630e33459be4dba562ec4f79901",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC19"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC19",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "267cbc4cbce5f7cc05e1ec82c026cdd00e42dab92d994e349a2392307158e627",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC20"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC20",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "d37b694fc652c5cf6c3c5888d28027452a1b1483625fa21a674d8433f31b86dd",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "pendiente",
+      "clasificacion": [
+        "X"
+      ],
+      "evidencia": [
+        "registro29:QA-19",
+        "CI"
+      ],
+      "bloqueo_actual": "Criterio exclusivo de import Qt/desktop; usuario excluyó desktop de este trabajo.",
+      "accion_siguiente": "Conservar ID/texto como histórico fuera de alcance web; no implementar ni exigir gate desktop.",
+      "id": "QA-19",
+      "estado_registrado": "pendiente",
+      "criterio_sha256_utf8": "ca90a686d1e68bab0172c757082f0aebb1d1a2f96e6180b4d29cff946680c0b4",
+      "alcance": "historico_desktop_excluido"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-20"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-20",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "16507e267177c46a8f08fde6e98f3026eba13abaa89046c09253d09f6aeedb67",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-21"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-21",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "c9a1a367c27dfabe6ba6f8b928d972df156a365ad1749ea7417799e7af35f382",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-22"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-22",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "64c16ca0587fdccbbeb5c189ace98cee8f00f6f1f6bd311ac7906f979f85cf86",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC21"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC21",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "68d515837c24e0d57d0735a5eed4a8f51250ace9f1150d5e37078dea44503d14",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-23"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-23",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "e78d30e6e833d7647025051928cbe995676cd32ee8a025c8dddc1793328fcb19",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC22"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC22",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "9e218bb080fb03fc838de901710e4f1716bbd6d81a6747864f3bfea2bfe52eee",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:SEC23",
+        "NOTIFY",
+        "PG429"
+      ],
+      "bloqueo_actual": "Epoch monótono contacto ABA36 corregido con revisión independiente y fasesPG actuales.",
+      "accion_siguiente": "Actualizar estado local de capacidad/contacto, sin booleans permanentes ni reset de overflow.",
+      "id": "SEC23",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "40ae9263d49bd2f2491d4745b9447eaebcaef8b1bb966dfc7341b02675abbccb",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:QA-24",
+        "NOTIFY",
+        "PG429"
+      ],
+      "bloqueo_actual": "Exclusión pública exacta/alias/CSRF fue corregida y validada independiente +fasePG31 actual.",
+      "accion_siguiente": "Actualizar estado local con límites de capacidad, sin ampliar exenciones.",
+      "id": "QA-24",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "f9540ca6608faade7f8b33510c4c6a365e9262204f80d80dcbfc14b9fbba3df5",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC24"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC24",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "7b81c8eaee65ca508e904a553e6b10926c52a5fecbe035238d8191ca09591570",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:SEC25"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "SEC25",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "9dfba823224bfdc25d21b798598a04694fd5bc4233c63e236004e4a7dfc58925",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-25"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-25",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "643d743d7f7188ee41302eadfa4a81816f964d378e0d16da9f4f986ddcc64a53",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-26"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-26",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "c5da1d419b2c3055ad816571f61e892eff29a4dc82f9c5ae8c670a5902a65da0",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-27"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-27",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "48515b01c0603aca6009532979ad87ea0143d52dacea5e168363ada2ef3257b7",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-28"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-28",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "956dcdb391932d699aa7d9bdf2cca5d9fe9b11cf8c9e5b508d4829835d7aadcb",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:QA-29",
+        "NOTIFY",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Api léxico/bootstrap corregido y navegador actual18cuenta/notificaciones completado dentro de35grupos; pendiente nativo es obsoleto.",
+      "accion_siguiente": "Registrar cierre local con32capturas/0pageErrors y fases exactas, sin claim de entrega real.",
+      "id": "QA-29",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "bd5b9075301d3d3ae733a0f91b8c63945125c3a9f8aba7ba9c4b739960b458ba",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-30",
+        "IMAGE"
+      ],
+      "bloqueo_actual": "Parser57/typeint corregidos y fuentes revisadas; imagen57/SBOM/SCA exactos aún faltan.",
+      "accion_siguiente": "Completar build previsto preservando original y diagnóstico nativo.",
+      "id": "QA-30",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "b6ebf468016b4fa101f27e4bd3613c6f0c58d01824ce9c20516198741712f37b",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-31",
+        "LEASE",
+        "CI",
+        "PG429",
+        "PG53"
+      ],
+      "bloqueo_actual": "Control por fase corregido/RED preservado y helpers ya integrados; falta ejecución completa del controlador CI actual.",
+      "accion_siguiente": "Retirar bloqueo de rama aislada; validar composición real con ACK fresco y cierre normal, sin reutilizar permisos.",
+      "id": "QA-31",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "12460e05b3663f4b0a559a76a7ea39e6ee821d7f489207c7130e3df23d573add",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:UX-21"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "UX-21",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "a34ed55e3b1b86e1b261e2e36a8e8179f17e97a14bc9405417a18a4e89204d2d",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "A"
+      ],
+      "evidencia": [
+        "registro29:R36",
+        "PG53",
+        "NATIVE35"
+      ],
+      "bloqueo_actual": "Bloqueo PG vencido:30autor+12peerPPL enPG53 aceptados, más navegador vigente; no implica despliegue ni CI global.",
+      "accion_siguiente": "Registrar verificación local del catálogo y sus límites sin atribuirle los11R30 ni53HTTP.",
+      "id": "R36",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "c4950e50413da03e69ecfa48b8b885a9056a3d5792e9f5f1919742c9c899d4c6",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-32"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-32",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "c04894b9884e6e1144c4b95cfb86c291496a911e20e8fdb078390cfd29f4cec4",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:UX-22"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "UX-22",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "17567aece91ecb22fe74bc5fca3740365ad94abe8ab807cfc5e9be7f6e1d7fa3",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "en_revision",
+      "clasificacion": [
+        "A",
+        "G"
+      ],
+      "evidencia": [
+        "registro29:QA-33",
+        "CI"
+      ],
+      "bloqueo_actual": "Productor DACL y controles acotados corregidos; fullscan vigente aceptado aún pendiente. Wrapper0 histórico fue incompleto.",
+      "accion_siguiente": "Terminar escaneo completo actual con evidencia privada correcta; no cerrar por controls o wrapper0.",
+      "id": "QA-33",
+      "estado_registrado": "en_revision",
+      "criterio_sha256_utf8": "f3948473875e823a295bb51d462c0374ab1b2a14eddf6c6c28163d4c10a343da",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-34"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-34",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "62e1e63a0164edafbb587a01119770c5d52010fc4219bd08e10c141f19489024",
+      "alcance": "web_local_sin_despliegue"
+    },
+    {
+      "propuesta_estado": "verificado",
+      "clasificacion": [
+        "V"
+      ],
+      "evidencia": [
+        "registro29:QA-35"
+      ],
+      "bloqueo_actual": "Se conserva aceptación local ya registrada; no se extrapola a despliegue ni a criterios padres.",
+      "accion_siguiente": "Conservar evidencia/limitaciones originales; sin nuevo trabajo para este criterio en esta revisión.",
+      "id": "QA-35",
+      "estado_registrado": "verificado",
+      "criterio_sha256_utf8": "75fb88327af8ecf14b6626bbe542d8e6e883684dbf7247b026f908dc682c7e8f",
+      "alcance": "web_local_sin_despliegue"
+    }
+  ],
+  "limites": [
+    "Propuestas para revisión del coordinador; no se editó TRAZABILIDAD ni Main.",
+    "429PG es composición29fases;53PG es30autorPPL+12peerPPL+11R30 y contiene un caso puro. No son53HTTP ni broad único.",
+    "Native35 son4fases11/4/18/2,35grupos,32capturas; no35tests pytest ni piloto humano5+5.",
+    "ACK de proveedor no acredita entrega de correo; cobro/beneficio de negocio tampoco se deducen de estados locales.",
+    "R30 helper sigue provisional sin procedencia/baseline real/cohortes globales; QA34 no demuestra defecto de lecturas API reales.",
+    "B20 exige rotación de claves/audiencias; no prescribe kid/keyring ni un nuevo formato de token.",
+    "Privacidad: consentimientos específicos y retiro parcial no equivalen a cierre/borrado integral ni a base legal general.",
+    "Actualización posterior Root: Main38f7762b integra proofPG53;87889d83 integra126helpers CI/attrs y retira desktop job; colección5536 no equivale a broad ejecutado."
+  ]
+}

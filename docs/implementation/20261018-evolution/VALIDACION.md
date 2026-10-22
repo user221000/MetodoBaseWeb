@@ -456,3 +456,19 @@ RootcápsulasR05:232objetosGitauténticos/123assertions históricos60+48+15 y40c
 Imagen57 nueva sepreparaoffline para144/59:483blobs/470app esperados,12pinsnativos y57distribuciones;VMOFF,no build/SBOM/SCA. DiscoF2.30GiBrequierepresupuesto adicionalantesVM,sin borrarhistórico ni537archivos. PG53 yCI finalpreparaciónoffline;Redis/carga ydecisionesexternas pendientes. Sinpush,PR,despliegue,cargos nienvíos reales.
 
 RootsQA33old4ACE ysu2RED1control no se aceptan como2. [Adenda](evidence/qa33-twoace-producer-replacement-20261021/ADENDA.md) conserva originales yreemplazos2ACE. Root59scopeprivado decía31originales porerrata;JUnit32 yproyección pública corregida sinreescribirRAW. Primer sellador de cápsulasRootfalló en alias deencoding, no ejecutótests ni completópayload;versiónv2selló447miembros/readback ylosoriginales permanecen.
+
+## Checkpoint154 — 2026-10-22
+
+Checkpoint154 local:155 requisitos, incluidos los92 originales; todos los criterios exactos y los537 archivos untracked históricos conservan su SHA. Sólo servicio web. Free:10 clientes,1 plan por cliente al día,10 planes totales por gimnasio al día y20 mensuales.
+
+Rediseño y panel Push/Pull/Legs implementados con la paleta original. Se aceptan24 cierres locales de estados desactualizados, total54 criterios verificados por fuente; no implica cierre de tareas padre ni despliegue. El panel ya tiene37 criterios de navegador,16 capturas/2PDF y su composición PostgreSQL dentro dePG53. Native35 anterior conserva4 fases y32 capturas con0pageErrors.
+
+PG53 focal terminado:53/53 PASS, una UUID37, rol restringido/pool5 y limpieza normal con ausencia fresca. R30 continúa abierto por baseline real, procedencia/separación demo y piloto5+5. Imagen144/59 construida y probe real de57 dependencias/470 fuentes; digest383c6e87. No hubo arranque de aplicación ni SBOM/SCA; la DB de vulnerabilidades existente está vencida. VM apagada normalmente.
+
+B19 en rama aislada:51 casos nuevos y7 regresiones PASS; revisión independiente pendiente. B20 tiene runbook y12 casos PASS incluyendo reconstrucción CSRF; peer pendiente. B13, CLI periódico de conciliación acotada, en implementación. Estos cambios preceden el freeze final.
+
+CI:126helpers integrados y job desktop retirado;5536 casos sólo coleccionados. Serial/n2/cobertura, fullscan completo actual, imagen del candidato final, SBOM/SCA y Redis/carga siguen pendientes. Se recuperaron0.723GiB de tres worktrees cerrados mediante Git sparse, con respaldo RAW verificado de17265 archivos; se prepara espacio adicional sin eliminar historia ni tocar archivos del usuario.
+
+Continúan externas la política de retención/borrado integral, acceso de soporte, revisión legal/nutricional, custodia/recuperación, proveedores y participación real del piloto. No se realizó push, PR, despliegue, cargo ni envío real.
+
+Reconciliación documental: [revisión Root](evidence/root-reconciliacion155-reviewed-20261022/REVISION_ROOT.md). Las primeras12 pruebas de rotación sobre74342 se ejecutaron antes del commit con bytes registrados; v2 conservó2 fallos por ruta inexistente y10PASS. v3 be769f67 usa la página canónica y12PASS; no modifica el runtime ni prueba procesos OS separados.
