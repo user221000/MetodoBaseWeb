@@ -7,14 +7,18 @@ journal/storage chosen by the operator. It never reads application DB settings.
 import argparse
 import json
 import os
+import re
+import shutil
+import subprocess
 import sys
+from contextlib import suppress
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import make_url
 from sqlalchemy.pool import NullPool
 
@@ -22,6 +26,18 @@ from scripts.inventory_legacy_objects import create_inventory_engine
 from web.services import legacy_object_apply as apply
 from web.services.legacy_object_inventory import InventoryRoots
 from web.storage.configuration import ObjectStoreConfiguration, build_object_store
+
+GIT_EXECUTABLE = Path(shutil.which('git') or '').resolve()
+
+
+def source_check():
+    if not GIT_EXECUTABLE.is_file():
+        raise apply.ApplyError('source_tool_unavailable')
+    head = subprocess.check_output([str(GIT_EXECUTABLE), '--no-replace-objects', 'rev-parse', 'HEAD'],
+        cwd=ROOT, timeout=5, stderr=subprocess.DEVNULL).decode().strip()
+    if not re.fullmatch('[a-f0-9]{40}', head):
+        raise apply.ApplyError('source_tool_unavailable')
+    return apply.source_binding(head)
 
 
 class Parser(argparse.ArgumentParser):
@@ -43,7 +59,11 @@ def create_target(raw_url, expected, *, readonly):
     if url.drivername.startswith('sqlite'):
         if apply.inventory._links(Path(url.database)):
             raise apply.ApplyError('database_binding_changed')
-        return create_engine(url, poolclass=NullPool, hide_parameters=True, connect_args={'timeout': 5})
+        engine = create_engine(url, poolclass=NullPool, hide_parameters=True, connect_args={'timeout': 5})
+        @event.listens_for(engine, 'connect')
+        def foreign_keys(connection, _record):
+            connection.execute('PRAGMA foreign_keys=ON')
+        return engine
     return create_engine(url, poolclass=NullPool, hide_parameters=True,
         connect_args={'connect_timeout': 5, 'options': '-c statement_timeout=10000 -c lock_timeout=5000'})
 
@@ -72,7 +92,7 @@ def main(argv=None):
             values['local_root'] = Path(values['local_root'])
         configuration = ObjectStoreConfiguration(**values)
         bundle = apply.Bundle(args.manifest, args.inventory, InventoryRoots(args.pdf_root, args.logo_root),
-            configuration, storage_path=args.storage)
+            configuration, storage_path=args.storage, source_check=source_check)
         admission = apply.Admission(bundle, args.approval, seconds=args.deadline_seconds) if args.apply else None
         raw_url = os.environ.get(args.url_env, '')
         if not raw_url:
@@ -93,7 +113,9 @@ def main(argv=None):
         return 2
     finally:
         if engine is not None:
-            engine.dispose()
+            # Success already required dispose above; this is failure cleanup.
+            with suppress(Exception):
+                engine.dispose()
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ only the private journal, pending metadata and explicit references are written.
 import hashlib
 import json
 import os
-import subprocess
+import re
 import time
 from contextlib import contextmanager
 from dataclasses import asdict
@@ -50,10 +50,9 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf8')
 
 
-def source_binding():
+def source_binding(commit):
     root = inventory.REPO_ROOT
-    head = subprocess.check_output(['git', '--no-replace-objects', 'rev-parse', 'HEAD'], cwd=root).decode().strip()
-    return {'commit': head, 'files_sha256': digest(canonical({name: digest((root / name).read_bytes())
+    return {'commit': commit, 'files_sha256': digest(canonical({name: digest((root / name).read_bytes())
         for name in SOURCE_PATHS}))}
 
 
@@ -105,7 +104,10 @@ def _stamp(value):
 
 class Bundle:
     """Immutable reviewed mapping, with separately renewable operator approval."""
-    def __init__(self, manifest, inventory_path, roots, configuration, *, storage_path=None):
+    def __init__(self, manifest, inventory_path, roots, configuration, *, storage_path=None, source_check=None):
+        if not callable(source_check):
+            raise ApplyError('explicit_source_check_required')
+        self.source_check = source_check
         self.paths = (Path(manifest), Path(inventory_path), *([Path(storage_path)] if storage_path else []))
         self.raw = tuple(_read(path) for path in self.paths)
         self.roots = roots.validate()
@@ -116,8 +118,9 @@ class Bundle:
             raise ApplyError('entry_budget_exceeded')
         self.header, self.footer = records[0], records[-1]
         self.entries = records[1:-1]
-        if (self.header.get('record') != 'header' or self.header.get('format') != 1
+        if (self.header.get('record') != 'header' or type(self.header.get('format')) is not int or self.header['format'] != 1
                 or self.footer.get('record') != 'footer' or self.footer.get('complete') is not True
+                or type(self.footer.get('legacy_entries')) is not int
                 or self.footer.get('legacy_entries') != len(self.entries)
                 or any(entry.get('record') != 'entry' for entry in self.entries)):
             raise ApplyError('complete_inventory_required')
@@ -127,7 +130,7 @@ class Bundle:
         if (set(mapping) != {'format', 'inventory_sha256', 'source', 'destination_sha256', 'entries'}
                 or type(mapping['format']) is not int or mapping['format'] != 1
                 or mapping['inventory_sha256'] != digest(self.raw[1])
-                or mapping['source'] != source_binding()
+                or mapping['source'] != self.source_check()
                 or mapping['destination_sha256'] != destination_binding(configuration)
                 or self.header.get('root_fingerprints') != root_pins
                 or self.header.get('source_revision') != '20261020_account_security'):
@@ -144,8 +147,14 @@ class Bundle:
             if decision['apply']:
                 reference = decision['provenance_reference']
                 if (not isinstance(reference, str) or not 1 <= len(reference) <= 256
+                        or not reference.strip() or entry.get('status') != 'review_required'
                         or entry.get('issues') != ['historical_provenance_unverified']
-                        or entry.get('path_reference_count') != 1):
+                        or type(entry.get('path_reference_count')) is not int or entry['path_reference_count'] != 1
+                        or not isinstance(entry.get('tenant_id'), str) or not 1 <= len(entry['tenant_id']) <= 36
+                        or (entry.get('kind'), entry.get('source_table'), entry.get('root')) not in {
+                            ('plan_pdf', 'planes_generados', 'pdf'), ('gym_logo', 'gym_profiles', 'logo')}
+                        or any(not isinstance(entry.get(key), str) or not re.fullmatch('[a-f0-9]{64}', entry[key])
+                            for key in ('sha256', 'file_fingerprint', 'source_fingerprint'))):
                     raise ApplyError('reviewed_provenance_required')
                 self.selected.append(entry)
         if (not self.selected or len(self.selected) > MAX_ENTRIES
@@ -157,7 +166,7 @@ class Bundle:
 
     def unchanged(self):
         if (any(_bounded(path) != raw for path, raw in zip(self.paths, self.raw))
-                or self.manifest['source'] != source_binding()
+                or self.manifest['source'] != self.source_check()
                 or self.manifest['destination_sha256'] != destination_binding(self.configuration)):
             raise ApplyError('artifact_binding_changed')
 

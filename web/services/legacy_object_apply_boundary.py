@@ -4,11 +4,40 @@ Windows descriptor construction/readback follows the independently reviewed
 QA33 two-principal boundary. Files may inherit exactly those two allow ACEs;
 the directory itself must have a protected explicit DACL before any payload.
 """
-import csv
-import io
 import os
 import stat
-import subprocess
+
+
+def _current_sid():
+    import ctypes
+    from ctypes import wintypes
+    api, kernel = ctypes.WinDLL('advapi32', use_last_error=True), ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.GetCurrentProcess.restype = wintypes.HANDLE
+    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel.LocalFree.argtypes = [ctypes.c_void_p]
+    api.OpenProcessToken.argtypes = [wintypes.HANDLE, wintypes.DWORD, ctypes.POINTER(wintypes.HANDLE)]
+    api.GetTokenInformation.argtypes = [wintypes.HANDLE, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD, ctypes.POINTER(wintypes.DWORD)]
+    api.ConvertSidToStringSidW.argtypes = [ctypes.c_void_p, ctypes.POINTER(wintypes.LPWSTR)]
+    token, size = wintypes.HANDLE(), wintypes.DWORD()
+    if not api.OpenProcessToken(kernel.GetCurrentProcess(), 8, ctypes.byref(token)):
+        raise OSError('private_identity_unavailable')
+    try:
+        api.GetTokenInformation(token, 1, None, 0, ctypes.byref(size))
+        if not 1 <= size.value <= 65536:
+            raise OSError('private_identity_unavailable')
+        buffer = ctypes.create_string_buffer(size.value)
+        if not api.GetTokenInformation(token, 1, buffer, size, ctypes.byref(size)):
+            raise OSError('private_identity_unavailable')
+        output = wintypes.LPWSTR()
+        sid = ctypes.cast(buffer, ctypes.POINTER(ctypes.c_void_p))[0]
+        if not api.ConvertSidToStringSidW(sid, ctypes.byref(output)):
+            raise OSError('private_identity_unavailable')
+        try:
+            return output.value
+        finally:
+            kernel.LocalFree(ctypes.cast(output, ctypes.c_void_p))
+    finally:
+        kernel.CloseHandle(token)
 from pathlib import Path
 
 
@@ -17,8 +46,7 @@ def _windows(path, *, create=False):
     import struct
     from ctypes import wintypes
 
-    identity = subprocess.check_output(['whoami', '/user', '/fo', 'csv', '/nh'], text=True, timeout=5)
-    sid = next(csv.reader(io.StringIO(identity)))[1]
+    sid = _current_sid()
     api = ctypes.WinDLL('advapi32', use_last_error=True)
     kernel = ctypes.WinDLL('kernel32', use_last_error=True)
     pointer = ctypes.c_void_p

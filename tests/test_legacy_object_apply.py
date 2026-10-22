@@ -4,12 +4,14 @@ import json
 import os
 import shutil
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 from sqlalchemy import create_engine, event, select
 from sqlalchemy.orm import Session
 
+from scripts.apply_legacy_objects import source_check as cli_source_check
 from tests import account_security37_fixtures
 from web.database.models import (
     Cliente,
@@ -67,11 +69,11 @@ def case(account37_engine, tmp_path):
     configuration = ObjectStoreConfiguration(backend='local', local_root=tmp_path / 'objects')
     manifest = private / 'mapping.json'
     manifest.write_bytes(service.canonical({'format': 1, 'inventory_sha256': service.digest(inv.read_bytes()),
-        'source': service.source_binding(), 'destination_sha256': service.destination_binding(configuration),
+        'source': cli_source_check(), 'destination_sha256': service.destination_binding(configuration),
         'entries': [{'entry_sha256': service.entry_key(entry), 'apply': True,
             'provenance_reference': 'synthetic-generated-here-not-an-operational-approval'} for entry in records[1:-1]]}))
     manifest.chmod(0o600)
-    bundle = service.Bundle(manifest, inv, roots, configuration)
+    bundle = service.Bundle(manifest, inv, roots, configuration, source_check=cli_source_check)
     now = datetime.now(UTC)
     approval = private / 'approval.json'
     approval.write_bytes(service.canonical({'approved': True, 'binding': bundle.binding,
@@ -184,7 +186,7 @@ def test_admission_mutation_refuses_before_SQL_or_journal(case, monkeypatch, cha
         value['approved'] = 1
         case.approval.write_bytes(service.canonical(value))
     elif change == 'source':
-        monkeypatch.setattr(service, 'source_binding', lambda: {'commit': 'changed', 'files_sha256': 'changed'})
+        monkeypatch.setattr(case.bundle, 'source_check', lambda: {'commit': 'changed', 'files_sha256': 'changed'})
     elif change == 'configuration':
         object.__setattr__(case.configuration, 'local_root', case.private / 'changed')
     elif change == 'missing':
@@ -262,10 +264,10 @@ def test_entry_and_file_budgets_and_incomplete_inventory_fail_before_database(ca
     mapping['entries'] *= 101
     case.manifest.write_bytes(service.canonical(mapping))
     with pytest.raises(service.ApplyError):
-        service.Bundle(case.manifest, case.inv, case.roots, case.configuration)
+        service.Bundle(case.manifest, case.inv, case.roots, case.configuration, source_check=cli_source_check)
     case.manifest.write_bytes(b'x' * (service.MAX_DOCUMENT + 1))
     with pytest.raises(service.ApplyError, match='artifact_budget_exceeded'):
-        service.Bundle(case.manifest, case.inv, case.roots, case.configuration)
+        service.Bundle(case.manifest, case.inv, case.roots, case.configuration, source_check=cli_source_check)
     assert status(case) == (None, [], 0)
 
 
@@ -318,8 +320,8 @@ def test_private_boundary_precedes_payload_and_rejects_extra_principals_or_publi
         source = inspect.getsource(boundary._windows)
         assert source.count('(A;OICI;FA;;;SY)') == 1
         source = source.replace('(A;OICI;FA;;;SY)', '(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)')
-        scope = {name: getattr(boundary, name) for name in ('csv', 'io', 'subprocess')}
-        exec(compile(source, '<synthetic-third-ACE>', 'exec'), scope)
+        scope = {'_current_sid': boundary._current_sid}
+        exec(compile(source, '<synthetic-third-ACE>', 'exec'), scope)  # noqa: S102 -- Own fixed-source mutation creates one extra ACE, never external input.
         with pytest.raises(OSError):
             scope['_windows'](private, create=True)
     else:
@@ -353,14 +355,14 @@ def test_logo_reencoding_keeps_source_digest_separate_and_preserves_business_tim
     mapping['entries'] = [{'entry_sha256': service.entry_key(entry), 'apply': True,
         'provenance_reference': 'synthetic-logo-created-in-this-test'} for entry in records[1:-1]]
     case.manifest.write_bytes(service.canonical(mapping))
-    case.bundle = service.Bundle(case.manifest, case.inv, case.roots, case.configuration)
+    case.bundle = service.Bundle(case.manifest, case.inv, case.roots, case.configuration, source_check=cli_source_check)
     approval = json.loads(case.approval.read_bytes())
     approval.update(binding=case.bundle.binding, entries=[service.entry_key(entry) for entry in case.bundle.selected])
     case.approval.write_bytes(service.canonical(approval))
     assert execute(case)['applied'] == 2
     with Session(case.engine) as db:
         profile = db.get(GymProfile, profile_id)
-        assert profile.updated_at == stamp
+        assert profile.updated_at.replace(tzinfo=UTC) == stamp.replace(tzinfo=UTC)
         stored = db.get(StoredObject, profile.logo_object_id)
         assert stored.sha256 != service.digest(target.read_bytes()) and stored.status == 'ready'
     assert target.read_bytes() == stream.getvalue()
@@ -372,10 +374,11 @@ def test_CLI_actual_plan_then_apply_and_replay_use_explicit_DB_and_private_stora
     storage = case.private / 'storage.json'
     storage.write_bytes(service.canonical({'backend': 'local', 'local_root': str(case.configuration.local_root)}))
     storage.chmod(0o600)
-    monkeypatch.setenv('LEGACY_APPLY_DATABASE_URL', str(case.engine.url))
+    database_path = Path(case.engine.url.database).resolve()
+    monkeypatch.setenv('LEGACY_APPLY_DATABASE_URL', 'sqlite:///' + database_path.as_posix())
     args = ['--manifest', str(case.manifest), '--inventory', str(case.inv), '--storage', str(storage),
         '--pdf-root', str(case.roots.pdf), '--logo-root', str(case.roots.logo),
-        '--expected-database', str(case.engine.url.database)]
+        '--expected-database', str(database_path)]
     assert main(args) == 0
     result = capsys.readouterr()
     assert json.loads(result.out)['mode'] == 'plan' and result.err == '' and status(case) == (None, [], 0)
@@ -384,3 +387,28 @@ def test_CLI_actual_plan_then_apply_and_replay_use_explicit_DB_and_private_stora
     first = status(case)
     assert main([*args, '--apply', '--approval', str(case.approval), '--journal', str(case.journal)]) == 0
     assert json.loads(capsys.readouterr().out)['applied'] == 1 and status(case) == first
+
+
+@pytest.mark.parametrize('change', ['header-float', 'footer-bool', 'path-count-bool', 'digest', 'source-table', 'blank-provenance'])
+def test_typed_inventory_and_review_binding_fail_before_any_apply(case, change):
+    records = [json.loads(line) for line in case.inv.read_text(encoding='utf8').splitlines()]
+    if change == 'header-float':
+        records[0]['format'] = 1.0
+    elif change == 'footer-bool':
+        records[-1]['legacy_entries'] = True
+    elif change == 'path-count-bool':
+        records[1]['path_reference_count'] = True
+    elif change == 'digest':
+        records[1]['sha256'] = 'not-a-digest'
+    elif change == 'source-table':
+        records[1]['source_table'] = 'usuarios'
+    case.inv.write_bytes(b'\n'.join(service.canonical(record) for record in records) + b'\n')
+    mapping = json.loads(case.manifest.read_bytes())
+    mapping['inventory_sha256'] = service.digest(case.inv.read_bytes())
+    mapping['entries'][0]['entry_sha256'] = service.entry_key(records[1])
+    if change == 'blank-provenance':
+        mapping['entries'][0]['provenance_reference'] = ' '
+    case.manifest.write_bytes(service.canonical(mapping))
+    with pytest.raises(service.ApplyError):
+        service.Bundle(case.manifest, case.inv, case.roots, case.configuration, source_check=cli_source_check)
+    assert status(case) == (None, [], 0) and not case.journal.exists()
