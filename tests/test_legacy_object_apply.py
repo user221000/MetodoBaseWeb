@@ -8,6 +8,7 @@ import pytest
 from sqlalchemy import create_engine, event, select
 from sqlalchemy.orm import Session
 
+from tests import account_security37_fixtures
 from web.database.models import (
     Cliente,
     PlanGenerado,
@@ -21,6 +22,8 @@ from web.services import legacy_object_inventory as inventory
 from web.storage.configuration import ObjectStoreConfiguration
 from web.storage.local import LocalObjectStore
 from web.storage.objects import ObjectUnavailable
+
+account37_engine = account_security37_fixtures.account37_engine
 
 
 @pytest.fixture
