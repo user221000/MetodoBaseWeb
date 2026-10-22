@@ -1,0 +1,69 @@
+"""Pure lease refusal controls; no PostgreSQL connection or fixture body."""
+import copy
+import json
+from datetime import UTC, datetime, timedelta
+
+import pytest
+
+from tests.ci_web37 import pg_lease
+
+NOW = datetime(2026, 10, 20, tzinfo=UTC)
+
+
+def ack(tmp_path, value=None):
+    contract = {"source": "immutable", "profile": "private", "selection": ["all29"]}
+    row = {"approved": True, "scope": "actual37-pg429-exclusive-v1",
+           "contract_sha256": pg_lease.digest(contract), "expires_at_UTC": (NOW + timedelta(hours=1)).isoformat()}
+    if value:
+        row.update(value)
+    path = tmp_path / "ack.json"
+    path.write_text(json.dumps(row), encoding="utf8")
+    return path, contract
+
+
+def test_an_exact_finite_lease_is_accepted_without_SQL(tmp_path):
+    path, contract = ack(tmp_path)
+    assert len(pg_lease.require_ack(path, contract, now=NOW)) == 64
+
+
+@pytest.mark.parametrize("mutation", [
+    {"approved": False}, {"approved": 1}, {"scope": "all_services"}, {"contract_sha256": "0" * 64},
+    {"extra_authority": True}, {"expires_at_UTC": NOW.isoformat()},
+    {"expires_at_UTC": (NOW - timedelta(seconds=1)).isoformat()},
+    {"expires_at_UTC": (NOW + timedelta(hours=8, seconds=1)).isoformat()},
+    {"expires_at_UTC": "2026-10-20T01:00:00"},
+])
+def test_changed_authority_expiry_or_context_fails_closed(tmp_path, mutation):
+    path, contract = ack(tmp_path, mutation)
+    with pytest.raises(ValueError):
+        pg_lease.require_ack(path, contract, now=NOW)
+
+
+def test_source_profile_or_selection_drift_is_not_covered(tmp_path):
+    path, contract = ack(tmp_path)
+    for name in contract:
+        altered = copy.deepcopy(contract)
+        altered[name] = "changed"
+        with pytest.raises(ValueError, match="exact PG"):
+            pg_lease.require_ack(path, altered, now=NOW)
+
+
+@pytest.mark.parametrize("value", [-1, 2, True, 1.0])
+def test_a_child_cannot_exceed_or_fabricate_its_UUID_budget(value):
+    with pytest.raises(ValueError, match="UUID budget"):
+        pg_lease.phase_budget("account", value, succeeded=False)
+
+
+def test_incomplete_success_fails_but_closed_partial_failure_can_be_preserved():
+    with pytest.raises(ValueError, match="UUID budget"):
+        pg_lease.phase_budget("migration37", 11, succeeded=True)
+    assert pg_lease.phase_budget("migration37", 11, succeeded=False) == 12
+
+
+def test_all_twenty_nine_phases_have_their_source_bound_finite_budget():
+    rows = pg_lease.budgets()
+    assert len(rows) == 29 and sum(row["cases"] for row in rows) == 429
+    assert sum(row["UUIDs"] for row in rows) == 69
+    assert [row["group"] for row in rows if row["concurrent_UUIDs"] == 2] == ["independent-qa", "restore"]
+    assert [row["group"] for row in rows if row["pool"] != 1] == ["legacy-r24-race"]
+    assert all(pg_lease.phase_budget(row["group"], row["UUIDs"], succeeded=True) == row["UUIDs"] for row in rows)

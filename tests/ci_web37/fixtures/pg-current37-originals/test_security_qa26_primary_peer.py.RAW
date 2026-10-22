@@ -1,0 +1,151 @@
+"""Independent exact-public-primary isolation on explicit schema36 fixtures."""
+import uuid
+from datetime import UTC, datetime, timedelta
+
+import pytest
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from tests.followup34_http import followup_http
+from tests.integration_schema_migrations import run_migration
+from tests.notifications36_fixtures import owned_database
+from web.database.models import GymProfile, RefreshToken, Usuario
+
+
+@pytest.fixture(autouse=True)
+def outbound_transport_is_synthetic(monkeypatch):
+    import resend
+    monkeypatch.setattr(resend.Emails, "send", lambda *_args, **_options: {"id": "synthetic-qa26-welcome-ack"})
+
+
+@pytest.fixture(scope="module")
+def followup_db(tmp_path_factory):
+    with owned_database("sqlite", tmp_path_factory.mktemp("security-qa26-current36")) as (url, engine):
+        run_migration(url, "db_bootstrap.py", "--revision", "20261020_notifications")
+        yield engine
+
+
+primary_http = followup_http
+
+
+def manager_state(case):
+    with Session(case["admin"]) as db:
+        actor = db.get(Usuario, case["user"])
+        identity = (actor.email, actor.password_hash, actor.session_version, actor.role, actor.tipo, actor.team_gym_id)
+        refresh = list(db.execute(select(RefreshToken.jti, RefreshToken.revoked).where(
+            RefreshToken.user_id == actor.id).order_by(RefreshToken.jti)))
+        return identity, refresh
+
+
+def test_new_registration_alias_and_login_never_attach_the_foreign_manager(primary_http):
+    case = primary_http
+    before = manager_state(case)
+    email = uuid.uuid4().hex + "@example.invalid"
+    body = {"email": email, "password": "Independent Public Primary Password 42!", "nombre": "Independent primary", "tipo": "gym"}
+    response = case["raw"].post("/api/auth/registro/", json=body, follow_redirects=True)
+    assert response.status_code == 200
+    login = case["raw"].post("/api/auth/login/", json={key: body[key] for key in ("email", "password")}, follow_redirects=True)
+    assert login.status_code == 200 and login.json()["mfa_required"] is False
+    own = case["raw"].get("/api/auth/me", headers={"Authorization": "Bearer " + login.json()["token"]})
+    assert own.status_code == 200 and own.json()["id"] != case["user"]
+    with Session(case["admin"]) as db:
+        actor = db.scalar(select(Usuario).where(Usuario.email == email))
+        assert actor is not None and actor.id == own.json()["id"] and actor.team_gym_id is None
+        profile = db.scalar(select(GymProfile).where(GymProfile.gym_id == actor.id))
+        assert profile is not None and profile.gym_id != case["user"]
+    assert manager_state(case) == before
+    assert case["raw"].get("/api/auth/me").json()["id"] == case["user"]
+
+
+def test_signed_google_primary_establishes_its_subject_without_foreign_manager_adoption(primary_http, monkeypatch):
+    from tests.google33_signed_provider import SignedProvider
+    from web.settings import get_settings
+    case = primary_http
+    before = manager_state(case)
+    client_id = "independent-primary-peer.apps.googleusercontent.com"
+    monkeypatch.setattr(get_settings(), "GOOGLE_CLIENT_ID", client_id)
+    now = datetime.now(UTC)
+    email = uuid.uuid4().hex + "@thirdparty.example.invalid"
+    info = {"aud": client_id, "iss": "https://accounts.google.com", "sub": str(10**18 + int(uuid.uuid4().hex[:12], 16)),
+            "email": email, "email_verified": "true", "exp": int((now + timedelta(hours=1)).timestamp()),
+            "auth_time": int(now.timestamp())}
+    provider = SignedProvider(monkeypatch, info)
+    response = case["raw"].post("/api/auth/google", json={"credential": provider.credential()})
+    assert response.status_code == 200 and response.json()["mfa_required"] is False
+    own = case["raw"].get("/api/auth/me", headers={"Authorization": "Bearer " + response.json()["token"]})
+    assert own.status_code == 200 and own.json()["id"] != case["user"]
+    with Session(case["admin"]) as db:
+        actor = db.scalar(select(Usuario).where(Usuario.email == email))
+        assert actor is not None and actor.id == own.json()["id"] and actor.team_gym_id is None
+    assert provider.calls
+    assert manager_state(case) == before
+    assert case["raw"].get("/api/auth/me").json()["id"] == case["user"]
+
+
+def test_browser_admission_precedes_primary_exemption_with_zero_sql(primary_http, monkeypatch):
+    from web.middleware.tenant import TenantMiddleware
+    from web.settings import get_settings
+    case = primary_http
+    calls = []
+    original = TenantMiddleware._extract_tenant
+    async def extract(self, request):
+        calls.append(request.url.path)
+        return await original(self, request)
+    monkeypatch.setattr(TenantMiddleware, "_extract_tenant", extract)
+    statements = []
+    def capture(_connection, _cursor, statement, _parameters, _context, _many):
+        statements.append(statement)
+    from sqlalchemy import event
+    event.listen(case["engine"], "before_cursor_execute", capture)
+    try:
+        for path in ("/api/auth/registro", "/api/auth/login", "/api/auth/google"):
+            origin = get_settings().BASE_URL
+            for supplied, suffix in [([("Origin", "https://foreign.invalid"), ("X-MetodoBase-Browser", "1")], ""),
+                ([("Origin", origin), ("X-MetodoBase-Browser", "1"), ("X-MetodoBase-Browser", "1")], ""),
+                ([("Origin", origin), ("X-MetodoBase-Browser", "1")], "?unexpected=1")]:
+                response = case["raw"].post(path + suffix, json={}, headers=supplied)
+                assert response.status_code == 403
+                assert response.headers["cache-control"] == "no-store"
+                assert response.headers["referrer-policy"] == "no-referrer"
+                assert all("mb_refresh" not in value for value in response.headers.get_list("set-cookie"))
+    finally:
+        event.remove(case["engine"], "before_cursor_execute", capture)
+    assert statements == [] and calls == []
+
+
+def test_exact_exemption_and_context_restoration_do_not_expand_to_neighbors():
+    from fastapi.testclient import TestClient
+    from starlette.applications import Starlette
+    from starlette.responses import JSONResponse
+    from starlette.routing import Route
+
+    from web.database.tenant_context import current_tenant
+    from web.middleware.tenant import TenantMiddleware
+    calls = []
+    class Observed(TenantMiddleware):
+        async def _extract_tenant(self, request):
+            calls.append((request.method, request.url.path))
+            return "foreign-manager"
+    async def endpoint(request):
+        return JSONResponse({"tenant": current_tenant.get(), "state": request.state.tenant_id})
+    app = Starlette(routes=[Route("/{path:path}", endpoint, methods=["GET", "POST", "PUT"])])
+    app.add_middleware(Observed)
+    scope = current_tenant.set("caller-owned-context")
+    try:
+        with TestClient(app) as client:
+            for base in ("/api/auth/registro", "/api/auth/login", "/api/auth/google"):
+                for slash in ("", "/"):
+                    before = len(calls)
+                    response = client.post(base + slash)
+                    assert response.json() == {"tenant": "", "state": None}
+                    assert len(calls) == before
+            for method, path in [("GET", "/api/auth/registro"), ("PUT", "/api/auth/login"),
+                ("POST", "/api/auth/registro-extra"), ("POST", "/api/auth/google/extra"),
+                ("POST", "/api/auth/browser/logout"), ("POST", "/api/usuario/perfil")]:
+                before = len(calls)
+                response = client.request(method, path)
+                assert response.json() == {"tenant": "foreign-manager", "state": "foreign-manager"}
+                assert len(calls) == before + 1
+                assert current_tenant.get() == "caller-owned-context"
+    finally:
+        current_tenant.reset(scope)

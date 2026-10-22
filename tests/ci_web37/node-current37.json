@@ -1,0 +1,464 @@
+{
+  "scope": "Additional web UI27/37 VM and minimal DOM only; no native/API/provider claim",
+  "legacy51_browser55_not_repeated": true,
+  "executions": 147,
+  "command_count": 13,
+  "commands": [
+    {
+      "script": "tests/e2e/account_security37_transport.cjs",
+      "format": "results",
+      "expected_cases": [
+        "Status is exact-access GET with no refresh or writes",
+        "Email request is explicit empty JSON browser-marked CSRF same-origin under shared lock",
+        "Email503 has no retry, readback, refresh or session-success inference",
+        "Password captures immutable intent before awaiting shared lock and sends once",
+        "Successful password ACK invalidates the other tab RAM",
+        "Password boundary fences a refresh waiting on its lock before any cookie refresh I/O",
+        "Password 503 clears RAM and publishes uncertainty without automatic I/O",
+        "Password network clears RAM and publishes uncertainty without automatic I/O",
+        "Password invalid-json clears RAM and publishes uncertainty without automatic I/O",
+        "Password legacy-pair clears RAM and publishes uncertainty without automatic I/O",
+        "Confirmed password rejection 403 does not fabricate revocation or retry",
+        "Confirmed password rejection 409 does not fabricate revocation or retry",
+        "Confirmed password rejection 422 does not fabricate revocation or retry",
+        "Confirmed password rejection 429 does not fabricate revocation or retry",
+        "External switch while password response is pending discards late ACK without touching new session",
+        "Pagehide during password consumes response under lock but suppresses late ACK",
+        "Closed result cannot be forged or reused after a later account epoch",
+        "Denied epoch publication after committed password clears local RAM without a false global revocation ACK",
+        "Strict body rejects unknown fields, mismatches, dual factors and over72UTF8bytes before I/O"
+      ],
+      "dependencies": [
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "web/static/js/account-security37.js",
+        "web/static/js/api.js"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/account_security37_state.cjs",
+      "format": "results",
+      "expected_cases": [
+        "Initial read is GET-only and does not request email or infer contact confirmation",
+        "Email provider ACK is not delivery or confirmed contact and requires manual read",
+        "Email delivery503 preserves no false status and performs no automatic read or retry",
+        "Unknown or corrupt status never becomes not-confirmed default eligible for sending",
+        "Password requires explicit confirmation before primary proof or mutation",
+        "Password freezes new password and primary before waiting and clears inputs immediately",
+        "Active MFA requires exactly the selected current factor and preserves its declaration",
+        "Linked Google primary uses existing reauth protocol and never becomes password or email proof",
+        "Password durable503 is terminal uncertainty, clears access and never reads back with old identity",
+        "Primary503 never dispatches password or fabricates a terminal password change",
+        "epoch between primary and password suppresses mutation and clears projections",
+        "pagehide between primary and password suppresses mutation and clears projections"
+      ],
+      "dependencies": [
+        "tests/e2e/account_security37_transport.cjs",
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "web/static/js/account-security37.js",
+        "web/static/js/api.js"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/account_security37_dom.cjs",
+      "format": "results",
+      "expected_cases": [
+        "Mounted form starts with known status, explicit submit and no auto email/change",
+        "Missing confirmation clears secret inputs and focuses an announced status without dispatch",
+        "Own confirmed password survives shell retirement only as a checked public terminal notice",
+        "Uncertain password status never presents revocation or password success",
+        "Google SDK requests freshness claims, nonce and finite same-attempt state",
+        "Edited Google intent and stale SDK state cannot submit the captured password",
+        "A wrong Google response state cannot adopt another provider attempt",
+        "Escape cancels the pending Google intent and suppresses a late callback",
+        "metodobase-session-changed clears typed DOM and pending Google and ignores a late provider callback",
+        "pagehide clears typed DOM and pending Google and ignores a late provider callback"
+      ],
+      "dependencies": [
+        "tests/e2e/account_security37_transport.cjs",
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "web/static/js/account-security37.js",
+        "web/static/js/api.js",
+        "web/static/js/session-shell.js",
+        "web/templates/_account_security37_content.html"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/notifications36_state.cjs",
+      "format": "results",
+      "expected_cases": [
+        "gym initial load is GET-only, defaultOFF and unknown is never payment debt",
+        "personal initial load is GET-only, defaultOFF and unknown is never payment debt",
+        "Preference requires explicit confirmation, capturesCAS/body/key and ACK requires manual read",
+        "Lost durable preference ACK503 preserves exact voluntary retry without readback and ignores stale replay snapshot",
+        "Failed explicit read preserves pending same-intent retry RAM",
+        "Verified source alone cannot queue without matching explicit current opt-in",
+        "Queue command captures exact preference/source and retry replay never assumes present pending state",
+        "Outbox pages are manual20 ascending and cancellation needs exact observed version",
+        "Accepted and uncertain labels distinguish delivery and prohibit invented resend action",
+        "notification_conflict never triggers automatic retry, source observation or readback",
+        "notification_source_changed never triggers automatic retry, source observation or readback",
+        "notification_frequency_limited never triggers automatic retry, source observation or readback",
+        "notification_disabled never triggers automatic retry, source observation or readback",
+        "Context403 clears private projected state and never elevates ADMIN/team access",
+        "External epoch during read discards late response and pending private state",
+        "External epoch during write discards late response and pending private state",
+        "Closed namespace rejects forged operation, authority/free text and mutable caller body",
+        "Malformed unknown/cursor/metrics/ACK inputs fail closed",
+        "Default observation requires explicit confirmation and503 does not certify source or payment issue"
+      ],
+      "dependencies": [
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "web/static/js/api.js",
+        "web/static/js/notifications36.js"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/notifications36_dom.cjs",
+      "format": "results",
+      "expected_cases": [
+        "Mounted preferences have labelled explicit checkbox/select/confirmation and remainOFF by default",
+        "Changing controls alone never writes; submission without confirmation announces focused error",
+        "Explicit preference submit sends one snapshot and focus moves to surviving announced status",
+        "Accepted/uncertain are inert truthful text, uncertain offers stop only",
+        "503 uncertainty enables only voluntary same-intent retry and manual query",
+        "metodobase-session-changed synchronously clears rendered own state and RAM intent without reading event values",
+        "pagehide synchronously clears rendered own state and RAM intent without reading event values",
+        "storage synchronously clears rendered own state and RAM intent without reading event values"
+      ],
+      "dependencies": [
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "tests/e2e/notifications36_state.cjs",
+        "web/static/js/api.js",
+        "web/static/js/notifications36.js",
+        "web/templates/_notifications36_content.html"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/notifications36_nav.cjs",
+      "format": "results",
+      "expected_cases": [
+        "own gym OWNER exposes only its own finite navigation",
+        "gym ADMIN without personal identity exposes only its own finite navigation",
+        "persisted gym team member exposes only its own finite navigation",
+        "canonical individual viewer exposes only its own finite navigation",
+        "unknown identity role exposes only its own finite navigation",
+        "Absent identity never exposes a link or performs another request",
+        "External epoch before identity resolution prevents late navigation adoption",
+        "metodobase-session-changed immediately hides previously visible links",
+        "pagehide immediately hides previously visible links"
+      ],
+      "dependencies": [
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "web/static/js/api.js",
+        "web/static/js/notification-nav36.js"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/notifications36_bootstrap.cjs",
+      "format": "results",
+      "expected_cases": [
+        "gym default-call uses lexical Api without an injected API option",
+        "gym DOMContentLoaded uses lexical Api without an injected API option",
+        "gym ready-complete uses lexical Api without an injected API option",
+        "personal default-call uses lexical Api without an injected API option",
+        "personal DOMContentLoaded uses lexical Api without an injected API option",
+        "personal ready-complete uses lexical Api without an injected API option",
+        "gym actual closed API rejects invalid context and coerced CAS before transport",
+        "personal actual closed API rejects invalid context and coerced CAS before transport"
+      ],
+      "dependencies": [
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "tests/e2e/notifications36_state.cjs",
+        "web/static/js/api.js",
+        "web/static/js/notifications36.js",
+        "web/templates/_notifications36_content.html"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/root_notifications36_peer.cjs",
+      "format": "results",
+      "expected_cases": [
+        "gym: delivery_enabled cannot become a writable view",
+        "gym: duplicate_preferences cannot become a writable view",
+        "gym: unknown_eligible cannot become a writable view",
+        "gym: outbox_order cannot become a writable view",
+        "gym: impossible_metrics cannot become a writable view",
+        "gym: loss of eligibility clears a previously usable view",
+        "personal: delivery_enabled cannot become a writable view",
+        "personal: duplicate_preferences cannot become a writable view",
+        "personal: unknown_eligible cannot become a writable view",
+        "personal: outbox_order cannot become a writable view",
+        "personal: impossible_metrics cannot become a writable view",
+        "personal: loss of eligibility clears a previously usable view"
+      ],
+      "dependencies": [
+        "tests/e2e/browser_harness31.cjs",
+        "tests/e2e/browser_session31.cjs",
+        "tests/e2e/notifications36_state.cjs",
+        "web/static/js/api.js",
+        "web/static/js/notifications36.js"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/account_email37_public.cjs",
+      "format": "public-pass-lines",
+      "expected_cases": [
+        "fragment cleaned before interaction and never automatically consumed",
+        "missing malformed duplicate and additional fragment fields fail closed",
+        "failed URL cleanup discards proof before any network",
+        "explicit confirmation sends a closed body and omits auth cookies",
+        "uncertain transport has no automatic retry or successful confirmation claim",
+        "unconfirmed durable outcome remains uncertain after503",
+        "unusable token response never claims contact was confirmed",
+        "pagehide invalidates RAM proof and blocks later consumption"
+      ],
+      "dependencies": [
+        "web/static/js/email-verification37.js"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/security_account37_unauthorized_peer.cjs",
+      "format": "rows",
+      "expected_cases": [
+        "status API persisted401 retires RAM access without any refresh or replay",
+        "status controller persisted401 removes actor projections and disables its old context",
+        "status confirmed403 preserves the access without a server revocation claim",
+        "status confirmed422 preserves the access without a server revocation claim",
+        "email API persisted401 retires RAM access without any refresh or replay",
+        "email controller persisted401 removes actor projections and disables its old context",
+        "email confirmed403 preserves the access without a server revocation claim",
+        "email confirmed422 preserves the access without a server revocation claim",
+        "password API persisted401 retires RAM access without any refresh or replay",
+        "password controller persisted401 removes actor projections and disables its old context",
+        "password confirmed403 preserves the access without a server revocation claim",
+        "password confirmed422 preserves the access without a server revocation claim"
+      ],
+      "dependencies": [
+        "tests/ci_web37/fixtures/security-browser31-6ee27e3c.cjs.RAW",
+        "tests/e2e/security_account37_boundaries_peer.cjs",
+        "web/static/js/account-security37.js",
+        "web/static/js/api.js",
+        "web/templates/_account_security37_content.html"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/security_account37_alias401_peer.cjs",
+      "format": "rows",
+      "expected_cases": [
+        "context API401 retires the exact own-account authority without automatic refresh",
+        "context controller401 disables the old account view and removes its projections",
+        "factorStatus API401 retires the exact own-account authority without automatic refresh",
+        "factorStatus controller401 disables the old account view and removes its projections",
+        "verify API401 retires the exact own-account authority without automatic refresh",
+        "verify controller401 disables the old account view and removes its projections"
+      ],
+      "dependencies": [
+        "tests/ci_web37/fixtures/security-browser31-6ee27e3c.cjs.RAW",
+        "tests/e2e/security_account37_boundaries_peer.cjs",
+        "tests/e2e/security_account37_unauthorized_peer.cjs",
+        "web/static/js/account-security37.js",
+        "web/static/js/api.js",
+        "web/templates/_account_security37_content.html"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/security_account37_boundaries_headers_peer.cjs",
+      "format": "rows",
+      "expected_cases": [
+        "Shared lock spans the full password JSON ACK and fences an already queued refresh",
+        "Password intent is captured before a different cookie action releases the shared lock",
+        "Controller captures primary and new password before awaiting primary identity proof",
+        "A late401 from /api/account/security cannot overwrite a later identity boundary",
+        "A late401 from /api/account/security/email/request cannot overwrite a later identity boundary",
+        "A late401 from /api/account/security/password cannot overwrite a later identity boundary",
+        "Wrong current primary password401 remains correctable and never dispatches password change",
+        "Storage denial after committed password has no usable access and no fabricated closure",
+        "Password network is one uncertain local closure without a server revocation claim",
+        "Password invalid-json is one uncertain local closure without a server revocation claim",
+        "Password invalid-ACK is one uncertain local closure without a server revocation claim",
+        "Unexpected private server message and fields never become public controller text",
+        "GIS SDK receives per-view nonce and captured same-attempt state",
+        "Canceled GIS state cannot adopt the credential of a fresh provider attempt",
+        "Changing the bound form after Google click rejects its late callback",
+        "GIS same-state callback replay cannot send a second primary or password request",
+        "pagehide erases pending GIS intent and secret DOM before a delayed provider callback",
+        "metodobase-session-changed erases pending GIS intent and secret DOM before a delayed provider callback"
+      ],
+      "dependencies": [
+        "tests/ci_web37/fixtures/account37-boundaries-08de03f3.cjs.RAW",
+        "tests/ci_web37/fixtures/security-browser31-6ee27e3c.cjs.RAW",
+        "tests/e2e/security_account37_boundaries_peer.cjs",
+        "tests/e2e/security_account37_unauthorized_peer.cjs",
+        "web/static/js/account-security37.js",
+        "web/static/js/api.js",
+        "web/templates/_account_security37_content.html"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    },
+    {
+      "script": "tests/e2e/security_account37_headers401_peer.cjs",
+      "format": "rows",
+      "expected_cases": [
+        "context retires exact access at known401 headers before the stalled JSON error body",
+        "verify retires exact access at known401 headers before the stalled JSON error body",
+        "factorStatus retires exact access at known401 headers before the stalled JSON error body",
+        "status retires exact access at known401 headers before the stalled JSON error body",
+        "email retires exact access at known401 headers before the stalled JSON error body",
+        "password retires exact access at known401 headers before the stalled JSON error body"
+      ],
+      "dependencies": [
+        "tests/ci_web37/fixtures/security-browser31-6ee27e3c.cjs.RAW",
+        "tests/e2e/security_account37_boundaries_peer.cjs",
+        "tests/e2e/security_account37_unauthorized_peer.cjs",
+        "web/static/js/account-security37.js",
+        "web/static/js/api.js",
+        "web/templates/_account_security37_content.html"
+      ],
+      "criterion_source": "original frozen assertion functions; author contract labels matched where declared; independent peer ordered labels source-bound"
+    }
+  ],
+  "input_files": {
+    "tests/ci_web37/fixtures/account37-boundaries-08de03f3.cjs.RAW": {
+      "framing": "raw",
+      "sha256": "ce0c90172de301e5e39411be919ffcb8117d98c3750f0baaa28abeb1ea8a9f87"
+    },
+    "tests/ci_web37/fixtures/security-browser31-6ee27e3c.cjs.RAW": {
+      "framing": "raw",
+      "sha256": "4c8581ac6280f67fbfb201a6cfa30ea41b72948a3cf3bd493fe1bc3d3f320602"
+    },
+    "tests/e2e/account_email37_public.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "ac6b139e7439ca4488c95c3b9b12cb08d2f727ec26606d3ecf90a8f82fed40e0"
+    },
+    "tests/e2e/account_security37_dom.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "5ef0878761f48ee9fd49a307b64f4d19ffc38e656b847841cefee7923cc0a1fb"
+    },
+    "tests/e2e/account_security37_state.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "4fbe06c2e6728e1f12c63a2cb1cfc7226e08385ce5b81242eae1fb29ed7ba3c9"
+    },
+    "tests/e2e/account_security37_transport.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "7e9fd4998a0abe9534da96c070c33d70c28870dd05f59d1bc80901835bb80cbb"
+    },
+    "tests/e2e/browser_harness31.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "5e67436a274ec0c42a96a7c65107225f9d5b5cde742fd87d5281cba1db620956"
+    },
+    "tests/e2e/browser_offline31.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "527ff6bf0fe18c05bc8f92302ad3d9d2d782b3fc0c3460cf145b18639c415f9d"
+    },
+    "tests/e2e/browser_session31.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "b94d2ce9647270c02ec58bf607ae0a5a807e328586ffb78d6c14b0431f7a6250"
+    },
+    "tests/e2e/ci_web37_offline.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "5062d2e2e42fbcd673ad15563e5bf6a55ebc7b0bc019488597d75c2e27c8e20d"
+    },
+    "tests/e2e/notifications36_bootstrap.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "ed3b590d6462f6425e9eb49d62c24fd1e341ff88c1a9215e9a769126bff9f044"
+    },
+    "tests/e2e/notifications36_dom.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "e7b3f291c45c86576acfb20bff23acff106ef4cd091c7524c82786b65c84b172"
+    },
+    "tests/e2e/notifications36_nav.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "927fe2ceed7ef26d5fdad6d95583c038920a385fe9093c93e265594394a56b1a"
+    },
+    "tests/e2e/notifications36_state.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "11b4fdf89f17c3b3c2f572c9495414c0c90958277b2f5ca4aba895b9ef61705c"
+    },
+    "tests/e2e/root_notifications36_peer.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "db9ec5d094e606d6739617e0ea9b614cebc60156fcb0415b8a2a6c3d6bf04b2c"
+    },
+    "tests/e2e/security_account37_alias401_peer.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "c2b8b00ff9f3e35ed6804ac647fa33cec78e900771e451cdfd5baeb561017cd8"
+    },
+    "tests/e2e/security_account37_boundaries_headers_peer.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "e7ef78630c94e268b376c5b346a12a76d6150262c92290de4efc8bae2b611ee4"
+    },
+    "tests/e2e/security_account37_boundaries_peer.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "ce0c90172de301e5e39411be919ffcb8117d98c3750f0baaa28abeb1ea8a9f87"
+    },
+    "tests/e2e/security_account37_headers401_peer.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "40fbb7d94bd3fd642b9b9455d52d134ed762f9f0bdb36b698039f4584c412b10"
+    },
+    "tests/e2e/security_account37_unauthorized_peer.cjs": {
+      "framing": "normalized_lf",
+      "sha256": "dd55f47e516f49cf33782c8571a37046966df6098195efe8c617428aa6433e22"
+    },
+    "web/static/js/account-security37.js": {
+      "framing": "normalized_lf",
+      "sha256": "9b04c05094f41ca4f2aea1a531ed5c46fbfcbf57d6ee9782ee70e6cc96a6a29f"
+    },
+    "web/static/js/api.js": {
+      "framing": "normalized_lf",
+      "sha256": "9eb30270ab41157eb2ab8c681798f0f0b3602ae1fb9371bdcc55abd125d63463"
+    },
+    "web/static/js/email-verification37.js": {
+      "framing": "normalized_lf",
+      "sha256": "54d9e2a6dcd351669f613d6f5881216a306a75ec15a0f67f9c60e9d94d41ef81"
+    },
+    "web/static/js/notification-nav36.js": {
+      "framing": "normalized_lf",
+      "sha256": "c624581335f00351b47bdc9617be508f1503264557b50ec0bcd77fc528bab60a"
+    },
+    "web/static/js/notifications36.js": {
+      "framing": "normalized_lf",
+      "sha256": "8e1547703c95ed48ade2c3f22804b266dc3f4fedcb25836c737980c891e0d7a9"
+    },
+    "web/static/js/session-shell.js": {
+      "framing": "normalized_lf",
+      "sha256": "8822a957f3807f252a5b051f5a9a127e1cc2775f5b4358251bf70a30a8f7926b"
+    },
+    "web/templates/_account_security37_content.html": {
+      "framing": "normalized_lf",
+      "sha256": "38245f761cc93b924f867274ac44174a5b7d656854b81685c5fdd8d07590ea86"
+    },
+    "web/templates/_notifications36_content.html": {
+      "framing": "normalized_lf",
+      "sha256": "d2b56a827ef69054a315e83d62fadc62178a552480cdcb1eb9ec4cad85e4088d"
+    }
+  },
+  "read_Git_sources": [
+    {
+      "source": "6ee27e3c645b6c9a3481358549fb3700da1faee2",
+      "path": "tests/e2e/security_browser31_ui_peer.cjs",
+      "fixture": "tests/ci_web37/fixtures/security-browser31-6ee27e3c.cjs.RAW"
+    },
+    {
+      "source": "08de03f3ecbbc8d8a10bac193f12efadf92312ad",
+      "path": "tests/e2e/security_account37_boundaries_peer.cjs",
+      "fixture": "tests/ci_web37/fixtures/account37-boundaries-08de03f3.cjs.RAW"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+"""Exercise the installed Stripe object model at the SDK transport boundary."""
+from datetime import UTC, datetime, timedelta
+
+import pytest
+
+from web.services.notification_transports import BillingReference, ProviderReadPort
+
+
+@pytest.mark.parametrize("shape", ["open-expanded", "paid-expanded", "paid-reference"])
+def test_real_stripe_objects_are_accepted_without_mapping_doubles(monkeypatch, shape):
+    import stripe
+
+    from web.services import stripe_service
+
+    now = datetime.now(UTC).replace(microsecond=0)
+    paid = shape.startswith("paid")
+    reference = BillingReference("synthetic-subject", "gym", 1, "stripe", "subscription",
+                                 "sub_synthetic_peer", "cus_synthetic_peer", "standard", 10000,
+                                 "active" if paid else "past_due", now - timedelta(days=29),
+                                 now + timedelta(days=1))
+    charge_data = {"id": "ch_synthetic_peer", "object": "charge", "customer": reference.customer_id,
+                   "currency": "mxn", "paid": paid, "captured": paid, "amount": 10000,
+                   "refunded": False, "amount_refunded": 0}
+    charge = stripe.Charge.construct_from(charge_data, None)
+    invoice = stripe.Invoice.construct_from({"id": "in_synthetic_peer", "object": "invoice",
+        "customer": reference.customer_id, "subscription": reference.resource_id,
+        "currency": "mxn", "amount_due": 10000, "amount_paid": 10000 if paid else 0,
+        "amount_remaining": 0 if paid else 10000, "paid": paid, "status": "paid" if paid else "open",
+        "due_date": int((now - timedelta(days=1)).timestamp()),
+        "charge": charge.id if shape == "paid-reference" else charge_data}, None)
+    subscription = stripe.Subscription.construct_from({"id": reference.resource_id,
+        "object": "subscription", "customer": reference.customer_id,
+        "status": reference.database_status, "latest_invoice": invoice.id,
+        "current_period_start": int(reference.period_start.timestamp()),
+        "current_period_end": int(reference.period_end.timestamp())}, None)
+    assert isinstance(charge, stripe.Charge) and isinstance(invoice, stripe.Invoice)
+    if shape != "paid-reference":
+        assert isinstance(invoice.charge, stripe.Charge)
+    calls = []
+    def retrieve_subscription(identifier):
+        calls.append(("subscription", identifier))
+        return subscription
+    def retrieve_invoice(identifier, **_options):
+        calls.append(("invoice", identifier))
+        return invoice
+    def retrieve_charge(identifier):
+        calls.append(("charge", identifier))
+        return charge
+    monkeypatch.setattr(stripe_service, "_init_stripe", lambda: True)
+    monkeypatch.setattr(stripe_service.stripe.Subscription, "retrieve", retrieve_subscription)
+    monkeypatch.setattr(stripe_service.stripe.Invoice, "retrieve", retrieve_invoice)
+    monkeypatch.setattr(stripe_service.stripe.Charge, "retrieve", retrieve_charge)
+    snapshot = ProviderReadPort(enabled=True).read_billing(reference)
+    assert snapshot.paid is paid and snapshot.refunded is False
+    assert snapshot.invoice_id == invoice.id and snapshot.resource_id == subscription.id
+    assert snapshot.amount_remaining == (0 if paid else 10000)
+    assert calls == [("subscription", subscription.id), ("invoice", invoice.id)] + (
+        [("charge", charge.id)] if shape == "paid-reference" else [])

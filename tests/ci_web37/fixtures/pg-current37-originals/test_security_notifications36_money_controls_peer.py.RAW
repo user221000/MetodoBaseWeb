@@ -1,0 +1,67 @@
+"""Independent coherent residual-payment and durable unknown controls."""
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from tests import notifications36_http as current_http
+from tests.test_notifications36_http import (
+    billing,
+    candidate,
+    observe,
+    preference,
+    queue,
+)
+from web.database.models import NotificationBillingFact
+
+followup_db = current_http.followup_db
+notification_http = current_http.notification_http
+
+
+def test_coherent_partial_payment_preserves_confirmed_residual_eligibility(notification_http, monkeypatch):
+    case = notification_http
+    _subscription, invoice = billing(case, monkeypatch)
+    invoice["amount_paid"] = invoice["amount_due"] // 2
+    invoice["amount_remaining"] = invoice["amount_due"] - invoice["amount_paid"]
+    assert 0 < invoice["amount_paid"] < invoice["amount_due"]
+    assert observe(case).status_code == 200
+    assert candidate(case)["eligible"] is True
+
+
+def test_first_contradictory_source_never_fabricates_a_durable_fact(notification_http, monkeypatch):
+    case = notification_http
+    _subscription, invoice = billing(case, monkeypatch)
+    invoice["amount_paid"] = invoice["amount_due"] * 2
+    assert observe(case).status_code == 503
+    assert candidate(case)["eligible"] is False
+    with Session(case["admin"]) as db:
+        assert db.scalar(select(NotificationBillingFact.id).where(NotificationBillingFact.user_id == case["user"])) is None
+
+
+def test_contradiction_after_fresh_source_durably_supersedes_old_eligibility(notification_http, monkeypatch):
+    case = notification_http
+    _subscription, invoice = billing(case, monkeypatch)
+    assert preference(case).status_code == 200
+    assert observe(case).status_code == 200
+    earlier = candidate(case)
+    assert earlier["eligible"] is True
+    invoice["amount_paid"] = invoice["amount_due"] * 2
+    assert observe(case).status_code == 503
+    assert candidate(case)["eligible"] is False
+    denied = queue(case, earlier)
+    assert denied.status_code == 409 and denied.json()["detail"]["code"] == "notification_source_changed"
+    with Session(case["admin"]) as db:
+        rows = db.scalars(select(NotificationBillingFact).where(NotificationBillingFact.user_id == case["user"])
+                          .order_by(NotificationBillingFact.version)).all()
+        assert len(rows) == 2 and rows[0].subscription_status == "past_due"
+        assert rows[1].subscription_status == "unknown"
+        # Unknown supersession retains only the earlier typed quantities.
+        assert rows[1].amount_paid == rows[0].amount_paid == 0
+        assert rows[1].amount_remaining == rows[0].amount_remaining
+
+
+def test_incoherent_provider_paid_flag_is_unknown_even_with_coherent_quantities(notification_http, monkeypatch):
+    case = notification_http
+    _subscription, invoice = billing(case, monkeypatch)
+    invoice["paid"] = True
+    assert invoice["status"] == "open" and invoice["amount_paid"] == 0
+    assert observe(case).status_code == 503
+    assert candidate(case)["eligible"] is False

@@ -1,0 +1,62 @@
+"""Literal independent canaries on explicit current36 restricted PG fixtures.
+
+The coordinator replays security's unchanged cases on PostgreSQL. Security's
+independent authorship/review is separate from the coordinator's money repair.
+"""
+import json
+import os
+from pathlib import Path
+
+import pytest
+from sqlalchemy import text
+
+from tests import integration_notifications36_postgres as current
+from tests import test_security_notifications36_capability_peer as capability
+from tests import test_security_notifications36_money_controls_peer as money
+from tests import test_security_notifications36_money_peer as original
+from tests import test_security_notifications36_sdk_objects_peer as sdk
+
+followup_db = current.followup_db
+notification_http = current.notification_http
+test_provider_paid_above_total_never_becomes_confirmed_arrears = original.test_provider_paid_above_total_never_becomes_confirmed_arrears
+test_old_disable_capability_cannot_undo_a_later_explicit_opt_in = capability.test_old_disable_capability_cannot_undo_a_later_explicit_opt_in
+test_disable_capability_never_disables_the_other_purpose = capability.test_disable_capability_never_disables_the_other_purpose
+test_expired_capability_and_random_capability_are_indistinguishable_noops = capability.test_expired_capability_and_random_capability_are_indistinguishable_noops
+test_contact_aba_after_claim_suppresses_before_contact_leaves_the_database = capability.test_contact_aba_after_claim_suppresses_before_contact_leaves_the_database
+test_forged_lease_token_or_fence_never_exposes_a_message = capability.test_forged_lease_token_or_fence_never_exposes_a_message
+test_disabled_transport_does_not_even_claim_the_pending_intent = capability.test_disabled_transport_does_not_even_claim_the_pending_intent
+test_legacy_bool_or_invalid_provider_ack_is_uncertain_and_never_retried = capability.test_legacy_bool_or_invalid_provider_ack_is_uncertain_and_never_retried
+test_authority_locks_fetch_no_email_name_or_password_columns = capability.test_authority_locks_fetch_no_email_name_or_password_columns
+test_coherent_partial_payment_preserves_confirmed_residual_eligibility = money.test_coherent_partial_payment_preserves_confirmed_residual_eligibility
+test_first_contradictory_source_never_fabricates_a_durable_fact = money.test_first_contradictory_source_never_fabricates_a_durable_fact
+test_contradiction_after_fresh_source_durably_supersedes_old_eligibility = money.test_contradiction_after_fresh_source_durably_supersedes_old_eligibility
+test_incoherent_provider_paid_flag_is_unknown_even_with_coherent_quantities = money.test_incoherent_provider_paid_flag_is_unknown_even_with_coherent_quantities
+test_real_stripe_objects_are_accepted_without_mapping_doubles = sdk.test_real_stripe_objects_are_accepted_without_mapping_doubles
+
+
+@pytest.fixture(autouse=True)
+def restricted_witness(request):
+    """Observe actual role/schema/pool before HTTP, without widening authority."""
+    if "notification_http" not in request.fixturenames:
+        yield
+        return
+    case = request.getfixturevalue("notification_http")
+    with case["engine"].connect() as connection:
+        assert connection.dialect.name == "postgresql"
+        flags = connection.execute(text("SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user")).one()
+        assert tuple(flags) == (False, False, False, False)
+        owned = connection.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relowner=(SELECT oid FROM pg_roles WHERE rolname=current_user)"))
+        forced = connection.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relrowsecurity AND relforcerowsecurity"))
+        physical = connection.scalar(text("SELECT count(*) FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r'"))
+        revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
+        assert owned == 0 and forced == 32 and physical == 42
+        assert revision == "20261020_notifications"
+    assert case["engine"].pool.size() == 1 and case["engine"].pool._max_overflow == 0
+    row = {"case": request.node.nodeid, "factory": case["factory_name"], "flags": list(flags),
+           "owned_tables": owned, "FORCE_RLS": forced, "physical_tables": physical,
+           "revision": revision, "pool_size": 1, "max_overflow": 0}
+    target = Path(os.environ["ROOT36_PG_WITNESS"])
+    with target.open("a", encoding="utf8") as stream:
+        stream.write(json.dumps(row)+"\n")
+    yield
+    assert case["engine"].pool.checkedout() == 0

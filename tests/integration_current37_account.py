@@ -1,0 +1,22 @@
+"""Original account37 restricted PG criteria with an explicit current witness."""
+from tests.ci_web37.fixtures import current37_witness, followup_db
+from tests.followup34_http import followup_http
+from tests.integration_account_security37_postgres import (
+    test_actual_role_nonowner_force32_and_pool1,
+    test_admission_precedes_optional_bearer_lookup_and_finite_neighbors,
+    test_body_limit_and_missing_header_do_not_touch_provider,
+    test_closed_duplicate_nonfinite_body_is_not_reflected,
+    test_confirmation_commit_ACK_lost_is_not_public_success,
+    test_explicit_contact_request_provider_ack_public_confirmation_and_replay,
+    test_foreign_bearer_cannot_retarget_email_confirmation,
+    test_issue_commit_ACK_lost_never_calls_provider,
+    test_password_commit_ACK_lost_preserves_factor_and_denies_old_access,
+    test_password_uses_real_primary_proof_current_totp_and_revokes_cookie,
+    test_public_get_does_not_consume_and_contains_no_auth_bootstrap,
+    test_public_proof_lookup_runs_with_actual_empty_PG_context,
+    test_real_NOWAIT_contact_lock_denies_without_consuming_proof,
+    test_real_PG_contact_ABA_invalidates_pending_and_confirmed_status,
+)
+
+account_http = followup_http
+__all__ = ['account_http', 'current37_witness', 'followup_db', 'followup_http', 'test_actual_role_nonowner_force32_and_pool1', 'test_admission_precedes_optional_bearer_lookup_and_finite_neighbors', 'test_body_limit_and_missing_header_do_not_touch_provider', 'test_closed_duplicate_nonfinite_body_is_not_reflected', 'test_confirmation_commit_ACK_lost_is_not_public_success', 'test_explicit_contact_request_provider_ack_public_confirmation_and_replay', 'test_foreign_bearer_cannot_retarget_email_confirmation', 'test_issue_commit_ACK_lost_never_calls_provider', 'test_password_commit_ACK_lost_preserves_factor_and_denies_old_access', 'test_password_uses_real_primary_proof_current_totp_and_revokes_cookie', 'test_public_get_does_not_consume_and_contains_no_auth_bootstrap', 'test_public_proof_lookup_runs_with_actual_empty_PG_context', 'test_real_NOWAIT_contact_lock_denies_without_consuming_proof', 'test_real_PG_contact_ABA_invalidates_pending_and_confirmed_status']

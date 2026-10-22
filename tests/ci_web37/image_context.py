@@ -1,0 +1,108 @@
+"""Prepare only original RAW Git Docker COPY inputs; never start an image/VM."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import re
+import shlex
+import subprocess
+import sys
+import tarfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from scripts.scan_secrets import _private_evidence as private_directory
+from tests.ci_web37.evidence import boundary_before_payload, write
+from tests.ci_web37.raw_git import raw_blobs
+
+
+def copy_inputs(docker):
+    names = {"Dockerfile", ".dockerignore"}
+    for line in docker.decode("utf8").splitlines():
+        if not line.startswith("COPY ") or line.startswith("COPY --from="):
+            continue
+        fields = shlex.split(line)
+        if (len(fields) < 3 or any(value.startswith("--") or any(char in value for char in "*?[\\")
+                                   for value in fields[1:-1])):
+            raise ValueError("Docker source COPY framing differs from the finite reviewed recipe")
+        for name in fields[1:-1]:
+            if name.startswith("/") or any(part in {".", "..", ""} for part in name.rstrip("/").split("/")):
+                raise ValueError("Docker COPY source escapes the reviewed context")
+            names.add(name)
+    return names
+
+
+def select_inputs(entries, sources):
+    """Docker accepts a directory COPY source with or without a final slash."""
+    selected = {}
+    for source in sources:
+        prefix = source.rstrip("/") + "/"
+        matches = {name: (oid, mode) for name, (oid, mode, _kind) in entries.items()
+                   if name == source or name.startswith(prefix)}
+        if not matches:
+            raise ValueError("A required Docker COPY source is absent from frozen Git")
+        selected.update(matches)
+    if any(mode not in {"100644", "100755"} for _oid, mode in selected.values()):
+        raise ValueError("The reviewed image context permits only regular original Git blobs")
+    return selected
+
+
+def prepare(revision, directory):
+    if re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+        raise ValueError("A complete frozen source commit is required")
+    listing = subprocess.check_output(["git", "--no-replace-objects", "ls-tree", "-r", "-z", "--long", revision], cwd=ROOT)
+    entries = {}
+    for item in listing.split(b"\0"):
+        if item:
+            header, name = item.split(b"\t", 1)
+            mode, kind, oid, _size = header.split()
+            entries[name.decode("utf8")] = (oid.decode("ascii"), mode.decode("ascii"), kind)
+    docker_entry = entries["Dockerfile"]
+    (docker_record,) = raw_blobs(ROOT, {"Dockerfile": docker_entry[:2]})
+    docker = docker_record[1]
+    selected_names = copy_inputs(docker)
+    selected = select_inputs(entries, selected_names)
+    pins = json.loads((ROOT / "tests/ci_web37/container-inputs.json").read_bytes())["candidate_files"]
+    if not pins.keys() <= selected.keys():
+        raise ValueError("A critical current57 container input is absent from the finite context")
+    archive = directory / "source-context.tar"
+    records = []
+    with tarfile.open(archive, "x", format=tarfile.PAX_FORMAT) as output:
+        for name, raw, oid, mode in raw_blobs(ROOT, selected):
+            digest = hashlib.sha256(raw).hexdigest()
+            if name in pins and (digest != pins[name]["raw_sha256"] or len(raw) != pins[name]["bytes"]):
+                raise ValueError("A critical current57 container input differs from the reviewed twelve")
+            info = tarfile.TarInfo(name)
+            info.size = len(raw)
+            info.mode = int(mode, 8) & 0o777
+            info.uid = info.gid = info.mtime = 0
+            output.addfile(info, io.BytesIO(raw))
+            records.append({"path": name, "mode": mode, "git_blob": oid, "bytes": len(raw), "raw_sha256": digest})
+    with tarfile.open(archive) as closed:
+        if closed.getnames() != [row["path"] for row in records] or not all(row.isfile() for row in closed):
+            raise ValueError("Closed image source context membership differs")
+        for row in records:
+            if hashlib.sha256(closed.extractfile(row["path"]).read()).hexdigest() != row["raw_sha256"]:
+                raise ValueError("Closed image source context readback differs")
+    manifest = {"scope": "source_context_only_no_build_VM_SQL_or_network", "source_commit": revision,
+                "source_tree": subprocess.check_output(["git", "--no-replace-objects", "rev-parse", revision + "^{tree}"], cwd=ROOT).decode().strip(),
+                "files": records, "raw_bytes": sum(row["bytes"] for row in records), "archive_bytes": archive.stat().st_size,
+                "archive_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(), "all_members_readback": True,
+                "current57_critical_inputs_exact": len(pins), "runtime_distributions_expected": 57,
+                "image_built": False, "historical_image33_rebuilt": False}
+    write(directory / "source-manifest.json", manifest)
+    return {key: value for key, value in manifest.items() if key != "files"} | {"file_count": len(records)}
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument("--revision", required=True)
+    parser.add_argument("--private", type=Path, required=True)
+    args = parser.parse_args()
+    private = private_directory(args.private)
+    boundary_before_payload(private)
+    print(json.dumps(prepare(args.revision, private)))

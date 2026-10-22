@@ -1,0 +1,16 @@
+"""Original36 persistence, HTTP and fencing functions on explicit37 fixtures."""
+from tests.ci_web37.fixtures import current37_witness, followup_db
+from tests.followup34_http import followup_http
+from tests.integration_notifications36_postgres import (
+    test_ack_lost_after_real_sending_commit_never_exposes_message_or_sends,
+    test_capability_session_value_never_survives_commit_rollback_or_pool_reuse,
+    test_current_http_criteria_under_restricted_role,
+    test_fact_and_observation_delta_under_restricted_role,
+    test_history_dml_is_denied_without_widening_any_owner,
+    test_parallel_claims_are_fenced_on_a_single_connection_pool,
+    test_real_role_four_flags_force_and_unknown_tenant_are_closed,
+    test_write_under_repeatable_read_is_rejected_but_plain_read_is_allowed,
+)
+
+notification_http = followup_http
+__all__ = ['current37_witness', 'followup_db', 'followup_http', 'notification_http', 'test_ack_lost_after_real_sending_commit_never_exposes_message_or_sends', 'test_capability_session_value_never_survives_commit_rollback_or_pool_reuse', 'test_current_http_criteria_under_restricted_role', 'test_fact_and_observation_delta_under_restricted_role', 'test_history_dml_is_denied_without_widening_any_owner', 'test_parallel_claims_are_fenced_on_a_single_connection_pool', 'test_real_role_four_flags_force_and_unknown_tenant_are_closed', 'test_write_under_repeatable_read_is_rejected_but_plain_read_is_allowed']
