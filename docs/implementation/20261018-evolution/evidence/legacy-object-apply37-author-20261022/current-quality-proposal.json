@@ -1,0 +1,57 @@
+{
+  "source": "ed50d854b308d57826ed990f18dd20d5015de553",
+  "Bandit": "1.9.4",
+  "Ruff": "0.17.1",
+  "Tool_distributions": 10,
+  "source_and_tools_quiet": true,
+  "Bandit_exit": 1,
+  "Ruff_exit": 0,
+  "Bandit_errors": 0,
+  "LOW": 2,
+  "MEDIUM": 0,
+  "HIGH": 0,
+  "records": [
+    {
+      "path": "scripts/apply_legacy_objects.py",
+      "rule": "B404",
+      "line": 12,
+      "column": 0,
+      "end_column": 17,
+      "source_sha256": "d8e18ddbc02a70603c840ecd2a1afd09d07f6874388fd2165c217613e4d730ef",
+      "ast_span": [
+        12,
+        0,
+        12,
+        17
+      ],
+      "ast_sha256": "789e826803e42154609c3483ede017d3d7c677082a219d8dd1e3b2863cd8c381",
+      "segment_sha256": "7d8752c4c7ea34c2c6d04a15aa31a1f25f62848f8c3c82528fd62439c01a225b",
+      "approved": false,
+      "proposal": "finite_operator_cli_source_git",
+      "reason": "subprocess import for the one source-Git capability only",
+      "risk_boundary": "Trusted operator host/Git installation; no OS sandbox or arbitrary executable safety claim."
+    },
+    {
+      "path": "scripts/apply_legacy_objects.py",
+      "rule": "B603",
+      "line": 40,
+      "column": 11,
+      "end_column": 85,
+      "source_sha256": "d8e18ddbc02a70603c840ecd2a1afd09d07f6874388fd2165c217613e4d730ef",
+      "ast_span": [
+        39,
+        11,
+        40,
+        85
+      ],
+      "ast_sha256": "ec9998f9c691cb6d8f47ff3d19f5161f9f8ec1418eb2883f85ba7a0206fcf35a",
+      "segment_sha256": "f5738b107b7c622da4671dc61c9a8e58a7de9b0730ef6c16d7fa67946f545ca2",
+      "approved": false,
+      "proposal": "finite_operator_cli_source_git",
+      "reason": "Absolute resolved Git executable, constant argv, no shell, timeout5, stderrDEVNULL; inherited GIT authority removed and config/network-prompt/optional-lock controls fixed. No private input reaches Git argv.",
+      "risk_boundary": "Trusted operator host/Git installation; no OS sandbox or arbitrary executable safety claim."
+    }
+  ],
+  "baseline_or_approval_changed": false,
+  "independent_adjudication_pending": true
+}
