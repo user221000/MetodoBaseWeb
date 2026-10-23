@@ -84,7 +84,7 @@
         "CUOTA_INDIVIDUAL.md"
       ],
       "revisor": "QA y seguridad independientes; coordinador integra, alcance local sin sandbox ni despliegue",
-      "bloqueo": "Compra y cuota están implementadas; quedan sandbox real, reconciliación periódica B13 y gates de candidato.",
+      "bloqueo": "Compra y cuota están implementadas; B13 está integrado y validado localmente en 08d26370. Quedan sandbox real, PostgreSQL y operación real de B13, y gates del candidato.",
       "observaciones": [
         "Cuota individual: carrera GET/reserva corregida y revisada en PostgreSQL con 3 procesos (3 casos aprobados). Reserva B2B y compra sandbox real siguen abiertas.",
         "Seguimiento temporal confirmado con4DBUUID: columnas TIMESTAMPsinTZ de suscripcion y plan desplazan6h al bindawareUTC bajoMexicoCity; helperUTC9a53215 aceptado32independientes; adopcion en curso, sin reinterpretar filas historicas. No llamar a las4pruebas diagnosticas una correccion.",
@@ -1833,7 +1833,7 @@
         "UTC_DATETIME.md"
       ],
       "revisor": null,
-      "bloqueo": "Arquitectura fue actualizada; PRIVACIDAD.md conserva afirmaciones falsas sobre localStorage, MFA, consentimientos y diario.",
+      "bloqueo": "PRIVACIDAD.md está actualizada; faltan inventario definitivo, runbooks de release/piloto y validación documental del candidato final.",
       "observaciones": [
         "Mapa actual/transitorio yERD explicitos; contratos/docs porhito. Inventario definitivo yrunbooks release/piloto aunpendientes.",
         "Checkpoint135: Decisión expresa del usuario al reanudar: «continua con todos estos cambios pero ya no trabajes en la version desktop, trabaja unicamente en la version de el servicio web». Desde este checkpoint el trabajo y la entrega se limitan al SaaS. Se detienen desarrollo, QA, empaquetado e instalador desktop. Código y evidencias previos se conservan; no se eliminan funciones existentes ni se integra el candidato Desktop35. QA confirmó que todavía no había ejecutado pruebas ni creado ramas o artefactos de esa revisión. Las validaciones Windows del servicio web y el núcleo compartido siguen dentro del alcance. Esta decisión sustituye la instrucción anterior de continuar el desarrollo desktop; no declara resueltos sus defectos.",
@@ -2884,7 +2884,7 @@
         "VALIDACION.md"
       ],
       "revisor": null,
-      "bloqueo": "Derechos dependen de verdad canónica persistida; falta sandbox y operación periódica B13.",
+      "bloqueo": "Derechos dependen de verdad canónica persistida; B13 está integrado localmente. Quedan sandbox, PostgreSQL y operación real autorizada de B13.",
       "observaciones": [
         "Checkpoint154: Derechos dependen de verdad canónica persistida; falta sandbox y operación periódica B13. Siguiente acción: Consolidar evidencia y completar B13/sandbox sin otorgar permisos por callback aislado."
       ]
@@ -3531,7 +3531,7 @@
         "VALIDACION.md"
       ],
       "revisor": null,
-      "bloqueo": "Verdad actual del proveedor en callback implementada; reconciliación periódica independiente falta B13.",
+      "bloqueo": "Verdad actual del proveedor en callback y reconciliación periódica B13 implementadas localmente; faltan PostgreSQL y validación sandbox/operación real autorizada.",
       "observaciones": [
         "Checkpoint154: Verdad actual del proveedor en callback implementada; reconciliación periódica independiente falta B13. Siguiente acción: Completar B13 y validar estados/transiciones sandbox."
       ]
@@ -9515,9 +9515,9 @@
         "R37"
       ],
       "dependencias": [],
-      "estado": "en_curso",
-      "implementacion": "en_curso",
-      "validacion": "en_curso",
+      "estado": "verificado",
+      "implementacion": "implementado",
+      "validacion": "verificado",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [
@@ -9525,7 +9525,8 @@
         "Checkpoint158: workspace E/F y rutas de proceso; CI child TEMP y preparación portable57 integrados, sin aceptar todavía la migración completa.",
         "Checkpoint159: CI57 pytest21 integrado y guardas del controladorV3 verificadas en E; migración real sigue en curso.",
         "Checkpoint159: workspace E completa datos/userbase/pycache/UV por proceso; SHA c3811866 y preimagen5ef66 preservada.",
-        "Checkpoint160: Root1 real cerró y pasó readback independiente; V3 real inició tras verificar 33 raíces previas. PG27 local y Linux integrados sólo como preparación."
+        "Checkpoint160: Root1 real cerró y pasó readback independiente; V3 real inició tras verificar 33 raíces previas. PG27 local y Linux integrados sólo como preparación.",
+        "Checkpoint161: Root aceptó Global4207 y Nine9; continuidad E/F reanudada con integración local ae8b5ce5d9225fd445892eb339ce116bf2a27669. Se incluyeron17 rutas explícitas,15 diferencias reales de blobs y19 reglas nuevas de atributos tras followups finitos; sin lógica de producto ni Desktop modificada."
       ],
       "commits": [
         "4445adbb",
@@ -9533,7 +9534,8 @@
         "4bcd1576",
         "90ddb304",
         "8d249780",
-        "52209d6b"
+        "52209d6b",
+        "ae8b5ce5d9225fd445892eb339ce116bf2a27669"
       ],
       "pruebas": [
         "32/4207raíces,206/438581archivos y1,206,712,194/24,415,403,485bytes lógicos aceptados; peer32SHAfull. CopiasE de entornos/herramientas verificadas. RoamingCOMPLETE separado3files/51111B porRoot conACKnuevo/strictabsence/fullreadbackE. Lote4175en_curso sin resultados aún.",
@@ -9542,7 +9544,11 @@
         "Root configuration-only v2 confirma directorio datos E existente y variables de terminales nuevos; no arranque ni cambios User/Machine.",
         "Root1: 43960 entradas, 38169 archivos y 1625941057 bytes leídos completos en E; DACL2, identidades, metadatos, journal/recibos y ausencia lstat final C verificados. Auditor 290618 terminó exit0 en 253.691 s; no leyó payload C. Sumado a first32: 33/4207 raíces, 38375 archivos y 2832653251 bytes lógicos aceptados. Roaming sigue separado.",
         "QA-45: falso rechazo literal ef717 preservado; tres controles del witness MFT pasan tras fix (asignación aceptada, tamaño de archivo y corrupción SHA rechazados). Fases separadas: nueve originales literales PASS y cuatro controles peer PASS. No se suman como criterios nuevos.",
-        "PG27 preparado: autor local seis controles, peer inicial 14/16 y followup EOL 2/2; Linux autor ocho sintéticos y seis Windows, peer 33/34 literal con I04 físico Windows preservado, followup GitLF 1/1 y dos controles adicionales. Root Main f095 seis más plan inerte; Main986 inicial 13PASS/1ERROR por YAML ausente en BaseE y followup único YAML en quality10 PASS. Sin ejecutar 509 casos PG ni crear 71 UUID."
+        "PG27 preparado: autor local seis controles, peer inicial 14/16 y followup EOL 2/2; Linux autor ocho sintéticos y seis Windows, peer 33/34 literal con I04 físico Windows preservado, followup GitLF 1/1 y dos controles adicionales. Root Main f095 seis más plan inerte; Main986 inicial 13PASS/1ERROR por YAML ausente en BaseE y followup único YAML en quality10 PASS. Sin ejecutar 509 casos PG ni crear 71 UUID.",
+        "Global5 actual aceptado por Root d8e780:4207 raíces,438581 archivos,24415403485 bytes primarios y100 bytes ADS nombrados (24415403585 total), lectura independiente completa en E y4207 ausencias estrictas. V3 parcial4204 y Deferred5 exactoD3 se conservan como productores separados; no se convirtió V3 en global completo.",
+        "Nine9 actual aceptado por Root fa15: nueve reparaciones y readback post-Git; recibo Global original inalterado, ausencia estricta y referencias/HEAD/índices/listas ajenas sin cambios. Los cambios autorizados de marcadores posteriores no reescriben recibos de migración.",
+        "Índice6ab y followups:22 helpers autentificados (14RAW+8LF); db_bootstrap y core/routine_catalog tienen bindingsLF finitos byteexactos, sin modificar oráculos. Fuente código ae8b: focal14 actual PASS/0F/E/skip/duplicados, journal42fases completo, fuente/paquetes quietos y615 untracked byteexactos. No es ejecución35,509PG,serial/n2 ni imagen.",
+        "Carga siete lecturas f405 y Redis6464 aceptados sólo como preparación. Focal WindowsABI5ca real prueba únicamente proceso BaseE/archivo ordinario propio y rechazo de birth erróneo; no QEMU/lease17/contexto/SSH/build/SBOM/SCA."
       ],
       "evidencia": [
         "evidence/migration-c-to-e-checkpoint157-20261022/summary.json",
@@ -9552,16 +9558,23 @@
         "evidence/checkpoint159-web-continuity-20261022/summary.json",
         "evidence/checkpoint159-web-continuity-20261022/REVIEW.md",
         "evidence/checkpoint160-web-continuity-20261022/summary.json",
-        "evidence/checkpoint160-web-continuity-20261022/REVIEW.md"
+        "evidence/checkpoint160-web-continuity-20261022/REVIEW.md",
+        "evidence/checkpoint161-web-continuity-20261023/summary.json",
+        "evidence/checkpoint161-web-continuity-20261023/REVIEW.md",
+        "evidence/checkpoint161-web-continuity-20261023/path-map.json"
       ],
       "documentacion": [
         "MIGRACION_C_E.md",
         "NUEVOS_HALLAZGOS.md"
       ],
-      "revisor": null,
-      "bloqueo": "Migración parcial: 33/4207 raíces aceptadas; V3 real iniciada y resto pendiente al corte. Faltan cierre global, agregado4207, reparación de nueve worktrees y gates actuales web/PG/imagen/Redis.",
+      "revisor": "Root",
+      "bloqueo": null,
       "observaciones": [
-        "Progreso parcial; Cfree2.255→3.462GB decimal observado, no igualar a bytes lógicos. RAW históricosCstringsintactos;9worktrees pendientes tras allcopied. Sólo web."
+        "Progreso parcial; Cfree2.255→3.462GB decimal observado, no igualar a bytes lógicos. RAW históricosCstringsintactos;9worktrees pendientes tras allcopied. Sólo web.",
+        "Root verificó migración acotada4207 y reparación/readback de nueve worktrees; backlog web y validaciones externas siguen separados.",
+        "Root decide R37verificado tras cierre acotado de migración4207, reparaciónNine y continuidad web actual. Persisten gates finales serial/n2/cobertura/fullscan, PG509/Native35 actuales, imagen/SBOM/SCA, Redis/carga y validaciones externas; no cierre global del backlog ni despliegue.",
+        "Revisión independiente de la fuente ae8b comunicada por peerArtifact en mailbox y recibida por Root; no se inventa archivo de aceptación del peer. Índice/probes/focal14 de Root sí tienen recibos cerrados enlazados.",
+        "México es el mercado inicial confirmado. El candidato Backend de privacidad y14 datos de negocio pendientes requieren revisión jurídica y decisiones del responsable; no modifican estados R20/B22/R31 ni acreditan cumplimiento."
       ]
     },
     {

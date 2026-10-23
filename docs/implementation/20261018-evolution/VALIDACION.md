@@ -524,3 +524,21 @@ PG27 local f095 y Linux Main986 se integraron como preparación: autor local 6, 
 Nueve reparaciones Git sólo tienen plan y 23 controles sintéticos; requieren cierre global, agregado y nueva autorización Root. Serial/n2/cobertura/fullscan, PG actual, imagen/SBOM/SCA, Redis y validaciones externas siguen pendientes. Runtime, rediseño y PPL exactos 7023; sin nuevos endpoints, producto desktop, despliegue, cobros o envíos reales.
 
 [Resumen160](evidence/checkpoint160-web-continuity-20261022/summary.json), [revisión160](evidence/checkpoint160-web-continuity-20261022/REVIEW.md).
+
+<!-- DOC161-CLOSED-MERGE -->
+
+## Checkpoint161: cierre acotado y preparación web
+
+166 criterios y 65 verificados locales; 92 IDs originales conservados. R37: verificado, por decisión explícita Root. Agregado independiente4207 aceptado (25d0fac212a1d3438040ca3b518122eaf2f5f2b092f9ba964cede3b13fa125cf); reparación y readback de nueve worktrees aceptados (d3628c8ce1aafd2aa532a5f4f1495712344815428839c43b622d118ea8e7bdd1), ligados al mismo agregado. Fullreadback: 438581 archivos, 24415403485 bytes primarios y 100 bytes ADS nombrados. No es un escaneo universal de C.
+
+Native6 usa el followup LF ca0bb50f (padre ba09 preservado); Image3 nonce40 aa83 está aceptado sólo como preparación. No son ejecución35 ni VM/SSH/contexto físico. La imagen actual requiere FULL40 final y artefactos nuevos en E; ningún50325/f060 se relabela por moverlo. Serial/n2/cobertura/fullscan actuales, PG E/Linux, imagen/SBOM/SCA, Redis y validaciones externas conservan sus gates separados. [Resumen161](evidence/checkpoint161-web-continuity-20261023/summary.json), [revisión161](evidence/checkpoint161-web-continuity-20261023/REVIEW.md).
+
+### Seguimiento161: fuente actual y límites de aceptación
+
+La decisión Root de verificar R37 se apoya en Global4207 d8e780, Nine9 fa15 y el focal web actual14 de la fuente `ae8b5ce5d9225fd445892eb339ce116bf2a27669`:14PASS,0fallos/errores/skips/duplicados,journal42fases completo y fuente/paquetes/615untracked quietos. Índice6ab y followups conservaron22helpers (14RAW+8LF); la integración final incluyó17rutas explícitas,15 diferencias de blobs y19 reglas nuevas de atributos. db_bootstrap y core/routine_catalog cumplen sus bindingsLF exactos sin cambio de lógica ni oráculos. Los537 históricos permanecen dentro del conjunto615 protegido.
+
+Los fallos anteriores se conservan: Global50618/b57 terminó sin resultado por incompatibilidad `regular-file`/`file`; el hijo a262 resolvió ese binding y el Global actual aceptado pertenece a su propia ejecución. La primera tentativa incompleta y los cierres manuales previos no se reinterpretan como PASS. V3 sigue parcial con4204 propias yD3; Deferred5 cerró únicamenteD3 y el agregado independiente acreditó la unión4207.
+
+La preparación de carga f405, Redis6464 y el focal WindowsABI5ca tienen sus límites: no son cargaHTTP/Redis actual, QEMU, contexto, imagen, SBOM o SCA. Nativev8 está integrado como transporte, sin aceptar aquí35flujos nuevos. PG509,serial/n2/cobertura/fullscan y los demás gates finales esperan fuente/leases nuevas. No hubo push, PR, despliegue, cobros ni envíos reales.
+
+México es el mercado inicial confirmado. El candidato Backend identifica pendientes de aviso, consentimiento de datos de salud, ARCO, roles/proveedores/transferencias, retención/backups e incidentes;14datos de negocio siguen sin resolver. Falta revisión jurídica y completar identidad/canales/finalidades/contratos/plazos antes de publicar. Esta nota no sustituye ese trabajo ni cambia R20/B22/R31 o declara cumplimiento.
