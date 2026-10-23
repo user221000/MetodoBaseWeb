@@ -91,7 +91,7 @@ def private_control(path):
                 raise ValueError("Duplicate private control field")
             result[name] = value
         return result
-    return json.loads(raw.decode("utf8-sig"), object_pairs_hook=unique), hashlib.sha256(raw).hexdigest()
+    return json.loads(raw.decode("utf-8-sig"), object_pairs_hook=unique), hashlib.sha256(raw).hexdigest()
 
 
 def build_contract(args):
