@@ -20,7 +20,17 @@ def phase(root=ROOT):
             or value["concurrent_UUIDs"] != 1 or value["restricted_application_pool_size"] != 5
             or value["max_overflow"] != 0 or value["historical429_UUID_budget_unchanged"] != 69):
         raise ValueError("The separate original53 identity or UUID contract differs")
+    current = value["current_fixture_bindings"]
+    if set(current) != {value["module"], "tests/ci_web37/pg_close.py"}:
+        raise ValueError("The explicit current53 fixture close bindings differ")
+    for name, pin in current.items():
+        raw = (root / name).read_bytes()
+        if (set(pin) != {"bytes", "sha256"} or type(pin["bytes"]) is not int
+                or (len(raw), hashlib.sha256(raw).hexdigest()) != (pin["bytes"], pin["sha256"])):
+            raise ValueError("A current53 direct assertion or fixture source differs")
     for name, pin in value["source_bindings"].items():
+        if name in current:
+            continue  # Its original RAW binding remains recorded; current transport is explicit above.
         raw = (root / name).read_bytes()
         observed = (len(raw), hashlib.sha256(raw).hexdigest())
         allowed = {(pin["captured_bytes"], pin["captured_raw_sha256"]),

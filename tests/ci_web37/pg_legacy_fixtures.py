@@ -13,7 +13,7 @@ import pytest
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
-from tests.account_security37_owned import owned_database
+from tests.ci_web37.pg_close import owned_database
 from tests.ci_web37.physical import REVISION, blank_pool, physical_contract
 from tests.integration_provider_subjects import application_engine
 from tests.integration_schema_migrations import run_migration

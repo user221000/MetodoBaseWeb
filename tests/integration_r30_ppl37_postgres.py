@@ -20,7 +20,7 @@ from core.routine_catalog import get_routine_program
 from tests import followup34_http as authentic
 from tests import test_routine_catalog as original
 from tests import test_security_routines_http_peer as peer
-from tests.account_security37_owned import owned_database
+from tests.ci_web37.pg_close import owned_database
 from tests.integration_provider_subjects import application_engine
 from tests.integration_schema_migrations import run_migration
 from web.database.models import (

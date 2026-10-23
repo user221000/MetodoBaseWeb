@@ -17,7 +17,7 @@ from tests.ci_web37.physical import REVISION, blank_pool, physical_contract
 def followup_db(tmp_path_factory):
     if not os.environ.get("METODOBASE_TEST_MIGRATOR_URL"):
         pytest.fail("Current37 requires an explicit exclusive PostgreSQL lease; no skip or fallback")
-    from tests.account_security37_owned import owned_database
+    from tests.ci_web37.pg_close import owned_database
     from tests.integration_provider_subjects import application_engine
     from tests.integration_schema_migrations import run_migration
 

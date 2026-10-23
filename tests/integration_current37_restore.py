@@ -23,7 +23,7 @@ from tests.recovery28_restore_helpers import (populate_recovery28, reject_plain_
 @pytest.fixture
 def owned_databases(tmp_path, monkeypatch):
     from contextlib import ExitStack
-    from tests.account_security37_owned import owned_database
+    from tests.ci_web37.pg_close import owned_database
     from tests.account37_qa_restore_helpers import private_backup_temporaries
     private_backup_temporaries(monkeypatch, tmp_path)
     from urllib.parse import urlsplit

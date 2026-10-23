@@ -57,7 +57,7 @@ def test_changed_original_source_or_duplicate_identity_cannot_enter53(tmp_path):
     value = pg53.phase()
     mapping = tmp_path / "tests/ci_web37/pg-r30-ppl53.json"
     mapping.parent.mkdir(parents=True)
-    for name in value["source_bindings"]:
+    for name in sorted(set(value["source_bindings"]) | set(value["current_fixture_bindings"])):
         destination = tmp_path / name
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(pg53.ROOT / name, destination)
@@ -86,3 +86,23 @@ def test_missing_runtime_ACK_refuses_before_private_creation_or_SQL(tmp_path, mo
     with pytest.raises(SystemExit) as error:
         run_postgres53.main()
     assert error.value.code == 2
+
+
+def test_current53_close_helper_missing_or_changed_is_rejected(tmp_path):
+    value = pg53.phase()
+    mapping = tmp_path / "tests/ci_web37/pg-r30-ppl53.json"
+    mapping.parent.mkdir(parents=True)
+    for name in sorted(set(value["source_bindings"]) | set(value["current_fixture_bindings"])):
+        destination = tmp_path / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(pg53.ROOT / name, destination)
+    mapping.write_text(json.dumps(value), encoding="utf8")
+    assert pg53.phase(tmp_path)["cases"] == 53
+    helper = tmp_path / "tests/ci_web37/pg_close.py"
+    original = helper.read_bytes()
+    helper.unlink()
+    with pytest.raises(OSError):
+        pg53.phase(tmp_path)
+    helper.write_bytes(original + b"# changed close helper\n")
+    with pytest.raises(ValueError, match="direct assertion or fixture source"):
+        pg53.phase(tmp_path)

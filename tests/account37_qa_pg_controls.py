@@ -13,7 +13,7 @@ from sqlalchemy import event, inspect, select, text
 from sqlalchemy.orm import Session
 
 from tests.account37_qa_pg_fixtures import assert_blank_pool, seeded_case
-from tests.account_security37_owned import owned_database
+from tests.ci_web37.pg_close import owned_database
 from tests.integration_schema_migrations import run_migration
 from tests.integration_stored_objects_migrations import snapshot
 from web.database.models import MfaAuthorization, MfaCredential, MfaRecoveryCode, RefreshToken, Usuario

@@ -62,7 +62,7 @@ def isolated_database():
 
 @pytest.fixture(scope='module')
 def pg37(tmp_path_factory):
-    from tests.account_security37_owned import owned_database
+    from tests.ci_web37.pg_close import owned_database
     from tests.billing13_legacy_apply37_pg_contract import (
         check_generation,
         checked_runtime,

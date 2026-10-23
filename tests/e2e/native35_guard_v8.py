@@ -19,7 +19,7 @@ GENERATION = re.compile(r'[0-9a-f]{32}\Z')
 SHA = re.compile(r'[0-9a-f]{64}\Z')
 HEAD = re.compile(r'[0-9a-f]{40}\Z')
 TRANSITIVE_SHA = 'c41726235eb296c149fe9c88eb90d2a9f9e1d51057752b551a2534a4aabbfa56'
-PG_CONTRACT_SHA = '520cbd9f74d13bfb053fd557e5607281f97b5a5b07400d83f1c8f04b591a1e8f'
+PG_CONTRACT_SHA = 'c6ff2e39d1de7b5b88bf889fc068c9ed125716e4c33bca6306ca5bcaf8c6e913'
 
 def canonical(value):
     return json.dumps(value,sort_keys=True,separators=(',', ':'),ensure_ascii=False).encode('utf8')

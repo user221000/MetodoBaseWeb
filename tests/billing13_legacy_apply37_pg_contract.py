@@ -28,6 +28,7 @@ BOUND_PATHS = (
     'tests/test_billing_reconciliation13_selection_peer.py', 'tests/test_billing_reconciliation13_session_peer.py',
     'tests/test_security_b13_cli_privacy_peer.py', 'tests/test_security_b13_boundaries_peer.py',
     'tests/test_legacy_object_apply.py', 'tests/test_legacy_object_apply_source.py', 'tests/test_legacy_object_apply_peer.py',
+    'tests/ci_web37/pg_close.py',
     'tests/ci_web37/pg_lease.py', 'tests/ci_web37/pg53.py', 'tests/ci_web37/run_postgres.py',
     'tests/ci_web37/reports.py', 'tests/ci_web37/scope.py', 'tests/ci_web37/evidence.py',
     'tests/ci_web37/pg_plan.py', 'tests/ci_web37/pg-legacy37.json', 'tests/ci_web37/pg-current37-nodeids.json',
