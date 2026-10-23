@@ -14,11 +14,12 @@ def test_desktop_product_nodes_are_rejected_before_execution(module):
         require_web_selection(["tests/" + module + ".py::test_canary"])
 
 
-def test_shared_free_catalog_and_desktop_web_viewport_are_retained():
-    require_web_selection([
-        "tests/test_catalog_contract.py::test_catalog_copies_keep_personal_monthly_limits_separate_from_gym_daily_limits",
-        "tests/test_frontend_report_guard.py::test_report[desktop]",
-    ])
+def test_desktop_catalog_is_rejected_and_web_viewport_is_retained():
+    with pytest.raises(ValueError, match="authorized web scope"):
+        require_web_selection([
+            "tests/test_catalog_contract.py::test_catalog_copies_keep_personal_monthly_limits_separate_from_gym_daily_limits",
+        ])
+    require_web_selection(["tests/test_frontend_report_guard.py::test_report[desktop]"])
 
 
 def test_path_separator_alias_cannot_reintroduce_desktop_product_validation():

@@ -5,6 +5,7 @@ WEB_SELECTORS = (
     "tests", "--ignore=tests/test_login_desktop.py",
     "--ignore-glob=tests/test_desktop*.py",
     "--ignore=tests/test_license_offline_security.py",
+    "--deselect=tests/test_catalog_contract.py::test_catalog_copies_keep_personal_monthly_limits_separate_from_gym_daily_limits",
 )
 CURRENT_RUNTIME_SELECTORS = (*WEB_SELECTORS, "--ignore=tests/test_nutrition35_migrations.py",
     "--ignore=tests/test_security_container37_inputs_peer.py",

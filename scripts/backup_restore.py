@@ -128,9 +128,13 @@ def pg_environment(url: str, expected_database: str) -> dict[str, str]:
 
 
 def _pg_run(name: str, arguments: list[str], env: dict[str, str], pg_bin: Path | None) -> None:
-    executable = str(pg_bin / name) if pg_bin else name
+    executable_name = name + ".exe" if os.name == "nt" else name
+    executable = str(pg_bin / executable_name) if pg_bin else executable_name
+    creationflags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
     try:
-        result = subprocess.run([executable, *arguments], env=env, capture_output=True, timeout=300, check=False)
+        result = subprocess.run([executable, *arguments], env=env,
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            creationflags=creationflags, timeout=300, check=False)
     except (OSError, subprocess.TimeoutExpired):
         raise BackupError(f"{name} unavailable or timed out") from None
     if result.returncode:

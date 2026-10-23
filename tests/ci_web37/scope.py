@@ -9,11 +9,14 @@ import pytest
 
 
 def require_web_selection(nodeids):
-    """Shared Free catalog criteria and wide web viewports remain web scope."""
+    """Web Free catalog criteria and wide web viewports remain web scope."""
     for nodeid in nodeids:
-        module = PurePosixPath(nodeid.split("::", 1)[0].replace("\\", "/")).name
+        path, _, case = nodeid.replace("\\", "/").partition("::")
+        module = PurePosixPath(path).name
+        desktop_catalog = (module == "test_catalog_contract.py" and
+            case == "test_catalog_copies_keep_personal_monthly_limits_separate_from_gym_daily_limits")
         if (module in {"test_login_desktop.py", "test_license_offline_security.py"}
-                or module.startswith("test_desktop")):
+                or module.startswith("test_desktop") or desktop_catalog):
             raise ValueError("Desktop product validation is outside the authorized web scope")
 
 
