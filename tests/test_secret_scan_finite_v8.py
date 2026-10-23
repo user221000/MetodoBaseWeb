@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts import reviewed_scan_locations as review
+from tests.ci_web37.r05_v8_transport import original_source, review
 
 ROOT = Path(__file__).resolve().parents[1]
 OLD = "scripts/data/reviewed_scan_locations_v7.zip"
@@ -50,7 +50,7 @@ def test_v8_union_preserves904_original_records_and57262_pins_exactly():
 def test_only_three_loader_literals_change_from_the_authenticated_original_v7():
     original = (ROOT / "tests/fixtures/r05-v7-reader-original.py.RAW").read_bytes()
     assert digest(original) == "727c0a5e305a6d012523929ff86e59954488d32464ee44bda7bc8685e5a8add4"
-    inverse = (ROOT / "scripts/reviewed_scan_locations.py").read_bytes()
+    inverse = original_source()
     for before, after in [(CURRENT, OLD), (CURRENT_DIGEST, OLD_DIGEST), ("registry v8", "registry v7")]:
         assert inverse.count(before.encode()) == 1
         inverse = inverse.replace(before.encode(), after.encode())
