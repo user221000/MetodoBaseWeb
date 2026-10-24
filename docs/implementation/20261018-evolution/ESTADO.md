@@ -1,5 +1,17 @@
 # Estado de implementación
 
+## Corte vigente del 23 de octubre: restauración39 aprobada localmente
+
+El bloqueo reproducido de restauración de privacidad39 se resolvió en el repositorio activo. El comparador conserva ANY/ALL, operadores, roles, ACL y FORCE RLS; sólo normaliza la colocación equivalente del cast del array literal observado. Pasaron 218 casos puros y una revisión independiente de 481 controles. Los targets y los intentos fallidos anteriores permanecen intactos.
+
+QA ejecutó el caso original de restauración cifrada PostgreSQL39 y los cuatro casos funcionales con rol restringido: 5 PASS, sin fallos, errores ni skips. Tres UUID cerraron naturalmente; una consulta independiente comprobó ausencia y cero sesiones. Root verificó 44 referencias cerradas. Se conservan las fuentes físicas de 566 archivos por fase, roles y 92 paquetes estables, con pip 0/0. Esta aceptación local no cierra custodia productiva, R08 o R31 completos.
+
+El gate nuevo de privacidad Node39 pasó 48 criterios exactos en tres programas. El navegador real completó 18 criterios y 12 capturas en 320/390/768/1440, con aislamiento A/B, MFA, revocación y comprobante mínimo. Cerró normalmente sin cancelaciones ni tareas pendientes; QA y Root revisaron los recibos cerrados y dos capturas. Su alcance es Windows/Chromium y SQLite39 sintético, separado del gate PostgreSQL.
+
+El primer R34 terminó rechazado antes de generar: se conservan la detención forzada del driver retenido y la limpieza manual de su única base, sin atribuirles cierre HTTP normal ni métricas de rendimiento. El instrumento corregido pasó 32 pruebas; el segundo intento cerró normalmente y registró el rechazo de startup por la comprobación del adaptador de generación, con cero generaciones. Se investiga ese contrato del instrumento; no hay capacidad comercial medida. El código técnico está integrado en el commit local `e22867e4c767a2bb12ef1e9d0f97a492bbeb1372`; CI amplia e imagen Linux final siguen pendientes.
+
+Se mantienen 167 filas y todos los criterios y estados anteriores. Sólo web; Free conserva 10 clientes, 1 plan por cliente/día, 10 planes diarios totales y 20 mensuales. [Evidencia de esta aceptación](evidence/restore39-accepted-20261023/summary.json). Los apartados siguientes son cortes históricos y conservan sus resultados originales.
+
 <!-- DOC166-CLOSED61-FOLLOWUP -->
 
 ## Seguimiento del checkpoint 166 — SQLite39 final aceptado; restore PG rechazado

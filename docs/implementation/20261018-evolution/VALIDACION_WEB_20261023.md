@@ -1,5 +1,17 @@
 # Validación de la candidata web: 23 de octubre de 2026
 
+## Actualización vigente: restore39 aceptado en Main
+
+El caso original de restauración cifrada PostgreSQL39 y sus cuatro pruebas funcionales pasan sobre fuentes físicas Main39 de 566 archivos por fase, con rol restringido, aislamiento A/B, tres cierres naturales y ausencia fresca sin sesiones. Root verificó las 44 referencias cerradas de QA; seguridad revisó independientemente el restore original. Se conservan el fallo anterior, sus logs y sus targets. [Resumen y referencias](evidence/restore39-accepted-20261023/summary.json).
+
+La corrección ANY/ALL está integrada en el commit local `44990e492c17bb9cdebcde0d80f3da5c898eed9d`, junto con la reparación revisada del adaptador Native22. El comparador tiene 218 casos puros y 481 controles independientes; privacidad añade 12 casos SQLite independientes. Son alcances separados, no nuevos criterios ni una aceptación global de CI. El gate Node de privacidad39 tiene 48 criterios aprobados sobre la foto física posterior que integra su runner y mapa localmente.
+
+El navegador real de privacidad39 tiene 18/18 criterios y 12 capturas en 320/390/768/1440. El cierre fue normal, sin cancelaciones ni tareas pendientes, con puerto ausente; QA revisó los ocho recibos cerrados y Root verificó sus hashes y dos capturas. Se probaron cuatro actores con autenticación/MFA real, aislamiento A/B, bloqueos por política, revocación y comprobante mínimo de cierre. Es Windows/Chromium y SQLite39 sintético; no sustituye PostgreSQL, Linux ni revisión legal.
+
+R34 aún no tiene una medición aceptada: el primer intento quedó rechazado con cero generaciones por un defecto del instrumento de arranque/cierre. Su driver retenido se detuvo de forma explícita, su única UUID se eliminó con guardas de identidad y cero sesiones, y los recibos originales se conservaron. La corrección pasó 32 pruebas y el segundo intento cerró normalmente, pero fue rechazado antes de generar por la comprobación del adaptador de generación. Se conserva su traceback original para corregir ese contrato. El commit técnico siguiente es `e22867e4c767a2bb12ef1e9d0f97a492bbeb1372`; no se atribuyen a ese commit limpio las fases anteriores ligadas a fuentes físicas.
+
+El texto siguiente conserva las fuentes y resultados históricos de esta reanudación; sus referencias a trabajo entonces pendiente no sustituyen esta actualización.
+
 El trabajo vigente abarca exclusivamente el servicio web. Desktop queda fuera
 de desarrollo, pruebas y empaquetado por la instrucción más reciente del usuario;
 sus archivos y evidencias históricos se conservan. Las fuentes nuevas, temporales
