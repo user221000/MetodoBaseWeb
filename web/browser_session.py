@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 
 from web.account_security_paths import POSTS as ACCOUNT_POSTS
+from web.privacy_paths import is_privacy_close, is_privacy_post, is_privacy_post_boundary
 
 logger = logging.getLogger(__name__)
 HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
@@ -31,7 +32,7 @@ COOKIE_POSTS = PRIMARY | REVOKING | ACCOUNT_POSTS | frozenset({
 
 
 def is_browser_session_private(path):
-    return path in COOKIE_POSTS or (path.endswith("/") and path[:-1] in COOKIE_POSTS)
+    return path in COOKIE_POSTS or (path.endswith("/") and path[:-1] in COOKIE_POSTS) or is_privacy_post_boundary(path)
 
 
 def failure(status, code):
@@ -70,7 +71,7 @@ def admit(request):
     """Run before dependencies, credentials, provider calls or token mutations."""
     origin, _, _ = configuration()
     if (request.headers.getlist(HEADER) != ["1"] or request.headers.getlist("origin") != [origin]
-            or request.method != "POST" or request.url.path not in COOKIE_POSTS
+            or request.method != "POST" or not (request.url.path in COOKIE_POSTS or is_privacy_post(request.url.path))
             or request.url.query):
         failure(403, "browser_origin_invalid")
     content_types = request.headers.getlist("content-type")
@@ -139,7 +140,9 @@ def _browser_response(response, request):
         response.headers["content-length"] = str(len(response.body))
         _, name, secure = configuration()
         response.set_cookie(name, proof, max_age=remaining, path="/", secure=secure, httponly=True, samesite="strict")
-    elif request.url.path in PRIMARY or (request.url.path in REVOKING and response.status_code < 300):
+    elif (request.url.path in PRIMARY or (request.url.path in REVOKING and response.status_code < 300)
+          or (is_privacy_close(request.url.path) and response.status_code == 200 and isinstance(data, dict)
+              and data.get("account_closed") is True and data.get("sessions_revoked") is True)):
         if isinstance(data, dict) and response.status_code == 202 and data.get("mfa_required") is True:
             data["session_mode"] = "browser"
             response.body = json.dumps(data, separators=(",", ":")).encode()

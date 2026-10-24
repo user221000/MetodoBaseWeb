@@ -45,8 +45,8 @@
   confirmForm.addEventListener('submit', async event => {
     event.preventDefault();
     if (!confirmForm.reportValidity()) return;
-    if (password.value !== confirmation.value || new TextEncoder().encode(password.value).length > 72) {
-      status.textContent = 'Revisa que las contraseñas coincidan y ocupen hasta 72 bytes UTF-8.'; return;
+    if (password.value !== confirmation.value || Array.from(password.value).length < 15 || new TextEncoder().encode(password.value).length > 72) {
+      status.textContent = 'Usa contraseñas iguales, de al menos 15 caracteres y hasta 72 bytes UTF-8.'; return;
     }
     const button = confirmForm.querySelector('button'); button.disabled = true;
     status.textContent = 'Guardando contraseña…';

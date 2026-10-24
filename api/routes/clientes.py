@@ -4,7 +4,7 @@ api/routes/clientes.py — CRUD endpoints /api/clientes con autenticación multi
 Todos los endpoints requieren autenticación y filtran por gym_id del usuario.
 """
 import logging
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
@@ -27,6 +27,7 @@ def listar_clientes(
     filter: Optional[str] = Query(None, description="activos|inactivos"),
     limite: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
     offset: int = Query(0, ge=0),
+    origen: Optional[Literal['all', 'unknown', 'demo', 'customer']] = Query(None),
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_usuario_gym),
 ):
@@ -39,7 +40,7 @@ def listar_clientes(
     elif filter == "inactivos":
         solo_activos = False
     clientes, total = repo.listar_clientes(
-        db, gym_id, termino=termino, solo_activos=solo_activos, limite=limite, offset=offset
+        db, gym_id, termino=termino, solo_activos=solo_activos, limite=limite, offset=offset, data_origin=origen
     )
     return {"clientes": clientes, "total": total, "limit": limite, "offset": offset, "filter": filter}
 

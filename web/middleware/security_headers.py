@@ -23,6 +23,7 @@ from web.nutrition_paths import is_nutrition_private
 from web.browser_session import is_browser_session_private
 from web.notification_paths import is_notification_private
 from web.account_security_paths import is_account_security_private
+from web.privacy_paths import is_privacy_private
 
 import inspect
 import logging
@@ -127,7 +128,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         followup_api = is_followup_private(request.url.path)
         nutrition_api = is_nutrition_private(request.url.path)
         notification_api = is_notification_private(request.url.path)
-        account_security_api = is_account_security_private(request.url.path)
+        account_security_api = is_account_security_private(request.url.path) or is_privacy_private(request.url.path)
         export_api = request.url.path in _PRIVATE_EXPORT_PATHS
         product_analytics_api = request.url.path in _PRODUCT_ANALYTICS_PATHS
         operations = request.url.path in {"/metrics", "/alerts", "/health/circuits"}

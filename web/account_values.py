@@ -2,6 +2,9 @@
 
 from web.password_blocklist import contains_password
 
+# NIST 63B-4 single-factor minimum for every newly chosen credential.
+MIN_NEW_PASSWORD_CHARS = 15
+
 
 def normalize_account_email(value: str) -> str:
     """Preserve lower(), never merge Unicode/provider aliases with casefold."""
@@ -9,8 +12,13 @@ def normalize_account_email(value: str) -> str:
 
 
 def validate_new_password(value: str) -> str:
-    if not isinstance(value,str) or len(value)<12:
-        raise ValueError('La contraseña debe tener al menos 12 caracteres.')
+    """Validate a newly selected credential; existing login hashes are unaffected.
+
+    Count Unicode code points without trimming or normalization. Preserve the
+    current bcrypt 72-byte UTF-8 bound and fail closed on the blocklist.
+    """
+    if not isinstance(value,str) or len(value)<MIN_NEW_PASSWORD_CHARS:
+        raise ValueError('La contraseña debe tener al menos 15 caracteres.')
     try:
         encoded=value.encode('utf-8')
     except UnicodeError:

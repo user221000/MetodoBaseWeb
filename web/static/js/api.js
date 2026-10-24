@@ -315,10 +315,11 @@ const Api = (() => {
 
   const clientes = {
     catalogo: async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/alimentos/catalogo',null,{},true,{snapshot,pair});},
-    listar: (q = '', limite = 300, filter = '') => {
+    listar: (q = '', limite = 300, filter = '', origen = '') => {
       const params = new URLSearchParams();
       if (q) params.set('q', q);
       if (filter) params.set('filter', filter);
+      if (origen) params.set('origen', origen);
       params.set('limite', limite);
       return request('GET', `/api/clientes?${params}`);
     },
@@ -873,7 +874,7 @@ const Api = (() => {
   }
   function _accountBody(value) {
     let body;try{body=_captureCookieBody(value);}catch{throw _accountError('account_security_invalid_input');}const keys=['reauthentication_token','new_password','confirm_password','code','recovery_code'];
-    if(Object.keys(body).some(key=>!keys.includes(key))||!_mfaBearer(body.reauthentication_token)||typeof body.new_password!=='string'||typeof body.confirm_password!=='string'||body.new_password!==body.confirm_password||Array.from(body.new_password).length<12||new TextEncoder().encode(body.new_password).length>72||/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(body.new_password)||(body.code!==undefined&&!/^\d{6}$/.test(body.code))||(body.recovery_code!==undefined&&!/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))||(body.code!==undefined&&body.recovery_code!==undefined))throw _accountError('account_security_invalid_input');
+    if(Object.keys(body).some(key=>!keys.includes(key))||!_mfaBearer(body.reauthentication_token)||typeof body.new_password!=='string'||typeof body.confirm_password!=='string'||body.new_password!==body.confirm_password||Array.from(body.new_password).length<15||new TextEncoder().encode(body.new_password).length>72||/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(body.new_password)||(body.code!==undefined&&!/^\d{6}$/.test(body.code))||(body.recovery_code!==undefined&&!/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))||(body.code!==undefined&&body.recovery_code!==undefined))throw _accountError('account_security_invalid_input');
     return body;
   }
   function _accountUnauthorized(context) {
@@ -943,6 +944,65 @@ const Api = (() => {
       });}finally{body=null;}
     },
     checkClosed(result){const closed=_accountClosures.get(result);if(!closed)throw _sessionChanged();_assertSnapshot(closed);},
+  });
+
+  function _privacyReceipt(value) {
+    const code=value=>value===null||(typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,64}$/.test(value));
+    if(!value || typeof value.id!=='string' || !/^[0-9a-f]{32}$/.test(value.id) || !Number.isSafeInteger(value.version) || value.version<1 || value.version>2147483647 || !['requested','blocked','eligible','executing','partially_applied','completed'].includes(value.state) || !code(value.reason) || typeof value.account_closed!=='boolean' || typeof value.erasure_complete!=='boolean' || !Array.isArray(value.items) || value.items.length>32 || Object.keys(value).some(key=>!['id','version','state','reason','account_closed','erasure_complete','policy','items','sessions_revoked','state_available'].includes(key))) throw _accountError('privacy_invalid_response');
+    if(value.policy!==null&&(!value.policy||typeof value.policy.id!=='string'||!code(value.policy.id)||!Number.isSafeInteger(value.policy.version)||value.policy.version<1||value.policy.version>2147483647||typeof value.policy.digest!=='string'||!/^[0-9a-f]{64}$/.test(value.policy.digest)||Object.keys(value.policy).some(key=>!['id','version','digest'].includes(key))))throw _accountError('privacy_invalid_response');
+    const categories=new Set();
+    for(const item of value.items){if(!item || typeof item.category!=='string' || !/^[a-z_]{1,64}$/.test(item.category) || categories.has(item.category) || !['pending','deleted','retained_by_policy','blocked','pending_confirmation','failed'].includes(item.status) || !code(item.reason) || !Number.isSafeInteger(item.deleted_rows) || item.deleted_rows<0 || Object.keys(item).some(key=>!['category','status','reason','deleted_rows'].includes(key)))throw _accountError('privacy_invalid_response');categories.add(item.category);}
+    if(value.erasure_complete!==(value.state==='completed') || (value.account_closed!==true && value.erasure_complete))throw _accountError('privacy_invalid_response');
+    return value;
+  }
+  const accountPrivacy=Object.freeze({
+    context:()=>accountSecurity.context(),check:handle=>accountSecurity.check(handle),verify:handle=>accountSecurity.verify(handle),
+    factorStatus:handle=>accountSecurity.factorStatus(handle),reauth:(body,handle)=>accountSecurity.reauth(body,handle),
+    async create(key,handle){
+      if(typeof key!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(key))throw _accountError('privacy_invalid_input');
+      const context=_mfaContext(handle);
+      return _accountAuthority(handle,()=>_withCookieLock(context.snapshot,async()=>{
+        _mfaContext(handle);const value=await _accountPost('/api/account/privacy/requests',{idempotency_key:key,intent:'erase_personal_data'},context);
+        _mfaContext(handle);return _privacyReceipt(value);
+      }));
+    },
+    async status(id,handle){
+      if(typeof id!=='string'||!/^[0-9a-f]{32}$/.test(id))throw _accountError('privacy_invalid_input');
+      return _privacyReceipt(await _accountGet('/api/account/privacy/requests/'+id,handle));
+    },
+    async facts(after,handle){
+      if(after!==null && (typeof after!=='string'||!/^[0-9A-Fa-f]{32}$/.test(after)))throw _accountError('privacy_invalid_input');
+      const value=await _accountGet('/api/account/privacy/personal-facts?limit=100'+(after===null?'':'&after='+after),handle);
+      if(!value||value.scope!=='own_personal_product_facts'||value.consistency!=='live_keyset_pages'||!Array.isArray(value.records)||value.records.length>100||value.max_response_bytes!==131072||(value.next_after!==null&&!/^[0-9A-Fa-f]{32}$/.test(value.next_after)))throw _accountError('privacy_invalid_response');
+      for(const row of value.records)if(!row||typeof row.id!=='string'||!/^[0-9a-f]{32}$/.test(row.id)||!['origin_declared','plan_saved'].includes(row.event_type)||!['unknown','demo','customer'].includes(row.origin)||typeof row.source_id!=='string'||!row.source_id.length||row.source_id.length>36||!Number.isSafeInteger(row.source_version)||row.source_version<1||row.source_version>2147483647||typeof row.occurred_at!=='string'||!Number.isFinite(Date.parse(row.occurred_at))||Object.keys(row).some(key=>!['id','event_type','source_id','source_version','origin','occurred_at'].includes(key)))throw _accountError('privacy_invalid_response');
+      return value;
+    },
+    async close(id,value,handle){
+      if(typeof id!=='string'||!/^[0-9a-f]{32}$/.test(id)||!value||Object.keys(value).some(key=>!['expected_version','confirmation','reauthentication_token','code','recovery_code'].includes(key))||!Number.isSafeInteger(value.expected_version)||value.expected_version<1||value.expected_version>2147483647||value.confirmation!=='close_account'||typeof value.reauthentication_token!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(value.reauthentication_token)||(value.code!==undefined&&(typeof value.code!=='string'||!/^\d{6}$/.test(value.code)))||(value.recovery_code!==undefined&&(typeof value.recovery_code!=='string'||!/^[A-Za-z0-9_-]{22}$/.test(value.recovery_code)))||(value.code!==undefined&&value.recovery_code!==undefined))throw _accountError('privacy_invalid_input');
+      let body={...value};value=null;const context=_mfaContext(handle),version=body.expected_version;
+      try{return await _withCookieLock(context.snapshot,async()=>{
+        _mfaContext(handle);let state='closed',receipt=null;
+        try{
+          const pending=_accountPost('/api/account/privacy/requests/'+id+'/close-account',body,context);body=null;
+          const data=_privacyReceipt(await pending);_mfaContext(handle);
+          if(data.id!==id||data.version<=version)throw _accountError('privacy_invalid_response');
+          if(data.account_closed===false){
+            if(data.sessions_revoked!==undefined||data.erasure_complete)throw _accountError('privacy_invalid_response');
+            return Object.freeze({state:'blocked',server_confirmed:false,account_closed:false,receipt:data});
+          }
+          if(data.sessions_revoked!==true||data.state_available!=='authorized_operator_only_after_closure')throw _accountError('privacy_invalid_response');
+          receipt=Object.freeze({id:data.id,state:data.state,account_closed:true,erasure_complete:data.erasure_complete,
+            items:Object.freeze(data.items.map(item=>Object.freeze({category:item.category,status:item.status,deleted_rows:item.deleted_rows})))});
+        }catch(error){body=null;_mfaContext(handle);if(error.status&&error.status<500)throw error;state='unconfirmed';}
+        // A successful SV+1 intentionally invalidates this access. No /me
+        // verification or refresh follows closure; bind the receipt to the
+        // local account boundary so a later account suppresses this notice.
+        _mfaContext(handle);const closed=_publishBoundary(),result=Object.freeze({state,
+          server_confirmed:state==='closed',account_closed:state==='closed',receipt});
+        _assertSnapshot(closed);_accountClosures.set(result,closed);return result;
+      });}finally{body=null;}
+    },
+    checkClosed:result=>accountSecurity.checkClosed(result),
   });
 
   const billing = {
@@ -1317,7 +1377,25 @@ const Api = (() => {
     accept: (token, password) => _browserAccount('/api/auth/accept-invite',{token,password}),
   };
   const session=Object.freeze({get ready(){return _readyPromise;},identity:()=>getToken()&&_metadata?Object.freeze({..._metadata}):null,capture:()=>Object.freeze(_snapshot()),check:context=>{_assertSnapshot(context);},rejectUnauthorized:_rejectUnauthorized,accepted:data=>{const value=_delivered.get(data);if(!value)throw _sessionChanged();_assertPair(value.snapshot,value.pair);return Object.freeze({...value.snapshot});},clientCount:async()=>{await _readyPromise;const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);return request('GET','/api/clientes?limite=1',null,{},true,{snapshot,pair});}});
+
+  const productAnalytics = Object.freeze({
+    async report(context) {
+      await _readyPromise;
+      if (!['gym','personal'].includes(context)) throw new Error('Contexto no disponible.');
+      const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);
+      const value=await request('GET','/api/analytics/producto/v2?context='+context,null,{},true,{snapshot,pair});
+      _assertPair(snapshot,pair); return value;
+    },
+    async origin(context,client=null,change=null) {
+      await _readyPromise;
+      if (!['gym','personal'].includes(context)||(context==='gym'&&(typeof client!=='string'||!client||client.length>36))||(context==='personal'&&client!==null)) throw new Error('Contexto no disponible.');
+      const snapshot=_snapshot(),pair=_assertSnapshot(snapshot);
+      const path='/api/analytics/procedencia?context='+context+(client===null?'':'&client='+encodeURIComponent(client));
+      const value=await request(change===null?'GET':'POST',path,change,{},true,{snapshot,pair});
+      _assertPair(snapshot,pair); return value;
+    }
+  });
   _readyPromise=_bootstrap();_readyPromise.catch(()=>{});
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, accountSecurity, session, getToken, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, accountSecurity, accountPrivacy, productAnalytics, session, getToken, clearTokens, saveTokens };
 })();
 

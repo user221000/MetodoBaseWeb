@@ -245,6 +245,8 @@ def create_app() -> FastAPI:
     app.include_router(routines.pages_router)
     from web.routes import product_analytics
     app.include_router(product_analytics.router, prefix="/api")
+    from web.routes import product_analytics_v2
+    app.include_router(product_analytics_v2.router, prefix="/api")
     app.include_router(web_gym_profile_router.router, prefix="/api", dependencies=_api_auth)
 
     # Usuario individual routes
@@ -261,6 +263,8 @@ def create_app() -> FastAPI:
 
     from web.routes.privacy import router as privacy_router
     app.include_router(privacy_router, prefix="/api")
+    from web.routes.account_privacy import router as account_privacy_router
+    app.include_router(account_privacy_router, prefix="/api")
 
     # Team management (RBAC) - auth manejada internamente por permissions.py
     app.include_router(web_team_router, prefix="/api")

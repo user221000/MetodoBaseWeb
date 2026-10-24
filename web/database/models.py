@@ -1216,3 +1216,22 @@ class NotificationOutbox(Base):
 
 class NotificationAttempt(Base):
     __table__ = attempt_table(Base.metadata, UTCDateTime)
+
+
+from web.database.product_analytics_schema_v2 import fact_table as product_fact_table  # noqa: E402
+
+
+class ProductAnalyticsFact(Base):
+    """Append-only, pseudonymous source facts and explicit data-origin declarations."""
+    __table__ = product_fact_table(Base.metadata, UTCDateTime)
+
+
+from web.database.privacy_schema_v1 import request_table as privacy_request_table, item_table as privacy_item_table  # noqa: E402
+
+
+class PrivacyRequest(Base):
+    __table__ = privacy_request_table(Base.metadata, UTCDateTime)
+
+
+class PrivacyDispositionItem(Base):
+    __table__ = privacy_item_table(Base.metadata, UTCDateTime)

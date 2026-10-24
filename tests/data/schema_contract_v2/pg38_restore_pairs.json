@@ -1,0 +1,411 @@
+{
+  "actual": {
+    "dialect": "postgresql",
+    "tables": {
+      "product_analytics_facts": {
+        "checks": [
+          {
+            "name": "ck_product_fact_context",
+            "sql": "(context::text = ANY (ARRAY['gym'::character varying::text, 'personal'::character varying::text])) AND (context::text = 'gym'::text AND client_id IS NOT NULL OR context::text = 'personal'::text AND client_id IS NULL)"
+          },
+          {
+            "name": "ck_product_fact_ids",
+            "sql": "length(id::text) = 32 AND length(source_id::text) >= 1 AND length(source_id::text) <= 36"
+          },
+          {
+            "name": "ck_product_fact_origin",
+            "sql": "origin::text = ANY (ARRAY['unknown'::text, 'demo'::text, 'customer'::text])"
+          },
+          {
+            "name": "ck_product_fact_personal",
+            "sql": "context::text = 'gym'::text OR (event_type::text = ANY (ARRAY['origin_declared'::character varying::text, 'plan_saved'::character varying::text]))"
+          },
+          {
+            "name": "ck_product_fact_type",
+            "sql": "event_type::text = ANY (ARRAY['origin_declared'::text, 'plan_saved'::text, 'client_link_accepted'::text, 'plan_assignment_published'::text, 'plan_assignment_withdrawn'::text, 'assigned_plan_http200'::text])"
+          },
+          {
+            "name": "ck_product_fact_version",
+            "sql": "source_version >= 1 AND source_version <= 2147483647"
+          }
+        ],
+        "columns": [
+          {
+            "default": null,
+            "name": "client_id",
+            "nullable": true,
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "collation": null,
+              "length": 36
+            }
+          },
+          {
+            "default": null,
+            "name": "context",
+            "nullable": false,
+            "type": "VARCHAR(8)",
+            "type_attributes": {
+              "collation": null,
+              "length": 8
+            }
+          },
+          {
+            "default": null,
+            "name": "event_type",
+            "nullable": false,
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "collation": null,
+              "length": 32
+            }
+          },
+          {
+            "default": null,
+            "name": "id",
+            "nullable": false,
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "collation": null,
+              "length": 32
+            }
+          },
+          {
+            "default": "CURRENT_TIMESTAMP",
+            "name": "occurred_at",
+            "nullable": false,
+            "type": "TIMESTAMP",
+            "type_attributes": {
+              "precision": null,
+              "timezone": false
+            }
+          },
+          {
+            "default": null,
+            "name": "origin",
+            "nullable": false,
+            "type": "VARCHAR(8)",
+            "type_attributes": {
+              "collation": null,
+              "length": 8
+            }
+          },
+          {
+            "default": null,
+            "name": "owner_id",
+            "nullable": false,
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "collation": null,
+              "length": 36
+            }
+          },
+          {
+            "default": null,
+            "name": "source_id",
+            "nullable": false,
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "collation": null,
+              "length": 36
+            }
+          },
+          {
+            "default": null,
+            "name": "source_version",
+            "nullable": false,
+            "type": "INTEGER",
+            "type_attributes": {}
+          }
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "owner_id",
+              "client_id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            },
+            "referred_columns": [
+              "gym_id",
+              "id_cliente"
+            ],
+            "table": "clientes"
+          },
+          {
+            "columns": [
+              "owner_id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            },
+            "referred_columns": [
+              "id"
+            ],
+            "table": "usuarios"
+          }
+        ],
+        "indexes": [
+          {
+            "columns": [
+              "owner_id",
+              "context",
+              "client_id",
+              "event_type",
+              "source_version"
+            ],
+            "name": "ix_product_fact_origin",
+            "unique": false,
+            "where": null
+          },
+          {
+            "columns": [
+              "owner_id",
+              "context",
+              "occurred_at"
+            ],
+            "name": "ix_product_fact_report",
+            "unique": false,
+            "where": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "context",
+            "event_type",
+            "owner_id",
+            "source_id",
+            "source_version"
+          ]
+        ]
+      }
+    }
+  },
+  "differences": [
+    {
+      "actual": "(context::text = ANY (ARRAY['gym'::character varying::text, 'personal'::character varying::text])) AND (context::text = 'gym'::text AND client_id IS NOT NULL OR context::text = 'personal'::text AND client_id IS NULL)",
+      "expected": "(context::text = ANY (ARRAY['gym'::character varying, 'personal'::character varying]::text[])) AND (context::text = 'gym'::text AND client_id IS NOT NULL OR context::text = 'personal'::text AND client_id IS NULL)",
+      "path": "/tables/product_analytics_facts/checks/0/sql"
+    },
+    {
+      "actual": "context::text = 'gym'::text OR (event_type::text = ANY (ARRAY['origin_declared'::character varying::text, 'plan_saved'::character varying::text]))",
+      "expected": "context::text = 'gym'::text OR (event_type::text = ANY (ARRAY['origin_declared'::character varying, 'plan_saved'::character varying]::text[]))",
+      "path": "/tables/product_analytics_facts/checks/3/sql"
+    }
+  ],
+  "expected": {
+    "dialect": "postgresql",
+    "tables": {
+      "product_analytics_facts": {
+        "checks": [
+          {
+            "name": "ck_product_fact_context",
+            "sql": "(context::text = ANY (ARRAY['gym'::character varying, 'personal'::character varying]::text[])) AND (context::text = 'gym'::text AND client_id IS NOT NULL OR context::text = 'personal'::text AND client_id IS NULL)"
+          },
+          {
+            "name": "ck_product_fact_ids",
+            "sql": "length(id::text) = 32 AND length(source_id::text) >= 1 AND length(source_id::text) <= 36"
+          },
+          {
+            "name": "ck_product_fact_origin",
+            "sql": "origin::text = ANY (ARRAY['unknown'::text, 'demo'::text, 'customer'::text])"
+          },
+          {
+            "name": "ck_product_fact_personal",
+            "sql": "context::text = 'gym'::text OR (event_type::text = ANY (ARRAY['origin_declared'::character varying, 'plan_saved'::character varying]::text[]))"
+          },
+          {
+            "name": "ck_product_fact_type",
+            "sql": "event_type::text = ANY (ARRAY['origin_declared'::text, 'plan_saved'::text, 'client_link_accepted'::text, 'plan_assignment_published'::text, 'plan_assignment_withdrawn'::text, 'assigned_plan_http200'::text])"
+          },
+          {
+            "name": "ck_product_fact_version",
+            "sql": "source_version >= 1 AND source_version <= 2147483647"
+          }
+        ],
+        "columns": [
+          {
+            "default": null,
+            "name": "client_id",
+            "nullable": true,
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "collation": null,
+              "length": 36
+            }
+          },
+          {
+            "default": null,
+            "name": "context",
+            "nullable": false,
+            "type": "VARCHAR(8)",
+            "type_attributes": {
+              "collation": null,
+              "length": 8
+            }
+          },
+          {
+            "default": null,
+            "name": "event_type",
+            "nullable": false,
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "collation": null,
+              "length": 32
+            }
+          },
+          {
+            "default": null,
+            "name": "id",
+            "nullable": false,
+            "type": "VARCHAR(32)",
+            "type_attributes": {
+              "collation": null,
+              "length": 32
+            }
+          },
+          {
+            "default": "CURRENT_TIMESTAMP",
+            "name": "occurred_at",
+            "nullable": false,
+            "type": "TIMESTAMP",
+            "type_attributes": {
+              "precision": null,
+              "timezone": false
+            }
+          },
+          {
+            "default": null,
+            "name": "origin",
+            "nullable": false,
+            "type": "VARCHAR(8)",
+            "type_attributes": {
+              "collation": null,
+              "length": 8
+            }
+          },
+          {
+            "default": null,
+            "name": "owner_id",
+            "nullable": false,
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "collation": null,
+              "length": 36
+            }
+          },
+          {
+            "default": null,
+            "name": "source_id",
+            "nullable": false,
+            "type": "VARCHAR(36)",
+            "type_attributes": {
+              "collation": null,
+              "length": 36
+            }
+          },
+          {
+            "default": null,
+            "name": "source_version",
+            "nullable": false,
+            "type": "INTEGER",
+            "type_attributes": {}
+          }
+        ],
+        "foreign_keys": [
+          {
+            "columns": [
+              "owner_id",
+              "client_id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            },
+            "referred_columns": [
+              "gym_id",
+              "id_cliente"
+            ],
+            "table": "clientes"
+          },
+          {
+            "columns": [
+              "owner_id"
+            ],
+            "options": {
+              "ondelete": "RESTRICT"
+            },
+            "referred_columns": [
+              "id"
+            ],
+            "table": "usuarios"
+          }
+        ],
+        "indexes": [
+          {
+            "columns": [
+              "owner_id",
+              "context",
+              "client_id",
+              "event_type",
+              "source_version"
+            ],
+            "name": "ix_product_fact_origin",
+            "unique": false,
+            "where": null
+          },
+          {
+            "columns": [
+              "owner_id",
+              "context",
+              "occurred_at"
+            ],
+            "name": "ix_product_fact_report",
+            "unique": false,
+            "where": null
+          }
+        ],
+        "primary_key": [
+          "id"
+        ],
+        "unique": [
+          [
+            "context",
+            "event_type",
+            "owner_id",
+            "source_id",
+            "source_version"
+          ]
+        ]
+      }
+    }
+  },
+  "provenance": {
+    "all_other_signature_leaves_literal_equal": true,
+    "original_expected_target_SHA256": "4f009cac9919fef76ddf5bd4a094cd2498fa856f19ba81963467a673e05172c1",
+    "primary_reference": "https://www.postgresql.org/docs/17/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS",
+    "records": [
+      {
+        "bytes": 495837,
+        "diff_count": 2,
+        "file": "pg38-restore-structure-b4bdadf9cdf74da0b78c648788d3d75c-1.json",
+        "sha256": "d4482c36798e841e3c07792ce149cfa65d0a85a89ed108c84a4f7bce170f7c90"
+      },
+      {
+        "bytes": 494868,
+        "diff_count": 0,
+        "file": "pg38-restore-structure-fe4c9fb8e1834d5eb8c5e34086df1e7b-1.json",
+        "sha256": "fe82a67c026fdf0ee24d6c9e75f91c20c4b3d605e98bcdca50f20d9b0ae524f8"
+      }
+    ],
+    "target_diagnostic": {
+      "bytes": 495837,
+      "diff_count": 2,
+      "file": "pg38-restore-structure-b4bdadf9cdf74da0b78c648788d3d75c-1.json",
+      "sha256": "d4482c36798e841e3c07792ce149cfa65d0a85a89ed108c84a4f7bce170f7c90"
+    }
+  }
+}

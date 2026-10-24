@@ -104,6 +104,14 @@
 
     <!-- Scrollable body with form sections -->
     <div id="detail-drawer-body" style="flex:1;overflow-y:auto;padding:0 0 80px;">
+      <section id="client-origin" data-product-origin data-context="gym" hidden style="padding:1rem;">
+        <h3>Procedencia de los datos</h3>
+        <p>Separa demostraciones y clientes. Esta declaración no indica pago ni cambia planes anteriores.</p>
+        <label for="client-origin-value">Origen para hechos futuros</label>
+        <select id="client-origin-value" disabled><option value="unknown">Sin clasificar</option><option value="demo">Demostración</option><option value="customer">Cliente</option></select>
+        <button type="button" class="btn btn-outline btn-sm" hidden>Guardar declaración</button>
+        <p data-origin-status role="status" aria-live="polite"></p>
+      </section>
       <div style="padding:0 20px;">
 
         <!-- ── Sección: Datos personales ── -->
@@ -407,6 +415,13 @@
   <p><a href="/planes" class="btn btn-outline btn-sm" id="ob-action-3">Revisar planes y descargar PDF</a></p>
 </section>
 
+<section data-product-analytics data-context="gym" class="chart-container" aria-labelledby="product-facts-title">
+  <h2 id="product-facts-title">Activación observada</h2>
+  <p>Consulta el periodo actual por procedencia declarada. Los datos previos permanecen sin clasificar. Una respuesta completa del plan asignado aceptada por el servidor no prueba recepción ni lectura humana.</p>
+  <button type="button" class="btn btn-outline btn-sm">Consultar hechos observados</button>
+  <p data-product-report role="status" aria-live="polite">Sin consultar. No hay objetivos o retención inferidos.</p>
+</section>
+
 <!-- ═══════════════════════════════════════════════════════════════════════════
      AI INSIGHTS — Heuristic business intelligence
 ═══════════════════════════════════════════════════════════════════════════ -->
@@ -668,6 +683,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/product-analytics-v2.js?v=r38-1" defer></script>
 <script src="/static/js/dashboard-seguimiento.js?v=r23-1" defer></script>
 <style>
   #followup-section {overflow-wrap:anywhere;}
@@ -1369,6 +1385,7 @@
 
     try {
       const c = await Api.clientes.obtener(id);
+      if (window.ProductOrigin) window.ProductOrigin.showClient(c.id_cliente);
 
       // Header
       const initials = _ddInitials(c.nombre);

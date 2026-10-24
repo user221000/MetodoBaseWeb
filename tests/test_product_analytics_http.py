@@ -122,7 +122,14 @@ def test_exact_privacy_paths_all_methods_and_neighbours_are_unchanged(analytics_
         neighbour = raw.get(path)
         assert neighbour.headers["referrer-policy"] == "strict-origin-when-cross-origin"
         assert "https://accounts.google.com" in neighbour.headers["content-security-policy"]
-    from web.middleware.rate_limiter import RateLimiterMiddleware, RateLimiterStore
+    # Match the class that each real factory actually installs across module reloads.
+    if analytics_http["factory_name"] == "api.app":
+        from web.middleware import RateLimiterMiddleware
+    elif analytics_http["factory_name"] == "web.main_web":
+        from web.middleware.rate_limiter import RateLimiterMiddleware
+    else:
+        raise AssertionError("Unknown analytics factory installation binding")
+    from web.middleware.rate_limiter import RateLimiterStore
     layer = raw.app.middleware_stack
     while layer is not None and not isinstance(layer, RateLimiterMiddleware):
         layer = getattr(layer, "app", None)

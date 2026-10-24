@@ -361,6 +361,19 @@ def consume_account_reauthentication(db, expected, access, proof_token, *, code=
     Reuse the existing primary proof and current personal factor. No new MFA
     purpose, token format, bypass, session pair or separate identity lookup.
     """
+    return _consume_account_operation(db, expected, access, proof_token, factor_purpose="password",
+        code=code, recovery_code=recovery_code, now=now)
+
+
+def consume_privacy_reauthentication(db, expected, access, proof_token, *, code=None, recovery_code=None, now=None):
+    """Same reauth proof; separate privacy factor budget, no commit on success."""
+    return _consume_account_operation(db, expected, access, proof_token, factor_purpose="privacy",
+        code=code, recovery_code=recovery_code, now=now)
+
+
+def _consume_account_operation(db, expected, access, proof_token, *, factor_purpose, code=None, recovery_code=None, now=None):
+    if factor_purpose not in {"password", "privacy"}:
+        raise ValueError("Unregistered account operation")
     configuration()
     user, identity = lock_actor(db, expected)
     _require_session_capacity(user)
@@ -372,7 +385,7 @@ def consume_account_reauthentication(db, expected, access, proof_token, *, code=
         fail(400, "mfa_proof_unavailable")
     if row.enabled_at:
         verify_factor(db, row, code=code, recovery_code=recovery_code,
-                      purpose="password", now=now, proof=proof)
+                      purpose=factor_purpose, now=now, proof=proof)
     elif code is not None or recovery_code is not None:
         fail(422, "mfa_invalid_input")
     proof.consumed_at = now

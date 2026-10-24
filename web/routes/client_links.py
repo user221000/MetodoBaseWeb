@@ -206,7 +206,9 @@ async def memberships(request:Request,principal=Depends(get_usuario_actual),
 @router.get('/usuario/vinculos/{link_id}/plan')
 async def member_plan(request:Request,link_id:str=identity_path(),principal=Depends(get_usuario_actual)):
     await enforce_limit(request,principal,'read')
-    return await run_in_threadpool(_invoke,plans.read_member_plan,principal,link_id)
+    from web.product_analytics_http import AssignedPlanResponse
+    value = await run_in_threadpool(_invoke,plans.read_member_plan,principal,link_id)
+    return AssignedPlanResponse(value, principal, link_id, headers=HEADERS)
 
 
 @router.get('/usuario/vinculos/{link_id}/publicaciones/{publication_id}/pdf')

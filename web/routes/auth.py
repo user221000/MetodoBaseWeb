@@ -164,7 +164,7 @@ async def registro(data: RegistroRequest):
             tipo=tipo,
         )
     except ValueError:
-        raise HTTPException(400, {"code": "registration_invalid", "message": "No se pudo crear la cuenta. Revisa email, nombre y contraseña (mínimo 12 caracteres)."}) from None
+        raise HTTPException(400, {"code": "registration_invalid", "message": "No se pudo crear la cuenta. Revisa email, nombre y contraseña (mínimo 15 caracteres)."}) from None
     _sync_user_to_sa(usuario)
     tokens = crear_token_pair(usuario)
 

@@ -1,0 +1,2836 @@
+{
+  "catalog_only": true,
+  "schema": "pg38-policy-catalog-cast-pairs-v2",
+  "sections": [
+    {
+      "actual": {
+        "dialect": "postgresql",
+        "policies": [
+          [
+            "audit_log",
+            "tenant_isolation_audit_log",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "checkout_sessions",
+            "tenant_isolation_checkout_sessions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (user_id IS NULL))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            null
+          ],
+          [
+            "client_account_links",
+            "r12_link_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text]))) OR (((status)::text = 'active'::text) AND r12_consumed_proof(client_account_links.*)) OR (((status)::text = 'revoked'::text) AND ((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (consumed_by IS NULL) AND (consumed_at IS NULL))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            null
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text])) AND (consumed_by IS NULL) AND (consumed_at IS NULL)) OR (r12_proof(client_link_invitations.*) AND ((status)::text = 'consumed'::text) AND ((consumed_by)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND (consumed_at < expires_at)))"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_gym_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_gym_scope((gym_id)::text)",
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_reader_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_recipient(client_plan_publications.*)",
+            "false"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_recipient(client_plan_publications.*))",
+            null
+          ],
+          [
+            "client_progress",
+            "tenant_isolation_client_progress",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "clientes",
+            "tenant_isolation_clientes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_task_events",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_tasks",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "generation_reservations",
+            "tenant_isolation_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_branding",
+            "tenant_isolation_gym_branding",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_generation_reservations",
+            "tenant_isolation_gym_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_licenses",
+            "tenant_isolation_gym_licenses",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_profiles",
+            "tenant_isolation_gym_profiles",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_settings",
+            "tenant_isolation_gym_settings",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "invoices",
+            "tenant_isolation_invoices",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "license_activations",
+            "tenant_isolation_license_activations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "mfa_credentials",
+            "mfa_actor_mfa_credentials",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "mfa_recovery_codes",
+            "mfa_actor_mfa_recovery_codes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "notification_attempts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_billing_facts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_outbox",
+            "r36_exclude_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "((exclude_protocol = 1) AND ((exclude_purpose)::text = 'notification_exclude'::text) AND (exclude_hash IS NOT NULL) AND ((exclude_hash)::text = NULLIF(current_setting('app.notification_exclude_digest'::text, true), ''::text)) AND (exclude_expires_at > (clock_timestamp() AT TIME ZONE 'UTC'::text)))",
+            null
+          ],
+          [
+            "notification_outbox",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_preferences",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "payments",
+            "tenant_isolation_payments",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "personal_diary_days",
+            "tenant_isolation_personal_diary_days",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_generados",
+            "tenant_isolation_planes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_suscripcion",
+            "tenant_isolation_planes_suscripcion",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY (ARRAY[('origin_declared'::character varying)::text, ('plan_assignment_published'::character varying)::text])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ],
+          [
+            "progress_consents",
+            "r25_consent_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((((event)::text = 'grant'::text) AND r25_personal((user_id)::text)) OR (((event)::text = 'withdraw'::text) AND r25_account((user_id)::text))))"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            "false"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            null
+          ],
+          [
+            "stored_objects",
+            "tenant_isolation_stored_objects",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "stripe_customers",
+            "tenant_isolation_stripe_customers",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "subscriptions",
+            "tenant_isolation_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "user_subscriptions",
+            "tenant_isolation_user_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ]
+        ],
+        "set_tenant": [
+          [
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "BEGIN PERFORM set_config('app.current_tenant', tenant_id, TRUE); END;",
+            "plpgsql"
+          ]
+        ],
+        "tables": [
+          [
+            "audit_log",
+            true,
+            true
+          ],
+          [
+            "auth_audit_log",
+            false,
+            false
+          ],
+          [
+            "auth_external_identities",
+            false,
+            false
+          ],
+          [
+            "checkout_sessions",
+            true,
+            true
+          ],
+          [
+            "client_account_links",
+            true,
+            true
+          ],
+          [
+            "client_link_invitations",
+            true,
+            true
+          ],
+          [
+            "client_plan_publications",
+            true,
+            true
+          ],
+          [
+            "client_progress",
+            true,
+            true
+          ],
+          [
+            "clientes",
+            true,
+            true
+          ],
+          [
+            "followup_task_events",
+            true,
+            true
+          ],
+          [
+            "followup_tasks",
+            true,
+            true
+          ],
+          [
+            "generation_reservations",
+            true,
+            true
+          ],
+          [
+            "google_link_intents",
+            false,
+            false
+          ],
+          [
+            "gym_branding",
+            true,
+            true
+          ],
+          [
+            "gym_generation_reservations",
+            true,
+            true
+          ],
+          [
+            "gym_licenses",
+            true,
+            true
+          ],
+          [
+            "gym_profiles",
+            true,
+            true
+          ],
+          [
+            "gym_settings",
+            true,
+            true
+          ],
+          [
+            "invoices",
+            true,
+            true
+          ],
+          [
+            "license_activations",
+            true,
+            true
+          ],
+          [
+            "mfa_authorizations",
+            false,
+            false
+          ],
+          [
+            "mfa_credentials",
+            true,
+            true
+          ],
+          [
+            "mfa_recovery_codes",
+            true,
+            true
+          ],
+          [
+            "notification_attempts",
+            true,
+            true
+          ],
+          [
+            "notification_billing_facts",
+            true,
+            true
+          ],
+          [
+            "notification_outbox",
+            true,
+            true
+          ],
+          [
+            "notification_preferences",
+            true,
+            true
+          ],
+          [
+            "payments",
+            true,
+            true
+          ],
+          [
+            "personal_diary_days",
+            true,
+            true
+          ],
+          [
+            "planes_generados",
+            true,
+            true
+          ],
+          [
+            "planes_suscripcion",
+            true,
+            true
+          ],
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ],
+          [
+            "progress_consents",
+            true,
+            true
+          ],
+          [
+            "provider_subject_associations",
+            false,
+            false
+          ],
+          [
+            "purchase_intents",
+            false,
+            false
+          ],
+          [
+            "refresh_tokens",
+            false,
+            false
+          ],
+          [
+            "stored_objects",
+            true,
+            true
+          ],
+          [
+            "stripe_customers",
+            true,
+            true
+          ],
+          [
+            "stripe_webhook_events",
+            false,
+            false
+          ],
+          [
+            "subscriptions",
+            true,
+            true
+          ],
+          [
+            "user_subscriptions",
+            true,
+            true
+          ],
+          [
+            "usuarios",
+            false,
+            false
+          ]
+        ]
+      },
+      "differences": [
+        {
+          "actual": "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY (ARRAY[('origin_declared'::character varying)::text, ('plan_assignment_published'::character varying)::text])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+          "expected": "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+          "path": "/policies/36/5"
+        }
+      ],
+      "expected": {
+        "dialect": "postgresql",
+        "policies": [
+          [
+            "audit_log",
+            "tenant_isolation_audit_log",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "checkout_sessions",
+            "tenant_isolation_checkout_sessions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (user_id IS NULL))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            null
+          ],
+          [
+            "client_account_links",
+            "r12_link_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text]))) OR (((status)::text = 'active'::text) AND r12_consumed_proof(client_account_links.*)) OR (((status)::text = 'revoked'::text) AND ((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (consumed_by IS NULL) AND (consumed_at IS NULL))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            null
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text])) AND (consumed_by IS NULL) AND (consumed_at IS NULL)) OR (r12_proof(client_link_invitations.*) AND ((status)::text = 'consumed'::text) AND ((consumed_by)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND (consumed_at < expires_at)))"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_gym_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_gym_scope((gym_id)::text)",
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_reader_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_recipient(client_plan_publications.*)",
+            "false"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_recipient(client_plan_publications.*))",
+            null
+          ],
+          [
+            "client_progress",
+            "tenant_isolation_client_progress",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "clientes",
+            "tenant_isolation_clientes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_task_events",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_tasks",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "generation_reservations",
+            "tenant_isolation_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_branding",
+            "tenant_isolation_gym_branding",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_generation_reservations",
+            "tenant_isolation_gym_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_licenses",
+            "tenant_isolation_gym_licenses",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_profiles",
+            "tenant_isolation_gym_profiles",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_settings",
+            "tenant_isolation_gym_settings",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "invoices",
+            "tenant_isolation_invoices",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "license_activations",
+            "tenant_isolation_license_activations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "mfa_credentials",
+            "mfa_actor_mfa_credentials",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "mfa_recovery_codes",
+            "mfa_actor_mfa_recovery_codes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "notification_attempts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_billing_facts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_outbox",
+            "r36_exclude_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "((exclude_protocol = 1) AND ((exclude_purpose)::text = 'notification_exclude'::text) AND (exclude_hash IS NOT NULL) AND ((exclude_hash)::text = NULLIF(current_setting('app.notification_exclude_digest'::text, true), ''::text)) AND (exclude_expires_at > (clock_timestamp() AT TIME ZONE 'UTC'::text)))",
+            null
+          ],
+          [
+            "notification_outbox",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_preferences",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "payments",
+            "tenant_isolation_payments",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "personal_diary_days",
+            "tenant_isolation_personal_diary_days",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_generados",
+            "tenant_isolation_planes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_suscripcion",
+            "tenant_isolation_planes_suscripcion",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ],
+          [
+            "progress_consents",
+            "r25_consent_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((((event)::text = 'grant'::text) AND r25_personal((user_id)::text)) OR (((event)::text = 'withdraw'::text) AND r25_account((user_id)::text))))"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            "false"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            null
+          ],
+          [
+            "stored_objects",
+            "tenant_isolation_stored_objects",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "stripe_customers",
+            "tenant_isolation_stripe_customers",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "subscriptions",
+            "tenant_isolation_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "user_subscriptions",
+            "tenant_isolation_user_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ]
+        ],
+        "set_tenant": [
+          [
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "BEGIN PERFORM set_config('app.current_tenant', tenant_id, TRUE); END;",
+            "plpgsql"
+          ]
+        ],
+        "tables": [
+          [
+            "audit_log",
+            true,
+            true
+          ],
+          [
+            "auth_audit_log",
+            false,
+            false
+          ],
+          [
+            "auth_external_identities",
+            false,
+            false
+          ],
+          [
+            "checkout_sessions",
+            true,
+            true
+          ],
+          [
+            "client_account_links",
+            true,
+            true
+          ],
+          [
+            "client_link_invitations",
+            true,
+            true
+          ],
+          [
+            "client_plan_publications",
+            true,
+            true
+          ],
+          [
+            "client_progress",
+            true,
+            true
+          ],
+          [
+            "clientes",
+            true,
+            true
+          ],
+          [
+            "followup_task_events",
+            true,
+            true
+          ],
+          [
+            "followup_tasks",
+            true,
+            true
+          ],
+          [
+            "generation_reservations",
+            true,
+            true
+          ],
+          [
+            "google_link_intents",
+            false,
+            false
+          ],
+          [
+            "gym_branding",
+            true,
+            true
+          ],
+          [
+            "gym_generation_reservations",
+            true,
+            true
+          ],
+          [
+            "gym_licenses",
+            true,
+            true
+          ],
+          [
+            "gym_profiles",
+            true,
+            true
+          ],
+          [
+            "gym_settings",
+            true,
+            true
+          ],
+          [
+            "invoices",
+            true,
+            true
+          ],
+          [
+            "license_activations",
+            true,
+            true
+          ],
+          [
+            "mfa_authorizations",
+            false,
+            false
+          ],
+          [
+            "mfa_credentials",
+            true,
+            true
+          ],
+          [
+            "mfa_recovery_codes",
+            true,
+            true
+          ],
+          [
+            "notification_attempts",
+            true,
+            true
+          ],
+          [
+            "notification_billing_facts",
+            true,
+            true
+          ],
+          [
+            "notification_outbox",
+            true,
+            true
+          ],
+          [
+            "notification_preferences",
+            true,
+            true
+          ],
+          [
+            "payments",
+            true,
+            true
+          ],
+          [
+            "personal_diary_days",
+            true,
+            true
+          ],
+          [
+            "planes_generados",
+            true,
+            true
+          ],
+          [
+            "planes_suscripcion",
+            true,
+            true
+          ],
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ],
+          [
+            "progress_consents",
+            true,
+            true
+          ],
+          [
+            "provider_subject_associations",
+            false,
+            false
+          ],
+          [
+            "purchase_intents",
+            false,
+            false
+          ],
+          [
+            "refresh_tokens",
+            false,
+            false
+          ],
+          [
+            "stored_objects",
+            true,
+            true
+          ],
+          [
+            "stripe_customers",
+            true,
+            true
+          ],
+          [
+            "stripe_webhook_events",
+            false,
+            false
+          ],
+          [
+            "subscriptions",
+            true,
+            true
+          ],
+          [
+            "user_subscriptions",
+            true,
+            true
+          ],
+          [
+            "usuarios",
+            false,
+            false
+          ]
+        ]
+      },
+      "name": "tenant",
+      "path": "/policies/36/5",
+      "source_actual": {
+        "dialect": "postgresql",
+        "policies": [
+          [
+            "audit_log",
+            "tenant_isolation_audit_log",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "checkout_sessions",
+            "tenant_isolation_checkout_sessions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (user_id IS NULL))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            null
+          ],
+          [
+            "client_account_links",
+            "r12_link_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text]))) OR (((status)::text = 'active'::text) AND r12_consumed_proof(client_account_links.*)) OR (((status)::text = 'revoked'::text) AND ((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (consumed_by IS NULL) AND (consumed_at IS NULL))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            null
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text])) AND (consumed_by IS NULL) AND (consumed_at IS NULL)) OR (r12_proof(client_link_invitations.*) AND ((status)::text = 'consumed'::text) AND ((consumed_by)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND (consumed_at < expires_at)))"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_gym_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_gym_scope((gym_id)::text)",
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_reader_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_recipient(client_plan_publications.*)",
+            "false"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_recipient(client_plan_publications.*))",
+            null
+          ],
+          [
+            "client_progress",
+            "tenant_isolation_client_progress",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "clientes",
+            "tenant_isolation_clientes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_task_events",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_tasks",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "generation_reservations",
+            "tenant_isolation_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_branding",
+            "tenant_isolation_gym_branding",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_generation_reservations",
+            "tenant_isolation_gym_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_licenses",
+            "tenant_isolation_gym_licenses",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_profiles",
+            "tenant_isolation_gym_profiles",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_settings",
+            "tenant_isolation_gym_settings",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "invoices",
+            "tenant_isolation_invoices",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "license_activations",
+            "tenant_isolation_license_activations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "mfa_credentials",
+            "mfa_actor_mfa_credentials",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "mfa_recovery_codes",
+            "mfa_actor_mfa_recovery_codes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "notification_attempts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_billing_facts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_outbox",
+            "r36_exclude_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "((exclude_protocol = 1) AND ((exclude_purpose)::text = 'notification_exclude'::text) AND (exclude_hash IS NOT NULL) AND ((exclude_hash)::text = NULLIF(current_setting('app.notification_exclude_digest'::text, true), ''::text)) AND (exclude_expires_at > (clock_timestamp() AT TIME ZONE 'UTC'::text)))",
+            null
+          ],
+          [
+            "notification_outbox",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_preferences",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "payments",
+            "tenant_isolation_payments",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "personal_diary_days",
+            "tenant_isolation_personal_diary_days",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_generados",
+            "tenant_isolation_planes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_suscripcion",
+            "tenant_isolation_planes_suscripcion",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ],
+          [
+            "progress_consents",
+            "r25_consent_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((((event)::text = 'grant'::text) AND r25_personal((user_id)::text)) OR (((event)::text = 'withdraw'::text) AND r25_account((user_id)::text))))"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            "false"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            null
+          ],
+          [
+            "stored_objects",
+            "tenant_isolation_stored_objects",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "stripe_customers",
+            "tenant_isolation_stripe_customers",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "subscriptions",
+            "tenant_isolation_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "user_subscriptions",
+            "tenant_isolation_user_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ]
+        ],
+        "set_tenant": [
+          [
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "BEGIN PERFORM set_config('app.current_tenant', tenant_id, TRUE); END;",
+            "plpgsql"
+          ]
+        ],
+        "tables": [
+          [
+            "audit_log",
+            true,
+            true
+          ],
+          [
+            "auth_audit_log",
+            false,
+            false
+          ],
+          [
+            "auth_external_identities",
+            false,
+            false
+          ],
+          [
+            "checkout_sessions",
+            true,
+            true
+          ],
+          [
+            "client_account_links",
+            true,
+            true
+          ],
+          [
+            "client_link_invitations",
+            true,
+            true
+          ],
+          [
+            "client_plan_publications",
+            true,
+            true
+          ],
+          [
+            "client_progress",
+            true,
+            true
+          ],
+          [
+            "clientes",
+            true,
+            true
+          ],
+          [
+            "followup_task_events",
+            true,
+            true
+          ],
+          [
+            "followup_tasks",
+            true,
+            true
+          ],
+          [
+            "generation_reservations",
+            true,
+            true
+          ],
+          [
+            "google_link_intents",
+            false,
+            false
+          ],
+          [
+            "gym_branding",
+            true,
+            true
+          ],
+          [
+            "gym_generation_reservations",
+            true,
+            true
+          ],
+          [
+            "gym_licenses",
+            true,
+            true
+          ],
+          [
+            "gym_profiles",
+            true,
+            true
+          ],
+          [
+            "gym_settings",
+            true,
+            true
+          ],
+          [
+            "invoices",
+            true,
+            true
+          ],
+          [
+            "license_activations",
+            true,
+            true
+          ],
+          [
+            "mfa_authorizations",
+            false,
+            false
+          ],
+          [
+            "mfa_credentials",
+            true,
+            true
+          ],
+          [
+            "mfa_recovery_codes",
+            true,
+            true
+          ],
+          [
+            "notification_attempts",
+            true,
+            true
+          ],
+          [
+            "notification_billing_facts",
+            true,
+            true
+          ],
+          [
+            "notification_outbox",
+            true,
+            true
+          ],
+          [
+            "notification_preferences",
+            true,
+            true
+          ],
+          [
+            "payments",
+            true,
+            true
+          ],
+          [
+            "personal_diary_days",
+            true,
+            true
+          ],
+          [
+            "planes_generados",
+            true,
+            true
+          ],
+          [
+            "planes_suscripcion",
+            true,
+            true
+          ],
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ],
+          [
+            "progress_consents",
+            true,
+            true
+          ],
+          [
+            "provider_subject_associations",
+            false,
+            false
+          ],
+          [
+            "purchase_intents",
+            false,
+            false
+          ],
+          [
+            "refresh_tokens",
+            false,
+            false
+          ],
+          [
+            "stored_objects",
+            true,
+            true
+          ],
+          [
+            "stripe_customers",
+            true,
+            true
+          ],
+          [
+            "stripe_webhook_events",
+            false,
+            false
+          ],
+          [
+            "subscriptions",
+            true,
+            true
+          ],
+          [
+            "user_subscriptions",
+            true,
+            true
+          ],
+          [
+            "usuarios",
+            false,
+            false
+          ]
+        ]
+      },
+      "source_expected": {
+        "dialect": "postgresql",
+        "policies": [
+          [
+            "audit_log",
+            "tenant_isolation_audit_log",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "checkout_sessions",
+            "tenant_isolation_checkout_sessions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (user_id IS NULL))"
+          ],
+          [
+            "client_account_links",
+            "r12_link_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            null
+          ],
+          [
+            "client_account_links",
+            "r12_link_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR (((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()) OR r12_pending_proof(client_account_links.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text]))) OR (((status)::text = 'active'::text) AND r12_consumed_proof(client_account_links.*)) OR (((status)::text = 'revoked'::text) AND ((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid()))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(r12_gym_scope((gym_id)::text) AND ((status)::text = 'pending'::text) AND (consumed_by IS NULL) AND (consumed_at IS NULL))"
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            null
+          ],
+          [
+            "client_link_invitations",
+            "r12_invitation_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(r12_gym_scope((gym_id)::text) OR r12_proof(client_link_invitations.*))",
+            "((r12_gym_scope((gym_id)::text) AND ((status)::text = ANY (ARRAY['pending'::text, 'revoked'::text])) AND (consumed_by IS NULL) AND (consumed_at IS NULL)) OR (r12_proof(client_link_invitations.*) AND ((status)::text = 'consumed'::text) AND ((consumed_by)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND (consumed_at < expires_at)))"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_gym_update",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_gym_scope((gym_id)::text)",
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "r12_gym_scope((gym_id)::text)"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_reader_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "r12_recipient(client_plan_publications.*)",
+            "false"
+          ],
+          [
+            "client_plan_publications",
+            "r12_publication_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(r12_gym_scope((gym_id)::text) OR r12_recipient(client_plan_publications.*))",
+            null
+          ],
+          [
+            "client_progress",
+            "tenant_isolation_client_progress",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "clientes",
+            "tenant_isolation_clientes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_task_events",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "followup_tasks",
+            "r34_tenant",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "generation_reservations",
+            "tenant_isolation_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_branding",
+            "tenant_isolation_gym_branding",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_generation_reservations",
+            "tenant_isolation_gym_generation_reservations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_licenses",
+            "tenant_isolation_gym_licenses",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_profiles",
+            "tenant_isolation_gym_profiles",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "gym_settings",
+            "tenant_isolation_gym_settings",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "invoices",
+            "tenant_isolation_invoices",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "license_activations",
+            "tenant_isolation_license_activations",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "mfa_credentials",
+            "mfa_actor_mfa_credentials",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "mfa_recovery_codes",
+            "mfa_actor_mfa_recovery_codes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.mfa_actor'::text, true), ''::text))"
+          ],
+          [
+            "notification_attempts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_billing_facts",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_outbox",
+            "r36_exclude_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "((exclude_protocol = 1) AND ((exclude_purpose)::text = 'notification_exclude'::text) AND (exclude_hash IS NOT NULL) AND ((exclude_hash)::text = NULLIF(current_setting('app.notification_exclude_digest'::text, true), ''::text)) AND (exclude_expires_at > (clock_timestamp() AT TIME ZONE 'UTC'::text)))",
+            null
+          ],
+          [
+            "notification_outbox",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "notification_preferences",
+            "r36_owner",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "payments",
+            "tenant_isolation_payments",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "personal_diary_days",
+            "tenant_isolation_personal_diary_days",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_generados",
+            "tenant_isolation_planes",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "planes_suscripcion",
+            "tenant_isolation_planes_suscripcion",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ],
+          [
+            "progress_consents",
+            "r25_consent_insert",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((((event)::text = 'grant'::text) AND r25_personal((user_id)::text)) OR (((event)::text = 'withdraw'::text) AND r25_account((user_id)::text))))"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_lock",
+            "PERMISSIVE",
+            "{public}",
+            "UPDATE",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            "false"
+          ],
+          [
+            "progress_consents",
+            "r25_consent_select",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR ((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)))",
+            null
+          ],
+          [
+            "stored_objects",
+            "tenant_isolation_stored_objects",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "stripe_customers",
+            "tenant_isolation_stripe_customers",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "subscriptions",
+            "tenant_isolation_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((gym_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ],
+          [
+            "user_subscriptions",
+            "tenant_isolation_user_subscriptions",
+            "PERMISSIVE",
+            "{public}",
+            "ALL",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))",
+            "((user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text))"
+          ]
+        ],
+        "set_tenant": [
+          [
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "BEGIN PERFORM set_config('app.current_tenant', tenant_id, TRUE); END;",
+            "plpgsql"
+          ]
+        ],
+        "tables": [
+          [
+            "audit_log",
+            true,
+            true
+          ],
+          [
+            "auth_audit_log",
+            false,
+            false
+          ],
+          [
+            "auth_external_identities",
+            false,
+            false
+          ],
+          [
+            "checkout_sessions",
+            true,
+            true
+          ],
+          [
+            "client_account_links",
+            true,
+            true
+          ],
+          [
+            "client_link_invitations",
+            true,
+            true
+          ],
+          [
+            "client_plan_publications",
+            true,
+            true
+          ],
+          [
+            "client_progress",
+            true,
+            true
+          ],
+          [
+            "clientes",
+            true,
+            true
+          ],
+          [
+            "followup_task_events",
+            true,
+            true
+          ],
+          [
+            "followup_tasks",
+            true,
+            true
+          ],
+          [
+            "generation_reservations",
+            true,
+            true
+          ],
+          [
+            "google_link_intents",
+            false,
+            false
+          ],
+          [
+            "gym_branding",
+            true,
+            true
+          ],
+          [
+            "gym_generation_reservations",
+            true,
+            true
+          ],
+          [
+            "gym_licenses",
+            true,
+            true
+          ],
+          [
+            "gym_profiles",
+            true,
+            true
+          ],
+          [
+            "gym_settings",
+            true,
+            true
+          ],
+          [
+            "invoices",
+            true,
+            true
+          ],
+          [
+            "license_activations",
+            true,
+            true
+          ],
+          [
+            "mfa_authorizations",
+            false,
+            false
+          ],
+          [
+            "mfa_credentials",
+            true,
+            true
+          ],
+          [
+            "mfa_recovery_codes",
+            true,
+            true
+          ],
+          [
+            "notification_attempts",
+            true,
+            true
+          ],
+          [
+            "notification_billing_facts",
+            true,
+            true
+          ],
+          [
+            "notification_outbox",
+            true,
+            true
+          ],
+          [
+            "notification_preferences",
+            true,
+            true
+          ],
+          [
+            "payments",
+            true,
+            true
+          ],
+          [
+            "personal_diary_days",
+            true,
+            true
+          ],
+          [
+            "planes_generados",
+            true,
+            true
+          ],
+          [
+            "planes_suscripcion",
+            true,
+            true
+          ],
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ],
+          [
+            "progress_consents",
+            true,
+            true
+          ],
+          [
+            "provider_subject_associations",
+            false,
+            false
+          ],
+          [
+            "purchase_intents",
+            false,
+            false
+          ],
+          [
+            "refresh_tokens",
+            false,
+            false
+          ],
+          [
+            "stored_objects",
+            true,
+            true
+          ],
+          [
+            "stripe_customers",
+            true,
+            true
+          ],
+          [
+            "stripe_webhook_events",
+            false,
+            false
+          ],
+          [
+            "subscriptions",
+            true,
+            true
+          ],
+          [
+            "user_subscriptions",
+            true,
+            true
+          ],
+          [
+            "usuarios",
+            false,
+            false
+          ]
+        ]
+      },
+      "source_record_sha256": "7b74f77b269320d7090006514d698c83d2242869bc9c09cdd0c310bb66f43a2b",
+      "target_record_sha256": "5e5f2d2b9965959d5779c0ff92fab9816fc4d7123603f9e6c1099258661bd32f"
+    },
+    {
+      "actual": {
+        "dialect": "postgresql",
+        "flags": [
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ]
+        ],
+        "functions": [
+          [
+            "r38_immutable",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product facts are append only'; END ",
+            "plpgsql"
+          ],
+          [
+            "r38_source",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN IF NEW.event_type='origin_declared' THEN PERFORM id FROM public.usuarios WHERE id=NEW.owner_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product owner unavailable'; END IF; IF NEW.context='gym' THEN PERFORM id FROM public.clientes WHERE gym_id=NEW.owner_id AND id_cliente=NEW.client_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product subject unavailable'; END IF; END IF; END IF; IF (EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NEW.owner_id AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL AND ((NEW.context='gym' AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL) OR (NEW.context='personal' AND u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)))) AND ((NEW.event_type='origin_declared' AND NEW.source_id=COALESCE(NEW.client_id,NEW.owner_id) AND NEW.source_version=COALESCE((SELECT max(x.source_version) FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared'),0)+1) OR (NEW.event_type='plan_saved' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.planes_generados p WHERE CAST(p.id AS TEXT)=NEW.source_id AND p.gym_id=NEW.owner_id AND (NEW.context='personal' OR p.id_cliente=NEW.client_id)) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='client_link_accepted' AND EXISTS(SELECT 1 FROM public.client_account_links l WHERE l.id=NEW.source_id AND l.gym_id=NEW.owner_id AND l.client_id=NEW.client_id AND l.status='active' AND l.version=NEW.source_version AND l.accepted_at IS NOT NULL) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='plan_assignment_published' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x JOIN public.client_plan_publications p ON CAST(p.source_plan_id AS TEXT)=x.source_id AND p.gym_id=x.owner_id AND p.client_id=x.client_id WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND p.id=NEW.source_id AND x.event_type='plan_saved' AND x.source_version=1),'unknown')) OR (NEW.event_type='plan_assignment_withdrawn' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='withdrawn') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')) OR (NEW.event_type='assigned_plan_http200' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')))) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product fact source denied'; END IF; NEW.occurred_at=clock_timestamp() AT TIME ZONE 'UTC'; RETURN NEW; END ",
+            "plpgsql"
+          ]
+        ],
+        "policies": [
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY (ARRAY[('origin_declared'::character varying)::text, ('plan_assignment_published'::character varying)::text])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ]
+        ],
+        "triggers": [
+          [
+            "product_analytics_facts",
+            "r38_product_immutable",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_immutable BEFORE DELETE OR UPDATE ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_immutable()"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_product_source",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_source BEFORE INSERT ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_source()"
+          ]
+        ]
+      },
+      "differences": [
+        {
+          "actual": "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY (ARRAY[('origin_declared'::character varying)::text, ('plan_assignment_published'::character varying)::text])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+          "expected": "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+          "path": "/policies/1/5"
+        }
+      ],
+      "expected": {
+        "dialect": "postgresql",
+        "flags": [
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ]
+        ],
+        "functions": [
+          [
+            "r38_immutable",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product facts are append only'; END ",
+            "plpgsql"
+          ],
+          [
+            "r38_source",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN IF NEW.event_type='origin_declared' THEN PERFORM id FROM public.usuarios WHERE id=NEW.owner_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product owner unavailable'; END IF; IF NEW.context='gym' THEN PERFORM id FROM public.clientes WHERE gym_id=NEW.owner_id AND id_cliente=NEW.client_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product subject unavailable'; END IF; END IF; END IF; IF (EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NEW.owner_id AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL AND ((NEW.context='gym' AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL) OR (NEW.context='personal' AND u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)))) AND ((NEW.event_type='origin_declared' AND NEW.source_id=COALESCE(NEW.client_id,NEW.owner_id) AND NEW.source_version=COALESCE((SELECT max(x.source_version) FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared'),0)+1) OR (NEW.event_type='plan_saved' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.planes_generados p WHERE CAST(p.id AS TEXT)=NEW.source_id AND p.gym_id=NEW.owner_id AND (NEW.context='personal' OR p.id_cliente=NEW.client_id)) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='client_link_accepted' AND EXISTS(SELECT 1 FROM public.client_account_links l WHERE l.id=NEW.source_id AND l.gym_id=NEW.owner_id AND l.client_id=NEW.client_id AND l.status='active' AND l.version=NEW.source_version AND l.accepted_at IS NOT NULL) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='plan_assignment_published' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x JOIN public.client_plan_publications p ON CAST(p.source_plan_id AS TEXT)=x.source_id AND p.gym_id=x.owner_id AND p.client_id=x.client_id WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND p.id=NEW.source_id AND x.event_type='plan_saved' AND x.source_version=1),'unknown')) OR (NEW.event_type='plan_assignment_withdrawn' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='withdrawn') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')) OR (NEW.event_type='assigned_plan_http200' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')))) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product fact source denied'; END IF; NEW.occurred_at=clock_timestamp() AT TIME ZONE 'UTC'; RETURN NEW; END ",
+            "plpgsql"
+          ]
+        ],
+        "policies": [
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ]
+        ],
+        "triggers": [
+          [
+            "product_analytics_facts",
+            "r38_product_immutable",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_immutable BEFORE DELETE OR UPDATE ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_immutable()"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_product_source",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_source BEFORE INSERT ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_source()"
+          ]
+        ]
+      },
+      "name": "product",
+      "path": "/policies/1/5",
+      "source_actual": {
+        "dialect": "postgresql",
+        "flags": [
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ]
+        ],
+        "functions": [
+          [
+            "r38_immutable",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product facts are append only'; END ",
+            "plpgsql"
+          ],
+          [
+            "r38_source",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN IF NEW.event_type='origin_declared' THEN PERFORM id FROM public.usuarios WHERE id=NEW.owner_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product owner unavailable'; END IF; IF NEW.context='gym' THEN PERFORM id FROM public.clientes WHERE gym_id=NEW.owner_id AND id_cliente=NEW.client_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product subject unavailable'; END IF; END IF; END IF; IF (EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NEW.owner_id AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL AND ((NEW.context='gym' AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL) OR (NEW.context='personal' AND u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)))) AND ((NEW.event_type='origin_declared' AND NEW.source_id=COALESCE(NEW.client_id,NEW.owner_id) AND NEW.source_version=COALESCE((SELECT max(x.source_version) FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared'),0)+1) OR (NEW.event_type='plan_saved' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.planes_generados p WHERE CAST(p.id AS TEXT)=NEW.source_id AND p.gym_id=NEW.owner_id AND (NEW.context='personal' OR p.id_cliente=NEW.client_id)) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='client_link_accepted' AND EXISTS(SELECT 1 FROM public.client_account_links l WHERE l.id=NEW.source_id AND l.gym_id=NEW.owner_id AND l.client_id=NEW.client_id AND l.status='active' AND l.version=NEW.source_version AND l.accepted_at IS NOT NULL) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='plan_assignment_published' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x JOIN public.client_plan_publications p ON CAST(p.source_plan_id AS TEXT)=x.source_id AND p.gym_id=x.owner_id AND p.client_id=x.client_id WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND p.id=NEW.source_id AND x.event_type='plan_saved' AND x.source_version=1),'unknown')) OR (NEW.event_type='plan_assignment_withdrawn' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='withdrawn') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')) OR (NEW.event_type='assigned_plan_http200' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')))) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product fact source denied'; END IF; NEW.occurred_at=clock_timestamp() AT TIME ZONE 'UTC'; RETURN NEW; END ",
+            "plpgsql"
+          ]
+        ],
+        "policies": [
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ]
+        ],
+        "triggers": [
+          [
+            "product_analytics_facts",
+            "r38_product_immutable",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_immutable BEFORE DELETE OR UPDATE ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_immutable()"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_product_source",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_source BEFORE INSERT ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_source()"
+          ]
+        ]
+      },
+      "source_expected": {
+        "dialect": "postgresql",
+        "flags": [
+          [
+            "product_analytics_facts",
+            true,
+            true
+          ]
+        ],
+        "functions": [
+          [
+            "r38_immutable",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product facts are append only'; END ",
+            "plpgsql"
+          ],
+          [
+            "r38_source",
+            "",
+            "trigger",
+            false,
+            [
+              "search_path=pg_catalog"
+            ],
+            "v",
+            "u",
+            null,
+            " BEGIN IF NEW.event_type='origin_declared' THEN PERFORM id FROM public.usuarios WHERE id=NEW.owner_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product owner unavailable'; END IF; IF NEW.context='gym' THEN PERFORM id FROM public.clientes WHERE gym_id=NEW.owner_id AND id_cliente=NEW.client_id FOR UPDATE; IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product subject unavailable'; END IF; END IF; END IF; IF (EXISTS(SELECT 1 FROM public.usuarios u WHERE u.id=NEW.owner_id AND u.activo AND u.deleted_at IS NULL AND u.invitation_token IS NULL AND ((NEW.context='gym' AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL) OR (NEW.context='personal' AND u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL)))) AND ((NEW.event_type='origin_declared' AND NEW.source_id=COALESCE(NEW.client_id,NEW.owner_id) AND NEW.source_version=COALESCE((SELECT max(x.source_version) FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared'),0)+1) OR (NEW.event_type='plan_saved' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.planes_generados p WHERE CAST(p.id AS TEXT)=NEW.source_id AND p.gym_id=NEW.owner_id AND (NEW.context='personal' OR p.id_cliente=NEW.client_id)) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='client_link_accepted' AND EXISTS(SELECT 1 FROM public.client_account_links l WHERE l.id=NEW.source_id AND l.gym_id=NEW.owner_id AND l.client_id=NEW.client_id AND l.status='active' AND l.version=NEW.source_version AND l.accepted_at IS NOT NULL) AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')) OR (NEW.event_type='plan_assignment_published' AND NEW.source_version=1 AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x JOIN public.client_plan_publications p ON CAST(p.source_plan_id AS TEXT)=x.source_id AND p.gym_id=x.owner_id AND p.client_id=x.client_id WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND p.id=NEW.source_id AND x.event_type='plan_saved' AND x.source_version=1),'unknown')) OR (NEW.event_type='plan_assignment_withdrawn' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='withdrawn') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')) OR (NEW.event_type='assigned_plan_http200' AND EXISTS(SELECT 1 FROM public.client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status='published') AND NEW.origin=COALESCE((SELECT x.origin FROM public.product_analytics_facts x WHERE x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NOT DISTINCT FROM NEW.client_id AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')))) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Product fact source denied'; END IF; NEW.occurred_at=clock_timestamp() AT TIME ZONE 'UTC'; RETURN NEW; END ",
+            "plpgsql"
+          ]
+        ],
+        "policies": [
+          [
+            "product_analytics_facts",
+            "r38_append",
+            "PERMISSIVE",
+            "{public}",
+            "INSERT",
+            null,
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((((event_type)::text = 'client_link_accepted'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.id)::text = (product_analytics_facts.source_id)::text) AND ((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text))))) OR (((event_type)::text = 'assigned_plan_http200'::text) AND (EXISTS ( SELECT 1\n   FROM (client_plan_publications p\n     JOIN client_account_links l ON ((((l.id)::text = (p.link_id)::text) AND ((l.gym_id)::text = (p.gym_id)::text) AND ((l.client_id)::text = (p.client_id)::text))))\n  WHERE (((p.id)::text = (product_analytics_facts.source_id)::text) AND ((p.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((p.client_id)::text = (product_analytics_facts.client_id)::text) AND ((p.status)::text = 'published'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND ((l.status)::text = 'active'::text)))))) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_read",
+            "PERMISSIVE",
+            "{public}",
+            "SELECT",
+            "(((owner_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) OR (((event_type)::text = ANY ((ARRAY['origin_declared'::character varying, 'plan_assignment_published'::character varying])::text[])) AND ((context)::text = 'gym'::text) AND (EXISTS ( SELECT 1\n   FROM client_account_links l\n  WHERE (((l.gym_id)::text = (product_analytics_facts.owner_id)::text) AND ((l.client_id)::text = (product_analytics_facts.client_id)::text) AND ((l.status)::text = 'active'::text) AND ((l.user_id)::text = NULLIF(current_setting('app.current_tenant'::text, true), ''::text)) AND r12_actor_valid())))))",
+            null
+          ]
+        ],
+        "triggers": [
+          [
+            "product_analytics_facts",
+            "r38_product_immutable",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_immutable BEFORE DELETE OR UPDATE ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_immutable()"
+          ],
+          [
+            "product_analytics_facts",
+            "r38_product_source",
+            "O",
+            false,
+            false,
+            "CREATE TRIGGER r38_product_source BEFORE INSERT ON public.product_analytics_facts FOR EACH ROW EXECUTE FUNCTION r38_source()"
+          ]
+        ]
+      },
+      "source_record_sha256": "b5e6ca643c5f70d132911d8fb6e39cbb0920359511d634b7a62bb95214429e35",
+      "target_record_sha256": "e63d7d1bc2f45ec57301e97ec568cd27b19690ca7f8af32d04dc50991e529e7d"
+    }
+  ]
+}

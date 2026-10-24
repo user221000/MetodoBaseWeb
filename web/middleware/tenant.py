@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from web.browser_session import HEADERS, admit, browser_request, is_browser_session_private
 from web.database.tenant_context import current_tenant
 from web.account_security_paths import is_account_security_post
+from web.privacy_paths import is_privacy_post_boundary
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
@@ -50,7 +51,8 @@ class TenantMiddleware(BaseHTTPMiddleware):
         # Browser admission must precede even the optional Bearer lookup. The
         # API and SaaS have different public exclusions; neither may perform
         # authentication I/O for a rejected cookie-transport request.
-        if (browser_request(request) and is_browser_session_private(path)) or is_account_security_post(path):
+        if ((browser_request(request) and is_browser_session_private(path)) or is_account_security_post(path)
+                or is_privacy_post_boundary(path)):
             try:
                 admit(request)
             except HTTPException as error:

@@ -239,6 +239,8 @@ def create_app() -> FastAPI:
     app.include_router(routines.pages_router)
     from web.routes import product_analytics
     app.include_router(product_analytics.router, prefix="/api")
+    from web.routes import product_analytics_v2
+    app.include_router(product_analytics_v2.router, prefix="/api")
     app.include_router(planes_routes.router, prefix="/api")
     app.include_router(licencias_routes.router, prefix="/api")
     app.include_router(pagos_routes.router, prefix="/api")
@@ -257,6 +259,8 @@ def create_app() -> FastAPI:
 
     from web.routes.privacy import router as privacy_router
     app.include_router(privacy_router, prefix="/api")
+    from web.routes.account_privacy import router as account_privacy_router
+    app.include_router(account_privacy_router, prefix="/api")
 
     from web.routes.personal_diary import router as personal_diary_router
     app.include_router(personal_diary_router, prefix="/api")

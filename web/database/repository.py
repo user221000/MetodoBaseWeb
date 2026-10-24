@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, select
 from sqlalchemy.orm import Session
 
 from web.database.models import Cliente, PlanGenerado, Usuario, RefreshToken, GymProfile, PlanSuscripcion
@@ -27,6 +27,7 @@ def listar_clientes(
     filtro_suscripcion: Optional[str] = None,
     limite: int = 100,
     offset: int = 0,
+    data_origin: Optional[str] = None,
 ) -> tuple[list[dict], int]:
     """
     Lista clientes del gym, con búsqueda y filtros opcionales.
@@ -103,8 +104,24 @@ def listar_clientes(
             | (Cliente.id_cliente.ilike(like))
         )
 
+    origin_column = None
+    if data_origin is not None:
+        if data_origin not in ('all', 'unknown', 'demo', 'customer'):
+            raise ValueError('Invalid client data origin filter')
+        from web.database.models import ProductAnalyticsFact
+        origin_column = func.coalesce(select(ProductAnalyticsFact.origin).where(
+            ProductAnalyticsFact.owner_id == Cliente.gym_id,
+            ProductAnalyticsFact.context == 'gym',
+            ProductAnalyticsFact.client_id == Cliente.id_cliente,
+            ProductAnalyticsFact.event_type == 'origin_declared')
+            .order_by(ProductAnalyticsFact.source_version.desc()).limit(1).correlate(Cliente).scalar_subquery(), 'unknown')
+        if data_origin != 'all':
+            q = q.filter(origin_column == data_origin)
     total = q.count()
     q = q.order_by(Cliente.ultimo_plan.desc().nullslast(), Cliente.nombre.asc())
+    if origin_column is not None:
+        rows = q.add_columns(origin_column).offset(offset).limit(limite).all()
+        return [{**_cliente_to_dict(c), 'data_origin': origin} for c, origin in rows], total
     rows = q.offset(offset).limit(limite).all()
 
     return [_cliente_to_dict(c) for c in rows], total
@@ -271,6 +288,8 @@ def registrar_plan(db: Session, gym_id: str, id_cliente: str, plan_data: dict, *
                 synchronize_session=False)
         if linked != 1:
             raise ValueError('Individual reservation is unavailable for this plan')
+    from web.services.product_facts import plan_saved
+    plan_saved(db, p, personal=individual_reservation_id is not None)
     return p.id if return_id else True
 
 

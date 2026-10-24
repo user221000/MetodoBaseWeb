@@ -1,0 +1,11 @@
+{
+  "schema": "product38-pg-exclusive-v1",
+  "revision": "20261023_product_facts",
+  "historical429_53_27_modified": false,
+  "phases": {
+    "migration": {"module": "tests/integration_product38_migrations.py", "UUIDs": 1, "concurrent_UUIDs": 1, "application_pool": 1, "admin_observer_pool": 1, "additional_application_workers": 0, "max_overflow": 0},
+    "core": {"module": "tests/integration_product38_postgres.py", "UUIDs": 1, "concurrent_UUIDs": 1, "application_pool": 1, "admin_observer_pool": 2, "additional_application_workers": 2, "max_overflow": 0},
+    "password-http": {"module": "tests/integration_product38_password_http.py", "UUIDs": 1, "concurrent_UUIDs": 1, "application_pool": 1, "admin_observer_pool": 1, "additional_application_workers": 0, "max_overflow": 0},
+    "restore": {"module": "tests/integration_product38_restore.py", "UUIDs": 2, "concurrent_UUIDs": 1, "application_pool": 1, "admin_observer_pool": 1, "additional_application_workers": 0, "max_overflow": 0}
+  }
+}

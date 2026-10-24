@@ -1,0 +1,175 @@
+{
+  "schema": "current38-new-node-phases-v1",
+  "phases": {
+    "node-product38": {
+      "script": "tests/e2e/product-analytics-v2-review.cjs",
+      "cases": 13,
+      "expected_cases": [
+        "Gym owner can declare only future origin with the observed version",
+        "Gym team admin sees provenance without edit controls",
+        "Gym team nutriologo sees provenance without edit controls",
+        "Gym team viewer sees provenance without edit controls",
+        "Individual provenance is writable while a gym owner in personal context is read-only",
+        "Rejected provenance never exposes editable controls or raw error details",
+        "Metrics render only known aggregate counts and never source IDs or HTML payloads",
+        "Unconfirmed aggregate \"7\" is rejected without guessed metrics",
+        "Unconfirmed aggregate -1 is rejected without guessed metrics",
+        "Unconfirmed aggregate 1.5 is rejected without guessed metrics",
+        "Session change hides provenance and discards a late origin response",
+        "Real Api report and origin use exact guarded relative routes and explicit mutation body",
+        "Real Api suppresses an old report after the account epoch changes"
+      ],
+      "preparation_case_ids_not_requirement_IDs": [
+        "N38-PA-01",
+        "N38-PA-02",
+        "N38-PA-03",
+        "N38-PA-04",
+        "N38-PA-05",
+        "N38-PA-06",
+        "N38-PA-07",
+        "N38-PA-08",
+        "N38-PA-09",
+        "N38-PA-10",
+        "N38-PA-11",
+        "N38-PA-12",
+        "N38-PA-13"
+      ],
+      "input_files": {
+        "tests/e2e/browser_harness31.cjs": {
+          "sha256": "5e67436a274ec0c42a96a7c65107225f9d5b5cde742fd87d5281cba1db620956",
+          "framing": "raw"
+        },
+        "tests/e2e/browser_offline31.cjs": {
+          "sha256": "527ff6bf0fe18c05bc8f92302ad3d9d2d782b3fc0c3460cf145b18639c415f9d",
+          "framing": "raw"
+        },
+        "tests/e2e/browser_session31.cjs": {
+          "sha256": "b94d2ce9647270c02ec58bf607ae0a5a807e328586ffb78d6c14b0431f7a6250",
+          "framing": "raw"
+        },
+        "tests/e2e/product-analytics-v2-review.cjs": {
+          "sha256": "8195c8b9f9eadbde8eef4e5e62b22f9536781218b123a9c163c954444651dc9e",
+          "framing": "raw"
+        },
+        "web/static/js/api.js": {
+          "sha256": "8e39903c3cb2293317b88f1f55174a7031933f7a974983a75331b0d4d229ec0e",
+          "framing": "raw"
+        },
+        "web/static/js/product-analytics-v2.js": {
+          "sha256": "287fc62c5c7810c128361193a46969318cbf9f6fe1fa5984fb02bed7a3fc39c5",
+          "framing": "raw"
+        }
+      },
+      "preloader": "tests/e2e/browser_offline31.cjs"
+    },
+    "node-password38": {
+      "script": "tests/e2e/new-password-minimum-review.cjs",
+      "cases": 25,
+      "expected_cases": [
+        "registration 12 BMP preserves the Unicode point minimum before dispatch",
+        "registration 14 BMP preserves the Unicode point minimum before dispatch",
+        "registration 14 astral preserves the Unicode point minimum before dispatch",
+        "registration 15 BMP preserves the Unicode point minimum before dispatch",
+        "registration 15 astral preserves the Unicode point minimum before dispatch",
+        "invitation 12 BMP preserves the Unicode point minimum before dispatch",
+        "invitation 14 BMP preserves the Unicode point minimum before dispatch",
+        "invitation 14 astral preserves the Unicode point minimum before dispatch",
+        "invitation 15 BMP preserves the Unicode point minimum before dispatch",
+        "invitation 15 astral preserves the Unicode point minimum before dispatch",
+        "recovery 12 BMP preserves the Unicode point minimum before dispatch",
+        "recovery 14 BMP preserves the Unicode point minimum before dispatch",
+        "recovery 14 astral preserves the Unicode point minimum before dispatch",
+        "recovery 15 BMP preserves the Unicode point minimum before dispatch",
+        "recovery 15 astral preserves the Unicode point minimum before dispatch",
+        "account_security 12 BMP preserves the Unicode point minimum before dispatch",
+        "account_security 14 BMP preserves the Unicode point minimum before dispatch",
+        "account_security 14 astral preserves the Unicode point minimum before dispatch",
+        "account_security 15 BMP preserves the Unicode point minimum before dispatch",
+        "account_security 15 astral preserves the Unicode point minimum before dispatch",
+        "Real Api password 12 BMP is checked before I/O without changing a valid15",
+        "Real Api password 14 BMP is checked before I/O without changing a valid15",
+        "Real Api password 14 astral is checked before I/O without changing a valid15",
+        "Real Api password 15 BMP is checked before I/O without changing a valid15",
+        "Real Api password 15 astral is checked before I/O without changing a valid15"
+      ],
+      "preparation_case_ids_not_requirement_IDs": [
+        "N38-PW-01",
+        "N38-PW-02",
+        "N38-PW-03",
+        "N38-PW-04",
+        "N38-PW-05",
+        "N38-PW-06",
+        "N38-PW-07",
+        "N38-PW-08",
+        "N38-PW-09",
+        "N38-PW-10",
+        "N38-PW-11",
+        "N38-PW-12",
+        "N38-PW-13",
+        "N38-PW-14",
+        "N38-PW-15",
+        "N38-PW-16",
+        "N38-PW-17",
+        "N38-PW-18",
+        "N38-PW-19",
+        "N38-PW-20",
+        "N38-PW-21",
+        "N38-PW-22",
+        "N38-PW-23",
+        "N38-PW-24",
+        "N38-PW-25"
+      ],
+      "input_files": {
+        "tests/e2e/account_security37_transport.cjs": {
+          "sha256": "7e9fd4998a0abe9534da96c070c33d70c28870dd05f59d1bc80901835bb80cbb",
+          "framing": "raw"
+        },
+        "tests/e2e/browser_harness31.cjs": {
+          "sha256": "5e67436a274ec0c42a96a7c65107225f9d5b5cde742fd87d5281cba1db620956",
+          "framing": "raw"
+        },
+        "tests/e2e/browser_offline31.cjs": {
+          "sha256": "527ff6bf0fe18c05bc8f92302ad3d9d2d782b3fc0c3460cf145b18639c415f9d",
+          "framing": "raw"
+        },
+        "tests/e2e/browser_session31.cjs": {
+          "sha256": "b94d2ce9647270c02ec58bf607ae0a5a807e328586ffb78d6c14b0431f7a6250",
+          "framing": "raw"
+        },
+        "tests/e2e/new-password-minimum-review.cjs": {
+          "sha256": "208241b27b78e5f47a39969b4a799c5dcdce94826b41ea8dba38d20464136eb4",
+          "framing": "raw"
+        },
+        "web/static/js/accept-invite.js": {
+          "sha256": "7b75ff8b10bfcbb1d5fa3237833960fce843e912ca3949c37c639479e7aca84d",
+          "framing": "raw"
+        },
+        "web/static/js/account-recovery.js": {
+          "sha256": "721e0615647fbf4beb379cc1a98992f1d189a43f5c968d5ef156592dec9143ec",
+          "framing": "raw"
+        },
+        "web/static/js/account-security37.js": {
+          "sha256": "6a748bc58dd8de98e4b9d1828013a7969f248dfeeb6f606388dcc729b2ed7098",
+          "framing": "raw"
+        },
+        "web/static/js/api.js": {
+          "sha256": "8e39903c3cb2293317b88f1f55174a7031933f7a974983a75331b0d4d229ec0e",
+          "framing": "raw"
+        },
+        "web/templates/accept_invite.html": {
+          "sha256": "b56be1dee4c6deeee823439305a869ca73b05350880d6a393504c8ef243581a8",
+          "framing": "raw"
+        },
+        "web/templates/account_recovery.html": {
+          "sha256": "d82ddbe27853b4794a72f7f4e6b4093bb1fb3d567ab7d5f562b53df182dd635b",
+          "framing": "raw"
+        },
+        "web/templates/registro.html": {
+          "sha256": "65f20a1478e8f60a6eddabaf4fabc1b9651cc5177cf6bb8bb746fc5ab6f7c519",
+          "framing": "raw"
+        }
+      },
+      "preloader": "tests/e2e/browser_offline31.cjs"
+    }
+  }
+}

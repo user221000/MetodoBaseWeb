@@ -67,6 +67,8 @@
     />
   </div>
   <button class="btn btn-primary" id="btn-buscar">Buscar</button>
+  <label for="client-origin-filter">Procedencia</label>
+  <select id="client-origin-filter"><option value="all">Todas</option><option value="unknown">Sin clasificar</option><option value="demo">Demostración</option><option value="customer">Cliente</option></select>
   <div class="flex items-center gap-3" style="margin-left:auto;">
     <div class="time-tabs" id="filter-objetivo" style="margin-right:8px;">
       <button class="time-tab active" data-obj="">Todos</button>
@@ -545,7 +547,7 @@ async function cargarClientes(q, filtro) {
   tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">⏳</div><p>Cargando tu cartera...</p></div></td></tr>';
 
   try {
-    const res = await Api.clientes.listar(q || '', 300, filtro || '');
+    const res = await Api.clientes.listar(q || '', 300, filtro || '', document.getElementById('client-origin-filter').value);
     _clientes = res.clientes || [];
     document.getElementById('total-clientes').textContent = res.total || 0;
     renderTabla(_clientes);
@@ -591,6 +593,7 @@ function renderTabla(clientes) {
           <div id="av-${esc(c.id_cliente)}"></div>
           <div>
             <p class="font-semibold text-sm">${esc(c.nombre)}</p>
+            <p class="text-xs text-muted">Procedencia: ${esc(({unknown:'Sin clasificar',demo:'Demostración',customer:'Cliente'})[c.data_origin] || 'No consultada')}</p>
             <p class="text-xs text-muted">${esc(c.telefono || '—')}</p>
           </div>
         </div>
@@ -789,6 +792,7 @@ document.getElementById('form-cliente').addEventListener('submit', async (e) => 
 
 // ── Filtro por objetivo ────────────────────────────────────
 let _filtroObjetivo = '';
+document.getElementById('client-origin-filter').addEventListener('change', () => cargarClientes(document.getElementById('search-input').value.trim(), _filtroSuscripcion));
 document.querySelectorAll('#filter-objetivo .time-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#filter-objetivo .time-tab').forEach(b => b.classList.remove('active'));

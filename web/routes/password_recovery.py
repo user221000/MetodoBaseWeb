@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from pydantic import BaseModel,ConfigDict,Field,TypeAdapter,ValidationError,field_validator,model_validator
 
-from web.account_values import normalize_account_email,validate_new_password
+from web.account_values import MIN_NEW_PASSWORD_CHARS,normalize_account_email,validate_new_password
 from web.middleware.rate_limiter import get_client_identifier
 from web.services import password_recovery as service
 from web.services.recovery_dispatcher import RecoveryDispatcher
@@ -67,8 +67,8 @@ class RecoveryRequest(BaseModel):
 class RecoveryConfirm(BaseModel):
     model_config=ConfigDict(extra='forbid')
     token:str=Field(min_length=1,max_length=256)
-    new_password:str=Field(min_length=12,max_length=128)
-    confirm_password:str=Field(min_length=12,max_length=128)
+    new_password:str=Field(min_length=MIN_NEW_PASSWORD_CHARS,max_length=128)
+    confirm_password:str=Field(min_length=MIN_NEW_PASSWORD_CHARS,max_length=128)
 
     @field_validator('new_password','confirm_password')
     @classmethod
@@ -95,7 +95,7 @@ def bounded_body(model):
         try:
             return adapter.validate_json(raw)
         except (ValidationError,ValueError,TypeError):
-            raise HTTPException(422,{'code':'password_reset_invalid_input','message':'Revisa los campos y la contraseña (12 caracteres y hasta 72 bytes UTF-8).'}) from None
+            raise HTTPException(422,{'code':'password_reset_invalid_input','message':'Revisa los campos y la contraseña (15 caracteres y hasta 72 bytes UTF-8).'}) from None
     return parse
 
 

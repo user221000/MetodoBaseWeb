@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from web.account_values import validate_new_password
+from web.account_values import MIN_NEW_PASSWORD_CHARS, validate_new_password
 
 Proof = Annotated[str, Field(pattern=r"^[A-Za-z0-9_-]{43}$")]
 
@@ -18,8 +18,8 @@ class EmailConfirmation(Empty):
 
 class PasswordChange(Empty):
     reauthentication_token: Proof
-    new_password: str = Field(min_length=12, max_length=128)
-    confirm_password: str = Field(min_length=12, max_length=128)
+    new_password: str = Field(min_length=MIN_NEW_PASSWORD_CHARS, max_length=128)
+    confirm_password: str = Field(min_length=MIN_NEW_PASSWORD_CHARS, max_length=128)
     code: str | None = Field(None, pattern=r"^[0-9]{6}$")
     recovery_code: str | None = Field(None, pattern=r"^[A-Za-z0-9_-]{22}$")
 

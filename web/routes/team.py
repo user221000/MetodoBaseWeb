@@ -25,7 +25,7 @@ from web.database.engine import get_db
 from web.database.models import GymProfile, Usuario, UserRole
 from web.services import team_invitation_service as invitations
 from web.services.mfa_business import step_up as _step_up, business_session
-from web.account_values import normalize_account_email, validate_new_password
+from web.account_values import MIN_NEW_PASSWORD_CHARS, normalize_account_email, validate_new_password
 from web.services.permissions import (
     can_manage_user, get_assignable_roles, get_role_display_name,
     has_permission, verify_permission,
@@ -56,7 +56,7 @@ class InvitationAuthRoute(BrowserAuthRoute):
                     if len(item["loc"]) > 1 and item["loc"][0] == "body"
                     and item["loc"][1] in {"token", "password"}})
                 return JSONResponse({"detail": {"code": "invitation_invalid_input",
-                    "message": "Revisa la invitación y usa una contraseña poco común de al menos 12 caracteres y hasta 72 bytes UTF-8.",
+                    "message": "Revisa la invitación y usa una contraseña poco común de al menos 15 caracteres y hasta 72 bytes UTF-8.",
                     "fields": fields}}, status_code=422, headers=HEADERS)
         return handle
 
@@ -133,7 +133,7 @@ class InviteInfoRequest(BaseModel):
 
 
 class AcceptInviteRequest(InviteInfoRequest):
-    password: str = Field(..., min_length=12, max_length=128)
+    password: str = Field(..., min_length=MIN_NEW_PASSWORD_CHARS, max_length=128)
 
     @field_validator("password")
     @classmethod

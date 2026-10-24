@@ -6,7 +6,7 @@ Un gym NUNCA ve los clientes de otro gym.
 """
 import logging
 import os
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
@@ -31,6 +31,7 @@ def listar_clientes(
     filter: Optional[str] = Query(None, description="activos|inactivos|sub-nuevas|sub-activas|sub-inactivas"),
     limite: int = Query(DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
     offset: int = Query(0, ge=0),
+    origen: Optional[Literal['all', 'unknown', 'demo', 'customer']] = Query(None),
     db: Session = Depends(get_db_readonly),
     usuario: dict = Depends(get_usuario_actual),
 ):
@@ -52,6 +53,7 @@ def listar_clientes(
         limite=limite, offset=offset,
         solo_activos=solo_activos,
         filtro_suscripcion=filtro_suscripcion,
+        data_origin=origen,
     )
     return {"clientes": clientes, "total": total, "limit": limite, "offset": offset, "filter": filter}
 

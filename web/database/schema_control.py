@@ -7,6 +7,8 @@ from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
 from sqlalchemy import inspect
 from web.database.alembic.schema_contract_v1 import schema_signature
+from web.database.alembic.schema_contract_v2 import schema_signatures_equal
+from web.database.alembic.policy_contract_v2 import policy_signatures_equal
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_CONTRACTS = {
@@ -27,6 +29,8 @@ SCHEMA_CONTRACTS = {
     "20261020_nutrition_profile": "20261020_nutrition_profile",
     "20261020_notifications": "20261020_notifications",
     "20261020_account_security": "20261020_account_security",
+    "20261023_product_facts": "20261023_product_facts",
+    "20261023_privacy_disposition": "20261023_privacy_disposition",
 }
 
 
@@ -73,11 +77,11 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
                 raise RuntimeError("No frozen schema contract for the requested revision")
             target_path = Path(__file__).parent / "alembic" / "schema_targets" / (SCHEMA_CONTRACTS[required] + "_" + connection.dialect.name + ".json")
             contract = json.loads(target_path.read_text(encoding="utf-8"))
-            if schema_signature(connection) != contract["signature"]:
+            if not schema_signatures_equal(schema_signature(connection), contract["signature"]):
                 raise RuntimeError("Database structure differs from the reviewed application schema")
             if "tenant_security" in contract:
                 from web.database.tenant_policy import tenant_security_signature
-                if tenant_security_signature(connection) != contract["tenant_security"]:
+                if not policy_signatures_equal(tenant_security_signature(connection), contract["tenant_security"]):
                     raise RuntimeError("Database tenant policies differ from the reviewed application boundary")
             if "member_link_security" in contract:
                 from web.database.alembic.member_link_security_v1 import member_link_security_signature
@@ -103,6 +107,14 @@ def verify_runtime_schema(engine, *, require_revision: bool = True, expected_rev
                 from web.database.notification_policy import signature as notification_signature
                 if notification_signature(connection) != contract["notification_security"]:
                     raise RuntimeError("Database notification authority differs from the reviewed contract")
+            if "product_analytics_security" in contract:
+                from web.database.product_analytics_policy_v2 import signature as product_signature
+                if not policy_signatures_equal(product_signature(connection), contract["product_analytics_security"]):
+                    raise RuntimeError("Database product fact authority differs from the reviewed contract")
+            if "privacy_security" in contract:
+                from web.database.privacy_policy_v1 import signature as privacy_signature
+                if privacy_signature(connection) != contract["privacy_security"]:
+                    raise RuntimeError("Database privacy authority differs from the reviewed contract")
             if expected_revision is not None:
                 # Explicit historical migration acceptance uses that revision's
                 # frozen model, not the current application's newer metadata.

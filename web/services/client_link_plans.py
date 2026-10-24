@@ -199,6 +199,8 @@ def publish_plan(db,principal,client_id,link_id,data,*,now=None):
             version(current.publication_version,data.expected_publication_version)
             current.status='withdrawn';current.publication_version+=1;current.withdrawn_at=instant
             db.flush()
+            from web.services.product_facts import assignment_withdrawn
+            assignment_withdrawn(db, current)
         publication=ClientPlanPublication(gym_id=gym,client_id=client_id,link_id=link.id,source_plan_id=source.id,
             schema_version=1,publication_version=1,status='published',published_by=actor.id,published_at=instant,
             plan_json=raw,plan_sha256=hashlib.sha256(raw.encode('utf-8')).hexdigest(),
@@ -215,6 +217,8 @@ def publish_plan(db,principal,client_id,link_id,data,*,now=None):
             'link_version':link.version,'source_plan_id':source.id,'published_at':utc(publication.published_at),
             'download_published_pdf':publication.source_object_id is not None})
         if publication.source_object_id is None:public['pdf_unavailable_reason']='legacy_requires_review'
+        from web.services.product_facts import assignment_published
+        assignment_published(db, publication)
         audit(db,actor,'publish',publication.id)
         commit(db)
         return public
@@ -233,6 +237,8 @@ def withdraw_plan(db,principal,client_id,link_id,publication_id,expected_version
         publication.status='withdrawn';publication.publication_version+=1;publication.withdrawn_at=clock(db,now)
         db.flush()
         public=bounded({'publication_id':publication.id,'status':'withdrawn','version':publication.publication_version})
+        from web.services.product_facts import assignment_withdrawn
+        assignment_withdrawn(db, publication)
         audit(db,actor,'withdraw',publication.id)
         commit(db)
         return public
@@ -259,6 +265,9 @@ def revoke_professional_link(db,principal,client_id,link_id,expected_version,*,n
             version(publication.publication_version,publication.publication_version)
             publication.status='withdrawn';publication.publication_version+=1;publication.withdrawn_at=instant
         db.flush()
+        if publication is not None:
+            from web.services.product_facts import assignment_withdrawn
+            assignment_withdrawn(db, publication)
         public=bounded({'link_id':link.id,'status':'revoked','version':link.version})
         audit(db,actor,'professional_revoke',link.id)
         commit(db)

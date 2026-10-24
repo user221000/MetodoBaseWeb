@@ -48,6 +48,7 @@
     event.preventDefault();if(busy || !valid || Api.getToken())return;
     var password=document.getElementById('invite-password'), confirmation=document.getElementById('invite-confirm');
     if(password.value!==confirmation.value){notify('Las contraseñas no coinciden. Revisa la confirmación.');confirmation.focus();return;}
+    if(Array.from(password.value).length<15 || new TextEncoder().encode(password.value).length>72){notify('Usa al menos 15 caracteres y hasta 72 bytes UTF-8.');password.focus();return;}
     busy=true;submit.disabled=true;
     try{
       var result=await Api.team.accept(token,password.value);

@@ -178,6 +178,8 @@ def accept_invitation(db,principal,data,*,now=None):
         if owned is None:unavailable()
         public=bounded({'link_id':owned.id,'status':owned.status,'version':owned.version,
             'context':{'kind':'gym_member','gym_name':owned.gym_name,'client_display_name':owned.client_display_name}})
+        from web.services.product_facts import link_accepted
+        link_accepted(db, owned)
         audit(db,actor,'accept',owned.id)
         commit(db)
         return public

@@ -199,6 +199,20 @@
   <a href="/mi-perfil" class="u-btn u-btn-primary">Configurar mi plan →</a>
 </div>
 
+<section data-product-origin data-context="personal" class="u-card" hidden>
+  <h2>Procedencia de mis datos</h2>
+  <p>Identifica un espacio de demostración o de cliente. No modifica pagos, derechos ni hechos anteriores.</p>
+  <label for="personal-origin-value">Origen para hechos futuros</label>
+  <select id="personal-origin-value" disabled><option value="unknown">Sin clasificar</option><option value="demo">Demostración</option><option value="customer">Cliente</option></select>
+  <button type="button" class="u-btn u-btn-secondary" hidden>Guardar declaración</button>
+  <p data-origin-status role="status" aria-live="polite"></p>
+</section>
+<section data-product-analytics data-context="personal" class="u-card">
+  <h2>Mis hechos observados</h2><p>Los planes previos a esta medición no se reconstruyen. No se presume adherencia ni retención.</p>
+  <button type="button" class="u-btn u-btn-secondary">Consultar hechos observados</button>
+  <p data-product-report role="status" aria-live="polite">Sin consultar.</p>
+</section>
+
 <!-- ── 5. CONTEXT BAR ─────────────────────────────────────── -->
 <div class="u-context-bar" id="context-bar" style="display:none;">
   <span class="u-context-tag">Plan mostrado</span>
@@ -339,6 +353,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/product-analytics-v2.js?v=r38-1" defer></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/dialog-focus.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-plan-operacion.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-diario.js?v={{ static_version }}"></script>

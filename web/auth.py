@@ -189,10 +189,14 @@ def crear_usuario(
     tipo: str = "usuario",
 ) -> dict:
     """
-    Registra un nuevo usuario.
+    Registra un usuario con la política vigente para contraseñas nuevas.
+
+    Valida puntos de código y bytes UTF-8 antes de abrir la sesión de escritura.
+    No modifica la verificación de hashes de cuentas ya existentes.
 
     Raises:
-        ValueError: si el email ya está registrado o el tipo es inválido.
+        ValueError: si el email, tipo o nueva contraseña son inválidos, o si el
+            email ya está registrado.
     """
     tipos_validos = {"gym", "usuario"}
     if tipo not in tipos_validos:

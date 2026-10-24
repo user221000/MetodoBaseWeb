@@ -1,5 +1,6 @@
 {% extends "base_usuario.html" %}
-{% block title %}Seguridad de mi cuenta{% endblock %}
+{% set privacy_only = request.query_params.get('operacion') == 'privacidad' %}
+{% block title %}{{ 'Privacidad de mi cuenta' if privacy_only else 'Seguridad de mi cuenta' }}{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/account-security37.css?v={{ static_version }}">{% endblock %}
-{% block content %}{% include '_account_security37_content.html' %}{% endblock %}
-{% block scripts %}<script nonce="{{ request.state.csp_nonce }}" src="/static/js/account-security37.js?v={{ static_version }}"></script>{% endblock %}
+{% block content %}{% if not privacy_only %}{% include '_account_security37_content.html' %}{% endif %}{% include '_account_privacy39_content.html' %}{% endblock %}
+{% block scripts %}{% if not privacy_only %}<script nonce="{{ request.state.csp_nonce }}" src="/static/js/account-security37.js?v={{ static_version }}"></script>{% endif %}<script nonce="{{ request.state.csp_nonce }}" src="/static/js/account-privacy39.js?v={{ static_version }}"></script>{% endblock %}
