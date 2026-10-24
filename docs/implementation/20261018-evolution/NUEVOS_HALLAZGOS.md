@@ -1,5 +1,57 @@
 # Hallazgos añadidos durante la implementación
 
+<!-- DOC166-CLOSED61-FOLLOWUP -->
+
+## Seguimiento del checkpoint 166 — SQLite39 final aceptado; restore PG rechazado
+
+SQLite39 final cerró normalmente con 61/61 PASS, cero fallos, errores o skips, sobre Source1557 9b3160df3820c8fd75137b8c5edfe7ccfec5cf2100a6f14fd68005ce57e6a328. Colección y JUnit exactos; fuente, 92 paquetes y binarios quietos, pip0/0. Este resultado no reemplaza los anteriores 52(38PASS/14F), 57(56PASS/1F) y 61(57PASS/4F), preservados con sus fuentes.
+
+Restore PG38/527 superó estructura y falló después en tenant_security. Root comunica ambas UUID cerradas sin sesiones; sólo se lee el resultado cerrado, no logs. Comparador puro56 y SQLite61 no acreditan la restauración de PostgreSQL, seguridad global o integración Main; el diagnóstico de políticas es separado.
+
+Root conserva también el rechazo precopia733f: 2258 SHA/tamaños exactos, diferencias sólo en atime de lectura y ningún root/output/Git creado. Su hijo finito es trabajo independiente de Root;733f queda sellado.
+
+Se mantienen167 filas, los166 criterios y estados anteriores,92IDs originales,66verificados ySEC26 en_revision. R22/R30/R31/R34 son obligatorios;R28/R35 son condicionales conforme sus criterios. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC166-SOURCE-SCOPED-SEC26-IN-REVIEW -->
+
+## Checkpoint 166 — corte documental preparado en E
+
+167 filas: los 166 criterios/estados E165 y92IDs originales se conservan; sólo se añade SEC26 en revisión, con66verificados locales sin cambio. Sus46SQLite/25Node/23PG y14llamadas directas están ligados a fuentes propias.108SQLite/core38PG9/password23 son alcances focales; Node histórico mantiene atribución. Privacy52(38P/14F),57(56P/1F),61(57P/4F),shells8PASS1554,Node48offlinePASS1550 ypure56PASS permanecen separados. PG38restore89867 seguía en curso al mensajeRoot: sin lectura de logs ni aceptación anticipada.
+
+R22/R30/R31/R34 siguen obligatorios; R28/R35 son condicionales conforme sus criterios. Main39/CIglobal/Linux/imagen/Redis/R34/proveedor/piloto/legal14/custodia siguen abiertos. Originales fallidos preservados, no nuevoSEC27 ni cierre por harness. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC165-LOCAL-BACKUP-ACCEPTED-SERIAL-OPEN -->
+
+## Checkpoint165 — respaldo sintético y límites
+
+Kit backup actual96617 aceptado en878,intento7c46/wrapperb828:2UUIDsecuenciales/3procesos independientes,cierresnormales yentornoquieto. R08_global_complete=False permanece literal; no cambia ningún criterio/estado ni valida custodia/retención real. Intento350a(wrapper32e) y fallos previos se preservan. Serial98362 está en curso,sin resultado al corte. PG/Native siguen dc9f y sevenread878 conserva su cierre distinto. [Resumen165](evidence/checkpoint165-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint165-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC164-ACTUAL-SEVENREAD-CLOSED -->
+
+## Checkpoint164 — cierre acotado de sevenread
+
+Sevenread18773 aceptado en878:14ventanas/1400respuestas200/0fallos semánticos/0observermissing;1UUID yserver propios cerrados,entornoquieto. PG509/Native35 siguen dc9f; la relación de fuentes no los relabela ni repite. No cambia ningún estado ni criterio;R05 espera broad y backup sigue sin resultado aceptado. Los rechazos históricos y el intento backup bootstrap fallido se conservan. [Resumen164](evidence/checkpoint164-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint164-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC163-SOURCE-SCOPED-CLOSED-GATES -->
+
+## Checkpoint163 — codec de carga y conservación de rechazos
+
+private_control usaba utf8-sig, nombre no reconocido: LookupError con JSON válido. Root corrigió sólo utf-8-sig;878CRLF y demás bytes intactos. Se preservan originalRED, cuatro controles autor y cuatro Root como fases distintas, sin presentar el parser como carga HTTP. Los rechazos PG509 anteriores y sus created/JUnit no se convierten en PASS por el actual509. No se añade criterio. [Resumen163](evidence/checkpoint163-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint163-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC162-CLOSED-SOURCE-OBSERVATIONS -->
+
+## Checkpoint162 — seguimiento sin criterio nuevo
+
+Se conserva el rechazo de dos intentos PG509 por una sesión observada en teardown, primero migration37 y luego legacy-followup. La inspección y DROP normal posteriores acreditan cierre propio posterior, no causa retrospectiva. Los originales, JUnit y recibos created permanecen intactos.
+
+La barrera común observada/revisada integra ledger por lifetimes y pools originales: QueuePool.dispose puede reiniciar counters y sustituir pools, por lo que un cero posterior aislado no prueba devolución previa. Main13 y PG1 actual pasan;509 actual sigue sin resultado. No se añade ID ni se cambia ningún criterio. [Resumen162](evidence/checkpoint162-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint162-web-continuity-20261023/matrix.md).
+
+
 ## OPS08 — Transición obligatoria de configuración Railway
 
 Detectado el 18 de octubre de 2026 al verificar el contrato real de pre-deploy de R03. La [documentación oficial de Railway](https://docs.railway.com/config-as-code) identifica Config as Code como obsoleto y mantiene `railway.toml`/`railway.json` para servicios que ya lo utilizan hasta el **1 de diciembre de 2026**, con corte definitivo. Los servicios nuevos deben utilizar [Infrastructure as Code](https://docs.railway.com/infrastructure-as-code). Esta condición no estaba en los siete informes originales.

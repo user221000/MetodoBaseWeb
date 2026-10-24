@@ -1,5 +1,57 @@
 # Cambios de comportamiento
 
+<!-- DOC166-CLOSED61-FOLLOWUP -->
+
+## Seguimiento del checkpoint 166 — SQLite39 final aceptado; restore PG rechazado
+
+SQLite39 final cerró normalmente con 61/61 PASS, cero fallos, errores o skips, sobre Source1557 9b3160df3820c8fd75137b8c5edfe7ccfec5cf2100a6f14fd68005ce57e6a328. Colección y JUnit exactos; fuente, 92 paquetes y binarios quietos, pip0/0. Este resultado no reemplaza los anteriores 52(38PASS/14F), 57(56PASS/1F) y 61(57PASS/4F), preservados con sus fuentes.
+
+Restore PG38/527 superó estructura y falló después en tenant_security. Root comunica ambas UUID cerradas sin sesiones; sólo se lee el resultado cerrado, no logs. Comparador puro56 y SQLite61 no acreditan la restauración de PostgreSQL, seguridad global o integración Main; el diagnóstico de políticas es separado.
+
+Root conserva también el rechazo precopia733f: 2258 SHA/tamaños exactos, diferencias sólo en atime de lectura y ningún root/output/Git creado. Su hijo finito es trabajo independiente de Root;733f queda sellado.
+
+Se mantienen167 filas, los166 criterios y estados anteriores,92IDs originales,66verificados ySEC26 en_revision. R22/R30/R31/R34 son obligatorios;R28/R35 son condicionales conforme sus criterios. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC166-SOURCE-SCOPED-SEC26-IN-REVIEW -->
+
+## Checkpoint 166 — corte documental preparado en E
+
+167 filas: los 166 criterios/estados E165 y92IDs originales se conservan; sólo se añade SEC26 en revisión, con66verificados locales sin cambio. Sus46SQLite/25Node/23PG y14llamadas directas están ligados a fuentes propias.108SQLite/core38PG9/password23 son alcances focales; Node histórico mantiene atribución. Privacy52(38P/14F),57(56P/1F),61(57P/4F),shells8PASS1554,Node48offlinePASS1550 ypure56PASS permanecen separados. PG38restore89867 seguía en curso al mensajeRoot: sin lectura de logs ni aceptación anticipada.
+
+R22/R30/R31/R34 siguen obligatorios; R28/R35 son condicionales conforme sus criterios. Main39/CIglobal/Linux/imagen/Redis/R34/proveedor/piloto/legal14/custodia siguen abiertos. Originales fallidos preservados, no nuevoSEC27 ni cierre por harness. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC165-LOCAL-BACKUP-ACCEPTED-SERIAL-OPEN -->
+
+## Checkpoint165 — respaldo sintético y límites
+
+Kit backup actual96617 aceptado en878,intento7c46/wrapperb828:2UUIDsecuenciales/3procesos independientes,cierresnormales yentornoquieto. R08_global_complete=False permanece literal; no cambia ningún criterio/estado ni valida custodia/retención real. Intento350a(wrapper32e) y fallos previos se preservan. Serial98362 está en curso,sin resultado al corte. PG/Native siguen dc9f y sevenread878 conserva su cierre distinto. [Resumen165](evidence/checkpoint165-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint165-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC164-ACTUAL-SEVENREAD-CLOSED -->
+
+## Checkpoint164 — cierre acotado de sevenread
+
+Sevenread18773 aceptado en878:14ventanas/1400respuestas200/0fallos semánticos/0observermissing;1UUID yserver propios cerrados,entornoquieto. PG509/Native35 siguen dc9f; la relación de fuentes no los relabela ni repite. No cambia ningún estado ni criterio;R05 espera broad y backup sigue sin resultado aceptado. Los rechazos históricos y el intento backup bootstrap fallido se conservan. [Resumen164](evidence/checkpoint164-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint164-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC163-SOURCE-SCOPED-CLOSED-GATES -->
+
+## Checkpoint163 — cambio documental acotado
+
+QA-33 pasa a verificado local por el scan completo878; ningún criterio nuevo ni cambio comercial. Se registran los resultados PG509/Native35 de dc9f y el codec de una ruta en878, sin reatribuir esos ensayos. Los fracasos PG anteriores y el fallo pre-SQL de carga se conservan. [Resumen163](evidence/checkpoint163-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint163-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC162-CLOSED-SOURCE-OBSERVATIONS -->
+
+## Checkpoint162 — integración finita, sin cambio de criterios
+
+R05v9 está integrado en a02d y el cierre común en dc9f. El cierre registra pools originales/lifetimes por UUID, rechaza préstamos o sesiones desconocidas y espera sólo salida natural propia bajo generación/OID/owner. No modifica owner603f, no usa FORCE y no cambia los cuerpos de prueba. Se actualizan bindings actuales53/27 y un pin Native, sin retargetear fuentes históricas.
+
+13 focales Main y PG1 físico están aceptados;509 actual permanece en curso. Fullscan54213/0 y62 focales pertenecen a a02d. [Resumen162](evidence/checkpoint162-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint162-web-continuity-20261023/matrix.md).
+
+
 ## Integración de recuperación28 y gates
 
 Recuperación de cuenta c297ea9/33d5980: solicitudes uniformes y acotadas, token opaco de un uso con digest persistido, confirmación transaccional que cambia contraseña/revoca sesiones y cabeceras privadas también en errores de método.202 indica recepción, no entrega; cola local no durable y ningún correo real enviado. Esquema28 conserva26tablas/20familias RLS. Pruebas QA94aa552 conservan restore27 completo y añaden restore28 propio.

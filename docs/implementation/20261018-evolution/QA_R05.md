@@ -1,5 +1,57 @@
 # QA, aislamiento y puertas de integración
 
+<!-- DOC166-CLOSED61-FOLLOWUP -->
+
+## Seguimiento del checkpoint 166 — SQLite39 final aceptado; restore PG rechazado
+
+SQLite39 final cerró normalmente con 61/61 PASS, cero fallos, errores o skips, sobre Source1557 9b3160df3820c8fd75137b8c5edfe7ccfec5cf2100a6f14fd68005ce57e6a328. Colección y JUnit exactos; fuente, 92 paquetes y binarios quietos, pip0/0. Este resultado no reemplaza los anteriores 52(38PASS/14F), 57(56PASS/1F) y 61(57PASS/4F), preservados con sus fuentes.
+
+Restore PG38/527 superó estructura y falló después en tenant_security. Root comunica ambas UUID cerradas sin sesiones; sólo se lee el resultado cerrado, no logs. Comparador puro56 y SQLite61 no acreditan la restauración de PostgreSQL, seguridad global o integración Main; el diagnóstico de políticas es separado.
+
+Root conserva también el rechazo precopia733f: 2258 SHA/tamaños exactos, diferencias sólo en atime de lectura y ningún root/output/Git creado. Su hijo finito es trabajo independiente de Root;733f queda sellado.
+
+Se mantienen167 filas, los166 criterios y estados anteriores,92IDs originales,66verificados ySEC26 en_revision. R22/R30/R31/R34 son obligatorios;R28/R35 son condicionales conforme sus criterios. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC166-SOURCE-SCOPED-SEC26-IN-REVIEW -->
+
+## Checkpoint 166 — corte documental preparado en E
+
+167 filas: los 166 criterios/estados E165 y92IDs originales se conservan; sólo se añade SEC26 en revisión, con66verificados locales sin cambio. Sus46SQLite/25Node/23PG y14llamadas directas están ligados a fuentes propias.108SQLite/core38PG9/password23 son alcances focales; Node histórico mantiene atribución. Privacy52(38P/14F),57(56P/1F),61(57P/4F),shells8PASS1554,Node48offlinePASS1550 ypure56PASS permanecen separados. PG38restore89867 seguía en curso al mensajeRoot: sin lectura de logs ni aceptación anticipada.
+
+R22/R30/R31/R34 siguen obligatorios; R28/R35 son condicionales conforme sus criterios. Main39/CIglobal/Linux/imagen/Redis/R34/proveedor/piloto/legal14/custodia siguen abiertos. Originales fallidos preservados, no nuevoSEC27 ni cierre por harness. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC165-LOCAL-BACKUP-ACCEPTED-SERIAL-OPEN -->
+
+## Checkpoint165 — respaldo sintético y límites
+
+Kit backup actual96617 aceptado en878,intento7c46/wrapperb828:2UUIDsecuenciales/3procesos independientes,cierresnormales yentornoquieto. R08_global_complete=False permanece literal; no cambia ningún criterio/estado ni valida custodia/retención real. Intento350a(wrapper32e) y fallos previos se preservan. Serial98362 está en curso,sin resultado al corte. PG/Native siguen dc9f y sevenread878 conserva su cierre distinto. [Resumen165](evidence/checkpoint165-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint165-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC164-ACTUAL-SEVENREAD-CLOSED -->
+
+## Checkpoint164 — cierre acotado de sevenread
+
+Sevenread18773 aceptado en878:14ventanas/1400respuestas200/0fallos semánticos/0observermissing;1UUID yserver propios cerrados,entornoquieto. PG509/Native35 siguen dc9f; la relación de fuentes no los relabela ni repite. No cambia ningún estado ni criterio;R05 espera broad y backup sigue sin resultado aceptado. Los rechazos históricos y el intento backup bootstrap fallido se conservan. [Resumen164](evidence/checkpoint164-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint164-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC163-SOURCE-SCOPED-CLOSED-GATES -->
+
+## Checkpoint163 — QA-33 verificado local, R05 aún en revisión
+
+Root cierra QA-33 tras el escaneo actual878: cierre0, complete/source_stable,16242files/54213raw=classified/0remaining y615exactos. CierreSHA65745f98894f9785c66b73bca91cfef1fb04792c9948bd615bb006f46a7e3aae, reporteSHAc5fbdf7261812e2b70ab7671b592ab4044370e0f97c45c0cbe7dd39c483de688. Se conservan todos los falsosPASS, negativos de timeout/errores y controles positivos/revisiones previos, sin sumarlos como una campaña homogénea. R05 mantiene estado en_revision por serial/n2/cobertura; PG509 y Native tienen fuentes propias dc9f. [Resumen163](evidence/checkpoint163-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint163-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC162-CLOSED-SOURCE-OBSERVATIONS -->
+
+## Checkpoint162 — R05v9 y cierre PostgreSQL actual
+
+Scan real a02d: 16.240 archivos, 54.213 alertas clasificadas, 0 pendientes y cierre aceptado; reporte SHA a54a4a9f5ac7ed99fe1248cb787e665fdc855293f53df6941f16d6bbeba0cfa1. Focal separado62/62 (35v8+27v9), 186 fases, sin fallos/errores/skips/duplicados y615 untracked quietos. No se afirma escaneo del código posterior.
+
+Main dc9f: 13/13 focales y1/1 PG físico con barrera común; no509. Las tentativas anteriores fallaron teardown y sus receipts/JUnit quedan conservados. El gate actual93251 está en curso. Contrato, adapters y acciones de fallo: [CI_POSTGRES_CIERRE.md](CI_POSTGRES_CIERRE.md). [Resumen162](evidence/checkpoint162-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint162-web-continuity-20261023/matrix.md).
+
+
 Fecha de ejecución: 18 de octubre de 2026, America/Mexico_City. Referencia histórica: [informe QA](../../audit/2026-10-18/qa/INFORME_QA.md). Este registro describe resultados nuevos y no modifica la auditoría.
 
 ## Línea base identificable

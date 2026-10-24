@@ -403,7 +403,8 @@
         "QA del fixCI28:7CLI,764fuentes/89paquetes quietos; referencias y docstring fijados. QA181+6propias/6SQLite/17PG/restore28 y seguridad46+10+10 conservados por fuente.",
         "Gate amplio independiente a753b2c:2360passed/1skip conocido en serial588.64s y n2shuffle20261018/275.43s;2361nodeids/resultados idénticos,0fallos/errores.667fuentes/89paquetes idénticos en4fotos y4pipcheck0; cobertura100%líneas/ramas sólo tres módulos de dominio.",
         "Extensión CI aceptada por QA57dba41:13canarios delta/16inertes,23VM nuevos,30canarios propios,history10/landing8 browser una vez cada uno,4screenscada/0axe-overflow-pageErrors;742fuentes/89paquetes/146deps estables. Históricos21PG/restore28/7fixtures/162VM preservados sinrepetirlos. MAIN52af400 verify-only+13delta verdes,623fuentes/89paquetes quietos,pipcheck0.",
-        "MainV8 actual95/95PASS,0F/E/skip,15.50s;35nuevos(10RED25controles antes→35PASS). OriginalV7literal15 y904registrosZIP intactos; CIhistórico en preparación. Fullscand568RED5 preservado; falta fullscanactualV8."
+        "MainV8 actual95/95PASS,0F/E/skip,15.50s;35nuevos(10RED25controles antes→35PASS). OriginalV7literal15 y904registrosZIP intactos; CIhistórico en preparación. Fullscand568RED5 preservado; falta fullscanactualV8.",
+        "CaracterizaciónHTTP Root18773:14ventanas/1400requests200;observador1400/1400;server y1UUID cerrados normalmente,fuente/paquetes/Node quietos. Report463d/closurea1f3. No altera estados ni sustituye serial/n2/cobertura."
       ],
       "evidencia": [
         "QA_R05.md",
@@ -498,13 +499,22 @@
         "evidence/root-main-r05-v8-completion-unproven-20261021/summary.json",
         "evidence/root-qa33-independent-20261021/summary.json",
         "evidence/security-qa33-producer-replay-independent-20261021/result.json",
-        "evidence/root-r05-portability-independent-20261021/summary.json"
+        "evidence/root-r05-portability-independent-20261021/summary.json",
+        "evidence/checkpoint162-web-continuity-20261023/summary.json",
+        "evidence/checkpoint162-web-continuity-20261023/matrix.json",
+        "evidence/checkpoint163-web-continuity-20261023/summary.json",
+        "evidence/checkpoint163-web-continuity-20261023/matrix.json",
+        "evidence/checkpoint164-web-continuity-20261023/summary.json",
+        "evidence/checkpoint164-web-continuity-20261023/matrix.json",
+        "evidence/checkpoint165-web-continuity-20261023/summary.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json"
       ],
       "documentacion": [
         "ESTADO.md",
         "DECISIONES.md",
         "VALIDACION.md",
-        "QA_R05.md"
+        "QA_R05.md",
+        "CI_POSTGRES_CIERRE.md"
       ],
       "revisor": null,
       "bloqueo": "Fixtures/compañeros actuales integrados; broad serial/n2/cobertura y escáner completo del entregable vigente aún no aceptados.",
@@ -549,7 +559,13 @@
         "Checkpoint154: Fixtures/compañeros actuales integrados; broad serial/n2/cobertura y escáner completo del entregable vigente aún no aceptados. Siguiente acción: Terminar gates actuales; conservar RED históricos y no convertir colección en ejecución.",
         "Checkpoint154:126helpers CI integrados y Desktopjob retirado. Colección5536 preparatoria; serial/n2/cobertura y fullscan completo del candidato final siguen pendientes. HOLD hasta integrar B19/B13/B20; no convertir colección en ejecución.",
         "Checkpoint155:Main7ddb8b25 incorpora14 cambios CI y16proofs deOps. Diecinueve jobs:4cambiados y15literalmenteiguales, Desktopjob ausente. CI actual-image aún33 y se prepara sustitución real57; serial/n2 continúan pendientes hasta cerrar B13/R07 y fijar fuente final.",
-        "Checkpoint157: migración C→E parcial32/4207, copias activas E preparadas;9worktrees y generación/perfilPG E pendientes. Los gates137/quality/PG53/Native35/imagen144/59 conservan fuentes previas. Broad/fullscan/imagenSCA/Redis actuales siguen pendientes; ver MIGRACION_C_E.md."
+        "Checkpoint157: migración C→E parcial32/4207, copias activas E preparadas;9worktrees y generación/perfilPG E pendientes. Los gates137/quality/PG53/Native35/imagen144/59 conservan fuentes previas. Broad/fullscan/imagenSCA/Redis actuales siguen pendientes; ver MIGRACION_C_E.md.",
+        "Checkpoint162: R05 tiene fullscan completo aceptado sobre a02d (16240 archivos, 54213 alertas clasificadas, 0 pendientes) y 62 focales separados (35v8+27v9). El helper común de cierre PostgreSQL y ocho adapters están integrados en dc9f; owner603f, cuerpos/oráculos y presupuestos históricos permanecen. Main13 (7 guardas+6 contratos53) y PG1 actual/una UUID pasan con cierre normal y entorno quieto. Los dos PG509 anteriores siguen rechazados por teardown, con cierres posteriores normales documentados; el diagnóstico no prueba su causa histórica. El intento509 actual93251 está en curso y no aporta aún aceptación. Broad, Native35 actual, imagen/SBOM/SCA y Redis/carga conservan gates propios.",
+        "Checkpoint163: PG509 actual93251 y Native35 actual71813 terminaron aceptados exclusivamente sobre dc9f. PG429+53+27=509 y71UUID/71cierres comunes; Native conserva35grupos11+4+18+2 y1UUID normales. 878 cambia sólo el codec utf8-sig→utf-8-sig del harness de carga; la relación exacta de fuente no es replay ni nuevo PASS PG/Native. El fullscan vigente878 cerró completo/estable:16242archivos,54213raw=clasificadas,0pendientes,615originales exactos. Root verifica localmente QA-33; R05 sigue en_revision por serial/n2/cobertura. Carga actual18773 en curso, sin aceptación en este corte.",
+        "Checkpoint164: sevenread18773 aceptado sobre878,14ventanas/7lecturas con c1/c5,1400respuestas200,0fallos semánticos y0observermissing,1UUID normal; no es SLO de producción ni broad. PG509/Native35 conservan fuente dc9f y relación exacta separada. R05 sigue en_revision; backup no aceptado al corte.",
+        "Checkpoint165: serial broad98362 actual está en curso en replay aislado; no resultado aceptado al corte. QA-33 y los demás estados permanecen exactos. PG509/Native35dc9f,relación separada y sevenread878 conservan sus alcances.",
+        "Checkpoint166: baseline878 cerró 5822 IDs con 5708 PASS,107 fallos,6 errores y1 skip symlink Windows; la tanda parcial516 conserva284 PASS/224 fallos/8 errores. Las reparaciones de transporte y los focos por fuente no sustituyen serial/n2/cobertura ni Linux finales. Los datos de CI actual se detallan en summary166; no hay cierre global ni integraciónMain de38/39.",
+        "Seguimiento166: restorePG38/527 pasóestructura yfallótenant_security;Root informaambasUUIDcerradas sin sesiones. Materializador733f rechazóantescopia poratime,noRoot/output/Gitcreado;su hijo es separado. NoPGPASSglobal."
       ]
     },
     {
@@ -724,7 +740,8 @@
         "34d8fb1"
       ],
       "pruebas": [
-        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos."
+        "A1:207passed/0failed/0skipped en candidatoWindows3.12.13; huella estable328archivos.",
+        "Actual96617:closureeb3a/result e441 aceptados;2UUIDnormalmente cerradas,3fasesindependientes,entornoquieto. Root revisó3waited/originalHANDLE,2commonclosefinalSHA+2leasesclosed_absent/ausenciafresca. No lectura/hash de clave en documentación."
       ],
       "evidencia": [
         "BACKUP_RESTORE.md",
@@ -742,7 +759,9 @@
         "evidence/qa-mfa31-restore-independent-20261019/phase-summary.json",
         "evidence/qa-ci33-PG240-recovery-independent-20261019/phase-summary.json",
         "evidence/qa-ci33-c86-source-binding-independent-20261019/full-source-delta82.json",
-        "evidence/ops-ci37-pg106-accepted-phases-20261021/closure429-phases-summary.json"
+        "evidence/ops-ci37-pg106-accepted-phases-20261021/closure429-phases-summary.json",
+        "evidence/checkpoint165-web-continuity-20261023/summary.json",
+        "evidence/checkpoint165-web-continuity-20261023/matrix.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -760,7 +779,8 @@
         "Checkpoint119: QA independiente restauró31 poblado sobre4a:1/1verde,61asserts módulo30 y36helper28 preservados mediante inversa completa,32model/33physical/25FORCE y3actores/24hashes de recuperación. DosUUID eliminadas exactas/0sesiones/ausencia desde conexión nueva. NoRPO/RTO de negocio.",
         "Checkpoint132: QA recuperó sin rerun los20reportes/240IDs únicos PG33 sobrec86:240PASS0FAIL/error/skip. 52UUID propias ausentes y0sesiones confirmados en conexión nueva tras la pausa; DROP ordinario ysin terminate. 1114fuentes/92distribuciones/8084archivos instalados ybinarios exactos. Los testigos distinguen engine de negocio de15sondeos auxiliares poscaso; no se atribuye su engine al negocio. Fuentesc86/R05v1; composiciónMAINv2, broad,Chrome,imagen,Linux yActions no demostrados por esta fase.",
         "Checkpoint151: producto50325 exacto después de importar harness/evidencias. NativePPL independiente37/37PASS,16capturas de4contextos en4anchuras,0pageErrors/axe/overflow,2PDF completos de7páginas/13ejercicios/3fuentes;3loginsUIEnter+MFA,cambioB,SV401,403preservaRAM. Cierre propio normal ysnapshot1400/apps463/Python92/Node3paquetes157archivos quietos. PG legado9955/c717:323+106=429IDs únicos en29fases aceptadas,69UUID en ellas; primer353REJECTED preservado y71UUID reales entre intentos,todasDROPnormal/0sesiones/ausenciafresca. Sólo presupuesto harness QA1→2/full68→69;29controlesPASS. R05scan d568 RED5=54185raw/54180clasificadas/5restantes,15564archivosquiet;5hashes conpreimágenes retenidas reales admitidos porSEC57/57. V8e4d98 exactunion904→907/57262→57267,3literales;ROOT10RED25controles→35PASS yactual95/95,1407fuentes/92instaladas quiet/pip0. No fullscanpostV8 todavía. Sólo web; sin envíos,cobros,push,PR odespliegue.",
-        "Checkpoint154: Restore sintético37 sí existe; proveedor de copias, conservación y RPO/RTO acordados no están validados operativamente. Siguiente acción: Aprobar política y ensayar recuperación real con los objetivos acordados."
+        "Checkpoint154: Restore sintético37 sí existe; proveedor de copias, conservación y RPO/RTO acordados no están validados operativamente. Siguiente acción: Aprobar política y ensayar recuperación real con los objetivos acordados.",
+        "Checkpoint165: kit backup retenido sintético96617 aceptado sobre878, intento7c46/wrapperb828:2UUIDsecuenciales y3procesos source/verify/target,esperasHANDLE originales ycierresnormales. Scope local del kit;R08_global_complete=False literal. No acredita custodia real,retención,RPO/RTO,HA ni despliegue. Intento350a del wrapper32e sigue fallido."
       ]
     },
     {
@@ -1978,7 +1998,8 @@
         "evidence/qa-r22-mobile-layout-independent-20261020/final-summary.json",
         "evidence/root-main-web-integration-20261021/summary.json",
         "evidence/root-main-quality-final-20261021/summary.json",
-        "evidence/ops-ci37-pg106-accepted-phases-20261021/closure429-phases-summary.json"
+        "evidence/ops-ci37-pg106-accepted-phases-20261021/closure429-phases-summary.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json"
       ],
       "documentacion": [
         "ONBOARDING22.md"
@@ -1990,7 +2011,8 @@
         "Checkpoint149: V7 integrado y fullscan real sobre5e307:54180raw/54180clasificados/0pendientes,15411archivos estables; efectivo exit0, scannerraw exit1 conservado. Main75/75pytest focales PASS. PG429 intentoOct20:57pytestPASS,5UUID cerradas normalmente, gateREJECTED por testigoR24 pool1/pool6; no429PASS. Fix9955+17controlesPASS preparado, nueva ejecuciónOct21 pendiente. Native35 preparado sinSQL/Chrome; rediseño y rutinas autorizados cambian fuente y requieren nueva congelación. Sólo web; no entrega desktop ni despliegue.",
         "Checkpoint150: rediseño38paths yPPL integrados; producto final50325. Main6f89/89PASS HTTP/SQLite37/contratosUI,0F/E/skip,1394fuentes92pkgquiet/0missingRECORD. Calidadactual50325 lint/sintaxis/Bandit+9neg/6controlesPASS,28hallazgos=6históricos+22finiteaprobados/0pendientes; Tool10nuevo yuvconsistency0,source1395/instalaciónquiet. Tool81preservado está incompleto hoy yBanditnoejecutó enél; no reinterpretarhistórico. QA32focalverificado12HTTP+23Node/3mutantes,NativePPL/visualtodavíapreparación. PG9955actual154PASS/21UUIDcerradas normales en9fases observadas,429aúnenprogreso. Portabilidadcurrent750conV7actual24/24PASS aparte; imagen50325contexto479RAW/12pins/57catalogados preparado,no build/SBOM/SCA. Todos150criteriosprevios y537untracked SHA conservados; sólo web.",
         "Checkpoint151: producto50325 exacto después de importar harness/evidencias. NativePPL independiente37/37PASS,16capturas de4contextos en4anchuras,0pageErrors/axe/overflow,2PDF completos de7páginas/13ejercicios/3fuentes;3loginsUIEnter+MFA,cambioB,SV401,403preservaRAM. Cierre propio normal ysnapshot1400/apps463/Python92/Node3paquetes157archivos quietos. PG legado9955/c717:323+106=429IDs únicos en29fases aceptadas,69UUID en ellas; primer353REJECTED preservado y71UUID reales entre intentos,todasDROPnormal/0sesiones/ausenciafresca. Sólo presupuesto harness QA1→2/full68→69;29controlesPASS. R05scan d568 RED5=54185raw/54180clasificadas/5restantes,15564archivosquiet;5hashes conpreimágenes retenidas reales admitidos porSEC57/57. V8e4d98 exactunion904→907/57262→57267,3literales;ROOT10RED25controles→35PASS yactual95/95,1407fuentes/92instaladas quiet/pip0. No fullscanpostV8 todavía. Sólo web; sin envíos,cobros,push,PR odespliegue.",
-        "Checkpoint154: Navegador2R22 y PG35 ya pasaron; siguen pendientes piloto5dueños+5socios y procedencia/separación durable de demo. Siguiente acción: Retirar bloqueos nativo/PG vencidos; acordar clasificación demo sin backfill inventado y preparar piloto autorizado."
+        "Checkpoint154: Navegador2R22 y PG35 ya pasaron; siguen pendientes piloto5dueños+5socios y procedencia/separación durable de demo. Siguiente acción: Retirar bloqueos nativo/PG vencidos; acordar clasificación demo sin backfill inventado y preparar piloto autorizado.",
+        "Checkpoint166: R22 sigue obligatorio. El foco SQLite108 y core38PG9 cubren comportamiento local sobre sus FileSet; la procedencia demo y los flujos preparados no sustituyen piloto de5 dueños+5 socios, entrevistas autorizadas ni comprensión real. Estado y criterio originales intactos."
       ]
     },
     {
@@ -2307,7 +2329,8 @@
         "evidence/individual-reader-postgres-after-restart-independent-source.json",
         "evidence/individual-process-recovery-independent-source.json",
         "evidence/root-nutrition35-pg-and-web-peer-20261020/summary.json",
-        "evidence/root-main35-integrated-contracts-20261020/summary.json"
+        "evidence/root-main35-integrated-contracts-20261020/summary.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json"
       ],
       "documentacion": [
         "JOBS_EVALUACION.md",
@@ -2322,7 +2345,8 @@
         "Checkpoint integrado 34d8fb1: los5 PostgreSQL del último lector pasaron tras recuperar exclusivamente el clúster QA55482. Un proceso hijo real ejecutó worker/PDF y murió mediante os._exit(23) después de publicación; otro proceso recuperó por la misma clave sin CPU ni segundo consumo. Borrar Plan dejó marcador/consumo y replay409. No es muerte de contenedor ni recuperación general de jobs. Los errores previos de infraestructura se conservan; DDL26 y lectores aceptados localmente.",
         "Checkpoint138: producto web34/35 integrado localmente desde fdaa, con108 blobs de código y pruebas exactos al candidato revisado. Esquema35, targetPG5bae sobre34d1. Sin Desktop35, R31 o36. La revisión focal previa conserva sus fuentes; la validación del árbol MAIN y CI actual sigue pendiente.",
         "Checkpoint139: MAINc4f9 con esquema35 pasa75/75 en nueve módulos dirigidos, fuente/Python/92 distribuciones quietos.108 blobs exactos a fdaa; sin errores o skips. CI/broad/Chrome/imagen/PGMAIN actual pendientes.",
-        "Checkpoint154: Reservas/replay no son una cola general durable de generación; el criterio condiciona la inversión a métricas. Siguiente acción: Medir carga y decidir necesidad antes de implementar jobs/reintentos/UI adicionales."
+        "Checkpoint154: Reservas/replay no son una cola general durable de generación; el criterio condiciona la inversión a métricas. Siguiente acción: Medir carga y decidir necesidad antes de implementar jobs/reintentos/UI adicionales.",
+        "Checkpoint166: la implementación de cola general durable sigue condicionada por el criterio original a las métricas; reservas/replay no equivalen a una cola. Esta condición no cambia su estado ni permite omitir las mediciones obligatorias deR34."
       ]
     },
     {
@@ -2409,7 +2433,8 @@
       "evidencia": [
         "evidence/qa-r30-independent-20261021/runs/final-closed.json",
         "evidence/root-r30-domain-independent-20261021/summary.json",
-        "evidence/security-pg53-r30-ppl-independent-20261021/result.json"
+        "evidence/security-pg53-r30-ppl-independent-20261021/result.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json"
       ],
       "documentacion": [],
       "revisor": "Backend autor e685; QA independiente43casos finales59b; Root revisó7paths y repitió59dominio.",
@@ -2419,7 +2444,8 @@
         "Checkpoint152: candidato aislado e6852cfd sobre5efd, lectura de hechos propios gym/personal con Session consistente y baseline provisional puro. Autor113IDs distintos verdes por fases, no una corrida113. QA independiente backend_account37 revisa offline. Sin códigoR30 enMain, sin baseline real ni cierre del criterio completo.",
         "Checkpoint153: Main195runtimeGit exacto59b/144. GET privado analytics/producto gymOWNER/ADMIN ypersonalpropio, nuevaSession consistente/READONLY PG pendiente,volumen13semanas/10000hechos/64KiB,sinDDL/colector/UI/reporte global. Baselineunreviewed/targetsnull/source_revisionnull. Autor113IDs porfases;QA43sobre59b;Root59dominio con32originales, sin sumar replays.",
         "Checkpoint154: API/lectura observada/helper provisional y PG11R30 ya validados; no existe baseline poblacional real ni decisión basada en piloto. Siguiente acción: Reemplazar bloqueo PG pendiente por validación externa de baseline/experimentos; no inventar cohortes globales.",
-        "Checkpoint154: PG53 aceptado en fuente a9a0258b/runtime59; 30PPL autor +12PPL peer +11R30. Una UUID37, rol restringido, pool5/max0, RR/READONLY real, cierre normal/0sesiones/ausencia fresca. No son53HTTP ni una nueva corrida de429."
+        "Checkpoint154: PG53 aceptado en fuente a9a0258b/runtime59; 30PPL autor +12PPL peer +11R30. Una UUID37, rol restringido, pool5/max0, RR/READONLY real, cierre normal/0sesiones/ausencia fresca. No son53HTTP ni una nueva corrida de429.",
+        "Checkpoint166: R30 sigue obligatorio. Métricas/procedencia locales de38 tienen focos ligados a fuente y48Node39 offline conserva otra fuente. Baseline real, revisión por cohorte y decisiones de experimento siguen pendientes; datos sintéticos no se presentan como clientes o ingresos."
       ]
     },
     {
@@ -2531,7 +2557,8 @@
         "evidence/root-main-quality-final-20261021/summary.json",
         "evidence/ops-ci37-pg106-accepted-phases-20261021/closure429-phases-summary.json",
         "evidence/security-native35-v7-v2-current35-20261021/result.json",
-        "evidence/root-main-auth82-integrated-20261022/summary.json"
+        "evidence/root-main-auth82-integrated-20261022/summary.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json"
       ],
       "documentacion": [
         "ESTADO.md",
@@ -2587,7 +2614,9 @@
         "Checkpoint151: producto50325 exacto después de importar harness/evidencias. NativePPL independiente37/37PASS,16capturas de4contextos en4anchuras,0pageErrors/axe/overflow,2PDF completos de7páginas/13ejercicios/3fuentes;3loginsUIEnter+MFA,cambioB,SV401,403preservaRAM. Cierre propio normal ysnapshot1400/apps463/Python92/Node3paquetes157archivos quietos. PG legado9955/c717:323+106=429IDs únicos en29fases aceptadas,69UUID en ellas; primer353REJECTED preservado y71UUID reales entre intentos,todasDROPnormal/0sesiones/ausenciafresca. Sólo presupuesto harness QA1→2/full68→69;29controlesPASS. R05scan d568 RED5=54185raw/54180clasificadas/5restantes,15564archivosquiet;5hashes conpreimágenes retenidas reales admitidos porSEC57/57. V8e4d98 exactunion904→907/57262→57267,3literales;ROOT10RED25controles→35PASS yactual95/95,1407fuentes/92instaladas quiet/pip0. No fullscanpostV8 todavía. Sólo web; sin envíos,cobros,push,PR odespliegue.",
         "Checkpoint153: NativeV2b008/producto50325 acepta35grupos por4fases11+4+18+2,32capturas/0pageErrors y1UUIDnormalclosed/0sessions/ausenciafresca;1419fuentes/WEB92/Node3paquetes157archivos quietos. PrimerV1REJECTED0drivers yChromeajeno preservados. No atribuir este replay a la API nueva R30 o a un pytest35one-shot.",
         "Checkpoint154: RAM/cookie, export y consentimientos/retiros específicos existen; faltan cierre/purga integral, acceso de soporte y política legal de retención/copias. Siguiente acción: Actualizar inventario y definir política; implementar borrado y soporte acotados y probar supresión según política aprobada.",
-        "Checkpoint155:Main26befe05 pasa82/82 casos mixtos B19/B20 conSQLite37 y ambas factories; fuente/dependencias/Node quietos. No son82 criterios nuevos niPG/Native/CI completo. PRIVACIDAD actualizada al esquema37 enaf83bf6e."
+        "Checkpoint155:Main26befe05 pasa82/82 casos mixtos B19/B20 conSQLite37 y ambas factories; fuente/dependencias/Node quietos. No son82 criterios nuevos niPG/Native/CI completo. PRIVACIDAD actualizada al esquema37 enaf83bf6e.",
+        "Checkpoint166: R31 sigue obligatorio. Privacy39 conserva52 casos con38 PASS/14 fallos,57 con56 PASS/1 fallo y61 con57 PASS/4 fallos nuevos; shells8 pasan enSource1554 yNode48 offline enSource1550. Ninguna tanda acredita cierre integral. México confirmado;14 datos/decisiones de negocio y revisión jurídica siguen pendientes.",
+        "Seguimiento166: SQLite39 final61/61 PASS,0F/E/skip,Source1557/9b316,92paquetesquietos/pip0/0. Los52/57/61fallidosprevios se conservan. Shells8siguen1554 yNode48offline1550;PG39/restore/gatesfinales/jurídico14pendientes,R31no se cierra."
       ]
     },
     {
@@ -2780,7 +2809,8 @@
         "evidence/main30-merge-20261019/receipt.json",
         "evidence/qa-r34-holder-runtime-independent-20261019/final-summary.json",
         "evidence/root-nutrition35-pg-and-web-peer-20261020/summary.json",
-        "evidence/root-main35-integrated-contracts-20261020/summary.json"
+        "evidence/root-main35-integrated-contracts-20261020/summary.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json"
       ],
       "documentacion": [
         "JOBS_EVALUACION.md",
@@ -2804,7 +2834,8 @@
         "Checkpoint118: Diagnóstico propio sobreMAIN4d2:16HTTP200 conpool1/overflow0 ytimeout diagnóstico2s frente30s original;0timeouts.9snapshots incluían6carreras deobservación y3solapamientos reales, todosliberados naturalmente. No causa histórica nifix niSLO demostrado.3UUID cerradasexactas,8804sinlistener;objetivos consultados alusuario.",
         "Checkpoint138: producto web34/35 integrado localmente desde fdaa, con108 blobs de código y pruebas exactos al candidato revisado. Esquema35, targetPG5bae sobre34d1. Sin Desktop35, R31 o36. La revisión focal previa conserva sus fuentes; la validación del árbol MAIN y CI actual sigue pendiente.",
         "Checkpoint139: MAINc4f9 con esquema35 pasa75/75 en nueve módulos dirigidos, fuente/Python/92 distribuciones quietos.108 blobs exactos a fdaa; sin errores o skips. CI/broad/Chrome/imagen/PGMAIN actual pendientes.",
-        "Checkpoint154: Índices/pool tienen fixes; capacidad y p95 actuales con Redis/carga no están probados ni SLO aprobados. Siguiente acción: Completar carga ya prevista y acordar SLO con evidencia del candidato."
+        "Checkpoint154: Índices/pool tienen fixes; capacidad y p95 actuales con Redis/carga no están probados ni SLO aprobados. Siguiente acción: Completar carga ya prevista y acordar SLO con evidencia del candidato.",
+        "Checkpoint166: R34 sigue obligatorio. Sevenread14 ventanas ya aceptadas no se repite ni sustituye generación/PDF/PUT segmentados, Redis físico ni capacidad actual. El instrumento y su recibo de cierre siguen sujetos a fuente final y ejecución acordada; p95 exige n y no se publica SLO sin acuerdo."
       ]
     },
     {
@@ -2832,7 +2863,8 @@
       "commits": [],
       "pruebas": [],
       "evidencia": [
-        "evidence/r35-readiness-20261019/manifest.json"
+        "evidence/r35-readiness-20261019/manifest.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json"
       ],
       "documentacion": [
         "PWA_EVALUACION.md"
@@ -2841,7 +2873,8 @@
       "bloqueo": "PWA es condicional a retención/rendimiento y beneficio medido; no hay decisión que autorice caché privada/offline.",
       "observaciones": [
         "Checkpoint114: Evaluación inicial versionada con inventario fuente232 sin los patrones declarados y referencias primarias actuales. Retención de uso y conservación personal separadas; hipótesis online sin caché sanitaria, sin implementación/instalación/beneficio medido. Continúa en curso.",
-        "Checkpoint154: PWA es condicional a retención/rendimiento y beneficio medido; no hay decisión que autorice caché privada/offline. Siguiente acción: Decidir después de métricas/política de caché; no implementar PWA por inercia."
+        "Checkpoint154: PWA es condicional a retención/rendimiento y beneficio medido; no hay decisión que autorice caché privada/offline. Siguiente acción: Decidir después de métricas/política de caché; no implementar PWA por inercia.",
+        "Checkpoint166: PWA sigue condicionada por retención/rendimiento básicos y beneficio medido del criterio original. No se autoriza caché sanitaria/offline ni se cambia su estado por esta aclaración."
       ]
     },
     {
@@ -9198,9 +9231,9 @@
       "dependencias": [
         "R05"
       ],
-      "estado": "en_revision",
+      "estado": "verificado",
       "implementacion": "verificado",
-      "validacion": "en_revision",
+      "validacion": "verificado",
       "despliegue": "no_desplegado",
       "entorno": "local",
       "cambios": [],
@@ -9211,25 +9244,33 @@
         "1958254b"
       ],
       "pruebas": [
-        "Canario autor congelado:12FAIL/1controlPASS sobre13IDs; incluye lista no vacía clasificada con exit1+ERR/partial y wrapper0. Control binario8.30.1 real timeout1 produjo exit1 y resumen parcial. Son controles separados del fullscan25d, cuya causa exacta no está probada."
+        "Canario autor congelado:12FAIL/1controlPASS sobre13IDs; incluye lista no vacía clasificada con exit1+ERR/partial y wrapper0. Control binario8.30.1 real timeout1 produjo exit1 y resumen parcial. Son controles separados del fullscan25d, cuya causa exacta no está probada.",
+        "Fullscan real vigente878 aceptado: complete/source_stable,16242files/54213raw=classified/0remaining; cierre0,RAW privado y615exactos. Root decide verificación local; controles/falsoPASS/timeout/peer históricos se conservan literalmente."
       ],
       "evidencia": [
         "evidence/root-main-r05-v8-completion-unproven-20261021/summary.json",
         "evidence/root-qa33-independent-20261021/summary.json",
         "evidence/security-qa33-producer-replay-independent-20261021/result.json",
-        "evidence/qa33-twoace-producer-replacement-20261021/all-fixed-v3-summary.json"
+        "evidence/qa33-twoace-producer-replacement-20261021/all-fixed-v3-summary.json",
+        "evidence/checkpoint162-web-continuity-20261023/summary.json",
+        "evidence/checkpoint162-web-continuity-20261023/matrix.json",
+        "evidence/checkpoint163-web-continuity-20261023/summary.json",
+        "evidence/checkpoint163-web-continuity-20261023/matrix.json"
       ],
       "documentacion": [
         "NUEVOS_HALLAZGOS.md",
-        "QA_R05.md"
+        "QA_R05.md",
+        "CI_POSTGRES_CIERRE.md"
       ],
       "revisor": "Ops autor; Root código completo y45replays; Seguridad independiente27casos yreadback de replays45v3+2nativev2.",
-      "bloqueo": "Productor DACL y controles acotados corregidos; fullscan vigente aceptado aún pendiente. Wrapper0 histórico fue incompleto.",
+      "bloqueo": null,
       "observaciones": [
         "Main25d: wrapper0/raw1/43532clasificadas/0restantes/15615archivosquietos/338.047s; finalización no acreditada y gate completo no aceptado. RAW y resultado original intactos.174archivos de bytes idénticos registran menos hallazgos que la corrida anterior; es observación, no prueba de la causa de esta corrida.",
         "Checkpoint153:72IDs actuales distintos45autor+27peer;Root45repetidos aparte. Binario real pequeño0/1hallazgo completo, no fullscan. RootsOpsanteriores4ACE:conformidad del productor REJECTED,2RED1control preservado. Nuevosroots2ACE antespayload ydespués/ZIP174+73+5readback aceptados porSEC ac8;no retroatribuir DACL2 al pasado. Main12proofs anteriorescopiados byteexact al RAWautorcon atributos finitos, sin reescritura del contenido.",
         "Checkpoint154: Productor DACL y controles acotados corregidos; fullscan vigente aceptado aún pendiente. Wrapper0 histórico fue incompleto. Siguiente acción: Terminar escaneo completo actual con evidencia privada correcta; no cerrar por controls o wrapper0.",
-        "Checkpoint154:126helpers CI integrados y Desktopjob retirado. Colección5536 preparatoria; serial/n2/cobertura y fullscan completo del candidato final siguen pendientes. HOLD hasta integrar B19/B13/B20; no convertir colección en ejecución."
+        "Checkpoint154:126helpers CI integrados y Desktopjob retirado. Colección5536 preparatoria; serial/n2/cobertura y fullscan completo del candidato final siguen pendientes. HOLD hasta integrar B19/B13/B20; no convertir colección en ejecución.",
+        "Checkpoint162: R05 tiene fullscan completo aceptado sobre a02d (16240 archivos, 54213 alertas clasificadas, 0 pendientes) y 62 focales separados (35v8+27v9). El helper común de cierre PostgreSQL y ocho adapters están integrados en dc9f; owner603f, cuerpos/oráculos y presupuestos históricos permanecen. Main13 (7 guardas+6 contratos53) y PG1 actual/una UUID pasan con cierre normal y entorno quieto. Los dos PG509 anteriores siguen rechazados por teardown, con cierres posteriores normales documentados; el diagnóstico no prueba su causa histórica. El intento509 actual93251 está en curso y no aporta aún aceptación. Broad, Native35 actual, imagen/SBOM/SCA y Redis/carga conservan gates propios.",
+        "Checkpoint163: PG509 actual93251 y Native35 actual71813 terminaron aceptados exclusivamente sobre dc9f. PG429+53+27=509 y71UUID/71cierres comunes; Native conserva35grupos11+4+18+2 y1UUID normales. 878 cambia sólo el codec utf8-sig→utf-8-sig del harness de carga; la relación exacta de fuente no es replay ni nuevo PASS PG/Native. El fullscan vigente878 cerró completo/estable:16242archivos,54213raw=clasificadas,0pendientes,615originales exactos. Root verifica localmente QA-33; R05 sigue en_revision por serial/n2/cobertura. Carga actual18773 en curso, sin aceptación en este corte."
       ]
     },
     {
@@ -9815,6 +9856,59 @@
       "bloqueo": null,
       "observaciones": [
         "Verificación del auditor y de Root1 en su alcance; motores, controladores, RAW y recibos anteriores intactos. R37 permanece en_curso."
+      ]
+    },
+    {
+      "id": "SEC26",
+      "identificador_original": "SEC26",
+      "fuente": "docs/implementation/20261018-evolution/NUEVOS_HALLAZGOS.md",
+      "seccion": "SEC26 nuevas credenciales web: mínimo de 15 puntos de código Unicode",
+      "problema": "El servicio admitía nuevas contraseñas de doce caracteres; las credenciales nuevas necesitaban una política central de quince puntos de código Unicode coherente en servidor, DTO y UI, preservando el acceso a hashes existentes.",
+      "criterio_exacto": "Exigir al menos 15 puntos de código Unicode a toda credencial nueva de alta, invitación, recuperación y cambio; validar el tipo y el límite existente de 72 bytes UTF-8, sin recortar ni normalizar silenciosamente, y conservar la blocklist offline con rechazo ante fallos. Rechazar doce o catorce puntos de código, incluidos catorce astrales, sin persistir cambios ni consumir prueba o token; aceptar quince permitidos. No invalidar el inicio de sesión de hashes existentes por su longitud anterior. La UI y el servidor deben contar puntos de código Unicode y no reflejar ni registrar los valores nuevos rechazados. Validar ambas factories y PostgreSQL restringido; conservar la comparación literal anterior/nueva y los límites de evidencia sin afirmar cumplimiento integral de NIST ni un nivel AAL.",
+      "prioridad": "P1",
+      "responsable": "Coordinación y autor focal; QA/seguridad independiente",
+      "tareas": [
+        "R10",
+        "R16",
+        "R32",
+        "B19"
+      ],
+      "dependencias": [
+        "B19"
+      ],
+      "estado": "en_revision",
+      "implementacion": "en_revision",
+      "validacion": "en_revision",
+      "despliegue": "no_desplegado",
+      "entorno": "local",
+      "cambios": [
+        "MIN_NEW_PASSWORD_CHARS = 15 centralizado, DTO y formularios web Unicode; inicio de sesión existente intacto."
+      ],
+      "commits": [],
+      "pruebas": [
+        "SQLite 46/46 y Node 25/25, cerrados en Source1522 e879; PostgreSQL restringido 23/23 en Source525 ddc743befc5f397aaf6c367e6df9effa0b905b9e65719be71920a6c8ed4d3b0c.",
+        "Comparación literal directa de credenciales anteriores/nuevas en el resultado836a2ed; las 14 observaciones del archivo son llamadas directas, no 14 criterios pytest adicionales."
+      ],
+      "evidencia": [
+        "E:/MetodoBaseWorkspace/evidence/root-current38-web-4be1b61de9fb498096447e10bd109e34/public/summary.json",
+        "E:/MetodoBaseWorkspace/evidence/root-current38-web-2a309577e5264846918368cedda94bad/public/summary.json",
+        "E:/MetodoBaseWorkspace/tmp/metodobase-account37-author-pg-product38-3b1f2a349a364328af6307ab48e987f0/result.private.json",
+        "E:/MetodoBaseWorkspace/tmp/metodobase-test-red-green-836a2ed263f44464a3361d24290ea787/result.json",
+        "evidence/checkpoint166-web-continuity-20261023/summary.json",
+        "evidence/checkpoint166-web-continuity-20261023/matrix.json"
+      ],
+      "documentacion": [
+        "VALIDACION.md",
+        "NUEVOS_HALLAZGOS.md",
+        "TRAZABILIDAD.json"
+      ],
+      "revisor": "Peer estático 9f1a y revisión independiente ae9b; Root verificó los cierres, JUnit y passwordPG23.",
+      "bloqueo": null,
+      "observaciones": [
+        "Fila 167 incorporada únicamente al candidato E checkpoint166 a partir de la propuesta2095cf; sigue en_revision. Pendientes revisión del lote e integración del código y registro en Main. Los166 criterios y estados previos, incluidos66 verificados, permanecen exactos.",
+        "El límite heredado de 72 bytes puede acotar contraseñas Unicode largas; no afirmar conformidad integral con NIST ni un nivel AAL.",
+        "Los fallos de serial878 y restore38 se conservan como gates distintos; no se declaran aceptados por estas pruebas focales.",
+        "Checkpoint166:46SQLite y25Node compartenSource1522/e879;23PG restringidos usanSource525/ddc743. Las14 llamadas directas combinadas no son14 criterios ni una colección pytest. No se acepta un gate final por esta fila."
       ]
     }
   ]

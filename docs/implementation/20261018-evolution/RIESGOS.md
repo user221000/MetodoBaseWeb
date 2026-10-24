@@ -1,5 +1,57 @@
 # Riesgos activos
 
+<!-- DOC166-CLOSED61-FOLLOWUP -->
+
+## Seguimiento del checkpoint 166 — SQLite39 final aceptado; restore PG rechazado
+
+SQLite39 final cerró normalmente con 61/61 PASS, cero fallos, errores o skips, sobre Source1557 9b3160df3820c8fd75137b8c5edfe7ccfec5cf2100a6f14fd68005ce57e6a328. Colección y JUnit exactos; fuente, 92 paquetes y binarios quietos, pip0/0. Este resultado no reemplaza los anteriores 52(38PASS/14F), 57(56PASS/1F) y 61(57PASS/4F), preservados con sus fuentes.
+
+Restore PG38/527 superó estructura y falló después en tenant_security. Root comunica ambas UUID cerradas sin sesiones; sólo se lee el resultado cerrado, no logs. Comparador puro56 y SQLite61 no acreditan la restauración de PostgreSQL, seguridad global o integración Main; el diagnóstico de políticas es separado.
+
+Root conserva también el rechazo precopia733f: 2258 SHA/tamaños exactos, diferencias sólo en atime de lectura y ningún root/output/Git creado. Su hijo finito es trabajo independiente de Root;733f queda sellado.
+
+Se mantienen167 filas, los166 criterios y estados anteriores,92IDs originales,66verificados ySEC26 en_revision. R22/R30/R31/R34 son obligatorios;R28/R35 son condicionales conforme sus criterios. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC166-SOURCE-SCOPED-SEC26-IN-REVIEW -->
+
+## Checkpoint 166 — corte documental preparado en E
+
+167 filas: los 166 criterios/estados E165 y92IDs originales se conservan; sólo se añade SEC26 en revisión, con66verificados locales sin cambio. Sus46SQLite/25Node/23PG y14llamadas directas están ligados a fuentes propias.108SQLite/core38PG9/password23 son alcances focales; Node histórico mantiene atribución. Privacy52(38P/14F),57(56P/1F),61(57P/4F),shells8PASS1554,Node48offlinePASS1550 ypure56PASS permanecen separados. PG38restore89867 seguía en curso al mensajeRoot: sin lectura de logs ni aceptación anticipada.
+
+R22/R30/R31/R34 siguen obligatorios; R28/R35 son condicionales conforme sus criterios. Main39/CIglobal/Linux/imagen/Redis/R34/proveedor/piloto/legal14/custodia siguen abiertos. Originales fallidos preservados, no nuevoSEC27 ni cierre por harness. [Resumen166](evidence/checkpoint166-web-continuity-20261023/summary.json) y[matriz](evidence/checkpoint166-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC165-LOCAL-BACKUP-ACCEPTED-SERIAL-OPEN -->
+
+## Checkpoint165 — respaldo sintético y límites
+
+Kit backup actual96617 aceptado en878,intento7c46/wrapperb828:2UUIDsecuenciales/3procesos independientes,cierresnormales yentornoquieto. R08_global_complete=False permanece literal; no cambia ningún criterio/estado ni valida custodia/retención real. Intento350a(wrapper32e) y fallos previos se preservan. Serial98362 está en curso,sin resultado al corte. PG/Native siguen dc9f y sevenread878 conserva su cierre distinto. [Resumen165](evidence/checkpoint165-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint165-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC164-ACTUAL-SEVENREAD-CLOSED -->
+
+## Checkpoint164 — cierre acotado de sevenread
+
+Sevenread18773 aceptado en878:14ventanas/1400respuestas200/0fallos semánticos/0observermissing;1UUID yserver propios cerrados,entornoquieto. PG509/Native35 siguen dc9f; la relación de fuentes no los relabela ni repite. No cambia ningún estado ni criterio;R05 espera broad y backup sigue sin resultado aceptado. Los rechazos históricos y el intento backup bootstrap fallido se conservan. [Resumen164](evidence/checkpoint164-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint164-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC163-SOURCE-SCOPED-CLOSED-GATES -->
+
+## Checkpoint163 — límites que siguen abiertos
+
+PG509 y Native35 son resultados de dc9f; la fuente878 sólo cambia el codec del harness y cuenta con scan vigente completo. La relación exacta no prueba de nuevo PG/Native. Carga18773 sigue sin aceptación aquí. Serial/n2/cobertura, Linux/imagen/SCA, Redis y backup requieren resultados propios. Los cuatro frentes técnicos condicionados y los datos de privacidad/retención/proveedores no se cierran por ningún gate. [Resumen163](evidence/checkpoint163-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint163-web-continuity-20261023/matrix.md).
+
+
+<!-- DOC162-CLOSED-SOURCE-OBSERVATIONS -->
+
+## Checkpoint162 — alcance actual de los gates
+
+Un focal físico verde y una limpieza posterior no convierten en PASS un gate509 rechazado. El observador conserva evidencia previa al dispose y pools originales; si hay préstamo, sesión no atribuida, identidad distinta, timeout o error de observación, rechaza. La metadata DBAPI no demuestra por sí sola ausencia de restart: Root debe conservar la ventana exclusiva estable.
+
+El scan completo a02d no cubre automáticamente dc9f. Broad/Native/imagen/Redis/carga/backup retenido y validaciones externas siguen abiertos por sus propios criterios. [Resumen162](evidence/checkpoint162-web-continuity-20261023/summary.json) y [matriz](evidence/checkpoint162-web-continuity-20261023/matrix.md).
+
+
 | ID | Impacto / probabilidad razonada | Mitigación | Responsable | Estado |
 |---|---|---|---|---|
 | EX-01 | Cobros/permisos actuales altos; defectos reproducidos localmente | Contener R01/R02 y exigir regresiones/revisión independiente | Backend / seguridad | en_curso |
