@@ -309,3 +309,186 @@ def test_closed_receipt_is_published_only_after_actual_lifespan_and_restoration_
         assert caught.value is failure
         assert not any(name.endswith("-observer-closed.json") for name, value in writes)
     assert "dispose" in events and "patches_restored" in events
+
+
+def _literal_driver_function(name, **space):
+    source = Path(__file__).parent / "performance/characterize_generation_http.py"
+    tree = ast.parse(source.read_bytes())
+    node = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == name)
+    space.setdefault("CaptureRejected", CaptureRejected)
+    exec(compile(ast.Module(body=[node], type_ignores=[]), str(source), "exec"), space)
+    return space[name]
+
+
+@pytest.mark.parametrize("payload", [b"", b"x"])
+def test_eof_shutdown_uses_unbuffered_descriptor_and_rejects_non_eof(payload):
+    import os
+    reader, writer = os.pipe()
+    if payload:
+        os.write(writer, payload)
+    os.close(writer)
+    stream = SimpleNamespace(fileno=lambda: reader,
+        read=lambda *args: pytest.fail("Buffered stdin reader must not be used"))
+    server = SimpleNamespace(should_exit=False)
+    actual = _literal_driver_function("shutdown_from_eof", os=os)
+    try:
+        if payload:
+            with pytest.raises(ValueError):
+                actual(stream, server)
+            assert server.should_exit is False
+        else:
+            actual(stream, server)
+            assert server.should_exit is True
+    finally:
+        os.close(reader)
+
+
+@pytest.mark.parametrize("started", [False, True])
+def test_server_return_requires_actual_successful_startup(started, monkeypatch):
+    server = SimpleNamespace(started=started, run=lambda: None)
+    monkeypatch.setitem(sys.modules, "uvicorn", SimpleNamespace(
+        Config=lambda *args, **kwargs: None, Server=lambda config: server))
+    actual = _literal_driver_function("run_server_until_eof", sys=sys,
+        threading=SimpleNamespace(Thread=lambda **kwargs: SimpleNamespace(start=lambda: None)),
+        shutdown_from_eof=lambda *args: None)
+    args = SimpleNamespace(port=12345)
+    if started:
+        actual(object(), args)
+    else:
+        with pytest.raises(CaptureRejected):
+            actual(object(), args)
+
+
+def test_daemon_waiting_for_unbuffered_stdin_does_not_abort_interpreter_shutdown():
+    import os
+    import subprocess
+    source = Path(__file__).parent / "performance/characterize_generation_http.py"
+    tree = ast.parse(source.read_bytes())
+    node = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "shutdown_from_eof")
+    body = "import os, sys, threading, time\nfrom types import SimpleNamespace\n" + ast.unparse(node)
+    body += "\nthreading.Thread(target=shutdown_from_eof, args=(sys.stdin.buffer, SimpleNamespace(should_exit=False)), daemon=True).start()\ntime.sleep(.05)\n"
+    child = subprocess.Popen([sys.executable, "-I", "-B", "-X", "utf8", "-c", body],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    code = None
+    try:
+        code = child.wait(timeout=10)
+    finally:
+        child.stdin.close()
+        if code is None:
+            child.wait(timeout=10)
+    try:
+        stdout, stderr = child.stdout.read(), child.stderr.read()
+    finally:
+        child.stdout.close(); child.stderr.close()
+    assert code == 0 and stdout == b"" and stderr == b""
+
+
+class _NativeCall:
+    def __init__(self, function):
+        self.function = function
+    def __call__(self, *args):
+        return self.function(*args)
+
+
+def _closed_server(returncode):
+    calls = []
+    stream = SimpleNamespace(closed=False)
+    def close():
+        stream.closed = True
+        calls.append("stdin_closed")
+    stream.close = close
+    return SimpleNamespace(poll=lambda: returncode,
+        wait=lambda **kwargs: calls.append("wait") or returncode, stdin=stream), calls
+
+
+@pytest.mark.parametrize("returncode,winerror,accepted", [(0, 87, True), (1, 87, True), (1, 5, False)])
+def test_exited_child_is_waited_even_on_failure_and_access_denial_is_not_absence(
+        returncode, winerror, accepted, monkeypatch):
+    import ctypes
+    kernel = SimpleNamespace(**{name: _NativeCall(lambda *args: 0) for name in
+        ("OpenProcess", "GetProcessTimes", "WaitForSingleObject", "CloseHandle")})
+    monkeypatch.setattr(ctypes, "WinDLL", lambda *args, **kwargs: kernel, raising=False)
+    monkeypatch.setattr(ctypes, "get_last_error", lambda: winerror, raising=False)
+    server, calls = _closed_server(returncode)
+    actual = _literal_driver_function("stop_own_server",
+        check_server_identity=lambda *args: pytest.fail("Exited PID must not be reopened as a live identity"))
+    if accepted:
+        assert actual(server, {"pid": 999, "birth_filetime_100ns": 1}) == returncode
+    else:
+        with pytest.raises(RuntimeError):
+            actual(server, {"pid": 999, "birth_filetime_100ns": 1})
+    assert calls == ["stdin_closed", "wait"] and server.stdin.closed
+
+
+@pytest.mark.parametrize("native_wait", [0, 258])
+def test_launcher_exit_does_not_authorize_cleanup_while_its_native_worker_lives(native_wait, monkeypatch):
+    import ctypes
+    calls = []
+    def times(handle, created, *unused):
+        created._obj.dwHighDateTime = 0
+        created._obj.dwLowDateTime = 1
+        return 1
+    kernel = SimpleNamespace(OpenProcess=_NativeCall(lambda *args: 123),
+        GetProcessTimes=_NativeCall(times), WaitForSingleObject=_NativeCall(lambda *args: native_wait),
+        CloseHandle=_NativeCall(lambda handle: calls.append(handle)))
+    monkeypatch.setattr(ctypes, "WinDLL", lambda *args, **kwargs: kernel, raising=False)
+    server, events = _closed_server(1)
+    actual = _literal_driver_function("stop_own_server", check_server_identity=lambda *args: None)
+    if native_wait:
+        with pytest.raises(RuntimeError):
+            actual(server, {"pid": 999, "birth_filetime_100ns": 1})
+    else:
+        assert actual(server, {"pid": 999, "birth_filetime_100ns": 1}) == 1
+    assert calls == [123] and events == ["stdin_closed", "wait"]
+
+
+def test_worker_error_is_private_closed_and_keeps_first_failure(monkeypatch, tmp_path):
+    import traceback
+    events = []
+    def verify(path, *, directory=False):
+        events.append(path)
+        assert directory is path.is_dir()
+        assert path.read_bytes() == b""
+    monkeypatch.setitem(sys.modules, "web.services.legacy_object_apply_boundary", SimpleNamespace(verify=verify))
+    actual = _literal_driver_function("record_worker_error", traceback=traceback, json=__import__("json"), os=__import__("os"))
+    args = SimpleNamespace(output=tmp_path, factory="api")
+    try:
+        raise ValueError("synthetic first error")
+    except ValueError as error:
+        actual(args, error)
+    path = tmp_path / "api-worker-error.private.json"
+    first = path.read_bytes()
+    actual(args, RuntimeError("synthetic later error"))
+    value = __import__("json").loads(first)
+    assert path.read_bytes() == first and len(events) == 1
+    assert value["error_class"] == "ValueError" and value["application_startup_accepted"] is False
+    assert path.with_suffix(".closed").exists()
+
+
+def test_worker_identity_is_closed_before_application_work_and_create_new(monkeypatch, tmp_path):
+    import json
+    import os
+    import re
+    output = tmp_path / "tmp" / ("metodobase-account37-author-pg-generation-" + "a" * 32)
+    output.mkdir(parents=True)
+    events = []
+    def verify(path, *, directory=False):
+        events.append(path)
+        assert directory is path.is_dir()
+        if path.is_file():
+            assert path.read_bytes() == b""
+    monkeypatch.setitem(sys.modules, "web.services.legacy_object_apply_boundary", SimpleNamespace(verify=verify))
+    monkeypatch.setitem(sys.modules, "tests.billing13_legacy_apply37_pg_contract",
+        SimpleNamespace(windows_process_identity=lambda pid: (123, Path("E:/synthetic-python.exe"))))
+    actual = _literal_driver_function("publish_worker_identity", WORKSPACE=tmp_path, re=re, json=json,
+        os=SimpleNamespace(getpid=lambda: 12, getppid=lambda: 11, fsync=os.fsync),
+        sys=SimpleNamespace(argv=["synthetic-owned-driver", "--serve"]))
+    args = SimpleNamespace(output=output, factory="api", nonce="b" * 32, ready=output / "api-ready.json")
+    actual(args)
+    path = output / "api-worker-identity.json"
+    value = json.loads(path.read_bytes())
+    assert value["pid"] == 12 and value["parent_pid"] == 11 and value["birth_filetime_100ns"] == 123
+    assert path.with_suffix(".closed").exists() and events == [output, path]
+    with pytest.raises(FileExistsError):
+        actual(args)

@@ -71,9 +71,9 @@ jobs:
     - name: Current37 full web in two workers; shuffle seed20261018 and no skips
       run: python -B -X utf8 tests/ci_web39/run_web.py --suite parallel --private "$RUNNER_TEMP/web37-parallel-private" --output "$RUNNER_TEMP/web37-public/parallel"
     - name: Original physical35 assertions with authenticated ancestor35 models
-      run: python -B -X utf8 tests/ci_web37/run_web.py --suite history35 --private "$RUNNER_TEMP/web37-history35-private" --output "$RUNNER_TEMP/web37-public/history35"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite history35 --private "$RUNNER_TEMP/web37-history35-private" --output "$RUNNER_TEMP/web37-public/history35"
     - name: Literal R05 peer60, author48 and author15; frozen authenticated phases
-      run: python -B -X utf8 tests/ci_web37/run_web.py --suite r05-history --private "$RUNNER_TEMP/web37-r05-history-private" --output "$RUNNER_TEMP/web37-public/r05-history"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite r05-history --private "$RUNNER_TEMP/web37-r05-history-private" --output "$RUNNER_TEMP/web37-public/r05-history"
     - name: Private storage SDK original full identities without a provider; no skips
       run: python -B -X utf8 tests/ci_web39/run_web.py --suite storage-sdk --private "$RUNNER_TEMP/web37-storage-private" --output "$RUNNER_TEMP/web37-public/storage-sdk"
     - name: Publish measured coverage without private assertion diagnostics
@@ -107,7 +107,7 @@ jobs:
     - name: Create public metadata parent; raw Node diagnostics remain private
       run: install -d -m 700 "$RUNNER_TEMP/web37-node-public"
     - name: Legacy51 commands with865 unique original obligations and authenticated source companions
-      run: python -B -X utf8 tests/ci_web37/run_web.py --suite node --private "$RUNNER_TEMP/web37-node-legacy-private" --output "$RUNNER_TEMP/web37-node-public/legacy51"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite node --private "$RUNNER_TEMP/web37-node-legacy-private" --output "$RUNNER_TEMP/web37-node-public/legacy51"
     - name: Additional current UI27/37 thirteen programs and147 exact ordered original criteria
       run: python -B -X utf8 tests/ci_web39/run_web.py --suite node-current --private "$RUNNER_TEMP/web37-node-current-private" --output "$RUNNER_TEMP/web37-node-public/current13"
     - name: Additional eight routine/onboarding programs and94 source-bound original criteria
@@ -116,6 +116,8 @@ jobs:
       run: |
         python -B -X utf8 tests/ci_web39/run_web.py --suite node-product38 --private "$RUNNER_TEMP/web39-node-product-private" --output "$RUNNER_TEMP/web37-node-public/product38"
         python -B -X utf8 tests/ci_web39/run_web.py --suite node-password38 --private "$RUNNER_TEMP/web39-node-password-private" --output "$RUNNER_TEMP/web37-node-public/password38"
+    - name: Current privacy closure controller, API and DOM contracts; 48 exact criteria
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite node-privacy39 --private "$RUNNER_TEMP/web39-node-privacy-private" --output "$RUNNER_TEMP/web37-node-public/privacy39"
     - uses: actions/upload-artifact@v4
       if: always()
       with:

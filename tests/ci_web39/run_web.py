@@ -383,10 +383,59 @@ def new_node_gate(private, environment, phase):
             "native_browser_executed": False, "DOM_transport_doubles_only": True}
 
 
+def privacy_node_gate(private, environment):
+    """Three original39 offline phases; labels and RAW inputs remain normative."""
+    mapping = json.loads((ROOT / "tests/ci_web39/node-privacy39.json").read_bytes())
+    required = ("tests/e2e/account-privacy39-review.cjs",
+                "tests/e2e/account-privacy39-transport.cjs",
+                "tests/e2e/account-privacy39-dom.cjs")
+    commands = mapping["commands"]
+    if (mapping["schema"] != "current39-privacy-node-phases-v1"
+            or [entry["script"] for entry in commands] != list(required)
+            or type(mapping["executions"]) is not int or mapping["executions"] != 48
+            or [len(entry["expected_cases"]) for entry in commands] != [15, 19, 14]
+            or mapping["preloader"] != "tests/e2e/browser_offline31.cjs"
+            or mapping["preloader"] not in mapping["input_files"]):
+        raise ValueError("Privacy39 original phase/criterion inventory differs")
+    for entry in commands:
+        if (len(set(entry["expected_cases"])) != len(entry["expected_cases"])
+                or not {entry["script"], *entry["dependencies"]} <= mapping["input_files"].keys()):
+            raise ValueError("A Privacy39 label or direct/transitive input is unbound")
+
+    def source_check():
+        for name, pin in mapping["input_files"].items():
+            if pin["framing"] != "raw" or hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != pin["sha256"]:
+                raise ValueError("A Privacy39 direct/transitive RAW source differs")
+
+    source_check()
+    results = []
+    for index, entry in enumerate(commands):
+        path = private / ("node-privacy39-" + str(index + 1) + ".private.json")
+        argv = [shutil.which("node"), "--require", str(ROOT / mapping["preloader"]), entry["script"]]
+        code = execute(argv, ROOT, environment, path, timeout=300)
+        passed = 0
+        valid = False
+        if code == 0:
+            try:
+                passed = node_cases(json.loads(path.read_bytes()), entry["expected_cases"])
+                valid = True
+            except (ValueError, TypeError):
+                valid = False
+        results.append({"script": entry["script"], "exit": code, "cases": passed,
+                        "exact_ordered_labels": valid})
+    source_check()
+    write(private / "node-privacy39-observation.json", results)
+    return {"accepted": all(row["exit"] == 0 and row["exact_ordered_labels"] for row in results),
+            "commands": len(results), "executions": sum(row["cases"] for row in results),
+            "direct_transitive_RAW_sources_checked": len(mapping["input_files"]),
+            "old147_94_865_relabelled": False, "native_browser_executed": False,
+            "DOM_transport_doubles_only": True}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("--suite", choices=("serial", "parallel", "node", "node-current", "node-routines-onboarding", "storage-sdk", "node-controls", "pg-controls", "pg-lease-controls", "r05-history-controls", "r05-history", "r31-current", "image-controls", "legacy-current", "registry-controls", "release-controls",
-                                          "history35", "smoke", "control", "controls", "product38-sqlite", "password38-sqlite", "observer38-pure", "node-product38", "node-password38"), required=True)
+                                          "history35", "smoke", "control", "controls", "product38-sqlite", "password38-sqlite", "observer38-pure", "node-product38", "node-password38", "node-privacy39"), required=True)
     parser.add_argument("--private", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--replay-manifest", type=Path)
@@ -427,6 +476,8 @@ def main():
             raise ValueError("Dependency consistency failed before execution")
         if args.suite == "r05-history":
             observation = r05_history_gate(private, environment)
+        elif args.suite == "node-privacy39":
+            observation = privacy_node_gate(private, environment)
         elif args.suite == "node-current":
             observation = current_node_gate(private, environment)
         elif args.suite == "node-routines-onboarding":

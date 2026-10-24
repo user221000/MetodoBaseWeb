@@ -1,0 +1,130 @@
+{
+    "schema":  "current39-privacy-node-phases-v1",
+    "executions":  48,
+    "preloader":  "tests/e2e/browser_offline31.cjs",
+    "commands":  [
+                     {
+                         "script":  "tests/e2e/account-privacy39-review.cjs",
+                         "dependencies":  [
+                                              "web/static/js/account-privacy39.js",
+                                              "web/templates/_account_privacy39_content.html"
+                                          ],
+                         "expected_cases":  [
+                                                "explicit-confirmation-precedes-primary-proof",
+                                                "enabled-current-factor-required-before-primary-proof",
+                                                "sv-plus-one-preserves-bound-receipt-without-post-close-me",
+                                                "later-account-suppresses-old-closure-receipt",
+                                                "policy-blocked-preserves-session-and-distinguishes-erasure",
+                                                "ambiguous-close-retires-local-session-without-retry-or-server-claim",
+                                                "account-change-during-primary-proof-prevents-close",
+                                                "expired-proof-never-reaches-close",
+                                                "current-totp-is-single-factor-and-proof-is-in-memory-only",
+                                                "current-recovery-code-keeps-explicit-method",
+                                                "closed-controller-cannot-request-or-close-again",
+                                                "no-raw-proof-input-or-html-interpolation-in-privacy-view",
+                                                "opaque-google-intent-binds-confirmation-request-and-current-factor",
+                                                "updated-request-rejects-old-google-intent-before-primary-proof",
+                                                "google-intent-is-one-use-after-policy-blocked-response"
+                                            ]
+                     },
+                     {
+                         "script":  "tests/e2e/account-privacy39-transport.cjs",
+                         "dependencies":  [
+                                              "web/static/js/api.js",
+                                              "tests/e2e/browser_harness31.cjs",
+                                              "tests/e2e/browser_session31.cjs"
+                                          ],
+                         "expected_cases":  [
+                                                "request-is-exact-access-idempotent-browser-csrf-under-shared-lock",
+                                                "close-captures-intent-before-lock-and-preserves-bound-receipt-without-me",
+                                                "closed-boundary-retires-other-tab-access-and-stores-only-epoch",
+                                                "policy-blocked-response-keeps-live-access-without-claiming-closure",
+                                                "confirmed-close-rejection-403-keeps-access-and-does-not-retry",
+                                                "confirmed-close-rejection-409-keeps-access-and-does-not-retry",
+                                                "confirmed-close-rejection-422-keeps-access-and-does-not-retry",
+                                                "confirmed-close-rejection-429-keeps-access-and-does-not-retry",
+                                                "current-access-401-retires-session-without-a-closure-receipt",
+                                                "ambiguous-close-503-retires-access-once-without-server-claim",
+                                                "ambiguous-close-network-retires-access-once-without-server-claim",
+                                                "ambiguous-close-invalid-json-retires-access-once-without-server-claim",
+                                                "ambiguous-close-invalid-closure-receipt-retires-access-once-without-server-claim",
+                                                "late-close-response-cannot-clear-or-confirm-a-later-account",
+                                                "receipt-is-unforgeable-and-suppressed-by-a-later-epoch",
+                                                "invalid-close-input-never-performs-io",
+                                                "receipt-contract-rejects-unknown-fields-duplicate-categories-and-invalid-policy",
+                                                "denied-epoch-publication-clears-local-access-without-false-receipt",
+                                                "pagehide-suppresses-pending-closure-ack-without-a-second-request"
+                                            ]
+                     },
+                     {
+                         "script":  "tests/e2e/account-privacy39-dom.cjs",
+                         "dependencies":  [
+                                              "tests/e2e/account-privacy39-transport.cjs",
+                                              "tests/e2e/browser_harness31.cjs",
+                                              "tests/e2e/browser_session31.cjs",
+                                              "web/static/js/api.js",
+                                              "web/static/js/account-privacy39.js",
+                                              "web/static/js/session-shell.js",
+                                              "web/templates/_account_privacy39_content.html"
+                                          ],
+                         "expected_cases":  [
+                                                "mounted-view-does-not-create-request-or-close-automatically",
+                                                "password-receipt-survives-real-session-shell-retirement-as-minimal-main-content",
+                                                "ambiguous-receipt-survives-shell-without-server-or-integral-erasure-claim",
+                                                "policy-blocked-response-keeps-connected-live-view-and-clears-secrets",
+                                                "google-initializes-once-with-freshness-nonce-and-scoped-state",
+                                                "google-requires-explicit-confirmation-before-any-primary-request",
+                                                "linked-google-and-current-factor-close-once-through-existing-reauth-api",
+                                                "edited-google-intent-discards-late-provider-callback-before-primary",
+                                                "wrong-google-state-cannot-adopt-another-attempt",
+                                                "escape-cancels-google-and-suppresses-its-late-response",
+                                                "metodobase-session-changed-clears-google-and-typed-dom-before-late-callback",
+                                                "pagehide-clears-google-and-typed-dom-before-late-callback",
+                                                "legacy-security-widget-prevents-a-second-global-GIS-initialization",
+                                                "a-later-account-boundary-removes-the-old-minimal-closure-receipt"
+                                            ]
+                     }
+                 ],
+    "input_files":  {
+                        "tests/e2e/account-privacy39-review.cjs":  {
+                                                                       "framing":  "raw",
+                                                                       "sha256":  "f858e24c6b98f6fde813aa3e62229767d74ea377a05aaa2aac2a2d0ff7b571e7"
+                                                                   },
+                        "tests/e2e/account-privacy39-transport.cjs":  {
+                                                                          "framing":  "raw",
+                                                                          "sha256":  "a2d2817ac4442d079baa1987db393ed8877eac65759e234184bdd3303879410c"
+                                                                      },
+                        "tests/e2e/account-privacy39-dom.cjs":  {
+                                                                    "framing":  "raw",
+                                                                    "sha256":  "696b49fb6dfa0105ce87508838beb701261eb20bb74b412f4070e655fa1888ef"
+                                                                },
+                        "tests/e2e/browser_offline31.cjs":  {
+                                                                "framing":  "raw",
+                                                                "sha256":  "aa2306c7a6051045d1660dd7d3dcdb1d4d04e54e0df800189f162159f2ac9679"
+                                                            },
+                        "tests/e2e/browser_harness31.cjs":  {
+                                                                "framing":  "raw",
+                                                                "sha256":  "66b0bd4c56a6a9072dd334a22ed4ffc0e5a6fb0310dcd0306a00c74f2c26ecf5"
+                                                            },
+                        "tests/e2e/browser_session31.cjs":  {
+                                                                "framing":  "raw",
+                                                                "sha256":  "6d0f2ed294ce7ddc5d03341883d8a9cbee4fb6548628d485738f342f9c9e35e2"
+                                                            },
+                        "web/static/js/api.js":  {
+                                                     "framing":  "raw",
+                                                     "sha256":  "1c3b263f359d9b37ede6893134f212879b05615f56f0c143922c3d4c1c2b6f82"
+                                                 },
+                        "web/static/js/account-privacy39.js":  {
+                                                                   "framing":  "raw",
+                                                                   "sha256":  "955c1918f2d8e3c00e234e68fe976f676945fb4673431b7354f04ba1e9b0eb12"
+                                                               },
+                        "web/static/js/session-shell.js":  {
+                                                               "framing":  "raw",
+                                                               "sha256":  "2fdb3333efbc3f1d1b9466b7bc4da5ce1dd6114b63382773687f7d10676929fa"
+                                                           },
+                        "web/templates/_account_privacy39_content.html":  {
+                                                                              "framing":  "raw",
+                                                                              "sha256":  "8cb16cc419948f2d1faf223e289e771528147815d0d6095bd1cb885f1ca80c1b"
+                                                                          }
+                    }
+}

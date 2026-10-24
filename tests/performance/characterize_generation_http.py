@@ -21,6 +21,7 @@ import sys
 import tempfile
 import threading
 import time
+import traceback
 from urllib.parse import urlsplit
 import uuid
 
@@ -41,6 +42,7 @@ HELPERS = (
     "tests/integration_schema_migrations.py", "tests/integration_provider_subjects.py",
     "tests/performance/generation_observer.py",
     "web/services/product_analytics_v2.py",
+    "tests/ci_web39/pg_control.py",
 )
 
 def canonical(value):
@@ -142,7 +144,8 @@ def check_server_identity(server, identity):
 
 
 def shutdown_from_eof(stream, server):
-    if stream.read(1) != b"":
+    # A daemon must not retain BufferedReader's lock during failed startup.
+    if os.read(stream.fileno(), 1) != b"":
         raise ValueError("Unexpected own shutdown channel bytes; no stop authorized")
     server.should_exit = True
 
@@ -153,10 +156,47 @@ def run_server_until_eof(application, args):
                                           log_level="critical", access_log=False))
     threading.Thread(target=shutdown_from_eof, args=(sys.stdin.buffer, server), daemon=True).start()
     server.run()
+    if not server.started:
+        raise CaptureRejected("Own application startup did not complete")
 
 
 def write_json(path, value):
     Path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def publish_worker_identity(args):
+    """Publish our native identity before contract/app/lifespan operations."""
+    from web.services.legacy_object_apply_boundary import verify
+    from tests.billing13_legacy_apply37_pg_contract import windows_process_identity
+    if (args.output.parent != WORKSPACE / "tmp"
+            or re.fullmatch("metodobase-account37-author-pg-generation-[0-9a-f]{32}", args.output.name) is None
+            or args.factory not in {"web", "api"}
+            or re.fullmatch("[0-9a-f]{32}", args.nonce or "") is None
+            or args.ready != args.output / (args.factory + "-ready.json")):
+        raise ValueError("Exact parent-owned early identity destination required")
+    verify(args.output, directory=True)
+    birth, executable = windows_process_identity(os.getpid())
+    path = args.output / (args.factory + "-worker-identity.json")
+    with path.open("x", encoding="utf8") as stream:
+        verify(path)  # User+SYSTEM before this first payload.
+        json.dump({"nonce": args.nonce, "pid": os.getpid(), "parent_pid": os.getppid(),
+            "birth_filetime_100ns": birth, "executable": str(executable), "argv": sys.argv}, stream)
+        stream.flush(); os.fsync(stream.fileno())
+    path.with_suffix(".closed").touch(exist_ok=False)
+
+
+def record_worker_error(args, error):
+    """First failure only; full traceback stays in the private owned E output."""
+    from web.services.legacy_object_apply_boundary import verify
+    path = args.output / (args.factory + "-worker-error.private.json")
+    if path.exists():
+        return
+    with path.open("x", encoding="utf8") as stream:
+        verify(path)
+        json.dump({"error_class": type(error).__name__, "traceback": traceback.format_exc(),
+                   "application_startup_accepted": False}, stream)
+        stream.flush(); os.fsync(stream.fileno())
+    path.with_suffix(".closed").touch(exist_ok=False)
 
 
 def sources():
@@ -179,10 +219,11 @@ def isolated_environment():
 def owned_database(args, shutdown):
     from tests.ci_web37.pg_close import owned_database as original_owned
     from tests.billing13_legacy_apply37_pg_contract import check_generation
+    from tests.ci_web39.pg_control import check_control_generation
     contract, config = checked_load_runtime(args)
     os.environ.update(config)
     os.environ["ACCOUNT37_PRIVATE_LEASES"] = str(args.output / "leases")
-    check_generation(contract, config)
+    check_control_generation(contract, config)
     cleanup = {"owned_uuid_database_created": False, "owned_uuid_database_removed": False}
     name = None
     try:
@@ -287,13 +328,40 @@ def close_server_logs(streams, record, shutdown):
 def stop_own_server(server, identity):
     if identity is None:
         raise RuntimeError("Own characterization identity unconfirmed; retain process and UUID")
-    check_server_identity(server, identity)
-    if server.stdin is None:
-        raise RuntimeError("Own characterization EOF channel absent; retain process and UUID")
-    server.stdin.close()
+    if server.poll() is None:
+        check_server_identity(server, identity)
+        if server.stdin is None:
+            raise RuntimeError("Own characterization EOF channel absent; retain process and UUID")
+        server.stdin.close()
+    elif server.stdin is not None and not server.stdin.closed:
+        server.stdin.close()
     result = server.wait(timeout=10)
-    if result != 0:
-        raise RuntimeError("Own characterization normal EOF closure not confirmed")
+    # The venv launcher may be a different PID from the actual Python worker.
+    # Reopen only that early, attributed worker and check its native exit object.
+    import ctypes
+    from ctypes import wintypes as W
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.OpenProcess.argtypes = [W.DWORD, W.BOOL, W.DWORD]
+    kernel.OpenProcess.restype = W.HANDLE
+    kernel.GetProcessTimes.argtypes = [W.HANDLE] + [ctypes.POINTER(W.FILETIME)] * 4
+    kernel.WaitForSingleObject.argtypes = [W.HANDLE, W.DWORD]
+    kernel.WaitForSingleObject.restype = W.DWORD
+    kernel.CloseHandle.argtypes = [W.HANDLE]
+    handle = kernel.OpenProcess(0x1000 | 0x100000, False, identity["pid"])
+    if not handle:
+        if ctypes.get_last_error() != 87:
+            raise RuntimeError("Own worker exit object is inaccessible; retain ownership")
+    else:
+        try:
+            stamps = [W.FILETIME() for _ in range(4)]
+            if not kernel.GetProcessTimes(handle, *map(ctypes.byref, stamps)):
+                raise RuntimeError("Own worker birth is unavailable; retain ownership")
+            birth = stamps[0].dwHighDateTime << 32 | stamps[0].dwLowDateTime
+            if birth == identity["birth_filetime_100ns"] and kernel.WaitForSingleObject(handle, 0) != 0:
+                raise RuntimeError("Own worker is still alive after launcher exit; retain ownership")
+        finally:
+            kernel.CloseHandle(handle)
+    return result
 
 
 def workload(args):
@@ -463,7 +531,7 @@ def serve(args):
             or not re.fullmatch("[0-9a-f]{32}", args.nonce or "")
             or args.ready != args.output / (args.factory + "-ready.json")):
         raise ValueError("Exact bounded original parent child arguments required")
-    from tests.billing13_legacy_apply37_pg_contract import check_generation
+    from tests.ci_web39.pg_control import check_control_generation
     url = validate_postgres_test_url(os.environ["METODOBASE_TEST_DATABASE_URL"])
     parsed = urlsplit(url)
     identifier = parsed.path.removeprefix("/metodobase_test_account37_")
@@ -474,7 +542,7 @@ def serve(args):
             or parsed.port != 55483 or parsed.hostname != "127.0.0.1"
             or parsed.username != urlsplit(config["METODOBASE_TEST_POSTGRES_URL"]).username):
         raise ValueError("Child accepts only its created UUID/restricted app role")
-    check_generation(contract, config)
+    check_control_generation(contract, config)
     os.environ["_METODOBASE_TEST_ROOT"] = str(args.output / "metodobase-test-data")
     prepare_environment(discard_inherited=True)
     block_external_sockets()
@@ -595,7 +663,12 @@ def serve(args):
     class ObservedApplication:
         async def __call__(self, scope, receive, send):
             if scope["type"] != "http":
-                return await application(scope, receive, send)
+                try:
+                    return await application(scope, receive, send)
+                except BaseException as error:
+                    if scope["type"] == "lifespan":
+                        record_worker_error(args, error)
+                    raise
             with active_lock:
                 active["HTTP"] += 1
                 if active["HTTP"] > maximum_http:
@@ -830,6 +903,7 @@ def run_factory(args, factory, jobs, tokens, admin, restricted, budget, shutdown
         probe.bind(("127.0.0.1", 0))
         port = probe.getsockname()[1]
     ready = args.output / (factory + "-ready.json")
+    worker_identity = args.output / (factory + "-worker-identity.json")
     nonce = uuid.uuid4().hex
     child_env = os.environ.copy()
     child_env["METODOBASE_TEST_DATABASE_URL"] = restricted.url.render_as_string(hide_password=False)
@@ -848,7 +922,8 @@ def run_factory(args, factory, jobs, tokens, admin, restricted, budget, shutdown
     create_private_directory(logs_dir)
     streams, log_record = open_server_logs(logs_dir)
     process, identity, failure, rows = None, None, None, []
-    shutdown.update(server_started=False, owned_server_stopped=False, stop_requested=False)
+    shutdown.update(server_started=False, owned_server_stopped=False, stop_requested=False,
+                    observer_accepted=False, server_exit_code=None)
     base = f"http://127.0.0.1:{port}"
     try:
         process = subprocess.Popen(argv, cwd=ROOT, env=child_env, stdin=subprocess.PIPE,
@@ -857,6 +932,9 @@ def run_factory(args, factory, jobs, tokens, admin, restricted, budget, shutdown
         process._load_nonce = nonce
         shutdown["server_started"] = True
         while not ready.with_suffix(".closed").exists():
+            if identity is None and worker_identity.with_suffix(".closed").exists():
+                identity = json.loads(worker_identity.read_bytes())
+                check_server_identity(process, identity)
             if process.poll() is not None or time.monotonic() >= budget.deadline:
                 raise CaptureRejected("Server readiness absent; original process retained")
             time.sleep(.05)
@@ -890,23 +968,43 @@ def run_factory(args, factory, jobs, tokens, admin, restricted, budget, shutdown
         failure = error
         raise
     finally:
+        closure_error = None
         if process is not None:
             # Request EOF even after publication/measurement error. Never hash live logs.
             try:
-                stop_own_server(process, identity)
+                if identity is None and worker_identity.with_suffix(".closed").exists():
+                    identity = json.loads(worker_identity.read_bytes())
+                    # The child may already have exited. stop_own_server verifies
+                    # the early attributed worker's native exit, without signalling.
+                    if (identity["nonce"] != nonce or process.pid not in (identity["pid"], identity["parent_pid"])
+                            or identity["argv"] != argv[4:]):
+                        raise CaptureRejected("Closed early worker identity binding differs")
+                shutdown["server_exit_code"] = stop_own_server(process, identity)
+                shutdown["owned_server_stopped"] = True
+                shutdown["stop_requested"] = True
+                if shutdown["server_exit_code"] != 0:
+                    raise CaptureRejected("Own application child exited unsuccessfully")
                 closed = json.loads((args.output / (factory + "-observer-closed.json")).read_bytes())
                 if (closed["normal_lifespan_closed"] is not True or closed["lifecycles_open"] != 0
                         or closed["pool_loans"] != 0 or closed["listeners_removed"] is not True):
                     raise CaptureRejected("Observer/process closure rejected")
-                shutdown["owned_server_stopped"] = True
-                shutdown["stop_requested"] = True
-            except BaseException:
+                shutdown["observer_accepted"] = True
+            except BaseException as error:
                 # The whole frame keeps original Popen/FDs/owned context, even if diagnostics fail.
-                retain("server_closure_uncertain")
+                if shutdown["owned_server_stopped"] is not True:
+                    retain("server_closure_uncertain")
+                closure_error = error
         close_server_logs(streams, log_record, shutdown)
+        log_record["application_observer_accepted"] = shutdown.get("observer_accepted", False)
+        log_record["server_exit_code"] = shutdown.get("server_exit_code")
         write_json(logs_dir / "closed-logs.json", log_record)
         if failure is not None:
             write_json(logs_dir / "first-error.json", {"error_class": type(failure).__name__})
+        if closure_error is not None:
+            write_json(logs_dir / "rejected-child-close.json", {"error_class": type(closure_error).__name__,
+                       "physical_child_waited": True, "application_observer_accepted": False})
+            if failure is None:
+                raise closure_error
 
 
 def main(args):
@@ -1030,6 +1128,11 @@ if __name__ == "__main__":
         if not all((arguments.factory, arguments.port, arguments.ready, arguments.nonce,
                     arguments.deadline, arguments.assignments_sha256)):
             parser.error("Explicit parent-owned child arguments required")
-        serve(arguments)
+        publish_worker_identity(arguments)
+        try:
+            serve(arguments)
+        except BaseException as error:
+            record_worker_error(arguments, error)
+            raise
     else:
         raise SystemExit(main(arguments))
