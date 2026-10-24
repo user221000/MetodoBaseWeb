@@ -1,6 +1,6 @@
 """Symmetric comparison v2 over frozen v1 signatures; no schema mutation.
 
-Only PostgreSQL CHECKs admit the observed varchar-literal ANY array cast
+Only PostgreSQL CHECKs admit the observed varchar-literal ANY/ALL array cast
 placement. The signature producer, historical v1 and RAW targets stay stable.
 """
 from copy import deepcopy
@@ -10,7 +10,7 @@ _VALUE = r"'(?:[^'\\]|'')*'"
 _ITEM = re.compile(r"(?P<value>" + _VALUE + r")::character varying(?P<cast>::text)?")
 _BARE_ITEM = _VALUE + r"::character varying(?:::text)?"
 _ANY = re.compile(
-    r"ANY \(ARRAY\[(?P<items>" + _BARE_ITEM + r"(?:, " + _BARE_ITEM
+    r"(?P<quantifier>ANY|ALL) \(ARRAY\[(?P<items>" + _BARE_ITEM + r"(?:, " + _BARE_ITEM
     + r")*)\](?P<cast>::text\[\])?\)"
 )
 _DOLLAR = re.compile(r"\$(?:[A-Za-z_][A-Za-z0-9_]*)?\$")
@@ -72,7 +72,8 @@ def normalize_check_sql(sql):
             output.append(sql[index:end])
             index = end
             continue
-        inside_name = index and (sql[index - 1].isalnum() or sql[index - 1] in "_$.")
+        inside_name = index and (not sql[index - 1].isascii()
+                                 or sql[index - 1].isalnum() or sql[index - 1] in "_$.")
         match = None if inside_name else _ANY.match(sql, index)
         if match:
             items = list(_ITEM.finditer(match["items"]))
@@ -81,7 +82,7 @@ def normalize_check_sql(sql):
             # Deliberately exclude mixed/redundant casts and every other type,
             # expression, NULL, typmod, dimension, collation or spacing variant.
             if (outer and not any(per_item)) or (not outer and all(per_item)):
-                output.append("ANY (ARRAY[" + ", ".join(item["value"] + "::character varying::text" for item in items) + "])")
+                output.append(match["quantifier"] + " (ARRAY[" + ", ".join(item["value"] + "::character varying::text" for item in items) + "])")
                 index = match.end()
                 continue
         output.append(sql[index])

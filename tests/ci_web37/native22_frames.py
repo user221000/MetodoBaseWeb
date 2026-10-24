@@ -15,6 +15,8 @@ FIXTURES = Path(__file__).with_name("fixtures")
 ANCHOR = "b21b62c0711b3e277399bbe0a2686d1f89ab3249"
 MANIFEST = "tests/e2e/native37_transitive_qa_v6.json"
 NAMES = ("alembic.ini", "db_bootstrap.py")
+ADDITIONAL_NAMES = ('tests/__init__.py', 'tests/isolation.py', 'tests/e2e/mfa31_login.cjs', 'tests/e2e/mobile_heading37_qa.cjs', 'tests/e2e/mfa_ui_browser.cjs', 'tests/e2e/mfa_personal_browser.cjs')
+REPLAY_SHA256 = "3727a9a59b8f1f14306e82c3dd2985eef6992fba150e1e7995cb28271b3d0821"
 FIXTURE_SHA256 = "f6f5a21fed26f73e32ef2d7b202a19b09e601d54522a2e309f1be5944b428a08"
 TEST_NAME = "test_derived_harness_has_exact_full_inverse_and_original22_RAW_are_unchanged"
 TEST_SOURCE_SHA256 = {
@@ -55,7 +57,7 @@ class OriginalFrames:
             raise ValueError("Native22 object fixture contains an unused authority")
 
     def original_frame(self, name, observed):
-        if type(name) is not str or name not in NAMES or type(observed) is not bytes:
+        if type(name) is not str or name not in self.git_lf or type(observed) is not bytes:
             raise ValueError("Native22 transport permits only its two exact paths")
         if observed != self.git_lf[name]:
             raise ValueError("Native22 host is not its exact authenticated Git LF source")
@@ -75,7 +77,7 @@ class _OriginalRoot:
         self.root, self.proof = root, proof
 
     def __truediv__(self, name):
-        return _OriginalPath(self.root, name, self.proof) if name in NAMES else self.root / name
+        return _OriginalPath(self.root, name, self.proof) if name in self.proof.git_lf else self.root / name
 
 
 def export():
@@ -85,8 +87,28 @@ def export():
     proof = OriginalFrames()
     if (ROOT / MANIFEST).read_bytes() != proof.manifest_bytes:
         raise ValueError("Native22 current manifest is not the authenticated original")
+    # The constructor still authenticates its original two paths/objects only.
+    # Calling retained_native11 constructs another unextended proof, not export.
+    from tests.ci_web37 import replay
+    if hashlib.sha256(Path(replay.__file__).read_bytes()).hexdigest() != REPLAY_SHA256:
+        raise ValueError("Native22 retained RAW reader source differs")
+    frames = replay.retained_native11()
+    for name in ADDITIONAL_NAMES:
+        observed = (ROOT / name).read_bytes()
+        pin, size = replay.NATIVE11_GIT_LF[name]
+        frame = frames[name]
+        original_record = proof.manifest["helper_union"][name]
+        if (len(observed) != size or hashlib.sha256(observed).hexdigest() != pin
+                or b"\r" in observed
+                or len(frame) != original_record["bytes"]
+                or hashlib.sha256(frame).hexdigest() != original_record["raw_sha256"]
+                or observed.replace(b"\n", b"\r\n") != frame):
+            raise ValueError("An additional six Native22 LF/retained RAW binding differs")
+        # Only stored authenticated RAW is returned; inverse bytes are never a substitute.
+        proof.git_lf[name] = observed
+        proof.original[name] = frame
     for name, record in proof.manifest["helper_union"].items():
-        if name in NAMES:
+        if name in proof.git_lf:
             proof.original_frame(name, (ROOT / name).read_bytes())
         elif hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != record["raw_sha256"]:
             raise ValueError("An untransported original20 helper changed")
