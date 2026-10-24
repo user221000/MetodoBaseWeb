@@ -207,7 +207,11 @@ def test_wrapper_preserves_raw_exit_and_reports_effective_exit(tmp_path, monkeyp
     monkeypatch.setattr(scanner, "ROOT", root)
     monkeypatch.setattr(sys, "argv", ["scan_secrets.py", "--gitleaks", str(tool), "--report", str(report)])
 
+    actual_boundary_run = subprocess.run
+
     def run(command, **options):
+        if command[0] in {"whoami", "icacls"}:
+            return actual_boundary_run(command, **options)
         if command[0] == "git":
             names = [".gitleaks.toml", "source.txt", review._REVIEW_DATA_PATH]
             return subprocess.CompletedProcess(command, 0, stdout="\0".join(names).encode() + b"\0")
@@ -216,7 +220,8 @@ def test_wrapper_preserves_raw_exit_and_reports_effective_exit(tmp_path, monkeyp
         snapshot = Path(command[2])
         raw = Path(command[command.index("--report-path") + 1])
         raw.write_text(json.dumps([dict(item, File=str(snapshot / "source.txt"))]), encoding="utf-8")
-        return subprocess.CompletedProcess(command, 1)
+        complete = "6:47PM INF scanned ~37 bytes (37 bytes) in 1ms\n6:47PM WRN leaks found: 1\n"
+        return subprocess.CompletedProcess(command, 1, stdout=b"", stderr=complete)
 
     monkeypatch.setattr(scanner.subprocess, "run", run)
     assert scanner.main() == expected

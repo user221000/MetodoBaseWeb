@@ -10,6 +10,7 @@ import zipfile
 import pytest
 
 from scripts import reviewed_scan_locations as review
+from tests.ci_web37.serial_security_transport import historical_source
 
 ROOT = Path(__file__).resolve().parents[1]
 OLD = 'scripts/data/reviewed_scan_locations_v8.zip'
@@ -100,7 +101,7 @@ def test_all28_instances_have_exact_hashed_object_or_synthetic_constructor_prove
     document, objects = proposal()
     assert len(document['witnesses']) == 28
     for row in document['witnesses']:
-        raw = (ROOT / row['file']).read_bytes()
+        raw = historical_source(ROOT, row['file'])
         assert digest(raw) == row['file_sha256']
         physical = raw.split(b'\n')[row['line']-1]
         assert digest(physical) == row['physical_LF_line_sha256']
@@ -139,7 +140,7 @@ def snapshot(tmp_path):
     for name in (CURRENT, '.gitleaks.toml', *[r['path'] for r in document['files']]):
         target = tmp_path / name
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes((ROOT / name).read_bytes())
+        target.write_bytes(historical_source(ROOT, name))
     return {path.relative_to(tmp_path).as_posix(): digest(path.read_bytes())
             for path in tmp_path.rglob('*') if path.is_file()}
 

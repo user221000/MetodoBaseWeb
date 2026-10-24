@@ -33,8 +33,13 @@ def execute_guard(environment, *, head="a" * 40, uid=1001):
         calls.append(args[0])
         raise BeforeTool
 
+    def umask(mask):
+        if type(mask) is not int or mask != 0o077:
+            raise AssertionError("The real publisher must request its exact private umask")
+        return 0o022  # Declared previous mask only; never change the process umask.
+
     fake = {
-        "os": SimpleNamespace(environ=environment, name="posix", geteuid=lambda: uid),
+        "os": SimpleNamespace(environ=environment, name="posix", geteuid=lambda: uid, umask=umask),
         "subprocess": SimpleNamespace(check_output=version_check),
         "socket": SimpleNamespace(socket=forbidden),
         "scripts.scan_secrets": SimpleNamespace(_private_evidence=forbidden),

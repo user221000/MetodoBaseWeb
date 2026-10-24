@@ -17,6 +17,7 @@ from types import SimpleNamespace
 import pytest
 
 from tests.security_bandit22_contract_peer import descriptor, digest, validate_candidate
+from tests.ci_web37.serial_security_transport import historical_source
 
 ROOT = Path(__file__).resolve().parents[1]
 PROPOSAL = json.loads((ROOT/"tests/data/security_bandit22_contract_candidate.json").read_bytes())
@@ -35,7 +36,7 @@ def source_copy(tmp_path):
     for name in {**PROPOSAL["dependency_bindings"], **PROPOSAL["source_bindings"]}:
         target = tmp_path/name
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(ROOT/name, target)
+        target.write_bytes(historical_source(ROOT, name))
     return tmp_path
 
 

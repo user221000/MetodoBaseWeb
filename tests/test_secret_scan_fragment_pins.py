@@ -9,6 +9,7 @@ import sys
 import pytest
 
 from scripts import scan_secrets as scanner
+from tests.ci_web37.serial_security_transport import historical_source
 
 
 PINS = tuple(scanner._FRAGMENT_FINGERPRINT_PINS)
@@ -16,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _copy(tmp_path, name, *, crlf=False):
-    original = (ROOT / name).read_bytes().replace(b"\r\n", b"\n")
+    original = historical_source(ROOT, name).replace(b"\r\n", b"\n")
     content = original.replace(b"\n", b"\r\n") if crlf else original
     target = tmp_path / name
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -111,7 +112,11 @@ def test_wrapper_classification_counts_and_failure_status(tmp_path, monkeypatch,
     monkeypatch.setattr(scanner, "ROOT", candidate)
     monkeypatch.setattr(sys, "argv", ["scan_secrets.py", "--gitleaks", str(tool), "--report", str(report)])
 
+    actual_boundary_run = subprocess.run
+
     def run(command, **options):
+        if command[0] in {"whoami", "icacls"}:
+            return actual_boundary_run(command, **options)
         if command[0] == "git":
             return subprocess.CompletedProcess(command, 0, stdout="\0".join(files).encode() + b"\0")
         if command[1] == "version":
@@ -128,7 +133,11 @@ def test_wrapper_classification_counts_and_failure_status(tmp_path, monkeypatch,
             copied = snapshot / name
             copied.write_bytes(copied.read_bytes() + b" ")
         Path(command[command.index("--report-path") + 1]).write_text(json.dumps(findings), encoding="utf-8")
-        return subprocess.CompletedProcess(command, 0 if case == "findings_exit0" else 1)
+        count = len(findings)
+        final = f"WRN leaks found: {count}" if count else "INF no leaks found"
+        complete = "6:47PM INF scanned ~37 bytes (37 bytes) in 1ms\n6:47PM " + final + "\n"
+        return subprocess.CompletedProcess(command, 0 if case == "findings_exit0" else 1,
+                                           stdout=b"", stderr=complete)
 
     monkeypatch.setattr(scanner.subprocess, "run", run)
     if expected is None:
@@ -147,7 +156,7 @@ def test_wrapper_classification_counts_and_failure_status(tmp_path, monkeypatch,
 
 @pytest.mark.parametrize("payload", [{}, False, 0, "", None, "unexpected", {"unexpected": True}, 1])
 def test_malformed_scanner_json_cannot_become_a_successful_empty_list(tmp_path, monkeypatch, payload):
-    from tests.test_secret_scan_safety import _scenario
+    from tests.ci_web37.serial_security_transport import completed_safety_scenario as _scenario
 
     boundary, report, _ = _scenario(tmp_path, monkeypatch)
     original_run = boundary.subprocess.run
@@ -157,7 +166,7 @@ def test_malformed_scanner_json_cannot_become_a_successful_empty_list(tmp_path, 
         if len(command) > 1 and command[1] == "dir":
             raw = Path(command[command.index("--report-path") + 1])
             raw.write_text(json.dumps(payload), encoding="utf-8")
-            return subprocess.CompletedProcess(command, 0)
+            return subprocess.CompletedProcess(command, 0, stdout=result.stdout, stderr=result.stderr)
         return result
 
     monkeypatch.setattr(boundary.subprocess, "run", run)

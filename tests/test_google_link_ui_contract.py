@@ -59,6 +59,10 @@ def test_google_client_id_is_public_configuration_only_and_assets_remain_local(m
     assert len(roots) == 1
     assert roots[0]['data-google-client-id'] == 'synthetic-public-client.apps.googleusercontent.com'
     assets = [attrs.get('src', attrs.get('href', '')) for tag, attrs in markup.nodes if tag in {'script', 'link'}]
-    assert len(assets) == 4
+    assert len(assets) == 5
+    assert {value.split('?', 1)[0] for value in assets} == {
+        '/static/css/google-vinculo.css', '/static/js/api.js',
+        '/static/js/google-vinculo.js', '/static/js/google-vinculo-pagina.js',
+        '/static/css/design-system.css'}
     assert all(value.startswith('/static/') for value in assets)
     assert not any('credential' in attrs or 'intent' in attrs or 'password' in attrs for _, attrs in markup.nodes)

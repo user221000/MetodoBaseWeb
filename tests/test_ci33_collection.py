@@ -15,7 +15,7 @@ def test_collector_records_only_final_keyword_selection(tmp_path_factory,selecto
     source=directory/'test_synthetic_dialect.py'
     source.write_text("import pytest\n@pytest.mark.parametrize('engine',['sqlite','postgresql'])\ndef test_case(engine): pass\n",encoding='utf8')
     output=directory/'identities.json'
-    result=subprocess.run([sys.executable,'-X','utf8','-B','tests/ci_google33/collect.py','--output',str(output),str(source),'-k',selector],
+    result=subprocess.run([sys.executable,'-X','utf8','-B','tests/ci_google33/collect.py','--output',str(output),str(source),'--rootdir='+str(directory),'--confcutdir='+str(directory),'-k',selector],
         cwd=ROOT,capture_output=True,timeout=30,check=False)
     if selector=='no_matching_case':
         assert result.returncode==5 and not output.exists()

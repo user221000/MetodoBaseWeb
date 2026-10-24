@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from scripts import reviewed_scan_locations as review
+from tests.ci_web37.serial_security_transport import historical_source
 
 ROOT = Path(__file__).resolve().parents[1]
 POINTS = [('tests/test_client_link_models.py', 23, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/history-independent-20261019/browser57-own3/server.log', 1, 'generic-api-key'), ('docs/implementation/20261018-evolution/SESION_NAVEGADOR_R31_SNAPSHOT.json', 173, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/qa-ci33-main-r05v2-composition-20261020/verifier-before.raw.txt', 73, 'generic-api-key'), ('docs/implementation/20261018-evolution/SESION_NAVEGADOR_R31_CI_MAP.json', 9641, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/ux/team-freeze-source.json', 11, 'generic-api-key'), ('docs/implementation/20261018-evolution/evidence/backend-r12-api-cas-final-source.json', 16, 'generic-api-key')]
@@ -20,7 +21,7 @@ def source_bytes(name):
             raw = archive.read("historical-team-freeze-source.RAW.json")
         assert hashlib.sha256(raw).hexdigest() == "6d09df84a1e84268b824d9f39f346b9a61f622647db6478b4839442bee964947"
         return raw
-    return (ROOT/name).read_bytes()
+    return historical_source(ROOT, name)
 
 
 def registry(name):

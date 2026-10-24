@@ -20,6 +20,7 @@ TEST_NAME = "test_derived_harness_has_exact_full_inverse_and_original22_RAW_are_
 TEST_SOURCE_SHA256 = {
     "7b1d9bd8b19fdb679a50f66c1a1af2940d7766cfaa4a02b24a77ad92a2fd0a4a",
     "226d9b782dadf983a28cd9e8e9af6afb988c8c6a3ed5ec6a0178900e425bbbcd",
+    "b283b8a12cac4570a1957f8531394536bb690ead6212f506817dc93989d63c70",
 }
 
 

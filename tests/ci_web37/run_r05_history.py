@@ -68,6 +68,12 @@ def main():
     os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
     os.environ.pop("PYTHONPATH", None)
     sys.path = [str(source), *[entry for entry in sys.path if entry and Path(entry).resolve() != ROOT]]
+    # Keep the authenticated proof and transport callables by reference, while
+    # the frozen source supplies both package namespaces during collection.
+    for module_name in tuple(sys.modules):
+        if (module_name == "scripts" or module_name.startswith("scripts.")
+                or module_name == "tests" or module_name.startswith("tests.")):
+            del sys.modules[module_name]
     import pytest
 
     transport = Transport(proof, args.phase)

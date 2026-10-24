@@ -3,6 +3,7 @@ import ast
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -16,6 +17,25 @@ from tests.e2e import native35_guard_v7 as guard
 
 ROOT = Path(__file__).resolve().parents[1]
 NOW = datetime(2026, 10, 22, tzinfo=UTC)
+
+
+
+@pytest.fixture(autouse=True)
+def historical_profile_input(request, monkeypatch):
+    # Only these original pure tests consume PROFILE. Never authorize a live phase.
+    if request.function.__name__ not in {
+            "test_actual_new_launcher_refuses_expired_before_fake_SQL_fixture_and_has_valid_control",
+            "test_actual_file_bound_ACK_reader_accepts_pinned_control",
+            "test_actual_file_bound_ACK_reader_refuses_drift"}:
+        return
+    selected = Path(os.environ["METODOBASE_TEST_NATIVE35_V7_PROFILE"])
+    if (not selected.is_absolute()
+            or not selected.resolve(strict=True).is_relative_to(Path("E:/MetodoBaseWorkspace").resolve())
+            or selected.is_symlink() or getattr(selected.lstat(), "st_file_attributes", 0) & 0x400
+            or selected.stat().st_nlink != 1 or selected.stat().st_size != 424
+            or guard.digest(selected.read_bytes()) != guard.PROFILE_SHA):
+        raise ValueError("The explicit historical V7 profile RAW differs")
+    monkeypatch.setattr(guard, "PROFILE", selected)
 
 
 def ack_pair():
