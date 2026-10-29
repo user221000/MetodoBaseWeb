@@ -67,6 +67,7 @@ def build_probe(private,contract,docker,tag):
     return checked|{'image_id':image_id,'tag':tag,'container_id':container_id,'builds_attempted':1,'runtime_probes_attempted':1,
         'probe_sha256':hashlib.sha256(bound).hexdigest(),'source_context_sha256':contract['context_sha256'],
         'source_commit':contract['source'],'application_started':False,'SBOM_SCA_complete':False,
+        'native_parent_merkle_objects':21,'native_input_transition':contract.get('native_input_transition'),
         'container_retained_without_rm':True,'historical_image_or_cache_pruned':False}
 
 def main(argv=None):
@@ -97,6 +98,8 @@ def main(argv=None):
             'bound_probe_sha256':hashlib.sha256(bound).hexdigest(),'image_built':False,'runtime_probe_executed':False,
             'final_candidate_source_pin':False,'SBOM_SCA_complete':False}
     else:result=build_probe(args.private_root,contract,args.docker,args.tag)
+    result['native_parent_merkle_objects']=21
+    result['native_input_transition']=contract.get('native_input_transition')
     evidence=authority.evidence();evidence['seal'](args.private_root,args.public_root,result,acl)
     print(json.dumps(result))
     return 0

@@ -31,6 +31,7 @@ from tests.ci_web39.recipes import (
     SMOKE_SELECTORS,
     require_native_expiry_replacement,
     require_scanner_safety_companion,
+    require_parent_companions,
 )
 from tests.ci_web37.recipes import HISTORICAL35_SELECTORS, NODE_MAP, R05_FROZEN_PHASES
 from tests.ci_web38.reports import junit_identities, node_cases, require_exact_junit
@@ -180,11 +181,11 @@ def pytest_gate(private, environment, suite):
         selectors = ["tests/test_current37_primary_privacy.py", "tests/test_current37_retention.py",
                      "-p", "tests.ci_web39.composition", "--web39-current-fixtures", "-p", "tests.ci_web37.scope"]
     if suite == "registry-controls":
-        selectors = ["tests/test_ci_web37_bandit_registry.py", "-p", "tests.ci_web39.composition",
+        selectors = ["tests/test_current39_bandit_parent18.py", "-p", "tests.ci_web39.composition",
                      "--web39-current-fixtures", "-p", "tests.ci_web37.scope"]
     if suite == "release-controls":
         selectors = ["tests/test_ci_web37_image_context.py", "tests/test_ci_web37_image_preflight.py",
-                     "tests/test_ci_web37_bandit_registry.py", "-p", "tests.ci_web39.composition",
+                     "tests/test_current39_bandit_parent18.py", "-p", "tests.ci_web39.composition",
                      "--web39-current-fixtures", "-p", "tests.ci_web37.scope"]
     if suite == "product38-sqlite":
         selectors = ["tests/test_product_analytics_v2.py",
@@ -229,6 +230,11 @@ def pytest_gate(private, environment, suite):
     if suite in {"serial", "parallel"}:
         require_scanner_safety_companion(expected)
         require_native_expiry_replacement(expected)
+        require_parent_companions(expected)
+    if suite in {"registry-controls", "release-controls"}:
+        require_parent_companions(expected,{"tests.test_ci_web37_bandit_registry"})
+    if suite == "controls":
+        require_parent_companions(expected,{"tests.test_security_container37_portable_peer"})
     argv = [sys.executable, "-X", "utf8", "tests/run_isolated.py", *runtime_selectors, "-q", "--tb=short",
             "--basetemp=" + str(private / "pytest-data"), "--junitxml=" + str(private / "pytest.xml")]
     if suite == "serial":
