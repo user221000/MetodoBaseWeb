@@ -26,8 +26,8 @@ except ImportError:
 # Alembic Config object
 config = context.config
 
-# Logging
-if config.config_file_name is not None:
+# Embedded callers supply the exact connection and own their process logging.
+if config.config_file_name is not None and config.attributes.get("connection") is None:
     fileConfig(config.config_file_name)
 
 # Importar modelos para que Alembic detecte las tablas
