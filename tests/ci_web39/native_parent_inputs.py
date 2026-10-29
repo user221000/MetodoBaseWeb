@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import __future__
 import ast
+import builtins
 import functools
 import hashlib
 import importlib
@@ -42,6 +43,96 @@ MODULES = {
         "reads": ("Dockerfile",),
     },
 }
+PARENT_MATCHER_SHA256 = "e02a3f3c828f5696d26834a95d626b430624ae66ea249445a1e52705b98dc118"
+PARENT_REGISTRY_SHA256_LF = "2a2c778ccb420e83052cc15bd3b5c1cc103ce589cc4c1775597468d9626d101b"
+# Updated only together with the separately reviewed current matcher bytes.
+PARENT_AST_SHA256 = "4e036eef3bf815b4e54b4ce2445a479452a45ec211b213ec748b07641aa90e6a"
+
+
+def parent_ast_helpers():
+    """Authenticate the two new private helpers without trusting an import alias."""
+    module = importlib.import_module("tests.ci_web39.bandit_review")
+    path = authority.regular_file(ROOT / "tests/ci_web39/bandit_review.py")
+    if (module.__name__ != "tests.ci_web39.bandit_review" or Path(module.__file__) != path):
+        raise ValueError("Current parent AST helper module or file differs")
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != PARENT_AST_SHA256:
+        raise ValueError("Current parent AST helper source SHA differs")
+    reference = compile(raw, str(path), "exec", flags=__future__.annotations.compiler_flag, dont_inherit=True)
+    expected = {value.co_name: value for value in reference.co_consts
+                if isinstance(value, CodeType) and value.co_name in {"ast_text", "ast_parse"}}
+    if set(expected) != {"ast_text", "ast_parse"}:
+        raise ValueError("Current parent AST helper function inventory differs")
+    helpers = []
+    for name in ("ast_text", "ast_parse"):
+        function = getattr(module, name, None)
+        if (not isinstance(function, FunctionType) or function.__module__ != module.__name__
+                or function.__name__ != name or function.__globals__ is not vars(module)
+                or function.__code__ != expected[name] or function.__code__.co_filename != str(path)):
+            raise ValueError("Current parent AST helper CodeType or globals differ")
+        helpers.append(function)
+    return tuple(helpers)
+
+
+class ParentAst:
+    """Private finite AST transport for the unchanged22 historical matcher."""
+    def __init__(self):
+        self._text, self._parse = parent_ast_helpers()
+
+    def __getattr__(self, name):
+        return getattr(ast, name)
+
+    def parse(self, source, *args, **kwargs):
+        return self._parse(source, *args, **kwargs)
+
+    def dump(self, node, *args, **kwargs):
+        if args or kwargs not in ({}, {"include_attributes": False}):
+            raise ValueError("Undeclared parent AST dump options")
+        return self._text(node)
+
+
+def parent22_exec(code, namespace, *args, **kwargs):
+    """Delegate one authenticated exec with an entirely private import facade."""
+    if (args or kwargs or type(namespace) is not dict or set(namespace) != {"__name__", "__file__"}
+            or namespace["__name__"] != "ci_web37_bandit22_literal_matcher"
+            or type(namespace["__file__"]) is not str or not isinstance(code, CodeType)):
+        raise ValueError("Undeclared historical matcher execution transport")
+    path = Path(namespace["__file__"])
+    if path.parts[-2:] != ("tests", "security_bandit22_contract_peer.py"):
+        raise ValueError("Historical matcher file differs")
+    raw = authority.regular_file(path).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != PARENT_MATCHER_SHA256:
+        raise ValueError("Historical matcher source SHA differs")
+    expected = compile(raw, str(path), "exec", flags=__future__.annotations.compiler_flag, dont_inherit=True)
+    if code != expected or code.co_filename != str(path):
+        raise ValueError("Historical matcher CodeType or file differs")
+    original_import = builtins.__import__
+
+    def private_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "ast" and globals is namespace and not fromlist and level == 0:
+            return ParentAst()
+        return original_import(name, globals, locals, fromlist, level)
+
+    private_builtins = dict(vars(builtins), __import__=private_import)
+    namespace["__builtins__"] = private_builtins
+    return builtins.exec(code, namespace)
+
+
+def parent22_registry(original):
+    """Preserve the original registry CodeType and bind only its exec lookup."""
+    path = ROOT / "tests/ci_web37/bandit_registry.py"
+    raw = path.read_bytes().replace(b"\r\n", b"\n")
+    if hashlib.sha256(raw).hexdigest() != PARENT_REGISTRY_SHA256_LF:
+        raise ValueError("Original parent registry source differs")
+    reference = next(value for value in compile(raw, str(path), "exec", dont_inherit=True).co_consts
+                     if isinstance(value, CodeType) and value.co_name == "apply_registry")
+    if original.__code__ != reference:
+        raise ValueError("Original parent registry CodeType differs")
+    namespace = dict(original.__globals__, exec=parent22_exec)
+    clone = FunctionType(original.__code__, namespace, original.__name__, original.__defaults__, original.__closure__)
+    functools.update_wrapper(clone, original)
+    clone.__kwdefaults__ = original.__kwdefaults__
+    return clone
 
 
 def authenticated_module(name):
@@ -156,6 +247,9 @@ def install(namespace, name):
     for label, value in vars(original).items():
         if label.startswith("test_") and isinstance(value, FunctionType):
             exported[label] = clone_function_namespace(value, parent, cache)
+    if name == "tests.test_ci_web37_bandit_registry":
+        for globals_copy in cache.values():
+            globals_copy["apply_registry"] = parent22_registry(original.apply_registry)
     namespace.update(exported)
     if name == "tests.test_security_container37_portable_peer":
         value = original.input_copy

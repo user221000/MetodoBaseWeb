@@ -15,13 +15,17 @@ jobs:
         python-version: '3.12'
     - run: python -m pip install -r requirements-test-quality.txt
     - name: Undefined names block integration
-      run: python tests/check_quality.py lint
-    - name: Parse every maintained Python source
-      run: python tests/check_quality.py syntax
-    - name: Reviewed Bandit baseline; new findings block integration
-      run: python tests/check_quality.py security
-    - name: Real quality tools reject synthetic script and entrypoint regressions
-      run: python tests/verify_quality_guards.py
+      run: python -B -X utf8 tests/ci_web39/quality.py lint
+    - name: Parse maintained web and web-test Python sources
+      run: python -B -X utf8 tests/ci_web39/quality.py syntax
+    - name: Current source-scoped Bandit review; new findings block integration
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/current39-quality-private"
+        python -B -X utf8 tests/ci_web39/quality.py security --report "$RUNNER_TEMP/current39-quality-private/bandit.private.json"
+    - name: Real web quality tools reject root, operation and runtime regressions
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/current39-quality-controls-private"
+        python -B -X utf8 tests/ci_web39/verify_quality.py --evidence "$RUNNER_TEMP/current39-quality-controls-private"
   secrets:
     runs-on: ubuntu-latest
     steps:

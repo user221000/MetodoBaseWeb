@@ -1,0 +1,705 @@
+{
+  "scope": "derived finite historical scanner-output fixture; not a live scan, current-source admission or approval",
+  "source": "d8df9d4182e06d6c0a9a19915a4ccc8254980bd4",
+  "Python": "3.11.15 (main, Jun 23 2026, 15:20:37) [MSC v.1944 64 bit (AMD64)]",
+  "bandit_version": "1.9.4",
+  "source_report_sha256": "2cd0fd41f4535440889f90d56d86f78137206636df3043bc258893d93614c855",
+  "report": {
+    "errors": [],
+    "results": [
+      {
+        "code": "578         try:\n579             with urllib.request.urlopen(req, timeout=10) as resp:\n580                 body = json.loads(resp.read().decode(\"utf-8\"))\n",
+        "col_offset": 17,
+        "end_col_offset": 56,
+        "filename": "core\\licencia.py",
+        "issue_confidence": "HIGH",
+        "issue_cwe": {
+          "id": 22,
+          "link": "https://cwe.mitre.org/data/definitions/22.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.",
+        "line_number": 579,
+        "line_range": [
+          579
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen",
+        "test_id": "B310",
+        "test_name": "blacklist"
+      },
+      {
+        "code": "680         try:\n681             with urllib.request.urlopen(req, timeout=10) as resp:\n682                 body = json.loads(resp.read().decode(\"utf-8\"))\n",
+        "col_offset": 17,
+        "end_col_offset": 56,
+        "filename": "core\\licencia.py",
+        "issue_confidence": "HIGH",
+        "issue_cwe": {
+          "id": 22,
+          "link": "https://cwe.mitre.org/data/definitions/22.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.",
+        "line_number": 681,
+        "line_range": [
+          681
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen",
+        "test_id": "B310",
+        "test_name": "blacklist"
+      },
+      {
+        "code": "176         assert args.build,'Preparation requires an explicitly supplied pinned archive'\n177         archive=Path('/tmp/psf-expat-sec10.tar.xz');assert not archive.exists()\n178         with urllib.request.urlopen(lock['psf_source_url'],timeout=60) as response:raw=response.read(20829825)\n",
+        "col_offset": 21,
+        "end_col_offset": 50,
+        "filename": "runtime-source\\expat-sec10\\rebuild_pyexpat.py",
+        "issue_confidence": "MEDIUM",
+        "issue_cwe": {
+          "id": 377,
+          "link": "https://cwe.mitre.org/data/definitions/377.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Probable insecure usage of temp file/directory.",
+        "line_number": 177,
+        "line_range": [
+          177
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b108_hardcoded_tmp_directory.html",
+        "test_id": "B108",
+        "test_name": "hardcoded_tmp_directory"
+      },
+      {
+        "code": "177         archive=Path('/tmp/psf-expat-sec10.tar.xz');assert not archive.exists()\n178         with urllib.request.urlopen(lock['psf_source_url'],timeout=60) as response:raw=response.read(20829825)\n179         assert len(raw)==20829824 and digest(raw)==lock['psf_source_sha256'];archive.write_bytes(raw)\n",
+        "col_offset": 13,
+        "end_col_offset": 70,
+        "filename": "runtime-source\\expat-sec10\\rebuild_pyexpat.py",
+        "issue_confidence": "HIGH",
+        "issue_cwe": {
+          "id": 22,
+          "link": "https://cwe.mitre.org/data/definitions/22.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Audit url open for permitted schemes. Allowing use of file:/ or custom schemes is often unexpected.",
+        "line_number": 178,
+        "line_range": [
+          178
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b310-urllib-urlopen",
+        "test_id": "B310",
+        "test_name": "blacklist"
+      },
+      {
+        "code": "32         raise ValueError(f\"Tabla no permitida: {table}\")\n33     cursor.execute(f\"SELECT COUNT(*) FROM {table}\")\n34     return cursor.fetchone()[0] == 0\n",
+        "col_offset": 19,
+        "end_col_offset": 50,
+        "filename": "src\\alimentos_sqlite.py",
+        "issue_confidence": "MEDIUM",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 33,
+        "line_range": [
+          33
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "37         try:\n38             c.execute(f\"SELECT COUNT(*) FROM {table}\")\n39             counts[table] = c.fetchone()[0]\n",
+        "col_offset": 22,
+        "end_col_offset": 53,
+        "filename": "src\\migrar_catalogo_sqlite.py",
+        "issue_confidence": "MEDIUM",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 38,
+        "line_range": [
+          38
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "49     verify(connection, revision)\n50     if connection.scalar(sa.text(\"SELECT EXISTS(SELECT 1 FROM usuarios WHERE \" +\n51                                  \" OR \".join(name + \" IS NOT NULL\" for name in NAMES) + \")\")):\n52         raise RuntimeError(\"Contact evidence requires a reviewed data-preserving restore\")\n",
+        "col_offset": 33,
+        "end_col_offset": 78,
+        "filename": "web\\database\\alembic\\versions\\20261020_account_security.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 50,
+        "line_range": [
+          50,
+          51
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "54     connection=op.get_bind();begin(connection);verify(connection,revision)\n55     if any(connection.scalar(sa.text(\"SELECT EXISTS(SELECT 1 FROM \"+name+\")\")) for name in TABLES):\n56         raise RuntimeError(\"Notification history requires a reviewed data-preserving restore\")\n",
+        "col_offset": 37,
+        "end_col_offset": 67,
+        "filename": "web\\database\\alembic\\versions\\20261020_notifications.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 55,
+        "line_range": [
+          55
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "30 def _source(equal):\n31     return f\"\"\"EXISTS(SELECT 1 FROM clientes c WHERE c.id_cliente=NEW.client_id AND c.gym_id=NEW.gym_id\n32         AND c.activo AND c.deleted_at IS NULL AND c.fecha_fin_suscripcion {equal} NEW.membership_end)\n33         AND NEW.plan_count=(SELECT count(*) FROM planes_generados p WHERE p.gym_id=NEW.gym_id\n34             AND p.id_cliente=NEW.client_id AND p.deleted_at IS NULL)\n35         AND NEW.last_plan_at {equal} (SELECT max(p.fecha_generacion) FROM planes_generados p\n36             WHERE p.gym_id=NEW.gym_id AND p.id_cliente=NEW.client_id AND p.deleted_at IS NULL)\"\"\"\n37 \n",
+        "col_offset": 11,
+        "end_col_offset": 97,
+        "filename": "web\\database\\followup_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 31,
+        "line_range": [
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "39 def _projection(equal):\n40     return \"EXISTS(SELECT 1 FROM followup_task_events e WHERE e.id=NEW.current_event_id AND e.task_id=NEW.id AND \" + \" AND \".join(\n41         f\"e.{field} {equal} NEW.{field}\" for field in SNAPSHOT) + \")\"\n42 \n",
+        "col_offset": 11,
+        "end_col_offset": 114,
+        "filename": "web\\database\\followup_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 40,
+        "line_range": [
+          40,
+          41
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "57     values = [\"NEW.task_id\", *(\"NEW.\"+c for c in SNAPSHOT), \"NEW.id\"]\n58     return \"INSERT INTO followup_tasks(\"+\",\".join(names)+\") VALUES(\"+\",\".join(values)+\");\"\n59 \n",
+        "col_offset": 11,
+        "end_col_offset": 40,
+        "filename": "web\\database\\followup_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 58,
+        "line_range": [
+          58
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "61 def _projection_update():\n62     return \"UPDATE followup_tasks SET \" + \",\".join(f\"{c}=NEW.{c}\" for c in SNAPSHOT) + \",current_event_id=NEW.id WHERE id=NEW.task_id AND gym_id=NEW.gym_id;\"\n63 \n",
+        "col_offset": 11,
+        "end_col_offset": 39,
+        "filename": "web\\database\\followup_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 62,
+        "line_range": [
+          62
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "65 def _transition(prior):\n66     return f\"\"\"((NEW.kind='created' AND NEW.version=1 AND NEW.status='open' AND NEW.created_by=NEW.actor_id\n67         AND NEW.created_at=NEW.updated_at AND NOT EXISTS(SELECT 1 FROM followup_tasks t WHERE t.id=NEW.task_id))\n68         OR (NEW.kind<>'created' AND EXISTS(SELECT 1 FROM followup_tasks t WHERE t.id=NEW.task_id\n69           AND t.gym_id=NEW.gym_id AND t.status='open' AND t.version<2147483647 AND NEW.version=t.version+1\n70           AND ((NEW.kind='updated' AND NEW.status='open' AND (NEW.next_step<>t.next_step OR NEW.assignee_id {prior} t.assignee_id))\n71             OR (NEW.kind='completed' AND NEW.status='completed' AND NEW.completed_by=NEW.actor_id\n72                 AND NEW.assignee_id IS NOT NULL AND NEW.assignee_id=t.assignee_id AND NEW.next_step=t.next_step)\n73             OR (NEW.kind='cancelled' AND NEW.status='cancelled' AND NEW.cancelled_by=NEW.actor_id\n74                 AND NEW.assignee_id {('IS' if prior == 'IS NOT' else 'IS NOT DISTINCT FROM')} t.assignee_id AND NEW.next_step=t.next_step)))))\"\"\"\n75 \n",
+        "col_offset": 11,
+        "end_col_offset": 145,
+        "filename": "web\\database\\followup_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 66,
+        "line_range": [
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "90         BEGIN SELECT RAISE(ABORT,'Follow-up event requires reviewed purge'); END\"\"\")\n91     c.exec_driver_sql(f\"\"\"CREATE TRIGGER r34_event_authorize BEFORE INSERT ON followup_task_events BEGIN\n92         SELECT CASE WHEN NOT ({_actor()}) THEN RAISE(ABORT,'Follow-up actor denied') END;\n93         SELECT CASE WHEN NEW.kind<>'cancelled' AND NOT ({_assignee()}) THEN RAISE(ABORT,'Follow-up assignee denied') END;\n94         SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM clientes WHERE id_cliente=NEW.client_id AND gym_id=NEW.gym_id AND activo AND deleted_at IS NULL)\n95             THEN RAISE(ABORT,'Follow-up client denied') END;\n96         SELECT CASE WHEN NOT ({_transition('IS NOT')}) THEN RAISE(ABORT,'Follow-up transition denied') END;\n97         SELECT CASE WHEN NEW.kind='created' AND NOT ({_source('IS')}) THEN RAISE(ABORT,'Follow-up source changed') END;\n98         SELECT CASE WHEN NEW.kind='created' AND NOT ({_qualifies(\"strftime('%Y-%m-%d %H:%M:%f','now')\", \"strftime('%Y-%m-%d %H:%M:%f','now','-30 days')\")}) THEN RAISE(ABORT,'Follow-up cause absent') END;\n99         SELECT CASE WHEN NEW.actor_role='nutriologo' AND (NEW.kind<>'completed' OR NEW.assignee_id IS NOT NEW.actor_id)\n100             THEN RAISE(ABORT,'Follow-up assigned operation denied') END;\n101         END\"\"\")\n102     c.exec_driver_sql(f\"\"\"CREATE TRIGGER r34_task_insert BEFORE INSERT ON followup_tasks BEGIN\n",
+        "col_offset": 22,
+        "end_col_offset": 14,
+        "filename": "web\\database\\followup_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 91,
+        "line_range": [
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "118     actor = _actor().replace(\"lower(a.role)\", \"lower(a.role::text)\")\n119     c.exec_driver_sql(f\"\"\"CREATE FUNCTION r34_event_guard() RETURNS trigger LANGUAGE plpgsql\n120         VOLATILE SECURITY INVOKER SET search_path=pg_catalog,public AS $$\n121         DECLARE hint public.followup_tasks; prior public.followup_tasks;\n122         BEGIN\n123           IF TG_OP<>'INSERT' THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up event is append only'; END IF;\n124           IF NEW.gym_id IS DISTINCT FROM NULLIF(current_setting('app.current_tenant',true),'')\n125               OR ({actor}) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up actor denied'; END IF;\n126           SELECT * INTO hint FROM public.followup_tasks WHERE id=NEW.task_id AND gym_id=NEW.gym_id;\n127           PERFORM 1 FROM public.usuarios WHERE id=ANY(ARRAY[NEW.actor_id,NEW.gym_id,NEW.assignee_id,hint.assignee_id]) ORDER BY id FOR UPDATE NOWAIT;\n128           IF ({actor}) IS NOT TRUE OR (NEW.kind<>'cancelled' AND ({_assignee()}) IS NOT TRUE)\n129               THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up eligibility changed'; END IF;\n130           PERFORM 1 FROM public.clientes WHERE id_cliente=NEW.client_id AND gym_id=NEW.gym_id AND activo AND deleted_at IS NULL FOR SHARE NOWAIT;\n131           IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up client denied'; END IF;\n132           SELECT * INTO prior FROM public.followup_tasks WHERE id=NEW.task_id AND gym_id=NEW.gym_id FOR UPDATE NOWAIT;\n133           IF prior.assignee_id IS DISTINCT FROM hint.assignee_id THEN RAISE EXCEPTION USING ERRCODE='55P03',MESSAGE='Follow-up lock set changed'; END IF;\n134           IF ({_transition('IS DISTINCT FROM')}) IS NOT TRUE\n135               THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Follow-up transition denied'; END IF;\n136           IF NEW.kind='created' AND ({_source('IS NOT DISTINCT FROM')}) IS NOT TRUE\n137               THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Follow-up source changed'; END IF;\n138           IF NEW.kind='created' AND ({_qualifies(\"(clock_timestamp() AT TIME ZONE 'UTC')\", \"(clock_timestamp() AT TIME ZONE 'UTC') - interval '30 days'\")}) IS NOT TRUE\n139               THEN RAISE EXCEPTION USING ERRCODE='23514',MESSAGE='Follow-up cause absent'; END IF;\n140           IF NEW.actor_role='nutriologo' AND (NEW.kind<>'completed' OR NEW.assignee_id IS DISTINCT FROM NEW.actor_id)\n141               THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Follow-up assigned operation denied'; END IF;\n142           RETURN NEW;\n143         END $$\"\"\")\n144     c.exec_driver_sql(\"CREATE TRIGGER r34_event_guard BEFORE INSERT OR UPDATE OR DELETE ON followup_task_events FOR EACH ROW EXECUTE FUNCTION r34_event_guard()\")\n",
+        "col_offset": 22,
+        "end_col_offset": 17,
+        "filename": "web\\database\\followup_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 119,
+        "line_range": [
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "29     eligible=\"EXISTS(SELECT 1 FROM usuarios u WHERE u.id=NEW.user_id AND ((NEW.context='gym' AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL) OR (NEW.context='personal' AND u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL) AND (u.team_gym_id IS NULL OR EXISTS(SELECT 1 FROM usuarios p WHERE p.id=u.team_gym_id AND p.activo AND p.deleted_at IS NULL AND p.invitation_token IS NULL AND p.tipo='gym' AND p.role='OWNER' AND p.team_gym_id IS NULL)))))\"\n30     statements.append(\"CREATE TRIGGER r36_preference_insert BEFORE INSERT ON \"+PREFERENCES+\" WHEN NOT \"+exclude_account+\n31         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_preferences WHERE user_id=NEW.user_id AND context=NEW.context AND purpose=NEW.purpose),0)+1 OR (NEW.enabled AND NOT \"+eligible+\n",
+        "col_offset": 22,
+        "end_col_offset": 78,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 30,
+        "line_range": [
+          30
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "29     eligible=\"EXISTS(SELECT 1 FROM usuarios u WHERE u.id=NEW.user_id AND ((NEW.context='gym' AND u.tipo='gym' AND u.role='OWNER' AND u.team_gym_id IS NULL) OR (NEW.context='personal' AND u.role IN ('ADMIN','NUTRIOLOGO','VIEWER') AND (u.tipo='usuario' OR u.team_gym_id IS NOT NULL) AND (u.team_gym_id IS NULL OR EXISTS(SELECT 1 FROM usuarios p WHERE p.id=u.team_gym_id AND p.activo AND p.deleted_at IS NULL AND p.invitation_token IS NULL AND p.tipo='gym' AND p.role='OWNER' AND p.team_gym_id IS NULL)))))\"\n30     statements.append(\"CREATE TRIGGER r36_preference_insert BEFORE INSERT ON \"+PREFERENCES+\" WHEN NOT \"+exclude_account+\n31         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_preferences WHERE user_id=NEW.user_id AND context=NEW.context AND purpose=NEW.purpose),0)+1 OR (NEW.enabled AND NOT \"+eligible+\n",
+        "col_offset": 91,
+        "end_col_offset": 103,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 30,
+        "line_range": [
+          30
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "30     statements.append(\"CREATE TRIGGER r36_preference_insert BEFORE INSERT ON \"+PREFERENCES+\" WHEN NOT \"+exclude_account+\n31         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_preferences WHERE user_id=NEW.user_id AND context=NEW.context AND purpose=NEW.purpose),0)+1 OR (NEW.enabled AND NOT \"+eligible+\n32         \") OR (NOT NEW.enabled AND NOT EXISTS(SELECT 1 FROM notification_preferences WHERE user_id=NEW.user_id AND context=NEW.context AND purpose=NEW.purpose)) BEGIN SELECT RAISE(ABORT,'Notification preference scope denied'); END\")\n33     mapping=\"EXISTS(SELECT 1 FROM provider_subject_associations a JOIN subscriptions s ON s.id=NEW.subscription_id AND s.gym_id=NEW.user_id AND s.provider=NEW.provider WHERE a.provider=NEW.provider AND a.resource_type=NEW.resource_type AND a.resource_id=NEW.resource_id AND a.subject_id=NEW.user_id AND ((NEW.provider='stripe' AND NEW.resource_type='subscription' AND s.stripe_subscription_id=NEW.resource_id) OR (NEW.provider='mercadopago' AND NEW.resource_type='payment' AND s.provider_payment_id=NEW.resource_id)))\"\n",
+        "col_offset": 8,
+        "end_col_offset": 191,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 31,
+        "line_range": [
+          30,
+          31
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "31         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_preferences WHERE user_id=NEW.user_id AND context=NEW.context AND purpose=NEW.purpose),0)+1 OR (NEW.enabled AND NOT \"+eligible+\n32         \") OR (NOT NEW.enabled AND NOT EXISTS(SELECT 1 FROM notification_preferences WHERE user_id=NEW.user_id AND context=NEW.context AND purpose=NEW.purpose)) BEGIN SELECT RAISE(ABORT,'Notification preference scope denied'); END\")\n33     mapping=\"EXISTS(SELECT 1 FROM provider_subject_associations a JOIN subscriptions s ON s.id=NEW.subscription_id AND s.gym_id=NEW.user_id AND s.provider=NEW.provider WHERE a.provider=NEW.provider AND a.resource_type=NEW.resource_type AND a.resource_id=NEW.resource_id AND a.subject_id=NEW.user_id AND ((NEW.provider='stripe' AND NEW.resource_type='subscription' AND s.stripe_subscription_id=NEW.resource_id) OR (NEW.provider='mercadopago' AND NEW.resource_type='payment' AND s.provider_payment_id=NEW.resource_id)))\"\n34     statements.append(\"CREATE TRIGGER r36_fact_insert BEFORE INSERT ON \"+FACTS+\" WHEN NOT \"+account+\" OR NOT \"+eligible+\" OR NOT \"+mapping+\n35         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_billing_facts WHERE user_id=NEW.user_id AND context=NEW.context),0)+1 BEGIN SELECT RAISE(ABORT,'Notification fact source denied'); END\")\n",
+        "col_offset": 8,
+        "end_col_offset": 231,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 32,
+        "line_range": [
+          30,
+          31,
+          32
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "33     mapping=\"EXISTS(SELECT 1 FROM provider_subject_associations a JOIN subscriptions s ON s.id=NEW.subscription_id AND s.gym_id=NEW.user_id AND s.provider=NEW.provider WHERE a.provider=NEW.provider AND a.resource_type=NEW.resource_type AND a.resource_id=NEW.resource_id AND a.subject_id=NEW.user_id AND ((NEW.provider='stripe' AND NEW.resource_type='subscription' AND s.stripe_subscription_id=NEW.resource_id) OR (NEW.provider='mercadopago' AND NEW.resource_type='payment' AND s.provider_payment_id=NEW.resource_id)))\"\n34     statements.append(\"CREATE TRIGGER r36_fact_insert BEFORE INSERT ON \"+FACTS+\" WHEN NOT \"+account+\" OR NOT \"+eligible+\" OR NOT \"+mapping+\n35         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_billing_facts WHERE user_id=NEW.user_id AND context=NEW.context),0)+1 BEGIN SELECT RAISE(ABORT,'Notification fact source denied'); END\")\n",
+        "col_offset": 22,
+        "end_col_offset": 72,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 34,
+        "line_range": [
+          34
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "33     mapping=\"EXISTS(SELECT 1 FROM provider_subject_associations a JOIN subscriptions s ON s.id=NEW.subscription_id AND s.gym_id=NEW.user_id AND s.provider=NEW.provider WHERE a.provider=NEW.provider AND a.resource_type=NEW.resource_type AND a.resource_id=NEW.resource_id AND a.subject_id=NEW.user_id AND ((NEW.provider='stripe' AND NEW.resource_type='subscription' AND s.stripe_subscription_id=NEW.resource_id) OR (NEW.provider='mercadopago' AND NEW.resource_type='payment' AND s.provider_payment_id=NEW.resource_id)))\"\n34     statements.append(\"CREATE TRIGGER r36_fact_insert BEFORE INSERT ON \"+FACTS+\" WHEN NOT \"+account+\" OR NOT \"+eligible+\" OR NOT \"+mapping+\n35         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_billing_facts WHERE user_id=NEW.user_id AND context=NEW.context),0)+1 BEGIN SELECT RAISE(ABORT,'Notification fact source denied'); END\")\n",
+        "col_offset": 79,
+        "end_col_offset": 91,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 34,
+        "line_range": [
+          34
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "33     mapping=\"EXISTS(SELECT 1 FROM provider_subject_associations a JOIN subscriptions s ON s.id=NEW.subscription_id AND s.gym_id=NEW.user_id AND s.provider=NEW.provider WHERE a.provider=NEW.provider AND a.resource_type=NEW.resource_type AND a.resource_id=NEW.resource_id AND a.subject_id=NEW.user_id AND ((NEW.provider='stripe' AND NEW.resource_type='subscription' AND s.stripe_subscription_id=NEW.resource_id) OR (NEW.provider='mercadopago' AND NEW.resource_type='payment' AND s.provider_payment_id=NEW.resource_id)))\"\n34     statements.append(\"CREATE TRIGGER r36_fact_insert BEFORE INSERT ON \"+FACTS+\" WHEN NOT \"+account+\" OR NOT \"+eligible+\" OR NOT \"+mapping+\n35         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_billing_facts WHERE user_id=NEW.user_id AND context=NEW.context),0)+1 BEGIN SELECT RAISE(ABORT,'Notification fact source denied'); END\")\n",
+        "col_offset": 100,
+        "end_col_offset": 110,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 34,
+        "line_range": [
+          34
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "33     mapping=\"EXISTS(SELECT 1 FROM provider_subject_associations a JOIN subscriptions s ON s.id=NEW.subscription_id AND s.gym_id=NEW.user_id AND s.provider=NEW.provider WHERE a.provider=NEW.provider AND a.resource_type=NEW.resource_type AND a.resource_id=NEW.resource_id AND a.subject_id=NEW.user_id AND ((NEW.provider='stripe' AND NEW.resource_type='subscription' AND s.stripe_subscription_id=NEW.resource_id) OR (NEW.provider='mercadopago' AND NEW.resource_type='payment' AND s.provider_payment_id=NEW.resource_id)))\"\n34     statements.append(\"CREATE TRIGGER r36_fact_insert BEFORE INSERT ON \"+FACTS+\" WHEN NOT \"+account+\" OR NOT \"+eligible+\" OR NOT \"+mapping+\n35         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_billing_facts WHERE user_id=NEW.user_id AND context=NEW.context),0)+1 BEGIN SELECT RAISE(ABORT,'Notification fact source denied'); END\")\n",
+        "col_offset": 120,
+        "end_col_offset": 130,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 34,
+        "line_range": [
+          34
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "34     statements.append(\"CREATE TRIGGER r36_fact_insert BEFORE INSERT ON \"+FACTS+\" WHEN NOT \"+account+\" OR NOT \"+eligible+\" OR NOT \"+mapping+\n35         \" OR NEW.version<>COALESCE((SELECT max(version) FROM notification_billing_facts WHERE user_id=NEW.user_id AND context=NEW.context),0)+1 BEGIN SELECT RAISE(ABORT,'Notification fact source denied'); END\")\n36     source=\"EXISTS(SELECT 1 FROM notification_preferences p JOIN notification_billing_facts f ON f.id=NEW.fact_id AND f.user_id=p.user_id AND f.context=p.context JOIN usuarios u ON u.id=p.user_id AND u.notification_contact_version=p.contact_version WHERE p.id=NEW.preference_id AND p.user_id=NEW.user_id AND p.context=NEW.context AND p.purpose=NEW.purpose AND p.enabled AND p.contact_hash=NEW.contact_hash AND p.contact_version=NEW.contact_version AND f.source_hash=NEW.source_hash AND p.version=(SELECT max(x.version) FROM notification_preferences x WHERE x.user_id=p.user_id AND x.context=p.context AND x.purpose=p.purpose))\"\n37     statements.append(\"CREATE TRIGGER r36_outbox_insert BEFORE INSERT ON \"+OUTBOX+\" WHEN NOT \"+account+\" OR NOT \"+eligible+\" OR NOT \"+source+\" OR NEW.state<>'pending' OR NEW.version<>1 OR NEW.attempt_count<>0 OR NEW.lease_hash IS NOT NULL OR NEW.lease_until IS NOT NULL OR NEW.sending_at IS NOT NULL OR NEW.exclude_hash IS NOT NULL BEGIN SELECT RAISE(ABORT,'Notification outbox source denied'); END\")\n",
+        "col_offset": 8,
+        "end_col_offset": 209,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 35,
+        "line_range": [
+          34,
+          35
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "38     statements.append(\"CREATE TRIGGER r36_outbox_update BEFORE UPDATE ON \"+OUTBOX+\" WHEN NOT (\"+_same()+\") OR NEW.version<>OLD.version+1 OR NOT (\"+_transitions()+\") OR NEW.attempt_count<>OLD.attempt_count+CASE WHEN NEW.state='sending' THEN 1 ELSE 0 END BEGIN SELECT RAISE(ABORT,'Notification state transition denied'); END\")\n39     statements.append(\"CREATE TRIGGER r36_attempt_insert BEFORE INSERT ON \"+ATTEMPTS+\" WHEN NEW.sequence<>COALESCE((SELECT max(sequence) FROM notification_attempts WHERE outbox_id=NEW.outbox_id),0)+1 OR NOT EXISTS(SELECT 1 FROM notification_outbox o WHERE o.id=NEW.outbox_id AND o.user_id=NEW.user_id AND o.context=NEW.context AND o.version=NEW.fence AND o.attempt_count=NEW.attempt_no) BEGIN SELECT RAISE(ABORT,'Notification attempt fence denied'); END\")\n40     return statements\n",
+        "col_offset": 22,
+        "end_col_offset": 75,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 39,
+        "line_range": [
+          39
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "38     statements.append(\"CREATE TRIGGER r36_outbox_update BEFORE UPDATE ON \"+OUTBOX+\" WHEN NOT (\"+_same()+\") OR NEW.version<>OLD.version+1 OR NOT (\"+_transitions()+\") OR NEW.attempt_count<>OLD.attempt_count+CASE WHEN NEW.state='sending' THEN 1 ELSE 0 END BEGIN SELECT RAISE(ABORT,'Notification state transition denied'); END\")\n39     statements.append(\"CREATE TRIGGER r36_attempt_insert BEFORE INSERT ON \"+ATTEMPTS+\" WHEN NEW.sequence<>COALESCE((SELECT max(sequence) FROM notification_attempts WHERE outbox_id=NEW.outbox_id),0)+1 OR NOT EXISTS(SELECT 1 FROM notification_outbox o WHERE o.id=NEW.outbox_id AND o.user_id=NEW.user_id AND o.context=NEW.context AND o.version=NEW.fence AND o.attempt_count=NEW.attempt_no) BEGIN SELECT RAISE(ABORT,'Notification attempt fence denied'); END\")\n40     return statements\n",
+        "col_offset": 85,
+        "end_col_offset": 454,
+        "filename": "web\\database\\notification_policy.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 39,
+        "line_range": [
+          39
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "14     same = \"x.owner_id=NEW.owner_id AND x.context=NEW.context AND x.client_id IS NEW.client_id\"\n15     latest = \"COALESCE((SELECT x.origin FROM product_analytics_facts x WHERE \" + same + \" AND x.event_type='origin_declared' ORDER BY x.source_version DESC LIMIT 1),'unknown')\"\n16     plan = \"EXISTS(SELECT 1 FROM planes_generados p WHERE CAST(p.id AS TEXT)=NEW.source_id AND p.gym_id=NEW.owner_id AND (NEW.context='personal' OR p.id_cliente=NEW.client_id))\"\n",
+        "col_offset": 13,
+        "end_col_offset": 78,
+        "filename": "web\\database\\product_analytics_policy_v2.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 15,
+        "line_range": [
+          15
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "18     pub = \"EXISTS(SELECT 1 FROM client_plan_publications p WHERE p.id=NEW.source_id AND p.gym_id=NEW.owner_id AND p.client_id=NEW.client_id AND p.publication_version=NEW.source_version AND p.status=\"\n19     inherited_plan = \"COALESCE((SELECT x.origin FROM product_analytics_facts x JOIN client_plan_publications p ON CAST(p.source_plan_id AS TEXT)=x.source_id AND p.gym_id=x.owner_id AND p.client_id=x.client_id WHERE \" + same + \" AND p.id=NEW.source_id AND x.event_type='plan_saved' AND x.source_version=1),'unknown')\"\n20     inherited_pub = \"COALESCE((SELECT x.origin FROM product_analytics_facts x WHERE \" + same + \" AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')\"\n",
+        "col_offset": 21,
+        "end_col_offset": 216,
+        "filename": "web\\database\\product_analytics_policy_v2.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 19,
+        "line_range": [
+          19
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "19     inherited_plan = \"COALESCE((SELECT x.origin FROM product_analytics_facts x JOIN client_plan_publications p ON CAST(p.source_plan_id AS TEXT)=x.source_id AND p.gym_id=x.owner_id AND p.client_id=x.client_id WHERE \" + same + \" AND p.id=NEW.source_id AND x.event_type='plan_saved' AND x.source_version=1),'unknown')\"\n20     inherited_pub = \"COALESCE((SELECT x.origin FROM product_analytics_facts x WHERE \" + same + \" AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')\"\n21     declaration = \"(NEW.event_type='origin_declared' AND NEW.source_id=COALESCE(NEW.client_id,NEW.owner_id) AND NEW.source_version=COALESCE((SELECT max(x.source_version) FROM product_analytics_facts x WHERE \" + same + \" AND x.event_type='origin_declared'),0)+1)\"\n",
+        "col_offset": 20,
+        "end_col_offset": 85,
+        "filename": "web\\database\\product_analytics_policy_v2.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 20,
+        "line_range": [
+          20
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "20     inherited_pub = \"COALESCE((SELECT x.origin FROM product_analytics_facts x WHERE \" + same + \" AND x.event_type='plan_assignment_published' AND x.source_id=NEW.source_id AND x.source_version=1),'unknown')\"\n21     declaration = \"(NEW.event_type='origin_declared' AND NEW.source_id=COALESCE(NEW.client_id,NEW.owner_id) AND NEW.source_version=COALESCE((SELECT max(x.source_version) FROM product_analytics_facts x WHERE \" + same + \" AND x.event_type='origin_declared'),0)+1)\"\n22     saved = \"(NEW.event_type='plan_saved' AND NEW.source_version=1 AND \" + plan + \" AND NEW.origin=\" + latest + \")\"\n",
+        "col_offset": 18,
+        "end_col_offset": 208,
+        "filename": "web\\database\\product_analytics_policy_v2.py",
+        "issue_confidence": "LOW",
+        "issue_cwe": {
+          "id": 89,
+          "link": "https://cwe.mitre.org/data/definitions/89.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible SQL injection vector through string-based query construction.",
+        "line_number": 21,
+        "line_range": [
+          21
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+        "test_id": "B608",
+        "test_name": "hardcoded_sql_expressions"
+      },
+      {
+        "code": "198     def _compute_static_version() -> str:\n199         h = hashlib.md5()\n200         if _STATIC_DIR.exists():\n",
+        "col_offset": 12,
+        "end_col_offset": 25,
+        "filename": "web\\main_web.py",
+        "issue_confidence": "HIGH",
+        "issue_cwe": {
+          "id": 327,
+          "link": "https://cwe.mitre.org/data/definitions/327.html"
+        },
+        "issue_severity": "HIGH",
+        "issue_text": "Use of weak MD5 hash for security. Consider usedforsecurity=False",
+        "line_number": 199,
+        "line_range": [
+          199
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html",
+        "test_id": "B324",
+        "test_name": "hashlib"
+      },
+      {
+        "code": "411     if _gs2().is_production or os.getenv(\"RAILWAY_ENVIRONMENT\") or _gs2().ENV == \"staging\":\n412         default_host = \"0.0.0.0\"\n413 \n",
+        "col_offset": 23,
+        "end_col_offset": 32,
+        "filename": "web\\main_web.py",
+        "issue_confidence": "MEDIUM",
+        "issue_cwe": {
+          "id": 605,
+          "link": "https://cwe.mitre.org/data/definitions/605.html"
+        },
+        "issue_severity": "MEDIUM",
+        "issue_text": "Possible binding to all interfaces.",
+        "line_number": 412,
+        "line_range": [
+          412
+        ],
+        "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b104_hardcoded_bind_all_interfaces.html",
+        "test_id": "B104",
+        "test_name": "hardcoded_bind_all_interfaces"
+      }
+    ]
+  }
+}
