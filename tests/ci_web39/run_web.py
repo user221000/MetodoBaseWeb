@@ -235,6 +235,14 @@ def pytest_gate(private, environment, suite):
         require_parent_companions(expected,{"tests.test_ci_web37_bandit_registry"})
     if suite == "controls":
         require_parent_companions(expected,{"tests.test_security_container37_portable_peer"})
+    subtest_contract = None
+    if suite in {"serial", "parallel"}:
+        from tests.ci_web39.subtest_reports import create_contract
+        actors = ["controller"] if suite == "serial" else ["gw0", "gw1"]
+        subtest_contract = create_contract(private / "native-subtests39", expected, actors)
+        runtime_selectors += ["-p", "tests.ci_web39.subtest_evidence",
+                              "--web39-subtest-contract", str(subtest_contract[0]),
+                              "--web39-subtest-contract-sha256", subtest_contract[1]]
     argv = [sys.executable, "-X", "utf8", "tests/run_isolated.py", *runtime_selectors, "-q", "--tb=short",
             "--basetemp=" + str(private / "pytest-data"), "--junitxml=" + str(private / "pytest.xml")]
     if suite == "serial":
@@ -257,7 +265,12 @@ def pytest_gate(private, environment, suite):
         result.update(observe_junit(private / "pytest.xml", expected))
     accepted = code == 0 and result.get("identities_exact") is True and result.get("historical_source_quiet", True)
     if accepted:
-        require_exact_junit((private / "pytest.xml").read_bytes(), expected)
+        if subtest_contract is not None:
+            from tests.ci_web39.subtest_reports import require_exact_junit39
+            result.update(require_exact_junit39((private / "pytest.xml").read_bytes(), expected,
+                          *subtest_contract, actors, pytest_exit=code))
+        else:
+            require_exact_junit((private / "pytest.xml").read_bytes(), expected)
     if suite == "serial" and code == 0:
         result["risk_coverage_exit"] = execute([sys.executable, "tests/check_coverage.py", str(private / "coverage.json")],
             ROOT, environment, private / "coverage.private.log")
