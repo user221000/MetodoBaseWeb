@@ -94,6 +94,19 @@ def child_environment(private):
     return result
 
 
+def phase_evidence(private):
+    """Protect and verify the evidence directory itself before fixture payload.
+
+    Windows inheritance alone does not satisfy the protected explicit DACL
+    required by pg_fixtures.record. Reuse the reviewed boundary constructor and
+    the fixture's exact verifier instead of weakening that verifier.
+    """
+    from web.services.legacy_object_apply_boundary import verify
+    directory = _private_evidence(private / "evidence")
+    verify(directory, directory=True)
+    return directory
+
+
 def pytest_alias_target(path, raw_target, base):
     """Recognize only pytest's own current-to-numbered-sibling directory alias."""
     target = Path(raw_target)
@@ -190,9 +203,8 @@ def main(argv=None):
             ("metodobase-account37-author-pg-privacy39-" + uuid.uuid4().hex))
         leases = lease_root / "leases"
         leases.mkdir()
-        evidence = private / "evidence"
+        evidence = phase_evidence(private)
         journal = private / "execution-journal"
-        evidence.mkdir()
         journal.mkdir()
         environment.update(ACCOUNT37_PRIVATE_LEASES=str(leases), METODOBASE_TEST_EVIDENCE_DIR=str(evidence))
         write(private / "lease-namespace.private.json", {"path": str(lease_root), "TEMP_TMP_unchanged": True})

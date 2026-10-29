@@ -282,3 +282,39 @@ def test_relative_target_and_alias_outside_private_pytest_root_are_rejected(tmp_
         runner.pytest_alias_target(base / "privacy39current", "privacy390", base)
     with pytest.raises(ValueError):
         runner.pytest_alias_target(tmp_path / "privacy39current", str(tmp_path / "privacy390"), base)
+
+
+def test_phase_evidence_has_its_own_real_private_boundary_before_fixture_payload(monkeypatch, tmp_path):
+    from web.services import legacy_object_apply_boundary as boundary
+    events = []
+    create, verify = runner._private_evidence, boundary.verify
+    def constructor(path):
+        events.append("create")
+        result = create(path)
+        events.append("boundary_created")
+        return result
+    def strict(path, *, directory=False):
+        assert path == tmp_path / "evidence" and directory is True
+        verify(path, directory=directory)
+        events.append("fixture_verifier_passed")
+    monkeypatch.setattr(runner, "_private_evidence", constructor)
+    monkeypatch.setattr(boundary, "verify", strict)
+    directory = runner.phase_evidence(tmp_path)
+    assert directory == tmp_path / "evidence"
+    assert events == ["create", "boundary_created", "fixture_verifier_passed"]
+    # Re-run the untouched native/0700 verifier independently. This is a real
+    # filesystem boundary check, with no database or subprocess doubles.
+    verify(directory, directory=True)
+    assert not list(directory.glob("pg39-*.json"))
+
+
+def test_phase_evidence_cannot_admit_an_unverified_directory(monkeypatch, tmp_path):
+    requested = []
+    def absent(path):
+        requested.append(path)
+        return path
+    monkeypatch.setattr(runner, "_private_evidence", absent)
+    with pytest.raises(OSError, match="private_boundary_unavailable"):
+        runner.phase_evidence(tmp_path)
+    assert requested == [tmp_path / "evidence"]
+    assert not (tmp_path / "evidence").exists()
