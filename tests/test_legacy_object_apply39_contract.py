@@ -38,12 +38,13 @@ def isolated_database():
     yield
 
 
-def test_catalogue_remains74_with_exact72_current39_and_two_pinned_operator37_inputs():
+def test_catalogue_has75_with_72_current39_two_pinned_operator37_and_one_native35_control():
     value = composition.specification()
-    assert len(value["modules"]) == 74
+    assert len(value["modules"]) == 75
     historical = {name for name, entry in value["modules"].items() if not entry["replacements"]}
     assert historical == set(composition.HISTORICAL37_MODULES)
-    assert sum(bool(entry["replacements"]) for entry in value["modules"].values()) == 72
+    assert sum("scope" not in entry for entry in value["modules"].values()) == 72
+    assert value["modules"][composition.NATIVE35_MODULE] == composition.native35_entry()
     for name in historical:
         assert value["modules"][name] == composition.historical37_entry(name)
 

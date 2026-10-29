@@ -4,10 +4,11 @@ Only the finite reviewed module namespace is cloned. The original sys.modules
 entry, source file, function objects, assertions and helper globals stay intact.
 Without the explicit flag this plugin changes no fixture or collection.
 
-The catalogue has72 current39 runtime fixture consumers and two operator-tool
+The catalogue has72 current39 runtime fixture consumers, two operator-tool
 consumers whose INPUT contract is an actual37 database. Those two keep their
 authenticated37 fixture and are reported separately; no operator is approved
-for a39 inventory by fixture substitution.
+for a39 inventory by fixture substitution. One additional native35 control
+module receives an opaque synthetic profile; it grants no service admission.
 """
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ import inspect
 import json
 import re
 from pathlib import Path
-from types import ModuleType
+from types import CodeType, FunctionType, ModuleType
 
 import pytest
 
@@ -28,6 +29,12 @@ HISTORICAL37_MODULES = {
     "tests/test_legacy_object_apply_peer.py": "6c256bb9aade2950169b63a97b7c432ae6f6eb38e8fbeeb8b15a49527ba7b322",
 }
 HISTORICAL37_PROVIDER_SHA256_LF = "4a887ad23a46de5473d019c2aace2d541bd4ef7d04f29e2f301824e1178baf8d"
+NATIVE35_SCOPE = "synthetic native35 controls; no services"
+NATIVE35_MODULE = "tests/test_security_native35_v7_peer.py"
+NATIVE35_SOURCE_SHA256_LF = "b283b8a12cac4570a1957f8531394536bb690ead6212f506817dc93989d63c70"
+NATIVE35_PROVIDER_SHA256_LF = "e7ea82db67f7af96ea5a57049143bb72ee7a6de4ba8bb14b082b709ca96306ae"
+CATALOGUE_SCOPES = {"current39_runtime_modules": 72, "historical37_operator_modules": 2,
+                    "synthetic_native35_control_modules": 1}
 
 
 def historical37_entry(name):
@@ -37,16 +44,23 @@ def historical37_entry(name):
                 "historical_target": ["20261020_account_security"]}}}
 
 
+def native35_entry():
+    return {"source_sha256_LF": NATIVE35_SOURCE_SHA256_LF, "scope": NATIVE35_SCOPE,
+            "replacements": {"historical_profile_input": {
+                "module": "tests.test_security_native35_v7_peer", "function": "historical_profile_input"}}}
+
+
 def validate_specification(value):
-    if value.get("schema") != "20261023_privacy_disposition" or len(value.get("modules", {})) != 74:
+    if value.get("schema") != "20261023_privacy_disposition" or len(value.get("modules", {})) != 75:
         raise pytest.UsageError("Current39 fixture composition specification differs")
     modules = value["modules"]
     historical = {name for name, entry in modules.items()
                   if not entry.get("replacements") or "scope" in entry or "preserved_fixtures" in entry}
-    if (historical != set(HISTORICAL37_MODULES)
-            or any(modules[name] != historical37_entry(name) for name in historical)
-            or value.get("composition_scopes") != {"current39_runtime_modules": 72, "historical37_operator_modules": 2}):
-        raise pytest.UsageError("Only the two pinned operator37 input exceptions may preserve historical fixtures")
+    if (historical != set(HISTORICAL37_MODULES) | {NATIVE35_MODULE}
+            or any(modules[name] != historical37_entry(name) for name in HISTORICAL37_MODULES)
+            or modules.get(NATIVE35_MODULE) != native35_entry()
+            or value.get("composition_scopes") != CATALOGUE_SCOPES):
+        raise pytest.UsageError("Only two pinned operator37 inputs and one synthetic native35 control may have exceptional scopes")
     return value
 
 
@@ -86,6 +100,35 @@ def clone_namespace(original, entry):
     companion.__dict__.update(original.__dict__)
     bindings = []
     historical = entry.get("scope") == HISTORICAL37_SCOPE
+    native35 = entry.get("scope") == NATIVE35_SCOPE
+    if native35:
+        from tests.ci_web39 import native35_control_fixtures
+        provider = native35_control_fixtures.historical_profile_input
+        provider_path = ROOT / "tests/ci_web39/native35_control_fixtures.py"
+        try:
+            relative = path.relative_to(ROOT).as_posix()
+        except ValueError:
+            raise pytest.UsageError("A native35 control must be the actual pinned source module") from None
+        value = fixture_function(getattr(original, "historical_profile_input"))
+        provider_value = fixture_function(provider)
+        provider_raw = provider_path.read_bytes().replace(b"\r\n", b"\n")
+        reference = next(item for item in compile(normalized, str(path), "exec", dont_inherit=True).co_consts
+                         if isinstance(item, CodeType) and item.co_name == "historical_profile_input")
+        provider_reference = next(item for item in compile(provider_raw, str(provider_path), "exec", dont_inherit=True).co_consts
+                                  if isinstance(item, CodeType) and item.co_name == "historical_profile_input")
+        if (relative != NATIVE35_MODULE or entry != native35_entry()
+                or original.__name__ != "tests.test_security_native35_v7_peer"
+                or not isinstance(value, FunctionType) or not isinstance(provider_value, FunctionType)
+                or (value.__module__, value.__name__) != (original.__name__, "historical_profile_input")
+                or value.__code__ != reference
+                or provider_value.__module__ != "tests.ci_web39.native35_control_fixtures"
+                or provider_value.__code__ != provider_reference
+                or hashlib.sha256(provider_raw).hexdigest() != NATIVE35_PROVIDER_SHA256_LF):
+            raise pytest.UsageError("The pinned native35 control module, fixture or provider differs")
+        companion.historical_profile_input = provider
+        bindings.append({"name": "historical_profile_input", "original_provider": original.__name__ + ".historical_profile_input",
+                         "current_provider": "tests.ci_web39.native35_control_fixtures.historical_profile_input",
+                         "scope": NATIVE35_SCOPE, "service_admission": False})
     if historical:
         try:
             relative = path.relative_to(ROOT).as_posix()
@@ -105,9 +148,11 @@ def clone_namespace(original, entry):
         bindings.append({"name": "account37_engine", "original_provider": value.__module__ + "." + value.__name__,
                          "current_provider": value.__module__ + "." + value.__name__,
                          "preserved_operator_input_revision": "20261020_account_security"})
-    elif not entry.get("replacements") or "scope" in entry or "preserved_fixtures" in entry:
+    elif not native35 and (not entry.get("replacements") or "scope" in entry or "preserved_fixtures" in entry):
         raise pytest.UsageError("An empty or implicit historical fixture replacement is forbidden")
     for name, expected in entry["replacements"].items():
+        if native35:
+            continue
         value = fixture_function(getattr(original, name))
         if (value.__module__, value.__name__) != (expected["module"], expected["function"]):
             raise pytest.UsageError("A selected historical fixture binding differs")
@@ -120,7 +165,7 @@ def clone_namespace(original, entry):
         raise pytest.UsageError("An original business test object was changed or omitted")
     return companion, {"module": original.__name__, "test_objects_identical": len(tests),
                        "original_module_unmodified": True, "fixture_bindings": bindings,
-                       "validation_scope": HISTORICAL37_SCOPE if historical else "current39_runtime"}
+                       "validation_scope": HISTORICAL37_SCOPE if historical else NATIVE35_SCOPE if native35 else "current39_runtime"}
 
 
 class Current39Module(pytest.Module):
@@ -157,8 +202,8 @@ def pytest_sessionfinish(session, exitstatus):
     worker = getattr(config, "workerinput", {}).get("workerid", "controller")
     if not re.fullmatch(r"[a-z0-9]+", worker):
         raise pytest.UsageError("Current39 worker identity differs")
-    value = {"scope": "explicit_72_current39_and_2_operator37_fixture_contracts", "exitstatus": int(exitstatus),
-             "catalogue_scopes": {"current39_runtime_modules": 72, "historical37_operator_modules": 2},
+    value = {"scope": "explicit_72_current39_2_operator37_and_1_native35_control_fixture_contracts", "exitstatus": int(exitstatus),
+             "catalogue_scopes": CATALOGUE_SCOPES,
              "worker": worker, "bindings": config._web39_bindings}
     with (directory / ("companions-" + worker + ".json")).open("x", encoding="utf8") as out:
         json.dump(value, out, indent=2)
