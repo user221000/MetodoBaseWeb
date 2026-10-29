@@ -1,4 +1,4 @@
-"""Pure observers: no application/core/PDF/SDK/database imports or operations."""
+"""Observers and route inspection: no application/core/PDF/SDK/database operations."""
 import asyncio
 import ast
 from contextlib import asynccontextmanager, contextmanager
@@ -293,6 +293,7 @@ def test_closed_receipt_is_published_only_after_actual_lifespan_and_restoration_
         "event": SimpleNamespace(listen=lambda *a: None, remove=lambda *a: None),
         "sql_before": object(), "sql_after": object(), "checkout": object(), "checkin": object(),
         "application": app, "os": SimpleNamespace(getpid=lambda: 101, getppid=lambda: 100),
+        "generation_routes": lambda app, expected: [], "generation_endpoint": endpoint,
         "sys": SimpleNamespace(argv=["synthetic"]), "write_json": write_json,
         "active": {"pool": 0, "ASGI": 0, "HTTP": 0}, "maximum_http": 10,
         "CaptureRejected": CaptureRejected}
@@ -318,6 +319,93 @@ def _literal_driver_function(name, **space):
     space.setdefault("CaptureRejected", CaptureRejected)
     exec(compile(ast.Module(body=[node], type_ignores=[]), str(source), "exec"), space)
     return space[name]
+
+
+def _mounted_generation_routes(*, first="api", second="web", methods=("POST",), nested=False):
+    """Real FastAPI registration without importing either application factory."""
+    from fastapi import APIRouter, FastAPI
+    app, endpoints = FastAPI(), {}
+    for subject in (first, second):
+        if subject is None:
+            continue
+        router = APIRouter()
+        async def generar_plan():
+            return None
+        generar_plan.__module__ = subject + ".routes.planes"
+        endpoints[subject] = generar_plan
+        router.add_api_route("/generar-plan", generar_plan, methods=list(methods))
+        if nested:
+            parent = APIRouter()
+            parent.include_router(router, prefix="/api")
+            app.include_router(parent)
+        else:
+            app.include_router(router, prefix="/api")
+    return app, endpoints
+
+
+@pytest.mark.parametrize("subject,nested", [("web", False), ("api", False), ("web", True)])
+def test_generation_adapter_resolves_effective_prefix_and_retains_first_dispatch(subject, nested):
+    app, endpoints = _mounted_generation_routes(first=subject, second=None if subject == "web" else "web",
+                                               nested=nested)
+    inspect_routes = _literal_driver_function("generation_routes")
+    rows = inspect_routes(app, endpoints[subject])
+    assert rows == [{"path": "/api/generar-plan", "module": name + ".routes.planes", "name": "generar_plan"}
+                    for name in (["web"] if subject == "web" else ["api", "web"])]
+
+
+@pytest.mark.parametrize("case", ["absent", "wrong_method", "shadowed", "same_metadata_impostor"])
+def test_generation_adapter_refuses_absence_or_wrong_first_endpoint(case):
+    app, endpoints = _mounted_generation_routes(
+        first="web" if case == "shadowed" else "api",
+        second="api" if case == "shadowed" else None,
+        methods=("GET",) if case == "wrong_method" else ("POST",))
+    expected = endpoints["api"]
+    if case == "absent":
+        app.routes.clear()
+    if case == "same_metadata_impostor":
+        async def generar_plan():
+            return None
+        generar_plan.__module__ = expected.__module__
+        expected = generar_plan
+    with pytest.raises(ValueError, match="Actual first generation adapter differs"):
+        _literal_driver_function("generation_routes")(app, expected)
+
+
+@pytest.mark.parametrize("shadow,position,method,rejected", [
+    ("dynamic", "before", "POST", True), ("mount", "before", "POST", True),
+    ("nested_dynamic", "before", "POST", True),
+    ("dynamic", "after", "POST", False), ("mount", "after", "POST", False),
+    ("dynamic", "before", "GET", False),
+])
+def test_generation_adapter_uses_real_post_matching_before_accepting_literal_route(
+        shadow, position, method, rejected):
+    from fastapi import APIRouter, FastAPI
+    app, endpoints = _mounted_generation_routes(first="api", second="web")
+    routes = list(app.routes)
+    app.routes.clear()
+    if position == "after":
+        app.routes.extend(routes)
+    if shadow == "mount":
+        app.mount("/api", FastAPI())
+    else:
+        async def other(action):
+            return None
+        router = APIRouter()
+        router.add_api_route("/{action}", other, methods=[method])
+        if shadow == "nested_dynamic":
+            parent = APIRouter()
+            parent.include_router(router, prefix="/api")
+            app.include_router(parent)
+        else:
+            app.include_router(router, prefix="/api")
+    if position == "before":
+        app.routes.extend(routes)
+    actual = _literal_driver_function("generation_routes")
+    if rejected:
+        with pytest.raises(ValueError, match="Actual first generation adapter differs"):
+            actual(app, endpoints["api"])
+    else:
+        assert actual(app, endpoints["api"])[0]["module"] == "api.routes.planes"
 
 
 @pytest.mark.parametrize("payload", [b"", b"x"])
@@ -360,7 +448,6 @@ def test_server_return_requires_actual_successful_startup(started, monkeypatch):
 
 
 def test_daemon_waiting_for_unbuffered_stdin_does_not_abort_interpreter_shutdown():
-    import os
     import subprocess
     source = Path(__file__).parent / "performance/characterize_generation_http.py"
     tree = ast.parse(source.read_bytes())

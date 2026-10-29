@@ -160,6 +160,27 @@ def run_server_until_eof(application, args):
         raise CaptureRejected("Own application startup did not complete")
 
 
+def generation_routes(application, expected_endpoint):
+    """Inspect mounted routes in dispatch order, including lazy router prefixes."""
+    from fastapi.routing import _iter_routes_with_context
+    from starlette.routing import Match
+    routes = list(_iter_routes_with_context(application.routes))
+    scope = {"type": "http", "method": "POST", "path": "/api/generar-plan", "root_path": ""}
+    first = next(((route, context) for route, context in routes
+                  if (context or route).matches(scope)[0] is Match.FULL), None)
+    if (first is None or getattr(first[0], "endpoint", None) is not expected_endpoint
+            or (first[1].path if first[1] else getattr(first[0], "path", None)) != scope["path"]):
+        raise ValueError("Actual first generation adapter differs")
+    selected = [(route, context.path if context else getattr(route, "path", None))
+                for route, context in routes
+                if (context.path if context else getattr(route, "path", None)) == "/api/generar-plan"
+                and "POST" in getattr(route, "methods", set())]
+    if not selected or selected[0][0].endpoint is not expected_endpoint:
+        raise ValueError("Actual first generation adapter differs")
+    return [{"path": path, "module": route.endpoint.__module__, "name": route.endpoint.__name__}
+            for route, path in selected]
+
+
 def write_json(path, value):
     Path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
@@ -573,6 +594,8 @@ def serve(args):
     from web.storage.runtime import get_object_store
     module = __import__("web.main_web" if args.factory == "web" else "api.app", fromlist=["create_app"])
     application = module.create_app()
+    expected_module = "web.routes.planes" if args.factory == "web" else "api.routes.planes"
+    generation_endpoint = __import__(expected_module, fromlist=["generar_plan"]).generar_plan
     original_lifespan = application.router.lifespan_context
     active, active_lock = {"pool": 0, "ASGI": 0, "HTTP": 0}, threading.Lock()
     maximum_http = 2 * len(jobs) + 2 * len({row["cell"] for row in jobs}) + 20
@@ -622,12 +645,7 @@ def serve(args):
                     event.listen(engine, name, callback)
                 from tests.billing13_legacy_apply37_pg_contract import windows_process_identity
                 birth, executable = windows_process_identity(os.getpid())
-                routes = [{"path": route.path, "module": route.endpoint.__module__, "name": route.endpoint.__name__}
-                          for route in application.routes if getattr(route, "path", None) == "/api/generar-plan"
-                          and "POST" in getattr(route, "methods", set())]
-                expected_module = "web.routes.planes" if args.factory == "web" else "api.routes.planes"
-                if not routes or routes[0]["module"] != expected_module:
-                    raise ValueError("Actual first generation adapter differs")
+                routes = generation_routes(application, generation_endpoint)
                 write_json(args.ready, {"nonce": args.nonce, "pid": os.getpid(), "parent_pid": os.getppid(),
                            "birth_filetime_100ns": birth, "executable": str(executable), "argv": sys.argv,
                            "factory": args.factory, "routes": routes,
