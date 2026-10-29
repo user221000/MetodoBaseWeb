@@ -46,6 +46,17 @@ def source_template(tmp_path_factory):
     parent = tmp_path_factory.mktemp("current39-quality-source")
     target = authority.private_directory(parent / "source", ROOT)
     verify_quality.copy_source(ROOT, target)
+    # Controls start from the exact approved Git frame even when the real
+    # checkout was admitted as the complete captured RAW frame. Only this
+    # private test copy changes; the positive controls also exercise RAW.
+    proposal = context.json_object((target / quality.PROPOSAL).read_bytes())
+    for name, pin in proposal["bindings"].items():
+        path = target / name
+        raw = path.read_bytes()
+        selected = next(value for value in (raw, raw.replace(b"\r\n", b"\n"))
+                        if hashlib.sha256(value).hexdigest() == pin["authenticated_git_objects_sha256"])
+        assert len(selected) == pin["git_bytes"] and quality.git_recipe.object_id("blob", selected) == pin["git_blob"]
+        path.write_bytes(selected)
     return target
 
 
