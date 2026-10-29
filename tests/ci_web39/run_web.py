@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -33,6 +34,42 @@ from tests.ci_web39.recipes import (
 )
 from tests.ci_web37.recipes import HISTORICAL35_SELECTORS, NODE_MAP, R05_FROZEN_PHASES
 from tests.ci_web38.reports import junit_identities, node_cases, require_exact_junit
+
+PYTHON_SOURCE_SHA256 = "c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a"
+PYTHON_SOURCE_ENV = "METODOBASE_TEST_PYTHON_SOURCE_ARCHIVE"
+
+
+def python_source_archive(environment):
+    """Require the external reviewed PSF archive before broad collection/admission.
+
+    No download, extraction or fallback is performed here. The finite native
+    controls independently recheck these exact archive bytes when consuming it.
+    """
+    supplied = environment.get(PYTHON_SOURCE_ENV)
+    if not isinstance(supplied, str) or not supplied:
+        raise ValueError("Broad web39 gates require an explicit PSF source archive")
+    path = Path(supplied)
+    if (not path.is_absolute() or path.resolve(strict=True) != path.absolute()
+            or path.resolve().is_relative_to(ROOT.resolve())):
+        raise ValueError("The PSF archive must be an absolute external input without aliases")
+    before = path.lstat()
+    if (not stat.S_ISREG(before.st_mode) or getattr(before, "st_file_attributes", 0) & 1024
+            or before.st_nlink != 1 or not 0 < before.st_size <= 64 * 1024**2):
+        raise ValueError("A bounded plain unaliased PSF archive is required")
+    recipe = json.loads((ROOT / "runtime-source/expat-sec10/source-pins.json").read_bytes())
+    if recipe["python_version"] != "3.12.15" or recipe["psf_source_sha256"] != PYTHON_SOURCE_SHA256:
+        raise ValueError("The reviewed PSF source recipe differs")
+    with path.open("rb") as stream:
+        observed = hashlib.file_digest(stream, "sha256").hexdigest()
+    after = path.lstat()
+    def identity(value):
+        return (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+    if identity(before) != identity(after):
+        raise ValueError("The explicit PSF archive changed during validation")
+    if observed != PYTHON_SOURCE_SHA256:
+        raise ValueError("The explicit PSF archive SHA differs from the reviewed recipe")
+    return {"sha256": observed, "bytes": before.st_size, "identity": identity(before),
+            "version": "3.12.15", "external_input": True}
 
 
 def write(path, value):
@@ -106,6 +143,7 @@ def observe_junit(path, expected):
 
 
 def pytest_gate(private, environment, suite):
+    source_input = python_source_archive(environment) if suite in {"serial", "parallel"} else None
     source = ROOT
     selectors = list(CURRENT_RUNTIME_SELECTORS)
     if suite == "smoke":
@@ -200,8 +238,12 @@ def pytest_gate(private, environment, suite):
         argv += ["--shuffle-seed=" + str(SHUFFLE_SEED), "-n", "2"]
     write(private / "command.private.json", {"argv": argv, "source": str(source)})
     code = execute(argv, source, environment, private / "pytest.private.log")
+    if source_input is not None and python_source_archive(environment) != source_input:
+        raise ValueError("The explicit PSF input changed during broad execution")
     result = {"collection_exit": collected, "runtime_started": True, "pytest_exit": code,
               "physical35_source_separate": suite == "history35", "shuffle_seed": SHUFFLE_SEED if suite == "parallel" else None}
+    if source_input is not None:
+        result["PSF_source_input"] = {key: value for key, value in source_input.items() if key != "identity"}
     if suite == "history35":
         result["historical_source_quiet"] = all(hashlib.sha256((source / row["path"]).read_bytes()).hexdigest()
                                                 == row["raw_sha256"] for row in receipt["files"])

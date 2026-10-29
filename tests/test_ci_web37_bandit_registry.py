@@ -13,6 +13,19 @@ ROOT = Path(__file__).resolve().parents[1]
 REVIEW = json.loads(REGISTRY.read_bytes())
 CANDIDATE = json.loads((ROOT / PROPOSAL).read_bytes())
 CONTEXT = CANDIDATE["context_required"]
+HISTORICAL_SCHEMA = ROOT / "tests/ci_web37/fixtures/bandit22-schema-control-f060.git-lf.RAW"
+
+
+def reviewed_schema_source():
+    """The original37 dependency stays bound to its existing approved Git blob."""
+    pin = REVIEW["bindings"]["web/database/schema_control.py"]
+    raw = HISTORICAL_SCHEMA.read_bytes()
+    oid = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw,
+                       usedforsecurity=False).hexdigest()
+    if (len(raw) != pin["git_bytes"] or b"\r" in raw or oid != pin["git_blob"]
+            or hashlib.sha256(raw).hexdigest() != pin["git_lf_sha256"]):
+        raise ValueError("Original37 schema dependency is not its approved Git LF bytes")
+    return raw
 
 
 def report():
@@ -31,7 +44,7 @@ def approved_test_record():
 
 def source_copy(directory, variant):
     for name, pin in REVIEW["bindings"].items():
-        raw = (ROOT / name).read_bytes()
+        raw = reviewed_schema_source() if name == "web/database/schema_control.py" else (ROOT / name).read_bytes()
         # Only synthetic fixtures for the seventeen explicit reviewed paths
         # construct these alternatives. The production consumer changes no byte.
         if variant == "authenticated_git_lf":
@@ -112,3 +125,15 @@ def test_no_approval_applies_after_authority_context_multiset_or_source_changes(
         registry["bindings"]["unreviewed"] = next(iter(registry["bindings"].values()))
     with pytest.raises(ValueError):
         apply_registry(actual, root, registry, context=context, bandit_version=tool, today=today)
+
+
+def test_current39_schema_dependency_cannot_inherit_the_original37_approval(tmp_path):
+    root = source_copy(tmp_path, "authenticated_git_lf")
+    current = (ROOT / "web/database/schema_control.py").read_bytes()
+    pin = REVIEW["bindings"]["web/database/schema_control.py"]
+    assert hashlib.sha256(current).hexdigest() not in {
+        pin["captured_main_raw_sha256"], pin["git_lf_sha256"]}
+    (root / "web/database/schema_control.py").write_bytes(current)
+    with pytest.raises(ValueError, match="neither the exact captured RAW set nor the authenticated Git LF set"):
+        apply_registry(report(), root, approved_test_record(), context=CONTEXT,
+                       bandit_version="1.9.4", today=date(2026, 10, 20))

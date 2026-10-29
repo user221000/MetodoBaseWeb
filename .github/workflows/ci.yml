@@ -62,6 +62,12 @@ jobs:
         node-version: '24'
         cache: npm
         cache-dependency-path: tests/e2e/package-lock.json
+    - name: Explicit pinned PSF source input for current native controls
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/web39-source-inputs"
+        curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 https://www.python.org/ftp/python/3.12.15/Python-3.12.15.tar.xz --output "$RUNNER_TEMP/web39-source-inputs/Python-3.12.15.tar.xz"
+        printf '%s  %s\n' 'c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a' "$RUNNER_TEMP/web39-source-inputs/Python-3.12.15.tar.xz" | sha256sum --check
+        printf 'METODOBASE_TEST_PYTHON_SOURCE_ARCHIVE=%s\n' "$RUNNER_TEMP/web39-source-inputs/Python-3.12.15.tar.xz" >> "$GITHUB_ENV"
     - run: python -m pip install --require-hashes -r requirements-test.lock
     - run: npm ci --prefix tests/e2e --ignore-scripts
     - name: Create public metadata parent; each gate creates its own private boundary
