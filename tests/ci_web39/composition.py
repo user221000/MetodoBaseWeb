@@ -3,6 +3,11 @@
 Only the finite reviewed module namespace is cloned. The original sys.modules
 entry, source file, function objects, assertions and helper globals stay intact.
 Without the explicit flag this plugin changes no fixture or collection.
+
+The catalogue has72 current39 runtime fixture consumers and two operator-tool
+consumers whose INPUT contract is an actual37 database. Those two keep their
+authenticated37 fixture and are reported separately; no operator is approved
+for a39 inventory by fixture substitution.
 """
 from __future__ import annotations
 
@@ -17,13 +22,37 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 MAP = ROOT / "tests/ci_web39/current-fixture-map.json"
+HISTORICAL37_SCOPE = "operator_toolkit_source37_not_current39_runtime"
+HISTORICAL37_MODULES = {
+    "tests/test_legacy_object_apply.py": "f8a2151c5d682eb6269bb20fba6eba3bae97d9f875d14fdaf1d7578ff7dbd2d1",
+    "tests/test_legacy_object_apply_peer.py": "6c256bb9aade2950169b63a97b7c432ae6f6eb38e8fbeeb8b15a49527ba7b322",
+}
+HISTORICAL37_PROVIDER_SHA256_LF = "4a887ad23a46de5473d019c2aace2d541bd4ef7d04f29e2f301824e1178baf8d"
+
+
+def historical37_entry(name):
+    return {"source_sha256_LF": HISTORICAL37_MODULES[name], "replacements": {},
+            "scope": HISTORICAL37_SCOPE, "preserved_fixtures": {"account37_engine": {
+                "module": "tests.account_security37_fixtures", "function": "account37_engine",
+                "historical_target": ["20261020_account_security"]}}}
+
+
+def validate_specification(value):
+    if value.get("schema") != "20261023_privacy_disposition" or len(value.get("modules", {})) != 74:
+        raise pytest.UsageError("Current39 fixture composition specification differs")
+    modules = value["modules"]
+    historical = {name for name, entry in modules.items()
+                  if not entry.get("replacements") or "scope" in entry or "preserved_fixtures" in entry}
+    if (historical != set(HISTORICAL37_MODULES)
+            or any(modules[name] != historical37_entry(name) for name in historical)
+            or value.get("composition_scopes") != {"current39_runtime_modules": 72, "historical37_operator_modules": 2}):
+        raise pytest.UsageError("Only the two pinned operator37 input exceptions may preserve historical fixtures")
+    return value
 
 
 def specification():
     value = json.loads(MAP.read_bytes())
-    if value.get("schema") != "20261023_privacy_disposition" or len(value.get("modules", {})) != 74:
-        raise pytest.UsageError("Current39 fixture composition specification differs")
-    return value
+    return validate_specification(value)
 
 
 def pytest_addoption(parser):
@@ -56,6 +85,28 @@ def clone_namespace(original, entry):
     companion = ModuleType(original.__name__)
     companion.__dict__.update(original.__dict__)
     bindings = []
+    historical = entry.get("scope") == HISTORICAL37_SCOPE
+    if historical:
+        try:
+            relative = path.relative_to(ROOT).as_posix()
+        except ValueError:
+            raise pytest.UsageError("An operator37 exception must be the actual pinned source module") from None
+        if (relative not in HISTORICAL37_MODULES or entry != historical37_entry(relative)
+                or original.__name__ != relative.removesuffix(".py").replace("/", ".")):
+            raise pytest.UsageError("An unreviewed operator37 exception cannot preserve a fixture")
+        from tests import account_security37_fixtures
+        provider = account_security37_fixtures.account37_engine
+        value = fixture_function(getattr(original, "account37_engine"))
+        provider_path = ROOT / "tests/account_security37_fixtures.py"
+        if ((value.__module__, value.__name__) != ("tests.account_security37_fixtures", "account37_engine")
+                or value is not fixture_function(provider)
+                or hashlib.sha256(provider_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest() != HISTORICAL37_PROVIDER_SHA256_LF):
+            raise pytest.UsageError("The preserved operator37 fixture provider differs")
+        bindings.append({"name": "account37_engine", "original_provider": value.__module__ + "." + value.__name__,
+                         "current_provider": value.__module__ + "." + value.__name__,
+                         "preserved_operator_input_revision": "20261020_account_security"})
+    elif not entry.get("replacements") or "scope" in entry or "preserved_fixtures" in entry:
+        raise pytest.UsageError("An empty or implicit historical fixture replacement is forbidden")
     for name, expected in entry["replacements"].items():
         value = fixture_function(getattr(original, name))
         if (value.__module__, value.__name__) != (expected["module"], expected["function"]):
@@ -68,7 +119,8 @@ def clone_namespace(original, entry):
     if not tests or any(companion.__dict__[name] is not value for name, value in tests.items()):
         raise pytest.UsageError("An original business test object was changed or omitted")
     return companion, {"module": original.__name__, "test_objects_identical": len(tests),
-                       "original_module_unmodified": True, "fixture_bindings": bindings}
+                       "original_module_unmodified": True, "fixture_bindings": bindings,
+                       "validation_scope": HISTORICAL37_SCOPE if historical else "current39_runtime"}
 
 
 class Current39Module(pytest.Module):
@@ -105,7 +157,8 @@ def pytest_sessionfinish(session, exitstatus):
     worker = getattr(config, "workerinput", {}).get("workerid", "controller")
     if not re.fullmatch(r"[a-z0-9]+", worker):
         raise pytest.UsageError("Current39 worker identity differs")
-    value = {"scope": "explicit_current39_companions", "exitstatus": int(exitstatus),
+    value = {"scope": "explicit_72_current39_and_2_operator37_fixture_contracts", "exitstatus": int(exitstatus),
+             "catalogue_scopes": {"current39_runtime_modules": 72, "historical37_operator_modules": 2},
              "worker": worker, "bindings": config._web39_bindings}
     with (directory / ("companions-" + worker + ".json")).open("x", encoding="utf8") as out:
         json.dump(value, out, indent=2)
