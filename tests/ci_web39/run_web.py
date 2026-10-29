@@ -387,10 +387,9 @@ def additional_node_gate(private, environment):
 
 
 def new_node_gate(private, environment, phase):
-    """Two source-pinned new CJS phases; never append them to old147/94/865."""
-    mapping = json.loads((ROOT / "tests/ci_web38/node-new38.json").read_bytes())
-    if mapping["schema"] != "current38-new-node-phases-v1" or set(mapping["phases"]) != {"node-product38", "node-password38"}:
-        raise ValueError("New38 Node selection differs")
+    """Original38 programs on explicit current39 inputs, separate from old147/94/865."""
+    from tests.ci_web39.new38_sources import load_mapping, require_sources
+    mapping = load_mapping(ROOT)
     entry = mapping["phases"][phase]
     required = {"node-product38": 13, "node-password38": 25}[phase]
     if (type(entry["cases"]) is not int or entry["cases"] != required
@@ -400,9 +399,7 @@ def new_node_gate(private, environment, phase):
         raise ValueError("New38 Node labels or inputs differ")
 
     def source_check():
-        for name, pin in entry["input_files"].items():
-            if pin["framing"] != "raw" or hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != pin["sha256"]:
-                raise ValueError("A new38 Node direct/transitive source differs")
+        require_sources(ROOT, entry)
     source_check()
     path = private / (phase + ".private.json")
     argv = [shutil.which("node"), "--require", str(ROOT / entry["preloader"]), entry["script"]]
@@ -421,7 +418,10 @@ def new_node_gate(private, environment, phase):
     write(private / (phase + "-observation.json"), observation)
     return {"accepted": code == 0 and valid, "commands": 1, "executions": passed,
             "new38_phase": phase, "old147_94_865_relabelled": False,
-            "direct_transitive_RAW_sources_checked": len(entry["input_files"]),
+            "current_inputs": True, "source_scope": mapping["source_scope"],
+            "original38_program_pins": mapping["original38_program_pins"][phase],
+            "historical38_sources_relabelled": False,
+            "direct_transitive_canonical_Git_sources_checked": len(entry["input_files"]),
             "native_browser_executed": False, "DOM_transport_doubles_only": True}
 
 

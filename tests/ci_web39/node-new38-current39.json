@@ -1,0 +1,232 @@
+{
+  "schema": "current39-inputs-original38-node-programs-v1",
+  "source_scope": "current39-canonical-Git-LF-inputs-with-unchanged-original38-programs",
+  "canonical_input_Git_commit": "52c97010793865e6e155d928c4ef1eb88b1a0bdc",
+  "original38_mapping": {
+    "path": "tests/ci_web38/node-new38.json",
+    "sha256_LF": "b3a583ab6c704cfb77bd46af0127bdabd07ea36e0a92416c6597401df2f9c04c",
+    "git_blob": "59ad92e33f65e86abf6d88c853a4e811c8e83720"
+  },
+  "original38_program_pins": {
+    "node-product38": {
+      "script": "tests/e2e/product-analytics-v2-review.cjs",
+      "original_RAW_sha256": "8195c8b9f9eadbde8eef4e5e62b22f9536781218b123a9c163c954444651dc9e",
+      "canonical_Git_blob": "a16d3fc596aed3fc217df3819ab1f3b4e458dc66",
+      "host_transport": "uniform_LF_or_CRLF_not_original_RAW_relabel"
+    },
+    "node-password38": {
+      "script": "tests/e2e/new-password-minimum-review.cjs",
+      "original_RAW_sha256": "208241b27b78e5f47a39969b4a799c5dcdce94826b41ea8dba38d20464136eb4",
+      "canonical_Git_blob": "396e1dd1cadd055c23b41c684bfb9f416e13d5b8",
+      "host_transport": "uniform_LF_or_CRLF_not_original_RAW_relabel"
+    }
+  },
+  "phases": {
+    "node-product38": {
+      "script": "tests/e2e/product-analytics-v2-review.cjs",
+      "cases": 13,
+      "expected_cases": [
+        "Gym owner can declare only future origin with the observed version",
+        "Gym team admin sees provenance without edit controls",
+        "Gym team nutriologo sees provenance without edit controls",
+        "Gym team viewer sees provenance without edit controls",
+        "Individual provenance is writable while a gym owner in personal context is read-only",
+        "Rejected provenance never exposes editable controls or raw error details",
+        "Metrics render only known aggregate counts and never source IDs or HTML payloads",
+        "Unconfirmed aggregate \"7\" is rejected without guessed metrics",
+        "Unconfirmed aggregate -1 is rejected without guessed metrics",
+        "Unconfirmed aggregate 1.5 is rejected without guessed metrics",
+        "Session change hides provenance and discards a late origin response",
+        "Real Api report and origin use exact guarded relative routes and explicit mutation body",
+        "Real Api suppresses an old report after the account epoch changes"
+      ],
+      "preparation_case_ids_not_requirement_IDs": [
+        "N38-PA-01",
+        "N38-PA-02",
+        "N38-PA-03",
+        "N38-PA-04",
+        "N38-PA-05",
+        "N38-PA-06",
+        "N38-PA-07",
+        "N38-PA-08",
+        "N38-PA-09",
+        "N38-PA-10",
+        "N38-PA-11",
+        "N38-PA-12",
+        "N38-PA-13"
+      ],
+      "input_files": {
+        "tests/e2e/browser_harness31.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "5e67436a274ec0c42a96a7c65107225f9d5b5cde742fd87d5281cba1db620956",
+          "bytes": 2428,
+          "git_blob": "d4ecd1ff8d205c09af0dcf62cb745b8561a4b32a"
+        },
+        "tests/e2e/browser_offline31.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "527ff6bf0fe18c05bc8f92302ad3d9d2d782b3fc0c3460cf145b18639c415f9d",
+          "bytes": 828,
+          "git_blob": "1fe2744273b53bac1eb5cb5d1c33ebb527381c6d"
+        },
+        "tests/e2e/browser_session31.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "b94d2ce9647270c02ec58bf607ae0a5a807e328586ffb78d6c14b0431f7a6250",
+          "bytes": 30621,
+          "git_blob": "c4603bca6741ca27e7c2b54a5ae55330224ad6a4"
+        },
+        "tests/e2e/product-analytics-v2-review.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "8195c8b9f9eadbde8eef4e5e62b22f9536781218b123a9c163c954444651dc9e",
+          "bytes": 8731,
+          "git_blob": "a16d3fc596aed3fc217df3819ab1f3b4e458dc66"
+        },
+        "web/static/js/api.js": {
+          "framing": "uniform_lf",
+          "sha256": "1c3b263f359d9b37ede6893134f212879b05615f56f0c143922c3d4c1c2b6f82",
+          "bytes": 93383,
+          "git_blob": "eb6bf83d7184065196a1439cc8dca4f242c5bf87"
+        },
+        "web/static/js/product-analytics-v2.js": {
+          "framing": "uniform_lf",
+          "sha256": "287fc62c5c7810c128361193a46969318cbf9f6fe1fa5984fb02bed7a3fc39c5",
+          "bytes": 4160,
+          "git_blob": "64f2b2e2e959b1cbf387de48c51325ab0c2fdf4f"
+        }
+      },
+      "preloader": "tests/e2e/browser_offline31.cjs"
+    },
+    "node-password38": {
+      "script": "tests/e2e/new-password-minimum-review.cjs",
+      "cases": 25,
+      "expected_cases": [
+        "registration 12 BMP preserves the Unicode point minimum before dispatch",
+        "registration 14 BMP preserves the Unicode point minimum before dispatch",
+        "registration 14 astral preserves the Unicode point minimum before dispatch",
+        "registration 15 BMP preserves the Unicode point minimum before dispatch",
+        "registration 15 astral preserves the Unicode point minimum before dispatch",
+        "invitation 12 BMP preserves the Unicode point minimum before dispatch",
+        "invitation 14 BMP preserves the Unicode point minimum before dispatch",
+        "invitation 14 astral preserves the Unicode point minimum before dispatch",
+        "invitation 15 BMP preserves the Unicode point minimum before dispatch",
+        "invitation 15 astral preserves the Unicode point minimum before dispatch",
+        "recovery 12 BMP preserves the Unicode point minimum before dispatch",
+        "recovery 14 BMP preserves the Unicode point minimum before dispatch",
+        "recovery 14 astral preserves the Unicode point minimum before dispatch",
+        "recovery 15 BMP preserves the Unicode point minimum before dispatch",
+        "recovery 15 astral preserves the Unicode point minimum before dispatch",
+        "account_security 12 BMP preserves the Unicode point minimum before dispatch",
+        "account_security 14 BMP preserves the Unicode point minimum before dispatch",
+        "account_security 14 astral preserves the Unicode point minimum before dispatch",
+        "account_security 15 BMP preserves the Unicode point minimum before dispatch",
+        "account_security 15 astral preserves the Unicode point minimum before dispatch",
+        "Real Api password 12 BMP is checked before I/O without changing a valid15",
+        "Real Api password 14 BMP is checked before I/O without changing a valid15",
+        "Real Api password 14 astral is checked before I/O without changing a valid15",
+        "Real Api password 15 BMP is checked before I/O without changing a valid15",
+        "Real Api password 15 astral is checked before I/O without changing a valid15"
+      ],
+      "preparation_case_ids_not_requirement_IDs": [
+        "N38-PW-01",
+        "N38-PW-02",
+        "N38-PW-03",
+        "N38-PW-04",
+        "N38-PW-05",
+        "N38-PW-06",
+        "N38-PW-07",
+        "N38-PW-08",
+        "N38-PW-09",
+        "N38-PW-10",
+        "N38-PW-11",
+        "N38-PW-12",
+        "N38-PW-13",
+        "N38-PW-14",
+        "N38-PW-15",
+        "N38-PW-16",
+        "N38-PW-17",
+        "N38-PW-18",
+        "N38-PW-19",
+        "N38-PW-20",
+        "N38-PW-21",
+        "N38-PW-22",
+        "N38-PW-23",
+        "N38-PW-24",
+        "N38-PW-25"
+      ],
+      "input_files": {
+        "tests/e2e/account_security37_transport.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "7e9fd4998a0abe9534da96c070c33d70c28870dd05f59d1bc80901835bb80cbb",
+          "bytes": 10233,
+          "git_blob": "5434e090257758f4cd19ccddd3329bd3f1fa01a7"
+        },
+        "tests/e2e/browser_harness31.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "5e67436a274ec0c42a96a7c65107225f9d5b5cde742fd87d5281cba1db620956",
+          "bytes": 2428,
+          "git_blob": "d4ecd1ff8d205c09af0dcf62cb745b8561a4b32a"
+        },
+        "tests/e2e/browser_offline31.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "527ff6bf0fe18c05bc8f92302ad3d9d2d782b3fc0c3460cf145b18639c415f9d",
+          "bytes": 828,
+          "git_blob": "1fe2744273b53bac1eb5cb5d1c33ebb527381c6d"
+        },
+        "tests/e2e/browser_session31.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "b94d2ce9647270c02ec58bf607ae0a5a807e328586ffb78d6c14b0431f7a6250",
+          "bytes": 30621,
+          "git_blob": "c4603bca6741ca27e7c2b54a5ae55330224ad6a4"
+        },
+        "tests/e2e/new-password-minimum-review.cjs": {
+          "framing": "uniform_lf",
+          "sha256": "208241b27b78e5f47a39969b4a799c5dcdce94826b41ea8dba38d20464136eb4",
+          "bytes": 9820,
+          "git_blob": "396e1dd1cadd055c23b41c684bfb9f416e13d5b8"
+        },
+        "web/static/js/accept-invite.js": {
+          "framing": "uniform_lf",
+          "sha256": "7b75ff8b10bfcbb1d5fa3237833960fce843e912ca3949c37c639479e7aca84d",
+          "bytes": 6359,
+          "git_blob": "53b8c81b4cfc285fd9584d41bba0b0119bff4e26"
+        },
+        "web/static/js/account-recovery.js": {
+          "framing": "uniform_lf",
+          "sha256": "721e0615647fbf4beb379cc1a98992f1d189a43f5c968d5ef156592dec9143ec",
+          "bytes": 4373,
+          "git_blob": "7be96c27278ea9db4f892ebc31ab8d7f16cd0ea0"
+        },
+        "web/static/js/account-security37.js": {
+          "framing": "uniform_lf",
+          "sha256": "6a748bc58dd8de98e4b9d1828013a7969f248dfeeb6f606388dcc729b2ed7098",
+          "bytes": 15159,
+          "git_blob": "7d0f370c5f26d9af623eb3e487d5b18e5f66c5ca"
+        },
+        "web/static/js/api.js": {
+          "framing": "uniform_lf",
+          "sha256": "1c3b263f359d9b37ede6893134f212879b05615f56f0c143922c3d4c1c2b6f82",
+          "bytes": 93383,
+          "git_blob": "eb6bf83d7184065196a1439cc8dca4f242c5bf87"
+        },
+        "web/templates/accept_invite.html": {
+          "framing": "uniform_lf",
+          "sha256": "b56be1dee4c6deeee823439305a869ca73b05350880d6a393504c8ef243581a8",
+          "bytes": 2891,
+          "git_blob": "2f9da43568332e5b6189cfa901f2b4494071d77b"
+        },
+        "web/templates/account_recovery.html": {
+          "framing": "uniform_lf",
+          "sha256": "d82ddbe27853b4794a72f7f4e6b4093bb1fb3d567ab7d5f562b53df182dd635b",
+          "bytes": 1890,
+          "git_blob": "f412ed630f8dad10dc6f92efeed258c3588f9584"
+        },
+        "web/templates/registro.html": {
+          "framing": "uniform_lf",
+          "sha256": "65f20a1478e8f60a6eddabaf4fabc1b9651cc5177cf6bb8bb746fc5ab6f7c519",
+          "bytes": 9804,
+          "git_blob": "9b639005642ce2f6e4481ca8dd403b1874153fa1"
+        }
+      },
+      "preloader": "tests/e2e/browser_offline31.cjs"
+    }
+  }
+}
