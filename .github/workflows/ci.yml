@@ -77,15 +77,15 @@ jobs:
     - name: Create public metadata parent; each gate creates its own private boundary
       run: install -d -m 700 "$RUNNER_TEMP/web37-public"
     - name: Current39 complete web serial; exact identities, no skips and reviewed nutrition coverage
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite serial --private "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/serial"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite serial --private "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/serial" --private-as-child-temp
     - name: Current37 full web in two workers; shuffle seed20261018 and no skips
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite parallel --private "$RUNNER_TEMP/web37-parallel-private" --output "$RUNNER_TEMP/web37-public/parallel"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite parallel --private "$RUNNER_TEMP/web37-parallel-private" --output "$RUNNER_TEMP/web37-public/parallel" --private-as-child-temp
     - name: Original physical35 assertions with authenticated ancestor35 models
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite history35 --private "$RUNNER_TEMP/web37-history35-private" --output "$RUNNER_TEMP/web37-public/history35"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite history35 --private "$RUNNER_TEMP/web37-history35-private" --output "$RUNNER_TEMP/web37-public/history35" --private-as-child-temp
     - name: Literal R05 peer60, author48 and author15; frozen authenticated phases
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite r05-history --private "$RUNNER_TEMP/web37-r05-history-private" --output "$RUNNER_TEMP/web37-public/r05-history"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite r05-history --private "$RUNNER_TEMP/web37-r05-history-private" --output "$RUNNER_TEMP/web37-public/r05-history" --private-as-child-temp
     - name: Private storage SDK original full identities without a provider; no skips
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite storage-sdk --private "$RUNNER_TEMP/web37-storage-private" --output "$RUNNER_TEMP/web37-public/storage-sdk"
+      run: python -B -X utf8 tests/ci_web39/run_web.py --suite storage-sdk --private "$RUNNER_TEMP/web37-storage-private" --output "$RUNNER_TEMP/web37-public/storage-sdk" --private-as-child-temp
     - name: Publish measured coverage without private assertion diagnostics
       if: always()
       run: python -B -X utf8 tests/ci_google33/publish.py --directory "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/coverage" --files coverage.json coverage.xml
