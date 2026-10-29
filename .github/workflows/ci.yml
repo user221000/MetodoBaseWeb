@@ -40,7 +40,7 @@ jobs:
         echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" | sha256sum --check
         tar -xzf "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" -C "$RUNNER_TEMP/metodobase-gitleaks"
     - name: Scan the frozen deliverable tree with values withheld
-      run: python -X utf8 scripts/scan_secrets.py --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
+      run: python -B -X utf8 -m tests.ci_web39.scan_secrets --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
