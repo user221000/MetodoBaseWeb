@@ -4,7 +4,6 @@ tests/test_security_hardening.py — Tests for security hardening fixes C-11, H-
 Covers both happy-path and attack-path for each fix.
 """
 import os
-import hmac
 import secrets
 
 import pytest
@@ -53,7 +52,7 @@ class TestC11HealthCheck:
 class TestH01TokenType:
     def test_token_without_type_rejected(self):
         """A token missing the 'type' claim should be rejected."""
-        from web.auth import init_auth, verificar_token, SECRET_KEY
+        from web.auth import init_auth, verificar_token
         import hmac as _hmac
         import hashlib
         import json
@@ -233,25 +232,26 @@ class TestH12Port:
 
 class TestH07AuditLogging:
     def test_login_success_logs(self, caplog):
-        """Successful login should produce structured log."""
+        """Real primary credential verification produces a sanitized auth log."""
         import logging
-        from web.auth import init_auth, verificar_credenciales, hash_password, crear_usuario
+        from web.auth import init_auth, verificar_credenciales, crear_usuario
 
         init_auth()
 
-        uid = f"audit-{secrets.token_hex(4)}"
-        email = f"{uid}@test.com"
-        try:
-            crear_usuario(email=email, password="pass12345678", nombre="Audit", apellido="Test", tipo="gym")
-        except ValueError:
-            pass  # User might already exist
+        uid = f"audit-{secrets.token_hex(16)}"
+        email = f"{uid}@example.invalid"
+        password = "Synthetic audit password 2026!"
+        created = crear_usuario(email=email, password=password, nombre="Audit", apellido="Test", tipo="gym")
+        assert created is not None
 
         with caplog.at_level(logging.INFO, logger="web.auth"):
-            result = verificar_credenciales(email, "pass12345678", ip="127.0.0.1")
+            result = verificar_credenciales(email, password, ip="127.0.0.1")
 
         assert result is not None
+        assert result["id"] == created["id"]
         assert any("[AUTH] login_success" in r.message for r in caplog.records)
         assert email not in caplog.text and "127.0.0.1" not in caplog.text
+        assert password not in caplog.text
 
     def test_login_failure_logs(self, caplog):
         """Failed login should produce structured log."""
