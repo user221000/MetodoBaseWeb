@@ -29,7 +29,7 @@ def test_mobile_navigation_remains_unique_accessible_and_outside_main(template, 
     environment = Environment(loader=FileSystemLoader(ROOT / 'web/templates'), autoescape=True)
     environment.globals.update(csrf_token=lambda request: 'synthetic-layout-csrf')
     markup = environment.get_template(template).render(
-        request=SimpleNamespace(state=SimpleNamespace(csp_nonce='synthetic-layout-nonce')),
+        request=SimpleNamespace(state=SimpleNamespace(csp_nonce='synthetic-layout-nonce'), query_params={}),
         static_version='layout-only', google_client_id='', notification_context=context,
         account_login_url='/login-gym' if context == 'gym' else '/login-usuario',
     )

@@ -152,7 +152,7 @@ class TestRegistroUsuario:
         try:
             result = crear_usuario(
                 email=test_email,
-                password="SecurePass123!",
+                password="Synthet1c Bcrypt 37!",
                 nombre="Test",
                 apellido="User",
                 tipo="gym"

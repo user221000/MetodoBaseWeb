@@ -1,4 +1,4 @@
-"""Counter-only output cannot replace the original source-bound Node criteria."""
+"""Current39 inputs retain all eight original source-bound Node criteria sets."""
 import copy
 import json
 from pathlib import Path
@@ -8,7 +8,7 @@ import pytest
 from tests.ci_web37 import node_current
 
 ROOT = Path(__file__).resolve().parents[1]
-MAPPING = json.loads((ROOT / "tests/ci_web37/node-routines-onboarding.json").read_bytes())
+MAPPING = json.loads((ROOT / "tests/ci_web39/node-routines-onboarding39.json").read_bytes())
 
 
 def entry(name):
