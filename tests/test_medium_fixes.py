@@ -6,10 +6,11 @@ Mínimo 2 tests por fix. Ejecutar con:
 """
 from __future__ import annotations
 
-import importlib
+import importlib.util
 import logging
 import os
 import re
+import sys
 import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
@@ -114,38 +115,50 @@ class TestM03PaginationLimit:
 # M-04 — Rate limiter forced in production
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _rate_limiter_settings_copy(original, environment):
+    """Evaluate policy without replacing classes already imported by an app."""
+    name = __name__ + ".isolated_rate_limiter"
+    spec = importlib.util.spec_from_file_location(name, original.__file__)
+    isolated = importlib.util.module_from_spec(spec)
+    environment.setitem(sys.modules, name, isolated)
+    spec.loader.exec_module(isolated)
+    return isolated
+
+
 class TestM04RateLimiterProduction:
 
     def test_rate_limiter_forced_when_production(self, monkeypatch):
         """En producción, RATE_LIMIT_ENABLED debe ser True incluso si env dice false."""
         from config.settings import get_settings
         import web.middleware.rate_limiter as rl
+        original_middleware = rl.RateLimiterMiddleware
         try:
             with monkeypatch.context() as environment:
                 environment.setenv("METODOBASE_ENV", "production")
                 environment.setenv("RATE_LIMIT_ENABLED", "false")
                 get_settings.cache_clear()
-                importlib.reload(rl)
-                assert rl.RATE_LIMIT_ENABLED is True
+                isolated = _rate_limiter_settings_copy(rl, environment)
+                assert isolated.RATE_LIMIT_ENABLED is True
         finally:
-            # The environment is restored before rebuilding cached settings.
+            # Restore environment and settings without changing shared classes.
             get_settings.cache_clear()
-            importlib.reload(rl)
+        assert rl.RateLimiterMiddleware is original_middleware
 
     def test_rate_limiter_respects_env_in_development(self, monkeypatch):
         """En development, se respeta RATE_LIMIT_ENABLED=false."""
         from config.settings import get_settings
         import web.middleware.rate_limiter as rl
+        original_middleware = rl.RateLimiterMiddleware
         try:
             with monkeypatch.context() as environment:
                 environment.setenv("METODOBASE_ENV", "development")
                 environment.setenv("RATE_LIMIT_ENABLED", "false")
                 get_settings.cache_clear()
-                importlib.reload(rl)
-                assert rl.RATE_LIMIT_ENABLED is False
+                isolated = _rate_limiter_settings_copy(rl, environment)
+                assert isolated.RATE_LIMIT_ENABLED is False
         finally:
             get_settings.cache_clear()
-            importlib.reload(rl)
+        assert rl.RateLimiterMiddleware is original_middleware
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
