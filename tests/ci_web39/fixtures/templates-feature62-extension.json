@@ -1,0 +1,237 @@
+{
+  "schema": "current39-eight-approved-feature62-inverses-v1",
+  "approved_feature_commit": "62db95e6d16485b0b3afcbdfcd3d84377aa5f34e",
+  "historical_contract_sha256": "24de2f4c5cd272aed46f41788fc46443f8a39895c0e48b4bca3dfb02a7b2d9b3",
+  "templates": {
+    "web/templates/dashboard.html": {
+      "current_blob": "be38bcea49ae6aa0d3a7af23ba7725212091d367",
+      "current_sha256": "aba36087acf321046c0386ef62b60cd84598d66bfac2fbebdece1eb8a4809959",
+      "restored_blob": "9df5ebbe35be411a9b040e1db7f571c03c8866b6",
+      "restored_sha256": "e29a95b9518008a7ce8315055dcc3a218975dcabfceabda13c20768f03e66cb1",
+      "current_control_count": 52,
+      "current_script_count": 3,
+      "required_password_selectors_min15": [],
+      "exact_added_ids": [
+        "client-origin",
+        "client-origin-value",
+        "product-facts-title"
+      ],
+      "inverse_edits": [
+        {
+          "current_character_offset": 5822,
+          "current": "      <section id=\"client-origin\" data-product-origin data-context=\"gym\" hidden style=\"padding:1rem;\">\n        <h3>Procedencia de los datos</h3>\n        <p>Separa demostraciones y clientes. Esta declaración no indica pago ni cambia planes anteriores.</p>\n        <label for=\"client-origin-value\">Origen para hechos futuros</label>\n        <select id=\"client-origin-value\" disabled><option value=\"unknown\">Sin clasificar</option><option value=\"demo\">Demostración</option><option value=\"customer\">Cliente</option></select>\n        <button type=\"button\" class=\"btn btn-outline btn-sm\" hidden>Guardar declaración</button>\n        <p data-origin-status role=\"status\" aria-live=\"polite\"></p>\n      </section>\n",
+          "original": ""
+        },
+        {
+          "current_character_offset": 21838,
+          "current": "<section data-product-analytics data-context=\"gym\" class=\"chart-container\" aria-labelledby=\"product-facts-title\">\n  <h2 id=\"product-facts-title\">Activación observada</h2>\n  <p>Consulta el periodo actual por procedencia declarada. Los datos previos permanecen sin clasificar. Una respuesta completa del plan asignado aceptada por el servidor no prueba recepción ni lectura humana.</p>\n  <button type=\"button\" class=\"btn btn-outline btn-sm\">Consultar hechos observados</button>\n  <p data-product-report role=\"status\" aria-live=\"polite\">Sin consultar. No hay objetivos o retención inferidos.</p>\n</section>\n\n",
+          "original": ""
+        },
+        {
+          "current_character_offset": 34156,
+          "current": "<script src=\"/static/js/product-analytics-v2.js?v=r38-1\" defer></script>\n",
+          "original": ""
+        },
+        {
+          "current_character_offset": 66071,
+          "current": "      if (window.ProductOrigin) window.ProductOrigin.showClient(c.id_cliente);\n",
+          "original": ""
+        }
+      ]
+    },
+    "web/templates/accept_invite.html": {
+      "current_blob": "2f9da43568332e5b6189cfa901f2b4494071d77b",
+      "current_sha256": "b56be1dee4c6deeee823439305a869ca73b05350880d6a393504c8ef243581a8",
+      "restored_blob": "78c0486a9b751093b59b47416dbe7e634c1e25ff",
+      "restored_sha256": "98c57b5fe98e90ebcd7a1bad21a6c03437951a6e8f2c5ff5bcd8d51c4564b334",
+      "current_control_count": 6,
+      "current_script_count": 2,
+      "required_password_selectors_min15": [
+        {
+          "id": "invite-password"
+        },
+        {
+          "id": "invite-confirm"
+        }
+      ],
+      "exact_added_ids": [],
+      "inverse_edits": [
+        {
+          "current_character_offset": 1688,
+          "current": "    <div class=\"team-field\"><label for=\"invite-password\">Crea tu contraseña</label><input class=\"team-input\" id=\"invite-password\" type=\"password\" autocomplete=\"new-password\" minlength=\"15\" maxlength=\"128\" required aria-describedby=\"invite-password-help\"><small class=\"team-muted\" id=\"invite-password-help\">Usa al menos 15 caracteres.</small></div>\n    <div class=\"team-field\"><label for=\"invite-confirm\">Confirma la contraseña</label><input class=\"team-input\" id=\"invite-confirm\" type=\"password\" autocomplete=\"new-password\" minlength=\"15\" maxlength=\"128\" required></div>\n",
+          "original": "    <div class=\"team-field\"><label for=\"invite-password\">Crea tu contraseña</label><input class=\"team-input\" id=\"invite-password\" type=\"password\" autocomplete=\"new-password\" minlength=\"12\" maxlength=\"128\" required aria-describedby=\"invite-password-help\"><small class=\"team-muted\" id=\"invite-password-help\">Usa al menos 12 caracteres.</small></div>\n    <div class=\"team-field\"><label for=\"invite-confirm\">Confirma la contraseña</label><input class=\"team-input\" id=\"invite-confirm\" type=\"password\" autocomplete=\"new-password\" minlength=\"12\" maxlength=\"128\" required></div>\n"
+        }
+      ]
+    },
+    "web/templates/account_recovery.html": {
+      "current_blob": "f412ed630f8dad10dc6f92efeed258c3588f9584",
+      "current_sha256": "d82ddbe27853b4794a72f7f4e6b4093bb1fb3d567ab7d5f562b53df182dd635b",
+      "restored_blob": "5ebe26b7837077d6551f50d3515b638e3e113886",
+      "restored_sha256": "3133e58611fddb3df1c7818ffbaa6d4d70d1fb0aebc17c4678dae4bbe25dd23d",
+      "current_control_count": 7,
+      "current_script_count": 1,
+      "required_password_selectors_min15": [
+        {
+          "id": "recovery-password"
+        },
+        {
+          "id": "recovery-confirmation"
+        }
+      ],
+      "exact_added_ids": [],
+      "inverse_edits": [
+        {
+          "current_character_offset": 1024,
+          "current": "<p>Elige una contraseña de al menos 15 caracteres y hasta 72 bytes UTF-8. Al confirmarla se revocarán las sesiones anteriores; después deberás iniciar sesión.</p>\n",
+          "original": "<p>Elige una contraseña de al menos 12 caracteres y hasta 72 bytes UTF-8. Al confirmarla se revocarán las sesiones anteriores; después deberás iniciar sesión.</p>\n"
+        },
+        {
+          "current_character_offset": 1243,
+          "current": "<input id=\"recovery-password\" name=\"new_password\" type=\"password\" autocomplete=\"new-password\" minlength=\"15\" maxlength=\"128\" required>\n",
+          "original": "<input id=\"recovery-password\" name=\"new_password\" type=\"password\" autocomplete=\"new-password\" minlength=\"12\" maxlength=\"128\" required>\n"
+        },
+        {
+          "current_character_offset": 1442,
+          "current": "<input id=\"recovery-confirmation\" name=\"confirm_password\" type=\"password\" autocomplete=\"new-password\" minlength=\"15\" maxlength=\"128\" required>\n",
+          "original": "<input id=\"recovery-confirmation\" name=\"confirm_password\" type=\"password\" autocomplete=\"new-password\" minlength=\"12\" maxlength=\"128\" required>\n"
+        }
+      ]
+    },
+    "web/templates/clientes.html": {
+      "current_blob": "eaab17a47e81ed44365589ec62d93f3863cddaf1",
+      "current_sha256": "d1fc38a04b5f8bb38fcd5f9ff19e7b3e8a758b8d0750c6dea503ccf929542ca7",
+      "restored_blob": "e0e14396b13e40d4c8c7ef298b308c56fb87981b",
+      "restored_sha256": "17a8affe3af8833e87ade435ec430f482b877a53a71f2906233dee5efa7476fd",
+      "current_control_count": 33,
+      "current_script_count": 2,
+      "required_password_selectors_min15": [],
+      "exact_added_ids": [
+        "client-origin-filter"
+      ],
+      "inverse_edits": [
+        {
+          "current_character_offset": 3512,
+          "current": "  <label for=\"client-origin-filter\">Procedencia</label>\n  <select id=\"client-origin-filter\"><option value=\"all\">Todas</option><option value=\"unknown\">Sin clasificar</option><option value=\"demo\">Demostración</option><option value=\"customer\">Cliente</option></select>\n",
+          "original": ""
+        },
+        {
+          "current_character_offset": 26247,
+          "current": "    const res = await Api.clientes.listar(q || '', 300, filtro || '', document.getElementById('client-origin-filter').value);\n",
+          "original": "    const res = await Api.clientes.listar(q || '', 300, filtro || '');\n"
+        },
+        {
+          "current_character_offset": 28392,
+          "current": "            <p class=\"text-xs text-muted\">Procedencia: ${esc(({unknown:'Sin clasificar',demo:'Demostración',customer:'Cliente'})[c.data_origin] || 'No consultada')}</p>\n",
+          "original": ""
+        },
+        {
+          "current_character_offset": 38707,
+          "current": "document.getElementById('client-origin-filter').addEventListener('change', () => cargarClientes(document.getElementById('search-input').value.trim(), _filtroSuscripcion));\n",
+          "original": ""
+        }
+      ]
+    },
+    "web/templates/cuenta_seguridad37.html": {
+      "current_blob": "b7c3f6f67706aaadc95854d04fe8bf125e7a121d",
+      "current_sha256": "affede7a6364b9b14bb378d0e517dff666ba517226501910a6b8ad27ce2194f4",
+      "restored_blob": "430d8dcaad82e10fc48ff157bcc2767761c7f62c",
+      "restored_sha256": "9d41bce4fef3a12ca037a57d6a1ba57b0533a5c3293c1350650527e1ea8dd8aa",
+      "current_control_count": 0,
+      "current_script_count": 2,
+      "required_password_selectors_min15": [],
+      "exact_added_ids": [],
+      "inverse_edits": [
+        {
+          "current_character_offset": 26,
+          "current": "{% set privacy_only = request.query_params.get('operacion') == 'privacidad' %}\n{% block title %}{{ 'Privacidad de mi cuenta' if privacy_only else 'Seguridad de mi cuenta' }}{% endblock %}\n",
+          "original": "{% block title %}Seguridad de mi cuenta{% endblock %}\n"
+        },
+        {
+          "current_character_offset": 333,
+          "current": "{% block content %}{% if not privacy_only %}{% include '_account_security37_content.html' %}{% endif %}{% include '_account_privacy39_content.html' %}{% endblock %}\n{% block scripts %}{% if not privacy_only %}<script nonce=\"{{ request.state.csp_nonce }}\" src=\"/static/js/account-security37.js?v={{ static_version }}\"></script>{% endif %}<script nonce=\"{{ request.state.csp_nonce }}\" src=\"/static/js/account-privacy39.js?v={{ static_version }}\"></script>{% endblock %}\n",
+          "original": "{% block content %}{% include '_account_security37_content.html' %}{% endblock %}\n{% block scripts %}<script nonce=\"{{ request.state.csp_nonce }}\" src=\"/static/js/account-security37.js?v={{ static_version }}\"></script>{% endblock %}\n"
+        }
+      ]
+    },
+    "web/templates/registro.html": {
+      "current_blob": "9b639005642ce2f6e4481ca8dd403b1874153fa1",
+      "current_sha256": "65f20a1478e8f60a6eddabaf4fabc1b9651cc5177cf6bb8bb746fc5ab6f7c519",
+      "restored_blob": "08348764ffc85cf9cde7be0e5ab1f9653b915516",
+      "restored_sha256": "d02cd75401bc271e286dd18974eb16619f599835d25229a9231a1d9bc95360c5",
+      "current_control_count": 10,
+      "current_script_count": 2,
+      "required_password_selectors_min15": [
+        {
+          "id": "pwdField"
+        },
+        {
+          "name": "confirm_password"
+        }
+      ],
+      "exact_added_ids": [],
+      "inverse_edits": [
+        {
+          "current_character_offset": 5333,
+          "current": "          <label class=\"input-label\">CONTRASEÑA * (mín. 15 caracteres; máx. 72 bytes UTF-8)</label>\n          <input type=\"password\" name=\"password\" id=\"pwdField\" class=\"input-field\" placeholder=\"••••••••\" required minlength=\"15\" autocomplete=\"new-password\" />\n",
+          "original": "          <label class=\"input-label\">CONTRASEÑA * (mín. 12 caracteres)</label>\n          <input type=\"password\" name=\"password\" id=\"pwdField\" class=\"input-field\" placeholder=\"••••••••\" required autocomplete=\"new-password\" />\n"
+        },
+        {
+          "current_character_offset": 5712,
+          "current": "          <input type=\"password\" name=\"confirm_password\" class=\"input-field\" placeholder=\"••••••••\" required minlength=\"15\" autocomplete=\"new-password\" />\n",
+          "original": "          <input type=\"password\" name=\"confirm_password\" class=\"input-field\" placeholder=\"••••••••\" required autocomplete=\"new-password\" />\n"
+        },
+        {
+          "current_character_offset": 7981,
+          "current": "      if (Array.from(pw1).length < 15 || new TextEncoder().encode(pw1).length > 72) {\n        errorMsg.textContent = 'La contraseña debe tener al menos 15 caracteres y como máximo 72 bytes UTF-8.';\n",
+          "original": "      if (pw1.length < 12) {\n        errorMsg.textContent = 'La contraseña debe tener al menos 12 caracteres.';\n"
+        }
+      ]
+    },
+    "web/templates/usuario_mi_plan.html": {
+      "current_blob": "f4f1745f175566772018d3ad9f35c2c33d2d9fbc",
+      "current_sha256": "ac889684dd9517e847de475d772f43d1cf7cd8a2f53fff1817781e67b17926db",
+      "restored_blob": "b27cb242a77b5014b6b4fe4b2da2a31560c2e847",
+      "restored_sha256": "6b836e3b40d8e13337e8a96493168aa9c6aca5dc82ec5d024ad4bf4a1441aa2a",
+      "current_control_count": 29,
+      "current_script_count": 8,
+      "required_password_selectors_min15": [],
+      "exact_added_ids": [
+        "personal-origin-value"
+      ],
+      "inverse_edits": [
+        {
+          "current_character_offset": 11679,
+          "current": "<section data-product-origin data-context=\"personal\" class=\"u-card\" hidden>\n  <h2>Procedencia de mis datos</h2>\n  <p>Identifica un espacio de demostración o de cliente. No modifica pagos, derechos ni hechos anteriores.</p>\n  <label for=\"personal-origin-value\">Origen para hechos futuros</label>\n  <select id=\"personal-origin-value\" disabled><option value=\"unknown\">Sin clasificar</option><option value=\"demo\">Demostración</option><option value=\"customer\">Cliente</option></select>\n  <button type=\"button\" class=\"u-btn u-btn-secondary\" hidden>Guardar declaración</button>\n  <p data-origin-status role=\"status\" aria-live=\"polite\"></p>\n</section>\n<section data-product-analytics data-context=\"personal\" class=\"u-card\">\n  <h2>Mis hechos observados</h2><p>Los planes previos a esta medición no se reconstruyen. No se presume adherencia ni retención.</p>\n  <button type=\"button\" class=\"u-btn u-btn-secondary\">Consultar hechos observados</button>\n  <p data-product-report role=\"status\" aria-live=\"polite\">Sin consultar.</p>\n</section>\n\n",
+          "original": ""
+        },
+        {
+          "current_character_offset": 19603,
+          "current": "<script src=\"/static/js/product-analytics-v2.js?v=r38-1\" defer></script>\n",
+          "original": ""
+        }
+      ]
+    },
+    "web/templates/usuario_seguridad37.html": {
+      "current_blob": "901e96bb8576fc0a82286fefe0148724901c9ef5",
+      "current_sha256": "64d7e79135eb363a71597e691b23957cf84477de9c89c505057938706a9267ec",
+      "restored_blob": "5e9db9aef60b1e2f15aaa5e5b2d8e8aadb8c78ba",
+      "restored_sha256": "bcbb0bd03ce09060f1fd9b4c7743c8a2e5204786213b49e6326fb1afd267f4bb",
+      "current_control_count": 0,
+      "current_script_count": 2,
+      "required_password_selectors_min15": [],
+      "exact_added_ids": [],
+      "inverse_edits": [
+        {
+          "current_character_offset": 34,
+          "current": "{% set privacy_only = request.query_params.get('operacion') == 'privacidad' %}\n{% block title %}{{ 'Privacidad de mi cuenta' if privacy_only else 'Seguridad de mi cuenta' }}{% endblock %}\n",
+          "original": "{% block title %}Seguridad de mi cuenta{% endblock %}\n"
+        },
+        {
+          "current_character_offset": 341,
+          "current": "{% block content %}{% if not privacy_only %}{% include '_account_security37_content.html' %}{% endif %}{% include '_account_privacy39_content.html' %}{% endblock %}\n{% block scripts %}{% if not privacy_only %}<script nonce=\"{{ request.state.csp_nonce }}\" src=\"/static/js/account-security37.js?v={{ static_version }}\"></script>{% endif %}<script nonce=\"{{ request.state.csp_nonce }}\" src=\"/static/js/account-privacy39.js?v={{ static_version }}\"></script>{% endblock %}\n",
+          "original": "{% block content %}{% include '_account_security37_content.html' %}{% endblock %}\n{% block scripts %}<script nonce=\"{{ request.state.csp_nonce }}\" src=\"/static/js/account-security37.js?v={{ static_version }}\"></script>{% endblock %}\n"
+        }
+      ]
+    }
+  }
+}
