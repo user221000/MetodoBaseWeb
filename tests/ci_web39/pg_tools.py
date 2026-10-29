@@ -5,6 +5,7 @@ import ctypes
 from ctypes import wintypes as W
 from datetime import UTC, datetime
 import hashlib
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -23,6 +24,9 @@ def require(ok, message):
 
 def native(process):
     """Use Popen's retained process handle, including after normal exit."""
+    if sys.platform == 'linux':
+        from tests.ci_web39.pg_tools_linux import native as linux_native
+        return linux_native(process)
     kernel = ctypes.WinDLL('kernel32', use_last_error=True)
     kernel.GetProcessTimes.argtypes = [W.HANDLE] + [ctypes.POINTER(W.FILETIME)] * 4
     kernel.GetProcessTimes.restype = W.BOOL
@@ -46,6 +50,9 @@ def confirm_closed(process, identity):
     Never reopen a PID, query an exited image, poll, wait again or signal. The
     executable string in the proof is explicitly the earlier live attestation.
     """
+    if sys.platform == 'linux':
+        from tests.ci_web39.pg_tools_linux import confirm_closed as linux_closed
+        return linux_closed(process, identity)
     require(type(identity) is dict and set(identity) == {'pid', 'birth_filetime', 'executable'}
             and type(identity['pid']) is int and identity['pid'] > 0
             and type(identity['birth_filetime']) is int and identity['birth_filetime'] > 0
@@ -113,10 +120,14 @@ def normal_wait_owned(process, *, waiter=None):
         while True:
             status = None
             try:
-                kernel = ctypes.WinDLL('kernel32', use_last_error=True)
-                kernel.WaitForSingleObject.argtypes = [W.HANDLE, W.DWORD]
-                kernel.WaitForSingleObject.restype = W.DWORD
-                status = kernel.WaitForSingleObject(W.HANDLE(int(process._handle)), 1000)
+                if sys.platform == 'linux':
+                    from tests.ci_web39.pg_tools_linux import signalled
+                    status = 0 if signalled(process, 1000) else None
+                else:
+                    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+                    kernel.WaitForSingleObject.argtypes = [W.HANDLE, W.DWORD]
+                    kernel.WaitForSingleObject.restype = W.DWORD
+                    status = kernel.WaitForSingleObject(W.HANDLE(int(process._handle)), 1000)
             except BaseException:
                 pass
             if status == 0:  # Native HANDLE signalled, not a PID-name absence.
@@ -137,7 +148,8 @@ def observe_tools(contract, config, database, phase, fresh, admit, write, before
     """
     import psycopg2
     original = subprocess.Popen
-    expected_order = ['pg_dump.exe', 'pg_restore.exe'] if phase == 'source' else ['pg_restore.exe']
+    suffix = '.exe' if os.name == 'nt' else ''
+    expected_order = ['pg_dump' + suffix, 'pg_restore' + suffix] if phase == 'source' else ['pg_restore' + suffix]
     tools = []
     current = None
     owner = unquote(urlsplit(config['METODOBASE_TEST_MIGRATOR_URL']).username)
@@ -188,7 +200,7 @@ def observe_tools(contract, config, database, phase, fresh, admit, write, before
             require(executable == pg_bin / expected_name
                     and hashlib.sha256(executable.read_bytes()).hexdigest()
                     == contract['PG_tools'][expected_name], 'Unreviewed PG tool executable')
-            expected_prefix = ['--format=custom', '--no-owner', '--no-acl', '--file'] if expected_name == 'pg_dump.exe' else (
+            expected_prefix = ['--format=custom', '--no-owner', '--no-acl', '--file'] if expected_name == 'pg_dump' + suffix else (
                 ['--list'] if phase == 'source' else ['--exit-on-error', '--single-transaction', '--no-owner', '--no-acl', '--dbname'])
             require(args[1:1 + len(expected_prefix)] == expected_prefix,
                     'The actual product PG argv changed')
@@ -202,8 +214,12 @@ def observe_tools(contract, config, database, phase, fresh, admit, write, before
                     and env['PGHOST'] in {'127.0.0.1', 'localhost'} and env['PGUSER'] == owner,
                     'PG child connection binding differs')
             require(not any('://' in item for item in args), 'A URL must never enter PG argv')
-            require(kwargs.get('creationflags', 0) & subprocess.CREATE_NO_WINDOW,
-                    'Actual PG child must be explicitly hidden')
+            if os.name == 'nt':
+                require(kwargs.get('creationflags', 0) & subprocess.CREATE_NO_WINDOW,
+                        'Actual PG child must be explicitly hidden')
+            else:
+                from tests.ci_web39.pg_tools_linux import require_direct_spawn
+                require_direct_spawn(kwargs)
             require(all(kwargs.get(name) == subprocess.DEVNULL for name in ('stdin', 'stdout', 'stderr')),
                     'Product PG subprocess streams must remain DEVNULL')
             row = {'application_name': 'mbbackup_' + uuid.uuid4().hex, 'argv': args,
@@ -312,7 +328,13 @@ def observe_tools(contract, config, database, phase, fresh, admit, write, before
             write({'phase': phase, 'tools': [item.row for item in tools],
                    'no_process_or_backend_termination_by_observer': True})
         finally:
-            connection.close()
+            try:
+                connection.close()
+            finally:
+                if sys.platform == 'linux':
+                    from tests.ci_web39.pg_tools_linux import release
+                    for tool in tools:
+                        release(tool)
 
 # Reviewed against the CLOSED restore38 environment-before snapshot, not autopins.
 PG_TOOLS = {
@@ -334,8 +356,8 @@ def observe_restore_tools(runtime, url, admin, app, phase, scratch):
     from tests.ci_web39.pg_fixtures import record
     from tests.billing13_legacy_apply37_pg_contract import (
         check_generation, windows_process_identity, pg_binary_directory)
-    require(sys.platform == 'win32' and phase in {'source', 'target'}
-            and runtime.name == 'restore', 'This finite native PG39 tool window is Windows-only')
+    require(sys.platform in {'win32', 'linux'} and phase in {'source', 'target'}
+            and runtime.name == 'restore', 'This finite native PG39 tool window requires Windows or Linux')
     current_contract, config = pg_contract.checked_runtime('restore')
     require(current_contract == runtime.contract and config == runtime.profile,
             'PG39 tool source/profile/Root authority differs')
@@ -392,10 +414,15 @@ def observe_restore_tools(runtime, url, admin, app, phase, scratch):
 
     def process():
         expected = runtime.contract['generation']
-        created, executable = windows_process_identity(expected['postmaster_pid'])
-        require(created == expected['master_creation_filetime_100ns']
-                and executable == pg_binary_directory(config) / 'postgres.exe',
-                'The approved PG39 PID/birth/executable changed')
+        if sys.platform == 'linux':
+            from tests.billing13_legacy_apply37_pg_contract import linux_process_identity
+            pg_binary_directory(config)
+            linux_process_identity(expected)
+        else:
+            created, executable = windows_process_identity(expected['postmaster_pid'])
+            require(created == expected['master_creation_filetime_100ns']
+                    and executable == pg_binary_directory(config) / 'postgres.exe',
+                    'The approved PG39 PID/birth/executable changed')
 
     def fresh(cursor):
         check_generation(runtime.contract, config, cursor=cursor)  # Same monitor connection.
@@ -416,7 +443,13 @@ def observe_restore_tools(runtime, url, admin, app, phase, scratch):
                     FileSetDigest=runtime.contract['FileSetDigest']))
 
     process()  # Native-first before creating the explicit monitor connection.
-    tool_contract = {'PG_tools': PG_TOOLS, 'scratch_root': str(scratch)}
+    tools = PG_TOOLS
+    if sys.platform == 'linux':
+        from tests.ci_web39.pg_tools_linux import tool_hashes
+        tools = runtime.contract['Linux_PG_tools']
+        require(tool_hashes(pg_binary_directory(config)) == tools,
+                'Linux39 client package/binary binding changed after admission')
+    tool_contract = {'PG_tools': tools, 'scratch_root': str(scratch)}
     with observe_tools(tool_contract, config, database, phase, fresh, admit, write, dispose_idle):
         yield
     value, profile = pg_contract.checked_runtime('restore')

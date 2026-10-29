@@ -49,6 +49,9 @@ BOUND = ('conftest.py', 'alembic.ini', 'db_bootstrap.py', 'tests/__init__.py',
     'tests/ci_web37/scope.py',
     'tests/ci_web39/pg_control.py',
     'tests/ci_web39/pg_tools.py',
+    'tests/ci_web39/pg_tools_linux.py',
+    'tests/ci_web39/run_postgres.py',
+    'tests/ci_web39/pg_admission.py',
 )
 
 
@@ -115,7 +118,7 @@ def build_contract(name, profile_path, generation_path):
     config = profile(paths[0])
     pg_binary_directory(config)
     files = source_files(selected)
-    return {'schema': SCOPE, 'repository': str(ROOT), 'phase': selected, 'revision': '20261023_privacy_disposition',
+    value = {'schema': SCOPE, 'repository': str(ROOT), 'phase': selected, 'revision': '20261023_privacy_disposition',
         'source_identity': 'FileSetDigest_not_Git_HEAD', 'FileSetDigest': digest(files), 'files': files,
         'profile_path': str(paths[0]), 'profile_sha256': hashlib.sha256(paths[0].read_bytes()).hexdigest(),
         'generation_path': str(paths[1]), 'generation_sha256': hashlib.sha256(paths[1].read_bytes()).hexdigest(),
@@ -123,6 +126,10 @@ def build_contract(name, profile_path, generation_path):
         'closure': 'owned603f_commonclose_e905_normal_DROP_strict_zero_fresh_absence',
         'exclusive_no_restart_Root_window_required': True,
         'historical429_53_27_retargeted': False}
+    if os.name != 'nt':
+        from tests.ci_web39.pg_tools_linux import tool_hashes
+        value['Linux_PG_tools'] = tool_hashes(pg_binary_directory(config))
+    return value
 
 
 def require_ack(path, value):

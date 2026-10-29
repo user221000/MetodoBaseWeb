@@ -24,3 +24,22 @@ python -I -B tests/test_ci_image57_offline.py --artifact-root /private/fresh-sma
 ```
 
 Their positive report and mocked Docker transport are synthetic structural controls. They do not accept an image, execute Docker or replace a real Linux build/probe. The frozen source26b preparation evidence is also a historical demonstration, not the final source or the prior144/59 runtime result.
+
+The separate current39 startup gate consumes the closed contract and immutable
+image ID from that build, with fresh private/public evidence directories:
+
+```text
+python -B -X utf8 -m tests.ci_image57.current39_startup --contract /private/build/runtime-input-contract.json --contract-sha256 SHA256 --image-id sha256:IMAGE_ID --private /private/new-startup --output /public/new-startup
+```
+
+It requires Linux Docker and the dedicated synthetic PostgreSQL service at
+127.0.0.1:55483/metodobase_test_image, with explicit
+`METODOBASE_TEST_MIGRATOR_URL` and `METODOBASE_TEST_POSTGRES_URL` using the separate
+`metodobase_test_admin`/`metodobase_test_app` roles. It refuses an existing app role.
+It migrates through the exact image, then starts `/app/entrypoint.sh`, observes
+`/health/ready`, and checks actual `web/main_web.py` PID1, schema39, all44 ORM/45
+physical tables,35 FORCE RLS tables, restricted/nonowner role, complete source
+hashes and normal owned-container closure. Logs, environment files and database
+URLs remain private. Its summary explicitly identifies synthetic testing settings;
+production configuration, real browsers and SBOM/SCA remain separate gates.
+The historical33 runner and its schema witnesses are preserved unchanged.

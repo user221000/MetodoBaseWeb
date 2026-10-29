@@ -160,7 +160,9 @@ jobs:
     - historical-postgres
     - historical-image
     - current-postgres
+    - historical37-postgres
     - current-image
+    - historical33-image
     - historical31-postgres
     - historical31-image
     - historical31-frontend
@@ -792,11 +794,87 @@ jobs:
   current-postgres:
     runs-on: ubuntu-24.04
     needs: quality
+    timeout-minutes: 60
+    env:
+      TEMP: ${{ runner.temp }}
+      TMP: ${{ runner.temp }}
+      TMPDIR: ${{ runner.temp }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Exact PostgreSQL17.11 from the signed official Noble archive
+      run: |
+        set -euo pipefail
+        install -d -m 700 "$RUNNER_TEMP/current39-pg-install-private"
+        (
+          . /etc/os-release
+          test "$ID" = ubuntu
+          test "$VERSION_ID" = 24.04
+          test "$(dpkg --print-architecture)" = amd64
+          key="$RUNNER_TEMP/current39-pg-install-private/pgdg.asc"
+          curl --fail --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc --output "$key"
+          fingerprint="$(gpg --batch --show-keys --with-colons "$key" | awk -F: '$1=="fpr" && !found {print $10; found=1}')"
+          test "$fingerprint" = B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+          sudo install -m 644 "$key" /usr/share/keyrings/metodobase-ci39-pgdg.asc
+          printf '%s\n' 'deb [arch=amd64 signed-by=/usr/share/keyrings/metodobase-ci39-pgdg.asc] https://apt-archive.postgresql.org/pub/repos/apt noble-pgdg-archive main' | sudo tee /etc/apt/sources.list.d/metodobase-ci39-pgdg.list
+          sudo apt-get update
+          sudo sed -ri 's/^#?(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf
+          version=17.11-1.pgdg24.04+2
+          sudo apt-get install --yes --allow-downgrades --no-install-recommends "postgresql-17=$version" "postgresql-client-17=$version" "libpq5=$version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-17)" = "$version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-client-17)" = "$version"
+          test "$(dpkg-query -W -f='${Version}' libpq5)" = "$version"
+        ) > "$RUNNER_TEMP/current39-pg-install-private/install.private.log" 2>&1
+    - name: Fresh current39 test cluster and separate core/restore source-bound authorizations
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/current39-pg-launch-private"
+        python -B -X utf8 -m tests.ci_web39.ci_cluster start > "$RUNNER_TEMP/current39-pg-launch-private/start.private.log" 2>&1
+    - name: Actual39 restricted role, isolation, MFA closure, deletes and facts; four exact cases
+      run: python -B -X utf8 tests/ci_web39/run_postgres.py --phase core --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-core.private.json" --private "$RUNNER_TEMP/current39-pg-core-private" --output "$RUNNER_TEMP/current39-pg-public/core"
+    - name: Actual39 encrypted restore and live suppression; original case and two sequential UUIDs
+      run: python -B -X utf8 tests/ci_web39/run_postgres.py --phase restore --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-restore.private.json" --private "$RUNNER_TEMP/current39-pg-restore-private" --output "$RUNNER_TEMP/current39-pg-public/restore"
+    - name: Both actual39 phases must execute and close all three owned UUIDs
+      run: |
+        python -B -X utf8 - <<'PY'
+        import json,os
+        from pathlib import Path
+        root=Path(os.environ['RUNNER_TEMP'])/'current39-pg-public'
+        for name,cases,databases in [('core',4,1),('restore',1,2)]:
+            value=json.loads((root/name/'summary.json').read_bytes())
+            assert value['accepted'] is True and value['PostgreSQL_executed'] is True
+            assert value['scope']=='separate_current39_PG_'+name and value['passed']==cases
+            assert value['failed']==value['errors']==value['skipped']==0
+            assert value['normally_closed_UUIDs_fresh_absent']==databases
+            assert value['historical429_53_27_retargeted'] is False
+        PY
+    - name: Stop only the exact fresh current39 test cluster normally
+      if: always()
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/current39-pg-launch-private"
+        python -B -X utf8 -m tests.ci_web39.ci_cluster stop > "$RUNNER_TEMP/current39-pg-launch-private/stop.private.log" 2>&1
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: current39-postgres-core-and-encrypted-restore
+        path: ${{ runner.temp }}/current39-pg-public/*/summary.json
+        if-no-files-found: error
+  historical37-postgres:
+    runs-on: ubuntu-24.04
+    needs: quality
     timeout-minutes: 120
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        ref: 878082b242cdfa23e1e4c134f675c12b535a2cd7
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
@@ -851,7 +929,11 @@ jobs:
         os.umask(0o077)
         root=Path.cwd().resolve();assert root==Path(os.environ['GITHUB_WORKSPACE']).resolve()
         source=source_photo();assert re.fullmatch('[0-9a-f]{40}',os.environ['GITHUB_SHA'])
-        assert source['HEAD']==os.environ['GITHUB_SHA']
+        assert source['HEAD']=='878082b242cdfa23e1e4c134f675c12b535a2cd7'
+        subprocess.run(['git','--no-replace-objects','merge-base','--is-ancestor',source['HEAD'],os.environ['GITHUB_SHA']],check=True)
+        # The unchanged37 generation helper binds this historical checkout.
+        # Only this bootstrap child receives its source commit as GITHUB_SHA.
+        os.environ['GITHUB_SHA']=source['HEAD']
         pg=Path('/usr/lib/postgresql/17/bin')
         for name in ('postgres','pg_ctl','pg_dump','pg_restore','psql','initdb'):
             version=subprocess.check_output([str(pg/name),'--version'],text=True).split()[2]
@@ -967,6 +1049,59 @@ jobs:
         path: ${{ runner.temp }}/ci37-pg-public/*/summary.json
         if-no-files-found: error
   current-image:
+    runs-on: ubuntu-24.04
+    needs: quality
+    timeout-minutes: 120
+    services:
+      postgres-image:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: metodobase_test_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: metodobase_test_image
+        ports:
+        - 55483:5432
+        options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_image" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
+      TEMP: ${{ runner.temp }}
+      TMP: ${{ runner.temp }}
+      TMPDIR: ${{ runner.temp }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Exact current commit context, production image and57 distribution/native probe
+      run: python -I -B -X utf8 tests/run_current_image57.py --repository "$GITHUB_WORKSPACE" --source "$GITHUB_SHA" --private-root "$RUNNER_TEMP/current39-image57-private" --public-root "$RUNNER_TEMP/current39-image57-public" --build-probe
+    - name: Actual main_web entrypoint and restricted PostgreSQL39 startup from the same immutable image
+      run: |
+        python -B -X utf8 - <<'PY'
+        import hashlib,json,os,subprocess,sys
+        from pathlib import Path
+        root=Path(os.environ['RUNNER_TEMP'])
+        value=json.loads((root/'current39-image57-public/summary.json').read_bytes())
+        assert value['source']==os.environ['GITHUB_SHA'] and value['builds_attempted']==1
+        assert value['runtime_probes_attempted']==1 and value['distributions']==57
+        contract=root/'current39-image57-private/runtime-input-contract.json'
+        subprocess.run([sys.executable,'-B','-X','utf8','-m','tests.ci_image57.current39_startup',
+            '--contract',str(contract),'--contract-sha256',hashlib.sha256(contract.read_bytes()).hexdigest(),
+            '--image-id',value['image_id'],'--private',str(root/'current39-startup-private'),
+            '--output',str(root/'current39-startup-public')],check=True)
+        PY
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: current39-exact-image57-and-real-entrypoint
+        path: |
+          ${{ runner.temp }}/current39-image57-public/summary.json
+          ${{ runner.temp }}/current39-startup-public/summary.json
+        if-no-files-found: error
+  historical33-image:
     runs-on: ubuntu-latest
     needs: quality
     services:
@@ -988,6 +1123,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        ref: c86d1a25fcd0b0befcb4b473c4144917122109fb
+    - name: Require the authenticated33 ancestor; never count it as the current image
+      run: |
+        test "$(git --no-replace-objects rev-parse HEAD)" = c86d1a25fcd0b0befcb4b473c4144917122109fb
+        git --no-replace-objects merge-base --is-ancestor HEAD "$GITHUB_SHA"
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
