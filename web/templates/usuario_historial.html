@@ -70,7 +70,7 @@
       <tbody id="tbody-planes"></tbody>
     </table>
   </div>
-  <p class="u-historial-hint">Descarga el PDF de cada plan. El diario se consulta desde su calendario personal.</p>
+  <p class="u-historial-hint">Abre o descarga el PDF de cada plan. El diario se consulta desde su calendario personal.</p>
 </div>
 
 <!-- ── PROGRESS CALENDAR PANEL ────────────────────────────── -->
@@ -169,8 +169,11 @@
       });
       var pdf = document.createElement('td');
       if (p.tiene_pdf) {
+        var openButton = document.createElement('button'); openButton.type = 'button'; openButton.className = 'u-pdf-open-btn';
+        openButton.dataset.planId = String(p.id); openButton.textContent = 'Abrir';
+        openButton.setAttribute('aria-label', 'Abrir PDF del plan del '+fecha); pdf.appendChild(openButton);
         var button = document.createElement('button'); button.type = 'button'; button.className = 'u-pdf-btn';
-        button.dataset.planId = String(p.id); button.textContent = 'PDF';
+        button.dataset.planId = String(p.id); button.textContent = 'Descargar';
         button.setAttribute('aria-label', 'Descargar PDF del plan del '+fecha); pdf.appendChild(button);
       } else pdf.textContent = 'No disponible';
       tr.appendChild(pdf); fragment.appendChild(tr);
@@ -197,6 +200,8 @@
   document.getElementById('history-refresh').addEventListener('click', function() { history.restart(); });
   document.getElementById('tbody-planes').addEventListener('click', function(event) {
     try { history.check(); } catch { return; }
+    var openButton = event.target.closest('.u-pdf-open-btn');
+    if (openButton) { abrirPDF(Number(openButton.dataset.planId), openButton); return; }
     var button = event.target.closest('.u-pdf-btn');
     if (button) descargarPDF(Number(button.dataset.planId), button);
   });
@@ -211,6 +216,21 @@
     document.getElementById('loading').style.display = 'none';
     document.getElementById('history-error').hidden = false;
     document.getElementById('history-error-message').textContent = 'No se pudo consultar tu historial. Vuelve a abrir la página.';
+  }
+
+  async function abrirPDF(planId, button) {
+    if (!personal.validPlanId(planId) || button.disabled) return;
+    var popup = window.open('about:blank', '_blank');
+    if (!popup) { showToast('Permite las ventanas emergentes para abrir el PDF.', 'error'); return; }
+    try { popup.opener = null; } catch { popup.close(); showToast('No se pudo abrir el PDF.', 'error'); return; }
+    button.disabled = true;
+    try {
+      await personal.read(function(context) { return Api.usuario.abrirPlan(planId, context, popup); });
+      personal.check();
+    } catch(e) {
+      popup.close();
+      if (personal.active) showToast(e.message || 'No se pudo abrir el PDF.', 'error');
+    } finally { if (personal.active) button.disabled = false; }
   }
 
   async function descargarPDF(planId, button) {

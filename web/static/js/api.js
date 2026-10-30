@@ -365,11 +365,16 @@ const Api = (() => {
       return planes._descargar(`/api/planes/${planId}/pdf`, `plan_${planId}.pdf`);
     },
 
+    obtenerPdfPorPlan: (planId) => {
+      if (!Number.isSafeInteger(planId) || planId < 1 || planId > 2147483647) throw new Error('El plan no es válido.');
+      return planes._procesarPdf(`/api/planes/${planId}/pdf`, blob => blob);
+    },
+
     // Compatibilidad para vistas que solicitan explícitamente el último plan.
     descargar: (id_cliente) => planes._descargar(
       `/api/descargar-pdf/${encodeURIComponent(id_cliente)}`, 'ultimo_plan.pdf'),
 
-    _descargar: async (path, filename) => {
+    _procesarPdf: async (path, usePdf) => {
       await _readyPromise;
       const snapshot = _snapshot();
       const context = await planes.contexto();
@@ -400,6 +405,14 @@ const Api = (() => {
         throw new Error('La sesión cambió. Vuelve a abrir el plan desde tu cuenta.');
       }
       _assertSnapshot(snapshot);
+      return usePdf(blob);
+      } finally {
+        window.removeEventListener('storage', invalidate);
+        window.removeEventListener('pagehide', invalidate);
+      }
+    },
+
+    _descargar: (path, filename) => planes._procesarPdf(path, blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -410,11 +423,26 @@ const Api = (() => {
       const cleanup = () => { URL.revokeObjectURL(url); window.removeEventListener('pagehide', cleanup); };
       window.addEventListener('pagehide', cleanup, { once: true });
       setTimeout(cleanup, 2000);
-      } finally {
-        window.removeEventListener('storage', invalidate);
-        window.removeEventListener('pagehide', invalidate);
-      }
-    },
+    }),
+
+    _abrir: (path, popup) => planes._procesarPdf(path, blob => {
+      if (!popup || popup.closed) throw new Error('No se pudo abrir el PDF. Permite las ventanas emergentes e inténtalo de nuevo.');
+      const url = URL.createObjectURL(blob);
+      let closedTimer;
+      const cleanup = () => {
+        clearInterval(closedTimer);
+        URL.revokeObjectURL(url);
+        try { popup.close(); } catch { /* The viewer may already be closed. */ }
+        window.removeEventListener('metodobase-session-changed', cleanup);
+        window.removeEventListener('pagehide', cleanup);
+      };
+      window.addEventListener('metodobase-session-changed', cleanup);
+      window.addEventListener('pagehide', cleanup);
+      try {
+        popup.location.replace(url);
+        closedTimer = setInterval(() => { if (popup.closed) cleanup(); }, 1000);
+      } catch (error) { cleanup(); throw error; }
+    }),
   };
 
   // ── Estadísticas ──────────────────────────────────────────────────────────
@@ -1169,6 +1197,11 @@ const Api = (() => {
       if (!Number.isSafeInteger(planId) || planId < 1 || planId > 2147483647) throw new Error('El plan no es válido.');
       if (context) _assertSnapshot(context);
       return planes._descargar(`/api/usuario/descargar-pdf?plan_id=${planId}`, `mi_plan_${planId}.pdf`);
+    },
+    abrirPlan: (planId, context, popup) => {
+      if (!Number.isSafeInteger(planId) || planId < 1 || planId > 2147483647) throw new Error('El plan no es válido.');
+      if (context) _assertSnapshot(context);
+      return planes._abrir(`/api/usuario/descargar-pdf?plan_id=${planId}`, popup);
     },
     suscripcion:    () => request('GET', '/api/usuario/suscripcion'),
     cambiarPlan:    (plan) => request('POST', '/api/usuario/suscripcion', { plan }),

@@ -108,11 +108,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   let accountContext = null;
   let requestEpoch = 0;
   let sessionChanged = false;
+  let shareSerial = 0;
+  let preparedShare = null;
   const feedback = document.getElementById('planes-feedback');
   const retry = document.getElementById('planes-retry');
+  function clearPreparedShare() {
+    shareSerial++;
+    if (preparedShare) preparedShare.button.textContent = 'WhatsApp';
+    preparedShare = null;
+  }
   function invalidateSession() {
     sessionChanged = true;
     requestEpoch++;
+    clearPreparedShare();
     document.getElementById('planes-tbody').replaceChildren();
     document.getElementById('pagination').replaceChildren();
     ['kpi-planes-semana', 'kpi-planes-mes-detail', 'kpi-planes-total', 'total-planes'].forEach(id => document.getElementById(id).textContent = '—');
@@ -121,6 +129,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   window.addEventListener('storage', (event) => {
     if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) invalidateSession();
+  });
+  window.addEventListener('metodobase-session-changed', () => {
+    if (!sessionChanged) invalidateSession();
   });
   window.addEventListener('pagehide', invalidateSession);
   async function verifyAccount() {
@@ -148,6 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Cargar planes ──────────────────────────────────────────
   async function loadPlanes(page = 0) {
     if (sessionChanged) return;
+    clearPreparedShare();
     const epoch = ++requestEpoch;
     currentPage = page;
     retry.classList.add('hidden');
@@ -241,6 +253,55 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!sessionChanged) feedback.textContent = error.message || 'No se pudo descargar este plan.';
           } finally { button.disabled = false; }
         });
+        if (p.tiene_pdf ?? Boolean(p.ruta_pdf)) {
+          const shareButton = document.createElement('button');
+          shareButton.type = 'button';
+          shareButton.className = 'btn btn-sm btn-secondary';
+          shareButton.textContent = 'WhatsApp';
+          shareButton.setAttribute('aria-label', 'Preparar el PDF de este plan para WhatsApp');
+          shareButton.addEventListener('click', async () => {
+            if (sessionChanged || epoch !== requestEpoch) return;
+            shareButton.disabled = true;
+            let serial = shareSerial;
+            try {
+              if (preparedShare && preparedShare.button === shareButton && preparedShare.planId === p.id) {
+                Api.session.check(preparedShare.session);
+                const result = navigator.share({files: [preparedShare.file], title: 'Plan alimenticio'});
+                await result;
+                if (serial !== shareSerial || sessionChanged || epoch !== requestEpoch) return;
+                clearPreparedShare();
+                feedback.textContent = 'Se abrió el selector para compartir. Comprueba el envío en WhatsApp.';
+                return;
+              }
+              clearPreparedShare();
+              serial = shareSerial;
+              await verifyAccount();
+              if (serial !== shareSerial || epoch !== requestEpoch || sessionChanged) return;
+              if (typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function' || typeof File !== 'function') {
+                feedback.textContent = 'Descarga el PDF de esta fila y adjúntalo en WhatsApp.';
+                return;
+              }
+              const blob = await Api.planes.obtenerPdfPorPlan(p.id);
+              await verifyAccount();
+              if (serial !== shareSerial || epoch !== requestEpoch || sessionChanged) return;
+              const file = new File([blob], 'plan-alimenticio.pdf', {type: 'application/pdf'});
+              if (!navigator.canShare({files: [file]})) {
+                feedback.textContent = 'Este dispositivo no comparte archivos directamente. Descarga el PDF de esta fila y adjúntalo en WhatsApp.';
+                return;
+              }
+              preparedShare = {button: shareButton, planId: p.id, file, session: Api.session.capture()};
+              shareButton.textContent = 'Compartir PDF';
+              feedback.textContent = 'PDF preparado. Pulsa Compartir PDF y elige WhatsApp y el destinatario.';
+            } catch (error) {
+              if (serial !== shareSerial || sessionChanged || epoch !== requestEpoch) return;
+              clearPreparedShare();
+              feedback.textContent = error && error.name === 'AbortError'
+                ? 'Se canceló la selección. Puedes volver a preparar el PDF.'
+                : 'No se pudo compartir el PDF. Descárgalo y adjúntalo en WhatsApp.';
+            } finally { shareButton.disabled = false; }
+          });
+          tr.querySelector('td:last-child').appendChild(shareButton);
+        }
         const publicationLink = document.createElement('a');
         publicationLink.href = '/clientes/' + encodeURIComponent(p.id_cliente) + '/vinculacion?plan_id=' + p.id;
         publicationLink.className = 'btn btn-sm btn-secondary';

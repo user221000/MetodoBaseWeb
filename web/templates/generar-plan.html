@@ -203,7 +203,7 @@
       </div>
       <div>
         <p id="s3-success-title" tabindex="-1" style="font-weight:700;color:#34D399;font-size:.95rem;margin:0;">Plan disponible</p>
-        <p style="font-size:.82rem;color:var(--text-muted);margin:2px 0 0;">Descarga el PDF o envíalo directamente a tu cliente</p>
+        <p style="font-size:.82rem;color:var(--text-muted);margin:2px 0 0;">Descarga el PDF o prepáralo para compartir desde tu dispositivo.</p>
       </div>
     </div>
 
@@ -221,7 +221,7 @@
           ⬇️ Descargar PDF
         </button>
         <button class="btn btn-primary btn-whatsapp" id="s3-whatsapp">
-          📲 Enviar por WhatsApp
+          📲 Preparar para WhatsApp
         </button>
       </div>
     </div>
@@ -499,6 +499,9 @@ let _generationBusy = false;
 let _generationEpoch = 0;
 let _accountContext = null;
 let _generationSessionDiscarded = false;
+let _shareFile = null;
+let _sharePlan = null;
+let _shareSession = null;
 let _clientCreationBusy = false;
 let _clientCreationState = 'idle';
 const nutritionGeneration = Nutrition35.create({api:Api.nutrition, onView:state=>{
@@ -514,6 +517,7 @@ document.getElementById('nutrition-generation-refresh').addEventListener('click'
 function discardGenerationSession() {
   _generationEpoch++;
   _generationSessionDiscarded = true;
+  clearSharePreparation();
   nutritionGeneration.invalidate();
   nutritionNewClient.invalidate();
   _operation = null;
@@ -544,7 +548,10 @@ function discardGenerationSession() {
 window.addEventListener('storage', (event) => {
   if (event.key === null || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key)) discardGenerationSession();
 });
-window.addEventListener('pagehide', () => { _generationEpoch++; _operation = null; _plan_result = null; _cliente_sel = null; });
+window.addEventListener('metodobase-session-changed', () => {
+  if (!_generationSessionDiscarded) discardGenerationSession();
+});
+window.addEventListener('pagehide', () => { _generationEpoch++; clearSharePreparation(); _operation = null; _plan_result = null; _cliente_sel = null; });
 window.addEventListener('pageshow', (event) => { if (event.persisted) discardGenerationSession(); });
 
 async function verifyGenerationAccount(epoch) {
@@ -916,6 +923,7 @@ document.getElementById('s3-retry').addEventListener('click', runGenerationOpera
 
 async function prepareAnotherOperation(otherClient = false) {
   if (_generationBusy || _generationSessionDiscarded) return;
+  clearSharePreparation();
   _generationBusy = true;
   document.getElementById('s2-generar').disabled = true;
   const epoch = _generationEpoch;
@@ -929,6 +937,7 @@ async function prepareAnotherOperation(otherClient = false) {
     }
     _operation = null;
     _plan_result = null;
+    clearSharePreparation();
     document.getElementById('s3-retry').hidden = false;
     document.getElementById('s2-operation-note').textContent = 'Prepararás otra solicitud. Si la anterior no estaba confirmada, revisa primero el historial. La nueva solicitud puede consumir otro plan disponible.';
     if (otherClient) { _cliente_sel = null; irAStep(1); await buscarClientes(''); }
@@ -1115,40 +1124,61 @@ document.getElementById('s3-descargar-pdf').addEventListener('click', async () =
   } finally { button.disabled = false; }
 });
 
-// ── WhatsApp share ──────────────────────────────────────────
-document.getElementById('s3-whatsapp').addEventListener('click', () => {
-  if (!_cliente_sel || !_plan_result) return;
-  const macros = _plan_result.macros || {};
-  const nombre = _cliente_sel.nombre || 'Cliente';
-  const obj = objetivoLabel(_cliente_sel.objetivo || '');
-  const kcal = Math.round(macros.kcal_objetivo || 0);
-  const prot = Math.round(macros.proteina_g || 0);
-  const carbs = Math.round(macros.carbs_g || 0);
-  const grasa = Math.round(macros.grasa_g || 0);
-  const gymName = Api.session.identity()?.nombre || 'Tu Nutriólogo';
-  const hoy = new Date().toLocaleDateString('es-MX', {day:'numeric',month:'long',year:'numeric'});
-  const mensaje = [
-    `¡Hola ${nombre}! 👋`,
-    '',
-    `Tu plan nutricional personalizado está listo. Aquí va el resumen:`,
-    '',
-    `🎯 *Objetivo:* ${obj}`,
-    `🔥 *Calorías diarias:* ${kcal} kcal`,
-    `🥩 *Proteína:* ${prot}g | 🍞 *Carbos:* ${carbs}g | 🫒 *Grasas:* ${grasa}g`,
-    '',
-    `📅 Fecha: ${hoy}`,
-    `📄 Tu PDF con el plan completo y detallado te lo envío en seguida.`,
-    '',
-    `¿Tienes alguna duda o quieres ajustar algo? Escríbeme. 💪`,
-    '',
-    `— *${gymName}*`,
-    `_Powered by Método Base_`,
-  ].join('\n');
-  const tel = (_cliente_sel.telefono || '').replace(/\D/g, '');
-  const url = tel
-    ? `https://wa.me/${tel.length === 10 ? '52' + tel : tel}?text=${encodeURIComponent(mensaje)}`
-    : `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-  window.open(url, '_blank');
+// Prepare the actual PDF before invoking the operating system's share sheet.
+// The recipient and WhatsApp are selected by the user; no message is sent here.
+function clearSharePreparation() {
+  _shareFile = null;
+  _sharePlan = null;
+  _shareSession = null;
+  const button = document.getElementById('s3-whatsapp');
+  if (button) button.textContent = '📲 Preparar para WhatsApp';
+}
+
+document.getElementById('s3-whatsapp').addEventListener('click', async () => {
+  if (!_cliente_sel || !_plan_result || _generationSessionDiscarded) return;
+  const button = document.getElementById('s3-whatsapp');
+  const status = document.getElementById('s3-download-status');
+  const epoch = _generationEpoch;
+  const plan = _plan_result;
+  button.disabled = true;
+  try {
+    if (!_shareFile || _sharePlan !== plan) {
+      clearSharePreparation();
+      await verifyGenerationAccount(epoch);
+      if (plan !== _plan_result) throw new Error('El plan cambió. Vuelve a prepararlo.');
+      if (typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function' || typeof File !== 'function') {
+        status.textContent = 'Para enviarlo por WhatsApp, descarga el PDF y adjúntalo en la conversación con tu cliente.';
+        return;
+      }
+      const blob = await Api.planes.obtenerPdfPorPlan(plan.plan_id);
+      await verifyGenerationAccount(epoch);
+      if (plan !== _plan_result) throw new Error('El plan cambió. Vuelve a prepararlo.');
+      const file = new File([blob], 'plan-alimenticio.pdf', {type: 'application/pdf'});
+      if (!navigator.canShare({files: [file]})) {
+        status.textContent = 'Este dispositivo no puede compartir el archivo directamente. Descarga el PDF y adjúntalo en WhatsApp.';
+        return;
+      }
+      _shareFile = file;
+      _sharePlan = plan;
+      _shareSession = Api.session.capture();
+      button.textContent = '📲 Compartir PDF';
+      status.textContent = 'PDF preparado. Pulsa Compartir PDF y elige WhatsApp y el destinatario.';
+      return;
+    }
+    const file = _shareFile;
+    if (_sharePlan !== _plan_result || epoch !== _generationEpoch) throw new Error('El plan cambió. Vuelve a prepararlo.');
+    Api.session.check(_shareSession);
+    await navigator.share({files: [file], title: 'Plan alimenticio'});
+    clearSharePreparation();
+    if (epoch !== _generationEpoch || _generationSessionDiscarded) return;
+    status.textContent = 'Se abrió el selector para compartir. Comprueba el envío en WhatsApp.';
+  } catch (error) {
+    clearSharePreparation();
+    if (epoch !== _generationEpoch || _generationSessionDiscarded) return;
+    status.textContent = error && error.name === 'AbortError'
+      ? 'Se canceló la selección. Puedes volver a preparar el PDF.'
+      : 'No se pudo compartir el PDF. Descárgalo y adjúntalo en WhatsApp.';
+  } finally { button.disabled = false; }
 });
 
 // Regenerar / volver

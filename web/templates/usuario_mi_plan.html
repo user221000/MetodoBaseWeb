@@ -164,11 +164,17 @@
     </span>
     <span class="u-quick-btn-label">Excluir</span>
   </button>
+  <button class="u-quick-btn" id="btn-abrir-pdf" style="display:none;" title="Abrir PDF">
+    <span class="u-quick-btn-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7m0-7L10 14"/><path d="M21 14v7H3V3h7"/></svg>
+    </span>
+    <span class="u-quick-btn-label">Abrir PDF</span>
+  </button>
   <button class="u-quick-btn" id="btn-descargar-pdf" style="display:none;" title="Descargar PDF">
     <span class="u-quick-btn-icon">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m4-5l5 5 5-5m-5 5V3"/></svg>
     </span>
-    <span class="u-quick-btn-label">PDF</span>
+    <span class="u-quick-btn-label">Descargar PDF</span>
   </button>
   <a href="/mi-perfil" class="u-quick-btn" title="Mi Perfil">
     <span class="u-quick-btn-icon">
@@ -564,7 +570,9 @@
     }
 
     /* PDF button */
-    document.getElementById('btn-descargar-pdf').style.display = data.tiene_pdf && personal.validPlanId(data.plan_id) ? '' : 'none';
+    ['btn-abrir-pdf', 'btn-descargar-pdf'].forEach(function(id) {
+      document.getElementById(id).style.display = data.tiene_pdf && personal.validPlanId(data.plan_id) ? '' : 'none';
+    });
     document.getElementById('empty-plan').style.display = 'none';
 
     /* Structured source quantities; no defaults or ambiguous recipe parsing. */
@@ -591,6 +599,22 @@
   if (btnE) btnE.addEventListener('click', generarPlan);
 
   /* ── Download PDF ── */
+  document.getElementById('btn-abrir-pdf').addEventListener('click', async function() {
+    var button = this, planId = ultimoPlan && ultimoPlan.plan_id;
+    if (!personal.validPlanId(planId)) return;
+    var popup = window.open('about:blank', '_blank');
+    if (!popup) { showToast('Permite las ventanas emergentes para abrir el PDF.', 'error'); return; }
+    try { popup.opener = null; } catch { popup.close(); showToast('No se pudo abrir el PDF.', 'error'); return; }
+    button.disabled = true;
+    try {
+      await personal.read(function(context) { return Api.usuario.abrirPlan(planId, context, popup); });
+      personal.check();
+    } catch (error) {
+      popup.close();
+      if (personal.active) showToast(error.message || 'No se pudo abrir el PDF.', 'error');
+    } finally { if (personal.active) button.disabled = false; }
+  });
+
   document.getElementById('btn-descargar-pdf').addEventListener('click', async function() {
     var button = this, planId = ultimoPlan && ultimoPlan.plan_id;
     if (!personal.validPlanId(planId)) return;
