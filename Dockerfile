@@ -341,3 +341,28 @@ EXPOSE ${PORT}
 
 # Railway uses preDeployCommand; standalone Docker migrates via entrypoint.
 CMD ["/app/entrypoint.sh"]
+
+# Publish the verified merged filesystem as a fresh root layer. The assembler
+# above remains independently checked; deleted installer files have no lower
+# image layer to reappear from in the production artifact.
+FROM scratch AS production
+COPY --from=runtime / /
+ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    LANG=C.UTF-8 \
+    GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305 \
+    PYTHON_VERSION=3.12.15 \
+    PYTHON_SHA256=c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    METODOBASE_ENV=production \
+    METODOBASE_DATA_DIR=/data \
+    PYTHONPATH=/app \
+    PORT=8000
+WORKDIR /app
+RUN chown -R appuser:appuser /app /data \
+    && python -c "from pathlib import Path; import importlib.util as u,importlib.metadata as m,json,re; root=Path('/usr/local'); assert all(u.find_spec(n) is None for n in ('pip','ensurepip')); assert not any(root.rglob('*.whl')); assert not any(p.name.lower().startswith(('pip-','pip.')) for p in (root/'lib/python3.12/site-packages').iterdir()); assert not any(p.exists() or p.is_symlink() for p in (root/'bin/pip',root/'bin/pip3',root/'bin/pip3.12')); rows=sorted((d.metadata['Name'],d.version) for d in m.distributions()); expected=json.loads(Path('/usr/local/share/metodobase/container37-contract.json').read_text()); normalize=lambda n:re.sub('[-_.]+','-',n).lower(); actual={normalize(n):v for n,v in rows}; assert type(expected['runtime_distribution_count']) is int and expected['runtime_distribution_count']==57 and len(rows)==57 and actual==expected['distributions'] and all(n.lower() not in ('pip','setuptools','wheel') for n,v in rows); assert json.loads(Path('/usr/local/share/metodobase/runtime-python-metadata.json').read_text())==[list(row) for row in rows]"
+USER appuser
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8000') + '/health/ready', timeout=5)" || exit 1
+EXPOSE ${PORT}
+CMD ["/app/entrypoint.sh"]
