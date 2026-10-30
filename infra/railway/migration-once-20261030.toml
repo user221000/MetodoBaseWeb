@@ -1,0 +1,12 @@
+# Private one-shot web migration job; source/runtime Docker inputs stay at 76a2a1c7.
+# Root provisions/configures this service only after the Windows transaction is
+# cancelled and its rollback/absence are freshly verified. No public domains.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+preDeployCommand = ["python db_bootstrap.py --adopt-verified-legacy"]
+startCommand = "sleep 86400"
+restartPolicyType = "NEVER"
+numReplicas = 1
