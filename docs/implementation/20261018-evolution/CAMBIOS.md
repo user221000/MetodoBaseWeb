@@ -1,5 +1,19 @@
 # Cambios de comportamiento
 
+## Lote del 29 de octubre: preparación web 80ccb8b5
+
+La fuente de validación funcional FULL es `759e5639bc462ba5079fdfb0ba8636907ec94a6c`; el tooling CI actual es `80ccb8b512b03bc8a1d68b9386a21d9818d6f73b`. El delta de CI añade cuatro rutas de pruebas/herramientas y cambia un solo entrypoint del workflow. No modifica los 509 APP, las 339 fuentes de callers o los 369 bindings. Las suites amplias congeladas y el contexto offline conservan su fuente `759e5639`; sus resultados no se reatribuyen a `80ccb8b5`. El cambio acotado se valida con su transferencia específica y escaneo actual, sin repetir las suites funcionales intactas por ese delta de CI.
+
+La corrección de orden `5038` aísla el módulo de prueba sin sustituir las identidades canónicas del producto. JUnit39 `d8df` cruza casos principales y subpruebas con observación tipada y cierres completos; las aserciones y XML históricos permanecen intactos.
+
+La corrección `e2fd` de Alembic conserva el logging del llamador cuando se proporciona una conexión; la CLI ordinaria mantiene `fileConfig`. Pasaron 21 controles y revisión independiente. PostgreSQL39 sobre `e2fd` repitió cuatro casos core y una restauración cifrada, con QA, tres UUID cerradas con ausencia fresca y los clusters finalizados mediante smart stop, incluido el recibo V3.
+
+Calidad39 aplica lint, sintaxis y revisión Bandit al servicio web y `runtime-source`. Conserva las seis ocurrencias de baseline por multiset y exige 26 avisos exactos, fuentes y callers autenticados y aprobación Root separada. CPython 3.11 sólo transporta cuatro coordenadas de f-string ligadas a bytes y anclas exactas; no admite mezclas parciales de los dos conjuntos completos.
+
+Los fixtures hasheados conservan sus bytes CRLF/LF originales como datos opacos. La copia de controles acepta primero un universo físico completo aprobado; una mezcla sólo puede usar el transporte Git autenticado, nunca remediar drift de contenido. Los cinco flags TEMP de `9e17` no cambian casos ni guardas. La primera transferencia en Main `9e17` cerró con 102 PASS, cuatro fallos, cero errores y cero skips, con fuente estable: cuatro negativos suponían una plantilla Git LF aunque Main conservaba legítimamente el universo RAW completo. Se conserva el rechazo; la corrección de pruebas `759e` siembra únicamente 369 objetos Git privados autenticados, sin cambiar SUT, gate, aprobación, los 106 IDs o las aserciones. La transferencia V2 se informa por separado.
+
+No se añaden funciones comerciales ni migraciones en este lote. La instrucción del 29 de octubre a las 17:15 UTC difirió Linux y se conserva como antecedente, junto con el rechazo previo por RAM. La instrucción posterior del usuario autoriza el push Git y el build/despliegue remoto en Railway; su ejecución y validación siguen pendientes. La VM Linux local continúa sin autorización. Este permiso no sustituye la validación, el respaldo consistente ni el restore ensayado exigidos antes de intervenir datos productivos; no acredita PASS Linux, aceptación global o despliegue. [Preparación y evidencia por fuente](PREPARACION_PRODUCCION_20261029.md). Los cortes históricos siguientes conservan sus bytes.
+
 <!-- DOC166-CLOSED61-FOLLOWUP -->
 
 ## Seguimiento del checkpoint 166 — SQLite39 final aceptado; restore PG rechazado

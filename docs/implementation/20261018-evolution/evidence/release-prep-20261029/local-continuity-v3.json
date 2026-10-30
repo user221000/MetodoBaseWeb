@@ -1,0 +1,967 @@
+{
+  "schema": "source-scoped-local-continuity-v3",
+  "technical_source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+  "runtime_review_source": "e2fd4e3f72e470293f51385e6d3b88c3da83e649",
+  "source_is_mutable_local_candidate": true,
+  "application_functional_FULL_source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+  "current_CI_tooling_source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+  "CI_only_change_does_not_reattribute_functional_FULL_or_offline_context": true,
+  "parameters": {
+    "schema": "release-docs-v3-draft-parameters",
+    "technical_source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+    "runtime_review_source": "e2fd4e3f72e470293f51385e6d3b88c3da83e649",
+    "base_context_source": "9e17fb6d561ee6e807f0ed13c370d39f6bdf5306",
+    "main_quality_transfer": {
+      "state": "closed",
+      "closed": true,
+      "source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+      "reference": {
+        "path": "main-quality106-transfer-v2-private/summary.json",
+        "sha256": "84b2d988ce09405dc5e5bc66ca35fff06a911907b861f0dd25ee336e4355ef66"
+      },
+      "main_counts": {
+        "passed": 106,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "identities_exact": true,
+      "source_environment_quiet": true
+    },
+    "final_serial": {
+      "state": "closed_rejected",
+      "source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+      "source_files": 2354,
+      "controller_session": 66653,
+      "expected_windows_platform_skip": 1,
+      "closed": true,
+      "reference": {
+        "path": "Root-serial-closed-accounting-v1.json",
+        "sha256": "4660d70ffc6e6061265780fe86078d60129c38f2a4da7581bcd3d106c193909c"
+      },
+      "normal_outer_exit": 1,
+      "producer_accepted": false,
+      "main_counts": {
+        "passed": 6706,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "main_testcases": 6707,
+      "skip_scope": "Host does not grant symlink creation; Linux CI must exercise this boundary; nodeid=tests/test_object_storage.py::test_symlink_cannot_redirect_a_private_document",
+      "skipped_cases": [
+        {
+          "identity": [
+            "tests.test_object_storage",
+            "test_symlink_cannot_redirect_a_private_document"
+          ],
+          "reason": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+        }
+      ],
+      "typed_subtest_outcomes_separate_from_main": {
+        "passed": 80
+      },
+      "JUnit_declared_tests_verbatim": [
+        "6787"
+      ],
+      "JUnit_declared_tests_are_not_main_count": true,
+      "worker_exitstatuses": [
+        0
+      ],
+      "nonpassing_owners_verbatim": [
+        {
+          "identity": [
+            "tests.test_object_storage",
+            "test_symlink_cannot_redirect_a_private_document"
+          ],
+          "nodeid": "tests/test_object_storage.py::test_symlink_cannot_redirect_a_private_document",
+          "worker": "controller",
+          "phases": [
+            {
+              "outcome": "passed",
+              "when": "setup"
+            },
+            {
+              "outcome": "skipped",
+              "when": "call"
+            },
+            {
+              "outcome": "passed",
+              "when": "teardown"
+            }
+          ],
+          "subtests": 0,
+          "lifecycle_complete": false
+        }
+      ],
+      "identities_exact": true,
+      "identities_exact_scope": "Cada JUnit contra su propio oráculo cerrado; NO igualdad literal entre los dos oráculos.",
+      "source_environment_quiet": true,
+      "packages": 92,
+      "Node_installed_files": 157,
+      "XML_sha256": "a45ed0002556d3707625dc8b2bb0e0df87ac3d3437fe674194fbf10fffcf15de",
+      "oracle_sha256": "5e5ec8683cb007c022ede5b36f6f28da1fb70dc3f9843ad296d164e82ddf88db",
+      "contract_sha256": "e10e52c14c750d7b8342acf9f3101d41386c8085783ecb09943b97263c2f672b",
+      "independent_review": {
+        "state": "closed_complete_diagnosis_FULL_remains_rejected",
+        "reference": {
+          "path": "final-web39-serial-20261029-v3-review-v5-private/review.json",
+          "sha256": "e757ca1e718f549b5c573e9a3e7e3cb1401ed419231a44cda0bfa2ce86fd98a7"
+        },
+        "handoff_reference": {
+          "path": "qa-FULL39-final-closed-readback-handoff-v5.json",
+          "bytes": 7348,
+          "sha256": "f0fdc2be473d13b883cbde56287a005e614bb2f6288025b4a39d301cdf06128c"
+        },
+        "reviewer_normal_exit": 0,
+        "review_complete": true,
+        "strict_reader_accepted": false,
+        "FULL_gate_accepted": false,
+        "strict_refusal": {
+          "type": "ValueError",
+          "reason": "Current39 subtest evidence: owner lifecycle or subtest count differs"
+        },
+        "scope": "Readback íntegro y diagnóstico cerrado; exit0 del revisor no admite el gate FULL ni exime su skip."
+      },
+      "FULL_gate_accepted": false,
+      "QA_full_review_complete": true,
+      "closed_archive_readback": {
+        "archive_sha256": "98a0e6dfdfabc3519465e6d872dcee443f255af1a5e4723f719dfe484f314f0a",
+        "archive_bytes": 283319682,
+        "members": 32079,
+        "all_members_readback": true,
+        "finite_forensic_fixture": {
+          "scope": "Forensic read of passed negative fixture; no SUT/FULL admission",
+          "alias": "pytest-data/test_invalid_paths_and_files_a7/private-pdfs/junction-link/entry.pdf",
+          "canonical_target": "pytest-data/test_invalid_paths_and_files_a7/private-pdfs/junction-target/entry.pdf",
+          "bytes": 13,
+          "sha256": "e2dc7dcc254d1b9d2b42ebf1fb0a7630e49255fd1f7fe3c5e220fb7ff837982b",
+          "owner": {
+            "source_sha256": "a4e7c018423ccfe8cd681318afe01cd40076798b80ba78f2ffd0e8584e89c799",
+            "run_id": "0413965d90d3432586c41ba2dd020f1e",
+            "worker": "controller",
+            "nodeid": "tests/test_legacy_object_inventory.py::test_invalid_paths_and_files_are_rejected_without_association[symlink-symlink_or_junction]",
+            "contract_sha256": "e10e52c14c750d7b8342acf9f3101d41386c8085783ecb09943b97263c2f672b",
+            "actor_sha256": {
+              "controller": "ad6ce94bd6a21928e52226ee14101ca28bc28b01b1a1e0b5f0bbbc8d583e0cd1"
+            }
+          },
+          "alias_payload_opened": false,
+          "all_archive_members_preserved": true
+        }
+      },
+      "selected_manifest_files": 2354,
+      "physical_non_doc_source_photo_files": 1800,
+      "source_packages_Python_Node_PSF_quiet": true,
+      "diagnostic_main_plus_passed_children_exact": true,
+      "child_exit_inferred_from_bound_strict_call_controlflow": true
+    },
+    "final_n2": {
+      "state": "closed_rejected",
+      "source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+      "source_files": 2354,
+      "controller_session": 73537,
+      "workers": 2,
+      "seed": 20261018,
+      "expected_windows_platform_skip": 1,
+      "closed": true,
+      "reference": {
+        "path": "Root-n2-closed-accounting-v1.json",
+        "sha256": "1ce11ba1a997dd75453012a60774c1c5ac29e674e80eb8e7b4b9c258bdd24817"
+      },
+      "normal_outer_exit": 1,
+      "producer_accepted": false,
+      "main_counts": {
+        "passed": 6706,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "main_testcases": 6707,
+      "skip_scope": "Host does not grant symlink creation; Linux CI must exercise this boundary; nodeid=tests/test_object_storage.py::test_symlink_cannot_redirect_a_private_document",
+      "skipped_cases": [
+        {
+          "identity": [
+            "tests.test_object_storage",
+            "test_symlink_cannot_redirect_a_private_document"
+          ],
+          "reason": "Host does not grant symlink creation; Linux CI must exercise this boundary"
+        }
+      ],
+      "typed_subtest_outcomes_separate_from_main": {
+        "passed": 80
+      },
+      "JUnit_declared_tests_verbatim": [
+        "6787"
+      ],
+      "JUnit_declared_tests_are_not_main_count": true,
+      "worker_exitstatuses": [
+        0,
+        0
+      ],
+      "nonpassing_owners_verbatim": [
+        {
+          "identity": [
+            "tests.test_object_storage",
+            "test_symlink_cannot_redirect_a_private_document"
+          ],
+          "nodeid": "tests/test_object_storage.py::test_symlink_cannot_redirect_a_private_document",
+          "worker": "gw0",
+          "phases": [
+            {
+              "outcome": "passed",
+              "when": "setup"
+            },
+            {
+              "outcome": "skipped",
+              "when": "call"
+            },
+            {
+              "outcome": "passed",
+              "when": "teardown"
+            }
+          ],
+          "subtests": 0,
+          "lifecycle_complete": false
+        }
+      ],
+      "identities_exact": true,
+      "identities_exact_scope": "Cada JUnit contra su propio oráculo cerrado; NO igualdad literal entre los dos oráculos.",
+      "source_environment_quiet": true,
+      "packages": 92,
+      "Node_installed_files": 157,
+      "XML_sha256": "9910dc1443a68634743b54a785bdfc895ec940921b97de4650174004bddac9b6",
+      "oracle_sha256": "9bcd94c389fd4ce524a72aac0a0843bb3810d8b7cd95e648e5a99d6c1b25c711",
+      "contract_sha256": "79de10ed362fcce37ab77d9e4e0cc74711638f6177eefca04d743115521ee385",
+      "independent_review": {
+        "state": "closed_complete_diagnosis_FULL_remains_rejected",
+        "reference": {
+          "path": "final-web39-n2-20261029-v3-review-v5-private/review.json",
+          "sha256": "e624e37b5c5427702c210843522624e2206d30f9e4d2660ea00095bab2606c03"
+        },
+        "handoff_reference": {
+          "path": "qa-FULL39-final-closed-readback-handoff-v5.json",
+          "bytes": 7348,
+          "sha256": "f0fdc2be473d13b883cbde56287a005e614bb2f6288025b4a39d301cdf06128c"
+        },
+        "reviewer_normal_exit": 0,
+        "review_complete": true,
+        "strict_reader_accepted": false,
+        "FULL_gate_accepted": false,
+        "strict_refusal": {
+          "type": "ValueError",
+          "reason": "Current39 subtest evidence: owner lifecycle or subtest count differs"
+        },
+        "scope": "Readback íntegro y diagnóstico cerrado; exit0 del revisor no admite el gate FULL ni exime su skip."
+      },
+      "FULL_gate_accepted": false,
+      "QA_full_review_complete": true,
+      "closed_archive_readback": {
+        "archive_sha256": "1aa30ac68233d53e7a8fd27872eaa08feaada205c7ed76b6cd53583df4781b9b",
+        "archive_bytes": 475250112,
+        "members": 91030,
+        "all_members_readback": true,
+        "finite_forensic_fixture": {
+          "scope": "Forensic read of passed negative fixture; no SUT/FULL admission",
+          "alias": "pytest-data/popen-gw1/test_invalid_paths_and_files_a1/private-pdfs/junction-link/entry.pdf",
+          "canonical_target": "pytest-data/popen-gw1/test_invalid_paths_and_files_a1/private-pdfs/junction-target/entry.pdf",
+          "bytes": 13,
+          "sha256": "e2dc7dcc254d1b9d2b42ebf1fb0a7630e49255fd1f7fe3c5e220fb7ff837982b",
+          "owner": {
+            "source_sha256": "a4e7c018423ccfe8cd681318afe01cd40076798b80ba78f2ffd0e8584e89c799",
+            "run_id": "f4d65412f1ab45a8b364685d2df663f0",
+            "worker": "gw1",
+            "nodeid": "tests/test_legacy_object_inventory.py::test_invalid_paths_and_files_are_rejected_without_association[symlink-symlink_or_junction]",
+            "contract_sha256": "79de10ed362fcce37ab77d9e4e0cc74711638f6177eefca04d743115521ee385",
+            "actor_sha256": {
+              "gw0": "af99d6492ae7a551d08cb7c34c3eb138be90e5fbc27b89e968fc773847a3af65",
+              "gw1": "ab70da1c31bace64b992be5032209bfed50b0a7b11a27d8945eb3ac3f976e9ea"
+            }
+          },
+          "alias_payload_opened": false,
+          "all_archive_members_preserved": true
+        }
+      },
+      "selected_manifest_files": 2354,
+      "physical_non_doc_source_photo_files": 1800,
+      "source_packages_Python_Node_PSF_quiet": true,
+      "diagnostic_main_plus_passed_children_exact": true,
+      "child_exit_inferred_from_bound_strict_call_controlflow": true
+    },
+    "final_secret_scan": {
+      "state": "closed",
+      "closed": true,
+      "source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+      "reference": {
+        "path": "final-secrets-postBroad-docs-v3-Root-closed-review.json",
+        "sha256": "cfe98a3925296a9dd59f0165e2ef6ac5300bdac5236847112d41cbedf28f7bae"
+      },
+      "scan_counts": {
+        "raw": 54216,
+        "classified": 54216,
+        "remaining": 0,
+        "effective_exit_code": 0
+      },
+      "raw_exit_code": 1,
+      "normal_outer_exit": 0,
+      "scan_complete": true,
+      "source_stable": true,
+      "files": 16438,
+      "scanned_bytes": 662496471,
+      "raw_sanitized_sha256": "690f30c3c637017d5779eaa51f4d6bf29970ed819f6d3bd9f51031c2021dd622",
+      "outer_closed_reference": {
+        "path": "final-secrets-postBroad-docs-v3-outer-closed.json",
+        "bytes": 241,
+        "sha256": "9ef5cf520ead74e3d35f9e73542a9511c875efb26b8bb772db0b0e79772562de"
+      },
+      "fresh_nonce": true,
+      "after_final_broad_and_docs": true,
+      "nonce_name": "final-secrets-postBroad-docs-v3",
+      "independent_review": {
+        "state": "closed_approved_postBroad_docs_v1_only",
+        "reference": {
+          "path": "final-secrets-postBroad-docs-v3-security-independent-review.json",
+          "bytes": 4062,
+          "sha256": "27432da9702fd78b755731d4e3a18a184a58eb5baaf6cd8c560f4fb827a904a4"
+        },
+        "decision": "PASS_NONCE3_EXACT_DOCS_V1_PHYSICAL_TREE_ONLY"
+      },
+      "scanned_document_application": {
+        "path": "docs-final-closed-v1-Root-application.json",
+        "bytes": 3410,
+        "sha256": "0ffcb967c936f65c5a0d7f76668aa2bf274477ce415d817b322b561fe91f0ed3"
+      },
+      "legacy_exact_classifications": 54213,
+      "new_exact_source_locations": 3,
+      "scope": "Nonce3 cerrado sobre los bytes de docs-v1, tras FULL y cobertura. No acredita los bytes posteriores de docs-v2 ni un despliegue; nonce4 fresco debe atestiguar externamente el árbol documental final."
+    },
+    "risk_coverage": {
+      "state": "closed",
+      "closed": true,
+      "source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+      "reference": {
+        "path": "final-web39-serial-20261029-v3-coverage-review-v2-private/review.json",
+        "sha256": "693bcfdc3102512e654437bf3f085d7bc25dd7c8fdd04d7aa9bdf527fe607ad5"
+      },
+      "original_line_threshold": 95,
+      "original_branch_threshold": 90,
+      "original_checker_sha256": "8a8d4225f67102b8c305b7c08710198e2641e2497342023c7df8dfe59de0cd9a",
+      "observed": {
+        "core/nutrition_validation.py": {
+          "covered_lines": 33,
+          "num_statements": 33,
+          "covered_branches": 16,
+          "num_branches": 16,
+          "lines_percent": 100.0,
+          "branches_percent": 100.0,
+          "line_floor": 95,
+          "branch_floor": 90
+        },
+        "core/food_catalog.py": {
+          "covered_lines": 48,
+          "num_statements": 48,
+          "covered_branches": 26,
+          "num_branches": 26,
+          "lines_percent": 100.0,
+          "branches_percent": 100.0,
+          "line_floor": 95,
+          "branch_floor": 90
+        },
+        "web/profile_schemas.py": {
+          "covered_lines": 49,
+          "num_statements": 49,
+          "covered_branches": 6,
+          "num_branches": 6,
+          "lines_percent": 100.0,
+          "branches_percent": 100.0,
+          "line_floor": 95,
+          "branch_floor": 90
+        }
+      },
+      "coverage_input": {
+        "path": "E:\\MetodoBaseWorkspace\\evidence\\release-prep-20261029\\final-web39-serial-20261029-v3-private\\coverage.json",
+        "bytes": 2512885,
+        "sha256": "02f9cea09f1ead50a993ecba3d67ed66d85ccb243372c3caf7e7b9d395f1de5a"
+      },
+      "normal_original_checker_exit": 0,
+      "independent_review": {
+        "state": "closed_approved_original95_90_only",
+        "reference": {
+          "path": "coverage39-original95-90-independent-peer-v1/review.json",
+          "bytes": 7234,
+          "sha256": "9a0e38f13dcd1d0a0da4fc106bf4e7c8ff8c0e431e7e1fcbd585e9baaf5ce89c"
+        }
+      },
+      "FULL_gate_acceptance_or_skip_waiver": false,
+      "scope": "Tres módulos originales con 100% de líneas y 100% de ramas, umbrales 95/90 intactos; gate separado, no aceptación FULL."
+    },
+    "offline_final_context57": {
+      "state": "closed",
+      "closed": true,
+      "kind": "prepared_offline_source_only",
+      "source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+      "reference": {
+        "path": "final759e-image57-public/summary.json",
+        "sha256": "49818e51dc8eeaed99516def2cffad5ad487a1868e7f4e9c307637643407bf60"
+      },
+      "source_context_sha256": "124819a0d41dd352626f84918f7b8ad33e6a91fc0989d735b55532d2b6548e12",
+      "private_archive_sha256": "6b69039c4a0346d751e4c7b97816559b52fc6ca75d8d89d58a4ad56638466cd8",
+      "image_built": false,
+      "runtime_probe_executed": false,
+      "SBOM_SCA_complete": false,
+      "final_candidate_source_pin": false
+    },
+    "linux": {
+      "state": "deferred_by_user",
+      "at_UTC": "2026-10-29T17:15:00Z"
+    },
+    "preserved_Main106_v1": {
+      "source": "9e17fb6d561ee6e807f0ed13c370d39f6bdf5306",
+      "reference": "main9e17-quality106-transfer-v1-private/summary.json",
+      "passed": 102,
+      "failed": 4,
+      "errors": 0,
+      "skipped": 0,
+      "cause_scope": "Cuatro negativos presuponían que source_template era Git LF; Main conserva legítimamente el universo RAW completo. El gate y sus dos universos siguen válidos; no se cambian SUT, aprobación o criterios."
+    },
+    "test_fixture_commit": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+    "application_functional_FULL_source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+    "current_CI_tooling_source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+    "current_secrets_transfer": {
+      "state": "closed",
+      "closed": true,
+      "source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+      "reference": {
+        "path": "main80cc-secrets78-transfer-v1-private/summary.json",
+        "sha256": "866aa1982d1f65d0cb0611d7aab26d847e502cc1296cd83b88888e49cb50303e"
+      },
+      "main_counts": {
+        "passed": 78,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "identities_exact": true,
+      "source_environment_quiet": true
+    },
+    "current_secrets_scan": {
+      "state": "closed",
+      "closed": true,
+      "source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+      "reference": {
+        "path": "secrets-current80cc-preclose-v2-Root-closed-review.json",
+        "sha256": "29e23aa93cdb11e59e0e4be5b93f9a19648910ea7c0e4b20b95a57172263e10f"
+      },
+      "scan_counts": {
+        "raw": 54216,
+        "classified": 54216,
+        "remaining": 0,
+        "effective_exit_code": 0
+      },
+      "raw_exit_code": 1,
+      "scan_complete": true,
+      "source_stable": true,
+      "files": 16437,
+      "scanned_bytes": 662429423,
+      "raw_sanitized_sha256": "c99c7ecb9bb25e5dbba7b09bc0ee070034ed958099cbc64ef4ac22f67c3e3372",
+      "independent_review": {
+        "state": "closed_approved",
+        "reference": {
+          "path": "secrets-current80cc-preclose-v2-security-independent-review.json",
+          "sha256": "c1a12eb7448802d5b363fb329a7327172283d644e8381b69b9fd808ac1a32203"
+        }
+      },
+      "scope": "CLOSED current CLI preclose scan while FULL759e still running; not final postBroad/docs nonce",
+      "legacy_exact_classifications": 54213,
+      "new_exact_source_locations": 3,
+      "physical_snapshot_note": "Git80cc plus the already approved uncommitted one-line documentary metadata transport rule in .gitattributes; scanner uses tracked and unignored physical tree, not git history."
+    },
+    "FULL_identity_relation": {
+      "source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+      "literal_main_ID_sets_equal": false,
+      "common_literal_main_IDs": 6706,
+      "main_count_each": 6707,
+      "differences_each": 1,
+      "only_difference_is_exact_own_child_TEMP_parameter": true,
+      "source_parameter_expression": "tempfile.gettempdir()",
+      "source_parameter_line": 55,
+      "main_identities_vs_each_own_oracle_exact": true,
+      "same_relative_test_source_and_source_SHA": true,
+      "other6706_literal_IDs_exact": true,
+      "Root_closed_proof": {
+        "path": "Root-FULL39-single-TEMP-identity-relation-v2.json",
+        "bytes": 2521,
+        "sha256": "3279bf686b45b93e29a13616d90a67c130145ff1de983be486aea8ab9b517540"
+      },
+      "independent_finite_relation_review": {
+        "state": "closed_approved_in_finite_scope_only",
+        "reference": {
+          "path": "qa-FULL39-single-TEMP-identity-relation-v1.json",
+          "bytes": 3079,
+          "sha256": "5d0f7456c91d4b1c3e65653d6852a06df3454da8a55164e5c1985ea3e9b1ac4f"
+        }
+      },
+      "literal_comparison_preserved": {
+        "path": "Root-FULL39-closed-source-identity-comparison-v1.json",
+        "bytes": 669,
+        "sha256": "53c39ded2d9785d09f01ca70185294d0f8edfecb5581451a0f7014260da135ba"
+      },
+      "source_environment_photos_equal": true,
+      "generic_normalization_or_skip_waiver_added": false,
+      "XML_or_oracles_or_typed_contracts_mutated": false,
+      "FULL_gate_accepted": false,
+      "scope": "Una relación finita explica un único parámetro TEMP por ejecución; no cambia la identidad literal ni admite el resultado rechazado."
+    },
+    "operational_runbook_v2": {
+      "state": "closed_security_approved_Root_applied_one_MD",
+      "path": "docs/RUNBOOK_DB_MIGRATION.md",
+      "sha256": "bc535e314ddd9500d3db84e371e4465b61183146ccae69aff5b6d2e54fd28dcb",
+      "bytes": 10487,
+      "lines": 69,
+      "independent_security_peer": {
+        "path": "runbook-db-migration-security-peer-v2.json",
+        "bytes": 5102,
+        "sha256": "a518537a3481c126867356853820bc61d69fbf1955b2084ceee70090fe33189e"
+      },
+      "Root_application": {
+        "path": "runbook-db-migration-Root-application-v1.json",
+        "bytes": 1020,
+        "sha256": "f367f67e6e84dc98556c1f8e378736e3cb8744755ec3191a29b3e4793d511be0"
+      },
+      "must_remain_separate_from_the_ten_doc_renderer": true,
+      "production_or_tests_executed": false,
+      "scope": "Procedimiento documental revisado/aplicado; no acredita configuración productiva, custodia, restore real ni despliegue."
+    },
+    "planned_Root_final_stage_scope": {
+      "state": "planned_not_staged_or_committed_by_this_author",
+      "paths": 32,
+      "breakdown": {
+        "documentation_including_runbook": 11,
+        "public_JSON_including_summary": 20,
+        "gitattributes": 1
+      },
+      "scope": "Dato de coordinación Root; no modifica la lista de 19 artefactos ni los 167 estados."
+    },
+    "functional_and_real_operation_pending": {
+      "scope": "Pendientes funcionales/operativos explícitos; no cambia ningún estado o criterio de los 167 requisitos.",
+      "R31_purge_and_support": {
+        "state": "pending_real_operational_acceptance",
+        "needs": [
+          "Política y ejecución verificable de purga/retención de datos, objetos y copias, con supresiones vigentes tras restore.",
+          "Acceso de soporte autorizado, limitado y auditado; custodia y autoridad externa reales."
+        ]
+      },
+      "demo_and_cohorts": {
+        "state": "pending_real_product_acceptance",
+        "needs": [
+          "Procedencia de datos demo identificada y separada de datos reales y cohortes analíticas.",
+          "Evidencia de cohortes/uso real sin contenido de salud o PII en analítica; no sustituirla por fixtures sintéticas."
+        ]
+      },
+      "real_operation": {
+        "state": "pending_external_configuration_and_decisions",
+        "needs": [
+          "Staging, migración, quiescencia, rollback y promoción del artefacto ensayados con configuración real.",
+          "Proveedores, almacenamiento durable, correo/pagos observables, backups/custodia/retención, alertas y responsabilidades operativas.",
+          "Datos del aviso de México, revisión jurídica/nutricional, objetivos operativos y participación real en piloto."
+        ],
+        "historical_Linux_deferral_preserved": true,
+        "local_VM_authorized": false,
+        "remote_build_deploy_user_authorized": true,
+        "remote_build_deploy_validated": false
+      }
+    },
+    "closed_forensic_reader_history": {
+      "v4_reader_rejection_preserved": {
+        "path": "final-web39-n2-20261029-v3-review-v4-private/review.json",
+        "bytes": 384,
+        "sha256": "0f67415d0925611b920779875fd0e63550d645a7a27a0aa3f79bd8d21ed4c357"
+      },
+      "closed_finite_junction_diagnosis": {
+        "path": "qa-FULL39-closed-junction-metadata-diagnosis-v2.json",
+        "bytes": 8586,
+        "sha256": "56d698dad972a4100bba07d6f9cf477b3f44b15f382eea507291fba6c7e6e0f2"
+      },
+      "v5_security_peer": {
+        "path": "full39-forensic-v5-security-final-peer-v2.json",
+        "bytes": 3721,
+        "sha256": "3ce0d84f2fadf5bfe7599f2b3f60cbf2b90e0e9d5109e2e582938914f1fb01b5"
+      },
+      "v5_complete_QA_handoff": {
+        "path": "qa-FULL39-final-closed-readback-handoff-v5.json",
+        "bytes": 7348,
+        "sha256": "f0fdc2be473d13b883cbde56287a005e614bb2f6288025b4a39d301cdf06128c"
+      },
+      "scope": "Únicamente dos alias de fixtures negativas, 13 bytes cada uno, con fuente, propietario y contrato concretos; destino canónico leído y todos los miembros preservados. No normalización general ni apertura del payload vía alias.",
+      "FULL_gate_accepted": false,
+      "skip_waiver_added": false,
+      "sources_XML_oracles_archives_mutated": false
+    },
+    "documentation_helper_review": {
+      "helper_sha256": "b3d0c889cd36031f19b4fadb32357942ce2a555aff9b1495106e2f8e6e204a95",
+      "security_peer": {
+        "path": "docs-helper-functional-pending-security-static-peer-v1.json",
+        "bytes": 2251,
+        "sha256": "6bba7e3e2a4d3ed07bd1673bf0fdb7d7ef74629722b1904e87a912ab7a9eded9"
+      },
+      "single_existing_external_Constant_delta_only": true,
+      "fixed167_unchanged": true,
+      "preceding_single_constant_helper_sha256": "e3811fa8883b59742114d6ebaffc6aa4cd0569ef8b65facdf1425339319f66a5",
+      "current_authorization_overlay_security_peer": {
+        "path": "docs-helper-remote-authorization-overlay-security-peer-v1.json",
+        "bytes": 1930,
+        "sha256": "07cc6ec176214625beeddce605ab651792e581ecc30394a58fa0665490719ef4"
+      },
+      "current_authorization_overlay_semantic_review": {
+        "path": "docs-helper-remote-authorization-overlay-v1/semantic-review.json",
+        "sha256": "b7a62d58992377d12c5378cfd5c5d318c2ed3a7d054a85b56efda3c6918fcb87"
+      },
+      "historical_linux_guard_retained": true
+    },
+    "final_documentation_status": {
+      "state": "NONCE3_CLOSED_REVIEWED_NONCE4_FINAL_TREE_PENDING",
+      "FULL_gate_accepted": false,
+      "complete_release_accepted": false,
+      "production_deployed": false,
+      "application_functional_FULL_source": "759e5639bc462ba5079fdfb0ba8636907ec94a6c",
+      "current_CI_tooling_source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+      "current_user_request": "Push Git y despliegue remoto autorizados; commit exacto push final produccion. No exime validación ni respaldo/restore y no autoriza VM local.",
+      "this_author_action": "Generar únicamente draft E para revisión y aplicación separada por Root."
+    },
+    "final_document_tree_attestation": {
+      "state": "pending",
+      "source": "80ccb8b512b03bc8a1d68b9386a21d9818d6f73b",
+      "planned_nonce": "final-secrets-postclosure-v4",
+      "fresh_nonce_after_docs_v2_application_required": true,
+      "receipt_external_to_Main": true,
+      "no_further_Main_content_mutation_after_scan_before_stage_commit": true
+    },
+    "deployment_authorization": {
+      "user_requested_git_push": true,
+      "remote_deploy": true,
+      "commit_message": "push final produccion",
+      "local_VM": false
+    },
+    "deployment_target_requested_by_user": {
+      "repository_name": "metodobaseweb",
+      "Railway_project_name": "joyfulquietud",
+      "actual_target_verification_owner": "Root",
+      "scope": "Nombres solicitados por el usuario; este autor no verifica ni ejecuta destinos Git/Railway."
+    },
+    "deployment_execution_at_this_documentary_cut": {
+      "state": "authorized_pending_Root_execution_and_validation",
+      "git_push_executed": false,
+      "remote_deployment_executed": false,
+      "validation_or_DB_backup_waiver": false,
+      "this_author_scope": "E-only parameters and draft, no Main/Git/provider mutation.",
+      "Root_safe_push_intent": "current_branch_only_without_main_autodeploy",
+      "main_autodeploy_before_database_safety": false
+    },
+    "remote_predeploy_closed_observations": {
+      "state": "closed_readonly_observations_production_safety_not_accepted",
+      "references": [
+        {
+          "evidence_path": "E:\\MetodoBaseWorkspace\\evidence\\release-deploy-20261030\\railway-production-variable-shapes-before-v1.json",
+          "bytes": 2472,
+          "sha256": "f1c5964eacbe29c22dff8ccdbdb77029e61bc61b6eae500893850ecfdbfce593"
+        },
+        {
+          "evidence_path": "E:\\MetodoBaseWorkspace\\evidence\\release-deploy-20261030\\railway-production-PG-catalog-readonly-before-v1.json",
+          "bytes": 5415,
+          "sha256": "f46998397f8431f68e2cabc15d2b5bd7a8f73b36a2f600ba5eb9dd2b7cb7c50d"
+        },
+        {
+          "evidence_path": "E:\\MetodoBaseWorkspace\\evidence\\release-prep-20261029\\railway-current-state-handoff-qa-v1-private\\review.json",
+          "bytes": 6465,
+          "sha256": "a1cc3ffe7cd471bd39c2af0be5ebe26888721f62397814a5a006a5109cf85892"
+        }
+      ],
+      "variable_shape_observed_UTC": "2026-10-30T02:12:24.118971+00:00",
+      "PG_catalog_observed_UTC": "2026-10-30T02:17:03.857557+00:00",
+      "QA_remote_observation_window_UTC": [
+        "2026-10-30T02:13:46.550267+00:00",
+        "2026-10-30T02:16:55.219550+00:00"
+      ],
+      "scope": "Sólo forma de configuración, catálogo y controles de despliegue observados; sin valores, URLs, identificadores de proyecto/servicio, claves, nombres de usuarios de BD ni filas de aplicación.",
+      "configuration_gaps": {
+        "MFA_encryption_key_valid32B": false,
+        "MFA_key_independent_from_signing": false,
+        "migrator_database_URL_present": false,
+        "backup_encryption_key_present": false,
+        "durable_application_storage_verified": false,
+        "application_storage_attachment_observed": false,
+        "storage_scope": "QA no observó un attachment de aplicación; no se afirma cobertura durable mediante bucket externo ni se inventa un backend.",
+        "backup_or_PITR_or_object_recovery_proven_by_QA": false,
+        "PITR_status": "No se afirma activado o desactivado: no se proporcionó a este borrador un recibo cerrado específico."
+      },
+      "PostgreSQL_catalog": {
+        "server_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+        "public_relation_count": 20,
+        "Alembic_revision_recorded": false,
+        "Alembic_version_relation_observed": false,
+        "connection_role_flags": {
+          "superuser": true,
+          "bypassrls": true,
+          "create_role": true,
+          "create_db": true
+        },
+        "app_uses_provider_admin_role": true,
+        "all_observed_public_relations_owned_by_connection_role": true,
+        "all_observed_public_relations_RLS_enabled": false,
+        "all_observed_public_relations_RLS_forced": false,
+        "legacy_structural_signature_approved": false,
+        "scope": "Catálogo sin Alembic y con rol privilegiado; no se afirma equivalencia con ninguna firma legacy aprobada ni se autoriza adopción automática."
+      },
+      "current_remote_deployment_observed": {
+        "branch": "main",
+        "commit": "daa25efbf51d154710bad625025b345fa9ec9252",
+        "created_UTC": "2026-08-13T23:06:08.443Z",
+        "deployment_status_as_reported": "SUCCESS",
+        "candidate_80cc_deployment_claimed": false,
+        "autodeploy_main_enabled": true,
+        "wait_for_CI_enabled": false,
+        "candidate_predeploy_matches_current_remote": false,
+        "scope": "Estado del despliegue remoto antiguo, no ejecución de la candidata. La configuración remota observada no incluye el nuevo preDeployCommand."
+      },
+      "next_operation_intended_by_Root": "Push de la rama actual; no push a main que dispare autodeploy antes de resolver seguridad de BD/configuración.",
+      "candidate_production_predeploy_safety_accepted": false,
+      "validation_or_backup_or_schema_reconciliation_waiver": false,
+      "new_remote_commands_or_configuration_mutations_by_this_author": false
+    }
+  },
+  "closed_original_references": {
+    "order_author": {
+      "path": "order-fix21-author-review-v1.json",
+      "bytes": 753,
+      "sha256": "d0fd9584594344e35d31718a958c2c98e9f17237ee974e96b5812830cf81229d"
+    },
+    "order_peer": {
+      "path": "order-fix21-security-peer-review-v1.json",
+      "bytes": 1584,
+      "sha256": "ce91d6a32b3163a1107e3b5ac04d18606bf688e001f67db2e2e6d048aab2fd50"
+    },
+    "order_Main4": {
+      "path": "main5038-order4-transfer-v1-private/summary.json",
+      "bytes": 455,
+      "sha256": "a3662d9eb7584c5612d3f2b85f5c92b94071b7058614136f6733f6c112e75bd8"
+    },
+    "JUnit_peer40_11": {
+      "path": "junit39-security-final-review-v1.json",
+      "bytes": 2662,
+      "sha256": "63573e9175b82d7fecbcd4b009cadd9ce500abdb59f9bd3e321230f5f9a7734a"
+    },
+    "JUnit_Main40": {
+      "path": "main-d8df-junit40-transfer-v1-private/summary.json",
+      "bytes": 438,
+      "sha256": "780e81606c475aa1208f64adf120980adba67ec14a08e8b35f8f3cd29a6a58d1"
+    },
+    "JUnit_transport4": {
+      "path": "main-d8df-junit4-source-transport-v1.json",
+      "bytes": 1592,
+      "sha256": "b0cf5fd99aec209440e1b8877f7d3975a4397831e8ee7aafe513e08f63354e17"
+    },
+    "logging_author21": {
+      "path": "logging40-author-freeze-v1.json",
+      "bytes": 4533,
+      "sha256": "815fa64c1fa505b1d40531e9a92865af6bacbee2af51042a97f4dd2d362d22b4"
+    },
+    "logging_Main21": {
+      "path": "main-e2fd-logging21-peer-v1-private/summary.json",
+      "bytes": 413,
+      "sha256": "b348819781e64f4e4b07df06ae99238a34cda806c2fa7b4277c3b0daf4a4ed0b"
+    },
+    "logging_security": {
+      "path": "logging-one-binding-security-peer-v1.json",
+      "bytes": 1778,
+      "sha256": "91ab6f300a769f493297667afc70daaa77bad563d9ceecc4e6cb9fde6bdf41ef"
+    },
+    "APP509_relationship": {
+      "path": "main-e2fd-APP509-R34-source-relationship-v1.json",
+      "bytes": 143209,
+      "sha256": "9430f5e12f75a929691917e8ba3e680830710223899f47e11dcd8939f63e1301"
+    },
+    "PG_core4": {
+      "path": "pg39-logging-quiet-core-v1-public/summary.json",
+      "bytes": 1013,
+      "sha256": "52b8ff5680f1174448fa04c3806ed808b36629d2adf3c801dca20d3e89ae74a4"
+    },
+    "PG_restore1": {
+      "path": "pg39-logging-quiet-restore-v1-public/summary.json",
+      "bytes": 1019,
+      "sha256": "ad586833dd6a8b981bddf0417eb723db310c5f72f771af425677972130bd6ddd"
+    },
+    "PG_QA_core": {
+      "path": "qa-pg-quiet-core-input-independent-v1-private/review.json",
+      "bytes": 2425,
+      "sha256": "66f33fba7ce98f29c246c8a2767fa99406d21492366dc1505bb2830bf9ffbc9b"
+    },
+    "PG_QA_restore": {
+      "path": "qa-restore39-independent-logging-quiet-20261029-v1/review.private.json",
+      "bytes": 696830,
+      "sha256": "380ad247b693ad1903c80243405bbbb23b70f48c415dbdcc618896a0e962abd2"
+    },
+    "PG_original_cluster_closed": {
+      "path": "pg-private/closed.json",
+      "bytes": 79,
+      "sha256": "dc4ddca15f68c0b4910658986807f9a2bb0de4c4c684766cbff001776f96604d"
+    },
+    "PG_logging_v2_cluster_closed": {
+      "path": "pg-logging-v2-private/closed.json",
+      "bytes": 79,
+      "sha256": "dc4ddca15f68c0b4910658986807f9a2bb0de4c4c684766cbff001776f96604d"
+    },
+    "PG_logging_v3_cluster_closed": {
+      "path": "pg-logging-v3-private/closed.json",
+      "bytes": 79,
+      "sha256": "dc4ddca15f68c0b4910658986807f9a2bb0de4c4c684766cbff001776f96604d"
+    },
+    "PG_logging_v3_effective_input": {
+      "path": "pg-logging-v3-private/effective-input.private.json",
+      "bytes": 1347,
+      "sha256": "e00c4e0dd5cb7da021363ebcfd2d8af7b37784e4d90e5c4f11aa196e68a07d3b"
+    },
+    "PG_first_restore_rejected": {
+      "path": "pg39-logging-restore-v1-public/summary.json",
+      "bytes": 943,
+      "sha256": "a1047a6e23160929dbf0244a895b6021dbedda1ca3920c5ee41732d48173d5db"
+    },
+    "PG_first_restore_rejection_QA": {
+      "path": "qa-pg-logging-restore-rejection-v1-private/review.json",
+      "bytes": 6477,
+      "sha256": "fb0a8591c9ae7bf1f2e277b559fc18428db8594f797d525de20a7dd2b38bcc0d"
+    },
+    "quality_author106": {
+      "path": "quality39-author-v5-e2fd-private/summary.json",
+      "bytes": 1906,
+      "sha256": "45cb0709aef7414a56bf53e64c3c0581f03025ed4ac4afac71780549566cc124"
+    },
+    "quality_real312": {
+      "path": "quality39-real312-v5-e2fd-private/summary.json",
+      "bytes": 8486,
+      "sha256": "851e494cfe1d463a0bb424c35c52614b4026790d5c21fa1efee4d206c2fbba8e"
+    },
+    "quality_real311": {
+      "path": "quality39-real311-v5-e2fd-private/summary.json",
+      "bytes": 8496,
+      "sha256": "8552586907287eb1cddba29e7f66a8180ee2565c7b20a2259448cc42b1a96030"
+    },
+    "quality_QA106": {
+      "path": "quality39-qa-peer-v5-e2fd-private/review.json",
+      "bytes": 8297,
+      "sha256": "7e94a32e10ee44fe707d493e125a5b96f59038186dd0c20d35b0030f826ba77f"
+    },
+    "quality_security106_48": {
+      "path": "quality39-e2fd-v5-security-final-review.json",
+      "bytes": 4874,
+      "sha256": "bf25150a1ce86ea45e161871d9b673f561bec8c5bbd20f3cf0b9e89a00053be1"
+    },
+    "quality_handoff": {
+      "path": "quality39-final-handoff-v7-e2fd.json",
+      "bytes": 8074,
+      "sha256": "a3fbe032a63c32ebd80f444f5a249dd4ddc2108034c95b924a6b15bac51e8641"
+    },
+    "quality_SQLite_scope": {
+      "path": "quality39-author-scope-correction-v5-e2fd.json",
+      "bytes": 1763,
+      "sha256": "76783cb704ad5572d4bf21b176b070f223d2dbd5afc79ed7c0044b4c679eb903"
+    },
+    "quality_fixture_transport": {
+      "path": "quality12-postcommit-fixture-transport-security-review-v1.json",
+      "bytes": 1843,
+      "sha256": "07025bec21a19a1c2b0ad2b968c740d3c9082ff3fc8747bcdf1acecb9c0a36fa"
+    },
+    "CI_five_flags": {
+      "path": "ci-five-flags-Root-integration-v1.json",
+      "bytes": 576,
+      "sha256": "4081c00562dc65445f4b467e3428693efdc6ee3a2d41b3ae970317fc239cc8ab"
+    },
+    "CI_five_flags_peer": {
+      "path": "ci-five-private-temp-flags-review-v1-private/review.json",
+      "bytes": 1411,
+      "sha256": "409c05b7c56044306f27315a9728b0bc203dd73b443439bad51a02e6ecc3912c"
+    },
+    "secrets39_CI_only_relationship": {
+      "path": "secrets39-CI-only-759e-to80cc-source-relationship-v1.json",
+      "bytes": 959,
+      "sha256": "eef6dddd6b68d42c14b458b346d7bb77e3aa2e16b3cb11c9a631c5471ea9b168"
+    },
+    "secrets39_workflow_entrypoint": {
+      "path": "secrets39-workflow-Root-change-v1.json",
+      "bytes": 634,
+      "sha256": "bd8bd72029e08605b2d75887bfd7f4916566da9b67e27b45de8bb7df867b3ab9"
+    },
+    "secrets39_independent_peer": {
+      "path": "secrets39-independent-final-review-v2.json",
+      "bytes": 3547,
+      "sha256": "4de8bc78ddb0c32ca35c470bd262aa5cb88256b3db6872b3b0cf7ff9a03d6a76"
+    },
+    "secrets39_current_scan_independent": {
+      "path": "secrets-current80cc-preclose-v2-security-independent-review.json",
+      "bytes": 5453,
+      "sha256": "c1a12eb7448802d5b363fb329a7327172283d644e8381b69b9fd808ac1a32203"
+    },
+    "Main106_v1_rejected": {
+      "path": "main9e17-quality106-transfer-v1-private/summary.json",
+      "bytes": 676,
+      "sha256": "cd5d2cb7a8d76256575d1b0e1ff832bd47532571aa0607634b7f34f755a7c09e"
+    }
+  },
+  "counts": {
+    "Order_author": 21,
+    "Order_Main": 4,
+    "JUnit_Main": 40,
+    "JUnit_peer": 40,
+    "JUnit_own_negative": 11,
+    "logging_Main": 21,
+    "PG_core": 4,
+    "PG_restore": 1,
+    "quality_author": 106,
+    "quality_QA": 106,
+    "quality_security": 106,
+    "real312_positive": 12,
+    "real312_negative": 12,
+    "real311_positive": 12,
+    "real311_negative": 12
+  },
+  "APP_relation_attested_at_e2fd": {
+    "R34_original_source": "a92a8290c12cc763c3b896715f7fb905d8af1d41",
+    "RAW_exact": 508,
+    "only_delta": "web/database/alembic/env.py",
+    "R34_reexecuted_or_relabelled": false
+  },
+  "isolated_PG_V3_profile": {
+    "autovacuum": "off",
+    "scope": "new owned synthetic test cluster only",
+    "strict_client_process_guard_changed_or_exempted": false,
+    "production_configuration_changed": false
+  },
+  "preserved_first_e2fd_restore_rejection": {
+    "accepted": false,
+    "unknown_backend_PID": 2404,
+    "catalog_maintenance_timestamps_overlap": true,
+    "definitive_PID_attribution_claimed": false
+  },
+  "pytest_SQLite_fixture_preparation_possible": true,
+  "dangerous_canaries_imported_or_executed": false,
+  "Linux_image_OS_scan_Redis_now": "LOCAL_VM_NOT_AUTHORIZED_REMOTE_BUILD_DEPLOY_AUTHORIZED_PENDING",
+  "image_id": null,
+  "complete_release_accepted": false,
+  "deployed": false,
+  "private_logs_keys_or_business_privacy_facts_published": false,
+  "historical_Linux_user_instruction": {
+    "state": "deferred_by_user",
+    "at_UTC": "2026-10-29T17:15:00Z"
+  },
+  "deployment_authorization": {
+    "user_requested_git_push": true,
+    "remote_deploy": true,
+    "commit_message": "push final produccion",
+    "local_VM": false
+  },
+  "remote_build_deploy_status": {
+    "state": "authorized_pending_execution_and_validation",
+    "git_push_executed": false,
+    "remote_build_deploy_executed": false,
+    "validation_or_DB_backup_waiver": false
+  }
+}

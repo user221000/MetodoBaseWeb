@@ -1,5 +1,17 @@
 # R34 — Caracterización local acotada de lecturas HTTP
 
+## Corte del 29 de octubre: mediciones conservadas por fuente
+
+R34 conserva sus seis mediciones sobre `a92`: 60 generaciones, 12 celdas, 150 HTTP y 216.252.643 bytes PUT, con seis UUID ausentes. El corte `e2fd` conserva 508 APP RAW exactos a esa fotografía y una diferencia en `web/database/alembic/env.py`. No se repitió ni reatribuyó R34 al nuevo HEAD; no hay SLO o capacidad comercial aceptados.
+
+La fuente de validación funcional FULL es `759e5639bc462ba5079fdfb0ba8636907ec94a6c`; el tooling CI actual es `80ccb8b512b03bc8a1d68b9386a21d9818d6f73b`. El delta de CI añade cuatro rutas de pruebas/herramientas y cambia un solo entrypoint del workflow. No modifica los 509 APP, las 339 fuentes de callers o los 369 bindings. Las suites amplias congeladas y el contexto offline conservan su fuente `759e5639`; sus resultados no se reatribuyen a `80ccb8b5`. El cambio acotado se valida con su transferencia específica y escaneo actual, sin repetir las suites funcionales intactas por ese delta de CI.
+
+Las seis mediciones conservan cinco muestras por celda, límites de 64 MiB por lote, concurrencia real C1/C2 y percentiles por fase/celda. Son datos descriptivos del host Windows instrumentado; no miden S3 remoto, demanda abierta o capacidad comercial. El rechazo de 100 generaciones por reparto de presupuesto sigue preservado. Los recibos posteriores de logging y PostgreSQL no constituyen una nueva medición R34.
+
+La instrucción del 29 de octubre a las 17:15 UTC difirió Linux y se conserva como antecedente, junto con el rechazo previo por RAM. La instrucción posterior del usuario autoriza el push Git y el build/despliegue remoto en Railway; su ejecución y validación siguen pendientes. La VM Linux local continúa sin autorización. Este permiso no sustituye la validación, el respaldo consistente ni el restore ensayado exigidos antes de intervenir datos productivos; no acredita PASS Linux, aceptación global o despliegue. La repetición representativa en el entorno final, sus objetivos y la demanda de referencia siguen pendientes. [Preparación y evidencia por fuente](PREPARACION_PRODUCCION_20261029.md).
+
+El contenido que sigue conserva las mediciones históricas de lecturas y sus fuentes originales.
+
 La captura final caracteriza siete recorridos reales de la fábrica SaaS sobre el candidato `939681e7b647b3eeeb7e68f252b2f5de2810ec52`: **1400 respuestas HTTP 200, 1400 contratos semánticos válidos y 1400 observaciones SQL completas**. No cierra R34: faltan objetivos acordados, demanda de referencia, generación/PDF/objetos y medición de las colas de esos flujos. No se modificó producto, índices, paginación ni tamaño del pool.
 
 La evidencia aceptable para estas cifras es [qa-load-local-final-ack/report.json](evidence/qa-load-local-final-ack/report.json), con [muestras](evidence/qa-load-local-final-ack/samples.json), [observación del servidor](evidence/qa-load-local-final-ack/server-observations.jsonl) y [248 fuentes antes/después](evidence/qa-load-local-final-ack/source.json), todas estables. El origen se limita a los archivos enumerados; no es una afirmación sobre todos los archivos del repositorio.

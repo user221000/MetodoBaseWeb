@@ -1,0 +1,41 @@
+{
+  "schema": "independent-certifi18-technical-disposition-v1",
+  "identifier": "PYSEC-2026-4320",
+  "alias": "GHSA-6q48-6c7w-9gw2",
+  "component": "pkg:pypi/certifi@2026.10.18",
+  "classification": "false_positive_for_authenticated_component_payload_only",
+  "reason": "The affected emSign ECC Root CA - G3 certificate and its public key are absent from the exact18 CA bundle; primary publisher and reviewed GHSA identify18 as patched. PYSEC reports an overinclusive fixed19 boundary for this described condition.",
+  "risk_acceptance_or_global_ignore_approved": false,
+  "scanner_exit1_original_retained": true,
+  "prospective57_not_image": true,
+  "primary_source_comparison": {
+    "maintainer_GHSA": "https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2",
+    "reviewed_GHSA": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+    "reviewed_GHSA_updated": "2026-10-26T16:02:13Z",
+    "reviewed_GHSA_affected": ">= 2019.03.09, < 2026.10.18",
+    "reviewed_GHSA_first_patched": "2026.10.18",
+    "OSV": "https://api.osv.dev/v1/vulns/PYSEC-2026-4320",
+    "OSV_modified": "2026-10-20T22:00:02.600723204Z",
+    "OSV_fixed": "2026.10.19",
+    "PyPA_source": "https://github.com/pypa/advisory-database/blob/main/vulns/certifi/PYSEC-2026-4320.yaml",
+    "upstream_restore_issue": "https://github.com/certifi/python-certifi/issues/439",
+    "upstream_restore_commit": "https://github.com/certifi/python-certifi/commit/662df63d7906df66f1f07c0751a3dfe9da14d914"
+  },
+  "payload": {
+    "PyPI_wheel_SHA256": "73191c47aaa79da394e8fee2dbc2ec827432cab56311122c9e47abf79e390f62",
+    "bundle_SHA256": "d87887200c9a705dccc937b9b83b5e67e47024c4a4b7f9dd15700c72e0f55453",
+    "certificates": 117,
+    "emSign_or_eMudhra": []
+  },
+  "original": {
+    "path": "certifi-payload-triage-v1/technical-disposition.json",
+    "sha256": "96fb5d51abd9d613bedb64bd181df86c8b179f964ba69fa8efa9c7c68b4ac413",
+    "bytes": 8410
+  },
+  "independent_review": {
+    "path": "qa-certifi-payload-independent-20261029-v2/review.private.json",
+    "sha256": "4acde42a923b0da70f946cf7128b1e52802376e231736423c0ad95ee8a936127",
+    "bytes": 11700
+  },
+  "actual_image_attested": false
+}

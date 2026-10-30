@@ -1,0 +1,65 @@
+{
+  "original": {
+    "path": "base-os-truststore-triage-20261029-v1/review.json",
+    "sha256": "fd52f23099affeb4c74ae71531e21686c6c89d94bb9a02df3a5c050841675f71",
+    "bytes": 2736
+  },
+  "result": {
+    "scope": "Physical immutable FROM OS CA bundle only; not final image or runtime TLS observation",
+    "FROM_digest": "sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe",
+    "image_config_digest": "sha256:df18428df8a0f9189c84e7424d214b4c50092af1f9dca5842a00c41c39bda316",
+    "all4_compressed_layer_SHA256_and_uncompressed_diffIDs_verified": true,
+    "archive_whiteouts_and_plain_parent_paths_applied": true,
+    "target": "/etc/ssl/certs/ca-certificates.crt",
+    "source_layer": "sha256:75b6a36c64a1cf3520fc4b4aae4739d5caa8a6a05c27835a920a61784c9c32f8",
+    "bundle_bytes": 224449,
+    "bundle_sha256": "714d457d580922dbf1d0be8bd35ba236a842b50b0072ae791582a19adef772a5",
+    "certificates": 150,
+    "affected_G3_expected": {
+      "DER_sha256": "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b",
+      "SPKI_sha256": "8d417db2dd8bf5e3084d1e3f196d583849d81bdd4c00c70b9d39369e96b8c782"
+    },
+    "affected_G3_present": true,
+    "affected_matches": [
+      {
+        "subject": "CN=emSign ECC Root CA - G3,O=eMudhra Technologies Limited,OU=emSign PKI,C=IN",
+        "DER_sha256": "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b",
+        "SPKI_sha256": "8d417db2dd8bf5e3084d1e3f196d583849d81bdd4c00c70b9d39369e96b8c782"
+      }
+    ],
+    "emSign_and_eMudhra_subjects": [
+      {
+        "subject": "CN=emSign ECC Root CA - C3,O=eMudhra Inc,OU=emSign PKI,C=US",
+        "DER_sha256": "bc4d809b15189d78db3e1d8cf4f9726a795da1643ca5f1358e1ddb0edc0d7eb3",
+        "SPKI_sha256": "eabc185c4e82d942b1a5978ba3c0181487d6b3b9974e5c49f72f6d0bd9637150"
+      },
+      {
+        "subject": "CN=emSign ECC Root CA - G3,O=eMudhra Technologies Limited,OU=emSign PKI,C=IN",
+        "DER_sha256": "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b",
+        "SPKI_sha256": "8d417db2dd8bf5e3084d1e3f196d583849d81bdd4c00c70b9d39369e96b8c782"
+      },
+      {
+        "subject": "CN=emSign Root CA - C1,O=eMudhra Inc,OU=emSign PKI,C=US",
+        "DER_sha256": "125609aa301da0a249b97a8239cb6a34216f44dcac9f3954b14292f2e8c8608f",
+        "SPKI_sha256": "b7408b4d2be0238ba37004dd34e276c6019bd2f24c9db7d4980f5f6c359a4bcc"
+      },
+      {
+        "subject": "CN=emSign Root CA - G1,O=eMudhra Technologies Limited,OU=emSign PKI,C=IN",
+        "DER_sha256": "40f6af0346a99aa1cd1d555a4e9cce62c7f9634603ee406615833dc8c8d00367",
+        "SPKI_sha256": "376a1a7082a593dccc20d561d119e9ab8d30f11cc321d0a37fa41f0df284e01c"
+      }
+    ],
+    "layer_bundle_observations": [
+      {
+        "layer": "sha256:75b6a36c64a1cf3520fc4b4aae4739d5caa8a6a05c27835a920a61784c9c32f8",
+        "bytes": 224449,
+        "sha256": "714d457d580922dbf1d0be8bd35ba236a842b50b0072ae791582a19adef772a5"
+      }
+    ],
+    "downloads_or_installs_or_VM_or_Docker_executed": false,
+    "code_or_lock_changed": false
+  },
+  "remediation_in_progress": true,
+  "final_image_attested": false,
+  "certifi18_disposition_does_not_cover_OS_truststore": true
+}
