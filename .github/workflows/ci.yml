@@ -221,8 +221,12 @@ jobs:
       METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
-      METODOBASE_TEST_EVIDENCE_DIR: ${{ runner.temp }}/ci30-postgres-private/evidence
     steps:
+    - name: Bind runner-owned paths after runner allocation
+      shell: bash
+      run: |
+        set -euo pipefail
+        printf '%s=%s\n' 'METODOBASE_TEST_EVIDENCE_DIR' "$RUNNER_TEMP/ci30-postgres-private/evidence" >> "$GITHUB_ENV"
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -242,11 +246,13 @@ jobs:
         (
         install -d -m 700 "$METODOBASE_TEST_EVIDENCE_DIR"
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-3.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -m pip install --require-hashes -r requirements-test.lock
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-4.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Matching PostgreSQL client tools from the official PGDG repository
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
@@ -258,210 +264,245 @@ jobs:
         sudo apt-get update
         sudo apt-get install --yes postgresql-client-17
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-5.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Empty, legacy and drift migration paths preserve synthetic rows
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_schema_migrations.py -q --tb=short --junitxml=pytest-postgres-migrations.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-6.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Real empty-database migrations and restricted-role setup
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/prepare_postgres.py
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-7.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: PostgreSQL two-tenant and transaction checks
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-postgres-rls.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-8.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Reviewed tenant activation, provider preparation and real onboarding under RLS
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_tenant_activation.py tests/integration_provider_subjects.py tests/integration_onboarding_postgres.py tests/integration_invitation_tenant_postgres.py -q --tb=short --junitxml=pytest-postgres-channels.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-9.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Gym quota migration preserves the reviewed source and rejects drift
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_gym_quota_migrations.py -q --tb=short --junitxml=pytest-postgres-gym-migrations.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-10.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Private metadata migration preserves quota history, owner references and RLS
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_stored_objects_migrations.py -q --tb=short --junitxml=pytest-postgres-object-migrations.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-11.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Private publication survives uncertain PUT and transaction failures under restricted role
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_private_objects_review_postgres.py -q --tb=short --junitxml=pytest-postgres-objects.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-12.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Legacy inventory remains globally consistent and physically read-only
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_legacy_inventory_postgres.py -q --tb=short --junitxml=pytest-postgres-legacy-inventory.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-13.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Existing cleanup cutoffs use epoch and UTC units with visible failures
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_cleanup_tokens_postgres.py -q --tb=short --junitxml=pytest-postgres-cleanup.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-14.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Real factory privacy export preserves personal scope and performs no writes
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-postgres-privacy.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-15.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Exact historical plan PDF respects viewer scope, revocation and pool reuse
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_plan_documents_postgres.py -q --tb=short --junitxml=pytest-postgres-plan-documents.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-16.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: UTC typed writes preserve physical schema and historical values in both session zones
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_utc_datetime.py tests/integration_utc_datetime_review.py tests/integration_model_utc_postgres.py tests/integration_timestamp_observation.py -q --tb=short --junitxml=pytest-postgres-utc.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-17.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Two-process HTTP license activation retains hardware ownership and expiry
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_license_postgres.py -q --tb=short --junitxml=pytest-postgres-licenses.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-18.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Last-credit and subscription GET races across PostgreSQL processes
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-quota.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-19.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Individual publication migration preserves legacy ambiguity and the frozen object contract
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_individual_publication_migrations.py -q --tb=short --junitxml=pytest-postgres-individual-migrations.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-20.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Individual worker commit, quota compensation and process recovery preserve one consumption
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_individual_publication_postgres.py tests/integration_individual_generation_recovery_review.py tests/integration_individual_publication_edges_review.py tests/integration_individual_process_recovery_review.py -q --tb=short --junitxml=pytest-postgres-individual-publication.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-21.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Gym caps, replay and process-crash recovery across both real HTTP adapters
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_gym_caps_http_postgres.py tests/integration_gym_recovery_review_postgres.py tests/integration_gym_quota_postgres.py -q --tb=short --junitxml=pytest-postgres-gym-quota.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-22.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Personal diary migration preserves revision26 and rejects schema drift
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_personal_diary_migrations.py -q --tb=short --junitxml=pytest-postgres-diary-migrations.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-23.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Personal diary snapshots, concurrency and independent restricted-role checks
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py -q --tb=short --junitxml=pytest-postgres-diary.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-24.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Account recovery migration preserves revision27 and rejects schema drift
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_account_recovery_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery-migrations.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-25.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Account recovery HTTP, one-use races and uncertain commits under restricted role
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_password_recovery_postgres.py -k postgresql -q --tb=short --junitxml=pytest-postgres-recovery.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-26.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Encrypted PostgreSQL and object restoration into an empty owned database
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_reviewed_ci28.py --output "$RUNNER_TEMP/reviewed-ci28-restore" --junitxml=pytest-postgres-restore.xml --history-repository "$GITHUB_WORKSPACE"
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-27.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Member link migration preserves exact revision28, guards and rollback
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_client_link_migrations.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-migrations.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-28.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Member link service authorization and bounded projection under restricted role
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_client_link_services.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-services.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-29.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Member link real HTTP and worker contracts across both factories
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_client_link_http.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-http.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-30.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Member proof races and exact publication identity CAS
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_client_link_service_races.py tests/integration_client_link_publication_cas.py -k postgresql -q --tb=short --junitxml=pytest-postgres-member-races.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-31.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Current revision29 populated restore preserves all prior contracts and member links
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_reviewed_ci29.py --output "$RUNNER_TEMP/reviewed-ci29-restore" --junitxml=pytest-postgres-member-restore.xml --history-repository "$GITHUB_WORKSPACE"
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-32.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Physical history index migration rollback and bounded ordered PostgreSQL query
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_migrations.py tests/integration_personal_history_ordered_query.py -k postgresql -q --tb=short --junitxml=pytest-postgres-history-index.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-33.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Current revision30 populated restore preserves history index and every prior contract
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_personal_history_index_restore.py -q --tb=short --junitxml=pytest-postgres-history-index-restore.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-34.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Readonly follow-up facts under both current PostgreSQL factories
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-postgres-followup.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-35.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Required PostgreSQL acceptance cannot silently become skips or missing reports
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python -c "from pathlib import Path; import sys,xml.etree.ElementTree as ET; reports=list(map(Path,sys.argv[1:])); assert len(reports)==29 and len(set(reports))==29, 'Expected 29 distinct PostgreSQL reports'; assert all(p.is_file() for p in reports), 'Missing PostgreSQL reports'; roots=[ET.parse(p) for p in reports]; assert all(r.findall('.//testcase') for r in roots), 'Empty PostgreSQL acceptance'; assert not any(r.findall('.//'+tag) for r in roots for tag in ('skipped','failure','error')), 'PostgreSQL acceptance contains skip/failure/error'" pytest-postgres-migrations.xml pytest-postgres-rls.xml pytest-postgres-channels.xml pytest-postgres-gym-migrations.xml pytest-postgres-object-migrations.xml pytest-postgres-objects.xml pytest-postgres-legacy-inventory.xml pytest-postgres-cleanup.xml pytest-postgres-privacy.xml pytest-postgres-plan-documents.xml pytest-postgres-utc.xml pytest-postgres-licenses.xml pytest-postgres-quota.xml pytest-postgres-individual-migrations.xml pytest-postgres-individual-publication.xml pytest-postgres-gym-quota.xml pytest-postgres-diary-migrations.xml pytest-postgres-diary.xml pytest-postgres-restore.xml pytest-postgres-recovery-migrations.xml pytest-postgres-recovery.xml pytest-postgres-member-migrations.xml pytest-postgres-member-services.xml pytest-postgres-member-http.xml pytest-postgres-member-races.xml pytest-postgres-member-restore.xml pytest-postgres-history-index.xml pytest-postgres-history-index-restore.xml pytest-postgres-followup.xml
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-36.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Current member link reports retain all selected PostgreSQL cases
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python tests/check_member_link_reports.py
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-37.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Physical history reports retain every exact selected PostgreSQL case
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python tests/check_history_index_reports.py
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-38.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Both follow-up PostgreSQL factory identities must pass
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-postgres-private"
         (
         python tests/check_followup_reports.py
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-39.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-postgres/source
     - name: Project all29 historical reports; retain exact old acceptance checks
       if: always()
       working-directory: ${{ github.workspace }}
@@ -513,7 +554,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/ci30-postgres/source
   historical-image:
     runs-on: ubuntu-latest
     needs:
@@ -550,18 +590,21 @@ jobs:
         (
         docker build --tag metodobase-ci30:${{ github.sha }} .
         ) > "$RUNNER_TEMP/ci30-image-private/step-3.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Migrate the synthetic database using the candidate itself
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
         (
         docker run --rm --network host --entrypoint python -e METODOBASE_ENV=testing -e MIGRATOR_DATABASE_URL=postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image -e DATABASE_URL=postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image metodobase-ci30:${{ github.sha }} /app/db_bootstrap.py
         ) > "$RUNNER_TEMP/ci30-image-private/step-4.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Grant a separate restricted runtime role
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
         (
         docker exec ${{ job.services.postgres-image.id }} psql --username=metodobase_test_admin --dbname=metodobase_test_image --set=ON_ERROR_STOP=1 --command "CREATE ROLE metodobase_test_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD 'synthetic-app-only'; GRANT USAGE ON SCHEMA public TO metodobase_test_app; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO metodobase_test_app; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO metodobase_test_app;"
         ) > "$RUNNER_TEMP/ci30-image-private/step-5.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Exercise the same web runtime inside the candidate
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
@@ -574,6 +617,7 @@ jobs:
         docker logs metodobase-ci30
         exit 1
         ) > "$RUNNER_TEMP/ci30-image-private/step-6.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - uses: actions/setup-node@v4
       with:
         node-version: '24'
@@ -586,6 +630,7 @@ jobs:
         npm ci --prefix tests/e2e --ignore-scripts
         node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
         ) > "$RUNNER_TEMP/ci30-image-private/step-8.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Browser subscription contracts and accessibility against the candidate
       env:
         METODOBASE_E2E_URL: http://127.0.0.1:8765
@@ -599,6 +644,7 @@ jobs:
         node tests/e2e/responsive_accessibility.cjs
         node tests/e2e/team.cjs
         ) > "$RUNNER_TEMP/ci30-image-private/step-9.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
@@ -608,6 +654,7 @@ jobs:
         (
         python -m pip install --require-hashes -r requirements-test.lock
         ) > "$RUNNER_TEMP/ci30-image-private/step-11.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Real team authentication and API with an isolated Clinic fixture
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
@@ -628,6 +675,7 @@ jobs:
         fi
         node tests/e2e/team_fullstack.cjs
         ) > "$RUNNER_TEMP/ci30-image-private/step-12.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Generation, private branding, export and refresh with separate real synthetic fixtures
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
@@ -677,6 +725,7 @@ jobs:
         run_browser_fixture tests/e2e/personal_history_server.py 8780 tests/e2e/personal_history_browser.cjs "docs/implementation/20261018-evolution/evidence/history-pagination/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 10 strings 4 "" "" 0 strings 0 personal-history-ui
         run_browser_fixture tests/e2e/landing_server.py 8781 tests/e2e/landing.cjs "docs/implementation/20261018-evolution/evidence/landing/browser-${METODOBASE_EVIDENCE_BATCH}/report.json" 8 strings 4 "" "" 0 strings 0 public-landing
         ) > "$RUNNER_TEMP/ci30-image-private/step-13.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Real member linking browser with restricted migrated PostgreSQL and private mail transport
       env:
         METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
@@ -689,12 +738,14 @@ jobs:
         export QA_CHROME=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
         python -X utf8 tests/e2e/run_member_link_browser.py --output "$RUNNER_TEMP/member-link-public" --port 8794
         ) > "$RUNNER_TEMP/ci30-image-private/step-14.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Record candidate identity
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci30-image-private"
         (
         docker image inspect metodobase-ci30:${{ github.sha }} --format '{{.Id}}' > candidate-image-id.txt
         ) > "$RUNNER_TEMP/ci30-image-private/step-15.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Stop isolated candidate
       if: always()
       run: |
@@ -702,6 +753,7 @@ jobs:
         (
         docker rm --force metodobase-ci30
         ) > "$RUNNER_TEMP/ci30-image-private/step-16.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Host checkout follow-up browser uses current restricted PostgreSQL fixture
       timeout-minutes: 5
       env:
@@ -755,6 +807,7 @@ jobs:
         python scripts/check_frontend_report.py "$public/normalized.json" --format named --minimum 8 --minimum-screens 5
         python scripts/check_followup_fixture.py "$public/startup.json" --pid "$fixture_pid" --port 8795
         ) > "$RUNNER_TEMP/ci30-image-private/step-17.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/ci30-image/source
     - name: Historical30 labelled browser reports
       if: always()
       working-directory: ${{ github.workspace }}
@@ -800,16 +853,18 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/ci30-image/source
   current-postgres:
     runs-on: ubuntu-24.04
     needs: quality
     timeout-minutes: 60
-    env:
-      TEMP: ${{ runner.temp }}
-      TMP: ${{ runner.temp }}
-      TMPDIR: ${{ runner.temp }}
     steps:
+    - name: Bind runner-owned paths after runner allocation
+      shell: bash
+      run: |
+        set -euo pipefail
+        printf '%s=%s\n' 'TEMP' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+        printf '%s=%s\n' 'TMP' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+        printf '%s=%s\n' 'TMPDIR' "$RUNNER_TEMP" >> "$GITHUB_ENV"
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -1075,10 +1130,14 @@ jobs:
     env:
       METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_image
       METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_image
-      TEMP: ${{ runner.temp }}
-      TMP: ${{ runner.temp }}
-      TMPDIR: ${{ runner.temp }}
     steps:
+    - name: Bind runner-owned paths after runner allocation
+      shell: bash
+      run: |
+        set -euo pipefail
+        printf '%s=%s\n' 'TEMP' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+        printf '%s=%s\n' 'TMP' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+        printf '%s=%s\n' 'TMPDIR' "$RUNNER_TEMP" >> "$GITHUB_ENV"
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -1199,9 +1258,13 @@ jobs:
       METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
-      METODOBASE_TEST_EVIDENCE_DIR: ${{ runner.temp }}/current31-private/evidence
-      R24_PG_OUTPUT: ${{ runner.temp }}/current31-private/r24
     steps:
+    - name: Bind runner-owned paths after runner allocation
+      shell: bash
+      run: |
+        set -euo pipefail
+        printf '%s=%s\n' 'METODOBASE_TEST_EVIDENCE_DIR' "$RUNNER_TEMP/current31-private/evidence" >> "$GITHUB_ENV"
+        printf '%s=%s\n' 'R24_PG_OUTPUT' "$RUNNER_TEMP/current31-private/r24" >> "$GITHUB_ENV"
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -1212,6 +1275,7 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-postgres"
     - run: python -m pip install --require-hashes -r requirements-test.lock
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Matching PostgreSQL client tools from the official PGDG repository
       run: |
         . /etc/os-release
@@ -1220,48 +1284,64 @@ jobs:
         echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
         sudo apt-get update
         sudo apt-get install --yes postgresql-client-17
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Create private current31 evidence locations
       run: install -d -m 700 "$RUNNER_TEMP/current31-private" "$METODOBASE_TEST_EVIDENCE_DIR" "$R24_PG_OUTPUT"
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 real migrations and restricted runtime role
       run: python -X utf8 tests/prepare_postgres.py
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 member-services; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_services.py -q --tb=short --junitxml=pytest-current31-member-services.xml
         > "$RUNNER_TEMP/current31-private/member-services.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 member-http; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_http.py -q --tb=short --junitxml=pytest-current31-member-http.xml
         > "$RUNNER_TEMP/current31-private/member-http.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 member-races; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_current31_member_races.py -q --tb=short --junitxml=pytest-current31-member-races.xml
         > "$RUNNER_TEMP/current31-private/member-races.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 r24-publication; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_publication.py -q --tb=short --junitxml=pytest-current31-r24-publication.xml
         > "$RUNNER_TEMP/current31-private/r24-publication.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 r24-race; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_current31_r24_race.py -q --tb=short --junitxml=pytest-current31-r24-race.xml
         > "$RUNNER_TEMP/current31-private/r24-race.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 mfa-migrations; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_migrations.py -k postgresql -q --tb=short --junitxml=pytest-current31-mfa-migrations.xml
         > "$RUNNER_TEMP/current31-private/mfa-migrations.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 mfa-services; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_postgres.py -q --tb=short --junitxml=pytest-current31-mfa-services.xml
         > "$RUNNER_TEMP/current31-private/mfa-services.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 mfa-restore; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_mfa31_restore.py -q --tb=short --junitxml=pytest-current31-mfa-restore.xml
         > "$RUNNER_TEMP/current31-private/mfa-restore.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 followup; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_followup_postgres.py -q --tb=short --junitxml=pytest-current31-followup.xml
         > "$RUNNER_TEMP/current31-private/followup.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 rls-worker; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_postgres.py -q --tb=short --junitxml=pytest-current31-rls-worker.xml
         > "$RUNNER_TEMP/current31-private/rls-worker.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 privacy-export; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_privacy_composition_postgres.py -q --tb=short --junitxml=pytest-current31-privacy-export.xml
         > "$RUNNER_TEMP/current31-private/privacy-export.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Current31 diary; original full business assertions
       run: python -X utf8 tests/run_isolated.py tests/integration_personal_diary_postgres.py tests/integration_personal_diary_security_review.py
         -q --tb=short --junitxml=pytest-current31-diary.xml > "$RUNNER_TEMP/current31-private/diary.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Every exact current31 PG identity passes; no skips/errors/substitutions/duplicates
       run: python -X utf8 tests/check_mfa31_reports.py
+      working-directory: ${{ runner.temp }}/historical31-postgres/source
     - name: Project all12 current31 reports without authentication diagnostics
       if: always()
       working-directory: ${{ runner.temp }}/historical31-postgres/source
@@ -1292,7 +1372,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/historical31-postgres/source
   historical31-image:
     runs-on: ubuntu-latest
     needs: quality
@@ -1327,6 +1406,7 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-image"
     - run: python -m pip install --require-hashes -r requirements-test.lock
+      working-directory: ${{ runner.temp }}/historical31-image/source
     - name: Matching PostgreSQL client tools from the official PGDG repository
       run: |
         . /etc/os-release
@@ -1335,16 +1415,20 @@ jobs:
         echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
         sudo apt-get update
         sudo apt-get install --yes postgresql-client-17
+      working-directory: ${{ runner.temp }}/historical31-image/source
     - name: Current31 locked browser dependencies and Chromium
       run: |-
         npm ci --prefix tests/e2e --ignore-scripts
         node tests/e2e/node_modules/playwright-core/cli.js install --with-deps chromium
+      working-directory: ${{ runner.temp }}/historical31-image/source
     - name: Build current31 production Dockerfile from this exact checkout
       run: docker build --tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 .
+      working-directory: ${{ runner.temp }}/historical31-image/source
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
         python -X utf8 tests/ci_mfa31/run_current_browser.py --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public"
+      working-directory: ${{ runner.temp }}/historical31-image/source
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -1363,7 +1447,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/historical31-image/source
   historical31-frontend:
     runs-on: ubuntu-latest
     needs: quality
@@ -1390,6 +1473,7 @@ jobs:
         node tests/e2e/auth_refresh_security_review.cjs > auth-refresh-security.json
         node -e "const fs=require('fs'),a=JSON.parse(fs.readFileSync('auth-refresh-contracts.json')),b=JSON.parse(fs.readFileSync('auth-refresh-reproductions.json')),c=JSON.parse(fs.readFileSync('auth-refresh-security.json')),d=JSON.parse(fs.readFileSync('auth-refresh-storage.json')),valid=(r,n)=>Number.isSafeInteger(r.total)&&r.total>=n&&Number.isSafeInteger(r.passed)&&r.passed===r.total;if(!valid(a,33)||!Array.isArray(b.report)||b.report.length<2||b.report.some(x=>x.passed!==true)||!valid(c,13)||!valid(d,26))process.exit(1)"
         ) > "$RUNNER_TEMP/frontend-private/step-3.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
     - name: Personal operation and uncertain publication retain one intent
       run: |
         install -d -m 700 "$RUNNER_TEMP/frontend-private"
@@ -1399,6 +1483,7 @@ jobs:
         python scripts/check_frontend_report.py personal-operation-contracts.json --format counts --minimum 18
         python scripts/check_frontend_report.py personal-operation-ambiguity.json --format counts --minimum 2
         ) > "$RUNNER_TEMP/frontend-private/step-4.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
     - name: Personal diary and private export consumer contracts
       run: |
         install -d -m 700 "$RUNNER_TEMP/frontend-private"
@@ -1414,6 +1499,7 @@ jobs:
         python scripts/check_frontend_report.py personal-diary-logout-ack.json --format counts --minimum 12
         python scripts/check_frontend_report.py personal-export-controls.json --format counts --minimum 21
         ) > "$RUNNER_TEMP/frontend-private/step-5.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
     - name: Bounded private history consumer contracts
       run: |
         install -d -m 700 "$RUNNER_TEMP/frontend-private"
@@ -1421,6 +1507,7 @@ jobs:
         node tests/e2e/personal_history.cjs > personal-history-contracts.json
         python scripts/check_frontend_report.py personal-history-contracts.json --format counts --minimum 23
         ) > "$RUNNER_TEMP/frontend-private/step-6.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
     - name: Member link API, context, fragment, consumers and seven-collection export contracts; current31 uses real R24 companions
         with all16 original callbacks
       run: |
@@ -1439,6 +1526,7 @@ jobs:
         node tests/e2e/member_link_controls.cjs web/static/js/vinculos-ui.js > member-link-controls.json
         python scripts/check_frontend_report.py member-link-controls.json --format counts --minimum 3
         ) > "$RUNNER_TEMP/frontend-private/step-7.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
     - name: Follow-up facts and synchronous session expiry regressions
       run: |
         install -d -m 700 "$RUNNER_TEMP/frontend-private"
@@ -1459,6 +1547,7 @@ jobs:
         python tests/e2e/normalize_followup_report.py followup-contracts-dashboard_followup_focus.raw.json followup-contracts-dashboard_followup_focus.json --kind counts --minimum 4
         python scripts/check_frontend_report.py followup-contracts-dashboard_followup_focus.json --format counts --minimum 4
         ) > "$RUNNER_TEMP/frontend-private/step-8.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
     - name: MFA31 transport/state/consumer/prompt and current R24/export VM contracts
       run: |
         install -d -m 700 "$RUNNER_TEMP/frontend-private"
@@ -1483,6 +1572,7 @@ jobs:
         node tests/e2e/personal_export_url_contract.cjs > personal-export-url-contract-current31.json
         python scripts/check_frontend_report.py personal-export-url-contract-current31.json --format counts --minimum 15
         ) > "$RUNNER_TEMP/frontend-private/step-9.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-frontend/source
     - name: Project frontend counters only; raw RAM harness diagnostics remain private
       if: always()
       working-directory: ${{ runner.temp }}/historical31-frontend/source
@@ -1546,7 +1636,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/historical31-frontend/source
   historical31-web:
     runs-on: ubuntu-latest
     needs: quality
@@ -1567,37 +1656,46 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: python -X utf8 tests/ci_google33/history.py --schema 31 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical31-web"
     - run: python -m pip install --require-hashes -r requirements-test.lock
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: Current MFA31 wiring, exact report nodes and offline trust canaries
       run: python -X utf8 tests/verify_mfa31_ci.py --output "$RUNNER_TEMP/mfa31-ci-wiring"
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: SaaS regression suite in fresh isolated data
       run: |
         install -d -m 700 "$RUNNER_TEMP/web-private"
         (
         python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web37/run_historical31_web.py" --source "$RUNNER_TEMP/historical31-web/source" --mode serial
         ) > "$RUNNER_TEMP/web-private/step-4.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: Required SaaS cases cannot silently become skips
       run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web.xml').findall('.//skipped'), 'Required
         SaaS cases were skipped'"
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: Private storage SDK parameters and explicit configuration without a provider
       run: |
         install -d -m 700 "$RUNNER_TEMP/web-private"
         (
         python -X utf8 tests/run_isolated.py tests/integration_object_store_configuration.py tests/integration_object_store_configuration_review.py tests/integration_object_storage_sdk.py -q --tb=short --junitxml=pytest-storage-sdk.xml
         ) > "$RUNNER_TEMP/web-private/step-6.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: Required private storage SDK cases cannot silently become skips
       run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-storage-sdk.xml').findall('.//skipped'),
         'Required storage SDK cases were skipped'"
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: New nutrition contracts meet reviewed risk coverage
       run: python tests/check_coverage.py coverage.json
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: Full SaaS suite in shuffled order and two isolated workers
       run: |
         install -d -m 700 "$RUNNER_TEMP/web-private"
         (
         python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web37/run_historical31_web.py" --source "$RUNNER_TEMP/historical31-web/source" --mode parallel
         ) > "$RUNNER_TEMP/web-private/step-9.raw.log" 2>&1
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: Required shuffled SaaS cases cannot silently become skips
       run: python -c "import xml.etree.ElementTree as ET; assert not ET.parse('pytest-web-shuffle.xml').findall('.//skipped'),
         'Required shuffled SaaS cases were skipped'"
+      working-directory: ${{ runner.temp }}/historical31-web/source
     - name: Project current web reports without assertion bodies
       if: always()
       working-directory: ${{ runner.temp }}/historical31-web/source
@@ -1618,7 +1716,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/historical31-web/source
   historical31-wiring:
     runs-on: ubuntu-latest
     needs: quality
@@ -1655,9 +1752,13 @@ jobs:
       METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
       METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
-      METODOBASE_TEST_EVIDENCE_DIR: ${{ runner.temp }}/current31-private/evidence
-      R24_PG_OUTPUT: ${{ runner.temp }}/current31-private/r24
     steps:
+    - name: Bind runner-owned paths after runner allocation
+      shell: bash
+      run: |
+        set -euo pipefail
+        printf '%s=%s\n' 'METODOBASE_TEST_EVIDENCE_DIR' "$RUNNER_TEMP/current31-private/evidence" >> "$GITHUB_ENV"
+        printf '%s=%s\n' 'R24_PG_OUTPUT' "$RUNNER_TEMP/current31-private/r24" >> "$GITHUB_ENV"
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -1668,6 +1769,7 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: python -X utf8 tests/ci_google33/history.py --schema 32 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical32-postgres"
     - run: python -m pip install --require-hashes -r requirements-test.lock
+      working-directory: ${{ runner.temp }}/historical32-postgres/source
     - name: Matching PostgreSQL client tools from the official PGDG repository
       run: |
         . /etc/os-release
@@ -1676,8 +1778,10 @@ jobs:
         echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
         sudo apt-get update
         sudo apt-get install --yes postgresql-client-17
+      working-directory: ${{ runner.temp }}/historical32-postgres/source
     - name: Historical32 fresh CI role and schema32 bootstrap
       run: python -X utf8 tests/prepare_postgres.py
+      working-directory: ${{ runner.temp }}/historical32-postgres/source
     - name: Historical32 complete progress/migrations/retirement/populated restore contracts
       working-directory: ${{ github.workspace }}
       run: python -X utf8 tests/ci_google33/run_postgres.py --schema 32 --source "$RUNNER_TEMP/historical32-postgres/source"
@@ -1703,7 +1807,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}/historical32-postgres/source
 'on':
   push:
     branches:
