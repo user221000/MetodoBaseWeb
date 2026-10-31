@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% block title %}Equipo profesional{% endblock %}
+{% block title %}Equipo{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/team.css?v={{ static_version }}">{% endblock %}
 {% block content %}
-<div class="page-header"><div><p class="mb-page-eyebrow">TU EQUIPO / ACCESOS</p>
-  <h1 class="page-title">Equipo profesional</h1><p class="page-subtitle">Invita a tu equipo y administra su acceso al gimnasio.</p></div></div>
+<div class="page-header"><div><p class="mb-page-eyebrow">Tu gimnasio</p>
+  <h1 class="page-title">Equipo</h1><p class="page-subtitle">Invita a tu equipo y elige sus permisos.</p></div></div>
 <div id="team-feedback" class="team-feedback" role="status" aria-live="polite" hidden></div>
 <p id="team-loading" role="status">Consultando tus permisos y el equipo…</p>
-<button type="button" class="team-button mb-4" id="team-refresh">Consultar equipo</button>
+<button type="button" class="team-button mb-4" id="team-refresh">Actualizar equipo</button>
 <div class="team-grid" id="team-management" hidden>
   <section class="team-card" aria-labelledby="team-invite-title">
     <h2 id="team-invite-title">Invitar a una persona</h2>
-    <p class="team-muted">Esta invitación da acceso profesional según el rol. No asigna una ficha de cliente ni un plan personal.</p>
+    <details class="page-help"><summary>Cómo funciona la invitación</summary><p class="team-muted">Da acceso profesional según el rol. No asigna una ficha de cliente ni un plan personal.</p></details>
     <p id="team-plan-requirement" class="team-feedback" role="status" hidden></p>
     <form id="team-invite-form">
       <div class="team-field"><label for="team-name">Nombre</label><input class="team-input" id="team-name" name="nombre" required maxlength="150" autocomplete="given-name"></div>
       <div class="team-field"><label for="team-last-name">Apellido (opcional)</label><input class="team-input" id="team-last-name" name="apellido" maxlength="150" autocomplete="family-name"></div>
-      <div class="team-field"><label for="team-email">Correo de la persona</label><input class="team-input" id="team-email" name="email" type="email" required maxlength="254" autocomplete="email" aria-describedby="team-email-help"><small class="team-muted" id="team-email-help">Una cuenta existente requiere un vínculo autorizado por separado; coincidir en el correo no une cuentas.</small></div>
+      <div class="team-field"><label for="team-email">Correo de la persona</label><input class="team-input" id="team-email" name="email" type="email" required maxlength="254" autocomplete="email" aria-describedby="team-email-help"><small class="team-muted" id="team-email-help">Una cuenta existente necesita autorización; el correo no fusiona cuentas.</small></div>
       <div class="team-field"><label for="team-role">Rol en el gimnasio</label><select class="team-input" id="team-role" name="role" required disabled><option value="">Consultando roles disponibles…</option></select></div>
       <button type="submit" id="team-invite-submit" class="team-button team-button-primary" disabled>Crear invitación</button>
     </form>
@@ -28,7 +28,7 @@
     </div>
   </section>
   <section class="team-card" aria-labelledby="team-members-title">
-    <h2 id="team-members-title">Personas del equipo</h2>
+    <h2 id="team-members-title">Tu equipo</h2>
     <p id="team-summary" class="team-muted" role="status"></p>
     <ul class="team-list" id="team-members"></ul>
   </section>

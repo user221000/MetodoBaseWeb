@@ -89,6 +89,9 @@ def crear_cliente(
             "masa_magra_kg": getattr(cliente_eval, "masa_magra_kg", None),
         })
         result = repo.crear_cliente(db, get_gym_id(usuario), cliente_dict)
+        # A successful HTTP response must be visible to the next request.
+        # The request-scoped dependency's finalizer runs after response send.
+        db.commit()
         logger.info("Cliente creado: %s", result["id_cliente"])
         return {
             "success": True,
@@ -105,8 +108,10 @@ def crear_cliente(
             },
         }
     except HTTPException:
+        db.rollback()
         raise
     except Exception as exc:
+        db.rollback()
         logger.error("Error creando cliente: %s", type(exc).__name__)
         raise HTTPException(status_code=400, detail={"code": "client_create_failed", "message": "No se pudo crear el cliente. Revisa los datos e intenta de nuevo."}) from None
 
@@ -129,11 +134,14 @@ def actualizar_cliente(
         result = repo.actualizar_cliente(db, get_gym_id(usuario), id_cliente, update_dict)
         if not result:
             raise HTTPException(status_code=500, detail="Error actualizando cliente")
+        db.commit()
         logger.info("Cliente actualizado: %s", id_cliente)
         return {"success": True, "message": "Cliente actualizado correctamente"}
     except HTTPException:
+        db.rollback()
         raise
     except Exception as exc:
+        db.rollback()
         logger.error("Error actualizando cliente: %s", type(exc).__name__)
         raise HTTPException(status_code=400, detail={"code": "client_update_failed", "message": "No se pudo actualizar el cliente. Revisa los datos e intenta de nuevo."}) from None
 
@@ -145,8 +153,17 @@ def desactivar_cliente(
     usuario: dict = Depends(get_usuario_actual),
 ):
     verify_permission(usuario, "delete", "cliente")
-    ok = repo.eliminar_cliente(db, get_gym_id(usuario), id_cliente)
-    if not ok:
-        raise HTTPException(status_code=404, detail=ERR_CLIENTE_NO_ENCONTRADO)
-    logger.info("Cliente desactivado: %s", id_cliente)
-    return {"success": True, "message": "Cliente desactivado"}
+    try:
+        ok = repo.eliminar_cliente(db, get_gym_id(usuario), id_cliente)
+        if not ok:
+            raise HTTPException(status_code=404, detail=ERR_CLIENTE_NO_ENCONTRADO)
+        db.commit()
+        logger.info("Cliente desactivado: %s", id_cliente)
+        return {"success": True, "message": "Cliente desactivado"}
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as exc:
+        db.rollback()
+        logger.error("Error desactivando cliente: %s", type(exc).__name__)
+        raise HTTPException(status_code=500, detail={"code": "client_delete_failed", "message": "No se pudo desactivar el cliente. Intenta de nuevo."}) from None

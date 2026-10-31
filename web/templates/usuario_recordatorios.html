@@ -1,5 +1,5 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mis recordatorios{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/notifications36.css?v={{ static_version }}">{% endblock %}
-{% block content %}{% include '_notifications36_content.html' %}{% endblock %}
+{% block content %}<div class="mb-personal-notifications">{% include '_notifications36_content.html' %}</div>{% endblock %}
 {% block scripts %}<script nonce="{{ request.state.csp_nonce }}" src="/static/js/notifications36.js?v={{ static_version }}"></script>{% endblock %}

@@ -21,20 +21,19 @@
 
 <!-- ── 1. HERO SECTION ────────────────────────────────────── -->
 <div class="u-hero">
-  <p class="mb-page-eyebrow">TU DÍA / NUTRICIÓN</p>
+  <p class="mb-page-eyebrow">Tu día · Nutrición</p>
   <h1 class="u-hero-title" id="saludo">¡Hola!</h1>
-  <p class="u-hero-subtitle">Tu nutrición, ajustada a tu cuerpo y tus metas.</p>
+  <p class="u-hero-subtitle">Tu plan, tus comidas y tus avances de hoy.</p>
 </div>
 
 <section class="u-card" id="diary-section" aria-labelledby="diary-title">
-  <h2 id="diary-title">Mi diario personal</h2>
-  <p>Fecha del servidor en Ciudad de México. Registrar consumo y marcar una comida completada son acciones distintas.</p>
-  <p id="diary-legacy-notice">Los datos locales de versiones anteriores no están sincronizados. No se importan ni se borran automáticamente.</p>
+  <h2 id="diary-title">Mi registro del día</h2>
+  <p>Elige un día para consultar tus comidas y agua.</p>
   <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
     <label for="diary-date">Día del registro</label>
     <input type="date" id="diary-date" class="u-input" disabled />
-    <button type="button" id="diary-today" class="u-btn u-btn-secondary" disabled>Consultar hoy</button>
-    <button type="button" id="diary-reload" class="u-btn u-btn-secondary">Volver a consultar</button>
+    <button type="button" id="diary-today" class="u-btn u-btn-secondary" disabled>Hoy</button>
+    <button type="button" id="diary-reload" class="u-btn u-btn-secondary">Actualizar</button>
   </div>
   <p id="diary-status" role="status" aria-live="polite" tabindex="-1">Consultando diario…</p>
   <p id="diary-draft-summary"></p>
@@ -44,6 +43,11 @@
   </div>
   <p id="diary-water-current"></p>
   <div id="diary-snapshots"></div>
+  <details class="mb-help">
+    <summary>Cómo funciona mi diario</summary>
+    <p>La fecha usa el horario de Ciudad de México. Registrar una comida y marcarla completada son pasos distintos.</p>
+    <p id="diary-legacy-notice">Los registros locales de versiones anteriores no están sincronizados. No se importan ni se borran automáticamente.</p>
+  </details>
 </section>
 
 <!-- ── 2. TWO-COLUMN LAYOUT ───────────────────────────────── -->
@@ -139,12 +143,13 @@
 </div>
 
 <!-- ── 3. QUICK ACTION BUTTONS ────────────────────────────── -->
+<section class="nutrition35" aria-labelledby="personal-nutrition-title"><h2 id="personal-nutrition-title">Mis restricciones y cuidados</h2><p id="personal-nutrition-summary" role="status" aria-live="polite">Consultando tu declaración de alergias y restricciones.</p><a href="/mi-perfil">Revisar mi declaración</a><p>Una alergia o una solicitud de revisión profesional bloquea la generación automática, también en Pro. Las notas y preferencias no se interpretan como una declaración de alergias.</p></section>
 <div class="u-quick-actions" id="quick-actions" style="display:none;">
   <button class="u-quick-btn" id="btn-generar" title="Generar Plan">
     <span class="u-quick-btn-icon">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
     </span>
-    <span class="u-quick-btn-label">Generar</span>
+    <span class="u-quick-btn-label">Generar plan</span>
   </button>
   <button class="u-quick-btn" id="btn-comidas" title="Ver Comidas">
     <span class="u-quick-btn-icon">
@@ -162,7 +167,7 @@
     <span class="u-quick-btn-icon">
       <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
     </span>
-    <span class="u-quick-btn-label">Excluir</span>
+    <span class="u-quick-btn-label">Preferencias</span>
   </button>
   <button class="u-quick-btn" id="btn-abrir-pdf" style="display:none;" title="Abrir PDF">
     <span class="u-quick-btn-icon">
@@ -185,7 +190,6 @@
 </div>
 
 <!-- ── 4. ONBOARDING CARD ─────────────────────────────────── -->
-<section class="nutrition35" aria-labelledby="personal-nutrition-title"><h2 id="personal-nutrition-title">Declaración de mi perfil</h2><p id="personal-nutrition-summary" role="status" aria-live="polite">Declaración sin consultar. No se presume ausencia de alergias.</p><a href="/mi-perfil">Consultar o editar explícitamente mi declaración</a><p>Una alergia reportada o una solicitud de revisión profesional bloquea la generación automática, también en Pro. No se interpretan notas ni exclusiones como declaraciones de alergia.</p></section>
 <section id="personal-operation" class="u-card" aria-label="Estado de la generación" hidden>
   <p id="personal-operation-message" role="status" aria-live="polite" tabindex="-1"></p>
   <div style="display:flex;flex-wrap:wrap;gap:12px;">
@@ -199,12 +203,14 @@
 <div id="onboarding-card" class="u-onboarding" style="display:none;">
   <div class="u-onboarding-icon">🎯</div>
   <div class="u-onboarding-body">
-    <h3 class="u-onboarding-title">Cuéntanos sobre ti para generar tu plan</h3>
-    <p class="u-onboarding-text">Completa los campos requeridos y revisa tus restricciones en el perfil. Puedes guardar tus datos y continuar después.</p>
+    <h3 class="u-onboarding-title">Empieza con tu perfil</h3>
+    <p class="u-onboarding-text">Completa tus datos y revisa tus restricciones. Puedes guardar y seguir después.</p>
   </div>
-  <a href="/mi-perfil" class="u-btn u-btn-primary">Configurar mi plan →</a>
+  <a href="/mi-perfil" class="u-btn u-btn-primary">Completar mi perfil →</a>
 </div>
 
+<details class="mb-help">
+  <summary>Sobre mis datos</summary>
 <section data-product-origin data-context="personal" class="u-card" hidden>
   <h2>Procedencia de mis datos</h2>
   <p>Identifica un espacio de demostración o de cliente. No modifica pagos, derechos ni hechos anteriores.</p>
@@ -213,11 +219,15 @@
   <button type="button" class="u-btn u-btn-secondary" hidden>Guardar declaración</button>
   <p data-origin-status role="status" aria-live="polite"></p>
 </section>
-<section data-product-analytics data-context="personal" class="u-card">
-  <h2>Mis hechos observados</h2><p>Los planes previos a esta medición no se reconstruyen. No se presume adherencia ni retención.</p>
-  <button type="button" class="u-btn u-btn-secondary">Consultar hechos observados</button>
-  <p data-product-report role="status" aria-live="polite">Sin consultar.</p>
-</section>
+</details>
+<details class="mb-help">
+  <summary>Consultar mi actividad registrada</summary>
+  <section data-product-analytics data-context="personal" class="u-card">
+    <h2>Actividad registrada</h2><p>Incluye sólo los hechos observados desde esta medición; no reconstruye planes anteriores ni acredita adherencia o retención.</p>
+    <button type="button" class="u-btn u-btn-secondary">Consultar hechos observados</button>
+    <p data-product-report role="status" aria-live="polite">Sin consultar.</p>
+  </section>
+</details>
 
 <!-- ── 5. CONTEXT BAR ─────────────────────────────────────── -->
 <div class="u-context-bar" id="context-bar" style="display:none;">
@@ -229,7 +239,7 @@
 <!-- ── 6. SUMMARY SECTION ─────────────────────────────────── -->
 <div id="summary-section" style="display:none;">
   <div class="u-section-header">
-    <h2 class="u-section-title">📊 Referencia del plan mostrado</h2>
+    <h2 class="u-section-title">Objetivos del plan</h2>
   </div>
   <div class="u-grid-4">
     <div class="u-kpi-card">
@@ -262,19 +272,22 @@
 <!-- ── 7. MEALS SECTION (opciones) ─────────────────────────── -->
 <div id="plan-comidas" style="display:none;">
   <div class="u-section-header">
-    <h2 class="u-section-title">🍽️ Opciones del plan mostrado</h2>
-    <p class="u-section-subtitle">Porciones de la fuente consultada. Ver opciones, preparar una compra y registrar consumo son acciones distintas.</p>
+    <h2 class="u-section-title">Tus opciones de comida</h2>
+    <p class="u-section-subtitle">Porciones del plan consultado. Ver opciones o preparar una compra no registra consumo.</p>
   </div>
   <div id="meals-container" style="display:grid; gap:20px;"></div>
 </div>
 
-{% include "plan_diario_section.html" %}
+<details class="mb-help">
+  <summary>Lista de compras</summary>
+  {% include "plan_diario_section.html" %}
+</details>
 
 <!-- ── 7b. NUTRITIONAL RECOMMENDATIONS ────────────────────── -->
 <section id="recomendaciones-section" class="u-card" style="display:none;" aria-labelledby="plan-use-title">
-  <h2 id="plan-use-title">Alcance de este plan</h2>
-  <p>Se muestran las porciones de la fuente consultada. Las preferencias guardadas no demuestran que un plan cumpla restricciones o alergias. Las nuevas sustituciones requieren validación final que aún no está disponible.</p>
-  <p>Registrar consumo conserva únicamente los alimentos elegidos como un hecho personal. Ver el plan o preparar una compra no registra ni completa comidas.</p>
+  <h2 id="plan-use-title">Antes de usar tu plan</h2>
+  <p>Las preferencias guardadas no garantizan que este plan cumpla restricciones o alergias. Las nuevas sustituciones requieren una validación final aún no disponible.</p>
+  <details class="mb-help"><summary>Qué se guarda al registrar una comida</summary><p>Sólo se guardan los alimentos que confirmas como consumo personal. Ver el plan o preparar una compra no registra ni completa comidas.</p></details>
 </section>
 
 <!-- ── WATER TRACKING PANEL ────────────────────────────────── -->
@@ -317,19 +330,19 @@
 </div>
 
 <!-- ── FOOD EXCLUSION PANEL ──────────────────────────────── -->
-<div class="u-panel-overlay" id="panel-excluir-overlay" style="display:none;">
+<div class="u-panel-overlay" id="panel-excluir-overlay" role="dialog" aria-modal="true" aria-labelledby="food-preferences-title" style="display:none;">
   <div class="u-panel u-panel-lg" id="panel-excluir">
     <div class="u-panel-header">
-      <h3 class="u-panel-title">🚫 Excluir Alimentos</h3>
-      <button class="u-panel-close" id="panel-excluir-close">&times;</button>
+      <h3 class="u-panel-title" id="food-preferences-title">Preferencias de alimentos</h3>
+      <button class="u-panel-close" id="panel-excluir-close" aria-label="Cerrar preferencias de alimentos">&times;</button>
     </div>
     <div class="u-panel-body">
-      <p class="u-panel-question" style="margin-bottom:12px;">Guarda tus preferencias de alimentos. Esta lista no certifica exclusiones o alergias en la fuente mostrada ni sustituye la verificación final de restricciones.</p>
+      <p class="u-panel-question" style="margin-bottom:12px;">Elige los alimentos que prefieres omitir. Guardar esta lista no certifica un plan apto para alergias ni sustituye la revisión de restricciones.</p>
       <div id="excluir-tags" class="u-excl-tags"></div>
       <div id="excluir-catalogo" class="u-excl-catalogo">
         <p class="u-excl-loading" id="excluir-loading-msg">Cargando catálogo...</p>
       </div>
-      <button class="u-btn u-btn-primary" id="btn-excluir-save" style="width:100%;margin-top:16px;">Guardar Exclusiones ✅</button>
+      <button class="u-btn u-btn-primary" id="btn-excluir-save" style="width:100%;margin-top:16px;">Guardar preferencias</button>
     </div>
   </div>
 </div>
@@ -339,9 +352,9 @@
   <div class="u-card">
     <div class="u-empty">
       <div class="u-empty-icon">🎯</div>
-      <h3 class="u-empty-title">Tu plan personalizado está listo para generarse</h3>
-      <p class="u-empty-text">En segundos tendrás tu menú completo con calorías, proteínas y macros calculados para tu objetivo.</p>
-      <button class="u-btn u-btn-primary" id="btn-generar-empty">Ver mi primer plan →</button>
+      <h3 class="u-empty-title">Tu primer plan empieza aquí</h3>
+      <p class="u-empty-text">Completa tu perfil y genera tu primer menú. Aquí podrás consultarlo y abrir su PDF.</p>
+      <button class="u-btn u-btn-primary" id="btn-generar-empty">Generar mi primer plan →</button>
     </div>
   </div>
 </div>

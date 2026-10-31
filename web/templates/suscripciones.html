@@ -3,9 +3,9 @@
 {% block head %}<link rel="stylesheet" href="/static/css/subscription.css?v={{ static_version }}">{% endblock %}
 {% block content %}
 <div class="page-header"><div>
-  <p class="mb-page-eyebrow">TU CUENTA / SUSCRIPCIÓN</p>
-  <h1 class="page-title">Suscripción del gimnasio</h1>
-  <p class="page-subtitle">Consulta el acceso de tu cuenta y los planes disponibles.</p>
+  <p class="mb-page-eyebrow">Tu cuenta</p>
+  <h1 class="page-title">Suscripción</h1>
+  <p class="page-subtitle">Tu plan, tus límites y tus pagos.</p>
 </div></div>
 <div id="billing-feedback" class="billing-notice" role="status" aria-live="polite" hidden></div>
 <section class="chart-container mb-6" aria-labelledby="current-subscription-title">
@@ -20,17 +20,17 @@
   </dl>
   <p id="sub-renewal-note" class="text-secondary">Consulta el estado antes de iniciar otro pago.</p>
   <div class="billing-actions">
-    <button type="button" class="btn btn-outline" id="btn-refresh-billing">Consultar estado</button>
+    <button type="button" class="btn btn-primary" id="btn-refresh-billing">Actualizar estado</button>
     <button type="button" class="btn btn-outline" id="btn-portal" hidden>Gestionar en Stripe</button>
   </div>
 </section>
 <section class="chart-container mb-6" aria-labelledby="free-plan-title">
   <h2 class="chart-title" id="free-plan-title">Free · sin cargo mensual</h2>
-  <p>Hasta {{ plan_catalog.free.max_clientes }} clientes. {{ plan_catalog.free.max_planes_por_cliente_dia }} plan por cliente al día. Incluye exclusiones de alimentos y descarga del plan en PDF.</p>
-  <p class="text-secondary">Hasta {{ plan_catalog.free.max_planes_diarios }} planes totales del gimnasio al día. Las cuotas adicionales de la cuenta se consultan al generar un plan.</p>
+  <p>Hasta {{ plan_catalog.free.max_clientes }} clientes, {{ plan_catalog.free.max_planes_por_cliente_dia }} plan por cliente al día y {{ plan_catalog.free.max_planes_diarios }} planes totales del gimnasio al día.</p>
+  <details class="page-help"><summary>Qué incluye Free</summary><p>Exclusiones de alimentos y descarga del plan en PDF. Consulta las cuotas adicionales de tu cuenta al generar un plan.</p></details>
 </section>
 <h2 class="chart-title mb-4">Planes de pago</h2>
-<p class="text-secondary mb-4">El acceso cambia después de confirmar el pago. Gestiona una suscripción existente desde el portal antes de contratar otra.</p>
+<p class="text-secondary mb-4">El plan cambia al confirmar el pago. Si ya tienes una suscripción, gestiónala en el portal antes de contratar otra.</p>
 <fieldset class="billing-methods" id="billing-methods" aria-describedby="billing-method-description" disabled>
   <legend>Proveedor de pago</legend>
   <label><input type="radio" name="billing-provider" value="stripe"> Stripe · suscripción mensual</label>

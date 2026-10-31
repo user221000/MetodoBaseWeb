@@ -1,5 +1,5 @@
 {% extends 'base_usuario.html' %}
 {% block title %}Mis rutinas básicas{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/rutinas.css?v={{ static_version }}">{% endblock %}
-{% block content %}{% include 'rutinas_shared.html' %}{% endblock %}
+{% block content %}<div class="mb-personal-routines">{% include 'rutinas_shared.html' %}</div>{% endblock %}
 {% block scripts %}<script nonce="{{ request.state.csp_nonce }}" src="/static/js/rutinas.js?v={{ static_version }}"></script>{% endblock %}

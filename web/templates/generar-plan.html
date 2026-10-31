@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Generar Plan{% endblock %}
+{% block title %}Crear plan{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/nutrition35.css?v={{ static_version }}"><script nonce="{{ request.state.csp_nonce }}" src="/static/js/nutrition35.js?v={{ static_version }}"></script>{% endblock %}
 
 {% block content %}
@@ -7,9 +7,9 @@
 <!-- ── Page header ───────────────────────────────────────────── -->
 <div class="page-header">
   <div>
-    <p class="mb-page-eyebrow">NUTRICIÓN / NUEVO PLAN</p>
-  <h1 class="page-title">Generar Plan Nutricional</h1>
-    <p class="page-subtitle">Crea un plan personalizado en 3 pasos</p>
+    <p class="mb-page-eyebrow">Planes</p>
+  <h1 class="page-title">Crear plan</h1>
+    <p class="page-subtitle">Elige un cliente y revisa sus datos.</p>
   </div>
 </div>
 
@@ -19,12 +19,12 @@
 <div class="wizard-steps chart-container mb-6">
   <div class="step-item active" id="nav-step-1">
     <div class="step-circle" data-step="1">1</div>
-    <span class="step-label">Seleccionar cliente</span>
+    <span class="step-label">Cliente</span>
   </div>
   <div class="step-connector"></div>
   <div class="step-item" id="nav-step-2">
     <div class="step-circle" data-step="2">2</div>
-    <span class="step-label">Datos del plan</span>
+    <span class="step-label">Ajustes</span>
   </div>
   <div class="step-connector"></div>
   <div class="step-item" id="nav-step-3">
@@ -58,7 +58,7 @@
   <div id="s1-resultados" style="min-height:200px;">
     <div class="empty-state">
       <div class="empty-state-icon"><img src="/static/img/users-alt.png" alt="" style="width:32px;height:32px"></div>
-      <p>Escribe un nombre para buscar clientes</p>
+      <p>Busca un cliente arriba o pulsa «Nuevo cliente».</p>
     </div>
   </div>
 </div>
@@ -77,7 +77,7 @@
     <button class="btn btn-icon btn-secondary ml-auto" id="s2-cambiar" title="Cambiar cliente">✏️</button>
   </div>
 
-  <h3 class="chart-title mb-4" id="s2-heading" tabindex="-1">Ajustar parámetros del plan</h3>
+  <h3 class="chart-title mb-4" id="s2-heading" tabindex="-1">Revisa los datos del plan</h3>
   <p id="s2-operation-note" role="status" class="mb-4"></p>
 
   <div class="grid-2">
@@ -191,7 +191,7 @@
       <a href="/planes" target="_blank" rel="noopener" class="btn btn-secondary">Consultar historial (otra pestaña)</a>
       <button id="s3-review" class="btn btn-outline" type="button">Revisar datos para otra solicitud</button>
     </div>
-    <p style="margin-top:16px">Otra solicitud puede consumir otro plan disponible. Consultar el historial no genera planes ni modifica tu cupo.</p>
+    <p style="margin-top:16px">Otra solicitud puede consumir cupo. Consultar el historial no genera planes ni modifica tu cupo.</p>
   </div>
   <p id="s3-download-status" role="status" style="overflow-wrap:anywhere"></p>
 

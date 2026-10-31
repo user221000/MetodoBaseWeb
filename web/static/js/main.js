@@ -45,9 +45,9 @@ async function initDashboard() {
       if (_total === 0) {
         ctxDynamic.textContent = '👋 Registra tu primer cliente para empezar';
       } else if (_inactivos > 0) {
-        ctxDynamic.textContent = 'Consulta el seguimiento para revisar la actividad y sus fuentes';
+        ctxDynamic.textContent = 'Revisa a quién dar seguimiento hoy';
       } else {
-        ctxDynamic.textContent = 'Consulta los planes guardados y las fechas administrativas por separado';
+        ctxDynamic.textContent = 'Tus clientes y planes, en un solo lugar';
       }
     }
   } catch (err) {

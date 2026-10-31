@@ -13,8 +13,10 @@
 
   {% block head %}{% endblock %}
   <link rel="stylesheet" href="/static/css/design-system.css?v={{ static_version }}">
+  <link rel="stylesheet" href="/static/css/workspace.css?v={{ static_version }}">
 </head>
 <body class="mb-app mb-app--personal">
+<a class="mb-skip-link" href="#main-content">Ir al contenido</a>
 
 <!-- ── Auth Guard ─────────────────────────────────────────── -->
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/auth-guard.js?v={{ static_version }}"></script>
@@ -30,7 +32,7 @@
       </div>
       <div>
         <div class="u-sidebar-logo-text">Método Base</div>
-        <div class="u-sidebar-logo-sub">Tu Plan Nutricional</div>
+        <div class="u-sidebar-logo-sub">Un paso a tu bienestar</div>
       </div>
     </a>
   </div>
@@ -48,26 +50,26 @@
         <rect x="3" y="14" width="7" height="7" rx="1"/>
         <rect x="14" y="14" width="7" height="7" rx="1"/>
       </svg>
-      Dashboard
+      Mi plan
     </a>
 
     <a href="/mi-historial" class="u-nav-item" data-page="mi-historial">
       <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
-      Progreso
+      Historial
     </a>
 
     <a href="/mis-rutinas" class="u-nav-item" data-page="mis-rutinas">
       <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M6 8v8m12-8v8M3 10v4m18-4v4M6 12h12"/>
       </svg>
-      Mis rutinas
+      Rutinas
     </a>
 
-    <a href="/mis-vinculos" class="u-nav-item" data-page="mis-vinculos">Mis vínculos con gimnasios</a>
-    <a href="/mi-seguridad" class="u-nav-item" data-page="mi-seguridad">Seguridad de mi cuenta</a>
-    <a href="/mis-recordatorios" class="u-nav-item" data-page="mis-recordatorios" data-notification-nav="personal" hidden>Mis recordatorios</a>
+    <a href="/mis-vinculos" class="u-nav-item" data-page="mis-vinculos">Mis vínculos</a>
+    <a href="/mi-seguridad" class="u-nav-item" data-page="mi-seguridad">Seguridad</a>
+    <a href="/mis-recordatorios" class="u-nav-item" data-page="mis-recordatorios" data-notification-nav="personal" hidden>Recordatorios</a>
 
     <span class="u-nav-section">Personal</span>
 
@@ -75,7 +77,7 @@
       <svg class="u-nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
       </svg>
-      Mi Suscripción
+      Suscripción
     </a>
 
     <a href="/mi-perfil" class="u-nav-item" data-page="mi-perfil">
@@ -83,15 +85,15 @@
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
         <circle cx="12" cy="7" r="4"/>
       </svg>
-      Mi Perfil
+      Mi perfil
     </a>
 
   </nav>
 
   <!-- Promo card -->
   <div class="u-sidebar-promo">
-    <h4>🔥 Consejo del día</h4>
-    <p>Ten agua a mano y adapta tu hidratación a tus necesidades y a la orientación de tu profesional de salud.</p>
+    <h4>A tu ritmo</h4>
+    <p>Pequeños pasos, con el apoyo de tu profesional de salud.</p>
     <a href="/mi-plan" class="u-promo-btn">Ver mi plan →</a>
   </div>
 
@@ -125,8 +127,8 @@
 <div class="u-sidebar-overlay" id="sidebar-overlay"></div>
 
 <!-- ── Main Content ───────────────────────────────────────── -->
-<main class="u-main">
-  <div class="mb-workspace-topbar"><span class="mb-workspace-label">Método Base / TU ESPACIO PERSONAL</span><a href="/mi-seguridad">Mi cuenta</a></div>
+<main class="u-main" id="main-content" tabindex="-1">
+  <div class="mb-workspace-topbar"><span class="mb-workspace-label">Mi bienestar</span><a href="/mi-seguridad">Mi cuenta</a></div>
   {% block content %}{% endblock %}
 </main>
 
@@ -137,6 +139,7 @@
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1-r27notify1-r37account1"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/session-shell.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/notification-nav36.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/workspace-shell.js?v={{ static_version }}"></script>
 
 <script nonce="{{ request.state.csp_nonce }}">
 (function() {
@@ -153,30 +156,6 @@
   document.querySelectorAll('.u-nav-item').forEach(function(a) {
     if (a.getAttribute('href') === path) { a.classList.add('active'); a.setAttribute('aria-current', 'page'); }
   });
-
-  // Hamburger menu
-  var btn = document.getElementById('btn-hamburger');
-  var sidebar = document.getElementById('main-sidebar');
-  var overlay = document.getElementById('sidebar-overlay');
-  if (btn && sidebar && overlay) {
-    function closeMenu() {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-      btn.setAttribute('aria-expanded', 'false');
-      btn.focus();
-    }
-    btn.addEventListener('click', function() {
-      var open = !sidebar.classList.contains('open');
-      sidebar.classList.toggle('open', open);
-      overlay.classList.toggle('active', open);
-      btn.setAttribute('aria-expanded', String(open));
-      if (open) sidebar.querySelector('a').focus();
-    });
-    overlay.addEventListener('click', closeMenu);
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape' && sidebar.classList.contains('open')) closeMenu();
-    });
-  }
 
   // Logout
   var logoutBtn = document.getElementById('btn-logout');

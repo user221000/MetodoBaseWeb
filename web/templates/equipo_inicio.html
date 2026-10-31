@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Espacio profesional{% endblock %}
+{% block title %}Inicio del equipo{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/team.css?v={{ static_version }}">{% endblock %}
 {% block content %}
-<div class="page-header"><div><p class="mb-page-eyebrow">TU EQUIPO / ESPACIO PROFESIONAL</p>
-  <h1 class="page-title">Espacio profesional</h1><p class="page-subtitle" id="professional-context">Consultando el acceso a tu gimnasio…</p></div></div>
+<div class="page-header"><div><p class="mb-page-eyebrow">Tu gimnasio</p>
+  <h1 class="page-title">Inicio del equipo</h1><p class="page-subtitle" id="professional-context">Consultando el acceso a tu gimnasio…</p></div></div>
 <div class="team-feedback" id="professional-feedback" role="status" hidden></div>
-<p class="mb-6 text-secondary">Aquí trabajas con la cartera del gimnasio según tu rol. Tu perfil personal se conserva por separado.</p>
+<details class="page-help"><summary>Sobre tu espacio de trabajo</summary><p class="mb-6 text-secondary">Trabajas con la cartera del gimnasio según tu rol. Tu perfil personal se conserva por separado.</p></details>
 <div class="team-access-grid">
-  <section class="team-card"><h2>Tareas de seguimiento</h2><p>Consulta el alcance y las tareas que tu cuenta tiene autorizadas. Cada acción requiere confirmación.</p><a href="/seguimiento">Abrir tareas</a></section>
-  <section class="team-card" data-permission="read:cliente" hidden><h2>Clientes</h2><p>Consulta la cartera del gimnasio y las acciones disponibles para tu rol.</p><a href="/clientes">Abrir clientes</a></section>
-  <section class="team-card" data-permission="read:plan" hidden><h2>Planes del gimnasio</h2><p>Consulta los planes guardados del gimnasio.</p><a href="/planes">Abrir historial de planes</a></section>
-  <section class="team-card" data-permission="read:team" hidden><h2>Equipo</h2><p>Consulta las personas con acceso y administra las invitaciones permitidas.</p><a href="/equipo">Abrir equipo profesional</a></section>
-  <section class="team-card" data-permission="update:gym_profile" hidden><h2>Configuración</h2><p>Revisa los datos del gimnasio y su presentación en los planes.</p><a href="/configuracion">Abrir configuración</a></section>
+  <section class="team-card"><h2>Seguimiento</h2><p>Revisa tus tareas y confirma cada acción.</p><a href="/seguimiento" class="btn btn-primary">Ver tareas</a></section>
+  <section class="team-card" data-permission="read:cliente" hidden><h2>Clientes</h2><p>La cartera a la que tienes acceso.</p><a href="/clientes">Ver clientes</a></section>
+  <section class="team-card" data-permission="read:plan" hidden><h2>Planes</h2><p>Planes guardados del gimnasio.</p><a href="/planes">Ver planes</a></section>
+  <section class="team-card" data-permission="read:team" hidden><h2>Equipo</h2><p>Personas y accesos autorizados.</p><a href="/equipo">Ver equipo</a></section>
+  <section class="team-card" data-permission="update:gym_profile" hidden><h2>Configuración</h2><p>Datos y presentación del gimnasio.</p><a href="/configuracion">Editar datos</a></section>
 </div>
 {% endblock %}
 {% block scripts %}<script nonce="{{ request.state.csp_nonce }}" src="/static/js/equipo.js?v={{ static_version }}"></script>{% endblock %}

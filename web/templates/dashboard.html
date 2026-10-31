@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Inicio{% endblock %}
 
 {% block content %}
 
@@ -9,18 +9,21 @@
 ═══════════════════════════════════════════════════════════════════════════ -->
 <header class="dashboard-hero">
   <div class="hero-greeting">
-    <p class="mb-page-eyebrow">GESTIÓN / VISIÓN GENERAL</p>
-  <h1 class="page-title" id="dash-saludo">Dashboard</h1>
+    <p class="mb-page-eyebrow">Tu gimnasio</p>
+  <h1 class="page-title" id="dash-saludo">Inicio</h1>
     <p class="page-subtitle" id="dash-fecha">Cargando fecha...</p>
   </div>
 </header>
 
 <!-- ── Context bar ────────────────────────────────────────────── -->
+<details class="page-help">
+  <summary>Cómo leer este resumen</summary>
 <div class="context-bar">
   <span class="context-bar-item">Panel de gestión · clientes y planes guardados</span>
   <span class="context-bar-item">Las fechas de membresía no confirman cobros</span>
   <span class="context-bar-item" id="ctx-dynamic">Consulta la actividad antes de decidir el próximo paso</span>
 </div>
+</details>
 
 <!-- KPIs ACCIONABLES — Suscripciones de clientes -->
 <div class="kpi-grid kpi-grid-actionable" id="kpi-section">
@@ -341,8 +344,8 @@
   <!-- CTA PRINCIPAL — Un solo hero action -->
   <div class="action-hero">
     <div class="action-content">
-      <h2>Registra un cliente y prepara su plan</h2>
-      <p>Completa los datos del cliente, genera el plan y revísalo antes de compartirlo.</p>
+      <h2>Empieza con un cliente</h2>
+      <p>Guarda sus datos y prepara su plan.</p>
     </div>
     <button id="btn-generar-plan" class="btn btn-primary btn-lg btn-cta-hero" type="button">
       <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -381,8 +384,8 @@
 <section class="onboarding-checklist chart-container" id="onboarding-section" aria-busy="true" aria-labelledby="onboarding-title">
   <div class="onboarding-header">
     <div>
-      <h3 class="chart-title" id="onboarding-title" style="margin:0 0 4px;">Prepara el primer plan de tu cliente</h3>
-      <p style="color:var(--text-muted);font-size:.82rem;margin:0;">Puedes continuar después: consultamos los clientes y planes guardados de esta cuenta.</p>
+      <h3 class="chart-title" id="onboarding-title" style="margin:0 0 4px;">Tu primer plan, paso a paso</h3>
+      <p style="color:var(--text-muted);font-size:.82rem;margin:0;">Avanza a tu ritmo.</p>
     </div>
     <div class="onboarding-progress">
       <span id="onboarding-pct" class="onboarding-pct" role="status">Consultando preparación…</span>
@@ -396,7 +399,7 @@
       </div>
       <div class="ob-step-info">
         <span class="ob-step-title">Registra tu primer cliente</span>
-        <span class="ob-step-desc">Registra sus datos y revisa los campos que faltan antes de generar.</span>
+        <span class="ob-step-desc">Completa sus datos.</span>
       </div>
       <button class="btn btn-primary btn-sm ob-step-action" id="ob-action-1" type="button">Crear cliente →</button>
     </li>
@@ -405,20 +408,20 @@
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
       </div>
       <div class="ob-step-info">
-        <span class="ob-step-title">Guarda un plan asociado a tu cliente</span>
-        <span class="ob-step-desc">Selecciona al cliente, revisa sus restricciones y confirma la generación.</span>
+        <span class="ob-step-title">Prepara su plan</span>
+        <span class="ob-step-desc">Revisa sus restricciones antes de generar.</span>
       </div>
       <a href="/generar-plan" class="btn btn-outline btn-sm ob-step-action" id="ob-action-2">Generar plan</a>
     </li>
   </ol>
-  <p>Después, abre el plan guardado, revisa el PDF y descárgalo para compartirlo con tu cliente. Guardar un plan no confirma su descarga, envío ni recepción.</p>
-  <p><a href="/planes" class="btn btn-outline btn-sm" id="ob-action-3">Revisar planes y descargar PDF</a></p>
+  <details class="page-help"><summary>Antes de compartir el plan</summary><p>Revisa el PDF y descárgalo. Guardar un plan no confirma su descarga, envío ni recepción.</p></details>
+  <p><a href="/planes" class="btn btn-outline btn-sm" id="ob-action-3">Ver planes y PDF</a></p>
 </section>
 
 <section data-product-analytics data-context="gym" class="chart-container" aria-labelledby="product-facts-title">
-  <h2 id="product-facts-title">Activación observada</h2>
-  <p>Consulta el periodo actual por procedencia declarada. Los datos previos permanecen sin clasificar. Una respuesta completa del plan asignado aceptada por el servidor no prueba recepción ni lectura humana.</p>
-  <button type="button" class="btn btn-outline btn-sm">Consultar hechos observados</button>
+  <h2 id="product-facts-title">Actividad de la cuenta</h2>
+  <details class="page-help"><summary>Qué muestran estos datos</summary><p>Consulta el periodo actual por procedencia declarada. Los datos previos permanecen sin clasificar. Una respuesta completa del plan asignado aceptada por el servidor no prueba recepción ni lectura humana.</p></details>
+  <button type="button" class="btn btn-outline btn-sm">Ver actividad</button>
   <p data-product-report role="status" aria-live="polite">Sin consultar. No hay objetivos o retención inferidos.</p>
 </section>
 
@@ -426,10 +429,13 @@
      AI INSIGHTS — Heuristic business intelligence
 ═══════════════════════════════════════════════════════════════════════════ -->
 <section class="chart-container mb-4" id="followup-section" aria-labelledby="followup-title" aria-busy="true">
-  <h2 id="followup-title">Seguimiento por revisar</h2>
-  <p><a href="/seguimiento">Consultar tareas y declaraciones del equipo</a></p>
+  <h2 id="followup-title">Seguimiento</h2>
+  <p><a href="/seguimiento">Ver tareas del equipo</a></p>
+  <details class="page-help"><summary>Cómo se ordena el seguimiento</summary>
   <p>Orden operativo: sin plan guardado, sin plan en la ventana de actividad, fecha de plan desconocida y fecha de membresía pasada. No indica urgencia médica ni caducidad del plan.</p>
   <p>La ventana usa el periodo de actividad del dashboard, indicado al consultar. Abrir un cliente o preparar un plan no registra contacto, entrega ni cobro.</p>
+  <p>Los conteos son hechos persistidos del periodo, sin atribución al dashboard. Un PDF con metadatos listos aún debe verificarse al descargarlo; no prueba su entrega. Pagos: no disponibles. Las asignaciones corresponden a tareas abiertas por causa en la consulta indicada.</p>
+  </details>
   <div class="followup-actions">
     <label for="followup-limit">Máximo de clientes</label>
     <select id="followup-limit" class="input"><option value="50">50</option><option value="100">100</option></select>
@@ -438,7 +444,6 @@
   <p id="followup-status" role="status" aria-live="polite">Consultando seguimiento…</p>
   <p id="followup-error" role="alert" hidden></p>
   <div id="followup-metrics" role="group" aria-label="Hechos guardados en la ventana de actividad"></div>
-  <p>Los conteos son hechos persistidos del periodo, sin atribución al dashboard. Un PDF con metadatos listos aún debe verificarse al descargarlo; no prueba su entrega. Pagos: no disponibles. Las asignaciones corresponden a tareas abiertas por causa en la consulta indicada.</p>
   <ol id="followup-list" class="followup-list"></ol>
 </section>
 

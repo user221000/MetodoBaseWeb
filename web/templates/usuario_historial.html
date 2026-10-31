@@ -12,15 +12,15 @@
 {% block content %}
 
 <div class="u-hero">
-  <p class="mb-page-eyebrow">TU ESPACIO / HISTORIAL</p>
-  <h1 class="u-hero-title">Historial personal</h1>
-  <p class="u-hero-subtitle">Tus planes y los registros de tu diario personal</p>
+  <p class="mb-page-eyebrow">Tu espacio · Historial</p>
+  <h1 class="u-hero-title">Tus planes anteriores</h1>
+  <p class="u-hero-subtitle">Vuelve a tus menús, abre sus PDF y consulta tu diario.</p>
 </div>
 <section class="u-card" aria-labelledby="history-diary-title">
   <h2 id="history-diary-title">Mi diario</h2>
-  <p>Consulta tus registros por fecha de Ciudad de México. El calendario pertenece a tu cuenta y no se asigna a un plan por su fecha.</p>
-  <p>Los datos locales de versiones anteriores no están sincronizados. No se importan ni se borran automáticamente.</p>
-  <button type="button" id="history-diary-open" class="u-btn u-btn-primary" disabled>Consultar calendario personal</button>
+  <p>Consulta tus comidas y agua por día.</p>
+  <button type="button" id="history-diary-open" class="u-btn u-btn-primary" disabled>Abrir mi calendario</button>
+  <details class="mb-help"><summary>Fechas y registros anteriores</summary><p>El diario usa fechas de Ciudad de México y pertenece a tu cuenta: no se asigna a un plan por coincidir en fecha. Los datos locales anteriores no están sincronizados; no se importan ni se borran automáticamente.</p></details>
 </section>
 
 <div id="loading">
@@ -34,16 +34,16 @@
   <div class="u-card">
     <div class="u-empty">
       <div class="u-empty-icon">📋</div>
-      <h3 class="u-empty-title">Sin planes generados</h3>
-      <p class="u-empty-text">Genera tu primer plan desde el Dashboard.</p>
-      <a href="/mi-plan" class="u-btn u-btn-primary">Ir al Dashboard →</a>
+      <h3 class="u-empty-title">Aquí guardarás tus planes</h3>
+      <p class="u-empty-text">Genera tu primer menú en Mi plan y vuelve cuando quieras consultarlo.</p>
+      <a href="/mi-plan" class="u-btn u-btn-primary">Ir a Mi plan →</a>
     </div>
   </div>
 </div>
 
 <section id="history-controls" aria-label="Consulta de planes anteriores">
   <p id="history-status" role="status" aria-live="polite" tabindex="-1">Consultando tus planes…</p>
-  <p>Los planes se consultan por partes. Actualiza el historial para ver los más recientes.</p>
+  <p>Actualiza para ver los últimos planes; carga los anteriores al final de la lista.</p>
   <button type="button" class="u-btn u-btn-secondary" id="history-refresh" disabled>Actualizar historial</button>
   <button type="button" class="u-btn u-btn-primary" id="history-more" hidden disabled>Cargar anteriores</button>
 </section>
@@ -70,7 +70,7 @@
       <tbody id="tbody-planes"></tbody>
     </table>
   </div>
-  <p class="u-historial-hint">Abre o descarga el PDF de cada plan. El diario se consulta desde su calendario personal.</p>
+  <p class="u-historial-hint">Abre o descarga cada PDF. Para tus registros de consumo, usa Mi diario.</p>
 </div>
 
 <!-- ── PROGRESS CALENDAR PANEL ────────────────────────────── -->
@@ -105,7 +105,7 @@
       <!-- Warning message -->
       <div class="u-prog-warning" id="prog-warning">
         <span class="u-prog-warning-icon">⚠️</span>
-        <p>El calendario muestra sólo registros del servidor. Registrar una selección y marcarla completada son acciones distintas. Un plan nuevo no modifica el consumo anterior.</p>
+        <p>Sólo se muestran registros guardados en tu cuenta. Registrar una comida y marcarla completada son pasos distintos; un plan nuevo no modifica el consumo anterior.</p>
       </div>
     </div>
   </div>

@@ -1,29 +1,29 @@
 {% extends "base_usuario.html" %}
-{% block title %}Optimiza tu plan{% endblock %}
+{% block title %}Mi perfil{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/css/privacy-export.css?v={{ static_version }}"><link rel="stylesheet" href="/static/css/nutrition35.css?v={{ static_version }}"><script nonce="{{ request.state.csp_nonce }}" src="/static/js/nutrition35.js?v={{ static_version }}"></script>{% endblock %}
 
 {% block content %}
 
 <div class="u-hero">
-  <p class="mb-page-eyebrow">TU ESPACIO / PERFIL</p>
-  <h1 class="u-hero-title">Optimiza tu plan</h1>
-  <p class="u-hero-subtitle">Cuantos más datos completes, más preciso y personalizado será tu plan.</p>
+  <p class="mb-page-eyebrow">Tu espacio · Perfil</p>
+  <h1 class="u-hero-title">Tu perfil, a tu ritmo</h1>
+  <p class="u-hero-subtitle">Actualiza tus datos y preferencias para tu próximo plan.</p>
 </div>
 
 <div class="u-context-bar" id="progress-bar-row" style="align-items:center;gap:12px;">
-  <span class="u-context-tag">⚡ Plan al <strong id="progress-pct">—</strong> optimizado</span>
+  <span class="u-context-tag">Perfil completo al <strong id="progress-pct">—</strong></span>
   <div style="flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden;min-width:60px;max-width:200px;">
     <div id="progress-fill" style="height:100%;width:0%;background:var(--u-accent);border-radius:99px;transition:width 0.5s ease;"></div>
   </div>
-  <span class="u-context-tag" id="progress-hint" style="font-size:0.78rem;opacity:0.65;">Cargando...</span>
+  <span class="u-context-tag" id="progress-hint" style="font-size:1rem;">Cargando...</span>
 </div>
 
 <form id="form-perfil" class="u-form-max">
 
   <!-- Datos personales -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">👤 Tu cuenta</h3>
-    <p class="u-card-desc" style="margin:4px 0 14px;">Nombre y email son de solo lectura. Cambios de contraseña desde ajustes.</p>
+    <h3 class="u-card-title">Tu cuenta</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Nombre y correo son de sólo lectura. Gestiona tu acceso en Seguridad.</p>
     <div class="u-grid-2">
       <div class="u-form-group">
         <label class="u-form-label" for="field-nombre">Nombre</label>
@@ -38,8 +38,8 @@
 
   <!-- Medidas corporales -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">⚖️ Tu base calórica</h3>
-    <p class="u-card-desc" style="margin:4px 0 14px;">Usamos estos datos para calcular tu TDEE — cuántas calorías necesitas exactamente cada día.</p>
+    <h3 class="u-card-title">Tus datos básicos</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Con estos datos estimamos tus necesidades diarias. Los campos con * son obligatorios.</p>
     <div class="u-grid-3">
       <div class="u-form-group">
         <label class="u-form-label" for="field-edad">Edad *</label>
@@ -73,8 +73,8 @@
 
   <!-- Objetivo y actividad -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">🎯 Tu calórico objetivo</h3>
-    <p class="u-card-desc" style="margin:4px 0 14px;">Estos 2 campos determinan si tu plan apunta a déficit, mantenimiento o superávit calórico.</p>
+    <h3 class="u-card-title">Tu objetivo y tu actividad</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Elige tu objetivo y la actividad que haces habitualmente.</p>
     <div class="u-grid-2">
       <div class="u-form-group">
         <label class="u-form-label" for="field-objetivo">Objetivo *</label>
@@ -101,8 +101,8 @@
   {% with nutrition_key='personal' %}{% include '_nutrition35_fields.html' %}{% endwith %}
   <!-- Notas -->
   <div class="u-card u-card-mb">
-    <h3 class="u-card-title">📝 Notas para tu profesional</h3>
-    <p class="u-card-desc" style="margin:4px 0 14px;">Estas notas no modifican automáticamente el plan. Para omitir alimentos, usa la selección de abajo. Si tienes alergias o una condición médica, solicita revisión profesional antes de usar el plan.</p>
+    <h3 class="u-card-title">Notas personales</h3>
+    <p class="u-card-desc" style="margin:4px 0 14px;">Las notas no cambian el plan. Si tienes alergias o una condición médica, solicita revisión profesional antes de usarlo.</p>
     <div class="u-form-group">
       <label class="u-form-label" for="field-notas">Notas opcionales</label>
       <textarea id="field-notas" class="u-form-input" rows="3" maxlength="500" aria-describedby="notas-help" placeholder="Información que quieras comentar con tu profesional"></textarea>
@@ -112,8 +112,8 @@
 
   <!-- Excluir alimentos -->
   <div class="u-card u-card-mb-lg">
-    <h3 class="u-card-title">🚫 Lo que no entra en tu plan</h3>
-    <p class="u-card-desc">Selecciona los alimentos a omitir. Se activan en tu próxima generación de plan. <span style="opacity:0.55">(opcional)</span></p>
+    <h3 class="u-card-title">Tus preferencias de alimentos</h3>
+    <p class="u-card-desc">Elige qué prefieres omitir en tu próximo plan. <span>(Opcional)</span></p>
 
     <div id="excluidos-tags" class="u-excl-tags"></div>
 
@@ -125,19 +125,19 @@
   <div class="u-flex-actions">
     <button type="submit" class="u-btn u-btn-primary" id="btn-guardar">
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-      Actualizar mi plan
+      Guardar perfil
     </button>
     <a href="/mi-plan" class="u-btn u-btn-outline">← Ver mi plan</a>
-    <a href="/mi-progreso" class="u-btn u-btn-outline">Mis medidas y permisos de progreso</a>
+    <a href="/mi-progreso" class="u-btn u-btn-outline">Ver mi progreso</a>
   </div>
 </form>
 
 <section id="personal-data-section" class="u-card privacy-card u-form-max" aria-labelledby="personal-data-title" aria-busy="false">
-  <h2 id="personal-data-title">Tus datos personales</h2>
-  <p><a href="/cuenta/google">Consultar, vincular o desvincular Google de mi cuenta</a></p>
-  <p><a href="/retirar-consentimientos">Retirar permisos de progreso sin iniciar sesión</a>. Esta vía también permite consultar tus permisos propios si ya no puedes acceder al espacio personal.</p>
-  <p>Descarga una copia JSON de tu cuenta y los datos guardados en tu espacio personal. Si hay más registros, podrás descargar la siguiente parte.</p>
-  <p class="privacy-detail">Cada parte refleja los datos disponibles al consultarla. El manifiesto de cada archivo explica su alcance. La cartera profesional, los archivos PDF y el diario local de este navegador quedan fuera de esta descarga.</p>
+  <h2 id="personal-data-title">Tu cuenta y tus datos</h2>
+  <p><a href="/cuenta/google">Gestionar mi acceso con Google</a></p>
+  <p><a href="/retirar-consentimientos">Consultar o retirar permisos sin iniciar sesión</a>.</p>
+  <p>Descarga tus datos personales en JSON, por partes si hace falta.</p>
+  <details class="mb-help"><summary>Qué incluye esta descarga</summary><p class="privacy-detail">Cada parte refleja los datos disponibles al consultarla; el manifiesto explica su alcance. Quedan fuera la cartera profesional, los PDF y el diario local de este navegador.</p></details>
   <p id="privacy-status" role="status" aria-live="polite" aria-atomic="true">Verificando tu sesión…</p>
   <progress id="privacy-progress" aria-label="Preparando la siguiente parte" hidden></progress>
   <p id="privacy-error" class="privacy-error" role="alert" tabindex="-1" hidden></p>
@@ -206,13 +206,13 @@
       document.getElementById('field-actividad').value,
     ].filter(function(v) { return !v; }).length;
     if (pct === 0) {
-      hintEl.textContent = 'Completa tus medidas para activar tu plan';
+      hintEl.textContent = 'Empieza con tus datos básicos';
     } else if (missing > 0) {
       hintEl.textContent = 'Faltan ' + missing + ' dato' + (missing > 1 ? 's clave' : ' clave');
     } else if (pct < 100) {
-      hintEl.textContent = 'Casi completo — datos opcionales mejoran la precisión';
+      hintEl.textContent = 'Datos obligatorios completos; los demás son opcionales';
     } else {
-      hintEl.textContent = '¡Plan completamente optimizado!';
+      hintEl.textContent = 'Perfil completo. Puedes volver a tu plan.';
     }
   }
 
@@ -361,12 +361,12 @@
 
     try {
       await nutritionPersonal.save(payload);
-      showToast('Perfil guardado. No se generó ningún plan.');
+      showToast('Perfil guardado para tu próximo plan.');
     } catch(e) {
       showToast(nutritionPersonal.view().message || 'No se pudo confirmar el guardado. Consulta el estado antes de continuar.', 'error');
     } finally {
       btn.disabled = nutritionPersonal.view().busy || nutritionPersonal.view().phase !== 'ready';
-      btn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Actualizar mi plan';
+      btn.innerHTML = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar perfil';
     }
   });
 

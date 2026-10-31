@@ -423,6 +423,14 @@ CI7ddb8b25 integra14 cambios preparados y16proofs;4jobs cambiados y15literalment
 
 Retención/borrado integral, soporte, procedencia demo/cohortes, revisión legal/nutricional, proveedores/custodia y piloto5+5 conservan pendientes externos. Sin push, PR, despliegue, cargos ni envíos reales.
 
+## Revisión de interfaz web — 2026-10-30/31
+
+Ambos espacios, negocio y personal, comparten una interfaz clara, navegación móvil con foco/inert/Escape, controles legibles y ayudas secundarias desplegables. Los avisos clínicos, cuotas, permisos y consentimientos permanecen junto a sus acciones. Se conservaron los contratos de 311 IDs de negocio y 405 hooks personales/compartidos. La revisión en navegador cubre escritorio, 390 y 320 px y el perfil completo; se corrigió el desborde del anillo diario. One Slice queda archivada fuera de la entrega por faltar licencia comercial.
+
+Durante la auditoría se corrigió éxito prematuro en altas, ediciones y bajas de clientes: commit antes de responder y rollback explícito en errores, sin cambiar esquema, filtros de gimnasio o cuotas. 131 escenarios UI/HTTP actuales PASS; seis regresiones de transacción y 11 casos de cuota PASS. Las pruebas de UI históricas usan un adaptador externo que migra sólo sus SQLite temporales propias al esquema actual, sin modificar fixtures históricos. Se verificaron acciones personales y 13 flujos de negocio reales con datos sintéticos, incluida generación/PDF y lecturas inmediatas tras guardar/baja. Pagos/envíos reales no se usan para pruebas. Detalle y límites en `docs/implementation/20261030-workspace-ux.md`; evidencia en `E:/MetodoBaseWorkspace/evidence/ux-ui-and-leads-20261030-96e970a9963b456eb939a43786f35b83/`.
+
+Se entrega fuera del código otro Excel/CSV/JSON con 40 leads adicionales: 12 gimnasios, 16 nutriólogos y 12 clínicas, 10 por zona de Guadalajara/CDMX/Querétaro/Monterrey, sin coincidencias de teléfono/ficha/nombre con los 40 anteriores. 39 fichas Maps, un enlace de búsqueda identificado, 24 enlaces LinkedIn públicos/indexados y 17 contactos profesionales. Los cargos no acreditan propiedad ni capacidad de compra; no hubo llamadas ni mensajes.
+
 
 ## Checkpoint156
 

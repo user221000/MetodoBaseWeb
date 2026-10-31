@@ -1,7 +1,7 @@
 <section class="account-security37" data-account-privacy39 data-login-url="{{ account_login_url }}" data-google-client-id="{{ google_client_id if privacy_only else '' }}" aria-labelledby="privacy39-title">
   {% if privacy_only %}<h1 id="privacy39-title">Privacidad de tu cuenta</h1>{% else %}<h2 id="privacy39-title">Privacidad de tu cuenta</h2>{% endif %}
-  <p>Puedes registrar una solicitud de disposición de tus datos personales y consultar sus categorías. Crear la solicitud mantiene tu cuenta abierta. El cierre de acceso y el borrado de datos son pasos separados.</p>
-  <p>Las obligaciones de un gimnasio, los cobros, las retenciones y los proveedores pendientes requieren revisión. El estado de una solicitud no acredita un borrado integral.</p>
+  <p>Solicita una revisión de tus datos personales y consulta sus categorías. La solicitud mantiene tu cuenta abierta: cerrar el acceso y borrar datos son pasos separados.</p>
+  <details class="mb-help"><summary>Qué requiere una revisión adicional</summary><p>Las obligaciones de un gimnasio, cobros, retenciones y proveedores pendientes requieren revisión. El estado de la solicitud no acredita un borrado integral.</p></details>
   <div class="form-actions">
     <button type="button" class="btn btn-secondary" data-privacy39-request>Registrar solicitud</button>
     <button type="button" class="btn btn-secondary" data-privacy39-refresh disabled>Consultar solicitud</button>
@@ -9,7 +9,7 @@
   <p role="status" aria-live="polite" data-privacy39-status>Tu solicitud se mostrará aquí durante esta sesión.</p>
   <ul data-privacy39-items aria-label="Estado por categoría"></ul>
   <h3>Cerrar el acceso a mi cuenta</h3>
-  <p>El cierre requiere identidad verificada y el factor actual cuando está activo. Cierra las sesiones anteriores. La solicitud y sus categorías siguen separadas del borrado integral; las obligaciones pendientes pueden bloquear el cierre.</p>
+  <p>Verifica tu identidad y tu factor actual, si está activo. El cierre termina las sesiones anteriores; las obligaciones pendientes pueden bloquearlo. El borrado integral se revisa por separado.</p>
   <button type="button" class="btn btn-secondary" data-privacy39-prepare-close disabled>Preparar cierre de acceso</button>
   <form data-privacy39-close-form hidden>
     <label for="privacy39-password">Contraseña actual</label>
@@ -27,8 +27,8 @@
     <p data-privacy39-google-status role="status" aria-live="polite"></p>
     {% if not privacy_only and google_client_id %}<p><a href="{{ request.url.path }}?operacion=privacidad">Abrir privacidad para verificar con mi cuenta de Google vinculada</a>. Vuelve a registrar y confirmar la solicitud en la nueva vista.</p>{% endif %}
   </form>
-  <h3>Hechos de tu espacio personal</h3>
-  <p>Descarga por páginas las declaraciones de procedencia y los planes guardados con una fuente propia verificable. La cartera profesional queda fuera de esta descarga. Cada archivo indica su alcance y la siguiente página.</p>
+  <h3>Descargar mi actividad personal</h3>
+  <p>Descarga tus declaraciones de procedencia y planes personales con fuente verificable. La cartera profesional queda fuera. Cada archivo indica su alcance y si hay otra página.</p>
   <button type="button" class="btn btn-secondary" data-privacy39-facts>Descargar primera página</button>
   <button type="button" class="btn btn-secondary" data-privacy39-next disabled>Descargar página siguiente</button>
 </section>

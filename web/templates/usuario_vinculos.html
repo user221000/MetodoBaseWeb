@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
-  <title>Mis vínculos — Método Base</title>
+  <title>Mis vínculos con gimnasios — Método Base</title>
   <link rel="stylesheet" href="/static/css/vinculos.css">
   <link rel="stylesheet" href="/static/css/privacy-export.css">
   <link rel="stylesheet" href="/static/css/plan-diario.css">
@@ -13,23 +13,25 @@
   <script src="/static/js/vinculos-lectura.js" defer></script>
   <script src="/static/js/usuario-privacidad.js" defer></script>
   <link rel="stylesheet" href="/static/css/design-system.css?v={{ static_version }}">
+  <link rel="stylesheet" href="/static/css/workspace.css?v={{ static_version }}">
 </head>
-<body class="mb-standalone"><main class="link-page" id="member-links-page">
-  <a href="/">Método Base</a> <a id="member-home" href="/mi-plan" hidden>Mi espacio</a>
-  <a href="/mi-progreso">Mis medidas y permisos de progreso</a>
-  <h1>Mis vínculos con gimnasios</h1>
-  <p>Consulta los planes que te han publicado. Cada vínculo es un contexto separado de tu perfil personal y de tu acceso profesional.</p>
+<body class="mb-standalone"><main class="link-page mb-personal-page" id="member-links-page">
+  <nav aria-label="Mi espacio"><a href="/">Método Base</a> <a id="member-home" href="/mi-plan" hidden>Mi espacio</a>
+  <a href="/mi-progreso">Mi progreso y permisos</a></nav>
+  <header class="u-hero"><p class="mb-page-eyebrow">Tu espacio · Gimnasios</p><h1>Los planes de tus gimnasios</h1>
+  <p>Elige un vínculo para consultar su plan. Sus datos se mantienen separados de tu perfil personal y de tu acceso profesional.</p></header>
   <p id="member-links-status" role="status" aria-live="polite">Verificando tu cuenta…</p>
   <div id="member-links-error" class="link-error" role="alert" tabindex="-1" hidden></div>
-  <div class="link-actions"><button id="member-links-refresh" type="button">Actualizar mis vínculos</button><button id="member-links-more" type="button" hidden>Cargar más vínculos</button></div>
-  <section aria-labelledby="member-context-title"><h2 id="member-context-title">Elige un contexto</h2><div id="member-links-list"></div></section>
+  <div class="link-actions mb-action-row"><button id="member-links-refresh" type="button">Actualizar vínculos</button><button id="member-links-more" type="button" hidden>Cargar más vínculos</button></div>
+  <section aria-labelledby="member-context-title"><h2 id="member-context-title">Elige un gimnasio</h2><p>Cuando termine la consulta, elige un vínculo activo para ver su menú.</p><div id="member-links-list"></div></section>
   <section id="member-publication" aria-labelledby="member-publication-title" hidden>
     <h2 id="member-publication-title">Plan publicado</h2>
     <div id="member-publication-summary"></div>
-    <div class="link-actions"><button id="member-publication-pdf" type="button" hidden>Descargar PDF de esta publicación</button><button id="member-link-leave" class="secondary" type="button" hidden>Desvincularme de este contexto</button></div>
+    <div class="link-actions mb-action-row"><button id="member-publication-pdf" type="button" hidden>Descargar PDF de esta publicación</button><button id="member-link-leave" class="secondary" type="button" hidden>Desvincularme de este gimnasio</button></div>
     <div id="member-publication-meals"></div>
-    {% include "plan_diario_section.html" %}
+    <p>Consultar este plan no registra consumo ni comparte tu diario.</p>
+    <details class="mb-help"><summary>Lista de compras de este plan</summary>{% include "plan_diario_section.html" %}</details>
   </section>
-  <aside><h2>Tu diario sigue siendo personal</h2><p>Consultar este menú o preparar una compra no registra consumo. Registrar una selección requiere tu confirmación y un espacio personal autorizado; no comparte diario, mediciones ni cartera con el gimnasio. Un consumo confirmado conserva su snapshot personal aunque se retire la publicación.</p></aside>
+  <details class="mb-help"><summary>Cómo se relaciona con tu diario personal</summary><p>Ver un menú o preparar una compra no registra consumo. Guardar una selección requiere tu confirmación y un espacio personal autorizado; no comparte diario, medidas ni cartera con el gimnasio. El registro personal confirmado se conserva aunque se retire la publicación.</p></details>
   {% include "member_export_section.html" %}
 </main></body></html>

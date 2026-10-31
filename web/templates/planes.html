@@ -1,23 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Historial de Planes{% endblock %}
+{% block title %}Planes{% endblock %}
 
 {% block content %}
 
 <!-- ── Page header ────────────────────────────────────────────── -->
 <div class="page-header">
   <div>
-    <p class="mb-page-eyebrow">NUTRICIÓN / HISTORIAL</p>
-  <h1 class="page-title">Historial de Planes</h1>
-    <p class="page-subtitle">Todos los planes nutricionales generados</p>
+    <p class="mb-page-eyebrow">Tus clientes</p>
+  <h1 class="page-title">Planes</h1>
+    <p class="page-subtitle">Revisa y descarga los planes guardados.</p>
   </div>
+  <a href="/generar-plan" class="btn btn-primary" data-permission="create:plan">Crear plan</a>
 </div>
 
 <!-- ── Context bar ────────────────────────────────────────────── -->
-<div class="context-bar">
+<details class="page-help"><summary>Qué incluye cada plan</summary><div class="context-bar">
   <span class="context-bar-item">📋 Registro completo de planes nutricionales</span>
   <span class="context-bar-item">📊 Métricas de macros y calorías</span>
   <span class="context-bar-item">📥 Descarga directa en PDF</span>
-</div>
+</div></details>
 
 <!-- ── Resumen KPIs ───────────────────────────────────────────── -->
 <div class="kpi-grid" style="margin-bottom:24px;">
@@ -63,7 +64,7 @@
 
 <!-- ── Tabla de planes ────────────────────────────────────────── -->
 <p id="planes-feedback" role="status" style="margin:12px 0;overflow-wrap:anywhere"></p>
-<button id="planes-retry" type="button" class="btn btn-secondary hidden" style="margin-bottom:16px">Volver a consultar el historial</button>
+<button id="planes-retry" type="button" class="btn btn-secondary hidden" style="margin-bottom:16px">Volver a cargar</button>
 <div class="chart-container overflow-hidden">
   <div style="overflow-x:auto;" role="region" aria-label="Historial de planes" tabindex="0">
     <table class="data-table" id="tabla-planes">
@@ -196,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               <div class="empty-state">
                 <div class="empty-state-icon">📄</div>
                 <p style="font-weight:600;margin-bottom:4px;">Sin planes generados</p>
-                <p style="color:var(--text-muted);font-size:.85rem;">Aún no se han generado planes nutricionales</p>
+                <p style="color:var(--text-muted);font-size:.85rem;">Prueba otro periodo o elige «Crear plan» para empezar.</p>
               </div>
             </td>
           </tr>
