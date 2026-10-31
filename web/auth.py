@@ -21,7 +21,13 @@ import time
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
-from web.account_values import normalize_account_email, validate_new_password
+
+from web.account_values import (
+    normalize_account_email,
+    validate_new_password,
+    validate_registration_email,
+    validate_registration_name,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -202,9 +208,9 @@ def crear_usuario(
     if tipo not in tipos_validos:
         raise ValueError(f"Tipo inválido: {tipo!r}")
 
-    email = normalize_account_email(email)
-    if not email or "@" not in email:
-        raise ValueError("Email inválido.")
+    email = validate_registration_email(email)
+    nombre = validate_registration_name(nombre)
+    apellido = validate_registration_name(apellido, required=False)
     validate_new_password(password)
 
     Usuario, _ = _get_models()
@@ -221,8 +227,8 @@ def crear_usuario(
             id=uid,
             email=email,
             password_hash=hash_password(password),
-            nombre=nombre.strip(),
-            apellido=apellido.strip(),
+            nombre=nombre,
+            apellido=apellido,
             tipo=tipo,
             role=UserRole.OWNER if tipo == "gym" else UserRole.VIEWER,
             activo=True,

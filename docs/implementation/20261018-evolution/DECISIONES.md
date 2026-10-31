@@ -1,5 +1,11 @@
 # Decisiones de ejecución
 
+## Validación de datos antes de crear una cuenta — 30 de octubre
+
+El alta valida nombres y correo antes de persistir o hashear. Se aceptan nombres Unicode de hasta 150 caracteres y apellido vacío; se rechazan nombres vacíos, controles y valores que exceden el almacenamiento. El correo comprueba su forma y los límites de transporte: local de hasta 64 octetos UTF-8 y dirección de hasta 254 contando el dominio IDNA. La comprobación no consulta DNS ni demuestra entrega del correo.
+
+No se cambia el valor normalizado existente ni se fusionan alias o dominios IDN; tampoco se recortan contraseñas. Un rechazo de alta usa un mensaje fijo y no revela si existe la cuenta. El código de correo obligatorio de Google, los vínculos de proveedor, el tipo y rol persistidos, MFA y la política de contraseñas mantienen sus requisitos.
+
 ## Destino del acceso Google después del correo — 30 de octubre
 
 En una cuenta existente, el portal desde el que se abre Google no cambia el tipo ni el rol persistidos. Después de confirmar el correo y cualquier MFA requerido, la interfaz utiliza la identidad y el destino comprobados por la API. La política de audiencia del acceso por contraseña se conserva. La decisión del método pertenece al intento vigente y no puede ser alterada por un callback tardío, una respuesta de otro contexto ni un dato de navegación.

@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Auditoría de acceso y registro — 30 de octubre
+
+La revisión cubre cuentas Google nuevas, vinculadas y legadas, ambos tipos de cuenta y portales opuestos, código de correo, MFA y registro por datos. Se corrigió que el alta aceptara nombres vacíos o demasiado largos y correos mal formados. Los nuevos datos se validan antes de abrir la sesión de base de datos o hashear: nombre obligatorio, apellido opcional y límite de 150 caracteres; correo con componentes válidos y límites de transporte de 64/254 octetos. El normalizador de cuentas existentes y las contraseñas conservan sus semánticas.
+
+Pasaron pruebas SQLite, PostgreSQL39 con rol restringido y 35 tablas FORCE RLS, y revisión independiente de HTTP y frontend. Google mantiene audiencia externa y acceso básico sin lista de usuarios de prueba; esto no sustituye las políticas que Google aplique a cada cuenta. Un probe de producción comprobó sólo metadatos de permisos de las nueve tablas necesarias y la secuencia de planes, con TLS y transacción de sólo lectura. El cierre efectivo, fuentes y resultados se guardan en `E:/MetodoBaseWorkspace/evidence/access-and-leads-20261030-f6aabf6a925c4f4186b2029b1433aa99/auth`. La fuente One Slice permanece como borrador local separado y no forma parte de esta publicación.
+
 ## Confirmación de correo y destino de Google — 30 de octubre
 
 Los registros HTTP de producción muestran confirmaciones del correo con respuesta 200. La reproducción con el frontend anterior confirma que una cuenta Google de gimnasio abierta desde el portal personal, o viceversa, se rechazaba después de validar el código: el navegador conservaba el formulario de una prueba ya consumida. La corrección permite que el acceso Google continúe hacia el destino de la identidad verificada que devuelve el servidor. Se conserva el tipo de cuenta, la validación del contexto, el código obligatorio y el MFA existente; no se reasignan roles ni se modifica el backend por esta incidencia.
