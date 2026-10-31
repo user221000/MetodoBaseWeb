@@ -36,19 +36,32 @@ async function mounted(audience='gym',registration=false){
   nodes['mfa-login-factor'].controls=[nodes['mfa-login-code'],nodes['mfa-login-recovery'],nodes['mfa-login-method']];nodes['mfa-login-email'].controls=[nodes['mfa-login-email-code']];
   nodes['mfa-login-panel'].hidden=true;nodes['mfa-login-factor'].hidden=true;nodes['mfa-login-google-help'].hidden=true;
   nodes.submitBtn.textContent='Iniciar sesión';nodes.rememberMe.checked=false;
-  const scripts=[],renders=[],navigations=[];let callback;
+  const scripts=[],renders=[],navigations=[];let callback,sdkConfig;
   t.sandbox.document={getElementById:id=>{assert.ok(nodes[id],'Known login control '+id);return nodes[id];},querySelector:()=>null,createElement:()=>new Element('script'),head:{appendChild:script=>scripts.push(script)}};
   t.sandbox.setInterval=()=>1;t.sandbox.clearInterval=()=>{};
   t.sandbox.location.assign=url=>navigations.push(url);t.sandbox.location.reload=()=>{};
-  t.sandbox.google={accounts:{id:{initialize:options=>{callback=options.callback;},renderButton:(_root,options)=>renders.push(options)}}};
+  t.sandbox.google={accounts:{id:{initialize:options=>{sdkConfig=options;callback=options.callback;},renderButton:(_root,options)=>renders.push(options)}}};
   vm.runInContext(loginSource,t.context);
   const controller=t.sandbox.MfaLogin.mount({audience,registration,formId:registration?'registroForm':'loginForm',readAudience:()=>nodes.campoTipo.value,googleClientId:'synthetic-public-client',nonce:'synthetic-nonce'});
   await tick();assert.equal(scripts.length,1);scripts[0].onload();assert.equal(renders.length,1);
-  return {w,t,nodes,form,controller,renders,navigations,callback:payload=>callback(payload),click(){const rendered=renders.at(-1);rendered.click_listener();return rendered.state;}};
+  return {w,t,nodes,form,controller,renders,navigations,sdkConfig,callback:payload=>callback(payload),click(){const rendered=renders.at(-1);rendered.click_listener();return rendered.state;}};
 }
 const rows=[];
 async function test(name,run){try{await run();rows.push({case:name,passed:true});}catch(error){rows.push({case:name,passed:false,error_class:error.name,message:error.message,stack_frames:error.stack?.split('\n').slice(1,7)});}}
 (async()=>{
+for(const registration of [false,true])await test('Basic Google '+(registration?'registration':'login')+' avoids optional Security Bundle eligibility and still requires the exact callback and email proof',async()=>{
+  const audience=registration?'usuario':'gym',e=await mounted(audience,registration);
+  assert.equal(e.sdkConfig.client_id,'synthetic-public-client');assert.equal(e.sdkConfig.ux_mode,'popup');assert.equal(e.sdkConfig.auto_select,false);
+  assert.equal(Object.prototype.hasOwnProperty.call(e.sdkConfig,'essential_claims'),false);
+  assert.equal(Object.prototype.hasOwnProperty.call(e.sdkConfig,'scope'),false);
+  e.t.hook(call=>call.path==='/api/auth/google'?pendingEmail():null);
+  const state=e.click();await e.callback({state:state+'-wrong',credential:'synthetic'});
+  assert.equal(googleCalls(e).length,0);assert.equal(e.controller.phase,'google');
+  await e.callback({state,credential:'synthetic'});
+  assert.equal(googleCalls(e).length,1);assert.deepEqual(googleCalls(e)[0].body,{credential:'synthetic',tipo:audience});
+  assert.equal(e.controller.phase,'email');assert.equal(emailCalls(e).length,0);
+  assert.equal(e.t.api.getToken(),'');assert.equal(e.w.jar.account,null);assert.equal(e.navigations.length,0);
+});
 await test('Recovery actions remain outside the hidden factor panel with fixed local destinations',()=>{
   const help=partial.indexOf('id="mfa-login-google-help"');assert.ok(help>partial.indexOf('</section>'));
   assert.match(partial.slice(help),/href="\/auth\/reset-password"/);assert.match(partial.slice(help),/href="\/cuenta\/google"/);

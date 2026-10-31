@@ -144,7 +144,7 @@
     if(!options.googleClientId){googleBox.textContent='Google no está configurado. Puedes usar tu contraseña.';return controller;}
     const script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;script.nonce=options.nonce;
     script.onerror=()=>{googleError.textContent='No se pudo cargar Google. Usa tu contraseña o vuelve a abrir esta página.';googleError.style.display='block';};
-    script.onload=()=>{if(!controller.active)return;google.accounts.id.initialize({client_id:options.googleClientId,ux_mode:'popup',auto_select:false,essential_claims:'auth_time, amr',callback:async response=>{
+    script.onload=()=>{if(!controller.active)return;google.accounts.id.initialize({client_id:options.googleClientId,ux_mode:'popup',auto_select:false,callback:async response=>{
       const attempt=googleTicket;if(!attempt||attempt.epoch!==googleEpoch||response.state!==attempt.state||controller.phase!=='google')return;googleTicket=null;
       try{Api.mfa.check(attempt.context);}catch{controller.invalidate();return;}
       await controller.completeGoogle({credential:response.credential,tipo:attempt.audience},attempt.flow);

@@ -1,5 +1,11 @@
 # Decisiones de ejecución
 
+## Google básico separado de la reautenticación — 30 de octubre
+
+El acceso y registro comunes usan Google Identity Services con identidad básica y popup, sin solicitar `essential_claims`. No necesitan las señales de frescura de Google para su protocolo vigente de Google verificado, código de correo de un uso y MFA personal. Se conserva `essential_claims` en las cuatro interfaces de reautenticación y no se permite sustituir `auth_time` por la fecha de emisión del JWT.
+
+La secuencia con el mismo origen, cliente y cuenta secundaria fue A1 avanzado con `origin_mismatch`, básico con callback satisfactorio y A2 avanzado también satisfactorio. No atribuir causalidad exclusiva a las claims: la propagación OAuth, caché o consentimiento no quedaron aislados. La simplificación se decide porque el backend de entrada no necesita las señales adicionales. La [documentación de Security Bundle](https://developers.google.com/identity/siwg/security-bundle) exige publicación, verificación y activación para recibir sus claims; la [excepción de acceso básico en Testing](https://support.google.com/cloud/answer/15549945?hl=en) no requiere incluir todos los usuarios en una lista de pruebas. La evidencia está en `E:/MetodoBaseWorkspace/evidence/google-origin-fix-20261030-c31fdc590f1446918b129154b34384c6`. El alcance es una opción del SDK de entrada y su regresión; no se modifican factores, vínculos, sesiones, datos, cuotas o desktop.
+
 ## Dominio canónico metodobase.com.mx — 30 de octubre
 
 Por instrucción expresa del usuario, el servicio web usa `https://metodobase.com.mx`. Se conserva localhost para desarrollo. El origen de autenticación sigue siendo exacto: no se amplía por aceptar Host, Origin o cabeceras de proxy arbitrarias. Sólo la navegación GET/HEAD de los aliases conocidos se redirige al destino configurado; API, webhooks, salud, recursos estáticos y desafíos de certificados no se redirigen. El corte se prepara después de verificar DNS/TLS, el origen Google y la aceptación del remitente Resend.

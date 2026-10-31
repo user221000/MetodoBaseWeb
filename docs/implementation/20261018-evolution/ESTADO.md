@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Google básico en acceso y registro — corrección del 30 de octubre
+
+El diagnóstico en producción reprodujo `origin_mismatch` con una cuenta secundaria aunque el origen canónico y el cliente OAuth coincidían. La secuencia observada fue A1 avanzado con error, petición básica sin `essential_claims` con callback satisfactorio y control A2 avanzado también satisfactorio, usando el mismo cliente, origen y cuenta. El ensayo no prueba una causa única: la propagación de la configuración OAuth y el estado de caché o consentimiento siguen siendo explicaciones posibles. Los callbacks de diagnóstico no enviaron credenciales a la API ni emitieron sesiones. La evidencia se conserva en `E:/MetodoBaseWorkspace/evidence/google-origin-fix-20261030-c31fdc590f1446918b129154b34384c6`, indicada por `E:/MetodoBaseWorkspace/tmp/google-origin-current.json`.
+
+El acceso y registro normales dejan de pedir las claims opcionales `auth_time` y `amr`, que su backend no utiliza. Google documenta que recibir esas señales de Security Bundle requiere publicación, verificación y ajustes avanzados; el acceso básico dispone de una excepción a la lista de test users. Las cuatro interfaces de reautenticación conservan sus claims y las verificaciones de frescura. No cambian la validación del JWT, el código obligatorio de correo, el MFA de la cuenta ni las autoridades del backend. Este corte registra la preparación y el diagnóstico; el despliegue de la corrección necesita su recibo efectivo de cierre.
+
 ## Dominio y correo del servicio web — 30 de octubre
 
 El dominio canónico es `https://metodobase.com.mx`; `www.metodobase.com.mx` y la dirección anterior de Railway redirigen la navegación al dominio principal. API, webhooks y comprobaciones de salud conservan su transporte. Railway tiene ambos dominios en el servicio web y puerto 8080, con DNS y certificados verificados. Cloudflare conserva los registros del correo y los cuatro registros CNAME/TXT específicos de Railway.
