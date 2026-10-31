@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Confirmación de correo y destino de Google — 30 de octubre
+
+Los registros HTTP de producción muestran confirmaciones del correo con respuesta 200. La reproducción con el frontend anterior confirma que una cuenta Google de gimnasio abierta desde el portal personal, o viceversa, se rechazaba después de validar el código: el navegador conservaba el formulario de una prueba ya consumida. La corrección permite que el acceso Google continúe hacia el destino de la identidad verificada que devuelve el servidor. Se conserva el tipo de cuenta, la validación del contexto, el código obligatorio y el MFA existente; no se reasignan roles ni se modifica el backend por esta incidencia.
+
+La pantalla compartida de verificación se renueva con un campo accesible de seis cifras, una acción principal clara, mensajes breves y estados de espera y error. Las evidencias nuevas y el cierre efectivo del despliegue se conservan en `E:/MetodoBaseWorkspace/evidence/google-otp-ui-fix-20261030-f081bed526074d25aff57d3d5c754a1e`. Este corte describe la corrección preparada; el recibo final de esa carpeta distingue las pruebas sintéticas de una comprobación real.
+
 ## Google básico en acceso y registro — corrección del 30 de octubre
 
 El diagnóstico en producción reprodujo `origin_mismatch` con una cuenta secundaria aunque el origen canónico y el cliente OAuth coincidían. La secuencia observada fue A1 avanzado con error, petición básica sin `essential_claims` con callback satisfactorio y control A2 avanzado también satisfactorio, usando el mismo cliente, origen y cuenta. El ensayo no prueba una causa única: la propagación de la configuración OAuth y el estado de caché o consentimiento siguen siendo explicaciones posibles. Los callbacks de diagnóstico no enviaron credenciales a la API ni emitieron sesiones. La evidencia se conserva en `E:/MetodoBaseWorkspace/evidence/google-origin-fix-20261030-c31fdc590f1446918b129154b34384c6`, indicada por `E:/MetodoBaseWorkspace/tmp/google-origin-current.json`.

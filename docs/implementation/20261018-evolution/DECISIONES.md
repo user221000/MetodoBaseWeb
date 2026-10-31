@@ -1,5 +1,11 @@
 # Decisiones de ejecución
 
+## Destino del acceso Google después del correo — 30 de octubre
+
+En una cuenta existente, el portal desde el que se abre Google no cambia el tipo ni el rol persistidos. Después de confirmar el correo y cualquier MFA requerido, la interfaz utiliza la identidad y el destino comprobados por la API. La política de audiencia del acceso por contraseña se conserva. La decisión del método pertenece al intento vigente y no puede ser alterada por un callback tardío, una respuesta de otro contexto ni un dato de navegación.
+
+La verificación del correo conserva un único campo que admite autocompletado y pegado, con confirmación explícita. Los errores de formato, códigos no válidos y pérdida del intento deben orientar a una acción útil sin ofrecer reutilizar una prueba consumida como si fuera nueva. El alcance visual se limita al componente de acceso, sin rediseñar los controles de seguridad de las cuentas.
+
 ## Google básico separado de la reautenticación — 30 de octubre
 
 El acceso y registro comunes usan Google Identity Services con identidad básica y popup, sin solicitar `essential_claims`. No necesitan las señales de frescura de Google para su protocolo vigente de Google verificado, código de correo de un uso y MFA personal. Se conserva `essential_claims` en las cuatro interfaces de reautenticación y no se permite sustituir `auth_time` por la fecha de emisión del JWT.

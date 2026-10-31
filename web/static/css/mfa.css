@@ -11,3 +11,41 @@
 .mfa-dialog::backdrop {background:rgba(0,0,0,.65);}
 .mfa-secret {font-family:monospace;font-size:1.1rem;overflow-wrap:anywhere;user-select:text;}
 @media(max-width:480px){.mfa-view {padding:.75rem;}.mfa-view button,.mfa-dialog button {display:block;margin:.5rem 0;width:100%;}}
+
+/* Public login proofs share their own card; account-security dialogs keep theirs. */
+.mb-auth .mfa-login-card {position:relative;margin:24px 0;padding:28px;border:1px solid #dce7dd;border-radius:20px;background:#f8f4e9;color:#172d2b;box-shadow:0 16px 40px rgb(0 0 0 / 16%);text-align:left;}
+.mb-auth .mfa-login-card::before {content:"";position:absolute;inset:0 24px auto;height:3px;background:linear-gradient(90deg,#00835c 72%,#edbd42 72%);border-radius:0 0 4px 4px;}
+.mfa-login-heading {margin-bottom:12px;}
+.mfa-login-symbol {display:grid;place-items:center;width:48px;height:48px;margin-bottom:18px;border-radius:14px;background:#e1eee3;color:#00714f;}
+.mfa-login-symbol svg {display:block;width:25px;height:25px;}
+.mfa-login-symbol .mfa-login-symbol-factor {display:none;}
+.mfa-login-card[data-phase="factor"] .mfa-login-symbol-email {display:none;}
+.mfa-login-card[data-phase="factor"] .mfa-login-symbol-factor {display:block;}
+.mfa-login-eyebrow {margin:0 0 7px;color:#526854;font-size:.67rem;font-weight:800;line-height:1.4;letter-spacing:.13em;text-transform:uppercase;}
+.mb-auth .mfa-login-card h2 {margin:0;color:#172d2b;font-size:1.6rem;font-weight:850;line-height:1.2;letter-spacing:-.04em;}
+.mfa-login-card .mfa-login-status {margin:0 0 20px;color:#53675f;font-size:.9rem;line-height:1.6;}
+.mfa-login-card .mfa-login-recipient {margin:0 0 22px;padding:10px 12px;border:1px solid #dce5d9;border-radius:10px;background:#fffdf7;color:#29463d;font-size:.85rem;font-weight:650;overflow-wrap:anywhere;}
+.mfa-login-card .mfa-login-label {display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px;color:#243f35;font-size:.8rem;font-weight:750;line-height:1.5;}
+.mfa-login-label>span {flex:none;padding:2px 7px;border-radius:5px;background:#e9e8d6;color:#53624e;font-size:.64rem;font-weight:700;}
+.mb-auth .mfa-login-card input,.mb-auth .mfa-login-card select {width:100%;min-height:50px;margin:0;border:1px solid #aebeb2;border-radius:10px;background:#fffdf8;color:#172d2b;box-shadow:0 1px 2px rgb(27 56 38 / 4%);}
+.mb-auth .mfa-login-card .mfa-login-code-input {height:66px;padding:10px 12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:2rem;font-weight:700;line-height:1.2;letter-spacing:normal;text-align:center;font-variant-numeric:tabular-nums;}
+.mfa-login-card .mfa-login-code-input::placeholder {color:#a3b19f;opacity:1;}
+.mb-auth .mfa-login-card input[aria-invalid="true"] {border-color:#ad443d;background:#fff8f4;}
+.mfa-login-card .mfa-login-feedback {margin:10px 0 0;padding:9px 11px;border-radius:8px;background:#f7e6df;color:#913d35;font-size:.79rem;font-weight:600;line-height:1.5;}
+.mfa-login-card .mfa-login-hint {margin:12px 0 18px;color:#5a695c;font-size:.76rem;line-height:1.6;}
+.mb-auth .mfa-login-card .mfa-login-primary {position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;margin:0;padding:12px 16px;border:1px solid #006c4d;border-radius:10px;background:#007b56;color:#fffdf6;box-shadow:0 4px 9px rgb(0 89 59 / 13%);font-size:.9rem;font-weight:750;line-height:1.4;transition:background .18s,box-shadow .18s;}
+.mb-auth .mfa-login-card .mfa-login-primary:hover:not(:disabled) {background:#006b4b;box-shadow:0 5px 12px rgb(0 89 59 / 20%);}
+.mfa-login-primary[data-busy="true"]::after {content:"";width:14px;height:14px;border:2px solid rgb(255 253 246 / 40%);border-top-color:#fffdf6;border-radius:50%;animation:mfa-login-spin .8s linear infinite;}
+.mfa-login-actions {display:flex;justify-content:space-between;gap:8px;margin-top:18px;padding-top:12px;border-top:1px solid #dce5d9;}
+.mb-auth .mfa-login-card .mfa-login-secondary {flex:1;min-height:44px;margin:0;padding:8px 3px;border:0;border-radius:7px;background:transparent;color:#476151;font-size:.75rem;font-weight:650;line-height:1.5;}
+.mb-auth .mfa-login-card .mfa-login-secondary:hover:not(:disabled) {background:#e9ecdf;color:#164d38;}
+.mb-auth .mfa-login-card :is(input,select,button,a):focus-visible {outline:3px solid #8c6b12;outline-offset:3px;}
+.mfa-login-card #mfa-login-code-label,.mfa-login-card #mfa-login-recovery-label {display:block;margin-top:18px;}
+.mfa-login-card #mfa-login-code-label input,.mfa-login-card #mfa-login-recovery-label input {margin-top:9px;}
+.mfa-login-card #mfa-login-recovery {font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85rem;letter-spacing:.02em;}
+.mb-auth .sidebar-login:has(#mfa-login-panel:not([hidden])) :is(.sidebar-icon,.sidebar-title,.sidebar-subtitle,.mb-page-eyebrow,.auth-divider,.signup-footer) {display:none;}
+.mb-auth .sidebar-login:has(#mfa-login-panel:not([hidden]))>div>p {display:none;}
+.mb-auth .registro-card:has(#mfa-login-panel:not([hidden]))>.registro-header,.mb-auth .registro-card:has(#mfa-login-panel:not([hidden]))>.auth-divider,.mb-auth .registro-card:has(#mfa-login-panel:not([hidden]))>.footer-link,.mb-auth .registro-card:has(#mfa-login-panel:not([hidden]))>p,.mb-auth .registro-card:has(#mfa-login-panel:not([hidden]))>div:has(>.tipo-row) {display:none;}
+@keyframes mfa-login-spin {to{transform:rotate(360deg);}}
+@media(max-width:480px){.mb-auth .mfa-login-card {padding:24px 20px;border-radius:17px;}.mb-auth .mfa-login-card h2 {font-size:1.45rem;}.mb-auth .mfa-login-card .mfa-login-code-input {font-size:1.75rem;}.mfa-login-actions {gap:4px;}.mb-auth .mfa-login-card .mfa-login-secondary {display:inline-flex;align-items:center;justify-content:center;width:auto;font-size:.72rem;}}
+@media(prefers-reduced-motion:reduce){.mfa-login-primary[data-busy="true"]::after {animation:none;}.mb-auth .mfa-login-card .mfa-login-primary {transition:none;}}

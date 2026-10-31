@@ -15,6 +15,8 @@ class Element {
   querySelectorAll(){return this.controls;}
   replaceChildren(){this.children=[];}
   setAttribute(name,value){this[name]=value;}
+  removeAttribute(name){delete this[name];}
+  getAttribute(name){return Object.prototype.hasOwnProperty.call(this,name)?this[name]:null;}
   focus(){this.focused=true;}
 }
 const response=(status,body)=>({status,ok:status>=200&&status<300,headers:{get:()=>null},json:async()=>body});
@@ -26,7 +28,7 @@ const emailCalls=e=>e.w.calls.filter(call=>call.path==='/api/auth/google/verify-
 function accepted(e){e.w.jar.account='B';return response(200,{token:'access-B-9000',tipo:'gym',session_mode:'browser'});}
 async function mounted(audience='gym',registration=false){
   const w=world({cookie:null}),t=w.tab();await t.api.session.ready;
-  const ids=['loginForm','registroForm','btnGym','btnUsuario','campoTipo','mfa-login-title','mfa-login-email','mfa-login-email-code','mfa-login-email-target','mfa-login-factor','mfa-login-panel','mfa-login-status','googleBtnContainer','googleErrorMsg','mfa-login-google-help','submitBtn','errorMsg','mfa-login-code','mfa-login-recovery','mfa-login-cancel','mfa-login-method','mfa-login-destination','mfa-login-code-label','mfa-login-recovery-label','mfa-login-reopen','rememberMe'];
+  const ids=['loginForm','registroForm','btnGym','btnUsuario','campoTipo','mfa-login-title','mfa-login-email','mfa-login-email-code','mfa-login-email-target','mfa-login-email-submit','mfa-login-email-hint','mfa-login-email-feedback','mfa-login-factor','mfa-login-panel','mfa-login-status','googleBtnContainer','googleErrorMsg','mfa-login-google-help','submitBtn','errorMsg','mfa-login-code','mfa-login-recovery','mfa-login-cancel','mfa-login-method','mfa-login-destination','mfa-login-code-label','mfa-login-recovery-label','mfa-login-reopen','rememberMe'];
   const nodes=Object.fromEntries(ids.map(id=>[id,new Element(id)]));
   const form=registration?nodes.registroForm:nodes.loginForm;form.email=new Element('emailField');form.password=new Element('pwdField');
   form.confirm_password=new Element('confirm-password');form.nombre=new Element('nombre');form.apellido=new Element('apellido');
@@ -61,6 +63,62 @@ for(const registration of [false,true])await test('Basic Google '+(registration?
   assert.equal(googleCalls(e).length,1);assert.deepEqual(googleCalls(e)[0].body,{credential:'synthetic',tipo:audience});
   assert.equal(e.controller.phase,'email');assert.equal(emailCalls(e).length,0);
   assert.equal(e.t.api.getToken(),'');assert.equal(e.w.jar.account,null);assert.equal(e.navigations.length,0);
+});
+for(const audience of ['gym','usuario'])for(const factor of [false,true])await test('Google '+audience+' portal follows the persisted opposite account after email'+(factor?' and personal MFA':''),async()=>{
+  const e=await mounted(audience),kind=audience==='gym'?'usuario':'gym',role=kind==='gym'?'owner':'viewer';
+  const finish=()=>{e.w.jar.account='B';return response(200,{token:'access-B-9000',tipo:kind,role,session_mode:'browser'});};
+  e.t.hook(call=>{
+    if(call.path==='/api/auth/google')return pendingEmail();
+    if(call.path==='/api/auth/google/verify-email')return factor?pendingFactor():finish();
+    if(call.path==='/api/auth/mfa/login/verify')return finish();
+    if(call.path==='/api/auth/me')return response(200,{id:'B',tipo:kind,role,session_version:1,team_gym_id:null});
+  });
+  const state=e.click();await e.callback({state,credential:'synthetic-provider'});
+  assert.equal(e.controller.phase,'email');assert.equal(e.t.api.getToken(),'');assert.equal(e.w.jar.account,null);
+  e.nodes['mfa-login-email-code'].value='123456';await e.nodes['mfa-login-email'].fire('submit');
+  if(factor){
+    assert.equal(e.controller.phase,'factor');assert.equal(e.t.api.getToken(),'');assert.equal(e.w.jar.account,null);assert.deepEqual(e.navigations,[]);
+    e.nodes['mfa-login-code'].value='123456';await e.nodes['mfa-login-factor'].fire('submit');
+  }
+  assert.equal(e.controller.phase,'confirmed');assert.ok(e.t.api.getToken().startsWith('access-B-'));
+  assert.deepEqual(e.navigations,[kind==='gym'?'/dashboard':'/mi-plan']);
+  assert.equal(googleCalls(e)[0].body.tipo,audience,'the UI never changes the persisted account type');
+  assert.equal(emailCalls(e).length,1);const before=e.w.calls.length;
+  await e.callback({state,credential:'synthetic-late'});assert.equal(e.w.calls.length,before);
+});
+for(const audience of ['gym','usuario'])await test('Discarding Google does not weaken the password portal audience '+audience,async()=>{
+  const e=await mounted(audience),kind=audience==='gym'?'usuario':'gym';
+  e.t.hook(call=>{
+    if(call.path==='/api/auth/google')return pendingEmail();
+    if(call.path==='/api/auth/login'){e.w.jar.account='B';return response(200,{token:'access-B-9000',tipo:kind,primaryMethod:'google',session_mode:'browser'});}
+  });
+  const state=e.click();await e.callback({state,credential:'synthetic-provider'});e.controller.cancel();
+  e.form.password.value='synthetic-password';await e.form.fire('submit');
+  assert.equal(e.t.api.getToken(),'');assert.deepEqual(e.navigations,[]);
+  assert.equal(e.w.calls.filter(call=>call.path==='/api/auth/login').length,1);
+});
+await test('A verified Google code cannot invent an unsupported account portal',async()=>{
+  const e=await mounted('usuario');
+  e.t.hook(call=>{
+    if(call.path==='/api/auth/google')return pendingEmail();
+    if(call.path==='/api/auth/google/verify-email'){e.w.jar.account='B';return response(200,{token:'access-B-9000',tipo:'unsupported',session_mode:'browser'});}
+  });
+  const state=e.click();await e.callback({state,credential:'synthetic-provider'});
+  e.nodes['mfa-login-email-code'].value='123456';await e.nodes['mfa-login-email'].fire('submit');
+  assert.equal(e.t.api.getToken(),'');assert.deepEqual(e.navigations,[]);
+});
+await test('Retrying the persisted Google destination never repeats an already consumed email proof',async()=>{
+  const e=await mounted('usuario');let destinations=0;
+  e.t.hook(call=>{
+    if(call.path==='/api/auth/google')return pendingEmail();
+    if(call.path==='/api/auth/google/verify-email'){e.w.jar.account='B';return response(200,{token:'access-B-9000',tipo:'gym',session_mode:'browser'});}
+    if(call.path==='/api/auth/me')return ++destinations===1?response(503,{detail:{code:'synthetic_destination_unavailable'}}):response(200,{id:'B',tipo:'gym',role:'owner',session_version:1,team_gym_id:null});
+  });
+  const state=e.click();await e.callback({state,credential:'synthetic-provider'});
+  e.nodes['mfa-login-email-code'].value='123456';await e.nodes['mfa-login-email'].fire('submit');
+  assert.equal(e.controller.phase,'destination_error');assert.ok(e.t.api.getToken().startsWith('access-B-'));assert.deepEqual(e.navigations,[]);
+  assert.equal(await e.controller.retryDestination(),true);assert.equal(e.controller.phase,'confirmed');assert.deepEqual(e.navigations,['/dashboard']);
+  assert.equal(googleCalls(e).length,1);assert.equal(emailCalls(e).length,1);
 });
 await test('Recovery actions remain outside the hidden factor panel with fixed local destinations',()=>{
   const help=partial.indexOf('id="mfa-login-google-help"');assert.ok(help>partial.indexOf('</section>'));
@@ -109,7 +167,7 @@ await test('Google email challenge reveals only the masked destination and never
   const e=await mounted();e.t.hook(call=>call.path==='/api/auth/google'?pendingEmail():null);
   const state=e.click();await e.callback({state,credential:'synthetic'});
   assert.equal(e.controller.phase,'email');assert.equal(e.nodes['mfa-login-email'].hidden,false);assert.equal(e.nodes['mfa-login-factor'].hidden,true);assert.equal(e.form.hidden,true);
-  assert.equal(e.nodes['mfa-login-title'].textContent,'Confirmar tu correo');assert.equal(e.nodes['mfa-login-email-target'].textContent,'Código enviado a s***@example.invalid');
+  assert.equal(e.nodes['mfa-login-title'].textContent,'Confirma tu correo');assert.equal(e.nodes['mfa-login-email-target'].textContent,'Enviado a s***@example.invalid');
   assert.equal(e.t.api.getToken(),'');assert.equal(e.w.jar.account,null);assert.equal(e.navigations.length,0);
   assert.ok(e.w.writes.every(write=>write.key==='mb_session_epoch'));
 });

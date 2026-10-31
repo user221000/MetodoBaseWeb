@@ -7,35 +7,35 @@
   function message(error){if(Object.prototype.hasOwnProperty.call(googleMessages,error.code))return googleMessages[error.code];return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
   function create(options={}){
     const api=options.api||Api.mfa;
-    let context=null,challenge=null,method='totp',expiry=null,maskedEmail=null,phase='primary',busy=false,epoch=0,dead=false,committing=false,committed=false;
+    let context=null,challenge=null,method='totp',expiry=null,maskedEmail=null,primaryKind=null,phase='primary',busy=false,epoch=0,dead=false,committing=false,committed=false;
     const changed=()=>Object.assign(new Error('La sesión cambió. Vuelve a abrir esta página.'),{code:'session_changed'});
     function view(text,code){options.onView?.({phase,busy,method,expiresAt:expiry,maskedEmail,message:text,code});}
     function clearProof(){challenge=null;expiry=null;maskedEmail=null;options.onClear?.();}
-    function invalidate(){if(dead)return;dead=true;epoch++;busy=false;context=null;clearProof();phase='invalidated';view('La sesión cambió. Se descartó la verificación anterior. Vuelve a abrir esta página.');}
+    function invalidate(){if(dead)return;dead=true;epoch++;busy=false;context=null;primaryKind=null;clearProof();phase='invalidated';view('La sesión cambió. Se descartó la verificación anterior. Vuelve a abrir esta página.');}
     function check(ticket=epoch){if(dead||ticket!==epoch||!context)throw changed();api.check(context);}
-    function cancel(){if(dead||committed)return;epoch++;busy=false;clearProof();if(dead)return;context=null;phase='primary';view('Verificación descartada. Puedes iniciar un acceso nuevo.');}
+    function cancel(){if(dead||committed)return;epoch++;busy=false;primaryKind=null;clearProof();if(dead)return;context=null;phase='primary';view('Verificación descartada. Puedes iniciar un acceso nuevo.');}
     function failure(error,ticket){if(dead||ticket!==epoch)return;
       try{if(context)api.check(context);}catch{invalidate();return;}
       busy=false;
       if(['session_changed','session_storage_error','session_expired'].includes(error.code)){invalidate();return;}
       if(committed){phase='destination_error';view('El acceso se confirmó, pero no pudimos consultar el destino de esta cuenta. Puedes consultarlo de nuevo sin repetir la autenticación.');return;}
       if(['google_link_required','google_email_identity_changed'].includes(error.code)){
-        const discarded=++epoch;context=null;clearProof();if(dead||epoch!==discarded)return;
+        const discarded=++epoch;context=null;primaryKind=null;clearProof();if(dead||epoch!==discarded)return;
         phase='primary';view(message(error),error.code);return;
       }
       if(!error.status||error.status===503||['mfa_proof_unavailable','mfa_unconfirmed'].includes(error.code)){
-        const discarded=++epoch;context=null;clearProof();if(dead||epoch!==discarded)return;phase='primary';
+        const discarded=++epoch;context=null;primaryKind=null;clearProof();if(dead||epoch!==discarded)return;phase='primary';
       }
-      view(message(error)+(error.retryAfter?' Respeta el tiempo de espera indicado por el servidor.':''));
+      view(message(error)+(error.retryAfter?' Respeta el tiempo de espera indicado por el servidor.':''),error.code);
     }
     async function finish(data,ticket){
       check(ticket);
-      if(!data || !['gym','usuario'].includes(data.tipo) || (options.audience==='gym' && data.tipo!=='gym'&&!data.team_gym_id) ||
-          (options.audience==='usuario'&&data.tipo!=='usuario'&&!data.team_gym_id))throw Object.assign(new Error('Portal diferente'),{code:'login_audience_mismatch',status:403});
+      if(!data || !['gym','usuario'].includes(data.tipo) || (primaryKind!=='google'&&((options.audience==='gym' && data.tipo!=='gym'&&!data.team_gym_id) ||
+          (options.audience==='usuario'&&data.tipo!=='usuario'&&!data.team_gym_id))))throw Object.assign(new Error('Portal diferente'),{code:'login_audience_mismatch',status:403});
       clearProof();check(ticket);phase='committing';committing=true;
       try{context=api.finishLogin(data,context);}finally{committing=false;}
       check(ticket);data=null;committed=true;phase='confirmed';view('Acceso confirmado. Consultando el destino de tu cuenta…');
-      await options.onAuthenticated?.(context);check(ticket);
+      await options.onAuthenticated?.(context,Object.freeze({primaryMethod:primaryKind}));check(ticket);
     }
     async function acceptVerified(data,ticket){
       options.onClear?.();check(ticket);maskedEmail=null;
@@ -44,7 +44,7 @@
     }
     async function consumePrimary(kind,payload,ticket){
       try{
-        check(ticket);
+        check(ticket);primaryKind=kind;
         const data=await (kind==='google'?api.primaryGoogle(payload,context):kind==='registration'?api.registerPassword(payload,context):api.primaryPassword(payload,context));check(ticket);
         if(kind==='google'){
           if(data.email_verification_required!==true)throw Object.assign(new Error('No se confirmó el paso del correo.'),{code:'google_email_unconfirmed',status:503});
@@ -71,7 +71,7 @@
     }
     async function verifyEmail(value){
       if(dead||busy||phase!=='email'||!challenge)return false;
-      if(!/^\d{6}$/.test(value)){view('Escribe las seis cifras del código que recibiste por correo.');return false;}
+      if(!/^\d{6}$/.test(value)){view('Escribe las seis cifras del código que recibiste por correo.','google_email_code_invalid');return false;}
       if(Date.now()>=Date.parse(expiry)){cancel();view('El código del correo venció. Inicia un acceso nuevo con Google.');return false;}
       const ticket=epoch,body={challenge,code:value};busy=true;
       try{options.onClear?.();check(ticket);view('Verificando el código del correo; el acceso aún no está confirmado…');check(ticket);
@@ -83,7 +83,7 @@
     window.addEventListener('storage',event=>{if(event.key===null||['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))invalidate();});
     return{primary,verify,verifyEmail,cancel,invalidate,
       async retryDestination(){if(dead||busy||!committed||phase!=='destination_error')return false;const ticket=epoch;busy=true;
-        try{check(ticket);view('Acceso confirmado. Consultando el destino de esta cuenta…');check(ticket);await options.onAuthenticated?.(context);check(ticket);phase='confirmed';busy=false;return true;}
+        try{check(ticket);view('Acceso confirmado. Consultando el destino de esta cuenta…');check(ticket);await options.onAuthenticated?.(context,Object.freeze({primaryMethod:primaryKind}));check(ticket);phase='confirmed';busy=false;return true;}
         catch(error){failure(error,ticket);return false;}},
       beginGoogle(){if(dead||busy||phase!=='primary')return null;const ticket=++epoch;try{context=api.capture();check(ticket);phase='google';view('Esperando la autenticación de Google. Todavía no se inició sesión; puedes descartarla.');check(ticket);return ticket;}catch(error){failure(error,ticket);return null;}},
       async completeGoogle(payload,ticket){if(dead||busy||phase!=='google'||ticket!==epoch)return false;try{check(ticket);busy=true;view('Comprobando tu cuenta de Google…');check(ticket);return await consumePrimary('google',payload,ticket);}catch(error){failure(error,ticket);return false;}},
@@ -94,31 +94,47 @@
   function mount(options){
     const get=id=>document.getElementById(id),registration=options.registration===true,form=get(options.formId||'loginForm'),factor=get('mfa-login-factor'),emailForm=get('mfa-login-email'),panel=get('mfa-login-panel'),status=get('mfa-login-status');
     const googleBox=get('googleBtnContainer'),googleError=get('googleErrorMsg'),googleHelp=get('mfa-login-google-help'),button=get('submitBtn'),error=get('errorMsg');
+    const emailInput=get('mfa-login-email-code'),emailFeedback=get('mfa-login-email-feedback'),emailSubmit=get('mfa-login-email-submit');
     const typeButtons=registration?[get('btnGym'),get('btnUsuario')]:[],audience=()=>options.readAudience?options.readAudience():options.audience;
-    const initialLabel=button.textContent;let googleTicket=null,googleEpoch=0,googleRender=0,renderGoogle=null,bootReady=false;
+    const initialLabel=button.textContent;let googleTicket=null,googleEpoch=0,googleRender=0,renderGoogle=null,bootReady=false,invalidEmailInput=false;
     const clear=()=>{form.password.value='';if(registration)form.confirm_password.value='';get('mfa-login-code').value='';get('mfa-login-recovery').value='';get('mfa-login-email-code').value='';};
     const controller=create({audience:registration?undefined:options.audience,ready:Api.session.ready,onClear:clear,onView(update){
       googleTicket=null;googleEpoch++;
       googleHelp.hidden=update.code!=='google_link_required';
+      if(update.phase!=='email'||update.busy)invalidEmailInput=false;
+      const emailInvalid=update.phase==='email'&&!update.busy&&(invalidEmailInput||update.code==='google_email_code_invalid');
+      panel.setAttribute('data-phase',update.phase);panel.setAttribute('aria-busy',String(update.busy));
       panel.hidden=update.phase==='primary';factor.hidden=update.phase!=='factor';emailForm.hidden=update.phase!=='email';form.hidden=['email','factor','google','confirmed','destination_error'].includes(update.phase);googleBox.hidden=update.phase!=='primary';googleBox.inert=update.busy;
-      get('mfa-login-title').textContent=update.phase==='email'?'Confirmar tu correo':update.phase==='factor'?'Verificar autenticador':'Verificar acceso';
-      get('mfa-login-email-target').textContent=update.phase==='email'&&update.maskedEmail?'Código enviado a '+update.maskedEmail:'';
+      get('mfa-login-title').textContent=update.phase==='email'?'Confirma tu correo':update.phase==='factor'?'Verifica tu cuenta':update.phase==='google'?'Continuar con Google':'Verificar acceso';
+      get('mfa-login-email-target').textContent=update.phase==='email'&&update.maskedEmail?'Enviado a '+update.maskedEmail:'';
       for(const control of form.querySelectorAll('input,button'))control.disabled=update.busy||update.phase==='invalidated';
       for(const control of factor.querySelectorAll('input,button,select'))control.disabled=update.busy;
       for(const control of emailForm.querySelectorAll('input,button'))control.disabled=update.busy;
+      emailSubmit.disabled=update.busy;emailSubmit.textContent=update.busy?'Comprobando…':'Confirmar y continuar';emailSubmit.setAttribute('data-busy',String(update.busy));
+      emailInput.setAttribute('aria-invalid',String(emailInvalid));emailFeedback.hidden=!emailInvalid;
+      emailFeedback.textContent=emailInvalid?(invalidEmailInput?'Escribe las seis cifras del código.':'Revisa el código. Puede haber vencido o ya haberse usado.'):'';
       for(const control of typeButtons)control.disabled=update.busy||update.phase!=='primary';
       get('mfa-login-cancel').disabled=['invalidated','confirmed','destination_error'].includes(update.phase);get('mfa-login-method').value=update.method;
+      get('mfa-login-cancel').hidden=['invalidated','confirmed','destination_error'].includes(update.phase);
+      get('mfa-login-reopen').hidden=['confirmed','destination_error'].includes(update.phase);
       get('mfa-login-destination').hidden=update.phase!=='destination_error';get('mfa-login-destination').disabled=update.busy;
       get('mfa-login-code-label').hidden=update.method!=='totp';get('mfa-login-recovery-label').hidden=update.method!=='recovery_code';
-      status.textContent=update.message;error.textContent=update.message;error.style.display=update.phase==='primary'?'block':'none';
+      let visibleMessage=update.message;
+      if(update.phase==='email'&&update.busy)visibleMessage='Estamos comprobando tu código…';
+      else if(update.phase==='email'&&visibleMessage?.startsWith('Enviamos un código'))visibleMessage='Escribe el código que te enviamos para continuar.';
+      else if(update.phase==='factor'&&visibleMessage?.startsWith('Ahora confirma'))visibleMessage='Usa el código de tu aplicación autenticadora.';
+      status.hidden=emailInvalid;status.textContent=visibleMessage;
+      status.setAttribute('role',update.code||update.phase==='invalidated'?'alert':'status');
+      status.setAttribute('aria-live',update.code||update.phase==='invalidated'?'assertive':'polite');
+      error.textContent=update.message;error.style.display=update.phase==='primary'?'block':'none';
       button.textContent=update.busy?'Verificando…':initialLabel;
       if(update.phase==='primary'&&!update.busy&&renderGoogle)renderGoogle();
       if(update.phase==='email'&&!update.busy)get('mfa-login-email-code').focus();
       else if(update.phase==='factor'&&!update.busy)get(update.method==='totp'?'mfa-login-code':'mfa-login-recovery').focus();
       else if(update.phase==='invalidated')status.focus();
-    },async onAuthenticated(handle){
+    },async onAuthenticated(handle,authentication={}){
       Api.mfa.check(handle);const {me,handle:checked}=await Api.mfa.context();Api.mfa.check(handle);Api.mfa.check(checked);
-      if(!['gym','usuario'].includes(me.tipo)||(!registration&&((options.audience==='gym'&&me.tipo!=='gym'&&!me.team_gym_id)||(options.audience==='usuario'&&me.tipo!=='usuario'&&!me.team_gym_id))))throw new Error('No se confirmó el destino de esta cuenta.');
+      if(!['gym','usuario'].includes(me.tipo)||(!registration&&authentication.primaryMethod!=='google'&&((options.audience==='gym'&&me.tipo!=='gym'&&!me.team_gym_id)||(options.audience==='usuario'&&me.tipo!=='usuario'&&!me.team_gym_id))))throw new Error('No se confirmó el destino de esta cuenta.');
       Api.mfa.check(handle);window.location.assign(me.team_gym_id?'/equipo/inicio':me.tipo==='gym'?(registration?'/configuracion':'/dashboard'):'/mi-plan');
     }});
     form.addEventListener('submit',event=>{
@@ -131,7 +147,10 @@
       if(problem){error.textContent=problem;error.style.display='block';return false;}
       return controller.primary('registration',{email:form.email.value.trim(),password,nombre:form.nombre.value.trim(),apellido:form.apellido.value.trim(),tipo});
     });
-    emailForm.addEventListener('submit',event=>{event.preventDefault();return controller.verifyEmail(get('mfa-login-email-code').value.trim());});
+    emailForm.addEventListener('submit',event=>{event.preventDefault();const value=emailInput.value.trim();invalidEmailInput=!/^\d{6}$/.test(value);return controller.verifyEmail(value);});
+    const clearEmailFeedback=()=>{const wasInvalid=!emailFeedback.hidden;invalidEmailInput=false;emailInput.setAttribute('aria-invalid','false');emailFeedback.hidden=true;emailFeedback.textContent='';status.hidden=false;status.setAttribute('role','status');status.setAttribute('aria-live','polite');if(wasInvalid)status.textContent='Escribe el código que aparece en tu correo.';};
+    emailInput.addEventListener('input',clearEmailFeedback);
+    emailInput.addEventListener('paste',event=>{const pasted=(event.clipboardData?.getData('text')||'').replace(/[\s-]/g,'');if(/^\d{6}$/.test(pasted)){event.preventDefault();emailInput.value=pasted;clearEmailFeedback();}});
     factor.addEventListener('submit',event=>{event.preventDefault();const input=get(get('mfa-login-method').value==='totp'?'mfa-login-code':'mfa-login-recovery');const value=input.value.trim();return controller.verify(value);});
     get('mfa-login-method').addEventListener('change',event=>controller.selectMethod(event.target.value));
     get('mfa-login-cancel').addEventListener('click',()=>{googleTicket=null;googleEpoch++;controller.cancel();form.email.focus();});

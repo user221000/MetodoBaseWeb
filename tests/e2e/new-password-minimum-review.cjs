@@ -13,6 +13,8 @@ const samples=[['12 BMP','x'.repeat(12),false],['14 BMP','x'.repeat(14),false],
 class Node {
   constructor(){this.value='';this.hidden=false;this.disabled=false;this.textContent='';this.style={};this.events=new Map();this.button=null;this.validityCalls=0;}
   addEventListener(name,callback){this.events.set(name,callback);}
+  setAttribute(name,value){this[name]=String(value);}
+  removeAttribute(name){delete this[name];}
   async emit(name){return await this.events.get(name)?.({target:this,preventDefault(){}});}
   querySelector(selector){assert.equal(selector,'button');return this.button;}
   reportValidity(){this.validityCalls++;return true;} // Deliberately allow native minlength; the real Unicode guard must decide.
