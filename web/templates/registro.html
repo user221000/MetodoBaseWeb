@@ -83,6 +83,7 @@
       .registro-card { padding: 28px 20px; }
     }
   </style>
+  <link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
   <link rel="stylesheet" href="/static/css/design-system.css?v={{ static_version }}">
 </head>
 <body class="mb-auth">
@@ -99,6 +100,7 @@
 
       <div class="error-msg" id="errorMsg"></div>
       <div class="success-msg" id="successMsg"></div>
+      {% include "mfa_login_partial.html" %}
 
       <!-- Account type selector -->
       <div>
@@ -151,6 +153,11 @@
         </button>
       </form>
 
+      <div class="auth-divider"><span>o regístrate con</span></div>
+      <div class="google-btn-wrapper" id="googleBtnContainer"></div>
+      <div class="error-msg" id="googleErrorMsg" style="display:none;"></div>
+      <p>Al continuar con Google te enviaremos un código a tu correo para confirmar el acceso.</p>
+
       <div class="footer-link">
         <p>
           ¿Ya tienes cuenta?
@@ -161,6 +168,7 @@
   </div>
 
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1"></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-login.js?v={{ static_version }}"></script>
   <script nonce="{{ request.state.csp_nonce }}">
     var params = new URLSearchParams(window.location.search);
     setTipo(params.get('tipo') === 'gym' ? 'gym' : 'usuario');
@@ -178,58 +186,8 @@
       linkLogin.href = tipo === 'gym' ? '/login-gym' : '/login-usuario';
     }
 
-    document.getElementById('registroForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var form = e.target;
-      var errorMsg   = document.getElementById('errorMsg');
-      var successMsg = document.getElementById('successMsg');
-      var btn = document.getElementById('submitBtn');
-
-      errorMsg.style.display   = 'none';
-      successMsg.style.display = 'none';
-
-      var pw1 = form.password.value;
-      var pw2 = form.confirm_password.value;
-
-      if (pw1 !== pw2) {
-        errorMsg.textContent = 'Las contraseñas no coinciden.';
-        errorMsg.style.display = 'block';
-        return;
-      }
-      if (Array.from(pw1).length < 15 || new TextEncoder().encode(pw1).length > 72) {
-        errorMsg.textContent = 'La contraseña debe tener al menos 15 caracteres y como máximo 72 bytes UTF-8.';
-        errorMsg.style.display = 'block';
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'Creando cuenta...';
-
-      try {
-        await Api.session.ready;
-        var data = await Api.auth.registro({
-            email: form.email.value.trim(),
-            password: pw1,
-            nombre: form.nombre.value.trim(),
-            apellido: form.apellido.value.trim(),
-            tipo: form.tipo.value,
-        });
-          var context=Api.session.accepted(data);
-          form.password.value='';form.confirm_password.value='';
-          successMsg.textContent = '¡Cuenta creada! Redirigiendo...';
-          successMsg.style.display = 'block';
-          var dest = data.tipo === 'gym' ? '/configuracion' : '/mi-plan';
-          Api.session.check(context);window.location.replace(dest);
-      } catch (err) {
-        errorMsg.textContent = err.code==='browser_session_unconfirmed'?'No pudimos confirmar la creación. Puede haberse aplicado; inicia sesión o recupera el acceso antes de repetirla.':err.message||'No se pudo confirmar la creación de la cuenta.';
-        errorMsg.style.display = 'block';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Crear Cuenta →';
-      }
-    });
-    window.addEventListener('metodobase-session-changed',function(){var form=document.getElementById('registroForm');form.password.value='';form.confirm_password.value='';});
-    window.addEventListener('pagehide',function(){var form=document.getElementById('registroForm');form.reset();});
+    MfaLogin.mount({formId:"registroForm",registration:true,readAudience:function(){return document.getElementById('campoTipo').value;},
+      googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});
   </script>
 </body>
 </html>

@@ -35,10 +35,16 @@ async function register(password){
   const d=dom(),calls=[],form=d.get('registroForm');
   for(const [key,id] of Object.entries({password:'pwdField',confirm_password:'confirm-password',email:'email',nombre:'nombre',apellido:'apellido',tipo:'campoTipo'}))form[key]=d.get(id);
   form.password.value=form.confirm_password.value=password;form.email.value='synthetic@example.invalid';form.nombre.value='Synthetic';
-  d.sandbox.Api={session:{ready:Promise.resolve(),accepted:()=>({}),check(){}},auth:{registro:async value=>{calls.push({...value});return{tipo:'usuario'};}}};
-  const scripts=[...read('web/templates/registro.html').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(row=>row[1]);
-  const selected=scripts.filter(script=>script.includes("getElementById('registroForm').addEventListener('submit'"));
-  assert.equal(selected.length,1,'one actual registration handler');vm.runInContext(selected[0],d.context,{filename:'registro.html:inline'});
+  form.tipo.value='usuario';form.querySelectorAll=()=>[form.password,form.confirm_password,form.email,d.get('submitBtn')];
+  for(const id of ['mfa-login-factor','mfa-login-email'])d.get(id).querySelectorAll=()=>[];
+  d.sandbox.document.querySelector=()=>null;d.sandbox.setInterval=()=>1;d.sandbox.clearInterval=()=>{};
+  d.sandbox.location.assign=to=>d.destinations.push(to);
+  d.sandbox.Api={session:{ready:Promise.resolve()},mfa:{capture:()=>({}),check(){},finishLogin:()=>({}),
+    context:async()=>({me:{tipo:'usuario'},handle:{}}),registerPassword:async value=>{calls.push({...value});return{tipo:'usuario'};}}};
+  assert.match(read('web/templates/registro.html'),/MfaLogin\.mount\(\{formId:"registroForm",registration:true/,'actual registration uses the shared mount');
+  vm.runInContext(read('web/static/js/mfa-login.js'),d.context,{filename:'mfa-login.js'});
+  d.sandbox.MfaLogin.mount({formId:'registroForm',registration:true,readAudience:()=>form.tipo.value,googleClientId:''});
+  await flush();
   await form.emit('submit');return{calls,feedback:d.get('errorMsg').textContent,destinations:d.destinations};
 }
 async function invite(password){

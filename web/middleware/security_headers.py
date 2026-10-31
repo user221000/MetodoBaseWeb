@@ -31,7 +31,7 @@ import secrets
 
 # Primary authentication errors can occur before the successful response helper.
 # Match only the mounted APIs; login pages retain their existing GIS policy.
-_PRIMARY_API_PATHS = frozenset({"/api/auth/login", "/api/auth/google"})
+_PRIMARY_API_PATHS = frozenset({"/api/auth/login", "/api/auth/google", "/api/auth/google/verify-email"})
 _GOOGLE_LINK_PATHS = frozenset({
     "/api/auth/google/link/status", "/api/auth/google/link/status/",
     "/api/auth/google/link/start", "/api/auth/google/link/start/",

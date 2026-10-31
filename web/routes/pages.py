@@ -66,7 +66,10 @@ async def login_usuario_page(request: Request):
 
 @router.get("/registro", response_class=HTMLResponse)
 async def registro_page(request: Request):
-    return template_response(templates, request, "registro.html", {"request": request})
+    from config.settings import Settings
+    return template_response(templates, request, "registro.html", {
+        "request": request, "google_client_id": Settings().GOOGLE_CLIENT_ID,
+    })
 
 
 @router.get("/dashboard", response_class=HTMLResponse)

@@ -20,7 +20,8 @@ from web.privacy_paths import is_privacy_close, is_privacy_post, is_privacy_post
 logger = logging.getLogger(__name__)
 HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
 HEADER = "x-metodobase-browser"
-PRIMARY = frozenset({"/api/auth/login", "/api/auth/google", "/api/auth/registro", "/api/auth/accept-invite"})
+PRIMARY = frozenset({"/api/auth/login", "/api/auth/google", "/api/auth/google/verify-email",
+                     "/api/auth/registro", "/api/auth/accept-invite"})
 REVOKING = frozenset({"/api/auth/mfa/enroll/confirm", "/api/auth/mfa/recovery-codes/regenerate",
                      "/api/auth/mfa/revoke", "/api/auth/google/link/confirm", "/api/auth/google/link/unlink",
                      "/api/account/security/password"})
@@ -143,7 +144,10 @@ def _browser_response(response, request):
     elif (request.url.path in PRIMARY or (request.url.path in REVOKING and response.status_code < 300)
           or (is_privacy_close(request.url.path) and response.status_code == 200 and isinstance(data, dict)
               and data.get("account_closed") is True and data.get("sessions_revoked") is True)):
-        if isinstance(data, dict) and response.status_code == 202 and data.get("mfa_required") is True:
+        if (isinstance(data, dict) and response.status_code == 202
+                and (data.get("mfa_required") is True
+                     or (request.url.path == "/api/auth/google"
+                         and data.get("email_verification_required") is True))):
             data["session_mode"] = "browser"
             response.body = json.dumps(data, separators=(",", ":")).encode()
             response.headers["content-length"] = str(len(response.body))

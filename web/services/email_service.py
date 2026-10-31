@@ -50,7 +50,7 @@ def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) 
     resend.api_key = get_settings().RESEND_API_KEY
 
     params: dict = {
-        "from": _FROM_EMAIL,
+        "from": getattr(get_settings(), "RESEND_FROM_EMAIL", _FROM_EMAIL),
         "to": [to],
         "subject": subject,
         "html": html,
@@ -108,6 +108,18 @@ def _base_layout(content: str) -> str:
 
 
 # ── Emails de negocio ────────────────────────────────────────────────────────
+
+def send_google_login_code(email: str, code: str) -> bool:
+    """Send the one-use login code; never include it in a subject or log."""
+    if not isinstance(code, str) or len(code) != 6 or not code.isascii() or not code.isdigit():
+        return False
+    content = '<h2>Confirma tu acceso con Google</h2>'
+    content += '<p>Introduce este código en Método Base para continuar:</p>'
+    content += f'<p style="font-size:32px;letter-spacing:8px;font-weight:700;">{code}</p>'
+    content += '<p>El código vence en 10 minutos y sólo se puede usar una vez.</p>'
+    content += '<p>Si no solicitaste este acceso, ignora el mensaje. No compartas el código.</p>'
+    return _send(email, "Código de acceso — Método Base", _base_layout(content))
+
 
 def send_welcome(email: str, nombre: str) -> bool:
     """Email de bienvenida tras registro."""

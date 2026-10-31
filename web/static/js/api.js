@@ -530,26 +530,32 @@ const Api = (() => {
     _assertPair(value.snapshot, value.pair);
     return value;
   }
-  function _mfaReply(reply, allowChallenge = false) {
+  function _mfaReply(reply, allowChallenge = false, requireGoogleEmail = false) {
     const data = reply.data;
+    if (requireGoogleEmail) {
+      if (reply.status!==202 || !data || data.email_verification_required!==true || !_mfaBearer(data.challenge) || !_mfaExpiry(data.expires_at) ||
+          typeof data.masked_email!=='string' || !data.masked_email || data.masked_email.length>320 || /[\r\n\0]/.test(data.masked_email) ||
+          data.session_mode!=='browser' || Object.keys(data).some(key=>!['email_verification_required','challenge','expires_at','masked_email','session_mode'].includes(key))) throw _mfaError();
+      return data;
+    }
     if (allowChallenge && reply.status === 202) {
       if (!data || data.mfa_required !== true || !_mfaBearer(data.challenge) || !_mfaExpiry(data.expires_at) ||
           !Array.isArray(data.methods) || data.methods.length !== 2 || !['totp','recovery_code'].every(name=>data.methods.includes(name)) ||
           data.session_mode!=='browser'||Object.keys(data).some(key=>!['mfa_required','challenge','expires_at','methods','session_mode'].includes(key))) throw _mfaError();
       return data;
     }
-    if (reply.status !== 200 || !data || data.mfa_required === true) throw _mfaError();
+    if (reply.status !== 200 || !data || data.mfa_required === true || data.email_verification_required === true) throw _mfaError();
     _tokenPair(data);
     return data;
   }
-  async function _mfaPublic(path, body, handle, allowChallenge) {
+  async function _mfaPublic(path, body, handle, allowChallenge, requireGoogleEmail = false) {
     body=_captureCookieBody(body);
     await _readyPromise;const context=_mfaContext(handle);
     try {
       return await _withCookieLock(context.snapshot,async()=>{
         _mfaContext(handle);const snapshot=_publishBoundary(handle);
         const reply=await _cookieFetch(path,body);_mfaContext(handle);
-        const data=_mfaReply(reply,allowChallenge);
+        const data=_mfaReply(reply,allowChallenge,requireGoogleEmail);
         if(reply.status===200)_acknowledged.set(data,{snapshot,pair:_tokenPair(data)});
         return data;
       });
@@ -620,7 +626,9 @@ const Api = (() => {
       if (previous && previous!==JSON.stringify([me.id,me.role,me.team_gym_id||null,me.session_version])) throw _sessionChanged();
     },
     primaryPassword: (body,handle) => _mfaPublic('/api/auth/login',body,handle,true),
-    primaryGoogle: (body,handle) => _mfaPublic('/api/auth/google',body,handle,true),
+    registerPassword: (body,handle) => _mfaPublic('/api/auth/registro',body,handle,false),
+    primaryGoogle: (body,handle) => _mfaPublic('/api/auth/google',body,handle,false,true),
+    googleEmailVerify: (body,handle) => _mfaPublic('/api/auth/google/verify-email',body,handle,true),
     loginVerify: (body,handle) => _mfaPublic('/api/auth/mfa/login/verify',body,handle,false),
     finishLogin(data,handle) {
       const context=_mfaContext(handle),next=_tokenPair(data);

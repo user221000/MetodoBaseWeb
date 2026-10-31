@@ -171,6 +171,9 @@ class Settings:
 
         # ── Email transaccional ───────────────────────────────────────────
         self.RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
+        self.RESEND_FROM_EMAIL: str = os.getenv(
+            "RESEND_FROM_EMAIL", "MetodoBase <no-reply@metodobase.app>"
+        ).strip()
 
         # ── Demo seed ─────────────────────────────────────────────────────
         self.SEED_DEMO: bool = os.getenv("METODOBASE_SEED_DEMO", "") == "1"

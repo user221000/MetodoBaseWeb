@@ -42,6 +42,12 @@ class GoogleLoginRequest(BaseModel):
     tipo: str = "usuario"
 
 
+class GoogleEmailVerificationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    challenge: str = Field(pattern=r"^[A-Za-z0-9_-]{43}$")
+    code: str = Field(pattern=r"^[0-9]{6}$")
+
+
 # ── Helper: sync auth user → SQLAlchemy ───────────────────────────────────
 # Extracted to web/sync_user.py — single source of truth.
 from web.sync_user import sync_user_to_sa as _sync_user_to_sa  # noqa: E402
@@ -105,37 +111,26 @@ async def login_universal(data: LoginRequest, request: Request):
 
 @router.post("/auth/google", dependencies=_login_rate_limit)
 async def google_login(request: Request):
-    """Return only the account explicitly associated with verified issuer/sub."""
+    """Verify Google and send a one-use mailbox code before granting access."""
     from web.services.google_identity import verified_google_info
-    from web.database.engine import SessionLocal
-    from web.database.tenant_context import current_tenant
-    from web.services import google_link
+    from web.services import google_email_login
     from web.routes.mfa import parse
 
-    data=await parse(request,GoogleLoginRequest)
+    data = await parse(request, GoogleLoginRequest)
     info = await verified_google_info(data.credential)
-    token=current_tenant.set("")
-    try:
-        db=SessionLocal()
-        try:
-            try:
-                usuario=google_link.resolve_or_register(db,info,data.tipo)
-            except HTTPException:
-                google_link.rollback(db)
-                raise
-            except Exception as error:
-                google_link.rollback(db)
-                logger.error("Google primary unconfirmed class=%s",type(error).__name__)
-                google_link.fail(503,"google_link_unconfirmed")
-        finally:
-            google_link.close_owned_session(db)
-    except HTTPException:
-        raise
-    except Exception as error:
-        logger.error("Google primary close unconfirmed class=%s",type(error).__name__)
-        google_link.fail(503,"google_link_unconfirmed")
-    finally:
-        current_tenant.reset(token)
+    result = await google_email_login.begin(info, data.tipo, request)
+    return JSONResponse(jsonable_encoder(result), status_code=202,
+        headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+
+
+@router.post("/auth/google/verify-email")
+async def google_verify_email(request: Request):
+    """Consume the mailbox proof once, then retain the account's normal MFA."""
+    from web.services import google_email_login
+    from web.routes.mfa import parse
+
+    data = await parse(request, GoogleEmailVerificationRequest)
+    usuario = await google_email_login.verify(data.challenge, data.code, request)
     response = _primary_result(usuario, remember=True, method="google")
     if response.status_code == 200:
         from web.services.auth_audit import log_auth_event_from_request, AuthEventType

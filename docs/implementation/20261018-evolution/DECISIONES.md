@@ -1,5 +1,15 @@
 # Decisiones de ejecución
 
+## Acceso Google con código de correo — 30 de octubre
+
+La instrucción expresa del usuario pide acceso con Google para todas las personas y un código enviado al correo de quien entra. Se implementa el orden Google verificado → código de correo de un uso → autenticador personal, si está activado → sesión. La verificación por correo no sustituye el MFA personal existente. El inicio no crea cuentas ni emite tokens; la confirmación consume el código antes de resolver la cuenta.
+
+Para cuentas anteriores sin ninguna asociación Google, la prueba conjunta de Google y del buzón permite autenticar la cuenta existente del mismo correo. Esta continuidad no reconstruye ni guarda un `sub` histórico, no fusiona cuentas y conserva datos, roles y factores. Una asociación Google activa o revocada impide usar esta vía de continuidad. Las asociaciones existentes se resuelven por issuer/sub; sólo las altas nuevas crean una asociación nueva.
+
+Redis conserva durante diez minutos una instantánea autenticada y un HMAC del código; cinco intentos incorrectos lo invalidan y el consumo es atómico. Los cambios de cuenta, versión de sesión o asociación invalidan la instantánea. Los códigos y credenciales Google no se escriben en logs ni en almacenamiento del navegador.
+
+El envío requiere `RESEND_API_KEY` y un `RESEND_FROM_EMAIL` permitido por el proveedor; no se inventan credenciales ni se omite el código si falta el envío. La preparación se mantiene en una rama separada hasta disponer de envío real. No requiere migración de esquema ni modifica desktop o los cupos Free.
+
 ## Decisiones del 29 de octubre: fuente 80ccb8b5
 
 La fuente de validación funcional FULL es `759e5639bc462ba5079fdfb0ba8636907ec94a6c`; el tooling CI actual es `80ccb8b512b03bc8a1d68b9386a21d9818d6f73b`. El delta de CI añade cuatro rutas de pruebas/herramientas y cambia un solo entrypoint del workflow. No modifica los 509 APP, las 339 fuentes de callers o los 369 bindings. Las suites amplias congeladas y el contexto offline conservan su fuente `759e5639`; sus resultados no se reatribuyen a `80ccb8b5`. El cambio acotado se valida con su transferencia específica y escaneo actual, sin repetir las suites funcionales intactas por ese delta de CI.

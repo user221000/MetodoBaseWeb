@@ -1,6 +1,13 @@
 <section id="mfa-login-panel" class="mfa-view" aria-labelledby="mfa-login-title" hidden>
   <h2 id="mfa-login-title">Verificar acceso</h2>
   <p id="mfa-login-status" role="status" aria-live="polite" tabindex="-1"></p>
+  <form id="mfa-login-email" hidden>
+    <p id="mfa-login-email-target"></p>
+    <label for="mfa-login-email-code">Código de seis cifras enviado a tu correo</label>
+    <input id="mfa-login-email-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false" aria-describedby="mfa-login-status mfa-login-email-target">
+    <button type="submit">Confirmar código del correo</button>
+    <p>Este código es de un uso. Si vence, descarta el intento e inicia otro acceso con Google. Si usas una aplicación autenticadora, te pediremos ese código después.</p>
+  </form>
   <form id="mfa-login-factor" hidden>
     <label for="mfa-login-method">Método de verificación</label>
     <select id="mfa-login-method"><option value="totp">Aplicación autenticadora</option><option value="recovery_code">Código de recuperación</option></select>
@@ -11,9 +18,13 @@
       <input id="mfa-login-recovery" type="text" autocomplete="off" maxlength="22" spellcheck="false" autocapitalize="none" aria-describedby="mfa-login-status">
     </label>
     <button type="submit">Verificar e iniciar sesión</button>
+    <p>Un código de recuperación es de un uso. Si se perdió la confirmación, inicia un acceso nuevo. Recuperar la contraseña no desactiva este factor.</p>
   </form>
   <button type="button" id="mfa-login-cancel">Descartar verificación</button>
   <button type="button" id="mfa-login-reopen">Volver a abrir el acceso</button>
   <button type="button" id="mfa-login-destination" hidden>Consultar el destino de mi cuenta</button>
-  <p>Un código de recuperación es de un uso. Si se perdió la confirmación, inicia un acceso nuevo. Recuperar la contraseña no desactiva este factor.</p>
 </section>
+<p id="mfa-login-google-help" hidden>
+  Si necesitas otro acceso, puedes <a href="/auth/reset-password">recuperar tu cuenta</a>.
+  Desde una sesión confirmada puedes consultar <a href="/cuenta/google">tus vínculos de Google</a>.
+</p>

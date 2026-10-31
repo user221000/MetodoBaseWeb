@@ -1,5 +1,13 @@
 # Estado de implementación
 
+## Acceso Google con código de correo — preparación del 30 de octubre
+
+Producción web quedó desplegada y verificada en `e1f3b3a435135379053cd8f3cc05a6d506f94226`; el recibo de cierre está en `E:/MetodoBaseWorkspace/evidence/deploy-20261030/operation-13ea6216cab54939a79fa81678ca20f8/final-summary.json`. Los cortes anteriores que indicaban ausencia de despliegue son históricos.
+
+La nueva solicitud de Google más código de correo se prepara en `codex/google-email-login-20261030`. La credencial Resend no aparece en las variables del servicio ni compartidas del proyecto, y no hay conexión al proveedor disponible. La activación productiva del nuevo acceso queda pendiente del envío real; no se declara recuperada una cuenta ni entregado un código real con pruebas sintéticas. Evidencia nueva en `E:/MetodoBaseWorkspace/evidence/google-signup-20261030-root`, `google-signup-20261030-qa` y `google-registration-20261030`. Se conservan los datos, cuotas Free y los pendientes globales anteriores.
+
+La revisión independiente pasó 37 casos de servicio, cuatro de registro SSR, 23 de frontend OTP y 25 de límites de contraseña. Root verificó 13 casos de admisión/cookies y el Lua final en Redis real con diez controles, incluida concurrencia y limpieza de las cuatro claves sintéticas. Pasaron seis casos HTTP con JWT Google firmados y transporte JWKS simulado; las 55 comprobaciones de sesión anteriores continúan pasando. Chromium verificó los portales y el registro con transportes de autenticación simulados. Un hallazgo de trasplante entre desafíos se corrigió ligando la firma al desafío y se conserva su regresión. Estos controles no acreditan entrega real, despliegue del nuevo acceso ni aceptación global de CI/release.
+
 ## Corte vigente del 29 de octubre: preparación local web
 
 La fuente técnica declarada es `80ccb8b512b03bc8a1d68b9386a21d9818d6f73b`, rama `codex/production-prep-20261029`. La candidata local continúa en revisión, sin aceptación global ni despliegue. Se mantiene la metodología de autor asignado, coordinación Root, QA/seguridad independientes, fuentes congeladas y evidencia nueva por intento.
