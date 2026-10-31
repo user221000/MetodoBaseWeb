@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token(request) }}">
   <title>{% block title %}MetodoBase{% endblock %} — Método Base</title>
+  {% include '_brand_icons.html' %}
 
 
   <link rel="stylesheet" href="/static/css/styles.css?v={{ static_version }}" />
@@ -32,11 +33,7 @@
   <div class="sidebar-logo">
     <a href="/dashboard" class="sidebar-logo-link">
       <div class="sidebar-logo-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A1400" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
-        </svg>
+        <img src="/static/img/metodobase-logo-a97be89e1875.png" width="44" height="44" alt="" decoding="async">
       </div>
       <div>
         <span class="logo-text">Método Base</span>
@@ -143,7 +140,7 @@
 
 <!-- ── Mobile hamburger ───────────────────────────────────── -->
 <div class="mb-mobile-bar">
-  <a class="mb-mobile-brand" href="/dashboard">Método <span>Base</span></a>
+  <a class="mb-mobile-brand" href="/dashboard"><span class="mb-brand-mark" aria-hidden="true"><img src="/static/img/metodobase-logo-a97be89e1875.png" width="32" height="32" alt="" decoding="async"></span><span class="mb-mobile-brand-name">Método <strong>Base</strong></span></a>
   <button class="mobile-menu-btn" id="btn-hamburger" aria-label="Abrir menú" aria-controls="main-sidebar" aria-expanded="false">☰</button>
 </div>
 <div class="sidebar-overlay" id="sidebar-overlay"></div>

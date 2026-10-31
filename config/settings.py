@@ -14,6 +14,8 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
+DEFAULT_EMAIL_FROM = "MetodoBase <no-reply@metodobase.com.mx>"
+
 # Cargar .env desde la raíz del proyecto (una sola vez al importar)
 _ROOT = Path(__file__).resolve().parent.parent
 try:
@@ -85,7 +87,7 @@ class Settings:
             if not raw_origins:
                 raise RuntimeError(
                     "FATAL: CORS_ORIGINS requerido en producción. "
-                    "Configure los orígenes permitidos (ej: https://app.metodobase.com)."
+                    "Configure los orígenes permitidos (ej: https://metodobase.com.mx)."
                 )
         else:
             raw_origins = os.getenv(
@@ -172,7 +174,7 @@ class Settings:
         # ── Email transaccional ───────────────────────────────────────────
         self.RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
         self.RESEND_FROM_EMAIL: str = os.getenv(
-            "RESEND_FROM_EMAIL", "MetodoBase <no-reply@metodobase.app>"
+            "RESEND_FROM_EMAIL", DEFAULT_EMAIL_FROM
         ).strip()
 
         # ── Demo seed ─────────────────────────────────────────────────────

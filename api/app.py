@@ -283,6 +283,8 @@ def create_app() -> FastAPI:
     app.include_router(web_pages.router)
 
     # Wrap early middleware responses as well as routes, with one nonce/policy.
+    from web.middleware.canonical_host import CanonicalHostMiddleware
+    app.add_middleware(CanonicalHostMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIDMiddleware)
     from web.observability.routes import configure_observability

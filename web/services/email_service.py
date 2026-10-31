@@ -16,6 +16,8 @@ from html import escape
 from pathlib import Path
 from typing import Optional
 
+from config.settings import DEFAULT_EMAIL_FROM
+from web.public_urls import public_origin
 from web.settings import get_settings
 from web.storage.objects import MAX_OBJECT_BYTES
 
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 # ── Constantes ────────────────────────────────────────────────────────────────
 
-_FROM_EMAIL = "MetodoBase <no-reply@metodobase.app>"
+_FROM_EMAIL = DEFAULT_EMAIL_FROM
 _BRAND_COLOR = "#FBBF24"
 _BG_COLOR = "#0C0B09"
 _CARD_BG = "#141519"
@@ -35,6 +37,14 @@ _TEXT_MUTED = "#a0a2a8"
 
 def _is_configured() -> bool:
     return bool(get_settings().RESEND_API_KEY)
+
+
+def _dashboard_url():
+    try:
+        return escape(public_origin(get_settings()) + "/dashboard", quote=True)
+    except ValueError:
+        logger.warning("Email delivery_skipped reason=invalid_public_origin")
+        return None
 
 
 def _send(to: str, subject: str, html: str, attachments: Optional[list] = None) -> bool:
@@ -123,6 +133,9 @@ def send_google_login_code(email: str, code: str) -> bool:
 
 def send_welcome(email: str, nombre: str) -> bool:
     """Email de bienvenida tras registro."""
+    dashboard_url = _dashboard_url()
+    if dashboard_url is None:
+        return False
     content = f"""\
 <h2 style="margin:0 0 16px;color:{_BRAND_COLOR};">¡Bienvenido, {nombre}!</h2>
 <p>Tu cuenta en <strong>Método Base</strong> ha sido creada exitosamente.</p>
@@ -133,7 +146,7 @@ def send_welcome(email: str, nombre: str) -> bool:
   <li>Exportar planes en PDF profesional</li>
 </ul>
 <p style="margin-top:24px;">
-  <a href="https://app.metodobase.app/dashboard"
+  <a href="{dashboard_url}"
      style="display:inline-block;padding:12px 28px;background:{_BRAND_COLOR};color:{_BG_COLOR};
             text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
     Ir al Dashboard →
@@ -153,8 +166,9 @@ def send_plan_generated(
     The caller must authorize bytes for the recipient/tenant before passing
     them. A supplied byte payload never falls back to a filename on error.
     """
-
-
+    dashboard_url = _dashboard_url()
+    if dashboard_url is None:
+        return False
     subject_name = str(nombre_cliente).replace("\r", " ").replace("\n", " ")
     safe_name = escape(str(nombre_cliente), quote=True)
     content = f"""\
@@ -162,7 +176,7 @@ def send_plan_generated(
 <p>Se ha generado un nuevo plan nutricional para <strong>{safe_name}</strong>.</p>
 <p>Puedes consultarlo directamente en tu dashboard o descargarlo en PDF.</p>
 <p style="margin-top:24px;">
-  <a href="https://app.metodobase.app/dashboard"
+  <a href="{dashboard_url}"
      style="display:inline-block;padding:12px 28px;background:{_BRAND_COLOR};color:{_BG_COLOR};
             text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
     Ver plan →
@@ -195,6 +209,9 @@ def send_plan_generated(
 
 def send_subscription_activated(email: str, nombre: str, plan: str) -> bool:
     """Notificación de suscripción activada."""
+    dashboard_url = _dashboard_url()
+    if dashboard_url is None:
+        return False
     plan_display = plan.title()
     content = f"""\
 <h2 style="margin:0 0 16px;color:{_BRAND_COLOR};">Suscripción activada ✅</h2>
@@ -202,7 +219,7 @@ def send_subscription_activated(email: str, nombre: str, plan: str) -> bool:
 <p>Tu plan <strong style="color:{_BRAND_COLOR};">{plan_display}</strong> está activo.
    Ya puedes disfrutar de todas las funcionalidades incluidas.</p>
 <p style="margin-top:24px;">
-  <a href="https://app.metodobase.app/dashboard"
+  <a href="{dashboard_url}"
      style="display:inline-block;padding:12px 28px;background:{_BRAND_COLOR};color:{_BG_COLOR};
             text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
     Ir al Dashboard →
@@ -226,13 +243,16 @@ def send_subscription_canceled(email: str, nombre: str) -> bool:
 
 def send_payment_failed(email: str, nombre: str) -> bool:
     """Notificación de pago fallido."""
+    dashboard_url = _dashboard_url()
+    if dashboard_url is None:
+        return False
     content = f"""\
 <h2 style="margin:0 0 16px;color:#FF4444;">Problema con tu pago ⚠️</h2>
 <p>Hola, <strong>{nombre}</strong>.</p>
 <p>No pudimos procesar tu último pago. Por favor revisa tu método de pago
    para evitar la interrupción de tu servicio.</p>
 <p style="margin-top:24px;">
-  <a href="https://app.metodobase.app/dashboard"
+  <a href="{dashboard_url}"
      style="display:inline-block;padding:12px 28px;background:{_BRAND_COLOR};color:{_BG_COLOR};
             text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
     Actualizar método de pago →

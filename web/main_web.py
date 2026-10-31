@@ -380,6 +380,8 @@ def create_app() -> FastAPI:
     # Starlette wraps the last registered middleware around earlier ones.
     # Include early rate/CSRF/tenant responses in the same security policy and
     # assign the nonce before any inner middleware or template can use it.
+    from web.middleware.canonical_host import CanonicalHostMiddleware
+    app.add_middleware(CanonicalHostMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
     # Keep correlation around responses created by the private error boundary.
     app.add_middleware(RequestIDMiddleware)

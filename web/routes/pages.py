@@ -8,10 +8,11 @@ Extracted from web/main_web.py (god function) for maintainability.
 from pathlib import Path
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from core.plan_catalog import get_individual_plan_catalog, get_plan_catalog
+from web.public_urls import public_origin
 from web.template_compat import template_response
 
 _TMPL_DIR = Path(__file__).resolve().parent.parent / "templates"
@@ -26,6 +27,11 @@ templates.env.globals["csrf_token"] = _csrf_token_fn
 router = APIRouter(include_in_schema=False)
 
 
+@router.get("/favicon.ico")
+async def favicon():
+    return RedirectResponse("/static/img/metodobase-logo-a97be89e1875.png", status_code=307)
+
+
 @router.get("/")
 async def index(request: Request):
     import hashlib
@@ -33,6 +39,7 @@ async def index(request: Request):
     example = json.loads((_TMPL_DIR.parent / "static" / "data" / "landing-example.json").read_text(encoding="utf8"))
     return template_response(templates, request, "landing.html", {
         "request": request,
+        "canonical_url": public_origin() + "/",
         "business_plans": {key: plan for key, plan in get_plan_catalog("web").items() if plan["audiencia"] == "gym"},
         "individual_plans": get_individual_plan_catalog(),
         "example": example,

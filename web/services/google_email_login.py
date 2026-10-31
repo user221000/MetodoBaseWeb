@@ -19,6 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from starlette.concurrency import run_in_threadpool
 
+from config.settings import DEFAULT_EMAIL_FROM
 from web.database.models import AuthExternalIdentity, Usuario, UserRole
 from web.services import google_link, mfa_service as mfa
 from web.services.google_identity import ISSUER
@@ -68,7 +69,7 @@ def _configuration():
     from web.settings import get_settings
     settings = get_settings()
     if (not settings.REDIS_URL or not settings.RESEND_API_KEY
-            or not getattr(settings, "RESEND_FROM_EMAIL", "MetodoBase <no-reply@metodobase.app>")
+            or not getattr(settings, "RESEND_FROM_EMAIL", DEFAULT_EMAIL_FROM)
             or not isinstance(settings.SECRET_KEY, str) or len(settings.SECRET_KEY) < 32):
         fail(503, "google_email_unavailable")
     return settings

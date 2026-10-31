@@ -1,5 +1,13 @@
 # Estado de implementación
 
+## Dominio y correo del servicio web — 30 de octubre
+
+El dominio canónico es `https://metodobase.com.mx`; `www.metodobase.com.mx` y la dirección anterior de Railway redirigen la navegación al dominio principal. API, webhooks y comprobaciones de salud conservan su transporte. Railway tiene ambos dominios en el servicio web y puerto 8080, con DNS y certificados verificados. Cloudflare conserva los registros del correo y los cuatro registros CNAME/TXT específicos de Railway.
+
+La configuración del servicio se establece en `BASE_URL=https://metodobase.com.mx`, `CORS_ORIGINS=https://metodobase.com.mx` y `RESEND_FROM_EMAIL=MetodoBase <no-reply@metodobase.com.mx>`. El cliente Google existente tiene el nuevo origen y dominio autorizado. Resend verificó el remitente y aceptó la prueba dirigida a su buzón técnico; esa aceptación no acredita recepción en un Gmail real. Las claves permanecen fuera del repositorio.
+
+La publicación incorpora el logo suministrado, el favicon, los enlaces públicos derivados de configuración y el acceso Google con código de correo preparado anteriormente. Pasaron 110 controles focales del proyecto y 39 de redirección canónica; Root combinó 75 controles de origen/correo y redirección. No se modifican el esquema de datos, los cupos Free ni desktop. Los recibos de proveedores, publicación y comprobación final se guardan en `E:/MetodoBaseWorkspace/evidence/domain-20261030-1371436f2954`; consultar allí el cierre efectivo del despliegue. Los cortes siguientes son antecedentes y no sustituyen estos recibos.
+
 ## Acceso Google con código de correo — preparación del 30 de octubre
 
 Producción web quedó desplegada y verificada en `e1f3b3a435135379053cd8f3cc05a6d506f94226`; el recibo de cierre está en `E:/MetodoBaseWorkspace/evidence/deploy-20261030/operation-13ea6216cab54939a79fa81678ca20f8/final-summary.json`. Los cortes anteriores que indicaban ausencia de despliegue son históricos.

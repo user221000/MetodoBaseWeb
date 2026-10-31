@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from datetime import datetime,timezone
 from html import escape
+from config.settings import DEFAULT_EMAIL_FROM
 from web.services.notification_domain import BillingSnapshot,SendResult
 
 
@@ -122,7 +123,8 @@ class ResendReminderPort:
     def send(self,message):
         if not self.enabled:raise RuntimeError("Reminder transport disabled")
         from web.settings import get_settings
-        key=get_settings().RESEND_API_KEY
+        settings=get_settings()
+        key=settings.RESEND_API_KEY
         if not key:return SendResult("not_sent_terminal")
         import resend
         resend.api_key=key
@@ -131,7 +133,7 @@ class ResendReminderPort:
         body+='<p><a href="'+escape(message.account_url,quote=True)+'">Consultar mi cuenta</a></p>'
         body+='<p><a href="'+escape(message.exclusion_url,quote=True)+'">Excluir estos recordatorios</a></p>'
         try:
-            response=resend.Emails.send({"from":"MetodoBase <no-reply@metodobase.app>","to":[message.destination],"subject":title,"html":body},
+            response=resend.Emails.send({"from":getattr(settings,"RESEND_FROM_EMAIL",DEFAULT_EMAIL_FROM),"to":[message.destination],"subject":title,"html":body},
                 {"idempotency_key":message.idempotency_key})
             identifier=response.get("id") if isinstance(response,dict) else None
             return SendResult("accepted",identifier).validate()

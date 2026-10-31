@@ -1,5 +1,11 @@
 # Decisiones de ejecución
 
+## Dominio canónico metodobase.com.mx — 30 de octubre
+
+Por instrucción expresa del usuario, el servicio web usa `https://metodobase.com.mx`. Se conserva localhost para desarrollo. El origen de autenticación sigue siendo exacto: no se amplía por aceptar Host, Origin o cabeceras de proxy arbitrarias. Sólo la navegación GET/HEAD de los aliases conocidos se redirige al destino configurado; API, webhooks, salud, recursos estáticos y desafíos de certificados no se redirigen. El corte se prepara después de verificar DNS/TLS, el origen Google y la aceptación del remitente Resend.
+
+Los enlaces públicos del correo y el canonical HTML se derivan de `BASE_URL`, y los transportes de correo usan `RESEND_FROM_EMAIL`. No se inventan páginas legales ni callbacks OAuth: el acceso vigente usa el callback de Google Identity Services en JavaScript. Los cambios DNS se limitan a este dominio y conservan los registros existentes del correo. No hay migración de esquema ni cambios en factores, roles o cuotas por adoptar el dominio.
+
 ## Acceso Google con código de correo — 30 de octubre
 
 La instrucción expresa del usuario pide acceso con Google para todas las personas y un código enviado al correo de quien entra. Se implementa el orden Google verificado → código de correo de un uso → autenticador personal, si está activado → sesión. La verificación por correo no sustituye el MFA personal existente. El inicio no crea cuentas ni emite tokens; la confirmación consume el código antes de resolver la cuenta.
