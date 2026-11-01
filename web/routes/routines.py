@@ -74,6 +74,8 @@ def _operate(operation, principal, context, *args, **kwargs):
             except Exception:
                 logger.error("Routine owned-session invalidation unavailable")
             raise RuntimeError("Routine owned-session cleanup unavailable") from None
+    if operation == "generate_for_subject" and context == "gym":
+        _operate("confirm_inventory_current", principal, context, result["program"]["inventory"])
     return result
 
 
@@ -97,7 +99,7 @@ async def exercises(context: Literal["gym", "personal"] = Query(...),
 async def generate(requirements: RoutineRequirements,
                    context: Literal["gym", "personal"] = Query(...),
                    principal=Depends(get_usuario_actual)):
-    return await run_in_threadpool(_operate, "generate_for_subject", principal, context, requirements.model_dump())
+    return await run_in_threadpool(_operate, "generate_for_subject", principal, context, requirements.model_dump(exclude_none=True))
 
 
 @router.get("/rutinas/clientes")

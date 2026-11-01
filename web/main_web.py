@@ -251,6 +251,8 @@ def create_app() -> FastAPI:
     app.include_router(account_security.public_router)
     from web.routes import routines
     app.include_router(routines.router, prefix="/api")
+    from web.routes import gym_equipment
+    app.include_router(gym_equipment.router, prefix="/api")
     app.include_router(routines.pages_router)
     from web.routes import product_analytics
     app.include_router(product_analytics.router, prefix="/api")

@@ -4,12 +4,26 @@
   const ids=['push','pull','legs'],durations=[60,90,120,180],frequencies=[3,4,5,6];
   const activities=['nula','leve','normal','moderada','intensa'],experiences=['inicial','intermedio','avanzado'];
   const equipmentKeys=['machine','cable','dumbbell','barbell','bench','bodyweight'];
+  const basicEquipment=['barbell','bench','dumbbell','bodyweight'];
   const defaultDays={3:[0,2,4],4:[0,1,3,4],5:[0,1,2,3,4],6:[0,1,2,3,4,5]};
   const invalid=()=>Object.assign(Error('No pudimos validar los datos de rutinas.'),{code:'routine_invalid_response'});
   const text=value=>typeof value==='string'&&value.length>0&&value.length<=1000;
   const list=(value,min,max)=>Array.isArray(value)&&value.length>=min&&value.length<=max;
   const identifier=value=>typeof value==='string'&&value.length<=100&&/^[a-z]+(?:-[a-z]+)*$/.test(value);
   const clientIdentifier=value=>typeof value==='string'&&value.length>=1&&value.length<=36;
+  const machineIdentifier=value=>typeof value==='string'&&/^[a-z][a-z0-9-]{0,63}$/.test(value);
+  const sameIds=(left,right)=>JSON.stringify([...left].sort())===JSON.stringify([...right].sort());
+  function validateInventoryMeta(value){
+    if(!value||typeof value.configured!=='boolean'||!Number.isSafeInteger(value.revision)||value.revision<0||value.revision>2147483647||!list(value.machine_ids,0,128)||!value.machine_ids.every(machineIdentifier)||new Set(value.machine_ids).size!==value.machine_ids.length||value.configured&&value.revision<1||!value.configured&&(value.revision!==0||value.machine_ids.length!==0))throw invalid();
+    return value;
+  }
+  function validateInventory(value){
+    validateInventoryMeta(value);
+    if(value.version!==1||value.scope!=='gym'||typeof value.can_edit!=='boolean'||!list(value.machines,1,128)||!list(value.base_equipment,4,4)||new Set(value.base_equipment).size!==4||!value.base_equipment.every(key=>basicEquipment.includes(key))||!list(value.effective_equipment,4,6)||!value.effective_equipment.every(key=>equipmentKeys.includes(key))||new Set(value.effective_equipment).size!==value.effective_equipment.length||!basicEquipment.every(key=>value.effective_equipment.includes(key)))throw invalid();
+    const known=new Set();for(const machine of value.machines){if(!machineIdentifier(machine.id)||known.has(machine.id)||!text(machine.label)||!text(machine.group))throw invalid();known.add(machine.id);}
+      if(!value.machine_ids.every(key=>known.has(key)))throw invalid();
+    return value;
+  }
   function validateExercise(exercise){
     const sets=exercise?.sets,unit=exercise?.repetition_unit===undefined?'repetitions':exercise.repetition_unit;
     if(!identifier(exercise?.id)||!text(exercise.name)||!Number.isInteger(sets?.minimum)||!Number.isInteger(sets.maximum)||sets.minimum<1||sets.maximum>4||sets.minimum>sets.maximum||!text(exercise.repetitions)||!['seconds','repetitions'].includes(unit)||!durations.includes(exercise.rest_seconds)||!list(exercise.equipment,1,4)||!exercise.equipment.every(text)||!list(exercise.cues,2,3)||!exercise.cues.every(text))throw invalid();
@@ -30,6 +44,8 @@
   function validate(value,scope){
     if(value?.version!==1||value.scope!==scope||!value.program||value.program.id!=='ppl-basico-v1')throw invalid();
     const p=value.program;
+    const pendingGym=scope==='gym'&&p.requires_generation===true&&p.generated===false;
+    if(p.requires_generation===true&&!pendingGym)throw invalid();
     for(const key of ['title','audience','summary','starting_point','guideline_note'])if(!text(p[key]))throw invalid();
     if(!list(p.warmup,1,4)||!list(p.cautions,1,4)||![...p.warmup,...p.cautions].every(text))throw invalid();
     const schedule=p.schedule;
@@ -37,12 +53,13 @@
     if(!list(p.sessions,3,3))throw invalid();
     const exerciseIds=new Set();
     p.sessions.forEach((session,index)=>{
-      if(session.id!==ids[index]||!['name','label','focus','description'].every(key=>text(session[key]))||!list(session.exercises,6,8))throw invalid();
+      if(session.id!==ids[index]||!['name','label','focus','description'].every(key=>text(session[key]))||!(pendingGym?list(session.exercises,0,0):list(session.exercises,6,8)))throw invalid();
       if(session.estimated_minutes!==undefined&&(!Number.isInteger(session.estimated_minutes)||session.estimated_minutes<1||session.estimated_minutes>240))throw invalid();
       session.exercises.forEach(exercise=>{validateExercise(exercise);if(exerciseIds.has(exercise.id))throw invalid();exerciseIds.add(exercise.id);});
     });
     if(!list(p.sources,4,8)||p.sources.some(source=>!text(source.label)||!text(source.url)||!/^https:\/\/(?:acsm\.org|www\.cdc\.gov|www\.betterhealth\.vic\.gov\.au|www\.nasm\.org|www\.nsca\.com)\//.test(source.url)))throw invalid();
     if(p.duration_basis!==undefined&&!text(p.duration_basis))throw invalid();
+    if(pendingGym)validateInventoryMeta(p.inventory);
     return p;
   }
   function validWeek(days,frequency=Array.isArray(days)?days.length:0){
@@ -60,7 +77,7 @@
     return Object.freeze({read,reset(seconds=duration){if(!durations.includes(seconds))throw RangeError('Unsupported rest duration');duration=remaining=seconds;end=null;return read();},toggle(){const state=read();if(state.running){end=null;}else{if(remaining===0)remaining=duration;end=now()+remaining*1000;}return read();}});
   }
   async function routineRequest(api,scope,path,method='GET',body=undefined,fetcher=root.fetch.bind(root)){
-    if(!['gym','personal'].includes(scope)||!/^\/api\/rutinas\/(?:catalogo|ejercicios|generar|requisitos|clientes)\?context=(?:gym|personal)(?:&|$)/.test(path))throw invalid();
+    if(!['gym','personal'].includes(scope)||!/^\/api\/rutinas\/(?:catalogo|ejercicios|generar|requisitos|clientes|equipamiento)\?context=(?:gym|personal)(?:&|$)/.test(path))throw invalid();
     await api.session.ready;
     const context=api.session.capture(),token=api.getToken();api.session.check(context);
     if(!token)throw Object.assign(Error('Inicia sesión para consultar las rutinas.'),{status:401});
@@ -77,24 +94,38 @@
   async function readCatalog(api,scope,fetcher=root.fetch.bind(root)){
     return validate(await routineRequest(api,scope,'/api/rutinas/catalogo?context='+scope,'GET',undefined,fetcher),scope);
   }
-  async function readExercises(api,scope,fetcher=root.fetch.bind(root)){
+  async function readInventory(api,fetcher=root.fetch.bind(root)){
+    return validateInventory(await routineRequest(api,'gym','/api/rutinas/equipamiento?context=gym','GET',undefined,fetcher));
+  }
+  async function readExerciseCatalog(api,scope,fetcher=root.fetch.bind(root)){
     const value=await routineRequest(api,scope,'/api/rutinas/ejercicios?context='+scope,'GET',undefined,fetcher);
     if(value?.version!==1||value.scope!==scope||!list(value.exercises,18,300))throw invalid();
+    const snapshot=scope==='gym'?validateInventoryMeta(value.inventory):null;
     const seen=new Set();
     for(const exercise of value.exercises){
       validateExercise(exercise);
       if(seen.has(exercise.id)||!ids.includes(exercise.session)||!list(exercise.equipment_keys,1,6)||!exercise.equipment_keys.every(key=>equipmentKeys.includes(key)))throw invalid();
+      if(snapshot&&(!list(exercise.required_machine_ids,0,20)||!exercise.required_machine_ids.every(machineIdentifier)||typeof exercise.available_in_inventory!=='boolean'||exercise.available_in_inventory!==exercise.required_machine_ids.every(key=>snapshot.machine_ids.includes(key))))throw invalid();
       seen.add(exercise.id);
     }
-    return value.exercises;
+    return value;
+  }
+  async function readExercises(api,scope,fetcher=root.fetch.bind(root)){
+    return(await readExerciseCatalog(api,scope,fetcher)).exercises;
   }
   async function generateRoutine(api,scope,requirements,fetcher=root.fetch.bind(root)){
-    const expected=normalizeDeclaredRequirements(requirements);
+    if(!requirements||typeof requirements!=='object'||Array.isArray(requirements))throw invalid();
+    const declared={...requirements},revision=declared.expected_inventory_revision;delete declared.expected_inventory_revision;
+    if(scope==='gym'&&(!Number.isSafeInteger(revision)||revision<0||revision>2147483647)||scope==='personal'&&Object.hasOwn(requirements,'expected_inventory_revision'))throw invalid();
+    const expected=normalizeDeclaredRequirements(declared);
     const p=validate(await routineRequest(api,scope,'/api/rutinas/generar?context='+scope,'POST',requirements,fetcher),scope);
     if(p.generated!==true||JSON.stringify(normalizeDeclaredRequirements(p.requirements))!==JSON.stringify(expected)||p.schedule.sessions_per_week!==expected.days_per_week||!Number.isInteger(p.catalog_count)||p.catalog_count<18||p.catalog_count>300)throw invalid();
+    const snapshot=scope==='gym'?validateInventoryMeta(p.inventory):null;
+    if(snapshot&&snapshot.revision!==revision)throw invalid();
     for(const session of p.sessions){
       if(session.exercises.length!==expected.exercises_per_session||!Number.isInteger(session.estimated_minutes)||session.estimated_minutes>expected.session_minutes)throw invalid();
       for(const exercise of session.exercises)if(exercise.session!==session.id||!list(exercise.equipment_keys,1,6)||!exercise.equipment_keys.every(key=>expected.equipment.includes(key))||!experiences.includes(exercise.experience_min)||experiences.indexOf(exercise.experience_min)>experiences.indexOf(expected.experience)||expected.excluded_exercises.includes(exercise.id))throw invalid();
+      if(snapshot)for(const exercise of session.exercises)if(!list(exercise.required_machine_ids,0,20)||!exercise.required_machine_ids.every(key=>snapshot.machine_ids.includes(key)))throw invalid();
     }
     return p;
   }
@@ -120,20 +151,21 @@
     const scope=panel.dataset.scope,timer=createTimer();
     let program=null,selected=[0,2,4],frequency=3,cycleWeek=1,epoch=0,dead=false,interval=null,printed=[];
     let dirty=false,busy=false,variant=0,generationEpoch=0,profileEpoch=0,libraryEpoch=0,clientEpoch=0,clientOffset=0,clientQuery='';
-    let library=[],clients=[],excluded=new Set();
+    let library=[],clients=[],excluded=new Set(),inventory=null,inventoryBusy=false,inventoryEpoch=0;
     function stop(){if(interval!==null)root.clearInterval(interval);interval=null;}
     function clock(){const s=timer.read();get('clock').textContent=String(Math.floor(s.remaining/60)).padStart(2,'0')+':'+String(s.remaining%60).padStart(2,'0');get('timer-start').textContent=s.running?'Pausar':s.remaining===0?'Iniciar de nuevo':'Iniciar';if(!s.running&&interval!==null){stop();get('timer-status').textContent='Descanso terminado. Continúa cuando te sientas preparado.';}}
     function resetTimer(seconds){stop();timer.reset(seconds);get('rest').value=String(seconds);clock();get('timer-status').textContent='Temporizador reiniciado. No se registra actividad.';}
     function invalidate(){
-      if(dead)return;dead=true;epoch++;generationEpoch++;profileEpoch++;libraryEpoch++;clientEpoch++;stop();timer.reset();
-      program=null;selected=[];library=[];clients=[];excluded.clear();frequency=3;cycleWeek=1;
+      if(dead)return;dead=true;epoch++;generationEpoch++;profileEpoch++;libraryEpoch++;clientEpoch++;inventoryEpoch++;stop();timer.reset();
+      program=null;selected=[];library=[];clients=[];excluded.clear();inventory=null;frequency=3;cycleWeek=1;
       get('content').hidden=true;get('sessions').replaceChildren();get('week-summary').replaceChildren();get('library-list').replaceChildren();get('client-select').replaceChildren();get('client-query').value='';get('profile-status').textContent='';
       get('stamp-count').textContent='3';get('stamp').setAttribute('aria-label','3 días de entrenamiento a elegir');
+      get('inventory-summary').textContent='';get('inventory-status').textContent='La sesión cambió.';get('inventory-reload').disabled=true;
       get('status').textContent='La sesión cambió. Abre de nuevo las rutinas desde tu cuenta.';get('recovery').hidden=false;get('reload').disabled=true;
     }
     function markDirty(){
       if(!program||dead)return;dirty=true;variant=0;generationEpoch++;profileEpoch++;busy=false;stop();
-      get('generate').disabled=false;get('another').disabled=true;get('sessions').hidden=true;get('session-nav').hidden=true;get('preparation').hidden=true;
+      get('generate').disabled=scope==='gym'&&(!inventory||inventoryBusy);get('another').disabled=true;get('sessions').hidden=true;get('session-nav').hidden=true;get('preparation').hidden=true;
       get('summary').textContent='Genera la rutina para aplicar los requisitos elegidos.';
       get('generator-status').textContent='Cambiaste los requisitos. Genera una rutina para aplicar los cambios.';drawWeek();
     }
@@ -191,10 +223,13 @@
       get('another').disabled=false;resetTimer(90);get('content').hidden=false;
     }
     function collectRequirements(nextVariant){
-      const equipment=Array.from(get('equipment').querySelectorAll('input:checked'),input=>input.value);
+      if(scope==='gym'&&(!inventory||inventoryBusy))throw Object.assign(Error('Actualiza el inventario del gimnasio antes de generar.'),{status:422});
+      const equipment=scope==='gym'?equipmentKeys.filter(key=>inventory.effective_equipment.includes(key)):Array.from(get('equipment').querySelectorAll('input:checked'),input=>input.value);
       if(!equipment.length)throw Object.assign(Error('Elige al menos un tipo de equipo disponible.'),{status:422});
       if(!validWeek(selected,frequency))throw Object.assign(Error('Completa los '+frequency+' días de entrenamiento antes de generar.'),{status:422});
-      return{activity_level:get('activity').value,experience:get('experience').value,goal:get('goal').value,equipment,exercises_per_session:Number(get('exercise-count').value),days_per_week:frequency,session_minutes:Number(get('session-minutes').value),variant:nextVariant,excluded_exercises:[...excluded].sort()};
+      const result={activity_level:get('activity').value,experience:get('experience').value,goal:get('goal').value,equipment,exercises_per_session:Number(get('exercise-count').value),days_per_week:frequency,session_minutes:Number(get('session-minutes').value),variant:nextVariant,excluded_exercises:[...excluded].sort()};
+      if(scope==='gym')result.expected_inventory_revision=inventory.revision;
+      return result;
     }
     async function generate(nextVariant=0,alternate=false){
       if(dead||busy||!program)return;let requirements;
@@ -204,9 +239,28 @@
       try{
         const p=await generateRoutine(api,scope,requirements);
         if(dead||ticket!==generationEpoch||stamp!==JSON.stringify(collectRequirements(nextVariant)))return;
+        if(scope==='gym'&&(!inventory||p.inventory.configured!==inventory.configured||!sameIds(p.inventory.machine_ids,inventory.machine_ids)))throw invalid();
         const repeated=alternate&&previous===signature(p);variant=nextVariant;draw(p,true);get('generator-status').textContent=repeated?'La combinación coincide con la anterior. Amplía el equipo o revisa las exclusiones para tener más opciones.':'Rutina preparada · '+p.sessions[0].exercises.length+' ejercicios por sesión · combinación '+(variant+1)+'. Puedes imprimirla; no se ha guardado actividad.';
-      }catch(error){if(dead||ticket!==generationEpoch)return;dirty=true;get('sessions').hidden=true;get('session-nav').hidden=true;get('generator-status').textContent=error.status===401?'Vuelve a iniciar sesión para generar tu rutina.':error.status===403?'No puedes preparar rutinas desde este espacio.':text(error.message)&&error.status===422?error.message:'No pudimos preparar la rutina. Revisa tus opciones y vuelve a intentarlo.';}
-      finally{if(!dead&&ticket===generationEpoch){busy=false;get('generate').disabled=false;get('another').disabled=dirty;drawWeek();}}
+      }catch(error){if(dead||ticket!==generationEpoch)return;dirty=true;get('sessions').hidden=true;get('session-nav').hidden=true;if(scope==='gym'&&error.status===409)staleInventory();get('generator-status').textContent=error.status===401?'Vuelve a iniciar sesión para generar tu rutina.':error.status===403?'No puedes preparar rutinas desde este espacio.':scope==='gym'&&error.status===409?'El inventario del gimnasio cambió. Actualízalo y vuelve a generar.':text(error.message)&&error.status===422?error.message:'No pudimos preparar la rutina. Revisa tus opciones y vuelve a intentarlo.';}
+      finally{if(!dead&&ticket===generationEpoch){busy=false;get('generate').disabled=scope==='gym'&&(!inventory||inventoryBusy);get('another').disabled=dirty;drawWeek();}}
+    }
+    function showInventory(value){
+      const names=value.machine_ids.map(key=>value.machines.find(machine=>machine.id===key).label);
+      get('inventory-status').textContent=value.configured?(names.length?'Inventario guardado · '+names.length+' máquinas disponibles.':'Inventario guardado · sólo equipo básico.'):'El dueño aún no ha guardado las máquinas. Por ahora se usará sólo el equipo básico.';
+      get('inventory-summary').textContent=names.length?names.slice(0,4).join(' · ')+(names.length>4?' · +'+(names.length-4)+' más':''):'Barras, discos, bancos y mancuernas disponibles.';
+      get('inventory-link').textContent=value.can_edit?'Configurar máquinas':'Ver máquinas del gimnasio';
+    }
+    function staleInventory(){
+      inventory=null;library=[];libraryEpoch++;get('library-list').replaceChildren();get('inventory-status').textContent='El inventario cambió. Actualízalo antes de preparar otra rutina.';get('inventory-summary').textContent='';get('inventory-reload').disabled=false;get('generate').disabled=true;
+    }
+    async function refreshInventory(){
+      if(dead||scope!=='gym'||inventoryBusy||!program)return;const ticket=++inventoryEpoch;inventoryBusy=true;inventory=null;generationEpoch++;libraryEpoch++;library=[];get('library-list').replaceChildren();get('inventory-reload').disabled=true;
+      if(program)markDirty();get('inventory-status').textContent='Consultando las máquinas guardadas…';
+      try{
+        const value=await readInventory(api);if(dead||ticket!==inventoryEpoch)return;inventory=value;showInventory(value);
+        get('generator-status').textContent='Inventario actualizado. Genera la rutina con el equipo del gimnasio.';
+      }catch(error){if(dead||ticket!==inventoryEpoch)return;get('inventory-status').textContent=error.status===401?'Vuelve a iniciar sesión para consultar el inventario.':'No pudimos consultar las máquinas. Actualiza el inventario para continuar.';}
+      finally{if(!dead&&ticket===inventoryEpoch){inventoryBusy=false;get('inventory-reload').disabled=false;get('generate').disabled=!inventory;if(inventory&&get('library').open)loadLibrary();}}
     }
     async function loadProfile(){
       if(dead)return;const clientId=scope==='gym'?get('client-select').value:undefined;
@@ -240,29 +294,33 @@
       for(const exercise of rows){
         const card=put(get('library-list'),'li',undefined,'routines-library-item'),label=put(card,'label'),input=put(label,'input');input.type='checkbox';input.checked=excluded.has(exercise.id);input.setAttribute('aria-label','Excluir '+exercise.name);
         const copy=put(label,'span');put(copy,'strong',exercise.name);put(copy,'small',exercise.equipment.join(' · '));
+        if(scope==='gym'&&exercise.available_in_inventory===false)put(copy,'small','No disponible en tu gimnasio','routines-library-unavailable');
         input.addEventListener('change',()=>{if(input.checked)excluded.add(exercise.id);else excluded.delete(exercise.id);markDirty();get('excluded-count').textContent=String(excluded.size);});
       }
-      get('library-status').textContent=rows.length+' de '+library.length+' ejercicios · marca los que quieres excluir.';get('excluded-count').textContent=String(excluded.size);
+      get('library-status').textContent=rows.length+' de '+library.length+' ejercicios · marca los que quieres excluir.'+(scope==='gym'?' Las máquinas no disponibles quedan fuera automáticamente.':'');get('excluded-count').textContent=String(excluded.size);
     }
     async function loadLibrary(){
-      if(dead||library.length)return;const ticket=++libraryEpoch;get('library-status').textContent='Consultando biblioteca de ejercicios…';get('library-retry').disabled=true;
-      try{const rows=await readExercises(api,scope);if(dead||ticket!==libraryEpoch)return;library=rows;get('library-count').textContent=String(rows.length);drawLibrary();get('library-retry').hidden=true;}
+      if(dead||library.length)return;if(scope==='gym'&&(!inventory||inventoryBusy)){get('library-status').textContent='Actualiza el inventario del gimnasio para consultar su disponibilidad.';return;}const ticket=++libraryEpoch;get('library-status').textContent='Consultando biblioteca de ejercicios…';get('library-retry').disabled=true;
+      try{const value=await readExerciseCatalog(api,scope);if(dead||ticket!==libraryEpoch)return;if(scope==='gym'&&(!inventory||value.inventory.revision!==inventory.revision||value.inventory.configured!==inventory.configured||!sameIds(value.inventory.machine_ids,inventory.machine_ids))){staleInventory();markDirty();get('library-status').textContent='El inventario cambió. Actualízalo para revisar los ejercicios.';return;}library=value.exercises;get('library-count').textContent=String(library.length);drawLibrary();get('library-retry').hidden=true;}
       catch(error){if(dead||ticket!==libraryEpoch)return;get('library-status').textContent='No pudimos consultar la biblioteca. Puedes intentarlo de nuevo.';get('library-retry').hidden=false;}
       finally{if(!dead&&ticket===libraryEpoch)get('library-retry').disabled=false;}
     }
     async function load(){
       if(dead)return;const ticket=++epoch;generationEpoch++;get('reload').disabled=true;get('content').hidden=true;stop();get('status').textContent='Consultando las rutinas disponibles…';
-      try{const p=await readCatalog(api,scope);if(dead||ticket!==epoch)return;variant=0;draw(p);get('generator-status').textContent='Empieza con este ejemplo o ajusta los requisitos para generar otra rutina.';get('status').textContent='Rutinas disponibles. La actividad registrada sólo se consulta cuando la solicitas.';get('recovery').hidden=true;}
+      if(scope==='gym'){inventoryEpoch++;inventory=null;inventoryBusy=false;libraryEpoch++;library=[];get('library-list').replaceChildren();}
+      try{const [p,machines]=await Promise.all([readCatalog(api,scope),scope==='gym'?readInventory(api):Promise.resolve(null)]);if(dead||ticket!==epoch)return;inventory=machines;variant=0;draw(p);if(scope==='gym'){showInventory(machines);markDirty();get('generator-status').textContent='Elige los requisitos y genera las sesiones con el inventario del gimnasio.';}else get('generator-status').textContent='Empieza con este ejemplo o ajusta los requisitos para generar otra rutina.';get('status').textContent='Rutinas disponibles. La actividad registrada sólo se consulta cuando la solicitas.';get('recovery').hidden=true;}
       catch(error){if(dead||ticket!==epoch)return;get('status').textContent=error.status===401?'Inicia sesión para consultar las rutinas.':error.status===403?'Este espacio no está disponible para tu cuenta. Entra desde la navegación de tu espacio.':'No pudimos consultar las rutinas. Puedes volver a intentarlo; no se ha guardado actividad.';get('recovery').hidden=false;}
       finally{if(!dead&&ticket===epoch)get('reload').disabled=false;}
     }
     get('gym-source').hidden=scope!=='gym';get('personal-source').hidden=scope!=='personal';
+    get('inventory').hidden=scope!=='gym';get('personal-equipment').hidden=scope==='gym';get('library-count-label').textContent=scope==='gym'?'en biblioteca':'disponibles';
+    get('inventory-reload').addEventListener('click',refreshInventory);
     get('reload').addEventListener('click',load);
     get('default').addEventListener('click',()=>{if(!program)return;frequency=3;selected=[...defaultDays[3]];cycleWeek=1;get('frequency').value='3';for(const input of get('days').querySelectorAll('input'))input.checked=selected.includes(Number(input.value));if(program.schedule.sessions_per_week!==frequency)markDirty();else drawWeek();});
     get('frequency').addEventListener('change',()=>{if(!program)return;const value=Number(get('frequency').value);if(!frequencies.includes(value))return;frequency=value;selected=[...defaultDays[value]];cycleWeek=1;for(const input of get('days').querySelectorAll('input'))input.checked=selected.includes(Number(input.value));markDirty();});
     get('cycle-week').addEventListener('change',()=>{if(!program)return;const value=Number(get('cycle-week').value);if(!Number.isInteger(value)||value<1||value>cycleLength(selected))return;cycleWeek=value;drawWeek();});
     for(const name of ['activity','experience','goal','exercise-count','session-minutes'])get(name).addEventListener('change',markDirty);
-    for(const input of get('equipment').querySelectorAll('input'))input.addEventListener('change',markDirty);
+    for(const input of get('equipment').querySelectorAll('input')){input.disabled=scope==='gym';if(scope==='personal')input.addEventListener('change',markDirty);}
     get('generator').addEventListener('submit',event=>{event.preventDefault();generate(0);});
     get('another').addEventListener('click',()=>{if(!dirty)generate((variant+1)%10,true);});
     get('load-profile').addEventListener('click',loadProfile);
@@ -282,9 +340,10 @@
     root.addEventListener('beforeprint',()=>{printed=Array.from(get('sessions').querySelectorAll('details'),node=>[node,node.open]);for(const[node]of printed)node.open=true;});
     root.addEventListener('afterprint',()=>{for(const[node,open]of printed)node.open=open;printed=[];});
     root.addEventListener('metodobase-session-changed',invalidate);root.addEventListener('pagehide',invalidate);root.addEventListener('pageshow',event=>{if(event.persisted)invalidate();});
+    root.addEventListener('metodobase-gym-equipment-changed',()=>{if(scope==='gym'&&!dead){staleInventory();if(program)markDirty();}});
     load();return Object.freeze({invalidate});
   }
-  const exported=Object.freeze({validate,validateExercise,formatDose,normalizeDeclaredRequirements,validWeek,cycleLength,week,createTimer,readCatalog,readExercises,generateRoutine,readRequirements,readClients,mount});
+  const exported=Object.freeze({validate,validateExercise,formatDose,normalizeDeclaredRequirements,validateInventory,validateInventoryMeta,validWeek,cycleLength,week,createTimer,readCatalog,readInventory,readExercises,generateRoutine,readRequirements,readClients,mount});
   if(typeof module!=='undefined'&&module.exports)module.exports=exported;root.RoutinePanel=exported;
   if(typeof document!=='undefined'){const start=()=>{const panel=document.querySelector('[data-routines]');if(panel)mount(panel);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();}
 })(typeof window==='undefined'?globalThis:window);

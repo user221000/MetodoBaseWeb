@@ -367,6 +367,10 @@ def get_exercise_catalog():
         elif identifier in {"side-plank", "dead-bug"}:
             record["source_url"] = "https://www.nasm.org/resource-center/exercise-library/" + identifier
         records.append(record)
+    from core.gym_equipment_catalog import get_machine_requirements
+    for record in records:
+        options = get_machine_requirements(record["id"])
+        record.update(machine_options=options, required_machine_ids=list(options[0]))
     return records
 
 

@@ -2,7 +2,7 @@
 'use strict';
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const {world,tick}=require('./browser_harness31.cjs');
-const dto=JSON.parse(fs.readFileSync(process.env.ROUTINE_CATALOG_FIXTURE,'utf8'));
+const dto=JSON.parse(fs.readFileSync(process.env.ROUTINE_CATALOG_FIXTURE,'utf8'));dto.scope='personal';
 const source=fs.readFileSync('web/static/js/rutinas.js','utf8'),rows=[];
 class Element{
  constructor(tag='div'){this.tagName=tag.toUpperCase();this.children=[];this.listeners=new Map();this.attributes={};this.hidden=false;this.disabled=false;this.open=false;this.value='90';this._text='';}
@@ -21,19 +21,19 @@ const deferred=()=>{let resolve;const promise=new Promise(r=>{resolve=r;});retur
 async function settle(){for(let n=0;n<4;n++)await tick();}
 async function setup(value=structuredClone(dto),hook=null){
  const w=world(),t=w.tab();await t.api.session.ready;
- const nodes=new Map(),panel=new Element();panel.dataset={scope:'gym'};
+ const nodes=new Map(),panel=new Element();panel.dataset={scope:'personal'};
  panel.querySelector=selector=>{if(!nodes.has(selector)){const node=new Element();nodes.set(selector,node);panel.append(node);}return nodes.get(selector);};
  const get=name=>panel.querySelector('[data-routine-'+name+']');get('content').hidden=true;
  const intervals=new Map();let clock=0,next=0,prints=0;
  t.sandbox.document={readyState:'complete',querySelector:()=>null,createElement:tag=>new Element(tag)};
  t.sandbox.performance={now:()=>clock};t.sandbox.setInterval=fn=>{intervals.set(++next,fn);return next;};t.sandbox.clearInterval=id=>intervals.delete(id);t.sandbox.print=()=>prints++;
- let requests=0;t.hook(call=>{assert.equal(call.path,'/api/rutinas/catalogo?context=gym');requests++;return hook?hook(call,requests):Response.json(value);});
+ let requests=0;t.hook(call=>{assert.equal(call.path,'/api/rutinas/catalogo?context=personal');requests++;return hook?hook(call,requests):Response.json(value);});
  vm.runInContext(source,t.context);t.sandbox.RoutinePanel.mount(panel);await settle();
  return{w,t,panel,get,intervals,requests:()=>requests,prints:()=>prints,advance(ms){clock+=ms;for(const fn of[...intervals.values()])fn();}};
 }
 async function test(name,run){try{await run();rows.push({case:name,passed:true});}catch(error){rows.push({case:name,passed:false,error_class:error.name});}}
 (async()=>{
- await test('Positive lexical const Api mount renders actual six exercises in each PPL session',async()=>{
+ await test('Positive lexical const Api mount renders the personal six-exercise baseline',async()=>{
   const x=await setup();assert.equal(Object.hasOwn(x.t.sandbox,'Api'),false);assert.equal(x.get('content').hidden,false);
   const sessions=x.get('sessions').children;assert.equal(sessions.length,3);assert.deepEqual(sessions.map(s=>s.querySelectorAll('details').length),[6,6,6]);assert.equal(x.requests(),1);
   assert.equal(x.get('days').querySelectorAll('input').length,7);assert.equal(x.get('week-summary').children.length,7);

@@ -17,6 +17,16 @@ followup_db = fixtures.followup_db
 routine_http = fixtures.account_http
 
 
+def assert_initial_program(program, context):
+    if context == "personal":
+        assert program == get_routine_program()
+        return
+    assert program["requires_generation"] is True and program["generated"] is False
+    assert program["inventory"] == {"configured": False, "revision": 0, "machine_ids": []}
+    assert [s["id"] for s in program["sessions"]] == ["push", "pull", "legs"]
+    assert [s["exercises"] for s in program["sessions"]] == [[], [], []]
+
+
 def test_catalog_is_generic_bounded_independent_and_complete():
     first, second = get_routine_program(), get_routine_program()
     assert first == second
@@ -100,7 +110,9 @@ def test_owner_and_personal_have_no_cross_space_or_bootstrap(routine_http):
     case = routine_http
     response = case["raw"].get(ENDPOINT, params={"context": "gym"})
     assert response.status_code == 200
-    assert response.json() == {"version": 1, "scope": "gym", "program": get_routine_program()}
+    assert set(response.json()) == {"version", "scope", "program"}
+    assert response.json()["version"] == 1 and response.json()["scope"] == "gym"
+    assert_initial_program(response.json()["program"], "gym")
     assert response.headers["cache-control"] == "no-store"
     assert case["raw"].get(ENDPOINT, params={"context": "personal"}).status_code == 403
     login_actor(case)
@@ -121,7 +133,7 @@ def test_valid_team_can_read_both_general_spaces(routine_http, role):
         response = case["raw"].get(ENDPOINT, params={"context": context})
         assert response.status_code == 200
         assert response.json()["scope"] == context
-        assert response.json()["program"] == get_routine_program()
+        assert_initial_program(response.json()["program"], context)
     assert case["raw"].get("/api/auth/me").json()["permissions"] == permissions
 
 
@@ -210,7 +222,7 @@ def test_pages_are_inert_and_keyboard_controls_are_native(routine_http):
             assert 'chest-press' not in reply.text
 
 
-def test_service_uses_only_eligibility_projection(routine_http):
+def test_service_reads_only_eligibility_and_inventory_projections(routine_http):
     case = routine_http
     from web.services.routine_catalog import catalog_for_subject
     principal = case["raw"].get("/api/auth/me").json()
@@ -223,9 +235,12 @@ def test_service_uses_only_eligibility_projection(routine_http):
             result = catalog_for_subject(db, principal, "gym")
     finally:
         event.remove(case["engine"], "before_cursor_execute", observe)
-    assert result["program"] == get_routine_program()
-    assert len(queries) == 1
-    assert not any(word in queries[0].lower() for word in ("password", "email", "nombre", "cliente"))
+    assert_initial_program(result["program"], "gym")
+    assert len(queries) == 2
+    assert not any(word in sql.lower() for sql in queries for word in ("password", "email", "nombre", "cliente"))
+    assert queries[1].lower().lstrip().startswith("select gym_settings.training_equipment_json")
+    assert "gym_settings.gym_id" in queries[1].lower()
+    assert not any(word in queries[1].lower() for word in ("trial_days", "locale", "timezone"))
 
 
 def test_cleanup_failure_does_not_return_catalogue(monkeypatch):
