@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
-from core.routine_catalog import get_routine_program
+from core.routine_catalog import get_exercise_catalog, get_routine_program
 from tests import account_security37_http as fixtures
 from tests.followup34_http import PASSWORD
 from web.database.models import Usuario, UserRole
@@ -23,21 +23,21 @@ def test_catalog_is_generic_bounded_independent_and_complete():
     assert [row["id"] for row in first["sessions"]] == ["push", "pull", "legs"]
     identifiers = []
     for session in first["sessions"]:
-        assert 4 <= len(session["exercises"]) <= 5
+        assert len(session["exercises"]) == 6
         for exercise in session["exercises"]:
             identifiers.append(exercise["id"])
-            assert exercise["sets"] == {"minimum": 2, "maximum": 2}
+            assert exercise["sets"] == {"minimum": 1, "maximum": 1}
             assert exercise["repetition_unit"] in {"repetitions", "seconds"}
             if exercise["repetition_unit"] == "seconds":
-                assert exercise["id"] == "forearm-plank"
-                assert exercise["repetitions"] == "20–30"
+                assert exercise["slot"] == "core"
+                assert exercise["repetitions"].startswith("20–30")
             else:
-                assert exercise["repetitions"] in {"8–12", "10–15"}
+                assert exercise["repetitions"].removesuffix(" por lado") in {"8–12", "10–15"}
             assert 60 <= exercise["rest_seconds"] <= 120
             assert len(exercise["cues"]) >= 2
             assert exercise["equipment"] and exercise["alternative"]["equipment"]
             assert exercise["alternative"]["name"] and exercise["alternative"]["cue"]
-    assert len(identifiers) == len(set(identifiers)) == 13
+    assert len(identifiers) == len(set(identifiers)) == 18
     assert len(json.dumps(first, ensure_ascii=False).encode()) < 32768
     assert "no asegura" in first["guideline_note"]
     first["sessions"][0]["exercises"][0]["cues"].append("Untrusted edit")
@@ -61,25 +61,19 @@ def test_schedule_contract_allows_adjacent_days_and_continuous_rotation():
     assert get_routine_program() == second
 
 
-def test_leg_session_has_named_gym_variants_and_seconds_are_not_repetitions():
+def test_leg_library_preserves_named_gym_variants_and_seconds():
+    library = {row["id"]: row for row in get_exercise_catalog()}
+    assert "45°" in library["leg-press"]["name"]
+    assert "mancuernas" in library["dumbbell-romanian-deadlift"]["name"]
+    assert "sentado" in library["seated-leg-curl"]["name"]
+    assert "No necesitas tocar el suelo" in library["dumbbell-romanian-deadlift"]["cues"][1]
+    assert library["forearm-plank"]["repetition_unit"] == "seconds"
+    assert library["machine-hip-adduction"]["muscles"] == ["Aductores de cadera"]
+    assert "Glúteo medio" in library["machine-hip-abduction"]["muscles"]
     program = get_routine_program()
-    legs = next(session for session in program["sessions"] if session["id"] == "legs")
-    assert [row["id"] for row in legs["exercises"]] == [
-        "leg-press", "dumbbell-romanian-deadlift", "seated-leg-curl",
-        "standing-machine-calf-raise", "forearm-plank",
-    ]
-    assert "45°" in legs["exercises"][0]["name"]
-    assert "mancuernas" in legs["exercises"][1]["name"]
-    assert "sentado" in legs["exercises"][2]["name"]
-    assert "práctica técnica" in legs["exercises"][1]["alternative"]["name"]
-    assert "No necesitas tocar el suelo" in legs["exercises"][1]["cues"][1]
-    assert [row["repetition_unit"] for row in legs["exercises"]] == [
-        "repetitions", "repetitions", "repetitions", "repetitions", "seconds",
-    ]
-    # Selecting a frequency changes the calendar, not the prescribed sets or
-    # load. The generic endpoint has no client input or extra-volume profile.
+    assert program["generated"] is False
     assert [sum(row["sets"]["maximum"] for row in session["exercises"])
-            for session in program["sessions"]] == [8, 8, 10]
+            for session in program["sessions"]] == [6, 6, 6]
     assert "5–6 días sólo si ya toleras" in program["starting_point"]
 
 

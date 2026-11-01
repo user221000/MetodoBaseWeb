@@ -86,7 +86,7 @@ async function transport(){
  count++;console.log('PASS missing RAM access makes no catalogue request');
  for(const readyState of['complete','loading']){
   const nodes=new Map(),events=new Map();let bootstraps=0;
-  const getNode=selector=>{if(!nodes.has(selector))nodes.set(selector,{textContent:'',hidden:false,disabled:false,value:'90',addEventListener(){},replaceChildren(){}});return nodes.get(selector);};
+  const getNode=selector=>{if(!nodes.has(selector))nodes.set(selector,{textContent:'',hidden:false,disabled:false,value:'90',addEventListener(){},replaceChildren(){},querySelectorAll(){return[];}});return nodes.get(selector);};
   const shell={dataset:{scope:'personal'},querySelector:getNode};
   const sandbox={console,TextEncoder,performance,setInterval,clearInterval,fetch:()=>{throw Error('Missing access must not fetch');},addEventListener(){},document:{readyState,querySelector:()=>shell,addEventListener:(name,fn)=>events.set(name,fn)}};
   sandbox.window=sandbox;vm.createContext(sandbox);

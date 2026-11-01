@@ -2,7 +2,7 @@
   <header class="routines-hero">
     <div><p class="routines-eyebrow">Movimiento · Fuerza</p>
       <h1 id="routines-title">Tu rutina, tus días.</h1>
-      <p class="routines-lead">Organiza empuje, tirón y piernas según tu semana.</p>
+      <p class="routines-lead">Genera empuje, tirón y piernas según tu experiencia y equipo.</p>
     </div>
     <div class="routines-stamp" aria-label="3 días de entrenamiento a elegir" data-routine-stamp><strong data-routine-stamp-count>3</strong><span>días por semana<br>tú eliges cuáles</span></div>
   </header>
@@ -13,12 +13,35 @@
   </div>
   <noscript><p>Activa JavaScript para verificar tu sesión y consultar el panel. No se registra actividad de entrenamiento.</p></noscript>
   <div data-routine-content hidden>
-    <div class="routines-intro"><span class="routines-pill">Guía general · Gimnasio</span><p data-routine-audience></p><p data-routine-summary></p></div>
+    <div class="routines-intro"><span class="routines-pill">Push / Pull / Legs · 6–8 ejercicios</span><p data-routine-audience></p><p data-routine-summary></p></div>
+    <form class="routines-generator" data-routine-generator aria-labelledby="routines-generator-title">
+      <div class="routines-section-heading"><div><p class="routines-eyebrow">1 · Personaliza</p><h2 id="routines-generator-title">Prepara tu rutina</h2></div><span class="routines-pill">Sin cargas automáticas</span></div>
+      <details class="routines-profile"><summary>Usar actividad registrada <span class="routines-small">· opcional</span></summary>
+        <div data-routine-gym-source hidden><label for="routine-client-query">Buscar cliente</label><div class="routines-client-search"><input id="routine-client-query" data-routine-client-query type="search" maxlength="80" placeholder="Nombre del cliente" autocomplete="off"><button type="button" class="routines-button routines-button-secondary" data-routine-client-search>Buscar</button></div><label for="routine-client-select">Cliente</label><select id="routine-client-select" data-routine-client-select disabled><option value="">Busca un cliente primero</option></select><button type="button" class="routines-button routines-button-secondary" data-routine-client-more hidden>Mostrar más clientes</button></div>
+        <p class="routines-small" data-routine-personal-source hidden>Usa el nivel de actividad de tu perfil y confirma el resto de los requisitos.</p>
+        <button type="button" class="routines-button routines-button-secondary" data-routine-load-profile>Usar actividad</button><p class="routines-small" data-routine-profile-status role="status" aria-live="polite"></p>
+      </details>
+      <div class="routines-generator-fields">
+        <label for="routine-activity">Actividad habitual<select id="routine-activity" data-routine-activity aria-describedby="routines-activity-help"><option value="nula">Actividad nula</option><option value="leve" selected>Actividad leve</option><option value="normal">Normal · moderada</option><option value="moderada">Actividad moderada</option><option value="intensa">Actividad intensa</option></select></label>
+        <label for="routine-experience">Experiencia con ejercicios<select id="routine-experience" data-routine-experience><option value="inicial" selected>Inicial</option><option value="intermedio">Intermedia</option><option value="avanzado">Avanzada</option></select></label>
+        <label for="routine-goal">Objetivo<select id="routine-goal" data-routine-goal><option value="fuerza_general" selected>Fuerza general</option><option value="hipertrofia">Desarrollo muscular</option></select></label>
+        <label for="routine-count">Ejercicios por sesión<select id="routine-count" data-routine-exercise-count><option value="6" selected>6 ejercicios</option><option value="7">7 ejercicios</option><option value="8">8 ejercicios</option></select></label>
+        <label for="routine-session-minutes">Tiempo disponible<select id="routine-session-minutes" data-routine-session-minutes><option value="45">45 minutos</option><option value="60" selected>60 minutos</option><option value="75">75 minutos</option><option value="90">90 minutos</option></select></label>
+        <label for="routine-frequency">Días por semana<select id="routine-frequency" data-routine-frequency aria-describedby="routines-frequency-help"><option value="3" selected>3 días</option><option value="4">4 días</option><option value="5">5 días</option><option value="6">6 días</option></select></label>
+      </div>
+      <p class="routines-small" id="routines-activity-help">La actividad diaria no determina tu experiencia con pesas. «Normal» se usa como actividad moderada.</p>
+      <fieldset class="routines-equipment" data-routine-equipment><legend>Equipo disponible</legend><div>
+        <label><input type="checkbox" value="machine" checked>Máquinas según variante</label><label><input type="checkbox" value="cable" checked>Poleas y agarres</label><label><input type="checkbox" value="dumbbell" checked>Mancuernas</label><label><input type="checkbox" value="barbell" checked>Barra, discos y soportes</label><label><input type="checkbox" value="bench" checked>Banco ajustable</label><label><input type="checkbox" value="bodyweight" checked>Peso corporal y colchoneta</label>
+      </div></fieldset>
+      <p class="routines-small">Excluye en la biblioteca los ejercicios cuyo aparato o variante no tengas.</p>
+      <div class="routines-generator-actions"><button type="submit" class="routines-button" data-routine-generate>Generar rutina</button><button type="button" class="routines-button routines-button-secondary" data-routine-another>Otra combinación</button></div>
+      <p class="routines-generator-status" role="status" aria-live="polite" data-routine-generator-status></p>
+      <p class="routines-small" id="routines-frequency-help">Si empiezas, usa menos días. Reserva 5–6 para cuando ya toleres esa frecuencia.</p>
+    </form>
     <div class="routines-layout">
       <section class="routines-week" aria-labelledby="routines-week-title">
-        <div class="routines-section-heading"><div><p class="routines-eyebrow">1 · Organiza</p><h2 id="routines-week-title">Elige tus días</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-default>Restablecer semana</button></div>
-        <div class="routines-week-controls"><label for="routine-frequency">Días por semana<select id="routine-frequency" data-routine-frequency aria-describedby="routines-frequency-help"><option value="3" selected>3 días</option><option value="4">4 días</option><option value="5">5 días</option><option value="6">6 días</option></select></label><label for="routine-cycle-week" data-routine-cycle-controls hidden>Ver semana del ciclo<select id="routine-cycle-week" data-routine-cycle-week><option value="1">Semana 1 de 3</option><option value="2">Semana 2 de 3</option><option value="3">Semana 3 de 3</option></select></label></div>
-        <p class="routines-small" id="routines-frequency-help">Si empiezas, usa menos días. Reserva 5–6 para cuando ya toleres esa frecuencia.</p>
+        <div class="routines-section-heading"><div><p class="routines-eyebrow">2 · Organiza</p><h2 id="routines-week-title">Elige tus días</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-default>Restablecer semana</button></div>
+        <div class="routines-week-controls"><label for="routine-cycle-week" data-routine-cycle-controls hidden>Ver semana del ciclo<select id="routine-cycle-week" data-routine-cycle-week><option value="1">Semana 1 de 3</option><option value="2">Semana 2 de 3</option><option value="3">Semana 3 de 3</option></select></label></div>
         <p id="routines-week-help">Puedes entrenar días seguidos y dejar al menos uno de descanso. Esta selección se pierde al cerrar la página.</p>
         <fieldset class="routines-days" aria-describedby="routines-week-help"><legend class="routines-sr">Días de entrenamiento</legend><div data-routine-days></div></fieldset>
         <p class="routines-week-status" role="status" aria-live="polite" data-routine-week-status></p>
@@ -30,17 +53,23 @@
         <p class="routines-eyebrow">A tu ritmo</p><h2 id="routines-timer-title">Descanso entre series</h2>
         <p>El tiempo es una referencia. Descansa más si lo necesitas.</p>
         <label for="routine-rest-duration">Duración</label>
-        <select id="routine-rest-duration" data-routine-rest><option value="60">60 segundos</option><option value="90" selected>90 segundos</option><option value="120">120 segundos</option></select>
+        <select id="routine-rest-duration" data-routine-rest><option value="60">60 segundos</option><option value="90" selected>90 segundos</option><option value="120">120 segundos</option><option value="180">180 segundos</option></select>
         <output class="routines-clock" data-routine-clock role="timer" aria-live="off" aria-label="Tiempo de descanso restante">01:30</output>
         <div class="routines-timer-buttons"><button type="button" class="routines-button" data-routine-timer-start>Iniciar</button><button type="button" class="routines-button routines-button-secondary" data-routine-timer-reset>Reiniciar</button></div>
         <p class="routines-small" role="status" aria-live="polite" data-routine-timer-status>Temporizador local; no guarda sesiones ni actividad.</p>
       </aside>
     </div>
-    <section class="routines-prepare" aria-labelledby="routines-prepare-title"><p class="routines-eyebrow">Antes de empezar</p><h2 id="routines-prepare-title">Familiarízate con los movimientos</h2><ul data-routine-warmup></ul><p data-routine-starting></p></section>
-    <section aria-labelledby="routines-sessions-title"><div class="routines-section-heading"><div><p class="routines-eyebrow">2 · Entrena</p><h2 id="routines-sessions-title">Explora las sesiones</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-print>Imprimir rutina</button></div><p class="routines-small">Abre cada ejercicio para ver técnica, equipo y alternativa. Las cantidades son una guía general.</p>
+    <section class="routines-prepare" data-routine-preparation aria-labelledby="routines-prepare-title"><p class="routines-eyebrow">Antes de empezar</p><h2 id="routines-prepare-title">Familiarízate con los movimientos</h2><ul data-routine-warmup></ul><p data-routine-starting></p></section>
+    <section aria-labelledby="routines-sessions-title"><div class="routines-section-heading"><div><p class="routines-eyebrow">3 · Entrena</p><h2 id="routines-sessions-title">Explora las sesiones</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-print>Imprimir rutina</button></div><p class="routines-small">Abre cada ejercicio para ver técnica, equipo y alternativa. Las cantidades son una guía general.</p><details class="routines-duration-help"><summary>Cómo se estima el tiempo</summary><p class="routines-small" data-routine-duration-basis></p></details>
       <nav class="routines-session-nav" aria-label="Ir a una sesión" data-routine-session-nav></nav>
       <div data-routine-sessions></div>
     </section>
+    <details class="routines-library" data-routine-library><summary><strong>Biblioteca de ejercicios</strong><span class="routines-small"><span data-routine-library-count>—</span> disponibles · <span data-routine-excluded-count>0</span> excluidos</span></summary>
+      <p class="routines-small">Marca los ejercicios que quieres dejar fuera antes de generar. No se sustituyen por movimientos fuera del equipo elegido.</p>
+      <div class="routines-library-controls"><label for="routine-library-query">Buscar ejercicio<input id="routine-library-query" data-routine-library-query type="search" placeholder="Nombre del ejercicio" maxlength="100"></label><label for="routine-library-group">Sesión<select id="routine-library-group" data-routine-library-group><option value="all">Todas</option><option value="push">Push · Empuje</option><option value="pull">Pull · Tirón</option><option value="legs">Legs · Piernas</option></select></label></div>
+      <div class="routines-library-actions"><button type="button" class="routines-button routines-button-secondary" data-routine-clear-exclusions>Quitar exclusiones</button><button type="button" class="routines-button routines-button-secondary" data-routine-library-retry hidden>Volver a consultar biblioteca</button></div>
+      <p class="routines-small" role="status" aria-live="polite" data-routine-library-status>La biblioteca se consulta al abrir este apartado.</p><ul class="routines-library-list" data-routine-library-list></ul>
+    </details>
     <aside class="routines-guidance" aria-labelledby="routines-guidance-title"><h2 id="routines-guidance-title">Entrena con cuidado</h2><ul data-routine-cautions></ul><p data-routine-guideline></p><p class="routines-small" data-routine-schedule-note></p><details class="mb-help"><summary>Fuentes y alcance de esta guía</summary><p>El catálogo ofrece ejemplos generales; sus fuentes no validan una prescripción individual.</p><ul data-routine-sources></ul></details></aside>
   </div>
 </section>

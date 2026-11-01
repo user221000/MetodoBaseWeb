@@ -54,7 +54,7 @@ def test_real_matrix_is_read_only_generic_and_never_adopts_client(routine_peer_h
     owner = get(case, "gym")
     private(owner, 200)
     program = owner.json()["program"]
-    assert [len(s["exercises"]) for s in program["sessions"]] == [4, 4, 5]
+    assert [len(s["exercises"]) for s in program["sessions"]] == [6, 6, 6]
     for role, team, gym in [(UserRole.VIEWER, None, False), (UserRole.ADMIN, case["user"], True),
                             (UserRole.NUTRIOLOGO, case["user"], True), (UserRole.VIEWER, case["user"], True)]:
         identifier = actor(case, role=role, team=team)
