@@ -479,6 +479,69 @@ async def test_email_proof_preserves_a_preexisting_personal_mfa_requirement(otp_
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize('mode',['new','legacy','bound'])
+async def test_real_google_email_code_persists_current_contact_confirmation(otp_case,mode):
+    from web.database.models import Usuario
+    from web.services.account_security import verified
+    c=otp_case
+    if mode!='new': seed(c,binding=c.info['sub'] if mode=='bound' else None)
+    stage=await start(c)
+    with c.sessions() as db:
+        assert all(user.email_verified_at is None for user in db.scalars(select(Usuario)).all())
+    identity=await verify(c,stage['challenge'])
+    with c.sessions() as db:
+        user=db.get(Usuario,identity['id'])
+        assert verified(user,datetime.now(timezone.utc))
+        assert user.email_verified_contact_version==user.notification_contact_version
+        assert user.email==c.info['email']
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('preverified',[False,True])
+async def test_google_bound_other_mailbox_does_not_verify_or_replace_contact(otp_case,preverified):
+    from web.database.models import Usuario
+    c=otp_case
+    user_id=seed(c,binding=c.info['sub'])
+    marked=datetime.now(timezone.utc) if preverified else None
+    with c.sessions() as db:
+        user=db.get(Usuario,user_id)
+        user.email='separate-contact@example.invalid'
+        user.notification_contact_version=7
+        user.email_verified_at=marked
+        user.email_verified_contact_version=7 if preverified else None
+        db.commit()
+    stage=await start(c)
+    assert c.mail[-1][0]==c.info['email']
+    identity=await verify(c,stage['challenge'])
+    assert identity['id']==user_id and identity['email']=='separate-contact@example.invalid'
+    with c.sessions() as db:
+        user=db.get(Usuario,user_id)
+        assert user.email=='separate-contact@example.invalid'
+        assert (user.email_verified_at is not None) is preverified
+        assert user.email_verified_contact_version==(7 if preverified else None)
+
+
+@pytest.mark.asyncio
+async def test_google_codes_are_delivered_to_and_verify_separate_accounts(otp_case):
+    from web.database.models import Usuario
+    from web.services.account_security import verified
+    c=otp_case
+    first=await start(c)
+    first_recipient,first_code=c.mail[-1]
+    c.info={**c.info,'sub':'synthetic-second-subject','email':'second-owner@example.invalid'}
+    second=await start(c)
+    second_recipient,second_code=c.mail[-1]
+    assert [first_recipient,second_recipient]==['google-owner@example.invalid','second-owner@example.invalid']
+    a=await verify(c,first['challenge'],first_code)
+    b=await verify(c,second['challenge'],second_code)
+    assert a['id']!=b['id']
+    with c.sessions() as db:
+        assert db.get(Usuario,a['id']).email==first_recipient
+        assert db.get(Usuario,b['id']).email==second_recipient
+        assert all(verified(db.get(Usuario,item['id']),datetime.now(timezone.utc)) for item in (a,b))
+
+
+@pytest.mark.asyncio
 async def test_send_budget_uses_opaque_email_and_ip_keys_and_never_falls_back(otp_case, monkeypatch):
     from web import rate_limiter_redis
     c = otp_case

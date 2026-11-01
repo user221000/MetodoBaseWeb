@@ -3,6 +3,8 @@
 Pure data: MXN prices are integer centavos and recurring periods are months.
 Provider price IDs are adapter input, never environment reads in the domain.
 The user approved Free=10 clients and continued desktop support on 2026-10-18.
+Web-specific generation limits are applied to copies; historical consumers
+retain their existing definitions.
 """
 
 from __future__ import annotations
@@ -131,6 +133,11 @@ _PLAN_DEFINITIONS = {
     },
 }
 
+# The SaaS paid tiers must support at least one generation for each of their
+# allowed clients in a day. Keep this web-only correction separate from the
+# historical shared definitions: desktop is outside the current work scope.
+_WEB_DAILY_GENERATION_LIMITS = {"standard": 25, "gym_comercial": 75}
+
 
 def get_plan_catalog(
     target: str, *, stripe_prices: dict[str, str] | None = None
@@ -139,6 +146,7 @@ def get_plan_catalog(
 
     Free follows the user's explicit decision: ten clients, one plan per
     client/day and ten plans per gym/day. Personal subscriptions are separate.
+    Web paid daily totals are 25/75; client and monthly caps still apply.
     Individual Pro is absent from desktop's gym-license selector.
     """
     if target not in {"web", "desktop"}:
@@ -146,6 +154,9 @@ def get_plan_catalog(
     catalog = deepcopy(_PLAN_DEFINITIONS)
     if target == "desktop":
         catalog.pop("pro_usuario")
+    else:
+        for name, maximum in _WEB_DAILY_GENERATION_LIMITS.items():
+            catalog[name]["max_planes_diarios"] = maximum
     for name, definition in catalog.items():
         # Preserve the adapter contract: free has no provider price, paid plans
         # have an empty configuration value until the operator supplies an ID.

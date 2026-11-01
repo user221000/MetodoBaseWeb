@@ -226,6 +226,18 @@ def test_exact_public_brand_tokens_and_no_new_remote_assets():
 def test_landing_runtime_catalogue_expressions_and_destinations_are_unchanged():
     expected = json.loads((BASELINE.parent / 'landing-runtime-contract.json').read_text(encoding='utf-8'))
     source = (ROOT / 'web/templates/landing.html').read_text(encoding='utf-8')
+    # Share the current workspace palette while retaining the original catalogue
+    # expressions and navigation below this explicit stylesheet addition.
+    shared = '  <link rel="stylesheet" href="/static/css/workspace.css?v={{ static_version }}">\n'
+    assert source.count(shared) == 1
+    assert source.index(shared) < source.index('/static/css/landing.css')
+    source = source.replace(shared, '', 1)
+    # Domain/brand metadata was added after the historical visual snapshot.
+    # Accept only those exact public additions, never a catalogue or route edit.
+    for metadata in ('  <link rel="canonical" href="{{ canonical_url }}">\n',
+                     "  {% include '_brand_icons.html' %}\n"):
+        assert source.count(metadata) == 1
+        source = source.replace(metadata, '', 1)
     assert re.findall(r'\{\{[\s\S]*?\}\}|\{%[\s\S]*?%\}', source) == expected['jinja']
     assert re.findall(r'href="([^"]+)"', source) == expected['hrefs']
 

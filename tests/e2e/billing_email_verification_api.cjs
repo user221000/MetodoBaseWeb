@@ -8,27 +8,27 @@ const challenge=()=>({email_verification_required:true,challenge:'C'.repeat(43),
 const verification=()=>({verification_token:'V'.repeat(43),expires_in_seconds:300});
 const paths=new Set(['/api/billing/checkout','/api/billing/stripe/subscribe','/api/billing/mp/preference','/api/billing/portal','/api/usuario/checkout','/api/usuario/stripe-subscribe','/api/usuario/mp-preference','/api/usuario/billing-portal']);
 async function fixture(){
-  const w=world(),t=w.tab(),control={hook:null,uiCalls:[],payments:[],codeVerified:false,heldUI:null};
+  const w=world(),t=w.tab(),control={hook:null,uiCalls:[],payments:[],codeVerified:false,emailVerified:false,heldUI:null};
   t.sandbox.document.querySelector=()=>({content:'synthetic-csrf'});
   t.hook(async call=>{
     if(control.hook){const result=await control.hook(call);if(result)return result;}
-    if(call.path==='/api/billing/email-verification/request')return reply(200,challenge());
+    if(call.path==='/api/billing/email-verification/request')return reply(200,control.emailVerified?{email_verification_required:false,email_verified:true}:challenge());
     if(call.path==='/api/billing/email-verification/verify'){control.codeVerified=true;assert.equal(call.body.code,'123456');return reply(200,verification());}
     if(call.path==='/api/auth/mfa/step-up'){
       const action=call.body.path.endsWith('/checkout')?'billing.checkout':call.body.path.endsWith('/subscribe')?'billing.subscribe':call.body.path.endsWith('/portal')?'billing.portal':'billing.mp';
       return reply(200,{grant:'G'.repeat(43),expires_at:new Date(Date.now()+300000).toISOString(),action,method:call.body.method,path:call.body.path,single_use:true});
     }
     if(paths.has(call.path)){
-      assert.equal(control.codeVerified,true,'No payment port before mailbox proof');
-      assert.equal(call.options.headers['X-Billing-Email-Grant'],'V'.repeat(43));
+      assert.equal(control.codeVerified||control.emailVerified,true,'No payment port before mailbox confirmation');
+      assert.equal(call.options.headers['X-Billing-Email-Grant'],control.emailVerified?undefined:'V'.repeat(43));
       control.payments.push(call);return reply(200,{url:'https://checkout.stripe.com/synthetic',redirect_url:'https://www.mercadopago.com.mx/synthetic'});
     }
   });
   await t.api.session.ready;
-  t.sandbox.BillingEmailVerification={async authorize(action,plan,handle){
+  t.sandbox.BillingEmailVerification={async authorize(action,plan,handle,initial){
     control.uiCalls.push({action,plan});
     if(control.heldUI)return control.heldUI.promise;
-    const value=await t.api.billingEmail.begin(action,plan,handle);
+    const value=initial||await t.api.billingEmail.begin(action,plan,handle);
     const proof=await t.api.billingEmail.verify(action,plan,value.challenge,'123456',handle);
     return proof.verification_token;
   }};
@@ -57,6 +57,31 @@ const cases=[
     e.t.api.billingEmail.checkResult(value);assert.throws(()=>e.t.api.billingEmail.checkResult({...value}),{code:'session_changed'});
     const order=e.w.calls.map(call=>call.path);assert.ok(order.indexOf('/api/billing/email-verification/verify')<order.indexOf(path));
     assert.ok(e.w.writes.every(row=>row.key==='mb_session_epoch'));
+    assert.equal(e.w.calls.filter(call=>call.path.endsWith('/email-verification/request')).length,1);
+  });
+  for(const [action,plan,path,invoke,mfa] of cases)await test(action+' reuses server-confirmed current mailbox without modal or email header',async()=>{
+    const e=await fixture();e.control.emailVerified=true;e.t.sandbox.BillingEmailVerification=null;
+    const value=await invoke(e.t.api);assert.equal(e.control.uiCalls.length,0);assert.equal(e.control.payments.length,1);
+    assert.equal(e.control.payments[0].path,path);assert.equal(!!e.control.payments[0].options.headers['X-MFA-Grant'],mfa);
+    assert.equal(Object.hasOwn(e.control.payments[0].options.headers,'X-Billing-Email-Grant'),false);
+    assert.equal(e.w.calls.filter(call=>call.path.endsWith('/email-verification/request')).length,1);
+    assert.equal(e.w.calls.filter(call=>call.path.endsWith('/email-verification/verify')).length,0);
+    e.t.api.billingEmail.checkResult(value);
+  });
+  for(const malformed of [{email_verification_required:false},{email_verification_required:false,email_verified:false},{email_verification_required:false,email_verified:true,challenge:'C'.repeat(43)},{email_verification_required:false,email_verified:true,verification_token:'V'.repeat(43)}])await test('Malformed already-confirmed mailbox response fails closed '+Object.keys(malformed).join(','),async()=>{
+    const e=await fixture();e.control.hook=call=>call.path.endsWith('/email-verification/request')?reply(200,malformed):null;
+    await assert.rejects(e.t.api.usuario.checkout('owned-key'),{code:'billing_email_invalid_response'});assert.equal(e.control.payments.length,0);assert.equal(e.control.uiCalls.length,0);
+  });
+  await test('A modal cannot manufacture an already-confirmed mailbox receipt',async()=>{
+    const e=await fixture();e.t.sandbox.BillingEmailVerification.authorize=async()=>({email_verification_required:false,email_verified:true});
+    await assert.rejects(e.t.api.billing.checkout('standard','owned-key'),{code:'billing_email_invalid_proof'});assert.equal(e.control.payments.length,0);
+  });
+  await test('An already-confirmed mailbox reply from account A cannot pay after account B replaces it',async()=>{
+    const e=await fixture(),gate=deferred(),started=deferred();e.control.emailVerified=true;
+    e.control.hook=call=>{if(call.path.endsWith('/email-verification/request')){started.resolve();return{...reply(200,{}),json:async()=>{await gate.promise;return{email_verification_required:false,email_verified:true};}};}};
+    const pending=e.t.api.usuario.checkout('owned-key');await started.promise;
+    e.w.shared.set('mb_session_epoch','22222222-2222-4222-8222-222222222222');e.t.dispatch({type:'storage',key:'mb_session_epoch'});gate.resolve();
+    await assert.rejects(pending,{code:'session_changed'});assert.equal(e.control.payments.length,0);assert.equal(e.control.uiCalls.length,0);
   });
   await test('A cancelled mailbox dialog never requests MFA or payment',async()=>{
     const e=await fixture();e.t.sandbox.BillingEmailVerification.authorize=async()=>{throw Object.assign(Error('Synthetic cancel'),{code:'billing_email_cancelled'});};

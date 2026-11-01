@@ -101,7 +101,7 @@
         <p class="registro-subtitle">Únete al sistema nutricional</p>
       </div>
 
-      <div class="error-msg" id="errorMsg"></div>
+      <div class="error-msg" id="errorMsg" role="alert" aria-live="polite"></div>
       <div class="success-msg" id="successMsg"></div>
       {% include "mfa_login_partial.html" %}
 
@@ -123,32 +123,34 @@
 
         <div class="name-grid" style="margin-bottom:16px;">
           <div class="input-group" style="margin-bottom:0;">
-            <label class="input-label">NOMBRE *</label>
-            <input type="text" name="nombre" class="input-field" placeholder="Juan" required autocomplete="given-name" />
+            <label class="input-label" for="registration-name">NOMBRE *</label>
+            <input id="registration-name" type="text" name="nombre" class="input-field" placeholder="Juan" required autocomplete="given-name" />
           </div>
           <div class="input-group" style="margin-bottom:0;">
-            <label class="input-label">APELLIDO</label>
-            <input type="text" name="apellido" class="input-field" placeholder="Pérez" autocomplete="family-name" />
+            <label class="input-label" for="registration-surname">APELLIDO</label>
+            <input id="registration-surname" type="text" name="apellido" class="input-field" placeholder="Pérez" autocomplete="family-name" />
           </div>
         </div>
 
         <div class="input-group">
-          <label class="input-label">CORREO ELECTRÓNICO *</label>
-          <input type="email" name="email" class="input-field" placeholder="tu@email.com" required autocomplete="email" />
+          <label class="input-label" for="registration-email">CORREO ELECTRÓNICO *</label>
+          <input id="registration-email" type="email" name="email" class="input-field" placeholder="tu@email.com" required autocomplete="email" aria-describedby="registration-email-help" />
+          <p id="registration-email-help" style="font-size:.8rem;color:var(--text-secondary);margin-top:6px;">Usaremos este correo para las confirmaciones de esta cuenta.</p>
         </div>
 
         <div class="input-group">
-          <label class="input-label">CONTRASEÑA * (mín. 15 caracteres; máx. 72 bytes UTF-8)</label>
-          <input type="password" name="password" id="pwdField" class="input-field" placeholder="••••••••" required minlength="15" autocomplete="new-password" />
+          <label class="input-label" for="pwdField">CONTRASEÑA *</label>
+          <input type="password" name="password" id="pwdField" class="input-field" placeholder="Una frase larga y poco predecible" required minlength="15" autocomplete="new-password" aria-describedby="registration-password-help" />
+          <p id="registration-password-help" style="font-size:.8rem;color:var(--text-secondary);margin-top:6px;">Mínimo 15 caracteres; máximo 72 bytes UTF-8. Evita contraseñas comunes o fáciles de adivinar.</p>
         </div>
 
         <div class="input-group">
-          <label class="input-label">CONFIRMAR CONTRASEÑA *</label>
-          <input type="password" name="confirm_password" class="input-field" placeholder="••••••••" required minlength="15" autocomplete="new-password" />
+          <label class="input-label" for="registration-password-confirm">CONFIRMAR CONTRASEÑA *</label>
+          <input id="registration-password-confirm" type="password" name="confirm_password" class="input-field" placeholder="Repite tu contraseña" required minlength="15" autocomplete="new-password" />
         </div>
 
         <div class="security-note">
-          🔒 Tus datos se almacenan de forma segura. Las contraseñas se guardan con bcrypt.
+          Tu contraseña es personal. Si ya accediste con este correo, utiliza tu método habitual para iniciar sesión.
         </div>
 
         <button type="submit" class="btn-login" id="submitBtn">
@@ -166,6 +168,7 @@
           ¿Ya tienes cuenta?
           <a href="/login-gym" id="linkLogin">Iniciar sesión</a>
         </p>
+        <p style="margin-top:10px;"><a href="/auth/reset-password">Recuperar acceso</a></p>
       </div>
     </div>
   </div>

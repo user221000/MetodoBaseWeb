@@ -158,7 +158,18 @@ async def registro(data: RegistroRequest):
             apellido=data.apellido,
             tipo=tipo,
         )
-    except ValueError:
+    except ValueError as error:
+        # Keep the public response generic while making validation failures
+        # diagnosable without logging the address, form values or password.
+        reason = {
+            "El email ya está registrado.": "existing_account",
+            "Email inválido.": "invalid_email",
+            "Nombre inválido.": "invalid_name",
+            "La contraseña debe tener al menos 15 caracteres.": "password_length",
+            "La contraseña debe ocupar como máximo 72 bytes UTF-8.": "password_length",
+            "Esta contraseña es demasiado común. Elige otra contraseña o una frase larga y poco predecible.": "password_policy",
+        }.get(str(error), "invalid_registration_data")
+        logger.info("Registration rejected reason=%s", reason)
         raise HTTPException(400, {"code": "registration_invalid", "message": "No se pudo crear la cuenta. Revisa email, nombre y contraseña (mínimo 15 caracteres)."}) from None
     _sync_user_to_sa(usuario)
     tokens = crear_token_pair(usuario)

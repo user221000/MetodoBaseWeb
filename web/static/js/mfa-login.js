@@ -4,7 +4,7 @@
   const methods=new Set(['totp','recovery_code']);
   const messages={mfa_throttled:'Hay un límite temporal de intentos. Espera antes de volver a verificar.',mfa_verification_failed:'No se confirmó el código. Usa una prueba vigente e inténtalo de nuevo.',mfa_proof_unavailable:'La verificación venció o ya se usó. Inicia un acceso nuevo.',mfa_unconfirmed:'No llegó una confirmación fiable. Puede haberse consumido la prueba; inicia un acceso nuevo.',mfa_service_unavailable:'La verificación no está disponible. No se inició sesión; vuelve a consultar.'};
   const googleMessages=Object.freeze({google_link_required:'Este vínculo de Google está desactivado. Usa otro acceso de tu cuenta para consultar tus vínculos.',google_link_conflict:'No se pudo confirmar este vínculo de Google. Descarta el intento y consulta tus vínculos desde el acceso local; no se inició una sesión nueva.',google_identity_invalid:'No se pudo verificar la cuenta de Google. Descarta el intento y usa una autenticación válida; no se inició sesión.',google_email_unavailable:'El servicio de envío de códigos no está disponible. No se inició sesión. Inténtalo cuando el servicio se restablezca.',google_email_delivery_unconfirmed:'No pudimos confirmar el envío del código. No se inició sesión. Descarta este intento antes de comenzar uno nuevo.',google_email_code_invalid:'No se pudo confirmar el código del correo. Revisa las seis cifras o inicia un acceso nuevo si venció o ya lo usaste.',google_email_throttled:'Hay un límite temporal para los códigos del correo. Espera antes de iniciar otro intento.',google_email_identity_changed:'La cuenta cambió durante la verificación. Inicia un acceso nuevo con Google.',google_email_unconfirmed:'No pudimos confirmar la verificación del correo. No se inició sesión. Inicia un acceso nuevo.'});
-  function message(error){if(error.code==='registration_invalid')return 'No se pudo crear la cuenta. Revisa el correo, el nombre y la contraseña (mínimo 15 caracteres).';if(Object.prototype.hasOwnProperty.call(googleMessages,error.code))return googleMessages[error.code];return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
+  function message(error){if(error.code==='registration_invalid')return 'No se pudo crear la cuenta. Revisa el correo, el nombre y la contraseña (mínimo 15 caracteres y poco predecible). Si ya tienes una cuenta con ese correo, inicia sesión o recupera el acceso.';if(Object.prototype.hasOwnProperty.call(googleMessages,error.code))return googleMessages[error.code];return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
   function create(options={}){
     const api=options.api||Api.mfa;
     let context=null,challenge=null,method='totp',expiry=null,maskedEmail=null,primaryKind=null,phase='primary',busy=false,epoch=0,dead=false,committing=false,committed=false;
@@ -91,6 +91,28 @@
       expire(){if(!dead&&['factor','email'].includes(phase)&&Date.now()>=Date.parse(expiry)){cancel();view('La verificación venció. Inicia un acceso nuevo.');}},
       get active(){return!dead;},get phase(){return phase;}};
   }
+  function registrationEmailValid(value){
+    // Give field feedback before sending obvious invalid identities. The
+    // server remains authoritative and receives the original trimmed value.
+    const email=value.trim().toLowerCase(),parts=email.split('@');
+    if(Array.from(email).length>255||parts.length!==2||/[\s\p{C}]/u.test(email))return false;
+    const [local,domain]=parts;
+    if(!local||!domain||new TextEncoder().encode(local).length>64||local.startsWith('.')||local.endsWith('.')||local.includes('..'))return false;
+    const allowed="abcdefghijklmnopqrstuvwxyz0123456789.!#$%&'*+-/=?^_`{|}~";
+    if(Array.from(local).some(char=>char.codePointAt(0)<128&&!allowed.includes(char)))return false;
+    if(/[\/:?#\\%\[\]@]/u.test(domain))return false;
+    try{
+      const labels=domain.split('.').map(label=>{
+        if(!label)return '';
+        if(/^[\x00-\x7f]+$/.test(label))return label;
+        const host=new URL('https://'+label+'.invalid').hostname;
+        return host.endsWith('.invalid')?host.slice(0,-8):'';
+      });
+      if(labels.some(label=>!/[a-zA-Z0-9]/.test(label)||!/^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/.test(label)))return false;
+      const asciiDomain=labels.join('.');
+      return asciiDomain.length<=253&&new TextEncoder().encode(local).length+1+asciiDomain.length<=254;
+    }catch{return false;}
+  }
   function mount(options){
     const get=id=>document.getElementById(id),registration=options.registration===true,form=get(options.formId||'loginForm'),factor=get('mfa-login-factor'),emailForm=get('mfa-login-email'),panel=get('mfa-login-panel'),status=get('mfa-login-status');
     const googleBox=get('googleBtnContainer'),googleError=get('googleErrorMsg'),googleHelp=get('mfa-login-google-help'),button=get('submitBtn'),error=get('errorMsg');
@@ -140,12 +162,17 @@
     form.addEventListener('submit',event=>{
       event.preventDefault();if(controller.phase!=='primary'||!controller.active)return false;googleTicket=null;googleEpoch++;
       if(!registration)return controller.primary('password',{email:form.email.value.trim(),password:form.password.value,remember_me:get('rememberMe').checked});
-      const password=form.password.value;
-      let problem='';if(password!==form.confirm_password.value)problem='Las contraseñas no coinciden.';
-      else if(Array.from(password).length<15||new TextEncoder().encode(password).length>72)problem='La contraseña debe tener al menos 15 caracteres y como máximo 72 bytes UTF-8.';
+      const password=form.password.value,nombre=form.nombre.value.trim(),apellido=form.apellido.value.trim(),email=form.email.value.trim();
+      for(const input of form.querySelectorAll('[aria-invalid="true"]'))input.removeAttribute('aria-invalid');
+      let problem='',field=null;
+      if(!nombre||Array.from(nombre).length>150){problem='Escribe tu nombre (hasta 150 caracteres).';field=form.nombre;}
+      else if(Array.from(apellido).length>150){problem='El apellido admite hasta 150 caracteres.';field=form.apellido;}
+      else if(!registrationEmailValid(email)){problem='Escribe un correo válido para recibir las confirmaciones de tu cuenta.';field=form.email;}
+      else if(Array.from(password).length<15||new TextEncoder().encode(password).length>72){problem='Elige una contraseña de al menos 15 caracteres y como máximo 72 bytes UTF-8.';field=form.password;}
+      else if(password!==form.confirm_password.value){problem='Las contraseñas no coinciden. Repite la misma contraseña.';field=form.confirm_password;}
       const tipo=audience();if(!['gym','usuario'].includes(tipo))problem='Selecciona un tipo de cuenta válido.';
-      if(problem){error.textContent=problem;error.style.display='block';return false;}
-      return controller.primary('registration',{email:form.email.value.trim(),password,nombre:form.nombre.value.trim(),apellido:form.apellido.value.trim(),tipo});
+      if(problem){error.textContent=problem;error.style.display='block';error.setAttribute('role','alert');if(field){field.setAttribute('aria-invalid','true');field.focus();}return false;}
+      return controller.primary('registration',{email,password,nombre,apellido,tipo});
     });
     emailForm.addEventListener('submit',event=>{event.preventDefault();const value=emailInput.value.trim();invalidEmailInput=!/^\d{6}$/.test(value);return controller.verifyEmail(value);});
     const clearEmailFeedback=()=>{const wasInvalid=!emailFeedback.hidden;invalidEmailInput=false;emailInput.setAttribute('aria-invalid','false');emailFeedback.hidden=true;emailFeedback.textContent='';status.hidden=false;status.setAttribute('role','status');status.setAttribute('aria-live','polite');if(wasInvalid)status.textContent='Escribe el código que aparece en tu correo.';};

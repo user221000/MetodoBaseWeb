@@ -519,7 +519,7 @@ const Api = (() => {
 
   // Closed MFA wire. Handles contain no proof or access in their public shape.
   let _mfaContexts = new WeakMap(), _mfaOperations = new WeakMap(), _mfaGrants = new WeakMap();
-  let _billingPermits = new WeakMap(), _billingResults = new WeakMap();
+  let _billingPermits = new WeakMap(), _billingResults = new WeakMap(), _billingVerified = new WeakMap();
   const _mfaBearer = value => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value);
   const _mfaExpiry = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d\d:\d\d)$/.test(value) && Number.isFinite(Date.parse(value));
   function _mfaError(code='mfa_invalid_response') {
@@ -571,11 +571,11 @@ const Api = (() => {
       const data=reply.data;_acknowledged.set(data,{snapshot:started,pair:_tokenPair(data)});saveTokens(data);_delivered.set(data,{snapshot:_snapshot(),pair:_credentials.pair});return data;
     });
   }
-  async function _mfaRequest(path, body, handle, method='POST') {
+  async function _mfaRequest(path, body, handle, method='POST', expectedStatus=null) {
     if(method==='POST')body=_captureCookieBody(body);
     const context = _mfaContext(handle);
     try {
-      const value = method==='POST'?await _withCookieLock(context.snapshot,async()=>{_mfaContext(handle);const reply=await _cookieFetch(path,body,context.pair.token);_mfaContext(handle);return reply.data;}):await request(method,path,body,{},true,{snapshot:context.snapshot,pair:context.pair});
+      const value = method==='POST'?await _withCookieLock(context.snapshot,async()=>{_mfaContext(handle);const reply=await _cookieFetch(path,body,context.pair.token);_mfaContext(handle);if(expectedStatus!==null&&reply.status!==expectedStatus)throw _mfaError();return reply.data;}):await request(method,path,body,{},true,{snapshot:context.snapshot,pair:context.pair});
       _mfaContext(handle);return value;
     } catch(error) { _mfaContext(handle);throw error; }
   }
@@ -639,6 +639,18 @@ const Api = (() => {
     },
     status: handle => _mfaRequest('/api/auth/mfa/status',null,handle,'GET'),
     reauth: (body,handle) => _mfaRequest('/api/auth/mfa/reauth',body,handle),
+    async googleEmailRequest(body,handle){
+      if(!body||Object.keys(body).length!==1||typeof body.google_credential!=='string'||!body.google_credential||body.google_credential.length>16384)throw _mfaError('mfa_invalid_input');
+      const value=await _mfaRequest('/api/auth/mfa/google-email/request',body,handle,'POST',202);
+      if(!value||value.email_verification_required!==true||!_mfaBearer(value.challenge)||!_mfaExpiry(value.expires_at)||Date.parse(value.expires_at)<=Date.now()||typeof value.masked_email!=='string'||!value.masked_email||value.masked_email.length>320||/[\r\n\0]/.test(value.masked_email)||value.resend_after_seconds!==60||Object.keys(value).some(key=>!['email_verification_required','challenge','expires_at','masked_email','resend_after_seconds'].includes(key)))throw _mfaError('mfa_invalid_response');
+      return value;
+    },
+    async googleEmailVerify(body,handle){
+      if(!body||Object.keys(body).length!==2||!_mfaBearer(body.challenge)||typeof body.code!=='string'||!/^\d{6}$/.test(body.code))throw _mfaError('mfa_invalid_input');
+      const value=await _mfaRequest('/api/auth/mfa/google-email/verify',body,handle,'POST',200);
+      if(!value||!_mfaBearer(value.reauthentication_token)||!_mfaExpiry(value.expires_at)||Date.parse(value.expires_at)<=Date.now()||Object.keys(value).some(key=>!['reauthentication_token','expires_at'].includes(key)))throw _mfaError('mfa_invalid_response');
+      return value;
+    },
     enroll: (body,handle) => _mfaRequest('/api/auth/mfa/enroll',body,handle),
     confirm: (body,handle) => _mfaRequest('/api/auth/mfa/enroll/confirm',body,handle),
     regenerate: (body,handle) => _mfaRequest('/api/auth/mfa/recovery-codes/regenerate',body,handle),
@@ -678,7 +690,7 @@ const Api = (() => {
       _mfaGrants.delete(grant);_mfaOperations.delete(operation);
       const context=_mfaContext(value.context),headers={'X-MFA-Grant':permit.proof,...(value.idempotencyKey===null?{}:{'Idempotency-Key':value.idempotencyKey})};
       permit.proof=null;
-      if(value.billing){_mfaContext(value.billing.handle);headers['X-Billing-Email-Grant']=value.billing.proof;value.billing.proof=null;}
+      if(value.billing){_mfaContext(value.billing.handle);if(value.billing.proof!==null)headers['X-Billing-Email-Grant']=value.billing.proof;value.billing.proof=null;}
       return request(value.method,value.path,value.body,headers,true,{snapshot:context.snapshot,pair:context.pair});
     },
     async perform(method,path,body={},key=null,billingPermit=null) {
@@ -686,7 +698,7 @@ const Api = (() => {
       try {
         if(billingPermit!==null){
           const permit=_billingPermits.get(billingPermit);_billingPermits.delete(billingPermit);
-          if(!permit || permit.method!==method || permit.path!==path || permit.key!==key || permit.body!==JSON.stringify(body) || !_mfaBearer(permit.proof))throw _mfaError('billing_email_invalid_proof');
+          if(!permit || permit.method!==method || permit.path!==path || permit.key!==key || permit.body!==JSON.stringify(body) || !(_mfaBearer(permit.proof)||(permit.verified===true&&permit.proof===null)))throw _mfaError('billing_email_invalid_proof');
           _mfaContext(permit.handle);value.billing=permit;
         }
         let grant;
@@ -704,7 +716,7 @@ const Api = (() => {
   // ── Billing ────────────────────────────────────────────────────────────────
 
   if (typeof window.addEventListener === 'function') {
-    const discardMfa=()=>{_mfaContexts=new WeakMap();_mfaOperations=new WeakMap();_mfaGrants=new WeakMap();_billingPermits=new WeakMap();_billingResults=new WeakMap();if(_retainedLogin&&!_invalidated&&!_hidden&&_retainedLogin.value.snapshot.revision===_credentials.revision&&_samePair(_retainedLogin.value.pair,_credentials.pair))_mfaContexts.set(_retainedLogin.handle,_retainedLogin.value);};
+    const discardMfa=()=>{_mfaContexts=new WeakMap();_mfaOperations=new WeakMap();_mfaGrants=new WeakMap();_billingPermits=new WeakMap();_billingResults=new WeakMap();_billingVerified=new WeakMap();if(_retainedLogin&&!_invalidated&&!_hidden&&_retainedLogin.value.snapshot.revision===_credentials.revision&&_samePair(_retainedLogin.value.pair,_credentials.pair))_mfaContexts.set(_retainedLogin.handle,_retainedLogin.value);};
     window.addEventListener('metodobase-session-changed',discardMfa);
     window.addEventListener('pagehide',discardMfa);
   }
@@ -1061,6 +1073,11 @@ const Api = (() => {
   const billingEmail = Object.freeze({
     async begin(action,plan,handle){
       const value=await _billingEmailPost('/api/billing/email-verification/request',_billingInput(action,plan),handle);
+      if(value?.email_verification_required===false){
+        if(value.email_verified!==true || Object.keys(value).length!==2 || Object.keys(value).some(key=>!['email_verification_required','email_verified'].includes(key)))throw _mfaError('billing_email_invalid_response');
+        _billingVerified.set(value,handle);
+        return value;
+      }
       if(!value || value.email_verification_required!==true || !_mfaBearer(value.challenge) || !_mfaExpiry(value.expires_at) || Date.parse(value.expires_at)<=Date.now() ||
           typeof value.masked_email!=='string' || !value.masked_email || value.masked_email.length>320 || /[\r\n\0]/.test(value.masked_email) || value.resend_after_seconds!==60 ||
           Object.keys(value).some(key=>!['email_verification_required','challenge','expires_at','masked_email','resend_after_seconds'].includes(key)))throw _mfaError('billing_email_invalid_response');
@@ -1083,12 +1100,17 @@ const Api = (() => {
     _billingInput(action,plan);
     if(key!==null && (typeof key!=='string' || !/^[\x21-\x7e]{1,128}$/.test(key)))throw _mfaError('billing_email_invalid_input');
     await _readyPromise;
-    let handle=null,proof=null,permit=null,started=false;
+    let handle=null,proof=null,permit=null,started=false,verified=false;
     try{
       handle=(await mfa.context()).handle;
-      if(typeof window.BillingEmailVerification?.authorize!=='function')throw _mfaError('billing_email_ui_unavailable');
-      proof=await window.BillingEmailVerification.authorize(action,plan,handle);_mfaContext(handle);
-      if(!_mfaBearer(proof))throw _mfaError('billing_email_invalid_proof');
+      const confirmation=await billingEmail.begin(action,plan,handle);_mfaContext(handle);
+      if(confirmation.email_verification_required===false)verified=true;
+      else{
+        if(typeof window.BillingEmailVerification?.authorize!=='function')throw _mfaError('billing_email_ui_unavailable');
+        proof=await window.BillingEmailVerification.authorize(action,plan,handle,confirmation);_mfaContext(handle);
+        if(proof && typeof proof==='object' && _billingVerified.get(proof)===handle){_billingVerified.delete(proof);verified=true;proof=null;}
+        else if(!_mfaBearer(proof))throw _mfaError('billing_email_invalid_proof');
+      }
       await mfa.verify(handle);const context=_mfaContext(handle);
       // Capture a cryptographic key exactly once; callers retain their key on
       // an explicit retry. No payment request is automatically replayed.
@@ -1098,10 +1120,10 @@ const Api = (() => {
       }
       let value;
       if(requiresMfa){
-        permit=Object.freeze({});_billingPermits.set(permit,{handle,proof,method,path,key,body:JSON.stringify(body)});proof=null;started=true;
+        permit=Object.freeze({});_billingPermits.set(permit,{handle,proof,verified,method,path,key,body:JSON.stringify(body)});proof=null;started=true;
         value=await mfa.perform(method,path,body,key,permit);
       }else{
-        const headers={'X-Billing-Email-Grant':proof,...(key===null?{}:{'Idempotency-Key':key})};proof=null;started=true;
+        const headers={...(proof===null?{}:{'X-Billing-Email-Grant':proof}),...(key===null?{}:{'Idempotency-Key':key})};proof=null;started=true;
         value=await request(method,path,body,headers,true,{snapshot:context.snapshot,pair:context.pair});
       }
       _mfaContext(handle);await mfa.verify(handle);_mfaContext(handle);

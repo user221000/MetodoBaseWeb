@@ -1,10 +1,13 @@
 """Fresh account authority for subscription email confirmation; no new schema."""
 import hashlib
 import json
+import logging
 from fastapi import HTTPException
 from web.account_values import normalize_account_email
 from web.database.models import Usuario
 from web.services import mfa_service
+
+logger = logging.getLogger(__name__)
 
 GYM_PLANS = frozenset({'standard', 'gym_comercial', 'clinica'})
 ACTION_RULES = {
@@ -99,12 +102,56 @@ def owned_snapshot(expected, request, action, plan):
         return snapshot(db, expected, request, action, plan)
 
 
+def owned_contact_snapshot(expected, request, action, plan):
+    """Return fresh contact authority; this read never authorizes a payment."""
+    from web.database.engine import SessionLocal
+    from web.services.account_security import verified
+    with SessionLocal() as db:
+        binding, email, identity = snapshot(db, expected, request, action, plan)
+        user = db.get(Usuario, identity['id'])
+        return binding, email, identity, verified(user, mfa_service.instant())
+
+
+def confirm_contact(expected, request, action, plan, expected_binding):
+    """Persist mailbox possession only after its exact billing OTP was consumed."""
+    from web.database.engine import SessionLocal
+    from web.services.account_security import PENDING, epoch
+    from web.services import billing_email_verification as service
+    with SessionLocal() as db:
+        try:
+            current, _, identity = snapshot(db, expected, request, action, plan, lock=True)
+            if current != expected_binding:
+                fail(409, 'billing_email_identity_changed', 'La cuenta cambió. Solicita un nuevo código.')
+            user = db.get(Usuario, identity['id'])
+            now = mfa_service.instant()
+            user.email_verified_at = now
+            user.email_verified_contact_version = epoch(user)
+            for name in PENDING:
+                setattr(user, name, None)
+            mfa_service.audit(db, user, 'email_contact_verified', now, channel='billing_code')
+            db.commit()
+        except HTTPException:
+            mfa_service.rollback(db)
+            raise
+        except Exception as error:
+            logger.error('Billing contact confirmation unconfirmed class=%s', type(error).__name__)
+            mfa_service.rollback(db)
+            service.fail(503, 'billing_email_unconfirmed')
+
+
 async def require_email(db, expected, request, action, plan, body, *, idempotency_key=None):
     from starlette.concurrency import run_in_threadpool
     from web.services import billing_email_verification as service
+    from web.services.account_security import verified
     values = request.headers.getlist('x-billing-email-grant')
-    if len(values) != 1:
+    if len(values) > 1:
         service.fail(403, 'billing_email_required')
     binding, _, identity = await run_in_threadpool(snapshot, db, expected, request, action, plan, lock=True)
-    await service.consume(binding, values[0], request, body=body, idempotency_key=idempotency_key)
+    user = db.get(Usuario, identity['id'])
+    if not verified(user, mfa_service.instant()):
+        service.fail(403, 'billing_email_required')
+    # Existing grants retain their exact-request binding; already confirmed
+    # contact needs no new mailbox proof. The caller still owns MFA step-up.
+    if values:
+        await service.consume(binding, values[0], request, body=body, idempotency_key=idempotency_key)
     return identity

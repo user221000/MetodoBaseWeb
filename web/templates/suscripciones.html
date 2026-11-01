@@ -26,7 +26,7 @@
 </section>
 <section class="chart-container mb-6" aria-labelledby="free-plan-title">
   <h2 class="chart-title" id="free-plan-title">Free · sin cargo mensual</h2>
-  <p>Hasta {{ plan_catalog.free.max_clientes }} clientes, {{ plan_catalog.free.max_planes_por_cliente_dia }} plan por cliente al día y {{ plan_catalog.free.max_planes_diarios }} planes totales del gimnasio al día.</p>
+  <p>Hasta {{ plan_catalog.free.max_clientes }} clientes, {{ plan_catalog.free.max_planes_por_cliente_dia }} plan por cliente al día, {{ plan_catalog.free.max_planes_diarios }} planes totales del gimnasio al día y {{ plan_catalog.free.max_planes_mes }} planes al mes.</p>
   <details class="page-help"><summary>Qué incluye Free</summary><p>Exclusiones de alimentos y descarga del plan en PDF. Consulta las cuotas adicionales de tu cuenta al generar un plan.</p></details>
 </section>
 <h2 class="chart-title mb-4">Planes de pago</h2>
@@ -47,6 +47,8 @@
     <ul class="plan-features">
       <li><span class="check" aria-hidden="true">✓</span>{% if plan.max_clientes %}Hasta {{ plan.max_clientes }} clientes{% else %}Sin límite de clientes del plan{% endif %}</li>
       <li><span class="check" aria-hidden="true">✓</span>{% if plan.max_planes_por_cliente_dia %}{{ plan.max_planes_por_cliente_dia }} plan{% if plan.max_planes_por_cliente_dia > 1 %}es{% endif %} por cliente al día{% else %}Sin límite diario del plan por cliente{% endif %}</li>
+      <li><span class="check" aria-hidden="true">✓</span>{% if plan.max_planes_diarios %}{{ plan.max_planes_diarios }} planes totales del gimnasio al día{% else %}Sin tope diario de planes en el catálogo{% endif %}</li>
+      <li><span class="check" aria-hidden="true">✓</span>{% if plan.max_planes_mes %}{{ plan.max_planes_mes }} planes al mes{% else %}Sin tope mensual de planes en el catálogo{% endif %}</li>
       <li><span class="check" aria-hidden="true">✓</span>Exclusiones de alimentos</li>
       <li><span class="check" aria-hidden="true">✓</span>Descarga de planes en PDF</li>
     </ul>
@@ -54,6 +56,7 @@
   </section>
 {% endfor %}
 </div>
+<p class="text-secondary mb-4">Los límites por cliente, por día y por mes se aplican al mismo tiempo. Los topes del catálogo no garantizan capacidad ni tiempos de generación.</p>
 <section class="chart-container billing-history" aria-labelledby="payment-history-title">
   <h2 class="chart-title" id="payment-history-title">Historial de pagos</h2>
   <p id="payments-state" role="status">Consultando pagos…</p>

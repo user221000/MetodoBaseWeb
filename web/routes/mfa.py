@@ -48,6 +48,15 @@ class Enrollment(Factor):
     reauthentication_token: Proof
 
 
+class GoogleEmailReauthentication(Input):
+    google_credential: str = Field(min_length=1, max_length=16384)
+
+
+class GoogleEmailReauthenticationCode(Input):
+    challenge: Proof
+    code: str = Field(pattern=r"^[0-9]{6}$")
+
+
 class Confirmation(Input):
     enrollment_id: str = Field(pattern=r"^[0-9a-f]{32}$")
     code: str = Field(pattern=r"^[0-9]{6}$")
@@ -155,6 +164,28 @@ async def reauth(request: Request, actor=Depends(get_usuario_actual), db: Sessio
         from web.services.google_identity import verified_google_reauthentication
         primary = await verified_google_reauthentication(data.google_credential, now=service.instant())
     return service.reauthenticate(db, actor, access(request), password=data.password, google_identity=primary)
+
+
+@router.post('/google-email/request')
+async def google_email_reauthentication(request: Request, actor=Depends(get_usuario_actual)):
+    from fastapi.encoders import jsonable_encoder
+    from fastapi.responses import JSONResponse
+    from web.services import google_mfa_reauthentication as email_reauth
+    data = await parse(request, GoogleEmailReauthentication)
+    result = await email_reauth.begin(actor, access(request), data.google_credential, request)
+    return JSONResponse(jsonable_encoder(result), status_code=202,
+                        headers={'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
+
+
+@router.post('/google-email/verify')
+async def google_email_reauthentication_verify(request: Request, actor=Depends(get_usuario_actual)):
+    from fastapi.encoders import jsonable_encoder
+    from fastapi.responses import JSONResponse
+    from web.services import google_mfa_reauthentication as email_reauth
+    data = await parse(request, GoogleEmailReauthenticationCode)
+    result = await email_reauth.verify(actor, access(request), data.challenge, data.code, request)
+    return JSONResponse(jsonable_encoder(result),
+                        headers={'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer'})
 
 
 @router.post("/enroll")

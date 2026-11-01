@@ -209,10 +209,10 @@ def test_verification_dto_preserves_zero_prefix():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('extra',[[],[(b'x-billing-email-grant',b'a'*43),(b'x-billing-email-grant',b'b'*43)]])
-async def test_missing_or_ambiguous_grant_fails_before_lock_or_sdk(account,monkeypatch,extra):
+async def test_ambiguous_grant_fails_before_lock_or_sdk(account,monkeypatch):
     c=account
-    def unexpected(*args,**kwargs):raise AssertionError('No account lock for absent/ambiguous proof')
+    extra=[(b'x-billing-email-grant',b'a'*43),(b'x-billing-email-grant',b'b'*43)]
+    def unexpected(*args,**kwargs):raise AssertionError('No account lock for ambiguous proof')
     monkeypatch.setattr(c.service,'snapshot',unexpected)
     with c.sessions() as db,pytest.raises(HTTPException) as error:
         await c.service.require_email(db,c.identities['gym'],request(c.tokens['gym'],extra=extra),
@@ -224,6 +224,11 @@ async def test_missing_or_ambiguous_grant_fails_before_lock_or_sdk(account,monke
 async def test_admission_uses_fresh_locked_binding_and_exact_body(account,monkeypatch):
     from web.services import billing_email_verification
     c=account;calls=[]
+    with c.sessions() as db:
+        user=db.get(c.Usuario,c.ids['gym'])
+        user.email_verified_at=datetime.now(timezone.utc)
+        user.email_verified_contact_version=user.notification_contact_version
+        db.commit()
     async def consume(binding,token,req,*,body,idempotency_key):
         calls.append((binding,token,req.url.path,body,idempotency_key))
     monkeypatch.setattr(billing_email_verification,'consume',consume)

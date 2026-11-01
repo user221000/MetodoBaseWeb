@@ -181,6 +181,19 @@ def _masked_email(email):
     return local[0] + "***@" + domain
 
 
+def _confirm_matching_contact(db, user, provider_email, now):
+    """An actual email OTP proves contact only when it is the current mailbox."""
+    from web.account_values import normalize_account_email
+    from web.services.account_security import PENDING, epoch
+    if normalize_account_email(user.email) != normalize_account_email(provider_email):
+        return
+    user.email_verified_at = now
+    user.email_verified_contact_version = epoch(user)
+    for name in PENDING:
+        setattr(user, name, None)
+    mfa.audit(db, user, "email_contact_verified", now, channel="google_code")
+
+
 async def begin(info, tipo, request):
     """A signed Google primary only sends a code; it never creates a session."""
     _configuration()
@@ -243,6 +256,7 @@ def _create_new(db, state):
             from web.database.repository import crear_gym_profile
             bind_verified_subject(db, user.id)
             crear_gym_profile(db, user.id, {"nombre_negocio": user.nombre}, initialize_memberships=True)
+        _confirm_matching_contact(db, user, info["email"], now)
         identity = mfa.current_identity(db, user)
         mfa.audit(db, user, "google_identity_registered", now)
         google_link.commit(db)
@@ -275,8 +289,10 @@ def resolve(state):
         elif (state["mode"] != "legacy" or binding is not None or _any_binding(db, user.id)
                 or user.email != state["provider"]["email"]):
             fail(409, "google_email_identity_changed")
+        now = mfa.instant()
+        _confirm_matching_contact(db, user, state["provider"]["email"], now)
         identity = mfa.current_identity(db, user)
-        mfa.audit(db, user, "google_email_verified", mfa.instant(), association=state["mode"])
+        mfa.audit(db, user, "google_email_verified", now, association=state["mode"])
         google_link.commit(db)
         return identity
 

@@ -76,7 +76,9 @@ def bounded(model):
 
 @router.post('/request')
 async def request_verification(request: Request, actor=Depends(get_usuario_actual), data=Depends(bounded(Begin))):
-    binding, email, _ = await run_in_threadpool(identity.owned_snapshot, actor, request, data.action, data.plan)
+    binding, email, _, verified = await run_in_threadpool(identity.owned_contact_snapshot, actor, request, data.action, data.plan)
+    if verified:
+        return {'email_verification_required': False, 'email_verified': True}
     result = await service.begin(binding, email, request)
     current, _, _ = await run_in_threadpool(identity.owned_snapshot, actor, request, data.action, data.plan)
     if current != binding:
@@ -88,7 +90,5 @@ async def request_verification(request: Request, actor=Depends(get_usuario_actua
 async def verify_code(request: Request, actor=Depends(get_usuario_actual), data=Depends(bounded(Verify))):
     binding, _, _ = await run_in_threadpool(identity.owned_snapshot, actor, request, data.action, data.plan)
     result = await service.verify(binding, data.challenge, data.code, request)
-    current, _, _ = await run_in_threadpool(identity.owned_snapshot, actor, request, data.action, data.plan)
-    if current != binding:
-        identity.fail(409, 'billing_email_identity_changed', 'La cuenta cambió. Solicita un nuevo código.')
+    await run_in_threadpool(identity.confirm_contact, actor, request, data.action, data.plan, binding)
     return result

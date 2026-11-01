@@ -1,26 +1,72 @@
-<section id="mfa-account" class="mfa-view" aria-labelledby="mfa-account-title">
-  <h2 id="mfa-account-title">Seguridad de mi cuenta</h2>
-  <p>Protege tu cuenta con una aplicación de autenticación y guarda tus códigos de recuperación.</p>
-  <p id="mfa-account-summary">Estado por consultar.</p>
-  <p id="mfa-account-status" role="status" aria-live="polite" tabindex="-1">Consultando…</p>
-  <button type="button" id="mfa-account-refresh">Consultar estado</button>
-  <form id="mfa-account-primary">
-    <label for="mfa-account-action">Cambio que deseas confirmar</label>
-    <select id="mfa-account-action"><option value="enroll">Configurar o reemplazar autenticador</option><option value="regenerate">Reemplazar kit de recuperación</option><option value="revoke">Revocar el factor</option></select>
-    <p>Para cambiar el autenticador, verifica tu contraseña o tu cuenta de Google y confirma un código del método actual.</p>
-    <label for="mfa-account-password">Contraseña actual<input id="mfa-account-password" type="password" autocomplete="current-password"></label>
-    <fieldset id="mfa-account-existing-factor" hidden><legend>Método actual</legend>
-      <label for="mfa-account-method">Método</label><select id="mfa-account-method"><option value="totp">Aplicación autenticadora</option><option value="recovery_code">Código de recuperación</option></select>
-      <label for="mfa-account-factor">Código del método elegido<input id="mfa-account-factor" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false" autocapitalize="none"></label>
+<section id="mfa-account" class="mfa-view mfa-account-card" aria-labelledby="mfa-account-title">
+  <header class="mfa-account-heading">
+    <div class="mfa-account-heading-copy">
+      <span class="mfa-account-symbol" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4.5 6v5.3c0 4.4 3 7.4 7.5 9.7 4.5-2.3 7.5-5.3 7.5-9.7V6L12 3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></svg></span>
+      <div><p class="mfa-account-eyebrow">Acceso y protección</p><h2 id="mfa-account-title">Seguridad de mi cuenta</h2></div>
+    </div>
+    <button type="button" id="mfa-account-refresh" class="mfa-account-secondary">Actualizar estado</button>
+  </header>
+  <p class="mfa-account-intro">Confirma tu correo y protege los cambios importantes con una aplicación de autenticación.</p>
+  <div class="mfa-account-overview">
+    <div class="mfa-account-status-card">
+      <span class="mfa-account-status-label">Correo de tu cuenta</span>
+      <strong id="mfa-account-email-state" class="mfa-account-badge">Por consultar</strong>
+      <p id="mfa-account-email-summary">Consultaremos si tu correo actual ya está confirmado.</p>
+      <a id="mfa-account-email-link" href="/cuenta/seguridad">Gestionar mi correo</a>
+    </div>
+    <div class="mfa-account-status-card">
+      <span class="mfa-account-status-label">Aplicación autenticadora</span>
+      <strong id="mfa-account-factor-state" class="mfa-account-badge">Por consultar</strong>
+      <p id="mfa-account-summary">Estado por consultar.</p>
+      <p class="mfa-account-small">El correo confirmado y el autenticador son protecciones distintas.</p>
+    </div>
+  </div>
+  <ol class="mfa-account-steps" aria-label="Antes de una acción protegida">
+    <li><span aria-hidden="true">1</span><div><strong>Confirma tu correo</strong><p>Si ya está confirmado, se conserva ese estado.</p></div></li>
+    <li><span aria-hidden="true">2</span><div><strong>Activa tu autenticador</strong><p>Vincula una aplicación que genere códigos de seis cifras.</p></div></li>
+    <li><span aria-hidden="true">3</span><div><strong>Continúa en tu cuenta</strong><p>Después puedes volver a tu suscripción.</p></div></li>
+  </ol>
+  <p id="mfa-account-status" class="mfa-account-feedback" role="status" aria-live="polite" tabindex="-1">Consultando…</p>
+  <form id="mfa-account-primary" class="mfa-account-form">
+    <div class="mfa-account-section-heading"><h3>Confirma el cambio</h3><p>Verifica tu identidad con tu contraseña o con Google antes de configurar la protección.</p></div>
+    <div class="mfa-account-field">
+      <label for="mfa-account-action">Qué deseas hacer</label>
+      <select id="mfa-account-action" aria-describedby="mfa-account-action-help"><option value="enroll">Activar o reemplazar autenticador</option><option value="regenerate">Reemplazar kit de recuperación</option><option value="revoke">Desactivar autenticador</option></select>
+      <p id="mfa-account-action-help" class="mfa-account-help">La primera activación necesita tu identidad y un código de la nueva aplicación.</p>
+    </div>
+    <fieldset id="mfa-account-existing-factor" class="mfa-account-factor-fields" hidden>
+      <legend>Confirma también tu método actual</legend>
+      <div class="mfa-account-grid">
+        <div class="mfa-account-field"><label for="mfa-account-method">Método de verificación</label><select id="mfa-account-method"><option value="totp">Aplicación autenticadora</option><option value="recovery_code">Código de recuperación</option></select></div>
+        <div class="mfa-account-field"><label for="mfa-account-factor">Código del método elegido</label><input id="mfa-account-factor" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false" autocapitalize="none" aria-describedby="mfa-account-factor-help"></div>
+      </div>
+      <p id="mfa-account-factor-help" class="mfa-account-help">Usa el código de tu aplicación actual o un código de recuperación sin usar.</p>
     </fieldset>
-    <button id="mfa-account-submit" type="submit" disabled>Verificar mi identidad y solicitar el cambio</button>
+    <div class="mfa-account-password-block">
+      <div class="mfa-account-field"><label for="mfa-account-password">Contraseña actual</label><input id="mfa-account-password" type="password" autocomplete="current-password" aria-describedby="mfa-account-password-help"><p id="mfa-account-password-help" class="mfa-account-help">Úsala si registraste una contraseña en Método Base.</p></div>
+      <button id="mfa-account-submit" class="mfa-account-primary" type="submit" disabled>Continuar con mi contraseña</button>
+    </div>
   </form>
-  <div id="mfa-account-google"></div><button type="button" id="mfa-account-google-cancel" hidden>Descartar autenticación de Google</button><p id="mfa-account-google-status"></p>
-  <div id="mfa-account-seed"></div>
-  <form id="mfa-account-confirm" hidden>
-    <label for="mfa-account-new-code">Código del nuevo autenticador (seis cifras)<input id="mfa-account-new-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" spellcheck="false"></label>
-    <button type="submit">Confirmar activación y cerrar sesiones</button><button type="button" id="mfa-account-discard">Descartar semilla de esta vista</button>
+  <div id="mfa-account-google-section" class="mfa-account-google-section">
+    <p class="mfa-account-divider"><span>También puedes verificar tu identidad con Google</span></p>
+    <div id="mfa-account-google"></div>
+    <button type="button" id="mfa-account-google-cancel" class="mfa-account-secondary" hidden>Cancelar verificación con Google</button>
+    <p id="mfa-account-google-status" class="mfa-account-help" role="status" aria-live="polite"></p>
+    <p class="mfa-account-help"><a href="/auth/reset-password">Recuperar acceso con contraseña</a> · <a id="mfa-account-google-link" href="/cuenta/google">Gestionar mi cuenta de Google</a></p>
+    <form id="mfa-account-google-email" class="mfa-account-google-email" hidden>
+      <h3>Confirma este cambio de seguridad</h3>
+      <p id="mfa-account-google-email-recipient">Introduce el código enviado a tu correo.</p>
+      <div class="mfa-account-field"><label for="mfa-account-google-email-code">Código de seis cifras</label><input id="mfa-account-google-email-code" class="mfa-account-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" spellcheck="false" aria-describedby="mfa-account-google-email-help"></div>
+      <p id="mfa-account-google-email-help" class="mfa-account-help">Este código confirma tu identidad para el cambio actual. No activa un pago ni reemplaza el código de tu autenticador.</p>
+      <div class="mfa-account-actions"><button id="mfa-account-google-email-submit" class="mfa-account-primary" type="submit">Verificar y continuar</button><button id="mfa-account-google-email-restart" class="mfa-account-secondary" type="button">Volver a verificar con Google</button></div>
+    </form>
+  </div>
+  <div id="mfa-account-seed" class="mfa-account-seed"></div>
+  <form id="mfa-account-confirm" class="mfa-account-confirm" hidden>
+    <div class="mfa-account-field"><label for="mfa-account-new-code">Código del nuevo autenticador</label><input id="mfa-account-new-code" class="mfa-account-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" spellcheck="false" aria-describedby="mfa-account-new-code-help"><p id="mfa-account-new-code-help" class="mfa-account-help">Abre tu aplicación autenticadora e introduce sus seis cifras actuales.</p></div>
+    <div class="mfa-account-actions"><button class="mfa-account-primary" type="submit">Activar y cerrar sesiones</button><button type="button" id="mfa-account-discard" class="mfa-account-secondary">Descartar esta configuración</button></div>
   </form>
-  <div id="mfa-account-kit"></div>
-  <p>Guarda tus códigos en un lugar seguro. Si pierdes el autenticador y todos los códigos, actualmente no hay un método alternativo para recuperar el acceso.</p>
+  <div id="mfa-account-kit" class="mfa-account-kit"></div>
+  <aside class="mfa-account-note"><strong>Guarda tu kit de recuperación</strong><p>Los códigos se muestran una sola vez. Si pierdes tu autenticador y todos los códigos, actualmente no hay otro método para recuperar el acceso.</p><p>Al activar o cambiar la protección se cierran tus sesiones. Guarda el kit y vuelve a ingresar antes de continuar.</p></aside>
+  <footer class="mfa-account-footer"><a id="mfa-account-security-link" href="/cuenta/seguridad">Ver opciones de mi cuenta</a><a id="mfa-account-subscription-link" href="/suscripciones">Volver a Suscripción →</a></footer>
 </section>

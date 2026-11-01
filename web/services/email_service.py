@@ -133,6 +133,19 @@ def send_billing_verification_code(email: str, code: str, plan_label: str) -> bo
     return _send(email, "Confirma tu suscripción — Método Base", _base_layout(content))
 
 
+def send_security_verification_code(email: str, code: str) -> bool:
+    """Fresh security proof; distinct from contact and payment messages."""
+    if not isinstance(code, str) or len(code) != 6 or not code.isascii() or not code.isdigit():
+        return False
+    content = '<h2>Confirma la seguridad de tu cuenta</h2>'
+    content += '<p>Solicitaste verificar tu identidad con Google para cambiar la seguridad de tu cuenta.</p>'
+    content += f'<p style="font-size:32px;letter-spacing:8px;font-weight:700;">{code}</p>'
+    content += '<p>Introduce este código en la sección de seguridad. Vence en 5 minutos y sólo se usa una vez.</p>'
+    content += '<p>No activa una suscripción ni realiza ningún cargo. Si ya tienes autenticador, también necesitarás su código para cambiarlo.</p>'
+    content += '<p>Si no lo solicitaste, ignora el mensaje. No compartas el código.</p>'
+    return _send(email, 'Confirma la seguridad de tu cuenta — Método Base', _base_layout(content))
+
+
 def send_google_login_code(email: str, code: str) -> bool:
     """Send the one-use login code; never include it in a subject or log."""
     if not isinstance(code, str) or len(code) != 6 or not code.isascii() or not code.isdigit():

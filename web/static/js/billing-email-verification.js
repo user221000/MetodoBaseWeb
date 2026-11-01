@@ -30,14 +30,18 @@
     form.setAttribute('aria-busy',String(state.busy));
   }
   function error(state,value){if(!current(state))return;errorBox.textContent=value.message || 'No pudimos confirmar la verificación. Intenta de nuevo.';errorBox.hidden=false;}
+  function received(state,value){
+    if(value.email_verification_required===false){finish(state,value,null);return;}
+    state.challenge=value.challenge;state.expiresAt=Date.parse(value.expires_at);state.resendAt=Date.now()+value.resend_after_seconds*1000;
+    status.textContent='Revisa '+value.masked_email+' e introduce el código.';
+  }
   async function send(state){
     if(!current(state) || state.busy || Date.now()<state.resendAt)return;
     state.busy=true;state.challenge=null;state.resendAt=Date.now()+60000;input.value='';errorBox.hidden=true;status.textContent='Preparando tu código…';controls(state);
     try{
       var value=await Api.billingEmail.begin(state.action,state.plan,state.handle);
       if(!current(state))return;
-      state.challenge=value.challenge;state.expiresAt=Date.parse(value.expires_at);state.resendAt=Date.now()+value.resend_after_seconds*1000;
-      status.textContent='Revisa '+value.masked_email+' e introduce el código.';
+      received(state,value);
     }catch(value){
       if(!current(state))return;
       var retry=Number(value.retryAfter);if(Number.isFinite(retry) && retry>0)state.resendAt=Math.max(state.resendAt,Date.now()+retry*1000);
@@ -66,7 +70,7 @@
   window.addEventListener('storage',function(event){if(!event.key || ['mb_session_epoch','mb_token','mb_refresh_token'].includes(event.key)){if(active)current(active);}});
   window.BillingEmailVerification=Object.freeze({
     isOpen:function(){return !!active;},
-    authorize:function(action,plan,handle){
+    authorize:function(action,plan,handle,initial){
       if(active)return Promise.reject(failure('billing_email_busy','Termina o cancela la verificación abierta.'));
       if(typeof dialog.showModal!=='function')return Promise.reject(failure('billing_email_ui_unavailable','Actualiza el navegador para verificar tu correo.'));
       return new Promise(function(resolve,reject){
@@ -75,7 +79,7 @@
         try{Api.billingEmail.check(handle);dialog.showModal();document.getElementById('billing-email-close').focus();}
         catch(value){finish(state,null,value);return;}
         state.timer=setInterval(function(){if(!current(state))return;if(state.challenge && Date.now()>=state.expiresAt){state.challenge=null;input.value='';status.textContent='El código venció. Solicita uno nuevo para continuar.';}controls(state);},500);
-        send(state);
+        if(initial){received(state,initial);controls(state);if(state.challenge)input.focus();}else send(state);
       });
     },
   });
