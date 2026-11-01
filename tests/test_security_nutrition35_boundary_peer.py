@@ -121,13 +121,13 @@ def test_final_catalog_validation_rejects_corruption_after_food_selection(kind, 
         monkeypatch.setattr(generador_planes.MealStructureContract, "validar_plan_completo", lambda plan: (True, []))
         build = generador_planes.ConstructorPlanNuevo.construir
     else:
-        original = generador_opciones.GeneradorOpcionesEquivalentes.generar_opciones_proteina
+        original = generador_opciones._build_meal
         def corrupt(*args, **kwargs):
             result = original(*args, **kwargs)
-            result.append({"alimento": "huevo", "gramos": 25})
+            result["proteinas"]["opciones"].append({"alimento": "huevo", "gramos": 25})
             observed.append(True)
             return result
-        monkeypatch.setattr(generador_opciones.GeneradorOpcionesEquivalentes, "generar_opciones_proteina", staticmethod(corrupt))
+        monkeypatch.setattr(generador_opciones, "_build_meal", corrupt)
         build = generador_opciones.ConstructorPlanConOpciones.construir
     with pytest.raises(FoodRestrictionError):
         build(client, directorio_planes=str(tmp_path))

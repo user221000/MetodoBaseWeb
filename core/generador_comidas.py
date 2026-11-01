@@ -1,15 +1,58 @@
 """CAPA 3: Distribución, cálculo de gramos, reajuste y validación energética."""
-from core.food_catalog import FoodCatalog, FoodRestrictionError
-from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS, CATEGORIAS as _DEFAULT_CATEGORIES
+import math
 import random
 
-from utils.logger import logger
 from config.constantes import (
-    PROTEINAS_ESTRUCTURALES, PROTEINAS_MIXTAS, LEGUMINOSAS,
-    LIMITES_DUROS_ALIMENTOS, MINIMOS_POR_ALIMENTO, ALIMENTOS_LIMITE_ESTRICTO,
-    FATTY_PROTEINS, LIGHT_FATS, HEAVY_FATS,
+    ALIMENTOS_LIMITE_ESTRICTO,
+    FATTY_PROTEINS,
+    HEAVY_FATS,
+    LEGUMINOSAS,
+    LIGHT_FATS,
+    LIMITES_DUROS_ALIMENTOS,
+    MINIMOS_POR_ALIMENTO,
+    PROTEINAS_ESTRUCTURALES,
+    PROTEINAS_MIXTAS,
 )
-from src.alimentos_base import ALIMENTOS_BASE, LIMITES_ALIMENTOS, CATEGORIAS
+from core.food_catalog import FoodCatalog, FoodRestrictionError
+from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS
+from src.alimentos_base import CATEGORIAS as _DEFAULT_CATEGORIES
+from src.alimentos_base import LIMITES_ALIMENTOS
+from utils.logger import logger
+
+
+def limite_porcion(alimento: str) -> float:
+    """The stricter packaged portion cap; unknown IDs never inherit 999 g."""
+    return min(LIMITES_ALIMENTOS.get(alimento, 300), LIMITES_DUROS_ALIMENTOS.get(alimento, 300))
+
+
+def _permitido(catalogo: FoodCatalog, alimento: str, meal_idx: int = -1) -> bool:
+    data = catalogo.alimentos.get(alimento)
+    return bool(data is not None and data.get('auto_generation', True)
+                and (meal_idx not in range(4) or meal_idx in data['meal_idx']))
+
+
+def _candidatos(catalogo: FoodCatalog, nombres, meal_idx: int = -1) -> list[str]:
+    return list(dict.fromkeys(name for name in nombres if _permitido(catalogo, name, meal_idx)))
+
+
+def _porciones_limitadas(alimentos: dict, catalogo: FoodCatalog, meal_idx: int = -1) -> dict:
+    result = {}
+    for nombre, gramos in alimentos.items():
+        if not _permitido(catalogo, nombre, meal_idx):
+            raise FoodRestrictionError('El plan no respeta los alimentos permitidos para esta comida.')
+        if isinstance(gramos, bool) or not isinstance(gramos, (int, float)) or not math.isfinite(gramos) or gramos < 0:
+            raise FoodRestrictionError('Hay una porción de alimento no válida.')
+        if gramos > 0:
+            result[nombre] = min(gramos, limite_porcion(nombre))
+    return result
+
+
+def _actualizar_energia(comida: dict, catalogo: FoodCatalog) -> dict:
+    comida['kcal_real'] = sum(gramos * catalogo.alimentos[nombre]['kcal'] / 100
+                              for nombre, gramos in comida.get('alimentos', {}).items())
+    objetivo = comida.get('kcal_objetivo', 0)
+    comida['desviacion_pct'] = abs(comida['kcal_real'] - objetivo) / max(objetivo, 1) * 100
+    return comida
 
 
 class DistribuidorComidas:
@@ -77,8 +120,8 @@ class CalculadorGramosNuevo:
         macro_proteina_g: float,
         lista_proteinas: list,
         meal_idx: int,
-        penalizados: set = None,
-        alimentos_usados_plan: set = None
+        penalizados: set | None = None,
+        alimentos_usados_plan: set | None = None
     , catalogo: FoodCatalog | None = None) -> tuple[dict, float, bool]:
         """
         FASE 1: Asigna proteína estructural (la más importante, CONGELADA).
@@ -89,6 +132,7 @@ class CalculadorGramosNuevo:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
+        lista_proteinas = _candidatos(catalogo, lista_proteinas, meal_idx)
         penalizados = penalizados or set()
         alimentos_usados_plan = alimentos_usados_plan or set()
         resultado = {}
@@ -128,7 +172,7 @@ class CalculadorGramosNuevo:
                 continue
 
             gramos_posibles = macro_proteina_g / (densidad_proteina / 100)
-            limite = LIMITES_DUROS_ALIMENTOS.get(alimento_nombre, 999)
+            limite = limite_porcion(alimento_nombre)
             limite = aplicar_penalizacion_repeticion(limite, alimento_nombre)
             gramos_final = min(gramos_posibles, limite)
 
@@ -158,7 +202,7 @@ class CalculadorGramosNuevo:
                     continue
 
                 gramos_posibles = (macro_proteina_g - proteina_acum) / (densidad / 100)
-                limite = LIMITES_DUROS_ALIMENTOS.get(alimento_nombre, 999)
+                limite = limite_porcion(alimento_nombre)
                 limite = aplicar_penalizacion_repeticion(limite, alimento_nombre)
                 gramos_final = min(gramos_posibles, limite)
 
@@ -190,7 +234,7 @@ class CalculadorGramosNuevo:
                     continue
 
                 gramos_posibles = macro_proteina_g / (densidad / 100)
-                limite = LIMITES_DUROS_ALIMENTOS.get(alimento_nombre, 999)
+                limite = limite_porcion(alimento_nombre)
                 limite = aplicar_penalizacion_repeticion(limite, alimento_nombre)
                 gramos_final = min(gramos_posibles, limite)
 
@@ -203,30 +247,26 @@ class CalculadorGramosNuevo:
                     kcal_total = gramos_final * (alimento.get('kcal', 0) / 100)
                     return resultado, kcal_total, True
 
-        # FALLBACK: Pechuga de pollo (siempre disponible)
-        pechuga_name = 'pechuga_de_pollo'
-        pechuga = alimentos_base.get(pechuga_name, {})
-        if pechuga and pechuga.get('proteina', 0) > 0:
-            densidad = pechuga['proteina']
-            gramos_posibles = macro_proteina_g / (densidad / 100)
-            limite = LIMITES_DUROS_ALIMENTOS.get(pechuga_name, 999)
-            limite = aplicar_penalizacion_repeticion(limite, pechuga_name)
-            gramos_final = min(gramos_posibles, limite)
-            kcal = gramos_final * (pechuga.get('kcal', 0) / 100)
-            return {pechuga_name: gramos_final}, kcal, True
+        # Try the caller's permitted foods before a legacy chicken preference.
+        # New catalog IDs do not need membership in hardcoded protein sets.
+        for alimento_nombre in lista_final:
+            alimento = alimentos_base[alimento_nombre]
+            densidad = alimento['proteina']
+            if densidad <= 0:
+                continue
+            gramos_final = min(macro_proteina_g / (densidad / 100),
+                               aplicar_penalizacion_repeticion(limite_porcion(alimento_nombre), alimento_nombre))
+            if gramos_final > 0 and gramos_final >= MINIMOS_POR_ALIMENTO.get(alimento_nombre, 0):
+                return {alimento_nombre: gramos_final}, gramos_final * alimento['kcal'] / 100, True
 
-        # Last resort fallback
-        if lista_final:
-            alimento_nombre = lista_final[0]
-            alimento = alimentos_base.get(alimento_nombre, {})
-            densidad = alimento.get('proteina', 1)
-            if densidad > 0:
-                gramos = macro_proteina_g / (densidad / 100)
-                limite = LIMITES_DUROS_ALIMENTOS.get(alimento_nombre, 999)
-                limite = aplicar_penalizacion_repeticion(limite, alimento_nombre)
-                gramos_final = min(gramos, limite)
-                kcal = gramos_final * (alimento.get('kcal', 0) / 100)
-                return {alimento_nombre: gramos_final}, kcal, True
+        pechuga_name = 'pechuga_de_pollo'
+        if _permitido(catalogo, pechuga_name, meal_idx):
+            pechuga = alimentos_base[pechuga_name]
+            if pechuga['proteina'] > 0:
+                gramos_final = min(macro_proteina_g / (pechuga['proteina'] / 100),
+                                   aplicar_penalizacion_repeticion(limite_porcion(pechuga_name), pechuga_name))
+                if gramos_final > 0 and gramos_final >= MINIMOS_POR_ALIMENTO.get(pechuga_name, 0):
+                    return {pechuga_name: gramos_final}, gramos_final * pechuga['kcal'] / 100, True
 
         return {}, 0.0, False
 
@@ -236,13 +276,14 @@ class CalculadorGramosNuevo:
         carbs_aportados_por_proteina: float,
         lista_carbs: list,
         meal_idx: int,
-        alimentos_usados_plan: set = None
+        alimentos_usados_plan: set | None = None
     , catalogo: FoodCatalog | None = None) -> tuple[dict, float]:
         """FASE 2: Asigna carbohidratos (flexibles)."""
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
         categorias = catalogo.categorias
+        lista_carbs = _candidatos(catalogo, lista_carbs, meal_idx)
         alimentos_usados_plan = alimentos_usados_plan or set()
         resultado = {}
         kcal_total = 0.0
@@ -279,9 +320,9 @@ class CalculadorGramosNuevo:
                 continue
 
             gramos_posibles = carbs_restantes / (densidad / 100)
-            limite = LIMITES_DUROS_ALIMENTOS.get(alimento_nombre, 999)
+            limite = limite_porcion(alimento_nombre)
             if alimento_nombre in ALIMENTOS_LIMITE_ESTRICTO:
-                limite = LIMITES_DUROS_ALIMENTOS.get(alimento_nombre, 200)
+                limite = limite_porcion(alimento_nombre)
 
             if alimento_nombre == 'tortilla_maiz':
                 if meal_idx == 0:
@@ -312,13 +353,14 @@ class CalculadorGramosNuevo:
         macro_grasa_g: float,
         grasa_aportada_por_proteina: float,
         lista_grasas: list,
-        alimentos_usados_plan: set = None,
-        proteina_principal: str = None
-    , catalogo: FoodCatalog | None = None) -> tuple[dict, float]:
+        alimentos_usados_plan: set | None = None,
+        proteina_principal: str | None = None
+    , catalogo: FoodCatalog | None = None, meal_idx: int = -1) -> tuple[dict, float]:
         """FASE 3: Asigna grasas (ajuste fino) considerando tipo de proteína."""
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
+        lista_grasas = _candidatos(catalogo, lista_grasas, meal_idx)
         alimentos_usados_plan = alimentos_usados_plan or set()
         resultado = {}
         kcal_total = 0.0
@@ -344,7 +386,7 @@ class CalculadorGramosNuevo:
             if densidad <= 0:
                 continue
             gramos_posibles = grasa_restante / (densidad / 100)
-            limite = LIMITES_DUROS_ALIMENTOS.get(alimento_nombre, 999)
+            limite = limite_porcion(alimento_nombre)
             gramos_final = min(gramos_posibles, limite)
             minimo = MINIMOS_POR_ALIMENTO.get(alimento_nombre, 0)
             if gramos_final < minimo:
@@ -362,7 +404,6 @@ class CalculadorGramosNuevo:
         """FASE 4: Inserta vegetal automático según comida. Usa solo alimentos de ALIMENTOS_BASE."""
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
-        alimentos_base = catalogo.alimentos
         opciones = {
             0: [  # Desayuno
                 ("espinaca", 80),
@@ -388,7 +429,12 @@ class CalculadorGramosNuevo:
         }
         choices = opciones.get(meal_idx, [])
         if choices:
-            choices_validas = [(v, g) for v, g in choices if v in alimentos_base]
+            choices_validas = [(v, min(g, limite_porcion(v))) for v, g in choices
+                               if _permitido(catalogo, v, meal_idx)]
+            existing = {food for food, _ in choices_validas}
+            choices_validas += [(food, min(choices[0][1], limite_porcion(food)))
+                                for food in _candidatos(catalogo, catalogo.categorias.get('verdura', ()), meal_idx)
+                                if food not in existing]
             if choices_validas:
                 veg, gramos = random.Random(seed + meal_idx).choice(choices_validas)
                 return {veg: gramos}
@@ -400,22 +446,23 @@ class CalculadorGramosNuevo:
         kcal_objetivo: float,
         proteina_congelada: bool,
         tolerancia_pct: float = 0.03,
-        lista_carbs: list = None,
-        lista_grasas: list = None,
-        lista_proteinas: list = None,
-        macros_comida: dict = None,
+        lista_carbs: list | None = None,
+        lista_grasas: list | None = None,
+        lista_proteinas: list | None = None,
+        macros_comida: dict | None = None,
         meal_idx: int = 0,
-        alimentos_usados_plan: set = None
+        alimentos_usados_plan: set | None = None
     , catalogo: FoodCatalog | None = None) -> dict:
         """FASE 5: Cierre energético estructurado con reintentos (4 estrategias)."""
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
         categorias = catalogo.categorias
+        resultado = _porciones_limitadas(resultado, catalogo, meal_idx)
         alimentos_usados_plan = alimentos_usados_plan or set()
-        lista_carbs = lista_carbs or []
-        lista_grasas = lista_grasas or []
-        lista_proteinas = lista_proteinas or []
+        lista_carbs = _candidatos(catalogo, lista_carbs or [], meal_idx)
+        lista_grasas = _candidatos(catalogo, lista_grasas or [], meal_idx)
+        lista_proteinas = _candidatos(catalogo, lista_proteinas or [], meal_idx)
         macros_comida = macros_comida or {}
 
         def calcular_desviacion(alimentos_dict: dict, objetivo: float) -> float:
@@ -436,7 +483,7 @@ class CalculadorGramosNuevo:
         desviacion_inicial = calcular_desviacion(resultado, kcal_objetivo)
 
         if desviacion_inicial <= 0.05:
-            return resultado
+            return _porciones_limitadas(resultado, catalogo, meal_idx)
 
         # ESTRATEGIA 1: AJUSTE LINEAL SIMPLE
         resultado_s1 = resultado.copy()
@@ -455,7 +502,7 @@ class CalculadorGramosNuevo:
                         resultado_s1[carb_ali] = nuevo_gramos
                         desviacion_s1 = calcular_desviacion(resultado_s1, kcal_objetivo)
                         if desviacion_s1 <= 0.05:
-                            return resultado_s1
+                            return _porciones_limitadas(resultado_s1, catalogo, meal_idx)
         elif diferencia > 0:
             carbs_en_resultado = [a for a in resultado_s1 if a in categorias.get('carbs', [])]
             if carbs_en_resultado:
@@ -465,16 +512,16 @@ class CalculadorGramosNuevo:
                 if kcal_por_g > 0:
                     gramos_agregar = diferencia / kcal_por_g
                     nuevo_gramos = resultado_s1[carb_ali] + gramos_agregar
-                    limite = LIMITES_DUROS_ALIMENTOS.get(carb_ali, 999)
+                    limite = limite_porcion(carb_ali)
                     if carb_ali in ALIMENTOS_LIMITE_ESTRICTO:
                         max_gramos = limite
                     else:
-                        max_gramos = limite * 1.2
+                        max_gramos = limite
                     if nuevo_gramos <= max_gramos:
                         resultado_s1[carb_ali] = nuevo_gramos
                         desviacion_s1 = calcular_desviacion(resultado_s1, kcal_objetivo)
                         if desviacion_s1 <= 0.05:
-                            return resultado_s1
+                            return _porciones_limitadas(resultado_s1, catalogo, meal_idx)
 
         # ESTRATEGIA 2: AJUSTE DE GRASAS
         resultado_s2 = resultado_s1.copy()
@@ -488,12 +535,12 @@ class CalculadorGramosNuevo:
             if kcal_por_g > 0:
                 gramos_ajuste = diferencia / kcal_por_g
                 nuevo_gramos = resultado_s2[grasa_ali] + gramos_ajuste
-                limite = LIMITES_DUROS_ALIMENTOS.get(grasa_ali, 999)
-                if 0 < nuevo_gramos <= limite * 1.2:
+                limite = limite_porcion(grasa_ali)
+                if 0 < nuevo_gramos <= limite:
                     resultado_s2[grasa_ali] = nuevo_gramos
                     desviacion_s2 = calcular_desviacion(resultado_s2, kcal_objetivo)
                     if desviacion_s2 <= 0.05:
-                        return resultado_s2
+                        return _porciones_limitadas(resultado_s2, catalogo, meal_idx)
 
         # ESTRATEGIA 3: EXPANDIR/REDUCIR PROTEÍNA
         resultado_s3 = resultado_s2.copy()
@@ -509,13 +556,13 @@ class CalculadorGramosNuevo:
             if kcal_por_g > 0:
                 if diferencia > 0:
                     gramos_ideal = gramos_actual + (diferencia / kcal_por_g)
-                    gramos_max = min(gramos_ideal, gramos_actual * 1.2)
+                    gramos_max = min(gramos_ideal, gramos_actual * 1.2, limite_porcion(proteina_ali))
                     gramos_nuevo = min(gramos_ideal, gramos_max)
                     if gramos_nuevo > gramos_actual:
                         resultado_s3[proteina_ali] = gramos_nuevo
                         desviacion_s3 = calcular_desviacion(resultado_s3, kcal_objetivo)
                         if desviacion_s3 <= 0.05:
-                            return resultado_s3
+                            return _porciones_limitadas(resultado_s3, catalogo, meal_idx)
                 elif diferencia < 0:
                     gramos_ideal = gramos_actual + (diferencia / kcal_por_g)
                     gramos_min = max(gramos_actual * 0.8, 80)
@@ -524,7 +571,7 @@ class CalculadorGramosNuevo:
                         resultado_s3[proteina_ali] = gramos_nuevo
                         desviacion_s3 = calcular_desviacion(resultado_s3, kcal_objetivo)
                         if desviacion_s3 <= 0.05:
-                            return resultado_s3
+                            return _porciones_limitadas(resultado_s3, catalogo, meal_idx)
 
         # ESTRATEGIA 4: AGREGAR SEGUNDO CARB O GRASA
         resultado_s4 = resultado_s3.copy()
@@ -539,33 +586,33 @@ class CalculadorGramosNuevo:
                 carb_data = alimentos_base.get(segundo_carb, {})
                 kcal_por_g = carb_data.get('kcal', 0) / 100
                 if kcal_por_g > 0:
-                    gramos_carb = min(diferencia / kcal_por_g, 100)
+                    gramos_carb = min(diferencia / kcal_por_g, 100, limite_porcion(segundo_carb))
                     if gramos_carb >= 30:
                         resultado_s4[segundo_carb] = gramos_carb
                         desviacion_s4 = calcular_desviacion(resultado_s4, kcal_objetivo)
                         if desviacion_s4 <= 0.05:
-                            return resultado_s4
+                            return _porciones_limitadas(resultado_s4, catalogo, meal_idx)
 
             grasas_actuales = [a for a in resultado_s4 if a in categorias.get('grasa', [])]
             grasas_candidatos = [a for a in lista_grasas if a not in resultado_s4 and a not in alimentos_usados_plan]
 
             if grasas_candidatos and len(grasas_actuales) < 2:
                 segunda_grasa = grasas_candidatos[0]
-                resultado_s4[segunda_grasa] = 15
+                resultado_s4[segunda_grasa] = min(15, limite_porcion(segunda_grasa))
                 desviacion_s4 = calcular_desviacion(resultado_s4, kcal_objetivo)
                 if desviacion_s4 <= 0.05:
-                    return resultado_s4
+                    return _porciones_limitadas(resultado_s4, catalogo, meal_idx)
 
         # FALLBACK
         desviacion_final = calcular_desviacion(resultado_s4, kcal_objetivo)
         if desviacion_final <= 0.05:
-            return resultado_s4
+            return _porciones_limitadas(resultado_s4, catalogo, meal_idx)
 
         desviacion_original = calcular_desviacion(resultado, kcal_objetivo)
         if desviacion_original < desviacion_final:
-            return resultado
+            return _porciones_limitadas(resultado, catalogo, meal_idx)
 
-        return resultado_s4
+        return _porciones_limitadas(resultado_s4, catalogo, meal_idx)
 
 
 class CalculadorGramos:
@@ -577,13 +624,14 @@ class CalculadorGramos:
         macro_tipo: str,
         lista_alimentos: list,
         meal_idx: int = 0,
-        penalizados: set = None
+        penalizados: set | None = None
     , catalogo: FoodCatalog | None = None) -> dict:
         """Asignación iterativa de macros a alimentos con tracking de residual."""
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
         categorias = catalogo.categorias
+        lista_alimentos = _candidatos(catalogo, lista_alimentos, meal_idx)
         penalizados = penalizados or set()
         resultado = {}
         macro_restante = macro_g
@@ -612,7 +660,7 @@ class CalculadorGramos:
                 continue
 
             gramos_posibles = macro_restante / (densidad / 100)
-            limite = LIMITES_ALIMENTOS.get(alimento_nombre, 999)
+            limite = limite_porcion(alimento_nombre)
             gramos_final = min(gramos_posibles, limite)
 
             minimo_alimento = MINIMOS_POR_ALIMENTO.get(alimento_nombre, 0)
@@ -655,6 +703,7 @@ class CalculadorGramos:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
+        resultado = _porciones_limitadas(resultado, catalogo)
         if not resultado:
             return resultado
 
@@ -671,7 +720,7 @@ class CalculadorGramos:
                     dens_kcal = alimentos_base[ultimo_alimento]['kcal'] / 100
                     if dens_kcal > 0:
                         gramos_a_anadir = kcal_acumuladas / dens_kcal
-                        limite = LIMITES_ALIMENTOS.get(ultimo_alimento, 999)
+                        limite = limite_porcion(ultimo_alimento)
                         nuevo_total = alimentos_filtrados[ultimo_alimento] + gramos_a_anadir
                         if nuevo_total <= limite:
                             alimentos_filtrados[ultimo_alimento] = nuevo_total
@@ -686,7 +735,7 @@ class CalculadorGramos:
             dens_kcal = alimentos_base[ultimo_alimento]['kcal'] / 100
             if dens_kcal > 0:
                 gramos_a_anadir = kcal_acumuladas / dens_kcal
-                limite = LIMITES_ALIMENTOS.get(ultimo_alimento, 999)
+                limite = limite_porcion(ultimo_alimento)
                 nuevo_total = alimentos_filtrados[ultimo_alimento] + gramos_a_anadir
                 if nuevo_total <= limite:
                     alimentos_filtrados[ultimo_alimento] = nuevo_total
@@ -699,12 +748,14 @@ class CalculadorGramos:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
+        if not _permitido(catalogo, alimento_nombre):
+            return 0.0
         alimento = alimentos_base.get(alimento_nombre, {})
         densidad = alimento.get(macro_tipo, 1)
         if densidad <= 0:
             return 0.0
         gramos = macro_g / (densidad / 100)
-        return max(0, gramos)
+        return min(limite_porcion(alimento_nombre), max(0, gramos))
 
 
 # ============================================================================
@@ -727,6 +778,10 @@ class ReajustadorPlan:
         logs = []
         comidas = ['desayuno', 'almuerzo', 'comida', 'cena']
         meal_idx_map = {'desayuno': 0, 'almuerzo': 1, 'comida': 2, 'cena': 3}
+        for name in comidas:
+            if name in plan:
+                plan[name]['alimentos'] = _porciones_limitadas(plan[name].get('alimentos', {}), catalogo, meal_idx_map[name])
+                _actualizar_energia(plan[name], catalogo)
 
         for intento in range(1, cls.MAX_INTENTOS + 1):
             comidas_problema = []
@@ -780,6 +835,7 @@ class ReajustadorPlan:
         alimentos_base = catalogo.alimentos
         if 'alimentos' not in comida_dict or 'kcal_objetivo' not in comida_dict:
             return comida_dict
+        comida_dict['alimentos'] = _porciones_limitadas(comida_dict['alimentos'], catalogo, meal_idx)
 
         kcal_objetivo = comida_dict['kcal_objetivo']
 
@@ -826,11 +882,13 @@ class ReajustadorPlan:
                 else:
                     opciones_extra = opciones_carbs_base[:4] + ['aguacate', 'nueces']
 
+                opciones_extra = _candidatos(catalogo, opciones_extra
+                    + list(catalogo.categorias.get('carbs', ())) + list(catalogo.categorias.get('grasa', ())), meal_idx)
                 for ali in opciones_extra:
-                    if ali not in alimentos_base:
+                    if not _permitido(catalogo, ali, meal_idx):
                         continue
                     dens = alimentos_base[ali]['kcal'] / 100
-                    limite_duro = LIMITES_DUROS_ALIMENTOS.get(ali, 200)
+                    limite_duro = limite_porcion(ali)
                     gramos_actual = comida_dict['alimentos'].get(ali, 0)
                     espacio_disponible = limite_duro - gramos_actual
                     if espacio_disponible < 30:
@@ -858,6 +916,7 @@ class ReajustadorPlan:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
+        comida_dict['alimentos'] = _porciones_limitadas(comida_dict.get('alimentos', {}), catalogo, meal_idx)
         if tipo == 'carbs':
             # FIX: Carbs específicos por meal_idx con restricciones
             if meal_idx == 0:  # Desayuno: avena es válida
@@ -870,7 +929,6 @@ class ReajustadorPlan:
                 opciones = ['papa', 'camote', 'pan_integral', 'tortilla_maiz', 'quinoa', 'lentejas']
             
             # Filtrar por disponibilidad en ALIMENTOS_BASE
-            from src.alimentos_base import ALIMENTOS_BASE
             opciones = [c for c in opciones if c in alimentos_base]
             if not opciones:
                 opciones = ['papa', 'arroz_blanco']  # fallback final
@@ -884,21 +942,22 @@ class ReajustadorPlan:
         else:
             opciones = ['arroz_blanco']
 
+        opciones = _candidatos(catalogo, opciones + list(catalogo.categorias.get(tipo, ())), meal_idx)
         for nombre in opciones:
-            if nombre not in alimentos_base:
+            if not _permitido(catalogo, nombre, meal_idx):
                 continue
             dens = alimentos_base[nombre]['kcal'] / 100
             if dens <= 0:
                 continue
             gramos_actual = comida_dict['alimentos'].get(nombre, 0)
             gramos_necesarios = kcal_faltantes / dens
-            limite_duro = LIMITES_DUROS_ALIMENTOS.get(nombre, 999)
+            limite_duro = limite_porcion(nombre)
             limite_max = limite_duro
             espacio = limite_max - gramos_actual
-            if espacio > 30:
+            if espacio > 0:
                 gramos_agregar = min(gramos_necesarios, espacio)
                 nuevos_gramos = gramos_actual + gramos_agregar
-                minimo = MINIMOS_POR_ALIMENTO.get(nombre, 40)
+                minimo = MINIMOS_POR_ALIMENTO.get(nombre, 0)
                 if nuevos_gramos >= minimo:
                     comida_dict['alimentos'][nombre] = nuevos_gramos
                     return
@@ -910,8 +969,9 @@ class ReajustadorPlan:
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
         categorias = catalogo.categorias
+        comida_dict['alimentos'] = _porciones_limitadas(comida_dict['alimentos'], catalogo, meal_idx)
         carbs_set = set(categorias.get('carbs', [])) - {'platano_macho', 'granola', 'cereal_integral'}
-        grasas_set = set(['aguacate', 'nueces', 'almendras', 'aceite_de_oliva', 'mantequilla_mani'])
+        grasas_set = set(categorias.get('grasa', ()))
 
         restante = kcal_sobrantes
 
@@ -956,20 +1016,18 @@ class ReajustadorPlan:
 
     @classmethod
     def _enforce_limites_duros(cls, comida_dict: dict, catalogo: FoodCatalog | None = None) -> dict:
-        """Garantiza que ningún alimento exceda su límite duro * 1.2x."""
+        """Apply the strict portion cap and refresh the resulting energy."""
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
         if 'alimentos' not in comida_dict:
             return comida_dict
 
-        FACTOR_MAXIMO = 1.2
-
         for nombre, gramos in list(comida_dict['alimentos'].items()):
             if nombre not in alimentos_base:
                 continue
-            limite_duro = LIMITES_DUROS_ALIMENTOS.get(nombre, 999)
-            limite_maximo = limite_duro * FACTOR_MAXIMO
+            limite_duro = limite_porcion(nombre)
+            limite_maximo = limite_duro
             if gramos > limite_maximo:
                 comida_dict['alimentos'][nombre] = limite_maximo
 
@@ -982,7 +1040,8 @@ class ReajustadorPlan:
         comida_dict['kcal_real'] = kcal_real
         comida_dict['desviacion_pct'] = abs(kcal_real - kcal_objetivo) / max(kcal_objetivo, 1) * 100
 
-        return comida_dict
+        comida_dict['alimentos'] = _porciones_limitadas(comida_dict['alimentos'], catalogo)
+        return _actualizar_energia(comida_dict, catalogo)
 
 
 class ValidadorEnergia:
@@ -992,14 +1051,15 @@ class ValidadorEnergia:
     def _obtener_limite_maximo(alimento: str, catalogo: FoodCatalog | None = None) -> float:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
-        limite_duro = LIMITES_DUROS_ALIMENTOS.get(alimento, 999)
-        return limite_duro * 1.2
+        limite_duro = limite_porcion(alimento)
+        return limite_duro
 
     @staticmethod
     def _redistribuir_kcals_respetando_limites(comida_dict: dict, kcal_a_redistribuir: float, catalogo: FoodCatalog | None = None) -> None:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
+        comida_dict['alimentos'] = _porciones_limitadas(comida_dict['alimentos'], catalogo)
         if kcal_a_redistribuir <= 0 or not comida_dict['alimentos']:
             return
 
@@ -1007,11 +1067,11 @@ class ValidadorEnergia:
             if nombre not in alimentos_base:
                 continue
             gramos_actual = comida_dict['alimentos'][nombre]
-            limite_duro = LIMITES_DUROS_ALIMENTOS.get(nombre, 999)
+            limite_duro = limite_porcion(nombre)
             if nombre in ALIMENTOS_LIMITE_ESTRICTO:
                 limite_maximo = limite_duro
             else:
-                limite_maximo = limite_duro * 1.2
+                limite_maximo = limite_duro
             espacio_disponible = max(0, limite_maximo - gramos_actual)
 
             if espacio_disponible > 0:
@@ -1034,19 +1094,15 @@ class ValidadorEnergia:
     def _obtener_factor_limite_dinamico(iteracion: int, max_iteraciones: int, catalogo: FoodCatalog | None = None) -> float:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
-        if iteracion < 50:
-            return 1.05
-        elif iteracion < 100:
-            return 1.10
-        else:
-            return 1.20
+        return 1.0
 
     @staticmethod
-    def _redistribuir_kcals_respetando_limites_v2(comida_dict: dict, kcal_a_redistribuir: float, alimentos_base: dict = None, catalogo: FoodCatalog | None = None) -> bool:
+    def _redistribuir_kcals_respetando_limites_v2(comida_dict: dict, kcal_a_redistribuir: float, alimentos_base: dict | None = None, catalogo: FoodCatalog | None = None) -> bool:
         # Preserve the legacy explicit nutrient-table argument. A request
         # catalog takes precedence and can only narrow that table.
         if catalogo is not None:
             alimentos_base = catalogo.alimentos
+            comida_dict['alimentos'] = _porciones_limitadas(comida_dict['alimentos'], catalogo)
         elif alimentos_base is None:
             alimentos_base = _DEFAULT_FOODS
         if kcal_a_redistribuir <= 0 or not comida_dict['alimentos']:
@@ -1058,17 +1114,18 @@ class ValidadorEnergia:
             ['brocoli', 'espinaca', 'calabacita', 'champiñones', 'coliflor'],
             ['aguacate', 'nueces', 'almendras', 'aceite_de_oliva', 'mantequilla_mani'],
             ['pechuga_de_pollo', 'carne_magra_res', 'pescado_blanco', 'salmon', 'claras_huevo'],
+            list(comida_dict['alimentos']),
         ]
 
         for fase_nombres in fases:
             for nombre in fase_nombres:
-                if nombre in comida_dict['alimentos']:
+                if nombre in comida_dict['alimentos'] and nombre in alimentos_base and alimentos_base[nombre].get('auto_generation', True):
                     gramos_actual = comida_dict['alimentos'][nombre]
-                    limite_duro = LIMITES_DUROS_ALIMENTOS.get(nombre, 999)
+                    limite_duro = limite_porcion(nombre)
                     if nombre in ALIMENTOS_LIMITE_ESTRICTO:
                         limite_maximo = limite_duro
                     else:
-                        limite_maximo = limite_duro * 1.2
+                        limite_maximo = limite_duro
                     espacio = max(0, limite_maximo - gramos_actual)
 
                     if espacio > 0 and nombre in alimentos_base:
@@ -1094,6 +1151,8 @@ class ValidadorEnergia:
         # Each helper receives the same immutable request snapshot, including fallbacks.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
         alimentos_base = catalogo.alimentos
+        comida_dict['alimentos'] = _porciones_limitadas(comida_dict['alimentos'], catalogo, meal_idx)
+        comida_dict['kcal_objetivo'] = kcal_objetivo
         def calcular_kcal(comida):
             total = 0.0
             for nombre, gramos in comida['alimentos'].items():
@@ -1123,7 +1182,7 @@ class ValidadorEnergia:
                 ajustado = False
 
                 # FASE 1: Carbos
-                for carb in ['arroz_blanco', 'arroz_integral', 'papa', 'camote', 'pan_integral', 'avena', 'tortilla_maiz', 'frijoles', 'banana', 'platano']:
+                for carb in catalogo.categorias.get('carbs', ()):
                     if carb not in comida_dict['alimentos'] or carb not in alimentos_base:
                         continue
                     dens = alimentos_base[carb]['kcal'] / 100
@@ -1131,8 +1190,8 @@ class ValidadorEnergia:
                         continue
                     delta_g = diff_kcal / dens
                     nuevo_g = comida_dict['alimentos'][carb] + delta_g
-                    factor_dinamico = ValidadorEnergia._obtener_factor_limite_dinamico(iteracion, max_iteraciones, catalogo=catalogo)
-                    limite = LIMITES_ALIMENTOS.get(carb, 999) * factor_dinamico
+
+                    limite = limite_porcion(carb)
                     if 0 <= nuevo_g <= limite:
                         comida_dict['alimentos'][carb] = nuevo_g
                         ajustado = True
@@ -1140,7 +1199,7 @@ class ValidadorEnergia:
 
                 # FASE 1.5: Verduras
                 if not ajustado:
-                    for verdura in ['brocoli', 'espinaca', 'calabacita', 'champiñones', 'coliflor']:
+                    for verdura in catalogo.categorias.get('verdura', ()):
                         if verdura not in comida_dict['alimentos'] or verdura not in alimentos_base:
                             continue
                         dens = alimentos_base[verdura]['kcal'] / 100
@@ -1149,9 +1208,9 @@ class ValidadorEnergia:
                         delta_g = diff_kcal / dens
                         nuevo_g = comida_dict['alimentos'][verdura] + delta_g
                         if meal_idx >= 1:
-                            limite = LIMITES_ALIMENTOS.get(verdura, 999) * 3.5
+                            limite = limite_porcion(verdura)
                         else:
-                            limite = LIMITES_ALIMENTOS.get(verdura, 999) * 2.0
+                            limite = limite_porcion(verdura)
                         if 0 <= nuevo_g <= limite:
                             comida_dict['alimentos'][verdura] = nuevo_g
                             ajustado = True
@@ -1159,9 +1218,7 @@ class ValidadorEnergia:
 
                 # FASE 2: Grasas
                 if not ajustado:
-                    grasas_permitidas = ['aceite_de_oliva', 'aguacate', 'nueces', 'almendras', 'mantequilla_mani']
-                    if meal_idx == 1:
-                        grasas_permitidas.append('mantequilla_mani')
+                    grasas_permitidas = catalogo.categorias.get('grasa', ())
 
                     for grasa in grasas_permitidas:
                         if grasa not in comida_dict['alimentos'] or grasa not in alimentos_base:
@@ -1171,8 +1228,8 @@ class ValidadorEnergia:
                             continue
                         delta_g = diff_kcal / dens
                         nuevo_g = comida_dict['alimentos'][grasa] + delta_g
-                        factor_dinamico = ValidadorEnergia._obtener_factor_limite_dinamico(iteracion, max_iteraciones, catalogo=catalogo)
-                        limite = LIMITES_ALIMENTOS.get(grasa, 999) * factor_dinamico
+
+                        limite = limite_porcion(grasa)
                         if 0 <= nuevo_g <= limite:
                             comida_dict['alimentos'][grasa] = nuevo_g
                             ajustado = True
@@ -1180,9 +1237,7 @@ class ValidadorEnergia:
 
                 # FASE 3: Proteínas
                 if not ajustado:
-                    prot_ajustables = ['pechuga_de_pollo', 'carne_magra_res', 'pescado_blanco', 'salmon', 'claras_huevo', 'huevo']
-                    if iteracion >= 15 and meal_idx >= 1:
-                        prot_ajustables.append('proteina_suero')
+                    prot_ajustables = catalogo.categorias.get('proteina', ())
 
                     for prot in prot_ajustables:
                         if prot not in comida_dict['alimentos'] or prot not in alimentos_base:
@@ -1192,8 +1247,8 @@ class ValidadorEnergia:
                             continue
                         delta_g = diff_kcal / dens
                         nuevo_g = comida_dict['alimentos'][prot] + delta_g
-                        factor_dinamico = ValidadorEnergia._obtener_factor_limite_dinamico(iteracion, max_iteraciones, catalogo=catalogo)
-                        limite = LIMITES_ALIMENTOS.get(prot, 999) * factor_dinamico
+
+                        limite = limite_porcion(prot)
                         if 0 <= nuevo_g <= limite:
                             comida_dict['alimentos'][prot] = nuevo_g
                             ajustado = True
@@ -1207,7 +1262,7 @@ class ValidadorEnergia:
                         dens = disponibles[elem]
                         delta_g = diff_kcal / dens * 0.75
                         nuevo_g = comida_dict['alimentos'][elem] + delta_g
-                        comida_dict['alimentos'][elem] = max(0, min(nuevo_g, LIMITES_ALIMENTOS.get(elem, 999) * 1.2))
+                        comida_dict['alimentos'][elem] = max(0, min(nuevo_g, limite_porcion(elem)))
 
         comida_dict['kcal_real'] = calcular_kcal(comida_dict)
         comida_dict['desviacion_pct'] = abs(comida_dict['kcal_real'] - kcal_objetivo) / max(kcal_objetivo, 1) * 100
@@ -1246,6 +1301,7 @@ class ValidadorEnergia:
                 if kcal_excedentes > 0:
                     ValidadorEnergia._redistribuir_kcals_respetando_limites(comida_dict, kcal_excedentes, catalogo=catalogo)
 
+        comida_dict['alimentos'] = _porciones_limitadas(comida_dict['alimentos'], catalogo, meal_idx)
         comida_dict['kcal_real'] = calcular_kcal(comida_dict)
         comida_dict['desviacion_pct'] = abs(comida_dict['kcal_real'] - kcal_objetivo) / max(kcal_objetivo, 1) * 100
 

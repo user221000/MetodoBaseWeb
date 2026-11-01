@@ -266,8 +266,8 @@ class TestM11RenameRedondeo:
         from core.generador_planes import _aplicar_redondeo_clinico
 
         catalog = FoodCatalog.from_data(
-            {"p": {"kcal": 100}, "c": {"kcal": 200},
-             "g": {"kcal": 300}, "v": {"kcal": 50}},
+            {name: {"proteina": 0, "carbs": 0, "grasa": 0, "kcal": kcal, "meal_idx": [0, 1, 2, 3]}
+             for name, kcal in (("p", 100), ("c", 200), ("g", 300), ("v", 50))},
             {"proteina": ["p"], "carbs": ["c"], "grasa": ["g"], "verdura": ["v"]})
         meal = {"alimentos": {"p": 27, "c": 34, "g": 7, "v": 26}, "kcal_objetivo": 100}
         result = _aplicar_redondeo_clinico(meal, catalogo=catalog)

@@ -284,7 +284,13 @@ class GeneradorPDFConOpciones:
             ("BOTTOMPADDING",   (0, 1), (-1, -1), 5),
             ("LEFTPADDING",     (0, 0), (-1, -1), 8),
         ]))
-        return [tbl]
+        result = [tbl]
+        if getattr(cliente, "grasa_corporal_estimada", False):
+            result.append(Paragraph(
+                "Se usó 20% de grasa corporal porque no se informó el dato; no es una medición.",
+                _s["OPT_Cell"],
+            ))
+        return result
 
     # ── Macro summary ──────────────────────────────────────────────────────────
 
@@ -371,7 +377,6 @@ class GeneradorPDFConOpciones:
 
         for macro_name, macro_data, accent_hex in macro_sections:
             opciones = macro_data.get("opciones", [])
-            cant_obj = macro_data.get("cantidad_objetivo", 0)
             if not opciones:
                 continue
 
@@ -380,7 +385,7 @@ class GeneradorPDFConOpciones:
             # Macro section header
             macro_header = Table(
                 [[Paragraph(
-                    f"{macro_name}  (elige 1 — {cant_obj:.0f}g objetivo)",
+                    f"{macro_name}  (elige 1)",
                     _s["OPT_MacroSectionH"],
                 ), "", "", ""]],
                 colWidths=col_widths,
@@ -474,8 +479,8 @@ class GeneradorPDFConOpciones:
         # Nota educativa
         flowables.append(Spacer(1, 0.15 * cm))
         flowables.append(Paragraph(
-            "<i>Selecciona UNA opción de cada categoría. Todas las combinaciones "
-            "cumplen tu objetivo calórico.</i>",
+            "<i>Elige una opción de cada grupo y conserva las verduras y las cantidades indicadas. "
+            "El cálculo usa gramos del estado de preparación que figura en cada alimento.</i>",
             _s["OPT_Note"],
         ))
 
@@ -491,10 +496,10 @@ class GeneradorPDFConOpciones:
             "Por cada comida, selecciona UNA opción de cada categoría (proteínas, carbohidratos, grasas).",
             "SIEMPRE incluye los vegetales indicados (no son opcionales).",
             "Puedes variar tus opciones día a día según disponibilidad y preferencias.",
-            "Pesa los alimentos en CRUDO antes de cocinar (excepto si se indica lo contrario).",
+            "Pesa en gramos del estado indicado: crudo, cocido o escurrido. Si falta el estado, confírmalo con tu profesional.",
             "Las equivalencias son aproximadas (1 huevo ≈ 50g, 1 tortilla ≈ 30g, etc.).",
             "Si no tienes un alimento, elige otra opción de la misma categoría.",
-            "Mantén 2-3 litros de agua diarios independientemente de las opciones elegidas.",
+            "Adapta tu hidratación a tus necesidades y a la orientación de tu profesional de salud.",
             "Consulta con tu entrenador si tienes dudas sobre alguna combinación.",
         ]
 

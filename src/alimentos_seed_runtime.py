@@ -9,6 +9,12 @@ from src.alimentos_seed import (
     EQUIVALENCIAS_PRACTICAS_SEED as BASE_EQUIVALENCIAS_PRACTICAS_SEED,
     LIMITES_ALIMENTOS_SEED as BASE_LIMITES_ALIMENTOS_SEED,
 )
+from src.alimentos_catalogo_usda import load_usda_catalog
+
+
+# Nutrient references are bundled locally. Meal slots/limits are explicitly
+# editorial; USDA source metadata is attached only after loading current rows.
+_USDA_CATALOG = load_usda_catalog()
 
 
 ALIMENTOS_BASE_EXTRA = {
@@ -194,27 +200,36 @@ CATEGORIAS_EXTRA = {
 
 def _merge_categorias() -> dict[str, list[str]]:
     merged: dict[str, list[str]] = {}
-    claves = set(BASE_CATEGORIAS_SEED) | set(CATEGORIAS_EXTRA)
+    claves = set(BASE_CATEGORIAS_SEED) | set(CATEGORIAS_EXTRA) | set(_USDA_CATALOG["categories"])
     for clave in claves:
         base = list(BASE_CATEGORIAS_SEED.get(clave, []))
         extra = [item for item in CATEGORIAS_EXTRA.get(clave, []) if item not in base]
-        merged[clave] = base + extra
+        current = base + extra
+        added = [item for item in _USDA_CATALOG["categories"].get(clave, []) if item not in current]
+        merged[clave] = current + added
     return merged
+
+
+if (set(BASE_ALIMENTOS_BASE_SEED) | set(ALIMENTOS_BASE_EXTRA)) & set(_USDA_CATALOG["foods"]):
+    raise ValueError("USDA profiles must not replace existing food IDs")
 
 
 ALIMENTOS_BASE_SEED = {
     **BASE_ALIMENTOS_BASE_SEED,
     **ALIMENTOS_BASE_EXTRA,
+    **_USDA_CATALOG["foods"],
 }
 
 LIMITES_ALIMENTOS_SEED = {
     **BASE_LIMITES_ALIMENTOS_SEED,
     **LIMITES_ALIMENTOS_EXTRA,
+    **_USDA_CATALOG["limits"],
 }
 
 EQUIVALENCIAS_PRACTICAS_SEED = {
     **BASE_EQUIVALENCIAS_PRACTICAS_SEED,
     **EQUIVALENCIAS_PRACTICAS_EXTRA,
+    **_USDA_CATALOG["equivalences"],
 }
 
 CATEGORIAS_SEED = _merge_categorias()

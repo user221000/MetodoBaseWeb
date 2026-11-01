@@ -1,0 +1,62 @@
+USDA FoodData Central — SR Legacy, release April 2018
+
+Download: https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_json_2018-04.zip
+Official release page: https://fdc.nal.usda.gov/download-datasets/
+License: CC0-1.0; https://fdc.nal.usda.gov/api-guide/ (Licensing).
+Citation: U.S. Department of Agriculture, Agricultural Research Service.
+FoodData Central, 2019. fdc.nal.usda.gov.
+Retrieved 2026-10-31 UTC. Dataset release and FDC publicationDate are separate;
+the selected records retain publicationDate 4/1/2019 from the downloaded JSON.
+
+Original ZIP SHA256:
+0fe8ae486a2c8eb42cb96413f058deb51863a46c8fb8eeb4b1fb45006dd338ef
+Original JSON SHA256:
+70d4235ae3a2bdf48a7b9eaa1286a83fa67b6f3270436c9ce8b008213f500129
+Bundled70-record file SHA256 (copied unchanged from reviewed candidates):
+3ff159929282344c6fbefc9a21b11d1b41b297edd915711b6de5607c2f54091d
+
+All four values are per100g edible portion in the described state:
+Protein1003/203 g; Carbohydrate by difference1005/205 g; Total lipid1004/204 g;
+Energy1008/208 kcal. Values, units and full nutrient derivation records are
+preserved without rounding, missing-value imputation or 4/4/9 substitution.
+Reference basis: SR-Legacy_Doc.pdf, table6, Nutr_Val, printed page12:
+https://www.ars.usda.gov/ARSUserFiles/80400525/Data/SR-Legacy/SR-Legacy_Doc.pdf
+Each entry retains FDC ID, NDB number, original description, scientific name
+when supplied, and a JSON Pointer into the original downloaded member. Direct
+food-details routes returned404 during research; source.url is the verified
+official download, not an invented working food-details link.
+
+The70 profiles have14 entries per category. There are61 menu foods and9 entries
+excluded from automatic generation: four condiments (serrano/jalapeno/lemon/lime),
+four ingredients requiring preparation (dry amaranth/cornmeal/tapioca/oat bran),
+and whey-based powder. Dry/cooked masses are not treated as interchangeable.
+Whey profile173180 is "Protein powder whey based", not labeled an isolate or
+attributed to any brand. Existing generic proteina_suero values are untouched.
+Energy diagnostics flag10 deviations>15% from4P+4C+9F for engine review;
+that diagnostic does not invalidate or replace official USDA energy values.
+
+Editorial application settings (not USDA nutrients, servings or clinical advice):
+Meal slots by category: protein1/2/3; carbs0/1/2/3; fats0/1/2/3;
+vegetables0/1/2/3; fruit0/3. Overrides: whey0/3; cheeses0/1/3; rye bread0/3;
+whole-wheat pita0/1/3.
+Breakfast availability for new vegetables is editorial, not medical advice.
+The101 existing meal-slot declarations remain unchanged. Condiments retain
+auto_generation=False even when their category has breakfast availability.
+Technical gram caps: protein220, carbs220, fat35, vegetable200, fruit200.
+Overrides: whey40; cheeses80; oils15; canned ripe olives80; dry amaranth70;
+cornmeal/tapioca80; raw oat bran30; hot peppers15; lemon/lime30; tamarind40.
+All grams refer to edible mass in the declared state. These are generator caps,
+not proposed dietary doses. Equivalences say only to weigh grams in that state;
+no unsupported household cups, spoons or pieces were invented.
+
+load_usda_catalog() returns owned copies of compatible five-field foods plus
+categories/limits/equivalences and separate metadata. metadata_by_id(current_foods)
+must receive the current catalog after SQLite/custom changes. Only exact matches
+of all four nutrient amounts retain USDA source attribution. Modified/malformed
+rows get source=None, provenance_status=customized, auto_generation=False. Meal
+slots are editorial, so changing only them does not claim they were USDA data.
+No network calls, database writes or database imports occur in this module.
+
+Research artifacts and independent Decimal comparison against the original ZIP:
+E:/MetodoBaseWorkspace/evidence/food-engine-catalog-20261031-6c64987469a5478eb5528c8bedacf668/sources/
+E:/MetodoBaseWorkspace/evidence/food-engine-catalog-20261031-6c64987469a5478eb5528c8bedacf668/catalog/

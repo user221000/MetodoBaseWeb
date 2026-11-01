@@ -1,8 +1,7 @@
 """Selección y rotación determinista de alimentos."""
-import random
 import hashlib
+import random
 
-from config.catalogo_alimentos import CATALOGO_POR_TIPO, PROTEINAS, CARBS, GRASAS, FRUTAS
 from core.food_catalog import FoodCatalog, FoodRestrictionError
 from src.alimentos_base import ALIMENTOS_BASE, CATEGORIAS
 
@@ -93,7 +92,7 @@ class SelectorAlimentos:
         tipo: str,
         meal_idx: int = 0,
         alimentos_usados=None,
-        seed: int = None,
+        seed: int | None = None,
         plan_numero: int = 1,
         alimentos_penalizados: dict | None = None,
         pesos_ponderados: dict[str, float] | None = None,
@@ -113,9 +112,9 @@ class SelectorAlimentos:
         catalogo = catalogo or FoodCatalog.from_data(ALIMENTOS_BASE, CATEGORIAS)
         # Meal preferences only reorder or narrow this request's allowed foods.
         # Any fallback must be drawn from these lists, never module globals.
-        proteins_allowed = list(catalogo.categorias.get('proteina', ()))
-        carbs_allowed = list(catalogo.categorias.get('carbs', ()))
-        fats_allowed = list(catalogo.categorias.get('grasa', ()))
+        proteins_allowed = _permitidos_por_comida(catalogo, 'proteina', meal_idx)
+        carbs_allowed = _permitidos_por_comida(catalogo, 'carbs', meal_idx)
+        fats_allowed = _permitidos_por_comida(catalogo, 'grasa', meal_idx)
         if alimentos_usados is None:
             alimentos_usados = set()
         if alimentos_penalizados is None:
@@ -124,7 +123,7 @@ class SelectorAlimentos:
         # --- Listas base desde el catálogo centralizado ---
         proteinas = proteins_allowed[:]
         carbs = carbs_allowed[:]
-        frutas = list(catalogo.categorias.get('fruta', ()))
+        frutas = _permitidos_por_comida(catalogo, 'fruta', meal_idx)
         grasas = fats_allowed[:]
         
         # Ajustes por comida
@@ -135,10 +134,10 @@ class SelectorAlimentos:
             proteinas = [p for p in preferidas if p in proteinas] + otras
             if not proteinas:
                 proteinas = proteins_allowed[:]
-            carbs = [c for c in ['avena', 'pan_integral', 'granola',
-                                 'cereal_integral', 'tortilla_maiz'] if c in carbs_allowed]
-            grasas = [g for g in ['almendras', 'nueces', 'semillas_chia',
-                                  'mantequilla_mani'] if g in fats_allowed]
+            carbs = _preferidos_primero(['avena', 'pan_integral', 'granola',
+                                        'cereal_integral', 'tortilla_maiz'], carbs_allowed)
+            grasas = _preferidos_primero(['almendras', 'nueces', 'semillas_chia',
+                                         'mantequilla_mani'], fats_allowed)
         elif meal_idx == 1:  # almuerzo
             excluir_prot = {'yogurt_griego_light', 'yogurt_natural',
                             'proteina_suero', 'leche_descremada'}
@@ -147,10 +146,10 @@ class SelectorAlimentos:
                        'queso_panela', 'jamon_pavo', 'pavo', 'camarones']
             otras = [p for p in proteinas if p not in ligeras]
             proteinas = [p for p in ligeras if p in proteinas] + otras
-            carbs = [c for c in ['tortilla_maiz', 'arroz_blanco', 'frijoles',
-                                 'papa', 'lentejas', 'elote'] if c in carbs_allowed]
-            grasas = [g for g in ['aguacate', 'nueces', 'cacahuates',
-                                  'semillas_girasol'] if g in fats_allowed]
+            carbs = _preferidos_primero(['tortilla_maiz', 'arroz_blanco', 'frijoles',
+                                        'papa', 'lentejas', 'elote'], carbs_allowed)
+            grasas = _preferidos_primero(['aguacate', 'nueces', 'cacahuates',
+                                         'semillas_girasol'], fats_allowed)
         elif meal_idx == 2:  # comida
             excluir_comida = {'huevo', 'claras_huevo', 'yogurt_griego_light',
                               'yogurt_natural', 'queso_panela', 'queso_cottage',
@@ -163,15 +162,15 @@ class SelectorAlimentos:
             proteinas = [p for p in alta_densidad if p in proteinas] + otras
             frutas = []
             # FIX: definir carbs y grasas para comida — NUNCA avena aquí
-            carbs = [c for c in [
+            carbs = _preferidos_primero([
                 'arroz_blanco', 'arroz_integral', 'papa', 'camote',
                 'tortilla_maiz', 'frijoles', 'lentejas', 'garbanzos',
                 'pasta_integral', 'quinoa', 'platano_macho',
-            ] if c in carbs_allowed]
-            grasas = [g for g in [
+            ], carbs_allowed)
+            grasas = _preferidos_primero([
                 'aguacate', 'aceite_de_oliva', 'nueces',
                 'mantequilla_mani', 'aceite_de_aguacate',
-            ] if g in fats_allowed]
+            ], fats_allowed)
             if not carbs:
                 carbs = [c for c in carbs_allowed if c != 'avena']
         elif meal_idx == 3:  # cena
@@ -250,6 +249,18 @@ class SelectorAlimentos:
 # ---------------------------------------------------------------------------
 # Helpers internos
 # ---------------------------------------------------------------------------
+
+def _permitidos_por_comida(catalogo: FoodCatalog, categoria: str, meal_idx: int) -> list[str]:
+    """Apply meal eligibility before any preference, rotation or fallback."""
+    return [name for name in catalogo.categorias.get(categoria, ())
+            if catalogo.alimentos[name].get('auto_generation', True)
+            and meal_idx in catalogo.alimentos[name].get('meal_idx', (0, 1, 2, 3))]
+
+
+def _preferidos_primero(preferidos: list[str], permitidos: list[str]) -> list[str]:
+    """Priorities must not erase additional foods in the permitted catalog."""
+    return ([name for name in preferidos if name in permitidos]
+            + [name for name in permitidos if name not in preferidos])
 
 def _filtrar_penalizados(lista: list[str], penalizados: list[str]) -> list[str]:
     """Mueve penalizados al final. Si la lista queda vacía, usa backup completo."""

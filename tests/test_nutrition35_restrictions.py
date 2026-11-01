@@ -12,7 +12,10 @@ from core.nutrition_restrictions import (
     ProfessionalNutritionReviewRequired,
 )
 
-FOODS = {name: {"kcal": 100} for name in ("huevo", "pollo", "arroz", "aceite", "zanahoria")}
+FOODS = {
+    name: {"proteina": 10, "carbs": 10, "grasa": 2, "kcal": 100, "meal_idx": [0, 1, 2, 3]}
+    for name in ("huevo", "pollo", "arroz", "aceite", "zanahoria")
+}
 CATEGORIES = {"proteina": ["huevo", "pollo"], "carbs": ["arroz"], "grasa": ["aceite"], "verdura": ["zanahoria"]}
 
 
@@ -40,7 +43,9 @@ def test_every_reported_allergy_requires_review_without_ingredient_inference(pay
         restrictions.catalog(FOODS, CATEGORIES)
     assert result.value.code == "nutrition_professional_review_required"
     assert "huevo" not in str(result.value)
-    assert FOODS["huevo"] == {"kcal": 100}
+    assert FOODS["huevo"] == {
+        "proteina": 10, "carbs": 10, "grasa": 2, "kcal": 100, "meal_idx": [0, 1, 2, 3],
+    }
 
 
 @pytest.mark.parametrize("status", ["not_reported", "none_reported", "reported"])

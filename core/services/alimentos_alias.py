@@ -53,38 +53,11 @@ ALIAS_MAPA: dict[str, str] = {
     # (ninguna detectada aún)
 }
 
-# Conjunto de nombres canónicos (los que SÍ están en la BD)
-NOMBRES_CANONICOS: frozenset[str] = frozenset({
-    # Fuente: ALIMENTOS_BASE_SEED + ALIMENTOS_BASE_EXTRA (alimentos_seed_runtime)
-    "pechuga_de_pollo", "carne_magra_res", "pescado_blanco", "salmon",
-    "huevo", "claras_huevo", "queso_panela", "yogurt_griego_light",
-    "proteina_suero", "atun_en_agua", "pollo_muslo", "carne_molida_res",
-    "pavo_pechuga", "tofu_firme", "requesón", "jamon_pavo", "camarones",
-    "sardinas", "leche_descremada", "yogurt_natural",
-    "pavo_molido_93", "lomo_cerdo", "queso_cottage_bajo_grasa",
-    "edamame_cocido",
-    # Carbohidratos
-    "arroz_blanco", "arroz_integral", "papa", "camote", "avena",
-    "pan_integral", "tortilla_maiz", "frijoles", "lentejas", "garbanzos",
-    "pasta_integral", "quinoa", "elote", "platano_macho", "tortilla_harina",
-    "pan_blanco", "cereal_integral", "granola",
-    "yuca", "bulgur", "cebada_perlada", "cuscus",
-    # Grasas
-    "aceite_de_oliva", "aguacate", "nueces", "almendras", "mantequilla_mani",
-    "aceite_de_aguacate", "semillas_chia", "aceite_coco", "crema_cacahuate",
-    "pistaches", "semillas_calabaza", "linaza", "aceitunas_verdes",
-    "semillas_girasol", "cacahuates",
-    # Verduras
-    "brocoli", "espinaca", "calabacita", "champiñones", "coliflor",
-    "zanahoria", "apio", "pepino", "tomate", "lechuga", "cebolla",
-    "pimiento", "ejotes", "esparragos", "berenjena", "coles_bruselas",
-    "alcachofa",
-    # Frutas
-    "manzana", "platano", "banana", "papaya", "naranja", "mango",
-    "melon", "piña",
-    # Aceites
-    "aceite_de_oliva", "aceite_de_aguacate", "aceite_coco",
-})
+# Canonical identifiers follow the bundled runtime catalog, including newly
+# sourced foods. This import is data-only; it never opens the mutable SQLite DB.
+from src.alimentos_seed_runtime import ALIMENTOS_BASE_SEED
+
+NOMBRES_CANONICOS: frozenset[str] = frozenset(ALIMENTOS_BASE_SEED)
 
 
 # ---------------------------------------------------------------------------

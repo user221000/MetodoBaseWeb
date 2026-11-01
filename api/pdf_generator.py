@@ -290,7 +290,13 @@ class PDFGenerator:
             ("BOTTOMPADDING",   (0, 1), (-1, -1), 5),
             ("LEFTPADDING",     (0, 0), (-1, -1), 8),
         ]))
-        return [tbl]
+        result = [tbl]
+        if cliente.get("grasa_corporal_estimada"):
+            result.append(Paragraph(
+                "Se usó 20% de grasa corporal porque no se informó el dato; no es una medición.",
+                _s["PDF_Cell"],
+            ))
+        return result
 
     # ── Sección: Resumen de macros ─────────────────────────────────────────────
 
@@ -421,9 +427,9 @@ class PDFGenerator:
         tips = [
             ("Cocción", "Utiliza aceite en aerosol (spray) para controlar la cantidad de grasa."),
             ("Medidas", "Las tazas y cucharas deben ser medidas estándar y rasas."),
-            ("Pesaje", "Pesa los alimentos en crudo (antes de cocinar) salvo indicación contraria."),
-            ("Hidratación", "Mantén una ingesta de agua constante de 2 a 3 litros diarios."),
-            ("Ansiedad", "Puedes consumir gelatina sin azúcar (light) libremente entre comidas."),
+            ("Pesaje", "Usa gramos del estado indicado: crudo, cocido o escurrido. Si falta el estado, confírmalo con tu profesional antes de pesar."),
+            ("Hidratación", "Adapta tu consumo de agua a tus necesidades y a la orientación de tu profesional de salud."),
+            ("Extras", "Los alimentos e ingredientes adicionales cambian el cálculo del menú. Revisa sus porciones y restricciones."),
         ]
         _s = self.styles
         rows = [[Paragraph("Recomendaciones", _s["PDF_CardTitle"]), ""]]
@@ -574,6 +580,7 @@ class PDFGenerator:
                 "peso_kg": getattr(cliente, "peso_kg", None),
                 "estatura_cm": getattr(cliente, "estatura_cm", None),
                 "grasa_corporal_pct": getattr(cliente, "grasa_corporal_pct", None),
+                "grasa_corporal_estimada": getattr(cliente, "grasa_corporal_estimada", False),
                 "nivel_actividad": getattr(cliente, "nivel_actividad", ""),
                 "objetivo": getattr(cliente, "objetivo", ""),
             },

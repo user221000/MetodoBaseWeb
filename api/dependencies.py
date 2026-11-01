@@ -20,6 +20,7 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from core.modelos import ClienteEvaluacion   # noqa: E402
+from core.nutrition_validation import normalize_sex, validate_measurement  # noqa: E402
 from config.constantes import FACTORES_ACTIVIDAD  # noqa: E402
 
 
@@ -28,13 +29,21 @@ def build_cliente_from_dict(data: dict) -> ClienteEvaluacion:
     Convierte un dict (de la API o de la BD) en ClienteEvaluacion con macros
     ya calculados via Katch-McArdle (MotorNutricional.calcular_motor).
 
-    Si grasa_corporal_pct es None se asume 20% para que el motor no falle.
+    Sólo la grasa ausente/None usa la estimación histórica del 20 %, marcada en el DTO.
+    Los valores reportados se validan sin sustituir el 0 ni otros datos inválidos.
     """
+    grasa_reportada = data.get("grasa_corporal_pct")
+    grasa_estimada = grasa_reportada is None
+    grasa = 20.0 if grasa_estimada else float(grasa_reportada)
+    validate_measurement("grasa_corporal_pct", grasa)
+    sexo = normalize_sex(data.get("sexo"))
+    plantilla_tipo = data.get("plantilla_tipo")
+    if plantilla_tipo is None:
+        plantilla_tipo = "general"
+
     from core.motor_nutricional import MotorNutricional
     from core.nutrition_restrictions import NutritionRestrictions
     from src.alimentos_base import ALIMENTOS_BASE
-
-    grasa = data.get("grasa_corporal_pct") or 20.0
 
     cliente = ClienteEvaluacion(
         nombre=data.get("nombre"),
@@ -45,6 +54,9 @@ def build_cliente_from_dict(data: dict) -> ClienteEvaluacion:
         grasa_corporal_pct=float(grasa),
         nivel_actividad=data.get("nivel_actividad"),
         objetivo=data.get("objetivo"),
+        plantilla_tipo=plantilla_tipo,
+        sexo=sexo,
+        grasa_corporal_estimada=grasa_estimada,
         nutrition_restrictions=NutritionRestrictions.from_declaration(
             data.get("restricciones_nutricionales"), ALIMENTOS_BASE,
             excluded_foods=data["alimentos_excluidos"] if data.get("alimentos_excluidos") is not None else [],

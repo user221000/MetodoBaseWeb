@@ -4,6 +4,7 @@ Carga y almacenamiento de alimentos en SQLite.
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
 from pathlib import Path
 from typing import Dict, List
@@ -308,14 +309,27 @@ def obtener_detalle(alimento: str, db_path: Path | None = None) -> dict | None:
 
 def guardar_alimento(detalle: dict, db_path: Path | None = None) -> None:
     """Inserta o actualiza un alimento (y sus tablas relacionadas)."""
-    if db_path is None:
-        db_path = _asegurar_db()
-
+    if not isinstance(detalle, dict) or not isinstance(detalle.get("nombre"), str):
+        raise ValueError("Revisa los datos del alimento.")
     nombre = detalle["nombre"].strip()
     categoria = detalle.get("categoria") or ""
     meal_idx = detalle.get("meal_idx", [])
     limite = detalle.get("limite")
     equivalencia = detalle.get("equivalencia")
+    # Reject invalid edits before opening or initializing a persistent catalog.
+    from core.food_catalog import validate_catalog_data, FoodRestrictionError
+    record = {key: detalle.get(key) for key in ("proteina", "carbs", "grasa", "kcal")}
+    record["meal_idx"] = meal_idx
+    try:
+        validate_catalog_data({nombre: record}, {categoria: (nombre,)} if isinstance(categoria, str) and categoria else {})
+    except FoodRestrictionError:
+        raise ValueError("Revisa los datos nutricionales y las comidas del alimento.") from None
+    if (not isinstance(categoria, str) or equivalencia is not None and not isinstance(equivalencia, str)
+            or limite is not None and (isinstance(limite, bool) or not isinstance(limite, (int, float))
+                                      or not math.isfinite(limite) or limite <= 0)):
+        raise ValueError("Revisa la categoría, el límite y la equivalencia del alimento.")
+    if db_path is None:
+        db_path = _asegurar_db()
 
     conn = sqlite3.connect(db_path)
     try:

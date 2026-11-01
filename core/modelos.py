@@ -46,6 +46,11 @@ class ClienteEvaluacion:
 
     # Captured declared health context: never include it in repr or diagnostics.
     nutrition_restrictions: NutritionRestrictions | None = field(default=None, repr=False)
+
+    # Append-only: preserve positional construction used by historical callers.
+    # Neither the reported sex nor the estimation marker belongs in diagnostics.
+    sexo: str | None = field(default=None, repr=False)
+    grasa_corporal_estimada: bool = field(default=False, repr=False)
     
     def __repr__(self) -> str:
         return (f"ClienteEvaluacion(id={self.id_cliente}, nombre={self.nombre}, "

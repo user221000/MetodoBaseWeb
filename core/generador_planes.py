@@ -305,7 +305,7 @@ class ConstructorPlanNuevo:
                         macros_comida['grasa'], grasa_desde_proteina,
                         lista_grasas, alimentos_usados_plan=alimentos_usados_plan,
                         proteina_principal=proteina_principal,
-                    catalogo=catalogo)
+                    catalogo=catalogo, meal_idx=meal_idx)
                     alimentos_dict.update(grasas_asignados)
                     alimentos_usados_plan.update(grasas_asignados.keys())
 
@@ -359,14 +359,13 @@ class ConstructorPlanNuevo:
                     'fecha_plan': datetime.now().isoformat(),
                 }
 
-                FACTOR_MAXIMO = 1.2
                 for comida_nombre in ['desayuno', 'almuerzo', 'comida', 'cena']:
                     if comida_nombre not in plan or 'alimentos' not in plan[comida_nombre]:
                         continue
                     for ali_nombre, gramos in list(plan[comida_nombre]['alimentos'].items()):
                         if ali_nombre not in alimentos_base:
                             continue
-                        limite_maximo = LIMITES_DUROS_ALIMENTOS.get(ali_nombre, 999) * FACTOR_MAXIMO
+                        limite_maximo = min(LIMITES_ALIMENTOS.get(ali_nombre, 300), LIMITES_DUROS_ALIMENTOS.get(ali_nombre, 300))
                         if gramos > limite_maximo:
                             plan[comida_nombre]['alimentos'][ali_nombre] = limite_maximo
                     kcal_obj_c = plan[comida_nombre].get('kcal_objetivo', 1)

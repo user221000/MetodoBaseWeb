@@ -157,20 +157,7 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
             if comida not in plan:
                 continue
             datos = plan[comida]
-            plan_serializado[comida] = {
-                "kcal_objetivo": round(datos.get("kcal_objetivo", 0), 0),
-                "tipo_plan": "opciones",
-                "proteinas": serialize_macro_options(datos.get("proteinas", {})),
-                "carbohidratos": serialize_macro_options(datos.get("carbohidratos", {})),
-                "grasas": serialize_macro_options(datos.get("grasas", {})),
-                "vegetales": [
-                    {
-                        "alimento": v.get("alimento", ""),
-                        "gramos": round(v.get("gramos", 0)),
-                    }
-                    for v in datos.get("vegetales", [])
-                ],
-            }
+            plan_serializado[comida] = serialize_option_meal(datos)
     else:
         from core.generador_planes import ConstructorPlanNuevo
         from web.pdf import PDFGenerator
@@ -192,6 +179,7 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
                 "peso_kg": cliente.peso_kg,
                 "estatura_cm": cliente.estatura_cm,
                 "grasa_corporal_pct": cliente.grasa_corporal_pct,
+                "grasa_corporal_estimada": getattr(cliente, "grasa_corporal_estimada", False),
                 "nivel_actividad": cliente.nivel_actividad,
                 "objetivo": cliente.objetivo,
             },
@@ -212,7 +200,7 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
 
         plan_serializado = {
             comida: {
-                "kcal_objetivo": round(plan[comida].get("kcal_objetivo", 0), 0),
+                "kcal_objetivo": plan[comida].get("kcal_objetivo", 0),
                 "kcal_real": round(plan[comida].get("kcal_real", 0), 0),
                 "alimentos": {
                     k: round(v, 0)
@@ -223,6 +211,20 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
             for comida in comidas
             if comida in plan
         }
+
+    # Store calculation provenance with each meal, without adding a fifth meal
+    # or copying private profile inputs into public catalog information.
+    from src.alimentos_catalogo_usda import USDA_DATA_SHA256
+    calculation = {
+        "metodo": "Katch-McArdle",
+        "grasa_corporal_estimada": getattr(cliente, "grasa_corporal_estimada", False),
+        "catalogo_version": "legacy+USDA-SR-2018-v1",
+        "catalogo_usda_sha256": USDA_DATA_SHA256,
+        "base_nutrientes_g": 100,
+        "porcion": "gramos del estado indicado en el alimento",
+    }
+    for meal in plan_serializado.values():
+        meal["calculo"] = calculation
 
     # Registrar plan en SA
     desv_max = max(
@@ -275,19 +277,20 @@ def _build_plan(id_cliente, plan_numero, gym_id, tipo_plan, *, reservation_id, i
         "macros": {
             "tmb": round(cliente.tmb or 0, 1),
             "get_total": round(cliente.get_total or 0, 1),
-            "kcal_objetivo": round(cliente.kcal_objetivo or 0, 0),
-            "kcal_real": round(kcal_total, 0),
+            "kcal_objetivo": cliente.kcal_objetivo or 0,
+            "kcal_real": kcal_total,
             "proteina_g": round(cliente.proteina_g or 0, 1),
             "carbs_g": round(cliente.carbs_g or 0, 1),
             "grasa_g": round(cliente.grasa_g or 0, 1),
         },
         "plan": plan_serializado,
+        "calculo": calculation,
     }
 
 
 def serialize_macro_options(macro_data: dict) -> dict:
     """Serializa un bloque de opciones de macro (proteinas/carbs/grasas)."""
-    return {
+    result = {
         "cantidad_objetivo": round(macro_data.get("cantidad_objetivo", 0), 1),
         "opciones": [
             {
@@ -297,6 +300,36 @@ def serialize_macro_options(macro_data: dict) -> dict:
                 "macros": op.get("macros", {}),
             }
             for op in macro_data.get("opciones", [])
+        ],
+    }
+    if "aporte_referencia" in macro_data:
+        result["aporte_referencia"] = round(macro_data["aporte_referencia"], 1)
+        result["num_opciones"] = len(result["opciones"])
+    return result
+
+
+def serialize_option_energy(meal: dict) -> dict:
+    """Keep objectives, calculated base and all-combination bounds distinct."""
+    fields = ("kcal_real", "energia_min", "energia_max", "desviacion_pct", "macros_reales", "base_selection")
+    return {field: meal[field] for field in fields if field in meal}
+
+
+def serialize_option_meal(meal: dict) -> dict:
+    """Preserve the exact target used to validate the option energy interval.
+
+    Rounding belongs to the display. Quantizing the target here can turn a
+    valid boundary into a persisted interval exceeding its stated tolerance.
+    """
+    return {
+        "kcal_objetivo": meal.get("kcal_objetivo", 0),
+        **serialize_option_energy(meal),
+        "tipo_plan": "opciones",
+        **{group: serialize_macro_options(meal.get(group, {}))
+           for group in ("proteinas", "carbohidratos", "grasas")},
+        "vegetales": [
+            {"alimento": row.get("alimento", ""), "gramos": round(row.get("gramos", 0)),
+             "macros": row.get("macros", {})}
+            for row in meal.get("vegetales", [])
         ],
     }
 

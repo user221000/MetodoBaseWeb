@@ -1,29 +1,30 @@
 """
-Generador de planes nutricionales con opciones múltiples.
+Planes con opciones independientes y combinaciones energéticas verificadas.
 
-Este módulo implementa el sistema de generación de planes con opciones,
-donde el cliente puede elegir entre múltiples alternativas equivalentes
-por cada macronutriente.
-
-Diferencias vs ConstructorPlanNuevo:
-- En lugar de asignar alimentos específicos, genera LISTAS de opciones
-- Cada opción es nutricionalmente equivalente (mismo macro objetivo)
-- Mantiene rotación inteligente en las opciones sugeridas
-- Compatible con exportación a PDF con formato especial
+El constructor resuelve una comida completa antes de proponer alternativas.
+Todas las combinaciones publicadas conservan la tolerancia energética del 5 %.
+Los objetivos se muestran separados del aporte real y de su rango de energía.
 """
 
-from core.food_catalog import FoodCatalog, FoodRestrictionError
-from core.nutrition_restrictions import generation_catalog
-from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS, CATEGORIAS as _DEFAULT_CATEGORIES
+import math
 import random
-from typing import List, Dict
 from datetime import datetime
+from itertools import product
+from typing import ClassVar
 
-from src.alimentos_base import ALIMENTOS_BASE, CATEGORIAS, EQUIVALENCIAS_PRACTICAS
-from config.constantes import LIMITES_DUROS_ALIMENTOS
-from core.modelos import ClienteEvaluacion
-from core.motor_nutricional import MotorNutricional, AjusteCaloricoMensual
+from config.constantes import LIMITES_DUROS_ALIMENTOS, MINIMOS_POR_ALIMENTO
+from core.food_catalog import FoodCatalog, FoodRestrictionError
 from core.generador_comidas import DistribuidorComidas
+from core.modelos import ClienteEvaluacion
+from core.motor_nutricional import AjusteCaloricoMensual, MotorNutricional
+from core.nutrition_restrictions import generation_catalog
+from core.selector_alimentos import SelectorAlimentos
+from src.alimentos_base import ALIMENTOS_BASE as _DEFAULT_FOODS
+from src.alimentos_base import CATEGORIAS as _DEFAULT_CATEGORIES
+from src.alimentos_base import (
+    EQUIVALENCIAS_PRACTICAS,
+    LIMITES_ALIMENTOS,
+)
 from src.gestor_rotacion import GestorRotacionAlimentos
 from utils.logger import logger
 
@@ -39,7 +40,7 @@ class GeneradorOpcionesEquivalentes:
         )
     """
 
-    EQUIVALENCIAS = {
+    EQUIVALENCIAS: ClassVar[dict] = {
         'huevo': {'unidad': 'huevo', 'gramos_por_unidad': 50},
         'claras_huevo': {'unidad': 'clara', 'gramos_por_unidad': 33},
         'tortilla_maiz': {'unidad': 'tortilla', 'gramos_por_unidad': 30},
@@ -138,7 +139,7 @@ class GeneradorOpcionesEquivalentes:
         return max(gramos_final, 10)  # Mínimo 10g
 
     @staticmethod
-    def calcular_macros_reales(alimento: str, gramos: float, catalogo: FoodCatalog | None = None) -> Dict[str, float]:
+    def calcular_macros_reales(alimento: str, gramos: float, catalogo: FoodCatalog | None = None) -> dict[str, float]:
         """Calcula macros reales aportados por cantidad de alimento."""
         # The request catalog also constrains emergency/alternative selections.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
@@ -169,7 +170,7 @@ class GeneradorOpcionesEquivalentes:
         seed_offset: int,
         umbral_minimo: float,
         catalogo: FoodCatalog | None = None,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Método interno genérico para generar opciones de un macronutriente."""
         # The request catalog also constrains emergency/alternative selections.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
@@ -229,10 +230,10 @@ class GeneradorOpcionesEquivalentes:
         gramos_proteina_objetivo: float,
         meal_idx: int,
         num_opciones: int = 3,
-        alimentos_penalizados: Dict[str, List[str]] | None = None,
+        alimentos_penalizados: dict[str, list[str]] | None = None,
         seed: int | None = None,
         catalogo: FoodCatalog | None = None,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Genera N opciones equivalentes de proteína."""
         # The request catalog also constrains emergency/alternative selections.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
@@ -264,10 +265,10 @@ class GeneradorOpcionesEquivalentes:
         gramos_carbs_objetivo: float,
         meal_idx: int,
         num_opciones: int = 3,
-        alimentos_penalizados: Dict[str, List[str]] | None = None,
+        alimentos_penalizados: dict[str, list[str]] | None = None,
         seed: int | None = None,
         catalogo: FoodCatalog | None = None,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Genera N opciones equivalentes de carbohidratos."""
         # The request catalog also constrains emergency/alternative selections.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
@@ -293,7 +294,6 @@ class GeneradorOpcionesEquivalentes:
         }.get(meal_idx, [])
 
         # FIX: Filtrar alimentos por meal_idx usando restricciones en ALIMENTOS_BASE
-        from src.alimentos_base import ALIMENTOS_BASE
         candidatos_carbs = [
             a for a in categorias['carbs']
             if a in alimentos_base and meal_idx in alimentos_base[a].get('meal_idx', [0, 1, 2, 3])
@@ -345,10 +345,10 @@ class GeneradorOpcionesEquivalentes:
         gramos_grasa_objetivo: float,
         meal_idx: int,
         num_opciones: int = 3,
-        alimentos_penalizados: Dict[str, List[str]] | None = None,
+        alimentos_penalizados: dict[str, list[str]] | None = None,
         seed: int | None = None,
         catalogo: FoodCatalog | None = None,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Genera N opciones equivalentes de grasas."""
         # The request catalog also constrains emergency/alternative selections.
         catalogo = catalogo or FoodCatalog.from_data(_DEFAULT_FOODS, _DEFAULT_CATEGORIES)
@@ -376,6 +376,183 @@ class GeneradorOpcionesEquivalentes:
         )
 
 
+_GROUPS = (('proteinas', 'proteina'), ('carbohidratos', 'carbs'), ('grasas', 'grasa'))
+_NUTRIENTS = ('proteina', 'carbs', 'grasa', 'kcal')
+_ENERGY_TOLERANCE = 0.05
+# Covers every current category (171 foods total) without allowing an
+# unbounded catalog expansion to create unbounded Cartesian searches.
+_MAX_CANDIDATES = 48
+
+
+def _portion_bounds(food: str) -> tuple[int, int]:
+    """Use the intersection of existing catalog and hard limits, in whole grams."""
+    lower = max(1, math.ceil(MINIMOS_POR_ALIMENTO.get(food, 0)))
+    upper = math.floor(min(LIMITES_ALIMENTOS.get(food, 300), LIMITES_DUROS_ALIMENTOS.get(food, 300)))
+    return lower, upper
+
+
+def _nutrients(catalog: FoodCatalog, food: str, grams: float) -> dict[str, float]:
+    return {key: catalog.alimentos[food][key] * grams / 100 for key in _NUTRIENTS}
+
+
+def _sum_nutrients(parts) -> dict[str, float]:
+    return {key: sum(part[key] for part in parts) for key in _NUTRIENTS}
+
+
+def _option(catalog: FoodCatalog, food: str, grams: int) -> dict:
+    return {
+        'alimento': food, 'gramos': grams,
+        'equivalencia': GeneradorOpcionesEquivalentes.calcular_equivalencia(food, grams, catalogo=catalog),
+        'macros': _nutrients(catalog, food, grams),
+    }
+
+
+def _solve_portions(catalog: FoodCatalog, foods: tuple[str, ...], target: dict) -> list[float] | None:
+    """Solve the three foods jointly; each contributes all three macronutrients."""
+    rows = [[catalog.alimentos[food][macro] / 100 for food in foods] + [target[macro]]
+            for macro in ('proteina', 'carbs', 'grasa')]
+    for column in range(3):
+        pivot = max(range(column, 3), key=lambda index: abs(rows[index][column]))
+        if abs(rows[pivot][column]) < 1e-10:
+            return None
+        rows[column], rows[pivot] = rows[pivot], rows[column]
+        divisor = rows[column][column]
+        rows[column] = [value / divisor for value in rows[column]]
+        for index in range(3):
+            if index == column:
+                continue
+            factor = rows[index][column]
+            rows[index] = [value - factor * pivot_value for value, pivot_value in zip(rows[index], rows[column])]
+    grams = [row[3] for row in rows]
+    return grams if all(math.isfinite(value) and value > 0 for value in grams) else None
+
+
+def _energy_range(groups: dict, vegetables: list, catalog: FoodCatalog) -> tuple[float, float]:
+    vegetable_energy = sum(_nutrients(catalog, row['alimento'], row['gramos'])['kcal'] for row in vegetables)
+    # Choices are independent, so summing each group's extrema is the exact
+    # minimum/maximum over its complete Cartesian product, not a sampled menu.
+    energies = [[_nutrients(catalog, row['alimento'], row['gramos'])['kcal']
+                 for row in groups[group]] for group, _ in _GROUPS]
+    return (vegetable_energy + sum(min(values) for values in energies),
+            vegetable_energy + sum(max(values) for values in energies))
+
+
+def _energy_valid(groups: dict, vegetables: list, target: float, catalog: FoodCatalog) -> bool:
+    minimum, maximum = _energy_range(groups, vegetables, catalog)
+    return minimum >= target * (1 - _ENERGY_TOLERANCE) - 1e-8 and maximum <= target * (1 + _ENERGY_TOLERANCE) + 1e-8
+
+
+def _vegetables(catalog: FoodCatalog, meal: int, seed: int) -> list[dict]:
+    """Keep the existing 125 g total while respecting eligibility and portions."""
+    candidates = [food for food in catalog.categorias['verdura']
+                  if catalog.alimentos[food].get('auto_generation', True)
+                  and meal in catalog.alimentos[food]['meal_idx'] and _portion_bounds(food)[1] > 0]
+    random.Random(seed + meal + 500).shuffle(candidates)
+    # Three vegetables are a preference. Additional permitted vegetables may
+    # be used if their configured limits cannot accommodate the existing total.
+    chosen = []
+    for food in candidates:
+        lower, upper = _portion_bounds(food)
+        if lower > upper:
+            continue
+        chosen.append(food)
+        if len(chosen) >= min(3, len(candidates)) and sum(_portion_bounds(name)[1] for name in chosen) >= 125:
+            break
+    if not chosen or sum(_portion_bounds(food)[0] for food in chosen) > 125 or sum(_portion_bounds(food)[1] for food in chosen) < 125:
+        raise FoodRestrictionError('No hay porciones de vegetales compatibles para esta comida.')
+    grams = [_portion_bounds(food)[0] for food in chosen]
+    remaining = 125 - sum(grams)
+    # Allocate one gram at a time so small per-food limits are never exceeded.
+    while remaining:
+        for index, food in enumerate(chosen):
+            if grams[index] < _portion_bounds(food)[1]:
+                grams[index] += 1
+                remaining -= 1
+                if not remaining:
+                    break
+    return [{'alimento': food, 'gramos': weight, 'macros': _nutrients(catalog, food, weight)}
+            for food, weight in zip(chosen, grams)]
+
+
+def _build_meal(catalog: FoodCatalog, targets: dict, meal: int, seed: int,
+                plan_number: int, penalties: dict, requested: int) -> dict:
+    if any(not isinstance(targets[key], (int, float)) or not math.isfinite(targets[key])
+           or targets[key] <= 0 for key in ('kcal', 'proteina', 'carbs', 'grasa')):
+        raise FoodRestrictionError('Los objetivos no permiten construir porciones compatibles. Revisa los datos con tu profesional.')
+    candidates = {
+        group: [food for food in SelectorAlimentos.seleccionar_lista(
+            macro, meal_idx=meal, seed=seed, plan_numero=plan_number,
+            alimentos_penalizados=penalties, catalogo=catalog,
+        ) if catalog.alimentos[food][macro] > 0 and _portion_bounds(food)[0] <= _portion_bounds(food)[1]][:_MAX_CANDIDATES]
+        for group, macro in _GROUPS
+    }
+    groups = None
+    seen_vegetables = set()
+    # A random vegetable preference must not make an otherwise feasible meal
+    # unavailable. Search a bounded set of permitted 125 g layouts jointly.
+    for attempt in range(8):
+        try:
+            vegetables = _vegetables(catalog, meal, seed + attempt * 104729)
+        except FoodRestrictionError:
+            continue
+        vegetable_signature = tuple(sorted((row['alimento'], row['gramos']) for row in vegetables))
+        if vegetable_signature in seen_vegetables:
+            continue
+        seen_vegetables.add(vegetable_signature)
+        vegetable_totals = _sum_nutrients([_nutrients(catalog, row['alimento'], row['gramos']) for row in vegetables])
+        residual = {macro: targets[macro] - vegetable_totals[macro] for _, macro in _GROUPS}
+        if any(value <= 0 for value in residual.values()):
+            continue
+        for foods in product(*(candidates[group] for group, _ in _GROUPS)):
+            solved = _solve_portions(catalog, foods, residual)
+            if solved is None:
+                continue
+            weights = [round(value) for value in solved]
+            if any(not _portion_bounds(food)[0] <= grams <= _portion_bounds(food)[1] for food, grams in zip(foods, weights)):
+                continue
+            proposed = {group: [_option(catalog, food, grams)]
+                        for (group, _), food, grams in zip(_GROUPS, foods, weights)}
+            if _energy_valid(proposed, vegetables, targets['kcal'], catalog):
+                groups = proposed
+                break
+        if groups is not None:
+            break
+    if groups is None:
+        raise FoodRestrictionError('No hay una combinación de porciones que respete los objetivos y límites. Revisa la selección con tu profesional.')
+
+    # Each alternative matches its base food's contribution, not the whole
+    # meal target (the other groups and vegetables also contribute nutrients).
+    for group, macro in _GROUPS:
+        reference = groups[group][0]['macros'][macro]
+        for food in candidates[group]:
+            if len(groups[group]) >= requested:
+                break
+            if food == groups[group][0]['alimento']:
+                continue
+            grams = round(reference * 100 / catalog.alimentos[food][macro])
+            if not _portion_bounds(food)[0] <= grams <= _portion_bounds(food)[1]:
+                continue
+            alternative = _option(catalog, food, grams)
+            groups[group].append(alternative)
+            if not _energy_valid(groups, vegetables, targets['kcal'], catalog):
+                groups[group].pop()
+
+    minimum, maximum = _energy_range(groups, vegetables, catalog)
+    actual = _sum_nutrients([groups[group][0]['macros'] for group, _ in _GROUPS] + [vegetable_totals])
+    result = {
+        'tipo_plan': 'opciones', 'kcal_objetivo': targets['kcal'],
+        'kcal_real': actual['kcal'], 'macros_reales': actual,
+        'energia_min': minimum, 'energia_max': maximum,
+        'desviacion_pct': max(abs(minimum - targets['kcal']), abs(maximum - targets['kcal'])) / targets['kcal'] * 100,
+        'base_selection': {group: 0 for group, _ in _GROUPS},
+        'vegetales': vegetables,
+    }
+    for group, macro in _GROUPS:
+        result[group] = {'cantidad_objetivo': targets[macro], 'aporte_referencia': groups[group][0]['macros'][macro],
+                         'num_opciones': len(groups[group]), 'opciones': groups[group]}
+    return result
+
+
 class ConstructorPlanConOpciones:
     """
     Constructor de planes nutricionales con opciones múltiples.
@@ -391,14 +568,12 @@ class ConstructorPlanConOpciones:
         directorio_planes: str = ".",
         num_opciones_por_macro: int = 3,
         catalogo: FoodCatalog | None = None,
-    ) -> Dict:
+    ) -> dict:
         """Construye plan con opciones múltiples."""
         # The request catalog also constrains emergency/alternative selections.
         catalogo = generation_catalog(
             cliente.nutrition_restrictions, _DEFAULT_FOODS, _DEFAULT_CATEGORIES, catalogo,
         )
-        alimentos_base = catalogo.alimentos
-        categorias = catalogo.categorias
         logger.info("[OPCIONES] Generando plan con opciones para %s", cliente.nombre)
 
         # Calcular ajuste calórico (igual que ConstructorPlanNuevo)
@@ -442,103 +617,27 @@ class ConstructorPlanConOpciones:
         seed_base, seed_variacion = generar_seed_bloques(cliente, gym_id="default")
         seed = seed_base if plan_numero <= 3 else seed_variacion
 
-        generador = GeneradorOpcionesEquivalentes()
-
-        plan: Dict = {}
-
-        for meal_idx, (nombre_comida, macros_comida) in enumerate(distribucion.items()):
-            logger.info(
-                "[OPCIONES] Generando %s: %.0f kcal",
-                nombre_comida, macros_comida['kcal']
-            )
-
-            opciones_proteina = generador.generar_opciones_proteina(
-                gramos_proteina_objetivo=macros_comida['proteina'],
-                meal_idx=meal_idx,
-                num_opciones=num_opciones_por_macro,
-                alimentos_penalizados=penalizados_por_cat,
-                seed=seed + meal_idx, catalogo=catalogo,
-            )
-
-            opciones_carbs = generador.generar_opciones_carbs(
-                gramos_carbs_objetivo=macros_comida['carbs'],
-                meal_idx=meal_idx,
-                num_opciones=num_opciones_por_macro,
-                alimentos_penalizados=penalizados_por_cat,
-                seed=seed + meal_idx, catalogo=catalogo,
-            )
-
-            opciones_grasas = generador.generar_opciones_grasas(
-                gramos_grasa_objetivo=macros_comida['grasa'],
-                meal_idx=meal_idx,
-                num_opciones=num_opciones_por_macro,
-                alimentos_penalizados=penalizados_por_cat,
-                seed=seed + meal_idx, catalogo=catalogo,
-            )
-
-            # Vegetales: siempre 125g de verduras variadas bajas en calorías
-            VEGETALES_POOL = [
-                'brocoli', 'espinaca', 'calabacita', 'coliflor',
-                'pepino', 'lechuga', 'apio', 'champiñones',
-                'ejotes', 'chayote', 'nopales', 'tomate',
-            ]
-            # Filtrar solo los que existen en la base de alimentos
-            vegetales_disponibles = [
-                v for v in VEGETALES_POOL if v in alimentos_base
-            ]
-            if not vegetales_disponibles:
-                vegetales_disponibles = catalogo.require_candidates(categorias.get('verdura', ()))
-
-            # Seleccionar 3 vegetales variados por comida (rotan por meal_idx)
-            rng_veg = random.Random(seed + meal_idx + 500)
-            rotados = vegetales_disponibles[:]
-            rng_veg.shuffle(rotados)
-            seleccion_veg = rotados[:3]
-
-            # Distribuir 125g entre los vegetales seleccionados
-            gramos_por_vegetal = [45, 40, 40]  # total = 125g
-            vegetales_lista = []
-            for vi, veg_nombre in enumerate(seleccion_veg):
-                g = gramos_por_vegetal[vi] if vi < len(gramos_por_vegetal) else 40
-                vegetales_lista.append({
-                    'alimento': veg_nombre,
-                    'gramos': g,
-                    'macros': generador.calcular_macros_reales(veg_nombre, g, catalogo=catalogo),
-                })
-
-            plan[nombre_comida] = {
-                'kcal_objetivo': macros_comida['kcal'],
-                'tipo_plan': 'opciones',
-                'proteinas': {
-                    'cantidad_objetivo': macros_comida['proteina'],
-                    'opciones': opciones_proteina,
-                },
-                'carbohidratos': {
-                    'cantidad_objetivo': macros_comida['carbs'],
-                    'opciones': opciones_carbs,
-                },
-                'grasas': {
-                    'cantidad_objetivo': macros_comida['grasa'],
-                    'opciones': opciones_grasas,
-                },
-                'vegetales': vegetales_lista,
-            }
-
-        # Metadata
+        if type(num_opciones_por_macro) is not int or not 1 <= num_opciones_por_macro <= 12:
+            raise FoodRestrictionError("Solicita entre una y doce opciones por grupo.")
+        plan = {
+            name: _build_meal(catalogo, targets, meal, seed, plan_numero,
+                              penalizados_por_cat, num_opciones_por_macro)
+            for meal, (name, targets) in enumerate(distribucion.items())
+        }
+        counts = {name: {group: row[group]['num_opciones'] for group, _ in _GROUPS}
+                  for name, row in plan.items()}
         plan['metadata'] = {
             'tipo_plan': 'opciones',
-            'num_opciones_por_macro': num_opciones_por_macro,
+            'num_opciones_solicitadas': num_opciones_por_macro,
+            'opciones_por_comida': counts,
             'peso_base': cliente.peso_kg,
-            'kcal_totales': kcal_objetivo_para_usar,
+            'kcal_totales': sum(row['kcal_real'] for row in plan.values()),
+            'kcal_objetivo': kcal_objetivo_para_usar,
+            'energia_min': sum(row['energia_min'] for row in plan.values()),
+            'energia_max': sum(row['energia_max'] for row in plan.values()),
             'objetivo': cliente.objetivo,
             'fecha_plan': datetime.now().isoformat(),
-            'version_motor': '2.0-opciones',
+            'version_motor': '2.1-opciones-verificadas',
         }
-
-        logger.info(
-            "[OPCIONES] Plan generado exitosamente con %d opciones por macro",
-            num_opciones_por_macro,
-        )
-
         catalogo.validate_plan(plan)
         return plan

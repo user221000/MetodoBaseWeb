@@ -1030,7 +1030,7 @@ function renderComidasOpciones(plan, cc) {
   if (!comidaNames.length) return;
 
   cc.innerHTML = `<h3 class="chart-title mt-4 mb-3">Plan con Opciones (${comidaNames.length} comidas)</h3>
-    <p class="text-xs text-muted mb-4">Elige <strong>una opción</strong> de cada categoría por comida</p>`;
+    <p class="text-xs text-muted mb-4">Elige una opción de cada grupo y conserva las verduras y las cantidades indicadas.</p>`;
 
   const macroLabels = {
     proteinas: { icon: '🥩', label: 'Proteínas', color: 'var(--accent-purple)' },
@@ -1047,9 +1047,10 @@ function renderComidasOpciones(plan, cc) {
         <div class="meal-header" style="padding:16px 20px;background:rgba(45,212,191,.06);">
           <span class="meal-number">${idx + 1}</span>
           <span class="font-semibold">${esc(nombre.charAt(0).toUpperCase() + nombre.slice(1))}</span>
-          <span class="ml-auto text-xs text-muted">${Math.round(datos.kcal_objetivo || 0)} kcal</span>
+          <span class="ml-auto text-xs text-muted">${Math.round(datos.kcal_objetivo || 0)} kcal objetivo</span>
         </div>
-        <div style="padding:16px 20px;">`;
+        <div style="padding:16px 20px;">
+          ${Number.isFinite(datos.energia_min) && Number.isFinite(datos.energia_max) ? `<p class="text-xs text-muted mb-3">Entre ${Math.round(datos.energia_min)} y ${Math.round(datos.energia_max)} kcal calculadas según las opciones elegidas.</p>` : ''}`;
 
     // Render each macro category
     for (const [macroKey, meta] of Object.entries(macroLabels)) {
@@ -1061,7 +1062,7 @@ function renderComidasOpciones(plan, cc) {
           <div class="flex items-center gap-2 mb-2">
             <span>${meta.icon}</span>
             <span class="font-semibold text-sm" style="color:${meta.color}">${meta.label}</span>
-            <span class="text-xs text-muted">(${Math.round(macroData.cantidad_objetivo || 0)}g objetivo)</span>
+            <span class="text-xs text-muted">${macroData.opciones.length} ${macroData.opciones.length === 1 ? 'opción' : 'opciones'}</span>
           </div>
           <div class="options-list" style="display:flex;flex-direction:column;gap:8px;">`;
 
