@@ -36,6 +36,8 @@ _WEB_STATIC_DIR = _BASE_DIR / "web" / "static"
 
 
 def create_app() -> FastAPI:
+    from web.middleware.maintenance import MaintenanceGate, MaintenanceMiddleware
+    maintenance_gate = MaintenanceGate()
     # Docs deshabilitados en producción salvo override explícito
     from config.settings import get_settings
     _s = get_settings()
@@ -61,7 +63,8 @@ def create_app() -> FastAPI:
     verify_runtime_schema(get_engine(), require_revision=not (_s and _s.ENV == "testing"))
     verify_application_database_role(get_engine())
     from web.auth import init_auth
-    init_auth()
+    with maintenance_gate.background_admission() as admitted:
+        init_auth(run_startup_writes=admitted)
 
     # ── DB: inicializar engine + session factory ──────────────────────────────
 
@@ -75,6 +78,7 @@ def create_app() -> FastAPI:
         redoc_url=_redoc,
     )
     app.state.private_object_store = private_store
+    app.state.maintenance_gate = maintenance_gate
 
     # ── CORS ─────────────────────────────────────────────────────────────────
     try:
@@ -292,4 +296,5 @@ def create_app() -> FastAPI:
     app.include_router(personal_progress_router, prefix="/api")
 
     configure_observability(app)
+    app.add_middleware(MaintenanceMiddleware, gate=maintenance_gate)
     return app

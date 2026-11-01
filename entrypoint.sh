@@ -20,5 +20,8 @@ fi
 # The migration credential is only available to the one-shot migration CLI.
 # Railway's pre-deploy process may also supply it; web workers never inherit it.
 unset MIGRATOR_DATABASE_URL
+python -B -m web.maintenance_bootstrap
+# The seed is a deployment secret, not a credential for the running worker.
+unset METODOBASE_MAINTENANCE_BOOTSTRAP
 echo "=== MetodoBase: Iniciando servidor en 0.0.0.0:${PORT:-8000} ==="
 exec python web/main_web.py --no-browser

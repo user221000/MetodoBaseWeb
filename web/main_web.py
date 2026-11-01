@@ -69,6 +69,8 @@ from web.sync_user import sync_all_auth_users_to_sa as _sync_all_auth_users_to_s
 def create_app() -> FastAPI:
     from contextlib import asynccontextmanager
     import asyncio
+    from web.middleware.maintenance import MaintenanceGate, MaintenanceMiddleware
+    maintenance_gate = MaintenanceGate()
     from web.auth import init_auth, cleanup_expired_tokens
     from web.settings import get_settings
     from web.constants import ensure_data_dirs
@@ -100,7 +102,8 @@ def create_app() -> FastAPI:
     verify_runtime_schema(_sa_engine, require_revision=settings.ENV != "testing")
     verify_application_database_role(_sa_engine)
 
-    init_auth()
+    with maintenance_gate.background_admission() as admitted:
+        init_auth(run_startup_writes=admitted)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -110,22 +113,27 @@ def create_app() -> FastAPI:
         verify_application_database_role(get_engine())
 
         # Startup: initial token cleanup (graceful if tables don't exist yet)
-        try:
-            cleaned = cleanup_expired_tokens()
-            logger.info("[AUTH] Cleaned %d expired tokens on startup", cleaned)
-        except Exception as exc:
-            logger.warning("[AUTH] Token cleanup skipped class=%s", type(exc).__name__)
+        with maintenance_gate.background_admission() as admitted:
+            if admitted:
+                try:
+                    cleaned = cleanup_expired_tokens()
+                    logger.info("[AUTH] Cleaned %d expired tokens on startup", cleaned)
+                except Exception as exc:
+                    logger.warning("[AUTH] Token cleanup skipped class=%s", type(exc).__name__)
         
         # Periodic cleanup every 6 hours
         async def periodic_cleanup():
             while True:
                 await asyncio.sleep(6 * 3600)
-                try:
-                    count = cleanup_expired_tokens()
-                    if count > 0:
-                        logger.info("[AUTH] Periodic cleanup: %d tokens removed", count)
-                except Exception:
-                    logger.error("[AUTH] Cleanup failed")
+                with maintenance_gate.background_admission() as admitted:
+                    if not admitted:
+                        continue
+                    try:
+                        count = cleanup_expired_tokens()
+                        if count > 0:
+                            logger.info("[AUTH] Periodic cleanup: %d tokens removed", count)
+                    except Exception:
+                        logger.error("[AUTH] Cleanup failed")
         
         task = asyncio.create_task(periodic_cleanup())
         yield
@@ -142,6 +150,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.state.private_object_store = private_store
+    app.state.maintenance_gate = maintenance_gate
 
     app.add_middleware(
         CORSMiddleware,
@@ -390,6 +399,7 @@ def create_app() -> FastAPI:
     app.include_router(personal_progress_router, prefix="/api")
 
     configure_observability(app)
+    app.add_middleware(MaintenanceMiddleware, gate=maintenance_gate)
     return app
 
 

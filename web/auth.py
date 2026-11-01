@@ -172,13 +172,15 @@ def _seed_demo_users() -> None:
 
 # ── API pública ────────────────────────────────────────────────────────────
 
-def init_auth() -> None:
-    """Inicializa BD de autenticación y siembra usuarios demo."""
+def init_auth(*, run_startup_writes: bool = True) -> None:
+    """Load auth configuration; optionally run guarded startup writes."""
     global SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
     SECRET_KEY = _get_secret_key()
     ACCESS_TOKEN_EXPIRE_MINUTES = _get_access_expire_minutes()
     REFRESH_TOKEN_EXPIRE_DAYS = _get_refresh_expire_days()
     _crear_tablas()
+    if not run_startup_writes:
+        return
     try:
         _seed_demo_users()
         _cleanup_expired_refresh_tokens()
