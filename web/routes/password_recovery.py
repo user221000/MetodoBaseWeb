@@ -40,6 +40,10 @@ async def lifespan(app):
     existing=getattr(app.state,'recovery_dispatcher',None)
     dispatcher=existing or RecoveryDispatcher()
     app.state.recovery_dispatcher=dispatcher
+    maintenance_gate=getattr(app.state,'maintenance_gate',None)
+    if maintenance_gate is not None:
+        maintenance_gate.register_background_probe(
+            f'password_recovery:{id(dispatcher)}',lambda dispatcher=dispatcher:dispatcher.pending)
     try:
         yield
     finally:

@@ -6,6 +6,7 @@ from html.parser import HTMLParser
 
 from sqlalchemy import event, func, select
 from sqlalchemy.orm import Session
+from core.routine_catalog import get_routine_program
 
 from tests import account_security37_http as existing
 from tests.followup34_http import PASSWORD
@@ -54,7 +55,9 @@ def test_real_matrix_is_read_only_generic_and_never_adopts_client(routine_peer_h
     owner = get(case, "gym")
     private(owner, 200)
     program = owner.json()["program"]
-    assert [len(s["exercises"]) for s in program["sessions"]] == [6, 6, 6]
+    assert program["requires_generation"] is True and program["generated"] is False
+    assert [len(s["exercises"]) for s in program["sessions"]] == [0, 0, 0]
+    assert program["inventory"] == {"configured": False, "revision": 0, "machine_ids": []}
     for role, team, gym in [(UserRole.VIEWER, None, False), (UserRole.ADMIN, case["user"], True),
                             (UserRole.NUTRIOLOGO, case["user"], True), (UserRole.VIEWER, case["user"], True)]:
         identifier = actor(case, role=role, team=team)
@@ -69,7 +72,7 @@ def test_real_matrix_is_read_only_generic_and_never_adopts_client(routine_peer_h
                 reply = get(case, "personal", gym_id=case["user"], client_id=case["profile"],
                             user_id=case["user"], team_gym_id=case["user"])
                 private(reply, 200)
-                assert reply.json() == {"version": 1, "scope": "personal", "program": program}
+                assert reply.json() == {"version": 1, "scope": "personal", "program": get_routine_program()}
                 assert all(value not in reply.text for value in (identifier, case["profile"], case["user"]))
             private(get(case, "gym", client_id=case["profile"]), 200 if gym else 403)
         finally:

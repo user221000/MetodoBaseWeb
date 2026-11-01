@@ -52,6 +52,10 @@ async def lifespan(app):
     previous=getattr(app.state,'member_link_dispatcher',None)
     dispatcher=previous or RecoveryDispatcher()
     app.state.member_link_dispatcher=dispatcher
+    maintenance_gate=getattr(app.state,'maintenance_gate',None)
+    if maintenance_gate is not None:
+        maintenance_gate.register_background_probe(
+            f'member_links:{id(dispatcher)}',lambda dispatcher=dispatcher:dispatcher.pending)
     try:yield
     finally:
         if previous is None:dispatcher.close()

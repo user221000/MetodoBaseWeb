@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Configuración{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/gym-equipment.css?v={{ static_version }}">{% endblock %}
 
 {% block content %}
 
@@ -150,6 +151,20 @@
 
 </div>
 
+<section id="gym-equipment" class="gym-equipment" data-gym-equipment aria-labelledby="gym-equipment-title">
+  <div class="gym-equipment-heading"><div><p class="mb-page-eyebrow">Rutinas de tus clientes</p><h2 id="gym-equipment-title">Máquinas de tu gimnasio</h2></div><button type="button" class="btn btn-secondary" data-gym-equipment-reload>Cargar inventario guardado</button></div>
+  <p>Marca las máquinas que tienes. Las próximas rutinas usarán esta selección.</p>
+  <p>Equipo básico incluido:</p><ul class="gym-equipment-basics" aria-label="Equipo básico incluido"><li>Barras y discos</li><li>Bancos</li><li>Mancuernas</li><li>Peso corporal</li></ul>
+  <p class="gym-equipment-status" data-gym-equipment-status role="status" aria-live="polite">Verificando tu sesión para consultar el inventario…</p>
+  <div data-gym-equipment-content hidden>
+    <p data-gym-equipment-readonly hidden>Sólo el dueño puede cambiar el inventario. El equipo del gimnasio puede consultarlo.</p>
+    <p class="gym-equipment-conflict" data-gym-equipment-conflict role="alert" hidden>Revisa la versión guardada antes de volver a editar. No se sobrescribieron los cambios de otra sesión.</p>
+    <label class="gym-equipment-filter" for="gym-equipment-query">Buscar máquina<input id="gym-equipment-query" class="input" data-gym-equipment-query type="search" maxlength="100" placeholder="Prensa, jalón, poleas…" autocomplete="off"></label>
+    <div data-gym-equipment-list></div><p data-gym-equipment-empty hidden>No hay máquinas que coincidan con esa búsqueda.</p>
+    <div class="gym-equipment-actions"><button type="button" class="btn btn-primary" data-gym-equipment-save disabled>Guardar máquinas</button><button type="button" class="btn btn-secondary" data-gym-equipment-clear disabled>Quitar selección</button><span data-gym-equipment-selected></span></div>
+  </div>
+</section>
+
 <!-- ═══ Planes de Suscripción (Precios) ═══ -->
 <div class="chart-container" style="margin-top:32px;padding:28px;">
   <div class="flex items-center gap-3 mb-4">
@@ -180,6 +195,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/gym-equipment.js?v={{ static_version }}"></script>
 <link rel="stylesheet" href="/static/css/mfa.css?v={{ static_version }}">
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-ui.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}">MfaUI.mountAccount({loginUrl:"/login-gym",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});</script>

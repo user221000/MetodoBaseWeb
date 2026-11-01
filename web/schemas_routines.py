@@ -19,6 +19,14 @@ class RoutineRequirements(BaseModel):
     variant: Annotated[int, Field(strict=True, ge=0, le=9)] = 0
     excluded_exercises: list[ExerciseId] = Field(default_factory=list, max_length=120)
     session_minutes: Literal[45, 60, 75, 90] = 60
+    expected_inventory_revision: Annotated[int | None, Field(strict=True, ge=0, le=2147483647)] = None
+
+    @field_validator("expected_inventory_revision", mode="before")
+    @classmethod
+    def explicit_revision_is_integer(cls, value):
+        if type(value) is not int:
+            raise ValueError("Inventory revision must be an integer")
+        return value
 
     @field_validator("equipment", "excluded_exercises")
     @classmethod

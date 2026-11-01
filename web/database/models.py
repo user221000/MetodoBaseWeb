@@ -841,8 +841,14 @@ class GymSettings(Base):
     strict_mode = Column(Boolean, default=True)
     timezone = Column(String(64), default="America/Mexico_City")
     locale = Column(String(10), default="es_MX")
+    training_equipment_json = Column(Text, nullable=True)
     created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    __table_args__ = (
+        CheckConstraint("training_equipment_json IS NULL OR length(training_equipment_json) BETWEEN 2 AND 16384",
+                        name="ck_gym_training_equipment_bound"),
+    )
 
 
 # ── Gym License ───────────────────────────────────────────────────────────────

@@ -45,24 +45,79 @@ def _authorized_actor(db, principal, context):
 
 def catalog_for_subject(db, principal, context):
     """Emit the default guide without account or client data."""
-    _authorized_actor(db, principal, context)
-    return {"version": 1, "scope": context, "program": get_routine_program()}
+    actor = _authorized_actor(db, principal, context)
+    program = get_routine_program()
+    if context == "gym":
+        from core.gym_equipment_catalog import get_effective_equipment
+        from web.services.gym_equipment import read_inventory
+        inventory = read_inventory(db, actor.team_gym_id or actor.id)
+        program.update(inventory=inventory, requires_generation=True)
+        program["requirements"]["equipment"] = get_effective_equipment(inventory["machine_ids"])
+        program["summary"] = "Genera tus sesiones con las máquinas disponibles en tu gimnasio."
+        for session in program["sessions"]:
+            session["exercises"] = []
+            session.pop("estimated_minutes", None)
+    return {"version": 1, "scope": context, "program": program}
 
 
 def exercises_for_subject(db, principal, context):
-    _authorized_actor(db, principal, context)
+    actor = _authorized_actor(db, principal, context)
     from core.routine_catalog import get_exercise_catalog
-    return {"version": 1, "scope": context, "exercises": get_exercise_catalog()}
+    exercises = get_exercise_catalog()
+    result = {"version": 1, "scope": context, "exercises": exercises}
+    if context == "gym":
+        from core.gym_equipment_catalog import annotate_inventory
+        from web.services.gym_equipment import read_inventory
+        inventory = read_inventory(db, actor.team_gym_id or actor.id)
+        result.update(exercises=annotate_inventory(exercises, inventory["machine_ids"]), inventory=inventory)
+    return result
 
 
 def generate_for_subject(db, principal, context, requirements):
-    _authorized_actor(db, principal, context)
+    actor = _authorized_actor(db, principal, context)
     from core.routine_generator import build_routine, RoutineGenerationError
+    requirements = dict(requirements)
+    expected_revision = requirements.pop("expected_inventory_revision", None)
+    inventory = None
+    if context == "gym":
+        from core.gym_equipment_catalog import get_effective_equipment
+        from web.services.gym_equipment import read_inventory
+        inventory = read_inventory(db, actor.team_gym_id or actor.id)
+        if type(expected_revision) is not int:
+            raise HTTPException(422, {"code": "routine_inventory_required",
+                "message": "Consulta el equipamiento del gimnasio antes de generar."})
+        if inventory["revision"] != expected_revision:
+            _inventory_changed()
+        # Inventory is authority. Client JSON cannot enable an absent machine
+        # or remove the basic free-weight equipment supplied by every gym.
+        requirements["equipment"] = get_effective_equipment(inventory["machine_ids"])
+    elif expected_revision is not None:
+        raise HTTPException(422, {"code": "routine_invalid_requirements",
+            "message": "Elige tu equipo desde el espacio personal."})
     try:
-        program = build_routine(requirements)
+        program = build_routine(requirements, available_machine_ids=None if inventory is None else inventory["machine_ids"])
     except RoutineGenerationError as error:
-        raise HTTPException(422, {"code": error.code, "message": error.message}) from None
+        message = error.message
+        if context == "gym" and error.code in ("insufficient_equipment", "insufficient_exercises"):
+            message = "El inventario actual no permite cubrir estas sesiones. Revisa las máquinas disponibles y tus requisitos."
+        raise HTTPException(422, {"code": error.code, "message": message}) from None
+    if inventory is not None:
+        program["inventory"] = inventory
     return {"version": 1, "scope": context, "program": program}
+
+
+def _inventory_changed():
+    raise HTTPException(409, {"code": "routine_inventory_changed",
+        "message": "Cambió el equipamiento del gimnasio. Actualízalo antes de generar de nuevo."})
+
+
+def confirm_inventory_current(db, principal, context, expected):
+    """Called in a fresh, separately owned session before publishing a result."""
+    from web.services.gym_equipment import read_inventory
+    actor = _authorized_actor(db, principal, context)
+    current = read_inventory(db, actor.team_gym_id or actor.id)
+    if current != expected:
+        _inventory_changed()
 
 
 def _active_clients(owner_id):

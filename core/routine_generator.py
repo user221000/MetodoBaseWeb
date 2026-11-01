@@ -91,6 +91,7 @@ def normalize_requirements(requirements):
 def _eligible(catalog, requirements):
     level = EXPERIENCE_LEVELS.index(requirements["experience"])
     return [row for row in catalog if row["id"] not in requirements["excluded_exercises"]
+            and row.get("available_in_inventory", True)
             and EXPERIENCE_LEVELS.index(row["experience_min"]) <= level
             and set(row["equipment_keys"]).issubset(requirements["equipment"])]
 
@@ -148,10 +149,14 @@ def _choose_session(pool, group, requirements):
             replacement = sorted(alternatives, key=lambda item: item["id"])[variant % len(alternatives)]
             row["alternative"] = {"id": replacement["id"], "name": replacement["name"],
                                   "equipment": list(replacement["equipment"]),
+                                  "required_machine_ids": list(replacement["required_machine_ids"]),
+                                  "machine_options": deepcopy(replacement["machine_options"]),
                                   "cue": " ".join(replacement["cues"])}
         else:
             row["alternative"] = {"id": row["id"], "name": row["name"] + " · práctica técnica",
                                   "equipment": list(row["equipment"]),
+                                  "required_machine_ids": list(row["required_machine_ids"]),
+                                  "machine_options": deepcopy(row["machine_options"]),
                                   "cue": "Practica este mismo movimiento con menos resistencia y un recorrido cómodo; no añadas una serie extra."}
     return selected
 
@@ -188,10 +193,13 @@ def estimate_session_minutes(exercises):
     return ceil(seconds / 60)
 
 
-def build_routine(requirements):
+def build_routine(requirements, *, available_machine_ids=None):
     """Return three PPL sessions with six to eight compatible exercises each."""
     requirements = normalize_requirements(requirements)
     catalog = get_exercise_catalog()
+    if available_machine_ids is not None:
+        from core.gym_equipment_catalog import annotate_inventory
+        catalog = annotate_inventory(catalog, available_machine_ids)
     pool = _eligible(catalog, requirements)
     program = _base_program()
     for session in program["sessions"]:

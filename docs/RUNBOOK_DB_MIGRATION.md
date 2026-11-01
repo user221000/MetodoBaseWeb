@@ -24,6 +24,8 @@ Suministrar las URLs y `BACKUP_ENCRYPTION_KEY` mediante el mecanismo seguro del 
 
 ## 3. Ventana y respaldo consistente antes de migrar
 
+El control web optativo y su comprobación por proceso se describen en [mantenimiento y drenaje](RUNBOOK_WEB_MAINTENANCE.md). Su integración no acredita una pausa productiva; primero debe ensayarse el artefacto y registrarse su ejecución real.
+
 1. Aplicar el control de mantenimiento que exista y se haya ensayado en la plataforma. Detener nuevas escrituras y drenar las peticiones, workers, generación de planes y demás escritores de BD/objetos, incluidos procesos antiguos. No se presupone que una variable de mantenimiento o un comando de servicio concretos estén implementados.
 2. Verificar la quiescencia y mantenerla durante el respaldo coordinado de BD y objetos y el cambio de versión. El snapshot de PostgreSQL y el filesystem son recursos separados: no se da por atómico su respaldo conjunto.
 3. Usar la entrada existente `scripts/backup_daily.py` con `--database-env BACKUP_DATABASE_URL`, `--expected-database`, `--pg-bin`, `--objects` y `--output` explícitos y registrados en el ensayo. Los valores dependen del entorno aprobado; las rutas locales de trabajo y evidencia permanecen en E/F.

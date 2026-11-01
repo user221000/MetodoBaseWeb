@@ -30,10 +30,11 @@
         <label for="routine-frequency">Días por semana<select id="routine-frequency" data-routine-frequency aria-describedby="routines-frequency-help"><option value="3" selected>3 días</option><option value="4">4 días</option><option value="5">5 días</option><option value="6">6 días</option></select></label>
       </div>
       <p class="routines-small" id="routines-activity-help">La actividad diaria no determina tu experiencia con pesas. «Normal» se usa como actividad moderada.</p>
-      <fieldset class="routines-equipment" data-routine-equipment><legend>Equipo disponible</legend><div>
+      <section class="routines-inventory" data-routine-inventory hidden aria-labelledby="routines-inventory-title"><h3 id="routines-inventory-title">Equipo de tu gimnasio</h3><p class="routines-small">Barras y discos, bancos, mancuernas y peso corporal incluidos.</p><p class="routines-small" data-routine-inventory-status role="status" aria-live="polite">Consultando inventario…</p><p class="routines-small" data-routine-inventory-summary></p><div class="routines-inventory-actions"><button type="button" class="routines-button routines-button-secondary" data-routine-inventory-reload>Actualizar inventario</button><a href="/configuracion#gym-equipment" data-routine-inventory-link>Ver máquinas del gimnasio</a></div></section>
+      <div data-routine-personal-equipment><fieldset class="routines-equipment" data-routine-equipment><legend>Equipo disponible</legend><div>
         <label><input type="checkbox" value="machine" checked>Máquinas según variante</label><label><input type="checkbox" value="cable" checked>Poleas y agarres</label><label><input type="checkbox" value="dumbbell" checked>Mancuernas</label><label><input type="checkbox" value="barbell" checked>Barra, discos y soportes</label><label><input type="checkbox" value="bench" checked>Banco ajustable</label><label><input type="checkbox" value="bodyweight" checked>Peso corporal y colchoneta</label>
       </div></fieldset>
-      <p class="routines-small">Excluye en la biblioteca los ejercicios cuyo aparato o variante no tengas.</p>
+      <p class="routines-small">Excluye en la biblioteca los ejercicios cuyo aparato o variante no tengas.</p></div>
       <div class="routines-generator-actions"><button type="submit" class="routines-button" data-routine-generate>Generar rutina</button><button type="button" class="routines-button routines-button-secondary" data-routine-another>Otra combinación</button></div>
       <p class="routines-generator-status" role="status" aria-live="polite" data-routine-generator-status></p>
       <p class="routines-small" id="routines-frequency-help">Si empiezas, usa menos días. Reserva 5–6 para cuando ya toleres esa frecuencia.</p>
@@ -64,7 +65,7 @@
       <nav class="routines-session-nav" aria-label="Ir a una sesión" data-routine-session-nav></nav>
       <div data-routine-sessions></div>
     </section>
-    <details class="routines-library" data-routine-library><summary><strong>Biblioteca de ejercicios</strong><span class="routines-small"><span data-routine-library-count>—</span> disponibles · <span data-routine-excluded-count>0</span> excluidos</span></summary>
+    <details class="routines-library" data-routine-library><summary><strong>Biblioteca de ejercicios</strong><span class="routines-small"><span data-routine-library-count>—</span> <span data-routine-library-count-label>disponibles</span> · <span data-routine-excluded-count>0</span> excluidos</span></summary>
       <p class="routines-small">Marca los ejercicios que quieres dejar fuera antes de generar. No se sustituyen por movimientos fuera del equipo elegido.</p>
       <div class="routines-library-controls"><label for="routine-library-query">Buscar ejercicio<input id="routine-library-query" data-routine-library-query type="search" placeholder="Nombre del ejercicio" maxlength="100"></label><label for="routine-library-group">Sesión<select id="routine-library-group" data-routine-library-group><option value="all">Todas</option><option value="push">Push · Empuje</option><option value="pull">Pull · Tirón</option><option value="legs">Legs · Piernas</option></select></label></div>
       <div class="routines-library-actions"><button type="button" class="routines-button routines-button-secondary" data-routine-clear-exclusions>Quitar exclusiones</button><button type="button" class="routines-button routines-button-secondary" data-routine-library-retry hidden>Volver a consultar biblioteca</button></div>
