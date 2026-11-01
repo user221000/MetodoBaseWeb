@@ -26,8 +26,13 @@ def test_catalog_is_generic_bounded_independent_and_complete():
         assert 4 <= len(session["exercises"]) <= 5
         for exercise in session["exercises"]:
             identifiers.append(exercise["id"])
-            assert exercise["sets"] == {"minimum": 1, "maximum": 2}
-            assert exercise["repetitions"].startswith("8–12")
+            assert exercise["sets"] == {"minimum": 2, "maximum": 2}
+            assert exercise["repetition_unit"] in {"repetitions", "seconds"}
+            if exercise["repetition_unit"] == "seconds":
+                assert exercise["id"] == "forearm-plank"
+                assert exercise["repetitions"] == "20–30"
+            else:
+                assert exercise["repetitions"] in {"8–12", "10–15"}
             assert 60 <= exercise["rest_seconds"] <= 120
             assert len(exercise["cues"]) >= 2
             assert exercise["equipment"] and exercise["alternative"]["equipment"]
@@ -37,6 +42,45 @@ def test_catalog_is_generic_bounded_independent_and_complete():
     assert "no asegura" in first["guideline_note"]
     first["sessions"][0]["exercises"][0]["cues"].append("Untrusted edit")
     assert get_routine_program() == second
+
+
+def test_schedule_contract_allows_adjacent_days_and_continuous_rotation():
+    first, second = get_routine_program(), get_routine_program()
+    schedule = first["schedule"]
+    assert schedule["sessions_per_week"] == 3
+    assert schedule["available_sessions"] == [3, 4, 5, 6]
+    assert schedule["nonconsecutive"] is False
+    assert schedule["cycle"] == ["push", "pull", "legs"]
+    assert schedule["rotation"] == "continuous"
+    assert schedule["minimum_rest_days"] == 1
+    assert len(schedule["days"]) == 7
+    assert schedule["default_days"] == [0, 2, 4]
+    schedule["default_days"].append(6)
+    schedule["cycle"].reverse()
+    schedule["available_sessions"].clear()
+    assert get_routine_program() == second
+
+
+def test_leg_session_has_named_gym_variants_and_seconds_are_not_repetitions():
+    program = get_routine_program()
+    legs = next(session for session in program["sessions"] if session["id"] == "legs")
+    assert [row["id"] for row in legs["exercises"]] == [
+        "leg-press", "dumbbell-romanian-deadlift", "seated-leg-curl",
+        "standing-machine-calf-raise", "forearm-plank",
+    ]
+    assert "45°" in legs["exercises"][0]["name"]
+    assert "mancuernas" in legs["exercises"][1]["name"]
+    assert "sentado" in legs["exercises"][2]["name"]
+    assert "práctica técnica" in legs["exercises"][1]["alternative"]["name"]
+    assert "No necesitas tocar el suelo" in legs["exercises"][1]["cues"][1]
+    assert [row["repetition_unit"] for row in legs["exercises"]] == [
+        "repetitions", "repetitions", "repetitions", "repetitions", "seconds",
+    ]
+    # Selecting a frequency changes the calendar, not the prescribed sets or
+    # load. The generic endpoint has no client input or extra-volume profile.
+    assert [sum(row["sets"]["maximum"] for row in session["exercises"])
+            for session in program["sessions"]] == [8, 8, 10]
+    assert "5–6 días sólo si ya toleras" in program["starting_point"]
 
 
 def login_actor(case, role=UserRole.VIEWER, *, team=False):

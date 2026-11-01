@@ -8,17 +8,33 @@ const root=path.resolve(__dirname,'../..');
 const panel=require(path.join(root,'web/static/js/rutinas.js'));
 let count=0;
 function test(name,run){run();count++;console.log('PASS '+name);}
-test('nonconsecutive week includes Sunday/Monday boundary',()=>{
+test('three to six selected days accept consecutive and Sunday/Monday training',()=>{
  assert.equal(panel.validWeek([0,2,4]),true);assert.equal(panel.validWeek([1,3,5]),true);
- assert.equal(panel.validWeek([2,4,6]),true);assert.equal(panel.validWeek([0,2,6]),false);
- assert.equal(panel.validWeek([0,1,4]),false);assert.equal(panel.validWeek([0,0,4]),false);
- assert.equal(panel.validWeek([0,2]),false);assert.equal(panel.validWeek([0,2,4,6]),false);
+ assert.equal(panel.validWeek([2,4,6]),true);assert.equal(panel.validWeek([0,2,6]),true);
+ assert.equal(panel.validWeek([0,1,4]),true);assert.equal(panel.validWeek([0,0,4]),false);
+ assert.equal(panel.validWeek([0,2]),false);assert.equal(panel.validWeek([0,2,4,6]),true);
+ assert.equal(panel.validWeek([0,1,2,3,4]),true);assert.equal(panel.validWeek([0,1,2,3,4,5]),true);
+ assert.equal(panel.validWeek([0,1,2,3,4,5,6]),false);assert.equal(panel.validWeek([0,2,4],4),false);
  assert.equal(panel.validWeek([0,2,'4']),false);assert.equal(panel.validWeek([0,2,7]),false);
 });
 test('week is chronological and does not mutate selection',()=>{
  const selected=[4,0,2];assert.deepEqual(panel.week(selected,['L','M','X','J','V','S','D']),[
  {day:0,label:'L',session:'push'},{day:2,label:'X',session:'pull'},{day:4,label:'V',session:'legs'}]);
  assert.deepEqual(selected,[4,0,2]);assert.equal(panel.week([0,1,2],[]),null);
+ assert.equal(panel.week([0,1,2],['L','M','X','J','V','S','D']).length,3);
+});
+test('four and five day schedules continue PPL across all three weeks',()=>{
+ const labels=['L','M','X','J','V','S','D'],ids=['push','pull','legs'];
+ for(const count of[3,4,5,6]){
+  const days=Array.from({length:count},(_,i)=>i),length=panel.cycleLength(days);
+  assert.equal(length,count%3===0?1:3);
+  const sessions=Array.from({length},(_,i)=>panel.week(days,labels,i+1)).flat().map(row=>row.session);
+  assert.deepEqual(sessions,sessions.map((_,i)=>ids[i%3]));
+  for(const id of ids)assert.equal(sessions.filter(s=>s===id).length,sessions.length/3);
+  assert.equal(ids[(ids.indexOf(sessions.at(-1))+1)%3],sessions[0]);
+  assert.equal(panel.week(days,labels,length+1),null);
+ }
+ assert.equal(panel.cycleLength([0,2]),0);
 });
 test('timer start/pause/resume uses elapsed time without recording exercise',()=>{
  let at=1000;const timer=panel.createTimer(()=>at);
@@ -47,7 +63,9 @@ test('invalid catalogue cannot partially render unsafe/fabricated content',()=>{
   v=>v.program.sessions[0].exercises[0].rest_seconds=1,
   v=>v.program.sessions[0].exercises[0].sets.maximum=99,
   v=>v.program.sources[0].url='javascript:alert(1)',
-  v=>v.program.schedule.default_days=[0,1,4],
+  v=>v.program.schedule.default_days=[0,0,4],
+  v=>v.program.schedule.available_sessions=[3,4,5,7],
+  v=>v.program.sessions[0].exercises[0].repetition_unit='hours',
  ]){const value=structuredClone(dto);mutate(value);assert.throws(()=>panel.validate(value,'gym'));}
 });
 async function transport(){

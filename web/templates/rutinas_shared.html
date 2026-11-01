@@ -1,10 +1,10 @@
 <section class="routines-panel" data-routines data-scope="{{ routine_scope }}" aria-labelledby="routines-title">
   <header class="routines-hero">
-    <div><p class="routines-eyebrow">Movimiento · Fuerza inicial</p>
-      <h1 id="routines-title">Tu semana, en tres sesiones.</h1>
-      <p class="routines-lead">Empuje (Push), tirón (Pull) y piernas (Legs). Una guía general para empezar con una estructura sencilla.</p>
+    <div><p class="routines-eyebrow">Movimiento · Fuerza</p>
+      <h1 id="routines-title">Tu rutina, tus días.</h1>
+      <p class="routines-lead">Organiza empuje, tirón y piernas según tu semana.</p>
     </div>
-    <div class="routines-stamp" aria-label="3 sesiones, días no consecutivos"><strong>3</strong><span>sesiones para organizar<br>a tu ritmo y con descanso</span></div>
+    <div class="routines-stamp" aria-label="3 días de entrenamiento a elegir" data-routine-stamp><strong data-routine-stamp-count>3</strong><span>días por semana<br>tú eliges cuáles</span></div>
   </header>
   <div class="routines-state" role="status" aria-live="polite" tabindex="-1" data-routine-status>Verificando tu sesión para consultar las rutinas…</div>
   <div class="routines-recovery" data-routine-recovery hidden>
@@ -13,14 +13,18 @@
   </div>
   <noscript><p>Activa JavaScript para verificar tu sesión y consultar el panel. No se registra actividad de entrenamiento.</p></noscript>
   <div data-routine-content hidden>
-    <div class="routines-intro"><span class="routines-pill">Guía general · Nivel inicial</span><p data-routine-audience></p><p data-routine-summary></p></div>
+    <div class="routines-intro"><span class="routines-pill">Guía general · Gimnasio</span><p data-routine-audience></p><p data-routine-summary></p></div>
     <div class="routines-layout">
       <section class="routines-week" aria-labelledby="routines-week-title">
-        <div class="routines-section-heading"><div><p class="routines-eyebrow">1 · Organiza</p><h2 id="routines-week-title">Elige tus tres días</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-default>Restablecer semana</button></div>
-        <p id="routines-week-help">Deja un día de descanso entre sesiones, incluso entre domingo y lunes. La selección no se guarda al cerrar esta página.</p>
+        <div class="routines-section-heading"><div><p class="routines-eyebrow">1 · Organiza</p><h2 id="routines-week-title">Elige tus días</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-default>Restablecer semana</button></div>
+        <div class="routines-week-controls"><label for="routine-frequency">Días por semana<select id="routine-frequency" data-routine-frequency aria-describedby="routines-frequency-help"><option value="3" selected>3 días</option><option value="4">4 días</option><option value="5">5 días</option><option value="6">6 días</option></select></label><label for="routine-cycle-week" data-routine-cycle-controls hidden>Ver semana del ciclo<select id="routine-cycle-week" data-routine-cycle-week><option value="1">Semana 1 de 3</option><option value="2">Semana 2 de 3</option><option value="3">Semana 3 de 3</option></select></label></div>
+        <p class="routines-small" id="routines-frequency-help">Si empiezas, usa menos días. Reserva 5–6 para cuando ya toleres esa frecuencia.</p>
+        <p id="routines-week-help">Puedes entrenar días seguidos y dejar al menos uno de descanso. Esta selección se pierde al cerrar la página.</p>
         <fieldset class="routines-days" aria-describedby="routines-week-help"><legend class="routines-sr">Días de entrenamiento</legend><div data-routine-days></div></fieldset>
         <p class="routines-week-status" role="status" aria-live="polite" data-routine-week-status></p>
-        <ol class="routines-week-summary" data-routine-week-summary aria-label="Distribución semanal"></ol>
+        <p class="routines-small routines-cycle-note" data-routine-cycle-note></p>
+        <h3 class="routines-calendar-title" data-routine-calendar-title>Tu semana</h3>
+        <ol class="routines-week-summary" data-routine-week-summary aria-label="Distribución de la semana elegida"></ol>
       </section>
       <aside class="routines-timer" aria-labelledby="routines-timer-title">
         <p class="routines-eyebrow">A tu ritmo</p><h2 id="routines-timer-title">Descanso entre series</h2>
@@ -33,7 +37,7 @@
       </aside>
     </div>
     <section class="routines-prepare" aria-labelledby="routines-prepare-title"><p class="routines-eyebrow">Antes de empezar</p><h2 id="routines-prepare-title">Familiarízate con los movimientos</h2><ul data-routine-warmup></ul><p data-routine-starting></p></section>
-    <section aria-labelledby="routines-sessions-title"><div class="routines-section-heading"><div><p class="routines-eyebrow">2 · Explora</p><h2 id="routines-sessions-title">Tus tres sesiones</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-print>Imprimir las tres</button></div><p class="routines-small">Abre cada ejercicio para ver técnica y alternativa. Series y repeticiones son una guía general, no objetivos personalizados.</p>
+    <section aria-labelledby="routines-sessions-title"><div class="routines-section-heading"><div><p class="routines-eyebrow">2 · Entrena</p><h2 id="routines-sessions-title">Explora las sesiones</h2></div><button type="button" class="routines-button routines-button-secondary" data-routine-print>Imprimir rutina</button></div><p class="routines-small">Abre cada ejercicio para ver técnica, equipo y alternativa. Las cantidades son una guía general.</p>
       <nav class="routines-session-nav" aria-label="Ir a una sesión" data-routine-session-nav></nav>
       <div data-routine-sessions></div>
     </section>

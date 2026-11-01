@@ -36,7 +36,7 @@ async function test(name,run){try{await run();rows.push({case:name,passed:true})
  await test('Positive lexical const Api mount renders actual 4/4/5 catalogue',async()=>{
   const x=await setup();assert.equal(Object.hasOwn(x.t.sandbox,'Api'),false);assert.equal(x.get('content').hidden,false);
   const sessions=x.get('sessions').children;assert.equal(sessions.length,3);assert.deepEqual(sessions.map(s=>s.querySelectorAll('details').length),[4,4,5]);assert.equal(x.requests(),1);
-  assert.equal(x.get('days').querySelectorAll('input').length,7);assert.equal(x.get('week-summary').children.length,3);
+  assert.equal(x.get('days').querySelectorAll('input').length,7);assert.equal(x.get('week-summary').children.length,7);
  });
  await test('Server text is rendered with textContent rather than HTML interpretation',async()=>{
   const value=structuredClone(dto),payload='<img src=x onerror=untrusted()>';
@@ -49,11 +49,21 @@ async function test(name,run){try{await run();rows.push({case:name,passed:true})
   const before=details.map(n=>n.open);x.t.dispatch({type:'beforeprint'});assert.ok(details.every(n=>n.open));
   x.t.dispatch({type:'afterprint'});assert.deepEqual(details.map(n=>n.open),before);x.get('print').fire('click');assert.equal(x.prints(),1);
  });
- await test('Invalid circular week has no fabricated session assignment',async()=>{
+ await test('Incomplete week has no fabricated assignment and reset restores three training days',async()=>{
   const x=await setup(),inputs=x.get('days').querySelectorAll('input');
-  for(const input of inputs)input.checked=[0,2,6].includes(Number(input.value));inputs[6].fire('change');assert.equal(x.get('week-summary').children.length,0);
-  x.get('default').fire('click');assert.equal(x.get('week-summary').children.length,3);
+  for(const input of inputs)input.checked=[0,2].includes(Number(input.value));inputs[6].fire('change');assert.equal(x.get('week-summary').children.length,0);
+  assert.equal(x.get('print').disabled,true);
+  x.get('default').fire('click');assert.equal(x.get('week-summary').children.length,7);
   assert.deepEqual(inputs.filter(n=>n.checked).map(n=>Number(n.value)),[0,2,4]);
+  assert.equal(x.get('print').disabled,false);
+ });
+ await test('Six consecutive training days render PPL twice and one rest day',async()=>{
+  const x=await setup();x.get('frequency').value='6';x.get('frequency').fire('change');
+  assert.equal(x.get('days').querySelectorAll('input:checked').length,6);
+  assert.equal(x.get('week-summary').children.length,7);
+  const rows=x.get('week-summary').children;
+  assert.ok(rows[0].textContent.includes('Push'));assert.ok(rows[3].textContent.includes('Push'));
+  assert.ok(rows[6].textContent.includes('Descanso'));assert.equal(x.get('print').disabled,false);
  });
  await test('Timer pause/resume/reset owns at most one interval',async()=>{
   const x=await setup();x.get('timer-start').fire('click');assert.equal(x.intervals.size,1);x.advance(20500);assert.equal(x.get('clock').textContent,'01:10');
