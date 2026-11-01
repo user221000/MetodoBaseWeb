@@ -10,7 +10,7 @@ import logging
 import os
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Depends, Header, Query
+from fastapi import APIRouter, HTTPException, Depends, Header, Query, Request
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -22,6 +22,8 @@ from web.database.models import Cliente, PlanGenerado, UserSubscription, Subscri
 from web.profile_schemas import NutritionProfileUpdate
 from web.nutrition_http import NutritionRoute
 from web.services.nutrition_profiles import NUTRITION_ERRORS, capture_profile, encode_declaration, public_error
+from web.services.billing_email_identity import require_email as _require_billing_email
+from starlette.concurrency import run_in_threadpool
 
 try:
     from src.alimentos_base import ALIMENTOS_BASE as _ALIMENTOS_BASE
@@ -581,16 +583,18 @@ class UsuarioCheckoutRequest(BaseModel):
 
 
 @router.post("/usuario/checkout")
-async def usuario_checkout(data: UsuarioCheckoutRequest, usuario=Depends(get_usuario_actual),
+async def usuario_checkout(data: UsuarioCheckoutRequest, request: Request, usuario=Depends(get_usuario_actual),
                            db: Session = Depends(get_db),
                            idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key")):
     """Start an account-bound Pro checkout; returning to the page grants no access."""
     _require_usuario(usuario)
     _validate_redirect_url_u(data.success_url, "success_url")
     _validate_redirect_url_u(data.cancel_url, "cancel_url")
+    usuario = await _require_billing_email(db, usuario, request, 'personal_stripe_checkout', 'pro',
+        data.model_dump(mode='json'), idempotency_key=idempotency_key)
     from web.services.stripe_service import create_checkout_session
     try:
-        return create_checkout_session(db, usuario["id"], "pro_usuario", usuario["email"],
+        return await run_in_threadpool(create_checkout_session, db, usuario["id"], "pro_usuario", usuario["email"],
                                        data.success_url, data.cancel_url, idempotency_key)
     except Exception as error:
         from web.services.billing_integrity import public_failure
@@ -602,14 +606,17 @@ class UsuarioPortalRequest(BaseModel):
 
 
 @router.post("/usuario/billing-portal")
-async def usuario_billing_portal(data: UsuarioPortalRequest, usuario=Depends(get_usuario_actual),
+async def usuario_billing_portal(data: UsuarioPortalRequest, request: Request, usuario=Depends(get_usuario_actual),
                                  db: Session = Depends(get_db)):
     """Open the provider portal for this individual's own mapped subscription."""
     _require_usuario(usuario)
     _validate_redirect_url_u(data.return_url, "return_url")
+    usuario = await _require_billing_email(db, usuario, request, 'personal_stripe_portal', 'manage', data.model_dump(mode='json'))
     from web.services.stripe_service import create_portal_session
     try:
-        return create_portal_session(db, usuario["id"], data.return_url)
+        # The account lock is read-only authority; release before the portal SDK.
+        await run_in_threadpool(db.commit)
+        return await run_in_threadpool(create_portal_session, db, usuario["id"], data.return_url)
     except Exception as error:
         from web.services.billing_integrity import public_failure
         raise HTTPException(502, public_failure("individual_portal", error, "No fue posible abrir la gestión de tu suscripción")) from None
@@ -623,6 +630,7 @@ class UsuarioStripeSubscribeRequest(BaseModel):
 @router.post("/usuario/stripe-subscribe")
 async def usuario_stripe_subscribe(
     data: UsuarioStripeSubscribeRequest,
+    request: Request,
     db: Session = Depends(get_db),
     usuario=Depends(get_usuario_actual),
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
@@ -631,10 +639,12 @@ async def usuario_stripe_subscribe(
     _require_usuario(usuario)
     if data.plan not in PLANES_USUARIO or data.plan == "starter":
         raise HTTPException(400, "Solo puedes suscribirte al plan Pro.")
+    usuario = await _require_billing_email(db, usuario, request, 'personal_stripe_subscribe', 'pro',
+        data.model_dump(mode='json'), idempotency_key=idempotency_key)
 
     from web.services import stripe_service
     try:
-        result = stripe_service.create_subscription_with_payment_method(
+        result = await run_in_threadpool(stripe_service.create_subscription_with_payment_method,
             db=db,
             gym_id=usuario["id"],
             plan="pro_usuario",
@@ -686,6 +696,7 @@ class UsuarioMPPreferenceRequest(BaseModel):
 @router.post("/usuario/mp-preference")
 async def usuario_mp_preference(
     data: UsuarioMPPreferenceRequest,
+    request: Request,
     db: Session = Depends(get_db),
     usuario=Depends(get_usuario_actual),
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
@@ -696,6 +707,8 @@ async def usuario_mp_preference(
         raise HTTPException(400, "Solo puedes pagar el plan Pro.")
     _validate_redirect_url_u(data.success_url, "success_url")
     _validate_redirect_url_u(data.cancel_url, "cancel_url")
+    usuario = await _require_billing_email(db, usuario, request, 'personal_mp_preference', 'pro',
+        data.model_dump(mode='json'), idempotency_key=idempotency_key)
 
     from web.settings import get_settings
     settings = get_settings()
@@ -704,7 +717,7 @@ async def usuario_mp_preference(
 
     from web.services.mercadopago_service import create_preference
     try:
-        return create_preference(db, usuario["id"], "pro_usuario", usuario.get("email", ""),
+        return await run_in_threadpool(create_preference, db, usuario["id"], "pro_usuario", usuario.get("email", ""),
                                  data.success_url, data.cancel_url, idempotency_key)
     except Exception as error:
         from web.services.billing_integrity import public_failure

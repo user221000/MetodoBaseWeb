@@ -24,6 +24,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Header
 from pydantic import BaseModel, Field
 from typing import Optional
 from sqlalchemy.orm import Session
+from starlette.concurrency import run_in_threadpool
 
 from web.constants import PLANES_LICENCIA
 from web.settings import get_settings
@@ -32,6 +33,7 @@ from web.database.engine import get_db
 from web.services import stripe_service
 from web.services.permissions import verify_permission
 from web.services.mfa_business import step_up as _step_up, business_session
+from web.services.billing_email_identity import require_email as _require_billing_email
 from web.services.subscription_service import (
     activate_subscription,
     complete_checkout,
@@ -125,7 +127,7 @@ def billing_config(
 
 
 @router.post("/billing/checkout", summary="Crear sesión de Stripe Checkout")
-def crear_checkout(
+async def crear_checkout(
     data: CheckoutRequest,
     request: Request,
     db: Session = Depends(business_session),
@@ -133,15 +135,17 @@ def crear_checkout(
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
-    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
+    usuario = await run_in_threadpool(_step_up, db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
     _require_paid_plan(data.plan)
     _validate_redirect_url(data.success_url, "success_url")
     _validate_redirect_url(data.cancel_url, "cancel_url")
+    usuario = await _require_billing_email(db, usuario, request, 'gym_stripe_checkout', data.plan,
+        data.model_dump(mode='json'), idempotency_key=idempotency_key)
     email = (usuario.get("email") or "").strip()
     if not email or "@" not in email:
         raise HTTPException(400, "Email de usuario no configurado. Actualiza tu perfil.")
     try:
-        result = stripe_service.create_checkout_session(
+        result = await run_in_threadpool(stripe_service.create_checkout_session,
             db=db,
             gym_id=usuario["id"],
             plan=data.plan,
@@ -163,7 +167,7 @@ def crear_checkout(
 
 
 @router.post("/billing/stripe/subscribe", summary="Crear suscripción con tarjeta (Stripe Elements)")
-def stripe_subscribe(
+async def stripe_subscribe(
     data: StripeSubscribeRequest,
     request: Request,
     db: Session = Depends(business_session),
@@ -171,10 +175,12 @@ def stripe_subscribe(
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
-    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
+    usuario = await run_in_threadpool(_step_up, db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
     _require_paid_plan(data.plan)
+    usuario = await _require_billing_email(db, usuario, request, 'gym_stripe_subscribe', data.plan,
+        data.model_dump(mode='json'), idempotency_key=idempotency_key)
     try:
-        result = stripe_service.create_subscription_with_payment_method(
+        result = await run_in_threadpool(stripe_service.create_subscription_with_payment_method,
             db=db,
             gym_id=usuario["id"],
             plan=data.plan,
@@ -222,18 +228,20 @@ def confirm_subscription(
 
 
 @router.post("/billing/portal", summary="Abrir portal Stripe")
-def abrir_portal(
+async def abrir_portal(
     data: PortalRequest,
     request: Request,
     db: Session = Depends(business_session),
     usuario: dict = Depends(get_usuario_actual),
 ):
     verify_permission(usuario, "update", "subscription")
-    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"))
+    usuario = await run_in_threadpool(_step_up, db, usuario, request, data.model_dump(mode="json"))
+    _validate_redirect_url(data.return_url, 'return_url')
+    usuario = await _require_billing_email(db, usuario, request, 'gym_stripe_portal', 'manage', data.model_dump(mode='json'))
     from web.services.mfa_service import commit as _commit_mfa_grant
-    _commit_mfa_grant(db)  # Portal is an external capability; consume before its port.
+    await run_in_threadpool(_commit_mfa_grant, db)  # Consume before the external capability.
     try:
-        result = stripe_service.create_portal_session(
+        result = await run_in_threadpool(stripe_service.create_portal_session,
             db=db,
             gym_id=usuario["id"],
             return_url=data.return_url,
@@ -333,7 +341,7 @@ def _get_mp_sdk():
 
 
 @router.post("/billing/mp/preference", summary="Crear preferencia de pago MercadoPago")
-def crear_preferencia_mp(
+async def crear_preferencia_mp(
     data: MPPreferenceRequest,
     request: Request,
     db: Session = Depends(business_session),
@@ -342,23 +350,25 @@ def crear_preferencia_mp(
 ):
     """Crea una preferencia de pago en MercadoPago. Requiere RBAC."""
     verify_permission(usuario, "update", "subscription")
-    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
+    usuario = await run_in_threadpool(_step_up, db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
     _require_paid_plan(data.plan)
     _validate_redirect_url(data.success_url, "success_url")
     _validate_redirect_url(data.cancel_url, "cancel_url")
+    usuario = await _require_billing_email(db, usuario, request, 'gym_mp_preference', data.plan,
+        data.model_dump(mode='json'), idempotency_key=idempotency_key)
     gym_id = usuario["id"]
     settings = get_settings()
 
     if not settings.MERCADOPAGO_ACCESS_TOKEN:
         raise HTTPException(503, "MercadoPago no configurado")
 
-    email = (data.email or usuario.get("email") or "").strip()
+    email = (usuario.get("email") or "").strip()
     if len(email) < 5:
         raise HTTPException(400, "Email inválido")
 
     from web.services.mercadopago_service import create_preference
     try:
-        return create_preference(db, gym_id, data.plan, email, data.success_url, data.cancel_url, idempotency_key)
+        return await run_in_threadpool(create_preference, db, gym_id, data.plan, email, data.success_url, data.cancel_url, idempotency_key)
     except HTTPException:
         raise
     except Exception as error:

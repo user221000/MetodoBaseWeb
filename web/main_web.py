@@ -281,6 +281,8 @@ def create_app() -> FastAPI:
 
     # Billing: webhook NO tiene auth (verificación por firma Stripe)
     app.include_router(web_billing_router.router, prefix="/api")
+    from web.routes import billing_email
+    app.include_router(billing_email.router, prefix="/api")
 
     # ── Auth routes (login, registro, refresh, logout, me) ───────────────────
     from web.routes.auth import router as web_auth_router

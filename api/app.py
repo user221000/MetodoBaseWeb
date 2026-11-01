@@ -256,6 +256,8 @@ def create_app() -> FastAPI:
     # ── Billing routes (subscription, config, payments) ───────────────────────
     from web.routes import billing as billing_routes
     app.include_router(billing_routes.router, prefix="/api")
+    from web.routes import billing_email
+    app.include_router(billing_email.router, prefix="/api")
     
     # ── Auth routes (login, registro, refresh, logout, me) ────────────────────
     from web.routes.auth import router as web_auth_router

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Suscripción{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/css/subscription.css?v={{ static_version }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/subscription.css?v={{ static_version }}"><link rel="stylesheet" href="/static/css/billing-email-verification.css?v={{ static_version }}">{% endblock %}
 {% block content %}
 <div class="page-header"><div>
   <p class="mb-page-eyebrow">Tu cuenta</p>
@@ -67,5 +67,7 @@
 </section>
 {% endblock %}
 {% block scripts %}
+{% include '_billing_email_verification.html' %}
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/billing-email-verification.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/gym-suscripcion.js?v={{ static_version }}"></script>
 {% endblock %}

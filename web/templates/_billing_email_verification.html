@@ -1,0 +1,14 @@
+<dialog class="billing-email-dialog" id="billing-email-dialog" aria-labelledby="billing-email-title" aria-describedby="billing-email-summary">
+  <div class="billing-email-heading"><span class="billing-email-mark" aria-hidden="true">@</span><button class="billing-email-close" id="billing-email-close" type="button" aria-label="Cerrar verificación de correo">×</button></div>
+  <h2 id="billing-email-title">Confirma tu correo</h2>
+  <p id="billing-email-summary">Verifica tu correo registrado para continuar.</p>
+  <p class="billing-email-status" id="billing-email-status" role="status" aria-live="polite"></p>
+  <form id="billing-email-form" novalidate>
+    <label for="billing-email-code">Código de seis dígitos</label>
+    <input id="billing-email-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" enterkeyhint="done" required aria-describedby="billing-email-hint billing-email-error">
+    <p class="billing-email-hint" id="billing-email-hint">Vence en 10 minutos. El código no realiza ningún cargo.</p>
+    <p class="billing-email-error" id="billing-email-error" role="alert" hidden></p>
+    <button class="billing-email-confirm" id="billing-email-confirm" type="submit" disabled>Verificar y continuar</button>
+  </form>
+  <div class="billing-email-footer"><button id="billing-email-resend" type="button" disabled>Reenviar código</button><button id="billing-email-cancel" type="button">Cancelar</button></div>
+</dialog>

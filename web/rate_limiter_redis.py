@@ -73,7 +73,7 @@ def _sensitive_path(path: str) -> bool:
     return path.startswith(("/api/generar-plan", "/api/usuario/generar-plan",
         "/api/usuario/checkout", "/api/usuario/stripe-", "/api/usuario/confirm-subscription",
         "/api/usuario/mp-preference", "/api/usuario/billing-portal",
-        "/api/billing/checkout", "/api/billing/stripe/subscribe",
+        "/api/billing/email-verification", "/api/billing/checkout", "/api/billing/stripe/subscribe",
         "/api/billing/confirm-subscription", "/api/billing/mp/preference",
         "/api/billing/portal", "/api/pagos/stripe/session", "/api/pagos/mp/preference",
         "/api/gym/team/invite"))

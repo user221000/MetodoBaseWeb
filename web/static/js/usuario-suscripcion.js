@@ -108,12 +108,13 @@
     document.getElementById('pago-modal-close').focus();
   }
 
-  function redirectToProvider(value, portal) {
+  function redirectToProvider(value, portal, receipt) {
     var url;
     try { url = new URL(value); }
     catch (_) { throw new Error('El proveedor no devolvió una dirección válida. Consulta tu estado antes de intentar de nuevo.'); }
     var allowed = portal ? ['billing.stripe.com'] : ['checkout.stripe.com', 'www.mercadopago.com.mx', 'mercadopago.com.mx', 'sandbox.mercadopago.com.mx'];
-    if (url.protocol !== 'https:' || allowed.indexOf(url.hostname) === -1) throw new Error('No pudimos abrir el proveedor de pago. Vuelve a consultar tu estado.');
+    if (url.protocol !== 'https:' || url.username || url.password || allowed.indexOf(url.hostname) === -1) throw new Error('No pudimos abrir el proveedor de pago. Vuelve a consultar tu estado.');
+    Api.billingEmail.checkResult(receipt);
     window.location.assign(url.href);
   }
 
@@ -126,13 +127,13 @@
     if (busy || !canManage()) return;
     busy = true;
     render();
-    try { redirectToProvider((await Api.usuario.portal()).url, true); }
+    try { var result=await Api.usuario.portal();redirectToProvider(result.url, true,result); }
     catch (error) { notify(failureMessage(error), true); }
     finally { busy = false; render(); }
   }
 
   function purchaseKey(method) {
-    if (!purchaseKeys[method]) purchaseKeys[method] = 'purchase-' + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
+    if (!purchaseKeys[method]) { if(!window.crypto || typeof crypto.randomUUID!=='function')throw new Error('Actualiza tu navegador para iniciar un pago seguro.');purchaseKeys[method] = 'purchase-' + crypto.randomUUID(); }
     return purchaseKeys[method];
   }
 
@@ -143,6 +144,7 @@
   document.getElementById('pago-btn-cancel').addEventListener('click', closeModal);
   modal.addEventListener('click', function (event) { if (event.target === modal) closeModal(); });
   document.addEventListener('keydown', function (event) {
+    if(window.BillingEmailVerification && window.BillingEmailVerification.isOpen())return;
     if (event.key === 'Escape' && !modal.hidden) { event.preventDefault(); closeModal(); }
   });
   modal.addEventListener('keydown', function (event) {
@@ -170,7 +172,7 @@
     button.textContent = 'Abriendo proveedor…';
     try {
       var result = selectedMethod === 'card' ? await Api.usuario.checkout(purchaseKey('card')) : await Api.usuario.mpPreference('pro', purchaseKey('mercadopago'));
-      redirectToProvider(result.url || result.redirect_url, false);
+      redirectToProvider(result.url || result.redirect_url, false,result);
     } catch (error) {
       document.getElementById('payment-method-description').textContent = failureMessage(error);
     } finally { busy = false; button.disabled = false; button.textContent = 'Continuar al proveedor'; render(); }

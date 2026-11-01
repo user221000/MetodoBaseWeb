@@ -119,6 +119,20 @@ def _base_layout(content: str) -> str:
 
 # ── Emails de negocio ────────────────────────────────────────────────────────
 
+def send_billing_verification_code(email: str, code: str, plan_label: str) -> bool:
+    """Send a purchase-confirmation code without placing it in subject or logs."""
+    if (not isinstance(code, str) or len(code) != 6 or not code.isascii() or not code.isdigit()
+            or not isinstance(plan_label, str) or not 1 <= len(plan_label) <= 80):
+        return False
+    content = '<h2>Confirma tu suscripción</h2>'
+    content += '<p>Usa este código para continuar con <strong>' + escape(plan_label) + '</strong>:</p>'
+    content += f'<p style="font-size:32px;letter-spacing:8px;font-weight:700;">{code}</p>'
+    content += '<p>Vence en 10 minutos y sólo confirma esta solicitud.</p>'
+    content += '<p>Este código no realiza ningún cargo. Después podrás continuar al proveedor de pago.</p>'
+    content += '<p>Si no solicitaste este cambio, ignora el mensaje. No compartas el código.</p>'
+    return _send(email, "Confirma tu suscripción — Método Base", _base_layout(content))
+
+
 def send_google_login_code(email: str, code: str) -> bool:
     """Send the one-use login code; never include it in a subject or log."""
     if not isinstance(code, str) or len(code) != 6 or not code.isascii() or not code.isdigit():

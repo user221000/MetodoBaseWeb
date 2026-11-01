@@ -116,10 +116,11 @@ def test_independent_mercadopago_subscriptions_do_not_collide(billing_case):
 def test_exhausted_individual_quota_never_calls_generator(billing_case):
     client, factory, principal = billing_case
     from web.database.models import UserSubscription
+    from web.services.billing_integrity import current_quota_period
     with factory() as db:
         db.add(UserSubscription(user_id=principal["id"], plan="starter",
                                 max_planes_mes=1, planes_usados_mes=1,
-                                mes_actual=datetime.now(timezone.utc).strftime("%Y-%m")))
+                                mes_actual=current_quota_period()))
         db.commit()
     with patch("web.routes.planes._generar_plan_sync", return_value={"plan": {}}) as generate:
         response = client.post("/api/usuario/generar-plan")

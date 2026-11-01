@@ -25,6 +25,8 @@ from config.settings import get_settings
 from web.auth_deps import get_usuario_gym
 from web.services.resilience import retry_with_backoff, mercadopago_circuit, stripe_circuit
 from web.services.subscription_service import activate_subscription, complete_checkout, is_payment_processed
+from web.services.billing_email_identity import require_email as _require_billing_email
+from starlette.concurrency import run_in_threadpool
 
 logger = logging.getLogger(__name__)
 
@@ -110,8 +112,10 @@ async def crear_sesion_stripe(
     try:
         with open_business_session() as db:
             from web.services.mfa_business import step_up
-            step_up(db, usuario, request, req.model_dump(mode="json"), idempotency_key=idempotency_key)
-            result = create_checkout_session(db, usuario["id"], req.plan, usuario["email"],
+            usuario = await run_in_threadpool(step_up, db, usuario, request, req.model_dump(mode="json"), idempotency_key=idempotency_key)
+            usuario = await _require_billing_email(db, usuario, request, 'legacy_stripe_checkout', req.plan,
+                req.model_dump(mode='json'), idempotency_key=idempotency_key)
+            result = await run_in_threadpool(create_checkout_session, db, usuario["id"], req.plan, usuario["email"],
                                              req.success_url, req.cancel_url, request_key=idempotency_key)
             return SesionResponse(session_id=result["session_id"], redirect_url=result["url"])
     except HTTPException:
@@ -178,8 +182,10 @@ async def crear_preferencia_mp(
     try:
         with open_business_session() as db:
             from web.services.mfa_business import step_up
-            step_up(db, usuario, request, req.model_dump(mode="json"), idempotency_key=idempotency_key)
-            result = create_preference(db, usuario["id"], req.plan, usuario["email"],
+            usuario = await run_in_threadpool(step_up, db, usuario, request, req.model_dump(mode="json"), idempotency_key=idempotency_key)
+            usuario = await _require_billing_email(db, usuario, request, 'legacy_mp_preference', req.plan,
+                req.model_dump(mode='json'), idempotency_key=idempotency_key)
+            result = await run_in_threadpool(create_preference, db, usuario["id"], req.plan, usuario["email"],
                                        req.success_url, req.cancel_url, request_key=idempotency_key)
             return SesionResponse(session_id=result["session_id"], redirect_url=result["redirect_url"])
     except HTTPException:

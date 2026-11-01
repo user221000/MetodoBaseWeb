@@ -64,18 +64,18 @@
     } catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}subscription = null; config = null; notify('No pudimos consultar tu suscripción y los medios de pago. ' + failure(error)); }
     finally { if(current(ticket)){loading = false; render();} }
   }
-  function redirect(value, name, portal, ticket) {
+  function redirect(value, name, portal, ticket, receipt) {
     if(!current(ticket))return;
     var url;
     try { url = new URL(value); } catch (_) { throw new Error('El proveedor no devolvió una dirección válida. Consulta tu estado.'); }
     var hosts = name === 'mercadopago' ? ['www.mercadopago.com.mx','www.mercadopago.com','sandbox.mercadopago.com.mx','sandbox.mercadopago.com'] : [portal ? 'billing.stripe.com' : 'checkout.stripe.com'];
     if (url.protocol !== 'https:' || url.username || url.password || !hosts.includes(url.hostname)) throw new Error('No pudimos abrir el proveedor de pago. Consulta tu estado antes de intentar de nuevo.');
-    if(current(ticket))location.assign(url.href);
+    Api.billingEmail.checkResult(receipt);if(current(ticket))location.assign(url.href);
   }
   async function portal() {
     if (invalid || uncertain || busy || loading || !owner || !subscription || subscription.provider !== 'stripe') return;var ticket=epoch;
     busy = true; render();
-    try { if(!await verify(ticket))return;var result=await Api.billing.portal();if(!await verify(ticket))return;redirect(result.url, 'stripe', true, ticket); }
+    try { if(!await verify(ticket))return;var result=await Api.billing.portal();if(!await verify(ticket))return;redirect(result.url, 'stripe', true, ticket,result); }
     catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}notify(failure(error)); }
     finally { if(current(ticket)){busy = false; render();} }
   }
@@ -94,9 +94,9 @@
       try {
         if(!await verify(ticket))return;
         var result = name === 'stripe' ? await Api.billing.checkout(plan, keys[intent]) : await Api.billing.mpPreference(plan, keys[intent]);
-        if(!await verify(ticket))return;redirect(name === 'stripe' ? result.url : result.redirect_url, name, false, ticket);
+        if(!await verify(ticket))return;redirect(name === 'stripe' ? result.url : result.redirect_url, name, false, ticket,result);
       } catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}
-        if((!error.status || error.status>=500) && !['mfa_cancelled','mfa_ui_unavailable'].includes(error.code))uncertain=true;
+        if(!error.paymentNotStarted && (!error.status || error.status>=500) && !['mfa_cancelled','mfa_ui_unavailable'].includes(error.code))uncertain=true;
         notify(failure(error)+(uncertain?' El resultado es incierto. Consulta el estado antes de volver a intentarlo; se conservará la misma clave para esta intención.':''));feedback.scrollIntoView({block:'nearest'}); }
       finally { if(current(ticket)){busy = false; render();} }
     });

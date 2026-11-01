@@ -519,6 +519,7 @@ const Api = (() => {
 
   // Closed MFA wire. Handles contain no proof or access in their public shape.
   let _mfaContexts = new WeakMap(), _mfaOperations = new WeakMap(), _mfaGrants = new WeakMap();
+  let _billingPermits = new WeakMap(), _billingResults = new WeakMap();
   const _mfaBearer = value => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value);
   const _mfaExpiry = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d\d:\d\d)$/.test(value) && Number.isFinite(Date.parse(value));
   function _mfaError(code='mfa_invalid_response') {
@@ -677,11 +678,17 @@ const Api = (() => {
       _mfaGrants.delete(grant);_mfaOperations.delete(operation);
       const context=_mfaContext(value.context),headers={'X-MFA-Grant':permit.proof,...(value.idempotencyKey===null?{}:{'Idempotency-Key':value.idempotencyKey})};
       permit.proof=null;
+      if(value.billing){_mfaContext(value.billing.handle);headers['X-Billing-Email-Grant']=value.billing.proof;value.billing.proof=null;}
       return request(value.method,value.path,value.body,headers,true,{snapshot:context.snapshot,pair:context.pair});
     },
-    async perform(method,path,body={},key=null) {
+    async perform(method,path,body={},key=null,billingPermit=null) {
       const operation=mfa.operation(method,path,body,key),value=_mfaOperations.get(operation);
       try {
+        if(billingPermit!==null){
+          const permit=_billingPermits.get(billingPermit);_billingPermits.delete(billingPermit);
+          if(!permit || permit.method!==method || permit.path!==path || permit.key!==key || permit.body!==JSON.stringify(body) || !_mfaBearer(permit.proof))throw _mfaError('billing_email_invalid_proof');
+          _mfaContext(permit.handle);value.billing=permit;
+        }
         let grant;
         try { grant=await mfa.grant(operation); }
         catch(error) {
@@ -690,14 +697,14 @@ const Api = (() => {
           const ui=await _mfaUI();_mfaContext(value.context);grant=await ui.authorize(operation,error);_mfaContext(value.context);
         }
         return await mfa.execute(operation,grant);
-      } finally { _mfaOperations.delete(operation); }
+      } finally { if(value.billing)value.billing.proof=null;_mfaOperations.delete(operation); }
     },
   };
 
   // ── Billing ────────────────────────────────────────────────────────────────
 
   if (typeof window.addEventListener === 'function') {
-    const discardMfa=()=>{_mfaContexts=new WeakMap();_mfaOperations=new WeakMap();_mfaGrants=new WeakMap();if(_retainedLogin&&!_invalidated&&!_hidden&&_retainedLogin.value.snapshot.revision===_credentials.revision&&_samePair(_retainedLogin.value.pair,_credentials.pair))_mfaContexts.set(_retainedLogin.handle,_retainedLogin.value);};
+    const discardMfa=()=>{_mfaContexts=new WeakMap();_mfaOperations=new WeakMap();_mfaGrants=new WeakMap();_billingPermits=new WeakMap();_billingResults=new WeakMap();if(_retainedLogin&&!_invalidated&&!_hidden&&_retainedLogin.value.snapshot.revision===_credentials.revision&&_samePair(_retainedLogin.value.pair,_credentials.pair))_mfaContexts.set(_retainedLogin.handle,_retainedLogin.value);};
     window.addEventListener('metodobase-session-changed',discardMfa);
     window.addEventListener('pagehide',discardMfa);
   }
@@ -1041,35 +1048,100 @@ const Api = (() => {
     checkClosed:result=>accountSecurity.checkClosed(result),
   });
 
+  const _billingActions = new Set(['gym_stripe_checkout','gym_stripe_subscribe','gym_mp_preference','personal_stripe_checkout','personal_stripe_subscribe','personal_mp_preference','gym_stripe_portal','personal_stripe_portal','legacy_stripe_checkout','legacy_mp_preference']);
+  function _billingInput(action,plan) {
+    if(!_billingActions.has(action) || !(action.endsWith('_portal') ? plan==='manage' : action.startsWith('personal_') ? plan==='pro' : ['standard','gym_comercial','clinica'].includes(plan)))throw _mfaError('billing_email_invalid_input');
+    return {action,plan};
+  }
+  async function _billingEmailPost(path,body,handle) {
+    const context=_mfaContext(handle);
+    try{const value=await request('POST',path,body,{},true,{snapshot:context.snapshot,pair:context.pair});_mfaContext(handle);return value;}
+    catch(error){_mfaContext(handle);throw error;}
+  }
+  const billingEmail = Object.freeze({
+    async begin(action,plan,handle){
+      const value=await _billingEmailPost('/api/billing/email-verification/request',_billingInput(action,plan),handle);
+      if(!value || value.email_verification_required!==true || !_mfaBearer(value.challenge) || !_mfaExpiry(value.expires_at) || Date.parse(value.expires_at)<=Date.now() ||
+          typeof value.masked_email!=='string' || !value.masked_email || value.masked_email.length>320 || /[\r\n\0]/.test(value.masked_email) || value.resend_after_seconds!==60 ||
+          Object.keys(value).some(key=>!['email_verification_required','challenge','expires_at','masked_email','resend_after_seconds'].includes(key)))throw _mfaError('billing_email_invalid_response');
+      return value;
+    },
+    async verify(action,plan,challenge,code,handle){
+      if(!_mfaBearer(challenge) || typeof code!=='string' || !/^[0-9]{6}$/.test(code))throw _mfaError('billing_email_invalid_input');
+      let body={..._billingInput(action,plan),challenge,code};code=null;
+      try{
+        const pending=_billingEmailPost('/api/billing/email-verification/verify',body,handle);body=null;
+        const value=await pending;
+        if(!value || !_mfaBearer(value.verification_token) || value.expires_in_seconds!==300 || Object.keys(value).some(key=>!['verification_token','expires_in_seconds'].includes(key)))throw _mfaError('billing_email_invalid_response');
+        return value;
+      }finally{body=null;}
+    },
+    check:handle=>mfa.check(handle),
+    checkResult(value){const handle=_billingResults.get(value);if(!handle)throw _sessionChanged();_mfaContext(handle);},
+  });
+  async function _billingProtected(action,plan,method,path,body,key=null,requiresMfa=false) {
+    _billingInput(action,plan);
+    if(key!==null && (typeof key!=='string' || !/^[\x21-\x7e]{1,128}$/.test(key)))throw _mfaError('billing_email_invalid_input');
+    await _readyPromise;
+    let handle=null,proof=null,permit=null,started=false;
+    try{
+      handle=(await mfa.context()).handle;
+      if(typeof window.BillingEmailVerification?.authorize!=='function')throw _mfaError('billing_email_ui_unavailable');
+      proof=await window.BillingEmailVerification.authorize(action,plan,handle);_mfaContext(handle);
+      if(!_mfaBearer(proof))throw _mfaError('billing_email_invalid_proof');
+      await mfa.verify(handle);const context=_mfaContext(handle);
+      // Capture a cryptographic key exactly once; callers retain their key on
+      // an explicit retry. No payment request is automatically replayed.
+      if(key===null && !action.endsWith('_portal')){
+        if(!window.crypto || typeof window.crypto.randomUUID!=='function')throw _mfaError('billing_email_browser_unavailable');
+        key='purchase-'+window.crypto.randomUUID();
+      }
+      let value;
+      if(requiresMfa){
+        permit=Object.freeze({});_billingPermits.set(permit,{handle,proof,method,path,key,body:JSON.stringify(body)});proof=null;started=true;
+        value=await mfa.perform(method,path,body,key,permit);
+      }else{
+        const headers={'X-Billing-Email-Grant':proof,...(key===null?{}:{'Idempotency-Key':key})};proof=null;started=true;
+        value=await request(method,path,body,headers,true,{snapshot:context.snapshot,pair:context.pair});
+      }
+      _mfaContext(handle);await mfa.verify(handle);_mfaContext(handle);
+      if(!value || typeof value!=='object' || Array.isArray(value))throw _mfaError('billing_email_invalid_response');
+      _billingResults.set(value,handle);return value;
+    }catch(error){
+      if(!started)error.paymentNotStarted=true;
+      if(handle)_mfaContext(handle);throw error;
+    }finally{proof=null;if(permit)_billingPermits.delete(permit);}
+  }
+
   const billing = {
     config:       () => request('GET', '/api/billing/config'),
     subscription: () => request('GET', '/api/billing/subscription'),
     payments:     () => request('GET', '/api/billing/payments'),
     checkout: (plan, key) =>
-      mfa.perform('POST', '/api/billing/checkout', {
+      _billingProtected('gym_stripe_checkout',plan,'POST', '/api/billing/checkout', {
         plan,
         success_url: '/suscripciones?result=success',
         cancel_url: '/suscripciones?result=canceled',
-      }, key || null),
+        }, key || null,true),
     stripeSubscribe: (plan, payment_method_id, key) =>
-      mfa.perform('POST', '/api/billing/stripe/subscribe', {
+      _billingProtected('gym_stripe_subscribe',plan,'POST', '/api/billing/stripe/subscribe', {
         plan,
         payment_method_id,
-      }, key || null),
+        }, key || null,true),
     confirmSubscription: (subscription_id) =>
       mfa.perform('POST', '/api/billing/confirm-subscription', {
         subscription_id,
       }),
     mpPreference: (plan, key) =>
-      mfa.perform('POST', '/api/billing/mp/preference', {
+      _billingProtected('gym_mp_preference',plan,'POST', '/api/billing/mp/preference', {
         plan,
         success_url: '/suscripciones?result=success',
         cancel_url: '/suscripciones?result=canceled',
-      }, key || null),
+        }, key || null,true),
     portal: () =>
-      mfa.perform('POST', '/api/billing/portal', {
+      _billingProtected('gym_stripe_portal','manage','POST', '/api/billing/portal', {
         return_url: '/suscripciones',
-      }),
+        },null,true),
   };
 
   // ── Gym Profile ─────────────────────────────────────────────────────────────
@@ -1214,21 +1286,21 @@ const Api = (() => {
     suscripcion:    () => request('GET', '/api/usuario/suscripcion'),
     cambiarPlan:    (plan) => request('POST', '/api/usuario/suscripcion', { plan }),
     billingConfig:  () => request('GET', '/api/usuario/billing-config'),
-    checkout: (key) => request('POST', '/api/usuario/checkout', {
+    checkout: (key) => _billingProtected('personal_stripe_checkout','pro','POST', '/api/usuario/checkout', {
       success_url: '/mi-suscripcion?result=success',
       cancel_url: '/mi-suscripcion?result=canceled',
-    }, { 'Idempotency-Key': key }),
-    portal: () => request('POST', '/api/usuario/billing-portal', { return_url: '/mi-suscripcion' }),
-    stripeSubscribe: (plan, payment_method_id) =>
-      request('POST', '/api/usuario/stripe-subscribe', { plan, payment_method_id }),
+      },key || null),
+    portal: () => _billingProtected('personal_stripe_portal','manage','POST', '/api/usuario/billing-portal', { return_url: '/mi-suscripcion' }),
+    stripeSubscribe: (plan, payment_method_id,key) =>
+      _billingProtected('personal_stripe_subscribe',plan,'POST', '/api/usuario/stripe-subscribe', { plan, payment_method_id },key || null),
     confirmSubscription: (subscription_id) =>
       request('POST', '/api/usuario/confirm-subscription', { subscription_id }),
     mpPreference:   (plan, key) =>
-      request('POST', '/api/usuario/mp-preference', {
+      _billingProtected('personal_mp_preference',plan,'POST', '/api/usuario/mp-preference', {
         plan,
         success_url: '/mi-suscripcion?result=success',
         cancel_url: '/mi-suscripcion?result=canceled',
-      }, key ? { 'Idempotency-Key': key } : {}),
+        },key || null),
   };
 
   // R12 resource context is separate from the personal profile and professional tenant.
@@ -1437,6 +1509,6 @@ const Api = (() => {
     }
   });
   _readyPromise=_bootstrap();_readyPromise.catch(()=>{});
-  return { clientes, planes, stats, auth, billing, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, accountSecurity, accountPrivacy, productAnalytics, session, getToken, clearTokens, saveTokens };
+  return { clientes, planes, stats, auth, billing, billingEmail, gym, usuario, vinculos, progreso, team, mfa, googleLink, followup, nutrition, notifications36, accountSecurity, accountPrivacy, productAnalytics, session, getToken, clearTokens, saveTokens };
 })();
 

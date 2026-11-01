@@ -123,7 +123,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             request.url.path == "/api/usuario/diario"
             or request.url.path.startswith("/api/usuario/diario/")
         )
-        primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS or request.url.path in _GOOGLE_LINK_PAGES or is_browser_session_private(request.url.path)
+        primary_api = request.url.path in _PRIMARY_API_PATHS or request.url.path in _RETIREMENT_PRIVATE_PATHS or request.url.path in _GOOGLE_LINK_PATHS or request.url.path in _GOOGLE_LINK_PAGES or is_browser_session_private(request.url.path) or request.url.path.startswith('/api/billing/email-verification/')
         progress_api = is_progress_private(request.url.path)
         followup_api = is_followup_private(request.url.path)
         nutrition_api = is_nutrition_private(request.url.path)

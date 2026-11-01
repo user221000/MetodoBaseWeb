@@ -1,5 +1,6 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mi suscripción{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/billing-email-verification.css?v={{ static_version }}">{% endblock %}
 {% block content %}
 <div class="u-hero">
   <p class="mb-page-eyebrow">Tu cuenta · Suscripción</p>
@@ -88,6 +89,8 @@
 </div>
 {% endblock %}
 {% block scripts %}
+{% include '_billing_email_verification.html' %}
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/billing-email-verification.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-suscripcion.js?v={{ static_version }}"></script>
 {% endblock %}
 
