@@ -12,6 +12,8 @@ Fuente: [USDA FoodData Central, descargas](https://fdc.nal.usda.gov/download-dat
 
 Datos versionados: `src/data/food_catalog_usda_2018.json`. Su SHA256 es `3ff159929282344c6fbefc9a21b11d1b41b297edd915711b6de5607c2f54091d`. La atribución USDA sólo se aplica si los cuatro nutrientes persistidos coinciden exactamente; una personalización no hereda indebidamente esa atribución. Estado de preparación y procedencia se reconstruyen desde el manifiesto, sin nuevas columnas SQLite. Horarios y topes en gramos son parámetros editoriales del producto, no recomendaciones de USDA. Las altas usan gramos del estado indicado y no equivalencias caseras inventadas.
 
+El archivo verificado conserva sus bytes mediante una regla `-text` específica en `.gitattributes`. Así Git no convierte sus saltos de línea al crear el artefacto Linux. Las regresiones de empaquetado comprueban el blob preparado para publicar, su importación y el rechazo de una conversión que cambie su checksum. Se conserva el primer despliegue rechazado por integridad y la corrección, sin modificar nutrientes ni desactivar el verificador.
+
 ## Cálculo actual del cliente
 
 El mapper crea `ClienteEvaluacion`; el motor conserva Katch-McArdle: masa libre de grasa = peso × (1 − grasa/100), TMB = 370 + 21,6 × masa libre de grasa, y GET = TMB × factor de actividad. Los factores existentes son 1,2; 1,375; 1,55 y 1,725. Déficit, mantenimiento y superávit aplican respectivamente 0,85; 1 y 1,10 al GET. La política existente asigna proteína de 1,8 g/kg, grasa de 0,8 g/kg y carbohidratos con las calorías restantes; conserva su ajuste de grasa a 0,6 g/kg si faltan calorías. Las comidas se reparten 20/25/30/25 %.

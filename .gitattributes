@@ -98,6 +98,10 @@ tests/test_billing_reconciliation13_selection_peer.py -text whitespace=cr-at-eol
 tests/test_billing_reconciliation13_session_peer.py -text whitespace=cr-at-eol
 /alembic.ini text eol=lf
 /db_bootstrap.py text eol=lf
+
+# The bundled USDA reference is checksum-verified before loading. Preserve the
+# audited bytes in Git archives and Linux images as well as Windows checkouts.
+src/data/food_catalog_usda_2018.json -text whitespace=cr-at-eol
 /core/routine_catalog.py text eol=lf
 /scripts/backup_restore.py text eol=lf
 /scripts/reviewed_scan_locations.py text eol=lf
