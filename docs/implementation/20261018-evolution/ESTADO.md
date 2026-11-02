@@ -564,3 +564,12 @@ Esquema 39→40 aditivo en gym_settings, sin cambiar RLS, clientes o cuotas. Gat
 ## Auditoría: puente canónico de secretos — 2026-11-02
 
 Candidato aislado, sin publicación productiva. Se preservan los escaneos completos rechazados físico1274 y Git2009/2250. La equivalencia de90 archivos y2250 ubicaciones conV9 fue comprobada independientemente por QA/Operación. Se integra un puente finito con frames y spans exactos, incluida precedencia estricta y cinco diferencias de columnas;37 controles nuevos,166 originales y positivos/negativos independientes aceptados. No cambia la aplicación financiera ni sus contratos. Nuevos commit, materialización, escaneo completo y CI/imagen todavía requieren evidencia propia. Backlog167, fuenteF y RAW históricos conservados.
+
+
+## Seguimiento de auditoría — 2 de noviembre de 2026, segunda ejecución
+
+Se continúa la matriz de once pendientes mediante agentes reales en oleadas con hasta tres hijos y coordinación. Base EFA, sin modificar los 167 criterios del backlog. Se prepararon correcciones de contraste en pestañas activas y limpieza de Planes tras retiro del DOM, conservando las barreras de sesión. El arranque PostgreSQL41 de CI usa TCP local sin socket Unix; los diagnósticos publican sólo ubicaciones y contadores acotados.
+
+QA independiente: 68 casos y 220 contratos retenidos aprobados, 8 537 identidades seleccionadas en colección (no ejecución total); frontend once focos y tres complementos. Autor frontend conserva seis recorridos reales Web/SQLite con generación/PDF/cuota y diez capturas. CI3 de EFA terminó diez trabajos aprobados, doce fallidos y uno omitido. El nuevo commit necesita sus propios gates, imagen y escaneo; no se hereda aceptación anterior ni se despliega desde esta preparación.
+
+Detalle, equipo, límites, recursos y criterios externos en [SEGUIMIENTO.md](../20261102-audit-remediation/SEGUIMIENTO.md) y su matriz CSV. Stripe sandbox todavía requiere acceso autenticado, y la publicación financiera conserva la ventana 40→41 y sus comprobaciones. La copia de referencia, RAW, estado anterior y evidencia original se preservan.

@@ -12,6 +12,22 @@ from tests.ci_web41.node_contracts import (
     new_node_gate as new_node_gate,
     privacy_node_gate as privacy_node_gate,
 )
+from tests.ci_web41.web_failure_projection import project_files as _project_files
+
+_original_observe_junit = globals()["observe_junit"]
+_runner_root = globals()["ROOT"]
+
+
+def observe_junit(path, expected):
+    """Preserve every original outcome; diagnostics never accept or retry it."""
+    result = _original_observe_junit(path, expected)
+    if not result["identities_exact"] or any(result[key] for key in ("failed", "errors", "skipped")):
+        try:
+            result["failure_locations"] = _project_files(_runner_root, path, expected)
+        except Exception:  # noqa: BLE001 -- fixed privacy-preserving diagnostic rejection
+            result["failure_locations"] = {"diagnostic_available": False, "reason": "projection_rejected"}
+    return result
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

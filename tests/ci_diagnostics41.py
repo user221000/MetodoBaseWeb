@@ -37,6 +37,27 @@ TRACE_KIND = re.compile(rb'^(?:[A-Za-z_][A-Za-z0-9_]*\.)*([A-Za-z_][A-Za-z0-9_]{
 MAX_TRACE = 4 * 1024 * 1024
 MAX_LINE = 65536
 
+# One finite text-location companion. These pins authenticate the exact Git
+# wrapper, complete catalogue, retained parent and rewritten source separately.
+# This does not attest execution, subprocess arguments or a successful bootstrap.
+PG_WRAPPER = "tests/ci_web41/ci_cluster.py"
+PG_CATALOGUE = "tests/ci_web41/source-companions.json"
+PG_PARENT = "tests/ci_web39/ci_cluster.py"
+PG_INPUTS = {
+    PG_WRAPPER: (339, "b191951d5531ed6a99975296104c2128736215d16cbfbcb6a544cf4015641e02"),
+    PG_CATALOGUE: (35881, "906a08ab514da5a3bc0176bdf0d17bf0841fcf031b5d7927f55d61f84c69ba92"),
+    PG_PARENT: (8510, "dcb624fbde74a74c0509422f271920a795b4fdbaa3a519b9137020c5302772f2"),
+}
+PG_COMPILED_SHA256 = "06efafacf474934fbbcd4655dbd751a19ee1ca57010d4159e6c85e073bde0241"
+# Keys are exact starting callsites, never arbitrary lines in compiled source.
+# The AST fingerprints contain no locations and are stable in Python3.11/3.12.
+PG_CALLS = {
+    49: ("version", "95ab763fb7d607a1794809cf0ecd2c556280a91d9bcd327a4245cc9637d45fd1"),
+    63: ("initdb", "6df463b4d7bcabc38285d327d1d9b393a829b794251173622b49d12ff752bbab"),
+    66: ("pg_ctl_start", "0435a51b1e740b01388dda98b6a4de7aabbc0c1d33c3bc8751f7f601b3d7bef7"),
+    136: ("pg_ctl_stop", "dda9a742df192f52caa89e0270e6cf16d988cb55dab0d27b81b357f58ab8c17f"),
+}
+
 
 def empty(phase="unknown", kind="OTHER"):
     return {"schema": SCHEMA, "accepted": False, "phase": phase if phase in PHASES else "unknown",
@@ -106,6 +127,67 @@ class Binding:
             except (OSError, ValueError, UnicodeError, subprocess.SubprocessError):
                 self.cache[name] = None
         return self.cache[name]
+
+    def compiled_pg_frame(self, filename, line):
+        """Project one catalogue-bound location only; no import, exec or live claim."""
+        if type(line) is not int or line not in PG_CALLS:
+            return None
+        try:
+            name = Path(filename).absolute().relative_to(self.root).as_posix()
+            if name != PG_WRAPPER:
+                return None
+            inputs = {}
+            for relative, (size, expected) in PG_INPUTS.items():
+                path = regular(self.root / relative)
+                raw = path.read_bytes()
+                original = git(self.root, "cat-file", "blob", self.source + ":" + relative)
+                if len(raw) != size or raw != original or hashlib.sha256(raw).hexdigest() != expected:
+                    raise ValueError("The finite PG diagnostic source differs")
+                inputs[relative] = raw
+            catalogue = json.loads(inputs[PG_CATALOGUE])
+            if (set(catalogue) != {"schema", "revision", "entries"}
+                    or catalogue["schema"] != "finite-authenticated-current41-source-companions-v1"
+                    or catalogue["revision"] != "20261102_payment_refund_facts"
+                    or len(catalogue["entries"]) != 18):
+                raise ValueError("The finite PG diagnostic catalogue differs")
+            entry = catalogue["entries"][PG_WRAPPER]
+            if (entry["original"] != PG_PARENT
+                    or entry["original_sha256_LF"] != PG_INPUTS[PG_PARENT][1]
+                    or entry["current_sha256_LF"] != PG_COMPILED_SHA256):
+                raise ValueError("The single PG diagnostic entry differs")
+            raw = inputs[PG_PARENT]
+            if not any(type(frame["bytes"]) is int and len(raw) == frame["bytes"]
+                       and hashlib.sha256(raw).hexdigest() == frame["sha256"]
+                       for frame in entry["original_frames"]):
+                raise ValueError("The retained PG parent frame differs")
+            text = raw.decode("utf8")
+            for edit in entry["literal_edits"]:
+                old, new, count = edit["old"], edit["new"], edit["count"]
+                if type(count) is not int or count <= 0 or not old or text.count(old) != count:
+                    raise ValueError("The finite PG diagnostic edit count differs")
+                text = text.replace(old, new)
+            compiled = text.encode("utf8")
+            if len(compiled.splitlines()) != 151 or hashlib.sha256(compiled).hexdigest() != PG_COMPILED_SHA256:
+                raise ValueError("The complete PG diagnostic compiled source differs")
+            calls = {}
+            for node in ast.walk(ast.parse(compiled)):
+                if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                        and isinstance(node.func.value, ast.Name) and node.func.value.id == "subprocess"):
+                    fingerprint = hashlib.sha256(ast.dump(node, include_attributes=False).encode("utf8")).hexdigest()
+                    if node.lineno in calls:
+                        raise ValueError("An ambiguous PG diagnostic callsite differs")
+                    calls[node.lineno] = fingerprint
+            if calls != {number: value[1] for number, value in PG_CALLS.items()}:
+                raise ValueError("The finite PG diagnostic subprocess AST differs")
+            if any(regular(self.root / relative).read_bytes() != raw for relative, raw in inputs.items()):
+                raise ValueError("The PG diagnostic source changed during read")
+            return {"path": PG_WRAPPER, "line": line, "source_sha256": PG_COMPILED_SHA256,
+                    "binding": "catalogue_compiled/text_location_only", "operation": PG_CALLS[line][0],
+                    "wrapper_sha256": PG_INPUTS[PG_WRAPPER][1],
+                    "catalogue_sha256": PG_INPUTS[PG_CATALOGUE][1],
+                    "parent_source_sha256": PG_INPUTS[PG_PARENT][1]}
+        except (OSError, ValueError, TypeError, KeyError, UnicodeError, SyntaxError, subprocess.SubprocessError):
+            return None
 
     def frame(self, filename, line):
         if type(line) is not int or not 1 <= line <= 1000000:
@@ -225,6 +307,12 @@ def parse_traceback(lines, binding, phase):
                 frame = None
             if frame is not None:
                 frame["binding"] = "text_location_only/path_git_match"
+            elif phase == "pg_bootstrap":
+                try:
+                    frame = binding.compiled_pg_frame(match[1].decode("utf8", errors="strict"), int(match[2]))
+                except UnicodeError:
+                    frame = None
+            if frame is not None:
                 frames.append(frame)
             continue
         kind = TRACE_KIND.match(line)
