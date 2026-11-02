@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Landing interactiva y compacta — 1 de noviembre de 2026
+
+La portada concentra la presentación en una demo con búsqueda ficticia, cuatro vistas, pasos manuales y ampliación accesible; las suscripciones tienen selector de audiencia/modalidad, comparación y cupos desplegables. Se eliminan bloques repetidos. La invitación de registro, accesos, precios y todos los límites del catálogo se conservan, con las seis ofertas disponibles también sin JavaScript.
+
+Verificación local del candidato aislado sobre 9a55b7dd: 24 HTTP y 23 recorridos Chromium PASS a 320/390/768/1440, sin errores JS/CSP/overflow/axe en los estados comprobados y reducción de al menos 40% de altura/texto visible. Dos defectos de contraste se corrigieron conservando sus rechazos; autor comprobó también los estados progresivos y el gradiente. El consumidor activo de CI mantiene ocho controles/cuatro capturas y pasó por HTTP real propio, con fuentes estables y cierre normal. No se declara CI global verde: persiste el límite previo de la huella Dockerfile. [Alcance y evidencias](../20261101-landing-interactive.md). Commit, despliegue y prueba pública quedan vinculados en los recibos nuevos. Los otros cambios locales de correo/API/pagos y los requisitos/estados globales se conservan.
+
 ## Landing adjust — publicación autorizada del 1 de noviembre de 2026
 
 Publicación acotada de la portada con demostración, invitación de registro, contraste y nuevo mensaje comercial. Incluye la continuidad de la suscripción elegida por registro, acceso y seguridad/MFA; no activa pagos ni cambia permisos. Se prepara desde la versión productiva 18d855ff en un worktree aislado, conservando los otros cambios locales de correo/API/pagos. Se preservan los requisitos y estados globales. El candidato exacto se vuelve a verificar antes del push y Railway se comprueba después. [Alcance, evidencias y recuperación](../20261101-landing-adjust-release.md).

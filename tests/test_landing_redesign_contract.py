@@ -121,7 +121,9 @@ def test_demo_and_compact_registration_have_named_accessible_hooks(public_landin
     ids = [attributes["id"] for _, attributes in markup.elements if "id" in attributes]
     assert len(ids) == len(set(ids))
     for name in ("landing-demo", "demo-tabs", "registration-invite", "registration-invite-panel",
-                 "registration-invite-toggle", "registration-invite-close", "registration-invite-register"):
+                 "registration-invite-toggle", "registration-invite-close", "registration-invite-register",
+                 "demo-client-search", "demo-client-empty", "demo-previous", "demo-next", "demo-progress",
+                 "demo-expand", "pricing-controls", "pricing-compare"):
         assert name in ids
     panels = [attributes for _, attributes in markup.elements if attributes.get("role") == "tabpanel"]
     assert {panel["id"] for panel in panels} == {
@@ -134,6 +136,25 @@ def test_demo_and_compact_registration_have_named_accessible_hooks(public_landin
     assert "datos de ejemplo" in response.text
     radios = [attributes for tag, attributes in markup.elements if tag == "input" and attributes.get("name") == "invite-audience"]
     assert {radio["value"] for radio in radios} == {"gym", "usuario"}
+    search = next(attributes for tag, attributes in markup.elements if attributes.get("id") == "demo-client-search")
+    assert search.get("type") == "search"
+    assert "disabled" in search
+    clients = [attributes for _, attributes in markup.elements if "data-demo-client" in attributes]
+    assert len(clients) == 3 and all(client.get("data-client-name") for client in clients)
+    choices = [attributes for tag, attributes in markup.elements if tag == "button" and "data-pricing-audience" in attributes]
+    assert {choice["data-pricing-audience"] for choice in choices} == {"gym", "usuario"}
+    assert all(choice.get("aria-controls") in ids for choice in choices)
+    controls = next(attributes for _, attributes in markup.elements if attributes.get("id") == "pricing-controls")
+    assert "hidden" in controls
+    plan_pickers = [attributes for _, attributes in markup.elements if "data-plan-picker" in attributes]
+    assert plan_pickers and all("hidden" in picker for picker in plan_pickers)
+    # Every price/limit remains rendered and reachable before JS enhancement.
+    cards = [attributes for tag, attributes in markup.elements if tag == "article"
+             and ("data-plan" in attributes or "data-personal-plan" in attributes)]
+    assert len(cards) == 6 and all("hidden" not in card for card in cards)
+    details = [attributes for tag, attributes in markup.elements if tag == "details"
+               and "plan-details" in attributes.get("class", "").split()]
+    assert len(details) == 6
 
 
 def test_first_party_script_is_versioned_and_has_current_csp_nonce(public_landing):
