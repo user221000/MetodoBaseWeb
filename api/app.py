@@ -24,6 +24,7 @@ from api.routes import planes as planes_routes
 from api.routes import licencias as licencias_routes
 from api.routes import pagos as pagos_routes
 from web.routes import pages as web_pages
+from web.static_assets import compute_static_version
 
 logging.basicConfig(
     level=logging.INFO,
@@ -295,6 +296,7 @@ def create_app() -> FastAPI:
     app.include_router(history_router, prefix="/api")
 
     # ── Web page routes ───────────────────────────────────────────────────────
+    web_pages.templates.env.globals["static_version"] = compute_static_version(static_dir)
     app.include_router(web_pages.router)
 
     # Wrap early middleware responses as well as routes, with one nonce/policy.

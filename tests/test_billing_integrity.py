@@ -4,7 +4,7 @@ These tests exercise the SaaS routers and real SQLAlchemy persistence. Provider
 replies are boundary doubles; they do not claim a completed sandbox purchase.
 """
 from datetime import datetime, timezone
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi import FastAPI
@@ -64,12 +64,30 @@ def test_preferences_cannot_grant_pro(billing_case):
 
 def test_incomplete_subscription_cannot_grant_pro(billing_case):
     client, factory, principal = billing_case
-    with patch("web.services.stripe_service.create_subscription_with_payment_method",
+    # This downstream payment test starts after email admission. Separate
+    # boundary tests require 428 and zero provider calls without that proof.
+    with patch("web.routes.usuario._require_billing_email", new=AsyncMock(return_value=dict(principal))), \
+            patch("web.services.stripe_service.create_subscription_with_payment_method",
                return_value={"subscription_id": "sub_unpaid", "status": "incomplete",
-                             "client_secret": "test-only"}):
+                             "client_secret": "test-only"}) as provider:
         response = client.post("/api/usuario/stripe-subscribe",
                                json={"plan": "pro", "payment_method_id": "pm_test"})
     assert response.status_code == 200
+    provider.assert_called_once()
+    assert _stored_plan(factory, principal["id"]) == "starter"
+
+
+def test_unverified_contact_never_reaches_subscription_provider(billing_case):
+    client, factory, principal = billing_case
+    from web.auth import crear_access_token
+    token = crear_access_token(principal)
+    with patch("web.services.stripe_service.create_subscription_with_payment_method") as provider:
+        response = client.post("/api/usuario/stripe-subscribe",
+            json={"plan": "pro", "payment_method_id": "pm_test"},
+            headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 403
+    assert response.json()["detail"]["code"] == "billing_email_required"
+    provider.assert_not_called()
     assert _stored_plan(factory, principal["id"]) == "starter"
 
 
@@ -422,13 +440,15 @@ def test_professional_keeps_separate_personal_profile(billing_case):
 
 
 def test_provider_error_is_redacted_from_public_response_and_logs(billing_case, caplog):
-    client, _, _ = billing_case
+    client, _, principal = billing_case
     sentinel = "synthetic-sensitive-provider-error-token-and-health-note"
-    with patch("web.services.stripe_service.create_subscription_with_payment_method",
-               side_effect=Exception(sentinel)):
+    with patch("web.routes.usuario._require_billing_email", new=AsyncMock(return_value=dict(principal))), \
+            patch("web.services.stripe_service.create_subscription_with_payment_method",
+               side_effect=Exception(sentinel)) as provider:
         response = client.post("/api/usuario/stripe-subscribe",
                                json={"plan": "pro", "payment_method_id": "pm_test"})
     assert response.status_code == 502
+    provider.assert_called_once()
     assert response.json()["detail"]["code"] == "payment_service_unavailable"
     assert response.json()["detail"]["request_id"]
     assert sentinel not in response.text

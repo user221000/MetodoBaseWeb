@@ -279,7 +279,8 @@ def historial_pagos(
 @router.post("/billing/webhook", include_in_schema=False)
 async def stripe_webhook(request: Request):
     """Recibe webhooks de Stripe. Verificación por firma, sin JWT."""
-    payload = await request.body()
+    from web.services.webhook_body import read_webhook_body
+    payload = await read_webhook_body(request)
     sig_header = request.headers.get("stripe-signature", "")
 
     try:

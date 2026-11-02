@@ -186,7 +186,8 @@ def reconcile_payment(db: Session, payment_id: str, sdk=None) -> str:
 
 async def handle_webhook(request: Request) -> dict:
     """Use a durable replay inbox; temporary provider/DB failures return HTTP 503."""
-    raw = await request.body()
+    from web.services.webhook_body import read_webhook_body
+    raw = await read_webhook_body(request)
     body, event_id = verify_notification(request, raw)
     if body.get("type") != "payment":
         return {"status": "ignored"}

@@ -9,7 +9,6 @@ Uso:
 """
 # BUILD MARKER: v7-20260401-2210
 import argparse
-import hashlib
 import inspect
 import logging
 import os
@@ -37,6 +36,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse, HTMLResponse
 from web.template_compat import template_response
+from web.static_assets import compute_static_version
 
 from web.middleware import (
     SecurityHeadersMiddleware,
@@ -204,15 +204,7 @@ def create_app() -> FastAPI:
     templates = Jinja2Templates(directory=str(_TMPL_DIR))
 
     # Cache-busting: hash of all static JS/CSS files so browsers reload on changes
-    def _compute_static_version() -> str:
-        h = hashlib.md5()
-        if _STATIC_DIR.exists():
-            for f in sorted(_STATIC_DIR.rglob("*")):
-                if f.is_file() and f.suffix in (".js", ".css"):
-                    h.update(f.read_bytes())
-        return h.hexdigest()[:10]
-
-    templates.env.globals["static_version"] = _compute_static_version()
+    templates.env.globals["static_version"] = compute_static_version(_STATIC_DIR)
 
     # Helper para obtener CSRF token en templates
     # Uso: {{ csrf_token(request) }} o en hidden input

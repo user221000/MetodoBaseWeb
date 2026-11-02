@@ -128,34 +128,9 @@ async def crear_sesion_stripe(
 
 @router.post("/pagos/stripe/webhook", include_in_schema=False)
 async def stripe_webhook(request: Request):
-    """
-    Recibe webhooks de Stripe para confirmar pagos.
-    
-    Delega a stripe_service.handle_webhook_event para:
-    - Verificación de firma
-    - Idempotencia (evita procesar eventos duplicados)
-    - Handlers completos de todos los eventos
-    """
-    from sqlalchemy.orm import Session as SQLASession
-    from web.database.engine import get_engine
-    from web.services.stripe_service import verify_webhook, handle_webhook_event
-    
-    payload = await request.body()
-    sig_header = request.headers.get("stripe-signature", "")
-    
-    # Verificar firma y construir evento
-    event = verify_webhook(payload, sig_header)
-    if not event:
-        raise HTTPException(status_code=400, detail="Firma de webhook inválida.")
-    
-    # Procesar con idempotencia
-    engine = get_engine()
-    with SQLASession(engine) as db:
-        result = handle_webhook_event(db, event)
-        db.commit()
-        logger.info("Webhook procesado: event_type=%s, result=%s", event["type"], result)
-    
-    return {"status": "ok", "result": result}
+    """Preserve the legacy URL with canonical raw-body, retry and inbox rules."""
+    from web.routes.billing import stripe_webhook as canonical_webhook
+    return await canonical_webhook(request)
 
 
 # ── MercadoPago endpoints ────────────────────────────────────────────────────

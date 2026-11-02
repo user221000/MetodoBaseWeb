@@ -75,12 +75,15 @@ def application_engine(url, engine):
 
 def legacy_snapshot():
     now = int(datetime.now(timezone.utc).timestamp())
-    return {'id': 'sub_legacy', 'status': 'active', 'customer': 'cus_legacy', 'metadata': {},
+    return {'id': 'sub_legacy', 'status': 'active', 'customer': 'cus_legacy', 'metadata': {}, 'livemode': False,
         'current_period_start': now - 86400, 'current_period_end': now + 29 * 86400,
         'items': {'data': [{'quantity': 1, 'price': {'currency': 'mxn', 'unit_amount': 7900,
             'recurring': {'interval': 'month', 'interval_count': 1}}}]},
-        'latest_invoice': {'paid': True, 'status': 'paid', 'currency': 'mxn', 'amount_paid': 7900,
-            'charge': {'id': 'ch_legacy', 'customer': 'cus_legacy', 'paid': True, 'captured': True,
+        'latest_invoice': {'id': 'in_legacy', 'object': 'invoice', 'livemode': False,
+            'subscription': 'sub_legacy', 'customer': 'cus_legacy', 'paid_out_of_band': False,
+            'paid': True, 'status': 'paid', 'currency': 'mxn', 'amount_paid': 7900,
+            'charge': {'id': 'ch_legacy', 'customer': 'cus_legacy', 'invoice': 'in_legacy',
+                'livemode': False, 'paid': True, 'captured': True,
                 'refunded': False, 'amount_refunded': 0, 'currency': 'mxn', 'amount': 7900}}}
 
 
@@ -106,7 +109,8 @@ def test_legacy_callbacks_without_purchase_intent_still_reconcile(migration_data
                 ('customer', 'legacy-a', 'legacy_subscription'), ('subscription', 'legacy-a', 'legacy_subscription')}
         with Session(engine) as db:
             assert db.query(UserSubscription).filter_by(user_id='legacy-a').one().planes_usados_mes == 3
-        with patch('stripe.Subscription.retrieve', return_value=snapshot), Session(app) as db:
+        with patch('stripe.Subscription.retrieve', return_value=snapshot), \
+                patch('stripe.Invoice.retrieve', return_value=snapshot['latest_invoice']), Session(app) as db:
             if callback == 'invoice':
                 _on_invoice_paid(db, {'id': 'in_legacy', 'customer': 'cus_legacy', 'currency': 'mxn', 'amount_paid': 7900})
             elif callback == 'refund':

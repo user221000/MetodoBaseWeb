@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Auditoría ampliada: pagos, webhooks y transporte — 2 de noviembre de 2026
+
+El usuario confirmó el acceso Google por correo después del hotfix productivo 6cdbc58. La segunda ola corrige `invoice.paid`, autoridad de factura/cargo actual y estado de historial de reembolso completo; limita cuerpos de seis superficies webhook sin cambiar bytes firmados; iguala caché de factories y evita guardar HTML de tres entradas de acceso. No hay migraciones, cambios de precios/cuotas o dependencias. [Detalle y límites](../20261102-webhooks-and-api-hardening.md).
+
+QA independiente cubre facturas/reembolso/ingreso de webhooks, contratos de caché en procesos aislados, PostgreSQL restringido y FORCE RLS. La matriz tiene 387 filas de dos factories (209 pares método/ruta distintos); 638 solicitudes negativas/de lectura no se atribuyen a aceptación funcional completa. Operación prepara ampliación aditiva de Stripe a 11 eventos con preflight y readback, sólo después de publicar el código. Los recibos nuevos vinculan la publicación y el resultado final. CI general, sandbox externo, contraparte contable de reembolsos parciales y recuperación histórica conservan pendientes explícitos; el informe final de auditoría los prioriza. Backlog global y fuentes locales ajenas conservados.
+
 ## Incidencia de códigos de acceso — 2 de noviembre de 2026
 
 Confirmado el recorrido «Continuar con Google»: un miembro JavaScript duplicado enviaba su código al endpoint privado de seguridad. Se separa el comando público y se admiten los dos POST de seguridad que faltaban en el transporte de navegador, conservando los límites de identidad/origen/propósito/MFA. QA reprodujo el defecto contra HTTPS/Redis reales y el candidato pasó negocio sin MFA y personal con TOTP obligatorio; seguridad independiente obtuvo 90 pruebas focales PASS. Se corrigen además tres registros API duplicados y la documentación de los DTO existentes de compra. Un job CI independiente ejecuta el contrato de transporte con JavaScript real.

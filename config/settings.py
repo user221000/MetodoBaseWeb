@@ -125,6 +125,14 @@ class Settings:
         self.STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")
         self.STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")
         self.STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+        # Webhook raw bytes are bounded before signature verification. Keep a
+        # conservative default and an explicit, bounded operator override.
+        try:
+            self.WEBHOOK_MAX_BODY_BYTES = int(os.getenv("WEBHOOK_MAX_BODY_BYTES", str(2 * 1024 * 1024)))
+        except ValueError:
+            raise RuntimeError("WEBHOOK_MAX_BODY_BYTES debe ser un entero en bytes") from None
+        if not 64 * 1024 <= self.WEBHOOK_MAX_BODY_BYTES <= 8 * 1024 * 1024:
+            raise RuntimeError("WEBHOOK_MAX_BODY_BYTES debe estar entre 65536 y 8388608 bytes")
         # ── Stripe Payment Links (pre-built Stripe checkout pages) ────────
         self.STRIPE_PAYMENT_LINK_STANDARD: str = self._first_env(
             "STRIPE_PAYMENT_LINK_STANDARD",

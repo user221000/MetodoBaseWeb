@@ -27,6 +27,13 @@ templates.env.globals["csrf_token"] = _csrf_token_fn
 router = APIRouter(include_in_schema=False)
 
 
+def _auth_entry_response(request: Request, name: str, context: dict):
+    """Reload access pages and their current asset URLs after a release."""
+    response = template_response(templates, request, name, context)
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 @router.get("/favicon.ico")
 async def favicon():
     return RedirectResponse("/static/img/metodobase-logo-a97be89e1875.png", status_code=307)
@@ -52,8 +59,7 @@ async def index(request: Request):
 async def login_gym_page(request: Request):
     from config.settings import Settings
     _s = Settings()
-    return template_response(
-        templates,
+    return _auth_entry_response(
         request,
         "login_gym.html",
         {"request": request, "google_client_id": _s.GOOGLE_CLIENT_ID},
@@ -64,8 +70,7 @@ async def login_gym_page(request: Request):
 async def login_usuario_page(request: Request):
     from config.settings import Settings
     _s = Settings()
-    return template_response(
-        templates,
+    return _auth_entry_response(
         request,
         "login_usuario.html",
         {"request": request, "google_client_id": _s.GOOGLE_CLIENT_ID},
@@ -75,7 +80,7 @@ async def login_usuario_page(request: Request):
 @router.get("/registro", response_class=HTMLResponse)
 async def registro_page(request: Request):
     from config.settings import Settings
-    return template_response(templates, request, "registro.html", {
+    return _auth_entry_response(request, "registro.html", {
         "request": request, "google_client_id": Settings().GOOGLE_CLIENT_ID,
     })
 
