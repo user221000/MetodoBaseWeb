@@ -149,9 +149,29 @@
           "old": "explicit_72_current41_2_operator37_and_1_native35_control_fixture_contracts",
           "new": "explicit_73_current41_2_operator37_and_1_native35_control_fixture_contracts",
           "count": 1
+        },
+        {
+          "old": "from tests.ci_web41 import native35_control_fixtures",
+          "new": "from tests.ci_web39 import native35_control_fixtures",
+          "count": 1
+        },
+        {
+          "old": "tests/ci_web41/native35_control_fixtures.py",
+          "new": "tests/ci_web39/native35_control_fixtures.py",
+          "count": 1
+        },
+        {
+          "old": "tests.ci_web41.native35_control_fixtures",
+          "new": "tests.ci_web39.native35_control_fixtures",
+          "count": 2
+        },
+        {
+          "old": "    if relative in specification()[\"modules\"]:\n        return Current41Module.from_parent(parent, path=module_path)\n",
+          "new": "    if relative in {\"tests/test_current37_native_original22.py\", \"tests/test_ci_web37_native22_frames.py\",\n                    \"tests/test_ci_web37_replay_frames.py\"}:\n        from tests.ci_web41.native22_oracle import consumer_module\n        return consumer_module(module_path, parent)\n    if relative in specification()[\"modules\"]:\n        return Current41Module.from_parent(parent, path=module_path)\n",
+          "count": 1
         }
       ],
-      "current_sha256_LF": "d74955df9fc0561068b0dae3447c7a78ee7ec65fc97b6ae4b306664866e782a9"
+      "current_sha256_LF": "63802264bf07dd9d495362c94bc1a4d1f241301efdd3adcdc4a07017e8b56498"
     },
     "tests/ci_web41/pg_admission.py": {
       "original": "tests/ci_web39/pg_admission.py",

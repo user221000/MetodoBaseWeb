@@ -924,7 +924,14 @@ jobs:
     - name: Fresh current41 test cluster and separate core/restore source-bound authorizations
       run: |
         install -d -m 700 "$RUNNER_TEMP/current41-pg-launch-private"
-        python -B -X utf8 -m tests.ci_web41.ci_cluster start > "$RUNNER_TEMP/current41-pg-launch-private/start.private.log" 2>&1
+        umask 077
+        if python -B -X utf8 -m tests.ci_web41.ci_cluster start > "$RUNNER_TEMP/current41-pg-launch-private/start.private.log" 2>&1; then
+          :
+        else
+          bootstrap_status=$?
+          python -B -X utf8 tests/ci_diagnostics41.py --repository "$GITHUB_WORKSPACE" --source "$GITHUB_SHA" --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/current41-pg-launch-private/start.private.log" --phase pg_bootstrap || true
+          exit "$bootstrap_status"
+        fi
     - name: Actual41 restricted role, isolation, MFA closure, deletes and facts; four exact cases
       run: python -B -X utf8 tests/ci_web41/run_postgres.py --phase core --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-core.private.json" --private "$RUNNER_TEMP/current41-pg-core-private" --output "$RUNNER_TEMP/current41-pg-public/core"
     - name: Actual41 encrypted restore and live suppression; original case and two sequential UUIDs
@@ -1013,6 +1020,21 @@ jobs:
           /usr/lib/postgresql/17/bin/pg_dump --version
           /usr/lib/postgresql/17/bin/pg_restore --version
         ) > "$RUNNER_TEMP/ci37-pg-apt-private/install.private.log" 2>&1
+    - name: Authenticate the event object and current diagnostics without moving historical37 HEAD
+      run: |
+        test "$(git --no-replace-objects rev-parse HEAD)" = 878082b242cdfa23e1e4c134f675c12b535a2cd7
+        set -euo pipefail
+        event_sha="${GITHUB_SHA:?missing event SHA}"
+        [[ "$event_sha" =~ ^[0-9a-f]{40}$ ]]
+        checkout_head=$(git --no-replace-objects rev-parse --verify HEAD)
+        git --no-replace-objects cat-file -e "${event_sha}^{commit}" 2>/dev/null || git --no-replace-objects fetch --no-tags --no-recurse-submodules --no-auto-gc origin "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify "${event_sha}^{commit}")" = "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify HEAD)" = "$checkout_head"
+        unset event_sha checkout_head
+        umask 077
+        install -d -m 700 "$RUNNER_TEMP/ci37-diagnostics-private"
+        git --no-replace-objects show "$GITHUB_SHA:tests/ci_diagnostics41.py" > "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py"
+        test "$(git --no-replace-objects hash-object --no-filters "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py")" = "$(git --no-replace-objects rev-parse --verify "$GITHUB_SHA:tests/ci_diagnostics41.py")"
     - name: CI-only fresh loopback cluster and separately source-bound429/53/27 authorizations
       env:
         TEMP: ${{ runner.temp }}
@@ -1020,7 +1042,8 @@ jobs:
         TMPDIR: ${{ runner.temp }}
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci37-pg-launch-private"
-        python -B -X utf8 - > "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" 2>&1 <<'PY'
+        umask 077
+        if python -B -X utf8 - > "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" 2>&1 <<'PY'
         import hashlib,json,os,re,secrets,socket,subprocess
         from datetime import UTC,datetime,timedelta
         from pathlib import Path
@@ -1098,6 +1121,14 @@ jobs:
         assert source_photo()==source
         print(json.dumps({'scope':'fresh_ephemeral_GitHub_Actions_TEST_cluster_only','profile_and_three_source_bound_ACKs_ready':True,'port':55483,'planned_UUIDs':71,'required_identities':509,'max_concurrent_UUIDs':2}))
         PY
+        then
+          :
+        else
+          bootstrap_status=$?
+          python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py" --repository "$GITHUB_WORKSPACE" --source 878082b242cdfa23e1e4c134f675c12b535a2cd7 --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" --phase pg_bootstrap || true
+          exit "$bootstrap_status"
+        fi
+
         printf '%s\n' '{"ci37_pg_bootstrap_ready":true}'
     - name: Actual37 complete429 business and physical gates;69 UUID budget including restore
       run: python -B -X utf8 tests/ci_web37/run_postgres.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack429.private.json" --private "$RUNNER_TEMP/ci37-pg429-private" --output "$RUNNER_TEMP/ci37-pg-public/429"
@@ -1236,6 +1267,14 @@ jobs:
     - name: Require the authenticated33 ancestor; never count it as the current image
       run: |
         test "$(git --no-replace-objects rev-parse HEAD)" = c86d1a25fcd0b0befcb4b473c4144917122109fb
+        set -euo pipefail
+        event_sha="${GITHUB_SHA:?missing event SHA}"
+        [[ "$event_sha" =~ ^[0-9a-f]{40}$ ]]
+        checkout_head=$(git --no-replace-objects rev-parse --verify HEAD)
+        git --no-replace-objects cat-file -e "${event_sha}^{commit}" 2>/dev/null || git --no-replace-objects fetch --no-tags --no-recurse-submodules --no-auto-gc origin "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify "${event_sha}^{commit}")" = "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify HEAD)" = "$checkout_head"
+        unset event_sha checkout_head
         git --no-replace-objects merge-base --is-ancestor HEAD "$GITHUB_SHA"
     - uses: actions/setup-python@v5
       with:

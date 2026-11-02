@@ -13,7 +13,7 @@ import stat
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOGUE = "tests/ci_web41/source-companions.json"
-CATALOGUE_SHA256 = "69dd0715310575a544348bccd8bfd35e53f5b55f424050db9471f3407d9658b6"
+CATALOGUE_SHA256 = "087e8aa8e74fc5895af0ce5a1c77acff5658535fad8aaf0ae83f27a34938aaaa"
 
 
 def digest(raw):

@@ -4,6 +4,7 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tests.ci_image57.run import main
+from tests.ci_diagnostics41 import emit_image_failure
 
 if __name__=='__main__':
     try:
@@ -11,6 +12,7 @@ if __name__=='__main__':
             from tests.ci_image57.check_report import main as check_main
             raise SystemExit(check_main(sys.argv[2:]))
         raise SystemExit(main())
-    except (OSError,ValueError,KeyError,TypeError,AssertionError):
+    except (OSError,ValueError,KeyError,TypeError,AssertionError) as failure:
+        emit_image_failure(failure, ROOT, sys.argv[1:])
         print('Current57 gate rejected; private evidence retained; no automatic retry.',file=sys.stderr)
         raise SystemExit(1)
