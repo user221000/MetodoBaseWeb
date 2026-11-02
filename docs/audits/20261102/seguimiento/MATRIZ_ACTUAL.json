@@ -1,0 +1,76 @@
+{
+  "at_UTC": "2026-11-02T10:05:43.632262+00:00",
+  "original_guide_physical_sha256": "696ef8c7f931ea438cbfafee51a16d5986db81c79dff9a8d8b670ee962c20aa6",
+  "repository_guide_physical_sha256": "696ef8c7f931ea438cbfafee51a16d5986db81c79dff9a8d8b670ee962c20aa6",
+  "repository_guide_canonical_LF_sha256": "1f5ab09684da0fd35614169797c5d1f052833ade988e5cbb162bf763bba8ed8b",
+  "report_sha256": "c426937623f8dfc1abad7d536e143b1309c13e9f36082df4de91542cf3d098ee",
+  "items": [
+    {
+      "id": "PEND-01",
+      "priority": "P0",
+      "state_and_impact": "Sandbox identificado por el usuario; todavía sin acceso autenticado de pruebas para esta ejecución. No hubo cargos ni ciclo real.",
+      "owner_and_next_action": "Dueño de pagos/QA: conectar Stripe al sandbox o custodiar sus claves test fuera del chat; comprobar modo/cuenta antes de compra/3DS, renovación, fallo, cancelación, devolución, webhooks y derechos. La integración sugerida aún no se acredita conectada."
+    },
+    {
+      "id": "PEND-02",
+      "priority": "P0 condicionado",
+      "state_and_impact": "El corte anterior retenido tenía0 eventos/0 facturas ignoradas; no demuestra historia completa. No se detectó aquí un afectado que autorice reparar cuentas.",
+      "owner_and_next_action": "Operación/datos: ante una diferencia concreta, diagnóstico limitado y dry-run proveedor/pago/acceso; no replay ciego ni invención de ledger."
+    },
+    {
+      "id": "PEND-04",
+      "priority": "P1",
+      "state_and_impact": "Política aceptada e implementación verificada localmente, incluida concurrencia, reintentos, cuota y renovación. Aún no publicada ni aceptada mediante sandbox real.",
+      "owner_and_next_action": "Backend/QA/operación: cerrar PEND-01, controles de publicación y migración revisada; verificar después runtime y recorrido de pago."
+    },
+    {
+      "id": "PEND-05",
+      "priority": "P1",
+      "state_and_impact": "Mercado Pago sigue sin token/secreto; la UI deshabilitada coincide con esa disponibilidad.",
+      "owner_and_next_action": "Dueño de pagos/operación: mantener cerrado hasta configuración separada y ciclo sandbox/firma/consulta autoritativa."
+    },
+    {
+      "id": "PEND-06",
+      "priority": "P1",
+      "state_and_impact": "Controles estáticos y274 controles integrados aceptados localmente, con fuentes/fixtures/oráculos vigentes y rechazos anteriores preservados. El escaneo físico estable rechazó1274 registros en28 archivos históricos por CRLF/LF; sus blobs Git y1274 coordenadas se cotejaron contra V9 sin ampliar el clasificador. CI completo, escaneo Git final, imagen/SBOM/SCA y publicación pendientes.",
+      "owner_and_next_action": "CI/arquitectura/seguridad: escanear el payload Git final exacto y ejecutar el workflow del commit, revisar fallos sin omitir gates, construir imagen y verificar entrada/revisión reales. No anunciar CI global verde con resultados parciales."
+    },
+    {
+      "id": "PEND-07",
+      "priority": "P1",
+      "state_and_impact": "Siete pantallas trazadas y recorridos financieros focales probados. Faltan permisos/éxito/fallo/persistencia de todas las funciones ofrecidas.",
+      "owner_and_next_action": "Responsables de dominio/QA: completar matriz por actor válido y A/B para clientes, generación→historial→PDF, equipo, vínculos, privacidad, notificaciones, rutinas y analítica."
+    },
+    {
+      "id": "PEND-08",
+      "priority": "P1",
+      "state_and_impact": "Copia cifrada actual de las 08:53:39 UTC y restauración local v4 aceptadas: 44 tablas/274 filas y tres objetos con hashes exactos; upgrade40→41 conserva cuotas, privacidad y hechos previos. Ensayo local de 104.172 s con fsync/synchronous_commit activados, sin promesa RPO/RTO; base y servidor propios cerrados normalmente. El rechazo v3 por captura PIPE permanece separado y se corrigió su atribución al arranque. PITR desactivado y cero calendarios de snapshots observados.",
+      "owner_and_next_action": "Operación/negocio: acordar RPO/RTO, agenda, retención, custodia externa y alertas; preservar respaldo y clave separados y ejercitar recuperación periódica. El ensayo local actual ya está verificado. No prometer una pérdida o tiempo máximos sin acuerdo."
+    },
+    {
+      "id": "PEND-09",
+      "priority": "P1",
+      "state_and_impact": "Cuarenta referencias históricas siguen sin bytes recuperados; no se presentan como archivos restaurados.",
+      "owner_and_next_action": "Datos/custodia/soporte: localizar copias verificables o registrar pérdida, afectados, tratamiento y responsable."
+    },
+    {
+      "id": "PEND-10",
+      "priority": "P1",
+      "state_and_impact": "Resend conserva clave de envío; consultas administrativas 401 restricted_api_key. La recepción diagnóstica histórica en Spam y el acceso Google confirmado mantienen sus evidencias distintas.",
+      "owner_and_next_action": "Correo/operación: habilitar un canal administrativo separado o webhook de entrega/rebote/queja firmado y alertas sin guardar OTP; no ampliar la clave runtime por defecto."
+    },
+    {
+      "id": "PEND-11",
+      "priority": "P1 antes de campaña",
+      "state_and_impact": "ACL sin grants públicos, políticaIsPublic=false; objeto actual autenticado200/anónimo403. Una sonda diagnóstica del proveedor con URL firmada 10 s dio 200 inicial/403 a 15.562 s; no es una nueva función de entrega de la app.",
+      "owner_and_next_action": "Seguridad/operación/negocio: completar denegación entre tenants, muestra ampliada, custodia, carga representativa y objetivos/alertas/soporte. Dos APIs de políticas no soportadas por el proveedor 501 no equivalen a certificación AWS."
+    },
+    {
+      "id": "PEND-12",
+      "priority": "P2",
+      "state_and_impact": "Historial de pagos con DTO común y GET personal documentado en ambas factories. Persisten diferencias intencionales y parsers manuales con metadatos incompletos.",
+      "owner_and_next_action": "Arquitectura/backend/frontend: clasificar cada diferencia y documentar payload, error, propósito y acceso. Una mutación sin body documentado puede no llevar payload o usar parser acotado; el inventario no la declara vulnerable por ese solo dato."
+    }
+  ],
+  "scope": "Evidence-specific audit follow-through; candidate code and remaining commercial/provider/operational acceptance stay distinct."
+}

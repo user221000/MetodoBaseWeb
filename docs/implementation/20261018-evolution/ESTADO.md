@@ -1,5 +1,13 @@
 # Estado de implementación
 
+## Seguimiento de Auditoría y faltantes — candidato del 2 de noviembre de 2026
+
+Se ejecutan las seis responsabilidades mediante agentes reales, guiados por la auditoría original y con autoría/revisión separadas. El candidato sobre `fc7950ec` implementa la política aprobada de devoluciones parciales hasta el fin ya pagado, observaciones monetarias opcionales con migración41, historial personal y de negocio compartido, protección de cambios de sesión y rollback ante evidencia Stripe contradictoria. Conserva la contratación sin un factor adicional de cuenta, precios, cuotas y disponibilidad cerrada de Mercado Pago.
+
+Verificación focal: autor55, seguridad independiente34, PostgreSQL final5 con RLS/HTTP firmado/reintentos/dos backends y cierre normal, navegador independiente22 y cápsula Root24 en cuatro anchos (conjuntos solapados). Inventario389 registros efectivos/210 pares método-ruta sin duplicados. Se renuevan controles finitos de fuente/Node/esquema/secretos con canarios y revisión cruzada; calidad estática local pasa, sin atribuir todavía CI global o imagen Linux.
+
+La copia cifrada nueva y su ensayo de recuperación tienen recibos operativos separados. La publicación y DDL productivo de este candidato no se han ejecutado; el runtime observado continúa en `fc7950ec`/esquema40. Sandbox Stripe identificado por el usuario aún requiere acceso autenticado. [Informe actualizado, matriz y faltantes](../../audits/20261102/SEGUIMIENTO_Y_FALTANTES.md), [contratos](../20261102-audit-followthrough/DECISIONES.md) y [recuperación](../20261102-audit-followthrough/RECUPERACION.md). Las715 fuentes originales del worktree activo, HEAD y167 requisitos del backlog se preservan; los RAW y estados históricos siguientes conservan su corte.
+
 ## Contratación Stripe sin activar un factor de cuenta — 2 de noviembre de 2026
 
 Por petición del usuario, los dueños de gimnasio o clínica contratan y gestionan su plan en Stripe sin configurar antes un autenticador o confirmar otro factor de Método Base, igual que el espacio individual. Se incluyen Checkout, Elements, confirmación, portal y el alias API; elegir otro plan existente usa el portal. Se conserva la autoridad de dueño/sesión vigente, correo de contacto, idempotencia y confirmación del proveedor, así como MFA de acceso/seguridad/equipo y Mercado Pago. [Alcance y validación](../20261102-stripe-purchase-without-account-factor.md).

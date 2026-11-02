@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from web.auth_deps import get_usuario_actual
+from web.billing_schemas import PaymentHistoryResponse
 from web.database.engine import get_db
 from web.database.models import Cliente, PlanGenerado, UserSubscription, Subscription
 from web.profile_schemas import NutritionProfileUpdate
@@ -512,6 +513,17 @@ async def get_suscripcion(
 
 
 # ── POST /api/usuario/suscripcion ────────────────────────────────────────
+
+@router.get("/usuario/payments", summary="Historial personal de pagos", response_model=PaymentHistoryResponse)
+def get_personal_payments(
+    usuario=Depends(get_usuario_actual),
+    db: Session = Depends(get_db),
+    limit: int = Query(20, ge=1, le=100),
+):
+    """Read only the current actor's own payments, including a team member's Pro."""
+    _require_usuario(usuario)
+    from web.services.stripe_service import get_payment_history
+    return {"payments": get_payment_history(db, usuario["id"], limit)}
 
 class CambioPlan(BaseModel):
     plan: str

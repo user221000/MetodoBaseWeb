@@ -1313,6 +1313,7 @@ const Api = (() => {
       return planes._abrir(`/api/usuario/descargar-pdf?plan_id=${planId}`, popup);
     },
     suscripcion:    () => request('GET', '/api/usuario/suscripcion'),
+    payments:       (context) => _personalRequest('GET', '/api/usuario/payments', null, {}, context),
     cambiarPlan:    (plan) => request('POST', '/api/usuario/suscripcion', { plan }),
     billingConfig:  () => request('GET', '/api/usuario/billing-config'),
     checkout: (key) => _billingProtected('personal_stripe_checkout','pro','POST', '/api/usuario/checkout', {

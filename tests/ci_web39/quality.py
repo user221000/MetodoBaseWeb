@@ -20,8 +20,8 @@ from tests.ci_web37 import git_recipe
 from tests.ci_web37.quality import OPERATIONAL, RUNTIME
 
 REVIEW_CONTEXT = "current39-child2-signed-APT-exact-OS-CA-and-static-SQL-only"
-PROPOSAL = "tests/ci_web39/bandit26-current-proposal.json"
-APPROVAL = "tests/ci_web39/bandit26-current-approval.json"
+PROPOSAL = "tests/ci_web39/bandit26-current40-proposal.json"
+APPROVAL = "tests/ci_web39/bandit26-current40-approval.json"
 BASELINE_SHA256 = "14cfe86f9fbff144c0b887ba2b72db7af656a1b88dc09e2e10ce61229bc83996"
 BASELINE_BLOB = "8f322ee7fd970239f6a6c8f58a9b5faa1e2d538c"
 
@@ -51,8 +51,9 @@ def native_source_inputs(root):
     payloads = {name: authority.regular_file(root / name).read_bytes()
                 for name in manifest["candidate_files"]}
     parent, transition = context.native_parent_payloads(payloads)
-    if transition is None or transition != context.native_transition():
-        raise ValueError("Quality39 requires the exact current source child2")
+    from tests.ci_image57 import production_child
+    if transition != production_child.transition(context.native_transition()):
+        raise ValueError("Current quality requires the exact published production source child")
     proof = git_recipe.load()
     if len(proof.objects) != 21:
         raise ValueError("The original native21 proof differs")
@@ -79,7 +80,7 @@ def native_source_inputs(root):
 
 
 def classify(report, root, *, bandit_version, today=None):
-    """Keep the six original baseline entries and require a new current review."""
+    """Keep the historical baseline and retire only its removed static MD5."""
     if type(report) is not dict or report.get("errors") != [] or type(report.get("results")) is not list:
         raise ValueError("Bandit returned malformed results or analysis errors")
     today = datetime.now(UTC).date() if today is None else today
@@ -92,11 +93,15 @@ def classify(report, root, *, bandit_version, today=None):
     baseline = context.json_object(lf)
     approved = Counter(item["fingerprint"] for item in baseline["exceptions"]
                        if item["expires"] >= today.isoformat())
+    retired = "web/main_web.py:B324:6a3630fbfe01c7e5594bfc39ad6ceed9a089da8a2677f9c65f7ffa42b270632e"
+    if approved[retired] != 1 or sum(approved.values()) != 6:
+        raise ValueError("The exact historical six-entry baseline differs")
+    del approved[retired]
     observed = Counter(fingerprint(finding) for finding in report["results"]
                        if fingerprint(finding) in approved)
     new = [finding for finding in report["results"] if fingerprint(finding) not in approved]
-    if sum(approved.values()) != 6 or observed != approved:
-        raise ValueError("Exactly the six original baseline occurrences and multiplicities are required")
+    if sum(approved.values()) != 5 or observed != approved:
+        raise ValueError("Exactly five remaining historical occurrences and multiplicities are required")
     native = native_source_inputs(root)
     from tests.ci_web39.bandit_review import apply_review
 
@@ -105,6 +110,7 @@ def classify(report, root, *, bandit_version, today=None):
     matched = apply_review({"errors": [], "results": new}, root, proposal, approval,
                            context=REVIEW_CONTEXT, bandit_version=bandit_version, today=today)
     return {"native_source_inputs": native, "baseline_occurrences": len(report["results"]) - len(new),
+            "retired_baseline_fingerprints": [retired],
             "finite_current_review": matched, "new_occurrences": len(new)}
 
 

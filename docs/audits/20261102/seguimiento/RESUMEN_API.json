@@ -1,0 +1,642 @@
+{
+  "guide": "../AUDITORIA_Y_FALTANTES.md",
+  "base_commit": "fc7950ec341371b4354cba30ffd6c9a9860336fd",
+  "source_inventory_sha256": "6acb7ca0e05631e138c191f633ed8b368bd67f32e34d7b7d2fe30be0a2808f85",
+  "versions": {
+    "fastapi": "0.146.0",
+    "pydantic": "2.14.1",
+    "sqlalchemy": "2.1.5",
+    "redis": "5.3.1",
+    "stripe": "11.6.0",
+    "mercadopago": "3.6.0"
+  },
+  "effective_operation_records": 389,
+  "unique_method_paths": 210,
+  "lifespans_started": false,
+  "endpoint_requests_executed": 0,
+  "external_sockets_blocked": true,
+  "factories": {
+    "api": {
+      "path_count": 125,
+      "openapi_operation_count": 138,
+      "effective_operation_count": 185,
+      "duplicate_operations": [],
+      "mutation_operations_without_documented_body": [
+        {
+          "method": "POST",
+          "path": "/api/account/privacy/requests",
+          "endpoint": "web.routes.account_privacy.request_disposition"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/privacy/requests/{request_id}/close-account",
+          "endpoint": "web.routes.account_privacy.close_account"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/security/email/confirm",
+          "endpoint": "web.routes.account_security.confirm_email"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/security/email/request",
+          "endpoint": "web.routes.account_security.request_email"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/security/password",
+          "endpoint": "web.routes.account_security.change_password"
+        },
+        {
+          "method": "POST",
+          "path": "/api/analytics/procedencia",
+          "endpoint": "web.routes.product_analytics_v2.declare_origin"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/browser/logout",
+          "endpoint": "web.routes.auth.logout_browser_session"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/browser/migrate",
+          "endpoint": "web.routes.auth.migrate_browser_session"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google",
+          "endpoint": "web.routes.auth.google_login"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/link/confirm",
+          "endpoint": "web.routes.google_link.confirm"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/link/start",
+          "endpoint": "web.routes.google_link.start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/link/unlink",
+          "endpoint": "web.routes.google_link.unlink"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/verify-email",
+          "endpoint": "web.routes.auth.google_verify_email"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/logout",
+          "endpoint": "web.routes.auth.logout"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/enroll",
+          "endpoint": "web.routes.mfa.enroll"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/enroll/confirm",
+          "endpoint": "web.routes.mfa.confirm"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/google-email/request",
+          "endpoint": "web.routes.mfa.google_email_reauthentication"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/google-email/verify",
+          "endpoint": "web.routes.mfa.google_email_reauthentication_verify"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/login/verify",
+          "endpoint": "web.routes.mfa.login_verify"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/reauth",
+          "endpoint": "web.routes.mfa.reauth"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/recovery-codes/regenerate",
+          "endpoint": "web.routes.mfa.regenerate"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/revoke",
+          "endpoint": "web.routes.mfa.revoke"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/step-up",
+          "endpoint": "web.routes.mfa.step_up"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/password-reset/confirm",
+          "endpoint": "web.routes.password_recovery.confirm_reset"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/password-reset/request",
+          "endpoint": "web.routes.password_recovery.request_reset"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/progress-retirement/metadata",
+          "endpoint": "web.routes.progress_retirement.metadata"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/progress-retirement/withdraw",
+          "endpoint": "web.routes.progress_retirement.withdraw"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/refresh",
+          "endpoint": "web.routes.auth.refresh_token"
+        },
+        {
+          "method": "POST",
+          "path": "/api/clientes/{client_id}/vinculacion/invitaciones",
+          "endpoint": "web.routes.client_links.issue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/clientes/{client_id}/vinculacion/invitaciones/{invitation_id}/reenviar",
+          "endpoint": "web.routes.client_links.resend"
+        },
+        {
+          "method": "POST",
+          "path": "/api/clientes/{client_id}/vinculacion/{link_id}/publicaciones",
+          "endpoint": "web.routes.client_links.publish"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/excluir",
+          "endpoint": "web.routes.notifications.exclude"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/observar",
+          "endpoint": "web.routes.notifications.observe"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/outbox",
+          "endpoint": "web.routes.notifications.queue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/outbox/{identifier}/cancelar",
+          "endpoint": "web.routes.notifications.cancel"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/notificaciones/preferencias/{purpose}",
+          "endpoint": "web.routes.notifications.preference"
+        },
+        {
+          "method": "POST",
+          "path": "/api/seguimiento/tareas",
+          "endpoint": "web.routes.followup_tasks.create"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/seguimiento/tareas/{task_id}",
+          "endpoint": "web.routes.followup_tasks.edit"
+        },
+        {
+          "method": "POST",
+          "path": "/api/seguimiento/tareas/{task_id}/cancelar",
+          "endpoint": "web.routes.followup_tasks.cancel"
+        },
+        {
+          "method": "POST",
+          "path": "/api/seguimiento/tareas/{task_id}/completar",
+          "endpoint": "web.routes.followup_tasks.complete"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/usuario/progreso/mediciones/{record_key}",
+          "endpoint": "web.routes.personal_progress.put_measurement"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/progreso/mediciones/{record_key}/retirar",
+          "endpoint": "web.routes.personal_progress.remove_measurement"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/vinculaciones/aceptar",
+          "endpoint": "web.routes.client_links.accept"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/vinculaciones/invitacion",
+          "endpoint": "web.routes.client_links.info"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/usuario/vinculos/{link_id}/progreso/consentimiento",
+          "endpoint": "web.routes.personal_progress.put_consent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/vinculos/{link_id}/progreso/consentimiento/retirar",
+          "endpoint": "web.routes.personal_progress.remove_consent"
+        }
+      ]
+    },
+    "web": {
+      "path_count": 143,
+      "openapi_operation_count": 159,
+      "effective_operation_count": 204,
+      "duplicate_operations": [],
+      "mutation_operations_without_documented_body": [
+        {
+          "method": "POST",
+          "path": "/api/account/privacy/requests",
+          "endpoint": "web.routes.account_privacy.request_disposition"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/privacy/requests/{request_id}/close-account",
+          "endpoint": "web.routes.account_privacy.close_account"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/security/email/confirm",
+          "endpoint": "web.routes.account_security.confirm_email"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/security/email/request",
+          "endpoint": "web.routes.account_security.request_email"
+        },
+        {
+          "method": "POST",
+          "path": "/api/account/security/password",
+          "endpoint": "web.routes.account_security.change_password"
+        },
+        {
+          "method": "POST",
+          "path": "/api/analytics/procedencia",
+          "endpoint": "web.routes.product_analytics_v2.declare_origin"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/browser/logout",
+          "endpoint": "web.routes.auth.logout_browser_session"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/browser/migrate",
+          "endpoint": "web.routes.auth.migrate_browser_session"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google",
+          "endpoint": "web.routes.auth.google_login"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/link/confirm",
+          "endpoint": "web.routes.google_link.confirm"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/link/start",
+          "endpoint": "web.routes.google_link.start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/link/unlink",
+          "endpoint": "web.routes.google_link.unlink"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/google/verify-email",
+          "endpoint": "web.routes.auth.google_verify_email"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/logout",
+          "endpoint": "web.routes.auth.logout"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/enroll",
+          "endpoint": "web.routes.mfa.enroll"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/enroll/confirm",
+          "endpoint": "web.routes.mfa.confirm"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/google-email/request",
+          "endpoint": "web.routes.mfa.google_email_reauthentication"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/google-email/verify",
+          "endpoint": "web.routes.mfa.google_email_reauthentication_verify"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/login/verify",
+          "endpoint": "web.routes.mfa.login_verify"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/reauth",
+          "endpoint": "web.routes.mfa.reauth"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/recovery-codes/regenerate",
+          "endpoint": "web.routes.mfa.regenerate"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/revoke",
+          "endpoint": "web.routes.mfa.revoke"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/mfa/step-up",
+          "endpoint": "web.routes.mfa.step_up"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/password-reset/confirm",
+          "endpoint": "web.routes.password_recovery.confirm_reset"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/password-reset/request",
+          "endpoint": "web.routes.password_recovery.request_reset"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/progress-retirement/metadata",
+          "endpoint": "web.routes.progress_retirement.metadata"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/progress-retirement/withdraw",
+          "endpoint": "web.routes.progress_retirement.withdraw"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/refresh",
+          "endpoint": "web.routes.auth.refresh_token"
+        },
+        {
+          "method": "POST",
+          "path": "/api/clientes/{client_id}/vinculacion/invitaciones",
+          "endpoint": "web.routes.client_links.issue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/clientes/{client_id}/vinculacion/invitaciones/{invitation_id}/reenviar",
+          "endpoint": "web.routes.client_links.resend"
+        },
+        {
+          "method": "POST",
+          "path": "/api/clientes/{client_id}/vinculacion/{link_id}/publicaciones",
+          "endpoint": "web.routes.client_links.publish"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gym/team/{user_id}/resend-invite",
+          "endpoint": "web.routes.team.resend_invitation"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/excluir",
+          "endpoint": "web.routes.notifications.exclude"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/observar",
+          "endpoint": "web.routes.notifications.observe"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/outbox",
+          "endpoint": "web.routes.notifications.queue"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notificaciones/outbox/{identifier}/cancelar",
+          "endpoint": "web.routes.notifications.cancel"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/notificaciones/preferencias/{purpose}",
+          "endpoint": "web.routes.notifications.preference"
+        },
+        {
+          "method": "POST",
+          "path": "/api/seguimiento/tareas",
+          "endpoint": "web.routes.followup_tasks.create"
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/seguimiento/tareas/{task_id}",
+          "endpoint": "web.routes.followup_tasks.edit"
+        },
+        {
+          "method": "POST",
+          "path": "/api/seguimiento/tareas/{task_id}/cancelar",
+          "endpoint": "web.routes.followup_tasks.cancel"
+        },
+        {
+          "method": "POST",
+          "path": "/api/seguimiento/tareas/{task_id}/completar",
+          "endpoint": "web.routes.followup_tasks.complete"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/generar-plan",
+          "endpoint": "web.routes.usuario.generar_plan_usuario"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/usuario/progreso/mediciones/{record_key}",
+          "endpoint": "web.routes.personal_progress.put_measurement"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/progreso/mediciones/{record_key}/retirar",
+          "endpoint": "web.routes.personal_progress.remove_measurement"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/vinculaciones/aceptar",
+          "endpoint": "web.routes.client_links.accept"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/vinculaciones/invitacion",
+          "endpoint": "web.routes.client_links.info"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/usuario/vinculos/{link_id}/progreso/consentimiento",
+          "endpoint": "web.routes.personal_progress.put_consent"
+        },
+        {
+          "method": "POST",
+          "path": "/api/usuario/vinculos/{link_id}/progreso/consentimiento/retirar",
+          "endpoint": "web.routes.personal_progress.remove_consent"
+        }
+      ]
+    }
+  },
+  "factory_differences": {
+    "api_only": [
+      [
+        "GET",
+        "/api/licencias/estado/{hardware_id}"
+      ],
+      [
+        "POST",
+        "/api/licencias/activar"
+      ],
+      [
+        "POST",
+        "/api/pagos/mp/preference"
+      ],
+      [
+        "POST",
+        "/api/pagos/mp/webhook"
+      ],
+      [
+        "POST",
+        "/api/pagos/stripe/session"
+      ],
+      [
+        "POST",
+        "/api/pagos/stripe/webhook"
+      ]
+    ],
+    "web_only": [
+      [
+        "DELETE",
+        "/api/gym/team/{user_id}"
+      ],
+      [
+        "GET",
+        "/api/auth/invite-info"
+      ],
+      [
+        "GET",
+        "/api/estadisticas/objetivos"
+      ],
+      [
+        "GET",
+        "/api/estadisticas/planes-tiempo"
+      ],
+      [
+        "GET",
+        "/api/estadisticas/suscripciones"
+      ],
+      [
+        "GET",
+        "/api/gym/team"
+      ],
+      [
+        "GET",
+        "/api/usuario/billing-config"
+      ],
+      [
+        "GET",
+        "/api/usuario/catalogo-alimentos"
+      ],
+      [
+        "GET",
+        "/api/usuario/descargar-pdf"
+      ],
+      [
+        "GET",
+        "/api/usuario/mi-plan"
+      ],
+      [
+        "GET",
+        "/api/usuario/perfil"
+      ],
+      [
+        "GET",
+        "/api/usuario/suscripcion"
+      ],
+      [
+        "PATCH",
+        "/api/gym/team/{user_id}/role"
+      ],
+      [
+        "POST",
+        "/api/auth/accept-invite"
+      ],
+      [
+        "POST",
+        "/api/auth/invite-info"
+      ],
+      [
+        "POST",
+        "/api/gym/team/invite"
+      ],
+      [
+        "POST",
+        "/api/gym/team/{user_id}/resend-invite"
+      ],
+      [
+        "POST",
+        "/api/usuario/billing-portal"
+      ],
+      [
+        "POST",
+        "/api/usuario/checkout"
+      ],
+      [
+        "POST",
+        "/api/usuario/confirm-subscription"
+      ],
+      [
+        "POST",
+        "/api/usuario/generar-plan"
+      ],
+      [
+        "POST",
+        "/api/usuario/mp-preference"
+      ],
+      [
+        "POST",
+        "/api/usuario/stripe-subscribe"
+      ],
+      [
+        "POST",
+        "/api/usuario/suscripcion"
+      ],
+      [
+        "PUT",
+        "/api/usuario/perfil"
+      ]
+    ]
+  },
+  "limits": [
+    "Dependency metadata alone does not prove permissions.",
+    "A mutation with no documented body can intentionally have no payload or use a bounded manual parser.",
+    "Factory-only routes are differences to review, not an instruction to mount every router.",
+    "Existing compatibility license routes were inventoried without developing or running desktop."
+  ]
+}

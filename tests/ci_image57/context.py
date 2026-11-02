@@ -63,11 +63,14 @@ def native_pins(records):
              if any(records[name].get(key)!=pin[key] for key in ('bytes','raw_sha256'))}
     if not changed:return parent,None
     if changed!=set(APT_CHILD_PINS):raise ValueError('Only the exact two-input APT transition is allowed')
-    pins={**parent,**APT_CHILD_PINS}
+    from . import production_child
+    production=records['Dockerfile'].get('raw_sha256')==production_child.DOCKER_PIN['raw_sha256']
+    child={**APT_CHILD_PINS,**({'Dockerfile':production_child.DOCKER_PIN} if production else {})}
+    pins={**parent,**child}
     for name,pin in pins.items():
         if any(records[name].get(key)!=value for key,value in pin.items()):
             raise ValueError('Exact APT child input identity differs')
-    return pins,native_transition()
+    return pins,production_child.transition(native_transition()) if production else native_transition()
 
 def native_parent_payloads(payloads):
     """Authenticate twelve actual inputs and invert only the finite child2."""
@@ -79,6 +82,9 @@ def native_parent_payloads(payloads):
     _pins,transition=native_pins(records)
     restored=dict(payloads)
     if transition is not None:
+        from . import production_child
+        if transition==production_child.transition(native_transition()):
+            restored['Dockerfile']=production_child.inverse(restored['Dockerfile'])
         for name,patches in APT_INVERSE.items():
             raw=restored[name]
             if name=='Dockerfile':
@@ -268,7 +274,11 @@ def prepare(repository,revision,private):
             # unchanged context helper below reads child Git blobs and a local
             # child manifest; neither historical authority is rewritten.
             for name in APT_CHILD_PINS:(thin/name).write_bytes(actual[name])
-            pins['candidate_files']={**pins['candidate_files'],**APT_CHILD_PINS}
+            records={name:{'bytes':len(raw),'raw_sha256':hashlib.sha256(raw).hexdigest(),
+                'git_blob':hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw,usedforsecurity=False).hexdigest()}
+                for name,raw in actual.items()}
+            selected_pins,_transition=native_pins(records)
+            pins['candidate_files']=selected_pins
             (thin/'tests/ci_web37/container-inputs.json').write_bytes(json.dumps(pins,indent=2).encode()+b'\n')
         authority.functions(authority.raw('raw_git.py.RAW'),{'raw_blobs'},namespace)
         context_ast=authority.functions(authority.raw('image_context.py.RAW'),{'copy_inputs','select_inputs','prepare'},namespace)

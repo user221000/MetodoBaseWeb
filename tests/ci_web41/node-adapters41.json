@@ -1,0 +1,150 @@
+{
+  "schema": "current41-node-explicit-adapters-v1",
+  "scope": "Exact original programs; current Google email stage, actual shared payment helper/DOM fixture, and finite current onboarding copy assertions; no app source substitutions.",
+  "historical_originals_unchanged": true,
+  "old_failing_results_retained": true,
+  "rules": [
+    {
+      "script": "tests/e2e/mfa_api.cjs",
+      "input_compiled_canonical_lf_sha256": "55ace03b7c53b884dc6128b0e36aef7608b98492019151dcfc2d36f3a675f77b",
+      "output_compiled_canonical_lf_sha256": "70b40ed8440a81375fb5e311e8ea5ea134ce4b62f9949cd64ea7ffc28fbd2c1b",
+      "original_canonical_lf_sha256": "48d320a63098e60c70f8531ef3fa1517b1de39176a6cf1a230a424b35f04c24b",
+      "replacements": [
+        {
+          "before": "test('Public Google202 uses the same explicit pending contract without committing',async()=>{const e=(await fixture(async()=>Response.json(challenge(),{status:202})));const handle=e.api.mfa.capture();const reply=await e.api.mfa.primaryGoogle({credential:'synthetic-provider-not-real',tipo:'usuario'},handle);assert.equal(reply.mfa_required,true);assert.equal(e.api.getToken(),'');});",
+          "after": "test('Public Google email verification then MFA202 stays pending without committing',async()=>{const e=(await fixture(async url=>Response.json(url==='/api/auth/google'?{email_verification_required:true,challenge:'e'.repeat(43),expires_at:'2099-10-19T18:00:00Z',masked_email:'s***@example.invalid',session_mode:'browser'}:challenge(),{status:202})));const handle=e.api.mfa.capture();const pending=await e.api.mfa.primaryGoogle({credential:'synthetic-provider-not-real',tipo:'usuario'},handle);const reply=await e.api.mfa.loginGoogleEmailVerify({challenge:pending.challenge,code:'123456'},handle);assert.equal(reply.mfa_required,true);assert.equal(e.api.getToken(),'');});",
+          "count": 1
+        }
+      ],
+      "criterion_renames": {
+        "Public Google202 uses the same explicit pending contract without committing": "Public Google email verification then MFA202 stays pending without committing"
+      },
+      "allowed_assertion_changes": [],
+      "assertion_count": 45,
+      "historical_PASS_claim": false
+    },
+    {
+      "script": "tests/e2e/mfa_state.cjs",
+      "input_compiled_canonical_lf_sha256": "78e120afe64e992b12fa2878dce499918dcaae95805ee95f4f9d26f0ac71ebc7",
+      "output_compiled_canonical_lf_sha256": "76b0f31a6fd2581fa30012dc47099fb77ab0539f8362ad39edc7a0521ea1516a",
+      "original_canonical_lf_sha256": "7c85c0d08322e6bdd7216b5f37723d5c6e26429393a06487a6c2156f40fa347e",
+      "replacements": [
+        {
+          "before": "test('Google202 enters the same explicit factor stage without committing a session',async()=>{const e=(await stateFixture(url=>url==='/api/auth/google'?Response.json(challenge(),{status:202}):null));const ticket=e.login.beginGoogle();await e.login.completeGoogle({credential:'synthetic'},ticket);assert.equal(e.login.phase,'factor');assert.equal(e.api.getToken(),'');assert.equal(e.calls.length,1);});",
+          "after": "test('Google email then MFA202 enters the factor stage without committing a session',async()=>{const e=(await stateFixture(url=>url==='/api/auth/google'?Response.json({email_verification_required:true,challenge:'e'.repeat(43),expires_at:'2099-10-19T18:00:00Z',masked_email:'s***@example.invalid',session_mode:'browser'},{status:202}):url==='/api/auth/google/verify-email'?Response.json(challenge(),{status:202}):null));const ticket=e.login.beginGoogle();await e.login.completeGoogle({credential:'synthetic'},ticket);await e.login.verifyEmail('123456');assert.equal(e.login.phase,'factor');assert.equal(e.api.getToken(),'');assert.equal(e.calls.length,2);});",
+          "count": 1
+        }
+      ],
+      "criterion_renames": {
+        "Google202 enters the same explicit factor stage without committing a session": "Google email then MFA202 enters the factor stage without committing a session"
+      },
+      "allowed_assertion_changes": [
+        {
+          "before": "assert.equal(e.calls.length,1)",
+          "after": "assert.equal(e.calls.length,2)",
+          "reason": "Mandatory public Google email verification is a second controlled request, before existing MFA stage. No session or access assertion is removed."
+        }
+      ],
+      "assertion_count": 93,
+      "historical_PASS_claim": false
+    },
+    {
+      "script": "tests/e2e/mfa_consumers.cjs",
+      "input_compiled_canonical_lf_sha256": "77e04c553c228126fb42d47b919924b29d157626860fbbb58d2154da59d55fb1",
+      "output_compiled_canonical_lf_sha256": "22f8e07e325988b049ef6ccd62c95d7a6820c4a36e448f8bc664487934098ec0",
+      "original_canonical_lf_sha256": "8d35ffba69a783cceb8cf15e47df32ecd6d5a134532b6d67d0aad385f4aba7e4",
+      "replacements": [
+        {
+          "before": "append(...items){this.children.push(...items);return this;}",
+          "after": "append(...items){for(const item of items){if(item.nodeType===11)this.children.push(...item.children);else this.children.push(item);}return this;}",
+          "count": 1
+        },
+        {
+          "before": "replaceChildren(...items){this.children=items;this.textContent='';}",
+          "after": "replaceChildren(...items){this.children=[];this.append(...items);this.textContent='';}",
+          "count": 1
+        },
+        {
+          "before": "const document={getElementById:",
+          "after": "const document={createDocumentFragment:()=>{const fragment=new Element('fragment');fragment.nodeType=11;return fragment;},getElementById:",
+          "count": 1
+        },
+        {
+          "before": "e.window.location=location;vm.runInContext(",
+          "after": "e.window.location=location;if(kind!=='team')vm.runInContext(fs.readFileSync(path.join(root,'web/static/js/payment-history.js'),'utf8'),e.context);vm.runInContext(",
+          "count": 1
+        },
+        {
+          "before": "function billingTransport(url){return Response.json(",
+          "after": "function billingTransport(url){if(url.endsWith('/email-verification/request'))return Response.json({email_verification_required:false,email_verified:true});return Response.json(",
+          "count": 1
+        }
+      ],
+      "criterion_renames": {},
+      "allowed_assertion_changes": [],
+      "assertion_count": 25,
+      "historical_PASS_claim": false
+    },
+    {
+      "script": "tests/e2e/onboarding22_personal.cjs",
+      "input_compiled_canonical_lf_sha256": "13d4a32436216fafa607d5ae56966b3d89249af2c57dc4585f3cce360e6ff3e5",
+      "output_compiled_canonical_lf_sha256": "521a33326000cd2dc986390ca3f3fcaf38383fba5302a400978269606a732219",
+      "original_canonical_lf_sha256": "13d4a32436216fafa607d5ae56966b3d89249af2c57dc4585f3cce360e6ff3e5",
+      "replacements": [
+        {
+          "before": "<a href=\"\\/mi-perfil\"[^>]*>Configurar mi plan",
+          "after": "<a href=\"\\/mi-perfil\"[^>]*>Completar mi perfil",
+          "count": 1
+        }
+      ],
+      "criterion_renames": {},
+      "allowed_assertion_changes": [
+        {
+          "before": "assert.match(markup,/<a href=\"\\/mi-perfil\"[^>]*>Configurar mi plan/)",
+          "after": "assert.match(markup,/<a href=\"\\/mi-perfil\"[^>]*>Completar mi perfil/)",
+          "reason": "The committed fc795 onboarding copy changed; the same /mi-perfil destination and all missing-data, no-generation, and actor-boundary assertions remain required."
+        }
+      ],
+      "assertion_count": 10,
+      "historical_PASS_claim": false
+    },
+    {
+      "script": "tests/e2e/security_onboarding22_peer.cjs",
+      "input_compiled_canonical_lf_sha256": "5b152e16b9a570b8a0303f6efbbd61ea3397296be7295509fcba9bd5a53d0a0d",
+      "output_compiled_canonical_lf_sha256": "11ee5332595f8f83c1567b4fc1a4759a664d3e70b93849a807705e5b456fdd0c",
+      "original_canonical_lf_sha256": "5b152e16b9a570b8a0303f6efbbd61ea3397296be7295509fcba9bd5a53d0a0d",
+      "replacements": [
+        {
+          "before": "<a href=\"\\/mi-perfil\"[^>]*>Configurar mi plan",
+          "after": "<a href=\"\\/mi-perfil\"[^>]*>Completar mi perfil",
+          "count": 2
+        },
+        {
+          "before": "/Completa los campos requeridos/",
+          "after": "/Completa tus datos y revisa tus restricciones/",
+          "count": 1
+        }
+      ],
+      "criterion_renames": {},
+      "allowed_assertion_changes": [
+        {
+          "before": "assert.match(personalMarkup,/<a href=\"\\/mi-perfil\"[^>]*>Configurar mi plan/)",
+          "after": "assert.match(personalMarkup,/<a href=\"\\/mi-perfil\"[^>]*>Completar mi perfil/)",
+          "reason": "The committed fc795 onboarding copy changed; the same /mi-perfil destination and all missing-data, no-generation, and actor-boundary assertions remain required."
+        },
+        {
+          "before": "assert.match(personalMarkup,/Completa los campos requeridos/)",
+          "after": "assert.match(personalMarkup,/Completa tus datos y revisa tus restricciones/)",
+          "reason": "The committed fc795 onboarding copy changed; the same /mi-perfil destination and all missing-data, no-generation, and actor-boundary assertions remain required."
+        },
+        {
+          "before": "assert.match(personalMarkup,/<a href=\"\\/mi-perfil\"[^>]*>Configurar mi plan/)",
+          "after": "assert.match(personalMarkup,/<a href=\"\\/mi-perfil\"[^>]*>Completar mi perfil/)",
+          "reason": "The committed fc795 onboarding copy changed; the same /mi-perfil destination and all missing-data, no-generation, and actor-boundary assertions remain required."
+        }
+      ],
+      "assertion_count": 50,
+      "historical_PASS_claim": false
+    }
+  ]
+}

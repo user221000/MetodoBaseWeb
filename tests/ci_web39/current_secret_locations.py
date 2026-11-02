@@ -17,6 +17,15 @@ MEMBER = 'reviewed-public-locations.json'
 LIMIT = 1024 * 1024
 SCHEMA = 'current39-public-source-fingerprints-v1'
 REASON = 'finite current39 review: exact public source fingerprint, not a credential'
+CURRENT_REGISTRY = 'tests/ci_web39/fixtures/secrets-current4-v2.zip'
+CURRENT_REGISTRY_DIGEST = 'd52ca65dc26f2bb979584bd9382ea833c815056847fddc64661e14d3e4fdcb91'
+CURRENT_SCHEMA = 'current40-reviewed-four-locations-v2'
+CURRENT_LOCATIONS = {
+    'Dockerfile': (352,),
+    'tests/e2e/mfa_account_ui_current.cjs': (26,),
+    'tests/test_billing_email_verification.py': (140, 246),
+}
+CURRENT_REASON = 'finite current40 review: public build fingerprint or synthetic fixture; four exact locations'
 
 
 def invalid():
@@ -237,9 +246,10 @@ def authenticate_module(module, path, raw):
 
 
 class CurrentLocations:
-    def __init__(self, legacy, current):
+    def __init__(self, legacy, current, reason=REASON):
         self.legacy = legacy
         self.current = current
+        self.reason = reason
         self.used = set()
 
     def classify(self, item, name):
@@ -253,10 +263,83 @@ class CurrentLocations:
         if location in self.used:
             return None
         self.used.add(location)
-        return result | {'reason': REASON}
+        return result | {'reason': self.reason}
 
 
-def adapted_loader(root, document, review_module):
+def read_current_registry(root):
+    """Read a separately pinned, bounded renewal; never alter the V9 or public3 data."""
+    try:
+        path = source_path(root, CURRENT_REGISTRY)
+        if path.stat().st_size > LIMIT:
+            invalid()
+        payload = path.read_bytes()
+        if digest(payload) != CURRENT_REGISTRY_DIGEST:
+            invalid()
+        with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+            members = archive.infolist()
+            if len(members) != 1:
+                invalid()
+            member = members[0]
+            if (member.filename != MEMBER or member.is_dir() or member.flag_bits & 1
+                    or member.file_size > LIMIT or member.compress_size > LIMIT
+                    or member.compress_type not in {zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED}):
+                invalid()
+            raw = archive.read(member)
+        if len(raw) > LIMIT:
+            invalid()
+        data = json.loads(raw.decode('utf8'), object_pairs_hook=unique,
+                          parse_constant=lambda _: invalid())
+        validate_current_registry(data)
+        return data
+    except (OSError, ValueError, TypeError, KeyError, RuntimeError, UnicodeError,
+            RecursionError, zipfile.BadZipFile, zlib.error, EOFError):
+        invalid()
+
+
+def validate_current_registry(data):
+    fields = {'schema', 'version', 'config_digest', 'parent_registry_digest',
+              'legacy_extension_digest', 'review_source_commit', 'files', 'provenance'}
+    if (type(data) is not dict or set(data) != fields or data['schema'] != CURRENT_SCHEMA
+            or data['version'] != '8.30.1' or not is_digest(data['config_digest'])
+            or not is_digest(data['parent_registry_digest'])
+            or data['legacy_extension_digest'] != REGISTRY_DIGEST
+            or re.fullmatch('[0-9a-f]{40}', str(data['review_source_commit'])) is None
+            or type(data['files']) is not list or len(data['files']) != 3
+            or type(data['provenance']) is not dict):
+        invalid()
+    names = set()
+    for record in data['files']:
+        if (type(record) is not dict or set(record) != {'path', 'git_blob', 'frames'}
+                or record['path'] not in CURRENT_LOCATIONS or record['path'] in names
+                or re.fullmatch('[0-9a-f]{40}', str(record['git_blob'])) is None
+                or type(record['frames']) is not list or len(record['frames']) != 2):
+            invalid()
+        names.add(record['path'])
+        seen = set()
+        for frame in record['frames']:
+            if (type(frame) is not dict or set(frame) != {'source_bytes', 'source_digest',
+                    'scanner_digest', 'source_encoding', 'lines'}
+                    or type(frame['source_bytes']) is not int or not 0 < frame['source_bytes'] <= LIMIT
+                    or not is_digest(frame['source_digest']) or frame['source_digest'] in seen
+                    or frame['scanner_digest'] != frame['source_digest']
+                    or frame['source_encoding'] != 'utf-8' or type(frame['lines']) is not list
+                    or len(frame['lines']) != len(CURRENT_LOCATIONS[record['path']])):
+                invalid()
+            seen.add(frame['source_digest'])
+            lines = set()
+            for line in frame['lines']:
+                if (type(line) is not dict or set(line) != {'number', 'digest', 'rule'}
+                        or type(line['number']) is not int
+                        or line['number'] not in CURRENT_LOCATIONS[record['path']]
+                        or line['number'] in lines or not is_digest(line['digest'])
+                        or line['rule'] != 'generic-api-key'):
+                    invalid()
+                lines.add(line['number'])
+    if names != set(CURRENT_LOCATIONS):
+        invalid()
+
+
+def adapted_loader(root, document, review_module, current_document=None):
     def load(snapshot, source_hashes, version):
         # Original admission of V9, config and scanner version happens first.
         legacy = review_module.load_reviewed_locations(snapshot, source_hashes, version)
@@ -269,5 +352,24 @@ def adapted_loader(root, document, review_module):
                 files[record['path']] = {'source_digest': frame['source_digest'],
                     'scanner_digest': frame['scanner_digest'],
                     'lines': {(frame['line'], frame['rule']): frame['line_digest']}}
-        return CurrentLocations(legacy, review_module.ReviewedLocations(snapshot, source_hashes, files))
+        result = CurrentLocations(legacy, review_module.ReviewedLocations(snapshot, source_hashes, files))
+        if current_document is None:
+            return result
+        # Authenticate the new registry again inside the immutable snapshot.
+        if (read_current_registry(snapshot) != current_document
+                or current_document['config_digest'] != document['config_digest']
+                or current_document['parent_registry_digest'] != document['parent_registry_digest']
+                or digest(source_path(snapshot, REGISTRY).read_bytes()) != REGISTRY_DIGEST):
+            invalid()
+        renewed = {}
+        for record in current_document['files']:
+            frame = next((f for f in record['frames']
+                          if f['source_digest'] == source_hashes.get(record['path'])), None)
+            if frame is not None:
+                renewed[record['path']] = {'source_digest': frame['source_digest'],
+                    'scanner_digest': frame['scanner_digest'],
+                    'lines': {(line['number'], line['rule']): line['digest']
+                              for line in frame['lines']}}
+        return CurrentLocations(result, review_module.ReviewedLocations(snapshot, source_hashes, renewed),
+                                CURRENT_REASON)
     return load

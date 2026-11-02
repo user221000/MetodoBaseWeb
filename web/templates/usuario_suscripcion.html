@@ -1,6 +1,6 @@
 {% extends "base_usuario.html" %}
 {% block title %}Mi suscripción{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/css/billing-email-verification.css?v={{ static_version }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/payment-history.css?v={{ static_version }}"><link rel="stylesheet" href="/static/css/billing-email-verification.css?v={{ static_version }}">{% endblock %}
 {% block content %}
 <div class="u-hero">
   <p class="mb-page-eyebrow">Tu cuenta · Suscripción</p>
@@ -48,6 +48,17 @@
     <div class="u-plan-cta"><button type="button" class="u-btn u-btn-primary" id="btn-pro" disabled>Consultando</button></div>
   </section>
 </div>
+<section class="u-card billing-history" aria-labelledby="payment-history-title">
+  <h2 class="u-card-title" id="payment-history-title">Historial de pagos</h2>
+  <p id="payments-state" role="status">Consultando pagos…</p>
+  <table class="u-table billing-payment-table">
+    <caption class="billing-history-caption">Pagos registrados en tu cuenta personal</caption>
+    <thead><tr><th scope="col">Fecha del pago</th><th scope="col">Importes</th><th scope="col">Estado</th><th scope="col">Plan</th></tr></thead>
+    <tbody id="payments-tbody"></tbody>
+  </table>
+  <p class="billing-history-note">El importe tras devolución es el pago original menos lo devuelto registrado; no descuenta comisiones ni desglosa impuestos. La fecha de registro no indica cuándo llegará la devolución a tu banco. Los datos históricos sin confirmar se muestran sin importe.</p>
+  <p class="billing-history-note">Una devolución parcial mantiene el acceso hasta terminar el periodo ya pagado. Consulta arriba la vigencia confirmada.</p>
+</section>
 <section class="u-card u-mt-lg u-sub-faq" aria-labelledby="subscription-questions">
   <h2 class="u-card-title" id="subscription-questions">Antes de pagar</h2>
   <details class="u-faq-item">
@@ -92,6 +103,7 @@
 {% block scripts %}
 {% include '_billing_email_verification.html' %}
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/billing-email-verification.js?v={{ static_version }}"></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/payment-history.js?v={{ static_version }}"></script>
 <script nonce="{{ request.state.csp_nonce }}" src="/static/js/usuario-suscripcion.js?v={{ static_version }}"></script>
 {% endblock %}
 

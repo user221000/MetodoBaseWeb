@@ -7,6 +7,7 @@
   var busy = false;
   var lastFocus = null;
   var purchaseKeys = {};
+  var paymentContext = null, paymentEpoch = 0, paymentInvalid = false;
   var modal = document.getElementById('modal-pago');
   var feedback = document.getElementById('subscription-feedback');
   var params = new URLSearchParams(window.location.search);
@@ -31,6 +32,45 @@
   }
 
   function canManage() { return subscription && subscription.provider === 'stripe'; }
+
+  function clearPayments() {
+    paymentInvalid = true; paymentEpoch++; paymentContext = null;
+    var body = document.getElementById('payments-tbody'), state = document.getElementById('payments-state');
+    if (body) body.replaceChildren();
+    if (state) state.textContent = 'Se descartaron los datos de la sesión anterior.';
+  }
+
+  async function loadPayments() {
+    if (paymentInvalid) return;
+    var ticket = ++paymentEpoch, body = document.getElementById('payments-tbody');
+    var state = document.getElementById('payments-state');
+    body.replaceChildren(); state.textContent = 'Consultando pagos…';
+    try {
+      var context = paymentContext || await Api.usuario.contexto();
+      if (paymentInvalid || ticket !== paymentEpoch) return;
+      paymentContext = context;
+      await Api.usuario.verificarContexto(context);
+      if (paymentInvalid || ticket !== paymentEpoch) return;
+      var response = await Api.usuario.payments(context);
+      await Api.usuario.verificarContexto(context);
+      if (paymentInvalid || ticket !== paymentEpoch) return;
+      if (!response || !Array.isArray(response.payments)) throw new Error('El servidor devolvió un historial de pagos incompleto.');
+      PaymentHistory.render(body, response.payments, { starter: 'Starter', pro: 'Pro' });
+      state.textContent = response.payments.length ? response.payments.length + ' pagos registrados.' : 'No hay pagos registrados en tu cuenta.';
+    } catch (error) {
+      if (paymentInvalid || ticket !== paymentEpoch) return;
+      if (['session_changed', 'session_expired', 'session_storage_error'].includes(error.code)) { clearPayments(); return; }
+      body.replaceChildren(); state.textContent = 'No pudimos consultar los pagos. ' + failureMessage(error);
+    }
+  }
+
+  window.addEventListener('metodobase-session-changed', clearPayments);
+  window.addEventListener('pagehide', clearPayments);
+  window.addEventListener('storage', function (event) {
+    if (paymentContext && (!event.key || ['mb_token', 'mb_refresh_token', 'mb_session_epoch'].includes(event.key))) {
+      try { Api.usuario.validarContexto(paymentContext); } catch (_) { clearPayments(); }
+    }
+  });
 
   function validateSubscription(value) {
     if (!value || !['starter', 'pro'].includes(value.plan) || typeof value.status !== 'string' ||
@@ -140,7 +180,7 @@
 
   document.getElementById('btn-pro').addEventListener('click', function () { if (canManage()) openPortal(); else openModal(); });
   document.getElementById('btn-manage-subscription').addEventListener('click', openPortal);
-  document.getElementById('btn-refresh-subscription').addEventListener('click', loadSubscription);
+  document.getElementById('btn-refresh-subscription').addEventListener('click', function () { loadSubscription(); loadPayments(); });
   document.getElementById('pago-modal-close').addEventListener('click', closeModal);
   document.getElementById('pago-btn-cancel').addEventListener('click', closeModal);
   modal.addEventListener('click', function (event) { if (event.target === modal) closeModal(); });
@@ -180,7 +220,7 @@
   });
 
   render();
-  Promise.allSettled([loadSubscription(), Api.usuario.billingConfig().then(function (config) {
+  Promise.allSettled([loadSubscription(), loadPayments(), Api.usuario.billingConfig().then(function (config) {
     billing = config;
     render();
     if (!billing.checkout_supported && !billing.mercadopago_configured) {

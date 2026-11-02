@@ -342,16 +342,48 @@ def _stripe_period(snapshot: dict, key: str):
 
 
 def _verified_invoice_charge(invoice: dict, customer_id: str, expected_amount: int, *, fetch_charge=None) -> bool:
-    """Require captured, current, unrefunded MXN evidence for this customer."""
+    """Require captured current funding; an approved partial keeps its period."""
     charge = invoice.get("charge")
     if isinstance(charge, str):
         charge = (fetch_charge or stripe.Charge.retrieve)(charge)
     if not isinstance(charge, dict) or not isinstance(charge.get("id"), str):
         return False
+    amount, returned = charge.get("amount"), charge.get("amount_refunded")
     return (charge.get("paid") is True and charge.get("captured") is True and
-            charge.get("refunded") is False and charge.get("amount_refunded") == 0 and
-            charge.get("currency") == "mxn" and charge.get("amount", 0) >= expected_amount and
+            type(amount) is int and amount >= expected_amount and type(returned) is int and
+            0 <= returned < amount and charge.get("refunded") is False and
+            ("amount_captured" not in charge or type(charge["amount_captured"]) is int and charge["amount_captured"] == amount) and
+            charge.get("currency") == "mxn" and
             charge.get("customer") == customer_id)
+
+
+def _validate_refund_progress(payment: Payment, charge: dict) -> tuple[str, int]:
+    """Bind an aggregate provider observation; inconsistent reads stay retryable."""
+    amount, returned, charge_id = charge.get("amount"), charge.get("amount_refunded"), charge.get("id")
+    if (not isinstance(charge_id, str) or not charge_id.startswith("ch_") or len(charge_id) > 255
+            or type(amount) is not int or amount <= 0 or amount != payment.amount_cents
+            or type(returned) is not int or not 0 <= returned <= amount
+            or type(charge.get("refunded")) is not bool or charge["refunded"] != (returned == amount)
+            or payment.currency != charge.get("currency")
+            or charge.get("payment_intent") and payment.stripe_payment_intent_id
+                and charge["payment_intent"] != payment.stripe_payment_intent_id
+            or ("amount_captured" in charge and (type(charge["amount_captured"]) is not int or charge["amount_captured"] != amount))
+            or payment.stripe_charge_id is not None and payment.stripe_charge_id != charge_id
+            or payment.refund_amount_cents is not None and returned < payment.refund_amount_cents
+            or payment.status == "refunded" and returned != amount):
+        raise ValueError("Refund observation contradicts the persisted payment")
+    return charge_id, returned
+
+
+def _observe_payment_refund(payment: Payment, charge: dict) -> None:
+    """Observe current cumulative refunds, never manufacture individual refunds."""
+    charge_id, returned = _validate_refund_progress(payment, charge)
+    if payment.refund_amount_cents != returned:
+        payment.refund_observed_at = datetime.now(timezone.utc)
+    payment.stripe_charge_id = charge_id
+    payment.refund_amount_cents = returned
+    payment.status = ("refunded" if returned == payment.amount_cents else
+                      "partially_refunded" if returned else "succeeded")
 
 
 def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | None = None,
@@ -360,7 +392,8 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
 
     Ownership comes from a persisted purchase or existing provider mapping.
     Active paid access requires expected MXN/month price, paid invoice and an
-    unrefunded charge. Fetching current state prevents old events overwriting a
+    captured charge with remaining funds. Partial refunds retain the actual paid
+    period; they never add time. Fetching current state prevents old events overwriting a
     newer provider state. Caller commits; provider errors remain retryable.
     Optional keyword-only callbacks are synchronous read capabilities for the
     bounded administrative job; defaults preserve the existing SDK calls.
@@ -427,6 +460,8 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
         if isinstance(customer_id, str) and customer_id:
             record_provider_subject(db, "stripe", "customer", customer_id, owner, intent.id)
     status = snapshot.get("status", "incomplete")
+    period_start = _stripe_period(snapshot, "current_period_start")
+    period_end = _stripe_period(snapshot, "current_period_end")
     if status == "active":
         items = (snapshot.get("items") or {}).get("data") or []
         if len(items) != 1 or items[0].get("quantity", 1) != 1:
@@ -448,6 +483,10 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
             invoice = fetch_invoice(invoice_id)
             if snapshot.get("livemode") is not invoice.get("livemode"):
                 raise ValueError("Subscription invoice mode mismatch")
+        # Resolve a string capability once and use that same resource for both
+        # funding and progression. Two reads can straddle a full refund.
+        if isinstance(invoice, dict) and isinstance(invoice.get("charge"), str):
+            invoice = dict(invoice, charge=(fetch_charge or stripe.Charge.retrieve)(invoice["charge"]))
         if not isinstance(invoice, dict) or not (invoice.get("paid") is True or invoice.get("status") == "paid"):
             status = "incomplete"
         elif (str(invoice.get("currency", "")).lower() != "mxn" or
@@ -456,10 +495,31 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
         elif (invoice.get("paid_out_of_band") is True or
               not _verified_invoice_charge(invoice, customer_id, price_in_cents(plan), fetch_charge=fetch_charge)):
             status = "unpaid"
+        if status == "active":
+            charge = invoice.get("charge")
+            if isinstance(charge, str):
+                charge = (fetch_charge or stripe.Charge.retrieve)(charge)
+            payment = db.query(Payment).filter_by(gym_id=owner, stripe_invoice_id=invoice.get("id")).one_or_none()
+            if payment:
+                _validate_refund_progress(payment, charge)
+            if charge.get("amount_refunded", 0) > 0:
+                if period_start is None or period_end is None or period_end <= period_start:
+                    raise ValueError("Partial refund requires the actual bounded paid period")
+                # A refund observation is not a new purchase. For an already
+                # observed invoice it cannot extend the entitlement's end.
+                old_start = mapped.current_period_start if mapped else None
+                old_start = old_start.replace(tzinfo=timezone.utc) if old_start and old_start.tzinfo is None else old_start
+                already_paid = payment and payment.status in {"succeeded", "partially_refunded", "refunded"}
+                if payment and mapped and mapped.current_period_end and (already_paid or old_start == period_start):
+                    old_end = mapped.current_period_end
+                    old_end = old_end.replace(tzinfo=timezone.utc) if old_end.tzinfo is None else old_end
+                    period_end = min(period_end, old_end)
+                if period_end <= datetime.now(timezone.utc):
+                    status = "unpaid"
     if status == "active":
         mapped = activate_subscription(db, owner, plan, stripe_customer_id=customer_id,
-            stripe_subscription_id=subscription_id, current_period_start=_stripe_period(snapshot, "current_period_start"),
-            current_period_end=_stripe_period(snapshot, "current_period_end"), provider="stripe")
+            stripe_subscription_id=subscription_id, current_period_start=period_start,
+            current_period_end=period_end, provider="stripe")
         if intent:
             intent.status = "confirmed"
             intent.provider_reference_id = subscription_id
@@ -468,8 +528,8 @@ def reconcile_subscription(db: Session, subscription_id: str, subject_id: str | 
         update_subscription_status(db, mapped, status)
     if mapped:
         mapped.cancel_at_period_end = bool(snapshot.get("cancel_at_period_end", False))
-        mapped.current_period_start = _stripe_period(snapshot, "current_period_start")
-        mapped.current_period_end = _stripe_period(snapshot, "current_period_end")
+        mapped.current_period_start = period_start
+        mapped.current_period_end = period_end
     db.flush()
     return {"status": status, "plan": plan, "activated": status == "active"}
 
@@ -643,12 +703,38 @@ def _record_invoice(db: Session, invoice: dict, status: str) -> str:
     if not isinstance(invoice_id, str) or not invoice_id.startswith("in_"):
         raise ValueError("Invoice identity missing")
 
+    observations = {}
+
+    def funding_frame(actual):
+        # Compare consumed facts, retaining bool/int distinctions. Unrelated
+        # descriptions or provider metadata do not participate in funding.
+        def fields(resource, names):
+            return tuple((name, name in resource, type(resource.get(name)), resource.get(name)) for name in names)
+        charge = actual.get("charge")
+        charge_frame = fields(charge, ("id", "object", "invoice", "customer", "livemode",
+            "currency", "payment_intent", "paid", "captured", "amount", "amount_captured",
+            "amount_refunded", "refunded")) if isinstance(charge, dict) else (type(charge), charge)
+        subscription = actual.get("subscription") or ((actual.get("parent") or {}).get(
+            "subscription_details") or {}).get("subscription")
+        return (subscription, fields(actual, ("id", "object", "customer", "livemode", "currency",
+            "paid", "status", "paid_out_of_band", "amount_paid", "amount_due", "payment_intent")),
+            "charge" in actual, charge_frame)
+
     def read_invoice(reference=invoice_id):
         current = stripe.Invoice.retrieve(reference, expand=["charge"])
         if (not isinstance(current, dict) or current.get("id") != reference
                 or current.get("object") != "invoice"
                 or type(current.get("livemode")) is not bool):
             raise ValueError("Invoice resource mismatch")
+        if isinstance(current.get("charge"), str):
+            current = dict(current, charge=stripe.Charge.retrieve(current["charge"]))
+        frame = funding_frame(current)
+        if reference in observations and observations[reference] != frame:
+            # Reconciliation may already have changed entitlement in this
+            # transaction. Never acknowledge a later contradictory observation
+            # as pending: let the route roll back access, money and inbox.
+            raise RuntimeError("Invoice funding changed during reconciliation")
+        observations[reference] = frame
         return current
 
     current = read_invoice()
@@ -722,16 +808,18 @@ def _record_invoice(db: Session, invoice: dict, status: str) -> str:
         if payment.gym_id != sub.gym_id or payment.currency != current["currency"]:
             raise ValueError("Invoice payment owner mismatch")
         # An older invoice event cannot erase a succeeded or refunded fact.
-        if payment.status not in {"succeeded", "refunded"}:
+        if payment.status not in {"succeeded", "partially_refunded", "refunded"}:
             payment.status = status
             payment.amount_cents = amount
     else:
         payment_intent = current.get("payment_intent")
         if payment_intent is not None and not isinstance(payment_intent, str):
             raise ValueError("Invoice payment identity invalid")
-        record_payment(db, sub.gym_id, amount_cents=amount, currency=current["currency"],
+        payment = record_payment(db, sub.gym_id, amount_cents=amount, currency=current["currency"],
                        status=status, plan=sub.plan, stripe_payment_intent_id=payment_intent,
                        stripe_invoice_id=invoice_id)
+    if paid:
+        _observe_payment_refund(payment, charge)
     db.flush()
     return ("paid:" if status == "succeeded" else "failed:") + str(amount)
 
@@ -745,19 +833,23 @@ def _on_invoice_failed(db: Session, invoice: dict) -> str:
 
 
 def _on_charge_refunded(db: Session, charge: dict) -> str:
-    """Reconcile a full refund without revoking unrelated newer invoice access."""
+    """Observe partial/full refunds without revoking a newer paid renewal."""
     customer_id = charge.get("customer")
     _bind_customer_purchase(db, customer_id)
     mapped = db.query(Subscription).filter_by(stripe_customer_id=customer_id).first()
     if not mapped:
         raise ValueError("Refund subscription mapping unavailable")
-    # The reconciler locks the subject before reading current payment evidence.
-    # An old refund can never overwrite a later paid renewal.
-    reconcile_subscription(db, mapped.stripe_subscription_id)
+    # Lock first, then re-read the mapping and current refund evidence. A stale
+    # expanded subscription must not be evaluated before the known Charge.
+    db.query(Usuario).filter_by(id=mapped.gym_id).update({Usuario.id: Usuario.id})
+    mapped = db.query(Subscription).filter_by(stripe_customer_id=customer_id).populate_existing().first()
+    if not mapped:
+        raise ValueError("Refund subscription mapping changed")
     # There is no historical ledger to repair before its first observation.
     # Keep that absence explicit instead of inventing a past charge or row.
     if not db.query(Payment.id).filter(Payment.gym_id == mapped.gym_id,
             Payment.stripe_invoice_id.is_not(None)).first():
+        reconcile_subscription(db, mapped.stripe_subscription_id)
         return "refund:reconciled"
     charge_id = charge.get("id")
     if not isinstance(charge_id, str) or not charge_id.startswith("ch_"):
@@ -784,25 +876,34 @@ def _on_charge_refunded(db: Session, charge: dict) -> str:
             or invoice.get("currency") != "mxn" or invoice_charge_id != charge_id
             or (subscription_id != mapped.stripe_subscription_id and owner != mapped.gym_id)):
         raise ValueError("Refund invoice resource mismatch")
-    payment = db.query(Payment).filter_by(gym_id=mapped.gym_id, stripe_invoice_id=invoice_id).one_or_none()
-    if payment is None:
-        return "refund:reconciled"
     amount, returned = current.get("amount"), current.get("amount_refunded")
     if (type(amount) is not int or amount <= 0 or type(returned) is not int
-            or not 0 <= returned <= amount or payment.amount_cents != amount
-            or payment.currency != current["currency"]
+            or not 0 <= returned <= amount
             or type(current.get("refunded")) is not bool
             or current["refunded"] != (returned == amount)):
         raise ValueError("Refund amount or currency mismatch")
-    if (current.get("payment_intent") and payment.stripe_payment_intent_id
-            and current["payment_intent"] != payment.stripe_payment_intent_id):
-        raise ValueError("Refund payment identity mismatch")
-    # charge.refunded is also emitted for partial refunds. The current model
-    # has no partial-refund amount: preserve its paid observation, never label
-    # it as fully refunded. Subscription funding rules remain unchanged.
-    if current["refunded"] is True:
-        payment.status = "refunded"
-        db.flush()
+    payment = db.query(Payment).filter_by(gym_id=mapped.gym_id, stripe_invoice_id=invoice_id).one_or_none()
+    if payment is not None:
+        if (current.get("payment_intent") and payment.stripe_payment_intent_id
+                and current["payment_intent"] != payment.stripe_payment_intent_id):
+            raise ValueError("Refund payment identity mismatch")
+        _validate_refund_progress(payment, current)
+    def refund_funding_invoice(reference):
+        actual = invoice if reference == invoice_id else stripe.Invoice.retrieve(reference, expand=["charge"])
+        actual_subscription = actual.get("subscription") or ((actual.get("parent") or {}).get(
+            "subscription_details") or {}).get("subscription")
+        if (actual.get("id") != reference or actual.get("object") != "invoice"
+                or actual.get("customer") != customer_id or actual.get("livemode") is not current["livemode"]
+                or actual_subscription != mapped.stripe_subscription_id):
+            raise ValueError("Refund funding invoice identity mismatch")
+        # The independently read Charge is authoritative for its own invoice.
+        # A stale embedded snapshot cannot keep a fully refunded period active;
+        # an unrelated new renewal keeps its own current funding evidence.
+        return dict(actual, charge=current) if reference == invoice_id else actual
+    reconcile_subscription(db, mapped.stripe_subscription_id, fetch_invoice=refund_funding_invoice)
+    if payment is not None:
+        _observe_payment_refund(payment, current)
+    db.flush()
     return "refund:reconciled"
 
 
@@ -883,6 +984,13 @@ def get_subscription(db: Session, gym_id: str) -> Optional[dict]:
     }
 
 
+def _history_utc(value):
+    if value is None:
+        return None
+    aware = value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+    return aware.astimezone(timezone.utc).isoformat()
+
+
 def get_payment_history(db: Session, gym_id: str, limit: int = 20) -> list[dict]:
     """Historial de pagos del gym."""
     rows = db.query(Payment).filter(
@@ -892,10 +1000,13 @@ def get_payment_history(db: Session, gym_id: str, limit: int = 20) -> list[dict]
         {
             "id": p.id,
             "amount_cents": p.amount_cents,
+            "refund_amount_cents": p.refund_amount_cents,
+            "net_amount_cents": p.amount_cents - p.refund_amount_cents if p.refund_amount_cents is not None else None,
+            "refund_observed_at": _history_utc(p.refund_observed_at),
             "currency": p.currency,
             "status": p.status,
             "plan": p.plan,
-            "created_at": p.created_at.isoformat() if p.created_at else None,
+            "created_at": _history_utc(p.created_at),
             "stripe_invoice_id": p.stripe_invoice_id,
         }
         for p in rows
