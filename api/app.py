@@ -3,7 +3,7 @@ import os
 import logging
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
@@ -285,7 +285,14 @@ def create_app() -> FastAPI:
 
     # ── Planes history routes (web) ───────────────────────────────────────────
     from web.routes import planes as web_planes_routes
-    app.include_router(web_planes_routes.router, prefix="/api")
+    # The API adapter already owns catalog/generation/latest-PDF operations.
+    # Include the original history APIRoutes only, retaining their private
+    # NutritionRoute handlers and dependencies. Registering the complete router
+    # made OpenAPI describe a later handler that the dispatcher never reached.
+    history_paths = {"/planes", "/planes/resumen", "/planes/{plan_id}/pdf"}
+    history_router = APIRouter(routes=[route for route in web_planes_routes.router.routes
+                                     if route.path in history_paths])
+    app.include_router(history_router, prefix="/api")
 
     # ── Web page routes ───────────────────────────────────────────────────────
     app.include_router(web_pages.router)

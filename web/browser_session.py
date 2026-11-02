@@ -28,6 +28,7 @@ REVOKING = frozenset({"/api/auth/mfa/enroll/confirm", "/api/auth/mfa/recovery-co
 COOKIE_POSTS = PRIMARY | REVOKING | ACCOUNT_POSTS | frozenset({
     "/api/auth/refresh", "/api/auth/browser/migrate", "/api/auth/browser/logout",
     "/api/auth/mfa/login/verify", "/api/auth/mfa/reauth", "/api/auth/mfa/enroll",
+    "/api/auth/mfa/google-email/request", "/api/auth/mfa/google-email/verify",
     "/api/auth/mfa/step-up", "/api/auth/google/link/start",
 })
 

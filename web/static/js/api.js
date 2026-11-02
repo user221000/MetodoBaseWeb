@@ -629,7 +629,9 @@ const Api = (() => {
     primaryPassword: (body,handle) => _mfaPublic('/api/auth/login',body,handle,true),
     registerPassword: (body,handle) => _mfaPublic('/api/auth/registro',body,handle,false),
     primaryGoogle: (body,handle) => _mfaPublic('/api/auth/google',body,handle,false,true),
-    googleEmailVerify: (body,handle) => _mfaPublic('/api/auth/google/verify-email',body,handle,true),
+    // Login is anonymous until its email proof (and any existing MFA) succeeds.
+    // Keep this command distinct from the authenticated account-security proof below.
+    loginGoogleEmailVerify: (body,handle) => _mfaPublic('/api/auth/google/verify-email',body,handle,true),
     loginVerify: (body,handle) => _mfaPublic('/api/auth/mfa/login/verify',body,handle,false),
     finishLogin(data,handle) {
       const context=_mfaContext(handle),next=_tokenPair(data);

@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Incidencia de códigos de acceso — 2 de noviembre de 2026
+
+Confirmado el recorrido «Continuar con Google»: un miembro JavaScript duplicado enviaba su código al endpoint privado de seguridad. Se separa el comando público y se admiten los dos POST de seguridad que faltaban en el transporte de navegador, conservando los límites de identidad/origen/propósito/MFA. QA reprodujo el defecto contra HTTPS/Redis reales y el candidato pasó negocio sin MFA y personal con TOTP obligatorio; seguridad independiente obtuvo 90 pruebas focales PASS. Se corrigen además tres registros API duplicados y la documentación de los DTO existentes de compra. Un job CI independiente ejecuta el contrato de transporte con JavaScript real.
+
+Este corte prioriza el hotfix del acceso; el inventario de APIs y la auditoría ampliada de webhooks, operación y faltantes comerciales continúan por separado. No se declara validación global ni recepción/OAuth real. [Detalle del hotfix y evidencias](../20261102-production-auth-hotfix.md). Root conserva 675 fuentes locales originales y los 167 requisitos del backlog; commit/despliegue/prueba pública se vinculan en los nuevos recibos.
+
 ## Landing interactiva y compacta — 1 de noviembre de 2026
 
 La portada concentra la presentación en una demo con búsqueda ficticia, cuatro vistas, pasos manuales y ampliación accesible; las suscripciones tienen selector de audiencia/modalidad, comparación y cupos desplegables. Se eliminan bloques repetidos. La invitación de registro, accesos, precios y todos los límites del catálogo se conservan, con las seis ofertas disponibles también sin JavaScript.

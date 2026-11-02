@@ -75,7 +75,7 @@
       if(Date.now()>=Date.parse(expiry)){cancel();view('El código del correo venció. Inicia un acceso nuevo con Google.');return false;}
       const ticket=epoch,body={challenge,code:value};busy=true;
       try{options.onClear?.();check(ticket);view('Verificando el código del correo; el acceso aún no está confirmado…');check(ticket);
-        const data=await api.googleEmailVerify(body,context);check(ticket);return await acceptVerified(data,ticket);
+        const data=await api.loginGoogleEmailVerify(body,context);check(ticket);return await acceptVerified(data,ticket);
       }catch(error){failure(error,ticket);return false;}
     }
     const notify=()=>{if(committing)return;if(api.isPrimaryBoundary?.(context)){try{api.check(context);return;}catch{/* The exact owner must still be valid. */}}invalidate();};

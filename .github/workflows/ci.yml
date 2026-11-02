@@ -26,6 +26,15 @@ jobs:
       run: |
         install -d -m 700 "$RUNNER_TEMP/current39-quality-controls-private"
         python -B -X utf8 tests/ci_web39/verify_quality.py --evidence "$RUNNER_TEMP/current39-quality-controls-private"
+  auth-email-transport:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+    - name: Keep public login and protected security email verification separate
+      run: node tests/e2e/google_email_purpose_contract.cjs
   secrets:
     runs-on: ubuntu-latest
     steps:
