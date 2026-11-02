@@ -24,7 +24,7 @@ def delegated_main(root=ROOT):
         current.invalid()
     private = dict(original.__globals__)
     private['load_reviewed_locations'] = current.adapted_loader(
-        root, document, review, current.read_current_registry(root))
+        root, document, review, current.read_current_registry(root), current.read_canonical_registry(root))
     result = types.FunctionType(original.__code__, private, original.__name__,
                                 original.__defaults__, original.__closure__)
     if (result.__code__ is not original.__code__ or result.__globals__ is original.__globals__

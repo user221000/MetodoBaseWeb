@@ -31,3 +31,9 @@ La clasificación de secretos reconoce cuatro ubicaciones públicas o sintética
 El inventario nuevo contiene 185 operaciones efectivas API y 204 Web, equivalentes a 210 pares método/ruta. No tiene duplicados. [Matriz de operaciones](../../audits/20261102/seguimiento/OPERACIONES.csv), [diferencias y metadatos](../../audits/20261102/seguimiento/RESUMEN_API.json) y [siete pantallas prioritarias](../../audits/20261102/seguimiento/TRAZA_PANTALLAS.json) conservan su alcance: inventariar y rastrear una ruta no demuestra todos sus permisos, persistencia o recorridos.
 
 Las pruebas de SDK controlado, navegador con HTTP interceptado, HTTP/SQL real, PostgreSQL, recuperación de datos y sandbox del proveedor se informan por separado. No se suman conjuntos solapados como cobertura total. La configuración de precios, cuotas, versiones SDK/API y disponibilidad de Mercado Pago no cambia en este candidato.
+
+## Transporte finito del escaneo canónico
+
+El escaneo físico completo rechazó1274 ubicaciones; el primer escaneo Git completo del commit2009fb8a rechazó2250 en90 rutas. Sus recibos se conservan. Dos revisores independientes comprobaron los90 blobs contra2009/fc795 y cada wholefile CRLF contraV9; QA verificó además línea, regla, digest y multiplicidad. Cinco spans cambian columnas entre frames y se fijan por separado.
+
+El puente adicional exige ZIP autenticada, fuente completa, longitud, inventario, línea, columnas, regla y digest exactos; una ubicación completa sólo puede usarse una vez. Para esas90 rutas no existe fallback al lector anterior si falla la admisión. Fuera de ellas conserva la delegación, y el adaptador sin documento adicional mantiene la rama anterior. No hay normalización genérica en producción del lector, ampliación de fechas o reescritura deV9/RAW. Los37 controles nuevos,166 históricos originales y la revisión independiente no sustituyen el siguiente escaneo completo del commit ni la CI real.
