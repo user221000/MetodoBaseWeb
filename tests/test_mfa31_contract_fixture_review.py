@@ -71,6 +71,6 @@ def test_current31_foreign_mutation_is_opaque_and_never_inherits_a_grant(team_ca
 
 
 def test_helper_adoption_does_not_change_the_global_primary_only_fixture(web_auth_client):
-    response=web_auth_client.post('/api/billing/portal',json={'return_url':'/dashboard'})
+    response=web_auth_client.post('/api/billing/mp/preference',json={'plan':'standard'})
     assert response.status_code==403
     assert response.json()['detail']['code']=='mfa_enrollment_required'

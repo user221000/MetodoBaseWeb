@@ -111,8 +111,8 @@ async def crear_sesion_stripe(
     _validate_payment_request(req)
     try:
         with open_business_session() as db:
-            from web.services.mfa_business import step_up
-            usuario = await run_in_threadpool(step_up, db, usuario, request, req.model_dump(mode="json"), idempotency_key=idempotency_key)
+            from web.routes.billing import _stripe_actor
+            usuario = await run_in_threadpool(_stripe_actor, db, usuario, request)
             usuario = await _require_billing_email(db, usuario, request, 'legacy_stripe_checkout', req.plan,
                 req.model_dump(mode='json'), idempotency_key=idempotency_key)
             result = await run_in_threadpool(create_checkout_session, db, usuario["id"], req.plan, usuario["email"],

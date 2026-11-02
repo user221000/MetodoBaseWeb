@@ -2,17 +2,18 @@
 import pytest
 from sqlalchemy.orm import Session
 
-from tests.test_mfa31_http import mfa_client, enroll, authenticate
+from tests.test_mfa31_http import mfa_client, enroll, authenticate, verify_billing_contact
 
 
 @pytest.mark.parametrize("after_real_commit", [False, True])
-def test_business_commit_failure_is_visible_without_returning_external_capability(mfa_client, monkeypatch, caplog, after_real_commit):
+def test_portal_commit_failure_is_visible_without_returning_external_capability(mfa_client, monkeypatch, caplog, after_real_commit):
     client, actor, clock = mfa_client
     from web.services import stripe_service
     from web.database.engine import get_engine
     from web.database.models import MfaAuthorization
     from web.services.mfa_crypto import opaque_digest
     calls = []
+    verify_billing_contact(actor)
     monkeypatch.setattr(stripe_service,"create_portal_session",lambda **kwargs:calls.append(kwargs) or {"url":"https://provider.example.invalid/portal"})
     _, done = enroll(client,clock)
     authenticate(client,actor,clock,recovery=done["recovery_codes"][0])
@@ -34,7 +35,8 @@ def test_business_commit_failure_is_visible_without_returning_external_capabilit
     assert token not in caplog.text
     with Session(get_engine()) as db:
         proof = db.get(MfaAuthorization,opaque_digest("action",token))
-        assert (proof.consumed_at is not None) is after_real_commit
+        # Stripe no longer requires or consumes an optional legacy action grant.
+        assert proof.consumed_at is None
     retry = client.post("/api/billing/portal",json=body,headers={"X-MFA-Grant":token})
-    assert retry.status_code == (400 if after_real_commit else 200)
-    assert len(calls) == (0 if after_real_commit else 1)
+    assert retry.status_code == 200
+    assert len(calls) == 1

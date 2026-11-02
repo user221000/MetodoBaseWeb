@@ -1,5 +1,11 @@
 # Estado de implementación
 
+## Contratación Stripe sin activar un factor de cuenta — 2 de noviembre de 2026
+
+Por petición del usuario, los dueños de gimnasio o clínica contratan y gestionan su plan en Stripe sin configurar antes un autenticador o confirmar otro factor de Método Base, igual que el espacio individual. Se incluyen Checkout, Elements, confirmación, portal y el alias API; elegir otro plan existente usa el portal. Se conserva la autoridad de dueño/sesión vigente, correo de contacto, idempotencia y confirmación del proveedor, así como MFA de acceso/seguridad/equipo y Mercado Pago. [Alcance y validación](../20261102-stripe-purchase-without-account-factor.md).
+
+La publicación parte de b10ab884 en un worktree aislado. Los recibos de autor, QA, seguridad y operación registran la fuente final, commit e imagen; no se hacen cobros o reenvíos productivos para probar. Los controles generales pendientes y el informe anterior conservan su alcance y fecha. Root preserva 704 fuentes locales originales, el backlog y preimágenes de la sincronización.
+
 ## Auditoría ampliada: pagos, webhooks y transporte — 2 de noviembre de 2026
 
 El usuario confirmó el acceso Google por correo después del hotfix productivo 6cdbc58. La segunda ola corrige `invoice.paid`, autoridad de factura/cargo actual y estado de historial de reembolso completo; limita cuerpos de seis superficies webhook sin cambiar bytes firmados; iguala caché de factories y evita guardar HTML de tres entradas de acceso. No hay migraciones, cambios de precios/cuotas o dependencias. [Detalle y límites](../20261102-webhooks-and-api-hardening.md).

@@ -51,11 +51,11 @@ def test_replace_pending_keeps_active_factor_then_confirm_changes_generation(mfa
     assert _decode_token(fresh["token"])["mfa_generation"] == _decode_token(pair["token"])["mfa_generation"] + 1
 
 
-def test_revoke_requires_both_factors_and_leaves_privileged_mutation_blocked(mfa_client, monkeypatch):
+def test_revoke_requires_both_factors_and_leaves_factor_protected_mutation_blocked(mfa_client, monkeypatch):
     client, actor, clock = mfa_client
-    from web.services import stripe_service
+    from web.services import mercadopago_service
     calls = []
-    monkeypatch.setattr(stripe_service,"create_portal_session",lambda **kwargs:calls.append(kwargs))
+    monkeypatch.setattr(mercadopago_service,"create_preference",lambda *args, **kwargs:calls.append(kwargs))
     _, first = enroll(client, clock)
     pair, _ = authenticate(client, actor, clock, recovery=first["recovery_codes"][0])
     reauth = client.post("/api/auth/mfa/reauth", json={"password":"test123"}).json()["reauthentication_token"]
@@ -65,7 +65,7 @@ def test_revoke_requires_both_factors_and_leaves_privileged_mutation_blocked(mfa
     login = client.post("/api/auth/login",json={"email":actor["email"],"password":"test123"})
     assert login.status_code == 200 and login.json()["mfa_required"] is False
     client.headers["Authorization"] = "Bearer " + login.json()["token"]
-    denied = client.post("/api/billing/portal",json={"return_url":"/dashboard"})
+    denied = client.post("/api/billing/mp/preference",json={"plan":"standard"})
     assert denied.status_code == 403 and denied.json()["detail"]["code"] == "mfa_enrollment_required"
     assert calls == []
 

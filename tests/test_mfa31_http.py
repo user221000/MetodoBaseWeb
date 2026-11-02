@@ -55,15 +55,28 @@ def authenticate(client, actor, clock, *, seed=None, recovery=None):
     return result.json(), body
 
 
+def verify_billing_contact(actor):
+    """Admit only these billing cases; primary-only global fixtures stay intact."""
+    from sqlalchemy.orm import Session
+    from web.database.engine import get_engine
+    from web.database.models import Usuario
+    from web.services import mfa_service
+    with Session(get_engine()) as db:
+        user = db.get(Usuario, actor['id'])
+        user.email_verified_at = mfa_service.instant()
+        user.email_verified_contact_version = user.notification_contact_version
+        db.commit()
+
+
 @pytest.mark.parametrize("client_fixture", ["auth_client", "web_auth_client"])
-def test_primary_only_owner_cannot_open_billing_portal(request, monkeypatch, client_fixture):
+def test_primary_only_owner_without_confirmed_contact_cannot_open_billing_portal(request, monkeypatch, client_fixture):
     from web.services import stripe_service
     calls = []
     monkeypatch.setattr(stripe_service, "create_portal_session", lambda **kw: calls.append(kw) or {"url": "https://provider.example.invalid/portal"})
     client = request.getfixturevalue(client_fixture)
     response = client.post("/api/billing/portal", json={"return_url": "/dashboard"})
     assert response.status_code == 403
-    assert response.json()["detail"]["code"] == "mfa_enrollment_required"
+    assert response.json()["detail"]["code"] == "billing_email_required"
     assert calls == []
 
 
@@ -92,16 +105,23 @@ def test_enrollment_login_one_use_and_status_never_repeats_secrets(mfa_client):
 
 def test_recent_mfa_grant_exact_body_action_access_and_one_use(mfa_client, monkeypatch):
     client, actor, clock = mfa_client
-    from web.services import stripe_service
+    from web.services import mercadopago_service
+    from web.settings import get_settings
     calls = []
-    monkeypatch.setattr(stripe_service, "create_portal_session", lambda **kw: calls.append(kw) or {"url": "https://provider.example.invalid/portal"})
+    def provider(db, *args, **kw):
+        calls.append((args, kw)); db.commit()
+        return {"preference_id": "pref_offline", "redirect_url": "https://provider.example.invalid/payment"}
+    monkeypatch.setattr(mercadopago_service, "create_preference", provider)
+    monkeypatch.setattr(get_settings(), "MERCADOPAGO_ACCESS_TOKEN", "synthetic-non-live-mp-key")
+    verify_billing_contact(actor)
     _, done = enroll(client, clock)
     pair, _ = authenticate(client, actor, clock, recovery=done["recovery_codes"][0])
-    action = {"method": "POST", "path": "/api/billing/portal", "body": {"return_url": "/dashboard"}}
+    action = {"method": "POST", "path": "/api/billing/mp/preference", "body": {
+        "plan": "standard", "success_url": "/dashboard", "cancel_url": "/suscripciones"}}
     issued = client.post("/api/auth/mfa/step-up", json=action)
     assert issued.status_code == 200, issued.text
     grant = issued.json()["grant"]
-    mismatch = client.post(action["path"], json={"return_url": "/suscripciones"}, headers={"X-MFA-Grant": grant})
+    mismatch = client.post(action["path"], json={**action["body"], "success_url": "/suscripciones"}, headers={"X-MFA-Grant": grant})
     assert mismatch.status_code == 403 and calls == []
     valid = client.post(action["path"], json=action["body"], headers={"X-MFA-Grant": grant})
     assert valid.status_code == 200 and len(calls) == 1

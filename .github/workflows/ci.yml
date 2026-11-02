@@ -35,6 +35,18 @@ jobs:
         node-version: '24'
     - name: Keep public login and protected security email verification separate
       run: node tests/e2e/google_email_purpose_contract.cjs
+  stripe-purchase-transport:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+    - name: Allow Stripe plans without account MFA while retaining session boundaries
+      run: node tests/e2e/stripe_purchase_no_factor_contract.cjs
+    - name: Retain verified-contact and remaining MFA payment contracts
+      run: node tests/e2e/billing_email_verification_api.cjs
   secrets:
     runs-on: ubuntu-latest
     steps:
@@ -174,6 +186,7 @@ jobs:
     - secrets
     - test-web
     - frontend-contracts
+    - stripe-purchase-transport
     - redis
     - historical-ci30
     - historical-postgres

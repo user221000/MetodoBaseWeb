@@ -1146,16 +1146,21 @@ const Api = (() => {
         plan,
         success_url: '/suscripciones?result=success',
         cancel_url: '/suscripciones?result=canceled',
-        }, key || null,true),
+        }, key || null),
     stripeSubscribe: (plan, payment_method_id, key) =>
       _billingProtected('gym_stripe_subscribe',plan,'POST', '/api/billing/stripe/subscribe', {
         plan,
         payment_method_id,
-        }, key || null,true),
-    confirmSubscription: (subscription_id) =>
-      mfa.perform('POST', '/api/billing/confirm-subscription', {
-        subscription_id,
-      }),
+        }, key || null),
+    async confirmSubscription(subscription_id) {
+      // Stripe confirms payment; keep one account/access across this request.
+      const {handle}=await mfa.context();await mfa.verify(handle);
+      const context=_mfaContext(handle);
+      const value=await request('POST','/api/billing/confirm-subscription',{subscription_id},{},true,
+        {snapshot:context.snapshot,pair:context.pair});
+      _mfaContext(handle);await mfa.verify(handle);_mfaContext(handle);
+      return value;
+    },
     mpPreference: (plan, key) =>
       _billingProtected('gym_mp_preference',plan,'POST', '/api/billing/mp/preference', {
         plan,
@@ -1165,7 +1170,7 @@ const Api = (() => {
     portal: () =>
       _billingProtected('gym_stripe_portal','manage','POST', '/api/billing/portal', {
         return_url: '/suscripciones',
-        },null,true),
+        }),
   };
 
   // ── Gym Profile ─────────────────────────────────────────────────────────────

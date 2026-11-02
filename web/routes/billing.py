@@ -86,6 +86,27 @@ class PortalRequest(BaseModel):
     return_url: str = Field("/dashboard", max_length=500)
 
 
+def _stripe_actor(db: Session, expected: dict, request: Request) -> dict:
+    """Keep fresh owner/session authority without requiring an account factor.
+
+    Stripe billing uses the same locked identity and signed access checks as
+    protected business actions. Account MFA enrolment and single-use action
+    grants are separate from initiating or confirming this provider payment.
+    """
+    from web.services import mfa_service
+
+    values = request.headers.getlist("authorization")
+    if len(values) != 1 or not values[0].startswith("Bearer "):
+        mfa_service.fail(401, "mfa_identity_unavailable")
+    user, identity = mfa_service.lock_actor(db, expected)
+    mfa_service._locked_access(values[0][7:], user, identity, mfa_service.instant())
+    if (identity.get("tipo") != "gym" or identity.get("role") != "owner"
+            or identity.get("team_gym_id")):
+        mfa_service.fail(403, "mfa_action_forbidden")
+    verify_permission(identity, "update", "subscription", identity["id"])
+    return identity
+
+
 # ── Endpoints con autenticación ───────────────────────────────────────────────
 
 @router.get("/billing/config", summary="Estado de configuración de pagos")
@@ -135,7 +156,7 @@ async def crear_checkout(
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
-    usuario = await run_in_threadpool(_step_up, db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
+    usuario = await run_in_threadpool(_stripe_actor, db, usuario, request)
     _require_paid_plan(data.plan)
     _validate_redirect_url(data.success_url, "success_url")
     _validate_redirect_url(data.cancel_url, "cancel_url")
@@ -175,7 +196,7 @@ async def stripe_subscribe(
     idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
 ):
     verify_permission(usuario, "update", "subscription")
-    usuario = await run_in_threadpool(_step_up, db, usuario, request, data.model_dump(mode="json"), idempotency_key=idempotency_key)
+    usuario = await run_in_threadpool(_stripe_actor, db, usuario, request)
     _require_paid_plan(data.plan)
     usuario = await _require_billing_email(db, usuario, request, 'gym_stripe_subscribe', data.plan,
         data.model_dump(mode='json'), idempotency_key=idempotency_key)
@@ -210,7 +231,7 @@ def confirm_subscription(
     """Verifica con Stripe que el pago se completó y activa la suscripción.
     Llamado por el frontend tras confirmCardPayment exitoso."""
     verify_permission(usuario, "update", "subscription")
-    usuario = _step_up(db, usuario, request, data.model_dump(mode="json"))
+    usuario = _stripe_actor(db, usuario, request)
     try:
         result = stripe_service.confirm_subscription(db, usuario["id"], data.subscription_id)
         db.commit()
@@ -235,12 +256,12 @@ async def abrir_portal(
     usuario: dict = Depends(get_usuario_actual),
 ):
     verify_permission(usuario, "update", "subscription")
-    usuario = await run_in_threadpool(_step_up, db, usuario, request, data.model_dump(mode="json"))
+    usuario = await run_in_threadpool(_stripe_actor, db, usuario, request)
     _validate_redirect_url(data.return_url, 'return_url')
     usuario = await _require_billing_email(db, usuario, request, 'gym_stripe_portal', 'manage', data.model_dump(mode='json'))
-    from web.services.mfa_service import commit as _commit_mfa_grant
-    await run_in_threadpool(_commit_mfa_grant, db)  # Consume before the external capability.
     try:
+        # Release the account lock before creating the external portal session.
+        await run_in_threadpool(db.commit)
         result = await run_in_threadpool(stripe_service.create_portal_session,
             db=db,
             gym_id=usuario["id"],

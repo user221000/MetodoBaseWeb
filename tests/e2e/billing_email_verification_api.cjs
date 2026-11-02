@@ -37,10 +37,10 @@ async function fixture(){
 const rows=[];
 async function test(name,run){try{await run();rows.push({case:name,passed:true});}catch(error){rows.push({case:name,passed:false,error_type:error.name,code:error.code||null,frames:error.stack?.split('\n').slice(1,5)});}}
 const cases=[
-  ['gym_stripe_checkout','standard','/api/billing/checkout',api=>api.billing.checkout('standard','owned-checkout-key'),true],
-  ['gym_stripe_subscribe','gym_comercial','/api/billing/stripe/subscribe',api=>api.billing.stripeSubscribe('gym_comercial','pm_synthetic','owned-elements-key'),true],
+  ['gym_stripe_checkout','standard','/api/billing/checkout',api=>api.billing.checkout('standard','owned-checkout-key'),false],
+  ['gym_stripe_subscribe','gym_comercial','/api/billing/stripe/subscribe',api=>api.billing.stripeSubscribe('gym_comercial','pm_synthetic','owned-elements-key'),false],
   ['gym_mp_preference','clinica','/api/billing/mp/preference',api=>api.billing.mpPreference('clinica','owned-mp-key'),true],
-  ['gym_stripe_portal','manage','/api/billing/portal',api=>api.billing.portal(),true],
+  ['gym_stripe_portal','manage','/api/billing/portal',api=>api.billing.portal(),false],
   ['personal_stripe_checkout','pro','/api/usuario/checkout',api=>api.usuario.checkout('owned-personal-key'),false],
   ['personal_stripe_subscribe','pro','/api/usuario/stripe-subscribe',api=>api.usuario.stripeSubscribe('pro','pm_synthetic','owned-personal-elements-key'),false],
   ['personal_mp_preference','pro','/api/usuario/mp-preference',api=>api.usuario.mpPreference('pro','owned-personal-mp-key'),false],
@@ -128,7 +128,7 @@ const cases=[
   await test('Existing MFA factor interaction keeps original DTO, key and mailbox grant separate',async()=>{
     const e=await fixture();let factors=0;e.control.hook=c=>{if(c.path==='/api/auth/mfa/step-up' && factors++===0)return reply(403,{detail:{code:'mfa_fresh_verification_required'}});};
     e.t.sandbox.MfaUI={authorize:operation=>e.t.api.mfa.grant(operation,{code:'654321'})};
-    await e.t.api.billing.checkout('standard','owned-mfa-key');
+    await e.t.api.billing.mpPreference('standard','owned-mfa-key');
     const steps=e.w.calls.filter(c=>c.path==='/api/auth/mfa/step-up');assert.equal(steps.length,2);assert.equal(steps[1].body.code,'654321');
     const payment=e.control.payments[0];assert.equal(payment.options.headers['Idempotency-Key'],'owned-mfa-key');assert.equal(Object.hasOwn(payment.body,'code'),false);
     assert.equal(e.w.calls.filter(c=>c.path.endsWith('/email-verification/verify')).length,1);

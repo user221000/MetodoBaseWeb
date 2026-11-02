@@ -1,7 +1,7 @@
 """Independent alias/key wire binding, real MFA HTTP/SQLite, synthetic business ports."""
 import pytest
 from conftest import database_schema,isolated_database,test_gym_user
-from tests.test_mfa31_http import mfa_client,enroll,authenticate
+from tests.test_mfa31_http import mfa_client,enroll,authenticate,verify_billing_contact
 
 def consumed_grant(actor, grant):
     from sqlalchemy.orm import Session
@@ -31,11 +31,12 @@ def payment_request(client, actor, provider, monkeypatch):
 def login(mfa_client):
     client,actor,clock=mfa_client
     _,kit=enroll(client,clock);authenticate(client,actor,clock,recovery=kit['recovery_codes'][0])
+    verify_billing_contact(actor)
     return client,actor
 
 @pytest.mark.parametrize('mfa_client',['api.app','web.main_web'],indirect=True)
 @pytest.mark.parametrize('provider',['stripe','mp'])
-def test_deployed_payment_route_exact_observed_key_can_be_consumed(mfa_client,monkeypatch,provider):
+def test_deployed_payment_route_keeps_key_with_only_mp_consuming_action_grant(mfa_client,monkeypatch,provider):
     client,actor=login(mfa_client)
     from web.services import stripe_service,mercadopago_service
     calls=[]
@@ -51,13 +52,14 @@ def test_deployed_payment_route_exact_observed_key_can_be_consumed(mfa_client,mo
     response=client.post(path,json=body,headers={'X-MFA-Grant':issued.json()['grant'],'Idempotency-Key':key})
     assert response.status_code==200,'Exact alias key bound at issue must remain consumable'
     assert calls==[{'key':key}],'Confirmed operation key must reach the durable business intent'
-    assert consumed_grant(actor,issued.json()['grant'])
+    assert consumed_grant(actor,issued.json()['grant']) is (provider == 'mp')
     replay=client.post(path,json=body,headers={'X-MFA-Grant':issued.json()['grant'],'Idempotency-Key':key})
-    assert replay.status_code==400 and calls==[{'key':key}]
+    assert replay.status_code == (400 if provider == 'mp' else 200)
+    assert calls == [{'key': key}] * (1 if provider == 'mp' else 2)
 
 @pytest.mark.parametrize('mfa_client',['api.app','web.main_web'],indirect=True)
 @pytest.mark.parametrize('provider',['stripe','mp'])
-def test_deployed_payment_route_rejects_added_key_absent_from_observed_grant(mfa_client,monkeypatch,provider):
+def test_only_mp_requires_payment_key_to_match_optional_action_grant(mfa_client,monkeypatch,provider):
     client,actor=login(mfa_client)
     from web.services import stripe_service,mercadopago_service
     calls=[]
@@ -69,15 +71,15 @@ def test_deployed_payment_route_rejects_added_key_absent_from_observed_grant(mfa
     issued=client.post('/api/auth/mfa/step-up',json={'method':'POST','path':path,'body':body})
     assert issued.status_code==200
     response=client.post(path,json=body,headers={'X-MFA-Grant':issued.json()['grant'],'Idempotency-Key':'synthetic-added-key'})
-    assert response.status_code==403,'A different observed operation key must invalidate exact binding'
-    assert calls==[]
+    assert response.status_code == (403 if provider == 'mp' else 200)
+    assert calls == ([] if provider == 'mp' else [True])
     assert not consumed_grant(actor,issued.json()['grant'])
     exact=client.post(path,json=body,headers={'X-MFA-Grant':issued.json()['grant']})
-    assert exact.status_code==200 and calls==[True]
-    assert consumed_grant(actor,issued.json()['grant'])
+    assert exact.status_code == 200 and calls == [True] * (1 if provider == 'mp' else 2)
+    assert consumed_grant(actor,issued.json()['grant']) is (provider == 'mp')
 
 @pytest.mark.parametrize('mfa_client',['api.app','web.main_web'],indirect=True)
-def test_canonical_checkout_preserves_exact_key_and_rejects_a_changed_key(mfa_client,monkeypatch):
+def test_canonical_stripe_checkout_keeps_purchase_key_independent_of_optional_grant(mfa_client,monkeypatch):
     client,actor=login(mfa_client)
     from web.services import stripe_service
     calls=[]
@@ -89,9 +91,10 @@ def test_canonical_checkout_preserves_exact_key_and_rejects_a_changed_key(mfa_cl
     assert issued.status_code==200
     grant=issued.json()['grant']
     bad=client.post('/api/billing/checkout',json=body,headers={'X-MFA-Grant':grant,'Idempotency-Key':'synthetic-changed-key'})
-    assert bad.status_code==403 and calls==[]
+    assert bad.status_code==200 and calls==['synthetic-changed-key']
     good=client.post('/api/billing/checkout',json=body,headers={'X-MFA-Grant':grant,'Idempotency-Key':key})
-    assert good.status_code==200 and calls==[key]
+    assert good.status_code==200 and calls==['synthetic-changed-key',key]
+    assert not consumed_grant(actor,grant)
 
 
 @pytest.mark.parametrize('mfa_client',['web.main_web'],indirect=True)
