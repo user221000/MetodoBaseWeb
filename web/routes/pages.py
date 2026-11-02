@@ -44,6 +44,7 @@ async def index(request: Request):
         "individual_plans": get_individual_plan_catalog(),
         "example": example,
         "landing_style_version": hashlib.sha256((_TMPL_DIR.parent / "static" / "css" / "landing.css").read_bytes()).hexdigest()[:12],
+        "landing_script_version": hashlib.sha256((_TMPL_DIR.parent / "static" / "js" / "landing.js").read_bytes()).hexdigest()[:12],
     })
 
 

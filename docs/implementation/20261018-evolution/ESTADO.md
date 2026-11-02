@@ -1,5 +1,10 @@
 # Estado de implementación
 
+## Landing adjust — publicación autorizada del 1 de noviembre de 2026
+
+Publicación acotada de la portada con demostración, invitación de registro, contraste y nuevo mensaje comercial. Incluye la continuidad de la suscripción elegida por registro, acceso y seguridad/MFA; no activa pagos ni cambia permisos. Se prepara desde la versión productiva 18d855ff en un worktree aislado, conservando los otros cambios locales de correo/API/pagos. Se preservan los requisitos y estados globales. El candidato exacto se vuelve a verificar antes del push y Railway se comprueba después. [Alcance, evidencias y recuperación](../20261101-landing-adjust-release.md).
+
+
 ## Seguridad de cuenta, correo confirmado y registro — 1 de noviembre
 
 La tarjeta de seguridad comparte la interfaz clara/verde, separa estado del correo y autenticador y explica el alta, recuperación y regreso a Suscripción. El correo actual confirmado se persiste al verificar un OTP válido de contratación, de Google login cuando coincide su destinatario, o del nuevo flujo de seguridad Google+correo. Las compras no vuelven a pedir ese correo mientras su versión y contacto sigan vigentes; conservan MFA, permisos e intención exacta. No se infieren confirmaciones históricas por tener Google vinculado ni se confirma otro contacto.

@@ -126,7 +126,7 @@
         catch(error){if(settled)return;try{Api.mfa.checkOperation(operation);}catch{changed();return;}status.textContent=notice(error);status.focus();}
         finally{busy=false;if(!settled)submit.disabled=false;}});
       window.addEventListener('metodobase-session-changed',changed);window.addEventListener('pagehide',changed);
-      if(reason.code==='mfa_enrollment_required'){form.hidden=true;const link=node('a','Abrir seguridad de la cuenta',dialog);link.href='/configuracion#mfa-account';}
+      if(reason.code==='mfa_enrollment_required'){form.hidden=true;const link=node('a','Abrir seguridad de la cuenta',dialog);link.href=window.SubscriptionChoice?.href('/configuracion#mfa-account','gym')||'/configuracion#mfa-account';}
       try{Api.mfa.checkOperation(operation);document.body.append(dialog);if(typeof dialog.showModal!=='function')throw bad();dialog.showModal();(form.hidden?cancel:input).focus();Api.mfa.checkOperation(operation);}catch(error){finish(error);}
     });
   }
@@ -137,6 +137,9 @@
     let recoveryView=null,providerAttempt=null,providerEpoch=0,providerRender=0,renderGoogle=null,mail=null,mailBusy=false,mailTimer=null,lastState=null,emailEpoch=0;
     const personal=options.loginUrl==='/login-usuario',securityUrl=personal?'/mi-seguridad':'/cuenta/seguridad';
     get('mfa-account-email-link').href=securityUrl;get('mfa-account-security-link').href=securityUrl;get('mfa-account-subscription-link').href=personal?'/mi-suscripcion':'/suscripciones';
+    const navigationAudience=personal?'usuario':'gym';
+    const loginDestination=window.SubscriptionChoice?.href(options.loginUrl,navigationAudience)||options.loginUrl;
+    window.SubscriptionChoice?.decorate(navigationAudience);
     function clearMail(){clearInterval(mailTimer);mailTimer=null;if(mail)mail.proof=null;mail=null;mailBusy=false;mailCode.value='';mailForm.hidden=true;}
     function clearInputs(){for(const input of root.querySelectorAll('input'))input.value='';providerAttempt=null;providerEpoch++;clearMail();get('mfa-account-google-cancel').hidden=true;googleTarget.inert=false;}
     function clear(){clearInputs();seed.replaceChildren();confirmation.hidden=true;recoveryView?.clear();recoveryView=null;kitRoot.replaceChildren();}
@@ -186,11 +189,11 @@
     },onKit(codes,closed){
       Api.mfa.check(closed);get('mfa-account-summary').textContent='';badge('mfa-account-factor-state','Cambio confirmado','confirmed');
       form.hidden=true;confirmation.hidden=true;googleSection.hidden=true;get('mfa-account-refresh').hidden=true;state.textContent='Cambio confirmado. Sesión anterior cerrada; guarda el kit antes de salir.';
-      recoveryView=kit(kitRoot,codes,closed,options.loginUrl);Api.mfa.check(closed);
+      recoveryView=kit(kitRoot,codes,closed,loginDestination);Api.mfa.check(closed);
     },onClosed(closed){
       Api.mfa.check(closed);get('mfa-account-summary').textContent='';form.hidden=true;confirmation.hidden=true;googleSection.hidden=true;badge('mfa-account-factor-state','Desactivado','pending');
       state.textContent='Autenticación en dos pasos desactivada y sesión cerrada. Para hacer cambios protegidos tendrás que activarla de nuevo.';
-      const link=node('a','Iniciar sesión de nuevo',kitRoot);link.href=options.loginUrl;Api.mfa.check(closed);
+      const link=node('a','Iniciar sesión de nuevo',kitRoot);link.href=loginDestination;Api.mfa.check(closed);
     },onClosedError(text){clear();form.hidden=true;googleSection.hidden=true;state.textContent=text;state.focus();}});
     function currentProof(){return controller.enabled?factor(get('mfa-account-method').value,get('mfa-account-factor').value.trim()):{};}
     function showError(error){if(controller.active){root.dataset.phase='error';state.textContent=notice(error);state.focus();}}

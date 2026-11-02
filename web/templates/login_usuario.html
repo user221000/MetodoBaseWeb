@@ -41,7 +41,8 @@
         <h1 class="sidebar-title">Qué gusto verte</h1>
         <p class="sidebar-subtitle">Continúa con tu plan, a tu ritmo.</p>
 
-        <div class="error-msg" id="errorMsg"></div>
+        <p id="subscription-choice-note" class="mb-subscription-choice" role="status" hidden></p>
+        <div class="error-msg" id="errorMsg" role="alert"></div>
 
         {% include "mfa_login_partial.html" %}
         <form id="loginForm" novalidate>
@@ -103,6 +104,7 @@
   </div>
 
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1"></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/subscription-choice.js?v={{ static_version }}"></script>
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-login.js?v={{ static_version }}"></script>
   <script nonce="{{ request.state.csp_nonce }}">
     MfaLogin.mount({audience:"usuario",googleClientId:{{ google_client_id | default("") | tojson }},nonce:{{ request.state.csp_nonce | tojson }}});

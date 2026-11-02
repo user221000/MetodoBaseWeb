@@ -3,6 +3,7 @@ import importlib
 import json
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 from fastapi.testclient import TestClient
 import pytest
@@ -21,8 +22,9 @@ class Markup(HTMLParser):
         self.elements.append((tag, attrs))
         if tag == 'article':
             key = attrs.get('data-plan') or attrs.get('data-personal-plan')
-            self.card = {'elements':[], 'text':[], 'personal':'data-personal-plan' in attrs}
-            self.cards[key] = self.card
+            if key:
+                self.card = {'elements':[], 'text':[], 'personal':'data-personal-plan' in attrs}
+                self.cards[key] = self.card
         if self.card is not None:
             self.card['elements'].append((tag,attrs))
 
@@ -61,7 +63,10 @@ def assert_offer(markup, business, personal):
         fields = {'max_planes_mes'} if card['personal'] else {'max_clientes','max_registros_diarios','max_planes_por_cliente_dia','max_planes_diarios','max_planes_mes'}
         limits = {attrs['data-limit-field']:int(attrs['data-value']) for _,attrs in card['elements'] if 'data-limit-field' in attrs}
         assert limits == {name:plan[name] for name in fields}
-        assert [attrs['href'] for tag,attrs in card['elements'] if tag=='a'] == ['/registro?tipo=usuario' if card['personal'] else '/registro?tipo=gym']
+        destination = '/registro?tipo=usuario' if card['personal'] else '/registro?tipo=gym'
+        if key not in {'free', 'starter'}:
+            destination += '&subscription_plan=' + key
+        assert [attrs['href'] for tag,attrs in card['elements'] if tag=='a'] == [destination]
 
 
 def test_every_price_currency_period_and_limit_matches_canonical_catalog(landing):
@@ -93,13 +98,24 @@ def test_runtime_catalog_change_renders_without_a_duplicated_offer_snapshot(land
 
 
 def test_ctas_are_exact_audience_routes_and_fragment_links_exist(landing):
-    allowed = {'/','/login-gym','/login-usuario','/registro?tipo=gym','/registro?tipo=usuario',
-        '#contenido','#planes-negocio','#planes-personales','#datos-personales'}
     elements = landing[2].elements
     ids = [attrs['id'] for _,attrs in elements if 'id' in attrs]
     assert len(ids)==len(set(ids))
     links = [attrs['href'] for tag,attrs in elements if tag=='a']
-    assert set(links)==allowed
+    for link in links:
+        target = urlsplit(link)
+        assert target.scheme == target.netloc == ''
+        assert target.path in {'', '/', '/login-gym', '/login-usuario', '/registro'}
+        if target.path == '/registro':
+            query = parse_qs(target.query)
+            assert query.get('tipo') in [['gym'], ['usuario']]
+            assert set(query) <= {'tipo', 'subscription_plan'}
+            if 'subscription_plan' in query:
+                allowed = {'standard', 'gym_comercial', 'clinica'} if query['tipo'] == ['gym'] else {'pro'}
+                assert len(query['subscription_plan']) == 1 and query['subscription_plan'][0] in allowed
+        else:
+            assert target.query == ''
+    assert {'/login-gym', '/login-usuario', '/registro?tipo=gym', '/registro?tipo=usuario'} <= set(links)
     assert all(link[1:] in ids for link in links if link.startswith('#'))
     for path in ['/registro?tipo=gym','/registro?tipo=usuario','/login-gym','/login-usuario']:
         assert landing[0].get(path).status_code == 200
@@ -112,8 +128,8 @@ def test_synthetic_excerpt_is_copied_from_actual_generated_worker_result(landing
     assert set(example)=={'format','meal','groups'}
     assert example['format']=='worker_demo_excerpt_v1' and example['meal']=='desayuno'
     assert example['groups']==[{'group':group,'option':plan['desayuno'][group]['opciones'][0]} for group in ('proteinas','carbohidratos','grasas')]
-    assert 'Ejemplo con datos de demostración' in landing[1].text
-    assert 'no es una recomendación de alimentación ni una evaluación clínica' in landing[1].text
+    assert 'Demostración · datos de ejemplo' in landing[1].text
+    assert 'no una recomendación de alimentación ni una evaluación clínica' in landing[1].text
     assert not any(key in json.dumps(example) for key in ['token','id_cliente','pdf_url','ruta_pdf'])
 
 
@@ -131,8 +147,18 @@ def test_public_view_never_reads_credentials_fetches_private_data_or_writes(land
     finally:
         event.remove(get_engine(),'before_cursor_execute',observed)
     assert writes==[]
-    for legacy in ['localStorage','sessionStorage','window.location.replace','<script','https://fonts.']:
+    for legacy in ['localStorage','sessionStorage','window.location.replace','https://fonts.']:
         assert legacy not in landing[1].text
+    scripts = [attrs for tag, attrs in landing[2].elements if tag == 'script']
+    script_version = hashlib.sha256(Path('web/static/js/landing.js').read_bytes()).hexdigest()[:12]
+    assert len(scripts) == 1
+    assert scripts[0].get('src') == '/static/js/landing.js?v=' + script_version
+    nonce = scripts[0].get('nonce')
+    assert nonce and "'nonce-" + nonce + "'" in landing[1].headers['content-security-policy']
+    script = Path('web/static/js/landing.js').read_text(encoding='utf-8')
+    for sensitive in ['mb_token', 'mb_refresh_token', 'mb_email', 'mb_tipo', 'localStorage', 'fetch(', 'XMLHttpRequest']:
+        assert sensitive not in script
+    assert landing[0].get('/static/js/landing.js').status_code == 200
     assert landing[0].get('/static/css/landing.css').status_code==200
     version = hashlib.sha256(Path('web/static/css/landing.css').read_bytes()).hexdigest()[:12]
     assert f'/static/css/landing.css?v={version}' in landing[1].text

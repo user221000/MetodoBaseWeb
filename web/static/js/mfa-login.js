@@ -157,7 +157,7 @@
     },async onAuthenticated(handle,authentication={}){
       Api.mfa.check(handle);const {me,handle:checked}=await Api.mfa.context();Api.mfa.check(handle);Api.mfa.check(checked);
       if(!['gym','usuario'].includes(me.tipo)||(!registration&&authentication.primaryMethod!=='google'&&((options.audience==='gym'&&me.tipo!=='gym'&&!me.team_gym_id)||(options.audience==='usuario'&&me.tipo!=='usuario'&&!me.team_gym_id))))throw new Error('No se confirmó el destino de esta cuenta.');
-      Api.mfa.check(handle);window.location.assign(me.team_gym_id?'/equipo/inicio':me.tipo==='gym'?(registration?'/configuracion':'/dashboard'):'/mi-plan');
+      Api.mfa.check(handle);window.location.assign(window.SubscriptionChoice?.destination(me)||(me.team_gym_id?'/equipo/inicio':me.tipo==='gym'?(registration?'/configuracion':'/dashboard'):'/mi-plan'));
     }});
     form.addEventListener('submit',event=>{
       event.preventDefault();if(controller.phase!=='primary'||!controller.active)return false;googleTicket=null;googleEpoch++;

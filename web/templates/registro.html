@@ -101,6 +101,7 @@
         <p class="registro-subtitle">Únete al sistema nutricional</p>
       </div>
 
+      <p id="subscription-choice-note" class="mb-subscription-choice" role="status" hidden></p>
       <div class="error-msg" id="errorMsg" role="alert" aria-live="polite"></div>
       <div class="success-msg" id="successMsg"></div>
       {% include "mfa_login_partial.html" %}
@@ -110,10 +111,10 @@
         <label class="input-label">TIPO DE CUENTA</label>
         <div class="tipo-row">
           <button type="button" class="tipo-btn" id="btnGym">
-            🏢 Socio Comercial (Gym)
+            Cuenta de negocio
           </button>
           <button type="button" class="tipo-btn active-usuario" id="btnUsuario">
-            👤 Usuario Individual
+            Cuenta personal
           </button>
         </div>
       </div>
@@ -150,7 +151,7 @@
         </div>
 
         <div class="security-note">
-          Tu contraseña es personal. Si ya accediste con este correo, utiliza tu método habitual para iniciar sesión.
+          Crear tu cuenta con contraseña no requiere un código por correo. Te enviaremos una bienvenida. Para contratar o cambiar la seguridad podremos pedirte una confirmación. Si ya tienes cuenta, utiliza tu acceso habitual.
         </div>
 
         <button type="submit" class="btn-login" id="submitBtn">
@@ -174,6 +175,7 @@
   </div>
 
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/api.js?v={{ static_version }}-r31browser1"></script>
+  <script nonce="{{ request.state.csp_nonce }}" src="/static/js/subscription-choice.js?v={{ static_version }}"></script>
   <script nonce="{{ request.state.csp_nonce }}" src="/static/js/mfa-login.js?v={{ static_version }}"></script>
   <script nonce="{{ request.state.csp_nonce }}">
     var params = new URLSearchParams(window.location.search);
@@ -190,6 +192,9 @@
       btnGym.className  = 'tipo-btn' + (tipo === 'gym'     ? ' active-gym'     : '');
       btnUser.className = 'tipo-btn' + (tipo === 'usuario' ? ' active-usuario' : '');
       linkLogin.href = tipo === 'gym' ? '/login-gym' : '/login-usuario';
+      btnGym.setAttribute('aria-pressed', String(tipo === 'gym'));
+      btnUser.setAttribute('aria-pressed', String(tipo === 'usuario'));
+      SubscriptionChoice.decorate(tipo);
     }
 
     MfaLogin.mount({formId:"registroForm",registration:true,readAudience:function(){return document.getElementById('campoTipo').value;},

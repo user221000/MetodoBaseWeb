@@ -97,6 +97,7 @@
 
   function openModal() {
     if (!subscription || !billing) return;
+    window.SubscriptionChoice?.choose('pro', 'usuario');
     lastFocus = document.activeElement;
     selectedMethod = null;
     document.querySelectorAll('.u-pm-btn').forEach(function (button) { button.setAttribute('aria-pressed', 'false'); button.classList.remove('selected'); });

@@ -88,6 +88,7 @@
       if (subscription.provider === 'stripe') return portal();
       var plan = button.dataset.plan, name = provider();
       if (!configured(name)) return;
+      window.SubscriptionChoice?.choose(plan, 'gym');
       var intent = name + ':' + plan;
       if (!keys[intent]) keys[intent] = 'purchase-' + crypto.randomUUID();
       busy = true; render(); button.textContent = 'Abriendo proveedor…';
@@ -133,5 +134,5 @@
       await Promise.all([load(),payments()]);
     } catch(error) { if(!invalid && ticket===epoch){if(['session_changed','session_storage_error'].includes(error.code))invalidate();else{notify('No pudimos consultar tu cuenta. ' + failure(error));render();}} }
   })();
-  if (location.search) history.replaceState({}, '', '/suscripciones');
+  if (location.search) history.replaceState({}, '', window.SubscriptionChoice?.href('/suscripciones','gym') || '/suscripciones');
 })();
