@@ -29,6 +29,7 @@ from starlette.concurrency import run_in_threadpool
 from web.constants import PLANES_LICENCIA
 from web.settings import get_settings
 from web.auth_deps import get_usuario_actual
+from web.billing_schemas import PaymentHistoryResponse
 from web.database.engine import get_db
 from web.services import stripe_service
 from web.services.permissions import verify_permission
@@ -286,7 +287,7 @@ def obtener_suscripcion(
     return sub
 
 
-@router.get("/billing/payments", summary="Historial de pagos")
+@router.get("/billing/payments", summary="Historial de pagos", response_model=PaymentHistoryResponse)
 def historial_pagos(
     db: Session = Depends(get_db),
     usuario: dict = Depends(get_usuario_actual),

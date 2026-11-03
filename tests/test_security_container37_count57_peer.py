@@ -4,6 +4,7 @@ import json
 import pytest
 
 from tests.ci_web37.container_inputs import ROOT, verify_current_lock
+from tests.ci_web41 import historical_native37_peer_fixture
 
 
 @pytest.mark.parametrize("count", [57.0, "57", True, False, None, 55, 56, 58])
@@ -22,3 +23,6 @@ def test_actual_current_integer57_and_exact_versions_are_accepted():
     versions = verify_current_lock((ROOT / "requirements_web.lock").read_bytes(),
                                    (ROOT / "requirements-container.lock").read_bytes(), contract)
     assert len(versions) == 57
+
+
+historical_container37_inputs = historical_native37_peer_fixture.historical_container37_inputs

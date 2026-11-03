@@ -8,7 +8,6 @@ import copy
 import importlib
 import importlib.util
 import json
-import shutil
 import sys
 from collections import Counter
 from pathlib import Path
@@ -16,8 +15,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from tests.security_bandit22_contract_peer import descriptor, digest, validate_candidate
 from tests.ci_web37.serial_security_transport import historical_source
+from tests.security_bandit22_contract_peer import descriptor, digest, validate_candidate
 
 ROOT = Path(__file__).resolve().parents[1]
 PROPOSAL = json.loads((ROOT/"tests/data/security_bandit22_contract_candidate.json").read_bytes())
@@ -250,7 +249,7 @@ def test_valid_native_source_uses_exact_https_pin_and_bounded_read_then_authenti
 
 
 def test_docker_invocation_is_builder_only_and_does_not_copy_the_helper_to_runtime():
-    docker = (ROOT/"Dockerfile").read_text(encoding="utf8")
+    docker = historical_source(ROOT, "Dockerfile").decode("utf8")
     stage = docker.split("FROM psycopg-build AS expat-build", 1)[1].split("\nFROM ", 1)[0]
     assert stage.count("RUN ") == 1
     assert "RUN /opt/psycopg-build-tools/bin/python -I /tmp/metodobase-expat-sec10/rebuild_pyexpat.py --build --output /expat-output" in stage

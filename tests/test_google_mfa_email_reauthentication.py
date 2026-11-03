@@ -414,7 +414,7 @@ def test_http_basic_google_mail_enrolls_with_real_totp_without_auth_time(reauth_
 def test_http_reauth_proof_never_authorizes_a_charge_or_bypasses_existing_factor(reauth_http,monkeypatch):
     from web.database.models import MfaCredential
     from web.services.mfa_crypto import encrypt,totp
-    from web.services import stripe_service
+    from web.services import mercadopago_service
     c,client=reauth_http
     secret=b'IndependentQASeed1234'
     with c.sessions() as db:
@@ -426,8 +426,8 @@ def test_http_reauth_proof_never_authorizes_a_charge_or_bypasses_existing_factor
     client.headers['Authorization']='Bearer '+token
     proof=http_proof(c,client)
     calls=[]
-    monkeypatch.setattr(stripe_service,'create_checkout_session',lambda **kwargs:calls.append(kwargs) or {'url':'https://provider.example.invalid'})
-    paid=client.post('/api/billing/checkout',json={'plan':'standard'},headers={'X-MFA-Grant':proof})
+    monkeypatch.setattr(mercadopago_service,'create_preference',lambda *args,**kwargs:calls.append((args,kwargs)) or {'init_point':'https://www.mercadopago.com.mx/checkout/v1/redirect?pref_id=synthetic'})
+    paid=client.post('/api/billing/mp/preference',json={'plan':'standard'},headers={'X-MFA-Grant':proof})
     assert paid.status_code in {400,403} and calls==[]
     denied=client.post('/api/auth/mfa/enroll',json={'reauthentication_token':proof})
     assert denied.status_code==422,denied.text
@@ -454,16 +454,21 @@ async def test_exact_lua_on_owned_redis_has_pending_gate_one_use_atomicity_and_a
     import redis as redis_sync
     import redis.asyncio as redis_async
     from web.services import google_mfa_reauthentication as service
-    executable=Path('E:/MetodoBaseWorkspace/tools/redis-windows-8.10.3-msys2-billing-5e119f7b/Redis-8.10.3-Windows-x64-msys2/redis-server.exe')
-    if os.name!='nt' or not executable.is_file():
-        pytest.skip('Owned Windows Redis executable is unavailable')
+    configured=os.environ.get('METODOBASE_TEST_LUA_SERVER')
+    if configured:
+        executable=Path(configured)
+    elif os.name=='nt':
+        executable=Path('E:/MetodoBaseWorkspace/tools/redis-windows-8.10.3-msys2-billing-5e119f7b/Redis-8.10.3-Windows-x64-msys2/redis-server.exe')
+    else:
+        pytest.fail('An explicit owned Lua test server executable is required')
+    assert executable.is_absolute() and executable.is_file()
     with socket.socket() as reservation:
         reservation.bind(('127.0.0.1',0));port=reservation.getsockname()[1]
     process=subprocess.Popen([str(executable),'--bind','127.0.0.1','--port',str(port),
         '--protected-mode','yes','--daemonize','no','--save','','--appendonly','no','--dir',str(tmp_path),
         '--logfile',str(tmp_path/'redis.log'),'--pidfile',str(tmp_path/'redis.pid')],
         cwd=tmp_path,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
-        creationflags=subprocess.CREATE_NO_WINDOW)
+        creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
     sync=redis_sync.Redis(host='127.0.0.1',port=port,socket_connect_timeout=.2,socket_timeout=.2)
     client=None;accepted=False;final_keys=None;owned=False;server_pid=None
     try:
@@ -481,8 +486,10 @@ async def test_exact_lua_on_owned_redis_has_pending_gate_one_use_atomicity_and_a
         configured_pidfile=configured_pidfile.get(b'pidfile',configured_pidfile.get('pidfile'))
         if isinstance(configured_pidfile,bytes):configured_pidfile=configured_pidfile.decode('utf-8')
         assert str(configured_pidfile).replace('\\','/').lower()==str(tmp_path/'redis.pid').replace('\\','/').lower()
-        owned=True
         server_pid=sync.info('server')['process_id']
+        if os.name=='posix':
+            assert server_pid==process.pid
+        owned=True
         assert sync.config_get('appendonly')['appendonly']=='no'
         assert sync.config_get('save')['save']==''
         assert sync.dbsize()==0

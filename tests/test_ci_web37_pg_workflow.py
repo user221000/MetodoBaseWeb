@@ -3,6 +3,7 @@ import builtins
 import re
 import subprocess
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
 import pytest
@@ -61,6 +62,7 @@ def execute_guard(environment, *, head=HISTORICAL37, uid=1001, ancestor=True):
         "tests.ci_web37.pg53": SimpleNamespace(contract=forbidden),
         "tests.billing13_legacy_apply37_pg_contract": SimpleNamespace(build_contract=forbidden, ci_generation=forbidden),
         "tests.ci_web37.pg_plan": SimpleNamespace(phases=forbidden),
+        "sys": SimpleNamespace(excepthook=None, __excepthook__=forbidden),
     }
 
     def importer(name, globals=None, locals=None, fromlist=(), level=0):
@@ -69,10 +71,12 @@ def execute_guard(environment, *, head=HISTORICAL37, uid=1001, ancestor=True):
         return fake[name] if name in fake else builtins.__import__(name, globals, locals, fromlist, level)
 
     namespace = {"__builtins__": {**vars(builtins), "__import__": importer}}
-    try:
-        exec(publisher(), namespace)
-    finally:
-        environment["observed_version_tool_calls"] = calls
+    with TemporaryDirectory(prefix="metodobase-test-ci37-guard-") as owned:
+        fake["os"].environ = dict(environment, RUNNER_TEMP=str(Path(owned).resolve(strict=True)))
+        try:
+            exec(publisher(), namespace)
+        finally:
+            environment["observed_version_tool_calls"] = calls
 
 
 def test_local_mismatched_or_privileged_context_is_rejected_before_any_tool_or_SQL():

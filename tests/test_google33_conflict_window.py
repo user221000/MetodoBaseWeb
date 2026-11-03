@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from tests import test_google33_http as fixtures
+from tests.ci_web41 import google_mail_http_fixture as mail_http
 
 google_db = fixtures.google_db
 google_http = fixtures.google_http
@@ -44,12 +45,12 @@ def test_profile_flush_conflict_preserves_atomic_signup_and_rollback_uncertainty
 
     monkeypatch.setattr(repository, "crear_gym_profile", profile_conflict)
     monkeypatch.setattr(Session, "rollback", rollback)
-    response = case["client"].post("/api/auth/google", json={
-        "credential": case["credential"](), "tipo": "gym",
-    })
+    issued_email = mail_http.begin(case, tipo="gym")
+    assert created == []
+    response = mail_http.verify(case, issued_email)
     assert response.status_code == (503 if rollback_uncertain else 409)
     assert response.json()["detail"]["code"] == (
-        "google_link_unconfirmed" if rollback_uncertain else "google_link_conflict"
+        "google_link_unconfirmed" if rollback_uncertain else "google_email_identity_changed"
     )
     assert not {"token", "refresh_token", "reauthentication_token"} & response.json().keys()
     assert "synthetic" not in response.text

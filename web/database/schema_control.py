@@ -32,6 +32,7 @@ SCHEMA_CONTRACTS = {
     "20261023_product_facts": "20261023_product_facts",
     "20261023_privacy_disposition": "20261023_privacy_disposition",
     "20261031_gym_equipment": "20261031_gym_equipment",
+    "20261102_payment_refund_facts": "20261102_payment_refund_facts",
 }
 
 

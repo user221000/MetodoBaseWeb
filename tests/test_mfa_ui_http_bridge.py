@@ -40,6 +40,11 @@ def test_real_ui_mfa_modules_against_current31(monkeypatch, test_gym_user, facto
     now = datetime.now(UTC)
     actual = mfa_service.instant
     monkeypatch.setattr(mfa_service, "instant", lambda value=None: actual(now if value is None else value))
+    # This downstream lifecycle starts with a persisted, confirmed contact.
+    # The separate negative cases retain admission for unconfirmed/stale contacts.
+    if scenario == "lifecycle":
+        from tests.test_mfa31_http import verify_billing_contact
+        verify_billing_contact(test_gym_user)
     other_id = str(uuid.uuid4())
     other_email = "mfa-ui-" + uuid.uuid4().hex + "@example.invalid"
     password = "Synthetic-MFA-UI-not-live-2026!"
@@ -110,3 +115,66 @@ def test_real_ui_mfa_modules_against_current31(monkeypatch, test_gym_user, facto
             if not process.stdin.closed:
                 process.stdin.close()
             reader.join(timeout=5)
+
+
+@pytest.mark.parametrize("factory", ["api.app", "web.main_web"])
+@pytest.mark.parametrize("contact_state", ["unconfirmed", "stale"])
+def test_mfa_login_without_current_contact_confirmation_cannot_open_portal(
+        monkeypatch, test_gym_user, factory, contact_state):
+    from sqlalchemy.orm import Session
+
+    from tests.test_mfa31_http import authenticate, enroll, verify_billing_contact
+    from web.auth import verificar_token
+    from web.database.engine import get_engine
+    from web.database.models import Usuario
+    from web.services import mfa_service, stripe_service
+    from web.settings import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "MFA_ENCRYPTION_KEY",
+                        base64.urlsafe_b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes).decode())
+    # Providers are deliberately unavailable: no missing confirmation may fall
+    # back to a portal, even after genuine account MFA has been completed.
+    monkeypatch.setattr(settings, "REDIS_URL", "")
+    monkeypatch.setattr(settings, "RESEND_API_KEY", "")
+    now = datetime.now(UTC)
+    actual = mfa_service.instant
+    monkeypatch.setattr(mfa_service, "instant", lambda value=None: actual(now if value is None else value))
+    if contact_state == "stale":
+        verify_billing_contact(test_gym_user)
+    with Session(get_engine()) as db:
+        user = db.get(Usuario, test_gym_user["id"])
+        if contact_state == "stale":
+            assert user.email_verified_at is not None
+            assert user.email_verified_contact_version == user.notification_contact_version
+            user.notification_contact_version += 1
+            db.commit()
+            assert user.email_verified_contact_version != user.notification_contact_version
+        else:
+            assert user.email_verified_at is None
+    port_calls = []
+    monkeypatch.setattr(stripe_service, "create_portal_session", lambda **kwargs:
+                        port_calls.append(True) or {"url": "https://billing.stripe.com/synthetic-no-provider"})
+    source_ip = "127.3." + str(int(uuid.uuid4().hex[:2], 16)) + "." + str(int(uuid.uuid4().hex[:2], 16))
+    with TestClient(importlib.import_module(factory).create_app(),
+                    headers=test_gym_user["auth_headers"], raise_server_exceptions=False,
+                    client=(source_ip, 50000)) as client:
+        _, kit = enroll(client, [now])
+        pair, _ = authenticate(client, test_gym_user, [now], recovery=kit["recovery_codes"][0])
+        assert verificar_token(pair["token"])["amr"] == ["pwd", "recovery"]
+        state = client.get("/api/auth/mfa/status")
+        assert state.status_code == 200 and state.json()["enabled"] is True
+        assert state.json()["recovery_codes_remaining"] == 7
+        pending = client.post("/api/billing/email-verification/request",
+                              json={"action": "gym_stripe_portal", "plan": "manage"})
+        assert pending.status_code == 503
+        assert pending.json()["detail"]["code"] == "billing_email_unavailable"
+        assert not {"email_verified", "verification_token", "url"} & pending.json().keys()
+        blocked = client.post("/api/billing/portal", json={"return_url": "/dashboard"})
+        assert blocked.status_code == 403
+        assert blocked.json()["detail"]["code"] == "billing_email_required"
+        assert "url" not in blocked.json()
+        for response in (pending, blocked):
+            assert "no-store" in {item.strip().lower() for item in response.headers["Cache-Control"].split(",")}
+            assert response.headers["Referrer-Policy"] == "no-referrer"
+        assert port_calls == []

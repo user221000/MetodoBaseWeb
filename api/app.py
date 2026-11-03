@@ -281,8 +281,12 @@ def create_app() -> FastAPI:
     app.include_router(client_links_router, prefix="/api")
 
     # Share only the reviewed personal history GET and its canonical dependencies.
-    from web.routes.usuario import historial_planes
+    from web.routes.usuario import historial_planes, get_personal_payments
+    from web.billing_schemas import PaymentHistoryResponse
     app.add_api_route("/api/usuario/historial", historial_planes, methods=["GET"], tags=["Usuario Individual"])
+    app.add_api_route("/api/usuario/payments", get_personal_payments, methods=["GET"],
+                     tags=["Usuario Individual"], response_model=PaymentHistoryResponse,
+                     summary="Historial personal de pagos")
 
     # ── Planes history routes (web) ───────────────────────────────────────────
     from web.routes import planes as web_planes_routes

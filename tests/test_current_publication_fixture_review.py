@@ -10,6 +10,7 @@ from tests.current_google33_publication_fixtures import case, http, link_db  # n
 def test_actual_factor_login_does_not_grant_a_privileged_mutation(http, monkeypatch):
     from web.database.models import MfaCredential, MfaRecoveryCode, Usuario
     from web.services import stripe_service
+    from web.services import mercadopago_service
 
     identities = [http[key] for key in ("gym", "othergym", "person", "other")]
     with Session(http["admin"]) as db:
@@ -20,12 +21,14 @@ def test_actual_factor_login_does_not_grant_a_privileged_mutation(http, monkeypa
             codes = db.scalars(select(MfaRecoveryCode).where(MfaRecoveryCode.user_id == identity)).all()
             assert len(codes) == 8 and sum(code.used_at is not None for code in codes) == 1
         before = db.scalar(select(func.count()).select_from(Usuario))
-    path = "/api/billing/portal"
+    # This billing action requires a separate grant in both real factories.
+    path = "/api/billing/mp/preference"
     assert path in http["client_http"].app.openapi()["paths"]
     ports = []
     monkeypatch.setattr(stripe_service, "create_portal_session", lambda *args, **kwargs: ports.append(True))
+    monkeypatch.setattr(mercadopago_service, "create_preference", lambda *args, **kwargs: ports.append("preference"))
     response = http["client_http"].post(path, headers=http["headers"]["gym"],
-        json={"return_url": "/dashboard"})
+        json={"plan": "standard"})
     assert response.status_code == 403
     assert response.json()["detail"]["code"] == "mfa_step_up_required"
     assert http["mail"] == [] and ports == []

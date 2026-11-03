@@ -23,6 +23,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 
 from web.database.utc_datetime import UTCDateTime
 from web.database.account_security_schema_v1 import columns as account_security_columns
+from web.database.payment_refund_schema_v1 import columns as payment_refund_columns
 
 
 # ── RBAC Enums ────────────────────────────────────────────────────────────────
@@ -551,10 +552,13 @@ class Payment(Base):
     stripe_payment_intent_id = Column(String(255), unique=True)
     stripe_invoice_id = Column(String(255))
 
-    amount_cents = Column(Integer, nullable=False)  # En centavos USD
+    amount_cents = Column(Integer, nullable=False)  # Original amount in the currency's minor unit.
     currency = Column(String(3), nullable=False, default="usd")
-    status = Column(String(30), nullable=False)  # succeeded | failed | pending | refunded
+    status = Column(String(30), nullable=False)  # succeeded | failed | pending | partially_refunded | refunded
     plan = Column(String(30))
+
+    # NULL means unobserved, including historical rows. Never assume zero.
+    refund_amount_cents, refund_observed_at, stripe_charge_id = payment_refund_columns(UTCDateTime())
 
     created_at = Column(UTCDateTime, default=lambda: datetime.now(timezone.utc))
 

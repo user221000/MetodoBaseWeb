@@ -1,9 +1,14 @@
 """Actual inert HTTP shells on both factories; no provider or browser claim."""
 import importlib
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import sessionmaker
-from tests.privacy39_fixtures import database_schema,isolated_database,privacy39_engine  # noqa:F401
+
+from tests.ci_web41 import sqlite_fixtures
+from tests.privacy39_fixtures import database_schema, isolated_database  # noqa: F401
+
+privacy39_engine = sqlite_fixtures.privacy39_engine
 
 
 @pytest.mark.parametrize('factory',['api.app','web.main_web'])
@@ -12,8 +17,8 @@ from tests.privacy39_fixtures import database_schema,isolated_database,privacy39
 def test_same_security_shell_selects_one_GIS_owner_with_private_headers(factory,path,privacy_only,monkeypatch,privacy39_engine):
     from web.database import engine as database
     from web.settings import get_settings
-    # The inert shell still constructs a real app and must pass its genuine39
-    # schema guard. Bind the migrated fixture rather than the empty suite DB.
+    # The inert shell constructs the current app and passes its real41 guard.
+    # Only this module binds the genuine current migration fixture;39 stays intact.
     monkeypatch.setattr(database,'_engine',privacy39_engine)
     monkeypatch.setattr(database,'_SessionLocal',sessionmaker(bind=privacy39_engine,expire_on_commit=True,autoflush=False))
     monkeypatch.setenv('GOOGLE_CLIENT_ID','synthetic-privacy39-google-client')

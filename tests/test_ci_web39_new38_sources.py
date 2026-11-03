@@ -10,11 +10,17 @@ from pathlib import Path
 import pytest
 
 from tests.ci_web39 import new38_sources as guard
+from tests.ci_web41 import historical_node_source_fixture
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL = json.loads((ROOT / guard.HISTORICAL_MAP).read_bytes())
 CURRENT = json.loads((ROOT / guard.CURRENT_MAP).read_bytes())
 INPUTS = sorted({name for entry in ORIGINAL['phases'].values() for name in entry['input_files']})
+
+
+@pytest.fixture(scope='module')
+def historical_node_payloads():
+    return historical_node_source_fixture.historical_payloads(ROOT)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -27,9 +33,9 @@ def isolated_database():
     yield
 
 
-def tree(root, *, crlf=False):
+def tree(root, *, crlf=False, source_payloads):
     for name in (guard.HISTORICAL_MAP, guard.CURRENT_MAP, *INPUTS):
-        raw = (ROOT / name).read_bytes().replace(b'\r\n', b'\n')
+        raw = source_payloads[name]
         target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(raw.replace(b'\n', b'\r\n') if crlf else raw)
@@ -48,8 +54,8 @@ def check_all(root):
 
 
 @pytest.mark.parametrize('crlf', [False, True])
-def test_exact_original38_programs_and_labels_pass_on_current39_Git_inputs_in_uniform_host_frames(tmp_path, crlf):
-    mapping = check_all(tree(tmp_path, crlf=crlf))
+def test_exact_original38_programs_and_labels_pass_on_current39_Git_inputs_in_uniform_host_frames(tmp_path, crlf, historical_node_payloads):
+    mapping = check_all(tree(tmp_path, crlf=crlf, source_payloads=historical_node_payloads))
     assert mapping['source_scope'] == guard.SOURCE_SCOPE
     assert len(INPUTS) == 14
     for phase, original in ORIGINAL['phases'].items():
@@ -64,8 +70,8 @@ def test_exact_original38_programs_and_labels_pass_on_current39_Git_inputs_in_un
 
 
 @pytest.mark.parametrize('name', INPUTS)
-def test_each_program_API_helper_and_other_transitive_body_change_is_rejected(tmp_path, name):
-    root = tree(tmp_path)
+def test_each_program_API_helper_and_other_transitive_body_change_is_rejected(tmp_path, name, historical_node_payloads):
+    root = tree(tmp_path, source_payloads=historical_node_payloads)
     target = root / name
     raw = target.read_bytes()
     target.write_bytes(bytes([raw[0] ^ 1]) + raw[1:])
@@ -74,8 +80,8 @@ def test_each_program_API_helper_and_other_transitive_body_change_is_rejected(tm
 
 
 @pytest.mark.parametrize('framing', ['bare-CR', 'mixed-LF-CRLF'])
-def test_text_transport_rejects_bare_CR_and_mixed_endings(tmp_path, framing):
-    root = tree(tmp_path)
+def test_text_transport_rejects_bare_CR_and_mixed_endings(tmp_path, framing, historical_node_payloads):
+    root = tree(tmp_path, source_payloads=historical_node_payloads)
     path = root / 'tests/e2e/browser_harness31.cjs'
     raw = path.read_bytes()
     assert raw.count(b'\n') > 1
@@ -89,8 +95,8 @@ def test_text_transport_rejects_bare_CR_and_mixed_endings(tmp_path, framing):
     'duplicate-label', 'untyped-count', 'program-pin', 'missing-transitive',
     'extra-transitive', 'API-pin', 'helper-pin', 'preloader', 'case-ID-scope',
 ])
-def test_descriptor_cannot_expand_scope_or_relax_original_programs_and_criteria(tmp_path, fault):
-    root = tree(tmp_path)
+def test_descriptor_cannot_expand_scope_or_relax_original_programs_and_criteria(tmp_path, fault, historical_node_payloads):
+    root = tree(tmp_path, source_payloads=historical_node_payloads)
     mapping = copy.deepcopy(CURRENT)
     entry = mapping['phases']['node-product38']
     if fault == 'scope':
@@ -127,8 +133,8 @@ def test_descriptor_cannot_expand_scope_or_relax_original_programs_and_criteria(
 
 
 @pytest.mark.parametrize('field,value', [('git_blob', '0' * 40), ('bytes', 1), ('bytes', True)])
-def test_correct_SHA_cannot_hide_false_Git_blob_size_or_untyped_size(tmp_path, field, value):
-    root = tree(tmp_path)
+def test_correct_SHA_cannot_hide_false_Git_blob_size_or_untyped_size(tmp_path, field, value, historical_node_payloads):
+    root = tree(tmp_path, source_payloads=historical_node_payloads)
     mapping = copy.deepcopy(CURRENT)
     for entry in mapping['phases'].values():
         entry['input_files'][guard.API_PATH][field] = value
@@ -137,8 +143,8 @@ def test_correct_SHA_cannot_hide_false_Git_blob_size_or_untyped_size(tmp_path, f
         check_all(root)
 
 
-def test_original38_descriptor_is_immutable_even_if_new_descriptor_rehashes_it(tmp_path):
-    root = tree(tmp_path)
+def test_original38_descriptor_is_immutable_even_if_new_descriptor_rehashes_it(tmp_path, historical_node_payloads):
+    root = tree(tmp_path, source_payloads=historical_node_payloads)
     original = copy.deepcopy(ORIGINAL)
     original['phases']['node-product38']['expected_cases'][0] = 'unreviewed criterion'
     raw = json.dumps(original).encode()
@@ -151,8 +157,8 @@ def test_original38_descriptor_is_immutable_even_if_new_descriptor_rehashes_it(t
         guard.load_mapping(root)
 
 
-def test_duplicate_JSON_fields_are_not_silently_shadowed(tmp_path):
-    root = tree(tmp_path)
+def test_duplicate_JSON_fields_are_not_silently_shadowed(tmp_path, historical_node_payloads):
+    root = tree(tmp_path, source_payloads=historical_node_payloads)
     raw = (root / guard.CURRENT_MAP).read_bytes()
     (root / guard.CURRENT_MAP).write_bytes(b'{"schema":"unreviewed",' + raw[1:])
     with pytest.raises(ValueError, match='Duplicate current39 Node descriptor field'):
@@ -160,9 +166,9 @@ def test_duplicate_JSON_fields_are_not_silently_shadowed(tmp_path):
 
 
 @pytest.mark.parametrize('phase', list(guard.CASES))
-def test_runner_refuses_drift_before_starting_its_Node_process(tmp_path, monkeypatch, phase):
+def test_runner_refuses_drift_before_starting_its_Node_process(tmp_path, monkeypatch, phase, historical_node_payloads):
     from tests.ci_web39 import run_web
-    root = tree(tmp_path)
+    root = tree(tmp_path, source_payloads=historical_node_payloads)
     target = root / guard.API_PATH
     target.write_bytes(target.read_bytes() + b'\n// unreviewed API body\n')
     monkeypatch.setattr(run_web, 'ROOT', root)

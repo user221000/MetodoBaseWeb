@@ -1,0 +1,223 @@
+# Separate inactive backup-service candidate. BuildKit, linux/amd64 only.
+# docker build --platform linux/amd64 -f Dockerfile.backup --target backup -t metodobase-backup .
+# Building this recipe does not accept its SBOM/SCA or enable a schedule.
+FROM python:3.12.16-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b AS base
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+
+COPY runtime-source/technical-close-20261103/source-pins.json runtime-source/technical-close-20261103/verify_ca.py runtime-source/technical-close-20261103/apt-metadata.lock /usr/local/share/metodobase/native-source/
+COPY deploy/backup-service.contract.json /usr/local/share/metodobase/backup-service.contract.json
+COPY requirements-container-bootstrap.lock /usr/local/share/metodobase/
+
+# Signed frozen Debian metadata determines the complete dependency closure.
+# A changed/expired index fails; never opt out of signature or hash checking.
+RUN <<'SH'
+set -eu
+test "$(dpkg --print-architecture)" = amd64
+printf '%s\n' \
+ 'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie main' \
+ 'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie-updates main' \
+ 'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian-security/20261103T080000Z trixie-security main' \
+ > /etc/apt/metodobase-backup.list
+apt-get -o Dir::Etc::sourcelist=/etc/apt/metodobase-backup.list -o Dir::Etc::sourceparts=- \
+ -o APT::Update::Error-Mode=any -o Acquire::AllowInsecureRepositories=false update
+sha256sum --check /usr/local/share/metodobase/native-source/apt-metadata.lock
+cd /tmp
+apt-get -o Dir::Etc::sourcelist=/etc/apt/metodobase-backup.list -o Dir::Etc::sourceparts=- \
+ -o APT::Get::AllowUnauthenticated=false download liblzma5=5.8.1-1+deb13u2
+test "$(stat -c %s liblzma5_5.8.1-1+deb13u2_amd64.deb)" = 309696
+printf '%s  %s\n' b38acab30f295bf1066a6632e31cbd0a1980f2924b38040cda131d5dea5384ec \
+ liblzma5_5.8.1-1+deb13u2_amd64.deb | sha256sum --check -
+apt-get -o Dir::Etc::sourcelist=/etc/apt/metodobase-backup.list -o Dir::Etc::sourceparts=- \
+ -o APT::Get::AllowUnauthenticated=false install -y --only-upgrade --no-install-recommends \
+ /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb
+test "$(dpkg-query -W -f='${Version}' liblzma5)" = 5.8.1-1+deb13u2
+rm -f /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb
+python -I -B /usr/local/share/metodobase/native-source/verify_ca.py
+python -m pip --isolated install --no-cache-dir --require-hashes --only-binary=:all: \
+ --index-url https://pypi.org/simple -r /usr/local/share/metodobase/requirements-container-bootstrap.lock
+SH
+
+FROM base AS native-runtime
+RUN <<'SH'
+set -eu
+mkdir -p /tmp/backup-pgdg /usr/local/share/metodobase/backup-build
+dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/backup-build/base-dpkg.tsv
+python - <<'PY'
+from pathlib import Path
+import hashlib, json, urllib.request
+contract = json.loads(Path('/usr/local/share/metodobase/backup-service.contract.json').read_bytes())
+for row in contract['build']['pgdg_packages']:
+    if row['scope'] != 'runtime':
+        continue
+    with urllib.request.urlopen(row['url'], timeout=60) as response:
+        raw = response.read(row['bytes'] + 1)
+    assert len(raw) == row['bytes'] and hashlib.sha256(raw).hexdigest() == row['sha256']
+    Path('/tmp/backup-pgdg', row['name'] + '.deb').write_bytes(raw)
+PY
+apt-get -o Dir::Etc::sourcelist=/etc/apt/metodobase-backup.list -o Dir::Etc::sourceparts=- \
+ -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends /tmp/backup-pgdg/*.deb
+test "$(dpkg-query -W -f='${Version}' libpq5)" = 18.6-1.pgdg13+2
+test "$(dpkg-query -W -f='${Version}' postgresql-client-18)" = 18.6-1.pgdg13+2
+test "$(dpkg-query -W -f='${Version}' postgresql-client-common)" = 293.pgdg13+1
+dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/backup-build/runtime-dpkg.tsv
+python - <<'PY'
+from pathlib import Path
+root = Path('/usr/local/share/metodobase/backup-build')
+rows = lambda p: dict(line.split('\t') for line in (root / p).read_text().splitlines())
+before, after = rows('base-dpkg.tsv'), rows('runtime-dpkg.tsv')
+assert all(after.get(k) == v for k, v in before.items()), 'Existing base package changed'
+assert not any(k.startswith('postgresql-18') for k in after), 'Server must not be installed'
+PY
+/usr/lib/postgresql/18/bin/pg_dump --version > /usr/local/share/metodobase/backup-build/pg-dump-version.txt
+/usr/lib/postgresql/18/bin/pg_restore --version > /usr/local/share/metodobase/backup-build/pg-restore-version.txt
+ldd /usr/lib/postgresql/18/bin/pg_dump > /usr/local/share/metodobase/backup-build/pg-dump-ldd.txt
+ldd /usr/lib/postgresql/18/bin/pg_restore > /usr/local/share/metodobase/backup-build/pg-restore-ldd.txt
+python - <<'PY'
+from pathlib import Path
+root = Path('/usr/local/share/metodobase/backup-build')
+assert all('18.6' in (root / n).read_text() for n in ('pg-dump-version.txt', 'pg-restore-version.txt'))
+assert all('not found' not in (root / n).read_text() for n in ('pg-dump-ldd.txt', 'pg-restore-ldd.txt'))
+PY
+rm -rf /tmp/backup-pgdg
+SH
+
+FROM native-runtime AS native-build
+COPY runtime-source/technical-close-20261103/rebuild_native.py /usr/local/share/metodobase/native-source/
+COPY requirements-container-build.lock requirements-backup.lock /tmp/
+RUN <<'SH'
+set -eu
+python - <<'PY'
+from pathlib import Path
+import hashlib, json, urllib.request
+contract = json.loads(Path('/usr/local/share/metodobase/backup-service.contract.json').read_bytes())
+row, = [r for r in contract['build']['pgdg_packages'] if r['scope'] == 'build']
+with urllib.request.urlopen(row['url'], timeout=60) as response:
+    raw = response.read(row['bytes'] + 1)
+assert len(raw) == row['bytes'] and hashlib.sha256(raw).hexdigest() == row['sha256']
+Path('/tmp/libpq-dev.deb').write_bytes(raw)
+PY
+apt-get -o Dir::Etc::sourcelist=/etc/apt/metodobase-backup.list -o Dir::Etc::sourceparts=- \
+ -o APT::Get::AllowUnauthenticated=false install -y --no-remove --no-install-recommends \
+ gcc=4:14.2.0-1 libc6-dev=2.41-12+deb13u4 libssl-dev=3.5.7-1~deb13u3 /tmp/libpq-dev.deb
+test "$(dpkg-query -W -f='${Version}' libpq-dev)" = 18.6-1.pgdg13+2
+mkdir -p /wheelhouse /tmp/backup-source /tmp/backup-compile
+dpkg-query -W -f='${binary:Package}\t${Version}\n' > /wheelhouse/builder-dpkg.tsv
+python - <<'PY'
+from pathlib import Path
+import re
+lock = Path('/tmp/requirements-backup.lock').read_text()
+blocks = re.split(r'(?m)(?=^[A-Za-z0-9_.-]+==)', lock)
+source = [b for b in blocks if b.startswith('psycopg2==')]
+assert len(source) == 1 and source[0].startswith('psycopg2==2.9.13 ')
+Path('/wheelhouse/source.lock').write_text(source[0])
+Path('/wheelhouse/binary.lock').write_text(''.join(b for b in blocks if b not in source))
+before = dict(line.split('\t') for line in Path('/usr/local/share/metodobase/backup-build/runtime-dpkg.tsv').read_text().splitlines())
+after = dict(line.split('\t') for line in Path('/wheelhouse/builder-dpkg.tsv').read_text().splitlines())
+assert all(after.get(k) == v for k, v in before.items()), 'Runtime dependency changed in builder'
+PY
+python -m venv /opt/backup-build-tools
+/opt/backup-build-tools/bin/python -m pip --isolated install --no-cache-dir --require-hashes --only-binary=:all: \
+ --index-url https://pypi.org/simple -r /usr/local/share/metodobase/requirements-container-bootstrap.lock
+/opt/backup-build-tools/bin/python -m pip --isolated install --no-cache-dir --require-hashes --no-deps --only-binary=:all: \
+ --index-url https://pypi.org/simple -r /tmp/requirements-container-build.lock
+python - <<'PY'
+from pathlib import Path
+import hashlib, urllib.request
+url = 'https://files.pythonhosted.org/packages/91/81/6ea19b8b28feb9405c8c87a307776614d6e404bdb98467d1ce10a39d2c1d/psycopg2-2.9.13.tar.gz'
+with urllib.request.urlopen(url, timeout=60) as response:
+    raw = response.read(378069)
+assert len(raw) == 378068 and hashlib.sha256(raw).hexdigest() == 'd36784fc2dae69523ba4b79c7d1d1b4d6e83e87836874f111262f4db940b16a6'
+Path('/tmp/backup-source/psycopg2-2.9.13.tar.gz').write_bytes(raw)
+PY
+TMPDIR=/tmp/backup-compile SOURCE_DATE_EPOCH=1792414502 PYTHONHASHSEED=0 CFLAGS='-g0 -ffile-prefix-map=/tmp/backup-compile=.' \
+ /opt/backup-build-tools/bin/python -m pip --isolated wheel --no-cache-dir --require-hashes --no-deps \
+ --no-build-isolation --no-binary=:all: --no-index --find-links=/tmp/backup-source \
+ --wheel-dir /wheelhouse -r /wheelhouse/source.lock
+python - <<'PY'
+from pathlib import Path
+import hashlib, zipfile
+root = Path('/wheelhouse')
+wheel, = root.glob('*.whl')
+assert wheel.name.startswith('psycopg2-2.9.13-')
+with zipfile.ZipFile(wheel) as archive:
+    assert archive.testzip() is None
+    assert not any('.libs/' in n or n.startswith('/') or '..' in Path(n).parts for n in archive.namelist())
+(root / 'built-wheel.lock').write_text('psycopg2==2.9.13 --hash=sha256:' + hashlib.sha256(wheel.read_bytes()).hexdigest() + '\n')
+PY
+/usr/bin/pg_config --version > /wheelhouse/pg-config-version.txt
+/opt/backup-build-tools/bin/python -m pip --isolated freeze --all > /wheelhouse/build-tools.txt
+/opt/backup-build-tools/bin/python -I -B /usr/local/share/metodobase/native-source/rebuild_native.py --build --output /native-output
+SH
+
+FROM native-runtime AS deps
+COPY --from=native-build /wheelhouse /tmp/wheelhouse
+RUN <<'SH'
+set -eu
+python -m pip --isolated install --no-cache-dir --require-hashes --no-deps --only-binary=:all: \
+ --index-url https://pypi.org/simple -r /tmp/wheelhouse/binary.lock
+python -m pip --isolated install --no-cache-dir --no-index --no-deps --require-hashes --only-binary=:all: \
+ --find-links=/tmp/wheelhouse -r /tmp/wheelhouse/built-wheel.lock
+python -m pip check
+cp /tmp/wheelhouse/*.lock /tmp/wheelhouse/*.tsv /tmp/wheelhouse/*.txt /usr/local/share/metodobase/backup-build/
+SH
+
+FROM native-runtime AS assembled
+COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=deps /usr/local/share/metodobase/backup-build /usr/local/share/metodobase/backup-build
+COPY --from=native-build /native-output/pyexpat.cpython-312-x86_64-linux-gnu.so /native-output/_elementtree.cpython-312-x86_64-linux-gnu.so /usr/local/lib/python3.12/lib-dynload/
+COPY --from=native-build /native-output/build-provenance.json /native-output/sbom.json /native-output/source-pins.json /native-output/COPYING.expat /native-output/small-binding-tests.log /native-output/source-preparation.json /usr/local/share/metodobase/native-build/
+COPY requirements-backup.lock /usr/local/share/metodobase/backup-build/
+# Explicit import closure; no full web app, credentials, fixtures or client data.
+COPY scripts/backup_service_entrypoint.py scripts/backup_job.py scripts/backup_capture_s3.py scripts/backup_remote.py scripts/backup_restore.py scripts/scan_secrets.py scripts/reviewed_scan_locations.py /app/scripts/
+COPY web/__init__.py /app/web/
+COPY web/storage/__init__.py web/storage/configuration.py web/storage/local.py web/storage/objects.py web/storage/s3.py /app/web/storage/
+RUN <<'SH'
+set -eu
+python - <<'PY'
+from pathlib import Path
+import importlib.metadata as m
+root = Path('/usr/local/lib/python3.12')
+assert m.version('pip') == '26.2.1'
+assert all(p.is_dir() and not p.is_symlink() for p in (root/'site-packages/pip', root/'site-packages/pip-26.2.1.dist-info', root/'ensurepip'))
+PY
+rm -rf /usr/local/lib/python3.12/site-packages/pip /usr/local/lib/python3.12/site-packages/pip-26.2.1.dist-info /usr/local/lib/python3.12/ensurepip
+rm -f /usr/local/bin/pip /usr/local/bin/pip3 /usr/local/bin/pip3.12
+rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+python - <<'PY'
+from pathlib import Path
+import importlib, importlib.metadata as metadata, importlib.util, json, re
+contract = json.loads(Path('/usr/local/share/metodobase/backup-service.contract.json').read_bytes())
+normalize = lambda n: re.sub('[-_.]+', '-', n).lower()
+expected = {normalize(k): v for k, v in contract['build']['runtime_distributions'].items()}
+rows = [(d.metadata['Name'], d.version) for d in metadata.distributions()]
+assert len(rows) == 11 and {normalize(k): v for k, v in rows} == expected
+assert all(importlib.util.find_spec(n) is None for n in ('pip', 'ensurepip', 'setuptools', 'wheel'))
+assert not any(Path('/usr/local').rglob('*.whl'))
+for name in contract['build']['source_closure']:
+    module = name.removesuffix('.py').replace('/', '.').removesuffix('.__init__')
+    importlib.import_module(module)
+import psycopg2, psycopg2.extensions, pyexpat, ssl
+assert 180000 <= psycopg2.__libpq_version__ < 190000
+assert psycopg2.extensions.libpq_version() == psycopg2.__libpq_version__
+assert pyexpat.EXPAT_VERSION == 'expat_2.10.0'
+assert len(ssl.create_default_context().get_ca_certs()) > 0
+Path('/usr/local/share/metodobase/backup-build/runtime-python.json').write_text(json.dumps(sorted(rows), indent=2)+'\n')
+PY
+groupadd --system --gid 10001 backupuser
+useradd --system --uid 10001 --gid 10001 --no-create-home backupuser
+SH
+
+# Flatten the reviewed assembled filesystem; removed installers have no lower
+# layer in this artifact. Keep package metadata and native provenance for SCA.
+FROM scratch AS backup
+COPY --from=assembled / /
+ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin \
+ LANG=C.UTF-8 PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHON_DOTENV_DISABLED=1 \
+ AWS_EC2_METADATA_DISABLED=true
+WORKDIR /app
+USER 10001:10001
+HEALTHCHECK NONE
+ENTRYPOINT ["python", "-B", "-X", "utf8", "-m", "scripts.backup_service_entrypoint"]
+# Required source identity remains explicit; no implicit production DB/revision.
+CMD []

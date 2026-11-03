@@ -1,0 +1,237 @@
+{
+  "scope": "PEND07/PEND12 frontend priority trace; acceptance limited by each row, not an all-endpoint audit.",
+  "rows": [
+    {
+      "screen": "/suscripciones",
+      "audience": "business",
+      "endpoints": [
+        "GET /api/billing/subscription",
+        "GET /api/billing/config",
+        "GET /api/billing/payments",
+        "POST /api/billing/checkout",
+        "POST /api/billing/portal"
+      ],
+      "actor": "Current business owner, no team context; read billing / update subscription permissions; Stripe actor checked freshly.",
+      "tenant": "Persisted actor id; payment history never accepts a tenant in the browser payload.",
+      "states": [
+        "loading",
+        "empty",
+        "verified paid",
+        "partially refunded",
+        "fully refunded",
+        "legacy unknown refund",
+        "provider unavailable",
+        "failed read/manual retry",
+        "session replaced"
+      ],
+      "persistence": "Provider-authoritative backend only; UI does not activate access or calculate a new period.",
+      "current_evidence": "22-case refund SSR browser author gate; native rendering/read-only intercepted HTTP. Backend financial/provider and independent QA are separate.",
+      "remaining": "Real Stripe sandbox purchase/3DS/lifecycle; all owner/admin/nutriologo/viewer valid-role HTTP acceptance beyond this read-only UI sample."
+    },
+    {
+      "screen": "/mi-suscripcion",
+      "audience": "personal",
+      "endpoints": [
+        "GET /api/usuario/suscripcion",
+        "GET /api/usuario/billing-config",
+        "GET /api/usuario/payments",
+        "POST /api/usuario/checkout",
+        "POST /api/usuario/billing-portal"
+      ],
+      "actor": "Individual identity or member personal space admitted by _require_usuario; ownership always own user id.",
+      "tenant": "Own user id, even when team_gym_id exists. Context verified before/after payment history.",
+      "states": [
+        "loading",
+        "empty",
+        "paid",
+        "partial/full refund",
+        "NULL/missing/invalid facts",
+        "failed read/manual retry",
+        "session replaced with removed DOM"
+      ],
+      "persistence": "Read-only history. Shared presenter preserves nullable unknowns and original paid period.",
+      "current_evidence": "22-case SSR browser author gate; private Stripe/MFA transport remains canonical fc795 plus one GET helper.",
+      "remaining": "Independent real HTTP tenant/role receipts and external provider sandbox; full unrelated personal-billing session handling outside added history."
+    },
+    {
+      "screen": "/clientes",
+      "audience": "business",
+      "endpoints": [
+        "GET /api/clientes",
+        "GET /api/clientes/{id_cliente}",
+        "POST /api/clientes",
+        "PUT /api/clientes/{id_cliente}",
+        "DELETE /api/clientes/{id_cliente}"
+      ],
+      "actor": "Read: owner/admin/nutriologo/viewer. Create/update: owner/admin/nutriologo. Delete: owner/admin.",
+      "tenant": "get_gym_id current actor; every repository operation scopes gym. Create checks daily-registration quota.",
+      "states": [
+        "search/filter/pagination",
+        "empty",
+        "successful committed create/update/deactivate",
+        "400/422 malformed data",
+        "403 role rejected",
+        "404 foreign/missing client",
+        "quota exhausted",
+        "readback failure"
+      ],
+      "persistence": "Create/update/delete commit before success; exception rollback. Soft deletion retains historical ownership.",
+      "current_evidence": "Static screen→Api→route/RBAC/commit trace only in this frontend wave.",
+      "remaining": "Fresh current41 HTTP+browser valid-role A/B flows for every operation, commit failures and retry/quota boundaries."
+    },
+    {
+      "screen": "/dashboard generation",
+      "audience": "business",
+      "endpoints": [
+        "POST /api/generar-plan"
+      ],
+      "actor": "owner/admin/nutriologo create plan permission; clinical automation restrictions remain independent of plan tier.",
+      "tenant": "Current effective gym; requested client belongs to that gym; idempotency binds stable original operation.",
+      "states": [
+        "prepare",
+        "explicit submit",
+        "in progress",
+        "completed",
+        "quota exhausted",
+        "clinical restriction",
+        "422 unavailable combination",
+        "uncertain failure/manual history readback",
+        "session replaced"
+      ],
+      "persistence": "Reserve before CPU; complete plan+consumption transaction; compensation on failed generation. Notification is a separate background task.",
+      "current_evidence": "Current41 minimal-DOM Node guards preserve transport/business assertions; no new HTTP generation/PDF from this wave.",
+      "remaining": "Positive/negative valid-role current41 generate→history→exact PDF with isolated data and suppressed real notification transport."
+    },
+    {
+      "screen": "/planes",
+      "audience": "business",
+      "endpoints": [
+        "GET /api/planes",
+        "GET /api/planes/resumen",
+        "GET /api/planes/{plan_id}/pdf",
+        "GET /api/descargar-pdf/{id_cliente}"
+      ],
+      "actor": "owner/admin/nutriologo/viewer read plan permission; exact plan id bounded 1..2147483647.",
+      "tenant": "Current effective gym and owned client/plan; no foreign PDF fallback.",
+      "states": [
+        "loading/pagination",
+        "empty",
+        "open/download",
+        "404 missing bytes/plan",
+        "403 denied",
+        "401 changed session",
+        "read/network failure"
+      ],
+      "persistence": "Private bounded object read; no-store, no-referrer and nosniff headers.",
+      "current_evidence": "Static source trace; historical successful PDF evidence retains its original date/source.",
+      "remaining": "Fresh current41 cross-account and valid-role HTTP/browser PDF checks, expired signed link and missing-object UX."
+    },
+    {
+      "screen": "/mi-plan",
+      "audience": "personal",
+      "endpoints": [
+        "GET /api/usuario/perfil",
+        "GET /api/usuario/mi-plan",
+        "POST /api/usuario/generar-plan",
+        "GET /api/usuario/descargar-pdf?plan_id={id}"
+      ],
+      "actor": "_require_usuario identity; PersonalPlanOperation coordinates a current personal context.",
+      "tenant": "Own user id and self client; team membership does not adopt gym clients.",
+      "states": [
+        "incomplete profile→/mi-perfil",
+        "ready/read only",
+        "clinical restriction",
+        "generate explicitly",
+        "pending/uncertain/manual reconciliation",
+        "quota",
+        "session replaced",
+        "open/download exact result"
+      ],
+      "persistence": "UUID-v4 Idempotency-Key; scoped reservation/completion/compensation; never generates during onboarding read.",
+      "current_evidence": "Current41 onboarding minimal-DOM tests after finite copy adaptation; all no-generation and stale-session assertions retained.",
+      "remaining": "Fresh current41 persisted profile→nutrition→plan→PDF positive browser flow and server/API role/tenant isolation."
+    },
+    {
+      "screen": "/mi-historial",
+      "audience": "personal",
+      "endpoints": [
+        "GET /api/usuario/historial",
+        "GET /api/usuario/descargar-pdf?plan_id={id}"
+      ],
+      "actor": "Personal context; explicit exact-plan read; _require_usuario and own plan predicate.",
+      "tenant": "Own self client/user id. Signed cursor cannot grant another subject.",
+      "states": [
+        "loading",
+        "empty",
+        "next page",
+        "invalid cursor",
+        "download/open",
+        "missing PDF bytes",
+        "session replaced"
+      ],
+      "persistence": "Read-only history and exact private document read; no quota consumption or new plan.",
+      "current_evidence": "Current41 original51 Node history/transport criteria; not a fresh HTTP/PDF acceptance.",
+      "remaining": "Persisted valid-role HTTP current41 cursor isolation and native-browser exact PDF delivery."
+    }
+  ],
+  "sources": {
+    "web/templates/clientes.html": {
+      "raw_sha256": "a8886d417f42b5f8824a9ad1ddf1c2f2e3079e223d767772fbb3ad3512dde4d5",
+      "canonical_lf_sha256": "b5ce2bede4e27b7d0762a9b2d3dc091c04b2a1a1949723bb927f8f74a451fabf"
+    },
+    "web/templates/dashboard.html": {
+      "raw_sha256": "05b26002870220a2f15a235197aac437267de07a7db9c0eef1d885e83b77dc06",
+      "canonical_lf_sha256": "a111760994ae9be728a83dbfd1f70ddbd319c6e610f53e44187411b32918a8e3"
+    },
+    "web/templates/planes.html": {
+      "raw_sha256": "9321c0c271ef0999a05f48bed50fb7b7d90c33eed5c9c636b140a04cac46c781",
+      "canonical_lf_sha256": "dcc9ddf11f2617809136b98e957ce2f10bed6468825dca46e5d2149b333fa2ea"
+    },
+    "web/templates/usuario_mi_plan.html": {
+      "raw_sha256": "ca5b7d9bb949b0b6df903c19f0791def8b9f3fdce98b824892a19f774ab6bb0f",
+      "canonical_lf_sha256": "047c5a7a670b96c201ec416ed5aab7a2ef0de5ed5e8fa3333fa1b65214c1b23c"
+    },
+    "web/templates/usuario_historial.html": {
+      "raw_sha256": "9800f1d7f06fb57628711cb91321b3e2eea074af82345f03c47d4a7ccf6e025d",
+      "canonical_lf_sha256": "54824d3d1b3ef65b0b143ef07f81dc147dd289ef5140afab276d9bedb4961b9c"
+    },
+    "web/templates/suscripciones.html": {
+      "raw_sha256": "ab499ea250a88b012b8b8c309c7cdfa478f23c144f52e963e5a8f86fa0ed46d7",
+      "canonical_lf_sha256": "d7afa98394aa71d5f8aac8ea35f977752a8b5d1cb43924616afd5dedbac0ecba"
+    },
+    "web/templates/usuario_suscripcion.html": {
+      "raw_sha256": "b4c6cae54de6a48715b1071117b161534176827d9679be81d6e8fd056d4e4d6f",
+      "canonical_lf_sha256": "86faac79376dccb877799c45d0e0824b510f14e524121a58f0c32266eb8dddcc"
+    },
+    "web/static/js/api.js": {
+      "raw_sha256": "40b44db5b18428cade130bee7a4e0d3fd3c5a7dcef04d022fa77be884247212d",
+      "canonical_lf_sha256": "433234a42970c2827bca3bb55d46c6d0ab151ce5e270b9e15a1df8b89d6d5b75"
+    },
+    "web/static/js/usuario-plan-operacion.js": {
+      "raw_sha256": "d42423bcc5fecf463bb61f16f5b2e4ed2a0a05e88d1bf1eeec8ad51275a9a39f",
+      "canonical_lf_sha256": "0f3adf6cfdc9edb4b02839814c3ff7f6ffc932014bf63a3631189fa32aa50217"
+    },
+    "web/routes/clientes.py": {
+      "raw_sha256": "dff861ea621973f419a7002e334428b4a940581b3d2987367966e8517d41cd0f",
+      "canonical_lf_sha256": "a058189e9a18066327991100babaa5121d6cc5c925a9ec3ed13c285946354482"
+    },
+    "web/routes/planes.py": {
+      "raw_sha256": "f8fe3951ac9b8a95c6e55cfcfb7128c29ae0373d9caca6f04575e0168f99e727",
+      "canonical_lf_sha256": "2befad0b6c5de75100dcce297715a389a9d36b1aeb7fddb46097031991e5cb4c"
+    },
+    "web/routes/usuario.py": {
+      "raw_sha256": "ef3b4ba197b552d9f61c71189d665c0dda585f28810c3fdfb503672315f962c5",
+      "canonical_lf_sha256": "e6e9a4460d7389673d270ec5dc9e12800c660e065f92157318419d5e388337da"
+    },
+    "web/routes/billing.py": {
+      "raw_sha256": "3c56958c6b746e3a0430673f0a5b448bb09b73cb1c3955d1c4a47e2e2a331c2f",
+      "canonical_lf_sha256": "11b8fe0a38ea4e6bb34440103e5750ed8d3e75075709818771807bea7091e0c4"
+    },
+    "web/services/permissions.py": {
+      "raw_sha256": "7dc92fcddfd8f08340d49141fea2603cdfeb3b14ee9069dab18e4959bc21a02b",
+      "canonical_lf_sha256": "49510530c3ad469b60938f55585e48737a749c70119b843f7727562e6291c930"
+    }
+  },
+  "fixed_current_UX_bug": "Billing invalidation wrote removed DOM after auth guard retired it; nil-safe idempotent clearing in business and personal history.",
+  "no_real_provider_or_mailbox_mutations": true
+}

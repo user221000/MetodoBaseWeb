@@ -122,9 +122,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     sessionChanged = true;
     requestEpoch++;
     clearPreparedShare();
-    document.getElementById('planes-tbody').replaceChildren();
-    document.getElementById('pagination').replaceChildren();
-    ['kpi-planes-semana', 'kpi-planes-mes-detail', 'kpi-planes-total', 'total-planes'].forEach(id => document.getElementById(id).textContent = '—');
+    // The shared session shell may already have retired this page's DOM.
+    document.getElementById('planes-tbody')?.replaceChildren();
+    document.getElementById('pagination')?.replaceChildren();
+    ['kpi-planes-semana', 'kpi-planes-mes-detail', 'kpi-planes-total', 'total-planes'].forEach(id => {
+      const node = document.getElementById(id);
+      if (node) node.textContent = '—';
+    });
     feedback.textContent = 'La sesión cambió. Vuelve a abrir el historial desde tu cuenta.';
     retry.classList.add('hidden');
   }

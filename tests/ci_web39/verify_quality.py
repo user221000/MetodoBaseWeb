@@ -30,8 +30,9 @@ def copy_source(repository, target):
     for directory in (*quality.RUNTIME, "scripts", "tests"):
         names.update(path.relative_to(repository).as_posix()
                      for path in (repository / directory).rglob("*.py"))
-    names.update(quality.OPERATIONAL)
+    names.update(quality.CURRENT_OPERATIONAL)
     names.update(context.json_object(authority.raw("container-inputs.json.RAW"))["candidate_files"])
+    names.update(quality.native_input_paths(repository))
     proposal = context.json_object((repository / quality.PROPOSAL).read_bytes())
 
     def dependency_paths(value):

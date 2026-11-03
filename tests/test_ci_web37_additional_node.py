@@ -6,9 +6,16 @@ from pathlib import Path
 import pytest
 
 from tests.ci_web37 import node_current
+from tests.ci_web41 import historical_node_source_fixture
 
 ROOT = Path(__file__).resolve().parents[1]
 MAPPING = json.loads((ROOT / "tests/ci_web39/node-routines-onboarding39.json").read_bytes())
+
+
+@pytest.fixture(scope="module")
+def historical_node_root(tmp_path_factory):
+    base = tmp_path_factory.mktemp("metodobase-test-historical-node-inputs")
+    return historical_node_source_fixture.materialize(ROOT, base / "historical39")
 
 
 def entry(name):
@@ -20,8 +27,8 @@ def report(row):
             "results": [{"case": label, "passed": True} for label in row["expected_cases"]]}
 
 
-def test_additional_original_inventory_has_eight_programs_and_94_separate_criteria():
-    rows = node_current.require_additional_sources(ROOT, MAPPING)
+def test_additional_original_inventory_has_eight_programs_and_94_separate_criteria(historical_node_root):
+    rows = node_current.require_additional_sources(historical_node_root, MAPPING)
     assert len(rows) == 8
     assert sum(len(row["expected_cases"]) for row in rows) == 94
     assert all("browser_session31.cjs" != row["script"].split("/")[-1] for row in rows)

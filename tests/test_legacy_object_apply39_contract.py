@@ -25,7 +25,18 @@ from web.services.legacy_object_apply_boundary import create_private_directory
 from web.storage.configuration import ObjectStoreConfiguration
 from web.storage.local import LocalObjectStore
 
-current39_engine = sqlite_fixtures.followup_db
+@pytest.fixture(scope="module")
+def current39_engine(tmp_path_factory):
+    """An explicitly historical39 inventory input, checked against its frozen schema."""
+    from tests.followup34_fixtures import owned_database
+    from tests.integration_schema_migrations import run_migration
+    from web.database.schema_control import verify_runtime_schema
+
+    with owned_database("sqlite", tmp_path_factory.mktemp("historical39-inventory")) as (url, engine):
+        run_migration(url, "db_bootstrap.py", "--revision", sqlite_fixtures.REVISION)
+        sqlite_fixtures.foreign_keys(engine)
+        verify_runtime_schema(engine, expected_revision=sqlite_fixtures.REVISION)
+        yield engine
 
 
 @pytest.fixture(scope="session", autouse=True)

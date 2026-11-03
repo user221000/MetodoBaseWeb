@@ -61,7 +61,7 @@ jobs:
         echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" | sha256sum --check
         tar -xzf "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" -C "$RUNNER_TEMP/metodobase-gitleaks"
     - name: Scan the frozen deliverable tree with values withheld
-      run: python -B -X utf8 -m tests.ci_web39.scan_secrets --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
+      run: python -B -X utf8 -m tests.ci_web41.technical_secret_locations --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -95,21 +95,31 @@ jobs:
         printf 'METODOBASE_TEST_PYTHON_SOURCE_ARCHIVE=%s\n' "$RUNNER_TEMP/web39-source-inputs/Python-3.12.15.tar.xz" >> "$GITHUB_ENV"
     - run: python -m pip install --require-hashes -r requirements-test.lock
     - run: npm ci --prefix tests/e2e --ignore-scripts
+    - name: Build the pinned native Lua test server without a shared service
+      run: |
+        set -euo pipefail
+        install -d -m 700 "$RUNNER_TEMP/owned-lua-source"
+        curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 https://download.redis.io/releases/redis-8.10.3.tar.gz --output "$RUNNER_TEMP/owned-lua-source/redis-8.10.3.tar.gz"
+        printf '%s  %s\n' 'edde778f6bdee7581e42fc139ca9e07e2822212092f7501f99989656e3629d02' "$RUNNER_TEMP/owned-lua-source/redis-8.10.3.tar.gz" | sha256sum --check
+        tar -xzf "$RUNNER_TEMP/owned-lua-source/redis-8.10.3.tar.gz" -C "$RUNNER_TEMP/owned-lua-source"
+        make -C "$RUNNER_TEMP/owned-lua-source/redis-8.10.3/src" -j2 MALLOC=libc BUILD_TLS=no redis-server
+        "$RUNNER_TEMP/owned-lua-source/redis-8.10.3/src/redis-server" --version
+        printf 'METODOBASE_TEST_LUA_SERVER=%s\n' "$RUNNER_TEMP/owned-lua-source/redis-8.10.3/src/redis-server" >> "$GITHUB_ENV"
     - name: Create public metadata parent; each gate creates its own private boundary
       run: install -d -m 700 "$RUNNER_TEMP/web37-public"
-    - name: Current39 complete web serial; exact identities, no skips and reviewed nutrition coverage
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite serial --private "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/serial" --private-as-child-temp
+    - name: Current41 complete web serial; exact identities, no skips and reviewed nutrition coverage
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite serial --private "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/serial" --private-as-child-temp
     - name: Current37 full web in two workers; shuffle seed20261018 and no skips
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite parallel --private "$RUNNER_TEMP/web37-parallel-private" --output "$RUNNER_TEMP/web37-public/parallel" --private-as-child-temp
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite parallel --private "$RUNNER_TEMP/web37-parallel-private" --output "$RUNNER_TEMP/web37-public/parallel" --private-as-child-temp
     - name: Original physical35 assertions with authenticated ancestor35 models
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite history35 --private "$RUNNER_TEMP/web37-history35-private" --output "$RUNNER_TEMP/web37-public/history35" --private-as-child-temp
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite history35 --private "$RUNNER_TEMP/web37-history35-private" --output "$RUNNER_TEMP/web37-public/history35" --private-as-child-temp
     - name: Literal R05 peer60, author48 and author15; frozen authenticated phases
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite r05-history --private "$RUNNER_TEMP/web37-r05-history-private" --output "$RUNNER_TEMP/web37-public/r05-history" --private-as-child-temp
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite r05-history --private "$RUNNER_TEMP/web37-r05-history-private" --output "$RUNNER_TEMP/web37-public/r05-history" --private-as-child-temp
     - name: Private storage SDK original full identities without a provider; no skips
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite storage-sdk --private "$RUNNER_TEMP/web37-storage-private" --output "$RUNNER_TEMP/web37-public/storage-sdk" --private-as-child-temp
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite storage-sdk --private "$RUNNER_TEMP/web37-storage-private" --output "$RUNNER_TEMP/web37-public/storage-sdk" --private-as-child-temp
     - name: Publish measured coverage without private assertion diagnostics
       if: always()
-      run: python -B -X utf8 tests/ci_google33/publish.py --directory "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/coverage" --files coverage.json coverage.xml
+      run: python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web41/historical_coverage_publication.py" --source "$GITHUB_WORKSPACE" --source-commit "$GITHUB_SHA" --directory "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/coverage" --files coverage.json coverage.xml
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -138,17 +148,17 @@ jobs:
     - name: Create public metadata parent; raw Node diagnostics remain private
       run: install -d -m 700 "$RUNNER_TEMP/web37-node-public"
     - name: Legacy51 commands with865 unique original obligations and authenticated source companions
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite node --private "$RUNNER_TEMP/web37-node-legacy-private" --output "$RUNNER_TEMP/web37-node-public/legacy51"
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite node --private "$RUNNER_TEMP/web37-node-legacy-private" --output "$RUNNER_TEMP/web37-node-public/legacy51"
     - name: Additional current UI27/37 thirteen programs and147 exact ordered original criteria
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite node-current --private "$RUNNER_TEMP/web37-node-current-private" --output "$RUNNER_TEMP/web37-node-public/current13"
-    - name: Additional eight routine/onboarding programs and94 source-bound original criteria
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite node-routines-onboarding --private "$RUNNER_TEMP/web37-node-additional-private" --output "$RUNNER_TEMP/web37-node-public/routines-onboarding"
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite node-current --private "$RUNNER_TEMP/web37-node-current-private" --output "$RUNNER_TEMP/web37-node-public/current13"
+    - name: Eight routine/onboarding programs; 96 current criteria traced to94 historical obligations
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite node-routines-onboarding --private "$RUNNER_TEMP/web37-node-additional-private" --output "$RUNNER_TEMP/web37-node-public/routines-onboarding"
     - name: Current product provenance and credential policy contracts
       run: |
-        python -B -X utf8 tests/ci_web39/run_web.py --suite node-product38 --private "$RUNNER_TEMP/web39-node-product-private" --output "$RUNNER_TEMP/web37-node-public/product38"
-        python -B -X utf8 tests/ci_web39/run_web.py --suite node-password38 --private "$RUNNER_TEMP/web39-node-password-private" --output "$RUNNER_TEMP/web37-node-public/password38"
+        python -B -X utf8 tests/ci_web41/run_web.py --suite node-product38 --private "$RUNNER_TEMP/web39-node-product-private" --output "$RUNNER_TEMP/web37-node-public/product38"
+        python -B -X utf8 tests/ci_web41/run_web.py --suite node-password38 --private "$RUNNER_TEMP/web39-node-password-private" --output "$RUNNER_TEMP/web37-node-public/password38"
     - name: Current privacy closure controller, API and DOM contracts; 48 exact criteria
-      run: python -B -X utf8 tests/ci_web39/run_web.py --suite node-privacy39 --private "$RUNNER_TEMP/web39-node-privacy-private" --output "$RUNNER_TEMP/web37-node-public/privacy39"
+      run: python -B -X utf8 tests/ci_web41/run_web.py --suite node-privacy39 --private "$RUNNER_TEMP/web39-node-privacy-private" --output "$RUNNER_TEMP/web37-node-public/privacy39"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -187,11 +197,14 @@ jobs:
     - test-web
     - frontend-contracts
     - stripe-purchase-transport
+    - auth-email-transport
     - redis
     - historical-ci30
     - historical-postgres
     - historical-image
     - current-postgres
+    - backup-validation
+    - backup-service-image
     - historical37-postgres
     - current-image
     - historical33-image
@@ -525,6 +538,23 @@ jobs:
         python tests/check_followup_reports.py
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-39.raw.log" 2>&1
       working-directory: ${{ runner.temp }}/ci30-postgres/source
+    - name: Project the failed quota report separately without accepting missing historical reports
+      if: failure()
+      working-directory: ${{ github.workspace }}
+      run: python -B -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/ci30-postgres/source" --output "$RUNNER_TEMP/ci30-postgres-quota-diagnostic-public" --files pytest-postgres-quota.xml
+    - name: Project bounded authenticated quota failure locations without accepting the failed gate
+      if: failure()
+      working-directory: ${{ github.workspace }}
+      run: |
+        set -euo pipefail
+        umask 077
+        support="$RUNNER_TEMP/historical30-diagnostic-support"
+        mkdir -m 700 "$support"
+        for member in historical_image_runtime.py historical_member_diagnostic.py historical_failure_metadata.py; do
+          git -C "$GITHUB_WORKSPACE" --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/$member" > "$support/$member"
+          test "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects hash-object --no-filters "$support/$member")" = "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/$member")"
+        done
+        python -B -X utf8 "$support/historical_failure_metadata.py" --source "$RUNNER_TEMP/ci30-postgres/source" --quota-private "$RUNNER_TEMP/ci30-postgres-private" --output "$RUNNER_TEMP/historical30-quota-failure-metadata.json"
     - name: Project all29 historical reports; retain exact old acceptance checks
       if: always()
       working-directory: ${{ github.workspace }}
@@ -572,6 +602,9 @@ jobs:
           ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-history-index-restore.xml
           ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-followup.xml
           ${{ runner.temp }}/ci30-postgres-public/publication.json
+          ${{ runner.temp }}/ci30-postgres-quota-diagnostic-public/pytest-postgres-quota.xml
+          ${{ runner.temp }}/ci30-postgres-quota-diagnostic-public/publication.json
+          ${{ runner.temp }}/historical30-quota-failure-metadata.json
         if-no-files-found: error
     defaults:
       run:
@@ -900,13 +933,13 @@ jobs:
     - name: Exact PostgreSQL17.11 from the signed official Noble archive
       run: |
         set -euo pipefail
-        install -d -m 700 "$RUNNER_TEMP/current39-pg-install-private"
+        install -d -m 700 "$RUNNER_TEMP/current41-pg-install-private"
         (
           . /etc/os-release
           test "$ID" = ubuntu
           test "$VERSION_ID" = 24.04
           test "$(dpkg --print-architecture)" = amd64
-          key="$RUNNER_TEMP/current39-pg-install-private/pgdg.asc"
+          key="$RUNNER_TEMP/current41-pg-install-private/pgdg.asc"
           curl --fail --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc --output "$key"
           fingerprint="$(gpg --batch --show-keys --with-colons "$key" | awk -F: '$1=="fpr" && !found {print $10; found=1}')"
           test "$fingerprint" = B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
@@ -919,39 +952,214 @@ jobs:
           test "$(dpkg-query -W -f='${Version}' postgresql-17)" = "$version"
           test "$(dpkg-query -W -f='${Version}' postgresql-client-17)" = "$version"
           test "$(dpkg-query -W -f='${Version}' libpq5)" = "$version"
-        ) > "$RUNNER_TEMP/current39-pg-install-private/install.private.log" 2>&1
-    - name: Fresh current39 test cluster and separate core/restore source-bound authorizations
+        ) > "$RUNNER_TEMP/current41-pg-install-private/install.private.log" 2>&1
+    - name: Fresh current41 test cluster and separate core/restore source-bound authorizations
       run: |
-        install -d -m 700 "$RUNNER_TEMP/current39-pg-launch-private"
-        python -B -X utf8 -m tests.ci_web39.ci_cluster start > "$RUNNER_TEMP/current39-pg-launch-private/start.private.log" 2>&1
-    - name: Actual39 restricted role, isolation, MFA closure, deletes and facts; four exact cases
-      run: python -B -X utf8 tests/ci_web39/run_postgres.py --phase core --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-core.private.json" --private "$RUNNER_TEMP/current39-pg-core-private" --output "$RUNNER_TEMP/current39-pg-public/core"
-    - name: Actual39 encrypted restore and live suppression; original case and two sequential UUIDs
-      run: python -B -X utf8 tests/ci_web39/run_postgres.py --phase restore --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-restore.private.json" --private "$RUNNER_TEMP/current39-pg-restore-private" --output "$RUNNER_TEMP/current39-pg-public/restore"
-    - name: Both actual39 phases must execute and close all three owned UUIDs
+        install -d -m 700 "$RUNNER_TEMP/current41-pg-launch-private"
+        umask 077
+        if python -B -X utf8 -m tests.ci_web41.ci_cluster start > "$RUNNER_TEMP/current41-pg-launch-private/start.private.log" 2>&1; then
+          :
+        else
+          bootstrap_status=$?
+          python -B -X utf8 tests/ci_diagnostics41.py --repository "$GITHUB_WORKSPACE" --source "$GITHUB_SHA" --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/current41-pg-launch-private/start.private.log" --phase pg_bootstrap || true
+          exit "$bootstrap_status"
+        fi
+    - name: Actual41 restricted role, isolation, MFA closure, deletes and facts; four exact cases
+      run: python -B -X utf8 tests/ci_web41/run_postgres.py --phase core --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-core.private.json" --private "$RUNNER_TEMP/current41-pg-core-private" --output "$RUNNER_TEMP/current41-pg-public/core"
+    - name: Actual41 encrypted restore and live suppression; original case and two sequential UUIDs
+      run: python -B -X utf8 tests/ci_web41/run_postgres.py --phase restore --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-restore.private.json" --private "$RUNNER_TEMP/current41-pg-restore-private" --output "$RUNNER_TEMP/current41-pg-public/restore"
+    - name: Authorize twelve financial criteria including seven original PostgreSQL peers
+      run: |
+        python -B -X utf8 - <<'PY'
+        import os
+        from pathlib import Path
+        from tests.ci_web41.payments_contract import authorize_ci
+        p=Path(os.environ['RUNNER_TEMP'])/'ci37-pg-cluster-private'
+        authorize_ci(p/'profile.private.json',p/'generation39.private.json',p/'ack41-payments.private.json')
+        PY
+    - name: Current41 partial and complete refunds, paid-period limits, RLS and concurrent signatures
+      run: python -B -X utf8 tests/ci_web41/run_payments.py --profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack41-payments.private.json" --private "$RUNNER_TEMP/payments41-private" --output "$RUNNER_TEMP/current41-pg-public/payments.json"
+    - name: All actual41 phases must execute and close their four owned UUIDs
       run: |
         python -B -X utf8 - <<'PY'
         import json,os
         from pathlib import Path
-        root=Path(os.environ['RUNNER_TEMP'])/'current39-pg-public'
+        root=Path(os.environ['RUNNER_TEMP'])/'current41-pg-public'
         for name,cases,databases in [('core',4,1),('restore',1,2)]:
             value=json.loads((root/name/'summary.json').read_bytes())
             assert value['accepted'] is True and value['PostgreSQL_executed'] is True
-            assert value['scope']=='separate_current39_PG_'+name and value['passed']==cases
+            assert value['scope']=='separate_current41_PG_'+name and value['passed']==cases
             assert value['failed']==value['errors']==value['skipped']==0
             assert value['normally_closed_UUIDs_fresh_absent']==databases
             assert value['historical429_53_27_retargeted'] is False
+        payments=json.loads((root/'payments.json').read_bytes())
+        assert payments['accepted'] is True and payments['PostgreSQL_executed'] is True
+        assert type(payments['planned_cases']) is int and payments['planned_cases'] == 12
+        assert payments['exact_twelve_identities'] is True
+        assert payments['original_current_five_retained'] is True and payments['original_pg_peer_seven_executed'] is True
+        assert payments['source_profile_generation_quiet'] is True
+        assert payments['closure']['accepted'] is True
+        assert type(payments['closure']['created_UUIDs']) is type(payments['closure']['normally_closed_UUIDs']) is int
+        assert payments['closure']['created_UUIDs'] == payments['closure']['normally_closed_UUIDs'] == 1
+        assert payments['closure']['fresh_database_and_OID_absent'] is True
         PY
-    - name: Stop only the exact fresh current39 test cluster normally
+    - name: Stop only the exact fresh current41 test cluster normally
       if: always()
       run: |
-        install -d -m 700 "$RUNNER_TEMP/current39-pg-launch-private"
-        python -B -X utf8 -m tests.ci_web39.ci_cluster stop > "$RUNNER_TEMP/current39-pg-launch-private/stop.private.log" 2>&1
+        install -d -m 700 "$RUNNER_TEMP/current41-pg-launch-private"
+        python -B -X utf8 -m tests.ci_web41.ci_cluster stop > "$RUNNER_TEMP/current41-pg-launch-private/stop.private.log" 2>&1
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: current39-postgres-core-and-encrypted-restore
-        path: ${{ runner.temp }}/current39-pg-public/*/summary.json
+        name: current41-postgres-core-and-encrypted-restore
+        path: |
+          ${{ runner.temp }}/current41-pg-public/*/summary.json
+          ${{ runner.temp }}/current41-pg-public/payments.json
+        if-no-files-found: error
+  backup-validation:
+    runs-on: ubuntu-24.04
+    needs: quality
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres@sha256:f4b419e350fd98d4a8429603295208976dea4c8fb8326d818d346d3e29f1db6f
+        env:
+          POSTGRES_USER: metodobase_test_backup_admin
+          POSTGRES_PASSWORD: synthetic-backup-ci-only
+          POSTGRES_DB: metodobase_test_backup_admin
+        ports:
+        - 55491:5432
+        options: >-
+          --health-cmd "pg_isready -U metodobase_test_backup_admin -d metodobase_test_backup_admin"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Exact PostgreSQL18.6 client from the signed official Noble repository
+      run: |
+        set -euo pipefail
+        install -d -m 700 "$RUNNER_TEMP/backup-install-private" "$RUNNER_TEMP/backup-public"
+        (
+          . /etc/os-release
+          test "$ID" = ubuntu
+          test "$VERSION_ID" = 24.04
+          test "$(dpkg --print-architecture)" = amd64
+          key="$RUNNER_TEMP/backup-install-private/pgdg.asc"
+          curl --fail --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc --output "$key"
+          fingerprint="$(gpg --batch --show-keys --with-colons "$key" | awk -F: '$1=="fpr" && !found {print $10; found=1}')"
+          test "$fingerprint" = B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+          sudo install -m 644 "$key" /usr/share/keyrings/metodobase-backup-pgdg.asc
+          printf '%s\n' 'deb [arch=amd64 signed-by=/usr/share/keyrings/metodobase-backup-pgdg.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main' | sudo tee /etc/apt/sources.list.d/metodobase-backup-pgdg.list
+          sudo apt-get update
+          version=18.6-1.pgdg24.04+2
+          sudo apt-get install --yes --allow-downgrades --no-install-recommends "postgresql-client-18=$version" "libpq5=$version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-client-18)" = "$version"
+          test "$(dpkg-query -W -f='${Version}' libpq5)" = "$version"
+          /usr/lib/postgresql/18/bin/pg_dump --version
+          /usr/lib/postgresql/18/bin/pg_restore --version
+        ) > "$RUNNER_TEMP/backup-install-private/install.private.log" 2>&1
+    - name: Linux supervisor must terminate its own worker group and authenticate completion
+      run: python -B -X utf8 -m tests.ci_web41.backup_validation --mode job --private "$RUNNER_TEMP/backup-job-private" --output "$RUNNER_TEMP/backup-public/job.json"
+    - name: Four real PostgreSQL18 capture, isolation and complete schema restore cases
+      env:
+        METODOBASE_BACKUP_CAPTURE_TEST_ACK: isolated-pg18
+        METODOBASE_TEST_MIGRATOR_URL: postgresql://metodobase_test_backup_admin:synthetic-backup-ci-only@127.0.0.1:55491/metodobase_test_backup_admin
+        METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/18/bin
+      run: python -B -X utf8 -m tests.ci_web41.backup_validation --mode postgres --private "$RUNNER_TEMP/backup-pg-private" --output "$RUNNER_TEMP/backup-public/postgres.json"
+    - name: Both finite backup gates must execute without failures, errors or skips
+      run: |
+        python -B -X utf8 - <<'PY'
+        import hashlib,json,os,subprocess
+        from pathlib import Path
+        from tests.ci_web41.backup_validation import expected
+        root=Path(os.environ['RUNNER_TEMP'])/'backup-public'
+        for mode in ('job','postgres'):
+            value=json.loads((root/(mode+'.json')).read_bytes())
+            assert value['accepted'] is True and value['source_quiet'] is True
+            assert all(type(value[key]) is int for key in ('expected_cases','observed_cases','passed','failures','errors','skips','gate_exit','pytest_exit'))
+            assert value['gate_exit']==value['pytest_exit']==0
+            assert value['failures']==value['errors']==value['skips']==0
+            assert value['cleanup_required'] is False
+            assert value['expected_cases']==value['observed_cases']==value['passed']==len(expected(mode))
+        clients={}
+        for name in ('pg_dump','pg_restore'):
+            path=Path('/usr/lib/postgresql/18/bin')/name
+            result=subprocess.run([str(path),'--version'],capture_output=True,text=True,check=True,timeout=10)
+            clients[name]={'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'version':result.stdout.strip()}
+        receipt={'source_commit':os.environ['GITHUB_SHA'],'server_image':'sha256:f4b419e350fd98d4a8429603295208976dea4c8fb8326d818d346d3e29f1db6f','clients':clients,'scope':'isolated_synthetic_backup_validation_no_production_or_scheduler_acceptance'}
+        (root/'toolchain.json').write_text(json.dumps(receipt,sort_keys=True)+'\n',encoding='utf8')
+        PY
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backup-validation-summary
+        path: ${{ runner.temp }}/backup-public/*.json
+        if-no-files-found: error
+  backup-service-image:
+    runs-on: ubuntu-24.04
+    needs: quality
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Create separate private image evidence and public metadata
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/backup-image-private" "$RUNNER_TEMP/backup-image-public"
+        printf '%s=%s\n' 'TEMP' "$RUNNER_TEMP/backup-image-private" 'TMP' "$RUNNER_TEMP/backup-image-private" 'TMPDIR' "$RUNNER_TEMP/backup-image-private" >> "$GITHUB_ENV"
+    - name: Every wrapper and scanner control must execute without skips
+      run: |
+        set -euo pipefail
+        umask 077
+        wrapper_temp="$(mktemp -d /tmp/metodobase-backup-wrapper.XXXXXXXX)"
+        test_status=0
+        python -B -X utf8 tests/run_isolated.py tests/test_backup_service_entrypoint.py tests/test_image_security_scan.py -q --tb=short -p no:cacheprovider --basetemp "$wrapper_temp/pytest-data" --junitxml "$RUNNER_TEMP/backup-image-private/tests.private.xml" > "$RUNNER_TEMP/backup-image-private/tests.private.log" 2>&1 || test_status=$?
+        BACKUP_TEST_STATUS="$test_status" python -B -X utf8 - <<'PY'
+        import json,os,xml.etree.ElementTree as ET
+        from pathlib import Path
+        root=Path(os.environ['RUNNER_TEMP'])
+        rows=list(ET.parse(root/'backup-image-private/tests.private.xml').getroot().iter('testcase'))
+        counts={kind:sum(any(child.tag==kind for child in row) for row in rows) for kind in ('failure','error','skipped')}
+        value={'source_commit':os.environ['GITHUB_SHA'],'cases':len(rows),'outcomes':counts,'pytest_exit':int(os.environ['BACKUP_TEST_STATUS']),'scope':'wrapper_and_scan_controls_no_production_or_schedule'}
+        value['accepted']=len(rows)==61 and value['pytest_exit']==0 and not any(counts.values())
+        (root/'backup-image-public/tests.json').write_text(json.dumps(value,sort_keys=True)+'\n')
+        assert value['accepted'], 'Backup wrapper or image scan controls failed; private evidence retained'
+        PY
+        exit "$test_status"
+    - name: Build the separate backup image from this exact source
+      run: |
+        set -euo pipefail
+        umask 077
+        docker build --platform linux/amd64 --target backup --file Dockerfile.backup --label "org.opencontainers.image.revision=$GITHUB_SHA" --iidfile "$RUNNER_TEMP/backup-image-private/image-id" . > "$RUNNER_TEMP/backup-image-private/build.private.log" 2>&1
+        python -B -X utf8 - <<'PY'
+        import hashlib,json,os,re
+        from pathlib import Path
+        root=Path(os.environ['RUNNER_TEMP'])
+        image_id=(root/'backup-image-private/image-id').read_text().strip()
+        assert re.fullmatch('sha256:[0-9a-f]{64}',image_id)
+        value={'source_commit':os.environ['GITHUB_SHA'],'image_id':image_id,'Dockerfile_sha256':hashlib.sha256(Path('Dockerfile.backup').read_bytes()).hexdigest(),'built':True,'security_accepted':False,'scheduled':False}
+        (root/'backup-image-public/build.json').write_text(json.dumps(value,sort_keys=True)+'\n')
+        PY
+    - name: Verify backup native runtime and full image security without exclusions
+      run: |
+        set -euo pipefail
+        image_id="$(cat "$RUNNER_TEMP/backup-image-private/image-id")"
+        python -B -X utf8 -m tests.ci_image57.security_scan --profile backup --source "$GITHUB_SHA" --image-id "$image_id" --private "$RUNNER_TEMP/backup-image-security-private" --output "$RUNNER_TEMP/backup-image-public/security"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backup-service-image-summary
+        path: |
+          ${{ runner.temp }}/backup-image-public/tests.json
+          ${{ runner.temp }}/backup-image-public/build.json
+          ${{ runner.temp }}/backup-image-public/security/summary.json
         if-no-files-found: error
   historical37-postgres:
     runs-on: ubuntu-24.04
@@ -995,6 +1203,23 @@ jobs:
           /usr/lib/postgresql/17/bin/pg_dump --version
           /usr/lib/postgresql/17/bin/pg_restore --version
         ) > "$RUNNER_TEMP/ci37-pg-apt-private/install.private.log" 2>&1
+    - name: Authenticate the event object and current diagnostics without moving historical37 HEAD
+      run: |
+        test "$(git --no-replace-objects rev-parse HEAD)" = 878082b242cdfa23e1e4c134f675c12b535a2cd7
+        set -euo pipefail
+        event_sha="${GITHUB_SHA:?missing event SHA}"
+        [[ "$event_sha" =~ ^[0-9a-f]{40}$ ]]
+        checkout_head=$(git --no-replace-objects rev-parse --verify HEAD)
+        git --no-replace-objects cat-file -e "${event_sha}^{commit}" 2>/dev/null || git --no-replace-objects fetch --no-tags --no-recurse-submodules --no-auto-gc origin "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify "${event_sha}^{commit}")" = "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify HEAD)" = "$checkout_head"
+        unset event_sha checkout_head
+        umask 077
+        install -d -m 700 "$RUNNER_TEMP/ci37-diagnostics-private"
+        git --no-replace-objects show "$GITHUB_SHA:tests/ci_diagnostics41.py" > "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py"
+        test "$(git --no-replace-objects hash-object --no-filters "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py")" = "$(git --no-replace-objects rev-parse --verify "$GITHUB_SHA:tests/ci_diagnostics41.py")"
+        git --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/pg_bootstrap_diagnostic.py" > "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py"
+        test "$(git --no-replace-objects hash-object --no-filters "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py")" = "$(git --no-replace-objects rev-parse --verify "$GITHUB_SHA:tests/ci_web41/pg_bootstrap_diagnostic.py")"
     - name: CI-only fresh loopback cluster and separately source-bound429/53/27 authorizations
       env:
         TEMP: ${{ runner.temp }}
@@ -1002,10 +1227,34 @@ jobs:
         TMPDIR: ${{ runner.temp }}
       run: |
         install -d -m 700 "$RUNNER_TEMP/ci37-pg-launch-private"
-        python -B -X utf8 - > "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" 2>&1 <<'PY'
+        umask 077
+        if python -B -X utf8 - > "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" 2>&1 <<'PY'
         import hashlib,json,os,re,secrets,socket,subprocess
         from datetime import UTC,datetime,timedelta
         from pathlib import Path
+        # Finite diagnostic only: original operations and traceback remain private.
+        import sys
+        _stage='imports'
+        _stages={'imports','source_photo','ancestry','versions','initdb','pg_ctl_start',
+            'catalogue_roles','contracts42953','generation27','contract27','source_quiet'}
+        _stage_path=Path(os.environ['RUNNER_TEMP'])/'ci37-pg-launch-private/bootstrap-stage.private.json'
+        def _step(name):
+            global _stage
+            assert name in _stages
+            _stage=name
+        def _diagnostic_hook(kind,error,trace):
+            try:
+                value={'schema':'historical37-bootstrap-stage-v1','phase':_stage,
+                    'exception_type':kind.__name__ if kind.__name__ in {'CalledProcessError','AssertionError',
+                        'ValueError','OSError','KeyError','FileNotFoundError','PermissionError','TypeError','RuntimeError'} else 'OTHER',
+                    'child_exit':error.returncode if isinstance(error,subprocess.CalledProcessError)
+                        and type(error.returncode) is int else None}
+                with _stage_path.open('x',encoding='utf8') as stream:json.dump(value,stream)
+            except OSError:
+                pass
+            finally:
+                sys.__excepthook__(kind,error,trace)
+        sys.excepthook=_diagnostic_hook
         from scripts.scan_secrets import _private_evidence
         from tests.ci_web37.prepare_collection import source_photo
         from tests.ci_web37.pg_lease import contract as contract429,digest
@@ -1015,13 +1264,16 @@ jobs:
         assert os.environ.get('GITHUB_ACTIONS')=='true' and os.name=='posix' and os.geteuid()!=0
         os.umask(0o077)
         root=Path.cwd().resolve();assert root==Path(os.environ['GITHUB_WORKSPACE']).resolve()
+        _step('source_photo')
         source=source_photo();assert re.fullmatch('[0-9a-f]{40}',os.environ['GITHUB_SHA'])
         assert source['HEAD']=='878082b242cdfa23e1e4c134f675c12b535a2cd7'
+        _step('ancestry')
         subprocess.run(['git','--no-replace-objects','merge-base','--is-ancestor',source['HEAD'],os.environ['GITHUB_SHA']],check=True)
         # The unchanged37 generation helper binds this historical checkout.
         # Only this bootstrap child receives its source commit as GITHUB_SHA.
         os.environ['GITHUB_SHA']=source['HEAD']
         pg=Path('/usr/lib/postgresql/17/bin')
+        _step('versions')
         for name in ('postgres','pg_ctl','pg_dump','pg_restore','psql','initdb'):
             version=subprocess.check_output([str(pg/name),'--version'],text=True).split()[2]
             assert version=='17.11'
@@ -1033,9 +1285,11 @@ jobs:
         (private/'initdb-password.private').write_text(password+'\n',encoding='utf8')
         data=private/'data'
         with (private/'bootstrap.private.log').open('xb') as log:
+            _step('initdb')
             subprocess.run([str(pg/'initdb'),'-D',str(data),'-U','metodobase_test_admin','--no-locale','--encoding=UTF8',
                 '--auth-local=trust','--auth-host=scram-sha-256','--pwfile='+str(private/'initdb-password.private')],check=True,stdout=log,stderr=subprocess.STDOUT)
-            subprocess.run([str(pg/'pg_ctl'),'-D',str(data),'-l',str(private/'postgresql.private.log'),'-o','-h 127.0.0.1 -p 55483','-w','-t','60','start'],check=True,stdout=log,stderr=subprocess.STDOUT)
+            _step('pg_ctl_start')
+            subprocess.run([str(pg/'pg_ctl'),'-D',str(data),'-l',str(private/'postgresql.private.log'),'-o',"-h 127.0.0.1 -p 55483 -c unix_socket_directories=''",'-w','-t','60','start'],check=True,stdout=log,stderr=subprocess.STDOUT)
         pidfile=(data/'postmaster.pid').read_bytes();pid=int(pidfile.splitlines()[0])
         stat=Path('/proc/'+str(pid)+'/stat').read_text();birth=int(stat[stat.rindex(')')+2:].split()[19])
         assert Path('/proc/'+str(pid)+'/exe').resolve()==pg/'postgres'
@@ -1044,6 +1298,7 @@ jobs:
         (private/'cluster-identity.private.json').write_text(json.dumps(identity,indent=2)+'\n',encoding='utf8')
         import psycopg2
         from psycopg2 import sql
+        _step('catalogue_roles')
         control=psycopg2.connect(host='127.0.0.1',port=55483,dbname='postgres',user='metodobase_test_admin',password=password)
         control.autocommit=True
         try:
@@ -1067,22 +1322,43 @@ jobs:
             'METODOBASE_TEST_POSTGRES_URL':'postgresql+psycopg2://metodobase_test_app:'+app_password+'@127.0.0.1:55483/metodobase_test_integration',
             'METODOBASE_TEST_PG_BIN':str(pg)},indent=2)+'\n',encoding='utf8')
         # This is a privileged TEST-cluster migrator, never the production-role design.
+        _step('contracts42953')
         for label,value in [('429',contract429(root,source,profile,[row['key'] for row in phases()])),('53',contract53(root,source,profile))]:
             ack={'approved':True,'scope':value['schema'],'contract_sha256':digest(value),'expires_at_UTC':(datetime.now(UTC)+timedelta(hours=4)).isoformat()}
             (private/('ack'+label+'.private.json')).write_text(json.dumps(ack,indent=2)+'\n',encoding='utf8')
             (private/('contract'+label+'.private.json')).write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
         generation=private/'generation27.private.json'
+        _step('generation27')
         generation.write_text(json.dumps(ci_generation(identity,postmaster_start),indent=2)+'\n',encoding='utf8')
+        _step('contract27')
         value=contract27(profile,generation)
         ack={'approved':True,'scope':value['schema'],'contract_sha256':digest(value),'expires_at_UTC':(datetime.now(UTC)+timedelta(hours=4)).isoformat()}
         (private/'ack27.private.json').write_text(json.dumps(ack,indent=2)+'\n',encoding='utf8')
         (private/'contract27.private.json').write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
+        _step('source_quiet')
         assert source_photo()==source
         print(json.dumps({'scope':'fresh_ephemeral_GitHub_Actions_TEST_cluster_only','profile_and_three_source_bound_ACKs_ready':True,'port':55483,'planned_UUIDs':71,'required_identities':509,'max_concurrent_UUIDs':2}))
         PY
+        then
+          :
+        else
+          bootstrap_status=$?
+          python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py" --repository "$GITHUB_WORKSPACE" --source 878082b242cdfa23e1e4c134f675c12b535a2cd7 --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" --phase pg_bootstrap || true
+          python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py" --helper-source "$GITHUB_SHA" --input "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap-stage.private.json" --startup-log "$RUNNER_TEMP/ci37-pg-cluster-private/postgresql.private.log" || true
+          exit "$bootstrap_status"
+        fi
+
         printf '%s\n' '{"ci37_pg_bootstrap_ready":true}'
     - name: Actual37 complete429 business and physical gates;69 UUID budget including restore
       run: python -B -X utf8 tests/ci_web37/run_postgres.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack429.private.json" --private "$RUNNER_TEMP/ci37-pg429-private" --output "$RUNNER_TEMP/ci37-pg-public/429"
+    - name: Project only authenticated historical37 failure locations
+      if: failure()
+      run: |
+        for name in runner-error.private.log collection.private.log; do
+          if test -f "$RUNNER_TEMP/ci37-pg429-private/$name"; then
+            python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py" --repository "$GITHUB_WORKSPACE" --source 878082b242cdfa23e1e4c134f675c12b535a2cd7 --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/ci37-pg429-private/$name" --phase pg_collection || true
+          fi
+        done
     - name: Separate original53 routine and R30 PostgreSQL criteria; one UUID and pool5
       run: python -B -X utf8 tests/ci_web37/run_postgres53.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack53.private.json" --private "$RUNNER_TEMP/ci37-pg53-private" --output "$RUNNER_TEMP/ci37-pg-public/53"
     - name: Separate actual27 B13 and R07 PostgreSQL criteria; one owned UUID and pool1
@@ -1169,7 +1445,10 @@ jobs:
     - run: python -m pip install --require-hashes -r requirements-test.lock
     - name: Exact current commit context, production image and57 distribution/native probe
       run: python -I -B -X utf8 tests/run_current_image57.py --repository "$GITHUB_WORKSPACE" --source "$GITHUB_SHA" --private-root "$RUNNER_TEMP/current39-image57-private" --public-root "$RUNNER_TEMP/current39-image57-public" --build-probe
-    - name: Actual main_web entrypoint and restricted PostgreSQL39 startup from the same immutable image
+    - name: Report only authenticated finite locations when the runtime probe fails
+      if: failure()
+      run: python -B -X utf8 -m tests.ci_image57.runtime_failure_diagnostic --private "$RUNNER_TEMP/current39-image57-private" --source "$GITHUB_SHA" --repository "$GITHUB_WORKSPACE"
+    - name: Actual main_web entrypoint and restricted PostgreSQL41 startup from the same immutable image
       run: |
         python -B -X utf8 - <<'PY'
         import hashlib,json,os,subprocess,sys
@@ -1177,13 +1456,21 @@ jobs:
         root=Path(os.environ['RUNNER_TEMP'])
         value=json.loads((root/'current39-image57-public/summary.json').read_bytes())
         assert value['source']==os.environ['GITHUB_SHA'] and value['builds_attempted']==1
+        assert value['build_target']=='production'
         assert value['runtime_probes_attempted']==1 and value['distributions']==57
         contract=root/'current39-image57-private/runtime-input-contract.json'
-        subprocess.run([sys.executable,'-B','-X','utf8','-m','tests.ci_image57.current39_startup',
+        subprocess.run([sys.executable,'-B','-X','utf8','-m','tests.ci_image57.owned_data_startup',
             '--contract',str(contract),'--contract-sha256',hashlib.sha256(contract.read_bytes()).hexdigest(),
             '--image-id',value['image_id'],'--private',str(root/'current39-startup-private'),
             '--output',str(root/'current39-startup-public')],check=True)
         PY
+    - name: Scan the same production image and measured embedded libraries with a fresh frozen database
+      if: ${{ !cancelled() }}
+      run: |
+        set -euo pipefail
+        test -s "$RUNNER_TEMP/current39-image57-private/runtime.iid"
+        image_id=$(cat "$RUNNER_TEMP/current39-image57-private/runtime.iid")
+        python -B -X utf8 -m tests.ci_image57.security_scan --source "$GITHUB_SHA" --image-id "$image_id" --private "$RUNNER_TEMP/current-image-security-private" --output "$RUNNER_TEMP/current-image-security-public"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -1191,6 +1478,7 @@ jobs:
         path: |
           ${{ runner.temp }}/current39-image57-public/summary.json
           ${{ runner.temp }}/current39-startup-public/summary.json
+          ${{ runner.temp }}/current-image-security-public/summary.json
         if-no-files-found: error
   historical33-image:
     runs-on: ubuntu-latest
@@ -1218,6 +1506,14 @@ jobs:
     - name: Require the authenticated33 ancestor; never count it as the current image
       run: |
         test "$(git --no-replace-objects rev-parse HEAD)" = c86d1a25fcd0b0befcb4b473c4144917122109fb
+        set -euo pipefail
+        event_sha="${GITHUB_SHA:?missing event SHA}"
+        [[ "$event_sha" =~ ^[0-9a-f]{40}$ ]]
+        checkout_head=$(git --no-replace-objects rev-parse --verify HEAD)
+        git --no-replace-objects cat-file -e "${event_sha}^{commit}" 2>/dev/null || git --no-replace-objects fetch --no-tags --no-recurse-submodules --no-auto-gc origin "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify "${event_sha}^{commit}")" = "$event_sha"
+        test "$(git --no-replace-objects rev-parse --verify HEAD)" = "$checkout_head"
+        unset event_sha checkout_head
         git --no-replace-objects merge-base --is-ancestor HEAD "$GITHUB_SHA"
     - uses: actions/setup-python@v5
       with:
@@ -1245,12 +1541,22 @@ jobs:
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-        python -X utf8 tests/ci_google33/run_current_browser.py --image-tag metodobase-current33:${{ github.sha }} --output "$RUNNER_TEMP/current33-browser-public"
+        set -euo pipefail
+        umask 077
+        support="$RUNNER_TEMP/historical33-diagnostic-support"
+        mkdir -m 700 "$support"
+        for member in historical_image_runtime.py historical_member_diagnostic.py historical_failure_metadata.py; do
+          git -C "$GITHUB_WORKSPACE" --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/$member" > "$support/$member"
+          test "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects hash-object --no-filters "$support/$member")" = "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/$member")"
+        done
+        python -B -X utf8 "$support/historical_image_runtime.py" --schema 33 --source "$GITHUB_WORKSPACE" --image-tag metodobase-current33:${{ github.sha }} --output "$RUNNER_TEMP/current33-browser-public" --binding-receipt "$RUNNER_TEMP/historical33-image-runtime-binding.json" --observe-member-failure --failure-metadata "$RUNNER_TEMP/historical33-member-failure-metadata.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: current33-real-image-and-browser
         path: |-
+          ${{ runner.temp }}/historical33-image-runtime-binding.json
+          ${{ runner.temp }}/historical33-member-failure-metadata.json
           ${{ runner.temp }}/current33-browser-public/image-inventory.json
           ${{ runner.temp }}/current33-browser-public/image-identity.json
           ${{ runner.temp }}/current33-browser-public/image-browser.json
@@ -1449,13 +1755,23 @@ jobs:
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-        python -X utf8 tests/ci_mfa31/run_current_browser.py --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public"
+        set -euo pipefail
+        umask 077
+        support="$RUNNER_TEMP/historical31-diagnostic-support"
+        mkdir -m 700 "$support"
+        for member in historical_image_runtime.py historical_member_diagnostic.py historical_failure_metadata.py; do
+          git -C "$GITHUB_WORKSPACE" --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/$member" > "$support/$member"
+          test "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects hash-object --no-filters "$support/$member")" = "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/$member")"
+        done
+        python -B -X utf8 "$support/historical_image_runtime.py" --schema 31 --source "$RUNNER_TEMP/historical31-image/source" --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public" --binding-receipt "$RUNNER_TEMP/historical31-image-runtime-binding.json" --observe-member-failure --failure-metadata "$RUNNER_TEMP/historical31-member-failure-metadata.json"
       working-directory: ${{ runner.temp }}/historical31-image/source
     - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: historical31-current31-real-image-and-browser
         path: |-
+          ${{ runner.temp }}/historical31-image-runtime-binding.json
+          ${{ runner.temp }}/historical31-member-failure-metadata.json
           ${{ runner.temp }}/current31-browser-public/image-inventory.json
           ${{ runner.temp }}/current31-browser-public/image-identity.json
           ${{ runner.temp }}/current31-browser-public/image-browser.json
@@ -1721,7 +2037,7 @@ jobs:
     - name: Project current web reports without assertion bodies
       if: always()
       working-directory: ${{ runner.temp }}/historical31-web/source
-      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/historical31-web/source" --output "$RUNNER_TEMP/web-public"
+      run: python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web41/historical_coverage_publication.py" --source "$RUNNER_TEMP/historical31-web/source" --source-commit de506b6077ba055587f02e7d839387e7f5c56f84 --directory "$RUNNER_TEMP/historical31-web/source" --output "$RUNNER_TEMP/web-public"
         --files "pytest-web.xml" "pytest-web-shuffle.xml" "pytest-storage-sdk.xml" "coverage.xml" "coverage.json"
     - uses: actions/upload-artifact@v4
       if: always()
@@ -1757,7 +2073,7 @@ jobs:
       working-directory: ${{ runner.temp }}/historical31-wiring/source
       run: python -X utf8 tests/verify_mfa31_ci.py --output "$RUNNER_TEMP/historical31-wiring-review"
   historical32-postgres:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: quality
     services:
       postgres:
@@ -1767,12 +2083,12 @@ jobs:
           POSTGRES_PASSWORD: synthetic-ci-only
           POSTGRES_DB: metodobase_test_integration
         ports:
-        - 55482:5432
+        - 55483:5432
         options: --health-cmd "pg_isready -U metodobase_test_admin -d metodobase_test_integration" --health-interval 5s --health-timeout
           5s --health-retries 10
     env:
-      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55482/metodobase_test_integration
-      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55482/metodobase_test_integration
+      METODOBASE_TEST_MIGRATOR_URL: postgresql+psycopg2://metodobase_test_admin:synthetic-ci-only@127.0.0.1:55483/metodobase_test_integration
+      METODOBASE_TEST_POSTGRES_URL: postgresql+psycopg2://metodobase_test_app:synthetic-app-only@127.0.0.1:55483/metodobase_test_integration
       METODOBASE_TEST_PG_BIN: /usr/lib/postgresql/17/bin
     steps:
     - name: Bind runner-owned paths after runner allocation
@@ -1792,14 +2108,32 @@ jobs:
       run: python -X utf8 tests/ci_google33/history.py --schema 32 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical32-postgres"
     - run: python -m pip install --require-hashes -r requirements-test.lock
       working-directory: ${{ runner.temp }}/historical32-postgres/source
-    - name: Matching PostgreSQL client tools from the official PGDG repository
+    - name: Exact PostgreSQL17.11 server and client tools required by the historical32 source photo
       run: |
-        . /etc/os-release
-        sudo install -d /usr/share/postgresql-common/pgdg
-        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
-        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-        sudo apt-get update
-        sudo apt-get install --yes postgresql-client-17
+        set -euo pipefail
+        install -d -m 700 "$RUNNER_TEMP/ci32-pg-apt-private"
+        (
+          . /etc/os-release
+          test "$ID" = ubuntu
+          test "$VERSION_ID" = 24.04
+          test "$(dpkg --print-architecture)" = amd64
+          key="$RUNNER_TEMP/ci32-pg-apt-private/pgdg.asc"
+          curl --fail --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc --output "$key"
+          fingerprint="$(gpg --batch --show-keys --with-colons "$key" | awk -F: '$1=="fpr" && !found {print $10; found=1}')"
+          test "$fingerprint" = B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+          sudo install -m 644 "$key" /usr/share/keyrings/metodobase-ci32-pgdg.asc
+          printf '%s\n' 'deb [arch=amd64 signed-by=/usr/share/keyrings/metodobase-ci32-pgdg.asc] https://apt-archive.postgresql.org/pub/repos/apt noble-pgdg-archive main' | sudo tee /etc/apt/sources.list.d/metodobase-ci32-pgdg.list
+          sudo apt-get update
+          sudo sed -ri 's/^#?(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf
+          version=17.11-1.pgdg24.04+2
+          sudo apt-get install --yes --allow-downgrades --no-install-recommends "postgresql-17=$version" "postgresql-client-17=$version" "libpq5=$version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-17)" = "$version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-client-17)" = "$version"
+          test "$(dpkg-query -W -f='${Version}' libpq5)" = "$version"
+          /usr/lib/postgresql/17/bin/postgres --version
+          /usr/lib/postgresql/17/bin/pg_dump --version
+          /usr/lib/postgresql/17/bin/pg_restore --version
+        ) > "$RUNNER_TEMP/ci32-pg-apt-private/install.private.log" 2>&1
       working-directory: ${{ runner.temp }}/historical32-postgres/source
     - name: Historical32 fresh CI role and schema32 bootstrap
       run: python -X utf8 tests/prepare_postgres.py
@@ -1808,6 +2142,13 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: python -X utf8 tests/ci_google33/run_postgres.py --schema 32 --source "$RUNNER_TEMP/historical32-postgres/source"
         --private "$RUNNER_TEMP/historical32-private" --output "$RUNNER_TEMP/historical32-public"
+    - name: Project only authenticated historical32 driver failure locations
+      if: failure()
+      working-directory: ${{ github.workspace }}
+      run: |
+        if test -f "$RUNNER_TEMP/historical32-private/runner-error.raw.log"; then
+          python -B -X utf8 tests/ci_diagnostics41.py --repository "$GITHUB_WORKSPACE" --source "$GITHUB_SHA" --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/historical32-private/runner-error.raw.log" --phase historical_pg_driver || true
+        fi
     - uses: actions/upload-artifact@v4
       if: always()
       with:

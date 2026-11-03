@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session,sessionmaker
 
 from tests.google33_fixtures import owned_database,REVISION
 from tests.integration_schema_migrations import run_migration
+from tests.ci_web41 import google_mail_http_fixture as mail_http
 
 PASSWORD="Synthetic Google binding password 42!"
 CLIENT_ID="000000000000-independent-review.apps.googleusercontent.com"
@@ -33,6 +34,7 @@ def google_http(google_db,request,monkeypatch):
     settings=get_settings()
     monkeypatch.setattr(settings,"GOOGLE_CLIENT_ID",CLIENT_ID)
     monkeypatch.setattr(settings,"MFA_ENCRYPTION_KEY",base64.urlsafe_b64encode(b"G"*32).decode())
+    mail_transport=mail_http.install(monkeypatch,settings)
     admin,application=google_db if isinstance(google_db,tuple) else (google_db,google_db)
     monkeypatch.setattr(database,"_engine",application)
     monkeypatch.setattr(database,"_SessionLocal",sessionmaker(bind=application,expire_on_commit=True,autoflush=False))
@@ -58,7 +60,7 @@ def google_http(google_db,request,monkeypatch):
         me=client.get("/api/auth/me",headers=headers);assert me.status_code==200
         yield {"client":client,"headers":headers,"user":me.json()["id"],"email":email,"clock":clock,
             "google":info,"calls":calls,"engine":application,"admin":admin,"factory":request.param,
-            "refresh":response.json()["refresh_token"],"credential":provider.credential}
+            "refresh":response.json()["refresh_token"],"credential":provider.credential,"mail_transport":mail_transport}
 
 
 def start(case,**changes):
@@ -74,7 +76,8 @@ def test_google_success_preserves_prior_audit_without_provider_or_session_secret
     confirmed=c['client'].post('/api/auth/google/link/confirm',headers=c['headers'],json={'intent':issued.json()['intent'],'confirm':True})
     assert confirmed.status_code==200
     credential=c['credential']()
-    response=c['client'].post('/api/auth/google',json={'credential':credential})
+    issued_email=mail_http.begin(c,credential=credential)
+    response=mail_http.verify(c,issued_email)
     assert response.status_code==200
     with Session(c['admin']) as db:
         events=db.scalars(select(AuthAuditLog).where(AuthAuditLog.user_id==c['user'],AuthAuditLog.event_type=='login_success')).all()
@@ -88,8 +91,13 @@ def test_real_binding_changes_session_not_contacts_or_personal_space(google_http
     from web.database.models import Usuario,Cliente,AuthExternalIdentity,GoogleLinkIntent,RefreshToken
     c=google_http;client=c["client"]
     c["google"]["email"]=c["email"]
-    unbound=client.post("/api/auth/google",json={"credential":c["credential"]()})
-    assert unbound.status_code==409 and unbound.json()["detail"]["code"]=="google_link_required"
+    unbound_email=mail_http.begin(c)
+    unbound=mail_http.verify(c,unbound_email)
+    assert unbound.status_code==200
+    legacy=client.get("/api/auth/me",headers={"Authorization":"Bearer "+unbound.json()["token"]})
+    assert legacy.status_code==200 and legacy.json()["id"]==c["user"]
+    with Session(c["admin"]) as db:
+        assert db.scalar(select(AuthExternalIdentity.id).where(AuthExternalIdentity.user_id==c["user"])) is None
     issued=start(c);assert issued.status_code==200,issued.text
     intent=issued.json()["intent"];assert issued.json()["confirmation_required"] is True
     with Session(c["admin"]) as db:
@@ -106,7 +114,8 @@ def test_real_binding_changes_session_not_contacts_or_personal_space(google_http
         assert db.scalar(select(GoogleLinkIntent.consumed_at).where(GoogleLinkIntent.user_id==row.id)) is not None
         assert all(db.scalars(select(RefreshToken.revoked).where(RefreshToken.user_id==row.id)))
     c["google"]["email"]="changed-contact@thirdparty.example.invalid"
-    login=client.post("/api/auth/google",json={"credential":c["credential"](),"tipo":"gym"})
+    issued_email=mail_http.begin(c,tipo="gym")
+    login=mail_http.verify(c,issued_email)
     assert login.status_code==200 and login.json()["email"]==c["email"] and login.json()["tipo"]=="usuario"
     client.headers["Authorization"]="Bearer "+login.json()["token"]
     fresh={"Authorization":client.headers["Authorization"]}
@@ -170,7 +179,8 @@ def test_active_mfa_cannot_be_removed_by_google_or_link(google_http):
     valid=start(c,recovery_code=done.json()["recovery_codes"][1]);assert valid.status_code==200
     confirmed=client.post("/api/auth/google/link/confirm",headers=c["headers"],json={"intent":valid.json()["intent"],"confirm":True})
     assert confirmed.status_code==200
-    google=client.post("/api/auth/google",json={"credential":c["credential"]()})
+    issued_email=mail_http.begin(c)
+    google=mail_http.verify(c,issued_email)
     assert google.status_code==202 and "token" not in google.json() and "refresh_token" not in google.json()
 
 
@@ -179,7 +189,8 @@ def test_google_new_container_is_not_an_email_merge_and_cannot_unlink_without_lo
     c=google_http;client=c["client"]
     c["google"]["sub"]=str(int(SUBJECT)+int(uuid.uuid4().hex[:8],16))
     c["google"]["email"]=uuid.uuid4().hex+"@thirdparty.example.invalid"
-    registered=client.post("/api/auth/google",json={"credential":c["credential"]()})
+    issued_email=mail_http.begin(c)
+    registered=mail_http.verify(c,issued_email)
     assert registered.status_code==200
     headers={"Authorization":"Bearer "+registered.json()["token"]}
     me=client.get("/api/auth/me",headers=headers);assert me.status_code==200
@@ -238,6 +249,7 @@ def test_real_library_rejects_bad_provider_assertions_without_local_side_effects
     else:credential=c["credential"](claims=claims,**kwargs)
     response=c["client"].post("/api/auth/google",json={"credential":credential})
     assert response.status_code==401 and all(x not in response.json() for x in ("token","refresh_token","challenge"))
+    assert c["mail_transport"].mail==[] and c["mail_transport"].cache.rows=={}
     assert response.headers["Cache-Control"]=="no-store" and response.headers["Referrer-Policy"]=="no-referrer"
     with Session(c["admin"]) as db:
         assert db.scalar(select(AuthExternalIdentity.id).where(AuthExternalIdentity.user_id==c["user"])) is None

@@ -9,7 +9,9 @@ def function_bytes(data):
 
 def bind(contract):
     validate_input_structure(contract)
-    original=authority.raw('runtime_probe57-69d49.py.RAW')
+    from . import technical_child,native_probe_20261103
+    original=(native_probe_20261103.source() if technical_child.is_transition(contract.get('native_input_transition'))
+              else authority.raw('runtime_probe57-69d49.py.RAW'))
     tree=ast.parse(original)
     assignments={n.targets[0].id:n for n in tree.body if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name)}
     if ast.literal_eval(assignments['EXPECTED_DISTS'].value)!=contract['distributions']:
@@ -45,6 +47,13 @@ def validate_input_structure(contract):
     values['XML_CASES']=[ast.literal_eval(node.args[0]) for node in ast.walk(original)
         if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute) and isinstance(node.func.value,ast.Name)
         and node.func.value.id=='cases' and node.func.attr=='append' and node.args and isinstance(node.args[0],ast.Constant)]
+    from . import technical_child
+    if technical_child.is_transition(contract.get('native_input_transition')):
+        catalog,_lock=technical_child.details()
+        expected=dict(values['EXPECTED_DISTS'],pyasn1='0.6.5')
+        require(catalog['distributions']==expected,'Technical exact dependency successor differs')
+        values['EXPECTED_DISTS']=expected
+        values['XML_CASES'].append('dual_extension_elementtree_CAPI_binding')
     require(contract.get('distributions')==values['EXPECTED_DISTS'] and len(contract['distributions'])==57,'Current57 dependency catalog differs')
     hashes=contract.get('app_hashes');modes=contract.get('app_modes')
     require(type(hashes) is dict and bool(hashes) and type(modes) is dict and set(modes)==set(hashes),'Current57 APP hash/mode inventory differs')
@@ -74,16 +83,23 @@ def validate_report(report,contract):
         require(report.get(key) is True,'Image57 runtime exclusion postcondition absent')
     for key in ('complete_product_acceptance','application_startup_or_migrations_claimed','security_or_OS71_or_SCA_closure_claimed','SBOM_SCA_complete'):
         require(report.get(key) is False,'Image57 scope boundary differs')
-    require(type(report.get('base_identity_files_unchanged')) is int and report['base_identity_files_unchanged']==218,'Image57 base identity inventory differs')
+    from . import technical_child
+    technical=technical_child.is_transition(contract.get('native_input_transition'))
+    require(type(report.get('base_identity_files_unchanged')) is int and report['base_identity_files_unchanged']==(217 if technical else 218),'Image57 base identity inventory differs')
     cases=report.get('small_xml_cases')
-    require(type(cases) is list and cases==trusted['XML_CASES'] and len(cases)==len(set(cases))==11,'Image57 bounded XML inventory differs')
+    require(type(cases) is list and cases==trusted['XML_CASES'] and len(cases)==len(set(cases))==(12 if technical else 11),'Image57 bounded XML inventory differs')
     require(report.get('capi_capsule_name')=='pyexpat.expat_CAPI' and report.get('libpq_compile')==report.get('libpq_runtime')==170011,'Image57 native API identity differs')
     native=report.get('native')
     require(type(native) is dict and set(native)=={'pyexpat','elementtree','psycopg2'},'Image57 native inventory differs')
     for item in native.values():
         require(item.get('class_bits')==64 and item.get('machine')==62 and item.get('endian')=='little' and item.get('rpath')==item.get('runpath')==[], 'Image57 ELF or linkage differs')
         require(re.fullmatch('[0-9a-f]{64}',item.get('sha256','')) is not None and bool(item.get('ldd')) and 'not found' not in item['ldd'],'Image57 native digest or dynamic dependency differs')
-    require(native['pyexpat']['exports']==['PyInit_pyexpat'] and native['pyexpat']['needed']==['libc.so.6'] and 'libpq.so.5' in native['psycopg2']['needed'],'Image57 native export or dependency boundary differs')
+    require(native['pyexpat']['exports']==['PyInit_pyexpat'] and (technical or native['pyexpat']['needed']==['libc.so.6']) and 'libpq.so.5' in native['psycopg2']['needed'],'Image57 native export or dependency boundary differs')
+    if technical:
+        from . import native_probe_20261103
+        _catalog,lock=technical_child.details()
+        native_probe_20261103.validate_native(report,lock,technical_child.expected_prepared(lock))
+        return {'source':contract['source'],'source_files':len(contract['app_hashes']),'distributions':57,'native_modules':3,'xml_cases':12,'runtime_import_diagnostic_only':True}
     provenance=report.get('expat_attestation',{})
     require(provenance.get('artifact_sha256')==native['pyexpat']['sha256'] and provenance.get('base_exports')==provenance.get('artifact_exports')==['PyInit_pyexpat'],'Image57 real Expat attestation differs')
     commands=provenance.get('compiler_commands',[])

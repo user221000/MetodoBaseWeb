@@ -6,6 +6,7 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
 from tests.ci_web37.container_inputs import ROOT, verify_current_lock
+from tests.ci_web41 import historical_native37_peer_fixture
 
 
 def parsed_requirements(raw):
@@ -44,3 +45,6 @@ def test_real_web_and_container_locks_keep_the_same_official_google_dependency()
     container = parsed_requirements((ROOT / "requirements-container.lock").read_bytes())
     assert web["google-auth"] == container["google-auth"] == "2.62.0"
     assert {k: v for k, v in web.items() if k != "psycopg2-binary"} == container
+
+
+historical_container37_inputs = historical_native37_peer_fixture.historical_container37_inputs

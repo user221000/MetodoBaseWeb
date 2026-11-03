@@ -8,7 +8,9 @@
   var returned = new URLSearchParams(location.search);
   function invalidate() {
     if(invalid)return;invalid=true;epoch++;context=null;config=null;subscription=null;owner=false;busy=false;loading=false;keys={};
-    render();document.getElementById('payments-tbody').replaceChildren();document.getElementById('payments-state').textContent='Se descartaron los datos de la sesión anterior.';
+    if(document.getElementById('sub-plan-name'))render();
+    var body=document.getElementById('payments-tbody'),state=document.getElementById('payments-state');
+    if(body)body.replaceChildren();if(state)state.textContent='Se descartaron los datos de la sesión anterior.';
     notify('La sesión cambió o no se pudo leer de forma segura. Recarga para consultar tu cuenta.');
   }
   function current(ticket) {if(invalid || ticket!==epoch || !context)return false;try{Api.stats.validarContexto(context);return !invalid && ticket===epoch;}catch(_){invalidate();return false;}}
@@ -113,14 +115,7 @@
       if (!response || !Array.isArray(response.payments)) throw new Error('El servidor devolvió un historial de pagos incompleto.');
       var rows = response.payments;
       state.textContent = rows.length ? rows.length + ' pagos registrados.' : 'No hay pagos registrados en tu cuenta.';
-      rows.forEach(function(payment) {
-        var row = document.createElement('tr'), amount = 'Por confirmar';
-        if (Number.isInteger(payment.amount_cents) && /^[A-Za-z]{3}$/.test(payment.currency || '')) {
-          try { amount = new Intl.NumberFormat('es-MX',{style:'currency',currency:payment.currency.toUpperCase()}).format(payment.amount_cents/100); } catch (_) {}
-        }
-        [date(payment.created_at), amount, payment.status || 'Por confirmar', names[payment.plan] || 'Plan por confirmar'].forEach(function(text) { var cell = document.createElement('td'); cell.textContent = text; row.appendChild(cell); });
-        body.appendChild(row);
-      });
+      PaymentHistory.render(body, rows, names);
     } catch(error) { if(!current(ticket))return;if(['session_changed','session_expired','session_storage_error'].includes(error.code)){invalidate();return;}body.replaceChildren(); state.textContent = 'No pudimos consultar los pagos. ' + failure(error); }
   }
   window.addEventListener('metodobase-session-changed',invalidate);window.addEventListener('storage',function(event){if(!event.key || ['mb_token','mb_refresh_token','mb_session_epoch'].includes(event.key))current(epoch);});window.addEventListener('pagehide',invalidate);
