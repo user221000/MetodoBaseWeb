@@ -1,0 +1,55 @@
+{
+  "schema": "metodobase-alpine-exploration-apk-lock-v1",
+  "profile": "runtime-backup",
+  "release_accepted": false,
+  "branch": "v3.24",
+  "repository": "main",
+  "arch": "x86_64",
+  "resolution_contract": "Exact roots below; all transitive versions constrained by source-pins signed index. Actual APK solver closure, archive hashes and signatures must be measured in the build receipt. No runtime C++ roots.",
+  "roots": [
+    {
+      "name": "postgresql18-client",
+      "version": "18.6-r0",
+      "signed_index_metadata": {
+        "C": "Q1IPzRQE8iMDZkLGACgKCm7Xc0wCA=",
+        "P": "postgresql18-client",
+        "V": "18.6-r0",
+        "A": "x86_64",
+        "S": "1404609",
+        "I": "3425003",
+        "T": "PostgreSQL client",
+        "U": "https://www.postgresql.org/",
+        "L": "PostgreSQL",
+        "o": "postgresql18",
+        "m": "Jakub Jirutka <jakub@jirutka.cz>",
+        "t": "1786798231",
+        "c": "dfa1ed81e8a73b5eef80e2f5d180377e5c99c08f",
+        "k": "18",
+        "D": "postgresql-common so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:liblz4.so.1 so:libpq.so.5 so:libreadline.so.8 so:libz.so.1 so:libzstd.so.1",
+        "p": "postgresql-client cmd:clusterdb cmd:createdb cmd:createuser cmd:dropdb cmd:dropuser cmd:pg_amcheck cmd:pg_basebackup cmd:pg_dump cmd:pg_dumpall cmd:pg_isready cmd:pg_receivewal cmd:pg_recvlogical cmd:pg_restore cmd:pg_verifybackup cmd:pgbench cmd:psql cmd:reindexdb cmd:vacuumdb"
+      }
+    },
+    {
+      "name": "libpq",
+      "version": "18.6-r0",
+      "signed_index_metadata": {
+        "C": "Q1qXfiJ9hDLF4XhwY+ulJod761eL4=",
+        "P": "libpq",
+        "V": "18.6-r0",
+        "A": "x86_64",
+        "S": "160312",
+        "I": "358736",
+        "T": "PostgreSQL client library",
+        "U": "https://www.postgresql.org/",
+        "L": "PostgreSQL",
+        "o": "postgresql18",
+        "m": "Jakub Jirutka <jakub@jirutka.cz>",
+        "t": "1786798231",
+        "c": "dfa1ed81e8a73b5eef80e2f5d180377e5c99c08f",
+        "k": "18",
+        "D": "so:libc.musl-x86_64.so.1 so:libcrypto.so.3 so:libssl.so.3",
+        "p": "so:libpq.so.5=5.18"
+      }
+    }
+  ]
+}

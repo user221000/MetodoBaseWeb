@@ -1,0 +1,90 @@
+name: Alpine dependency exploration
+
+on:
+  push:
+    branches:
+      - codex/alpine-runtime-remediation-20261103
+
+permissions:
+  contents: read
+
+concurrency:
+  group: alpine-exploration-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: web
+            dockerfile: Dockerfile.alpine
+            uid: '999:999'
+          - profile: backup
+            dockerfile: Dockerfile.backup.alpine
+            uid: '10001:10001'
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+      PROFILE: ${{ matrix.profile }}
+      RECIPE: ${{ matrix.dockerfile }}
+      EXPECTED_USER: ${{ matrix.uid }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Record bounded exploration source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = x86_64
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          install -d -m 700 "$RUNNER_TEMP/alpine-$PROFILE-public"
+          python -I -B - <<'PY'
+          import json, os, pathlib
+          output = pathlib.Path(os.environ['RUNNER_TEMP']) / ('alpine-' + os.environ['PROFILE'] + '-public')
+          record = {'schema': 'alpine-exploration-context-v1', 'profile': os.environ['PROFILE'],
+                    'source_commit': os.environ['GITHUB_SHA'], 'run_id': os.environ['GITHUB_RUN_ID'],
+                    'attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'release_accepted': False,
+                    'purpose': 'Dependency inventory only; no application deployment or release approval.'}
+          (output / 'context.json').write_text(json.dumps(record, indent=2) + '\n')
+          PY
+      - name: Build native dependency inventory with a fixed time limit
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=60s 30m \
+            docker build --platform linux/amd64 --pull=false --progress=plain \
+            --target inventory --file "$RECIPE" \
+            --iidfile "$RUNNER_TEMP/alpine-$PROFILE.iid" .
+      - name: Extract inventory from the exact image without starting a service
+        shell: bash
+        run: |
+          set -euo pipefail
+          image_id="$(cat "$RUNNER_TEMP/alpine-$PROFILE.iid")"
+          test "$(docker image inspect --format '{{.Id}}' "$image_id")" = "$image_id"
+          test "$(docker image inspect --format '{{.Config.User}}' "$image_id")" = "$EXPECTED_USER"
+          container_id="$(docker create --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges=true --memory 512m --cpus 1 --pids-limit 128 \
+            "$image_id" /bin/true)"
+          trap 'docker rm "$container_id" >/dev/null' EXIT
+          install -d -m 700 "$RUNNER_TEMP/alpine-$PROFILE-extracted"
+          docker cp "$container_id:/inventory/inventory.json" "$RUNNER_TEMP/alpine-$PROFILE-extracted/inventory.json"
+          docker cp "$container_id:/opt/alpine-evidence" "$RUNNER_TEMP/alpine-$PROFILE-extracted/dependency-evidence"
+          cp "$RUNNER_TEMP/alpine-$PROFILE.iid" "$RUNNER_TEMP/alpine-$PROFILE-extracted/image.iid"
+          python -I -B -X utf8 tests/ci_alpine_exploration.py \
+            --extracted "$RUNNER_TEMP/alpine-$PROFILE-extracted" \
+            --public "$RUNNER_TEMP/alpine-$PROFILE-public" \
+            --repository "$GITHUB_WORKSPACE" --profile "$PROFILE" \
+            --source "$GITHUB_SHA" --image-id "$image_id"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: alpine-${{ matrix.profile }}-dependency-exploration
+          path: ${{ runner.temp }}/alpine-${{ matrix.profile }}-public/
+          if-no-files-found: error
+          retention-days: 14

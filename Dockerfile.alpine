@@ -1,0 +1,59 @@
+# Exploratory dependency inventory only. Never a production/release target.
+# Native build: timeout 30m docker build --platform linux/amd64 --target inventory -f Dockerfile.alpine -t metodobase-alpine-web-exploration .
+# Export /inventory/inventory.json and /opt/alpine-evidence from the exact resulting IID.
+# No application process, production environment, deploy or automatic scheduler.
+FROM python:3.13.18-alpine3.24@sha256:7712cfd23e0501f5cb58faa5e6e0d515c9939bdbce866921799b31e696a1d13c AS base
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+COPY runtime-source/alpine-20261103/ /opt/alpine-source/
+COPY requirements-container-bootstrap.lock requirements-container-build.lock requirements-container-psycopg.lock requirements-container.lock requirements-backup.lock /opt/alpine-source/
+COPY Dockerfile.alpine /opt/alpine-source/recipe.Dockerfile
+RUN python -I -B /opt/alpine-source/collect_inventory.py verify-inputs
+
+# This stage alone contains GCC and its real build dependencies (including C++).
+# Nothing from its /usr/lib or tool environment is copied into the runtime.
+FROM base AS native-build
+RUN python -I -B /opt/alpine-source/collect_inventory.py apk-install --lock apk-build.lock.json
+RUN <<'SH'
+set -eu
+mkdir -p /opt/alpine-evidence/python-build /opt/wheels /opt/runtime-site /opt/native-build
+python -m venv /opt/build-tools
+/opt/build-tools/bin/python -m pip --isolated install --disable-pip-version-check --no-cache-dir --require-hashes --no-deps --only-binary=:all: --index-url https://pypi.org/simple -r /opt/alpine-source/requirements-container-bootstrap.lock > /opt/alpine-evidence/python-build/bootstrap.log 2>&1
+/opt/build-tools/bin/python -m pip --isolated install --disable-pip-version-check --no-cache-dir --require-hashes --no-deps --only-binary=:all: --index-url https://pypi.org/simple -r /opt/alpine-source/requirements-container-build.lock > /opt/alpine-evidence/python-build/build-tools-install.log 2>&1
+python -I -B /opt/alpine-source/collect_inventory.py fetch-psycopg
+TMPDIR=/opt/native-build SOURCE_DATE_EPOCH=1793664000 PYTHONHASHSEED=0 CFLAGS='-g0 -ffile-prefix-map=/opt/native-build=.' /opt/build-tools/bin/python -m pip --isolated wheel --disable-pip-version-check --no-cache-dir --require-hashes --no-deps --no-build-isolation --no-binary=:all: --no-index --find-links=/opt/native-source --wheel-dir /opt/wheels -r /opt/alpine-source/requirements-container-psycopg.lock > /opt/alpine-evidence/python-build/psycopg-wheel.log 2>&1
+python - <<'PY'
+from pathlib import Path
+import hashlib
+wheels = list(Path('/opt/wheels').glob('psycopg2-2.9.13-*.whl'))
+if len(wheels) != 1:
+    raise SystemExit('Exactly one native psycopg2 wheel required')
+wheel = wheels[0]
+Path('/opt/alpine-evidence/python-build/built-wheel.lock').write_text('psycopg2==2.9.13 --hash=sha256:' + hashlib.sha256(wheel.read_bytes()).hexdigest() + '\n')
+PY
+/opt/build-tools/bin/python -m pip --isolated download --disable-pip-version-check --no-cache-dir --require-hashes --no-deps --only-binary=:all: --index-url https://pypi.org/simple --dest /opt/wheels -r /opt/alpine-source/requirements-container.lock > /opt/alpine-evidence/python-build/application-download.log 2>&1
+/opt/build-tools/bin/python -m pip --isolated install --disable-pip-version-check --no-cache-dir --require-hashes --no-deps --only-binary=:all: --no-index --find-links=/opt/wheels --target /opt/runtime-site --report /opt/alpine-evidence/python-build/application-install.json -r /opt/alpine-source/requirements-container.lock -r /opt/alpine-evidence/python-build/built-wheel.lock > /opt/alpine-evidence/python-build/application-install.log 2>&1
+PYTHONPATH=/opt/runtime-site python -m pip check > /opt/alpine-evidence/python-build/pip-check.log 2>&1
+pg_config --version > /opt/alpine-evidence/python-build/pg-config-version.txt
+/opt/build-tools/bin/python -m pip --isolated freeze --all > /opt/alpine-evidence/python-build/build-tools.txt
+python -I -B /opt/alpine-source/collect_inventory.py wheel-receipt --profile web
+SH
+
+FROM base AS runtime-dependencies
+RUN python -I -B /opt/alpine-source/collect_inventory.py apk-install --lock apk-runtime-web.lock.json
+COPY --from=native-build /opt/runtime-site/ /usr/local/lib/python3.13/site-packages/
+COPY --from=native-build /opt/alpine-evidence/ /opt/alpine-evidence/build/
+# Keep base SQLite and all upstream Python modules untouched for exploration.
+# NIS/Krb absence comes from the official3.13 base, never a local deletion.
+# SQLite/Expat, minor-version ABI and SCA acceptance remain pending.
+RUN python -I -B /opt/alpine-source/collect_inventory.py strip-installers
+RUN addgroup -S -g 999 appuser \
+    && adduser -S -D -H -u 999 -G appuser appuser \
+    && mkdir -p /inventory \
+    && chown 999:999 /inventory \
+    && chmod 0755 /inventory
+
+FROM runtime-dependencies AS inventory
+USER 999:999
+# Import errors and direct ELF resolution gaps are observations, never acceptance.
+RUN --network=none python -I -B /opt/alpine-source/collect_inventory.py collect --profile web --output /inventory/inventory.json
+CMD ["python", "-I", "-B", "/opt/alpine-source/collect_inventory.py", "collect", "--profile", "web", "--output", "/inventory/inventory.json"]
