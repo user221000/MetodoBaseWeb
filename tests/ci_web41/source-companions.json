@@ -45,9 +45,14 @@
           "old": "PostgreSQL39",
           "new": "PostgreSQL41",
           "count": 1
+        },
+        {
+          "old": "        'MFA_ENCRYPTION_KEY': base64.urlsafe_b64encode(os.urandom(32)).decode(),\n",
+          "new": "        'MFA_ENCRYPTION_KEY': base64.urlsafe_b64encode(os.urandom(32)).decode(),\n        'METODO_BASE_SALT': base64.urlsafe_b64encode(os.urandom(32)).decode(),\n",
+          "count": 1
         }
       ],
-      "current_sha256_LF": "b02cb6249eb914f800297c3c43277721dbe1cbb96345768a33e2863f9f1898ed"
+      "current_sha256_LF": "1616b0f8f216ac4f37bd3a725cb59f2a6743cdece5f138a18761227a43e4fc19"
     },
     "tests/ci_web41/ci_cluster.py": {
       "original": "tests/ci_web39/ci_cluster.py",

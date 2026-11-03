@@ -125,6 +125,9 @@ class Settings:
         self.STRIPE_SECRET_KEY: str = os.getenv("STRIPE_SECRET_KEY", "")
         self.STRIPE_WEBHOOK_SECRET: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")
         self.STRIPE_PUBLISHABLE_KEY: str = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+        self.STRIPE_PORTAL_CONFIGURATION_ID: str = self._first_env(
+            "STRIPE_PORTAL_CONFIGURATION_ID",
+        )
         # Webhook raw bytes are bounded before signature verification. Keep a
         # conservative default and an explicit, bounded operator override.
         try:
