@@ -116,7 +116,7 @@ def test_all_assertions_and_test_function_counts_remain_except_disclosed_revisio
         }
         trace = policy_assertion_trace(before, after)
         if name == "tests/test_current41_quality_companion.py":
-            assert entry["approved_policy_scope"] == 'current41_quality_date20261103_exact_MD5_retirement31_bindings408_technical19_source_no_baseline_reapproval'
+            assert entry["approved_policy_scope"] == 'current41_quality_date20261103_exact_MD5_retirement31_bindings411_technical19_source_no_baseline_reapproval'
             assert [row["function"] for row in trace] == ['report', 'report311', 'test_current_native_admission_checks_real_child2_ten_inherited_and_original21', 'test_native_source_admission_requires_no_site_packages_or_implicit_packaging', 'test_actual26_match_is_proposal_only_until_the_separate_test_approval', 'test_historical_actual311_report_still_requires_its_interpreter_and_exact_current_runtime_bindings', 'test_mixing_only_one_actual311_followup_descriptor_with312_never_matches_either_full_multiset', 'test_original_baseline_multiset_cannot_substitute_one_approved_occurrence_for_another', 'test_complete_approved_physical_sources_without_git_are_copied_byte_exactly']
         else:
             assert entry["approved_policy_scope"] == "user_partial_refund_keeps_paid_access_and_observed_cumulative_amount_no_time_extension"
