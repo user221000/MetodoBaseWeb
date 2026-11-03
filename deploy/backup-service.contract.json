@@ -1,0 +1,208 @@
+{
+  "schema": "metodobase-backup-service-contract-v1",
+  "enabled": false,
+  "kind": "reviewable contract; not Railway Config as Code or an API mutation",
+  "plan": {
+    "keep": "hobby",
+    "upgrade_allowed": false,
+    "cron_entitlement_published": true,
+    "authenticated_observation_utc": "2026-11-03T15:22:28.682523+00:00",
+    "observed_active_cron_schedules": 0,
+    "additional_usage_free_claimed": false
+  },
+  "service": {
+    "name_proposed": "web-backup",
+    "existing_service_id": null,
+    "replicas": 1,
+    "public_domain": false,
+    "http_healthcheck": false,
+    "restart_policy": "NEVER",
+    "persistent_volume": false,
+    "image_digest": null,
+    "auto_deploy": false,
+    "cpu_limit": null,
+    "memory_limit": null,
+    "resources_gate": "Measure final image at configured byte limits, then set limits and estimate usage."
+  },
+  "schedule": {
+    "active": false,
+    "cron_proposed": "17 8 * * *",
+    "timezone": "UTC",
+    "technical_interval_seconds": 86400,
+    "is_rpo_commitment": false,
+    "skip_if_previous_active": true
+  },
+  "invocation": {
+    "entrypoint": [
+      "python",
+      "-B",
+      "-X",
+      "utf8",
+      "-m",
+      "scripts.backup_service_entrypoint"
+    ],
+    "expected_database": null,
+    "expected_revision": null,
+    "allowed_revisions": [
+      "20261031_gym_equipment",
+      "20261102_payment_refund_facts"
+    ],
+    "required_arguments": [
+      "--expected-database",
+      "--expected-revision",
+      "--pg-bin"
+    ],
+    "pg_bin": "/usr/lib/postgresql/18/bin",
+    "work_root": "/tmp",
+    "timeout_seconds": 900,
+    "capture_timeout_seconds": 300,
+    "source_identity_policy": "Required explicit source; mismatch fails; no migration or automatic head discovery.",
+    "max_objects": 128,
+    "max_object_bytes": 268435456,
+    "max_dump_bytes": 134217728,
+    "max_publish_bytes": 536870912,
+    "prefix": "backups/metodobase"
+  },
+  "receipt": {
+    "0": "Authenticated complete current coverage and verified readback/closure",
+    "2": "Authenticated partial historical coverage with exact legacy counts; never full success",
+    "1": "Failure, timeout, bad/missing receipt or unverified closure",
+    "schedule_attested_by_entrypoint": false,
+    "alarm_delivery_attested_by_entrypoint": false,
+    "serving_authorized": false,
+    "retention_deletions": 0
+  },
+  "credentials": {
+    "channel": "service environment secrets only; never build args, Git, CLI arguments or logs",
+    "BACKUP_DATABASE_URL": "Dedicated CONNECT/USAGE/SELECT on source tables/sequences with BYPASSRLS; not superuser or writable app role.",
+    "OBJECT_STORAGE_S3": "Read GetObject for source descriptors. Separate credentials when provider supports it.",
+    "BACKUP_S3": "Destination GetObject/conditional PutObject plus GetBucketPolicyStatus/GetBucketAcl; no delete or administration.",
+    "BACKUP_ENCRYPTION_KEY": "Base64 32 random bytes; recovery copy outside bucket and service; not generated here.",
+    "same_account_independent_custody_claimed": false
+  },
+  "alarm": {
+    "implemented_delivery": false,
+    "active": false,
+    "owner": null,
+    "channel": null,
+    "required_events": [
+      "failure",
+      "partial",
+      "missing_start",
+      "missing_verified_finish"
+    ],
+    "missing_deadline_tolerance_proposed_seconds": 3600,
+    "gate": "Independent deadline monitor and authorized recipient receipt; DSN, logs, exit codes and local mocks are insufficient."
+  },
+  "human_decisions": {
+    "support_owner": "pending",
+    "support_channel": "pending",
+    "rpo": "pending",
+    "rto": "pending",
+    "recoverable_key_custody": "pending evidence"
+  },
+  "build": {
+    "platform": "linux/amd64",
+    "dockerfile": "Dockerfile.backup",
+    "base": "python:3.12.16-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b",
+    "runtime_distributions": {
+      "boto3": "1.43.114",
+      "botocore": "1.43.114",
+      "cffi": "2.1.1",
+      "cryptography": "50.0.2",
+      "jmespath": "1.1.0",
+      "pycparser": "3.11",
+      "python-dateutil": "2.9.0.post0",
+      "s3transfer": "0.19.2",
+      "six": "1.17.0",
+      "urllib3": "2.8.0",
+      "psycopg2": "2.9.13"
+    },
+    "source_closure": [
+      "scripts/backup_service_entrypoint.py",
+      "scripts/backup_job.py",
+      "scripts/backup_capture_s3.py",
+      "scripts/backup_remote.py",
+      "scripts/backup_restore.py",
+      "scripts/scan_secrets.py",
+      "scripts/reviewed_scan_locations.py",
+      "web/__init__.py",
+      "web/storage/__init__.py",
+      "web/storage/configuration.py",
+      "web/storage/local.py",
+      "web/storage/objects.py",
+      "web/storage/s3.py"
+    ],
+    "pgdg_packages": [
+      {
+        "name": "libpq-dev",
+        "version": "18.6-1.pgdg13+2",
+        "architecture": "amd64",
+        "url": "https://apt.postgresql.org/pub/repos/apt/pool/main/p/postgresql-18/libpq-dev_18.6-1.pgdg13+2_amd64.deb",
+        "bytes": 174528,
+        "sha256": "b2add61e7fe0e9328140de456a85c96737b517f9cf62b44fd88e86aa2b765f29",
+        "scope": "build"
+      },
+      {
+        "name": "libpq5",
+        "version": "18.6-1.pgdg13+2",
+        "architecture": "amd64",
+        "url": "https://apt.postgresql.org/pub/repos/apt/pool/main/p/postgresql-18/libpq5_18.6-1.pgdg13+2_amd64.deb",
+        "bytes": 266004,
+        "sha256": "c6cc459bb499db4697686533e50bf5943f7e7d6929c04ef55eec184d5436859b",
+        "scope": "runtime"
+      },
+      {
+        "name": "postgresql-client-18",
+        "version": "18.6-1.pgdg13+2",
+        "architecture": "amd64",
+        "url": "https://apt.postgresql.org/pub/repos/apt/pool/main/p/postgresql-18/postgresql-client-18_18.6-1.pgdg13+2_amd64.deb",
+        "bytes": 2144864,
+        "sha256": "9af40c99f7074f8ff3798155af2f07f1a4e1e3bd4edce44ef928c1e03aea620e",
+        "scope": "runtime"
+      },
+      {
+        "name": "postgresql-client-common",
+        "version": "293.pgdg13+1",
+        "architecture": "all",
+        "url": "https://apt.postgresql.org/pub/repos/apt/pool/main/p/postgresql-common/postgresql-client-common_293.pgdg13+1_all.deb",
+        "bytes": 48468,
+        "sha256": "70da21264140dfb34680cfec52973c7f10b5c8e3c78699a52b04e870b3dee71b",
+        "scope": "runtime"
+      }
+    ],
+    "pgdg_metadata_provenance": {
+      "signing_fingerprint": "B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8",
+      "retained_inrelease_sha256": "3e57712be2d4cf2593ca4dd864b88dfbd91e5534647d339f3cc080b71e7b5108",
+      "retained_packages_index_sha256": "eca897506c0f6bf3affc87aa3d8755cd1cd22e202f936130dd2caa6d71fa80db",
+      "selection": "Exact package hashes from this previously signature-verified index, including libpq-dev.",
+      "live_index_required_at_build": false
+    },
+    "debian_snapshot": "20261103T080000Z",
+    "debian_signed_release_pins": "runtime-source/technical-close-20261103/apt-metadata.lock",
+    "native_corrections": [
+      "liblzma5=5.8.1-1+deb13u2",
+      "verify_ca.py",
+      "rebuild_native.py Expat2.10 bindings"
+    ],
+    "build_accepted": false,
+    "sca_accepted": false,
+    "sca_gate": "Final backup image needs full SBOM and SCA; prior app image had 20 unique High CVEs. No suppression or inherited acceptance."
+  },
+  "activation_gates": [
+    "Final Linux image/digest and SBOM/SCA reviewed",
+    "Independent QA of wrapper, Linux supervision and PG18.6 capture/restore for both revisions",
+    "Measure memory/disk/runtime and existing-plan usage headroom",
+    "Source role and destination permissions verified",
+    "Recoverable external key copy tested",
+    "Authorized real capture/publish/fetch and isolated restore",
+    "Independent deadline monitor with authorized responder and delivery evidence",
+    "Explicit configuration readback and two observed scheduled windows"
+  ],
+  "configuration_delivery": "New dedicated service via reviewed API/IaC after gates; do not add railway.toml/json. No project-wide migration performed.",
+  "sources": [
+    "https://railway.com/pricing",
+    "https://docs.railway.com/cron-jobs",
+    "https://docs.railway.com/infrastructure-as-code"
+  ]
+}
