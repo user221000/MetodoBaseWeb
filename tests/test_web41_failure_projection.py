@@ -273,3 +273,154 @@ def test_original_parser_error_is_preserved():
         raise ValueError("SYNTHETIC_ORIGINAL_REJECTION")
     with pytest.raises(ValueError):
         _wrapper(reject, lambda *args: {})(None, [])
+
+
+def _long_case(kind):
+    if kind == "nutrition":
+        function = "test_corrupt_stored_declarations_fail_instead_of_becoming_unknown"
+        return "tests.test_nutrition35_profile_contract", function + "[" + " " * 16385 + "]"
+    function = "test_documented_transport_rejections_do_not_reach_provider"
+    factory = {"api": "api.app", "web": "web.main_web"}[kind]
+    return "tests.test_web_api_contract_audit", function + "[" + factory + "-request-" + " " * 4097 + "-application/json-413]"
+
+
+@pytest.fixture
+def long_repository(tmp_path):
+    """Use exact reviewed test blobs, never importing their data or fixtures."""
+    root = tmp_path / "owned-long-git"
+    root.mkdir()
+    (root / "tests").mkdir()
+    _git(root, "init", "--initial-branch=owned-long-test")
+    photo = {}
+    for name in ("tests/test_nutrition35_profile_contract.py", "tests/test_web_api_contract_audit.py"):
+        raw = _git(PAYLOAD.parent, "show", "HEAD:" + name)
+        (root / name).write_bytes(raw)
+        photo[name] = hashlib.sha256(raw).hexdigest()
+    (root / ".gitattributes").write_bytes(b"*.py text eol=lf\n")
+    _git(root, "-c", "core.autocrlf=false", "add", "--", ".")
+    _git(root, "-c", "user.name=Owned QA", "-c", "user.email=qa@example.invalid", "commit", "-m", "Reviewed long-identity source")
+    return root, _git(root, "rev-parse", "HEAD").decode().strip(), photo
+
+
+@pytest.mark.parametrize("kind", ["nutrition", "api", "web"])
+def test_reviewed_long_identity_uses_only_authenticated_short_symbol(long_repository, kind):
+    classname, name = _long_case(kind)
+    root, source, photo = long_repository
+    sources = projection.GitSources(root, source, photo)
+    # The ordinary4096 lookup remains closed even for a registered full ID.
+    assert sources.location(classname, name) is None
+    value = _project(long_repository, [(classname, name, "failure")])
+    assert value["counters"] == {"failure": 1}
+    assert value["locations"][0]["path"] == classname.replace(".", "/") + ".py"
+    assert value["locations"][0]["symbols"] == [{"classes": [], "function": name.split("[", 1)[0], "outcome": "failure", "count": 1}]
+    public = json.dumps(value)
+    assert name not in public and " " * 4097 not in public
+    assert "SYNTHETIC_MESSAGE" not in public and "SYNTHETIC_ASSERTION" not in public
+    assert value["runtime_code_attestation"] is False
+
+
+@pytest.mark.parametrize("kinds", [("api", "web"), ("nutrition", "api", "web")], ids=["audit-subset", "all-three"])
+def test_passed_long_oracle_members_do_not_hide_an_ordinary_failure(long_repository, kinds):
+    rows = [(*_long_case(kind), "passed") for kind in kinds]
+    rows.append(("tests.test_web_api_contract_audit", "test_each_method_path_has_one_effective_handler_and_openapi_matches[api.app]", "failure"))
+    value = _project(long_repository, rows)
+    assert value["counters"] == {"failure": 1, "passed": len(kinds)}
+    assert value["manifest_entries"] == value["reported_entries"] == len(rows)
+    assert value["locations"][0]["symbols"][0]["function"] == "test_each_method_path_has_one_effective_handler_and_openapi_matches"
+
+
+@pytest.mark.parametrize("kind", ["nutrition", "api", "web"])
+@pytest.mark.parametrize("fault", ["same-length-parameter", "length", "classname", "symbol"])
+def test_long_identity_mutation_never_inherits_the_finite_admission(long_repository, kind, fault):
+    classname, name = _long_case(kind)
+    if fault == "same-length-parameter":
+        name = name[:-2] + "X" + name[-1]
+    elif fault == "length":
+        name += "X"
+    elif fault == "classname":
+        classname += "X"
+    else:
+        name = name.replace("test_", "fake_", 1)
+    with pytest.raises(ValueError, match="Unsupported long diagnostic identity") as rejected:
+        _project(long_repository, [(classname, name, "passed")])
+    assert name not in str(rejected.value)
+
+
+def test_fourth_long_identity_rejects_even_if_all_reported_tests_pass(long_repository):
+    rows = [(*_long_case(kind), "passed") for kind in ("nutrition", "api", "web")]
+    classname, name = _long_case("api")
+    rows.append((classname, name[:-2] + "X]", "passed"))
+    with pytest.raises(ValueError, match="Unsupported long diagnostic identity"):
+        _project(long_repository, rows)
+
+
+def test_duplicate_long_manifest_still_rejects_and_report_duplicates_keep_counts(long_repository):
+    classname, name = _long_case("api")
+    with pytest.raises(ValueError, match="Ambiguous diagnostic manifest"):
+        _project(long_repository, [(classname, name, "passed")], [[classname, name]] * 2)
+    value = _project(long_repository, [(classname, name, "error")] * 2, [[classname, name]])
+    assert value["counters"] == {"ambiguous_report_identity": 2, "duplicate_report_identity": 1, "error": 2}
+    assert value["locations"] == []
+
+
+def test_foreign_long_report_identity_is_unresolved_without_publishing_parameters(long_repository):
+    classname, name = _long_case("api")
+    foreign = name[:-2] + "X]"
+    value = _project(long_repository, [(classname, foreign, "failure")], [[classname, name]])
+    assert value["counters"] == {"failure": 1, "unresolved_report_identity": 1}
+    assert value["locations"] == [] and foreign not in json.dumps(value)
+
+
+@pytest.mark.parametrize("kind", ["nutrition", "api"])
+def test_new_git_and_photo_cannot_reapprove_changed_long_source(long_repository, kind):
+    root, _, photo = long_repository
+    classname, name = _long_case(kind)
+    path = classname.replace(".", "/") + ".py"
+    raw = (root / path).read_bytes() + b"\n# Synthetic unauthenticated comment\n"
+    (root / path).write_bytes(raw)
+    _git(root, "add", "--", path)
+    _git(root, "-c", "user.name=Owned QA", "-c", "user.email=qa@example.invalid", "commit", "-m", "Unreviewed source")
+    new_source = _git(root, "rev-parse", "HEAD").decode().strip()
+    with pytest.raises(ValueError, match="Unreviewed long diagnostic source"):
+        _project((root, new_source, {**photo, path: hashlib.sha256(raw).hexdigest()}), [(classname, name, "passed")])
+
+
+def test_long_source_photo_and_symbol_must_be_authenticated(long_repository, monkeypatch):
+    root, source, photo = long_repository
+    classname, name = _long_case("api")
+    path = "tests/test_web_api_contract_audit.py"
+    with pytest.raises(ValueError, match="Photographed source differs"):
+        _project((root, source, {**photo, path: "0" * 64}), [(classname, name, "passed")])
+    original = projection.GitSources.location
+    def unresolved(self, *args):
+        value = original(self, *args)
+        if value is not None:
+            value = {**value, "symbol": None}
+        return value
+    monkeypatch.setattr(projection.GitSources, "location", unresolved)
+    with pytest.raises(ValueError, match="Unresolved long diagnostic symbol"):
+        _project(long_repository, [(classname, name, "passed")])
+
+
+def test_real_private_file_projection_accepts_known_long_subset_without_changing_bytes(long_repository, tmp_path):
+    root, source, photo = long_repository
+    private = tmp_path / "long-private"
+    private.mkdir()
+    rows = [(*_long_case(kind), "passed") for kind in ("api", "web")]
+    expected = [[classname, name] for classname, name, _ in rows]
+    (private / "pytest.xml").write_bytes(_junit(rows))
+    (private / "oracle.json").write_text(json.dumps(expected), encoding="utf8")
+    (private / "before.json").write_text(json.dumps({"source": {"HEAD": source, "files": photo}}), encoding="utf8")
+    before = {path.name: path.read_bytes() for path in private.iterdir()}
+    value = projection.project_files(root, private / "pytest.xml", expected)
+    assert value["diagnostic_available"] is True and value["counters"] == {"passed": 2}
+    assert value["locations"] == [] and value["manifest_entries"] == value["reported_entries"] == 2
+    assert before == {path.name: path.read_bytes() for path in private.iterdir()}
+
+
+def test_general_long_boundary_and_all_global_limits_remain_closed(repository):
+    assert (projection.MAX_REPORT, projection.MAX_MANIFEST, projection.MAX_PHOTO,
+            projection.MAX_ROWS, projection.MAX_XML_NODES) == (64 * 1024**2, 8 * 1024**2, 16 * 1024**2, 20000, 200000)
+    assert len(projection.LONG_IDENTITIES) == 3
+    with pytest.raises(ValueError, match="Unsupported long diagnostic identity"):
+        _project(repository, [("tests.test_case", "test_one[" + "X" * 4097 + "]", "passed")])

@@ -27,6 +27,32 @@ TEST_PATH = re.compile(r"tests/(?:[A-Za-z_][A-Za-z0-9_]*/)*(?:test_|integration_
 HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 
+# Exactly three existing pytest identities exceed the ordinary4096 boundary.
+# Digests cover the complete private [classname, name] JSON pair; no parameter
+# value is stored here or emitted. Source pins are canonical Git blob bytes.
+# Subsets may contain only the applicable entries. The original runner still
+# owns full collection identity equality and acceptance; this only locates RED.
+LONG_IDENTITIES = {
+    "edc50555adb86c2bf14013516a8aadf3b89603d526e50897f206c95ee43914cb": (
+        "tests.test_nutrition35_profile_contract", 16452,
+        "tests/test_nutrition35_profile_contract.py",
+        "test_corrupt_stored_declarations_fail_instead_of_becoming_unknown",
+        "1737cd4130b708d08f159eff5d3fa6138e3600814ee76de6b08f5abe6d471c38",
+    ),
+    "8667dcdebbbcd9e69f455f17c21cc68050709d2d786588405c6c382ee8ee25f2": (
+        "tests.test_web_api_contract_audit", 4194,
+        "tests/test_web_api_contract_audit.py",
+        "test_documented_transport_rejections_do_not_reach_provider",
+        "33420e2382e6a7af4b0c1e2c3bc34bdc9844033c7b5bafc06107d604030f4d70",
+    ),
+    "be69b6fafc7b2ad771fa945db6a783bf54610584bd21c3545b7a1816fcac676f": (
+        "tests.test_web_api_contract_audit", 4199,
+        "tests/test_web_api_contract_audit.py",
+        "test_documented_transport_rejections_do_not_reach_provider",
+        "33420e2382e6a7af4b0c1e2c3bc34bdc9844033c7b5bafc06107d604030f4d70",
+    ),
+}
+
 
 def digest(raw):
     return hashlib.sha256(raw).hexdigest()
@@ -183,6 +209,39 @@ class GitSources:
         return {"path": path, "blob_sha1": self.files[path], "source_sha256": digest(raw), "symbol": symbol}
 
 
+def long_locations(expected, sources):
+    """Authenticate finite long IDs without relaxing the ordinary lookup guard.
+
+    Matching/report accounting retains the original identity. Only the short,
+    reviewed function name reaches the existing static source resolver.
+    Authenticate even passed or unreported oracle members before projecting.
+    """
+    locations = {}
+    for classname, name in expected:
+        if len(name) <= 4096:
+            continue
+        if not any((classname, len(name)) == entry[:2] for entry in LONG_IDENTITIES.values()):
+            raise ValueError("Unsupported long diagnostic identity")
+        try:
+            identity = json.dumps([classname, name], ensure_ascii=False, separators=(",", ":")).encode("utf8")
+        except UnicodeError:
+            raise ValueError("Unsupported long diagnostic identity") from None
+        entry = LONG_IDENTITIES.get(digest(identity))
+        if entry is None or (classname, len(name)) != entry[:2]:
+            raise ValueError("Unsupported long diagnostic identity")
+        _, _, path, function, source_sha256 = entry
+        raw, _ = sources.code(path)
+        if digest(raw) != source_sha256:
+            raise ValueError("Unreviewed long diagnostic source")
+        location = sources.location(classname, function)
+        if (location is None or location["path"] != path
+                or location["source_sha256"] != source_sha256
+                or location["symbol"] != {"classes": [], "function": function}):
+            raise ValueError("Unresolved long diagnostic symbol")
+        locations[(classname, name)] = location
+    return locations
+
+
 def project(raw, manifest_raw, sources):
     if len(raw) > MAX_REPORT or len(manifest_raw) > MAX_MANIFEST:
         raise ValueError("Diagnostic input exceeds limit")
@@ -195,11 +254,13 @@ def project(raw, manifest_raw, sources):
     expected = json.loads(manifest_raw)
     if (not isinstance(expected, list) or not 0 < len(expected) <= MAX_ROWS
             or any(not isinstance(row, list) or len(row) != 2
-                   or any(not isinstance(item, str) or not 0 < len(item) <= 4096 for item in row) for row in expected)):
+                   or not isinstance(row[0], str) or not 0 < len(row[0]) <= 4096
+                   or not isinstance(row[1], str) or not row[1] for row in expected)):
         raise ValueError("Unsupported diagnostic manifest")
     expected_set = {tuple(row) for row in expected}
     if len(expected_set) != len(expected):
         raise ValueError("Ambiguous diagnostic manifest")
+    finite_locations = long_locations(expected, sources)
     document = ET.fromstring(text)
     if document.tag not in {"testsuite", "testsuites"}:
         raise ValueError("Unsupported diagnostic XML")
@@ -232,7 +293,9 @@ def project(raw, manifest_raw, sources):
         if identity not in expected_set:
             counts["unresolved_report_identity"] += 1
             continue
-        location = sources.location(*identity)
+        location = finite_locations.get(identity)
+        if location is None:
+            location = sources.location(*identity)
         if location is None:
             counts["unresolved_location"] += 1
             continue
