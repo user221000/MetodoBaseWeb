@@ -1,4 +1,4 @@
-"""Five current41 cases on one owned PostgreSQL UUID and two real backends.
+"""Twelve current41 criteria on one owned PostgreSQL UUID and two real backends.
 
 Provider reads are synthetic. The migrations, restricted SQLAlchemy sessions,
 RLS, SDK signature verification and HTTP authentication are real.
@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 import hashlib
 import hmac
 import json
+import re
 from threading import Barrier
 import time
 
@@ -20,6 +21,49 @@ from sqlalchemy.orm import Session
 from tests.ci_web41.payments_fixtures import (database_schema, isolated_database,
     payments41_database, payments41_case)  # noqa: F401 -- explicit owned fixture contract
 from tests.test_stripe_invoice_authority_peer import SECRET, client_for, deliver, event_from
+from tests.test_stripe_postgres_authority_peer import (pg_invoice,
+    test_pg_invoice_signed_retry_replay_preserves_other_tenant_and_quota,
+    test_pg_concurrent_same_invoice_has_one_ledger_and_retryable_inbox_collision)  # noqa: F401 -- original seven PG identities
+from tests.test_stripe_postgres_refund_peer import (
+    test_pg_refund_updates_only_its_ledger_and_preserves_other_tenant_quota)  # noqa: F401 -- all three original HTTP surfaces
+
+
+def _owned_peer_urls(fixture):
+    from tests.isolation import validate_postgres_test_url
+    if (not isinstance(fixture.name, str)
+            or re.fullmatch(r"metodobase_test_payments41_[0-9a-f]{32}", fixture.name) is None
+            or any(engine.dialect.name != "postgresql" or engine.url.database != fixture.name
+                   for engine in (fixture.admin, fixture.app))
+            or (fixture.admin.url.host, fixture.admin.url.port) != (fixture.app.url.host, fixture.app.url.port)):
+        raise ValueError("Original PG peers require the already-owned payments41 UUID")
+    urls = tuple(engine.url.render_as_string(hide_password=False) for engine in (fixture.admin, fixture.app))
+    for url in urls:
+        validate_postgres_test_url(url)
+    return urls
+
+
+@pytest.fixture
+def migration_database(payments41_database, monkeypatch):
+    """Route unchanged original PG peers to this campaign's owned UUID only.
+
+    The legacy backend-parametrized generator is never entered. Its additional
+    database creation and forced DROP are replaced by the existing OID-bound
+    payments41 owner and normal closure, after all twelve criteria.
+    """
+    from web.database.models import Base
+    fixture = payments41_database
+    admin_url, app_url = _owned_peer_urls(fixture)
+    # The owner may retain idle restricted connections after setup/current
+    # cases. Release that idle pool before the unchanged peer opens its pool2.
+    # A checked-out connection is a failure, never a worker to terminate.
+    assert fixture.app.pool.checkedout() == 0
+    fixture.app.dispose()
+    with fixture.admin.begin() as db:
+        for table in reversed(Base.metadata.sorted_tables):
+            db.execute(table.delete())
+    monkeypatch.setenv("METODOBASE_TEST_POSTGRES_URL", app_url)
+    yield admin_url, fixture.admin
+    assert fixture.app.pool.checkedout() == fixture.admin.pool.checkedout() == 0
 
 
 def provider(case, monkeypatch):

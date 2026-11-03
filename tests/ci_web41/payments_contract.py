@@ -7,22 +7,33 @@ from pathlib import Path
 from tests.ci_web41 import pg_contract as current
 
 ROOT = current.ROOT
-SCOPE = "payments41-pg-one-uuid-two-backends-v1"
+SCOPE = "payments41-pg-twelve-criteria-one-uuid-two-backends-v2"
 MODULE = "tests/integration_payment41_qa_postgres.py"
-CASES = (
+CURRENT_CASES = (
     "test_partial_full_replay_and_other_tenant_quota",
     "test_old_partial_and_full_keep_new_paid_renewal",
     "test_partial_never_extends_same_paid_invoice_or_resets_usage",
     "test_concurrent_signed_refund_has_two_backends_and_one_cumulative_fact",
     "test_actual_personal_team_history_is_own_and_rls_protected",
 )
-PLAN = {"cases": 5, "UUIDs": 1, "concurrent_UUIDs": 1, "application_pool": 2,
+PEER_CASES = (
+    "test_pg_invoice_signed_retry_replay_preserves_other_tenant_and_quota[surface0]",
+    "test_pg_invoice_signed_retry_replay_preserves_other_tenant_and_quota[surface1]",
+    "test_pg_invoice_signed_retry_replay_preserves_other_tenant_and_quota[surface2]",
+    "test_pg_concurrent_same_invoice_has_one_ledger_and_retryable_inbox_collision",
+    "test_pg_refund_updates_only_its_ledger_and_preserves_other_tenant_quota[surface0]",
+    "test_pg_refund_updates_only_its_ledger_and_preserves_other_tenant_quota[surface1]",
+    "test_pg_refund_updates_only_its_ledger_and_preserves_other_tenant_quota[surface2]",
+)
+CASES = (*CURRENT_CASES, *PEER_CASES)
+PLAN = {"cases": 12, "UUIDs": 1, "concurrent_UUIDs": 1, "application_pool": 2,
         "application_workers": 2, "max_overflow": 0, "database_admin_pool": 1,
         "control_observer_connections": 1, "historical_core_restore_budgets_unchanged": True}
 BOUND = (MODULE, "tests/ci_web41/payments_contract.py", "tests/ci_web41/payments_fixtures.py",
          "tests/ci_web41/run_payments.py", "tests/test_payment41_qa_peer.py",
          "tests/test_stripe_invoice_authority_peer.py", "tests/test_stripe_refund_ledger_peer.py",
-         "tests/test_stripe_postgres_authority_peer.py")
+         "tests/test_stripe_postgres_authority_peer.py", "tests/test_stripe_postgres_refund_peer.py",
+         "tests/test_current41_pg_peer_routing.py", "tests/test_current41_payments_contract.py")
 
 
 def digest(value):

@@ -1,4 +1,4 @@
-"""Execute exactly five current41 payments criteria, retaining private originals."""
+"""Execute twelve exact current41 payments criteria, retaining private originals."""
 import argparse
 import json
 import os
@@ -25,7 +25,7 @@ def main():
     if args.output.exists() or args.private.exists():
         parser.error("Fresh private and public evidence paths are required")
     private = _private_evidence(args.private)
-    result = {"accepted": False, "scope": contract.SCOPE, "planned_cases": 5, "PostgreSQL_executed": False,
+    result = {"accepted": False, "scope": contract.SCOPE, "planned_cases": 12, "PostgreSQL_executed": False,
               "Stripe_sandbox": False, "live_provider_calls": False, "historical_core_restore_budgets_unchanged": True}
     try:
         value = contract.build_contract(args.profile, args.generation)
@@ -53,7 +53,9 @@ def main():
         closure = json.loads((private / "runtime/closure.json").read_bytes())
         stable = contract.build_contract(args.profile, args.generation) == value
         contract.require_ack(args.ack, value)
-        result.update(closure=closure, exact_five_identities=code == 0, source_profile_generation_quiet=stable,
+        result.update(closure=closure, exact_twelve_identities=code == 0,
+                      original_current_five_retained=code == 0, original_pg_peer_seven_executed=code == 0,
+                      source_profile_generation_quiet=stable,
                       FileSetDigest=value["FileSetDigest"], accepted=code == 0 and closure["accepted"] is True and stable)
     except Exception as error:
         (private / "runner-error.private.log").write_text(traceback.format_exc(), encoding="utf8")

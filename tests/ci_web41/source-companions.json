@@ -910,9 +910,14 @@
           "old": "payloads = {name: (control / name).read_bytes() for name in PINS}",
           "new": "payloads = {name: (control / name).read_bytes() for name in quality.native_input_paths(control)}",
           "count": 1
+        },
+        {
+          "old": "    with changed(control / \"Dockerfile\", parent[\"Dockerfile\"]), changed(\n            control / \"requirements-container-apt-metadata.lock\", parent[\"requirements-container-apt-metadata.lock\"]):",
+          "new": "    with ExitStack() as stack:\n        for name, raw in parent.items():\n            stack.enter_context(changed(control / name, raw))",
+          "count": 1
         }
       ],
-      "current_sha256_LF": "0897fed56b2d7e6b6c64da0ff5e286ceb981df1136e877fce21227286b550fbe",
+      "current_sha256_LF": "da30b0d02022e19f658456a730f1156f4dab168a591803362d31d002db43c238",
       "approved_policy_scope": "current41_quality_date20261103_exact_MD5_retirement31_bindings408_technical19_source_no_baseline_reapproval",
       "policy_assertion_trace": [
         {

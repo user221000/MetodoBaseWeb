@@ -6,6 +6,10 @@ from pathlib import Path
 import re
 import pytest
 
+from tests.ci_web41.visual_contract_current import (
+    CURRENT_TEMPLATES, restore_current_presentation,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / 'docs/implementation/20261018-evolution/evidence/web-redesign-20261021/baseline-contract.json'
 CURRENT39_EXTENSION = ROOT / 'tests/ci_web39/fixtures/templates-feature62-extension.json'
@@ -71,6 +75,9 @@ def restore_approved_current39_contract(name, source, fixture_raw=None):
         if (len(matches) != 1 or matches[0].get('minlength') != '15'
                 or matches[0].get('autocomplete') != 'new-password'):
             raise ValueError('The actual current39 new password minimum differs')
+    # Validate the approved current DOM before the unchanged historical oracle.
+    source = restore_current_presentation(name, source)
+    current = describe(source)
     def blob(raw):
         return hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw,
                             usedforsecurity=False).hexdigest()
@@ -102,7 +109,8 @@ def restore_approved_dashboard_contract(source, fixture_raw=None):
 @pytest.mark.parametrize('name', list(BASE))
 def test_existing_forms_selectors_and_scripts_are_preserved(name):
     source = (ROOT / name).read_text(encoding='utf-8')
-    current = describe(restore_approved_current39_contract(name, source) if name in CURRENT39_TEMPLATES else source)
+    current = describe(restore_approved_current39_contract(name, source) if name in CURRENT39_TEMPLATES
+                       else restore_current_presentation(name, source) if name in CURRENT_TEMPLATES else source)
     expected = BASE[name]
     assert set(expected['ids']).issubset(current['ids'])
     assert current['controls'] == expected['controls']
@@ -226,6 +234,8 @@ def test_exact_public_brand_tokens_and_no_new_remote_assets():
 def test_landing_runtime_catalogue_expressions_and_destinations_are_unchanged():
     expected = json.loads((BASELINE.parent / 'landing-runtime-contract.json').read_text(encoding='utf-8'))
     source = (ROOT / 'web/templates/landing.html').read_text(encoding='utf-8')
+    # Prices/quotas/CTA and browser behavior are also tested on actual current HTML.
+    source = restore_current_presentation('web/templates/landing.html', source)
     # Share the current workspace palette while retaining the original catalogue
     # expressions and navigation below this explicit stylesheet addition.
     shared = '  <link rel="stylesheet" href="/static/css/workspace.css?v={{ static_version }}">\n'

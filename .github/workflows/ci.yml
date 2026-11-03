@@ -61,7 +61,7 @@ jobs:
         echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" | sha256sum --check
         tar -xzf "$RUNNER_TEMP/metodobase-gitleaks/release.tar.gz" -C "$RUNNER_TEMP/metodobase-gitleaks"
     - name: Scan the frozen deliverable tree with values withheld
-      run: python -B -X utf8 -m tests.ci_web39.scan_secrets --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
+      run: python -B -X utf8 -m tests.ci_web41.technical_secret_locations --gitleaks "$RUNNER_TEMP/metodobase-gitleaks/gitleaks" --report "$RUNNER_TEMP/metodobase-secrets-sanitized.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -95,6 +95,16 @@ jobs:
         printf 'METODOBASE_TEST_PYTHON_SOURCE_ARCHIVE=%s\n' "$RUNNER_TEMP/web39-source-inputs/Python-3.12.15.tar.xz" >> "$GITHUB_ENV"
     - run: python -m pip install --require-hashes -r requirements-test.lock
     - run: npm ci --prefix tests/e2e --ignore-scripts
+    - name: Build the pinned native Lua test server without a shared service
+      run: |
+        set -euo pipefail
+        install -d -m 700 "$RUNNER_TEMP/owned-lua-source"
+        curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 https://download.redis.io/releases/redis-8.10.3.tar.gz --output "$RUNNER_TEMP/owned-lua-source/redis-8.10.3.tar.gz"
+        printf '%s  %s\n' 'edde778f6bdee7581e42fc139ca9e07e2822212092f7501f99989656e3629d02' "$RUNNER_TEMP/owned-lua-source/redis-8.10.3.tar.gz" | sha256sum --check
+        tar -xzf "$RUNNER_TEMP/owned-lua-source/redis-8.10.3.tar.gz" -C "$RUNNER_TEMP/owned-lua-source"
+        make -C "$RUNNER_TEMP/owned-lua-source/redis-8.10.3/src" -j2 MALLOC=libc BUILD_TLS=no redis-server
+        "$RUNNER_TEMP/owned-lua-source/redis-8.10.3/src/redis-server" --version
+        printf 'METODOBASE_TEST_LUA_SERVER=%s\n' "$RUNNER_TEMP/owned-lua-source/redis-8.10.3/src/redis-server" >> "$GITHUB_ENV"
     - name: Create public metadata parent; each gate creates its own private boundary
       run: install -d -m 700 "$RUNNER_TEMP/web37-public"
     - name: Current41 complete web serial; exact identities, no skips and reviewed nutrition coverage
@@ -526,6 +536,10 @@ jobs:
         python tests/check_followup_reports.py
         ) > "$RUNNER_TEMP/ci30-postgres-private/step-39.raw.log" 2>&1
       working-directory: ${{ runner.temp }}/ci30-postgres/source
+    - name: Project the failed quota report separately without accepting missing historical reports
+      if: failure()
+      working-directory: ${{ github.workspace }}
+      run: python -B -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/ci30-postgres/source" --output "$RUNNER_TEMP/ci30-postgres-quota-diagnostic-public" --files pytest-postgres-quota.xml
     - name: Project all29 historical reports; retain exact old acceptance checks
       if: always()
       working-directory: ${{ github.workspace }}
@@ -573,6 +587,8 @@ jobs:
           ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-history-index-restore.xml
           ${{ runner.temp }}/ci30-postgres-public/pytest-postgres-followup.xml
           ${{ runner.temp }}/ci30-postgres-public/publication.json
+          ${{ runner.temp }}/ci30-postgres-quota-diagnostic-public/pytest-postgres-quota.xml
+          ${{ runner.temp }}/ci30-postgres-quota-diagnostic-public/publication.json
         if-no-files-found: error
     defaults:
       run:
@@ -936,7 +952,7 @@ jobs:
       run: python -B -X utf8 tests/ci_web41/run_postgres.py --phase core --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-core.private.json" --private "$RUNNER_TEMP/current41-pg-core-private" --output "$RUNNER_TEMP/current41-pg-public/core"
     - name: Actual41 encrypted restore and live suppression; original case and two sequential UUIDs
       run: python -B -X utf8 tests/ci_web41/run_postgres.py --phase restore --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --pg-generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack39-restore.private.json" --private "$RUNNER_TEMP/current41-pg-restore-private" --output "$RUNNER_TEMP/current41-pg-public/restore"
-    - name: Authorize a separate five-case financial phase on the owned test cluster
+    - name: Authorize twelve financial criteria including seven original PostgreSQL peers
       run: |
         python -B -X utf8 - <<'PY'
         import os
@@ -947,7 +963,7 @@ jobs:
         PY
     - name: Current41 partial and complete refunds, paid-period limits, RLS and concurrent signatures
       run: python -B -X utf8 tests/ci_web41/run_payments.py --profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --generation "$RUNNER_TEMP/ci37-pg-cluster-private/generation39.private.json" --ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack41-payments.private.json" --private "$RUNNER_TEMP/payments41-private" --output "$RUNNER_TEMP/current41-pg-public/payments.json"
-    - name: Both actual41 phases must execute and close all three owned UUIDs
+    - name: All actual41 phases must execute and close their four owned UUIDs
       run: |
         python -B -X utf8 - <<'PY'
         import json,os
@@ -962,8 +978,14 @@ jobs:
             assert value['historical429_53_27_retargeted'] is False
         payments=json.loads((root/'payments.json').read_bytes())
         assert payments['accepted'] is True and payments['PostgreSQL_executed'] is True
-        assert payments['exact_five_identities'] is True and payments['source_profile_generation_quiet'] is True
+        assert type(payments['planned_cases']) is int and payments['planned_cases'] == 12
+        assert payments['exact_twelve_identities'] is True
+        assert payments['original_current_five_retained'] is True and payments['original_pg_peer_seven_executed'] is True
+        assert payments['source_profile_generation_quiet'] is True
         assert payments['closure']['accepted'] is True
+        assert type(payments['closure']['created_UUIDs']) is type(payments['closure']['normally_closed_UUIDs']) is int
+        assert payments['closure']['created_UUIDs'] == payments['closure']['normally_closed_UUIDs'] == 1
+        assert payments['closure']['fresh_database_and_OID_absent'] is True
         PY
     - name: Stop only the exact fresh current41 test cluster normally
       if: always()
@@ -1161,7 +1183,7 @@ jobs:
         else
           bootstrap_status=$?
           python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py" --repository "$GITHUB_WORKSPACE" --source 878082b242cdfa23e1e4c134f675c12b535a2cd7 --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" --phase pg_bootstrap || true
-          python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py" --helper-source "$GITHUB_SHA" --input "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap-stage.private.json" || true
+          python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py" --helper-source "$GITHUB_SHA" --input "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap-stage.private.json" --startup-log "$RUNNER_TEMP/ci37-pg-cluster-private/postgresql.private.log" || true
           exit "$bootstrap_status"
         fi
 
@@ -1254,6 +1276,9 @@ jobs:
     - run: python -m pip install --require-hashes -r requirements-test.lock
     - name: Exact current commit context, production image and57 distribution/native probe
       run: python -I -B -X utf8 tests/run_current_image57.py --repository "$GITHUB_WORKSPACE" --source "$GITHUB_SHA" --private-root "$RUNNER_TEMP/current39-image57-private" --public-root "$RUNNER_TEMP/current39-image57-public" --build-probe
+    - name: Report only authenticated finite locations when the runtime probe fails
+      if: failure()
+      run: python -B -X utf8 -m tests.ci_image57.runtime_failure_diagnostic --private "$RUNNER_TEMP/current39-image57-private" --source "$GITHUB_SHA" --repository "$GITHUB_WORKSPACE"
     - name: Actual main_web entrypoint and restricted PostgreSQL41 startup from the same immutable image
       run: |
         python -B -X utf8 - <<'PY'
