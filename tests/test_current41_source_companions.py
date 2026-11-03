@@ -157,7 +157,17 @@ def test_current75_catalogue_preserves_old_exceptions_and_renews_only_two_publis
         # The exceptional scope label names its current runtime precisely.
         before = json.loads(json.dumps(before).replace("current39", "current41"))
         assert before == entry
-    assert set(changed) == {"tests/test_routine_catalog.py", "tests/test_security_routines_http_peer.py"}
+    # The original routine renewals and the later finite email admission are separate.
+    from tests.ci_web41.google_mail_fixture_transition import TRANSITIONS
+    email_sources = {"tests/test_google33_http.py", "tests/test_google33_headers.py",
+                     "tests/test_google33_conflict_window.py", "tests/test_account_security37_critical_edges.py",
+                     "tests/test_google33_recovery.py", "tests/test_browser31_google_compat.py",
+                     "tests/test_current_publication_fixture_review.py"}
+    assert set(TRANSITIONS) == email_sources
+    assert set(changed) == {"tests/test_routine_catalog.py", "tests/test_security_routines_http_peer.py"} | email_sources
+    for name in email_sources:
+        assert original["modules"][name]["source_sha256_LF"] == TRANSITIONS[name][0]
+        assert value["modules"][name]["source_sha256_LF"] == TRANSITIONS[name][1]
     assert value["modules"][privacy] == {
         "source_sha256_LF": hashlib.sha256((ROOT / privacy).read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
         "replacements": {
