@@ -2001,7 +2001,7 @@ jobs:
       working-directory: ${{ runner.temp }}/historical31-wiring/source
       run: python -X utf8 tests/verify_mfa31_ci.py --output "$RUNNER_TEMP/historical31-wiring-review"
   historical32-postgres:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: quality
     services:
       postgres:
@@ -2036,14 +2036,32 @@ jobs:
       run: python -X utf8 tests/ci_google33/history.py --schema 32 --history-repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/historical32-postgres"
     - run: python -m pip install --require-hashes -r requirements-test.lock
       working-directory: ${{ runner.temp }}/historical32-postgres/source
-    - name: Matching PostgreSQL client tools from the official PGDG repository
+    - name: Exact PostgreSQL17.11 server and client tools required by the historical32 source photo
       run: |
-        . /etc/os-release
-        sudo install -d /usr/share/postgresql-common/pgdg
-        sudo curl --fail --silent --show-error --output /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
-        echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-        sudo apt-get update
-        sudo apt-get install --yes postgresql-client-17
+        set -euo pipefail
+        install -d -m 700 "$RUNNER_TEMP/ci32-pg-apt-private"
+        (
+          . /etc/os-release
+          test "$ID" = ubuntu
+          test "$VERSION_ID" = 24.04
+          test "$(dpkg --print-architecture)" = amd64
+          key="$RUNNER_TEMP/ci32-pg-apt-private/pgdg.asc"
+          curl --fail --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc --output "$key"
+          fingerprint="$(gpg --batch --show-keys --with-colons "$key" | awk -F: '$1=="fpr" && !found {print $10; found=1}')"
+          test "$fingerprint" = B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+          sudo install -m 644 "$key" /usr/share/keyrings/metodobase-ci32-pgdg.asc
+          printf '%s\n' 'deb [arch=amd64 signed-by=/usr/share/keyrings/metodobase-ci32-pgdg.asc] https://apt-archive.postgresql.org/pub/repos/apt noble-pgdg-archive main' | sudo tee /etc/apt/sources.list.d/metodobase-ci32-pgdg.list
+          sudo apt-get update
+          sudo sed -ri 's/^#?(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf
+          version=17.11-1.pgdg24.04+2
+          sudo apt-get install --yes --allow-downgrades --no-install-recommends "postgresql-17=$version" "postgresql-client-17=$version" "libpq5=$version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-17)" = "$version"
+          test "$(dpkg-query -W -f='${Version}' postgresql-client-17)" = "$version"
+          test "$(dpkg-query -W -f='${Version}' libpq5)" = "$version"
+          /usr/lib/postgresql/17/bin/postgres --version
+          /usr/lib/postgresql/17/bin/pg_dump --version
+          /usr/lib/postgresql/17/bin/pg_restore --version
+        ) > "$RUNNER_TEMP/ci32-pg-apt-private/install.private.log" 2>&1
       working-directory: ${{ runner.temp }}/historical32-postgres/source
     - name: Historical32 fresh CI role and schema32 bootstrap
       run: python -X utf8 tests/prepare_postgres.py
