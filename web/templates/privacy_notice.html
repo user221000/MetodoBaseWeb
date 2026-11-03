@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>{{ notice.title }} — Método Base</title>
+  {% include '_brand_icons.html' %}
+  <link rel="stylesheet" href="/static/css/privacy-notice.css?v={{ privacy_style_version }}">
+</head>
+<body class="privacy-page">
+  <a class="privacy-skip" href="#privacy-content">Ir al contenido</a>
+  <header class="privacy-header">
+    <a class="privacy-brand" href="/" aria-label="Método Base, inicio">
+      <img src="/static/img/metodobase-logo-a97be89e1875.png" width="44" height="44" alt="" decoding="async">
+      <span>Método <strong>Base</strong></span>
+    </a>
+    <a class="privacy-back" href="/">Volver al inicio <span aria-hidden="true">↗</span></a>
+  </header>
+  <main class="privacy-main" id="privacy-content" tabindex="-1">
+    <div class="privacy-heading">
+      <p class="privacy-eyebrow">Tus datos · Método Base</p>
+      <h1>{{ notice.title }}</h1>
+      <p class="privacy-lead">Consulta el contacto y la información disponible sobre tus datos.</p>
+    </div>
+    <section class="privacy-status" aria-labelledby="privacy-status-title">
+      <span class="privacy-status-label">En preparación</span>
+      <h2 id="privacy-status-title">Aviso integral en preparación</h2>
+      <p>{{ notice.status_message }}</p>
+    </section>
+    <div class="privacy-sections">
+      {% for section in notice.sections %}
+      <section class="privacy-section" aria-labelledby="privacy-section-{{ loop.index }}">
+        <h2 id="privacy-section-{{ loop.index }}">{{ section.title }}</h2>
+        {% for paragraph in section.paragraphs %}
+        <p>{{ paragraph }}</p>
+        {% endfor %}
+        {% if loop.first %}
+        <a class="privacy-contact" href="mailto:consultoriahernandez@icloud.com">{{ notice.contact_email }}</a>
+        {% endif %}
+      </section>
+      {% endfor %}
+    </div>
+  </main>
+  <footer class="privacy-footer">
+    <p>Método Base</p>
+    <nav aria-label="Accesos de la cuenta">
+      <a href="/login-gym">Acceso al negocio</a>
+      <a href="/login-usuario">Acceso personal</a>
+    </nav>
+  </footer>
+</body>
+</html>

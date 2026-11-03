@@ -289,6 +289,8 @@ def create_app() -> FastAPI:
     _pages_mod.templates.env.globals["static_version"] = templates.env.globals["static_version"]
     _pages_mod.templates.env.globals["csrf_token"] = get_csrf_token
     app.include_router(web_pages_router)
+    from web.routes.privacy_notice import router as privacy_notice_router
+    app.include_router(privacy_notice_router)
 
     # ── Manejadores de errores ────────────────────────────────────────────────
     from starlette.exceptions import HTTPException as StarletteHTTPException

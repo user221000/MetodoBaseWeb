@@ -298,6 +298,8 @@ def create_app() -> FastAPI:
     # ── Web page routes ───────────────────────────────────────────────────────
     web_pages.templates.env.globals["static_version"] = compute_static_version(static_dir)
     app.include_router(web_pages.router)
+    from web.routes.privacy_notice import router as privacy_notice_router
+    app.include_router(privacy_notice_router)
 
     # Wrap early middleware responses as well as routes, with one nonce/policy.
     from web.middleware.canonical_host import CanonicalHostMiddleware

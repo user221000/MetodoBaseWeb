@@ -6,6 +6,7 @@
   <meta name="csrf-token" content="{{ csrf_token(request) }}">
   <title>{% block title %}Mi Plan{% endblock %} — Método Base</title>
   {% include '_brand_icons.html' %}
+  <link rel="stylesheet" href="/static/css/privacy-notice.css?v={{ static_version }}">
 
 
   <!-- User theme: standalone light-mode stylesheet -->
@@ -88,6 +89,7 @@
       Mi perfil
     </a>
 
+    <a href="/privacidad" class="u-nav-item">Privacidad</a>
   </nav>
 
   <!-- Promo card -->
@@ -130,6 +132,7 @@
 <main class="u-main" id="main-content" tabindex="-1">
   <div class="mb-workspace-topbar"><span class="mb-workspace-label">Mi bienestar</span><a href="/mi-seguridad">Mi cuenta</a></div>
   {% block content %}{% endblock %}
+  <a class="privacy-workspace-link" href="/privacidad">Información de privacidad</a>
 </main>
 
 <!-- Toast container -->
