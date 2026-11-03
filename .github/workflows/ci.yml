@@ -204,6 +204,7 @@ jobs:
     - historical-image
     - current-postgres
     - backup-validation
+    - backup-service-image
     - historical37-postgres
     - current-image
     - historical33-image
@@ -1096,6 +1097,69 @@ jobs:
       with:
         name: backup-validation-summary
         path: ${{ runner.temp }}/backup-public/*.json
+        if-no-files-found: error
+  backup-service-image:
+    runs-on: ubuntu-24.04
+    needs: quality
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: python -m pip install --require-hashes -r requirements-test.lock
+    - name: Create separate private image evidence and public metadata
+      run: |
+        install -d -m 700 "$RUNNER_TEMP/backup-image-private" "$RUNNER_TEMP/backup-image-public"
+        printf '%s=%s\n' 'TEMP' "$RUNNER_TEMP/backup-image-private" 'TMP' "$RUNNER_TEMP/backup-image-private" 'TMPDIR' "$RUNNER_TEMP/backup-image-private" >> "$GITHUB_ENV"
+    - name: Every wrapper and scanner control must execute without skips
+      run: |
+        set -euo pipefail
+        umask 077
+        wrapper_temp="$(mktemp -d /tmp/metodobase-backup-wrapper.XXXXXXXX)"
+        test_status=0
+        python -B -X utf8 tests/run_isolated.py tests/test_backup_service_entrypoint.py tests/test_image_security_scan.py -q --tb=short -p no:cacheprovider --basetemp "$wrapper_temp/pytest-data" --junitxml "$RUNNER_TEMP/backup-image-private/tests.private.xml" > "$RUNNER_TEMP/backup-image-private/tests.private.log" 2>&1 || test_status=$?
+        BACKUP_TEST_STATUS="$test_status" python -B -X utf8 - <<'PY'
+        import json,os,xml.etree.ElementTree as ET
+        from pathlib import Path
+        root=Path(os.environ['RUNNER_TEMP'])
+        rows=list(ET.parse(root/'backup-image-private/tests.private.xml').getroot().iter('testcase'))
+        counts={kind:sum(any(child.tag==kind for child in row) for row in rows) for kind in ('failure','error','skipped')}
+        value={'source_commit':os.environ['GITHUB_SHA'],'cases':len(rows),'outcomes':counts,'pytest_exit':int(os.environ['BACKUP_TEST_STATUS']),'scope':'wrapper_and_scan_controls_no_production_or_schedule'}
+        value['accepted']=len(rows)==61 and value['pytest_exit']==0 and not any(counts.values())
+        (root/'backup-image-public/tests.json').write_text(json.dumps(value,sort_keys=True)+'\n')
+        assert value['accepted'], 'Backup wrapper or image scan controls failed; private evidence retained'
+        PY
+        exit "$test_status"
+    - name: Build the separate backup image from this exact source
+      run: |
+        set -euo pipefail
+        umask 077
+        docker build --platform linux/amd64 --target backup --file Dockerfile.backup --label "org.opencontainers.image.revision=$GITHUB_SHA" --iidfile "$RUNNER_TEMP/backup-image-private/image-id" . > "$RUNNER_TEMP/backup-image-private/build.private.log" 2>&1
+        python -B -X utf8 - <<'PY'
+        import hashlib,json,os,re
+        from pathlib import Path
+        root=Path(os.environ['RUNNER_TEMP'])
+        image_id=(root/'backup-image-private/image-id').read_text().strip()
+        assert re.fullmatch('sha256:[0-9a-f]{64}',image_id)
+        value={'source_commit':os.environ['GITHUB_SHA'],'image_id':image_id,'Dockerfile_sha256':hashlib.sha256(Path('Dockerfile.backup').read_bytes()).hexdigest(),'built':True,'security_accepted':False,'scheduled':False}
+        (root/'backup-image-public/build.json').write_text(json.dumps(value,sort_keys=True)+'\n')
+        PY
+    - name: Verify backup native runtime and full image security without exclusions
+      run: |
+        set -euo pipefail
+        image_id="$(cat "$RUNNER_TEMP/backup-image-private/image-id")"
+        python -B -X utf8 -m tests.ci_image57.security_scan --profile backup --source "$GITHUB_SHA" --image-id "$image_id" --private "$RUNNER_TEMP/backup-image-security-private" --output "$RUNNER_TEMP/backup-image-public/security"
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backup-service-image-summary
+        path: |
+          ${{ runner.temp }}/backup-image-public/tests.json
+          ${{ runner.temp }}/backup-image-public/build.json
+          ${{ runner.temp }}/backup-image-public/security/summary.json
         if-no-files-found: error
   historical37-postgres:
     runs-on: ubuntu-24.04

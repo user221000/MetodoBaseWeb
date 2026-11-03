@@ -6,19 +6,19 @@ advisory identifiers and hashes only. Findings never become an implicit waiver.
 from __future__ import annotations
 
 import argparse
-from collections import Counter
-from datetime import datetime, timezone
 import hashlib
 import io
 import json
 import os
-from pathlib import Path
 import re
 import shutil
 import subprocess
 import tarfile
 import urllib.request
 import uuid
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
 
 TOOLS = {
     "syft": ("1.56.0", 31413058, "1c2493cfcf52d3367d6cb25780d9190c111c2219c34c820574c43e8bae15c528"),
@@ -95,22 +95,94 @@ def install_tool(name, root):
     return target, {"version": version, "archive_sha256": expected, "binary_sha256": sha(target)}
 
 
-NATIVE_PROBE = r'''import hashlib,json,os,re
+PROFILES = {"web": "999:999", "backup": "10001:10001"}
+BACKUP_SOURCES = frozenset({
+    "scripts/backup_service_entrypoint.py", "scripts/backup_job.py", "scripts/backup_capture_s3.py",
+    "scripts/backup_remote.py", "scripts/backup_restore.py", "scripts/scan_secrets.py",
+    "scripts/reviewed_scan_locations.py", "web/__init__.py", "web/storage/__init__.py",
+    "web/storage/configuration.py", "web/storage/local.py", "web/storage/objects.py", "web/storage/s3.py",
+})
+
+
+def profile_user(profile):
+    require(type(profile) is str and profile in PROFILES, "Unreviewed image scan profile")
+    return PROFILES[profile]
+
+
+def validate_backup_runtime(native, contract_raw, sources):
+    """Compare measured image inputs against the separate, reviewed checkout."""
+    contract = json.loads(contract_raw)
+    require(contract.get("schema") == "metodobase-backup-service-contract-v1" and contract.get("enabled") is False,
+            "Inactive backup contract differs")
+    require(set(contract["build"]["source_closure"]) == set(sources) == BACKUP_SOURCES,
+            "Backup import closure differs")
+    actual = native.get("backup_runtime")
+    require(type(actual) is dict and set(actual) == {"python_distributions", "source_sha256", "pg_clients", "libpq_version", "contract_sha256", "missing_arguments_rejected"},
+            "Backup runtime inventory differs")
+    normalize = lambda name: re.sub('[-_.]+', '-', name).lower()
+    expected = {normalize(name): value for name, value in contract["build"]["runtime_distributions"].items()}
+    require(len(expected) == 11 and actual["python_distributions"] == expected
+            and actual["source_sha256"] == {name: hashlib.sha256(raw).hexdigest() for name, raw in sources.items()}
+            and actual["contract_sha256"] == hashlib.sha256(contract_raw).hexdigest()
+            and type(actual["libpq_version"]) is int and actual["libpq_version"] == 180006
+            and actual["missing_arguments_rejected"] is True, "Backup image and source checkout differ")
+    clients = actual["pg_clients"]
+    require(type(clients) is dict and set(clients) == {"pg_dump", "pg_restore"}, "Backup clients differ")
+    for row in clients.values():
+        require(type(row) is dict and set(row) == {"sha256", "version"} and row["version"] == "18.6"
+                and type(row["sha256"]) is str and re.fullmatch('[0-9a-f]{64}', row["sha256"]) is not None,
+                "Backup client version or identity differs")
+    return True
+
+
+NATIVE_PROBE = r'''import hashlib,json,os,re,sys
 from pathlib import Path
 import pyexpat,_elementtree
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.bindings import _rust
-root=Path('/usr/local/share/metodobase/native-20261103')
+profile=sys.argv[1]
+assert profile in {'web','backup'}
+root=Path('/usr/local/share/metodobase/native-20261103' if profile=='web' else '/usr/local/share/metodobase/native-build')
 provenance=json.loads((root/'build-provenance.json').read_bytes())
 hashes={name:hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest() for name,module in [('pyexpat',pyexpat),('_elementtree',_elementtree),('cryptography_rust',_rust)]}
-assert os.getuid()==os.getgid()==999
+assert os.getuid()==os.getgid()==(999 if profile=='web' else 10001)
 assert pyexpat.EXPAT_VERSION=='expat_2.10.0'
 for name in ('pyexpat','_elementtree'):
  assert provenance['artifacts'][name]['sha256']==hashes[name]
 text=backend.openssl_version_text()
 match=re.fullmatch(r'OpenSSL ([0-9]+\.[0-9]+\.[0-9]+)(?: .*)?',text)
 assert match is not None
-print(json.dumps(dict(uid=os.getuid(),expat='2.10.0',openssl=match.group(1),elf_sha256=hashes,build_provenance_sha256=hashlib.sha256((root/'build-provenance.json').read_bytes()).hexdigest())))
+value=dict(uid=os.getuid(),expat='2.10.0',openssl=match.group(1),elf_sha256=hashes,build_provenance_sha256=hashlib.sha256((root/'build-provenance.json').read_bytes()).hexdigest())
+if profile=='backup':
+ import importlib,importlib.metadata as metadata,importlib.util,subprocess
+ import psycopg2,psycopg2.extensions,ssl
+ contract=json.loads(Path('/usr/local/share/metodobase/backup-service.contract.json').read_bytes())
+ assert contract['schema']=='metodobase-backup-service-contract-v1' and contract['enabled'] is False
+ normalize=lambda name:re.sub('[-_.]+','-',name).lower()
+ rows=[(normalize(d.metadata['Name']),d.version) for d in metadata.distributions()]
+ assert len(rows)==len(dict(rows))==11
+ assert dict(rows)=={normalize(name):version for name,version in contract['build']['runtime_distributions'].items()}
+ assert all(importlib.util.find_spec(name) is None for name in ('pip','ensurepip','setuptools','wheel'))
+ source={}
+ sys.path.insert(0,'/app')
+ for name in contract['build']['source_closure']:
+  path=Path('/app')/name
+  assert path.is_file() and not path.is_symlink()
+  source[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+  importlib.import_module(name.removesuffix('.py').replace('/','.').removesuffix('.__init__'))
+ assert len(source)==13
+ clients={}
+ for name in ('pg_dump','pg_restore'):
+  path=Path('/usr/lib/postgresql/18/bin')/name
+  result=subprocess.run([str(path),'--version'],capture_output=True,text=True,check=True,timeout=10)
+  assert result.stdout.split()[2]=='18.6'
+  clients[name]={'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'version':'18.6'}
+ assert psycopg2.__libpq_version__==psycopg2.extensions.libpq_version()==180006
+ assert ssl.create_default_context().get_ca_certs()
+ missing=subprocess.run([sys.executable,'-B','-m','scripts.backup_service_entrypoint'],cwd='/app',capture_output=True,text=True,timeout=10)
+ assert missing.returncode==1 and not missing.stderr and json.loads(missing.stdout)=={'status':'failed','error':'backup_service_failed'}
+ value['backup_runtime']={'python_distributions':dict(rows),'source_sha256':source,'pg_clients':clients,'libpq_version':180006,'contract_sha256':hashlib.sha256(Path('/usr/local/share/metodobase/backup-service.contract.json').read_bytes()).hexdigest(),'missing_arguments_rejected':True}
+print(json.dumps(value))
 '''
 
 
@@ -120,7 +192,9 @@ def main(argv=None):
     parser.add_argument("--image-id", required=True)
     parser.add_argument("--private", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--profile", choices=tuple(PROFILES), default="web")
     args = parser.parse_args(argv)
+    user = profile_user(args.profile)
     require(os.name == "posix" and os.environ.get("GITHUB_ACTIONS") == "true", "Owned Linux CI runner required")
     require(re.fullmatch("[0-9a-f]{40}", args.source) and re.fullmatch("sha256:[0-9a-f]{64}", args.image_id),
             "Exact source and image identities required")
@@ -181,21 +255,25 @@ def main(argv=None):
         require(host["ReadonlyRootfs"] is True and host["NetworkMode"] == "none" and host["CapDrop"] == ["ALL"]
                 and host["SecurityOpt"] == ["no-new-privileges:true"] and host["Privileged"] is False
                 and host["Memory"] == 512 * 1024**2 and host["NanoCpus"] == 1000000000 and host["PidsLimit"] == 128
-                and item["Config"]["User"] == "999:999", "Native probe isolation differs")
+                and item["Config"]["User"] == user, "Native probe isolation differs")
         return item
 
     try:
         _, created = command("native-create", ["docker", "create", "--name", "metodobase-sca-" + owner,
             "--cidfile", str(cidfile),
-            "--label", "metodobase.sca.owner=" + owner, "--network", "none", "--read-only", "--user", "999:999",
+            "--label", "metodobase.sca.owner=" + owner, "--network", "none", "--read-only", "--user", user,
             "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true", "--memory", "512m", "--cpus", "1",
-            "--pids-limit", "128", "--entrypoint", "python", args.image_id, "-I", "-B", "-c", NATIVE_PROBE])
+            "--pids-limit", "128", "--entrypoint", "python", args.image_id, "-I", "-B", "-c", NATIVE_PROBE, args.profile])
         cid = created.read_text().strip()
         require(re.fullmatch("[a-f0-9]{64}", cid), "Owned container identity absent")
 
         inspect("native-before")
         _, result_path = command("native-start", ["docker", "start", "--attach", cid], timeout=90)
         native = json.loads(result_path.read_bytes())
+        if args.profile == "backup":
+            repository = Path(__file__).resolve().parents[2]
+            validate_backup_runtime(native, (repository / "deploy/backup-service.contract.json").read_bytes(),
+                                    {name: (repository / name).read_bytes() for name in BACKUP_SOURCES})
         closed = inspect("native-closed")
         require(closed["State"]["Running"] is False and closed["State"]["ExitCode"] == 0
                 and closed["State"]["OOMKilled"] is False, "Native probe failed to close normally")
@@ -231,7 +309,7 @@ def main(argv=None):
     require(frozen == db_files(cache), "Vulnerability database changed during matching")
     age_end = validate_db(database, datetime.now(timezone.utc))
     require(all(sha(tools[name]) == tools_metadata[name]["binary_sha256"] for name in tools), "Scanner binary changed")
-    report = {"source": args.source, "image_id": args.image_id, "image_tar_sha256": sha(tar),
+    report = {"source": args.source, "profile": args.profile, "image_id": args.image_id, "image_tar_sha256": sha(tar),
               "sbom_sha256": sha(sbom), "supplement_sha256": sha(supplement), "components": len(inventory["artifacts"]),
               "tools": tools_metadata, "database_built": database["built"], "database_age_seconds_at_start": age,
               "database_age_seconds_at_end": age_end,
