@@ -1,11 +1,12 @@
 """No SQL: exact new payments identities/budget and fail-closed Root authority."""
 import ast
-from copy import deepcopy
-from datetime import UTC, datetime, timedelta
 import json
 import os
-from pathlib import Path
+import stat
 import tempfile
+from copy import deepcopy
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
 
@@ -40,6 +41,13 @@ def ack_environment(monkeypatch):
             monkeypatch.setenv(name, str(temporary))
     from tests.billing13_legacy_apply37_pg_contract import private_workspace
     return private_workspace()
+
+
+def _write_private_ack(path, data):
+    def private_opener(name, flags):
+        return os.open(name, flags, 0o600)
+    with open(path, "x", encoding="utf8", opener=private_opener) as output:
+        json.dump(data, output)
 
 
 def test_separate_five_identities_and_two_backend_budget_leave_privacy_phases_literal():
@@ -82,9 +90,42 @@ def test_root_ack_needs_exact_source_budget_identity_boolean_and_bounded_fresh_t
         data["expires_at_UTC"] = datetime.now().isoformat()
     elif fault == "source-changed":
         value["FileSetDigest"] = "b" * 64
-    target.write_text(json.dumps(data), encoding="utf8")
+    _write_private_ack(target, data)
     if fault is None:
         assert len(contract.require_ack(target, value)) == 64
     else:
         with pytest.raises(ValueError):
             contract.require_ack(target, value)
+
+
+@pytest.mark.parametrize("mask", [0o022, 0o077])
+def test_ack_file_is_private_from_its_first_byte_under_the_real_process_mask(tmp_path, monkeypatch, mask):
+    from web.services.legacy_object_apply_boundary import verify
+    private = _private_evidence(tmp_path / "private-ack-writer")
+    path = private / "ack.private.json"
+    actual_open = os.open
+    observations = []
+    def observe(name, flags, mode):
+        descriptor = actual_open(name, flags, mode)
+        observations.append((flags, mode, os.fstat(descriptor).st_size,
+                             stat.S_IMODE(os.fstat(descriptor).st_mode)))
+        return descriptor
+    monkeypatch.setattr(os, "open", observe)
+    old = os.umask(mask)
+    try:
+        _write_private_ack(path, {"synthetic": True})
+    finally:
+        os.umask(old)
+    assert len(observations) == 1 and observations[0][1:3] == (0o600, 0)
+    assert observations[0][0] & os.O_EXCL and observations[0][0] & os.O_CREAT
+    if os.name == "posix":
+        assert observations[0][3] == 0o600
+    verify(path)
+
+
+def test_private_ack_writer_refuses_to_replace_an_existing_authority(tmp_path):
+    path = tmp_path / "existing"
+    path.write_bytes(b"retained synthetic authority")
+    with pytest.raises(FileExistsError):
+        _write_private_ack(path, {"replacement": True})
+    assert path.read_bytes() == b"retained synthetic authority"

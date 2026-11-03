@@ -26,7 +26,8 @@ def isolated_database():
 
 
 def inputs():
-    return {name: (ROOT / name).read_bytes() for name in NAMES}
+    from tests.ci_web41.native40_source_fixture import production40_inputs
+    return production40_inputs(ROOT)
 
 
 def records(payloads):

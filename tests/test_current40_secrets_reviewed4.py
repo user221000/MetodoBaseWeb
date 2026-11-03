@@ -15,13 +15,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def snapshot(tmp_path, crlf=False):
+    from tests.ci_web41.native40_source_fixture import production40_inputs
+    historical = production40_inputs(ROOT)
     prior = current.read_registry(ROOT)
     document = current.read_current_registry(ROOT)
     names = {r['path'] for r in prior['parent_sources'] + prior['files'] + document['files']}
     names.update((current.REGISTRY, current.CURRENT_REGISTRY))
     hashes = {}
     for name in names:
-        raw = (ROOT / name).read_bytes()
+        raw = historical['Dockerfile'] if name == 'Dockerfile' else (ROOT / name).read_bytes()
         if name in current.CURRENT_LOCATIONS:
             raw = raw.replace(b'\r\n', b'\n')
             if crlf:
