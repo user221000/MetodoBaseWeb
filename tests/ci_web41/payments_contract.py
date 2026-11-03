@@ -89,7 +89,14 @@ def authorize_ci(profile, generation, target):
         raise ValueError("Only the already-owned ephemeral CI namespace may hold this ACK")
     value = build_contract(profile, generation)
     check_control_generation(value, read_profile(profile))
-    with Path(target).open("x", encoding="utf8") as output:
+    from web.services.legacy_object_apply_boundary import verify
+    verify(Path(target).parent, directory=True)
+    # Each Actions step has its own umask. Create the authorization private
+    # from its first byte, without relying on the earlier cluster shell.
+    def private_opener(name, flags):
+        return os.open(name, flags, 0o600)
+    with open(target, "x", encoding="utf8", opener=private_opener) as output:
+        verify(Path(target))
         json.dump({"approved": True, "scope": SCOPE, "contract_sha256": digest(value),
                    "expires_at_UTC": (datetime.now(UTC) + timedelta(hours=4)).isoformat()}, output, indent=2)
         output.write("\n")

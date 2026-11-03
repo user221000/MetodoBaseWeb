@@ -573,3 +573,10 @@ Se continúa la matriz de once pendientes mediante agentes reales en oleadas con
 QA independiente: 68 casos y 220 contratos retenidos aprobados, 8 537 identidades seleccionadas en colección (no ejecución total); frontend once focos y tres complementos. Autor frontend conserva seis recorridos reales Web/SQLite con generación/PDF/cuota y diez capturas. CI3 de EFA terminó diez trabajos aprobados, doce fallidos y uno omitido. El nuevo commit necesita sus propios gates, imagen y escaneo; no se hereda aceptación anterior ni se despliega desde esta preparación.
 
 Detalle, equipo, límites, recursos y criterios externos en [SEGUIMIENTO.md](../20261102-audit-remediation/SEGUIMIENTO.md) y su matriz CSV. Stripe sandbox todavía requiere acceso autenticado, y la publicación financiera conserva la ventana 40→41 y sus comprobaciones. La copia de referencia, RAW, estado anterior y evidencia original se preservan.
+
+
+## Correcciones posteriores al CI4 — 2026-11-03T00:13:57.426363+00:00
+
+PR2 publicó 31bd6317 en borrador y main siguió fc7950ec. CI4 superó bootstrap/core/restore PG y build/probe57; falló después en payments antes de ejecutar cinco casos y en startup con ValueError. Los seriales seguían abiertos al corte 23:50:22 UTC. No hay aprobación global ni despliegue.
+
+Se integran para revisión final sólo dos pins UI y su digest de Node41 y creación exclusiva 0600 del ACK de pagos; UI, RAW, programas, aserciones, lector, cuotas y política financiera intactos. Autor frontend: seis grupos, 77 comandos/1 254 ejecuciones y 27 tests; QA: 19 controles. ACK: QA: 19 y Seguridad: nueve controles con DACL Windows; modelo POSIX separado, sin prueba PG/Linux. Tres payloads con revisión independiente; nuevo commit/fullscan/CI pendientes. Startup permanece sin causa demostrada. Detalle en docs/implementation/20261102-audit-remediation/SEGUIMIENTO.md y evidencia externa audit-remediation-20261102T220303Z. Los 715 originales y 167 criterios se conservan.

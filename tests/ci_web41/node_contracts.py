@@ -17,7 +17,7 @@ from tests.ci_web37.node_current import validate, validate_additional
 
 ROOT = Path(__file__).resolve().parents[2]
 BINDING_PATH = "tests/ci_web41/node-bindings41.json"
-BINDING_SHA256 = "987fd03b36096ee3f5d0e3d5dc82b0d391d6242ad887332bcbb2f4386fd6ce91"
+BINDING_SHA256 = "aaa66ccfdfeacedd8fdc6a5a7a5e07d168bb71cc42acc062185c3fa7bfdbb4b7"
 SOURCE_SCOPE = "current41-uniform-text-inputs-original-Node-programs-explicit-contract-adapters"
 DESCRIPTORS = {
     "legacy51": ("docs/implementation/20261018-evolution/SESION_NAVEGADOR_R31_CI_MAP.json", "b99a11eece0b4859b685a5dbf786378df03da9b3eb5f2db595f0de9509768695"),
