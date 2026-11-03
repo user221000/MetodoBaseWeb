@@ -15,6 +15,8 @@ Este corte actualiza los pendientes indicados abajo sin reescribir los recibos n
 
 Railway Hobby admite la alternativa de cron sin contratar Pro; su ejecución y almacenamiento consumen recursos. La lectura autenticada del3 de noviembre observó tres instancias y cero agendas activas. La fuente y el contrato inactivos se preparan para revisión: no son una afirmación de respaldo periódico ya operativo. Las referencias históricas sin bytes continúan identificadas; una copia nueva no recupera archivos perdidos.
 
+La configuración live de Stripe también distingue almacenamiento y activación: `STRIPE_PAYMENT_LINK_GYM_COMERCIAL` y `STRIPE_PORTAL_CONFIGURATION_ID` se guardaron en Railway el3 de noviembre a las01:12 UTC con `--skip-deploys`. El último despliegue exitoso observado sigue siendo `fc7950ec`, creado el2 de noviembre a las07:45 UTC. No se acredita que el proceso actual use esos valores nuevos; aplicarlos al runtime y comprobar el portal forman parte del siguiente cambio operativo revisado. Esta observación no demuestra por sí sola un fallo del portal anterior ni autoriza a simular cobros live.
+
 La [PR2](https://github.com/user221000/MetodoBaseWeb/pull/2) sigue en borrador. Evidencias de esta continuación: `E:/MetodoBaseWorkspace/evidence/technical-close-20261103/`, con recibos separados por rol y commit. Las cifras de autor, QA y seguridad se solapan y no se suman. Los apartados siguientes mantienen su corte histórico del2 de noviembre.
 
 ## Corte histórico — 2 de noviembre de 2026
