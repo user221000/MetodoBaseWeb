@@ -109,7 +109,7 @@ jobs:
       run: python -B -X utf8 tests/ci_web41/run_web.py --suite storage-sdk --private "$RUNNER_TEMP/web37-storage-private" --output "$RUNNER_TEMP/web37-public/storage-sdk" --private-as-child-temp
     - name: Publish measured coverage without private assertion diagnostics
       if: always()
-      run: python -B -X utf8 tests/ci_google33/publish.py --directory "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/coverage" --files coverage.json coverage.xml
+      run: python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web41/historical_coverage_publication.py" --source "$GITHUB_WORKSPACE" --source-commit "$GITHUB_SHA" --directory "$RUNNER_TEMP/web37-serial-private" --output "$RUNNER_TEMP/web37-public/coverage" --files coverage.json coverage.xml
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -1035,6 +1035,8 @@ jobs:
         install -d -m 700 "$RUNNER_TEMP/ci37-diagnostics-private"
         git --no-replace-objects show "$GITHUB_SHA:tests/ci_diagnostics41.py" > "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py"
         test "$(git --no-replace-objects hash-object --no-filters "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py")" = "$(git --no-replace-objects rev-parse --verify "$GITHUB_SHA:tests/ci_diagnostics41.py")"
+        git --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/pg_bootstrap_diagnostic.py" > "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py"
+        test "$(git --no-replace-objects hash-object --no-filters "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py")" = "$(git --no-replace-objects rev-parse --verify "$GITHUB_SHA:tests/ci_web41/pg_bootstrap_diagnostic.py")"
     - name: CI-only fresh loopback cluster and separately source-bound429/53/27 authorizations
       env:
         TEMP: ${{ runner.temp }}
@@ -1047,6 +1049,29 @@ jobs:
         import hashlib,json,os,re,secrets,socket,subprocess
         from datetime import UTC,datetime,timedelta
         from pathlib import Path
+        # Finite diagnostic only: original operations and traceback remain private.
+        import sys
+        _stage='imports'
+        _stages={'imports','source_photo','ancestry','versions','initdb','pg_ctl_start',
+            'catalogue_roles','contracts42953','generation27','contract27','source_quiet'}
+        _stage_path=Path(os.environ['RUNNER_TEMP'])/'ci37-pg-launch-private/bootstrap-stage.private.json'
+        def _step(name):
+            global _stage
+            assert name in _stages
+            _stage=name
+        def _diagnostic_hook(kind,error,trace):
+            try:
+                value={'schema':'historical37-bootstrap-stage-v1','phase':_stage,
+                    'exception_type':kind.__name__ if kind.__name__ in {'CalledProcessError','AssertionError',
+                        'ValueError','OSError','KeyError','FileNotFoundError','PermissionError','TypeError','RuntimeError'} else 'OTHER',
+                    'child_exit':error.returncode if isinstance(error,subprocess.CalledProcessError)
+                        and type(error.returncode) is int else None}
+                with _stage_path.open('x',encoding='utf8') as stream:json.dump(value,stream)
+            except OSError:
+                pass
+            finally:
+                sys.__excepthook__(kind,error,trace)
+        sys.excepthook=_diagnostic_hook
         from scripts.scan_secrets import _private_evidence
         from tests.ci_web37.prepare_collection import source_photo
         from tests.ci_web37.pg_lease import contract as contract429,digest
@@ -1056,13 +1081,16 @@ jobs:
         assert os.environ.get('GITHUB_ACTIONS')=='true' and os.name=='posix' and os.geteuid()!=0
         os.umask(0o077)
         root=Path.cwd().resolve();assert root==Path(os.environ['GITHUB_WORKSPACE']).resolve()
+        _step('source_photo')
         source=source_photo();assert re.fullmatch('[0-9a-f]{40}',os.environ['GITHUB_SHA'])
         assert source['HEAD']=='878082b242cdfa23e1e4c134f675c12b535a2cd7'
+        _step('ancestry')
         subprocess.run(['git','--no-replace-objects','merge-base','--is-ancestor',source['HEAD'],os.environ['GITHUB_SHA']],check=True)
         # The unchanged37 generation helper binds this historical checkout.
         # Only this bootstrap child receives its source commit as GITHUB_SHA.
         os.environ['GITHUB_SHA']=source['HEAD']
         pg=Path('/usr/lib/postgresql/17/bin')
+        _step('versions')
         for name in ('postgres','pg_ctl','pg_dump','pg_restore','psql','initdb'):
             version=subprocess.check_output([str(pg/name),'--version'],text=True).split()[2]
             assert version=='17.11'
@@ -1074,8 +1102,10 @@ jobs:
         (private/'initdb-password.private').write_text(password+'\n',encoding='utf8')
         data=private/'data'
         with (private/'bootstrap.private.log').open('xb') as log:
+            _step('initdb')
             subprocess.run([str(pg/'initdb'),'-D',str(data),'-U','metodobase_test_admin','--no-locale','--encoding=UTF8',
                 '--auth-local=trust','--auth-host=scram-sha-256','--pwfile='+str(private/'initdb-password.private')],check=True,stdout=log,stderr=subprocess.STDOUT)
+            _step('pg_ctl_start')
             subprocess.run([str(pg/'pg_ctl'),'-D',str(data),'-l',str(private/'postgresql.private.log'),'-o','-h 127.0.0.1 -p 55483','-w','-t','60','start'],check=True,stdout=log,stderr=subprocess.STDOUT)
         pidfile=(data/'postmaster.pid').read_bytes();pid=int(pidfile.splitlines()[0])
         stat=Path('/proc/'+str(pid)+'/stat').read_text();birth=int(stat[stat.rindex(')')+2:].split()[19])
@@ -1085,6 +1115,7 @@ jobs:
         (private/'cluster-identity.private.json').write_text(json.dumps(identity,indent=2)+'\n',encoding='utf8')
         import psycopg2
         from psycopg2 import sql
+        _step('catalogue_roles')
         control=psycopg2.connect(host='127.0.0.1',port=55483,dbname='postgres',user='metodobase_test_admin',password=password)
         control.autocommit=True
         try:
@@ -1108,16 +1139,20 @@ jobs:
             'METODOBASE_TEST_POSTGRES_URL':'postgresql+psycopg2://metodobase_test_app:'+app_password+'@127.0.0.1:55483/metodobase_test_integration',
             'METODOBASE_TEST_PG_BIN':str(pg)},indent=2)+'\n',encoding='utf8')
         # This is a privileged TEST-cluster migrator, never the production-role design.
+        _step('contracts42953')
         for label,value in [('429',contract429(root,source,profile,[row['key'] for row in phases()])),('53',contract53(root,source,profile))]:
             ack={'approved':True,'scope':value['schema'],'contract_sha256':digest(value),'expires_at_UTC':(datetime.now(UTC)+timedelta(hours=4)).isoformat()}
             (private/('ack'+label+'.private.json')).write_text(json.dumps(ack,indent=2)+'\n',encoding='utf8')
             (private/('contract'+label+'.private.json')).write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
         generation=private/'generation27.private.json'
+        _step('generation27')
         generation.write_text(json.dumps(ci_generation(identity,postmaster_start),indent=2)+'\n',encoding='utf8')
+        _step('contract27')
         value=contract27(profile,generation)
         ack={'approved':True,'scope':value['schema'],'contract_sha256':digest(value),'expires_at_UTC':(datetime.now(UTC)+timedelta(hours=4)).isoformat()}
         (private/'ack27.private.json').write_text(json.dumps(ack,indent=2)+'\n',encoding='utf8')
         (private/'contract27.private.json').write_text(json.dumps(value,indent=2)+'\n',encoding='utf8')
+        _step('source_quiet')
         assert source_photo()==source
         print(json.dumps({'scope':'fresh_ephemeral_GitHub_Actions_TEST_cluster_only','profile_and_three_source_bound_ACKs_ready':True,'port':55483,'planned_UUIDs':71,'required_identities':509,'max_concurrent_UUIDs':2}))
         PY
@@ -1126,6 +1161,7 @@ jobs:
         else
           bootstrap_status=$?
           python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py" --repository "$GITHUB_WORKSPACE" --source 878082b242cdfa23e1e4c134f675c12b535a2cd7 --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap.private.log" --phase pg_bootstrap || true
+          python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/pg_bootstrap_diagnostic.py" --helper-source "$GITHUB_SHA" --input "$RUNNER_TEMP/ci37-pg-launch-private/bootstrap-stage.private.json" || true
           exit "$bootstrap_status"
         fi
 
@@ -1226,13 +1262,21 @@ jobs:
         root=Path(os.environ['RUNNER_TEMP'])
         value=json.loads((root/'current39-image57-public/summary.json').read_bytes())
         assert value['source']==os.environ['GITHUB_SHA'] and value['builds_attempted']==1
+        assert value['build_target']=='production'
         assert value['runtime_probes_attempted']==1 and value['distributions']==57
         contract=root/'current39-image57-private/runtime-input-contract.json'
-        subprocess.run([sys.executable,'-B','-X','utf8','-m','tests.ci_image57.current41_startup',
+        subprocess.run([sys.executable,'-B','-X','utf8','-m','tests.ci_image57.owned_data_startup',
             '--contract',str(contract),'--contract-sha256',hashlib.sha256(contract.read_bytes()).hexdigest(),
             '--image-id',value['image_id'],'--private',str(root/'current39-startup-private'),
             '--output',str(root/'current39-startup-public')],check=True)
         PY
+    - name: Scan the same production image and measured embedded libraries with a fresh frozen database
+      if: ${{ !cancelled() }}
+      run: |
+        set -euo pipefail
+        test -s "$RUNNER_TEMP/current39-image57-private/runtime.iid"
+        image_id=$(cat "$RUNNER_TEMP/current39-image57-private/runtime.iid")
+        python -B -X utf8 -m tests.ci_image57.security_scan --source "$GITHUB_SHA" --image-id "$image_id" --private "$RUNNER_TEMP/current-image-security-private" --output "$RUNNER_TEMP/current-image-security-public"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -1240,6 +1284,7 @@ jobs:
         path: |
           ${{ runner.temp }}/current39-image57-public/summary.json
           ${{ runner.temp }}/current39-startup-public/summary.json
+          ${{ runner.temp }}/current-image-security-public/summary.json
         if-no-files-found: error
   historical33-image:
     runs-on: ubuntu-latest
@@ -1302,12 +1347,15 @@ jobs:
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-        python -X utf8 tests/ci_google33/run_current_browser.py --image-tag metodobase-current33:${{ github.sha }} --output "$RUNNER_TEMP/current33-browser-public"
+        git --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/historical_image_runtime.py" > "$RUNNER_TEMP/historical_image_runtime.py"
+        test "$(git --no-replace-objects hash-object --no-filters "$RUNNER_TEMP/historical_image_runtime.py")" = "$(git --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/historical_image_runtime.py")"
+        python -B -X utf8 "$RUNNER_TEMP/historical_image_runtime.py" --schema 33 --source "$GITHUB_WORKSPACE" --image-tag metodobase-current33:${{ github.sha }} --output "$RUNNER_TEMP/current33-browser-public" --binding-receipt "$RUNNER_TEMP/historical33-image-runtime-binding.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: current33-real-image-and-browser
         path: |-
+          ${{ runner.temp }}/historical33-image-runtime-binding.json
           ${{ runner.temp }}/current33-browser-public/image-inventory.json
           ${{ runner.temp }}/current33-browser-public/image-identity.json
           ${{ runner.temp }}/current33-browser-public/image-browser.json
@@ -1506,13 +1554,14 @@ jobs:
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-        python -X utf8 tests/ci_mfa31/run_current_browser.py --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public"
+        python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web41/historical_image_runtime.py" --schema 31 --source "$RUNNER_TEMP/historical31-image/source" --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public" --binding-receipt "$RUNNER_TEMP/historical31-image-runtime-binding.json"
       working-directory: ${{ runner.temp }}/historical31-image/source
     - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: historical31-current31-real-image-and-browser
         path: |-
+          ${{ runner.temp }}/historical31-image-runtime-binding.json
           ${{ runner.temp }}/current31-browser-public/image-inventory.json
           ${{ runner.temp }}/current31-browser-public/image-identity.json
           ${{ runner.temp }}/current31-browser-public/image-browser.json
@@ -1778,7 +1827,7 @@ jobs:
     - name: Project current web reports without assertion bodies
       if: always()
       working-directory: ${{ runner.temp }}/historical31-web/source
-      run: python -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/historical31-web/source" --output "$RUNNER_TEMP/web-public"
+      run: python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web41/historical_coverage_publication.py" --source "$RUNNER_TEMP/historical31-web/source" --source-commit de506b6077ba055587f02e7d839387e7f5c56f84 --directory "$RUNNER_TEMP/historical31-web/source" --output "$RUNNER_TEMP/web-public"
         --files "pytest-web.xml" "pytest-web-shuffle.xml" "pytest-storage-sdk.xml" "coverage.xml" "coverage.json"
     - uses: actions/upload-artifact@v4
       if: always()

@@ -27,7 +27,7 @@ def build_probe(private,contract,docker,tag):
     def call(*args):return subprocess.check_output([docker,*args])
     target=prepare_context_directory(private,contract);iid=private/'runtime.iid'
     if call('image','ls','--quiet','--no-trunc',tag).strip():raise ValueError('Owned image tag already exists; no retry')
-    command=[docker,'build','--pull=false','--platform=linux/amd64','--target','runtime','--iidfile',str(iid),
+    command=[docker,'build','--pull=false','--platform=linux/amd64','--target','production','--iidfile',str(iid),
         '--label','org.opencontainers.image.revision='+contract['source'],'--label','metodobase.ci57.nonce='+nonce,'-t',tag,str(target)]
     with (private/'docker-build.private.log').open('xb') as log:
         result=subprocess.run(command,stdout=log,stderr=subprocess.STDOUT)
@@ -64,7 +64,7 @@ def build_probe(private,contract,docker,tag):
     if result.returncode or after_value[0]['State']['Running'] is not False or after_value[0]['State']['ExitCode']!=0:
         raise ValueError('Current57 first runtime probe failed; retained container and RAW, no retry')
     checked=probe.validate_report(context.json_object((private/'runtime-report.private.json').read_bytes()),contract)
-    return checked|{'image_id':image_id,'tag':tag,'container_id':container_id,'builds_attempted':1,'runtime_probes_attempted':1,
+    return checked|{'image_id':image_id,'tag':tag,'container_id':container_id,'build_target':'production','builds_attempted':1,'runtime_probes_attempted':1,
         'probe_sha256':hashlib.sha256(bound).hexdigest(),'source_context_sha256':contract['context_sha256'],
         'source_commit':contract['source'],'application_started':False,'SBOM_SCA_complete':False,
         'native_parent_merkle_objects':21,'native_input_transition':contract.get('native_input_transition'),

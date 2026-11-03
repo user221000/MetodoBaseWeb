@@ -57,7 +57,13 @@ def native_transition():
 
 def native_pins(records):
     """Accept the exact parent or the single reviewed two-input child."""
+    from . import technical_child,production_child
+    if technical_child.selected(records):
+        return technical_child.pins(records),technical_child.transition(production_child.transition(native_transition()))
     parent=json_object(authority.raw('container-inputs.json.RAW'))['candidate_files']
+    if ({name for name in records if name.startswith('runtime-source/')}!=
+            {name for name in parent if name.startswith('runtime-source/')}):
+        raise ValueError('Unreviewed historical runtime source membership')
     if len(parent)!=12 or not parent.keys()<=records.keys():raise ValueError('Twelve critical native inputs absent')
     changed={name for name,pin in parent.items()
              if any(records[name].get(key)!=pin[key] for key in ('bytes','raw_sha256'))}
@@ -75,6 +81,13 @@ def native_pins(records):
 def native_parent_payloads(payloads):
     """Authenticate twelve actual inputs and invert only the finite child2."""
     parent=json_object(authority.raw('container-inputs.json.RAW'))['candidate_files']
+    from . import technical_child,production_child
+    if technical_child.selected({name:technical_child.record(raw) for name,raw in payloads.items()}):
+        production=technical_child.inverse(payloads)
+        restored,prior=native_parent_payloads({name:production[name] for name in parent})
+        if prior!=production_child.transition(native_transition()):raise ValueError('Exact technical parent transition differs')
+        restored['requirements_web.lock']=production['requirements_web.lock']
+        return restored,technical_child.transition(prior)
     if set(payloads)!=set(parent):raise ValueError('Exact twelve-input payload inventory required')
     records={name:{'bytes':len(raw),'raw_sha256':hashlib.sha256(raw).hexdigest(),
         'git_blob':hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw,usedforsecurity=False).hexdigest()}
@@ -165,7 +178,7 @@ def validate_manifest(directory,revision,*,proof_required=True):
     if (re.fullmatch('[0-9a-f]{40}',revision) is None or value['source_commit']!=revision
             or type(value['archive_bytes']) is not int or not 0<value['archive_bytes']<=MAX_CONTEXT
             or re.fullmatch('[0-9a-f]{40}',value['source_tree']) is None
-            or value.get('all_members_readback') is not True or value.get('current57_critical_inputs_exact')!=12
+            or value.get('all_members_readback') is not True or type(value.get('current57_critical_inputs_exact')) is not int
             or value.get('runtime_distributions_expected')!=57):
         raise ValueError('Context source or size differs')
     archive=authority.regular_file(directory/'source-context.tar')
@@ -176,6 +189,7 @@ def validate_manifest(directory,revision,*,proof_required=True):
             or type(value.get('raw_bytes')) is not int or value['raw_bytes']!=sum(row['bytes'] for row in records.values())):
         raise ValueError('Ambiguous context membership')
     pins,transition=native_pins(records)
+    if value['current57_critical_inputs_exact']!=len(pins):raise ValueError('Exact critical input count differs')
     if json.dumps(value.get('native_input_transition'),sort_keys=True)!=json.dumps(transition,sort_keys=True):
         raise ValueError('Closed context APT transition disclosure differs')
     docker=None;corpus_raw={};native_raw={}
@@ -225,12 +239,14 @@ def validate_contract(directory,contract):
             or contract['source_tree']!=manifest['source_tree']
             or contract['app_hashes']!={name:row['raw_sha256'] for name,row in app.items()}
             or contract['app_modes']!={name:row['mode'] for name,row in app.items()}
-            or contract.get('native_input_count')!=12 or contract.get('native_merkle_objects')!=21
+            or contract.get('native_input_count')!=manifest['current57_critical_inputs_exact'] or contract.get('native_merkle_objects')!=21
             or contract.get('required_password_corpus')!=list(CORPUS)):
         raise ValueError('Closed current57 contract/context identity differs')
     with tarfile.open(directory/'source-context.tar','r:') as archive:
         docker=archive.extractfile('Dockerfile').read()
-        catalog=json_object(archive.extractfile('runtime-source/container37-contract.json').read())
+        from . import technical_child
+        catalog_path=technical_child.ACTIVE_CONTRACT if technical_child.selected(records) else 'runtime-source/container37-contract.json'
+        catalog=json_object(archive.extractfile(catalog_path).read())
     checked=source_proof.verify(directory/'source-objects.zip',contract['source'],records,docker)
     if checked!=contract.get('source_proof') or contract['distributions']!=catalog['distributions'] or len(catalog['distributions'])!=57:
         raise ValueError('Closed current57 proof or distribution inventory differs')
@@ -251,7 +267,10 @@ def prepare(repository,revision,private):
         evidence=authority.evidence();acl=evidence['boundary_before_payload'](private)
         thin=private/'source-authority';thin.mkdir(mode=0o700)
         pins=json_object(authority.raw('container-inputs.json.RAW'))
-        actual={name:source(repository,revision,name) for name in pins['candidate_files']}
+        from . import technical_child
+        docker=source(repository,revision,'Dockerfile')
+        names=technical_child.PINS if technical_child.record(docker)==technical_child.PINS['Dockerfile'] else pins['candidate_files']
+        actual={name:source(repository,revision,name) for name in names}
         parent,transition=native_parent_payloads(actual)
         for name in [*pins['candidate_files'],'requirements_web.lock','tests/ci_web37/container-inputs.json']:
             path=thin/name;path.parent.mkdir(parents=True,exist_ok=True)
@@ -273,7 +292,8 @@ def prepare(repository,revision,private):
             # verify() above certifies only the authenticated parent.  The
             # unchanged context helper below reads child Git blobs and a local
             # child manifest; neither historical authority is rewritten.
-            for name in APT_CHILD_PINS:(thin/name).write_bytes(actual[name])
+            for name,raw in actual.items():
+                path=thin/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
             records={name:{'bytes':len(raw),'raw_sha256':hashlib.sha256(raw).hexdigest(),
                 'git_blob':hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw,usedforsecurity=False).hexdigest()}
                 for name,raw in actual.items()}
@@ -296,12 +316,13 @@ def prepare(repository,revision,private):
         corpus_checked=validate_corpus(corpus,source(repository,revision,CORPUS[3]),source(repository,revision,CORPUS[1]),source(repository,revision,CORPUS[0]))
         (private/'password-corpus-source-manifest.json').write_bytes(json.dumps(corpus,indent=2).encode()+b'\n')
         app={name:row['raw_sha256'] for name,row in app_records(records).items()}
+        catalog_path=technical_child.ACTIVE_CONTRACT if technical_child.is_transition(transition) else 'runtime-source/container37-contract.json'
         contract={'schema':'current-image57-input-v1','source':revision,'source_tree':manifest['source_tree'],
             'context_sha256':manifest['archive_sha256'],'context_bytes':manifest['archive_bytes'],
             'source_proof':source_checked,
             'context_files':len(records),'app_hashes':app,'app_modes':{name:records[name]['mode'] for name in app},
-            'distributions':json_object(source(repository,revision,'runtime-source/container37-contract.json'))['distributions'],
-            'native_input_count':12,'native_merkle_objects':21,'native_source_checks':native,
+            'distributions':json_object(source(repository,revision,catalog_path))['distributions'],
+            'native_input_count':len(names),'native_merkle_objects':21,'native_source_checks':native,
             'native_source_checks_scope':'authenticated_parent_only' if transition else 'exact_current57_parent',
             'native_input_transition':transition,
             'helper_function_AST':{'context':context_ast,'native':native_ast},

@@ -24,6 +24,7 @@ PATHS = frozenset({
     "tests/run_current_image57.py", "tests/ci_diagnostics41.py",
     "tests/ci_image57/run.py", "tests/ci_image57/authority.py", "tests/ci_image57/context.py",
     "tests/ci_image57/source_proof.py", "tests/ci_image57/probe.py", "tests/ci_image57/production_child.py",
+    "tests/ci_image57/technical_child.py", "tests/ci_image57/native_probe_20261103.py",
     "tests/ci_image57/check_report.py", "tests/ci_web41/ci_cluster.py", "tests/ci_web41/source_companion.py",
     "tests/ci_web41/current41_schema.py", "tests/ci_web39/ci_cluster.py", "tests/ci_web39/pg_contract.py",
     "tests/ci_web39/pg_control.py", "tests/ci_web39/pg_admission.py", "tests/ci_web39/pg_tools_linux.py",
@@ -45,7 +46,7 @@ PG_CATALOGUE = "tests/ci_web41/source-companions.json"
 PG_PARENT = "tests/ci_web39/ci_cluster.py"
 PG_INPUTS = {
     PG_WRAPPER: (339, "b191951d5531ed6a99975296104c2128736215d16cbfbcb6a544cf4015641e02"),
-    PG_CATALOGUE: (48331, "3c68f1060873a2189b496261a82bcd14d180059b6b7c4cb994d3c92febc855d2"),
+    PG_CATALOGUE: (51309, "4d21b5c0c397871489af6501201f414a3b94c151b0b66cfa03c0bf20f57e8d90"),
     PG_PARENT: (8510, "dcb624fbde74a74c0509422f271920a795b4fdbaa3a519b9137020c5302772f2"),
 }
 PG_COMPILED_SHA256 = "06efafacf474934fbbcd4655dbd751a19ee1ca57010d4159e6c85e073bde0241"

@@ -853,12 +853,12 @@
       "literal_edits": [
         {
           "old": "from tests.ci_image57 import authority, context",
-          "new": "from tests.ci_image57 import authority, context, production_child",
+          "new": "from tests.ci_image57 import authority, context, production_child, technical_child",
           "count": 1
         },
         {
           "old": "TODAY = date(2026, 10, 29)",
-          "new": "TODAY = date(2026, 11, 2)",
+          "new": "TODAY = date(2026, 11, 3)",
           "count": 1
         },
         {
@@ -868,7 +868,7 @@
         },
         {
           "old": "assert value[\"native_input_transition\"] == context.native_transition()",
-          "new": "assert value[\"native_input_transition\"] == production_child.transition(context.native_transition())",
+          "new": "assert value[\"native_input_transition\"] == technical_child.transition(production_child.transition(context.native_transition()))",
           "count": 1
         },
         {
@@ -893,12 +893,27 @@
         },
         {
           "old": "assert len(proposal[\"bindings\"]) == 369",
-          "new": "assert len(proposal[\"bindings\"]) == 392",
+          "new": "assert len(proposal[\"bindings\"]) == 408",
+          "count": 1
+        },
+        {
+          "old": "assert value[\"native_input_count\"] == 12 and value[\"inherited_input_count\"] == 10",
+          "new": "assert value[\"native_input_count\"] == 19 and value[\"inherited_input_count\"] == 10",
+          "count": 1
+        },
+        {
+          "old": "assert json.loads(process.stdout) == [12, 10, 21, 57]",
+          "new": "assert json.loads(process.stdout) == [19, 10, 21, 57]",
+          "count": 1
+        },
+        {
+          "old": "payloads = {name: (control / name).read_bytes() for name in PINS}",
+          "new": "payloads = {name: (control / name).read_bytes() for name in quality.native_input_paths(control)}",
           "count": 1
         }
       ],
-      "current_sha256_LF": "f218b52f9e2a2cb0dd5a359042281b005dd9b9aa468d06c6a033260a03e52884",
-      "approved_policy_scope": "current41_quality_date20261102_exact_MD5_retirement31_bindings392_production_source_no_baseline_reapproval",
+      "current_sha256_LF": "0897fed56b2d7e6b6c64da0ff5e286ceb981df1136e877fce21227286b550fbe",
+      "approved_policy_scope": "current41_quality_date20261103_exact_MD5_retirement31_bindings408_technical19_source_no_baseline_reapproval",
       "policy_assertion_trace": [
         {
           "function": "report",
@@ -941,13 +956,42 @@
           "edits": [
             {
               "kind": "replace",
+              "before_index": 0,
+              "after_index": 0,
+              "before": [
+                "Assert(test=BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='native_input_count'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=12)]), Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='inherited_input_count'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=10)])]))"
+              ],
+              "after": [
+                "Assert(test=BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='native_input_count'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=19)]), Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='inherited_input_count'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=10)])]))"
+              ]
+            },
+            {
+              "kind": "replace",
               "before_index": 2,
               "after_index": 2,
               "before": [
                 "Assert(test=Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='native_input_transition'), ctx=Load()), ops=[Eq()], comparators=[Call(func=Attribute(value=Name(id='context', ctx=Load()), attr='native_transition', ctx=Load()), args=[], keywords=[])]))"
               ],
               "after": [
-                "Assert(test=Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='native_input_transition'), ctx=Load()), ops=[Eq()], comparators=[Call(func=Attribute(value=Name(id='production_child', ctx=Load()), attr='transition', ctx=Load()), args=[Call(func=Attribute(value=Name(id='context', ctx=Load()), attr='native_transition', ctx=Load()), args=[], keywords=[])], keywords=[])]))"
+                "Assert(test=Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='native_input_transition'), ctx=Load()), ops=[Eq()], comparators=[Call(func=Attribute(value=Name(id='technical_child', ctx=Load()), attr='transition', ctx=Load()), args=[Call(func=Attribute(value=Name(id='production_child', ctx=Load()), attr='transition', ctx=Load()), args=[Call(func=Attribute(value=Name(id='context', ctx=Load()), attr='native_transition', ctx=Load()), args=[], keywords=[])], keywords=[])], keywords=[])]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_native_source_admission_requires_no_site_packages_or_implicit_packaging",
+          "before_assertions": 2,
+          "after_assertions": 2,
+          "edits": [
+            {
+              "kind": "replace",
+              "before_index": 1,
+              "after_index": 1,
+              "before": [
+                "Assert(test=Compare(left=Call(func=Attribute(value=Name(id='json', ctx=Load()), attr='loads', ctx=Load()), args=[Attribute(value=Name(id='process', ctx=Load()), attr='stdout', ctx=Load())], keywords=[]), ops=[Eq()], comparators=[List(elts=[Constant(value=12), Constant(value=10), Constant(value=21), Constant(value=57)], ctx=Load())]))"
+              ],
+              "after": [
+                "Assert(test=Compare(left=Call(func=Attribute(value=Name(id='json', ctx=Load()), attr='loads', ctx=Load()), args=[Attribute(value=Name(id='process', ctx=Load()), attr='stdout', ctx=Load())], keywords=[]), ops=[Eq()], comparators=[List(elts=[Constant(value=19), Constant(value=10), Constant(value=21), Constant(value=57)], ctx=Load())]))"
               ]
             }
           ]
@@ -1039,7 +1083,7 @@
                 "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='proposal', ctx=Load()), slice=Constant(value='bindings'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=369)]))"
               ],
               "after": [
-                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='proposal', ctx=Load()), slice=Constant(value='bindings'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=392)]))"
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='proposal', ctx=Load()), slice=Constant(value='bindings'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=408)]))"
               ]
             }
           ]

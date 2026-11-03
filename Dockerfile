@@ -11,15 +11,20 @@
 # Run:     docker run -p 8000:8000 --env-file .env metodobase-web
 # ══════════════════════════════════════════════════════════════════════════════
 
-# CPython 3.12.15 includes the September 2026 security fixes for the container target.
-FROM python:3.12.15-slim@sha256:2b4f19dae3a777dfc3b76730bda1e82e1f66ab2a2686fa93ca78edbfb4f04ffe AS base
+# CPython3.12.16 blocks compromised intermediate keys; Linux/amd64 manifest is pinned.
+FROM python:3.12.16-slim-trixie@sha256:1148dbb014615300fa7e713b2f94f550c0d1c69780c0805f84f093ceee34dd0b AS base
+
+COPY runtime-source/technical-close-20261103 /usr/local/share/metodobase/technical-close-20261103
+COPY requirements_web.lock /usr/local/share/metodobase/technical-close-20261103/requirements_web.lock
+# Historical source contract retained as provenance; it is not the new compiled artifact.
+COPY runtime-source/expat-sec10 /usr/local/share/metodobase/historical-expat-sec10-source
 
 # Debian's liblzma security backport fixes GHSA-5qpq-xqfv-j9pg in both stages.
 # Resolve only signed stable/security metadata and upgrade the exact binary version.
 RUN printf '%s\n' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261029T082808Z trixie main' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261029T082808Z trixie-updates main' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian-security/20261029T131250Z trixie-security main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie-updates main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian-security/20261103T080000Z trixie-security main' \
         > /tmp/metodobase-security.list \
     && apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-security.list \
         -o Dir::Etc::sourceparts=- -o APT::Update::Error-Mode=any \
@@ -39,144 +44,9 @@ RUN printf '%s\n' \
     && rm -f /tmp/metodobase-security.list /tmp/liblzma5_5.8.1-1+deb13u2_amd64.deb \
     && rm -rf /var/lib/apt/lists/*
 
-# METODOBASE_CA_G3_20261029_BEGIN
-RUN set -eu; \
-    printf '%s\n' \
-        '"""Stdlib-only exact OS truststore transition for the immutable Python base."""' \
-        'import hashlib' \
-        'import json' \
-        'from pathlib import Path' \
-        'import re' \
-        'import ssl' \
-        'import sys' \
-        'import os' \
-        '' \
-        'TARGET_DER = "86a1ecba089c4a8d3bbe2734c612ba341d813e043cf9e8a862cd5c57a36bbe6b"' \
-        'TARGET_SPKI = "8d417db2dd8bf5e3084d1e3f196d583849d81bdd4c00c70b9d39369e96b8c782"' \
-        'BUNDLE_SHA = "714d457d580922dbf1d0be8bd35ba236a842b50b0072ae791582a19adef772a5"' \
-        'SET_SHA = "ffb9164a1ec4a8d8c1cc2f1449a647d18ffbd986b5939fd5b07dd32321147302"' \
-        'CONF_BEFORE_SHA = "ab7339d40969fb1084cb23011fbdae7cc8edb46ac7e410897bb6b7016f07ed7f"' \
-        'CONF_AFTER_SHA = "1e1de7c638c2ea3fa5fa19f4cb342227391d3c3c2869825b39a5a0705f3782c5"' \
-        'SOURCE_SHA = "36e68e205b53c67c7a013894e0d5c8583063468118d1ce78ecbc2200d1dd185c"' \
-        'ENTRY = b"mozilla/emSign_ECC_Root_CA_-_G3.crt\n"' \
-        'BUNDLE = Path("/etc/ssl/certs/ca-certificates.crt")' \
-        'CONF = Path("/etc/ca-certificates.conf")' \
-        'SOURCE = Path("/usr/share/ca-certificates/mozilla/emSign_ECC_Root_CA_-_G3.crt")' \
-        'CAPATH = Path("/etc/ssl/certs")' \
-        'STATE = Path("/tmp/metodobase-ca-g3-before.json")' \
-        'PROVENANCE = Path("/usr/local/share/metodobase/ca-root-g3-20261029.json")' \
-        'PEM = re.compile(br"-----BEGIN CERTIFICATE-----\s+.*?-----END CERTIFICATE-----", re.S)' \
-        '' \
-        '' \
-        'def require(condition, message):' \
-        '    if not condition:' \
-        '        raise ValueError(message)' \
-        '' \
-        '' \
-        'def sha(raw):' \
-        '    return hashlib.sha256(raw).hexdigest()' \
-        '' \
-        '' \
-        'def der_hashes(raw):' \
-        '    blocks = PEM.findall(raw)' \
-        '    require(blocks and not PEM.sub(b"", raw).strip(), "Unexpected CA bundle framing")' \
-        '    return [sha(ssl.PEM_cert_to_DER_cert(block.decode("ascii"))) for block in blocks]' \
-        '' \
-        '' \
-        'def set_sha(values):' \
-        '    return sha(("\n".join(sorted(values)) + "\n").encode("ascii"))' \
-        '' \
-        '' \
-        'def before_state(bundle, conf, source, capath):' \
-        '    require(sha(bundle) == BUNDLE_SHA and sha(conf) == CONF_BEFORE_SHA and sha(source) == SOURCE_SHA,' \
-        '            "Immutable base CA inputs differ")' \
-        '    values = der_hashes(bundle)' \
-        '    require(len(values) == len(set(values)) == 150 and set_sha(values) == SET_SHA,' \
-        '            "The exact150 base CA set differs")' \
-        '    require(der_hashes(source) == [TARGET_DER] and TARGET_DER in values,' \
-        '            "The exact affected G3 certificate differs")' \
-        '    require(set(capath) == set(values), "The base CApath differs from its exact bundle")' \
-        '    require(conf.splitlines().count(ENTRY.rstrip(b"\n")) == 1 and conf.count(ENTRY) == 1,' \
-        '            "Exactly one active G3 configuration entry is required")' \
-        '    changed = conf.replace(ENTRY, b"!" + ENTRY, 1)' \
-        '    require(sha(changed) == CONF_AFTER_SHA, "The single-line G3 disable transition differs")' \
-        '    return {"bundle_sha256": BUNDLE_SHA, "before_der_sha256": sorted(values)}, changed' \
-        '' \
-        '' \
-        'def after_state(state, bundle, conf, source, capath, defaults):' \
-        '    require(set(state) == {"bundle_sha256", "before_der_sha256"} and state["bundle_sha256"] == BUNDLE_SHA,' \
-        '            "The exact before-state authority differs")' \
-        '    before = state["before_der_sha256"]' \
-        '    require(type(before) is list and len(before) == len(set(before)) == 150' \
-        '            and set_sha(before) == SET_SHA and TARGET_DER in before,' \
-        '            "The immutable before CA set differs")' \
-        '    require(sha(conf) == CONF_AFTER_SHA and sha(source) == SOURCE_SHA,' \
-        '            "The exact disabled configuration or retained source certificate differs")' \
-        '    require(conf.splitlines().count(b"!" + ENTRY.rstrip(b"\n")) == 1' \
-        '            and conf.splitlines().count(ENTRY.rstrip(b"\n")) == 0,' \
-        '            "G3 must be disabled exactly once")' \
-        '    values = der_hashes(bundle)' \
-        '    expected = set(before) - {TARGET_DER}' \
-        '    require(len(values) == len(set(values)) == 149 and set(values) == expected,' \
-        '            "The regenerated bundle must retain exactly the other149 certificates")' \
-        '    require(set(capath) == expected and set(defaults) == expected,' \
-        '            "CApath and the default SSLContext must contain exactly the same149 CAs")' \
-        '    return {"schema": "metodobase-exact-os-ca-root-removal-v1", "scope": "OS truststore only; vendored bundles are separate",' \
-        '            "target_DER_sha256": TARGET_DER, "target_SPKI_sha256": TARGET_SPKI,' \
-        '            "disabled_configuration_entry": ENTRY.decode().strip(),' \
-        '            "before_bundle_sha256": BUNDLE_SHA, "after_bundle_sha256": sha(bundle),' \
-        '            "before_count": 150, "after_count": 149,' \
-        '            "before_der_sha256": before, "after_der_sha256": sorted(values),' \
-        '            "removed_der_sha256": [TARGET_DER], "other149_preserved": True,' \
-        '            "configuration_sha256": CONF_AFTER_SHA, "disabled_source_PEM_sha256": SOURCE_SHA,' \
-        '            "disabled_source_retained": True, "CApath_and_default_SSLContext_match": True}' \
-        '' \
-        '' \
-        'def capath_hashes():' \
-        '    values = set()' \
-        '    for path in CAPATH.iterdir():' \
-        '        require(not path.is_symlink() or path.exists(), "Dangling CApath alias")' \
-        '        if path.is_dir():' \
-        '            continue' \
-        '        require(path.is_file() and path.stat().st_size <= 2 * 1024**2, "Unexpected CApath entry")' \
-        '        values.update(der_hashes(path.read_bytes()))' \
-        '    return values' \
-        '' \
-        '' \
-        'def main():' \
-        '    require(sys.platform == "linux" and len(sys.argv) == 2 and sys.argv[1] in {"before", "after"},' \
-        '            "Explicit Linux build-only CA transition phase required")' \
-        '    require(not os.environ.get("SSL_CERT_FILE") and not os.environ.get("SSL_CERT_DIR"), "Ambient SSL overrides rejected")' \
-        '    for path in (BUNDLE, CONF, SOURCE):' \
-        '        require(path.is_file() and not path.is_symlink(), "Expected regular base CA input")' \
-        '    if sys.argv[1] == "before":' \
-        '        state, changed = before_state(BUNDLE.read_bytes(), CONF.read_bytes(), SOURCE.read_bytes(), capath_hashes())' \
-        '        with STATE.open("x", encoding="utf8") as output:' \
-        '            json.dump(state, output)' \
-        '        CONF.write_bytes(changed)' \
-        '    else:' \
-        '        paths = ssl.get_default_verify_paths()' \
-        '        require(paths.cafile and Path(paths.cafile).resolve() == BUNDLE' \
-        '                and paths.capath and Path(paths.capath).resolve() == CAPATH, "Default SSL trust paths differ")' \
-        '        defaults = {sha(der) for der in ssl.create_default_context().get_ca_certs(binary_form=True)}' \
-        '        result = after_state(json.loads(STATE.read_bytes()), BUNDLE.read_bytes(), CONF.read_bytes(),' \
-        '                             SOURCE.read_bytes(), capath_hashes(), defaults)' \
-        '        PROVENANCE.parent.mkdir(parents=True, exist_ok=True)' \
-        '        with PROVENANCE.open("x", encoding="utf8") as output:' \
-        '            json.dump(result, output, sort_keys=True, indent=2)' \
-        '            output.write("\n")' \
-        '        require(json.loads(PROVENANCE.read_bytes()) == result, "CA provenance readback differs")' \
-        '        STATE.unlink()' \
-        '' \
-        '' \
-        'if __name__ == "__main__":' \
-        '    main()' \
-        > /tmp/metodobase-ca-g3.py; \
-    python -I -B /tmp/metodobase-ca-g3.py before; \
-    update-ca-certificates --fresh; \
-    python -I -B /tmp/metodobase-ca-g3.py after; \
-    rm -f -- /tmp/metodobase-ca-g3.py
-# METODOBASE_CA_G3_20261029_END
+# This immutable base already removed G3 (148 exact CAs). Verify source, config,
+# DER, SPKI, CApath and default context absence; retain the old transition in Git.
+RUN python -I -B /usr/local/share/metodobase/technical-close-20261103/verify_ca.py
 # Both dependency and runtime stages inherit the verified installer upgrade.
 # Pin its wheel independently; application locks and Windows environments stay separate.
 COPY requirements-container-bootstrap.lock /usr/local/share/metodobase/requirements-container-bootstrap.lock
@@ -194,12 +64,13 @@ FROM base AS native-runtime
 
 # Pin the complete signed APT index inputs used to resolve libpq and its dependencies.
 # A changed or expired index fails closed; refreshing these pins requires review.
-COPY requirements-container-apt-metadata.lock /usr/local/share/metodobase/requirements-container-apt-metadata.lock
+COPY requirements-container-apt-metadata.lock /usr/local/share/metodobase/requirements-container-apt-metadata-parent.lock
+COPY runtime-source/technical-close-20261103/apt-metadata.lock /usr/local/share/metodobase/requirements-container-apt-metadata.lock
 RUN set -eu; \
     printf '%s\n' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261029T082808Z trixie main' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261029T082808Z trixie-updates main' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian-security/20261029T131250Z trixie-security main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie-updates main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian-security/20261103T080000Z trixie-security main' \
         > /tmp/metodobase-native.list; \
     mkdir -p /usr/local/share/metodobase/native-runtime; \
     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /usr/local/share/metodobase/native-runtime/before.tsv; \
@@ -220,9 +91,9 @@ FROM native-runtime AS psycopg-build
 COPY requirements-container-build.lock requirements-container-psycopg.lock /tmp/
 RUN set -eu; \
     printf '%s\n' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261029T082808Z trixie main' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261029T082808Z trixie-updates main' \
-        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian-security/20261029T131250Z trixie-security main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian/20261103T080000Z trixie-updates main' \
+        'deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://snapshot.debian.org/archive/debian-security/20261103T080000Z trixie-security main' \
         > /tmp/metodobase-native.list; \
     dpkg-query -W -f='${binary:Package}\t${Version}\n' > /tmp/native-before.tsv; \
     apt-get -o Dir::Etc::sourcelist=/tmp/metodobase-native.list -o Dir::Etc::sourceparts=- \
@@ -255,11 +126,10 @@ RUN set -eu; \
     rm -f /tmp/native-before.tsv /tmp/metodobase-native.list; \
     rm -rf /var/lib/apt/lists/* /tmp/metodobase-native-build /tmp/metodobase-native-source
 
-# Rebuild only pyexpat with the pinned upstream Expat capacity backport.
-# _elementtree keeps its original ELF and identical pyexpat C API/version contract.
+# Upgrade the actual embedded Expat implementation and both version-coupled XML extensions.
+# Installed interpreter/libpython/headers/configuration remain the pinned base bytes.
 FROM psycopg-build AS expat-build
-COPY runtime-source/expat-sec10 /tmp/metodobase-expat-sec10
-RUN /opt/psycopg-build-tools/bin/python -I /tmp/metodobase-expat-sec10/rebuild_pyexpat.py --build --output /expat-output
+RUN /opt/psycopg-build-tools/bin/python -I -B /usr/local/share/metodobase/technical-close-20261103/rebuild_native.py --build --output /native-output
 
 FROM native-runtime AS deps
 COPY requirements-container.lock .
@@ -281,8 +151,9 @@ FROM native-runtime AS runtime
 COPY --from=deps /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=deps /usr/local/bin /usr/local/bin
 COPY --from=deps /usr/local/share/metodobase/psycopg2-build /usr/local/share/metodobase/psycopg2-build
-COPY --from=expat-build /expat-output/pyexpat.cpython-312-x86_64-linux-gnu.so /usr/local/lib/python3.12/lib-dynload/pyexpat.cpython-312-x86_64-linux-gnu.so
-COPY --from=expat-build /expat-output/build-provenance.json /expat-output/sbom.json /expat-output/source-pins.json /expat-output/13c5f63.patch /expat-output/COPYING.expat /expat-output/small-binding-tests.log /usr/local/share/metodobase/expat-sec10/
+COPY --from=expat-build /native-output/pyexpat.cpython-312-x86_64-linux-gnu.so /usr/local/lib/python3.12/lib-dynload/pyexpat.cpython-312-x86_64-linux-gnu.so
+COPY --from=expat-build /native-output/_elementtree.cpython-312-x86_64-linux-gnu.so /usr/local/lib/python3.12/lib-dynload/_elementtree.cpython-312-x86_64-linux-gnu.so
+COPY --from=expat-build /native-output/build-provenance.json /native-output/sbom.json /native-output/source-pins.json /native-output/COPYING.expat /native-output/small-binding-tests.log /native-output/source-preparation.json /usr/local/share/metodobase/native-20261103/
 
 # Asset version used by existing templates.
 COPY web/.build_version /tmp/web_build_version
@@ -320,14 +191,14 @@ COPY runtime-source/container37-contract.json /usr/local/share/metodobase/contai
 
 # Runtime does not install packages or create virtual environments. Keep installers
 # in build stages for hash verification and SCA, and remove their bundled wheels too.
-# Expected current37 runtime inventory: 57 application distributions, checked by exact names and versions.
+# Expected technical-close runtime inventory:57 exact application distributions, including pyasn1 0.6.5.
 RUN set -eu; \
     python -c "from pathlib import Path; import importlib.metadata as m,sysconfig; root=Path('/usr/local/lib/python3.12'); site=root/'site-packages'; scripts=Path('/usr/local/bin'); assert Path(sysconfig.get_path('stdlib'))==root and Path(sysconfig.get_path('purelib'))==site and Path(sysconfig.get_path('scripts'))==scripts; assert root.resolve()==root and site.resolve()==site; assert scripts.is_dir() and not scripts.is_symlink() and scripts.resolve()==scripts; assert m.version('pip')=='26.2.1'; assert all(p.is_dir() and not p.is_symlink() for p in (site/'pip',site/'pip-26.2.1.dist-info',root/'ensurepip')); assert (root/'ensurepip'/'_bundled').is_dir()"; \
     rm -rf -- /usr/local/lib/python3.12/site-packages/pip \
         /usr/local/lib/python3.12/site-packages/pip-26.2.1.dist-info \
         /usr/local/lib/python3.12/ensurepip; \
     rm -f -- /usr/local/bin/pip /usr/local/bin/pip3 /usr/local/bin/pip3.12; \
-    python -c "from pathlib import Path; import importlib.util as u,importlib.metadata as m,json,re; root=Path('/usr/local'); assert all(u.find_spec(n) is None for n in ('pip','ensurepip')); assert not any(root.rglob('*.whl')); assert not any(p.name.lower().startswith(('pip-','pip.')) for p in (root/'lib/python3.12/site-packages').iterdir()); assert not any(p.exists() or p.is_symlink() for p in (root/'bin/pip',root/'bin/pip3',root/'bin/pip3.12')); rows=sorted((d.metadata['Name'],d.version) for d in m.distributions()); expected=json.loads(Path('/usr/local/share/metodobase/container37-contract.json').read_text()); normalize=lambda n:re.sub('[-_.]+','-',n).lower(); actual={normalize(n):v for n,v in rows}; assert type(expected['runtime_distribution_count']) is int and expected['runtime_distribution_count']==57 and len(rows)==57 and actual==expected['distributions'] and all(n.lower() not in ('pip','setuptools','wheel') for n,v in rows); Path('/usr/local/share/metodobase/runtime-python-metadata.json').write_text(json.dumps(rows,indent=2)+'\n')"
+    python -c "from pathlib import Path; import importlib.util as u,importlib.metadata as m,json,re; root=Path('/usr/local'); assert all(u.find_spec(n) is None for n in ('pip','ensurepip')); assert not any(root.rglob('*.whl')); assert not any(p.name.lower().startswith(('pip-','pip.')) for p in (root/'lib/python3.12/site-packages').iterdir()); assert not any(p.exists() or p.is_symlink() for p in (root/'bin/pip',root/'bin/pip3',root/'bin/pip3.12')); rows=sorted((d.metadata['Name'],d.version) for d in m.distributions()); expected=json.loads(Path('/usr/local/share/metodobase/technical-close-20261103/container-contract.json').read_text()); normalize=lambda n:re.sub('[-_.]+','-',n).lower(); actual={normalize(n):v for n,v in rows}; assert type(expected['runtime_distribution_count']) is int and expected['runtime_distribution_count']==57 and len(rows)==57 and actual==expected['distributions'] and all(n.lower() not in ('pip','setuptools','wheel') for n,v in rows); Path('/usr/local/share/metodobase/runtime-python-metadata.json').write_text(json.dumps(rows,indent=2)+'\n')"
 
 # Non-root user
 USER appuser
@@ -350,8 +221,8 @@ COPY --from=runtime / /
 ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     LANG=C.UTF-8 \
     GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305 \
-    PYTHON_VERSION=3.12.15 \
-    PYTHON_SHA256=c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a \
+    PYTHON_VERSION=3.12.16 \
+    PYTHON_SHA256=b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     METODOBASE_ENV=production \
@@ -360,7 +231,7 @@ ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
     PORT=8000
 WORKDIR /app
 RUN chown -R appuser:appuser /app /data \
-    && python -c "from pathlib import Path; import importlib.util as u,importlib.metadata as m,json,re; root=Path('/usr/local'); assert all(u.find_spec(n) is None for n in ('pip','ensurepip')); assert not any(root.rglob('*.whl')); assert not any(p.name.lower().startswith(('pip-','pip.')) for p in (root/'lib/python3.12/site-packages').iterdir()); assert not any(p.exists() or p.is_symlink() for p in (root/'bin/pip',root/'bin/pip3',root/'bin/pip3.12')); rows=sorted((d.metadata['Name'],d.version) for d in m.distributions()); expected=json.loads(Path('/usr/local/share/metodobase/container37-contract.json').read_text()); normalize=lambda n:re.sub('[-_.]+','-',n).lower(); actual={normalize(n):v for n,v in rows}; assert type(expected['runtime_distribution_count']) is int and expected['runtime_distribution_count']==57 and len(rows)==57 and actual==expected['distributions'] and all(n.lower() not in ('pip','setuptools','wheel') for n,v in rows); assert json.loads(Path('/usr/local/share/metodobase/runtime-python-metadata.json').read_text())==[list(row) for row in rows]"
+    && python -c "from pathlib import Path; import importlib.util as u,importlib.metadata as m,json,re; root=Path('/usr/local'); assert all(u.find_spec(n) is None for n in ('pip','ensurepip')); assert not any(root.rglob('*.whl')); assert not any(p.name.lower().startswith(('pip-','pip.')) for p in (root/'lib/python3.12/site-packages').iterdir()); assert not any(p.exists() or p.is_symlink() for p in (root/'bin/pip',root/'bin/pip3',root/'bin/pip3.12')); rows=sorted((d.metadata['Name'],d.version) for d in m.distributions()); expected=json.loads(Path('/usr/local/share/metodobase/technical-close-20261103/container-contract.json').read_text()); normalize=lambda n:re.sub('[-_.]+','-',n).lower(); actual={normalize(n):v for n,v in rows}; assert type(expected['runtime_distribution_count']) is int and expected['runtime_distribution_count']==57 and len(rows)==57 and actual==expected['distributions'] and all(n.lower() not in ('pip','setuptools','wheel') for n,v in rows); assert json.loads(Path('/usr/local/share/metodobase/runtime-python-metadata.json').read_text())==[list(row) for row in rows]"
 USER appuser
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8000') + '/health/ready', timeout=5)" || exit 1

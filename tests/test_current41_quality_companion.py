@@ -16,7 +16,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from tests.ci_image57 import authority
+from tests.ci_image57 import authority, technical_child
 from tests.ci_web39 import quality, verify_quality
 from tests.ci_web41 import collection, source_companion
 
@@ -68,9 +68,20 @@ def test_only_six_explicit_collection_routes_and_all_original_names_survive():
     assert len(collection.SOURCES) == 6 and collection.SOURCES[ORIGINAL] == COMPANION
     assert {name for name in vars(original) if name.startswith(("test_", "Test"))} == {
         name for name in vars(current) if name.startswith(("test_", "Test"))}
-    assert original.TODAY == date(2026, 10, 29) and current.TODAY == date(2026, 11, 2)
+    assert original.TODAY == date(2026, 10, 29) and current.TODAY == date(2026, 11, 3)
     assert current.quality is original.quality and current.bandit_review is original.bandit_review
     assert current.quality.classify is original.quality.classify
+
+
+def test_current_native19_assertions_retain_twelve_original_tamper_ids_and_parent21_oracle():
+    original, current = clone()
+    assert len(original.PINS) == len(current.PINS) == 12
+    current.test_current_native_admission_checks_real_child2_ten_inherited_and_original21()
+    current.test_native_source_admission_requires_no_site_packages_or_implicit_packaging()
+    value = quality.native_source_inputs(ROOT)
+    assert value['native_input_count'] == 19 and value['parent_native_merkle_objects'] == 21
+    assert technical_child.is_transition(value['native_input_transition'])
+    assert value['scope'] == 'source_inputs_only_no_build_runtime_OS_isolation_or_SCA_acceptance'
 
 
 @pytest.mark.parametrize("fixture_name,relative", [
