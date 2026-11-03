@@ -1,5 +1,24 @@
 # Seguimiento de Auditoría y faltantes
 
+## Actualización de continuidad — 3 de noviembre de 2026
+
+Este corte actualiza los pendientes indicados abajo sin reescribir los recibos ni los resultados del 2 de noviembre. El trabajo sigue limitado al servicio web, con cuatro agentes activos como máximo y aceptación independiente de QA y seguridad. Se conserva Railway Hobby; no se cambió el plan ni se activó un servicio nuevo.
+
+| Pendiente | Evidencia posterior y estado actual |
+|---|---|
+| PEND-01: Stripe sandbox | **Ciclo sandbox comprobado.** Cuenta de pruebas y modo verificados, compra Pro/Standard por Elements, 3DS, renovación con reloj, fallo/recuperación, devoluciones parciales, cancelación y webhooks repetidos/fuera de orden. Tres suscripciones canceladas, endpoint de prueba desactivado y servidores locales cerrados. Recibos `pilot-final-20261102-stripe-sandbox/SANDBOX_FINAL_RECEIPT.json` y `pilot-final-20261102-full-ui-stripe/FULL_UI_STRIPE_FINAL.json`; no cobros live. |
+| PEND-04: publicación de devoluciones | Implementación y sandbox comprobados; **publicación del candidato41 pendiente**. Producción continúa observada en `fc7950ec`/esquema40. La transición necesita gates técnicos y recuperación coherentes. |
+| PEND-06: CI e imagen | **Abierto.** El último CI completo de `fc515da9` dio14 jobs correctos,9 fallidos y1 omitido. PostgreSQL actual, seis campañas Node y runtime sintético de la imagen pasaron, con alcance propio. El SCA de esa imagen encontró66 coincidencias High correspondientes a20 CVE únicas. Correcciones posteriores de fixtures, autenticación de fuentes y diagnósticos tienen revisión focal, pero aún requieren CI de su commit. No se rebajan umbrales ni se omiten jobs. |
+| PEND-08: respaldo periódico | **Implementación preparada; agenda inactiva.** Supervisor Linux46 y captura/restauración PostgreSQL18.6 cuatro casos pasaron en CI. La nueva receta/entrada con recibo tiene35 pruebas portables sin skips y revisión independiente. Faltan imagen final aceptada, medición de recursos, rol/permisos efectivos, custodia recuperable, monitor con receptor y dos ventanas reales. [Contrato y runbook](../../implementation/20261103-backup-current-plan.md). |
+| PEND-07 y PEND-12: funciones y APIs | Se mantienen abiertos los recorridos exhaustivos por actor y los contratos de API aún no clasificados. Las389 operaciones inventariadas y57 prioritarias no equivalen a aprobación de toda la aplicación. Las42 diferencias registradas conservan su análisis por elemento. |
+| Operación comercial | Responsable/canal de soporte y RPO/RTO permanecen **pendientes**, como indicó el usuario. No se inventan garantías de atención, pérdida máxima o recuperación. |
+
+Railway Hobby admite la alternativa de cron sin contratar Pro; su ejecución y almacenamiento consumen recursos. La lectura autenticada del3 de noviembre observó tres instancias y cero agendas activas. La fuente y el contrato inactivos se preparan para revisión: no son una afirmación de respaldo periódico ya operativo. Las referencias históricas sin bytes continúan identificadas; una copia nueva no recupera archivos perdidos.
+
+La [PR2](https://github.com/user221000/MetodoBaseWeb/pull/2) sigue en borrador. Evidencias de esta continuación: `E:/MetodoBaseWorkspace/evidence/technical-close-20261103/`, con recibos separados por rol y commit. Las cifras de autor, QA y seguridad se solapan y no se suman. Los apartados siguientes mantienen su corte histórico del2 de noviembre.
+
+## Corte histórico — 2 de noviembre de 2026
+
 **Fecha:** 2 de noviembre de 2026. **Corte documental:** cierre local del puente finito, previo al nuevo commit/escaneo/CI; los cortes09:11,09:24 y el del commit2009fb8a se conservan con sus matrices. **Ámbito:** servicio web. **Estado de esta entrega:** candidato aislado preparado y con pruebas focales; esta ejecución todavía no ha publicado código ni DDL en producción. La producción observada continúa en `fc7950ec` y esquema40. El acceso Google confirmado por el usuario y la contratación Stripe sin activar otro factor pertenecen a las publicaciones anteriores y se conservan.
 
 Este documento continúa [Auditoría y faltantes](AUDITORIA_Y_FALTANTES.md), cuyo original se mantiene intacto. No reemplaza sus recibos ni convierte pruebas históricas en resultados de la fuente nueva. La política nueva aprobada por el usuario es mantener el acceso hasta acabar el periodo pagado ante una devolución parcial; la devolución completa conserva su tratamiento anterior.

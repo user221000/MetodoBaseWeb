@@ -1,5 +1,15 @@
 # Estado de implementación
 
+## Continuación técnica — 3 de noviembre de 2026
+
+Se mantiene Railway Hobby por instrucción del usuario. El sandbox Stripe ya fue comprobado con compras reales de prueba Pro/Standard, 3DS, renovación, fallo y recuperación de pago, devoluciones parciales y cancelación, además de webhooks repetidos y fuera de orden. Los recursos de prueba quedaron cerrados; no fueron cobros live. Este corte reemplaza únicamente el pendiente de acceso al sandbox indicado en el corte anterior.
+
+El candidato continúa en `E:/MetodoBaseWorkspace/releases/technical-close-20261103`, con integración en la [PR2 en borrador](https://github.com/user221000/MetodoBaseWeb/pull/2). Producción sigue observada en `fc7950ec`/esquema40; el candidato41 no se ha desplegado. El último CI terminado de `fc515da9` tuvo14 jobs correctos,9 fallidos y1 omitido. Sus suites PostgreSQL actuales y seis campañas Node pasaron; quedaron fallos históricos, colección serial y SCA. Las correcciones posteriores tienen recibos separados y necesitan nueva ejecución completa. No se declara CI global verde ni preparación comercial completa.
+
+El respaldo tiene captura/cifrado/publicación/readback y restauración aislada comprobados, además de supervisor Linux y cliente PostgreSQL18.6 probados en CI. Se añade una receta separada con once dependencias, identidad explícita y recibo autenticado; su contrato permanece inactivo. No hay cron, monitor con recepción acreditada o custodia externa de clave aceptados. La imagen nueva necesita build/SBOM/SCA propios. Soporte, canal, RPO y RTO siguen pendientes por decisión del usuario; no se infieren del horario propuesto.
+
+Coordinación, backend, QA, seguridad y operación rotan sin superar cuatro agentes activos. QA encontró y retuvo un rechazo adicional en parámetros tipados del adaptador histórico PostgreSQL; ese candidato no se acepta hasta corregirlo y repetir su revisión independiente. Fuentes, contratos, RAW y backlog167 se preservan. [Seguimiento actualizado](../../audits/20261102/SEGUIMIENTO_Y_FALTANTES.md) y [respaldo en el plan actual](../20261103-backup-current-plan.md) distinguen implementación, validación y activación. Evidencias: `E:/MetodoBaseWorkspace/evidence/technical-close-20261103/` y `E:/MetodoBaseWorkspace/evidence/pilot-final-20261102-stripe-sandbox/`.
+
 ## Seguimiento de Auditoría y faltantes — candidato del 2 de noviembre de 2026
 
 Se ejecutan las seis responsabilidades mediante agentes reales, guiados por la auditoría original y con autoría/revisión separadas. El candidato sobre `fc7950ec` implementa la política aprobada de devoluciones parciales hasta el fin ya pagado, observaciones monetarias opcionales con migración41, historial personal y de negocio compartido, protección de cambios de sesión y rollback ante evidencia Stripe contradictoria. Conserva la contratación sin un factor adicional de cuenta, precios, cuotas y disponibilidad cerrada de Mercado Pago.
