@@ -55,7 +55,7 @@
       await Api.usuario.verificarContexto(context);
       if (paymentInvalid || ticket !== paymentEpoch) return;
       if (!response || !Array.isArray(response.payments)) throw new Error('El servidor devolvió un historial de pagos incompleto.');
-      PaymentHistory.render(body, response.payments, { starter: 'Starter', pro: 'Pro' });
+      PaymentHistory.render(body, response.payments, { starter: 'Starter', pro: 'Pro', pro_usuario: 'Pro' });
       state.textContent = response.payments.length ? response.payments.length + ' pagos registrados.' : 'No hay pagos registrados en tu cuenta.';
     } catch (error) {
       if (paymentInvalid || ticket !== paymentEpoch) return;
