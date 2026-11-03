@@ -1,6 +1,6 @@
 """Explicit parent inputs for 83 unchanged historical assertions.
 
-The current Docker/lock child is tested separately.  Only the two named parent
+The current Docker/lock child is tested separately. Only the finite named parent
 reads are transported; CodeType objects and all original rejection bodies stay
 identical.  This helper never changes the original modules or their globals.
 """
@@ -28,13 +28,15 @@ MODULES = {
         "sha256": "d40ab3a3212b234ef88f170486694adf39a3100767af3f1947c1bf89750d8698",
         "blob": "e881525ad35a1eef6f04c94751af69b32b089d4b", "bytes": 282,
         "companion": "tests.test_current39_container_parent40", "count": 40,
-        "reads": ("Dockerfile", "requirements-container-apt-metadata.lock"),
+        "reads": ("Dockerfile", "requirements-container-apt-metadata.lock",
+                  "requirements-container.lock", "requirements_web.lock"),
     },
     "tests.test_security_docker72_portability_peer": {
         "sha256": "d6be5cd777bb39cc80a10c1ed0fdbaf2fee08f4304234103274cba74df510393",
         "blob": "fafe20b8e5556d3bb7e6d7d82ae7f15d945e7f94", "bytes": 10676,
         "companion": "tests.test_current39_docker_parent25", "count": 25,
-        "reads": ("Dockerfile", "requirements-container-apt-metadata.lock"),
+        "reads": ("Dockerfile", "requirements-container-apt-metadata.lock",
+                  "requirements-container.lock", "requirements_web.lock"),
     },
     "tests.test_ci_web37_bandit_registry": {
         "sha256": "1da5902930d66893c1e82c943c5c95a68dce07b62082d2e6aa86ebdb89e0adfd",
@@ -197,8 +199,30 @@ class ParentRoot(os.PathLike):
 
     def prepare(self, directory):
         manifest = context.json_object(authority.raw("container-inputs.json.RAW"))
-        payloads = {name: (self.root / name).read_bytes() for name in manifest["candidate_files"]}
+        from tests.ci_image57 import technical_child
+        docker = authority.regular_file(self.root / "Dockerfile").read_bytes()
+        if ((self.root / technical_child.NATIVE_PREFIX).exists()
+                or technical_child.selected({"Dockerfile": technical_child.record(docker)})):
+            payloads = technical_child.read_payloads(self.root)
+        else:
+            payloads = {name: authority.regular_file(self.root / name).read_bytes()
+                        for name in manifest["candidate_files"]}
         parent, transition = context.native_parent_payloads(payloads)
+        pins = dict(manifest["candidate_files"])
+        if "requirements_web.lock" in self.reads:
+            pin = technical_child.LOCK_INVERSES["requirements_web.lock"]["parent_pin"]
+            if pin["raw_sha256"] != manifest["current_web_lock_raw_sha256"]:
+                raise ValueError("Historical web lock authorities differ")
+            if "requirements_web.lock" not in parent:
+                path = authority.regular_file(self.root / "requirements_web.lock")
+                if path.stat().st_size != pin["bytes"]:
+                    raise ValueError("Historical web lock size differs")
+                parent["requirements_web.lock"] = path.read_bytes()
+            if technical_child.record(parent["requirements_web.lock"]) != pin:
+                raise ValueError("Historical web lock source differs")
+            pins["requirements_web.lock"] = dict(pin)
+        if not self.reads <= pins.keys():
+            raise ValueError("Undeclared historical parent input read")
         self.files = {}
         for name in self.reads:
             path = directory / name
@@ -207,7 +231,7 @@ class ParentRoot(os.PathLike):
             self.files[name] = path
         record = {"scope": "historical_parent_inputs_only_not_current_child_acceptance",
                   "parent_authority_sha256": hashlib.sha256(authority.raw("container-inputs.json.RAW")).hexdigest(),
-                  "transported_inputs": {name: manifest["candidate_files"][name] for name in sorted(self.reads)},
+                  "transported_inputs": {name: pins[name] for name in sorted(self.reads)},
                   "actual_source_transition": transition}
         (directory / "transport.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf8")
 

@@ -115,8 +115,9 @@ def test_new_google_login_discards_only_its_resolution_session_before_any_pair(g
     import uuid
     from sqlalchemy.orm import Session,sessionmaker
     from web.database import engine as database
-    from web.services import google_link
-    c=google_http;held=[];invalidations=[];actual=google_link.resolve_or_register
+    from web.services import google_email_login
+    from tests.ci_web41 import google_mail_http_fixture as mail_http
+    c=google_http;held=[];invalidations=[];actual=google_email_login._create_new
     class CloseBefore(Session):
         def close(self):
             if self.info.get('own_google_resolution'):
@@ -127,10 +128,11 @@ def test_new_google_login_discards_only_its_resolution_session_before_any_pair(g
         db.info['own_google_resolution']=True
         return actual(db,*args,**kwargs)
     monkeypatch.setattr(database,'_SessionLocal',sessionmaker(bind=c['engine'],class_=CloseBefore,expire_on_commit=True,autoflush=False))
-    monkeypatch.setattr(google_link,'resolve_or_register',resolve)
+    monkeypatch.setattr(google_email_login,'_create_new',resolve)
     c['google']['sub']=str(uuid.uuid4().int);c['google']['email']=uuid.uuid4().hex+'@thirdparty.example.invalid'
     try:
-        response=c['client'].post('/api/auth/google',json={'credential':c['credential']()})
+        issued_email=mail_http.begin(c)
+        response=mail_http.verify(c,issued_email)
         assert response.status_code==503 and 'token' not in response.json() and 'refresh_token' not in response.json()
         assert invalidations==[True] and c['engine'].pool.checkedout()==0
         assert 'PRIVATE_GOOGLE_PRIMARY_CLOSE' not in caplog.text+response.text

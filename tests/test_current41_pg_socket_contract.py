@@ -42,7 +42,8 @@ def baseline(entry, parent):
 
 def test_cluster_remains_an_explicit_finite_companion():
     entries = companion().specification()['entries']
-    assert len(entries) == 18
+    assert len(entries) == 19
+    assert 'tests/test_current41_quality_companion.py' in entries
     assert ENTRY in entries
     assert set(entries[ENTRY]) == {
         'original', 'original_sha256_LF', 'original_frames', 'literal_edits', 'current_sha256_LF'}

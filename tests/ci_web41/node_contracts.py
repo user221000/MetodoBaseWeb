@@ -14,6 +14,7 @@ from pathlib import Path
 from tests.ci_web39.run_web import execute, write
 from tests.ci_web38.reports import node_cases
 from tests.ci_web37.node_current import validate, validate_additional
+from tests.ci_web41 import node_css_child
 
 ROOT = Path(__file__).resolve().parents[2]
 BINDING_PATH = "tests/ci_web41/node-bindings41.json"
@@ -60,6 +61,7 @@ def _descriptor(root: Path, key: str):
 
 
 def require_sources(root: Path = ROOT):
+    node_css_child.require_guard_source(Path(__file__))
     raw = canonical((root / BINDING_PATH).read_bytes())
     if digest(raw) != BINDING_SHA256:
         raise ValueError("The finite current41 Node binding manifest differs")
@@ -79,6 +81,8 @@ def require_sources(root: Path = ROOT):
             source = canonical(source)
         elif pin["framing"] != "raw":
             raise ValueError("An undeclared Node41 source frame was used")
+        if name == node_css_child.CSS_PATH:
+            source = node_css_child.parent_buffer(source)
         if len(source) != pin["bytes"] or digest(source) != pin["sha256"]:
             raise ValueError("A current41 Node direct/transitive source differs: " + name)
     for key in DESCRIPTORS:
@@ -157,7 +161,9 @@ def _receipt(private: Path, name: str, results, bindings, **extra):
     write(private / (name + "-observation.json"), results)
     return {"accepted": all(row["exit"] == 0 and row["exact_normative_labels"] for row in results),
             "commands": len(results), "executions": sum(row["cases"] for row in results),
-            "source_scope": SOURCE_SCOPE, "direct_transitive_bound_sources": len(bindings["input_files"]),
+            "source_scope": node_css_child.SOURCE_SCOPE, "parent_source_scope": SOURCE_SCOPE,
+            "css_source_child": node_css_child.source_receipt((ROOT / node_css_child.CSS_PATH).read_bytes()),
+            "direct_transitive_bound_sources": len(bindings["input_files"]),
             "historical_RAW39_PASS_claim": False, "native_browser_executed": False,
             "DOM_transport_doubles_only": True, **extra}
 

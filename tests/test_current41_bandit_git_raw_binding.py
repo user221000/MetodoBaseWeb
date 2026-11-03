@@ -75,7 +75,7 @@ def exact_frame(source, pin, variant):
 @pytest.fixture(scope='module')
 def frames(tmp_path_factory, proposal):
     roots = {}
-    assert len(proposal['bindings']) == 392
+    assert len(proposal['bindings']) == 410
     for variant in ('captured_main_raw', 'authenticated_git_objects'):
         root = tmp_path_factory.mktemp('bandit392-' + variant)
         for name, pin in proposal['bindings'].items():

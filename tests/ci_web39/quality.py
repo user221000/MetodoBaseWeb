@@ -20,9 +20,10 @@ from tests.ci_web37 import git_recipe
 from tests.ci_web37.quality import OPERATIONAL, RUNTIME
 
 REVIEW_CONTEXT = "current39-child2-signed-APT-exact-OS-CA-and-static-SQL-only"
-PROPOSAL = "tests/ci_web39/bandit26-technical-close-20261103-proposal.json"
-APPROVAL = "tests/ci_web39/bandit26-technical-close-20261103-approval.json"
-CURRENT_OPERATIONAL = (*OPERATIONAL, "scripts/backup_remote.py")
+PROPOSAL = "tests/ci_web39/bandit26-technical-close-source-20261103-v2-proposal.json"
+APPROVAL = "tests/ci_web39/bandit26-technical-close-source-20261103-v2-approval.json"
+CURRENT_OPERATIONAL = (*OPERATIONAL, "scripts/backup_remote.py",
+                       "scripts/backup_capture_s3.py", "scripts/backup_job.py")
 BASELINE_SHA256 = "14cfe86f9fbff144c0b887ba2b72db7af656a1b88dc09e2e10ce61229bc83996"
 BASELINE_BLOB = "8f322ee7fd970239f6a6c8f58a9b5faa1e2d538c"
 

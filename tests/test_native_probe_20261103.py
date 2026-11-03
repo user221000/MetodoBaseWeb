@@ -3,6 +3,7 @@ import ast
 from copy import deepcopy
 import json
 from pathlib import Path
+from types import CodeType, FunctionType
 
 import pytest
 
@@ -13,6 +14,95 @@ LOCK = json.loads((Path(__file__).resolve().parents[1] / child.ACTIVE_SOURCE_PIN
 REPLACED = tuple('/usr/local/lib/python3.12/lib-dynload/' + name + LOCK['expected_ext_suffix']
                  for name in ('pyexpat', '_elementtree'))
 PRESERVED = tuple(name for name in LOCK['base_file_sha256'] if name not in REPLACED)
+
+# Independent metadata-derived fixture, not an executed Linux inventory.
+DPKG_BASE_BINARY_PACKAGES = {'adduser': '3.152',
+ 'apt': '3.0.3',
+ 'base-files': '13.8+deb13u7',
+ 'base-passwd': '3.6.7',
+ 'bash': '5.2.37-2+b10',
+ 'bsdutils': '1:2.41.5-0+deb13u1',
+ 'ca-certificates': '20250419+deb13u1',
+ 'coreutils': '9.7-3',
+ 'dash': '0.5.12-12',
+ 'debconf': '1.5.91',
+ 'debian-archive-keyring': '2025.1',
+ 'debianutils': '5.23.2',
+ 'diffutils': '1:3.10-4',
+ 'dpkg': '1.22.22',
+ 'findutils': '4.10.0-3',
+ 'gcc-14-base:amd64': '14.2.0-19',
+ 'grep': '3.11-4',
+ 'gzip': '1.13-1+deb13u1',
+ 'hostname': '3.25',
+ 'init-system-helpers': '1.69~deb13u1',
+ 'libacl1:amd64': '2.3.2-2+b1',
+ 'libapt-pkg7.0:amd64': '3.0.3',
+ 'libattr1:amd64': '1:2.5.2-3',
+ 'libaudit-common': '1:4.0.2-2+deb13u1',
+ 'libaudit1:amd64': '1:4.0.2-2+deb13u1',
+ 'libblkid1:amd64': '2.41.5-0+deb13u1',
+ 'libbsd0:amd64': '0.12.2-2',
+ 'libbz2-1.0:amd64': '1.0.8-6',
+ 'libc-bin': '2.41-12+deb13u4',
+ 'libc6:amd64': '2.41-12+deb13u4',
+ 'libcap-ng0:amd64': '0.8.5-4+b1',
+ 'libcap2:amd64': '1:2.75-10+deb13u1+b3',
+ 'libcrypt1:amd64': '1:4.4.38-1',
+ 'libdb5.3t64:amd64': '5.3.28+dfsg2-9',
+ 'libdebconfclient0:amd64': '0.280',
+ 'libffi8:amd64': '3.4.8-2',
+ 'libgcc-s1:amd64': '14.2.0-19',
+ 'libgdbm6t64:amd64': '1.24-2',
+ 'libgmp10:amd64': '2:6.3.0+dfsg-3',
+ 'libhogweed6t64:amd64': '3.10.1-1',
+ 'liblastlog2-2:amd64': '2.41.5-0+deb13u1',
+ 'liblz4-1:amd64': '1.10.0-4',
+ 'liblzma5:amd64': '5.8.1-1+deb13u2',
+ 'libmd0:amd64': '1.1.0-2+b1',
+ 'libmount1:amd64': '2.41.5-0+deb13u1',
+ 'libncursesw6:amd64': '6.5+20250216-2',
+ 'libnettle8t64:amd64': '3.10.1-1',
+ 'libpam-modules-bin': '1.7.0-5',
+ 'libpam-modules:amd64': '1.7.0-5',
+ 'libpam-runtime': '1.7.0-5',
+ 'libpam0g:amd64': '1.7.0-5',
+ 'libpcre2-8-0:amd64': '10.46-1~deb13u3',
+ 'libreadline8t64:amd64': '8.2-6',
+ 'libseccomp2:amd64': '2.6.0-2',
+ 'libselinux1:amd64': '3.8.1-1',
+ 'libsemanage-common': '3.8.1-1',
+ 'libsemanage2:amd64': '3.8.1-1',
+ 'libsepol2:amd64': '3.8.1-1',
+ 'libsmartcols1:amd64': '2.41.5-0+deb13u1',
+ 'libsqlite3-0:amd64': '3.46.1-7+deb13u2',
+ 'libssl3t64:amd64': '3.5.7-1~deb13u3',
+ 'libstdc++6:amd64': '14.2.0-19',
+ 'libsystemd0:amd64': '257.13-1~deb13u1',
+ 'libtinfo6:amd64': '6.5+20250216-2',
+ 'libudev1:amd64': '257.13-1~deb13u1',
+ 'libuuid1:amd64': '2.41.5-0+deb13u1',
+ 'libxxhash0:amd64': '0.8.3-2',
+ 'libzstd1:amd64': '1.5.7+dfsg-1',
+ 'login': '1:4.16.0-2+really2.41.5-0+deb13u1',
+ 'login.defs': '1:4.17.4-2',
+ 'mawk': '1.3.4.20250131-1',
+ 'mount': '2.41.5-0+deb13u1',
+ 'ncurses-base': '6.5+20250216-2',
+ 'ncurses-bin': '6.5+20250216-2',
+ 'netbase': '6.5',
+ 'openssl': '3.5.7-1~deb13u3',
+ 'openssl-provider-legacy': '3.5.7-1~deb13u3',
+ 'passwd': '1:4.17.4-2',
+ 'perl-base': '5.40.1-6+deb13u1',
+ 'readline-common': '8.2-6',
+ 'sed': '4.9-2+deb13u1',
+ 'sqv': '1.3.0-3+b2',
+ 'sysvinit-utils': '3.14-4',
+ 'tar': '1.35+dfsg-3.1',
+ 'tzdata': '2026e-0+deb13u1',
+ 'util-linux': '2.41.5-0+deb13u1',
+ 'zlib1g:amd64': '1:1.3.dfsg+really1.3.1-1+b1'}
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -74,7 +164,8 @@ def structural_fixture():
         'libk5crypto3': '1.21.3-5+deb13u1', 'libkeyutils1': '1.6.3-6', 'libkrb5-3': '1.21.3-5+deb13u1',
         'libkrb5support0': '1.21.3-5+deb13u1', 'libldap2': '2.6.10+dfsg-1', 'libpq5': '17.11-0+deb13u1',
         'libsasl2-2': '2.1.28+dfsg1-9', 'libsasl2-modules-db': '2.1.28+dfsg1-9'}
-    report['base_os_packages'] = lock['ca_trust']['installed_debian_packages'].copy()
+    report['base_os_packages'] = DPKG_BASE_BINARY_PACKAGES.copy()
+    additions = {name + ':amd64': version for name, version in additions.items()}
     report['os_packages'] = {**report['base_os_packages'], **additions}
     report['native_runtime_additions'] = additions
     report['native_components_measured'] = {'CPython': {'version': '3.12.16', 'SOABI': lock['expected_soabi'],
@@ -138,8 +229,8 @@ def test_no_unreviewed_source_transition_or_catalog_selects_new_probe(fault):
     (('native_components_measured', 'CPython', 'version'), '3.12.15'),
     (('native_components_measured', 'Expat', 'reported_version'), 'expat_2.8.5'),
     (('native_components_measured', 'Expat', 'source_sha256'), '0' * 64),
-    (('os_packages', 'libpq5'), '17.10-0+deb13u1'),
-    (('native_runtime_additions', 'libpq5'), '17.10-0+deb13u1'),
+    (('os_packages', 'libpq5:amd64'), '17.10-0+deb13u1'),
+    (('native_runtime_additions', 'libpq5:amd64'), '17.10-0+deb13u1'),
     (('base_os_packages', 'tzdata'), '2026c-0+deb13u1'),
     (('ca_trust', 'count'), 149),
     (('ca_trust', 'CApath_and_default_SSLContext_match'), False),
@@ -225,3 +316,73 @@ def test_actual_check_report_cli_accepts_only_current_complete_structural_measur
     assert cli(entry, contract, changed, folder, 'current-immutable-negative') != 0
     _, previous = contract_and_report()
     assert cli(entry, contract, previous, folder, 'parent-report-negative') != 0
+
+
+def test_debian_binary_names_are_exact_architecture_labels_without_runtime_relabeling():
+    contract, report = structural_fixture()
+    before = deepcopy(report)
+    assert len(report['base_os_packages']) == 87 and len(report['os_packages']) == 97
+    assert sum(':' in name for name in report['base_os_packages']) == 45
+    assert sum(':' in name for name in report['os_packages']) == 55
+    assert report['base_os_packages']['libc6:amd64'] == '2.41-12+deb13u4'
+    assert 'libc6' not in report['base_os_packages'] and 'libpq5' not in report['os_packages']
+    assert len(report['native_runtime_additions']) == 10
+    probe.validate_report(report, contract)
+    assert report == before
+
+
+@pytest.mark.parametrize('target', ['base_os_packages', 'os_packages', 'native_runtime_additions'])
+@pytest.mark.parametrize('fault', ['missing', 'extra', 'foreign_architecture', 'missing_qualifier',
+                                 'different_case', 'canonical_collision', 'version', 'new_qualifier'])
+def test_debian_exact_raw_names_reject_drift_even_at_unchanged_cardinality(target, fault):
+    contract, report = structural_fixture()
+    selected = report[target]
+    key = 'libc6:amd64' if target == 'base_os_packages' else 'libpq5:amd64'
+    if fault == 'missing':
+        selected.pop(key)
+    elif fault == 'extra':
+        selected['unreviewed:amd64'] = '1'
+    elif fault == 'foreign_architecture':
+        selected[key.replace(':amd64', ':arm64')] = selected.pop(key)
+    elif fault == 'missing_qualifier':
+        selected[key.removesuffix(':amd64')] = selected.pop(key)
+    elif fault == 'different_case':
+        selected[key.upper()] = selected.pop(key)
+    elif fault == 'canonical_collision':
+        # Keep the cardinality while two labels refer to one canonical name.
+        selected[key.removesuffix(':amd64')] = selected[key]
+        other = next(name for name in selected if name not in {key, key.removesuffix(':amd64')})
+        selected.pop(other)
+    elif fault == 'version':
+        selected[key] = '99.0-unreviewed'
+    elif target == 'native_runtime_additions':
+        selected[key + ':amd64'] = selected.pop(key)
+    else:
+        # A package without Multi-Arch:same cannot acquire an arbitrary suffix.
+        selected['adduser:amd64'] = selected.pop('adduser')
+    with pytest.raises(ValueError, match='Debian closure'):
+        probe.validate_report(report, contract)
+
+
+def test_debian_validator_embedded_in_bound_probe_has_no_extra_global_dependency():
+    contract, report = structural_fixture()
+    bound = probe.bind(contract)
+    tree = ast.parse(bound)
+    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'validate_native')
+    compiled = compile(ast.Module(body=[function], type_ignores=[]), 'isolated-bound-validator-only.py', 'exec')
+    code = next(value for value in compiled.co_consts if isinstance(value, CodeType) and value.co_name == 'validate_native')
+    embedded = FunctionType(code, {})
+    embedded(report, LOCK, child.expected_prepared(LOCK))
+    report['os_packages']['libpq5:arm64'] = report['os_packages'].pop('libpq5:amd64')
+    with pytest.raises(ValueError, match='Debian closure'):
+        embedded(report, LOCK, child.expected_prepared(LOCK))
+
+
+def test_debian_runtime_query_and_original_parsing_algorithms_remain_unchanged():
+    contract, _report = structural_fixture()
+    bound = probe.bind(contract)
+    original = authority.raw('runtime_probe57-69d49.py.RAW')
+    assert all(probe.function_bytes(bound)[name] == raw for name, raw in probe.function_bytes(original).items())
+    assert b"fmt='${binary:Package}\\t${Version}\\n'" in bound
+    assert b"packages=dict(line.split('\\t',1) for line in subprocess.check_output(['dpkg-query','-W','-f='+fmt],text=True).splitlines())" in bound
+    assert b"'native_runtime_additions':{n:v for n,v in after.items() if n not in base}" in bound

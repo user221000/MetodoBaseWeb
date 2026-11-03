@@ -4,8 +4,10 @@ The logging contract's revision literal and the release wiring now target41.
 The old source and its plain historical RED remain reproducible unchanged.
 Every original test name and parametrization remains in the current companion.
 """
+import hashlib
+import importlib
 from pathlib import Path
-from types import ModuleType
+from types import CodeType, FunctionType, ModuleType
 
 import pytest
 
@@ -20,6 +22,32 @@ SOURCES = {
     "tests/test_stripe_webhook_version_contract.py": "tests/current41_stripe_webhook_version_contract.py",
     "tests/test_quality_web39.py": "tests/test_current41_quality_companion.py",
 }
+PARENT_FIXTURES = {"tests/test_current39_apt_transition.py": "actual_inputs"}
+PARENT_PROVIDER = "tests/ci_web41/native_parent_fixtures.py"
+PARENT_PROVIDER_PIN = (4493, "ca6979db2aeb5b411db44bfa62a5671f38bb99c6796f58d36de926f1de9506af")
+
+
+def clone_parent_fixture(original):
+    from tests.ci_image57 import authority
+
+    path = authority.regular_file(ROOT / PARENT_PROVIDER)
+    raw = path.read_bytes()
+    if (len(raw), hashlib.sha256(raw).hexdigest()) != PARENT_PROVIDER_PIN:
+        raise pytest.UsageError("The finite historical native fixture provider source differs")
+    provider = importlib.import_module("tests.ci_web41.native_parent_fixtures")
+    if Path(provider.__file__) != path or provider.ROOT != ROOT:
+        raise pytest.UsageError("The historical native fixture provider path differs")
+    code = compile(raw, str(path), "exec", dont_inherit=True)
+    for reference in code.co_consts:
+        if not isinstance(reference, CodeType):
+            continue
+        function = getattr(provider, reference.co_name, None)
+        if hasattr(function, "_get_wrapped_function"):
+            function = function._get_wrapped_function()
+        if (not isinstance(function, FunctionType) or function.__code__ != reference
+                or function.__globals__ is not vars(provider)):
+            raise pytest.UsageError("A historical native fixture provider CodeType or globals differs")
+    return provider.clone_fixture(original)
 
 
 def clone_source(original, current_path):
@@ -46,7 +74,10 @@ def install(namespace):
         def _getobj(self):
             original = super()._getobj()
             relative = self.path.relative_to(ROOT).as_posix()
-            companion, receipt = clone_source(original, SOURCES[relative])
+            if relative in PARENT_FIXTURES:
+                companion, receipt = clone_parent_fixture(original)
+            else:
+                companion, receipt = clone_source(original, SOURCES[relative])
             self.config._web41_bindings.append(receipt)
             return companion
 
@@ -56,7 +87,7 @@ def install(namespace):
                 relative = module_path.relative_to(ROOT).as_posix()
             except ValueError:
                 relative = None
-            if relative in SOURCES:
+            if relative in SOURCES or relative in PARENT_FIXTURES:
                 return SourceModule.from_parent(parent, path=module_path)
         return previous(module_path, parent)
 
