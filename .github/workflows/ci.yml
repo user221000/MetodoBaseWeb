@@ -541,6 +541,19 @@ jobs:
       if: failure()
       working-directory: ${{ github.workspace }}
       run: python -B -X utf8 tests/ci_mfa31/publish.py --directory "$RUNNER_TEMP/ci30-postgres/source" --output "$RUNNER_TEMP/ci30-postgres-quota-diagnostic-public" --files pytest-postgres-quota.xml
+    - name: Project bounded authenticated quota failure locations without accepting the failed gate
+      if: failure()
+      working-directory: ${{ github.workspace }}
+      run: |
+        set -euo pipefail
+        umask 077
+        support="$RUNNER_TEMP/historical30-diagnostic-support"
+        mkdir -m 700 "$support"
+        for member in historical_image_runtime.py historical_member_diagnostic.py historical_failure_metadata.py; do
+          git -C "$GITHUB_WORKSPACE" --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/$member" > "$support/$member"
+          test "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects hash-object --no-filters "$support/$member")" = "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/$member")"
+        done
+        python -B -X utf8 "$support/historical_failure_metadata.py" --source "$RUNNER_TEMP/ci30-postgres/source" --quota-private "$RUNNER_TEMP/ci30-postgres-private" --output "$RUNNER_TEMP/historical30-quota-failure-metadata.json"
     - name: Project all29 historical reports; retain exact old acceptance checks
       if: always()
       working-directory: ${{ github.workspace }}
@@ -590,6 +603,7 @@ jobs:
           ${{ runner.temp }}/ci30-postgres-public/publication.json
           ${{ runner.temp }}/ci30-postgres-quota-diagnostic-public/pytest-postgres-quota.xml
           ${{ runner.temp }}/ci30-postgres-quota-diagnostic-public/publication.json
+          ${{ runner.temp }}/historical30-quota-failure-metadata.json
         if-no-files-found: error
     defaults:
       run:
@@ -1455,15 +1469,22 @@ jobs:
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-        git --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/historical_image_runtime.py" > "$RUNNER_TEMP/historical_image_runtime.py"
-        test "$(git --no-replace-objects hash-object --no-filters "$RUNNER_TEMP/historical_image_runtime.py")" = "$(git --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/historical_image_runtime.py")"
-        python -B -X utf8 "$RUNNER_TEMP/historical_image_runtime.py" --schema 33 --source "$GITHUB_WORKSPACE" --image-tag metodobase-current33:${{ github.sha }} --output "$RUNNER_TEMP/current33-browser-public" --binding-receipt "$RUNNER_TEMP/historical33-image-runtime-binding.json"
+        set -euo pipefail
+        umask 077
+        support="$RUNNER_TEMP/historical33-diagnostic-support"
+        mkdir -m 700 "$support"
+        for member in historical_image_runtime.py historical_member_diagnostic.py historical_failure_metadata.py; do
+          git -C "$GITHUB_WORKSPACE" --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/$member" > "$support/$member"
+          test "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects hash-object --no-filters "$support/$member")" = "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/$member")"
+        done
+        python -B -X utf8 "$support/historical_image_runtime.py" --schema 33 --source "$GITHUB_WORKSPACE" --image-tag metodobase-current33:${{ github.sha }} --output "$RUNNER_TEMP/current33-browser-public" --binding-receipt "$RUNNER_TEMP/historical33-image-runtime-binding.json" --observe-member-failure --failure-metadata "$RUNNER_TEMP/historical33-member-failure-metadata.json"
     - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: current33-real-image-and-browser
         path: |-
           ${{ runner.temp }}/historical33-image-runtime-binding.json
+          ${{ runner.temp }}/historical33-member-failure-metadata.json
           ${{ runner.temp }}/current33-browser-public/image-inventory.json
           ${{ runner.temp }}/current33-browser-public/image-identity.json
           ${{ runner.temp }}/current33-browser-public/image-browser.json
@@ -1662,7 +1683,15 @@ jobs:
     - name: Current31 actual entrypoint, image MFA and R12/R24/followup/MFA browsers; owned cleanup
       run: |-
         export CHROME_PATH=$(node -e "process.stdout.write(require('./tests/e2e/node_modules/playwright-core').chromium.executablePath())")
-        python -B -X utf8 "$GITHUB_WORKSPACE/tests/ci_web41/historical_image_runtime.py" --schema 31 --source "$RUNNER_TEMP/historical31-image/source" --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public" --binding-receipt "$RUNNER_TEMP/historical31-image-runtime-binding.json"
+        set -euo pipefail
+        umask 077
+        support="$RUNNER_TEMP/historical31-diagnostic-support"
+        mkdir -m 700 "$support"
+        for member in historical_image_runtime.py historical_member_diagnostic.py historical_failure_metadata.py; do
+          git -C "$GITHUB_WORKSPACE" --no-replace-objects show "$GITHUB_SHA:tests/ci_web41/$member" > "$support/$member"
+          test "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects hash-object --no-filters "$support/$member")" = "$(git -C "$GITHUB_WORKSPACE" --no-replace-objects rev-parse "$GITHUB_SHA:tests/ci_web41/$member")"
+        done
+        python -B -X utf8 "$support/historical_image_runtime.py" --schema 31 --source "$RUNNER_TEMP/historical31-image/source" --image-tag metodobase-current31:de506b6077ba055587f02e7d839387e7f5c56f84 --output "$RUNNER_TEMP/current31-browser-public" --binding-receipt "$RUNNER_TEMP/historical31-image-runtime-binding.json" --observe-member-failure --failure-metadata "$RUNNER_TEMP/historical31-member-failure-metadata.json"
       working-directory: ${{ runner.temp }}/historical31-image/source
     - uses: actions/upload-artifact@v4
       if: always()
@@ -1670,6 +1699,7 @@ jobs:
         name: historical31-current31-real-image-and-browser
         path: |-
           ${{ runner.temp }}/historical31-image-runtime-binding.json
+          ${{ runner.temp }}/historical31-member-failure-metadata.json
           ${{ runner.temp }}/current31-browser-public/image-inventory.json
           ${{ runner.temp }}/current31-browser-public/image-identity.json
           ${{ runner.temp }}/current31-browser-public/image-browser.json

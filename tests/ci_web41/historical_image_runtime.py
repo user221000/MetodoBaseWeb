@@ -1,12 +1,15 @@
-"""Authenticate historical image runners and add only a fresh TEST salt.
+"""Authenticate historical image runners and add a fresh TEST salt.
 
 Invoke this standalone script directly, never with ``-m``: the original runner
 must import its own historical tests/config. Ancestor files remain unchanged.
 All original commands, checks, outcomes, roles, waits and cleanup are preserved.
+An explicit optional member observer has a separate compiled source identity
+and full inverse. Its metadata cannot turn an original failure into success.
 """
 from __future__ import annotations
 
 import argparse
+import builtins
 import hashlib
 import json
 import os
@@ -36,6 +39,12 @@ SOURCES = {
         "tag_prefix": "metodobase-current33:",
     },
 }
+DIAGNOSTIC_COMPILED = {'31': {'bytes': 15454, 'sha256': '6ad7c696f564a5c824cf85eeeadb43d131d1f0668e0266d8019add3a979fe942'},
+ '33': {'bytes': 17454, 'sha256': 'bb9461d966f2c9579eccdaca28d4e2bc085e2aba4b0ef3dcaea2e75856ff600b'}}
+DIAGNOSTIC_SUPPORT = {'historical_failure_metadata.py': {'bytes': 23850,
+                                    'sha256': '1d6c6371b55fe55bd7b02ef4f99738697134d6081fee29482b151856df502178'},
+ 'historical_member_diagnostic.py': {'bytes': 8612,
+                                     'sha256': '1c876f0d6dc027cf2bd208be539ccf2869eab1b212e25d6d95b7da823d9fea82'}}
 
 
 def digest(raw):
@@ -56,6 +65,59 @@ def adapted_bytes(raw, schema):
     if result.count(ADDITION) != 1 or digest(result) != spec["compiled_sha256"]:
         raise ValueError("The finite TEST runtime companion differs")
     return result
+
+
+def member_dispatch(schema):
+    specification(schema)
+    old = ("'tests/e2e/run_member_link" + schema + "_browser.py'").encode()
+    new = ("_historical_member_diagnostic_path, '--schema', '" + schema
+           + "', '--source', str(ROOT), '--failure-metadata', str(_historical_member_diagnostic_output)").encode()
+    return old, new
+
+
+def diagnostic_bytes(salt_source, schema):
+    spec = specification(schema)
+    if digest(salt_source) != spec["compiled_sha256"]:
+        raise ValueError("The diagnostic predecessor must be the exact SALT companion")
+    old, new = member_dispatch(schema)
+    if salt_source.count(old) != 1:
+        raise ValueError("The finite member dispatch count differs")
+    result = salt_source.replace(old, new)
+    pin = DIAGNOSTIC_COMPILED[schema]
+    if (len(result), digest(result)) != (pin["bytes"], pin["sha256"]) or result.replace(new, old) != salt_source:
+        raise ValueError("The complete member diagnostic source or inverse differs")
+    return result
+
+
+def diagnostic_support():
+    parent = Path(__file__).absolute().parent
+    plain_root(parent)
+    for name, pin in DIAGNOSTIC_SUPPORT.items():
+        path = parent / name
+        before = path.lstat()
+        if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1
+                or getattr(before, "st_file_attributes", 0) & 1024
+                or path.resolve(strict=True) != path.absolute() or before.st_size != pin["bytes"]):
+            raise ValueError("Member diagnostic support identity differs")
+        identity = lambda value: (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+        with path.open("rb") as stream:
+            opened = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1
+                    or identity(opened)[:4] != identity(before)[:4]
+                    or os.name != "nt" and identity(opened) != identity(before)):
+                raise ValueError("Member diagnostic opened support identity differs")
+            raw = stream.read(pin["bytes"] + 1)
+            if identity(os.fstat(stream.fileno())) != identity(opened):
+                raise ValueError("Member diagnostic opened support changed")
+        after = path.lstat()
+        if (identity(before) != identity(after) or after.st_nlink != 1
+                or not stat.S_ISREG(after.st_mode) or getattr(after, "st_file_attributes", 0) & 1024
+                or path.resolve(strict=True) != path.absolute()
+                or (len(raw), digest(raw)) != (pin["bytes"], pin["sha256"])):
+            raise ValueError("Member diagnostic support source differs")
+    if set(DIAGNOSTIC_SUPPORT) != {"historical_failure_metadata.py", "historical_member_diagnostic.py"}:
+        raise ValueError("The exact two member diagnostic supports are required")
+    return parent / "historical_member_diagnostic.py"
 
 
 def git(root, *args):
@@ -129,7 +191,7 @@ def snapshot(root, schema):
             "inventory_sha256": digest(json.dumps(rows, separators=(",", ":")).encode())}
 
 
-def execute(root, schema, output, image_tag, receipt):
+def execute(root, schema, output, image_tag, receipt, *, observe_member_failure=False, failure_metadata=None):
     """The original CLI is executed unchanged except the one literal addition."""
     if any(name in sys.modules for name in ("tests", "config", "web")):
         raise ValueError("Invoke the standalone script before historical package imports")
@@ -144,23 +206,48 @@ def execute(root, schema, output, image_tag, receipt):
             raise ValueError("A new unaliased evidence path outside historical source is required")
     if not receipt.parent.is_dir():
         raise ValueError("The evidence parent must already exist")
+    if type(observe_member_failure) is not bool or observe_member_failure != (failure_metadata is not None):
+        raise ValueError("Member observation requires its separate diagnostic output")
+    observer_path = None
+    if observe_member_failure:
+        observer_path = diagnostic_support()
+        failure_metadata = Path(failure_metadata)
+        if (not failure_metadata.is_absolute() or failure_metadata.resolve(strict=False) != failure_metadata.absolute()
+                or failure_metadata.is_relative_to(root) or failure_metadata.exists()
+                or failure_metadata in (output, receipt) or not failure_metadata.parent.is_dir()):
+            raise ValueError("A fresh external member diagnostic output is required")
     before = snapshot(root, schema)
     original = (root / spec["runner"]).read_bytes()
     code = adapted_bytes(original, schema)
+    if observe_member_failure:
+        code = diagnostic_bytes(code, schema)
     previous_path, previous_argv, previous_cwd = list(sys.path), list(sys.argv), Path.cwd()
     result = {"schema": "finite-historical-image-test-runtime-v1", "original": before,
               "runner": spec["runner"], "original_sha256": digest(original), "compiled_sha256": digest(code),
               "only_delta": "Fresh32-byte METODO_BASE_SALT inside original synthetic runtime dictionary",
               "salt_value_recorded": False, "original_returned": False, "original_files_unchanged": False}
+    if observe_member_failure:
+        result["only_delta"] = "Fresh TEST salt plus one finite member diagnostic dispatch; complete two-stage inverse"
+        result["salt_compiled_sha256"] = spec["compiled_sha256"]
+        result["diagnostic_support"] = DIAGNOSTIC_SUPPORT
     try:
         os.chdir(root)
         sys.path.insert(0, str(root))
         sys.argv = [str(root / spec["runner"]), "--output", str(output), "--image-tag", image_tag]
         namespace = {"__file__": str(root / spec["runner"]), "__name__": "__main__", "__package__": None}
+        if observe_member_failure:
+            namespace.update(_historical_member_diagnostic_path=str(observer_path),
+                             _historical_member_diagnostic_output=failure_metadata)
         exec(compile(code, str(root / spec["runner"]), "exec", dont_inherit=True), namespace)  # noqa: S102 -- exact pinned ancestral source
         result["original_returned"] = True
     except BaseException as error:
-        result["original_exception_class"] = type(error).__name__
+        if observe_member_failure:
+            allowed = ("AssertionError", "ValueError", "TypeError", "KeyError", "IndexError", "OSError",
+                       "FileNotFoundError", "PermissionError", "TimeoutError", "RuntimeError", "ImportError",
+                       "ModuleNotFoundError", "MemoryError", "SystemExit", "KeyboardInterrupt")
+            result["original_exception_class"] = next((name for name in allowed if type(error) is getattr(builtins, name)), "OTHER")
+        else:
+            result["original_exception_class"] = type(error).__name__
         raise
     finally:
         sys.path[:] = previous_path
@@ -171,6 +258,8 @@ def execute(root, schema, output, image_tag, receipt):
             result["original_files_unchanged"] = before == after
             if before != after:
                 raise ValueError("Historical source changed during original execution")
+            if observe_member_failure:
+                diagnostic_support()
         finally:
             with receipt.open("x", encoding="utf8") as stream:
                 json.dump(result, stream, indent=2)
@@ -184,8 +273,11 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--image-tag", required=True)
     parser.add_argument("--binding-receipt", type=Path, required=True)
+    parser.add_argument("--observe-member-failure", action="store_true")
+    parser.add_argument("--failure-metadata", type=Path)
     args = parser.parse_args()
-    execute(args.source, args.schema, args.output, args.image_tag, args.binding_receipt)
+    execute(args.source, args.schema, args.output, args.image_tag, args.binding_receipt,
+            observe_member_failure=args.observe_member_failure, failure_metadata=args.failure_metadata)
 
 
 if __name__ == "__main__":
