@@ -22,11 +22,14 @@ import sys
 import tempfile
 from copy import deepcopy
 from pathlib import Path
+from types import CodeType, FunctionType
 
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = "tests/ci_web41/fixtures/legacy-pg-unit-560.json"
-MANIFEST_PIN = (22160, "4f2e283c091137ba736dee109b7bca583a758b6baf7b0df63a2b044d59b45c57")
-SCHEMA = "legacy-pg-unit-child-v2"
+MANIFEST_PIN = (22350, 'a631da0ab4357c351cded9f2de6b9b9a041627a28111f926d8a3c655d1c05905')
+SCHEMA = "legacy-pg-unit-child-v3"
+PHASE_ARTIFACT = {"role": "original_phase_rows", "file": "phases.json", "bytes": 63169,
+                  "sha256": "6255c1fae6184f547678b891a095513b0ed3182b870a5d55f292e78ec03ebb14"}
 PROJECT = frozenset({"tests", "web", "api", "config", "core", "src", "utils", "scripts"})
 PHASES = ("setup", "call", "teardown")
 _ISSUED = object()
@@ -51,6 +54,13 @@ def decode(raw):
             result[key] = value
         return result
     return json.loads(raw, object_pairs_hook=unique)
+
+
+def artifact_descriptor(value):
+    if (type(value) is not dict or value != PHASE_ARTIFACT
+            or any(type(value.get(key)) is not type(expected) for key, expected in PHASE_ARTIFACT.items())):
+        raise ValueError("Capsule phase artifact descriptor differs")
+    return value
 
 
 def identity(info):
@@ -108,14 +118,15 @@ def manifest(repository):
     if (len(raw), digest(raw)) != MANIFEST_PIN:
         raise ValueError("Capsule manifest differs")
     value = decode(raw)
-    if (set(value) != {"schema", "parent_commit", "historical", "current", "unit", "identities", "budgets_sha256"}
+    if (set(value) != {"schema", "parent_commit", "historical", "current", "unit", "identities", "budgets_sha256", "phase_artifact"}
             or value["schema"] != "legacy-pg-unit-560-v1"
             or value["parent_commit"] != "560fd71f115cf4704073bc9e3f15577dee7a8c9f"
             or len(value["historical"]) != 45 or len(value["current"]) != 46
-            or len(set(value["identities"])) != 19):
+            or len(set(value["identities"])) != 19 or value["phase_artifact"] != PHASE_ARTIFACT):
         raise ValueError("Capsule finite source contract differs")
     for name in CURRENT_REFERENCES:
         pinned(repository / name, value["historical"][name], eol=True)
+    artifact_descriptor(value["phase_artifact"])
     return value
 
 
@@ -367,10 +378,11 @@ class TrustedExternal(importlib.abc.MetaPathFinder):
 def validate_snapshot(value, spec, helper_sha):
     fields = {"schema", "manifest_sha256", "helper_sha256", "parent_commit", "cases", "budgets",
               "child_exit", "blocked_attempts", "inputs_quiet", "imported_current", "source_photo_sha256",
-              "isolated_bootstrap", "external_project_search_paths"}
+              "isolated_bootstrap", "external_project_search_paths", "phase_artifact"}
     if (type(value) is not dict or set(value) != fields or value["schema"] != SCHEMA
             or value["manifest_sha256"] != MANIFEST_PIN[1] or value["helper_sha256"] != helper_sha
             or value["parent_commit"] != spec["parent_commit"] or value["inputs_quiet"] is not True
+            or value["phase_artifact"] != PHASE_ARTIFACT
             or value["isolated_bootstrap"] is not True or value["external_project_search_paths"] is not False
             or type(value["blocked_attempts"]) is not int or value["blocked_attempts"] != 0
             or value["imported_current"] != sorted(spec["current"])
@@ -397,7 +409,24 @@ def validate_snapshot(value, spec, helper_sha):
             or len(value["budgets"]) != 29 or sum(row["cases"] for row in value["budgets"]) != 429
             or sum(row["UUIDs"] for row in value["budgets"]) != 69):
         raise ValueError("Capsule original budget rows differ")
+    artifact_descriptor(value["phase_artifact"])
     return value
+
+
+def phase_rows(private, descriptor):
+    """One fixed bounded artifact, never a payload-selected path or wider limit."""
+    artifact_descriptor(descriptor)
+    raw = read_bounded(private / "phases.json", PHASE_ARTIFACT["bytes"])
+    if (len(raw), digest(raw)) != (PHASE_ARTIFACT["bytes"], PHASE_ARTIFACT["sha256"]):
+        raise ValueError("Capsule original phase artifact differs")
+    rows = decode(raw)
+    if (type(rows) is not list or len(rows) != 29 or len({row["key"] for row in rows}) != 29
+            or any(set(row) != {"key", "module", "cases", "pool", "witness", "expected"} for row in rows)
+            or sum(row["cases"] for row in rows) != 429
+            or len({tuple(identity) for row in rows for identity in row["expected"]}) != 429
+            or any(len(row["expected"]) != row["cases"] for row in rows)):
+        raise ValueError("Capsule original phase rows differ")
+    return rows
 
 
 def deny_transports():
@@ -415,6 +444,24 @@ def deny_transports():
     sqlalchemy.engine.Engine.connect = refuse
     psycopg2.connect = refuse
     return blocked
+
+
+def original_phase_rows(source, spec, module):
+    """Call the exact original phase validator, including nested filenames."""
+    name = "tests/ci_web37/pg_plan.py"
+    path = source / name
+    raw = pinned(path, spec["historical"][name])
+    reference = next(item for item in compile(raw, str(path), "exec", dont_inherit=True).co_consts
+                     if isinstance(item, CodeType) and item.co_name == "phases")
+    def filenames(code):
+        return (code.co_filename, *(name for item in code.co_consts if isinstance(item, CodeType)
+                                   for name in filenames(item)))
+    function = module.phases
+    if (not isinstance(function, FunctionType) or function.__code__ != reference
+            or function.__globals__ is not vars(module)
+            or any(name != str(path) for name in filenames(function.__code__))):
+        raise ValueError("The child original phase validator differs")
+    return function()
 
 
 def child(repository, source, private, helper_sha):
@@ -453,13 +500,22 @@ def child(repository, source, private, helper_sha):
     code = int(pytest.main(["--noconftest", "--import-mode=importlib", "--assert=plain", "--rootdir", str(source),
         "-q", "--tb=short", str(source / spec["unit"]),
         "-o", "cache_dir=" + str(private / "cache"), "--basetemp=" + str(private / "pytest-data")], plugins=[Reports()]))
-    from tests.ci_web37 import pg_lease
+    from tests.ci_web37 import pg_lease, pg_plan
     budgets = pg_lease.budgets()
+    # Execute the original validator in this same authenticated namespace.
+    rows = original_phase_rows(source, spec, pg_plan)
+    raw_phases = canonical(rows) + b"\n"
+    if (len(raw_phases), digest(raw_phases)) != (PHASE_ARTIFACT["bytes"], PHASE_ARTIFACT["sha256"]):
+        raise ValueError("The original child phase derivation differs")
+    with (private / "phases.json").open("xb") as stream:
+        stream.write(raw_phases)
+    phase_rows(private, PHASE_ARTIFACT)
     after = source_photo(repository, source, spec)
     cases = [{"identity": name, "phases": {phase: reports.get(name, {}).get(phase) for phase in PHASES}}
              for name in spec["identities"]]
     result = {"schema": SCHEMA, "manifest_sha256": MANIFEST_PIN[1], "helper_sha256": helper_sha,
               "parent_commit": spec["parent_commit"], "cases": cases, "budgets": budgets, "child_exit": code,
+              "phase_artifact": dict(PHASE_ARTIFACT),
               "blocked_attempts": len(blocked), "inputs_quiet": before == after,
               "isolated_bootstrap": bool(sys.flags.isolated),
               "external_project_search_paths": any(not external.allowed(entry) for entry in sys.path),
@@ -488,6 +544,7 @@ class Snapshot:
         photos = source_photo(Path(repository), self._private / "source", spec)
         if digest(canonical(photos)) != value["source_photo_sha256"]:
             raise ValueError("Reused snapshot current source differs")
+        phase_rows(self._private, value["phase_artifact"])
         return value
 
 
@@ -525,6 +582,7 @@ def snapshot(repository, new_absolute_private):
     value = validate_snapshot(decode(read_bounded(private / "snapshot.json", 65536)), spec, helper_sha)
     if value["child_exit"] != process.returncode or value["source_photo_sha256"] != digest(canonical(after)):
         raise ValueError("Capsule child receipt differs from actual process")
+    phase_rows(private, value["phase_artifact"])
     return Snapshot(value, private, helper_sha, issued=_ISSUED)
 
 
@@ -538,6 +596,18 @@ def historical_budget_rows(repository, new_absolute_private, *, snapshot=None):
     if value["child_exit"] != 0:
         raise ValueError("Original legacy unit did not pass")
     return deepcopy(value["budgets"])
+
+
+def historical_phase_rows(repository, new_absolute_private, *, snapshot=None):
+    """Return original child-derived rows with revalidation and a fresh copy."""
+    if snapshot is None:
+        snapshot = globals()["snapshot"](repository, new_absolute_private)
+    if type(snapshot) is not Snapshot:
+        raise ValueError("An original child process snapshot is required")
+    value = snapshot.checked(repository, manifest(repository))
+    if value["child_exit"] != 0:
+        raise ValueError("Original legacy unit did not pass")
+    return deepcopy(phase_rows(snapshot._private, value["phase_artifact"]))
 
 
 def collector(module_path, parent):
