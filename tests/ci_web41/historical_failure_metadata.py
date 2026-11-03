@@ -19,7 +19,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from types import CodeType
 
-SCHEMA = "finite-historical-failure-metadata-v1"
+SCHEMA = "finite-historical-failure-metadata-v2"
 MAX_PRIVATE = 8 * 1024**2
 MAX_FRAMES = 32
 KIND_NAMES = ("AssertionError", "ValueError", "TypeError", "KeyError", "IndexError", "OSError",
@@ -28,7 +28,7 @@ KIND_NAMES = ("AssertionError", "ValueError", "TypeError", "KeyError", "IndexErr
 KINDS = {getattr(builtins, name): name for name in KIND_NAMES}
 ISSUES = frozenset({"input_rejected", "source_changed", "unmapped_failure", "private_log_unavailable",
                     "observer_rejected", "no_exception_observed"})
-ROLES = frozenset({"quota_xml", "quota_log", "fixture_log", "driver_log"})
+ROLES = frozenset({"quota_xml", "quota_log", "fixture_log", "driver_log", "browser_error_log"})
 QUOTA_CASES = (
     "test_last_credit_accepts_only_one_of_three_processes",
     "test_subscription_get_cannot_erase_or_collide_with_reserved_credit[True]",
@@ -88,6 +88,15 @@ SOURCES = {'30': {'commit': '57335e5b4bcba3c76c97d47e481b526fb52874a6',
                   'config/env_validator.py': {'bytes': 3757,
                                               'sha256': '619b6f808789fc8f5d3179b5aaf15480686812e7f0ee48730ba27a4adadcfed5',
                                               'Git_blob': 'e0084e37c4c252faf9439223006c23d0833d7bdc'}}}}
+
+# These are text-only JavaScript locations, never Python AST or CodeType proof.
+CJS_SOURCES = {"31": {"tests/e2e/member_link31_browser.cjs": {
+    "bytes": 18150, "sha256": "ce49258340e40f1800aa1405d1460e9cc59cf4f6a05171257282bc0479b009b4",
+    "Git_blob": "73ea842fbbc146b6c33f1da25914c359c06cf146", "lines": 83}}}
+MISSING_ENTRY = {"33": {
+    "path": "tests/e2e/member_link33_browser.cjs",
+    "historical_tree": "65dc275f8056b3712de8f8ff0ec28135fd300429",
+    "invoker": "tests/e2e/run_member_link33_browser.py", "line": 162}}
 
 
 def digest(raw):
@@ -173,13 +182,81 @@ class SourceRegistry:
             def codes(value):
                 return (value, *(child for item in value.co_consts if isinstance(item, CodeType) for child in codes(item)))
             self.codes[name] = codes(code)
+        self.cjs_raw, self.cjs_stats = {}, {}
+        for name, pin in CJS_SOURCES.get(schema, {}).items():
+            raw, info = read_bounded(self.root / name, pin["bytes"])
+            blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw,
+                                usedforsecurity=False).hexdigest()
+            if (len(raw) != pin["bytes"] or digest(raw) != pin["sha256"]
+                    or blob != pin["Git_blob"] or len(raw.splitlines()) != pin["lines"]):
+                raise ValueError("Historical CJS diagnostic source differs")
+            self.cjs_raw[name], self.cjs_stats[name] = raw, info
+        self.absent_entry()
+
+    def absent_entry(self):
+        if self.schema in MISSING_ENTRY:
+            path = self.root / MISSING_ENTRY[self.schema]["path"]
+            directory(path.parent)
+            if os.path.lexists(path):
+                raise ValueError("The original missing entrypoint must remain absent")
+
+    def entrypoint(self):
+        if self.schema in CJS_SOURCES:
+            name, pin = next(iter(CJS_SOURCES[self.schema].items()))
+            return {"path": name, "expected_absent": False, "origin": "authenticated_historical_cjs_source",
+                    "source_sha256": pin["sha256"], "source_Git_blob": pin["Git_blob"], "lines": pin["lines"]}
+        if self.schema in MISSING_ENTRY:
+            self.absent_entry()
+            entry = MISSING_ENTRY[self.schema]
+            return {"path": entry["path"], "expected_absent": True,
+                    "origin": "historical_tree_absence_bound_to_invoker", "historical_tree": entry["historical_tree"],
+                    "invoker": self.location(entry["invoker"], entry["line"])}
+        return None
 
     def quiet(self):
         for name, raw in self.raw.items():
             after, info = read_bounded(self.root / name, len(raw))
             if after != raw or info != self.stats[name]:
                 raise ValueError("Historical diagnostic source changed")
+        for name, raw in self.cjs_raw.items():
+            after, info = read_bounded(self.root / name, len(raw))
+            if after != raw or info != self.cjs_stats[name]:
+                raise ValueError("Historical CJS diagnostic source changed")
+        self.absent_entry()
         return True
+
+    def cjs_location(self, name, line, column):
+        if (type(name) is not str or name not in self.cjs_raw
+                or type(line) is not int or type(column) is not int):
+            return None
+        lines = self.cjs_raw[name].splitlines()
+        if not 1 <= line <= len(lines):
+            return None
+        # V8 stack columns count UTF-16 code units; include the end-of-line slot.
+        width = len(lines[line - 1].decode("utf8").encode("utf-16-le")) // 2
+        if not 1 <= column <= min(width + 1, 65536):
+            return None
+        pin = CJS_SOURCES[self.schema][name]
+        return {"path": name, "source_sha256": pin["sha256"], "source_Git_blob": pin["Git_blob"],
+                "line": line, "column": column, "line_sha256": digest(lines[line - 1]),
+                "origin": "private_cjs_text_projection"}
+
+    def project_cjs_text(self, raw):
+        frames = []
+        pattern = (r'    at (?:[^()\x00\r\n]{1,256} \(([^\x00\r\n]{1,2048}):([1-9][0-9]{0,5}):([1-9][0-9]{0,5})\)'
+                   r'|([^()\x00\r\n]{1,2048}):([1-9][0-9]{0,5}):([1-9][0-9]{0,5}))')
+        for line in raw.decode("utf8", errors="replace").splitlines():
+            if len(line) > 65536:
+                continue
+            match = re.fullmatch(pattern, line)
+            if match is None:
+                continue
+            reported, number, column = match.groups()[:3] if match[1] is not None else match.groups()[3:]
+            names = [name for name in self.cjs_raw if reported in (name, str(self.root / name))]
+            frame = self.cjs_location(names[0], int(number), int(column)) if len(names) == 1 else None
+            if frame is not None and frame not in frames and len(frames) < MAX_FRAMES:
+                frames.append(frame)
+        return frames
 
     def location(self, name, line):
         if type(name) is not str or name not in self.raw or type(line) is not int:
@@ -241,14 +318,77 @@ def empty(registry, origin):
         raise ValueError("Diagnostic origin differs")
     return {"schema": SCHEMA, "historical_schema": registry.schema, "source_commit": registry.spec["commit"],
             "origin": origin, "diagnostic_accepted": False, "exception_type": "OTHER", "frames": [],
-            "private_artifacts": [], "cases": [], "issues": [], "source_unchanged": False}
+            "private_artifacts": [], "cases": [], "issues": [], "source_unchanged": False,
+            "entrypoint": registry.entrypoint()}
+
+
+def semlock_signature(raw):
+    """A private text signature only; no stdlib source or cause is authenticated."""
+    active, pending, observed = False, False, False
+    for line in raw.decode("utf8", errors="replace").splitlines():
+        if len(line) > 65536:
+            active = pending = observed = False
+            continue
+        if line == "Traceback (most recent call last):":
+            active, pending, observed = True, False, False
+            continue
+        if not active:
+            continue
+        frame = re.fullmatch(r'  File "[^"\x00\r\n]{1,2048}", line [1-9][0-9]{0,5}, in ([A-Za-z_][A-Za-z_0-9]*|<module>)', line)
+        if frame is not None:
+            pending = frame[1] == "__setstate__"
+            continue
+        if pending:
+            observed |= line == "    self._semlock = _multiprocessing.SemLock._rebuild(*state)"
+            pending = False
+        if re.fullmatch(r"FileNotFoundError(?::[^\r\n]*)?", line):
+            if observed:
+                return True
+            active = False
+        elif line and not line.startswith("    "):
+            active = pending = observed = False
+    return False
+
+
+def missing_entry_signature(registry, raw):
+    """Require one exact Node entrypoint error block, not a suffix or co-occurrence."""
+    if registry.schema not in MISSING_ENTRY:
+        return False
+    path = registry.root / MISSING_ENTRY[registry.schema]["path"]
+    header = "Error: Cannot find module '" + str(path) + "'"
+    lines = raw.decode("utf8", errors="replace").splitlines()
+    for index, line in enumerate(lines):
+        if line != header:
+            continue
+        for cursor in range(index + 1, min(len(lines), index + 129)):
+            frame = lines[cursor]
+            if len(frame) > 65536 or not frame.startswith("    at "):
+                break
+            if frame.endswith(" {"):
+                if lines[cursor + 1:cursor + 4] == ["  code: 'MODULE_NOT_FOUND',", "  requireStack: []", "}"]:
+                    return True
+                break
+    return False
+
+
+def signature_for(registry, role):
+    if registry.schema == "30" and role == "quota_log":
+        return {"kind": "spawn_semlock_rebuild_file_not_found", "origin": "private_text_signature"}
+    if registry.schema == "33" and role == "driver_log":
+        return {"kind": "node_entrypoint_module_not_found", "origin": "private_text_signature"}
+    return None
 
 
 def artifact(registry, role, raw):
     if role not in ROLES or len(raw) > MAX_PRIVATE:
         raise ValueError("Diagnostic artifact scope")
+    projected = registry.project_text(raw)
+    if registry.schema == "31" and role in {"driver_log", "browser_error_log"}:
+        projected["frames"] = (projected["frames"] + registry.project_cjs_text(raw))[:MAX_FRAMES]
+    found = ((registry.schema == "30" and role == "quota_log" and semlock_signature(raw))
+             or (registry.schema == "33" and role == "driver_log" and missing_entry_signature(registry, raw)))
     return {"role": role, "origin": "private_text_projection", "bytes": len(raw), "sha256": digest(raw),
-            **registry.project_text(raw)}
+            **projected, "signals": [signature_for(registry, role)] if found else []}
 
 
 def quota_cases(tree):
@@ -336,31 +476,41 @@ def validate(registry, value):
             or any(type(value[name]) is not bool for name in ("diagnostic_accepted", "source_unchanged"))
             or value["exception_type"] not in (*KIND_NAMES, "OTHER")
             or type(value["issues"]) is not list or len(value["issues"]) > len(ISSUES) or not set(value["issues"]) <= ISSUES
-            or value["diagnostic_accepted"] and (value["issues"] or not value["source_unchanged"])):
+            or value["diagnostic_accepted"] and (value["issues"] or not value["source_unchanged"])
+            or value["entrypoint"] != registry.entrypoint()
+            or value["entrypoint"] is not None and type(value["entrypoint"].get("expected_absent")) is not bool):
         raise ValueError("Diagnostic payload differs")
-    def frames(rows):
+    def frames(rows, *, cjs=False):
         if type(rows) is not list or len(rows) > MAX_FRAMES:
             raise ValueError("Diagnostic frame count")
         for row in rows:
-            if type(row) is not dict or row != registry.location(row.get("path"), row.get("line")):
+            if type(row) is not dict:
+                raise ValueError("Unauthenticated diagnostic frame")
+            expected = (registry.cjs_location(row.get("path"), row.get("line"), row.get("column"))
+                        if cjs and row.get("origin") == "private_cjs_text_projection"
+                        else registry.location(row.get("path"), row.get("line")))
+            if row != expected:
                 raise ValueError("Unauthenticated diagnostic frame")
     frames(value["frames"])
-    if type(value["private_artifacts"]) is not list or len(value["private_artifacts"]) > 2:
+    if type(value["private_artifacts"]) is not list or len(value["private_artifacts"]) > (3 if registry.schema == "31" else 2):
         raise ValueError("Diagnostic artifact inventory")
     roles = []
     for row in value["private_artifacts"]:
-        if (set(row) != {"role", "origin", "bytes", "sha256", "exception_types", "frames"} or row["role"] not in ROLES
+        if (set(row) != {"role", "origin", "bytes", "sha256", "exception_types", "frames", "signals"} or row["role"] not in ROLES
                 or row["origin"] != "private_text_projection"
                 or type(row["bytes"]) is not int or not 0 <= row["bytes"] <= MAX_PRIVATE
                 or type(row["sha256"]) is not str or re.fullmatch('[0-9a-f]{64}', row["sha256"]) is None
                 or type(row["exception_types"]) is not list
-                or any(kind not in (*KIND_NAMES, "OTHER") for kind in row["exception_types"])):
+                or any(kind not in (*KIND_NAMES, "OTHER") for kind in row["exception_types"])
+                or type(row["signals"]) is not list
+                or row["signals"] not in ([], [signature_for(registry, row["role"])])
+                or row["signals"] == [None]):
             raise ValueError("Diagnostic artifact fields")
         roles.append(row["role"])
-        frames(row["frames"])
+        frames(row["frames"], cjs=registry.schema == "31" and row["role"] in {"driver_log", "browser_error_log"})
     if len(roles) != len(set(roles)) or (registry.schema == "30" and set(roles) not in (set(), {"quota_xml", "quota_log"})):
         raise ValueError("Diagnostic artifact roles")
-    if registry.schema != "30" and not set(roles) <= {"fixture_log", "driver_log"}:
+    if registry.schema != "30" and not set(roles) <= ({"fixture_log", "driver_log", "browser_error_log"} if registry.schema == "31" else {"fixture_log", "driver_log"}):
         raise ValueError("Diagnostic member artifact roles")
     if type(value["cases"]) is not list or (registry.schema != "30" and value["cases"]):
         raise ValueError("Diagnostic case scope")

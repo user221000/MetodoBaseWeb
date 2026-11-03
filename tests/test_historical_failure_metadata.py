@@ -41,6 +41,9 @@ def sources():
         result[schema] = {name: subprocess.check_output(
             ["git", "--no-replace-objects", "show", spec["commit"] + ":" + name], cwd=ROOT)
             for name in spec["files"]}
+    result["cjs31"] = {name: subprocess.check_output(
+        ["git", "--no-replace-objects", "show", meta.SOURCES["31"]["commit"] + ":" + name], cwd=ROOT)
+        for name in meta.CJS_SOURCES["31"]}
     return result
 
 
@@ -50,6 +53,11 @@ def source_tree(root, schema, sources):
         target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(raw)
+    if schema == "31":
+        for name, raw in sources["cjs31"].items():
+            target = root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(raw)
     return root
 
 
@@ -655,3 +663,382 @@ def test_observer_rejects_equivalent_code_with_foreign_filename_and_real_namespa
     frame = SimpleNamespace(f_code=altered, f_globals=namespace, f_locals={"failure": ValueError("private")})
     assert observer(frame, "exception", (ValueError, ValueError("private"), None)) is None
     assert not observer.observed and observer.frames == [] and not observer.payload(True)["diagnostic_accepted"]
+
+
+def member_value(registry, raw, role="browser_error_log"):
+    value = meta.empty(registry, "runtime_observer")
+    driver = member.DRIVERS[registry.schema]
+    value["exception_type"], value["frames"] = "AssertionError", [registry.location(driver, 163)]
+    value["private_artifacts"] = [meta.artifact(registry, role, raw)]
+    value["source_unchanged"], value["diagnostic_accepted"] = registry.quiet(), True
+    return value
+
+
+def semlock_trace(terminal="FileNotFoundError: private payload"):
+    return ("Traceback (most recent call last):\n"
+            '  File "/private/stdlib/multiprocessing/synchronize.py", line 115, in __setstate__\n'
+            "    self._semlock = _multiprocessing.SemLock._rebuild(*state)\n"
+            "                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + terminal + "\n").encode()
+
+
+def missing_node_trace(registry):
+    path = registry.root / meta.MISSING_ENTRY["33"]["path"]
+    return ("Error: Cannot find module '" + str(path) + "'\n"
+            "    at Function._resolveFilename (node:internal/modules/cjs/loader:1:2)\n"
+            "    at node:internal/main/run_main_module:1:2 {\n"
+            "  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n").encode()
+
+
+def test_cjs_is_a_separate_authenticated_Git_source_without_python_AST_or_CodeType(tmp_path, sources):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "31", sources), "31")
+    name, pin = next(iter(meta.CJS_SOURCES["31"].items()))
+    raw = sources["cjs31"][name]
+    assert len(raw) == pin["bytes"] == 18150 and len(raw.splitlines()) == pin["lines"] == 83
+    assert meta.digest(raw) == pin["sha256"] == "ce49258340e40f1800aa1405d1460e9cc59cf4f6a05171257282bc0479b009b4"
+    assert hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw, usedforsecurity=False).hexdigest() == pin["Git_blob"]
+    assert len(registry.raw) == len(registry.codes) == len(registry.trees) == 8
+    assert name not in registry.raw and registry.cjs_raw == {name: raw}
+    assert registry.entrypoint()["expected_absent"] is False
+
+
+@pytest.mark.parametrize("style", ["bare", "function", "async"])
+@pytest.mark.parametrize("absolute", [False, True])
+def test_cjs_frames_publish_only_exact_source_line_column_and_hashes(tmp_path, sources, style, absolute):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "31", sources), "31")
+    name = next(iter(meta.CJS_SOURCES["31"]))
+    reported = str(registry.root / name) if absolute else name
+    location = reported + ":75:1"
+    secret = "privateFunction" + uuid.uuid4().hex
+    if style != "bare":
+        location = ("async " if style == "async" else "") + secret + " (" + location + ")"
+    value = member_value(registry, ("Error: " + secret + "\n    at " + location + "\n").encode())
+    frame = value["private_artifacts"][0]["frames"][0]
+    assert frame == registry.cjs_location(name, 75, 1)
+    assert frame["line_sha256"] == meta.digest(registry.cjs_raw[name].splitlines()[74])
+    assert frame["origin"] == "private_cjs_text_projection" and "AST_span" not in frame
+    assert meta.validate(registry, value) is value
+    assert secret not in json.dumps(value) and str(registry.root) not in json.dumps(value)
+    driver = meta.artifact(registry, "driver_log", ("    at " + location + "\n").encode())
+    assert driver["frames"] == [frame]
+
+
+@pytest.mark.parametrize("fault", ["byte", "append", "missing", "hardlink"])
+def test_cjs_source_admission_refuses_drift_missing_and_aliases(tmp_path, sources, fault):
+    root = source_tree(tmp_path / "source", "31", sources)
+    path = root / next(iter(meta.CJS_SOURCES["31"]))
+    raw = path.read_bytes()
+    if fault == "missing":
+        path.unlink()
+    elif fault == "hardlink":
+        (tmp_path / "alias.cjs").hardlink_to(path)
+    else:
+        path.write_bytes(raw + b"\n" if fault == "append" else bytes([raw[0] ^ 1]) + raw[1:])
+    with pytest.raises((OSError, ValueError)):
+        meta.SourceRegistry(root, "31")
+
+
+def test_cjs_late_source_drift_prevents_metadata_publication(tmp_path, sources):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "31", sources), "31")
+    value = member_value(registry, b"")
+    path = registry.root / next(iter(meta.CJS_SOURCES["31"]))
+    path.write_bytes(path.read_bytes() + b"\n")
+    with pytest.raises(ValueError):
+        registry.quiet()
+    output = tmp_path / "refused.json"
+    with pytest.raises(ValueError):
+        meta.write_metadata(output, registry, value)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("fault", ["zero-line", "past-last-line", "zero-column", "past-line-column",
+    "bool-line", "bool-column", "wrong-path", "foreign-root", "case", "suffix", "prefix", "function-name-only"])
+def test_cjs_nearby_paths_prefixes_and_out_of_range_locations_are_unmapped(tmp_path, sources, fault):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "31", sources), "31")
+    name = next(iter(meta.CJS_SOURCES["31"]))
+    line, column, reported, prefix = 75, 1, name, "    at "
+    if fault == "zero-line":
+        line = 0
+    elif fault == "past-last-line":
+        line = 84
+    elif fault == "zero-column":
+        column = 0
+    elif fault == "past-line-column":
+        column = len(registry.cjs_raw[name].splitlines()[74]) + 100
+    elif fault == "bool-line":
+        line = True
+    elif fault == "bool-column":
+        column = True
+    elif fault == "wrong-path":
+        reported = name.replace("31", "33")
+    elif fault == "foreign-root":
+        reported = "/private/foreign/" + name
+    elif fault == "case":
+        reported = name.replace("member_link", "Member_Link")
+    elif fault == "suffix":
+        reported += "/extra.cjs"
+    elif fault == "prefix":
+        prefix = "PRIVATE "
+    else:
+        reported = "privateFunction"
+    assert registry.project_cjs_text((prefix + reported + f":{line}:{column}\n").encode()) == []
+    if fault in {"zero-line", "past-last-line", "zero-column", "past-line-column", "bool-line", "bool-column"}:
+        assert registry.cjs_location(name, line, column) is None
+
+
+@pytest.mark.parametrize("fault", ["AST", "message", "line-hash", "source-hash", "blob", "column",
+    "origin", "top-level", "fixture-role", "signal-private"])
+def test_cjs_schema_refuses_fictitious_AST_private_fields_and_wrong_roles(tmp_path, sources, fault):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "31", sources), "31")
+    name = next(iter(meta.CJS_SOURCES["31"]))
+    value = member_value(registry, ("    at " + name + ":75:1\n").encode())
+    artifact = value["private_artifacts"][0]
+    frame = artifact["frames"][0]
+    if fault == "AST":
+        frame["AST_span"] = {"kind": "Call", "first": 75, "last": 75, "sha256": "0" * 64}
+    elif fault == "message":
+        frame["message"] = "private"
+    elif fault == "line-hash":
+        frame["line_sha256"] = "0" * 64
+    elif fault == "source-hash":
+        frame["source_sha256"] = "0" * 64
+    elif fault == "blob":
+        frame["source_Git_blob"] = "0" * 40
+    elif fault == "column":
+        frame["column"] = True
+    elif fault == "origin":
+        frame["origin"] = "runtime_observer"
+    elif fault == "top-level":
+        value["frames"] = [frame]
+    elif fault == "fixture-role":
+        artifact["role"] = "fixture_log"
+    else:
+        artifact["signals"] = [{"kind": "private", "origin": "private_text_signature"}]
+    output = tmp_path / "refused.json"
+    with pytest.raises(ValueError):
+        meta.write_metadata(output, registry, value)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("schema", ["31", "33"])
+def test_member_reads_browser_error_only_for31_and_no_other_private_filename(tmp_path, sources, monkeypatch, schema):
+    """Unit-test role selection with a directory capability, never fake POSIX/UID."""
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", schema, sources), schema)
+    phase = tmp_path / "phase"
+    phase.mkdir(mode=0o700)
+    for name in ("fixture.private.log", "driver.private.log", "browser-error.private.log", "not-readable.log"):
+        (phase / name).write_bytes(b"private text must not appear")
+    observer = member.MemberObserver(meta, registry, {})
+    observer.phase, observer.observed = phase, True
+    observer.frames = [registry.location(member.DRIVERS[schema], 163)]
+    # The real POSIX private boundary remains unchanged; only this unit's role
+    # selection uses an ordinary canonical directory capability on Windows.
+    monkeypatch.setattr(meta, "private_directory", meta.directory)
+    original, opened = meta.read_bounded, []
+    def measured(path, limit):
+        if path.parent == phase:
+            opened.append(path.name)
+            assert path.name != "not-readable.log"
+        return original(path, limit)
+    monkeypatch.setattr(meta, "read_bounded", measured)
+    value = observer.payload(True)
+    expected = ["fixture.private.log", "driver.private.log"]
+    if schema == "31":
+        expected.append("browser-error.private.log")
+    assert opened == expected
+    assert len(value["private_artifacts"]) == (3 if schema == "31" else 2)
+    assert "private text" not in json.dumps(meta.validate(registry, value))
+
+
+@pytest.mark.parametrize("fault", ["hardlink", "oversize", "changed-during-read"])
+def test_browser_error_input_alias_bounds_and_handle_quiet_are_still_required(tmp_path, sources, monkeypatch, fault):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "31", sources), "31")
+    phase = tmp_path / "phase"
+    phase.mkdir(mode=0o700)
+    path = phase / "browser-error.private.log"
+    path.write_bytes(b"private browser payload")
+    if fault == "hardlink":
+        (tmp_path / "alias.log").hardlink_to(path)
+    elif fault == "oversize":
+        with path.open("wb") as stream:
+            stream.truncate(meta.MAX_PRIVATE + 1)
+    else:
+        original = Path.open
+        class ChangedStream:
+            def __init__(self, stream):
+                self.stream = stream
+            def __enter__(self):
+                self.stream.__enter__()
+                return self
+            def __exit__(self, *arguments):
+                return self.stream.__exit__(*arguments)
+            def fileno(self):
+                return self.stream.fileno()
+            def read(self, bound):
+                raw = self.stream.read(bound)
+                with original(path, "r+b") as writer:
+                    writer.write(bytes([raw[0] ^ 1]))
+                return raw
+        def changed(target, mode="r", *arguments, **keywords):
+            stream = original(target, mode, *arguments, **keywords)
+            return ChangedStream(stream) if target == path and mode == "rb" else stream
+        monkeypatch.setattr(Path, "open", changed)
+    monkeypatch.setattr(meta, "private_directory", meta.directory)
+    observer = member.MemberObserver(meta, registry, {})
+    observer.phase, observer.observed = phase, True
+    observer.frames = [registry.location(member.DRIVERS["31"], 163)]
+    value = observer.payload(True)
+    assert value["diagnostic_accepted"] is False and value["issues"] == ["private_log_unavailable"]
+    assert value["private_artifacts"] == []
+    assert "private browser payload" not in json.dumps(meta.validate(registry, value))
+
+
+@pytest.mark.parametrize("schema", ["30", "33"])
+def test_browser_error_role_cannot_be_admitted_for_another_schema(tmp_path, sources, schema):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", schema, sources), schema)
+    value = (meta.quota_bytes(registry, quota_xml(registry), b"") if schema == "30"
+             else member_value(registry, b"", "driver_log"))
+    value["private_artifacts"].append(meta.artifact(registry, "browser_error_log", b""))
+    with pytest.raises(ValueError):
+        meta.validate(registry, value)
+
+
+@pytest.mark.parametrize("schema", ["30", "31", "33"])
+@pytest.mark.parametrize("fault", ["wrong-kind", "private-field", "wrong-origin", "duplicate"])
+def test_signal_schema_is_closed_and_cannot_publish_arbitrary_details(tmp_path, sources, schema, fault):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", schema, sources), schema)
+    if schema == "30":
+        value = meta.quota_bytes(registry, quota_xml(registry), semlock_trace())
+        row = value["private_artifacts"][1]
+    else:
+        value = member_value(registry, missing_node_trace(registry) if schema == "33" else b"", "driver_log")
+        row = value["private_artifacts"][0]
+    signal = {"kind": "node_entrypoint_module_not_found" if schema == "33" else "spawn_semlock_rebuild_file_not_found",
+              "origin": "private_text_signature"}
+    if fault == "wrong-kind":
+        signal["kind"] = "private-value"
+    elif fault == "private-field":
+        signal["message"] = "private-value"
+    elif fault == "wrong-origin":
+        signal["origin"] = "authenticated_stdlib_runtime_cause"
+    row["signals"] = [signal, signal] if fault == "duplicate" else [signal]
+    with pytest.raises(ValueError):
+        meta.validate(registry, value)
+
+
+def test_schema33_absence_descriptor_is_bound_to_real_invoker_and_refuses_an_invented_entry(tmp_path, sources):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "33", sources), "33")
+    entry = registry.entrypoint()
+    assert entry["expected_absent"] is True and entry["historical_tree"] == "65dc275f8056b3712de8f8ff0ec28135fd300429"
+    assert entry["invoker"] == registry.location(member.DRIVERS["33"], 162)
+    assert b"tests/e2e/member_link33_browser.cjs" in registry.raw[member.DRIVERS["33"]].splitlines()[161]
+    assert registry.cjs_raw == {} and "source_sha256" not in entry
+    path = registry.root / entry["path"]
+    path.write_bytes(sources["cjs31"][next(iter(meta.CJS_SOURCES["31"]))])
+    with pytest.raises(ValueError, match="must remain absent"):
+        registry.quiet()
+    with pytest.raises(ValueError, match="must remain absent"):
+        meta.SourceRegistry(registry.root, "33")
+
+
+@pytest.mark.parametrize("fault", ["boolean", "tree", "invoker", "extra-private", "invented-pin"])
+def test_schema33_absence_descriptor_cannot_be_forged_or_coerced(tmp_path, sources, fault):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "33", sources), "33")
+    value = member_value(registry, b"", "driver_log")
+    entry = value["entrypoint"]
+    if fault == "boolean":
+        entry["expected_absent"] = 1
+    elif fault == "tree":
+        entry["historical_tree"] = "0" * 40
+    elif fault == "invoker":
+        entry["invoker"]["line"] = 161
+    elif fault == "extra-private":
+        entry["message"] = "private"
+    else:
+        entry["source_sha256"] = "0" * 64
+    with pytest.raises(ValueError):
+        meta.validate(registry, value)
+
+
+def test_quota_semlock_signal_is_only_private_structural_text_not_a_stdlib_frame(quota):
+    raw = semlock_trace()
+    value = meta.quota_bytes(quota, quota_xml(quota), raw)
+    row = value["private_artifacts"][1]
+    assert row["signals"] == [{"kind": "spawn_semlock_rebuild_file_not_found", "origin": "private_text_signature"}]
+    assert row["frames"] == [] and row["exception_types"] == ["FileNotFoundError"]
+    assert meta.validate(quota, value) is value
+    assert "private payload" not in json.dumps(value) and "synchronize.py" not in json.dumps(value)
+    assert meta.artifact(quota, "quota_xml", raw)["signals"] == []
+
+
+@pytest.mark.parametrize("fault", ["no-header", "other-frame", "message", "custom", "qualified-custom",
+    "separate-block", "wrong-terminal", "terminal-first", "quoted-source", "no-frame", "prefixed", "altered-call"])
+def test_semlock_nearby_messages_classes_or_other_tracebacks_do_not_signal(quota, fault):
+    raw = semlock_trace()
+    if fault == "no-header":
+        raw = raw.split(b"\n", 1)[1]
+    elif fault == "other-frame":
+        raw = raw.replace(b"in __setstate__", b"in private_function")
+    elif fault == "message":
+        raw = b"ValueError: " + raw.replace(b"\n", b" ")
+    elif fault == "custom":
+        raw = raw.replace(b"FileNotFoundError:", b"PrivateFileNotFoundError:")
+    elif fault == "qualified-custom":
+        raw = raw.replace(b"FileNotFoundError:", b"private.FileNotFoundError:")
+    elif fault == "separate-block":
+        raw = raw.replace(b"FileNotFoundError:", b"Traceback (most recent call last):\nFileNotFoundError:")
+    elif fault == "wrong-terminal":
+        raw = raw.replace(b"FileNotFoundError:", b"ValueError:")
+    elif fault == "terminal-first":
+        raw = b"FileNotFoundError: private\n" + raw.replace(b"FileNotFoundError: private payload\n", b"")
+    elif fault == "quoted-source":
+        raw = raw.replace(b"    self._semlock =", b"    message = 'self._semlock =")
+    elif fault == "no-frame":
+        raw = b"\n".join(line for line in raw.split(b"\n") if not line.startswith(b"  File"))
+    elif fault == "prefixed":
+        raw = b"\n".join(b"PRIVATE> " + line for line in raw.split(b"\n"))
+    else:
+        raw = raw.replace(b"_rebuild(*state)", b"_rebuild(private)")
+    assert not meta.semlock_signature(raw)
+    assert meta.artifact(quota, "quota_log", raw)["signals"] == []
+
+
+def test_schema33_module_not_found_signal_requires_exact_missing_entry_and_one_Node_block(tmp_path, sources):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "33", sources), "33")
+    raw = missing_node_trace(registry)
+    value = member_value(registry, raw, "driver_log")
+    row = value["private_artifacts"][0]
+    assert row["signals"] == [{"kind": "node_entrypoint_module_not_found", "origin": "private_text_signature"}]
+    assert row["frames"] == [] and meta.validate(registry, value) is value
+    assert str(registry.root) not in json.dumps(value) and "Cannot find module" not in json.dumps(value)
+    assert meta.artifact(registry, "fixture_log", raw)["signals"] == []
+
+
+@pytest.mark.parametrize("fault", ["wrong-path", "foreign-root", "suffix", "custom-class", "message",
+    "separate-block", "other-code", "no-code", "no-stack", "no-brace", "nonempty-require-stack"])
+def test_schema33_nearby_paths_custom_errors_and_unrelated_module_not_found_blocks_do_not_signal(tmp_path, sources, fault):
+    registry = meta.SourceRegistry(source_tree(tmp_path / "source", "33", sources), "33")
+    raw = missing_node_trace(registry)
+    if fault == "wrong-path":
+        raw = raw.replace(b"member_link33_browser.cjs", b"member_link31_browser.cjs")
+    elif fault == "foreign-root":
+        raw = raw.replace(str(registry.root).encode(), b"/private/foreign")
+    elif fault == "suffix":
+        raw = raw.replace(b"member_link33_browser.cjs'", b"member_link33_browser.cjs/extra'")
+    elif fault == "custom-class":
+        raw = raw.replace(b"Error:", b"PrivateError:")
+    elif fault == "message":
+        raw = b"private argument: " + raw
+    elif fault == "separate-block":
+        raw = raw.replace(b"  code:", b"Error: private other block\n  code:")
+    elif fault == "other-code":
+        raw = raw.replace(b"MODULE_NOT_FOUND", b"OTHER")
+    elif fault == "no-code":
+        raw = raw.replace(b"  code: 'MODULE_NOT_FOUND',\n", b"")
+    elif fault == "no-stack":
+        raw = b"\n".join(line for line in raw.split(b"\n") if not line.startswith(b"    at"))
+    elif fault == "no-brace":
+        raw = raw.replace(b" {\n", b"\n")
+    else:
+        raw = raw.replace(b"requireStack: []", b"requireStack: ['private']")
+    assert not meta.missing_entry_signature(registry, raw)
+    assert meta.artifact(registry, "driver_log", raw)["signals"] == []

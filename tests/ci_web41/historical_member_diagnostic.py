@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 from types import CodeType
 
-SUPPORT_PIN = (23850, '1d6c6371b55fe55bd7b02ef4f99738697134d6081fee29482b151856df502178')
+SUPPORT_PIN = (31991, '7e689b1555edeb13fff469160a252a50b619dbbc40f9941c8c70309e9e424ba1')
 DRIVERS = {"31": "tests/e2e/run_member_link31_browser.py", "33": "tests/e2e/run_member_link33_browser.py"}
 
 
@@ -102,7 +102,10 @@ class MemberObserver:
         if failed and self.phase is not None:
             try:
                 self.support.private_directory(self.phase)
-                for role, name in (("fixture_log", "fixture.private.log"), ("driver_log", "driver.private.log")):
+                logs = [("fixture_log", "fixture.private.log"), ("driver_log", "driver.private.log")]
+                if self.registry.schema == "31":
+                    logs.append(("browser_error_log", "browser-error.private.log"))
+                for role, name in logs:
                     path = self.phase / name
                     if path.exists():
                         raw, _ = self.support.read_bounded(path, self.support.MAX_PRIVATE)

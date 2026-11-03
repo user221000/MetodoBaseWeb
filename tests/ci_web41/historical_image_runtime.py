@@ -41,10 +41,7 @@ SOURCES = {
 }
 DIAGNOSTIC_COMPILED = {'31': {'bytes': 15454, 'sha256': '6ad7c696f564a5c824cf85eeeadb43d131d1f0668e0266d8019add3a979fe942'},
  '33': {'bytes': 17454, 'sha256': 'bb9461d966f2c9579eccdaca28d4e2bc085e2aba4b0ef3dcaea2e75856ff600b'}}
-DIAGNOSTIC_SUPPORT = {'historical_failure_metadata.py': {'bytes': 23850,
-                                    'sha256': '1d6c6371b55fe55bd7b02ef4f99738697134d6081fee29482b151856df502178'},
- 'historical_member_diagnostic.py': {'bytes': 8612,
-                                     'sha256': '1c876f0d6dc027cf2bd208be539ccf2869eab1b212e25d6d95b7da823d9fea82'}}
+DIAGNOSTIC_SUPPORT = {'historical_failure_metadata.py': {'bytes': 31991, 'sha256': '7e689b1555edeb13fff469160a252a50b619dbbc40f9941c8c70309e9e424ba1'}, 'historical_member_diagnostic.py': {'bytes': 8773, 'sha256': '72968f95f1faa73f991441bbc08866131438a25ec835333ffdf736648f2a5cd4'}}
 
 
 def digest(raw):
