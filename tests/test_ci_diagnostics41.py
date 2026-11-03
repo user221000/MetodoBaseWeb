@@ -162,6 +162,78 @@ class DiagnosticsPrivacy(unittest.TestCase):
         with self.assertRaises(ValueError):
             list(diagnostics.private_trace_lines(trace))
 
+    def test_collection_internalerror_projects_source_frame_and_class_without_payload(self):
+        name = "tests/ci_web37/reports.py"
+        source = b"def report():\n    raise ValueError()\n"
+        self.files[name] = source
+        path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(source)
+        lines = [b'INTERNALERROR>   File "' + str(path).encode() + b'", line 2, in report\n',
+                 b"INTERNALERROR>     private_source_and_arguments()\n",
+                 b"INTERNALERROR> ValueError: " + CANARY.encode() + b"\n"]
+        value = diagnostics.parse_traceback(lines, self.binding, "pg_collection")
+        self.assertEqual(value["exception_type"], "ValueError")
+        self.assertEqual([(row["path"], row["line"]) for row in value["frames"]], [(name, 2)])
+        self.assertEqual(value["frames"][0]["binding"], "text_location_only/path_git_match")
+        self.assertFalse(value["accepted"])
+        for private in (CANARY, str(self.root), "private_source_and_arguments"):
+            self.assertNotIn(private, json.dumps(value))
+        prior = diagnostics.parse_traceback(lines, self.binding, "pg_bootstrap")
+        self.assertEqual(prior["exception_type"], "OTHER")
+        self.assertEqual(prior["frames"], [])
+
+    def test_collection_short_trace_requires_exact_bound_path_and_original_source(self):
+        name = "tests/ci_web37/collect.py"
+        source = b"def collect():\n    raise ImportError()\n"
+        self.files[name] = source
+        path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(source)
+        lines = [name.encode() + b":2: in collect\n", b"E   ImportError: " + CANARY.encode() + b"\n"]
+        value = diagnostics.parse_traceback(lines, self.binding, "pg_collection")
+        self.assertEqual(value["exception_type"], "ImportError")
+        self.assertEqual([(row["path"], row["line"]) for row in value["frames"]], [(name, 2)])
+        self.assertNotIn(CANARY, json.dumps(value))
+        for reported in (b"tests/private.py", b"../tests/ci_web37/collect.py", b"tests/ci_web37/collect.py/extra"):
+            with self.subTest(path=reported):
+                value = diagnostics.parse_traceback([reported + b":2: in collect\n"], self.binding, "pg_collection")
+                self.assertEqual(value["frames"], [])
+        self.binding.cache.clear()
+        path.write_bytes(source + b"# altered\n")
+        self.assertEqual(diagnostics.parse_traceback(lines, self.binding, "pg_collection")["frames"], [])
+
+    def test_historical_driver_frame_carries_current_source_without_runtime_acceptance(self):
+        name = "tests/ci_google33/run_postgres.py"
+        source = b"def photo():\n    raise FileNotFoundError()\n"
+        self.files[name] = source
+        path = self.root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(source)
+        lines = [b'  File "' + str(path).encode() + b'", line 2, in photo\n',
+                 b"FileNotFoundError: " + CANARY.encode() + b"\n"]
+        value = diagnostics.parse_traceback(lines, self.binding, "historical_pg_driver")
+        self.assertEqual(value["phase"], "historical_pg_driver")
+        self.assertEqual(value["exception_type"], "FileNotFoundError")
+        self.assertEqual(value["frames"][0]["path"], name)
+        self.assertEqual(value["frames"][0]["source_sha256"], hashlib.sha256(source).hexdigest())
+        self.assertFalse(value["accepted"])
+        self.assertNotIn(CANARY, json.dumps(value))
+
+    def test_collection_unrecognized_prefixes_and_invalid_lines_stay_unmapped(self):
+        filename = str(self.root / "tests/ci_image57/run.py").encode()
+        for prefix in (b"PRIVATE> ", b"INTERNALERROR>> ", b"E  ", b"E    "):
+            with self.subTest(prefix=prefix):
+                lines = [prefix + b'  File "' + filename + b'", line 3, in main\n',
+                         prefix + b"ValueError: " + CANARY.encode() + b"\n"]
+                value = diagnostics.parse_traceback(lines, self.binding, "pg_collection")
+                self.assertEqual(value["frames"], [])
+                self.assertEqual(value["exception_type"], "OTHER")
+                self.assertNotIn(CANARY, json.dumps(value))
+        for number in (b"0", b"-1", b"99999999"):
+            lines = [b'INTERNALERROR>   File "' + filename + b'", line ' + number + b', in main\n']
+            self.assertEqual(diagnostics.parse_traceback(lines, self.binding, "pg_collection")["frames"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

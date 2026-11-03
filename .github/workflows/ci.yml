@@ -1287,6 +1287,14 @@ jobs:
         printf '%s\n' '{"ci37_pg_bootstrap_ready":true}'
     - name: Actual37 complete429 business and physical gates;69 UUID budget including restore
       run: python -B -X utf8 tests/ci_web37/run_postgres.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack429.private.json" --private "$RUNNER_TEMP/ci37-pg429-private" --output "$RUNNER_TEMP/ci37-pg-public/429"
+    - name: Project only authenticated historical37 failure locations
+      if: failure()
+      run: |
+        for name in runner-error.private.log collection.private.log; do
+          if test -f "$RUNNER_TEMP/ci37-pg429-private/$name"; then
+            python -B -X utf8 "$RUNNER_TEMP/ci37-diagnostics-private/ci_diagnostics41.py" --repository "$GITHUB_WORKSPACE" --source 878082b242cdfa23e1e4c134f675c12b535a2cd7 --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/ci37-pg429-private/$name" --phase pg_collection || true
+          fi
+        done
     - name: Separate original53 routine and R30 PostgreSQL criteria; one UUID and pool5
       run: python -B -X utf8 tests/ci_web37/run_postgres53.py --pg-profile "$RUNNER_TEMP/ci37-pg-cluster-private/profile.private.json" --lease-ack "$RUNNER_TEMP/ci37-pg-cluster-private/ack53.private.json" --private "$RUNNER_TEMP/ci37-pg53-private" --output "$RUNNER_TEMP/ci37-pg-public/53"
     - name: Separate actual27 B13 and R07 PostgreSQL criteria; one owned UUID and pool1
@@ -2070,6 +2078,13 @@ jobs:
       working-directory: ${{ github.workspace }}
       run: python -X utf8 tests/ci_google33/run_postgres.py --schema 32 --source "$RUNNER_TEMP/historical32-postgres/source"
         --private "$RUNNER_TEMP/historical32-private" --output "$RUNNER_TEMP/historical32-public"
+    - name: Project only authenticated historical32 driver failure locations
+      if: failure()
+      working-directory: ${{ github.workspace }}
+      run: |
+        if test -f "$RUNNER_TEMP/historical32-private/runner-error.raw.log"; then
+          python -B -X utf8 tests/ci_diagnostics41.py --repository "$GITHUB_WORKSPACE" --source "$GITHUB_SHA" --helper-source "$GITHUB_SHA" --private-trace "$RUNNER_TEMP/historical32-private/runner-error.raw.log" --phase historical_pg_driver || true
+        fi
     - uses: actions/upload-artifact@v4
       if: always()
       with:

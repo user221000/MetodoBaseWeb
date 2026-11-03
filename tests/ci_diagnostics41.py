@@ -14,7 +14,8 @@ import sys
 import types
 
 SCHEMA = "metodobase-ci41-failure-metadata-v1"
-PHASES = frozenset({"path_validation", "context_prepare", "build_probe", "seal", "pg_bootstrap", "unknown"})
+TRACE_PHASES = ("pg_bootstrap", "pg_collection", "historical_pg_driver")
+PHASES = frozenset({"path_validation", "context_prepare", "build_probe", "seal", *TRACE_PHASES, "unknown"})
 KINDS = frozenset({"OSError", "FileNotFoundError", "PermissionError", "ValueError", "KeyError", "TypeError",
                    "AssertionError", "CalledProcessError", "RuntimeError", "TimeoutExpired", "ImportError",
                    "ModuleNotFoundError", "MemoryError", "SystemExit"})
@@ -30,11 +31,14 @@ PATHS = frozenset({
     "tests/ci_web39/pg_control.py", "tests/ci_web39/pg_admission.py", "tests/ci_web39/pg_tools_linux.py",
     "tests/ci_web37/prepare_collection.py", "tests/ci_web37/pg_lease.py", "tests/ci_web37/pg53.py",
     "tests/ci_web37/pg_plan.py", "tests/ci_web37/pg_control.py",
+    "tests/ci_web37/run_postgres.py", "tests/ci_web37/collect.py", "tests/ci_web37/reports.py",
+    "tests/ci_google33/run_postgres.py",
     "tests/billing13_legacy_apply37_pg_contract.py",
 })
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 TRACE_FILE = re.compile(rb'^  File "([^"\x00\r\n]{1,2048})", line ([1-9][0-9]{0,6}), in [^\r\n]*$')
 TRACE_KIND = re.compile(rb'^(?:[A-Za-z_][A-Za-z0-9_]*\.)*([A-Za-z_][A-Za-z0-9_]{0,80})(?=:|$)')
+PYTEST_FILE = re.compile(rb'^([^\x00\r\n]{1,2048}?\.py):([1-9][0-9]{0,6}): in (?:[A-Za-z_][A-Za-z_0-9]*|<module>)$')
 MAX_TRACE = 4 * 1024 * 1024
 MAX_LINE = 65536
 
@@ -300,10 +304,20 @@ def parse_traceback(lines, binding, phase):
         if not isinstance(line, bytes) or len(line) > MAX_LINE:
             raise ValueError("Bounded private traceback required")
         line = line.rstrip(b"\r\n")
+        if phase == "pg_collection":
+            if line.startswith(b"INTERNALERROR> "):
+                line = line[len(b"INTERNALERROR> "):]
+            elif line.startswith(b"E   "):
+                line = line[4:]
         match = TRACE_FILE.fullmatch(line)
+        if match is None and phase == "pg_collection":
+            match = PYTEST_FILE.fullmatch(line)
         if match is not None:
             try:
-                frame = binding.frame(match[1].decode("utf8", errors="strict"), int(match[2]))
+                filename = match[1].decode("utf8", errors="strict")
+                if phase == "pg_collection" and filename in PATHS:
+                    filename = str(binding.root / filename)
+                frame = binding.frame(filename, int(match[2]))
             except UnicodeError:
                 frame = None
             if frame is not None:
@@ -353,7 +367,7 @@ def main(argv=None):
     parser.add_argument("--source", required=True)
     parser.add_argument("--helper-source", required=True)
     parser.add_argument("--private-trace", required=True)
-    parser.add_argument("--phase", choices=("pg_bootstrap",), required=True)
+    parser.add_argument("--phase", choices=TRACE_PHASES, required=True)
     args = parser.parse_args(argv)
     result = empty(args.phase)
     code = 1
