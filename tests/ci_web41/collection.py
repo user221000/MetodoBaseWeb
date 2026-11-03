@@ -1,4 +1,4 @@
-"""Two explicit source companions retain all historical collection identities.
+"""Six explicit source companions retain all historical collection identities.
 
 The logging contract's revision literal and the release wiring now target41.
 The old source and its plain historical RED remain reproducible unchanged.
@@ -18,6 +18,7 @@ SOURCES = {
     "tests/test_stripe_refund_ledger_author.py": "tests/current41_stripe_refund_ledger_author.py",
     "tests/test_stripe_refund_ledger_peer.py": "tests/current41_stripe_refund_ledger_peer.py",
     "tests/test_stripe_webhook_version_contract.py": "tests/current41_stripe_webhook_version_contract.py",
+    "tests/test_quality_web39.py": "tests/test_current41_quality_companion.py",
 }
 
 

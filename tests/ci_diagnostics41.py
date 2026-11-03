@@ -45,7 +45,7 @@ PG_CATALOGUE = "tests/ci_web41/source-companions.json"
 PG_PARENT = "tests/ci_web39/ci_cluster.py"
 PG_INPUTS = {
     PG_WRAPPER: (339, "b191951d5531ed6a99975296104c2128736215d16cbfbcb6a544cf4015641e02"),
-    PG_CATALOGUE: (36209, "3286b85b36440798fcd7e2e2ba8d00decbb363b2ab988d57bc9210dfb199eff3"),
+    PG_CATALOGUE: (48331, "3c68f1060873a2189b496261a82bcd14d180059b6b7c4cb994d3c92febc855d2"),
     PG_PARENT: (8510, "dcb624fbde74a74c0509422f271920a795b4fdbaa3a519b9137020c5302772f2"),
 }
 PG_COMPILED_SHA256 = "06efafacf474934fbbcd4655dbd751a19ee1ca57010d4159e6c85e073bde0241"
@@ -148,7 +148,7 @@ class Binding:
             if (set(catalogue) != {"schema", "revision", "entries"}
                     or catalogue["schema"] != "finite-authenticated-current41-source-companions-v1"
                     or catalogue["revision"] != "20261102_payment_refund_facts"
-                    or len(catalogue["entries"]) != 18):
+                    or len(catalogue["entries"]) != 19):
                 raise ValueError("The finite PG diagnostic catalogue differs")
             entry = catalogue["entries"][PG_WRAPPER]
             if (entry["original"] != PG_PARENT

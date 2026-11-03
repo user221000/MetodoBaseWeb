@@ -273,9 +273,14 @@
           "old": "\n\n\ndef digest(value):",
           "new": "\nBOUND = BOUND + ('tests/ci_image57/current39_startup.py', 'tests/ci_image57/current41_startup.py', 'tests/ci_web39/ci_cluster.py', 'tests/ci_web39/composition.py', 'tests/ci_web39/pg_admission.py', 'tests/ci_web39/pg_control.py', 'tests/ci_web39/pg_fixtures.py', 'tests/ci_web39/pg_physical.py', 'tests/ci_web39/pg_tools.py', 'tests/ci_web39/pg_tools_linux.py', 'tests/ci_web39/run_postgres.py', 'tests/ci_web39/run_web.py', 'tests/ci_web39/sqlite_fixtures.py', 'tests/ci_web41/ci_cluster.py', 'tests/ci_web41/collection.py', 'tests/ci_web41/composition.py', 'tests/ci_web41/current-fixture-map.json', 'tests/ci_web41/pg_admission.py', 'tests/ci_web41/pg_fixtures.py', 'tests/ci_web41/pg_physical.py', 'tests/ci_web41/pg_tools.py', 'tests/ci_web41/recipes.py', 'tests/ci_web41/run_postgres.py', 'tests/ci_web41/run_web.py', 'tests/ci_web41/source-companions.json', 'tests/ci_web41/source_companion.py', 'tests/ci_web41/sqlite_fixtures.py', 'tests/current41_migration_logging.py', 'tests/current41_postgres_release.py', 'tests/integration_privacy39_postgres.py', 'tests/integration_privacy39_restore.py', 'tests/integration_privacy41_postgres.py', 'tests/integration_privacy41_restore.py', 'tests/test_ci_web39_postgres_release.py', 'tests/test_current40_migration_logging.py')\n\n\ndef digest(value):",
           "count": 1
+        },
+        {
+          "old": "\n\n\ndef digest(value):",
+          "new": "\nBOUND = (*BOUND, 'tests/test_quality_web39.py', 'tests/test_current41_quality_companion.py')\n\n\ndef digest(value):",
+          "count": 1
         }
       ],
-      "current_sha256_LF": "8567f5706e2e0ab62a5eac2a78de01a3f7633af89f635de65766dc5f4ca1dea0"
+      "current_sha256_LF": "b4be08819a8732dff5d0bfb55f4d5037a4ce5e27a771cc7c47724a24bf83ee4c"
     },
     "tests/ci_web41/pg_fixtures.py": {
       "original": "tests/ci_web39/pg_fixtures.py",
@@ -829,6 +834,217 @@
         }
       ],
       "current_sha256_LF": "d7eafe3242135241137f68462a4b46d2438887ff592c84fea6446b786fb4eb30"
+    },
+    "tests/test_current41_quality_companion.py": {
+      "original": "tests/test_quality_web39.py",
+      "original_git_commit": "ba5fa52627e8f480f6bd5610ec22f31b64ed7fa5",
+      "original_git_blob": "7380e38cdd7d86e55f0b60ce1618dcf29b97385c",
+      "original_sha256_LF": "d75a52aa92411b8496e7e0abbe147ad1f035ec7f764bb44f4f822fe62c7ce6df",
+      "original_frames": [
+        {
+          "bytes": 17553,
+          "sha256": "d75a52aa92411b8496e7e0abbe147ad1f035ec7f764bb44f4f822fe62c7ce6df"
+        },
+        {
+          "bytes": 17909,
+          "sha256": "2356e22b0f52013a16abaac7f3172c5be3679327916b160cab4361933ace3925"
+        }
+      ],
+      "literal_edits": [
+        {
+          "old": "from tests.ci_image57 import authority, context",
+          "new": "from tests.ci_image57 import authority, context, production_child",
+          "count": 1
+        },
+        {
+          "old": "TODAY = date(2026, 10, 29)",
+          "new": "TODAY = date(2026, 11, 2)",
+          "count": 1
+        },
+        {
+          "old": "    return value[\"report\"]",
+          "new": "    retired = \"web/main_web.py:B324:6a3630fbfe01c7e5594bfc39ad6ceed9a089da8a2677f9c65f7ffa42b270632e\"\n    results = value[\"report\"][\"results\"]\n    assert len(results) == 32\n    assert sum(quality.fingerprint(row) == retired for row in results) == 1\n    return dict(value[\"report\"], results=[row for row in results if quality.fingerprint(row) != retired])",
+          "count": 2
+        },
+        {
+          "old": "assert value[\"native_input_transition\"] == context.native_transition()",
+          "new": "assert value[\"native_input_transition\"] == production_child.transition(context.native_transition())",
+          "count": 1
+        },
+        {
+          "old": "match=\"current source child2\"",
+          "new": "match=\"exact published production source child\"",
+          "count": 1
+        },
+        {
+          "old": "[\"baseline_occurrences\"] == 6",
+          "new": "[\"baseline_occurrences\"] == 5",
+          "count": 3
+        },
+        {
+          "old": "assert len(value[\"results\"]) == 32",
+          "new": "assert len(value[\"results\"]) == 31",
+          "count": 2
+        },
+        {
+          "old": "match=\"six original baseline occurrences and multiplicities\"",
+          "new": "match=\"Exactly five remaining historical occurrences and multiplicities|The exact historical six-entry baseline\"",
+          "count": 1
+        },
+        {
+          "old": "assert len(proposal[\"bindings\"]) == 369",
+          "new": "assert len(proposal[\"bindings\"]) == 392",
+          "count": 1
+        }
+      ],
+      "current_sha256_LF": "f218b52f9e2a2cb0dd5a359042281b005dd9b9aa468d06c6a033260a03e52884",
+      "approved_policy_scope": "current41_quality_date20261102_exact_MD5_retirement31_bindings392_production_source_no_baseline_reapproval",
+      "policy_assertion_trace": [
+        {
+          "function": "report",
+          "before_assertions": 2,
+          "after_assertions": 4,
+          "edits": [
+            {
+              "kind": "insert",
+              "before_index": 2,
+              "after_index": 2,
+              "before": [],
+              "after": [
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='results', ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=32)]))",
+                "Assert(test=Compare(left=Call(func=Name(id='sum', ctx=Load()), args=[GeneratorExp(elt=Compare(left=Call(func=Attribute(value=Name(id='quality', ctx=Load()), attr='fingerprint', ctx=Load()), args=[Name(id='row', ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Name(id='retired', ctx=Load())]), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='results', ctx=Load()), ifs=[], is_async=0)])], keywords=[]), ops=[Eq()], comparators=[Constant(value=1)]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "report311",
+          "before_assertions": 4,
+          "after_assertions": 6,
+          "edits": [
+            {
+              "kind": "insert",
+              "before_index": 4,
+              "after_index": 4,
+              "before": [],
+              "after": [
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='results', ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=32)]))",
+                "Assert(test=Compare(left=Call(func=Name(id='sum', ctx=Load()), args=[GeneratorExp(elt=Compare(left=Call(func=Attribute(value=Name(id='quality', ctx=Load()), attr='fingerprint', ctx=Load()), args=[Name(id='row', ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Name(id='retired', ctx=Load())]), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='results', ctx=Load()), ifs=[], is_async=0)])], keywords=[]), ops=[Eq()], comparators=[Constant(value=1)]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_current_native_admission_checks_real_child2_ten_inherited_and_original21",
+          "before_assertions": 4,
+          "after_assertions": 4,
+          "edits": [
+            {
+              "kind": "replace",
+              "before_index": 2,
+              "after_index": 2,
+              "before": [
+                "Assert(test=Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='native_input_transition'), ctx=Load()), ops=[Eq()], comparators=[Call(func=Attribute(value=Name(id='context', ctx=Load()), attr='native_transition', ctx=Load()), args=[], keywords=[])]))"
+              ],
+              "after": [
+                "Assert(test=Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='native_input_transition'), ctx=Load()), ops=[Eq()], comparators=[Call(func=Attribute(value=Name(id='production_child', ctx=Load()), attr='transition', ctx=Load()), args=[Call(func=Attribute(value=Name(id='context', ctx=Load()), attr='native_transition', ctx=Load()), args=[], keywords=[])], keywords=[])]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_actual26_match_is_proposal_only_until_the_separate_test_approval",
+          "before_assertions": 4,
+          "after_assertions": 4,
+          "edits": [
+            {
+              "kind": "replace",
+              "before_index": 1,
+              "after_index": 1,
+              "before": [
+                "Assert(test=BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='baseline_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=6)]), Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='new_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=26)])]))"
+              ],
+              "after": [
+                "Assert(test=BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='baseline_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=5)]), Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='new_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=26)])]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_historical_actual311_report_still_requires_its_interpreter_and_exact_current_runtime_bindings",
+          "before_assertions": 4,
+          "after_assertions": 4,
+          "edits": [
+            {
+              "kind": "replace",
+              "before_index": 1,
+              "after_index": 1,
+              "before": [
+                "Assert(test=BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='baseline_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=6)]), Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='new_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=26)])]))"
+              ],
+              "after": [
+                "Assert(test=BoolOp(op=And(), values=[Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='baseline_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=5)]), Compare(left=Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='new_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=26)])]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_mixing_only_one_actual311_followup_descriptor_with312_never_matches_either_full_multiset",
+          "before_assertions": 3,
+          "after_assertions": 3,
+          "edits": [
+            {
+              "kind": "replace",
+              "before_index": 2,
+              "after_index": 2,
+              "before": [
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='results'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=32)]))"
+              ],
+              "after": [
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='results'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=31)]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_original_baseline_multiset_cannot_substitute_one_approved_occurrence_for_another",
+          "before_assertions": 2,
+          "after_assertions": 2,
+          "edits": [
+            {
+              "kind": "replace",
+              "before_index": 0,
+              "after_index": 0,
+              "before": [
+                "Assert(test=Compare(left=Subscript(value=Call(func=Name(id='classify', ctx=Load()), args=[Name(id='report', ctx=Load()), Name(id='control', ctx=Load())], keywords=[]), slice=Constant(value='baseline_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=6)]))",
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='results'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=32)]))"
+              ],
+              "after": [
+                "Assert(test=Compare(left=Subscript(value=Call(func=Name(id='classify', ctx=Load()), args=[Name(id='report', ctx=Load()), Name(id='control', ctx=Load())], keywords=[]), slice=Constant(value='baseline_occurrences'), ctx=Load()), ops=[Eq()], comparators=[Constant(value=5)]))",
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='value', ctx=Load()), slice=Constant(value='results'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=31)]))"
+              ]
+            }
+          ]
+        },
+        {
+          "function": "test_complete_approved_physical_sources_without_git_are_copied_byte_exactly",
+          "before_assertions": 6,
+          "after_assertions": 6,
+          "edits": [
+            {
+              "kind": "replace",
+              "before_index": 1,
+              "after_index": 1,
+              "before": [
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='proposal', ctx=Load()), slice=Constant(value='bindings'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=369)]))"
+              ],
+              "after": [
+                "Assert(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='proposal', ctx=Load()), slice=Constant(value='bindings'), ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=392)]))"
+              ]
+            }
+          ]
+        }
+      ]
     }
   }
 }
