@@ -8,6 +8,7 @@ import uuid
 from tests import test_google33_headers as headers33
 from tests import test_google33_http as google33
 from tests import test_nutrition35_http as current35
+from tests.ci_web41 import google_mail_http_fixture as mail_http
 from web.settings import get_settings
 
 google_db = current35.followup_db
@@ -43,7 +44,27 @@ def test_browser_Google_binding_ACK_and_primary_pair_are_distinct(google_http, m
     assert confirmed.status_code == 200
     assert all(key not in confirmed.json() for key in ["token", "refresh_token", "session_mode"])
     assert client.cookies.get("__Host-mb_refresh") is None
-    primary = client.post("/api/auth/google", headers=browser, json={"credential": c["credential"]()})
+    # Default browser headers reach both real email stages; no response adapter.
+    client.headers.update(browser)
+    pending_email = mail_http.begin(c)
+    assert pending_email.json().get("session_mode") == "browser"
+    assert client.cookies.get("__Host-mb_refresh") is None
+    assert "https://accounts.google.com/gsi/client" in pending_email.headers["content-security-policy"]
+    before_verification = mail_http.counts(c)
+    wrong_origin = client.post("/api/auth/google/verify-email",
+        headers={**browser, "Origin": "https://other.example.invalid"},
+        json={"challenge": pending_email.json()["challenge"], "code": c["mail_transport"].mail[-1][1]})
+    assert wrong_origin.status_code == 403
+    assert client.cookies.get("__Host-mb_refresh") is None
+    assert mail_http.counts(c) == before_verification
+    code = c["mail_transport"].mail[-1][1]
+    wrong_code = mail_http.verify(c, pending_email, code="000000" if code != "000000" else "000001")
+    assert wrong_code.status_code == 400
+    assert wrong_code.json()["detail"]["code"] == "google_email_code_invalid"
+    assert not {"token", "access_token", "refresh_token"} & wrong_code.json().keys()
+    assert client.cookies.get("__Host-mb_refresh") is None
+    assert mail_http.counts(c) == before_verification
+    primary = mail_http.verify(c, pending_email)
     assert primary.status_code == 200
     assert primary.json().get("session_mode") == "browser" and "refresh_token" not in primary.json()
     assert client.cookies.get("__Host-mb_refresh")
@@ -54,6 +75,16 @@ def test_browser_Google_binding_ACK_and_primary_pair_are_distinct(google_http, m
     rejected = client.post("/api/auth/google", headers={**browser, "Origin": "https://other.example.invalid"},
         json={"credential": c["credential"]()})
     assert rejected.status_code == 403 and len(c["calls"]) == before
+    after_pair = mail_http.counts(c)
+    replay = mail_http.verify(c, pending_email)
+    assert replay.status_code == 400
+    assert replay.json()["detail"]["code"] == "google_email_code_invalid"
+    assert not {"token", "access_token", "refresh_token"} & replay.json().keys()
+    assert client.cookies.get("__Host-mb_refresh") is None
+    assert mail_http.counts(c) == after_pair
+    for refused in (wrong_origin, wrong_code, replay):
+        assert refused.headers["cache-control"] == "no-store"
+        assert refused.headers["referrer-policy"] == "no-referrer"
 
 
 def test_link_boundaries_include_the_public_inert_page_status(google_http):
@@ -90,11 +121,17 @@ def test_verified_legacy_Google_primary_failure_retains_private_normal_CSP(googl
         json={"intent": issued.json()["intent"], "confirm": True})
     assert confirmed.status_code == 200
 
+    seam = []
+
     def unavailable(*args, **kwargs):
+        seam.append(True)
         raise RuntimeError("Synthetic primary failure without private values")
 
     monkeypatch.setattr(auth, "_primary_result", unavailable)
-    response = c["client"].post("/api/auth/google", json={"credential": c["credential"]()})
+    pending_email = mail_http.begin(c)
+    assert seam == []
+    response = mail_http.verify(c, pending_email)
+    assert seam == [True]
     assert response.status_code == 500
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["referrer-policy"] == "no-referrer"

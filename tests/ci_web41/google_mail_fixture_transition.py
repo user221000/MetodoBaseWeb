@@ -26,11 +26,15 @@ TRANSITIONS = {
     'tests/test_google33_recovery.py': (
         '5ceeb9ca2faf2ab40b1e37bc091f72ecf954d6e791c30d3c487586bffb8b9735',
         '2bce0392f62a0f9dae4ce2c1a79b982bf4f9ca4d9b4a175b7be4a7dbde9b66d7'),
+    'tests/test_browser31_google_compat.py': (
+        '29acc5f3ae85f9655d7d38fbf12654fd5e2fed88278efb15b1969f3bb579ec67',
+        '37aa61d294e36aa07f44c4269e5e4114bab51bfce170f754e758b0a1869eef20'),
 }
 HELPER = 'tests/ci_web41/google_mail_http_fixture.py'
 HELPER_SHA256 = '6ef3cff2b85a84384f57ed6dcc28f8dfaa16c54e210106bb45f87a56c99840e0'
 DEPENDENCIES = {
     'tests/test_google_email_login.py': '5c037226f6929b62f3795d4d50bc1258ecc284397691891265cf8f929aca2b39',
+    'tests/test_current37_primary_privacy.py': '545c879490dba853544acfae47b47ef3304b7cad452dd82c23407a5e79dc67fb',
 }
 PHOTO_FILES = (HELPER, *TRANSITIONS, *DEPENDENCIES,
                'tests/ci_web41/google_mail_fixture_transition.py',
