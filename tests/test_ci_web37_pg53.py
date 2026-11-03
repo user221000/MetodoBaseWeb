@@ -8,8 +8,16 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from tests.ci_web37 import pg53, pg_lease, run_postgres53
+from tests.ci_web41 import pg53_source_fixture
 
 NOW = datetime(2026, 10, 21, tzinfo=UTC)
+original_legacy_budgets = pg53_source_fixture.original_legacy_budgets
+
+
+@pytest.fixture(scope="module")
+def pg53_root(tmp_path_factory):
+    base = tmp_path_factory.mktemp("metodobase-test-pg53-source")
+    return pg53_source_fixture.materialize(pg53.ROOT, base / "historical53")
 
 
 def acknowledgement(tmp_path, value, **changes):
@@ -20,9 +28,9 @@ def acknowledgement(tmp_path, value, **changes):
     return path
 
 
-def test_original53_are_separate_from_the_unchanged_429_and_69_UUID_budget():
-    value = pg53.phase()
-    legacy = pg_lease.budgets()
+def test_original53_are_separate_from_the_unchanged_429_and_69_UUID_budget(pg53_root, original_legacy_budgets):
+    value = pg53.phase(pg53_root)
+    legacy = original_legacy_budgets
     assert value["cases"] == len(value["expected"]) == 53
     assert value["UUIDs"] == value["concurrent_UUIDs"] == 1
     assert value["restricted_application_pool_size"] == 5 and value["max_overflow"] == 0
@@ -53,14 +61,14 @@ def test_new_source_profile_or_selection_is_not_authorized_by_an_old_ACK(tmp_pat
             pg53.require_ack(path, changed, now=NOW)
 
 
-def test_changed_original_source_or_duplicate_identity_cannot_enter53(tmp_path):
-    value = pg53.phase()
+def test_changed_original_source_or_duplicate_identity_cannot_enter53(tmp_path, pg53_root):
+    value = pg53.phase(pg53_root)
     mapping = tmp_path / "tests/ci_web37/pg-r30-ppl53.json"
     mapping.parent.mkdir(parents=True)
     for name in sorted(set(value["source_bindings"]) | set(value["current_fixture_bindings"])):
         destination = tmp_path / name
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(pg53.ROOT / name, destination)
+        shutil.copyfile(pg53_root / name, destination)
     mapping.write_text(json.dumps(value), encoding="utf8")
     assert pg53.phase(tmp_path)["cases"] == 53
     target = tmp_path / value["module"]
@@ -88,14 +96,14 @@ def test_missing_runtime_ACK_refuses_before_private_creation_or_SQL(tmp_path, mo
     assert error.value.code == 2
 
 
-def test_current53_close_helper_missing_or_changed_is_rejected(tmp_path):
-    value = pg53.phase()
+def test_current53_close_helper_missing_or_changed_is_rejected(tmp_path, pg53_root):
+    value = pg53.phase(pg53_root)
     mapping = tmp_path / "tests/ci_web37/pg-r30-ppl53.json"
     mapping.parent.mkdir(parents=True)
     for name in sorted(set(value["source_bindings"]) | set(value["current_fixture_bindings"])):
         destination = tmp_path / name
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(pg53.ROOT / name, destination)
+        shutil.copyfile(pg53_root / name, destination)
     mapping.write_text(json.dumps(value), encoding="utf8")
     assert pg53.phase(tmp_path)["cases"] == 53
     helper = tmp_path / "tests/ci_web37/pg_close.py"
