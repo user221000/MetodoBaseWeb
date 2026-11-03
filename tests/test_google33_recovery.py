@@ -6,7 +6,7 @@ import secrets
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from tests.test_google33_http import google_db,google_http,start
+from tests.test_google33_http import google_db,google_http,start,mail_http
 
 
 def test_unknown_legacy_google_subject_requires_independent_recovery_then_explicit_link(google_http,monkeypatch):
@@ -20,8 +20,10 @@ def test_unknown_legacy_google_subject_requires_independent_recovery_then_explic
     with Session(c['admin']) as db:
         db.get(Usuario,c['user']).password_hash=hash_password(secrets.token_urlsafe(48));db.commit()
     c['google']['email']=c['email']
-    rejected=client.post('/api/auth/google',json={'credential':c['credential']()})
-    assert rejected.status_code==409 and 'token' not in rejected.json()
+    # Starting the new mail challenge grants neither a session nor a binding;
+    # this path deliberately uses the independent password reset proof instead.
+    rejected=mail_http.begin(c)
+    assert rejected.status_code==202 and 'token' not in rejected.json()
     with Session(c['admin']) as db:
         assert db.scalar(select(AuthExternalIdentity.id).where(AuthExternalIdentity.user_id==c['user'])) is None
     accepted=Event();messages=[]
@@ -46,7 +48,7 @@ def test_unknown_legacy_google_subject_requires_independent_recovery_then_explic
         identities=db.scalars(select(AuthExternalIdentity).where(AuthExternalIdentity.user_id==c['user'])).all()
         assert len(identities)==1 and identities[0].subject==c['google']['sub']
     # This is newly supplied proof; no claim about the unknown old sub follows.
-    current=client.post('/api/auth/google',json={'credential':c['credential']()})
+    current=mail_http.verify(c,mail_http.begin(c))
     assert current.status_code==200
     me=client.get('/api/auth/me',headers={'Authorization':'Bearer '+current.json()['token']})
     assert me.status_code==200 and me.json()['id']==c['user']

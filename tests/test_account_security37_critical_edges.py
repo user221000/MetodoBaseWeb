@@ -85,7 +85,7 @@ def test_linked_google_primary_can_change_password_without_contact_adoption(goog
     confirmed = case["client"].post("/api/auth/google/link/confirm", headers=case["headers"],
                                   json={"intent": issued.json()["intent"], "confirm": True})
     assert confirmed.status_code == 200
-    login = case["client"].post("/api/auth/google", json={"credential": case["credential"]()})
+    login = google.mail_http.verify(case, google.mail_http.begin(case))
     assert login.status_code == 200
     headers = {"Authorization": "Bearer " + login.json()["token"], "Origin": get_settings().BASE_URL,
                "X-MetodoBase-Browser": "1"}
@@ -106,5 +106,5 @@ def test_linked_google_primary_can_change_password_without_contact_adoption(goog
         assert db.scalar(select(AuthExternalIdentity.user_id).where(AuthExternalIdentity.subject == case["google"]["sub"],
             AuthExternalIdentity.revoked_at.is_(None))) == case["user"]
     # Password change revokes sessions, preserving the explicit Google binding.
-    resumed = case["client"].post("/api/auth/google", json={"credential": case["credential"]()})
+    resumed = google.mail_http.verify(case, google.mail_http.begin(case))
     assert resumed.status_code == 200

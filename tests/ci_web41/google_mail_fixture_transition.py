@@ -20,6 +20,12 @@ TRANSITIONS = {
     'tests/test_google33_conflict_window.py': (
         '47d066e94998c632952467507b4e7324a935f567978593ab6c99d787d15e0bf6',
         '47ed0932c71825f0a148d673affbe9c3a2c643cfe98871ab144e81172f3a8378'),
+    'tests/test_account_security37_critical_edges.py': (
+        '6e139738a8a5e5a02ef704cbfc945215cdd4d5d3ea6afab1f9055871591a8ab7',
+        'a3d07502e18f2ad77d05377b69546feac581bb49437252d04ab2670d48a11af7'),
+    'tests/test_google33_recovery.py': (
+        '5ceeb9ca2faf2ab40b1e37bc091f72ecf954d6e791c30d3c487586bffb8b9735',
+        '2bce0392f62a0f9dae4ce2c1a79b982bf4f9ca4d9b4a175b7be4a7dbde9b66d7'),
 }
 HELPER = 'tests/ci_web41/google_mail_http_fixture.py'
 HELPER_SHA256 = '6ef3cff2b85a84384f57ed6dcc28f8dfaa16c54e210106bb45f87a56c99840e0'

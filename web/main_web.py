@@ -317,6 +317,7 @@ def create_app() -> FastAPI:
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail or "Error"},
+            headers=exc.headers,
         )
 
     @app.exception_handler(MetodoBaseException)
