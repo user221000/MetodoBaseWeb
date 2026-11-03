@@ -5,6 +5,7 @@
   var billing = null;
   var selectedMethod = null;
   var busy = false;
+  var uncertain = false;
   var lastFocus = null;
   var purchaseKeys = {};
   var modal = document.getElementById('modal-pago');
@@ -54,36 +55,44 @@
     document.getElementById('card-starter').classList.toggle('u-plan-active', known && subscription.plan === 'starter' && subscription.status === 'active');
     document.getElementById('card-pro').classList.toggle('u-plan-active', !!paid);
     var pro = document.getElementById('btn-pro');
-    pro.disabled = !known || !billing || busy || !!paid || (!canManage() && !billing.checkout_supported && !billing.mercadopago_configured);
+    pro.disabled = !known || !billing || busy || uncertain || !!paid || (!canManage() && !billing.checkout_supported && !billing.mercadopago_configured);
     pro.textContent = paid ? 'Plan actual' : canManage() ? 'Gestionar pago' : 'Elegir Pro';
     document.getElementById('btn-starter').textContent = known && subscription.plan === 'starter' ? 'Plan actual' : known ? 'Plan gratuito' : 'Consultando';
     var manage = document.getElementById('btn-manage-subscription');
     manage.hidden = !canManage();
-    manage.disabled = busy || !known;
+    manage.disabled = busy || uncertain || !known;
     var terms = document.getElementById('subscription-terms');
     if (!known) terms.textContent = 'Consulta el estado de tu cuenta antes de iniciar otro pago.';
     else if (subscription.provider === 'mercadopago') terms.textContent = 'Mercado Pago: pago único. Este pago no genera renovación automática. ' + (paid ? 'Acceso hasta ' + formatDate(subscription.period_end) + '.' : 'Consulta la vigencia y el estado confirmado de tu pago.');
     else if (subscription.cancel_at_period_end) terms.textContent = 'Cancelación programada. Acceso vigente hasta ' + formatDate(subscription.period_end) + '.';
     else if (subscription.provider === 'stripe') terms.textContent = 'Stripe: gestiona pagos y cancelación en el portal del proveedor. El estado se actualizará después de su confirmación.';
     else terms.textContent = 'Starter no tiene cargo. Los límites mensuales se muestran según el estado de tu cuenta.';
-    document.getElementById('pm-card').disabled = busy || !billing || !billing.checkout_supported;
-    document.getElementById('pm-mercadopago').disabled = busy || !billing || !billing.mercadopago_configured;
+    document.getElementById('pm-card').disabled = busy || uncertain || !billing || !billing.checkout_supported;
+    document.getElementById('pm-mercadopago').disabled = busy || uncertain || !billing || !billing.mercadopago_configured;
     document.getElementById('pago-modal-close').disabled = busy;
     document.getElementById('pago-btn-cancel').disabled = busy;
+    document.getElementById('pago-btn-confirm').disabled = busy || uncertain || !selectedMethod;
+    document.getElementById('pago-btn-refresh').hidden = !uncertain;
+    document.getElementById('pago-btn-refresh').disabled = busy;
     modal.setAttribute('aria-busy', String(busy));
   }
 
   async function loadSubscription() {
     document.getElementById('btn-refresh-subscription').disabled = true;
+    var wasUncertain = uncertain;
     try {
       subscription = validateSubscription(await Api.usuario.suscripcion());
+      uncertain = false;
       render();
       if (returnedFromPayment) notify(subscription.plan === 'pro' && subscription.status === 'active' ? 'Tu plan Pro está activo según el estado de tu cuenta.' : 'Tu pago aún no aparece confirmado. Puedes volver a consultar el estado en unos momentos.');
       else if (canceledReturn) notify('Volviste del proveedor sin una confirmación de pago. El panel muestra el estado actual de tu cuenta.');
+      else if (wasUncertain) notify('Estado actualizado. Revisa tu suscripción antes de decidir si necesitas continuar el pago.');
       else { feedback.hidden = true; }
+      return true;
     } catch (error) {
       notify('No pudimos consultar tu suscripción. ' + failureMessage(error), true);
       render();
+      return false;
     } finally { document.getElementById('btn-refresh-subscription').disabled = false; }
   }
 
@@ -96,7 +105,7 @@
   }
 
   function openModal() {
-    if (!subscription || !billing) return;
+    if (!subscription || !billing || busy || uncertain) return;
     window.SubscriptionChoice?.choose('pro', 'usuario');
     lastFocus = document.activeElement;
     selectedMethod = null;
@@ -125,7 +134,7 @@
   }
 
   async function openPortal() {
-    if (busy || !canManage()) return;
+    if (busy || uncertain || !canManage()) return;
     busy = true;
     render();
     try { var result=await Api.usuario.portal();redirectToProvider(result.url, true,result); }
@@ -141,6 +150,15 @@
   document.getElementById('btn-pro').addEventListener('click', function () { if (canManage()) openPortal(); else openModal(); });
   document.getElementById('btn-manage-subscription').addEventListener('click', openPortal);
   document.getElementById('btn-refresh-subscription').addEventListener('click', loadSubscription);
+  document.getElementById('pago-btn-refresh').addEventListener('click', async function () {
+    if (busy || !uncertain) return;
+    busy = true; render();
+    try {
+      if (await loadSubscription()) {
+        busy = false; closeModal();
+      } else document.getElementById('payment-method-description').textContent = 'No pudimos confirmar el estado. Consulta de nuevo antes de iniciar otro pago.';
+    } finally { busy = false; render(); }
+  });
   document.getElementById('pago-modal-close').addEventListener('click', closeModal);
   document.getElementById('pago-btn-cancel').addEventListener('click', closeModal);
   modal.addEventListener('click', function (event) { if (event.target === modal) closeModal(); });
@@ -158,6 +176,7 @@
   });
   document.querySelectorAll('.u-pm-btn').forEach(function (button) {
     button.addEventListener('click', function () {
+      if (busy || uncertain || button.disabled) return;
       selectedMethod = button.dataset.method;
       document.querySelectorAll('.u-pm-btn').forEach(function (item) { item.setAttribute('aria-pressed', String(item === button)); item.classList.toggle('selected', item === button); });
       document.getElementById('pago-btn-confirm').disabled = false;
@@ -165,7 +184,7 @@
     });
   });
   document.getElementById('pago-btn-confirm').addEventListener('click', async function () {
-    if (!selectedMethod || busy) return;
+    if (!selectedMethod || busy || uncertain) return;
     busy = true;
     render();
     var button = this;
@@ -175,7 +194,8 @@
       var result = selectedMethod === 'card' ? await Api.usuario.checkout(purchaseKey('card')) : await Api.usuario.mpPreference('pro', purchaseKey('mercadopago'));
       redirectToProvider(result.url || result.redirect_url, false,result);
     } catch (error) {
-      document.getElementById('payment-method-description').textContent = failureMessage(error);
+      if (!error.paymentNotStarted && (!error.status || error.status >= 500) && !['mfa_cancelled','mfa_ui_unavailable'].includes(error.code)) uncertain = true;
+      document.getElementById('payment-method-description').textContent = failureMessage(error) + (uncertain ? ' El resultado es incierto. Consulta el estado antes de continuar; conservaremos la clave de este intento.' : '');
     } finally { busy = false; button.disabled = false; button.textContent = 'Continuar al proveedor'; render(); }
   });
 

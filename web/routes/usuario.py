@@ -484,6 +484,14 @@ def _get_or_create_subscription(db: Session, user_id: str) -> UserSubscription:
     return sub
 
 
+def _subscription_period_utc(value: datetime | None) -> str | None:
+    """Expose the stored UTC convention without changing the persisted instant."""
+    if value is None:
+        return None
+    aware = value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+    return aware.astimezone(timezone.utc).isoformat()
+
+
 # ── GET /api/usuario/suscripcion ─────────────────────────────────────────
 
 @router.get("/usuario/suscripcion")
@@ -505,8 +513,8 @@ async def get_suscripcion(
         "currency": "MXN",
         "precio_mxn": PLANES_USUARIO[sub.plan]["precio_mxn"],
         "planes_restantes": max(0, sub.max_planes_mes - sub.planes_usados_mes),
-        "period_start": canonical.current_period_start.isoformat() if canonical and canonical.current_period_start else None,
-        "period_end": canonical.current_period_end.isoformat() if canonical and canonical.current_period_end else None,
+        "period_start": _subscription_period_utc(canonical.current_period_start) if canonical else None,
+        "period_end": _subscription_period_utc(canonical.current_period_end) if canonical else None,
         "cancel_at_period_end": bool(canonical.cancel_at_period_end) if canonical else False,
     }
 

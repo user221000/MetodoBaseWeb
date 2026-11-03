@@ -184,10 +184,14 @@ def _create_portal_session(db: Session, gym_id: str, return_url: str) -> dict:
     if not sub or not sub.stripe_customer_id:
         raise ValueError("No hay suscripción activa")
 
-    portal = stripe.billing_portal.Session.create(
-        customer=sub.stripe_customer_id,
-        return_url=get_settings().BASE_URL.rstrip("/") + return_url,
-    )
+    settings = get_settings()
+    params = {
+        "customer": sub.stripe_customer_id,
+        "return_url": settings.BASE_URL.rstrip("/") + return_url,
+    }
+    if settings.STRIPE_PORTAL_CONFIGURATION_ID:
+        params["configuration"] = settings.STRIPE_PORTAL_CONFIGURATION_ID
+    portal = stripe.billing_portal.Session.create(**params)
     return {"url": portal.url}
 
 
