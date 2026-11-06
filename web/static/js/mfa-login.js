@@ -4,7 +4,7 @@
   const methods=new Set(['totp','recovery_code']);
   const messages={mfa_throttled:'Hay un límite temporal de intentos. Espera antes de volver a verificar.',mfa_verification_failed:'No se confirmó el código. Usa una prueba vigente e inténtalo de nuevo.',mfa_proof_unavailable:'La verificación venció o ya se usó. Inicia un acceso nuevo.',mfa_unconfirmed:'No llegó una confirmación fiable. Puede haberse consumido la prueba; inicia un acceso nuevo.',mfa_service_unavailable:'La verificación no está disponible. No se inició sesión; vuelve a consultar.'};
   const googleMessages=Object.freeze({google_link_required:'Este vínculo de Google está desactivado. Usa otro acceso de tu cuenta para consultar tus vínculos.',google_link_conflict:'No se pudo confirmar este vínculo de Google. Descarta el intento y consulta tus vínculos desde el acceso local; no se inició una sesión nueva.',google_identity_invalid:'No se pudo verificar la cuenta de Google. Descarta el intento y usa una autenticación válida; no se inició sesión.',google_email_unavailable:'El servicio de envío de códigos no está disponible. No se inició sesión. Inténtalo cuando el servicio se restablezca.',google_email_delivery_unconfirmed:'No pudimos confirmar el envío del código. No se inició sesión. Descarta este intento antes de comenzar uno nuevo.',google_email_code_invalid:'No se pudo confirmar el código del correo. Revisa las seis cifras o inicia un acceso nuevo si venció o ya lo usaste.',google_email_throttled:'Hay un límite temporal para los códigos del correo. Espera antes de iniciar otro intento.',google_email_identity_changed:'La cuenta cambió durante la verificación. Inicia un acceso nuevo con Google.',google_email_unconfirmed:'No pudimos confirmar la verificación del correo. No se inició sesión. Inicia un acceso nuevo.'});
-  function message(error){if(error.code==='registration_invalid')return 'No se pudo crear la cuenta. Revisa el correo, el nombre y la contraseña (mínimo 15 caracteres y poco predecible). Si ya tienes una cuenta con ese correo, inicia sesión o recupera el acceso.';if(Object.prototype.hasOwnProperty.call(googleMessages,error.code))return googleMessages[error.code];return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
+  function message(error){if(error.code==='registration_invalid')return 'No se pudo crear la cuenta. Revisa el correo, el nombre y la contraseña (mínimo 7 caracteres y poco predecible). Si ya tienes una cuenta con ese correo, inicia sesión o recupera el acceso.';if(Object.prototype.hasOwnProperty.call(googleMessages,error.code))return googleMessages[error.code];return messages[error.code]||(error.status===429?messages.mfa_throttled:error.status===503?messages.mfa_unconfirmed:'No se pudo confirmar el acceso. Revisa los datos o inicia un acceso nuevo.');}
   function create(options={}){
     const api=options.api||Api.mfa;
     let context=null,challenge=null,method='totp',expiry=null,maskedEmail=null,primaryKind=null,phase='primary',busy=false,epoch=0,dead=false,committing=false,committed=false;
@@ -118,7 +118,8 @@
     const googleBox=get('googleBtnContainer'),googleError=get('googleErrorMsg'),googleHelp=get('mfa-login-google-help'),button=get('submitBtn'),error=get('errorMsg');
     const emailInput=get('mfa-login-email-code'),emailFeedback=get('mfa-login-email-feedback'),emailSubmit=get('mfa-login-email-submit');
     const typeButtons=registration?[get('btnGym'),get('btnUsuario')]:[],audience=()=>options.readAudience?options.readAudience():options.audience;
-    const initialLabel=button.textContent;let googleTicket=null,googleEpoch=0,googleRender=0,renderGoogle=null,bootReady=false,invalidEmailInput=false;
+    const initialLabel=button.textContent;let googleTicket=null,googleEpoch=0,googleRender=0,renderGoogle=null,bootReady=false,sessionFailed=false,invalidEmailInput=false;
+    let sdkAttempt=0,sdkScript=null,sdkTimeout=null,renderTimeout=null;
     const clear=()=>{form.password.value='';if(registration)form.confirm_password.value='';get('mfa-login-code').value='';get('mfa-login-recovery').value='';get('mfa-login-email-code').value='';};
     const controller=create({audience:registration?undefined:options.audience,ready:Api.session.ready,onClear:clear,onView(update){
       googleTicket=null;googleEpoch++;
@@ -168,7 +169,7 @@
       if(!nombre||Array.from(nombre).length>150){problem='Escribe tu nombre (hasta 150 caracteres).';field=form.nombre;}
       else if(Array.from(apellido).length>150){problem='El apellido admite hasta 150 caracteres.';field=form.apellido;}
       else if(!registrationEmailValid(email)){problem='Escribe un correo válido para recibir las confirmaciones de tu cuenta.';field=form.email;}
-      else if(Array.from(password).length<15||new TextEncoder().encode(password).length>72){problem='Elige una contraseña de al menos 15 caracteres y como máximo 72 bytes UTF-8.';field=form.password;}
+      else if(Array.from(password).length<7||new TextEncoder().encode(password).length>72){problem='Elige una contraseña de al menos 7 caracteres y como máximo 72 bytes UTF-8.';field=form.password;}
       else if(password!==form.confirm_password.value){problem='Las contraseñas no coinciden. Repite la misma contraseña.';field=form.confirm_password;}
       const tipo=audience();if(!['gym','usuario'].includes(tipo))problem='Selecciona un tipo de cuenta válido.';
       if(problem){error.textContent=problem;error.style.display='block';error.setAttribute('role','alert');if(field){field.setAttribute('aria-invalid','true');field.focus();}return false;}
@@ -183,20 +184,66 @@
     get('mfa-login-cancel').addEventListener('click',()=>{googleTicket=null;googleEpoch++;controller.cancel();form.email.focus();});
     get('mfa-login-reopen').addEventListener('click',()=>window.location.reload());
     get('mfa-login-destination').addEventListener('click',()=>controller.retryDestination());
-    button.disabled=true;googleBox.hidden=true;status.textContent='Verificando la sesión del navegador…';
-    Api.session.ready.then(()=>{if(!controller.active)return;bootReady=true;button.disabled=false;status.textContent='';googleBox.hidden=false;if(renderGoogle)renderGoogle();}).catch(error=>{button.disabled=true;googleBox.hidden=true;status.textContent=error.message;status.setAttribute('role','alert');status.focus();});
+    button.disabled=true;googleBox.hidden=false;googleBox.textContent='Preparando el acceso…';googleBox.setAttribute('aria-busy','true');
+    Api.session.ready.then(()=>{
+      if(!controller.active)return;bootReady=true;button.disabled=false;status.textContent='';googleBox.hidden=false;
+      if(renderGoogle)renderGoogle();
+      else if(!options.googleClientId){googleBox.textContent='El acceso con Google no está disponible. Puedes usar tu correo y contraseña.';googleBox.setAttribute('aria-busy','false');}
+      else if(googleError.style.display==='block'){googleBox.replaceChildren();googleBox.setAttribute('aria-busy','false');}
+      else googleBox.textContent='Cargando acceso con Google…';
+    }).catch(()=>{
+      sessionFailed=true;sdkAttempt++;clearTimeout(sdkTimeout);clearTimeout(renderTimeout);sdkScript?.remove();
+      button.disabled=true;googleBox.hidden=true;googleBox.setAttribute('aria-busy','false');googleError.style.display='none';
+      error.textContent='No pudimos preparar el acceso en este navegador. Vuelve a abrir la página para intentarlo de nuevo.';error.style.display='block';error.setAttribute('tabindex','-1');error.focus();
+    });
     document.querySelector('.pwd-toggle')?.addEventListener('click',event=>{const field=get('pwdField');field.type=field.type==='password'?'text':'password';event.currentTarget.setAttribute('aria-pressed',String(field.type==='text'));event.currentTarget.setAttribute('aria-label',field.type==='text'?'Ocultar contraseña':'Mostrar contraseña');});
     const interval=setInterval(()=>controller.expire(),1000);window.addEventListener('pagehide',()=>clearInterval(interval),{once:true});
-    if(!options.googleClientId){googleBox.textContent='Google no está configurado. Puedes usar tu contraseña.';return controller;}
-    const script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;script.nonce=options.nonce;
-    script.onerror=()=>{googleError.textContent='No se pudo cargar Google. Usa tu contraseña o vuelve a abrir esta página.';googleError.style.display='block';};
-    script.onload=()=>{if(!controller.active)return;google.accounts.id.initialize({client_id:options.googleClientId,ux_mode:'popup',auto_select:false,callback:async response=>{
-      const attempt=googleTicket;if(!attempt||attempt.epoch!==googleEpoch||response.state!==attempt.state||controller.phase!=='google')return;googleTicket=null;
-      try{Api.mfa.check(attempt.context);}catch{controller.invalidate();return;}
-      await controller.completeGoogle({credential:response.credential,tipo:attempt.audience},attempt.flow);
-    }});renderGoogle=()=>{if(!bootReady)return;googleBox.replaceChildren();const buttonState='mfa-login-'+(++googleRender);google.accounts.id.renderButton(googleBox,{theme:'filled_black',size:'large',shape:'rectangular',text:'continue_with',width:Math.min(400,googleBox.offsetWidth||300),locale:'es',state:buttonState,click_listener:()=>{
-      if(controller.phase!=='primary'||!controller.active)return;try{const tipo=audience();if(!['gym','usuario'].includes(tipo))return;const context=Api.mfa.capture(),flow=controller.beginGoogle();if(flow===null)return;googleTicket={epoch:googleEpoch,context,state:buttonState,flow,audience:tipo};}catch{controller.invalidate();}
-    }});};renderGoogle();};document.head.appendChild(script);return controller;
+    if(!options.googleClientId)return controller;
+    function loadGoogle(){
+      if(sessionFailed||!controller.active)return;
+      const current=++sdkAttempt;renderGoogle=null;
+      clearTimeout(sdkTimeout);clearTimeout(renderTimeout);sdkScript?.remove();googleError.replaceChildren();googleError.style.display='none';
+      googleBox.textContent=bootReady?'Cargando acceso con Google…':'Preparando el acceso…';googleBox.setAttribute('aria-busy','true');
+      const unavailable=text=>{
+        if(current!==sdkAttempt||!controller.active||sessionFailed)return;
+        clearTimeout(sdkTimeout);clearTimeout(renderTimeout);renderGoogle=null;googleBox.replaceChildren();googleBox.setAttribute('aria-busy','false');
+        googleError.replaceChildren(document.createTextNode(text+' '));googleError.setAttribute('role','status');googleError.setAttribute('aria-live','polite');
+        const retry=document.createElement('button');retry.type='button';retry.id='googleRetryBtn';retry.className='btn-google';retry.textContent='Reintentar Google';
+        retry.addEventListener('click',loadGoogle);googleError.append(retry);googleError.style.display='block';
+      };
+      const script=document.createElement('script');sdkScript=script;script.src='https://accounts.google.com/gsi/client';script.async=true;script.nonce=options.nonce;
+      sdkTimeout=setTimeout(()=>unavailable('Google está tardando en responder. Puedes reintentar o usar tu correo y contraseña.'),10000);
+      script.onerror=()=>unavailable('No se pudo cargar Google. Revisa tu conexión o usa tu correo y contraseña.');
+      script.onload=()=>{
+        if(current!==sdkAttempt||!controller.active)return;clearTimeout(sdkTimeout);
+        try{
+          google.accounts.id.initialize({client_id:options.googleClientId,ux_mode:'popup',auto_select:false,callback:async response=>{
+            const attempt=googleTicket;if(!attempt||attempt.epoch!==googleEpoch||response.state!==attempt.state||controller.phase!=='google')return;googleTicket=null;
+            try{Api.mfa.check(attempt.context);}catch{controller.invalidate();return;}
+            await controller.completeGoogle({credential:response.credential,tipo:attempt.audience},attempt.flow);
+          }});
+          renderGoogle=()=>{
+            if(!bootReady||!controller.active||controller.phase!=='primary'||current!==sdkAttempt)return;
+            try{
+              clearTimeout(renderTimeout);googleBox.replaceChildren();const buttonState='mfa-login-'+(++googleRender);
+              google.accounts.id.renderButton(googleBox,{theme:'filled_black',size:'large',shape:'rectangular',text:'continue_with',width:Math.min(400,googleBox.offsetWidth||300),locale:'es',state:buttonState,click_listener:()=>{
+                if(controller.phase!=='primary'||!controller.active)return;try{const tipo=audience();if(!['gym','usuario'].includes(tipo))return;const context=Api.mfa.capture(),flow=controller.beginGoogle();if(flow===null)return;googleTicket={epoch:googleEpoch,context,state:buttonState,flow,audience:tipo};}catch{controller.invalidate();}
+              }});googleError.replaceChildren();googleError.style.display='none';
+              if(googleBox.childElementCount===0){
+                googleBox.textContent='Cargando acceso con Google…';googleBox.setAttribute('aria-busy','true');
+                renderTimeout=setTimeout(()=>{
+                  if(current!==sdkAttempt||!controller.active||controller.phase!=='primary')return;
+                  if(googleBox.childElementCount===0)unavailable('No se pudo mostrar el acceso con Google. Puedes reintentar o usar tu correo y contraseña.');
+                  else{googleBox.setAttribute('aria-busy','false');for(const node of Array.from(googleBox.childNodes))if(node.nodeType===3)node.remove();}
+                },10000);
+              }else googleBox.setAttribute('aria-busy','false');
+            }catch{unavailable('No se pudo mostrar el acceso con Google. Puedes reintentar o usar tu correo y contraseña.');}
+          };renderGoogle();
+        }catch{unavailable('No se pudo preparar el acceso con Google. Puedes reintentar o usar tu correo y contraseña.');}
+      };document.head.appendChild(script);
+    }
+    window.addEventListener('pagehide',()=>{sdkAttempt++;clearTimeout(sdkTimeout);clearTimeout(renderTimeout);sdkScript?.remove();},{once:true});
+    loadGoogle();return controller;
   }
   window.MfaLogin=Object.freeze({create,mount,message});
 })();

@@ -120,6 +120,11 @@
         </div>
       </div>
 
+      <div class="google-btn-wrapper" id="googleBtnContainer"></div>
+      <div class="error-msg" id="googleErrorMsg" style="display:none;"></div>
+      <p>Al continuar con Google te enviaremos un código a tu correo para confirmar el acceso.</p>
+      <div class="auth-divider"><span>o crea tu cuenta con correo</span></div>
+
       <form id="registroForm" novalidate>
         <input type="hidden" name="tipo" id="campoTipo" value="usuario" />
 
@@ -142,13 +147,13 @@
 
         <div class="input-group">
           <label class="input-label" for="pwdField">CONTRASEÑA *</label>
-          <input type="password" name="password" id="pwdField" class="input-field" placeholder="Una frase larga y poco predecible" required minlength="15" autocomplete="new-password" aria-describedby="registration-password-help" />
-          <p id="registration-password-help" style="font-size:.8rem;color:var(--text-secondary);margin-top:6px;">Mínimo 15 caracteres; máximo 72 bytes UTF-8. Evita contraseñas comunes o fáciles de adivinar.</p>
+          <input type="password" name="password" id="pwdField" class="input-field" placeholder="Al menos 7 caracteres" required minlength="7" autocomplete="new-password" aria-describedby="registration-password-help" />
+          <p id="registration-password-help" style="font-size:.8rem;color:var(--text-secondary);margin-top:6px;">Mínimo 7 caracteres; máximo 72 bytes UTF-8. Evita contraseñas comunes o fáciles de adivinar.</p>
         </div>
 
         <div class="input-group">
           <label class="input-label" for="registration-password-confirm">CONFIRMAR CONTRASEÑA *</label>
-          <input id="registration-password-confirm" type="password" name="confirm_password" class="input-field" placeholder="Repite tu contraseña" required minlength="15" autocomplete="new-password" />
+          <input id="registration-password-confirm" type="password" name="confirm_password" class="input-field" placeholder="Repite tu contraseña" required minlength="7" autocomplete="new-password" />
         </div>
 
         <div class="security-note">
@@ -160,11 +165,6 @@
           Crear Cuenta →
         </button>
       </form>
-
-      <div class="auth-divider"><span>o regístrate con</span></div>
-      <div class="google-btn-wrapper" id="googleBtnContainer"></div>
-      <div class="error-msg" id="googleErrorMsg" style="display:none;"></div>
-      <p>Al continuar con Google te enviaremos un código a tu correo para confirmar el acceso.</p>
 
       <div class="footer-link">
         <p>

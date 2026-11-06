@@ -102,7 +102,7 @@ def test_full_password_only_and_unicode_are_preserved(value):
     assert validate_new_password(value) == value
 
 
-@pytest.mark.parametrize("value", [None, 42, "x" * 11, "é" * 37, "z" * 73, "x" * 12 + "\ud800"])
+@pytest.mark.parametrize("value", [None, 42, "x" * 6, "é" * 37, "z" * 73, "x" * 12 + "\ud800"])
 def test_existing_type_length_and_utf8_bounds_remain_closed(value):
     from web.account_values import validate_new_password
     with pytest.raises(ValueError):

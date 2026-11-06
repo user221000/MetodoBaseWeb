@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from web.auth_deps import get_usuario_actual
 from web.database.engine import get_db
 from web.browser_session import BrowserAuthRoute
-from web.account_values import normalize_account_email
+from web.account_values import MIN_NEW_PASSWORD_CHARS, normalize_account_email
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
@@ -165,12 +165,12 @@ async def registro(data: RegistroRequest):
             "El email ya está registrado.": "existing_account",
             "Email inválido.": "invalid_email",
             "Nombre inválido.": "invalid_name",
-            "La contraseña debe tener al menos 15 caracteres.": "password_length",
+            f"La contraseña debe tener al menos {MIN_NEW_PASSWORD_CHARS} caracteres.": "password_length",
             "La contraseña debe ocupar como máximo 72 bytes UTF-8.": "password_length",
             "Esta contraseña es demasiado común. Elige otra contraseña o una frase larga y poco predecible.": "password_policy",
         }.get(str(error), "invalid_registration_data")
         logger.info("Registration rejected reason=%s", reason)
-        raise HTTPException(400, {"code": "registration_invalid", "message": "No se pudo crear la cuenta. Revisa email, nombre y contraseña (mínimo 15 caracteres)."}) from None
+        raise HTTPException(400, {"code": "registration_invalid", "message": f"No se pudo crear la cuenta. Revisa email, nombre y contraseña (mínimo {MIN_NEW_PASSWORD_CHARS} caracteres)."}) from None
     _sync_user_to_sa(usuario)
     tokens = crear_token_pair(usuario)
 

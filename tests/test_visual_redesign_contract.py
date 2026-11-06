@@ -17,6 +17,15 @@ CURRENT39_TEMPLATES = tuple('web/templates/' + name + '.html' for name in (
 NEW_PASSWORD_TEMPLATES = tuple('web/templates/' + name + '.html' for name in (
     'accept_invite', 'account_recovery', 'registro',
 ))
+CURRENT_PASSWORD_INPUT_IDS = {
+    'web/templates/accept_invite.html': {'invite-password', 'invite-confirm'},
+    'web/templates/account_recovery.html': {'recovery-password', 'recovery-confirmation'},
+    'web/templates/registro.html': {'pwdField', 'registration-password-confirm'},
+}
+SEVEN_CHARACTER_COPY = {
+    'web/templates/accept_invite.html': 'Usa al menos 7 caracteres.',
+    'web/templates/account_recovery.html': 'Elige una contraseña de al menos 7 caracteres y hasta 72 bytes UTF-8.',
+}
 
 
 class Contract(HTMLParser):
@@ -99,10 +108,38 @@ def restore_approved_dashboard_contract(source, fixture_raw=None):
     return restore_approved_current39_contract('web/templates/dashboard.html', source, fixture_raw)
 
 
+def require_current_new_password_inputs(name, source):
+    """Check the active product policy separately from the frozen39 fixture."""
+    from web.account_values import MIN_NEW_PASSWORD_CHARS
+    inputs = [attrs for tag, attrs in describe(source)['controls']
+              if tag == 'input' and attrs.get('type') == 'password']
+    if (name not in CURRENT_PASSWORD_INPUT_IDS or len(inputs) != 2
+            or {attrs.get('id') for attrs in inputs} != CURRENT_PASSWORD_INPUT_IDS[name]
+            or any(attrs.get('minlength') != str(MIN_NEW_PASSWORD_CHARS)
+                   or attrs.get('autocomplete') != 'new-password' for attrs in inputs)):
+        raise ValueError('The actual new password minimum or fields differ')
+
+
+def restore_runtime_visual_contract(name, source, fixture_raw=None):
+    """Undo only the authorized minimum7 delta in invitation and recovery.
+
+    The frozen39 fixture, hashes and inverse remain authoritative afterward.
+    Registration and other later feature differences are not adapted here.
+    """
+    if name in SEVEN_CHARACTER_COPY:
+        require_current_new_password_inputs(name, source)
+        current_copy = SEVEN_CHARACTER_COPY[name]
+        if source.count('minlength="7"') != 2 or source.count(current_copy) != 1:
+            raise ValueError('The actual new password minimum delta differs')
+        source = source.replace('minlength="7"', 'minlength="15"')
+        source = source.replace(current_copy, current_copy.replace('7 caracteres', '15 caracteres'), 1)
+    return restore_approved_current39_contract(name, source, fixture_raw)
+
+
 @pytest.mark.parametrize('name', list(BASE))
 def test_existing_forms_selectors_and_scripts_are_preserved(name):
     source = (ROOT / name).read_text(encoding='utf-8')
-    current = describe(restore_approved_current39_contract(name, source) if name in CURRENT39_TEMPLATES else source)
+    current = describe(restore_runtime_visual_contract(name, source) if name in CURRENT39_TEMPLATES else source)
     expected = BASE[name]
     assert set(expected['ids']).issubset(current['ids'])
     assert current['controls'] == expected['controls']
@@ -169,7 +206,7 @@ def test_dashboard39_inverse_refuses_modified_approval_even_with_recomputed_sour
 @pytest.mark.parametrize('name', CURRENT39_TEMPLATES)
 def test_each_approved39_inverse_returns_the_exact_original_visual_contract(name):
     source = (ROOT / name).read_text(encoding='utf8')
-    assert describe(restore_approved_current39_contract(name, source)) == BASE[name]
+    assert describe(restore_runtime_visual_contract(name, source)) == BASE[name]
 
 
 @pytest.mark.parametrize('name', CURRENT39_TEMPLATES)
@@ -178,7 +215,7 @@ def test_each_approved39_template_refuses_additional_control_script_or_source_dr
     for addition in ('<button type="button">Unapproved</button>',
                      '<script src="/static/js/unapproved.js"></script>', ' '):
         with pytest.raises(ValueError, match='approved current39 source'):
-            restore_approved_current39_contract(name, source + addition)
+            restore_runtime_visual_contract(name, source + addition)
 
 
 @pytest.mark.parametrize('name', [name for name in CURRENT39_TEMPLATES if BASE[name]['controls']])
@@ -190,22 +227,32 @@ def test_each_original_control_contract_refuses_change_and_deletion(name):
     assert changed != source and deleted != source
     for rejected in (changed, deleted):
         with pytest.raises(ValueError):
-            restore_approved_current39_contract(name, rejected)
+            restore_runtime_visual_contract(name, rejected)
 
 
 @pytest.mark.parametrize('name', NEW_PASSWORD_TEMPLATES)
-def test_actual39_new_password_inputs_require15_before_historical_visual_comparison(name):
+def test_actual_new_password_inputs_require_current_policy_minimum(name):
     source = (ROOT / name).read_text(encoding='utf8')
-    password_inputs = [attrs for tag, attrs in describe(source)['controls']
-                       if tag == 'input' and attrs.get('type') == 'password']
-    assert len(password_inputs) == 2
-    assert all(attrs.get('minlength') == '15' and attrs.get('autocomplete') == 'new-password'
-               for attrs in password_inputs)
-    for changed in (source.replace('minlength="15"', 'minlength="8"'),
-                    source.replace(' minlength="15"', '')):
+    from web.account_values import MIN_NEW_PASSWORD_CHARS
+    require_current_new_password_inputs(name, source)
+    actual = f'minlength="{MIN_NEW_PASSWORD_CHARS}"'
+    for changed in (source.replace(actual, 'minlength="8"'),
+                    source.replace(' ' + actual, ''),
+                    source.replace('autocomplete="new-password"', 'autocomplete="current-password"')):
         assert changed != source
-        with pytest.raises(ValueError, match='actual current39 new password minimum'):
-            restore_approved_current39_contract(name, changed)
+        with pytest.raises(ValueError, match='actual new password minimum'):
+            require_current_new_password_inputs(name, changed)
+
+
+@pytest.mark.parametrize('name', SEVEN_CHARACTER_COPY)
+def test_minimum7_visual_adapter_refuses_other_password_or_copy_changes(name):
+    source = (ROOT / name).read_text(encoding='utf8')
+    for changed in (source.replace('minlength="7"', 'minlength="6"'),
+                    source.replace(SEVEN_CHARACTER_COPY[name], 'Use a different password.'),
+                    source + SEVEN_CHARACTER_COPY[name],
+                    source + '<input type="password" minlength="7" autocomplete="new-password">'):
+        with pytest.raises(ValueError, match='actual new password minimum'):
+            restore_runtime_visual_contract(name, changed)
 
 
 def test_approved39_template_transport_rejects_unlisted_paths():

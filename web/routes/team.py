@@ -56,7 +56,7 @@ class InvitationAuthRoute(BrowserAuthRoute):
                     if len(item["loc"]) > 1 and item["loc"][0] == "body"
                     and item["loc"][1] in {"token", "password"}})
                 return JSONResponse({"detail": {"code": "invitation_invalid_input",
-                    "message": "Revisa la invitación y usa una contraseña poco común de al menos 15 caracteres y hasta 72 bytes UTF-8.",
+                    "message": f"Revisa la invitación y usa una contraseña poco común de al menos {MIN_NEW_PASSWORD_CHARS} caracteres y hasta 72 bytes UTF-8.",
                     "fields": fields}}, status_code=422, headers=HEADERS)
         return handle
 

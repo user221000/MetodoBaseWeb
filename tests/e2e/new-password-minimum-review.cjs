@@ -5,11 +5,11 @@ const {TextEncoder}=require('node:util');
 const root=path.join(__dirname,'../..'),read=name=>fs.readFileSync(path.join(root,name),'utf8');
 function declaredMinimum(template,id){
   const input=new RegExp('<input\\b[^>]*\\bid="'+id+'"[^>]*>','i').exec(read(template));
-  assert.ok(input,'actual password input exists');assert.match(input[0],/\bminlength="15"/);
+  assert.ok(input,'actual password input exists');assert.match(input[0],/\bminlength="7"/);
 }
 const flush=async()=>{for(let n=0;n<8;n++)await new Promise(setImmediate);};
-const samples=[['12 BMP','x'.repeat(12),false],['14 BMP','x'.repeat(14),false],
-  ['14 astral','\u{1F600}'.repeat(14),false],['15 BMP','x'.repeat(15),true],['15 astral','\u{1F600}'.repeat(15),true]];
+const samples=[['0 BMP','',false],['6 BMP','x'.repeat(6),false],
+  ['6 astral','\u{1F600}'.repeat(6),false],['7 BMP','x'.repeat(7),true],['7 astral','\u{1F600}'.repeat(7),true]];
 class Node {
   constructor(){this.value='';this.hidden=false;this.disabled=false;this.textContent='';this.style={};this.events=new Map();this.button=null;this.validityCalls=0;}
   addEventListener(name,callback){this.events.set(name,callback);}
@@ -92,7 +92,7 @@ function accountApiFixture(){
 const cases=[],test=(name,run)=>cases.push({name,run});
 for(const [form,run] of Object.entries({registration:register,invitation:invite,recovery,account_security:account})){
   for(const [label,password,accepted] of samples)test(form+' '+label+' preserves the Unicode point minimum before dispatch',async()=>{
-    if(label==='14 astral'){assert.equal(password.length,28);assert.equal(Array.from(password).length,14);assert.ok(password.length>=15,'native UTF16 minlength can pass');}
+    if(label==='6 astral'){assert.equal(password.length,12);assert.equal(Array.from(password).length,6);assert.ok(password.length>=7,'native UTF16 minlength can pass');}
     const result=await run(password);assert.equal(result.calls.length,accepted?1:0);
     if(accepted){
       assert.equal(result.calls[0].password||result.calls[0].new_password,password);
@@ -101,10 +101,10 @@ for(const [form,run] of Object.entries({registration:register,invitation:invite,
       if(form==='recovery'){assert.equal(result.closed,true);assert.equal(result.feedback,'Synthetic password accepted');}
       if(form==='account_security'){assert.equal(result.reauth,1);assert.equal(result.result,true);}
     }
-    else{assert.match(result.feedback,/15/);if(form==='account_security')assert.equal(result.reauth,0);}
+    else{assert.match(result.feedback,/7/);if(form==='account_security')assert.equal(result.reauth,0);}
   });
 }
-for(const [label,password,accepted] of samples)test('Real Api password '+label+' is checked before I/O without changing a valid15',async()=>{
+for(const [label,password,accepted] of samples)test('Real Api password '+label+' is checked before I/O without changing a valid7',async()=>{
   const e=await accountApiFixture(),before=e.w.calls.length;
   const value={reauthentication_token:'A'.repeat(43),new_password:password,confirm_password:password};
   if(!accepted){await assert.rejects(e.api.changePassword(value,e.handle),{code:'account_security_invalid_input'});assert.equal(e.w.calls.length,before);}

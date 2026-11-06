@@ -99,7 +99,7 @@ def bounded_body(model):
         try:
             return adapter.validate_json(raw)
         except (ValidationError,ValueError,TypeError):
-            raise HTTPException(422,{'code':'password_reset_invalid_input','message':'Revisa los campos y la contraseña (15 caracteres y hasta 72 bytes UTF-8).'}) from None
+            raise HTTPException(422,{'code':'password_reset_invalid_input','message':f'Revisa los campos y la contraseña (mínimo {MIN_NEW_PASSWORD_CHARS} caracteres y hasta 72 bytes UTF-8).'}) from None
     return parse
 
 

@@ -931,7 +931,7 @@ const Api = (() => {
   }
   function _accountBody(value) {
     let body;try{body=_captureCookieBody(value);}catch{throw _accountError('account_security_invalid_input');}const keys=['reauthentication_token','new_password','confirm_password','code','recovery_code'];
-    if(Object.keys(body).some(key=>!keys.includes(key))||!_mfaBearer(body.reauthentication_token)||typeof body.new_password!=='string'||typeof body.confirm_password!=='string'||body.new_password!==body.confirm_password||Array.from(body.new_password).length<15||new TextEncoder().encode(body.new_password).length>72||/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(body.new_password)||(body.code!==undefined&&!/^\d{6}$/.test(body.code))||(body.recovery_code!==undefined&&!/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))||(body.code!==undefined&&body.recovery_code!==undefined))throw _accountError('account_security_invalid_input');
+    if(Object.keys(body).some(key=>!keys.includes(key))||!_mfaBearer(body.reauthentication_token)||typeof body.new_password!=='string'||typeof body.confirm_password!=='string'||body.new_password!==body.confirm_password||Array.from(body.new_password).length<7||new TextEncoder().encode(body.new_password).length>72||/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(body.new_password)||(body.code!==undefined&&!/^\d{6}$/.test(body.code))||(body.recovery_code!==undefined&&!/^[A-Za-z0-9_-]{22}$/.test(body.recovery_code))||(body.code!==undefined&&body.recovery_code!==undefined))throw _accountError('account_security_invalid_input');
     return body;
   }
   function _accountUnauthorized(context) {
