@@ -120,7 +120,9 @@ const Api = (() => {
   }
   async function _cookieFetch(path,body,bearer=null){
     let response,encoded=JSON.stringify(body);body=null;
-    try{const pending=fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-MetodoBase-Browser':'1',...(bearer?{Authorization:'Bearer '+bearer}:{})},body:encoded,credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});encoded=null;response=await pending;}catch{encoded=null;throw _browserError('browser_session_unconfirmed');}
+    // A same-origin POST with no-referrer can serialize Origin as null in WebKit.
+    // Preserve the browser's real Origin without sharing the page path or query.
+    try{const pending=fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-MetodoBase-Browser':'1',...(bearer?{Authorization:'Bearer '+bearer}:{})},body:encoded,credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'strict-origin'});encoded=null;response=await pending;}catch{encoded=null;throw _browserError('browser_session_unconfirmed');}
     let data;try{data=await response.json();}catch{throw _browserError('browser_session_unconfirmed');}
     if(!response.ok){const detail=data?.detail,error=Object.assign(new Error(typeof detail==='string'?detail:detail?.message||'No se pudo confirmar la sesión.'),{status:response.status,code:detail?.code||null,retryAfter:response.headers.get('Retry-After')||null});throw error;}
     return {status:response.status,data};
@@ -962,7 +964,7 @@ const Api = (() => {
     const csrf=typeof document!=='undefined'?document.querySelector?.('meta[name="csrf-token"]')?.content:null;
     const headers={'Content-Type':'application/json','Accept':'application/json','X-MetodoBase-Browser':'1',Authorization:'Bearer '+context.pair.token};
     if(typeof csrf==='string'&&csrf&&csrf.length<=512&&!/[\r\n]/.test(csrf))headers['X-CSRF-Token']=csrf;
-    try{const pending=fetch(API_BASE+path,{method:'POST',headers,body:encoded,credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});encoded=null;response=await pending;}catch{encoded=null;throw _accountError('account_security_unconfirmed');}
+    try{const pending=fetch(API_BASE+path,{method:'POST',headers,body:encoded,credentials:'same-origin',mode:'same-origin',redirect:'error',cache:'no-store',referrerPolicy:'strict-origin'});encoded=null;response=await pending;}catch{encoded=null;throw _accountError('account_security_unconfirmed');}
     if(response.status===401)_accountUnauthorized(context);
     let data;try{data=await response.json();}catch{throw _accountError('account_security_unconfirmed',response.status>=500?response.status:null);}
     if(!response.ok){const detail=data?.detail,known=['reauthentication_token','new_password','confirm_password','code','recovery_code'];throw _accountError(typeof detail?.code==='string'?detail.code:'account_security_rejected',response.status,Array.isArray(detail?.fields)?detail.fields.filter(key=>known.includes(key)):[]);}
